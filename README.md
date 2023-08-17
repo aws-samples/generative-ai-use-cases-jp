@@ -4,8 +4,8 @@
 
 Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能性をもたらします。このリポジトリでは、Generative AI を活用したビジネスユースケースをデモンストレーションしています。
 
-> 2023年8月現在、Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Bedrock が GA になり次第、対応いたします。
-> OpenAI を LLM として利用する場合は、別途利用料金がかかります。OpenAI 利用に関する情報は、事前に [OpenAI](https://platform.openai.com/) で確認してください。
+> - 2023年8月現在、Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Bedrock が GA になり次第、対応いたします。
+> - OpenAI を LLM として利用する場合は、別途利用料金がかかります。OpenAI 利用に関する情報は、事前に [OpenAI](https://platform.openai.com/) で確認してください。
 
 ## Why Generative AI on AWS?
 
