@@ -104,9 +104,8 @@ const Drawer: React.FC<Props> = (props) => {
             icon={<MLLogo className="w-4 fill-white" />}
             label="Bedrock"
           />
-          {/* TOOD: リンク修正 */}
           <RefLink
-            to="https://github.com"
+            to="https://github.com/aws-samples/generative-ai-use-cases-jp"
             icon={<PiGithubLogo className="text-base" />}
             label="GitHub"
           />
