@@ -74,6 +74,12 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 > 現在、このリポジトリでは Fine-tuning はサポートされていません。
 > Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。
 
+## アーキテクチャ
+
+このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は OpenAI または Bedrock (現在は未実装) を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
+
+![arch.png](/imgs/arch.png)
+
 ## デプロイ
 
 > **OpenAI を LLM として使用する場合は、あらかじめ [OpenAI の API キーを取得](https://platform.openai.com/account/api-keys)してください。**
