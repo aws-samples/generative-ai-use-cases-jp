@@ -32,7 +32,7 @@ LLM とチャット形式で対話することができます。LLM と直接対
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  ![sc_chat.png](/imgs/sc_chat.png)
+  <img src="/imgs/sc_chat.png"/>
 </details>
 
 #### 要約
