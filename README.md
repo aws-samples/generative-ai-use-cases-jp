@@ -84,12 +84,6 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 npm ci
 ```
 
-CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
-
-```bash
-npx -w packages/cdk cdk bootstrap
-```
-
 OpenAIを使用する場合は以下のように、Secret Manager で API Key を保存します。(現状は LLM として OpenAI のみがサポートされているため、必須の手順です。)
 
 ```bash
@@ -97,6 +91,12 @@ aws secretsmanager create-secret --name openai-secret --secret-string <Open AI �
 ```
 
 上記のコマンド実行後、作成した Secret の ARN がレスポンスとして返ってくるため、[cdk.json](packages/cdk/cdk.json) の context の `openAiApiKeySecretArn` を受け取った値に変更します。
+
+CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
+
+```bash
+npx -w packages/cdk cdk bootstrap
+```
 
 最後に、以下のコマンドでデプロイします。
 
