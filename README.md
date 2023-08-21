@@ -41,7 +41,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  ![sc_summary.png](/imgs/sc_summary.png)
+  <img src="/imgs/sc_summary.png"/>
 </details>
 
 #### メール作成
@@ -50,7 +50,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  ![sc_mail.png](/imgs/sc_mail.png)
+  <img src="/imgs/sc_mail.png"/>
 </details>
 
 #### 情報抽出
@@ -59,7 +59,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  ![sc_extract.png](/imgs/sc_extract.png)
+  <img src="/imgs/sc_extract.png"/>
 </details>
 
 #### CS 業務効率化
@@ -68,7 +68,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  ![sc_cs.png](/imgs/sc_cs.png)
+  <img src="/imgs/sc_cs.png"/>
 </details>
 
 > 現在、このリポジトリでは Fine-tuning はサポートされていません。
