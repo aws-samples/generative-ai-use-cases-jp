@@ -4,7 +4,7 @@ import Textarea from './Textarea';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
-import { PiArrowArcLeft } from 'react-icons/pi';
+import { PiArrowsCounterClockwise } from 'react-icons/pi';
 
 type Props = {
   content: string;
@@ -69,7 +69,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             outlined
             disabled={loading}
             onClick={props.onReset}>
-            <PiArrowArcLeft className="mr-2" />
+            <PiArrowsCounterClockwise className="mr-2" />
             最初からやり直す
           </Button>
         )}
