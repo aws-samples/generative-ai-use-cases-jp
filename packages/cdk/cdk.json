@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "openAiApiKeySecretArn": "Your API Key",
+    "openAiApiKeySecretArn": "Secret ARN (OpenAI API Key)",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
