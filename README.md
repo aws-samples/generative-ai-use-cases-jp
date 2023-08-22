@@ -6,21 +6,21 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-> - 2023年8月現在、Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Bedrock が GA になり次第、対応いたします。
+> - 2023年8月現在、Amazon Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Amazon Bedrock が GA になり次第、対応いたします。
 > - OpenAI を LLM として利用する場合は、別途利用料金がかかります。OpenAI 利用に関する情報は、事前に [OpenAI](https://platform.openai.com/) で確認してください。
 
 ## Why Generative AI on AWS?
 
-[AWS Summit New York City 2023 の Keynote](https://www.youtube.com/watch?v=1PkABWCJINM&t=1652s) で、**データこそが差別化要因である**というメッセージが強調されました。Generative AI が普及した世界では、差別化の要因となるのは蓄積されたデータそのものであるということです。AWS は多岐にわたるデータの様式・蓄積・検索に対応したサービスを提供しており、強力なデータ基盤と Bedrock の Fine-tuning とを組み合わせることで、高品質な Generative AI を構築することができます。
+[AWS Summit New York City 2023 の Keynote](https://www.youtube.com/watch?v=1PkABWCJINM&t=1652s) で、**データこそが差別化要因である**というメッセージが強調されました。Generative AI が普及した世界では、差別化の要因となるのは蓄積されたデータそのものであるということです。AWS は多岐にわたるデータの様式・蓄積・検索に対応したサービスを提供しており、強力なデータ基盤と Amazon Bedrock の Fine-tuning とを組み合わせることで、高品質な Generative AI を構築することができます。
 
 ## 機能一覧
 
 > :white_check_mark: ... 実装されている、:construction: ... まだ実装されていない
 
 - :white_check_mark: OpenAI を LLM として利用
-- :construction: Bedrock を LLM として利用
-- :construction: Bedrock Fine-tuning 用のデータ収集
-- :construction: Bedrock Fine-tuning の実行
+- :construction: Amazon Bedrock を LLM として利用
+- :construction: Amazon Bedrock Fine-tuning 用のデータ収集
+- :construction: Amazon Bedrock Fine-tuning の実行
 
 ## ユースケース一覧
 
@@ -72,11 +72,11 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 </details>
 
 > 現在、このリポジトリでは Fine-tuning はサポートされていません。
-> Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。
+> Amazon Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。
 
 ## アーキテクチャ
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は OpenAI または Bedrock (現在は未実装) を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
+このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は OpenAI または Amazon Bedrock (現在は未実装) を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
 
 ![arch.png](/imgs/arch.png)
 
