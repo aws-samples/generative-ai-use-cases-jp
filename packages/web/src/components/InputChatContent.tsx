@@ -48,7 +48,7 @@ const InputChatContent: React.FC<Props> = (props) => {
     <>
       <div
         id="input-chat-content"
-        className="relative mb-7 flex w-11/12 items-end rounded-xl border border-black/10 bg-white shadow-[0_0_30px_7px] shadow-gray-400/50 md:w-10/12 lg:w-4/6 xl:w-3/6">
+        className="relative mb-7 flex w-11/12 items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 md:w-10/12 lg:w-4/6 xl:w-3/6">
         <Textarea
           className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
           placeholder={props.placeholder ?? '入力してください'}
@@ -65,7 +65,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         />
         {!isEmpty && (
           <Button
-            className="absolute -top-12 right-0 p-2 text-sm shadow-md"
+            className="absolute -top-14 right-0 p-2 text-sm"
             outlined
             disabled={loading}
             onClick={props.onReset}>

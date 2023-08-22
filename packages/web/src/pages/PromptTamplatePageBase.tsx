@@ -100,7 +100,9 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
             className="col-span-12 col-start-1 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3 ">
             {idx > 0 && (
               <Card
-                className="m-2"
+                className={`mx-2 mt-3 ${
+                  chat.role === 'assistant' ? 'bg-gray-100/70' : ''
+                }`}
                 label={chat.role === 'user' ? 'あなた' : 'AIアシスタント'}>
                 {chat.role === 'user' ? (
                   <div className="break-all">
