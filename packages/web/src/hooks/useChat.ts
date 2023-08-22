@@ -125,13 +125,7 @@ const useChatState = create<{
 });
 
 const useChat = (id: string) => {
-  const [chats, loading, init, clear, post] = useChatState((state) => [
-    state.chats,
-    state.loading,
-    state.init,
-    state.clear,
-    state.post,
-  ]);
+  const { chats, loading, init, clear, post } = useChatState();
 
   const filteredChats = useMemo(() => {
     return chats[id]?.filter((chat) => chat.role !== 'system') ?? [];

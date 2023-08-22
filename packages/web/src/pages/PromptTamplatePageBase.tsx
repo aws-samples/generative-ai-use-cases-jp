@@ -46,10 +46,10 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
   const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
 
-  const [content, setContent] = usePromptTamplatePageBaseState((state) => [
-    state.content[pathname] ?? '',
-    state.setContent,
-  ]);
+  const { content, setContent } = usePromptTamplatePageBaseState((state) => ({
+    content: state.content[pathname] ?? '',
+    setContent: state.setContent,
+  }));
 
   const onSend = useCallback(() => {
     postChat(content);

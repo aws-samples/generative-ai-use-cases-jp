@@ -65,7 +65,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         />
         {!isEmpty && (
           <Button
-            className="absolute -top-12 right-0 p-2 text-sm"
+            className="absolute -top-12 right-0 p-2 text-sm shadow-md"
             outlined
             disabled={loading}
             onClick={props.onReset}>

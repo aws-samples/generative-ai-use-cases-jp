@@ -41,19 +41,13 @@ const useSummarizePageState = create<StateType>((set) => {
 });
 
 const SummarizePage: React.FC = () => {
-  const [
+  const {
     sentence,
     setSentence,
     additionalContext,
     setAdditionalContext,
     clear,
-  ] = useSummarizePageState((state) => [
-    state.sentence,
-    state.setSentence,
-    state.additionalContext,
-    state.setAdditionalContext,
-    state.clear,
-  ]);
+  } = useSummarizePageState();
 
   const { state } = useLocation();
   const { pathname } = useLocation();

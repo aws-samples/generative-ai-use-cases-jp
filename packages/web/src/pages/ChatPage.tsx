@@ -25,10 +25,7 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const ChatPage: React.FC = () => {
-  const [content, setContent] = useChatPageState((state) => [
-    state.content,
-    state.setContent,
-  ]);
+  const { content, setContent } = useChatPageState();
 
   const { state, pathname } = useLocation();
   const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);

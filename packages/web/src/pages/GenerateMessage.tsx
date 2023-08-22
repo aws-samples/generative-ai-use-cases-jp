@@ -42,9 +42,7 @@ const useGenerateMessageState = create<StateType>((set) => {
 });
 
 const GenerateMessage: React.FC = () => {
-  const [promptParams, setPromptParams, clear] = useGenerateMessageState(
-    (state) => [state.promptParams, state.setPromptParams, state.clear]
-  );
+  const { promptParams, setPromptParams, clear } = useGenerateMessageState();
 
   const { state, pathname } = useLocation();
   const { postChat, isEmpty } = useChat(pathname);

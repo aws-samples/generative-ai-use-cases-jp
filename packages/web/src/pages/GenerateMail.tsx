@@ -67,7 +67,7 @@ const useGenerateMailState = create<StateType>((set) => {
 });
 
 const GenerateMail: React.FC = () => {
-  const [
+  const {
     promptParams,
     setPromptParams,
     mailContent,
@@ -75,15 +75,7 @@ const GenerateMail: React.FC = () => {
     isReply,
     setIsReply,
     clear,
-  ] = useGenerateMailState((state) => [
-    state.promptParams,
-    state.setPromptParams,
-    state.mailContent,
-    state.setMailContent,
-    state.isReply,
-    state.setIsReply,
-    state.clear,
-  ]);
+  } = useGenerateMailState();
 
   const { state, pathname } = useLocation();
   const { postChat, isEmpty } = useChat(pathname);

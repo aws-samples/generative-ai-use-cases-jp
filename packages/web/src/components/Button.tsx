@@ -15,10 +15,10 @@ const Button: React.FC<Props> = (props) => {
     <button
       className={`${props.className ?? ''} ${
         props.outlined
-          ? 'text-aws-font-color/80 bg-white'
-          : 'bg-aws-smile text-white'
+          ? 'text-aws-font-color/80 border-aws-font-color/50 border-2 bg-white'
+          : 'bg-aws-smile border text-white'
       }
-      flex items-center justify-center rounded-lg border p-1 px-3 ${
+      flex items-center justify-center rounded-lg p-1 px-3 ${
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       onClick={props.onClick}
