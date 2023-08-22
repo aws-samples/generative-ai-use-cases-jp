@@ -10,7 +10,9 @@ type Props = BaseProps & {
 const Card: React.FC<Props> = (props) => {
   return (
     <div
-      className={`${props.className ?? ''} rounded-lg bg-white p-5 shadow-xl`}>
+      className={`${
+        props.className ?? ''
+      } border-aws-font-color/20 rounded-lg border bg-white p-5 shadow `}>
       {props.label && (
         <RowItem>
           <span className="font-semibold">{props.label}</span>

@@ -25,7 +25,10 @@ const ChatMessage: React.FC<Props> = (props) => {
   }, [props]);
 
   return (
-    <div className="flex justify-center">
+    <div
+      className={`flex justify-center ${
+        chatContent?.role === 'assistant' ? 'bg-gray-100/70' : ''
+      }`}>
       <div
         className={`${
           props.className ?? ''

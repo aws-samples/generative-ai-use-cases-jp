@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { BaseProps } from '../@types/common';
 import useChat from '../hooks/useChat';
 import Card from '../components/Card';
@@ -10,6 +10,8 @@ import ButtonFeedback from '../components/ButtonFeedback';
 import Tooltip from '../components/Tooltip';
 import SelectLlm from '../components/SelectLlm';
 import useScroll from '../hooks/useScroll';
+import { useLocation } from 'react-router-dom';
+import { create } from 'zustand';
 
 type Props = BaseProps & {
   title: string;
@@ -18,23 +20,54 @@ type Props = BaseProps & {
   children: React.ReactNode;
 };
 
+type StateType = {
+  content: {
+    [pathname: string]: string;
+  };
+  setContent: (pathname: string, s: string) => void;
+};
+
+const usePromptTamplatePageBaseState = create<StateType>((set) => {
+  return {
+    content: {},
+    setContent: (pathname: string, s: string) => {
+      set((state) => ({
+        content: {
+          ...state.content,
+          [pathname]: s,
+        },
+      }));
+    },
+  };
+});
+
 const PromptTamplatePageBase: React.FC<Props> = (props) => {
-  const { loading, chats, initChats, postChat } = useChat();
+  const { pathname } = useLocation();
+  const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
 
-  const [content, setContent] = useState('');
+  const { content, setContent } = usePromptTamplatePageBaseState((state) => ({
+    content: state.content[pathname] ?? '',
+    setContent: state.setContent,
+  }));
 
   const onSend = useCallback(() => {
     postChat(content);
-    setContent('');
+    setContent(pathname, '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content]);
+
+  const onReset = useCallback(() => {
+    clearChats(props.systemContext);
+    setContent(pathname, '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.systemContext, pathname]);
 
   useEffect(() => {
     initChats(props.systemContext);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.systemContext]);
+  }, [props.systemContext, pathname]);
 
   useEffect(() => {
     if (chats.length > 0) {
@@ -67,7 +100,9 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
             className="col-span-12 col-start-1 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3 ">
             {idx > 0 && (
               <Card
-                className="m-2"
+                className={`mx-2 mt-3 ${
+                  chat.role === 'assistant' ? 'bg-gray-100/70' : ''
+                }`}
                 label={chat.role === 'user' ? 'あなた' : 'AIアシスタント'}>
                 {chat.role === 'user' ? (
                   <div className="break-all">
@@ -116,9 +151,12 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                 content={content}
                 placeholder="チャット形式で結果を改善していくことができます。"
                 disabled={loading}
-                onChangeContent={setContent}
+                onChangeContent={(c) => setContent(pathname, c)}
                 onSend={() => {
                   onSend();
+                }}
+                onReset={() => {
+                  onReset();
                 }}
               />
             )}

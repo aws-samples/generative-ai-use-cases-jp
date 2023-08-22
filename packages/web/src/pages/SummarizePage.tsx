@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -7,31 +7,64 @@ import ExpandedField from '../components/ExpandedField';
 import { SummarizePrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import PromptTamplatePageBase from './PromptTamplatePageBase';
+import { create } from 'zustand';
+
+type StateType = {
+  sentence: string;
+  setSentence: (s: string) => void;
+  additionalContext: string;
+  setAdditionalContext: (s: string) => void;
+  clear: () => void;
+};
+
+const useSummarizePageState = create<StateType>((set) => {
+  const INIT_STATE = {
+    sentence: '',
+    additionalContext: '',
+  };
+  return {
+    ...INIT_STATE,
+    setSentence: (s: string) => {
+      set(() => ({
+        sentence: s,
+      }));
+    },
+    setAdditionalContext: (s: string) => {
+      set(() => ({
+        additionalContext: s,
+      }));
+    },
+    clear: () => {
+      set(INIT_STATE);
+    },
+  };
+});
 
 const SummarizePage: React.FC = () => {
-  const [sentence, setSentence] = useState('');
-  const [additionalContext, setAdditionalContext] = useState('');
-  const [disabledExec, setDisabledExec] = useState(true);
+  const {
+    sentence,
+    setSentence,
+    additionalContext,
+    setAdditionalContext,
+    clear,
+  } = useSummarizePageState();
+
   const { state } = useLocation();
-  const { postChat } = useChat();
+  const { pathname } = useLocation();
+  const { postChat, isEmpty } = useChat(pathname);
 
   useEffect(() => {
     if (state !== null) {
       setSentence(state.sentence);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  useEffect(() => {
-    if (sentence === '') {
-      setDisabledExec(true);
-    } else {
-      setDisabledExec(false);
-    }
-  }, [sentence]);
+  const disabledExec = useMemo(() => {
+    return sentence === '' || !isEmpty;
+  }, [isEmpty, sentence]);
 
   const onClickExec = useCallback(() => {
-    setDisabledExec(true);
-
     postChat(
       SummarizePrompt.summaryContext(
         sentence,
@@ -41,6 +74,11 @@ const SummarizePage: React.FC = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [additionalContext, sentence]);
+
+  const onClickClear = useCallback(() => {
+    clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <PromptTamplatePageBase
@@ -61,7 +99,11 @@ const SummarizePage: React.FC = () => {
           />
         </ExpandedField>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <Button outlined onClick={onClickClear} disabled={!isEmpty}>
+            クリア
+          </Button>
+
           <Button disabled={disabledExec} onClick={onClickExec}>
             実行
           </Button>

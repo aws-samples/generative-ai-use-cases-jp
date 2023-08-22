@@ -125,7 +125,9 @@ const Drawer: React.FC<Props> = (props) => {
             onClick={switchOpen}>
             <PiX />
           </ButtonIcon>
-          <div className="fixed z-40 h-screen w-screen bg-gray-900/90"></div>
+          <div
+            className="fixed z-40 h-screen w-screen bg-gray-900/90"
+            onClick={switchOpen}></div>
         </div>
       )}
     </>

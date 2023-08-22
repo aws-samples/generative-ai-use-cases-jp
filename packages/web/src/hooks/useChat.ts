@@ -2,28 +2,37 @@ import usePredictor from './usePredictor';
 import { produce } from 'immer';
 import { create } from 'zustand';
 import { PredictContent } from '../@types/predict';
+import { useMemo } from 'react';
 
 const useChatState = create<{
-  chats: PredictContent[];
-  loading: boolean;
-  init: (systemContext: string) => void;
-  post: (content: string) => void;
+  chats: {
+    [id: string]: PredictContent[];
+  };
+  loading: {
+    [id: string]: boolean;
+  };
+  init: (id: string, systemContext: string) => void;
+  clear: (id: string, systemContext: string) => void;
+  post: (id: string, content: string) => void;
 }>((set) => {
   const { predict } = usePredictor();
 
-  const setLoading = (newLoading: boolean) => {
-    set(() => {
+  const setLoading = (id: string, newLoading: boolean) => {
+    set((state) => {
       return {
-        loading: newLoading,
+        loading: {
+          ...state.loading,
+          [id]: newLoading,
+        },
       };
     });
   };
 
-  const pushAssistantContent = (content: string) => {
+  const pushAssistantContent = (id: string, content: string) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
-          draft.push({
+          draft[id].push({
             role: 'assistant',
             content: content,
           });
@@ -33,35 +42,56 @@ const useChatState = create<{
   };
 
   return {
-    chats: [],
-    loading: false,
-    init: (systemContext: string) =>
-      set(() => {
-        return {
-          chats: [
-            {
-              role: 'system',
-              content: systemContext,
+    chats: {},
+    loading: {},
+    init: (id: string, systemContext: string) =>
+      set((state) => {
+        if (state.chats[id]) {
+          return {};
+        } else {
+          return {
+            chats: {
+              ...state.chats,
+              [id]: [
+                {
+                  role: 'system',
+                  content: systemContext,
+                },
+              ],
             },
-          ],
+          };
+        }
+      }),
+    clear: (id: string, systemContext: string) =>
+      set((state) => {
+        return {
+          chats: {
+            ...state.chats,
+            [id]: [
+              {
+                role: 'system',
+                content: systemContext,
+              },
+            ],
+          },
         };
       }),
-    post: (content: string) => {
-      setLoading(true);
+    post: (id: string, content: string) => {
+      setLoading(id, true);
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
-          draft.push({
+          draft[id].push({
             role: 'user',
             content: content,
           });
         });
 
-        predict(newChats)
+        predict(newChats[id])
           .then((newChat) => {
-            pushAssistantContent(newChat.content);
+            pushAssistantContent(id, newChat.content);
           })
           .finally(() => {
-            setLoading(false);
+            setLoading(id, false);
           });
 
         return {
@@ -69,22 +99,22 @@ const useChatState = create<{
         };
       });
     },
-    postUserContent: (content: string) =>
+    postUserContent: (id: string, content: string) =>
       set((state) => {
         return {
           chats: produce(state.chats, (draft) => {
-            draft.push({
+            draft[id].push({
               role: 'user',
               content: content,
             });
           }),
         };
       }),
-    postAssistantContent: (content: string) =>
+    postAssistantContent: (id: string, content: string) =>
       set((state) => {
         return {
           chats: produce(state.chats, (draft) => {
-            draft.push({
+            draft[id].push({
               role: 'assistant',
               content: content,
             });
@@ -94,20 +124,21 @@ const useChatState = create<{
   };
 });
 
-const useChat = () => {
-  const [chats, loading, initChats, post] = useChatState((state) => [
-    state.chats,
-    state.loading,
-    state.init,
-    state.post,
-  ]);
+const useChat = (id: string) => {
+  const { chats, loading, init, clear, post } = useChatState();
+
+  const filteredChats = useMemo(() => {
+    return chats[id]?.filter((chat) => chat.role !== 'system') ?? [];
+  }, [chats, id]);
 
   return {
-    loading,
-    initChats: initChats,
-    chats: chats.filter((chat) => chat.role !== 'system'),
+    loading: loading[id] ?? false,
+    initChats: (systemContext: string) => init(id, systemContext),
+    clearChats: (systemContext: string) => clear(id, systemContext),
+    chats: filteredChats,
+    isEmpty: filteredChats.length === 0,
     postChat: (content: string) => {
-      post(content);
+      post(id, content);
     },
   };
 };

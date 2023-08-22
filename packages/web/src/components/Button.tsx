@@ -5,6 +5,7 @@ import { PiSpinnerGap } from 'react-icons/pi';
 type Props = BaseProps & {
   disabled?: boolean;
   loading?: boolean;
+  outlined?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 };
@@ -12,9 +13,12 @@ type Props = BaseProps & {
 const Button: React.FC<Props> = (props) => {
   return (
     <button
-      className={`${
-        props.className ?? ''
-      } bg-aws-smile flex items-center justify-center rounded-lg border p-1 px-3 text-white ${
+      className={`${props.className ?? ''} ${
+        props.outlined
+          ? 'text-aws-font-color border-aws-font-color/20 border bg-white'
+          : 'bg-aws-smile border text-white'
+      }
+      flex items-center justify-center rounded-lg p-1 px-3 ${
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       onClick={props.onClick}
