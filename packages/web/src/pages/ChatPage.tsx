@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
@@ -6,17 +6,39 @@ import { ChatPrompt } from '../prompts';
 import ChatMessage from '../components/ChatMessage';
 import SelectLlm from '../components/SelectLlm';
 import useScroll from '../hooks/useScroll';
+import { create } from 'zustand';
+
+type StateType = {
+  content: string;
+  setContent: (c: string) => void;
+};
+
+const useChatPageState = create<StateType>((set) => {
+  return {
+    content: '',
+    setContent: (s: string) => {
+      set(() => ({
+        content: s,
+      }));
+    },
+  };
+});
 
 const ChatPage: React.FC = () => {
-  const [content, setContent] = useState('');
-  const { state } = useLocation();
-  const { loading, chats, initChats, postChat } = useChat();
+  const [content, setContent] = useChatPageState((state) => [
+    state.content,
+    state.setContent,
+  ]);
+
+  const { state, pathname } = useLocation();
+  const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
 
   useEffect(() => {
     if (state !== null) {
       setContent(state.content);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   useEffect(() => {
@@ -30,6 +52,12 @@ const ChatPage: React.FC = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content]);
+
+  const onReset = useCallback(() => {
+    clearChats(ChatPrompt.systemContext);
+    setContent('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (chats.length > 0) {
@@ -65,7 +93,7 @@ const ChatPage: React.FC = () => {
         )}
       </div>
 
-      <div className="absolute bottom-0 z-0 flex w-full justify-center">
+      <div className="absolute bottom-0 z-0 flex w-full items-end justify-center">
         <InputChatContent
           content={content}
           disabled={loading}
@@ -73,6 +101,7 @@ const ChatPage: React.FC = () => {
           onSend={() => {
             onSend();
           }}
+          onReset={onReset}
         />
       </div>
     </>

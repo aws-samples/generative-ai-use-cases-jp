@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Textarea from '../components/Textarea';
@@ -12,19 +12,82 @@ import ExpandedField from '../components/ExpandedField';
 import useTextToJson from '../hooks/useTextToJson';
 import Checkbox from '../components/Checkbox';
 import Alert from '../components/Alert';
+import { create } from 'zustand';
+
+type StateType = {
+  promptParams: GenerateMailParams;
+  setPromptParams: (params: GenerateMailParams) => void;
+  mailContent: string;
+  setMailContent: (s: string) => void;
+  isReply: boolean;
+  setIsReply: (b: boolean) => void;
+  clear: () => void;
+};
+
+const useGenerateMailState = create<StateType>((set) => {
+  const INIT_STATE: Pick<
+    StateType,
+    'promptParams' | 'mailContent' | 'isReply'
+  > = {
+    promptParams: {
+      situation: '',
+      message: '',
+      casual: 3,
+      action: '',
+      context: '',
+      otherContext: '',
+      recipient: '',
+      recipientAttr: '',
+      sender: '',
+    },
+    mailContent: '',
+    isReply: true,
+  };
+  return {
+    ...INIT_STATE,
+    setPromptParams: (params: GenerateMailParams) => {
+      set(() => ({
+        promptParams: params,
+      }));
+    },
+    setMailContent: (s: string) => {
+      set(() => ({
+        mailContent: s,
+      }));
+    },
+    setIsReply: (b: boolean) => {
+      set(() => ({
+        isReply: b,
+      }));
+    },
+    clear: () => {
+      set(INIT_STATE);
+    },
+  };
+});
 
 const GenerateMail: React.FC = () => {
-  const [promptParams, setPromptParams] = useState<GenerateMailParams>({
-    situation: '',
-    message: '',
-    casual: 3,
-  });
-  const [mailContent, setMailContent] = useState('');
-  const [isReply, setIsReply] = useState(true);
+  const [
+    promptParams,
+    setPromptParams,
+    mailContent,
+    setMailContent,
+    isReply,
+    setIsReply,
+    clear,
+  ] = useGenerateMailState((state) => [
+    state.promptParams,
+    state.setPromptParams,
+    state.mailContent,
+    state.setMailContent,
+    state.isReply,
+    state.setIsReply,
+    state.clear,
+  ]);
 
-  const [disabledExec, setDisabledExec] = useState(false);
-  const { state } = useLocation();
-  const { postChat } = useChat();
+  const { state, pathname } = useLocation();
+  const { postChat, isEmpty } = useChat(pathname);
+
   const {
     predict: predictTextToJson,
     loading: loadingTextToJson,
@@ -36,15 +99,14 @@ const GenerateMail: React.FC = () => {
       setPromptParams(state);
       setMailContent(state.mailContent);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  useEffect(() => {
-    if (promptParams.situation === '' || promptParams.message === '') {
-      setDisabledExec(true);
-    } else {
-      setDisabledExec(false);
-    }
-  }, [promptParams]);
+  const disabledExec = useMemo(() => {
+    return (
+      promptParams.situation === '' || promptParams.message === '' || !isEmpty
+    );
+  }, [promptParams, isEmpty]);
 
   const onClickAutoFill = useCallback(async () => {
     const metadata = await predictTextToJson(
@@ -74,12 +136,15 @@ const GenerateMail: React.FC = () => {
   }, [mailContent, isReply]);
 
   const onClickExec = useCallback(() => {
-    setDisabledExec(true);
-
     postChat(GenerateMailPrompt.generationContext(promptParams));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [promptParams]);
+
+  const onClickClear = useCallback(() => {
+    clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <PromptTamplatePageBase
@@ -269,7 +334,10 @@ const GenerateMail: React.FC = () => {
           }}
         />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <Button outlined onClick={onClickClear} disabled={!isEmpty}>
+            クリア
+          </Button>
           <Button disabled={disabledExec} onClick={onClickExec}>
             実行
           </Button>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Textarea from '../components/Textarea';
@@ -8,46 +8,74 @@ import { CasualOptionList, GenerateMessagePrompt } from '../prompts';
 import { GenerateMessageParams } from '../@types/cs-improvement';
 import useChat from '../hooks/useChat';
 import ButtonGroup from '../components/ButtonGroup';
+import { create } from 'zustand';
+
+type StateType = {
+  promptParams: GenerateMessageParams;
+  setPromptParams: (params: GenerateMessageParams) => void;
+  clear: () => void;
+};
+
+const useGenerateMessageState = create<StateType>((set) => {
+  const INIT_STATE: Pick<StateType, 'promptParams'> = {
+    promptParams: {
+      context: '',
+      situation: '',
+      casual: 3,
+      recipientMessage: '',
+      senderMessage: '',
+      otherContext: '',
+    },
+  };
+
+  return {
+    ...INIT_STATE,
+    setPromptParams: (params: GenerateMessageParams) => {
+      set(() => ({
+        promptParams: params,
+      }));
+    },
+    clear: () => {
+      set(INIT_STATE);
+    },
+  };
+});
 
 const GenerateMessage: React.FC = () => {
-  const [promptParams, setPromptParams] = useState<GenerateMessageParams>({
-    context: '',
-    situation: '',
-    casual: 3,
-    recipientMessage: '',
-    senderMessage: '',
-  });
+  const [promptParams, setPromptParams, clear] = useGenerateMessageState(
+    (state) => [state.promptParams, state.setPromptParams, state.clear]
+  );
 
-  const [disabledExec, setDisabledExec] = useState(false);
-  const { state } = useLocation();
-  const { postChat } = useChat();
+  const { state, pathname } = useLocation();
+  const { postChat, isEmpty } = useChat(pathname);
 
   useEffect(() => {
     if (state !== null) {
       setPromptParams(state);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  useEffect(() => {
-    if (
+  const disabledExec = useMemo(() => {
+    return (
       promptParams.context === '' ||
       promptParams.situation === '' ||
       promptParams.recipientMessage === '' ||
-      promptParams.senderMessage === ''
-    ) {
-      setDisabledExec(true);
-    } else {
-      setDisabledExec(false);
-    }
-  }, [promptParams]);
+      promptParams.senderMessage === '' ||
+      !isEmpty
+    );
+  }, [promptParams, isEmpty]);
 
   const onClickExec = useCallback(() => {
-    setDisabledExec(true);
-
     postChat(GenerateMessagePrompt.generateMessage(promptParams));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [promptParams]);
+
+  const onClickClear = useCallback(() => {
+    clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -132,7 +160,10 @@ const GenerateMessage: React.FC = () => {
             }}
           />
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3">
+            <Button outlined onClick={onClickClear} disabled={!isEmpty}>
+              クリア
+            </Button>
             <Button disabled={disabledExec} onClick={onClickExec}>
               実行
             </Button>
