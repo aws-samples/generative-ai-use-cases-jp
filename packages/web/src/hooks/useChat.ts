@@ -38,16 +38,16 @@ const useChatState = create<{
     });
   };
 
-  const replaceAndPushMessages = (
+  const mergeRecordedMessages = (
     id: string,
     recordedMessages: RecordedMessage[]
   ) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
-          // 記録されていない User のメッセージを削除
-          draft[id].messages.pop();
-          // 記録されたもので置き換えつつ、アシスタントのメッセージを追加
+          // messageId が付与されていない unrecorded なメッセージを削除
+          draft[id].messages = draft[id].messages.filter((m) => m.messageId);
+          // recorded なメッセージを末尾に追加
           draft[id].messages = draft[id].messages.concat(recordedMessages);
         }),
       };
@@ -135,7 +135,7 @@ const useChatState = create<{
               });
             })
             .then((res: PredictResponse) => {
-              replaceAndPushMessages(id, res.messages as RecordedMessage[]);
+              mergeRecordedMessages(id, res.messages as RecordedMessage[]);
             })
             .finally(() => {
               setLoading(id, false);
@@ -148,7 +148,7 @@ const useChatState = create<{
             unrecordedMessages: [unrecordedUserMessage],
           })
             .then((res: PredictResponse) => {
-              replaceAndPushMessages(id, res.messages as RecordedMessage[]);
+              mergeRecordedMessages(id, res.messages as RecordedMessage[]);
             })
             .finally(() => {
               setLoading(id, false);
