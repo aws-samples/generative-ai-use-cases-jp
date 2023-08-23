@@ -38,7 +38,7 @@ export const recordMessage = async (
   userId: string,
   chatId: string
 ): Promise<RecordedMessage> => {
-  const messageId = `message#{crypto.randomUUID()}`;
+  const messageId = `message#${crypto.randomUUID()}`;
   const item = {
     id: chatId,
     createdDate: `${Date.now()}#0`,
