@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PredictContent } from '../@types/predict';
+import { PredictRequest, PredictResponse } from 'generative-ai-use-cases-jp';
 import textToJsonPrompt from '../prompts/text-to-json-prompt';
 import usePredictor from './usePredictor';
 
@@ -25,35 +25,39 @@ const useTextToJson = () => {
       context: string,
       format: T
     ): Promise<T | null> => {
-      const contents: PredictContent[] = [
-        {
-          role: 'system',
-          content: textToJsonPrompt.systemPrompt(context, format),
-        },
-        {
-          role: 'user',
-          content: text,
-        },
-      ];
+      const req: PredictRequest = {
+        recordedMessages: [],
+        unrecordedMessages: [
+          {
+            role: 'system',
+            content: textToJsonPrompt.systemPrompt(context, format),
+          },
+          {
+            role: 'user',
+            content: text,
+          },
+        ],
+        skipRecording: true,
+      };
 
       setLoading(true);
       setIsError(false);
       let tryPredict = true;
       let tryCount = 0;
-      let res: PredictContent | null = null;
+      let res: PredictResponse | null = null;
       let resJson: T | null = null;
 
       while (tryPredict) {
         try {
           // 推論実行
           tryCount++;
-          res = await predict(contents);
+          res = await predict(req);
 
           // 推論結果がJSON形式であるかどうかの確認
           try {
-            resJson = JSON.parse(res.content);
+            resJson = JSON.parse(res.messages.slice(-1)[0].content);
           } catch {
-            console.log(res.content);
+            console.log(res.messages);
             throw new FormatError(
               textToJsonPrompt.parseErrorRetryPrompt(format)
             );
@@ -94,8 +98,9 @@ const useTextToJson = () => {
 
           // JSONの出力形式エラーの場合は、エラー情報をセットして再度推論を実行
           if (e instanceof FormatError && res) {
-            contents.push(res);
-            contents.push({
+            // 推論結果 (Assistant のメッセージ) と訂正文 (User のメッセージ) を追加して再実行
+            req.unrecordedMessages.push(res.messages.slice(-1)[0]);
+            req.unrecordedMessages.push({
               role: 'user',
               content: e.message,
             });

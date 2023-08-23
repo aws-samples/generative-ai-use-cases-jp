@@ -11,9 +11,11 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export interface BackendApiProps {
   userPool: UserPool;
+  table: Table;
 }
 
 export class Api extends Construct {
@@ -38,9 +40,21 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         SECRET_ARN: secret.secretArn,
+        TABLE_NAME: props.table.tableName,
       },
     });
     secret.grantRead(predictFunction);
+    props.table.grantReadWriteData(predictFunction);
+
+    const createChatFunction = new NodejsFunction(this, 'CreateChat', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/createChat.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: props.table.tableName,
+      },
+    });
+    props.table.grantWriteData(createChatFunction);
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
@@ -63,11 +77,20 @@ export class Api extends Construct {
       cloudWatchRole: true,
     });
 
-    // POST: /predict
     const predictResource = api.root.addResource('predict');
+
+    // POST: /predict
     predictResource.addMethod(
       'POST',
       new LambdaIntegration(predictFunction),
+      commonAuthorizerProps
+    );
+
+    const chatResource = api.root.addResource('chat');
+
+    chatResource.addMethod(
+      'POST',
+      new LambdaIntegration(createChatFunction),
       commonAuthorizerProps
     );
 

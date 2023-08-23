@@ -1,19 +1,22 @@
-import { PredictContent } from '../@types/predict';
+import {
+  PredictRequest,
+  PredictResponse,
+  CreateChatRequest,
+  CreateChatResponse,
+} from 'generative-ai-use-cases-jp';
 import useHttp from '../hooks/useHttp';
 
 const usePredictor = () => {
   const http = useHttp();
 
   return {
-    predict: async (contents: PredictContent[]): Promise<PredictContent> => {
-      const res = await http.post(`predict`, {
-        messages: contents,
-      });
-
-      return {
-        role: 'assistant',
-        content: res.data['response'],
-      };
+    createChat: async (req: CreateChatRequest): Promise<CreateChatResponse> => {
+      const res = await http.post('chat', req);
+      return res.data;
+    },
+    predict: async (req: PredictRequest): Promise<PredictResponse> => {
+      const res = await http.post('predict', req);
+      return res.data;
     },
   };
 };
