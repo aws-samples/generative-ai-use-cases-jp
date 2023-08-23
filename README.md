@@ -82,6 +82,11 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 ## デプロイ
 
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=9sMA17OKP1k"><img src="https://img.youtube.com/vi/9sMA17OKP1k/0.jpg" alt="generative-ai-use-cases-jp デプロイガイド" target="_blank"></a>
+  <p><strong>YouTube にデプロイ手順をまとめた動画 (クリックして再生)</strong></p>
+</div>
+
 > **OpenAI を LLM として使用する場合は、あらかじめ [OpenAI の API キーを取得](https://platform.openai.com/account/api-keys)してください。**
 
 [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。
