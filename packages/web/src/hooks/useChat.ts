@@ -122,7 +122,6 @@ const useChatState = create<{
           // systemContext の message で Chat を初期化する
           createChat({ unrecordedMessages: [state.chats[id].messages[0]] })
             .then((res: CreateChatResponse) => {
-              console.log('chat created', res);
               initChat(
                 id,
                 res.chat,
@@ -136,7 +135,6 @@ const useChatState = create<{
               });
             })
             .then((res: PredictResponse) => {
-              console.log('predicted', res);
               replaceAndPushMessages(id, res.messages as RecordedMessage[]);
             })
             .finally(() => {
@@ -150,7 +148,6 @@ const useChatState = create<{
             unrecordedMessages: [unrecordedUserMessage],
           })
             .then((res: PredictResponse) => {
-              console.log('predicted', res);
               replaceAndPushMessages(id, res.messages as RecordedMessage[]);
             })
             .finally(() => {

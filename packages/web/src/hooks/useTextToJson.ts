@@ -57,7 +57,6 @@ const useTextToJson = () => {
           try {
             resJson = JSON.parse(res.messages.slice(-1)[0].content);
           } catch {
-            console.log(res.messages);
             throw new FormatError(
               textToJsonPrompt.parseErrorRetryPrompt(format)
             );
@@ -69,7 +68,6 @@ const useTextToJson = () => {
 
           // キーの数が異なる場合はエラー
           if (formatKeys.length !== resKeys.length) {
-            console.log(resJson);
             throw new FormatError(
               textToJsonPrompt.keysInvalidErrorRetryPrompt(format)
             );
@@ -77,7 +75,6 @@ const useTextToJson = () => {
           // フォーマットに指定していない項目が含まれていればエラー
           resKeys.forEach((key) => {
             if (!formatKeys.includes(key)) {
-              console.log(resJson);
               throw new FormatError(
                 textToJsonPrompt.keysInvalidErrorRetryPrompt(format)
               );
