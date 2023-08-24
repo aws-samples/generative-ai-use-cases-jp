@@ -2,12 +2,12 @@ import { RecordedMessage, UnrecordedMessage, ShownMessage } from './message';
 import { Chat } from './chat';
 
 export type CreateChatRequest = {
-  unrecordedMessages: UnrecordedMessage[];
+  systemContext?: UnrecordedMessage;
 };
 
 export type CreateChatResponse = {
   chat: Chat;
-  messages: RecordedMessage[];
+  systemContext?: RecordedMessage;
 };
 
 export type PredictRequest = {

@@ -24,7 +24,7 @@ const useChatState = create<{
   init: (id: string, systemContext: string) => void;
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
-}>((set) => {
+}>((set, get) => {
   const { predict, createChat } = usePredictor();
 
   const setLoading = (id: string, newLoading: boolean) => {
@@ -54,7 +54,7 @@ const useChatState = create<{
     });
   };
 
-  const initChat = (id: string, chat: Chat, messages: ShownMessage[]) => {
+  const initChat = (id: string, messages: ShownMessage[], chat?: Chat) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
@@ -70,40 +70,13 @@ const useChatState = create<{
   return {
     chats: {},
     loading: {},
-    init: (id: string, systemContext: string) =>
-      set((state) => {
-        if (!state.chats[id]) {
-          return {
-            chats: produce(state.chats, (draft) => {
-              draft[id] = {
-                messages: [
-                  {
-                    role: 'system',
-                    content: systemContext,
-                  },
-                ],
-              };
-            }),
-          };
-        }
-
-        return {};
-      }),
+    init: (id: string, systemContext: string) => {
+      if (!get().chats[id]) {
+        initChat(id, [{ role: 'system', content: systemContext }], undefined);
+      }
+    },
     clear: (id: string, systemContext: string) => {
-      set((state) => {
-        return {
-          chats: produce(state.chats, (draft) => {
-            draft[id] = {
-              messages: [
-                {
-                  role: 'system',
-                  content: systemContext,
-                },
-              ],
-            };
-          }),
-        };
-      });
+      initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
     post: (id: string, content: string) => {
       setLoading(id, true);
@@ -120,17 +93,19 @@ const useChatState = create<{
         if (!state.chats[id].chat) {
           // chatId が発行されていない
           // systemContext の message で Chat を初期化する
-          createChat({ unrecordedMessages: [state.chats[id].messages[0]] })
+          // TODO: systemContext で初期化されていると仮定しているが Bedrock Claude では systemContext はない
+          createChat({ systemContext: state.chats[id].messages[0] })
             .then((res: CreateChatResponse) => {
               initChat(
                 id,
+                [res.systemContext!, unrecordedUserMessage],
                 res.chat,
-                (res.messages as ShownMessage[]).concat(unrecordedUserMessage)
               );
 
               return predict({
                 chatId: res.chat.chatId,
-                recordedMessages: res.messages,
+                // TODO: Bedrock Claude では res.systemContext は undefined
+                recordedMessages: [res.systemContext!],
                 unrecordedMessages: [unrecordedUserMessage],
               });
             })

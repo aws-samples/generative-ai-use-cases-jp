@@ -6,14 +6,15 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req: CreateChatRequest = JSON.parse(event.body!);
+    const req: CreateChatRequest = JSON.parse(event.body || '{}');
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chat = await createChat(userId);
-    const messages: RecordedMessage[] = [];
 
-    for (const m of req.unrecordedMessages) {
-      messages.push(await recordMessage(m, userId, chat.chatId));
+    let systemContext = null;
+
+    if (req.systemContext) {
+      systemContext = await recordMessage(req.systemContext, userId, chat.chatId);
     }
 
     return {
@@ -24,7 +25,7 @@ export const handler = async (
       },
       body: JSON.stringify({
         chat,
-        messages,
+        systemContext,
       }),
     };
   } catch (error) {
