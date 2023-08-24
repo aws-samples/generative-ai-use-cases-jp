@@ -5,11 +5,11 @@ import ButtonFeedback from './ButtonFeedback';
 import Tooltip from './Tooltip';
 import { PiChatCircleDotsFill, PiUserFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
-import { PredictContent } from '../@types/predict';
+import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
 
 type Props = BaseProps & {
-  chatContent?: PredictContent;
+  chatContent?: ShownMessage;
   loading?: boolean;
 };
 
