@@ -5,7 +5,11 @@ import {
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  QueryCommand,
+} from '@aws-sdk/lib-dynamodb';
 
 const TABLE_NAME: string = process.env.TABLE_NAME!;
 const dynamoDb = new DynamoDBClient({});
@@ -31,6 +35,46 @@ export const createChat = async (_userId: string): Promise<Chat> => {
   );
 
   return item;
+};
+
+export const listChats = async (_userId: string): Promise<Chat[]> => {
+  const userId = `user#${_userId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': userId,
+      },
+    })
+  );
+
+  console.log(res);
+
+  return res.Items as Chat[];
+};
+
+export const listMessages = async (_chatId: string): Promise<RecordedMessage[]> => {
+  const chatId = `chat#${_chatId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': chatId,
+      },
+    }),
+  );
+
+  console.log(res);
+
+  return res.Items as RecordedMessage[];
 };
 
 export const recordMessage = async (

@@ -12,6 +12,7 @@ import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { listChats } from '../../lambda/repository';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -56,6 +57,26 @@ export class Api extends Construct {
     });
     props.table.grantWriteData(createChatFunction);
 
+    const listChatsFunction = new NodejsFunction(this, 'ListChats', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/listChats.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: props.table.tableName,
+      },
+    });
+    props.table.grantReadData(listChatsFunction);
+
+    const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/listMessages.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: props.table.tableName,
+      },
+    });
+    props.table.grantReadData(listMessagesFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -88,10 +109,27 @@ export class Api extends Construct {
 
     const chatResource = api.root.addResource('chat');
 
+    // POST: /chat
     chatResource.addMethod(
       'POST',
       new LambdaIntegration(createChatFunction),
       commonAuthorizerProps
+    );
+
+    // GET: /chat
+    chatResource.addMethod(
+      'GET',
+      new LambdaIntegration(listChatsFunction),
+      commonAuthorizerProps,
+    );
+
+    const messagesResource = chatResource.addResource(':chatId');
+
+    // GET: /chat/:chatId
+    messagesResource.addMethod(
+      'GET',
+      new LambdaIntegration(listMessagesFunction),
+      commonAuthorizerProps,
     );
 
     this.api = api;

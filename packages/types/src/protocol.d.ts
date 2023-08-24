@@ -10,6 +10,14 @@ export type CreateChatResponse = {
   systemContext?: RecordedMessage;
 };
 
+export type ListChatsResponse = {
+  chats: Chat[];
+};
+
+export type ListMessagesResponse = {
+  messages: RecordedMessage[];
+};
+
 export type PredictRequest = {
   chatId?: string;
   recordedMessages: RecordedMessage[];
