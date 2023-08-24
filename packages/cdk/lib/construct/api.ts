@@ -123,9 +123,9 @@ export class Api extends Construct {
       commonAuthorizerProps,
     );
 
-    const messagesResource = chatResource.addResource(':chatId');
+    const messagesResource = chatResource.addResource('{chatId}');
 
-    // GET: /chat/:chatId
+    // GET: /chat/{chatId}
     messagesResource.addMethod(
       'GET',
       new LambdaIntegration(listMessagesFunction),

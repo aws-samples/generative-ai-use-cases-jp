@@ -46,18 +46,12 @@ const useHttp = () => {
      * @returns
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    get: <RES = any, DATA = any>(
+    get: <Data = any, Error = any>(
       url: string | null,
-      // config?: SWRConfiguration
+      config?: SWRConfiguration
     ) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      // return useSWR<Data, Error>(url, fetcher, config);
-      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
-        api.get<RES, AxiosResponse<RES, DATA>>(url).then((data) => resolve(data))
-          .catch((err) => {
-            reject(err);
-          });
-      });
+      return useSWR<Data, Error>(url, fetcher, config);
     },
 
     /**
