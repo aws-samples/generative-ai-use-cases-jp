@@ -37,6 +37,32 @@ export const createChat = async (_userId: string): Promise<Chat> => {
   return item;
 };
 
+export const findChatById = async (_userId: string, _chatId: string): Promise<Chat|null> => {
+  const userId = `user#${_userId}`;
+  const chatId = `chat#${_chatId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      FilterExpression: '#chatId = :chatId',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#chatId': 'chatId',
+      },
+      ExpressionAttributeValues: {
+        ':id': userId,
+        ':chatId': chatId,
+      },
+    })
+  );
+
+  if (!res.Items || res.Items.length === 0) {
+    return null;
+  } else {
+    return res.Items[0] as Chat;
+  }
+};
+
 export const listChats = async (_userId: string): Promise<Chat[]> => {
   const userId = `user#${_userId}`;
   const res = await dynamoDbDocument.send(
@@ -51,8 +77,6 @@ export const listChats = async (_userId: string): Promise<Chat[]> => {
       },
     })
   );
-
-  console.log(res);
 
   return res.Items as Chat[];
 };
@@ -73,8 +97,6 @@ export const listMessages = async (
       },
     })
   );
-
-  console.log(res);
 
   return res.Items as RecordedMessage[];
 };
