@@ -12,7 +12,6 @@ import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import { listChats } from '../../lambda/repository';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -120,7 +119,7 @@ export class Api extends Construct {
     chatResource.addMethod(
       'GET',
       new LambdaIntegration(listChatsFunction),
-      commonAuthorizerProps,
+      commonAuthorizerProps
     );
 
     const messagesResource = chatResource.addResource('{chatId}');
@@ -129,7 +128,7 @@ export class Api extends Construct {
     messagesResource.addMethod(
       'GET',
       new LambdaIntegration(listMessagesFunction),
-      commonAuthorizerProps,
+      commonAuthorizerProps
     );
 
     this.api = api;

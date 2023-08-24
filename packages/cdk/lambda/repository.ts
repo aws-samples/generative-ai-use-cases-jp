@@ -57,7 +57,9 @@ export const listChats = async (_userId: string): Promise<Chat[]> => {
   return res.Items as Chat[];
 };
 
-export const listMessages = async (_chatId: string): Promise<RecordedMessage[]> => {
+export const listMessages = async (
+  _chatId: string
+): Promise<RecordedMessage[]> => {
   const chatId = `chat#${_chatId}`;
   const res = await dynamoDbDocument.send(
     new QueryCommand({
@@ -69,7 +71,7 @@ export const listMessages = async (_chatId: string): Promise<RecordedMessage[]> 
       ExpressionAttributeValues: {
         ':id': chatId,
       },
-    }),
+    })
   );
 
   console.log(res);
