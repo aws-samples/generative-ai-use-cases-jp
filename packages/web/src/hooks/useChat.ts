@@ -5,11 +5,12 @@ import {
   ShownMessage,
   RecordedMessage,
   UnrecordedMessage,
-  PredictResponse,
+  ToBeRecordedMessage,
   Chat,
-  CreateChatResponse,
+  CreateMessagesResponse,
 } from 'generative-ai-use-cases-jp';
 import { useMemo } from 'react';
+import { v4 as uuid } from 'uuid';
 
 const useChatState = create<{
   chats: {
@@ -25,7 +26,7 @@ const useChatState = create<{
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predict, createChat } = usePredictor();
+  const { predict, createChat, createMessages } = usePredictor();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -38,23 +39,7 @@ const useChatState = create<{
     });
   };
 
-  const mergeRecordedMessages = (
-    id: string,
-    recordedMessages: RecordedMessage[]
-  ) => {
-    set((state) => {
-      return {
-        chats: produce(state.chats, (draft) => {
-          // messageId が付与されていない unrecorded なメッセージを削除
-          draft[id].messages = draft[id].messages.filter((m) => m.messageId);
-          // recorded なメッセージを末尾に追加
-          draft[id].messages = draft[id].messages.concat(recordedMessages);
-        }),
-      };
-    });
-  };
-
-  const initChat = (id: string, messages: ShownMessage[], chat?: Chat) => {
+  const initChat = (id: string, messages: UnrecordedMessage[], chat?: Chat) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
@@ -63,6 +48,106 @@ const useChatState = create<{
             messages,
           };
         }),
+      };
+    });
+  };
+
+  const pushAssistantRawMessage = (id: string, text: string) => {
+    set((state) => {
+      const unrecordedAssistantMessage: UnrecordedMessage = {
+        role: 'assistant',
+        content: text,
+      };
+
+      const newChats = produce(state.chats, (draft) => {
+        draft[id].messages.push(unrecordedAssistantMessage);
+      });
+
+      return {
+        chats: newChats,
+      };
+    });
+  };
+
+  const createChatIfNotExist = async (
+    id: string,
+    chat?: Chat
+  ): Promise<string> => {
+    if (chat) {
+      return chat.chatId;
+    }
+
+    const { chat: newChat } = await createChat();
+
+    set((state) => {
+      const newChats = produce(state.chats, (draft) => {
+        draft[id].chat = newChat;
+      });
+
+      return {
+        chats: newChats,
+      };
+    });
+
+    return newChat.chatId;
+  };
+
+  const addMessageIdsToUnrecordedMessages = (
+    id: string
+  ): ToBeRecordedMessage[] => {
+    const toBeRecordedMessages: ToBeRecordedMessage[] = [];
+
+    set((state) => {
+      const newChats = produce(state.chats, (draft) => {
+        for (const m of draft[id].messages) {
+          if (!m.messageId) {
+            m.messageId = uuid();
+            // 参照が切れるとエラーになるため clone する
+            toBeRecordedMessages.push(
+              Object.assign({}, m as ToBeRecordedMessage)
+            );
+          }
+        }
+      });
+
+      return {
+        chats: newChats,
+      };
+    });
+
+    return toBeRecordedMessages;
+  };
+
+  const replaceUnrecordedMessages = (
+    id: string,
+    messages: RecordedMessage[]
+  ) => {
+    set((state) => {
+      const newChats = produce(state.chats, (draft) => {
+        for (const m of messages) {
+          const idx = draft[id].messages
+            .map((_m: ShownMessage) => _m.messageId)
+            .indexOf(m.messageId);
+
+          if (idx >= 0) {
+            draft[id].messages[idx] = m;
+          }
+        }
+      });
+
+      return {
+        chats: newChats,
+      };
+    });
+  };
+
+  const omitUnusedMessageProperties = (
+    messages: ShownMessage[]
+  ): UnrecordedMessage[] => {
+    return messages.map((m) => {
+      return {
+        role: m.role,
+        content: m.content,
       };
     });
   };
@@ -90,45 +175,30 @@ const useChatState = create<{
           draft[id].messages.push(unrecordedUserMessage);
         });
 
-        if (!state.chats[id].chat) {
-          // chatId が発行されていない
-          // systemContext の message で Chat を初期化する
-          // TODO: systemContext で初期化されていると仮定しているが Bedrock Claude では systemContext はない
-          createChat({ systemContext: state.chats[id].messages[0] })
-            .then((res: CreateChatResponse) => {
-              initChat(
-                id,
-                [res.systemContext!, unrecordedUserMessage],
-                res.chat
-              );
+        predict({
+          messages: omitUnusedMessageProperties(newChats[id].messages),
+        })
+          .then((text: string) => {
+            // アシスタントの答えをデータベースに未記録状態でフロントエンドに反映
+            pushAssistantRawMessage(id, text);
 
-              return predict({
-                chatId: res.chat.chatId,
-                // TODO: Bedrock Claude では res.systemContext は undefined
-                recordedMessages: [res.systemContext!],
-                unrecordedMessages: [unrecordedUserMessage],
-              });
-            })
-            .then((res: PredictResponse) => {
-              mergeRecordedMessages(id, res.messages as RecordedMessage[]);
-            })
-            .finally(() => {
-              setLoading(id, false);
-            });
-        } else {
-          // chatId は発行されている
-          predict({
-            chatId: state.chats[id].chat!.chatId,
-            recordedMessages: state.chats[id].messages as RecordedMessage[],
-            unrecordedMessages: [unrecordedUserMessage],
+            // ローディングはここで終了
+            setLoading(id, false);
+
+            // Chat がなければ作成 (あれば既存のものを返す)
+            return createChatIfNotExist(id, state.chats[id].chat);
           })
-            .then((res: PredictResponse) => {
-              mergeRecordedMessages(id, res.messages as RecordedMessage[]);
-            })
-            .finally(() => {
-              setLoading(id, false);
-            });
-        }
+          .then((chatId: string) => {
+            // 未記録のメッセージに messageId を付与
+            const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
+
+            // messageId を付与したメッセージをデータベースに記録する
+            return createMessages(chatId, { messages: toBeRecordedMessages });
+          })
+          .then(({ messages }: CreateMessagesResponse) => {
+            // state にある未記録のメッセージを記録済みメッセージと置き換える
+            replaceUnrecordedMessages(id, messages);
+          });
 
         return {
           chats: newChats,

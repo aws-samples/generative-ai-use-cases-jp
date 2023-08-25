@@ -19,6 +19,10 @@ export type RecordedMessage = PrimaryKey &
   MessageAttributes &
   UnrecordedMessage;
 
+export type ToBeRecordedMessage = UnrecordedMessage & {
+  messageId: string;
+};
+
 export type ShownMessage = Partial<PrimaryKey> &
   Partial<MessageAttributes> &
   UnrecordedMessage;

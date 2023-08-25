@@ -1,13 +1,16 @@
-import { RecordedMessage, UnrecordedMessage, ShownMessage } from './message';
+import { RecordedMessage, ShownMessage, ToBeRecordedMessage } from './message';
 import { Chat } from './chat';
-
-export type CreateChatRequest = {
-  systemContext?: UnrecordedMessage;
-};
 
 export type CreateChatResponse = {
   chat: Chat;
-  systemContext?: RecordedMessage;
+};
+
+export type CreateMessagesRequest = {
+  messages: ToBeRecordedMessage[];
+};
+
+export type CreateMessagesResponse = {
+  messages: RecordedMessage[];
 };
 
 export type ListChatsResponse = {
@@ -19,12 +22,7 @@ export type ListMessagesResponse = {
 };
 
 export type PredictRequest = {
-  chatId?: string;
-  recordedMessages: RecordedMessage[];
-  unrecordedMessages: UnrecordedMessage[];
-  skipRecording?: boolean;
-};
-
-export type PredictResponse = {
   messages: ShownMessage[];
 };
+
+export type PredictResponse = string;
