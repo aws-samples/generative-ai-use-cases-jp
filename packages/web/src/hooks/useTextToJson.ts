@@ -26,8 +26,7 @@ const useTextToJson = () => {
       format: T
     ): Promise<T | null> => {
       const req: PredictRequest = {
-        recordedMessages: [],
-        unrecordedMessages: [
+        messages: [
           {
             role: 'system',
             content: textToJsonPrompt.systemPrompt(context, format),
@@ -37,7 +36,6 @@ const useTextToJson = () => {
             content: text,
           },
         ],
-        skipRecording: true,
       };
 
       setLoading(true);
@@ -55,7 +53,7 @@ const useTextToJson = () => {
 
           // 推論結果がJSON形式であるかどうかの確認
           try {
-            resJson = JSON.parse(res.messages.slice(-1)[0].content);
+            resJson = JSON.parse(res);
           } catch {
             throw new FormatError(
               textToJsonPrompt.parseErrorRetryPrompt(format)
@@ -96,8 +94,11 @@ const useTextToJson = () => {
           // JSONの出力形式エラーの場合は、エラー情報をセットして再度推論を実行
           if (e instanceof FormatError && res) {
             // 推論結果 (Assistant のメッセージ) と訂正文 (User のメッセージ) を追加して再実行
-            req.unrecordedMessages.push(res.messages.slice(-1)[0]);
-            req.unrecordedMessages.push({
+            req.messages.push({
+              role: 'assistant',
+              content: res,
+            });
+            req.messages.push({
               role: 'user',
               content: e.message,
             });

@@ -1,11 +1,15 @@
 import {
   Chat,
   RecordedMessage,
-  UnrecordedMessage,
+  ToBeRecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
+  BatchWriteItemCommand,
+  DynamoDBClient,
+} from '@aws-sdk/client-dynamodb';
+import {
+  BatchWriteCommand,
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
@@ -104,29 +108,47 @@ export const listMessages = async (
   return res.Items as RecordedMessage[];
 };
 
-export const recordMessage = async (
-  unrecordedMessage: UnrecordedMessage,
-  userId: string,
-  chatId: string
-): Promise<RecordedMessage> => {
-  const messageId = `message#${crypto.randomUUID()}`;
-  const item = {
-    id: chatId,
-    createdDate: `${Date.now()}#0`,
-    messageId,
-    userId,
-    feedback: 'none',
-    usecase: '',
-    llmType: 'OpenAI',
-    ...unrecordedMessage,
-  };
+export const batchCreateMessages = async (
+  messages: ToBeRecordedMessage[],
+  _userId: string,
+  _chatId: string
+): Promise<RecordedMessage[]> => {
+  const userId = `user#${_userId}`;
+  const chatId = `chat#${_chatId}`;
+  const createdDate = Date.now();
+  const feedback = 'none';
+  const usecase = '';
+  const llmType = 'OpenAI';
+
+  const items: RecordedMessage[] = messages.map(
+    (m: ToBeRecordedMessage, i: number) => {
+      return {
+        id: chatId,
+        createdDate: `${createdDate + i}#0`,
+        messageId: m.messageId,
+        role: m.role,
+        content: m.content,
+        userId,
+        feedback,
+        usecase,
+        llmType,
+      };
+    }
+  );
 
   await dynamoDbDocument.send(
-    new PutCommand({
-      TableName: TABLE_NAME,
-      Item: item,
+    new BatchWriteCommand({
+      RequestItems: {
+        [TABLE_NAME]: items.map((m) => {
+          return {
+            PutRequest: {
+              Item: m,
+            },
+          };
+        }),
+      },
     })
   );
 
-  return item;
+  return items;
 };
