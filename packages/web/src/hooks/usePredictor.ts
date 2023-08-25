@@ -11,14 +11,14 @@ const usePredictor = () => {
 
   return {
     createChat: async (req: CreateChatRequest): Promise<CreateChatResponse> => {
-      const res = await http.post('chat', req);
+      const res = await http.post('chats', req);
       return res.data;
     },
     listChats: () => {
-      return http.get('chat');
+      return http.get('chats');
     },
     listMessages: (chatId: string) => {
-      return http.get(`chat/${chatId}`);
+      return http.get(`chats/${chatId}/messages`);
     },
     predict: async (req: PredictRequest): Promise<PredictResponse> => {
       const res = await http.post('predict', req);

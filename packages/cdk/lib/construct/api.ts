@@ -106,25 +106,26 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
-    const chatResource = api.root.addResource('chat');
+    const chatsResource = api.root.addResource('chats');
 
-    // POST: /chat
-    chatResource.addMethod(
+    // POST: /chats
+    chatsResource.addMethod(
       'POST',
       new LambdaIntegration(createChatFunction),
       commonAuthorizerProps
     );
 
-    // GET: /chat
-    chatResource.addMethod(
+    // GET: /chats
+    chatsResource.addMethod(
       'GET',
       new LambdaIntegration(listChatsFunction),
       commonAuthorizerProps
     );
 
-    const messagesResource = chatResource.addResource('{chatId}');
+    const chatResource = chatsResource.addResource('{chatId}');
+    const messagesResource = chatResource.addResource('messages');
 
-    // GET: /chat/{chatId}
+    // GET: /chats/{chatId}/messages
     messagesResource.addMethod(
       'GET',
       new LambdaIntegration(listMessagesFunction),
