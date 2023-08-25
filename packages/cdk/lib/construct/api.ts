@@ -44,7 +44,6 @@ export class Api extends Construct {
       },
     });
     secret.grantRead(predictFunction);
-    props.table.grantReadWriteData(predictFunction);
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,

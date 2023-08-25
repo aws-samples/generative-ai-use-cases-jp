@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Configuration, OpenAIApi } from 'openai';
-import { PredictRequest, ShownMessage } from 'generative-ai-use-cases-jp';
+import { PredictRequest } from 'generative-ai-use-cases-jp';
 import { fetchOpenApiKey } from './secret';
 
 export const handler = async (
