@@ -56,6 +56,26 @@ export class Api extends Construct {
     });
     props.table.grantWriteData(createChatFunction);
 
+    const listChatsFunction = new NodejsFunction(this, 'ListChats', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/listChats.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: props.table.tableName,
+      },
+    });
+    props.table.grantReadData(listChatsFunction);
+
+    const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/listMessages.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: props.table.tableName,
+      },
+    });
+    props.table.grantReadData(listMessagesFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -86,11 +106,29 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
-    const chatResource = api.root.addResource('chat');
+    const chatsResource = api.root.addResource('chats');
 
-    chatResource.addMethod(
+    // POST: /chats
+    chatsResource.addMethod(
       'POST',
       new LambdaIntegration(createChatFunction),
+      commonAuthorizerProps
+    );
+
+    // GET: /chats
+    chatsResource.addMethod(
+      'GET',
+      new LambdaIntegration(listChatsFunction),
+      commonAuthorizerProps
+    );
+
+    const chatResource = chatsResource.addResource('{chatId}');
+    const messagesResource = chatResource.addResource('messages');
+
+    // GET: /chats/{chatId}/messages
+    messagesResource.addMethod(
+      'GET',
+      new LambdaIntegration(listMessagesFunction),
       commonAuthorizerProps
     );
 

@@ -99,7 +99,7 @@ const useChatState = create<{
               initChat(
                 id,
                 [res.systemContext!, unrecordedUserMessage],
-                res.chat,
+                res.chat
               );
 
               return predict({

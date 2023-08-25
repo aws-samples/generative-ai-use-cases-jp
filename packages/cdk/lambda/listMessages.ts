@@ -1,25 +1,27 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { CreateChatRequest, RecordedMessage } from 'generative-ai-use-cases-jp';
-import { createChat, recordMessage } from './repository';
+import { findChatById, listMessages } from './repository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req: CreateChatRequest = JSON.parse(event.body || '{}');
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const chat = await createChat(userId);
+    const chatId = event.pathParameters!.chatId!;
+    const chat = await findChatById(userId, chatId);
 
-    let systemContext = null;
-
-    if (req.systemContext) {
-      systemContext = await recordMessage(
-        req.systemContext,
-        userId,
-        chat.chatId
-      );
+    if (chat === null) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
     }
+
+    const messages = await listMessages(chatId);
 
     return {
       statusCode: 200,
@@ -28,8 +30,7 @@ export const handler = async (
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({
-        chat,
-        systemContext,
+        messages,
       }),
     };
   } catch (error) {
