@@ -6,6 +6,12 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
+動画でデプロイ手順とデモンストレーションをご覧いただけます。以下のサムネイルをクリックして再生してください。なおデプロイ手順につきましては、詳細な手順を後述しております。
+
+| [![デプロイ手順](https://img.youtube.com/vi/9sMA17OKP1k/0.jpg)](https://www.youtube.com/watch?v=9sMA17OKP1k) | [![デモ](https://img.youtube.com/vi/rkKZZSuVZUU/0.jpg)](https://www.youtube.com/watch?v=rkKZZSuVZUU) |
+|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| **デプロイ手順**                                                                                             | **デモンストレーション**                                                                             |
+
 > - 2023年8月現在、Amazon Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Amazon Bedrock が GA になり次第、対応いたします。
 > - OpenAI を LLM として利用する場合は、別途利用料金がかかります。OpenAI 利用に関する情報は、事前に [OpenAI](https://platform.openai.com/) で確認してください。
 
@@ -81,11 +87,6 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 ![arch.png](/imgs/arch.png)
 
 ## デプロイ
-
-<div align="center">
-  <a href="https://www.youtube.com/watch?v=9sMA17OKP1k"><img src="https://img.youtube.com/vi/9sMA17OKP1k/0.jpg" alt="generative-ai-use-cases-jp デプロイガイド" target="_blank"></a>
-  <p><strong>YouTube にデプロイ手順をまとめた動画 (クリックして再生)</strong></p>
-</div>
 
 > **OpenAI を LLM として使用する場合は、あらかじめ [OpenAI の API キーを取得](https://platform.openai.com/account/api-keys)してください。**
 
