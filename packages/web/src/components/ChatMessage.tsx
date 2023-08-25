@@ -46,7 +46,6 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
 
           <div className="ml-5 grow ">
-            {JSON.stringify(props.chatContent)}
             {chatContent?.role === 'user' && (
               <div className="break-all">
                 {chatContent.content.split('\n').map((c, idx) => (
