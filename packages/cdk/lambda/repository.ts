@@ -37,7 +37,10 @@ export const createChat = async (_userId: string): Promise<Chat> => {
   return item;
 };
 
-export const findChatById = async (_userId: string, _chatId: string): Promise<Chat|null> => {
+export const findChatById = async (
+  _userId: string,
+  _chatId: string
+): Promise<Chat | null> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
   const res = await dynamoDbDocument.send(

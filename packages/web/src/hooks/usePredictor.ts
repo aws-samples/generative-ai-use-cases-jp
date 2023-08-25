@@ -3,8 +3,6 @@ import {
   PredictResponse,
   CreateChatRequest,
   CreateChatResponse,
-  ListChatsResponse,
-  ListMessagesResponse,
 } from 'generative-ai-use-cases-jp';
 import useHttp from '../hooks/useHttp';
 
@@ -16,13 +14,11 @@ const usePredictor = () => {
       const res = await http.post('chat', req);
       return res.data;
     },
-    listChats: async (): Promise<ListChatsResponse> => {
-      const res = await http.get('chat');
-      return res.data;
+    listChats: () => {
+      return http.get('chat');
     },
-    listMessages: async (chatId: string): Promise<ListMessagesResponse> => {
-      const res = await http.get(`chat/${chatId}`);
-      return res.data;
+    listMessages: (chatId: string) => {
+      return http.get(`chat/${chatId}`);
     },
     predict: async (req: PredictRequest): Promise<PredictResponse> => {
       const res = await http.post('predict', req);
