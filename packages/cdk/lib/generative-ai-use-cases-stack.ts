@@ -12,6 +12,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
+      idPool: auth.idPool,
       table: database.table,
     });
 
@@ -19,6 +20,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,
       userPoolClientId: auth.client.userPoolClientId,
+      idPoolId: auth.idPool.identityPoolId,
+      predictStreamFunctionArn: api.predictStreamFunction.functionArn,
     });
 
     new CfnOutput(this, 'WebUrl', {

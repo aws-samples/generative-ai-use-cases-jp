@@ -9,6 +9,8 @@ export interface WebProps {
   apiEndpointUrl: string;
   userPoolId: string;
   userPoolClientId: string;
+  idPoolId: string;
+  predictStreamFunctionArn: string;
 }
 
 export class Web extends Construct {
@@ -70,6 +72,8 @@ export class Web extends Construct {
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,
         VITE_APP_USER_POOL_CLIENT_ID: props.userPoolClientId,
+        VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
+        VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
       },
     });
 

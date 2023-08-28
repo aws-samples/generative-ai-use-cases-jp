@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { BaseProps } from '../@types/common';
 import useChat from '../hooks/useChat';
 import Card from '../components/Card';
-import { PiChatCircleDotsFill } from 'react-icons/pi';
+import { PiDotsThree } from 'react-icons/pi';
 import Markdown from '../components/Markdown';
 import InputChatContent from '../components/InputChatContent';
 import ButtonCopy from '../components/ButtonCopy';
@@ -75,8 +75,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
     } else {
       scrollToTop();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [chats]);
 
   return (
     <div
@@ -113,6 +112,11 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                 ) : (
                   <>
                     <Markdown>{chat.content}</Markdown>
+                    {loading && chat.role === 'assistant' && idx === chats.length - 1 && (
+                      <div className="animate-pulse text-2xl text-gray-700">
+                        <PiDotsThree/>
+                      </div>
+                    )}
                     <div className="flex justify-end">
                       <ButtonCopy
                         className="mr-0.5 text-gray-400"
@@ -131,16 +135,6 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
             )}
           </div>
         ))}
-
-        {loading && (
-          <Card
-            className="col-span-12 col-start-1 m-2 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
-            label="AIアシスタント">
-            <div className="animate-pulse text-2xl text-gray-400">
-              <PiChatCircleDotsFill />
-            </div>
-          </Card>
-        )}
 
         {chats.length > 1 && (
           <div className="absolute bottom-0 z-0 flex w-full justify-center">

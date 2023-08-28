@@ -26,7 +26,6 @@ const useChatPageState = create<StateType>((set) => {
 
 const ChatPage: React.FC = () => {
   const { content, setContent } = useChatPageState();
-
   const { state, pathname } = useLocation();
   const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
@@ -62,8 +61,7 @@ const ChatPage: React.FC = () => {
     } else {
       scrollToTop();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [chats]);
 
   return (
     <>
@@ -78,16 +76,10 @@ const ChatPage: React.FC = () => {
         )}
         {chats.map((chat, idx) => (
           <div key={idx}>
-            <ChatMessage chatContent={chat} />
+            <ChatMessage chatContent={chat} loading={loading && idx === chats.length - 1}/>
             <div className="w-full border-b border-gray-300"></div>
           </div>
         ))}
-        {loading && (
-          <>
-            <ChatMessage loading />
-            <div className="w-full border-b border-gray-300"></div>
-          </>
-        )}
       </div>
 
       <div className="absolute bottom-0 z-0 flex w-full items-end justify-center">

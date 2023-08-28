@@ -3,7 +3,7 @@ import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
 import Tooltip from './Tooltip';
-import { PiChatCircleDotsFill, PiUserFill } from 'react-icons/pi';
+import { PiDotsThree, PiUserFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
@@ -15,12 +15,6 @@ type Props = BaseProps & {
 
 const ChatMessage: React.FC<Props> = (props) => {
   const chatContent = useMemo(() => {
-    if (props.loading) {
-      return {
-        role: 'assistant',
-        content: '',
-      };
-    }
     return props.chatContent;
   }, [props]);
 
@@ -53,12 +47,12 @@ const ChatMessage: React.FC<Props> = (props) => {
                 ))}
               </div>
             )}
-            {chatContent?.role === 'assistant' && !props.loading && (
+            {chatContent?.role === 'assistant' && (
               <Markdown>{chatContent.content}</Markdown>
             )}
             {props.loading && (
-              <div className="animate-pulse text-2xl text-gray-400">
-                <PiChatCircleDotsFill />
+              <div className="animate-pulse text-2xl text-gray-700">
+                <PiDotsThree />
               </div>
             )}
           </div>
