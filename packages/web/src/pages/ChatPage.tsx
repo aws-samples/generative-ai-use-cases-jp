@@ -61,7 +61,8 @@ const ChatPage: React.FC = () => {
     } else {
       scrollToTop();
     }
-  }, [chats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   return (
     <>
@@ -76,7 +77,10 @@ const ChatPage: React.FC = () => {
         )}
         {chats.map((chat, idx) => (
           <div key={idx}>
-            <ChatMessage chatContent={chat} loading={loading && idx === chats.length - 1}/>
+            <ChatMessage
+              chatContent={chat}
+              loading={loading && idx === chats.length - 1}
+            />
             <div className="w-full border-b border-gray-300"></div>
           </div>
         ))}

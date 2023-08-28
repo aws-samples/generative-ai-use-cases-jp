@@ -9,12 +9,8 @@ import {
   LambdaClient,
   InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
-import {
-  fromCognitoIdentityPool,
-} from '@aws-sdk/credential-provider-cognito-identity';
-import {
-  CognitoIdentityClient,
-} from '@aws-sdk/client-cognito-identity';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
+import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Auth } from 'aws-amplify';
 import useHttp from '../hooks/useHttp';
 
@@ -58,20 +54,24 @@ const usePredictor = () => {
           client: cognito,
           identityPoolId: idPoolId,
           logins: {
-            [providerName]: (await Auth.currentSession()).getIdToken().getJwtToken(),
+            [providerName]: (await Auth.currentSession())
+              .getIdToken()
+              .getJwtToken(),
           },
         }),
       });
 
-      const res = await lambda.send(new InvokeWithResponseStreamCommand({
-        FunctionName: import.meta.env.VITE_APP_PREDICT_STREAM_FUNCTION_ARN,
-        Payload: JSON.stringify(req),
-      }));
+      const res = await lambda.send(
+        new InvokeWithResponseStreamCommand({
+          FunctionName: import.meta.env.VITE_APP_PREDICT_STREAM_FUNCTION_ARN,
+          Payload: JSON.stringify(req),
+        })
+      );
       const events = res.EventStream!;
 
       for await (const event of events) {
         if (event.PayloadChunk) {
-          yield new TextDecoder("utf-8").decode(event.PayloadChunk.Payload);
+          yield new TextDecoder('utf-8').decode(event.PayloadChunk.Payload);
         }
 
         if (event.InvokeComplete) {

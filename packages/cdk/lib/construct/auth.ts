@@ -1,6 +1,9 @@
 import { CfnOutput, Duration } from 'aws-cdk-lib';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
-import { IdentityPool, UserPoolAuthenticationProvider } from '@aws-cdk/aws-cognito-identitypool-alpha';
+import {
+  IdentityPool,
+  UserPoolAuthenticationProvider,
+} from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Construct } from 'constructs';
 
 export class Auth extends Construct {
@@ -31,10 +34,12 @@ export class Auth extends Construct {
 
     const idPool = new IdentityPool(this, 'IdentityPool', {
       authenticationProviders: {
-        userPools: [new UserPoolAuthenticationProvider({
-          userPool,
-          userPoolClient: client,
-        })],
+        userPools: [
+          new UserPoolAuthenticationProvider({
+            userPool,
+            userPoolClient: client,
+          }),
+        ],
       },
     });
 

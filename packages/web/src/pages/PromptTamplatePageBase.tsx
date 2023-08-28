@@ -75,7 +75,8 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
     } else {
       scrollToTop();
     }
-  }, [chats]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   return (
     <div
@@ -112,11 +113,13 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                 ) : (
                   <>
                     <Markdown>{chat.content}</Markdown>
-                    {loading && chat.role === 'assistant' && idx === chats.length - 1 && (
-                      <div className="animate-pulse text-2xl text-gray-700">
-                        <PiDotsThree/>
-                      </div>
-                    )}
+                    {loading &&
+                      chat.role === 'assistant' &&
+                      idx === chats.length - 1 && (
+                        <div className="animate-pulse text-2xl text-gray-700">
+                          <PiDotsThree />
+                        </div>
+                      )}
                     <div className="flex justify-end">
                       <ButtonCopy
                         className="mr-0.5 text-gray-400"

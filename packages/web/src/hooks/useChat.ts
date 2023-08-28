@@ -167,12 +167,14 @@ const useChatState = create<{
 
         return {
           chats: newChats,
-        }
+        };
       });
 
       const stream = predictStream({
         // 最後のメッセージはアシスタントのメッセージなので、排除
-        messages: omitUnusedMessageProperties(get().chats[id].messages.slice(0, -1))
+        messages: omitUnusedMessageProperties(
+          get().chats[id].messages.slice(0, -1)
+        ),
       });
 
       // Assistant の発言を更新
@@ -198,7 +200,9 @@ const useChatState = create<{
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
       const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
-      const { messages } = await createMessages(chatId, { messages: toBeRecordedMessages });
+      const { messages } = await createMessages(chatId, {
+        messages: toBeRecordedMessages,
+      });
 
       replaceUnrecordedMessages(id, messages);
     },
