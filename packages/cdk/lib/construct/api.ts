@@ -1,4 +1,4 @@
-import { Duration } from 'aws-cdk-lib';
+import { Duration, CfnOutput } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -164,5 +164,9 @@ export class Api extends Construct {
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
+
+    new CfnOutput(this, 'PredictStreamFunctionArn', {
+      value: predictStreamFunction.functionArn,
+    });
   }
 }
