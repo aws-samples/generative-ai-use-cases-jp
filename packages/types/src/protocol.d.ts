@@ -22,7 +22,7 @@ export type ListMessagesResponse = {
 };
 
 export type PredictRequest = {
-  messages: ShownMessage[];
+  messages: UnrecordedMessage[];
 };
 
 export type PredictResponse = string;

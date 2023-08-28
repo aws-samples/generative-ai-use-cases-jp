@@ -1,4 +1,4 @@
-import { Duration } from 'aws-cdk-lib';
+import { Duration, CfnOutput } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -12,19 +12,22 @@ import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 
 export interface BackendApiProps {
   userPool: UserPool;
+  idPool: IdentityPool;
   table: Table;
 }
 
 export class Api extends Construct {
   readonly api: RestApi;
+  readonly predictStreamFunction: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
 
-    const { userPool } = props;
+    const { userPool, table, idPool } = props;
 
     // OpenAI Secret
     const secret = Secret.fromSecretCompleteArn(
@@ -40,50 +43,61 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         SECRET_ARN: secret.secretArn,
-        TABLE_NAME: props.table.tableName,
       },
     });
     secret.grantRead(predictFunction);
+
+    const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/predictStream.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        SECRET_ARN: secret.secretArn,
+      },
+    });
+
+    secret.grantRead(predictStreamFunction);
+    predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/createChat.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: props.table.tableName,
+        TABLE_NAME: table.tableName,
       },
     });
-    props.table.grantWriteData(createChatFunction);
+    table.grantWriteData(createChatFunction);
 
     const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/createMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: props.table.tableName,
+        TABLE_NAME: table.tableName,
       },
     });
-    props.table.grantWriteData(createMessagesFunction);
+    table.grantWriteData(createMessagesFunction);
 
     const listChatsFunction = new NodejsFunction(this, 'ListChats', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/listChats.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: props.table.tableName,
+        TABLE_NAME: table.tableName,
       },
     });
-    props.table.grantReadData(listChatsFunction);
+    table.grantReadData(listChatsFunction);
 
     const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/listMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: props.table.tableName,
+        TABLE_NAME: table.tableName,
       },
     });
-    props.table.grantReadData(listMessagesFunction);
+    table.grantReadData(listMessagesFunction);
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
@@ -149,5 +163,10 @@ export class Api extends Construct {
     );
 
     this.api = api;
+    this.predictStreamFunction = predictStreamFunction;
+
+    new CfnOutput(this, 'PredictStreamFunctionArn', {
+      value: predictStreamFunction.functionArn,
+    });
   }
 }

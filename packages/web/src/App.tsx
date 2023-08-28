@@ -56,6 +56,7 @@ const App: React.FC = () => {
     Auth: {
       userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
       userPoolWebClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
+      identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
       authenticationFlowType: 'USER_SRP_AUTH',
     },
   });

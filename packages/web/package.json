@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^5.0.6",
+    "@aws-sdk/client-cognito-identity": "^3.398.0",
+    "@aws-sdk/client-lambda": "^3.398.0",
+    "@aws-sdk/credential-provider-cognito-identity": "^3.398.0",
     "@headlessui/react": "^1.7.15",
     "@react-icons/all-files": "^4.1.0",
     "@types/uuid": "^9.0.2",

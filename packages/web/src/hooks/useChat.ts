@@ -7,7 +7,6 @@ import {
   UnrecordedMessage,
   ToBeRecordedMessage,
   Chat,
-  CreateMessagesResponse,
 } from 'generative-ai-use-cases-jp';
 import { useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -26,7 +25,7 @@ const useChatState = create<{
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predict, createChat, createMessages } = usePredictor();
+  const { predictStream, createChat, createMessages } = usePredictor();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -48,23 +47,6 @@ const useChatState = create<{
             messages,
           };
         }),
-      };
-    });
-  };
-
-  const pushAssistantRawMessage = (id: string, text: string) => {
-    set((state) => {
-      const unrecordedAssistantMessage: UnrecordedMessage = {
-        role: 'assistant',
-        content: text,
-      };
-
-      const newChats = produce(state.chats, (draft) => {
-        draft[id].messages.push(unrecordedAssistantMessage);
-      });
-
-      return {
-        chats: newChats,
       };
     });
   };
@@ -163,47 +145,66 @@ const useChatState = create<{
     clear: (id: string, systemContext: string) => {
       initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
-    post: (id: string, content: string) => {
+    post: async (id: string, content: string) => {
       setLoading(id, true);
-      set((state) => {
-        const unrecordedUserMessage: UnrecordedMessage = {
-          role: 'user',
-          content,
-        };
 
+      const unrecordedUserMessage: UnrecordedMessage = {
+        role: 'user',
+        content,
+      };
+
+      const unrecordedAssistantMessage: UnrecordedMessage = {
+        role: 'assistant',
+        content: '',
+      };
+
+      // User/Assistant の発言を反映
+      set((state) => {
         const newChats = produce(state.chats, (draft) => {
           draft[id].messages.push(unrecordedUserMessage);
+          draft[id].messages.push(unrecordedAssistantMessage);
         });
-
-        predict({
-          messages: omitUnusedMessageProperties(newChats[id].messages),
-        })
-          .then((text: string) => {
-            // アシスタントの答えをデータベースに未記録状態でフロントエンドに反映
-            pushAssistantRawMessage(id, text);
-
-            // ローディングはここで終了
-            setLoading(id, false);
-
-            // Chat がなければ作成 (あれば既存のものを返す)
-            return createChatIfNotExist(id, state.chats[id].chat);
-          })
-          .then((chatId: string) => {
-            // 未記録のメッセージに messageId を付与
-            const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
-
-            // messageId を付与したメッセージをデータベースに記録する
-            return createMessages(chatId, { messages: toBeRecordedMessages });
-          })
-          .then(({ messages }: CreateMessagesResponse) => {
-            // state にある未記録のメッセージを記録済みメッセージと置き換える
-            replaceUnrecordedMessages(id, messages);
-          });
 
         return {
           chats: newChats,
         };
       });
+
+      const stream = predictStream({
+        // 最後のメッセージはアシスタントのメッセージなので、排除
+        messages: omitUnusedMessageProperties(
+          get().chats[id].messages.slice(0, -1)
+        ),
+      });
+
+      // Assistant の発言を更新
+      for await (const chunk of stream) {
+        set((state) => {
+          const newChats = produce(state.chats, (draft) => {
+            const oldAssistantMessage = draft[id].messages.pop()!;
+            const newAssistantMessage: UnrecordedMessage = {
+              role: 'assistant',
+              content: oldAssistantMessage.content + chunk,
+            };
+
+            draft[id].messages.push(newAssistantMessage);
+          });
+
+          return {
+            chats: newChats,
+          };
+        });
+      }
+
+      setLoading(id, false);
+
+      const chatId = await createChatIfNotExist(id, get().chats[id].chat);
+      const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
+      const { messages } = await createMessages(chatId, {
+        messages: toBeRecordedMessages,
+      });
+
+      replaceUnrecordedMessages(id, messages);
     },
   };
 });
