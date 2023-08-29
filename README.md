@@ -38,7 +38,7 @@ LLM とチャット形式で対話することができます。LLM と直接対
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  <img src="/imgs/sc_chat.png"/>
+  <img src="/imgs/usecase_chat.gif"/>
 </details>
 
 #### 要約
@@ -47,7 +47,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  <img src="/imgs/sc_summary.png"/>
+  <img src="/imgs/usecase_summarize.gif"/>
 </details>
 
 #### メール作成
@@ -56,7 +56,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  <img src="/imgs/sc_mail.png"/>
+  <img src="/imgs/usecase_mail.gif"/>
 </details>
 
 #### 情報抽出
@@ -65,7 +65,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  <img src="/imgs/sc_extract.png"/>
+  <img src="/imgs/usecase_extract.gif"/>
 </details>
 
 #### CS 業務効率化
@@ -74,7 +74,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 <details>
   <summary>動作の様子 (スクリーンショット)</summary>
-  <img src="/imgs/sc_cs.png"/>
+  <img src="/imgs/usecase_cs.gif"/>
 </details>
 
 > 現在、このリポジトリでは Fine-tuning はサポートされていません。
