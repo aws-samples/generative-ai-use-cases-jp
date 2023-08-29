@@ -1,4 +1,9 @@
-import { RecordedMessage, ShownMessage, ToBeRecordedMessage } from './message';
+import {
+  RecordedMessage,
+  ShownMessage,
+  ToBeRecordedMessage,
+  UnrecordedMessage,
+} from './message';
 import { Chat } from './chat';
 
 export type CreateChatResponse = {
@@ -26,3 +31,10 @@ export type PredictRequest = {
 };
 
 export type PredictResponse = string;
+
+export type PredictTitleRequest = {
+  chat: Chat;
+  messages: UnrecordedMessage[];
+};
+
+export type PredictTitleResponse = string;

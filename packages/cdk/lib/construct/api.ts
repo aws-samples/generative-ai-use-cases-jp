@@ -59,6 +59,19 @@ export class Api extends Construct {
     secret.grantRead(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
+    const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/predictTitle.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        SECRET_ARN: secret.secretArn,
+        TABLE_NAME: table.tableName,
+      },
+    });
+
+    secret.grantRead(predictTitleFunction);
+    table.grantWriteData(predictTitleFunction);
+
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/createChat.ts',
@@ -126,6 +139,14 @@ export class Api extends Construct {
     predictResource.addMethod(
       'POST',
       new LambdaIntegration(predictFunction),
+      commonAuthorizerProps
+    );
+
+    // POST: /predict/title
+    const predictTitleResource = predictResource.addResource('title');
+    predictTitleResource.addMethod(
+      'POST',
+      new LambdaIntegration(predictTitleFunction),
       commonAuthorizerProps
     );
 

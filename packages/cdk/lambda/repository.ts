@@ -13,6 +13,7 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 
 const TABLE_NAME: string = process.env.TABLE_NAME!;
@@ -151,4 +152,24 @@ export const batchCreateMessages = async (
   );
 
   return items;
+};
+
+export const setChatTitle = async (
+  id: string,
+  createdDate: string,
+  title: string
+) => {
+  await dynamoDbDocument.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: id,
+        createdDate: createdDate,
+      },
+      UpdateExpression: 'set title = :title',
+      ExpressionAttributeValues: {
+        ':title': title,
+      },
+    })
+  );
 };
