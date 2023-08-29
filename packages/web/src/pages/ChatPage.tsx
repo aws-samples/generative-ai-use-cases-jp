@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import { ChatPrompt } from '../prompts';
@@ -7,6 +7,7 @@ import ChatMessage from '../components/ChatMessage';
 import SelectLlm from '../components/SelectLlm';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
+import { ReactComponent as MLLogo } from '../assets/model.svg';
 
 type StateType = {
   content: string;
@@ -27,7 +28,10 @@ const useChatPageState = create<StateType>((set) => {
 const ChatPage: React.FC = () => {
   const { content, setContent } = useChatPageState();
   const { state, pathname } = useLocation();
-  const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
+  const { chatId } = useParams();
+
+  const { loading, loadingMessages, isEmpty, messages, clearChats, postChat } =
+    useChat(pathname, ChatPrompt.systemContext, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
 
   useEffect(() => {
@@ -36,11 +40,6 @@ const ChatPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
-
-  useEffect(() => {
-    initChats(ChatPrompt.systemContext);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const onSend = useCallback(() => {
     postChat(content);
@@ -56,7 +55,7 @@ const ChatPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (chats.length > 0) {
+    if (messages.length > 0) {
       scrollToBottom();
     } else {
       scrollToTop();
@@ -66,8 +65,8 @@ const ChatPage: React.FC = () => {
 
   return (
     <>
-      <div className={`${chats.length > 0 ? 'pb-36' : ''}`}>
-        {chats.length === 0 && (
+      <div className={`${!isEmpty ? 'pb-36' : ''}`}>
+        {isEmpty && !loadingMessages && (
           <>
             <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
               チャット
@@ -75,11 +74,18 @@ const ChatPage: React.FC = () => {
             <SelectLlm className="mt-5 lg:mt-0" />
           </>
         )}
-        {chats.map((chat, idx) => (
+
+        {loadingMessages && (
+          <div className="relative flex h-screen flex-col items-center justify-center">
+            <MLLogo className="animate-pulse fill-gray-400" />
+          </div>
+        )}
+
+        {messages.map((chat, idx) => (
           <div key={idx}>
             <ChatMessage
               chatContent={chat}
-              loading={loading && idx === chats.length - 1}
+              loading={loading && idx === messages.length - 1}
             />
             <div className="w-full border-b border-gray-300"></div>
           </div>

@@ -8,8 +8,9 @@ import {
   ToBeRecordedMessage,
   Chat,
 } from 'generative-ai-use-cases-jp';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
+import useChatApi from './useChatApi';
 
 const useChatState = create<{
   chats: {
@@ -22,10 +23,16 @@ const useChatState = create<{
     [id: string]: boolean;
   };
   init: (id: string, systemContext: string) => void;
+  initFromMessages: (
+    id: string,
+    messages: RecordedMessage[],
+    chat: Chat
+  ) => void;
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predictStream, createChat, createMessages } = usePredictor();
+  const { predictStream } = usePredictor();
+  const { createChat, createMessages } = useChatApi();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -142,6 +149,9 @@ const useChatState = create<{
         initChat(id, [{ role: 'system', content: systemContext }], undefined);
       }
     },
+    initFromMessages: (id: string, messages: RecordedMessage[], chat: Chat) => {
+      initChat(id, messages, chat);
+    },
     clear: (id: string, systemContext: string) => {
       initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
@@ -209,19 +219,51 @@ const useChatState = create<{
   };
 });
 
-const useChat = (id: string) => {
-  const { chats, loading, init, clear, post } = useChatState();
+const useChat = (id: string, systemContext?: string, chatId?: string) => {
+  const { chats, loading, init, initFromMessages, clear, post } =
+    useChatState();
+  const { data: messagesData, isLoading } = useChatApi().listMessages(
+    chatId ?? ''
+  );
 
-  const filteredChats = useMemo(() => {
+  useEffect(() => {
+    // 新規チャットの場合
+    if (!chatId && systemContext) {
+      init(id, systemContext);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // 登録済みのチャットの場合
+    if (!isLoading && messagesData) {
+      initFromMessages(
+        id,
+        messagesData.messages,
+        // chatId以外使わないので、あとは空白
+        {
+          chatId: chatId ?? '',
+          id: '',
+          createdDate: '',
+          usecase: '',
+          title: '',
+          updatedDate: '',
+        }
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
+
+  const filteredMessages = useMemo(() => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
   }, [chats, id]);
 
   return {
     loading: loading[id] ?? false,
-    initChats: (systemContext: string) => init(id, systemContext),
+    loadingMessages: isLoading,
     clearChats: (systemContext: string) => clear(id, systemContext),
-    chats: filteredChats,
-    isEmpty: filteredChats.length === 0,
+    messages: filteredMessages,
+    isEmpty: filteredMessages.length === 0,
     postChat: (content: string) => {
       post(id, content);
     },
