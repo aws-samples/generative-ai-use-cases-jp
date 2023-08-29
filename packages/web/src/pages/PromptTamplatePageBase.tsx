@@ -43,7 +43,10 @@ const usePromptTamplatePageBaseState = create<StateType>((set) => {
 
 const PromptTamplatePageBase: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading, chats, initChats, clearChats, postChat } = useChat(pathname);
+  const { loading, messages, clearChats, postChat } = useChat(
+    pathname,
+    props.systemContext
+  );
   const { scrollToBottom, scrollToTop } = useScroll();
 
   const { content, setContent } = usePromptTamplatePageBaseState((state) => ({
@@ -64,13 +67,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
   }, [props.systemContext, pathname]);
 
   useEffect(() => {
-    initChats(props.systemContext);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.systemContext, pathname]);
-
-  useEffect(() => {
-    if (chats.length > 0) {
+    if (messages.length > 0) {
       scrollToBottom();
     } else {
       scrollToTop();
@@ -81,7 +78,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
   return (
     <div
       className={`${props.className ?? ''} flex flex-col ${
-        chats.length > 1 ? 'pb-32' : 'pb-16'
+        messages.length > 1 ? 'pb-32' : 'pb-16'
       }`}>
       <div className="grid grid-cols-12">
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
@@ -94,28 +91,28 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
           {props.children}
         </div>
 
-        {chats.map((chat, idx) => (
+        {messages.map((message, idx) => (
           <div
             key={idx}
             className="col-span-12 col-start-1 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3 ">
             {idx > 0 && (
               <Card
                 className={`mx-2 mt-3 ${
-                  chat.role === 'assistant' ? 'bg-gray-100/70' : ''
+                  message.role === 'assistant' ? 'bg-gray-100/70' : ''
                 }`}
-                label={chat.role === 'user' ? 'あなた' : 'AIアシスタント'}>
-                {chat.role === 'user' ? (
+                label={message.role === 'user' ? 'あなた' : 'AIアシスタント'}>
+                {message.role === 'user' ? (
                   <div className="break-all">
-                    {chat.content.split('\n').map((c, jdx) => (
+                    {message.content.split('\n').map((c, jdx) => (
                       <div key={jdx}>{c}</div>
                     ))}
                   </div>
                 ) : (
                   <>
-                    <Markdown>{chat.content}</Markdown>
+                    <Markdown>{message.content}</Markdown>
                     {loading &&
-                      chat.role === 'assistant' &&
-                      idx === chats.length - 1 && (
+                      message.role === 'assistant' &&
+                      idx === messages.length - 1 && (
                         <div className="animate-pulse text-2xl text-gray-700">
                           <PiDotsThree />
                         </div>
@@ -123,7 +120,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                     <div className="flex justify-end">
                       <ButtonCopy
                         className="mr-0.5 text-gray-400"
-                        text={chat.content}
+                        text={message.content}
                       />
                       <Tooltip message="未実装です">
                         <ButtonFeedback className="mx-0.5" good={true} />
@@ -139,7 +136,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
           </div>
         ))}
 
-        {chats.length > 1 && (
+        {messages.length > 1 && (
           <div className="absolute bottom-0 z-0 flex w-full justify-center">
             {props.inputPromptComponent ? (
               props.inputPromptComponent

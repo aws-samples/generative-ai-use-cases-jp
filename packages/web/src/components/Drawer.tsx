@@ -5,6 +5,7 @@ import useDrawer from '../hooks/useDrawer';
 import ButtonIcon from './ButtonIcon';
 import { PiSignOut, PiX, PiGithubLogo } from 'react-icons/pi';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
+import ChatList from './ChatList';
 
 type ItemProps = BaseProps & {
   label: string;
@@ -88,17 +89,20 @@ const Drawer: React.FC<Props> = (props) => {
       <nav
         className={`h-full lg:visible lg:w-64 ${
           opened ? 'visible w-64' : 'invisible w-0'
-        } transition-width bg-aws-squid-ink fixed z-50 flex flex-col justify-between text-sm text-white lg:static lg:z-0`}>
-        <div className="h-full">
-          <div className="text-aws-smile mx-3 mb-2 mt-6 text-xs">ツール</div>
+        } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
+        <div className="text-aws-smile mx-3 mt-3 text-xs">ツール</div>
+        <div className="h-full  overflow-y-auto border-b">
           {props.items.map((item, idx) => (
             <Item key={idx} label={item.label} icon={item.icon} to={item.to} />
           ))}
-          <div className="text-aws-smile mx-3 mb-2 mt-6 text-xs">会話履歴</div>
-          <div className="m-3 cursor-not-allowed">近日中に実装予定</div>
         </div>
+        <div className="text-aws-smile mx-3 my-2  text-xs">会話履歴</div>
+        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+          <ChatList className="mr-1" />
+        </div>
+        <div className="border-b" />
         <div className="mb-2">
-          <div className="text-aws-smile mx-3 mb-2 mt-6 text-xs">リンク</div>
+          <div className="text-aws-smile mx-3 my-2 text-xs">リンク</div>
           <RefLink
             to="https://aws.amazon.com/jp/bedrock/"
             icon={<MLLogo className="w-4 fill-white" />}
