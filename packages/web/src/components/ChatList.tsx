@@ -15,8 +15,10 @@ const ChatList: React.FC<Props> = (props) => {
       {loading &&
         new Array(10)
           .fill('')
-          .map(() => (
-            <div className="bg-aws-sky/20 h-8 w-full animate-pulse rounded"></div>
+          .map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-aws-sky/20 h-8 w-full animate-pulse rounded"></div>
           ))}
       {conversations.map((chat) => (
         <Link

@@ -242,7 +242,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
         messagesData.messages,
         // chatId以外使わないので、あとは空白
         {
-          chatId: chatId ?? '',
+          chatId: `chat#${chatId}` ?? '',
           id: '',
           createdDate: '',
           usecase: '',
