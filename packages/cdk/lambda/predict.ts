@@ -28,7 +28,7 @@ export const handler = async (
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*',
       },
-      body: chatCompletion.data.choices[0].message?.content!,
+      body: chatCompletion.data.choices[0].message!.content!,
     };
   } catch (error) {
     console.log(error);

@@ -36,7 +36,7 @@ export const handler = async (
       messages: messages,
     });
 
-    const title = chatCompletion.data.choices[0].message?.content!;
+    const title = chatCompletion.data.choices[0].message!.content!;
     await setChatTitle(req.chat.id, req.chat.createdDate, title);
 
     return {
