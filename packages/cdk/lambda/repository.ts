@@ -28,7 +28,7 @@ export const createChat = async (_userId: string): Promise<Chat> => {
     createdDate: `${Date.now()}`,
     chatId,
     usecase: '',
-    title: '仮のタイトルです',
+    title: '',
     updatedDate: '',
   };
 

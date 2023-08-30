@@ -1,4 +1,3 @@
-import usePredictor from './usePredictor';
 import { produce } from 'immer';
 import { create } from 'zustand';
 import {
@@ -31,8 +30,8 @@ const useChatState = create<{
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predictStream, predictTitle } = usePredictor();
-  const { createChat, createMessages } = useChatApi();
+  const { createChat, createMessages, predictStream, predictTitle } =
+    useChatApi();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -220,8 +219,8 @@ const useChatState = create<{
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
 
-      // 最初の応答が終わった時点でタイトルを設定
-      if (get().chats[id].messages.length <= 3) {
+      // 会話からタイトルを予測して設定
+      if (get().chats[id].chat?.title === '') {
         const title = await predictTitle({
           chat: get().chats[id].chat!,
           messages: get().chats[id].messages.filter((m) => !m.messageId),
