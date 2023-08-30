@@ -31,7 +31,7 @@ const useChatState = create<{
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predictStream } = usePredictor();
+  const { predictStream, predictTitle } = usePredictor();
   const { createChat, createMessages } = useChatApi();
 
   const setLoading = (id: string, newLoading: boolean) => {
@@ -53,6 +53,16 @@ const useChatState = create<{
             chat,
             messages,
           };
+        }),
+      };
+    });
+  };
+
+  const setTitle = (id: string, title: string) => {
+    set((state) => {
+      return {
+        chats: produce(state.chats, (draft) => {
+          draft[id].chat!.title = title;
         }),
       };
     });
@@ -209,6 +219,16 @@ const useChatState = create<{
       setLoading(id, false);
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
+
+      // 最初の応答が終わった時点でタイトルを設定
+      if (get().chats[id].messages.length <= 3) {
+        const title = await predictTitle({
+          chat: get().chats[id].chat!,
+          messages: get().chats[id].messages.filter((m) => !m.messageId),
+        });
+        setTitle(id, title);
+      }
+
       const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
       const { messages } = await createMessages(chatId, {
         messages: toBeRecordedMessages,

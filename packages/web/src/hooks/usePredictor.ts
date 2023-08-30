@@ -4,6 +4,8 @@ import {
   CreateChatResponse,
   CreateMessagesRequest,
   CreateMessagesResponse,
+  PredictTitleRequest,
+  PredictTitleResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -78,6 +80,12 @@ const usePredictor = () => {
           break;
         }
       }
+    },
+    predictTitle: async (
+      req: PredictTitleRequest
+    ): Promise<PredictTitleResponse> => {
+      const res = await http.post('predict/title', req);
+      return res.data;
     },
   };
 };

@@ -83,6 +83,7 @@ export const listChats = async (_userId: string): Promise<Chat[]> => {
       ExpressionAttributeValues: {
         ':id': userId,
       },
+      ScanIndexForward: false,
     })
   );
 
