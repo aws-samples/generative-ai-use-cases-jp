@@ -4,10 +4,7 @@ import {
   ToBeRecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
-import {
-  BatchWriteItemCommand,
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   BatchWriteCommand,
   DynamoDBDocumentClient,

@@ -1,4 +1,4 @@
-import { Context, Handler } from 'aws-lambda';
+import { Handler } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
 import { Configuration, OpenAIApi } from 'openai';
 import { IncomingMessage } from 'http';
@@ -9,15 +9,14 @@ declare global {
     function streamifyResponse(
       f: (
         event: PredictRequest,
-        responseStream: NodeJS.WritableStream,
-        context: Context
+        responseStream: NodeJS.WritableStream
       ) => Promise<void>
     ): Handler;
   }
 }
 
 export const handler = awslambda.streamifyResponse(
-  async (event, responseStream, context) => {
+  async (event, responseStream) => {
     // Secret 情報の取得
     const apiKey = await fetchOpenApiKey();
 
