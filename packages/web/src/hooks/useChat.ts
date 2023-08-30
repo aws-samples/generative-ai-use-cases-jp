@@ -150,6 +150,16 @@ const useChatState = create<{
     });
   };
 
+  const updateTitle = async (id: string) => {
+    if (get().chats[id].messages.length <= 3) {
+      const title = await predictTitle({
+        chat: get().chats[id].chat!,
+        messages: omitUnusedMessageProperties(get().chats[id].messages),
+      });
+      setTitle(id, title);
+    }
+  };
+
   return {
     chats: {},
     loading: {},
@@ -219,14 +229,7 @@ const useChatState = create<{
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
 
-      // 会話からタイトルを予測して設定
-      if (get().chats[id].chat?.title === '') {
-        const title = await predictTitle({
-          chat: get().chats[id].chat!,
-          messages: get().chats[id].messages.filter((m) => !m.messageId),
-        });
-        setTitle(id, title);
-      }
+      updateTitle(id);
 
       const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
       const { messages } = await createMessages(chatId, {
