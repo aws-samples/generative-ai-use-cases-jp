@@ -5,6 +5,7 @@ import {
   Cors,
   LambdaIntegration,
   RestApi,
+  ResponseType,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
@@ -131,6 +132,20 @@ export class Api extends Construct {
         allowMethods: Cors.ALL_METHODS,
       },
       cloudWatchRole: true,
+    });
+
+    api.addGatewayResponse('Api4XX', {
+      type: ResponseType.DEFAULT_4XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': "'*'",
+      },
+    });
+
+    api.addGatewayResponse('Api5XX', {
+      type: ResponseType.DEFAULT_5XX,
+      responseHeaders: {
+        'Access-Control-Allow-Origin': "'*'",
+      },
     });
 
     const predictResource = api.root.addResource('predict');
