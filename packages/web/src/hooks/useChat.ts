@@ -1,4 +1,3 @@
-import usePredictor from './usePredictor';
 import { produce } from 'immer';
 import { create } from 'zustand';
 import {
@@ -31,8 +30,8 @@ const useChatState = create<{
   clear: (id: string, systemContext: string) => void;
   post: (id: string, content: string) => void;
 }>((set, get) => {
-  const { predictStream } = usePredictor();
-  const { createChat, createMessages } = useChatApi();
+  const { createChat, createMessages, predictStream, predictTitle } =
+    useChatApi();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -56,6 +55,24 @@ const useChatState = create<{
         }),
       };
     });
+  };
+
+  const setTitle = (id: string, title: string) => {
+    set((state) => {
+      return {
+        chats: produce(state.chats, (draft) => {
+          draft[id].chat!.title = title;
+        }),
+      };
+    });
+  };
+
+  const updateTitle = async (id: string) => {
+    const title = await predictTitle({
+      chat: get().chats[id].chat!,
+      messages: omitUnusedMessageProperties(get().chats[id].messages),
+    });
+    setTitle(id, title);
   };
 
   const createChatIfNotExist = async (
@@ -209,6 +226,12 @@ const useChatState = create<{
       setLoading(id, false);
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
+
+      // 最初の応答が終わった時点でタイトルを設定
+      if (get().chats[id].messages.length <= 3) {
+        updateTitle(id);
+      }
+
       const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
       const { messages } = await createMessages(chatId, {
         messages: toBeRecordedMessages,

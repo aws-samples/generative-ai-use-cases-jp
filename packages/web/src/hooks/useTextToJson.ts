@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PredictRequest, PredictResponse } from 'generative-ai-use-cases-jp';
 import textToJsonPrompt from '../prompts/text-to-json-prompt';
-import usePredictor from './usePredictor';
+import useChatApi from './useChatApi';
 
 // JSON 出力に失敗した場合のリトライ上限数
 const RETRY_LIMIT = 2;
@@ -15,7 +15,7 @@ class FormatError extends Error {
 const useTextToJson = () => {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { predict } = usePredictor();
+  const { predict } = useChatApi();
 
   return {
     isError,

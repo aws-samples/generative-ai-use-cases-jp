@@ -28,7 +28,7 @@ const ChatList: React.FC<Props> = (props) => {
            ${props.className}`}
           to={`/chat/${chat.chatId.split('#')[1]}`}>
           <PiChat className="mr-2 " />
-          {chat.title}
+          <div className="truncate">{chat.title}</div>
         </Link>
       ))}
     </div>
