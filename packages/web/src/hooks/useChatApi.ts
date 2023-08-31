@@ -8,6 +8,7 @@ import {
   ListMessagesResponse,
   PredictTitleRequest,
   PredictTitleResponse,
+  FindChatByIdResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -37,9 +38,12 @@ const useChatApi = () => {
     listChats: () => {
       return http.get<ListChatsResponse>('chats');
     },
-    listMessages: (chatId: string) => {
+    findChatById: (chatId?: string) => {
+      return http.get<FindChatByIdResponse>(chatId ? `chats/${chatId}` : null);
+    },
+    listMessages: (chatId?: string) => {
       return http.get<ListMessagesResponse>(
-        chatId !== '' ? `chats/${chatId}/messages` : null
+        chatId ? `chats/${chatId}/messages` : null
       );
     },
     // Buffered Response (useTextToJson で利用)

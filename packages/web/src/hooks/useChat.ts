@@ -227,8 +227,8 @@ const useChatState = create<{
 
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
 
-      // 最初の応答が終わった時点でタイトルを設定
-      if (get().chats[id].messages.length <= 3) {
+      // タイトルが空文字列だった場合、タイトルを予測して設定
+      if (get().chats[id].chat?.title === '') {
         updateTitle(id);
       }
 
@@ -245,9 +245,10 @@ const useChatState = create<{
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
   const { chats, loading, init, initFromMessages, clear, post } =
     useChatState();
-  const { data: messagesData, isLoading } = useChatApi().listMessages(
-    chatId ?? ''
-  );
+  const { data: messagesData, isLoading: isLoadingMessage } =
+    useChatApi().listMessages(chatId);
+  const { data: chatData, isLoading: isLoadingChat } =
+    useChatApi().findChatById(chatId);
 
   useEffect(() => {
     // 新規チャットの場合
@@ -259,23 +260,11 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
 
   useEffect(() => {
     // 登録済みのチャットの場合
-    if (!isLoading && messagesData) {
-      initFromMessages(
-        id,
-        messagesData.messages,
-        // chatId以外使わないので、あとは空白
-        {
-          chatId: `chat#${chatId}` ?? '',
-          id: '',
-          createdDate: '',
-          usecase: '',
-          title: '',
-          updatedDate: '',
-        }
-      );
+    if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
+      initFromMessages(id, messagesData.messages, chatData.chat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [isLoadingMessage, isLoadingChat]);
 
   const filteredMessages = useMemo(() => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
@@ -283,7 +272,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
 
   return {
     loading: loading[id] ?? false,
-    loadingMessages: isLoading,
+    loadingMessages: isLoadingMessage,
     clearChats: (systemContext: string) => clear(id, systemContext),
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,

@@ -22,6 +22,10 @@ export type ListChatsResponse = {
   chats: Chat[];
 };
 
+export type FindChatByIdResponse = {
+  chat: Chat;
+};
+
 export type ListMessagesResponse = {
   messages: RecordedMessage[];
 };

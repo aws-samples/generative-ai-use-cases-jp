@@ -103,6 +103,16 @@ export class Api extends Construct {
     });
     table.grantReadData(listChatsFunction);
 
+    const findChatbyIdFunction = new NodejsFunction(this, 'FindChatbyId', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/findChatById.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantReadData(findChatbyIdFunction);
+
     const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/listMessages.ts',
@@ -182,6 +192,14 @@ export class Api extends Construct {
     );
 
     const chatResource = chatsResource.addResource('{chatId}');
+
+    // GET: /chats/{chatId}
+    chatResource.addMethod(
+      'GET',
+      new LambdaIntegration(findChatbyIdFunction),
+      commonAuthorizerProps
+    );
+
     const messagesResource = chatResource.addResource('messages');
 
     // GET: /chats/{chatId}/messages
