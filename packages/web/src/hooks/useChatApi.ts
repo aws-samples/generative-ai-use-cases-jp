@@ -38,14 +38,12 @@ const useChatApi = () => {
     listChats: () => {
       return http.get<ListChatsResponse>('chats');
     },
-    findChatById: (chatId: string) => {
-      return http.get<FindChatByIdResponse>(
-        chatId !== '' ? `chats/${chatId}` : null
-      );
+    findChatById: (chatId?: string) => {
+      return http.get<FindChatByIdResponse>(chatId ? `chats/${chatId}` : null);
     },
-    listMessages: (chatId: string) => {
+    listMessages: (chatId?: string) => {
       return http.get<ListMessagesResponse>(
-        chatId !== '' ? `chats/${chatId}/messages` : null
+        chatId ? `chats/${chatId}/messages` : null
       );
     },
     // Buffered Response (useTextToJson で利用)

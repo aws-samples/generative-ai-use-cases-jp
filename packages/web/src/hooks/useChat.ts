@@ -246,9 +246,9 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
   const { chats, loading, init, initFromMessages, clear, post } =
     useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
-    useChatApi().listMessages(chatId ?? '');
+    useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
-    useChatApi().findChatById(chatId ?? '');
+    useChatApi().findChatById(chatId);
 
   useEffect(() => {
     // 新規チャットの場合
