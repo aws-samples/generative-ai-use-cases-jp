@@ -24,13 +24,13 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
   const disabled = useMemo(() => {
-    return isSendingFeedback || !props.chatContent.id;
+    return isSendingFeedback || !props.chatContent?.id;
   }, [isSendingFeedback, props]);
 
   const onSendFeedback = async (feedback: string) => {
     if (!disabled) {
       setIsSendingFeedback(true);
-      await sendFeedback(props.chatContent.createdDate, feedback);
+      await sendFeedback(props.chatContent!.createdDate!, feedback);
       setIsSendingFeedback(false);
     }
   };
