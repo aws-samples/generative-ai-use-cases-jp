@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react';
 import { BaseProps } from '../@types/common';
 import useChat from '../hooks/useChat';
 import Card from '../components/Card';
-import { PiDotsThree } from 'react-icons/pi';
 import Markdown from '../components/Markdown';
 import InputChatContent from '../components/InputChatContent';
 import ButtonCopy from '../components/ButtonCopy';
@@ -109,13 +108,21 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                   </div>
                 ) : (
                   <>
-                    <Markdown>{message.content}</Markdown>
+                    <Markdown>
+                      {message.content +
+                        `${
+                          loading &&
+                          idx === messages.length - 1 &&
+                          messages[idx].content !== ''
+                            ? '▍'
+                            : ''
+                        }`}
+                    </Markdown>
                     {loading &&
                       message.role === 'assistant' &&
-                      idx === messages.length - 1 && (
-                        <div className="animate-pulse text-2xl text-gray-700">
-                          <PiDotsThree />
-                        </div>
+                      idx === messages.length - 1 &&
+                      messages[idx].content === '' && (
+                        <div className="animate-pulse text-gray-700">▍</div>
                       )}
                     <div className="flex justify-end">
                       <ButtonCopy

@@ -6,10 +6,13 @@ import {
   UnrecordedMessage,
   ToBeRecordedMessage,
   Chat,
+  ListChatsResponse,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
+import useConversation from './useConversation';
+import { KeyedMutator } from 'swr';
 
 const useChatState = create<{
   chats: {
@@ -28,7 +31,11 @@ const useChatState = create<{
     chat: Chat
   ) => void;
   clear: (id: string, systemContext: string) => void;
-  post: (id: string, content: string) => void;
+  post: (
+    id: string,
+    content: string,
+    mutateListChat: KeyedMutator<ListChatsResponse>
+  ) => void;
 }>((set, get) => {
   const { createChat, createMessages, predictStream, predictTitle } =
     useChatApi();
@@ -172,7 +179,7 @@ const useChatState = create<{
     clear: (id: string, systemContext: string) => {
       initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
-    post: async (id: string, content: string) => {
+    post: async (id: string, content: string, mutateListChat) => {
       setLoading(id, true);
 
       const unrecordedUserMessage: UnrecordedMessage = {
@@ -229,7 +236,9 @@ const useChatState = create<{
 
       // タイトルが空文字列だった場合、タイトルを予測して設定
       if (get().chats[id].chat?.title === '') {
-        updateTitle(id);
+        updateTitle(id).then(() => {
+          mutateListChat();
+        });
       }
 
       const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
@@ -249,6 +258,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
     useChatApi().findChatById(chatId);
+  const { mutate: mutateConversations } = useConversation();
 
   useEffect(() => {
     // 新規チャットの場合
@@ -277,7 +287,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string) => {
-      post(id, content);
+      post(id, content, mutateConversations);
     },
   };
 };

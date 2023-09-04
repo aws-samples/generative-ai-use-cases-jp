@@ -47,7 +47,9 @@ const items = [
   },
 ];
 
-const getLabelByPath = (path: string) => {
+const getLabelByPath = (_path: string) => {
+  // MEMO: /chat/:chatId の path の場合に件名が表示されないため、以下の実装としている
+  const path = '/' + _path.split('/')[1];
   return items.find((i) => i.to === path)?.label || '';
 };
 
