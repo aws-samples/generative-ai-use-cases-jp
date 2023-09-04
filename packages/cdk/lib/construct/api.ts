@@ -123,6 +123,16 @@ export class Api extends Construct {
     });
     table.grantReadData(listMessagesFunction);
 
+    const updateFeedbackFunction = new NodejsFunction(this, 'UpdateFeedback', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/updateFeedback.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantWriteData(updateFeedbackFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -213,6 +223,15 @@ export class Api extends Construct {
     messagesResource.addMethod(
       'POST',
       new LambdaIntegration(createMessagesFunction),
+      commonAuthorizerProps
+    );
+
+    const feedbacksResource = chatResource.addResource('feedbacks');
+
+    // POST: /chats/{chatId}/feedbacks
+    feedbacksResource.addMethod(
+      'POST',
+      new LambdaIntegration(updateFeedbackFunction),
       commonAuthorizerProps
     );
 

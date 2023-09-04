@@ -9,6 +9,8 @@ import {
   PredictTitleRequest,
   PredictTitleResponse,
   FindChatByIdResponse,
+  UpdateFeedbackRequest,
+  UpdateFeedbackResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -45,6 +47,14 @@ const useChatApi = () => {
       return http.get<ListMessagesResponse>(
         chatId ? `chats/${chatId}/messages` : null
       );
+    },
+    updateFeedback: async (
+      _chatId: string,
+      req: UpdateFeedbackRequest
+    ): Promise<UpdateFeedbackResponse> => {
+      const chatId = _chatId.split('#')[1];
+      const res = await http.post(`chats/${chatId}/feedbacks`, req);
+      return res.data;
     },
     // Buffered Response (useTextToJson で利用)
     predict: async (req: PredictRequest): Promise<PredictResponse> => {

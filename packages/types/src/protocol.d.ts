@@ -30,6 +30,15 @@ export type ListMessagesResponse = {
   messages: RecordedMessage[];
 };
 
+export type UpdateFeedbackRequest = {
+  createdDate: string;
+  feedback: string;
+};
+
+export type UpdateFeedbackResponse = {
+  message: RecordedMessage;
+};
+
 export type PredictRequest = {
   messages: UnrecordedMessage[];
 };
