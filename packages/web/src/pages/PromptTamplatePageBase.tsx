@@ -130,10 +130,22 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
                         text={message.content}
                       />
                       <Tooltip message="未実装です">
-                        <ButtonFeedback className="mx-0.5" good={true} />
+                        <ButtonFeedback
+                          className="mx-0.5"
+                          message={message}
+                          feedback="good"
+                          onClick={() => {}}
+                          disabled={false}
+                        />
                       </Tooltip>
                       <Tooltip message="未実装です">
-                        <ButtonFeedback className="ml-0.5" good={false} />
+                        <ButtonFeedback
+                          className="ml-0.5"
+                          message={message}
+                          feedback="bad"
+                          onClick={() => {}}
+                          disabled={false}
+                        />
                       </Tooltip>
                     </div>
                   </>

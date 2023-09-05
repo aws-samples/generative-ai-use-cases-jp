@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
-import Tooltip from './Tooltip';
 import { PiUserFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
+import useChat from '../hooks/useChat';
 
 type Props = BaseProps & {
   chatContent?: ShownMessage;
@@ -17,6 +18,26 @@ const ChatMessage: React.FC<Props> = (props) => {
   const chatContent = useMemo(() => {
     return props.chatContent;
   }, [props]);
+
+  const { pathname } = useLocation();
+  const { sendFeedback } = useChat(pathname);
+  const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+
+  const disabled = useMemo(() => {
+    return isSendingFeedback || !props.chatContent?.id;
+  }, [isSendingFeedback, props]);
+
+  const onSendFeedback = async (feedback: string) => {
+    if (!disabled) {
+      setIsSendingFeedback(true);
+      if (feedback !== chatContent.feedback) {
+        await sendFeedback(props.chatContent!.createdDate!, feedback);
+      } else {
+        await sendFeedback(props.chatContent!.createdDate!, 'none');
+      }
+      setIsSendingFeedback(false);
+    }
+  };
 
   return (
     <div
@@ -71,12 +92,26 @@ const ChatMessage: React.FC<Props> = (props) => {
                 className="mr-0.5 text-gray-400"
                 text={chatContent.content}
               />
-              <Tooltip message="未実装です">
-                <ButtonFeedback className="mx-0.5" good={true} />
-              </Tooltip>
-              <Tooltip message="未実装です">
-                <ButtonFeedback className="ml-0.5" good={false} />
-              </Tooltip>
+              {chatContent && (
+                <>
+                  <ButtonFeedback
+                    className="mx-0.5"
+                    feedback="good"
+                    message={chatContent}
+                    disabled={disabled}
+                    onClick={() => {
+                      onSendFeedback('good');
+                    }}
+                  />
+                  <ButtonFeedback
+                    className="ml-0.5"
+                    feedback="bad"
+                    message={chatContent}
+                    disabled={disabled}
+                    onClick={() => onSendFeedback('bad')}
+                  />
+                </>
+              )}
             </>
           )}
         </div>

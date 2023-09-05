@@ -36,9 +36,19 @@ const useChatState = create<{
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>
   ) => void;
+  sendFeedback: (
+    id: string,
+    createdDate: string,
+    feedback: string
+  ) => Promise<void>;
 }>((set, get) => {
-  const { createChat, createMessages, predictStream, predictTitle } =
-    useChatApi();
+  const {
+    createChat,
+    createMessages,
+    updateFeedback,
+    predictStream,
+    predictTitle,
+  } = useChatApi();
 
   const setLoading = (id: string, newLoading: boolean) => {
     set((state) => {
@@ -131,10 +141,7 @@ const useChatState = create<{
     return toBeRecordedMessages;
   };
 
-  const replaceUnrecordedMessages = (
-    id: string,
-    messages: RecordedMessage[]
-  ) => {
+  const replaceMessages = (id: string, messages: RecordedMessage[]) => {
     set((state) => {
       const newChats = produce(state.chats, (draft) => {
         for (const m of messages) {
@@ -246,13 +253,24 @@ const useChatState = create<{
         messages: toBeRecordedMessages,
       });
 
-      replaceUnrecordedMessages(id, messages);
+      replaceMessages(id, messages);
+    },
+    sendFeedback: async (id: string, createdDate: string, feedback: string) => {
+      const chat = get().chats[id].chat;
+
+      if (chat) {
+        const { message } = await updateFeedback(chat.chatId, {
+          createdDate,
+          feedback,
+        });
+        replaceMessages(id, [message]);
+      }
     },
   };
 });
 
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
-  const { chats, loading, init, initFromMessages, clear, post } =
+  const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
     useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
@@ -288,6 +306,9 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string) => {
       post(id, content, mutateConversations);
+    },
+    sendFeedback: async (createdDate: string, feedback: string) => {
+      await sendFeedback(id, createdDate, feedback);
     },
   };
 };

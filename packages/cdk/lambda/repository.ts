@@ -171,3 +171,27 @@ export const setChatTitle = async (
     })
   );
 };
+
+export const updateFeedback = async (
+  _chatId: string,
+  createdDate: string,
+  feedback: string
+): Promise<RecordedMessage> => {
+  const chatId = `chat#${_chatId}`;
+  const res = await dynamoDbDocument.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: chatId,
+        createdDate,
+      },
+      UpdateExpression: 'set feedback = :feedback',
+      ExpressionAttributeValues: {
+        ':feedback': feedback,
+      },
+      ReturnValues: 'ALL_NEW',
+    })
+  );
+
+  return res.Attributes as RecordedMessage;
+};
