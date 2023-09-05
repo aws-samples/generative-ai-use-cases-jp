@@ -30,7 +30,11 @@ const ChatMessage: React.FC<Props> = (props) => {
   const onSendFeedback = async (feedback: string) => {
     if (!disabled) {
       setIsSendingFeedback(true);
-      await sendFeedback(props.chatContent!.createdDate!, feedback);
+      if (feedback !== chatContent.feedback) {
+        await sendFeedback(props.chatContent!.createdDate!, feedback);
+      } else {
+        await sendFeedback(props.chatContent!.createdDate!, 'none');
+      }
       setIsSendingFeedback(false);
     }
   };
