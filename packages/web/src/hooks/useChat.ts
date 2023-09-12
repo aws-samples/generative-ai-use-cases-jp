@@ -211,7 +211,7 @@ const useChatState = create<{
         };
       });
 
-      let stream = predictStream({
+      const stream = predictStream({
         // 最後のメッセージはアシスタントのメッセージなので、排除
         messages: omitUnusedMessageProperties(
           get().chats[id].messages.slice(0, -1)
