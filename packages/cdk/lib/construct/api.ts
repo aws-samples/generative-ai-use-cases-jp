@@ -34,6 +34,7 @@ export class Api extends Construct {
     const model_type = this.node.tryGetContext('modelType'); // sagemaker / bedrock / openai
     const model_region = this.node.tryGetContext('modelRegion');
     const model_name = this.node.tryGetContext('modelName');
+    const prompt_type = this.node.tryGetContext('promptType');
 
     // OpenAI Secret
     const secret = Secret.fromSecretCompleteArn(
@@ -51,7 +52,8 @@ export class Api extends Construct {
         SECRET_ARN: secret.secretArn,
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
-        MODEL_NAME: model_name
+        MODEL_NAME: model_name,
+        PROMPT_TYPE: prompt_type
       },
     });
     secret.grantRead(predictFunction);
@@ -84,7 +86,8 @@ export class Api extends Construct {
         SECRET_ARN: secret.secretArn,
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
-        MODEL_NAME: model_name
+        MODEL_NAME: model_name,
+        PROMPT_TYPE: prompt_type
       },
       layers: [awssdkLayer],
     });
@@ -101,7 +104,8 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
-        MODEL_NAME: model_name
+        MODEL_NAME: model_name,
+        PROMPT_TYPE: prompt_type
       },
     });
 

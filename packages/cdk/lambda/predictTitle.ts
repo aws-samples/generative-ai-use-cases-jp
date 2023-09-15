@@ -39,7 +39,7 @@ export const handler = async (
       const command = new InvokeEndpointCommand({
         EndpointName: process.env.MODEL_NAME,
         Body: JSON.stringify({
-          inputs: messages_to_prompt(messages),
+          inputs: messages_to_prompt(messages, process.env.PROMPT_TYPE),
           parameters: {
             max_new_tokens: 512,
             return_full_text: false,

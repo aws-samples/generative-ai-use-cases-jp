@@ -125,7 +125,7 @@ npm run cdk:deploy -- -c openAiApiKeySecretArn=<Secret ARN>
 SageMaker エンドポイントにデプロイする際は、以下のようにコマンドライン引数で指定することができます。sagemaker が指定されている場合は OpenAI ではなく SageMaker が優先されます。Text Generation Inference (TGI) を使用した Huggingface Container に対応しています。Falcon のデプロイ例は[こちら](https://github.com/aws-samples/sagemaker-hosting/blob/main/GenAI-Hosting/Large-Language-Model-Hosting/LLM-Streaming/Falcon-40b-and-7b/falcon-40b-and-7b-tgi-streaming/falcon-7b-streaming_tgi.ipynb)。
 
 ```bash
-npm run cdk:deploy -- -c openAiApiKeySecretArn=<Secret ARN> -c modelType=sagemaker -c modelRegion=<Region> -c modelName=<SageMaker Endpoint Name>
+npm run cdk:deploy -- -c openAiApiKeySecretArn=<Secret ARN> -c modelType=sagemaker -c modelRegion=<Region> -c modelName=<SageMaker Endpoint Name> -c promptType=<prompt type>
 ```
 
 ## ローカル環境構築手順
