@@ -1,18 +1,18 @@
 import React from 'react';
 import { BaseProps } from '../@types/common';
-import Tooltip from './Tooltip';
-import { ReactComponent as MLLogo } from '../assets/model.svg';
+// import Tooltip from './Tooltip';
+// import { ReactComponent as MLLogo } from '../assets/model.svg';
 
 type Props = BaseProps & {
   children?: React.ReactNode;
 };
 
 const SelectLlm: React.FC<Props> = (props) => {
-  const isBedrockSelected = false;
+  // const isBedrockSelected = false;
 
   return (
     <div className={`${props.className ?? ''} flex justify-center`}>
-      <div className="flex h-12 w-52 flex-row items-center justify-center rounded bg-gray-200 p-1 shadow-inner shadow-gray-300">
+      {/* <div className="flex h-12 w-52 flex-row items-center justify-center rounded bg-gray-200 p-1 shadow-inner shadow-gray-300">
         <Tooltip
           message="Bedrock が GA され次第対応予定です"
           className="h-full">
@@ -34,7 +34,7 @@ const SelectLlm: React.FC<Props> = (props) => {
           }`}>
           OpenAI
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

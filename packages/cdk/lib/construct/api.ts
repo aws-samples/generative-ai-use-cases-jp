@@ -1,4 +1,4 @@
-import { Duration, CfnOutput } from 'aws-cdk-lib';
+import { Duration, CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -8,12 +8,13 @@ import {
   ResponseType,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, LayerVersion, Code } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
+import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -30,6 +31,10 @@ export class Api extends Construct {
 
     const { userPool, table, idPool } = props;
 
+    const model_type = this.node.tryGetContext('modelType'); // sagemaker / bedrock / openai
+    const model_region = this.node.tryGetContext('modelRegion');
+    const model_name = this.node.tryGetContext('modelName');
+
     // OpenAI Secret
     const secret = Secret.fromSecretCompleteArn(
       this,
@@ -44,9 +49,32 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         SECRET_ARN: secret.secretArn,
+        MODEL_TYPE: model_type,
+        MODEL_REGION: model_region,
+        MODEL_NAME: model_name
       },
     });
     secret.grantRead(predictFunction);
+
+    const awssdkLayer = new LayerVersion(this, 'AWSSDKLamdaLayer', {
+      code: Code.fromAsset('./layer/aws-sdk', {
+        bundling: {
+          image: Runtime.NODEJS_18_X.bundlingImage,
+          command: [
+            'bash',
+            '-c',
+            [
+              'mkdir -p /asset-output/nodejs',
+              'cp package.json package-lock.json /asset-output/nodejs/',
+              'npm ci --omit=dev --prefix /asset-output/nodejs',
+            ].join(' && '),
+          ],
+          user: 'root',
+        },
+      }),
+      compatibleRuntimes: [Runtime.NODEJS_18_X],
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: Runtime.NODEJS_18_X,
@@ -54,7 +82,11 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         SECRET_ARN: secret.secretArn,
+        MODEL_TYPE: model_type,
+        MODEL_REGION: model_region,
+        MODEL_NAME: model_name
       },
+      layers: [awssdkLayer],
     });
 
     secret.grantRead(predictStreamFunction);
@@ -67,11 +99,29 @@ export class Api extends Construct {
       environment: {
         SECRET_ARN: secret.secretArn,
         TABLE_NAME: table.tableName,
+        MODEL_TYPE: model_type,
+        MODEL_REGION: model_region,
+        MODEL_NAME: model_name
       },
     });
 
     secret.grantRead(predictTitleFunction);
     table.grantWriteData(predictTitleFunction);
+
+    // SageMaker Policy
+    if (model_type == "sagemaker") {
+      const sagemakerPolicy = new Policy(this, 'invoke-sagemaker-policy', {
+        statements: [
+          new PolicyStatement({
+            actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
+            resources: ['arn:aws:sagemaker:*:*:endpoint/' + model_name]
+          })
+        ]
+      })
+      predictFunction.role?.attachInlinePolicy(sagemakerPolicy)
+      predictStreamFunction.role?.attachInlinePolicy(sagemakerPolicy)
+      predictTitleFunction.role?.attachInlinePolicy(sagemakerPolicy)
+    }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,

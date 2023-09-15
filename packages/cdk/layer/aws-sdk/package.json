@@ -1,0 +1,17 @@
+{
+    "name": "cdk",
+    "private": true,
+    "version": "0.0.1",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "cdk": "cdk",
+        "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0"
+    },
+    "devDependencies": {
+    },
+    "dependencies": {
+        "@aws-sdk/client-sagemaker-runtime": "^3.410.0"
+    }
+}
+  
