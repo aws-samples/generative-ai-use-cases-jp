@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   BatchWriteCommand,
+  DeleteCommand,
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
@@ -194,4 +195,42 @@ export const updateFeedback = async (
   );
 
   return res.Attributes as RecordedMessage;
+};
+
+export const deleteChat = async (
+  _userId: string,
+  _chatId: string
+): Promise<void> => {
+  const chatItem = await findChatById(_userId, _chatId);
+  console.log(chatItem);
+
+  // Chat の削除
+  await dynamoDbDocument.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: chatItem?.id,
+        createdDate: chatItem?.createdDate,
+      },
+    })
+  );
+
+  // // Message の削除
+  const messageItems = await listMessages(_chatId);
+  await dynamoDbDocument.send(
+    new BatchWriteCommand({
+      RequestItems: {
+        [TABLE_NAME]: messageItems.map((m) => {
+          return {
+            DeleteRequest: {
+              Key: {
+                id: m.id,
+                createdDate: m.createdDate,
+              },
+            },
+          };
+        }),
+      },
+    })
+  );
 };
