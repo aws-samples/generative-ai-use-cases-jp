@@ -37,6 +37,9 @@ const useChatApi = () => {
       const res = await http.post(`chats/${chatId}/messages`, req);
       return res.data;
     },
+    deleteChat: async (chatId: string) => {
+      return http.delete<void>(`chats/${chatId}`);
+    },
     listChats: () => {
       return http.get<ListChatsResponse>('chats');
     },
