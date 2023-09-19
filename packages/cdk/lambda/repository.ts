@@ -201,10 +201,8 @@ export const deleteChat = async (
   _userId: string,
   _chatId: string
 ): Promise<void> => {
-  const chatItem = await findChatById(_userId, _chatId);
-  console.log(chatItem);
-
   // Chat の削除
+  const chatItem = await findChatById(_userId, _chatId);
   await dynamoDbDocument.send(
     new DeleteCommand({
       TableName: TABLE_NAME,
