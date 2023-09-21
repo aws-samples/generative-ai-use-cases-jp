@@ -1,34 +1,37 @@
 import React, { useCallback } from 'react';
 import { BaseProps } from '../@types/common';
 import useConversation from '../hooks/useConversation';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ChatListItem from './ChatListItem';
 import { decomposeChatId } from '../utils/ChatUtils';
-import useChat from '../hooks/useChat';
 
 type Props = BaseProps;
 
 const ChatList: React.FC<Props> = (props) => {
-  const { conversations, loading, deleteConversation } = useConversation();
+  const {
+    conversations,
+    loading,
+    deleteConversation,
+    updateConversationTitle,
+  } = useConversation();
   const { chatId } = useParams();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const { updateChatTitle } = useChat(pathname);
 
   const onDelete = useCallback(
     (_chatId: string) => {
-      return deleteConversation(_chatId).then(() => {
-        navigate('/chat');
+      navigate('/chat');
+      return deleteConversation(_chatId).catch(() => {
+        navigate(`/chat/${_chatId}`);
       });
     },
     [deleteConversation, navigate]
   );
 
   const onUpdateTitle = useCallback(
-    (title: string) => {
-      return updateChatTitle(title);
+    (_chatId: string, title: string) => {
+      return updateConversationTitle(_chatId, title);
     },
-    [updateChatTitle]
+    [updateConversationTitle]
   );
 
   return (

@@ -16,8 +16,10 @@ import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
 type Props = BaseProps & {
   active: boolean;
   chat: Chat;
-  onDelete: (chatId: string) => Promise<void>;
-  onUpdateTitle: (title: string) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDelete: (chatId: string) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onUpdateTitle: (chatId: string, title: string) => Promise<any>;
 };
 
 const ChatListItem: React.FC<Props> = (props) => {
@@ -45,7 +47,7 @@ const ChatListItem: React.FC<Props> = (props) => {
           // dispatch 処理の中で Title の更新を行う（同期を取るため）
           setTempTitle((newTitle) => {
             setEditing(false);
-            props.onUpdateTitle(newTitle).catch(() => {
+            props.onUpdateTitle(chatId, newTitle).catch(() => {
               setEditing(true);
             });
             return newTitle;
@@ -71,9 +73,8 @@ const ChatListItem: React.FC<Props> = (props) => {
           isOpen={openDialog}
           target={props.chat}
           onDelete={() => {
-            props.onDelete(chatId).finally(() => {
-              setOpenDialog(false);
-            });
+            setOpenDialog(false);
+            props.onDelete(chatId);
           }}
           onClose={() => {
             setOpenDialog(false);

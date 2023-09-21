@@ -36,11 +36,6 @@ const useChatState = create<{
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>
   ) => void;
-  updateChatTitle: (
-    id: string,
-    title: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>
-  ) => Promise<void>;
   sendFeedback: (
     id: string,
     createdDate: string,
@@ -51,7 +46,6 @@ const useChatState = create<{
     createChat,
     createMessages,
     updateFeedback,
-    updateTitle,
     predictStream,
     predictTitle,
   } = useChatApi();
@@ -261,27 +255,7 @@ const useChatState = create<{
 
       replaceMessages(id, messages);
     },
-    updateChatTitle: async (
-      id: string,
-      title: string,
-      mutateListChat: KeyedMutator<ListChatsResponse>
-    ) => {
-      const chat = get().chats[id].chat;
-      if (chat) {
-        const beforeTitle = chat.title;
 
-        console.log(title);
-        // 画面に即時反映して、エラーが発生したら画面表示をロールバックする
-        setTitle(id, title);
-        await updateTitle(chat.chatId, title)
-          .catch(() => {
-            setTitle(id, beforeTitle);
-          })
-          .finally(() => {
-            mutateListChat();
-          });
-      }
-    },
     sendFeedback: async (id: string, createdDate: string, feedback: string) => {
       const chat = get().chats[id].chat;
 
@@ -304,16 +278,8 @@ const useChatState = create<{
  * @returns
  */
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
-  const {
-    chats,
-    loading,
-    init,
-    initFromMessages,
-    clear,
-    post,
-    sendFeedback,
-    updateChatTitle,
-  } = useChatState();
+  const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
+    useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
@@ -346,9 +312,6 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     clearChats: (systemContext: string) => clear(id, systemContext),
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
-    updateChatTitle: (title: string) => {
-      return updateChatTitle(id, title, mutateConversations);
-    },
     postChat: (content: string) => {
       post(id, content, mutateConversations);
     },

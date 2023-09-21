@@ -54,8 +54,7 @@ const useChatApi = () => {
         chatId ? `chats/${chatId}/messages` : null
       );
     },
-    updateTitle: async (_chatId: string, title: string) => {
-      const chatId = decomposeChatId(_chatId);
+    updateTitle: async (chatId: string, title: string) => {
       const req: UpdateTitleRequest = {
         title,
       };
