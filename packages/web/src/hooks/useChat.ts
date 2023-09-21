@@ -36,6 +36,11 @@ const useChatState = create<{
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>
   ) => void;
+  updateChatTitle: (
+    id: string,
+    title: string,
+    mutateListChat: KeyedMutator<ListChatsResponse>
+  ) => Promise<void>;
   sendFeedback: (
     id: string,
     createdDate: string,
@@ -46,6 +51,7 @@ const useChatState = create<{
     createChat,
     createMessages,
     updateFeedback,
+    updateTitle,
     predictStream,
     predictTitle,
   } = useChatApi();
@@ -84,7 +90,7 @@ const useChatState = create<{
     });
   };
 
-  const updateTitle = async (id: string) => {
+  const setPredictedTitle = async (id: string) => {
     const title = await predictTitle({
       chat: get().chats[id].chat!,
       messages: omitUnusedMessageProperties(get().chats[id].messages),
@@ -243,7 +249,7 @@ const useChatState = create<{
 
       // タイトルが空文字列だった場合、タイトルを予測して設定
       if (get().chats[id].chat?.title === '') {
-        updateTitle(id).then(() => {
+        setPredictedTitle(id).then(() => {
           mutateListChat();
         });
       }
@@ -254,6 +260,27 @@ const useChatState = create<{
       });
 
       replaceMessages(id, messages);
+    },
+    updateChatTitle: async (
+      id: string,
+      title: string,
+      mutateListChat: KeyedMutator<ListChatsResponse>
+    ) => {
+      const chat = get().chats[id].chat;
+      if (chat) {
+        const beforeTitle = chat.title;
+
+        console.log(title);
+        // 画面に即時反映して、エラーが発生したら画面表示をロールバックする
+        setTitle(id, title);
+        await updateTitle(chat.chatId, title)
+          .catch(() => {
+            setTitle(id, beforeTitle);
+          })
+          .finally(() => {
+            mutateListChat();
+          });
+      }
     },
     sendFeedback: async (id: string, createdDate: string, feedback: string) => {
       const chat = get().chats[id].chat;
@@ -269,9 +296,24 @@ const useChatState = create<{
   };
 });
 
+/**
+ * チャットを操作する Hooks
+ * @param id 画面の URI（状態の識別に利用）
+ * @param systemContext
+ * @param chatId
+ * @returns
+ */
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
-  const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
-    useChatState();
+  const {
+    chats,
+    loading,
+    init,
+    initFromMessages,
+    clear,
+    post,
+    sendFeedback,
+    updateChatTitle,
+  } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
@@ -304,6 +346,9 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     clearChats: (systemContext: string) => clear(id, systemContext),
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
+    updateChatTitle: (title: string) => {
+      return updateChatTitle(id, title, mutateConversations);
+    },
     postChat: (content: string) => {
       post(id, content, mutateConversations);
     },

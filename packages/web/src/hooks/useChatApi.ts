@@ -11,6 +11,8 @@ import {
   FindChatByIdResponse,
   UpdateFeedbackRequest,
   UpdateFeedbackResponse,
+  UpdateTitleRequest,
+  UpdateTitleResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -20,6 +22,7 @@ import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-id
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Auth } from 'aws-amplify';
 import useHttp from '../hooks/useHttp';
+import { decomposeChatId } from '../utils/ChatUtils';
 
 const useChatApi = () => {
   const http = useHttp();
@@ -33,7 +36,7 @@ const useChatApi = () => {
       _chatId: string,
       req: CreateMessagesRequest
     ): Promise<CreateMessagesResponse> => {
-      const chatId = _chatId.split('#')[1];
+      const chatId = decomposeChatId(_chatId);
       const res = await http.post(`chats/${chatId}/messages`, req);
       return res.data;
     },
@@ -51,11 +54,22 @@ const useChatApi = () => {
         chatId ? `chats/${chatId}/messages` : null
       );
     },
+    updateTitle: async (_chatId: string, title: string) => {
+      const chatId = decomposeChatId(_chatId);
+      const req: UpdateTitleRequest = {
+        title,
+      };
+      const res = await http.put<UpdateTitleResponse>(
+        `chats/${chatId}/title`,
+        req
+      );
+      return res.data;
+    },
     updateFeedback: async (
       _chatId: string,
       req: UpdateFeedbackRequest
     ): Promise<UpdateFeedbackResponse> => {
-      const chatId = _chatId.split('#')[1];
+      const chatId = decomposeChatId(_chatId);
       const res = await http.post(`chats/${chatId}/feedbacks`, req);
       return res.data;
     },

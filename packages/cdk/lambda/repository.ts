@@ -158,7 +158,7 @@ export const setChatTitle = async (
   createdDate: string,
   title: string
 ) => {
-  await dynamoDbDocument.send(
+  const res = await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
       Key: {
@@ -169,8 +169,10 @@ export const setChatTitle = async (
       ExpressionAttributeValues: {
         ':title': title,
       },
+      ReturnValues: 'ALL_NEW',
     })
   );
+  return res.Attributes as Chat;
 };
 
 export const updateFeedback = async (

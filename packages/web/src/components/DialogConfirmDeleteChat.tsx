@@ -3,6 +3,7 @@ import { BaseProps } from '../@types/common';
 import Button from './Button';
 import ModalDialog from './ModalDialog';
 import { Chat } from 'generative-ai-use-cases-jp';
+import { decomposeChatId } from '../utils/ChatUtils';
 
 type Props = BaseProps & {
   isOpen: boolean;
@@ -26,7 +27,7 @@ const DialogConfirmDeleteChat: React.FC<Props> = (props) => {
         </Button>
         <Button
           onClick={() => {
-            props.onDelete(props.target?.chatId.split('#')[1] ?? '');
+            props.onDelete(decomposeChatId(props.target?.chatId ?? '') ?? '');
           }}
           className="bg-red-500 p-2 text-white">
           削除
