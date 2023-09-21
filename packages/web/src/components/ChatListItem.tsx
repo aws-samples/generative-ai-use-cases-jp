@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -37,6 +38,13 @@ const ChatListItem: React.FC<Props> = (props) => {
       setTempTitle(props.chat.title);
     }
   }, [editing, props.chat.title]);
+
+  const updateTitle = useCallback(() => {
+    setEditing(false);
+    props.onUpdateTitle(chatId, tempTitle).catch(() => {
+      setEditing(true);
+    });
+  }, [chatId, props, tempTitle]);
 
   useLayoutEffect(() => {
     if (editing) {
@@ -133,7 +141,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             )}
             {editing && (
               <>
-                <ButtonIcon className="text-base" onClick={() => {}}>
+                <ButtonIcon className="text-base" onClick={updateTitle}>
                   <PiCheck />
                 </ButtonIcon>
 
