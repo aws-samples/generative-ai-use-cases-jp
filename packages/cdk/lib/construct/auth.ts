@@ -1,4 +1,4 @@
-import { CfnOutput, Duration } from 'aws-cdk-lib';
+import { Duration } from 'aws-cdk-lib';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import {
   IdentityPool,
@@ -46,9 +46,5 @@ export class Auth extends Construct {
     this.client = client;
     this.userPool = userPool;
     this.idPool = idPool;
-
-    new CfnOutput(this, 'UserPoolId', { value: userPool.userPoolId });
-    new CfnOutput(this, 'UserPoolClientId', { value: client.userPoolClientId });
-    new CfnOutput(this, 'IdPoolId', { value: idPool.identityPoolId });
   }
 }
