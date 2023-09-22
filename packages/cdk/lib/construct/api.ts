@@ -103,6 +103,20 @@ export class Api extends Construct {
     });
     table.grantWriteData(createMessagesFunction);
 
+    const updateChatTitleFunction = new NodejsFunction(
+      this,
+      'UpdateChatTitle',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/updateTitle.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadWriteData(updateChatTitleFunction);
+
     const listChatsFunction = new NodejsFunction(this, 'ListChats', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/listChats.ts',
@@ -224,6 +238,15 @@ export class Api extends Construct {
     chatResource.addMethod(
       'DELETE',
       new LambdaIntegration(deleteChatFunction),
+      commonAuthorizerProps
+    );
+
+    const titleResource = chatResource.addResource('title');
+
+    // PUT: /chats/{chatId}/title
+    titleResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateChatTitleFunction),
       commonAuthorizerProps
     );
 

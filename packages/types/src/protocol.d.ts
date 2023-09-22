@@ -39,6 +39,14 @@ export type UpdateFeedbackResponse = {
   message: RecordedMessage;
 };
 
+export type UpdateTitleRequest = {
+  title: string;
+};
+
+export type UpdateTitleResponse = {
+  chat: Chat;
+};
+
 export type PredictRequest = {
   messages: UnrecordedMessage[];
 };
