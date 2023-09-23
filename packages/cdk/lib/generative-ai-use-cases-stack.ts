@@ -24,8 +24,28 @@ export class GenerativeAiUseCasesStack extends Stack {
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
     });
 
+    new CfnOutput(this, 'Region', {
+      value: this.region,
+    });
+
     new CfnOutput(this, 'WebUrl', {
       value: `https://${web.distribution.domainName}`,
+    });
+
+    new CfnOutput(this, 'ApiEndpoint', {
+      value: api.api.url,
+    });
+
+    new CfnOutput(this, 'UserPoolId', { value: auth.userPool.userPoolId });
+
+    new CfnOutput(this, 'UserPoolClientId', {
+      value: auth.client.userPoolClientId,
+    });
+
+    new CfnOutput(this, 'IdPoolId', { value: auth.idPool.identityPoolId });
+
+    new CfnOutput(this, 'PredictStreamFunctionArn', {
+      value: api.predictStreamFunction.functionArn,
     });
   }
 }

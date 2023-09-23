@@ -5,6 +5,7 @@
   "scripts": {
     "lint": "run-s root:lint web:lint cdk:lint",
     "root:lint": "npx prettier --write .",
+    "web:devw": "source setup-env.sh && npm -w packages/web run dev",
     "web:dev": "npm -w packages/web run dev",
     "web:build": "npm -w packages/web run build",
     "web:lint": "npm -w packages/web run lint",

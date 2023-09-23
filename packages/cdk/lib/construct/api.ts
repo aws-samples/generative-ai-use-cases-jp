@@ -1,4 +1,4 @@
-import { Duration, CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -143,6 +143,16 @@ export class Api extends Construct {
     });
     table.grantWriteData(createChatFunction);
 
+    const deleteChatFunction = new NodejsFunction(this, 'DeleteChat', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteChat.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantReadWriteData(deleteChatFunction);
+
     const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/createMessages.ts',
@@ -152,6 +162,20 @@ export class Api extends Construct {
       },
     });
     table.grantWriteData(createMessagesFunction);
+
+    const updateChatTitleFunction = new NodejsFunction(
+      this,
+      'UpdateChatTitle',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/updateTitle.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadWriteData(updateChatTitleFunction);
 
     const listChatsFunction = new NodejsFunction(this, 'ListChats', {
       runtime: Runtime.NODEJS_18_X,
@@ -270,6 +294,22 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
+    // DELETE: /chats/{chatId}
+    chatResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteChatFunction),
+      commonAuthorizerProps
+    );
+
+    const titleResource = chatResource.addResource('title');
+
+    // PUT: /chats/{chatId}/title
+    titleResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateChatTitleFunction),
+      commonAuthorizerProps
+    );
+
     const messagesResource = chatResource.addResource('messages');
 
     // GET: /chats/{chatId}/messages
@@ -297,9 +337,5 @@ export class Api extends Construct {
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
-
-    new CfnOutput(this, 'PredictStreamFunctionArn', {
-      value: predictStreamFunction.functionArn,
-    });
   }
 }

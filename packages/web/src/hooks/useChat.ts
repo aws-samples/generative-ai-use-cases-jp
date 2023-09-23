@@ -84,7 +84,7 @@ const useChatState = create<{
     });
   };
 
-  const updateTitle = async (id: string) => {
+  const setPredictedTitle = async (id: string) => {
     const title = await predictTitle({
       chat: get().chats[id].chat!,
       messages: omitUnusedMessageProperties(get().chats[id].messages),
@@ -243,7 +243,7 @@ const useChatState = create<{
 
       // タイトルが空文字列だった場合、タイトルを予測して設定
       if (get().chats[id].chat?.title === '') {
-        updateTitle(id).then(() => {
+        setPredictedTitle(id).then(() => {
           mutateListChat();
         });
       }
@@ -255,6 +255,7 @@ const useChatState = create<{
 
       replaceMessages(id, messages);
     },
+
     sendFeedback: async (id: string, createdDate: string, feedback: string) => {
       const chat = get().chats[id].chat;
 
@@ -269,6 +270,13 @@ const useChatState = create<{
   };
 });
 
+/**
+ * チャットを操作する Hooks
+ * @param id 画面の URI（状態の識別に利用）
+ * @param systemContext
+ * @param chatId
+ * @returns
+ */
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
   const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
     useChatState();

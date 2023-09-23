@@ -137,6 +137,14 @@ promptTemplate はプロンプトを構築するためのテンプレートを J
 
 開発者用にローカル環境を構築する手順を説明します。なお、ローカル環境を構築する場合も、前述した AWS へのデプロイは完了している必要があります。
 
+### Unix 系コマンドが使えるユーザー (Linux, MacOS 等)
+
+```bash
+npm run web:devw
+```
+
+### その他のユーザー (Windows 等)
+
 デプロイ完了時に表示される Outputs から API の Endpoint (Output key = APIApiEndpoint...)、Cognito User Pool ID (Output key = AuthUserPoolId...)、Cognito User Pool Client ID (Output Key = AuthUserPoolClientId...) 、Cognito Identity Pool ID (Output Key = AuthIdPoolId...)、レスポンスストリーミングの Lambda 関数の ARN (Output Key = APIPredictStreamFunctionArn...) を取得します。
 デプロイ時の出力が消えている場合、[CloudFormation](https://console.aws.amazon.com/cloudformation/home) の GenerativeAiUseCasesStack をクリックして Outputs タブから確認できます。
 それらの値を以下のように環境変数に設定してください。
