@@ -1,0 +1,8 @@
+{
+    "prefix": "",
+    "suffix": "",
+    "join": "<NL>",
+    "user": "ユーザー: {}",
+    "assistant": "システム: {}",
+    "system": "システム: {}"
+}

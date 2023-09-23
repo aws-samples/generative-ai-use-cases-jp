@@ -15,6 +15,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { readFileSync } from 'fs';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -31,10 +32,15 @@ export class Api extends Construct {
 
     const { userPool, table, idPool } = props;
 
-    const model_type = this.node.tryGetContext('modelType'); // sagemaker / bedrock / openai
+    // sagemaker | bedrock | openai
+    const model_type = this.node.tryGetContext('modelType') || "openai";
+    // region for bedrock / sagemaker
     const model_region = this.node.tryGetContext('modelRegion');
+    // model name for bedrock / sagemaker
     const model_name = this.node.tryGetContext('modelName');
-    const prompt_type = this.node.tryGetContext('promptType');
+    // prompt template
+    const prompt_template_file = this.node.tryGetContext('promptTemplate') || "../../prompt_templates/claude.json";
+    const prompt_template = readFileSync(prompt_template_file, 'utf-8');
 
     // OpenAI Secret
     const secret = Secret.fromSecretCompleteArn(
@@ -53,7 +59,7 @@ export class Api extends Construct {
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
         MODEL_NAME: model_name,
-        PROMPT_TYPE: prompt_type
+        PROMPT_TEMPLATE: prompt_template
       },
     });
     secret.grantRead(predictFunction);
@@ -87,7 +93,7 @@ export class Api extends Construct {
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
         MODEL_NAME: model_name,
-        PROMPT_TYPE: prompt_type
+        PROMPT_TEMPLATE: prompt_template
       },
       layers: [awssdkLayer],
     });
@@ -105,7 +111,7 @@ export class Api extends Construct {
         MODEL_TYPE: model_type,
         MODEL_REGION: model_region,
         MODEL_NAME: model_name,
-        PROMPT_TYPE: prompt_type
+        PROMPT_TEMPLATE: prompt_template
       },
     });
 

@@ -1,0 +1,8 @@
+{
+    "prefix": "",
+    "suffix": "",
+    "join": "\n",
+    "user": "Human: {}",
+    "assistant": "Assistant: {}",
+    "system": "Assistant: {}"
+}

@@ -1,0 +1,8 @@
+{
+    "prefix": "[INST] ",
+    "suffix": " [/INST]",
+    "join": "",
+    "user": "{}",
+    "assistant": " [/INST] {}</s><s>[INST] ",
+    "system": "<<SYS>>\n{}\n<</SYS>>\n\n"
+}

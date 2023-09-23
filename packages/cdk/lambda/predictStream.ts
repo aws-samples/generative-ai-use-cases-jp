@@ -31,7 +31,7 @@ export const handler = awslambda.streamifyResponse(
       const command = new InvokeEndpointWithResponseStreamCommand({
         EndpointName: process.env.MODEL_NAME,
         Body: JSON.stringify({
-          inputs: messages_to_prompt(event.messages, process.env.PROMPT_TYPE),
+          inputs: messages_to_prompt(event.messages, process.env.PROMPT_TEMPLATE),
           parameters: {
             max_new_tokens: 512,
             return_full_text: false,
