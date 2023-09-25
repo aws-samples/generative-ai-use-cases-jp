@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Configuration, OpenAIApi } from 'openai';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
-import { fetchOpenApiKey } from './secret';
+import bedrockApi from './bedrockApi';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -9,26 +8,15 @@ export const handler = async (
   try {
     const req: PredictRequest = JSON.parse(event.body!);
 
-    // Secret 情報の取得
-    const apiKey = await fetchOpenApiKey();
-
-    // OpenAI API の初期化
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // OpenAI API を使用してチャットの応答を取得
-    const chatCompletion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: req.messages,
-    });
+    const res = await bedrockApi.invoke(req.messages);
 
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: chatCompletion.data.choices[0].message!.content!,
+      body: JSON.stringify(res.data.completion),
     };
   } catch (error) {
     console.log(error);

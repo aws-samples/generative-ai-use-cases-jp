@@ -74,8 +74,8 @@ const useChatApi = () => {
     },
     // Buffered Response (useTextToJson で利用)
     predict: async (req: PredictRequest): Promise<PredictResponse> => {
-      const res = await http.post('predict', req, { responseType: 'blob' });
-      return await res.data.text();
+      const res = await http.post('predict', req);
+      return await res.data;
     },
     // Streaming Response
     predictStream: async function* (req: PredictRequest) {

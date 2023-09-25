@@ -1,8 +1,8 @@
 import { Handler } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
-import { Configuration, OpenAIApi } from 'openai';
-import { IncomingMessage } from 'http';
-import { fetchOpenApiKey } from './secret';
+import bedrockApi from './bedrockApi';
+import { EventStreamCodec } from '@smithy/eventstream-codec';
+import { fromUtf8, toUtf8 } from '@smithy/util-utf8';
 
 declare global {
   namespace awslambda {
@@ -17,46 +17,28 @@ declare global {
 
 export const handler = awslambda.streamifyResponse(
   async (event, responseStream) => {
-    // Secret 情報の取得
-    const apiKey = await fetchOpenApiKey();
-
-    // OpenAI API の初期化
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // OpenAI API を使用してチャットの応答を取得
-    const chatCompletion = await openai.createChatCompletion(
-      {
-        model: 'gpt-3.5-turbo',
-        messages: event.messages,
-        stream: true,
-      },
-      {
-        responseType: 'stream',
-      }
-    );
-
-    const stream = chatCompletion.data as unknown as IncomingMessage;
+    const res = await bedrockApi.invokeStream(event.messages);
+    const stream = res.data;
 
     for await (const chunk of stream) {
-      const lines: string[] = chunk
-        .toString('utf8')
-        .split('\n')
-        .filter((line: string) => line.trim().startsWith('data: '));
-
-      for (const line of lines) {
-        const message = line.replace(/^data: /, '');
-
-        if (message === '[DONE]') {
-          break;
-        }
-
-        const json = JSON.parse(message);
-        const token: string | undefined = json.choices[0].delta.content;
-
-        if (token) {
-          responseStream.write(token);
-        }
+      const event = new EventStreamCodec(toUtf8, fromUtf8).decode(chunk);
+      if (
+        event.headers[':event-type'].value !== 'chunk' ||
+        event.headers[':content-type'].value !== 'application/json'
+      ) {
+        throw Error(`Failed to get event chunk: got ${chunk}`);
+      }
+      const body = JSON.parse(
+        Buffer.from(
+          JSON.parse(new TextDecoder('utf-8').decode(event.body)).bytes,
+          'base64'
+        ).toString()
+      );
+      if (body.completion) {
+        responseStream.write(body.completion);
+      }
+      if (body.stop_reason) {
+        break;
       }
     }
 
