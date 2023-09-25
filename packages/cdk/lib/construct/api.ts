@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -8,7 +8,7 @@ import {
   ResponseType,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Runtime, LayerVersion, Code } from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -33,21 +33,24 @@ export class Api extends Construct {
     const { userPool, table, idPool } = props;
 
     // sagemaker | bedrock | openai
-    const model_type = this.node.tryGetContext('modelType') || "openai";
+    const modelType = this.node.tryGetContext('modelType') || 'openai';
     // region for bedrock / sagemaker
-    const model_region = this.node.tryGetContext('modelRegion');
+    const modelRegion = this.node.tryGetContext('modelRegion');
     // model name for bedrock / sagemaker
-    const model_name = this.node.tryGetContext('modelName');
+    const modelName = this.node.tryGetContext('modelName');
     // prompt template
-    const prompt_template_file = this.node.tryGetContext('promptTemplate') || "../../prompt_templates/claude.json";
-    const prompt_template = readFileSync(prompt_template_file, 'utf-8');
+    const promptTemplateFile =
+      this.node.tryGetContext('promptTemplate') || 'claude.json';
+    const promptTemplate = readFileSync(
+      '../../prompt_templates/' + promptTemplateFile,
+      'utf-8'
+    );
 
     // OpenAI Secret
-    const secret = Secret.fromSecretCompleteArn(
-      this,
-      'Secret',
-      this.node.tryGetContext('openAiApiKeySecretArn')
-    );
+    const secretArn = this.node.tryGetContext('openAiApiKeySecretArn') || '';
+    const secret = secretArn
+      ? Secret.fromSecretCompleteArn(this, 'Secret', secretArn)
+      : Secret.prototype;
 
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
@@ -55,50 +58,32 @@ export class Api extends Construct {
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secret.secretArn,
-        MODEL_TYPE: model_type,
-        MODEL_REGION: model_region,
-        MODEL_NAME: model_name,
-        PROMPT_TEMPLATE: prompt_template
+        SECRET_ARN: secretArn,
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
       },
     });
-    secret.grantRead(predictFunction);
-
-    const awssdkLayer = new LayerVersion(this, 'AWSSDKLamdaLayer', {
-      code: Code.fromAsset('./layer/aws-sdk', {
-        bundling: {
-          image: Runtime.NODEJS_18_X.bundlingImage,
-          command: [
-            'bash',
-            '-c',
-            [
-              'mkdir -p /asset-output/nodejs',
-              'cp package.json package-lock.json /asset-output/nodejs/',
-              'npm ci --omit=dev --prefix /asset-output/nodejs',
-            ].join(' && '),
-          ],
-          user: 'root',
-        },
-      }),
-      compatibleRuntimes: [Runtime.NODEJS_18_X],
-      removalPolicy: RemovalPolicy.DESTROY,
-    });
+    if (secretArn) secret.grantRead(predictFunction);
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secret.secretArn,
-        MODEL_TYPE: model_type,
-        MODEL_REGION: model_region,
-        MODEL_NAME: model_name,
-        PROMPT_TEMPLATE: prompt_template
+        SECRET_ARN: secretArn,
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
       },
-      layers: [awssdkLayer],
+      bundling: {
+        externalModules: [],
+      },
     });
 
-    secret.grantRead(predictStreamFunction);
+    if (secretArn) secret.grantRead(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
@@ -106,31 +91,31 @@ export class Api extends Construct {
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secret.secretArn,
+        SECRET_ARN: secretArn,
         TABLE_NAME: table.tableName,
-        MODEL_TYPE: model_type,
-        MODEL_REGION: model_region,
-        MODEL_NAME: model_name,
-        PROMPT_TEMPLATE: prompt_template
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
       },
     });
 
-    secret.grantRead(predictTitleFunction);
+    if (secretArn) secret.grantRead(predictTitleFunction);
     table.grantWriteData(predictTitleFunction);
 
     // SageMaker Policy
-    if (model_type == "sagemaker") {
+    if (modelType == 'sagemaker') {
       const sagemakerPolicy = new Policy(this, 'invoke-sagemaker-policy', {
         statements: [
           new PolicyStatement({
             actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
-            resources: ['arn:aws:sagemaker:*:*:endpoint/' + model_name]
-          })
-        ]
-      })
-      predictFunction.role?.attachInlinePolicy(sagemakerPolicy)
-      predictStreamFunction.role?.attachInlinePolicy(sagemakerPolicy)
-      predictTitleFunction.role?.attachInlinePolicy(sagemakerPolicy)
+            resources: ['arn:aws:sagemaker:*:*:endpoint/' + modelName],
+          }),
+        ],
+      });
+      predictFunction.role?.attachInlinePolicy(sagemakerPolicy);
+      predictStreamFunction.role?.attachInlinePolicy(sagemakerPolicy);
+      predictTitleFunction.role?.attachInlinePolicy(sagemakerPolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {

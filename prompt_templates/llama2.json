@@ -4,5 +4,6 @@
     "join": "",
     "user": "{}",
     "assistant": " [/INST] {}</s><s>[INST] ",
-    "system": "<<SYS>>\n{}\n<</SYS>>\n\n"
+    "system": "<<SYS>>\n{}\n<</SYS>>\n\n",
+    "eos_token": "</s>"
 }

@@ -4,5 +4,6 @@
     "join": "\n",
     "user": "Human: {}",
     "assistant": "Assistant: {}",
-    "system": "Assistant: {}"
+    "system": "Assistant: {}",
+    "eos_token": "</s>"
 }
