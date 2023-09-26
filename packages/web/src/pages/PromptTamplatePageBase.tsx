@@ -7,7 +7,6 @@ import InputChatContent from '../components/InputChatContent';
 import ButtonCopy from '../components/ButtonCopy';
 import ButtonFeedback from '../components/ButtonFeedback';
 import Tooltip from '../components/Tooltip';
-import SelectLlm from '../components/SelectLlm';
 import useScroll from '../hooks/useScroll';
 import { useLocation } from 'react-router-dom';
 import { create } from 'zustand';
@@ -83,8 +82,6 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
           {props.title}
         </div>
-
-        <SelectLlm className="col-span-12 mb-6 mt-5 lg:mt-0" />
 
         <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
           {props.children}
