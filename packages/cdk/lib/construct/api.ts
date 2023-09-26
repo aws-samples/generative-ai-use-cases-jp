@@ -10,11 +10,10 @@ import {
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
-import { Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { readFileSync } from 'fs';
 
 export interface BackendApiProps {
@@ -33,7 +32,7 @@ export class Api extends Construct {
     const { userPool, table, idPool } = props;
 
     // sagemaker | bedrock | openai
-    const modelType = this.node.tryGetContext('modelType') || 'openai';
+    const modelType = this.node.tryGetContext('modelType') || 'bedrock';
     // region for bedrock / sagemaker
     const modelRegion = this.node.tryGetContext('modelRegion');
     // model name for bedrock / sagemaker
@@ -46,33 +45,24 @@ export class Api extends Construct {
       'utf-8'
     );
 
-    // OpenAI Secret
-    const secretArn = this.node.tryGetContext('openAiApiKeySecretArn') || '';
-    const secret = secretArn
-      ? Secret.fromSecretCompleteArn(this, 'Secret', secretArn)
-      : Secret.prototype;
-
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secretArn,
         MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
         MODEL_NAME: modelName,
         PROMPT_TEMPLATE: promptTemplate,
       },
     });
-    if (secretArn) secret.grantRead(predictFunction);
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secretArn,
         MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
         MODEL_NAME: modelName,
@@ -83,7 +73,6 @@ export class Api extends Construct {
       },
     });
 
-    if (secretArn) secret.grantRead(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
@@ -91,7 +80,6 @@ export class Api extends Construct {
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
       environment: {
-        SECRET_ARN: secretArn,
         TABLE_NAME: table.tableName,
         MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
@@ -100,22 +88,28 @@ export class Api extends Construct {
       },
     });
 
-    if (secretArn) secret.grantRead(predictTitleFunction);
     table.grantWriteData(predictTitleFunction);
 
-    // SageMaker Policy
     if (modelType == 'sagemaker') {
-      const sagemakerPolicy = new Policy(this, 'invoke-sagemaker-policy', {
-        statements: [
-          new PolicyStatement({
-            actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
-            resources: ['arn:aws:sagemaker:*:*:endpoint/' + modelName],
-          }),
-        ],
+      // SageMaker Policy
+      const sagemakerPolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
+        resources: ['arn:aws:sagemaker:*:*:endpoint/' + modelName],
       });
-      predictFunction.role?.attachInlinePolicy(sagemakerPolicy);
-      predictStreamFunction.role?.attachInlinePolicy(sagemakerPolicy);
-      predictTitleFunction.role?.attachInlinePolicy(sagemakerPolicy);
+      predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+    } else {
+      // Bedrock Policy
+      const bedrockPolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      });
+      predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {

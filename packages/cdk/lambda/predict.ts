@@ -1,7 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
 import sagemakerApi from './sagemakerApi';
-import openaiApi from './openaiApi';
 import bedrockApi from './bedrockApi';
 
 const modelType = process.env.MODEL_TYPE || 'bedrock';
@@ -9,7 +8,6 @@ const api =
   {
     bedrock: bedrockApi,
     sagemaker: sagemakerApi,
-    openai: openaiApi,
   }[modelType] || bedrockApi;
 
 export const handler = async (
@@ -22,10 +20,10 @@ export const handler = async (
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: response,
+      body: JSON.stringify(response),
     };
   } catch (error) {
     console.log(error);
