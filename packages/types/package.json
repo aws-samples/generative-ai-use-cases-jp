@@ -1,5 +1,8 @@
 {
   "name": "@types/generative-ai-use-cases-jp",
   "types": "src/index.d.ts",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-kendra": "^3.418.0"
+  }
 }

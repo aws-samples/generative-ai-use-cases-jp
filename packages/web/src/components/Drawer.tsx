@@ -103,6 +103,7 @@ const Drawer: React.FC<Props> = (props) => {
         <div className="border-b" />
         <div className="mb-2">
           <div className="text-aws-smile mx-3 my-2 text-xs">リンク</div>
+
           <RefLink
             to="https://aws.amazon.com/jp/bedrock/"
             icon={<MLLogo className="w-4 fill-white" />}

@@ -9,6 +9,7 @@ import {
   PiPencil,
   PiNote,
   PiEnvelope,
+  PiMagnifyingGlass,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer from './components/Drawer';
@@ -44,6 +45,11 @@ const items = [
     label: 'CS 業務効率化',
     to: '/cs',
     icon: <PiPencil />,
+  },
+  {
+    label: 'Kendra 検索',
+    to: '/kendra',
+    icon: <PiMagnifyingGlass />,
   },
 ];
 

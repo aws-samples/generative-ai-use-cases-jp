@@ -22,6 +22,7 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.93.0-alpha.0",
     "@aws-cdk/aws-lambda-python-alpha": "^2.93.0-alpha.0",
     "@aws-sdk/client-dynamodb": "^3.395.0",
+    "@aws-sdk/client-kendra": "^3.418.0",
     "@aws-sdk/lib-dynamodb": "^3.395.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.41.0",
     "@smithy/eventstream-codec": "^2.0.9",

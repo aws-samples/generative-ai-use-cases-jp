@@ -1,6 +1,7 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Auth, Api, Web, Database } from './construct';
+import { Rag } from './construct/rag';
 
 export class GenerativeAiUseCasesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -22,6 +23,11 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPoolClientId: auth.client.userPoolClientId,
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
+    });
+
+    const rag = new Rag(this, 'Rag', {
+      userPool: auth.userPool,
+      api: api.api,
     });
 
     new CfnOutput(this, 'Region', {
