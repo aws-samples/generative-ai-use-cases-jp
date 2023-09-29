@@ -26,7 +26,7 @@ type StateType = {
   setContent: (pathname: string, s: string) => void;
 };
 
-const usePromptTamplatePageBaseState = create<StateType>((set) => {
+const usePromptTemplatePageBaseState = create<StateType>((set) => {
   return {
     content: {},
     setContent: (pathname: string, s: string) => {
@@ -40,7 +40,7 @@ const usePromptTamplatePageBaseState = create<StateType>((set) => {
   };
 });
 
-const PromptTamplatePageBase: React.FC<Props> = (props) => {
+const PromptTemplatePageBase: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, clearChats, postChat } = useChat(
     pathname,
@@ -48,7 +48,7 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
   );
   const { scrollToBottom, scrollToTop } = useScroll();
 
-  const { content, setContent } = usePromptTamplatePageBaseState((state) => ({
+  const { content, setContent } = usePromptTemplatePageBaseState((state) => ({
     content: state.content[pathname] ?? '',
     setContent: state.setContent,
   }));
@@ -180,4 +180,4 @@ const PromptTamplatePageBase: React.FC<Props> = (props) => {
   );
 };
 
-export default PromptTamplatePageBase;
+export default PromptTemplatePageBase;

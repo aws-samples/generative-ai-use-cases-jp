@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Textarea from '../components/Textarea';
 import Button from '../components/Button';
-import PromptTemplatePageBase from './PromptTamplatePageBase';
+import PromptTemplatePageBase from './PromptTemplatePageBase';
 import { CasualOptionList, GenerateMessagePrompt } from '../prompts';
 import { GenerateMessageParams } from '../@types/cs-improvement';
 import useChat from '../hooks/useChat';
