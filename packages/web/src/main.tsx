@@ -10,6 +10,7 @@ import GenerateMail from './pages/GenerateMail.tsx';
 import GenerateMessage from './pages/GenerateMessage.tsx';
 import NotFound from './pages/NotFound.tsx';
 import KendraSearchPage from './pages/KendraSearchPage.tsx';
+import RagPage from './pages/RagPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: '/cs',
         element: <GenerateMessage />,
+      },
+      {
+        path: '/rag',
+        element: <RagPage />,
       },
       {
         path: '/kendra',

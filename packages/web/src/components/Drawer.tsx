@@ -91,7 +91,7 @@ const Drawer: React.FC<Props> = (props) => {
           opened ? 'visible w-64' : 'invisible w-0'
         } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
         <div className="text-aws-smile mx-3 mt-3 text-xs">ツール</div>
-        <div className="h-full  overflow-y-auto border-b">
+        <div className="scrollbar-thin scrollbar-thumb-white  ml-2 mr-1 h-full overflow-y-auto border-b">
           {props.items.map((item, idx) => (
             <Item key={idx} label={item.label} icon={item.icon} to={item.to} />
           ))}

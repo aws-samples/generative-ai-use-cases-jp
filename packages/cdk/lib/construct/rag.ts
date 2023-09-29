@@ -121,6 +121,10 @@ export class Rag extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/queryKendra.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        // 新しい Kendra の機能を使うため、AWS SDK を明示的にバンドルする
+        externalModules: [],
+      },
       environment: {
         INDEX_ID: index.ref,
       },
@@ -130,6 +134,26 @@ export class Rag extends Construct {
         effect: iam.Effect.ALLOW,
         resources: [Token.asString(index.getAtt('Arn'))],
         actions: ['kendra:Query'],
+      })
+    );
+
+    const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/retrieveKendra.ts',
+      timeout: Duration.minutes(15),
+      bundling: {
+        // 新しい Kendra の機能を使うため、AWS SDK を明示的にバンドルする
+        externalModules: [],
+      },
+      environment: {
+        INDEX_ID: index.ref,
+      },
+    });
+    retrieveFunction.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [Token.asString(index.getAtt('Arn'))],
+        actions: ['kendra:Retrieve'],
       })
     );
 
@@ -149,6 +173,14 @@ export class Rag extends Construct {
     queryResource.addMethod(
       'POST',
       new LambdaIntegration(queryFunction),
+      commonAuthorizerProps
+    );
+
+    const retrieveResource = ragResource.addResource('retrieve');
+    // POST: /retrieve
+    retrieveResource.addMethod(
+      'POST',
+      new LambdaIntegration(retrieveFunction),
       commonAuthorizerProps
     );
   }

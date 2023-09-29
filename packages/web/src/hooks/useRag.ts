@@ -1,62 +1,38 @@
-import { create } from 'zustand';
+import ragPrompt from '../prompts/rag-prompt';
+import useChat from './useChat';
+import useChatApi from './useChatApi';
 import useRagApi from './useRagApi';
-import { QueryResultItem } from '@aws-sdk/client-kendra';
-import { produce } from 'immer';
 
-const useRagState = create<{
-  loading: boolean;
-  query: string;
-  setQuery: (query: string) => void;
-  resultItems: QueryResultItem[];
-  search: () => Promise<void>;
-}>((set, get) => {
-  const api = useRagApi();
+const useRag = (id: string) => {
+  const { messages, postChat, clearChats, loading, updateSystemContext } =
+    useChat(id);
 
-  const search = async () => {
-    if (get().query === '') {
-      return;
-    }
-
-    set(() => ({
-      loading: true,
-      resultItems: [],
-    }));
-
-    const res = await api.query(get().query).finally(() => {
-      set(() => ({
-        loading: false,
-      }));
-    });
-    set((state) => ({
-      resultItems: produce(state.resultItems, (draft) => {
-        draft.push(...(res.data.ResultItems ?? []));
-      }),
-    }));
-  };
+  const { retrieve } = useRagApi();
+  const { predict } = useChatApi();
 
   return {
-    loading: false,
-    query: '',
-    setQuery: (query: string) => {
-      set(() => ({
-        query,
-      }));
+    init: () => {
+      clearChats('');
     },
-    resultItems: [],
-    search,
-  };
-});
-
-const useRag = () => {
-  const { loading, query, setQuery, resultItems, search } = useRagState();
-  return {
     loading,
-    query,
-    setQuery,
-    resultItems,
-    search: async () => {
-      search();
+    messages,
+    postMessage: async (content: string) => {
+      const query = await predict({
+        messages: [
+          {
+            role: 'user',
+            content: ragPrompt.retrieveQueryPrompt([content]),
+          },
+        ],
+      });
+
+      const items = await retrieve(query);
+      updateSystemContext(
+        ragPrompt.systemContext(items.data.ResultItems ?? [])
+      );
+      postChat(content);
     },
   };
 };
+
 export default useRag;

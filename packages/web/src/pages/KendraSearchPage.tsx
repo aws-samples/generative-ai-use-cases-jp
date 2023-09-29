@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { PiMagnifyingGlass, PiSpinnerGap, PiX } from 'react-icons/pi';
-import useRag from '../hooks/useRag';
+import useRag from '../hooks/useSearch';
 import HighlightText from '../components/HighlightText';
 import ButtonIcon from '../components/ButtonIcon';
 

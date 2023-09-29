@@ -30,6 +30,7 @@ const useChatState = create<{
     messages: RecordedMessage[],
     chat: Chat
   ) => void;
+  updateSystemContext: (id: string, systemContext: string) => void;
   clear: (id: string, systemContext: string) => void;
   post: (
     id: string,
@@ -186,6 +187,20 @@ const useChatState = create<{
     clear: (id: string, systemContext: string) => {
       initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
+    updateSystemContext: (id: string, systemContext: string) => {
+      set((state) => {
+        return {
+          chats: produce(state.chats, (draft) => {
+            const idx = draft[id].messages.findIndex(
+              (m) => m.role === 'system'
+            );
+            if (idx > -1) {
+              draft[id].messages[idx].content = systemContext;
+            }
+          }),
+        };
+      });
+    },
     post: async (id: string, content: string, mutateListChat) => {
       setLoading(id, true);
 
@@ -278,8 +293,16 @@ const useChatState = create<{
  * @returns
  */
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
-  const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
-    useChatState();
+  const {
+    chats,
+    loading,
+    init,
+    initFromMessages,
+    clear,
+    post,
+    sendFeedback,
+    updateSystemContext,
+  } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
@@ -310,6 +333,9 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     loading: loading[id] ?? false,
     loadingMessages: isLoadingMessage,
     clearChats: (systemContext: string) => clear(id, systemContext),
+    updateSystemContext: (systemContext: string) => {
+      updateSystemContext(id, systemContext);
+    },
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string) => {

@@ -10,6 +10,7 @@ import {
   PiNote,
   PiEnvelope,
   PiMagnifyingGlass,
+  PiChatsCircle,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer from './components/Drawer';
@@ -29,6 +30,11 @@ const items = [
   {
     label: 'チャット',
     to: '/chat',
+    icon: <PiChatsCircle />,
+  },
+  {
+    label: 'RAG チャット',
+    to: '/rag',
     icon: <PiChatCircleText />,
   },
   {
