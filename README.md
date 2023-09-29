@@ -80,7 +80,7 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 ## アーキテクチャ
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は OpenAI または Amazon Bedrock (現在は未実装) を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
+このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は Amazon Bedrock を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
 
 ![arch.png](/imgs/arch.png)
 
