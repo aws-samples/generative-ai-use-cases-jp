@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Textarea from '../components/Textarea';
 import Button from '../components/Button';
-import PromptTamplatePageBase from './PromptTamplatePageBase';
+import PromptTemplatePageBase from './PromptTamplatePageBase';
 import { GenerateMailPrompt } from '../prompts';
 import { GenerateMailParams } from '../@types/mail';
 import useChat from '../hooks/useChat';
@@ -139,7 +139,7 @@ const GenerateMail: React.FC = () => {
   }, []);
 
   return (
-    <PromptTamplatePageBase
+    <PromptTemplatePageBase
       title="メール生成"
       systemContext={GenerateMailPrompt.systemContext}>
       <Card label="生成条件">
@@ -335,7 +335,7 @@ const GenerateMail: React.FC = () => {
           </Button>
         </div>
       </Card>
-    </PromptTamplatePageBase>
+    </PromptTemplatePageBase>
   );
 };
 

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Textarea from '../components/Textarea';
 import Button from '../components/Button';
-import PromptTamplatePageBase from './PromptTamplatePageBase';
+import PromptTemplatePageBase from './PromptTamplatePageBase';
 import { CasualOptionList, GenerateMessagePrompt } from '../prompts';
 import { GenerateMessageParams } from '../@types/cs-improvement';
 import useChat from '../hooks/useChat';
@@ -77,7 +77,7 @@ const GenerateMessage: React.FC = () => {
 
   return (
     <>
-      <PromptTamplatePageBase
+      <PromptTemplatePageBase
         className="pb-80"
         title="CS 業務効率化"
         systemContext={GenerateMessagePrompt.systemContext}>
@@ -167,7 +167,7 @@ const GenerateMessage: React.FC = () => {
             </Button>
           </div>
         </Card>
-      </PromptTamplatePageBase>
+      </PromptTemplatePageBase>
     </>
   );
 };
