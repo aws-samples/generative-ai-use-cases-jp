@@ -12,8 +12,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 |--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
 | [![デプロイ手順](https://img.youtube.com/vi/9sMA17OKP1k/0.jpg)](https://www.youtube.com/watch?v=9sMA17OKP1k) | [![デモ](https://img.youtube.com/vi/rkKZZSuVZUU/0.jpg)](https://www.youtube.com/watch?v=rkKZZSuVZUU) |
 
-> - 2023年8月現在、Amazon Bedrock はプレビュー版であるため、このリポジトリの実装には含まれていません。OpenAI を LLM としてサポートしていますので、そちらをご利用いただけます。Amazon Bedrock が GA になり次第、対応いたします。
-> - OpenAI を LLM として利用する場合は、別途利用料金がかかります。OpenAI 利用に関する情報は、事前に [OpenAI](https://platform.openai.com/) で確認してください。
+> **2023/09/29 現在、東京リージョンで Amazon Bedrock を利用することができませんので、バージニア北部 (us-east-1) リージョンを利用する設定にしています。こちらの [Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください**
 
 ## Why Generative AI on AWS?
 
@@ -23,8 +22,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 > :white_check_mark: ... 実装されている、:construction: ... まだ実装されていない
 
-- :white_check_mark: OpenAI を LLM として利用
-- :construction: Amazon Bedrock を LLM として利用
+- :white_check_mark: Amazon Bedrock を LLM として利用
 - :construction: Amazon Bedrock Fine-tuning 用のデータ収集
 - :construction: Amazon Bedrock Fine-tuning の実行
 
@@ -88,21 +86,11 @@ LLM は、大量の文章を要約するタスクを得意としています。�
 
 ## デプロイ
 
-> **OpenAI を LLM として使用する場合は、あらかじめ [OpenAI の API キーを取得](https://platform.openai.com/account/api-keys)してください。**
-
 [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。
 
 ```bash
 npm ci
 ```
-
-OpenAIを使用する場合は以下のように、Secret Manager で API Key を保存します。(現状は LLM として OpenAI のみがサポートされているため、必須の手順です。)
-
-```bash
-aws secretsmanager create-secret --name openai-secret --secret-string <Open AI の API キー>
-```
-
-上記のコマンド実行後、作成した Secret の ARN がレスポンスとして返ってくるため、[cdk.json](packages/cdk/cdk.json) の context の `openAiApiKeySecretArn` を受け取った値に変更します。
 
 CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
 
@@ -114,12 +102,6 @@ npx -w packages/cdk cdk bootstrap
 
 ```bash
 npm run cdk:deploy
-```
-
-cdk.json にコミットせず、以下のようにコマンドライン引数で OpenAI API Key を渡すこともできます。
-
-```bash
-npm run cdk:deploy -- -c openAiApiKeySecretArn=<Secret ARN>
 ```
 
 ## ローカル環境構築手順

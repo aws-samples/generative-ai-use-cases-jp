@@ -10,10 +10,10 @@ import {
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
-import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -30,47 +30,58 @@ export class Api extends Construct {
 
     const { userPool, table, idPool } = props;
 
-    // OpenAI Secret
-    const secret = Secret.fromSecretCompleteArn(
-      this,
-      'Secret',
-      this.node.tryGetContext('openAiApiKeySecretArn')
-    );
-
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
-      environment: {
-        SECRET_ARN: secret.secretArn,
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
-    secret.grantRead(predictFunction);
+    predictFunction.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      })
+    );
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
-      environment: {
-        SECRET_ARN: secret.secretArn,
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
-
-    secret.grantRead(predictStreamFunction);
+    predictStreamFunction.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      })
+    );
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
       environment: {
-        SECRET_ARN: secret.secretArn,
         TABLE_NAME: table.tableName,
       },
     });
-
-    secret.grantRead(predictTitleFunction);
+    predictTitleFunction.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      })
+    );
     table.grantWriteData(predictTitleFunction);
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {

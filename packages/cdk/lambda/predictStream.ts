@@ -1,8 +1,10 @@
 import { Handler } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
-import { Configuration, OpenAIApi } from 'openai';
-import { IncomingMessage } from 'http';
-import { fetchOpenApiKey } from './secret';
+import {
+  BedrockRuntimeClient,
+  InvokeModelWithResponseStreamCommand,
+} from '@aws-sdk/client-bedrock-runtime';
+import { getClaudeInvokeInput } from './utils/bedrockUtils';
 
 declare global {
   namespace awslambda {
@@ -17,46 +19,31 @@ declare global {
 
 export const handler = awslambda.streamifyResponse(
   async (event, responseStream) => {
-    // Secret 情報の取得
-    const apiKey = await fetchOpenApiKey();
-
-    // OpenAI API の初期化
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // OpenAI API を使用してチャットの応答を取得
-    const chatCompletion = await openai.createChatCompletion(
-      {
-        model: 'gpt-3.5-turbo',
-        messages: event.messages,
-        stream: true,
-      },
-      {
-        responseType: 'stream',
-      }
+    // 東京リージョンで GA されていないため、us-east-1 を固定指定しています
+    const client = new BedrockRuntimeClient({ region: 'us-east-1' });
+    const command = new InvokeModelWithResponseStreamCommand(
+      getClaudeInvokeInput(event.messages)
     );
 
-    const stream = chatCompletion.data as unknown as IncomingMessage;
+    const res = await client.send(command);
 
-    for await (const chunk of stream) {
-      const lines: string[] = chunk
-        .toString('utf8')
-        .split('\n')
-        .filter((line: string) => line.trim().startsWith('data: '));
+    if (!res.body) {
+      responseStream.end();
+      return;
+    }
 
-      for (const line of lines) {
-        const message = line.replace(/^data: /, '');
-
-        if (message === '[DONE]') {
-          break;
-        }
-
-        const json = JSON.parse(message);
-        const token: string | undefined = json.choices[0].delta.content;
-
-        if (token) {
-          responseStream.write(token);
-        }
+    for await (const streamChunk of res.body) {
+      if (!streamChunk.chunk?.bytes) {
+        break;
+      }
+      const body = JSON.parse(
+        new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes)
+      );
+      if (body.completion) {
+        responseStream.write(body.completion);
+      }
+      if (body.stop_reason) {
+        break;
       }
     }
 

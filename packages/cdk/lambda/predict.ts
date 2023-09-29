@@ -1,7 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Configuration, OpenAIApi } from 'openai';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
-import { fetchOpenApiKey } from './secret';
+import {
+  BedrockRuntimeClient,
+  InvokeModelCommand,
+} from '@aws-sdk/client-bedrock-runtime';
+import { getClaudeInvokeInput } from './utils/bedrockUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -9,26 +12,19 @@ export const handler = async (
   try {
     const req: PredictRequest = JSON.parse(event.body!);
 
-    // Secret 情報の取得
-    const apiKey = await fetchOpenApiKey();
+    // 東京リージョンで GA されていないため、us-east-1 を固定指定しています
+    const client = new BedrockRuntimeClient({ region: 'us-east-1' });
+    const command = new InvokeModelCommand(getClaudeInvokeInput(req.messages));
 
-    // OpenAI API の初期化
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
-    // OpenAI API を使用してチャットの応答を取得
-    const chatCompletion = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: req.messages,
-    });
+    const data = await client.send(command);
 
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: chatCompletion.data.choices[0].message!.content!,
+      body: data.body.transformToString(),
     };
   } catch (error) {
     console.log(error);

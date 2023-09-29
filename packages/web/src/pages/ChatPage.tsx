@@ -4,7 +4,6 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import { ChatPrompt } from '../prompts';
 import ChatMessage from '../components/ChatMessage';
-import SelectLlm from '../components/SelectLlm';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
@@ -71,7 +70,6 @@ const ChatPage: React.FC = () => {
             <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
               チャット
             </div>
-            <SelectLlm className="mt-5 lg:mt-0" />
           </>
         )}
 
