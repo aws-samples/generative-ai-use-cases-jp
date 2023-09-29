@@ -4,8 +4,8 @@ import {
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { setChatTitle } from './repository';
-import sagemakerApi from './sagemakerApi';
-import bedrockApi from './bedrockApi';
+import sagemakerApi from './utils/sagemakerApi';
+import bedrockApi from './utils/bedrockApi';
 
 const modelType = process.env.MODEL_TYPE || 'bedrock';
 const api =

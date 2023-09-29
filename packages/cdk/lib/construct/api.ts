@@ -34,9 +34,10 @@ export class Api extends Construct {
     // sagemaker | bedrock | openai
     const modelType = this.node.tryGetContext('modelType') || 'bedrock';
     // region for bedrock / sagemaker
-    const modelRegion = this.node.tryGetContext('modelRegion');
+    const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
     // model name for bedrock / sagemaker
-    const modelName = this.node.tryGetContext('modelName');
+    const modelName =
+      this.node.tryGetContext('modelName') || 'anthropic.claude-v2';
     // prompt template
     const promptTemplateFile =
       this.node.tryGetContext('promptTemplate') || 'claude.json';
@@ -56,6 +57,9 @@ export class Api extends Construct {
         MODEL_NAME: modelName,
         PROMPT_TEMPLATE: promptTemplate,
       },
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
     });
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
@@ -69,7 +73,10 @@ export class Api extends Construct {
         PROMPT_TEMPLATE: promptTemplate,
       },
       bundling: {
-        externalModules: [],
+        nodeModules: [
+          '@aws-sdk/client-bedrock-runtime',
+          '@aws-sdk/client-sagemaker-runtime',
+        ],
       },
     });
 
@@ -79,6 +86,9 @@ export class Api extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
       environment: {
         TABLE_NAME: table.tableName,
         MODEL_TYPE: modelType,
@@ -87,7 +97,6 @@ export class Api extends Construct {
         PROMPT_TEMPLATE: promptTemplate,
       },
     });
-
     table.grantWriteData(predictTitleFunction);
 
     if (modelType == 'sagemaker') {

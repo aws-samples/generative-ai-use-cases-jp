@@ -4,6 +4,7 @@ import {
   InvokeEndpointCommand,
   InvokeEndpointWithResponseStreamCommand,
 } from '@aws-sdk/client-sagemaker-runtime';
+import { generatePrompt, pt } from './prompter';
 
 const client = new SageMakerRuntimeClient({
   region: process.env.MODEL_REGION,
@@ -16,45 +17,11 @@ const PARAMS = {
   temperature: 0.3,
 };
 
-type PromptTemplate = {
-  prefix: string;
-  suffix: string;
-  join: string;
-  user: string;
-  assistant: string;
-  system: string;
-  eos_token: string;
-};
-
-export const generatePrompt = (
-  messages: UnrecordedMessage[],
-  pt: PromptTemplate
-) => {
-  const prompt =
-    pt.prefix +
-    messages
-      .map((message) => {
-        if (message.role == 'user') {
-          return pt.user.replace('{}', message.content);
-        } else if (message.role == 'assistant') {
-          return pt.assistant.replace('{}', message.content);
-        } else if (message.role === 'system') {
-          return pt.system.replace('{}', message.content);
-        } else {
-          throw new Error(`Invalid message role: ${message.role}`);
-        }
-      })
-      .join(pt.join) +
-    pt.suffix;
-  return prompt;
-};
-
 const invoke = async (messages: UnrecordedMessage[]): Promise<string> => {
-  const pt: PromptTemplate = JSON.parse(process.env.PROMPT_TEMPLATE || '');
   const command = new InvokeEndpointCommand({
     EndpointName: process.env.MODEL_NAME,
     Body: JSON.stringify({
-      inputs: generatePrompt(messages, pt),
+      inputs: generatePrompt(messages),
       parameters: PARAMS,
     }),
     ContentType: 'application/json',
@@ -67,11 +34,10 @@ const invoke = async (messages: UnrecordedMessage[]): Promise<string> => {
 async function* invokeStream(
   messages: UnrecordedMessage[]
 ): AsyncIterable<string> {
-  const pt: PromptTemplate = JSON.parse(process.env.PROMPT_TEMPLATE || '');
   const command = new InvokeEndpointWithResponseStreamCommand({
     EndpointName: process.env.MODEL_NAME,
     Body: JSON.stringify({
-      inputs: generatePrompt(messages, pt),
+      inputs: generatePrompt(messages),
       parameters: PARAMS,
       stream: true,
     }),
