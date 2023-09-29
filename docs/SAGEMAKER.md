@@ -1,4 +1,4 @@
-# SageMaker のカスタムモデルを利用する場合
+# Amazon SageMaker のカスタムモデルを利用する場合
 
 大規模言語モデルとして　Amazon SageMaker エンドポイントにデプロイされたモデルを利用することが可能です。
 
