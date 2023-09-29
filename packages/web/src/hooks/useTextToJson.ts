@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PredictRequest, PredictResponse } from 'generative-ai-use-cases-jp';
+import { PredictRequest } from 'generative-ai-use-cases-jp';
 import textToJsonPrompt from '../prompts/text-to-json-prompt';
 import useChatApi from './useChatApi';
 
@@ -42,7 +42,7 @@ const useTextToJson = () => {
       setIsError(false);
       let tryPredict = true;
       let tryCount = 0;
-      let res: PredictResponse | null = null;
+      let res: string | null = null;
       let resJson: T | null = null;
 
       while (tryPredict) {
