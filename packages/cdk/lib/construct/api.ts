@@ -35,6 +35,9 @@ export class Api extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
     });
     predictFunction.role?.addToPrincipalPolicy(
       new PolicyStatement({
@@ -48,6 +51,9 @@ export class Api extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
     });
     predictStreamFunction.role?.addToPrincipalPolicy(
       new PolicyStatement({
@@ -62,11 +68,20 @@ export class Api extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
       environment: {
         TABLE_NAME: table.tableName,
       },
     });
-
+    predictTitleFunction.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      })
+    );
     table.grantWriteData(predictTitleFunction);
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {

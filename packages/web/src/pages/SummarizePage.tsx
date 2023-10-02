@@ -6,7 +6,7 @@ import Textarea from '../components/Textarea';
 import ExpandedField from '../components/ExpandedField';
 import { SummarizePrompt } from '../prompts';
 import useChat from '../hooks/useChat';
-import PromptTamplatePageBase from './PromptTamplatePageBase';
+import PromptTemplatePageBase from './PromptTemplatePageBase';
 import { create } from 'zustand';
 
 type StateType = {
@@ -81,7 +81,7 @@ const SummarizePage: React.FC = () => {
   }, []);
 
   return (
-    <PromptTamplatePageBase
+    <PromptTemplatePageBase
       title="要約"
       systemContext={SummarizePrompt.systemContext}>
       <Card label="要約したい文章">
@@ -109,7 +109,7 @@ const SummarizePage: React.FC = () => {
           </Button>
         </div>
       </Card>
-    </PromptTamplatePageBase>
+    </PromptTemplatePageBase>
   );
 };
 
