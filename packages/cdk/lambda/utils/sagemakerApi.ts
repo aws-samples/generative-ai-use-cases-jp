@@ -47,6 +47,24 @@ async function* invokeStream(
   const stream = (await client.send(command)).Body;
   if (!stream) return;
 
+  // https://aws.amazon.com/blogs/machine-learning/elevating-the-generative-ai-experience-introducing-streaming-support-in-amazon-sagemaker-hosting/
+  // The output of the model will be in the following format:
+  // b'data:{"token": {"text": " a"}}\n\n'
+  // b'data:{"token": {"text": " challenging"}}\n\n'
+  // b'data:{"token": {"text": " problem"
+  // b'}}'
+  //
+  // While usually each PayloadPart event from the event stream will contain a byte array 
+  // with a full json, this is not guaranteed and some of the json objects may be split across
+  // PayloadPart events. For example:
+  // {'PayloadPart': {'Bytes': b'{"outputs": '}}
+  // {'PayloadPart': {'Bytes': b'[" problem"]}\n'}}
+  //
+  // This logic accounts for this by concatenating bytes and 
+  // return lines (ending with a '\n' character) within the buffer. 
+  // It will also save any pending lines that doe not end with a '\n' 
+  // to make sure truncations are concatinated.
+
   let buffer = '';
   for await (const chunk of stream) {
     buffer += new TextDecoder().decode(chunk.PayloadPart?.Bytes);

@@ -1,4 +1,4 @@
-import { Duration } from 'aws-cdk-lib';
+import { Stack, Duration } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -31,7 +31,7 @@ export class Api extends Construct {
 
     const { userPool, table, idPool } = props;
 
-    // sagemaker | bedrock | openai
+    // sagemaker | bedrock
     const modelType = this.node.tryGetContext('modelType') || 'bedrock';
     // region for bedrock / sagemaker
     const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
@@ -75,6 +75,8 @@ export class Api extends Construct {
       bundling: {
         nodeModules: [
           '@aws-sdk/client-bedrock-runtime',
+          // デフォルトの client-sagemaker-runtime のバージョンは StreamingResponse に
+          // 対応していないため package.json に記載のバージョンを Bundle する
           '@aws-sdk/client-sagemaker-runtime',
         ],
       },
@@ -104,7 +106,7 @@ export class Api extends Construct {
       const sagemakerPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
-        resources: ['arn:aws:sagemaker:*:*:endpoint/' + modelName],
+        resources: [`arn:aws:sagemaker:${modelRegion}:${Stack.of(this).account}:endpoint/${modelName}`],
       });
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
