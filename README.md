@@ -6,29 +6,20 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-動画でデプロイ手順とデモンストレーションをご覧いただけます。以下のサムネイルをクリックして再生してください。なおデプロイ手順につきましては、詳細な手順を後述しております。
-
-| **デプロイ手順**                                                                                             | **デモンストレーション**                                                                             |
-|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [![デプロイ手順](https://img.youtube.com/vi/9sMA17OKP1k/0.jpg)](https://www.youtube.com/watch?v=9sMA17OKP1k) | [![デモ](https://img.youtube.com/vi/rkKZZSuVZUU/0.jpg)](https://www.youtube.com/watch?v=rkKZZSuVZUU) |
-
 > **2023/09/29 現在、東京リージョンで Amazon Bedrock を利用することができませんので、バージニア北部 (us-east-1) リージョンを利用する設定にしています。こちらの [Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください**
-
-## Why Generative AI on AWS?
-
-[AWS Summit New York City 2023 の Keynote](https://www.youtube.com/watch?v=1PkABWCJINM&t=1652s) で、**データこそが差別化要因である**というメッセージが強調されました。Generative AI が普及した世界では、差別化の要因となるのは蓄積されたデータそのものであるということです。AWS は多岐にわたるデータの様式・蓄積・検索に対応したサービスを提供しており、強力なデータ基盤と Amazon Bedrock の Fine-tuning とを組み合わせることで、高品質な Generative AI を構築することができます。
 
 ## 機能一覧
 
 > :white_check_mark: ... 実装されている、:construction: ... まだ実装されていない
 
 - :white_check_mark: Amazon Bedrock を LLM として利用
-- :construction: Amazon Bedrock Fine-tuning 用のデータ収集
+- :white_check_mark: Amazon Bedrock Fine-tuning 用のデータ収集
+- :construction: Amazon Bedrock Fine-tuning 用データのラベリング
 - :construction: Amazon Bedrock Fine-tuning の実行
 
 ## ユースケース一覧
 
-> ビジネスユースケースは随時追加予定です。ご要望があれば [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) に起票をお願いいたします。
+> ユースケースは随時追加予定です。ご要望があれば [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) に起票をお願いいたします。
 
 <details>
   <summary>チャット</summary>
@@ -83,7 +74,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## アーキテクチャ
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は Amazon Bedrock を使用します。今後、Fine-tuning 機能の追加が予定されています。
+このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
 
 ![arch.png](/imgs/arch.png)
 
@@ -120,9 +111,10 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 ## モデル・リージョンの切り替え
 
 デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
+
 また、Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
 
-### Pull Request を出す場合
+## Pull Request を出す場合
 
 バグ修正や機能改善などの Pull Request は歓迎しております。コミットする前に、lint ツールを実行してください。
 
@@ -131,6 +123,16 @@ npm run lint
 ```
 
 また、ローカル環境の構築手順については [/docs/DEVELOPMENT.md](/docs/DEVELOPMENT.md) をご確認ください。
+
+## 動画でデプロイ手順とデモンストレーションを紹介
+
+動画でデプロイ手順とデモンストレーションをご覧いただけます。以下のサムネイルをクリックして再生してください。なおデプロイ手順につきましては、詳細な手順を後述しております。
+
+| **デプロイ手順**                                                                                             | **デモンストレーション**                                                                             |
+|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| [![デプロイ手順](https://img.youtube.com/vi/9sMA17OKP1k/0.jpg)](https://www.youtube.com/watch?v=9sMA17OKP1k) | [![デモ](https://img.youtube.com/vi/rkKZZSuVZUU/0.jpg)](https://www.youtube.com/watch?v=rkKZZSuVZUU) |
+
+> 情報が古くなっている可能性があります。最新の手順については README.md をご確認ください。
 
 ## Security
 
