@@ -10,6 +10,17 @@ type Props = BaseProps & {
   children: string;
 };
 
+const LinkRenderer: React.FC<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any
+> = (props) => {
+  return (
+    <a href={props.href} target="_blank" rel="noreferrer">
+      {props.children}
+    </a>
+  );
+};
+
 const Markdown: React.FC<Props> = ({ className, children }) => {
   return (
     <ReactMarkdown
@@ -17,6 +28,7 @@ const Markdown: React.FC<Props> = ({ className, children }) => {
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       components={{
+        a: LinkRenderer,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || '');
