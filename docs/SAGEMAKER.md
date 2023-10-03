@@ -25,7 +25,7 @@ npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint 
 ```
 
 promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `llama2.json`)
-プロンプトテンプレートの例は `prompt_templates` フォルダを参照してください。
+プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
 
 ## デプロイの例
 

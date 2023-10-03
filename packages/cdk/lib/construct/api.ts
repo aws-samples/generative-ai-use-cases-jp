@@ -42,7 +42,7 @@ export class Api extends Construct {
     const promptTemplateFile =
       this.node.tryGetContext('promptTemplate') || 'claude.json';
     const promptTemplate = readFileSync(
-      '../../prompt_templates/' + promptTemplateFile,
+      '../../prompt-templates/' + promptTemplateFile,
       'utf-8'
     );
 
