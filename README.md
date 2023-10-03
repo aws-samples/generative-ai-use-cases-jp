@@ -83,7 +83,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## アーキテクチャ
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は Amazon Bedrock を使用します。今後、会話履歴機能や Fine-tuning 機能の追加が予定されています。
+このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは CloudFront + S3 によって配信されています。バックエンドには API Gateway + Lambda、認証には Congito を使用しています。また、LLM は Amazon Bedrock を使用します。今後、Fine-tuning 機能の追加が予定されています。
 
 ![arch.png](/imgs/arch.png)
 
@@ -107,8 +107,14 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-RAG のユースケースを試す場合は、Kendra の Data source を手動でで Sync する必要があります。以下の手順で行なってください。
-[Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く -> generative-ai-use-cases-index をクリック -> Data sources をクリック -> WebCrawler をクリック -> Sync now をクリック
+RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
+
+1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
+1. generative-ai-use-cases-index をクリック
+1. Data sources をクリック
+1. WebCrawler をクリック
+1. Sync now をクリック
+
 Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
 
 ## モデル・リージョンの切り替え
