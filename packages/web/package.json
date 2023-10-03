@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^5.0.6",
     "@aws-sdk/client-cognito-identity": "^3.398.0",
+    "@aws-sdk/client-kendra": "^3.418.0",
     "@aws-sdk/client-lambda": "^3.398.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.398.0",
     "@headlessui/react": "^1.7.15",

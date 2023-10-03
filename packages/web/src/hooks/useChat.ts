@@ -7,6 +7,7 @@ import {
   ToBeRecordedMessage,
   Chat,
   ListChatsResponse,
+  Role,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -24,12 +25,16 @@ const useChatState = create<{
   loading: {
     [id: string]: boolean;
   };
+  setLoading: (id: string, newLoading: boolean) => void;
   init: (id: string, systemContext: string) => void;
   initFromMessages: (
     id: string,
     messages: RecordedMessage[],
     chat: Chat
   ) => void;
+  updateSystemContext: (id: string, systemContext: string) => void;
+  pushMessage: (id: string, role: Role, content: string) => void;
+  popMessage: (id: string) => ShownMessage | undefined;
   clear: (id: string, systemContext: string) => void;
   post: (
     id: string,
@@ -175,6 +180,7 @@ const useChatState = create<{
   return {
     chats: {},
     loading: {},
+    setLoading,
     init: (id: string, systemContext: string) => {
       if (!get().chats[id]) {
         initChat(id, [{ role: 'system', content: systemContext }], undefined);
@@ -185,6 +191,43 @@ const useChatState = create<{
     },
     clear: (id: string, systemContext: string) => {
       initChat(id, [{ role: 'system', content: systemContext }], undefined);
+    },
+    updateSystemContext: (id: string, systemContext: string) => {
+      set((state) => {
+        return {
+          chats: produce(state.chats, (draft) => {
+            const idx = draft[id].messages.findIndex(
+              (m) => m.role === 'system'
+            );
+            if (idx > -1) {
+              draft[id].messages[idx].content = systemContext;
+            }
+          }),
+        };
+      });
+    },
+    pushMessage: (id: string, role: Role, content: string) => {
+      set((state) => {
+        return {
+          chats: produce(state.chats, (draft) => {
+            draft[id].messages.push({
+              role,
+              content,
+            });
+          }),
+        };
+      });
+    },
+    popMessage: (id: string) => {
+      let ret: ShownMessage | undefined;
+      set((state) => {
+        return {
+          chats: produce(state.chats, (draft) => {
+            ret = draft[id].messages.pop();
+          }),
+        };
+      });
+      return ret;
     },
     post: async (id: string, content: string, mutateListChat) => {
       setLoading(id, true);
@@ -278,8 +321,19 @@ const useChatState = create<{
  * @returns
  */
 const useChat = (id: string, systemContext?: string, chatId?: string) => {
-  const { chats, loading, init, initFromMessages, clear, post, sendFeedback } =
-    useChatState();
+  const {
+    chats,
+    loading,
+    setLoading,
+    init,
+    initFromMessages,
+    clear,
+    post,
+    sendFeedback,
+    updateSystemContext,
+    pushMessage,
+    popMessage,
+  } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
@@ -308,8 +362,16 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
 
   return {
     loading: loading[id] ?? false,
+    setLoading: (newLoading: boolean) => {
+      setLoading(id, newLoading);
+    },
     loadingMessages: isLoadingMessage,
     clearChats: (systemContext: string) => clear(id, systemContext),
+    updateSystemContext: (systemContext: string) => {
+      updateSystemContext(id, systemContext);
+    },
+    pushMessage,
+    popMessage,
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string) => {

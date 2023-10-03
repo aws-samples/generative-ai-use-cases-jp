@@ -98,11 +98,43 @@ CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs
 npx -w packages/cdk cdk bootstrap
 ```
 
-最後に、以下のコマンドでデプロイします。
+続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
 
 ```bash
 npm run cdk:deploy
 ```
+
+以下のような表示がされれば、デプロイは成功です。
+
+```bash
+✅  GenerativeAiUseCasesStack
+
+✨  Deployment time: 364.18s
+
+Outputs:
+GenerativeAiUseCasesStack.APIApiEndpoint036547C6 = https://xxxxx.execute-api.ap-northeast-1.amazonaws.com/api/
+GenerativeAiUseCasesStack.ApiEndpoint = https://xxxxxx.execute-api.ap-northeast-1.amazonaws.com/api/
+GenerativeAiUseCasesStack.IdPoolId = ap-northeast-1:xxxxx
+GenerativeAiUseCasesStack.PredictStreamFunctionArn = arn:aws:lambda:ap-northeast-1:123456789012:function:GenerativeAiUseCasesStack-APIPredictStream44DDBC25-xxxxx
+GenerativeAiUseCasesStack.Region = ap-northeast-1
+GenerativeAiUseCasesStack.UserPoolClientId = xxxxx
+GenerativeAiUseCasesStack.UserPoolId = ap-northeast-1_xxxxx
+GenerativeAiUseCasesStack.WebUrl = https://xxxxx.cloudfront.net
+Stack ARN:
+arn:aws:cloudformation:ap-northeast-1:123456789012:stack/GenerativeAiUseCasesStack/xxxxx
+
+✨  Total time: 380.65s
+```
+
+最後に、Amazon Kendra にデモ用のデータを登録します。  
+まず、[Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home)を開き、以下の手順で操作して Index にドキュメントを追加してください。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。  
+
+- Indexes に表示されている「generative-ai-use-cases-index」をクリック
+  - 先ほどデプロイした Index です。
+- 画面左側のメニューの「Data sources」をクリック
+- 一覧に表示されている「WebCrawler」をクリック
+- 「Sync now」をクリック
+  - 「Sync run history」の「Status / Summary」に `Completed` が表示されれば完了です。
 
 ## ローカル環境構築手順
 
