@@ -1,4 +1,4 @@
-import { Duration } from 'aws-cdk-lib';
+import { Stack, Duration } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -14,6 +14,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { readFileSync } from 'fs';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -30,38 +31,57 @@ export class Api extends Construct {
 
     const { userPool, table, idPool } = props;
 
+    // sagemaker | bedrock
+    const modelType = this.node.tryGetContext('modelType') || 'bedrock';
+    // region for bedrock / sagemaker
+    const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
+    // model name for bedrock / sagemaker
+    const modelName =
+      this.node.tryGetContext('modelName') || 'anthropic.claude-v2';
+    // prompt template
+    const promptTemplateFile =
+      this.node.tryGetContext('promptTemplate') || 'claude.json';
+    const promptTemplate = readFileSync(
+      '../../prompt-templates/' + promptTemplateFile,
+      'utf-8'
+    );
+
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
+      environment: {
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
+      },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
-    predictFunction.role?.addToPrincipalPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: ['*'],
-        actions: ['bedrock:*', 'logs:*'],
-      })
-    );
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
+      environment: {
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
+      },
       bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        nodeModules: [
+          '@aws-sdk/client-bedrock-runtime',
+          // デフォルトの client-sagemaker-runtime のバージョンは StreamingResponse に
+          // 対応していないため package.json に記載のバージョンを Bundle する
+          '@aws-sdk/client-sagemaker-runtime',
+        ],
       },
     });
-    predictStreamFunction.role?.addToPrincipalPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: ['*'],
-        actions: ['bedrock:*', 'logs:*'],
-      })
-    );
+
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
@@ -73,16 +93,35 @@ export class Api extends Construct {
       },
       environment: {
         TABLE_NAME: table.tableName,
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
       },
     });
-    predictTitleFunction.role?.addToPrincipalPolicy(
-      new PolicyStatement({
+    table.grantWriteData(predictTitleFunction);
+
+    if (modelType == 'sagemaker') {
+      // SageMaker Policy
+      const sagemakerPolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
+        resources: [`arn:aws:sagemaker:${modelRegion}:${Stack.of(this).account}:endpoint/${modelName}`],
+      });
+      predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+    } else {
+      // Bedrock Policy
+      const bedrockPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         resources: ['*'],
         actions: ['bedrock:*', 'logs:*'],
-      })
-    );
-    table.grantWriteData(predictTitleFunction);
+      });
+      predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,

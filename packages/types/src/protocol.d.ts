@@ -51,10 +51,7 @@ export type PredictRequest = {
   messages: UnrecordedMessage[];
 };
 
-export type PredictResponse = {
-  completion: string;
-  stop_reason: string;
-};
+export type PredictResponse = string;
 
 export type PredictTitleRequest = {
   chat: Chat;

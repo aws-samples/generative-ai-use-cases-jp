@@ -4,11 +4,15 @@ import {
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { setChatTitle } from './repository';
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-} from '@aws-sdk/client-bedrock-runtime';
-import { getClaudeInvokeInput } from './utils/bedrockUtils';
+import sagemakerApi from './utils/sagemakerApi';
+import bedrockApi from './utils/bedrockApi';
+
+const modelType = process.env.MODEL_TYPE || 'bedrock';
+const api =
+  {
+    bedrock: bedrockApi,
+    sagemaker: sagemakerApi,
+  }[modelType] || bedrockApi;
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -26,12 +30,8 @@ export const handler = async (
       },
     ];
 
-    // 東京リージョンで GA されていないため、us-east-1 を固定指定しています
-    const client = new BedrockRuntimeClient({ region: 'us-east-1' });
-    const command = new InvokeModelCommand(getClaudeInvokeInput(messages));
+    const title = await api.invoke(messages);
 
-    const data = await client.send(command);
-    const title = JSON.parse(data.body.transformToString()).completion;
     await setChatTitle(req.chat.id, req.chat.createdDate, title);
 
     return {

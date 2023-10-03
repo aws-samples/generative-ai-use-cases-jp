@@ -24,6 +24,7 @@
     "@aws-sdk/client-bedrock-runtime": "^3.422.1",
     "@aws-sdk/client-dynamodb": "^3.395.0",
     "@aws-sdk/lib-dynamodb": "^3.395.0",
+    "@aws-sdk/client-sagemaker-runtime": "3.410.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.41.0",
     "aws-cdk-lib": "2.93.0",
     "constructs": "^10.0.0",

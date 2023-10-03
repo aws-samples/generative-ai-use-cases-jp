@@ -1,0 +1,9 @@
+{
+    "prefix": "",
+    "suffix": "Assistant: ",
+    "join": "\n",
+    "user": "Human: {}",
+    "assistant": "Assistant: {}",
+    "system": "Human: {}\nAssistant: コンテキストを理解しました。",
+    "eos_token": ""
+}

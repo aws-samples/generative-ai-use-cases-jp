@@ -156,6 +156,12 @@ npm run web:dev
 npm run lint
 ```
 
+## モデル・リージョンの切り替え
+
+デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [BEDROCK](docs/BEDROCK.md) をご確認ください。
+
+また、Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [SAGEMAKER](docs/SAGEMAKER.md) をご確認ください。
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.

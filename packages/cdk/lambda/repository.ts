@@ -118,7 +118,7 @@ export const batchCreateMessages = async (
   const createdDate = Date.now();
   const feedback = 'none';
   const usecase = '';
-  const llmType = 'OpenAI';
+  const llmType = 'bedrock';
 
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
