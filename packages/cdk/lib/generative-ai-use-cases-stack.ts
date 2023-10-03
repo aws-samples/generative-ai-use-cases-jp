@@ -25,7 +25,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
     });
 
-    const rag = new Rag(this, 'Rag', {
+    new Rag(this, 'Rag', {
       userPool: auth.userPool,
       api: api.api,
     });
