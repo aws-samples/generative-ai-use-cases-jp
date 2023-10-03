@@ -75,7 +75,7 @@ const useChatApi = () => {
     // Buffered Response (useTextToJson で利用)
     predict: async (req: PredictRequest): Promise<string> => {
       const res = await http.post<PredictResponse>('predict', req);
-      return await res.data.completion;
+      return res.data;
     },
     // Streaming Response
     predictStream: async function* (req: PredictRequest) {
