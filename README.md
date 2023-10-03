@@ -64,13 +64,10 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 <details>
   <summary>CS 業務効率化</summary>
 
-  人々が手動で処理する必要のある多数の問い合わせに対しても、LLM の活用が可能です。例えば、お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。お客様からの問い合わせ内容をコンテキストとすることで、適切な文章へと変換することができます。さらに、Fine-tuning することで、「OK」や「無理です」といった返答を打つ必要がなくなる可能性もあります。
+  人々が手動で処理する必要のある多数の問い合わせに対しても、LLM の活用が可能です。例えば、お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。お客様からの問い合わせ内容をコンテキストとすることで、適切な文章へと変換することができます。さらに、Fine-tuning することで、「OK」や「無理です」といった返答を打つ必要がなくなる可能性もあります。(現在、このリポジトリでは Fine-tuning はサポートされていません。Amazon Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。)
 
   <img src="/imgs/usecase_cs.gif"/>
 </details>
-
-> 現在、このリポジトリでは Fine-tuning はサポートされていません。
-> Amazon Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。
 
 ## アーキテクチャ
 
@@ -110,9 +107,8 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 ## モデル・リージョンの切り替え
 
-デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
-
-また、Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
+- デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
+- Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
 
 ## Pull Request を出す場合
 
