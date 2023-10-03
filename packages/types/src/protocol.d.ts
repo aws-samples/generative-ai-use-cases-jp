@@ -5,6 +5,10 @@ import {
   UnrecordedMessage,
 } from './message';
 import { Chat } from './chat';
+import {
+  QueryCommandOutput,
+  RetrieveCommandOutput,
+} from '@aws-sdk/client-kendra';
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -59,3 +63,15 @@ export type PredictTitleRequest = {
 };
 
 export type PredictTitleResponse = string;
+
+export type QueryKendraRequest = {
+  query: string;
+};
+
+export type QueryKendraResponse = QueryCommandOutput;
+
+export type RetrieveKendraRequest = {
+  query: string;
+};
+
+export type RetrieveKendraResponse = RetrieveCommandOutput;

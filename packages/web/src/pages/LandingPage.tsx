@@ -8,6 +8,7 @@ import {
   PiNote,
   PiEnvelope,
   PiListMagnifyingGlass,
+  PiChatsCircle,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 
@@ -19,6 +20,15 @@ const LandingPage: React.FC = () => {
       state: {
         content: `フィボナッチ数を返す Python の関数を書いてください。
 引数が項で、処理は再帰で書くようにしてください。`,
+      },
+    });
+  };
+
+  const demoRag = () => {
+    navigate('/rag', {
+      state: {
+        content: `Bedrock のセキュリティについて、教えてください。
+なぜ Bedrock が安全に利用できるのかわかるように説明してください。`,
       },
     });
   };
@@ -117,11 +127,25 @@ ABC株式会社の鈴木です。いつもお世話になっております。
         <CardDemo label="チャット" onClickDemo={demoChat}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
-              <PiChatCircleText />
+              <PiChatsCircle />
             </div>
             <div className="text-sm">
               LLM
               とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。
+            </div>
+          </div>
+        </CardDemo>
+        <CardDemo label="RAG チャット" onClickDemo={demoRag}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiChatCircleText />
+            </div>
+            <div className="text-sm">
+              RAG (Retrieval Augmented Generation) は、情報の検索と LLM
+              の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
+              Kendra から取得した参考ドキュメントをベースに LLM
+              が回答を生成してくれるため、「社内情報に対応した LLM
+              チャット」を簡単に実現することが可能です。
             </div>
           </div>
         </CardDemo>
