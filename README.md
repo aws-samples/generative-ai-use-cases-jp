@@ -37,6 +37,12 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 </details>
 
 <details>
+   <summary>RAG チャット</summary>
+  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられる技術です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは [Amazon Kendra](https://aws.amazon.com/jp/kendra/) から情報を取得しています。
+  <img src="/imgs/usecase_rag.gif"/>
+</details>
+
+<details>
   <summary>要約</summary>
   LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。
   <img src="/imgs/usecase_summarize.gif"/>
