@@ -46,10 +46,10 @@ const useConversation = () => {
     });
   };
   const getConversationTitle = (chatId: string) => {
-    const idx = data.chats.findIndex((d) => d.chatId === `chat#${chatId}`);
+    const idx = data?.chats.findIndex((d) => d.chatId === `chat#${chatId}`) || -1;
 
     if (idx > -1) {
-      return data.chats[idx].title;
+      return data!.chats[idx].title;
     } else {
       return null;
     }
