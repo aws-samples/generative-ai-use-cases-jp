@@ -20,6 +20,7 @@ import '@aws-amplify/ui-react/styles.css';
 import MenuDropdown from './components/MenuDropdown';
 import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
+import useConversation from './hooks/useConversation';
 
 const items = [
   {
@@ -59,10 +60,13 @@ const items = [
   },
 ];
 
-const getLabelByPath = (_path: string) => {
-  // MEMO: /chat/:chatId の path の場合に件名が表示されないため、以下の実装としている
-  const path = '/' + _path.split('/')[1];
-  return items.find((i) => i.to === path)?.label || '';
+// /chat/:chatId の形式から :chatId を返す
+// path が別の形式の場合は null を返す
+const extractChatId = (path: string): string | null => {
+  const pattern = /\/chat\/(.+)/;
+  const match = path.match(pattern);
+
+  return match ? match[1] : null;
 };
 
 const App: React.FC = () => {
@@ -81,10 +85,17 @@ const App: React.FC = () => {
   const { switchOpen: switchDrawer } = useDrawer();
   const [label, setLabel] = useState('');
   const { pathname } = useLocation();
+  const { getConversationTitle } = useConversation();
 
   useEffect(() => {
-    setLabel(getLabelByPath(pathname));
-  }, [pathname]);
+    const chatId = extractChatId(pathname);
+
+    if (chatId) {
+      setLabel(getConversationTitle(chatId) || '');
+    } else {
+      setLabel(items.find((i) => i.to === pathname)?.label || '');
+    }
+  }, [pathname, getConversationTitle]);
 
   return (
     <Authenticator

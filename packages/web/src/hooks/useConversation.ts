@@ -45,6 +45,15 @@ const useConversation = () => {
       mutate();
     });
   };
+  const getConversationTitle = (chatId: string) => {
+    const idx = data.chats.findIndex((d) => d.chatId === `chat#${chatId}`);
+
+    if (idx > -1) {
+      return data.chats[idx].title;
+    } else {
+      return null;
+    }
+  };
 
   return {
     loading: isLoading,
@@ -52,6 +61,7 @@ const useConversation = () => {
     mutate,
     updateConversationTitle,
     deleteConversation,
+    getConversationTitle,
   };
 };
 
