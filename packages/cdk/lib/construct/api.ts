@@ -106,7 +106,11 @@ export class Api extends Construct {
       const sagemakerPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
-        resources: [`arn:aws:sagemaker:${modelRegion}:${Stack.of(this).account}:endpoint/${modelName}`],
+        resources: [
+          `arn:aws:sagemaker:${modelRegion}:${
+            Stack.of(this).account
+          }:endpoint/${modelName}`,
+        ],
       });
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);

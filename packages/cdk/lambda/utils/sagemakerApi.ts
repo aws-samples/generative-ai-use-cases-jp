@@ -54,15 +54,15 @@ async function* invokeStream(
   // b'data:{"token": {"text": " problem"
   // b'}}'
   //
-  // While usually each PayloadPart event from the event stream will contain a byte array 
+  // While usually each PayloadPart event from the event stream will contain a byte array
   // with a full json, this is not guaranteed and some of the json objects may be split across
   // PayloadPart events. For example:
   // {'PayloadPart': {'Bytes': b'{"outputs": '}}
   // {'PayloadPart': {'Bytes': b'[" problem"]}\n'}}
   //
-  // This logic accounts for this by concatenating bytes and 
-  // return lines (ending with a '\n' character) within the buffer. 
-  // It will also save any pending lines that doe not end with a '\n' 
+  // This logic accounts for this by concatenating bytes and
+  // return lines (ending with a '\n' character) within the buffer.
+  // It will also save any pending lines that doe not end with a '\n'
   // to make sure truncations are concatinated.
 
   let buffer = '';
