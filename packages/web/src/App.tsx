@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   PiDotsThreeVertical,
@@ -83,17 +83,16 @@ const App: React.FC = () => {
   I18n.setLanguage('ja');
 
   const { switchOpen: switchDrawer } = useDrawer();
-  const [label, setLabel] = useState('');
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
 
-  useEffect(() => {
+  const label = useMemo(() => {
     const chatId = extractChatId(pathname);
 
     if (chatId) {
-      setLabel(getConversationTitle(chatId) || '');
+      return getConversationTitle(chatId) || '';
     } else {
-      setLabel(items.find((i) => i.to === pathname)?.label || '');
+      return items.find((i) => i.to === pathname)?.label || '';
     }
   }, [pathname, getConversationTitle]);
 
