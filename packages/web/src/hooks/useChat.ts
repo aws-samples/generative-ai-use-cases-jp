@@ -79,6 +79,18 @@ const useChatState = create<{
     });
   };
 
+  const clearChat = (id: string) => {
+    set((state) => {
+      return {
+        chats: produce(state.chats, (draft) => {
+          // system context メッセージ以外は削除する
+          draft[id].messages = draft[id].messages.slice(0, 1);
+          delete draft[id].chat;
+        }),
+      };
+    });
+  };
+
   const setTitle = (id: string, title: string) => {
     set((state) => {
       return {
@@ -187,6 +199,12 @@ const useChatState = create<{
       }
     },
     initFromMessages: (id: string, messages: RecordedMessage[], chat: Chat) => {
+      // 履歴から init する時、既に同一の chatId の state があれば削除する
+      for (const [key, value] of Object.entries(get().chats)) {
+        if (value.chat?.chatId === chat.chatId) {
+          clearChat(key);
+        }
+      }
       initChat(id, messages, chat);
     },
     clear: (id: string, systemContext: string) => {
