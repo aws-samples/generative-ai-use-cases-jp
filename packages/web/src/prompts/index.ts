@@ -55,6 +55,27 @@ ${context}`
   },
 };
 
+// 文章校正
+export const EditorialPrompt = {
+  systemContext:
+    'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。' +
+    SYSTEM_CONTEXT_POSTFIX,
+  editorialContext: (sentence: string, context?: string): string => {
+    return `以下の文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は指摘してください。
+${context ? 'その他指摘してほしいこと: ' + context : ''}
+出力は output-format 形式の JSON Array のみ出力してください。（指摘がなければ空配列のみ）
+<output-format>
+[
+{excerpt: string; replace?: string; comment?: string},
+]
+</output-format>
+<input>
+${sentence}
+</input>
+`;
+  },
+};
+
 // メール生成
 export const GenerateMailPrompt = {
   systemContext:
