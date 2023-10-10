@@ -40,7 +40,7 @@ const useChatState = create<{
     id: string,
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>,
-    ignore_history: boolean
+    ignoreHistory: boolean
   ) => void;
   sendFeedback: (
     id: string,
@@ -234,7 +234,7 @@ const useChatState = create<{
       id: string,
       content: string,
       mutateListChat,
-      ignore_history: boolean = false
+      ignoreHistory: boolean = false
     ) => {
       setLoading(id, true);
 
@@ -260,18 +260,14 @@ const useChatState = create<{
         };
       });
 
-      const chat_messages = get().chats[id].messages;
-      console.log(chat_messages, [
-        chat_messages[0],
-        ...chat_messages.slice(-2, -1),
-      ]);
+      const chatMessages = get().chats[id].messages;
       const stream = predictStream({
         // 最後のメッセージはアシスタントのメッセージなので、排除
-        // ignore_history が設定されている場合は最後の会話だけ反映（コスト削減）
+        // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
         messages: omitUnusedMessageProperties(
-          ignore_history
-            ? [chat_messages[0], ...chat_messages.slice(-2, -1)]
-            : chat_messages.slice(0, -1)
+          ignoreHistory
+            ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
+            : chatMessages.slice(0, -1)
         ),
       });
 
@@ -388,8 +384,8 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     popMessage,
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
-    postChat: (content: string, ignore_history: boolean = false) => {
-      post(id, content, mutateConversations, ignore_history);
+    postChat: (content: string, ignoreHistory: boolean = false) => {
+      post(id, content, mutateConversations, ignoreHistory);
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);
