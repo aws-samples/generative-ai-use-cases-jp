@@ -21,6 +21,7 @@ const Texteditor: React.FC<Props> = (props) => {
   return (
     <div className="flex flex-col lg:flex-row">
       <div
+        key="HighlightWithinTextarea"
         className={`${
           props.className ?? ''
         } mb-2 w-full resize-none overflow-y-auto rounded p-1.5 outline-none ${

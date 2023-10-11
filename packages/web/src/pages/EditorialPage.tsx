@@ -12,6 +12,8 @@ import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 
 const REGEX_JSON = /\{(?:[^{}])*\}/g;
+const REGEX_ZENKAKU =
+  /[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g;
 
 type StateType = {
   sentence: string;
@@ -80,8 +82,19 @@ const EditorialPage: React.FC = () => {
     EditorialPrompt.systemContext
   );
 
+  // Memo 変数
+  const shownComment = useMemo(() => {
+    return comments.filter(
+      (x) => x.excerpt !== '' && commentState[x.excerpt] === undefined
+    );
+  }, [comments, commentState]);
+  const disabledExec = useMemo(() => {
+    return sentence === '' || loading;
+  }, [sentence, loading]);
+
   useEffect(() => {
     if (state !== null) {
+      console.log(state);
       setSentence(state.sentence);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,43 +102,58 @@ const EditorialPage: React.FC = () => {
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
-    onSentenceChange(sentence, additionalContext, comments);
+    // Claude だと全角を半角に変換して出力するため入力を先に正規化
+    setSentence(
+      sentence
+        .replace(REGEX_ZENKAKU, (s) => {
+          return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+        })
+        .replace(/[‐－―]/g, '-') // ハイフンなど
+        .replace(/[～〜]/g, '~') // チルダ
+        // eslint-disable-next-line no-irregular-whitespace
+        .replace(/　/g, ' ') // スペース
+    );
+
+    // Debounce 後コメント更新
+    onSentenceChange(sentence, comments);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence]);
 
   // debounce した後コメントを更新
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
-    debounce((sentence, additionalContext, comments) => {
+    debounce((sentence: string, comments: DocumentComment[]) => {
       // ハイライト部分が変更されたらコメントを削除
       for (const comment of comments) {
-        if (!sentence.match(comment.excerpt)) {
-          removeComment(comment);
+        if (sentence.indexOf(comment.excerpt) === -1) {
+          commentState[comment.excerpt] = true;
         }
       }
-      // コメントがなくなったらコメントを取得
-      if (comments.length === 0 && sentence !== '' && !loading) {
-        getAnnotation(sentence, additionalContext);
-      }
+      setCommentState({ ...commentState });
     }, 1000),
     []
   );
 
+  useEffect(() => {
+    // コメントがなくなったらコメントを取得
+    if (shownComment.length === 0 && sentence !== '' && !loading) {
+      getAnnotation(sentence, additionalContext);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shownComment, sentence, loading]);
+
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
   useEffect(() => {
-    if (sentence === '' || messages.length === 0 || messages.length % 2 === 1)
-      return;
+    if (messages.length === 0 || messages.length % 2 === 1) return;
     const response = messages[messages.length - 1].content;
-    const comments = [...response.matchAll(REGEX_JSON)]
-      .map((x) => {
-        try {
-          return JSON.parse(x[0]) as DocumentComment;
-        } catch (error) {
-          console.log(error);
-          return { excerpt: '' };
-        }
-      })
-      .filter((x) => x.excerpt !== '' && commentState[x.excerpt] === undefined);
+    const comments = [...response.matchAll(REGEX_JSON)].map((x) => {
+      try {
+        return JSON.parse(x[0]) as DocumentComment;
+      } catch (error) {
+        console.log(error);
+        return { excerpt: '' };
+      }
+    });
     setComments(comments);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, commentState]);
@@ -144,7 +172,7 @@ const EditorialPage: React.FC = () => {
     setCommentState({ ...commentState });
   };
 
-  // コメントを取得
+  // LLM にリクエスト送信
   const getAnnotation = (sentence: string, additionalContext: string) => {
     setCommentState({});
     postChat(
@@ -169,10 +197,6 @@ const EditorialPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const disabledExec = useMemo(() => {
-    return sentence === '' || loading;
-  }, [sentence, loading]);
-
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
@@ -185,7 +209,7 @@ const EditorialPage: React.FC = () => {
             value={sentence}
             loading={loading}
             onChange={setSentence}
-            comments={comments}
+            comments={shownComment}
             replaceSentence={replaceSentence}
             removeComment={removeComment}
           />
