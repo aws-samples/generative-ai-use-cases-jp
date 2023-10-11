@@ -94,7 +94,6 @@ const EditorialPage: React.FC = () => {
 
   useEffect(() => {
     if (state !== null) {
-      console.log(state);
       setSentence(state.sentence);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,44 +102,54 @@ const EditorialPage: React.FC = () => {
   // 文章の更新時にコメントを更新
   useEffect(() => {
     // Claude だと全角を半角に変換して出力するため入力を先に正規化
-    setSentence(
-      sentence
-        .replace(REGEX_ZENKAKU, (s) => {
-          return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-        })
-        .replace(/[‐－―]/g, '-') // ハイフンなど
-        .replace(/[～〜]/g, '~') // チルダ
-        // eslint-disable-next-line no-irregular-whitespace
-        .replace(/　/g, ' ') // スペース
-    );
+    if (sentence !== '') {
+      setSentence(
+        sentence
+          .replace(REGEX_ZENKAKU, (s) => {
+            return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+          })
+          .replace(/[‐－―]/g, '-') // ハイフンなど
+          .replace(/[～〜]/g, '~') // チルダ
+          // eslint-disable-next-line no-irregular-whitespace
+          .replace(/　/g, ' ') // スペース
+      );
+    }
 
     // Debounce 後コメント更新
-    onSentenceChange(sentence, comments);
+    onSentenceChange(sentence, additionalContext, comments, commentState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence]);
 
   // debounce した後コメントを更新
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
-    debounce((sentence: string, comments: DocumentComment[]) => {
-      // ハイライト部分が変更されたらコメントを削除
-      for (const comment of comments) {
-        if (sentence.indexOf(comment.excerpt) === -1) {
-          commentState[comment.excerpt] = true;
+    debounce(
+      (
+        sentence: string,
+        additionalContext: string,
+        comments: DocumentComment[],
+        commentState: { [name: string]: boolean }
+      ) => {
+        // ハイライト部分が変更されたらコメントを削除
+        for (const comment of comments) {
+          if (sentence.indexOf(comment.excerpt) === -1) {
+            commentState[comment.excerpt] = true;
+          }
         }
-      }
-      setCommentState({ ...commentState });
-    }, 1000),
+        setCommentState({ ...commentState });
+
+        // コメントがなくなったらコメントを取得
+        const shownComment = comments.filter(
+          (x) => x.excerpt !== '' && commentState[x.excerpt] === undefined
+        );
+        if (shownComment.length === 0 && sentence !== '' && !loading) {
+          getAnnotation(sentence, additionalContext);
+        }
+      },
+      1000
+    ),
     []
   );
-
-  useEffect(() => {
-    // コメントがなくなったらコメントを取得
-    if (shownComment.length === 0 && sentence !== '' && !loading) {
-      getAnnotation(sentence, additionalContext);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shownComment, sentence, loading]);
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
   useEffect(() => {
