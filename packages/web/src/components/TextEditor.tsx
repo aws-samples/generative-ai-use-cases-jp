@@ -24,13 +24,15 @@ class Texteditor extends React.Component<Props> {
   }
 
   render() {
-    const props = this.props
+    const props = this.props;
     return (
       <div className="flex flex-col lg:flex-row">
         <div
-          className={`${props.className ?? ''
-            } mb-2 w-full resize-none overflow-y-auto rounded p-1.5 outline-none ${props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
-            } `}>
+          className={`${
+            props.className ?? ''
+          } mb-2 w-full resize-none overflow-y-auto rounded p-1.5 outline-none ${
+            props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
+          } `}>
           <HighlightWithinTextarea
             placeholder={props.placeholder}
             value={props.value}
@@ -81,6 +83,6 @@ class Texteditor extends React.Component<Props> {
       </div>
     );
   }
-};
+}
 
 export default Texteditor;
