@@ -11,6 +11,7 @@ export interface WebProps {
   userPoolClientId: string;
   idPoolId: string;
   predictStreamFunctionArn: string;
+  ragEnabled: boolean;
 }
 
 export class Web extends Construct {
@@ -74,6 +75,7 @@ export class Web extends Construct {
         VITE_APP_USER_POOL_CLIENT_ID: props.userPoolClientId,
         VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
         VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
+        VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
       },
     });
 

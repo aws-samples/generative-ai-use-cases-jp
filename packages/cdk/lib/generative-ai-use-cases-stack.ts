@@ -1,13 +1,14 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Auth, Api, Web, Database } from './construct';
-import { Rag } from './construct/rag';
+import { Auth, Api, Web, Database, Rag } from './construct';
 
 export class GenerativeAiUseCasesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     process.env.overrideWarningsEnabled = 'false';
+
+    const ragEnabled: boolean = this.node.tryGetContext('ragEnabled') || false;
 
     const auth = new Auth(this, 'Auth');
     const database = new Database(this, 'Database');
@@ -23,12 +24,15 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPoolClientId: auth.client.userPoolClientId,
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
+      ragEnabled,
     });
 
-    new Rag(this, 'Rag', {
-      userPool: auth.userPool,
-      api: api.api,
-    });
+    if (ragEnabled) {
+      new Rag(this, 'Rag', {
+        userPool: auth.userPool,
+        api: api.api,
+      });
+    }
 
     new CfnOutput(this, 'Region', {
       value: this.region,
@@ -52,6 +56,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'PredictStreamFunctionArn', {
       value: api.predictStreamFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'RagEnabled', {
+      value: ragEnabled.toString(),
     });
   }
 }
