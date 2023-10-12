@@ -103,7 +103,19 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
+### RAG 有効化
+
+RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
+
+まず、RAG を有効化して再デプロイします。
+`packages/cdk/cdk.json` を開き、`context` の `ragEnabled` を `true` に変更します。
+その後、以下のコマンドで再デプロイしてください。
+
+```bash
+npm run cdk:deploy
+```
+
+続いて、Kendra の Data source の Sync を以下の手順で行なってください。
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
@@ -113,7 +125,7 @@ RAG のユースケースを試す場合は、Kendra の Data source を手動�
 
 Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
 
-## モデル・リージョンの切り替え
+### モデル・リージョンの切り替え
 
 - デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
 - Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。

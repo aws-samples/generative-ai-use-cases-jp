@@ -13,6 +13,8 @@ import {
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 
+const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -93,7 +95,7 @@ ABC株式会社の鈴木です。いつもお世話になっております。
 引き続き、ABC株式会社のご支援に努めてまいりますので、今後ともよろしくお願い申し上げます。
 
 鈴木
-`,
+        `,
         recipient: '',
         recipientAttr: '',
         sender: '',
@@ -145,20 +147,22 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="RAG チャット" onClickDemo={demoRag}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiChatCircleText />
+        {ragEnabled && (
+          <CardDemo label="RAG チャット" onClickDemo={demoRag}>
+            <div className="flex flex-row items-start">
+              <div className="mr-4 text-7xl">
+                <PiChatCircleText />
+              </div>
+              <div className="text-sm">
+                RAG (Retrieval Augmented Generation) は、情報の検索と LLM
+                の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
+                Kendra から取得した参考ドキュメントをベースに LLM
+                が回答を生成してくれるため、「社内情報に対応した LLM
+                チャット」を簡単に実現することが可能です。
+              </div>
             </div>
-            <div className="text-sm">
-              RAG (Retrieval Augmented Generation) は、情報の検索と LLM
-              の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
-              Kendra から取得した参考ドキュメントをベースに LLM
-              が回答を生成してくれるため、「社内情報に対応した LLM
-              チャット」を簡単に実現することが可能です。
-            </div>
-          </div>
-        </CardDemo>
+          </CardDemo>
+        )}
         <CardDemo label="要約" onClickDemo={demoSummarize}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">

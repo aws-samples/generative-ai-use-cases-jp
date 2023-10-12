@@ -14,7 +14,7 @@ import {
   PiPenNib,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
-import Drawer from './components/Drawer';
+import Drawer, { ItemProps } from './components/Drawer';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import { Amplify, I18n } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
@@ -23,7 +23,9 @@ import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
 
-const items = [
+const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+
+const items: ItemProps[] = [
   {
     label: 'ホーム',
     to: '/',
@@ -34,11 +36,13 @@ const items = [
     to: '/chat',
     icon: <PiChatsCircle />,
   },
-  {
-    label: 'RAG チャット',
-    to: '/rag',
-    icon: <PiChatCircleText />,
-  },
+  ragEnabled
+    ? {
+        label: 'RAG チャット',
+        to: '/rag',
+        icon: <PiChatCircleText />,
+      }
+    : null,
   {
     label: '要約',
     to: '/summarize',
@@ -59,12 +63,14 @@ const items = [
     to: '/cs',
     icon: <PiPencil />,
   },
-  {
-    label: 'Kendra 検索',
-    to: '/kendra',
-    icon: <PiMagnifyingGlass />,
-  },
-];
+  ragEnabled
+    ? {
+        label: 'Kendra 検索',
+        to: '/kendra',
+        icon: <PiMagnifyingGlass />,
+      }
+    : null,
+].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す

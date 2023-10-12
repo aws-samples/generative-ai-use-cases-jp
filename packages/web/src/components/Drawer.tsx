@@ -7,7 +7,7 @@ import { PiSignOut, PiX, PiGithubLogo } from 'react-icons/pi';
 import { ReactComponent as MLLogo } from '../assets/model.svg';
 import ChatList from './ChatList';
 
-type ItemProps = BaseProps & {
+export type ItemProps = BaseProps & {
   label: string;
   to: string;
   icon: JSX.Element;
