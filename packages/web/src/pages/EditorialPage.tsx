@@ -11,7 +11,7 @@ import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 
-const REGEX_JSON = /\{(?:[^{}])*\}/g;
+const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
   /[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g;
 
@@ -115,12 +115,13 @@ const EditorialPage: React.FC = () => {
       );
     }
 
-    // Debounce 後コメント更新
+    // debounce した後コメント更新
     onSentenceChange(sentence, additionalContext, comments, commentState);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence]);
 
   // debounce した後コメントを更新
+  // 入力を止めて1秒ほど待ってからコメントを更新し新規コメント追加リクエストを送信
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
     debounce(
@@ -155,7 +156,7 @@ const EditorialPage: React.FC = () => {
   useEffect(() => {
     if (messages.length === 0 || messages.length % 2 === 1) return;
     const response = messages[messages.length - 1].content;
-    const comments = [...response.matchAll(REGEX_JSON)].map((x) => {
+    const comments = [...response.matchAll(REGEX_BRACKET)].map((x) => {
       try {
         return JSON.parse(x[0]) as DocumentComment;
       } catch (error) {
@@ -211,7 +212,7 @@ const EditorialPage: React.FC = () => {
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
         校正
       </div>
-      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
+      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
           <Texteditor
             placeholder="入力してください"

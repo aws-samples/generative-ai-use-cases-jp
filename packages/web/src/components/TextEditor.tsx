@@ -5,6 +5,9 @@ import Card from '../components/Card';
 import { PiTrash } from 'react-icons/pi';
 import HighlightWithinTextarea from 'react-highlight-within-textarea';
 import 'draft-js/dist/Draft.css';
+import Button from './Button';
+import ButtonIcon from './ButtonIcon';
+import { ErrorBoundary } from './ErrorBoundary';
 
 type Props = RowItemProps & {
   value: string;
@@ -18,21 +21,16 @@ type Props = RowItemProps & {
   removeComment: (comment: DocumentComment) => void;
 };
 
-class Texteditor extends React.Component<Props> {
-  componentDidCatch() {
-    this.forceUpdate();
-  }
-
-  render() {
-    const props = this.props;
-    return (
-      <div className="flex flex-col lg:flex-row">
-        <div
-          className={`${
-            props.className ?? ''
-          } mb-2 w-full resize-none overflow-y-auto rounded p-1.5 outline-none ${
-            props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
-          } `}>
+const Texteditor: React.FC<Props> = (props) => {
+  return (
+    <div className="flex flex-col lg:flex-row">
+      <div
+        className={`${
+          props.className ?? ''
+        } mb-2 w-full resize-none overflow-y-auto rounded p-1.5 outline-none ${
+          props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
+        } `}>
+        <ErrorBoundary>
           <HighlightWithinTextarea
             placeholder={props.placeholder}
             value={props.value}
@@ -41,48 +39,44 @@ class Texteditor extends React.Component<Props> {
               props.onChange(value);
             }}
           />
-        </div>
-        <div className="mb-2 rounded border border-black/30 p-1.5 outline-none lg:ml-2">
-          {props.comments &&
-            props.comments.map(
-              (comment) =>
-                comment.excerpt && (
-                  <Card key={comment.excerpt} className="mb-2 w-80">
-                    <div className="mb-5">
-                      <span className="line-through">{comment.excerpt}</span>
-                      {comment.replace && (
-                        <>
-                          &nbsp;→&nbsp;
-                          <span
-                            className="cursor-pointer rounded bg-orange-500 p-1.5 text-neutral-50 hover:bg-orange-400"
-                            onClick={() => props.replaceSentence(comment)}>
-                            {comment.replace}
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="mb-2 text-sm">{comment.comment}</div>
-                    <div
-                      className="flex cursor-pointer flex-row justify-end"
-                      onClick={() => props.removeComment(comment)}>
-                      <PiTrash />
-                    </div>
-                  </Card>
-                )
-            )}
-          {!props.loading && props.comments && props.comments.length === 0 && (
-            <div className="mb-2 ml-2 w-80">指摘事項はありません</div>
-          )}
-          {props.loading && (
-            <div className="mb-2 ml-2 flex w-80 justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-            </div>
-          )}
-        </div>
+        </ErrorBoundary>
       </div>
-    );
-  }
-}
+      <div className="mb-2 rounded border border-black/30 p-1.5 outline-none lg:ml-2">
+        {props.comments &&
+          props.comments.map(
+            (comment) =>
+              comment.excerpt && (
+                <Card key={comment.excerpt} className="mb-2 w-80">
+                  <div className="mb-5">
+                    <span className="line-through">{comment.excerpt}</span>
+                    {comment.replace && (
+                      <>
+                        <span className="mx-2">→</span>
+                        <Button onClick={() => props.replaceSentence(comment)}>
+                          {comment.replace}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="mb-2 text-sm">{comment.comment}</div>
+                  <ButtonIcon onClick={() => props.removeComment(comment)}>
+                    <PiTrash />
+                  </ButtonIcon>
+                </Card>
+              )
+          )}
+        {!props.loading && props.comments && props.comments.length === 0 && (
+          <div className="mb-2 ml-2 w-80">指摘事項はありません</div>
+        )}
+        {props.loading && (
+          <div className="mb-2 ml-2 flex w-80 justify-center">
+            <div className="border-aws-sky h-10 w-10 animate-spin rounded-full border-4 border-t-transparent"></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default Texteditor;
