@@ -48,9 +48,9 @@ const Texteditor: React.FC<Props> = (props) => {
       <div className="mb-2 rounded border border-black/30 p-1.5 outline-none lg:ml-2">
         {props.comments &&
           props.comments.map(
-            (comment) =>
+            (comment, idx) =>
               comment.excerpt && (
-                <Card key={comment.excerpt} className="mb-2 w-80">
+                <Card key={`${comment.excerpt}-${idx}`} className="mb-2 w-80">
                   <div className="mb-5">
                     <span className="line-through">{comment.excerpt}</span>
                     {comment.replace && (

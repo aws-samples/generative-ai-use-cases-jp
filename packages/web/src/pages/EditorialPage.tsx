@@ -83,7 +83,10 @@ const EditorialPage: React.FC = () => {
   );
 
   // Memo 変数
-  const filterComment = (comments: DocumentComment[]) => {
+  const filterComment = (
+    comments: DocumentComment[],
+    commentState: { [name: string]: boolean }
+  ) => {
     return comments.filter(
       (x) =>
         x.excerpt &&
@@ -92,8 +95,7 @@ const EditorialPage: React.FC = () => {
     );
   };
   const shownComment = useMemo(
-    () => filterComment(comments),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => filterComment(comments, commentState),
     [comments, commentState]
   );
   const disabledExec = useMemo(() => {
@@ -146,8 +148,6 @@ const EditorialPage: React.FC = () => {
         commentState: { [name: string]: boolean },
         loading: boolean
       ) => {
-        if (loading) return;
-
         // ハイライト部分が変更されたらコメントを削除
         for (const comment of comments) {
           if (sentence.indexOf(comment.excerpt) === -1) {
@@ -157,7 +157,7 @@ const EditorialPage: React.FC = () => {
         setCommentState({ ...commentState });
 
         // コメントがなくなったらコメントを取得
-        const shownComment = filterComment(comments);
+        const shownComment = filterComment(comments, commentState);
         if (shownComment.length === 0 && sentence !== '' && !loading) {
           getAnnotation(sentence, additionalContext);
         }
