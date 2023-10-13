@@ -9,7 +9,6 @@ import {
   PiPencil,
   PiNote,
   PiEnvelope,
-  PiMagnifyingGlass,
   PiChatsCircle,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
@@ -57,13 +56,6 @@ const items: ItemProps[] = [
     to: '/cs',
     icon: <PiPencil />,
   },
-  ragEnabled
-    ? {
-        label: 'Kendra 検索',
-        to: '/kendra',
-        icon: <PiMagnifyingGlass />,
-      }
-    : null,
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
