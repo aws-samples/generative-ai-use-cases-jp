@@ -11,6 +11,7 @@ import {
   PiEnvelope,
   PiMagnifyingGlass,
   PiChatsCircle,
+  PiPenNib,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -46,6 +47,11 @@ const items: ItemProps[] = [
     label: '要約',
     to: '/summarize',
     icon: <PiNote />,
+  },
+  {
+    label: '校正',
+    to: '/editorial',
+    icon: <PiPenNib />,
   },
   {
     label: 'メール生成',

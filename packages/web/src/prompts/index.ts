@@ -55,6 +55,27 @@ ${context}`
   },
 };
 
+// 文章校正
+export const EditorialPrompt = {
+  systemContext:
+    'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。' +
+    SYSTEM_CONTEXT_POSTFIX,
+  editorialContext: (sentence: string, context?: string): string => {
+    return `以下の文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は指摘してください。
+${context ? 'その他指摘してほしいこと: ' + context : ''}
+出力は、必ずJSON形式で行ってください。それ以外の文言は一切出力してはいけません。例外はありません。
+出力のJSONは、output-format のJSON Array形式としてください。項目の追加と削除は絶対にしないでください。
+指摘事項がない場合は空配列を出力してください。「指摘事項はありません」「誤字脱字はありません」などの出力は一切不要です。
+<output-format>
+[{excerpt: string; replace?: string; comment?: string}]
+</output-format>
+<input>
+${sentence}
+</input>
+`;
+  },
+};
+
 // メール生成
 export const GenerateMailPrompt = {
   systemContext:
