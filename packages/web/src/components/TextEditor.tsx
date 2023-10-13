@@ -31,6 +31,10 @@ const Texteditor: React.FC<Props> = (props) => {
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
         } `}>
         <ErrorBoundary>
+          {/* 
+          draft.js の不具合でクラッシュすることがあるためエラーが発生した際に再レンダリングを行う。
+          https://github.com/facebookarchive/draft-js/issues/1320#issuecomment-472776784
+           */}
           <HighlightWithinTextarea
             placeholder={props.placeholder}
             value={props.value}
