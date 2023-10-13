@@ -83,11 +83,19 @@ const EditorialPage: React.FC = () => {
   );
 
   // Memo 変数
-  const shownComment = useMemo(() => {
+  const filterComment = (comments: DocumentComment[]) => {
     return comments.filter(
-      (x) => x.excerpt !== '' && commentState[x.excerpt] === undefined
+      (x) =>
+        x.excerpt &&
+        commentState[x.excerpt] === undefined &&
+        x.excerpt !== x.replace
     );
-  }, [comments, commentState]);
+  };
+  const shownComment = useMemo(
+    () => filterComment(comments),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [comments, commentState]
+  );
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
   }, [sentence, loading]);
@@ -116,7 +124,13 @@ const EditorialPage: React.FC = () => {
     }
 
     // debounce した後コメント更新
-    onSentenceChange(sentence, additionalContext, comments, commentState);
+    onSentenceChange(
+      sentence,
+      additionalContext,
+      comments,
+      commentState,
+      loading
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence]);
 
@@ -129,8 +143,11 @@ const EditorialPage: React.FC = () => {
         sentence: string,
         additionalContext: string,
         comments: DocumentComment[],
-        commentState: { [name: string]: boolean }
+        commentState: { [name: string]: boolean },
+        loading: boolean
       ) => {
+        if (loading) return;
+
         // ハイライト部分が変更されたらコメントを削除
         for (const comment of comments) {
           if (sentence.indexOf(comment.excerpt) === -1) {
@@ -140,9 +157,7 @@ const EditorialPage: React.FC = () => {
         setCommentState({ ...commentState });
 
         // コメントがなくなったらコメントを取得
-        const shownComment = comments.filter(
-          (x) => x.excerpt !== '' && commentState[x.excerpt] === undefined
-        );
+        const shownComment = filterComment(comments);
         if (shownComment.length === 0 && sentence !== '' && !loading) {
           getAnnotation(sentence, additionalContext);
         }
