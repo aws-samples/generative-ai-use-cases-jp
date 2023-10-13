@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { PiMagnifyingGlass, PiSpinnerGap, PiX } from 'react-icons/pi';
+import { Link } from 'react-router-dom';
 import useRag from '../hooks/useSearch';
 import HighlightText from '../components/HighlightText';
 import ButtonIcon from '../components/ButtonIcon';
@@ -37,7 +38,13 @@ const KendraSearchPage: React.FC = () => {
         <div>
           この機能は、Amazon Kendra の標準機能である Query API
           で検索を行います。
-          <span className="font-bold">生成系 AI は利用していません。</span>
+          <span className="font-bold">
+            生成系 AI は利用していません。RAG は
+            <Link className="text-aws-smile" to="/rag">
+              こちら
+            </Link>
+            で実行できます。
+          </span>
         </div>
       </div>
       <div className="relative mb-16 mt-6 flex w-2/3 justify-center">
@@ -61,9 +68,11 @@ const KendraSearchPage: React.FC = () => {
       <div className="mb-12 grid w-3/4 gap-6">
         {resultItems.map((result) => (
           <div key={result.Id}>
-            <div className="text-aws-sky font-semibold">
+            <Link
+              className="text-aws-sky font-semibold"
+              to={result.DocumentURI!}>
               {result.DocumentTitle?.Text}
-            </div>
+            </Link>
             <div className="mb-2 text-xs">{result.DocumentURI}</div>
             <HighlightText
               textWithHighlights={
