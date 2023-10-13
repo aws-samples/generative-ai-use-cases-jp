@@ -9,6 +9,7 @@ import {
   PiEnvelope,
   PiListMagnifyingGlass,
   PiChatsCircle,
+  PiPenNib,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 
@@ -40,6 +41,15 @@ const LandingPage: React.FC = () => {
       state: {
         sentence:
           'Amazon Bedrock は、Amazon や主要な AI スタートアップ企業が提供する基盤モデル (FM) を API を通じて利用できるようにする完全マネージド型サービスです。そのため、さまざまな FM から選択して、ユースケースに最も適したモデルを見つけることができます。Amazon Bedrock のサーバーレスエクスペリエンスにより、すぐに FM を開始したり、FM を簡単に試したり、独自のデータを使用して FM をプライベートにカスタマイズしたり、AWS のツールや機能を使用して FM をアプリケーションにシームレスに統合してデプロイしたりできます。Amazon Bedrock のエージェントは、開発者が独自の知識源に基づいて最新の回答を提供し、幅広いユースケースのタスクを完了できるジェネレーティブ AI アプリケーションを開発者が簡単に作成できるようにする完全マネージド機能です。Bedrock のサーバーレスエクスペリエンスにより、インフラストラクチャを管理することなく、すぐに使用を開始し、独自のデータを使用して FM をプライベートにカスタマイズし、使い慣れた AWS ツールや機能を使用してそれらをアプリケーションに簡単に統合してデプロイできます (さまざまなモデルをテストするための実験や FM を大規模に管理するためのパイプラインなどの Amazon SageMaker の ML 機能との統合を含みます)。',
+      },
+    });
+  };
+
+  const demoEditorial = () => {
+    navigate('/editorial', {
+      state: {
+        sentence:
+          'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
       },
     });
   };
@@ -163,6 +173,19 @@ ABC株式会社の鈴木です。いつもお世話になっております。
               は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX
               の条件は？」「YYY
               の金額は？」といった情報を取得することが可能です。
+            </div>
+          </div>
+        </CardDemo>
+        <CardDemo label="校正" onClickDemo={demoEditorial}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiPenNib />
+            </div>
+            <div className="text-sm">
+              LLM
+              は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。
+              人に見せる前に LLM
+              に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
             </div>
           </div>
         </CardDemo>
