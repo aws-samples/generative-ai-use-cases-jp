@@ -68,7 +68,9 @@ const KendraSearchPage: React.FC = () => {
       <div className="mb-12 grid w-3/4 gap-6">
         {resultItems.map((result) => (
           <div key={result.Id}>
-            <Link className="text-aws-sky font-semibold" to={result.DocumentURI}>
+            <Link
+              className="text-aws-sky font-semibold"
+              to={result.DocumentURI!}>
               {result.DocumentTitle?.Text}
             </Link>
             <div className="mb-2 text-xs">{result.DocumentURI}</div>
