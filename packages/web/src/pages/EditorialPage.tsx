@@ -83,17 +83,19 @@ const EditorialPage: React.FC = () => {
   );
 
   // Memo 変数
-  const filterComment = (comments: DocumentComment[]) => {
-    return comments.filter(
+  const filterComment = (
+    _comments: DocumentComment[],
+    _commentState: { [name: string]: boolean }
+  ) => {
+    return _comments.filter(
       (x) =>
         x.excerpt &&
-        commentState[x.excerpt] === undefined &&
+        _commentState[x.excerpt] === undefined &&
         x.excerpt !== x.replace
     );
   };
   const shownComment = useMemo(
-    () => filterComment(comments),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () => filterComment(comments, commentState),
     [comments, commentState]
   );
   const disabledExec = useMemo(() => {
@@ -140,26 +142,24 @@ const EditorialPage: React.FC = () => {
   const onSentenceChange = useCallback(
     debounce(
       (
-        sentence: string,
-        additionalContext: string,
-        comments: DocumentComment[],
-        commentState: { [name: string]: boolean },
-        loading: boolean
+        _sentence: string,
+        _additionalContext: string,
+        _comments: DocumentComment[],
+        _commentState: { [name: string]: boolean },
+        _loading: boolean
       ) => {
-        if (loading) return;
-
         // ハイライト部分が変更されたらコメントを削除
-        for (const comment of comments) {
-          if (sentence.indexOf(comment.excerpt) === -1) {
-            commentState[comment.excerpt] = true;
+        for (const _comment of _comments) {
+          if (_sentence.indexOf(_comment.excerpt) === -1) {
+            _commentState[_comment.excerpt] = true;
           }
         }
-        setCommentState({ ...commentState });
+        setCommentState({ ..._commentState });
 
         // コメントがなくなったらコメントを取得
-        const shownComment = filterComment(comments);
-        if (shownComment.length === 0 && sentence !== '' && !loading) {
-          getAnnotation(sentence, additionalContext);
+        const _shownComment = filterComment(_comments, _commentState);
+        if (_shownComment.length === 0 && _sentence !== '' && !_loading) {
+          getAnnotation(_sentence, _additionalContext);
         }
       },
       1000
@@ -169,9 +169,11 @@ const EditorialPage: React.FC = () => {
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
   useEffect(() => {
-    if (messages.length === 0 || messages.length % 2 === 1) return;
-    const response = messages[messages.length - 1].content;
-    const comments = [...response.matchAll(REGEX_BRACKET)].map((x) => {
+    if (messages.length === 0) return;
+    const _lastMessage = messages[messages.length - 1]
+    if (_lastMessage.role !== 'assistant') return;
+    const _response = messages[messages.length - 1].content;
+    const _comments = [..._response.matchAll(REGEX_BRACKET)].map((x) => {
       try {
         return JSON.parse(x[0]) as DocumentComment;
       } catch (error) {
@@ -179,31 +181,31 @@ const EditorialPage: React.FC = () => {
         return { excerpt: '' };
       }
     });
-    setComments(comments);
+    setComments(_comments);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, commentState]);
 
   // コメントで指定された修正を実行
-  const replaceSentence = (comment: DocumentComment) => {
-    if (comment.replace) {
-      setSentence(sentence.replace(comment.excerpt, comment.replace));
+  const replaceSentence = (_comment: DocumentComment) => {
+    if (_comment.replace) {
+      setSentence(sentence.replace(_comment.excerpt, _comment.replace));
     }
-    removeComment(comment);
+    removeComment(_comment);
   };
 
   // コメントを削除
-  const removeComment = (comment: DocumentComment) => {
-    commentState[comment.excerpt] = true;
+  const removeComment = (_comment: DocumentComment) => {
+    commentState[_comment.excerpt] = true;
     setCommentState({ ...commentState });
   };
 
   // LLM にリクエスト送信
-  const getAnnotation = (sentence: string, additionalContext: string) => {
+  const getAnnotation = (_sentence: string, _additionalContext: string) => {
     setCommentState({});
     postChat(
       EditorialPrompt.editorialContext(
-        sentence,
-        additionalContext === '' ? undefined : additionalContext
+        _sentence,
+        _additionalContext === '' ? undefined : _additionalContext
       ),
       true
     );
