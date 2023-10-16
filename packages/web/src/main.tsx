@@ -11,6 +11,7 @@ import LandingPage from './pages/LandingPage.tsx';
 import ChatPage from './pages/ChatPage.tsx';
 import SummarizePage from './pages/SummarizePage.tsx';
 import EditorialPage from './pages/EditorialPage.tsx';
+import TranslatePage from './pages/TranslatePage.tsx';
 import GenerateMail from './pages/GenerateMail.tsx';
 import GenerateMessage from './pages/GenerateMessage.tsx';
 import NotFound from './pages/NotFound.tsx';
@@ -39,6 +40,10 @@ const routes: RouteObject[] = [
   {
     path: '/editorial',
     element: <EditorialPage />,
+  },
+  {
+    path: '/translate',
+    element: <TranslatePage />,
   },
   {
     path: '/mail',

@@ -76,6 +76,27 @@ ${sentence}
   },
 };
 
+// 翻訳
+export const TranslatePrompt = {
+  systemContext:
+    'あなたは文章の意図を汲み取り適切な翻訳を行う翻訳者です。' +
+    SYSTEM_CONTEXT_POSTFIX,
+  translateContext: (
+    sentence: string,
+    language: string,
+    context?: string
+  ): string => {
+    return `inputの文章を${language}に翻訳してください。
+翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。
+出力は\`で囲んでください。
+${!context ? '' : `要約時に考慮して欲しいこと: ${context}`}
+<input>
+${sentence}
+</input>
+`;
+  },
+};
+
 // メール生成
 export const GenerateMailPrompt = {
   systemContext:

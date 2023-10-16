@@ -12,6 +12,7 @@ import {
   PiChatsCircle,
   PiPenNib,
   PiMagnifyingGlass,
+  PiTranslate,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -56,6 +57,12 @@ const items: ItemProps[] = [
     label: '校正',
     to: '/editorial',
     icon: <PiPenNib />,
+    usecase: true,
+  },
+  {
+    label: '翻訳',
+    to: '/translate',
+    icon: <PiTranslate />,
     usecase: true,
   },
   {
