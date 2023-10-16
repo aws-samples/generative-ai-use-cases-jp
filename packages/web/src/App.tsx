@@ -11,6 +11,7 @@ import {
   PiEnvelope,
   PiChatsCircle,
   PiPenNib,
+  PiMagnifyingGlass,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -29,38 +30,51 @@ const items: ItemProps[] = [
     label: 'ホーム',
     to: '/',
     icon: <PiHouse />,
+    usecase: true,
   },
   {
     label: 'チャット',
     to: '/chat',
     icon: <PiChatsCircle />,
+    usecase: true,
   },
   ragEnabled
     ? {
         label: 'RAG チャット',
         to: '/rag',
         icon: <PiChatCircleText />,
+        usecase: true,
       }
     : null,
   {
     label: '要約',
     to: '/summarize',
     icon: <PiNote />,
+    usecase: true,
   },
   {
     label: '校正',
     to: '/editorial',
     icon: <PiPenNib />,
+    usecase: true,
   },
   {
     label: 'メール生成',
     to: '/mail',
     icon: <PiEnvelope />,
+    usecase: true,
   },
   {
     label: 'CS 業務効率化',
     to: '/cs',
     icon: <PiPencil />,
+    usecase: true,
+  },
+  {
+    label: 'Kendra 検索',
+    to: '/kendra',
+    icon: <PiMagnifyingGlass />,
+    usecase: false,
   },
 ].flatMap((i) => (i !== null ? [i] : []));
 

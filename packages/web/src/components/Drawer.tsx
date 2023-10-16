@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useLocation } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
@@ -11,6 +11,7 @@ export type ItemProps = BaseProps & {
   label: string;
   to: string;
   icon: JSX.Element;
+  usecase: boolean;
 };
 
 const Item: React.FC<ItemProps> = (props) => {
@@ -30,7 +31,7 @@ const Item: React.FC<ItemProps> = (props) => {
   }, []);
   return (
     <Link
-      className={`hover:bg-aws-sky m-2 flex h-8 items-center rounded p-2 ${
+      className={`hover:bg-aws-sky flex h-8 items-center rounded p-2 ${
         location.pathname === props.to && 'bg-aws-sky'
       } ${props.className}`}
       to={props.to}
@@ -64,7 +65,7 @@ const RefLink: React.FC<RefLinkProps> = (props) => {
 
   return (
     <Link
-      className={`m-2 flex h-6 items-center rounded px-1 py-2 ${props.className}`}
+      className={`flex h-8 items-center rounded px-1 py-2 ${props.className}`}
       to={props.to}
       onClick={onClick}
       target="_blank">
@@ -84,18 +85,50 @@ type Props = BaseProps & {
 const Drawer: React.FC<Props> = (props) => {
   const { opened, switchOpen } = useDrawer();
 
+  const usecases = useMemo(() => {
+    return props.items.filter((i) => i.usecase);
+  }, [props.items]);
+
+  const tools = useMemo(() => {
+    return props.items.filter((i) => !i.usecase);
+  }, [props.items]);
+
   return (
     <>
       <nav
         className={`h-full lg:visible lg:w-64 ${
           opened ? 'visible w-64' : 'invisible w-0'
         } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
-        <div className="text-aws-smile mx-3 mt-3 text-xs">ツール</div>
-        <div className="scrollbar-thin scrollbar-thumb-white  ml-2 mr-1 h-full overflow-y-auto border-b">
-          {props.items.map((item, idx) => (
-            <Item key={idx} label={item.label} icon={item.icon} to={item.to} />
+        <div className="text-aws-smile mx-3 my-2 text-xs">
+          ユースケース <span className="text-gray-400">(GenAI)</span>
+        </div>
+        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+          {usecases.map((item, idx) => (
+            <Item
+              key={idx}
+              label={item.label}
+              icon={item.icon}
+              to={item.to}
+              usecase={item.usecase}
+            />
           ))}
         </div>
+        <div className="border-b" />
+        <div className="text-aws-smile mx-3 my-2 text-xs">
+          ツール <span className="text-gray-400">(非GenAI)</span>
+        </div>
+        <div className="mb-1 ml-2 mr-1">
+          {tools.map((item, idx) => (
+            <Item
+              key={idx}
+              label={item.label}
+              icon={item.icon}
+              to={item.to}
+              usecase={item.usecase}
+            />
+          ))}
+        </div>
+        <div className="border-b" />
         <div className="text-aws-smile mx-3 my-2  text-xs">会話履歴</div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           <ChatList className="mr-1" />

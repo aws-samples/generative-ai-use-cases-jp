@@ -34,7 +34,7 @@ const KendraSearchPage: React.FC = () => {
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
         Kendra 検索
       </div>
-      <div className="-mt-3  text-sm text-gray-600">
+      <div className="text-sm text-gray-600">
         <div>
           この機能は、Amazon Kendra の標準機能である Query API
           で検索を行います。
