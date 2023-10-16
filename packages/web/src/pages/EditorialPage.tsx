@@ -170,7 +170,7 @@ const EditorialPage: React.FC = () => {
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
   useEffect(() => {
     if (messages.length === 0) return;
-    const _lastMessage = messages[messages.length - 1]
+    const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
     const _comments = [..._response.matchAll(REGEX_BRACKET)].map((x) => {
