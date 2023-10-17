@@ -10,6 +10,7 @@ import {
   PiListMagnifyingGlass,
   PiChatsCircle,
   PiPenNib,
+  PiTranslate,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 
@@ -50,6 +51,15 @@ const LandingPage: React.FC = () => {
       state: {
         sentence:
           'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
+      },
+    });
+  };
+
+  const demoTranslate = () => {
+    navigate('/translate', {
+      state: {
+        sentence:
+          'こんちには。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
       },
     });
   };
@@ -186,6 +196,17 @@ ABC株式会社の鈴木です。いつもお世話になっております。
               は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。
               人に見せる前に LLM
               に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
+            </div>
+          </div>
+        </CardDemo>
+        <CardDemo label="翻訳" onClickDemo={demoTranslate}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiTranslate />
+            </div>
+            <div className="text-sm">
+              多言語で学習した LLM は、翻訳を行うことも可能です。
+              また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
             </div>
           </div>
         </CardDemo>

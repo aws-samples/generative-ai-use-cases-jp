@@ -8,6 +8,7 @@ type Props = RowItemProps & {
   hint?: string;
   optional?: boolean;
   noBorder?: boolean;
+  maxHeight?: number;
   onChange: (value: string) => void;
 };
 
@@ -16,6 +17,7 @@ const MAX_HEIGHT = 300;
 const Textarea: React.FC<Props> = (props) => {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [isMax, setIsMax] = useState(false);
+  const _maxHeight = props.maxHeight || MAX_HEIGHT;
 
   useEffect(() => {
     if (!ref.current) {
@@ -24,14 +26,14 @@ const Textarea: React.FC<Props> = (props) => {
 
     ref.current.style.height = 'auto';
 
-    if (ref.current.scrollHeight > MAX_HEIGHT) {
-      ref.current.style.height = MAX_HEIGHT + 'px';
+    if (_maxHeight > 0 && ref.current.scrollHeight > _maxHeight) {
+      ref.current.style.height = _maxHeight + 'px';
       setIsMax(true);
     } else {
       ref.current.style.height = ref.current.scrollHeight + 'px';
       setIsMax(false);
     }
-  }, [props.value]);
+  }, [props.value, _maxHeight]);
 
   return (
     <RowItem notItem={props.notItem}>

@@ -1,13 +1,13 @@
 import React from 'react';
-import { RowItemProps } from './RowItem';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
-import Card from '../components/Card';
-import { PiTrash } from 'react-icons/pi';
-import HighlightWithinTextarea from 'react-highlight-within-textarea';
-import 'draft-js/dist/Draft.css';
+import { RowItemProps } from './RowItem';
+import Card from './Card';
 import Button from './Button';
 import ButtonIcon from './ButtonIcon';
 import { ErrorBoundary } from './ErrorBoundary';
+import { PiTrash } from 'react-icons/pi';
+import HighlightWithinTextarea from 'react-highlight-within-textarea';
+import 'draft-js/dist/Draft.css';
 
 type Props = RowItemProps & {
   value: string;
