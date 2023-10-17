@@ -4,14 +4,15 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import ExpandedField from '../components/ExpandedField';
+import MenuDropdown from '../components/MenuDropdown';
+import MenuItem from '../components/MenuItem';
+import Markdown from '../components/Markdown';
+import ButtonCopy from '../components/ButtonCopy';
 import { EditorialPrompt, TranslatePrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
-import MenuDropdown from '../components/MenuDropdown';
-import MenuItem from '../components/MenuItem';
 import { PiCaretDown } from 'react-icons/pi';
-import Markdown from '../components/Markdown';
 
 const languages = [
   { label: '英語' },
@@ -140,7 +141,7 @@ const TranslatePage: React.FC = () => {
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
-    setTranslatedSentence(_response.replace(/`/g, ''));
+    setTranslatedSentence(_response.replace(/`/g, '').trim());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
@@ -182,7 +183,7 @@ const TranslatePage: React.FC = () => {
         <Card label="翻訳したい文章">
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="p-3">言語を自動検出</div>
+              <div className="py-3">言語を自動検出</div>
               <Textarea
                 placeholder="入力してください"
                 value={sentence}
@@ -193,24 +194,27 @@ const TranslatePage: React.FC = () => {
             <div className="w-full lg:ml-2 lg:w-1/2">
               <MenuDropdown
                 menu={
-                  <div className="flex items-center p-2">
+                  <div className="flex items-center py-2">
                     {language}
                     <PiCaretDown></PiCaretDown>
                   </div>
                 }>
                 {languages.map((language) => (
-                  <MenuItem onClick={() => setLanguage(language.label)}>
+                  <MenuItem
+                    key={language.label}
+                    onClick={() => setLanguage(language.label)}>
                     {language.label}
                   </MenuItem>
                 ))}
               </MenuDropdown>
-              <div
-                className="rounded border border-black/30 p-1.5"
-                style={{ minHeight: '100px' }}>
+              <div className="rounded border border-black/30 p-1.5">
                 <Markdown>{translatedSentence}</Markdown>
                 {loading && (
                   <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
+                <div className="flex w-full justify-end">
+                  <ButtonCopy text={translatedSentence}></ButtonCopy>
+                </div>
               </div>
             </div>
           </div>
