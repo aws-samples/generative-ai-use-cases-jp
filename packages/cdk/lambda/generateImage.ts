@@ -1,13 +1,14 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { PredictRequest } from 'generative-ai-use-cases-jp';
+import { GenerateImageRequest } from 'generative-ai-use-cases-jp';
 import api from './utils/api';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  console.log('START', event);
   try {
-    const req: PredictRequest = JSON.parse(event.body!);
-    const response = await api.invoke(req.messages);
+    const req: GenerateImageRequest = JSON.parse(event.body!);
+    const res = await api.generateImage(req);
 
     return {
       statusCode: 200,
@@ -15,7 +16,8 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(response),
+      body: res,
+      isBase64Encoded: true,
     };
   } catch (error) {
     console.log(error);
