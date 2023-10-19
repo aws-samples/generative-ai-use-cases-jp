@@ -9,6 +9,7 @@ import { PiFileImage, PiImageLight } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
 import SketchPad from '../components/SketchPad';
+import ModalDialog from '../components/ModalDialog';
 
 type StateType = {
   prompt: string;
@@ -127,6 +128,7 @@ const GenerateImagePage: React.FC = () => {
 
   const { generate } = useImage();
   const [generating, setGenerating] = useState(false);
+  const [isOpenSketch, setIsOpenSketch] = useState(false);
 
   const onClickGenerate = useCallback(() => {
     setGenerating(true);
@@ -169,114 +171,147 @@ const GenerateImagePage: React.FC = () => {
     setSeed(Math.floor(Math.random() * 4294967295));
   }, [setSeed]);
 
+  const onChangeInitImageBase64 = useCallback(
+    (s: string) => {
+      setInitImageBase64(s);
+      setIsOpenSketch(false);
+    },
+    [setInitImageBase64]
+  );
+
   return (
-    <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-        画像生成
-      </div>
-      <div className="col-span-12 col-start-1 m-2 ">
-        <Card label="生成条件">
-          <div className="flex gap-3">
-            <div className="w-1/2">
-              <div className="flex justify-center">
-                <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
-                  {imageBase64 === '' ? (
-                    <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
-                  ) : (
-                    <img
-                      src={`data:image/jpg;base64,${imageBase64}`}
-                      className="h-full w-full"
-                    />
+    <>
+      <ModalDialog
+        isOpen={isOpenSketch}
+        title="初期画像の設定"
+        className="w-[530px]"
+        onClose={() => {
+          setIsOpenSketch(false);
+        }}>
+        <SketchPad
+          onChange={onChangeInitImageBase64}
+          onCancel={() => {
+            setIsOpenSketch(false);
+          }}
+        />
+      </ModalDialog>
+
+      <div className="grid grid-cols-12">
+        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+          画像生成
+        </div>
+        <div className="col-span-12 col-start-1 m-2 ">
+          <Card label="生成条件">
+            <div className="flex gap-3">
+              <div className="w-1/2">
+                <div className="flex justify-center">
+                  <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
+                    {imageBase64 === '' ? (
+                      <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
+                    ) : (
+                      <img
+                        src={`data:image/jpg;base64,${imageBase64}`}
+                        className="h-full w-full"
+                      />
+                    )}
+                  </div>
+                </div>
+
+                <Card>
+                  <Textarea
+                    label="プロンプト"
+                    value={prompt}
+                    onChange={setPrompt}
+                    maxHeight={128}
+                    rows={5}
+                  />
+                  <Textarea
+                    label="ネガティブプロンプト"
+                    value={negativePrompt}
+                    onChange={setNegativePrompt}
+                    maxHeight={128}
+                    rows={5}
+                  />
+
+                  {initImageBase64 && (
+                    <div className="mb-2">
+                      <div className="text-sm">生成元の画像</div>
+                      <img
+                        src={initImageBase64}
+                        className=" h-32 w-32 border border-gray-400"></img>
+                    </div>
                   )}
+                  <div className="flex justify-between">
+                    <Button
+                      onClick={() => {
+                        setIsOpenSketch(true);
+                      }}>
+                      <PiFileImage className="mr-2" />
+                      生成元の画像を設定
+                    </Button>
+                    <Button onClick={onClickGenerate} loading={generating}>
+                      生成
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+              <GenerateImageAssistant
+                onCopyPrompt={(p) => {
+                  setPrompt(p);
+                }}
+                onCopyNegativePrompt={(p) => {
+                  setNegativePrompt(p);
+                }}
+              />
+            </div>
+
+            <Card label="パラメータ" className="mt-3">
+              <div className="grid grid-cols-4 gap-3">
+                <div className="col-span-2 xl:col-span-1">
+                  <Select
+                    label="StylePreset"
+                    options={stylePresetOptions}
+                    value={stylePreset}
+                    onChange={setStylePreset}
+                    clearable
+                  />
+                </div>
+                <div className="col-span-3 xl:col-span-2">
+                  <RangeSlider
+                    label="Seed"
+                    min={0}
+                    max={4294967295}
+                    value={seed}
+                    onChange={setSeed}
+                  />
+                </div>
+                <div className="col-span-1 flex items-end xl:col-span-1 xl:items-center">
+                  <Button onClick={onClickRandomSeed}>ランダム設定</Button>
+                </div>
+                <div className="col-span-2">
+                  <RangeSlider
+                    label="CFG Scale"
+                    min={0}
+                    max={30}
+                    value={cfgScale}
+                    onChange={setCfgScale}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <RangeSlider
+                    label="Step"
+                    min={10}
+                    max={150}
+                    value={step}
+                    onChange={setStep}
+                  />
                 </div>
               </div>
-
-              <Card>
-                <Textarea
-                  label="プロンプト"
-                  value={prompt}
-                  onChange={setPrompt}
-                  maxHeight={128}
-                  rows={5}
-                />
-                <Textarea
-                  label="ネガティブプロンプト"
-                  value={negativePrompt}
-                  onChange={setNegativePrompt}
-                  maxHeight={128}
-                  rows={5}
-                />
-
-                <img src={initImageBase64} className="h-32 w-32"></img>
-                <div className="flex justify-between">
-                  <Button onClick={onClickGenerate} loading={generating}>
-                    <PiFileImage className="mr-2" />
-                    初期画像設定
-                  </Button>
-                  <Button onClick={onClickGenerate} loading={generating}>
-                    生成
-                  </Button>
-                </div>
-              </Card>
-            </div>
-            <GenerateImageAssistant
-              onCopyPrompt={(p) => {
-                setPrompt(p);
-              }}
-              onCopyNegativePrompt={(p) => {
-                setNegativePrompt(p);
-              }}
-            />
-          </div>
-
-          <SketchPad onChange={setInitImageBase64} />
-
-          <Card label="パラメータ" className="mt-3">
-            <div className="grid grid-cols-4 gap-3">
-              <div className="col-span-2 xl:col-span-1">
-                <Select
-                  label="StylePreset"
-                  options={stylePresetOptions}
-                  value={stylePreset}
-                  onChange={setStylePreset}
-                  clearable
-                />
-              </div>
-              <div className="col-span-3 xl:col-span-2">
-                <RangeSlider
-                  label="Seed"
-                  min={0}
-                  max={4294967295}
-                  value={seed}
-                  onChange={setSeed}
-                />
-              </div>
-              <div className="col-span-1 flex items-end xl:col-span-1 xl:items-center">
-                <Button onClick={onClickRandomSeed}>ランダム設定</Button>
-              </div>
-              <div className="col-span-2">
-                <RangeSlider
-                  label="CFG Scale"
-                  min={0}
-                  max={30}
-                  value={cfgScale}
-                  onChange={setCfgScale}
-                />
-              </div>
-              <div className="col-span-2">
-                <RangeSlider
-                  label="Step"
-                  min={10}
-                  max={150}
-                  value={step}
-                  onChange={setStep}
-                />
-              </div>
-            </div>
+            </Card>
           </Card>
-        </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

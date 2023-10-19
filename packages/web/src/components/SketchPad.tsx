@@ -1,24 +1,17 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { ColorChangeHandler, CompactPicker, CirclePicker } from 'react-color';
+import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import { ColorChangeHandler, CompactPicker } from 'react-color';
 import {
   PiArrowClockwise,
   PiArrowCounterClockwise,
-  PiCircleFill,
   PiEraserFill,
   PiPaintBrushFill,
   PiPaintBucketFill,
-  PiPaletteFill,
+  PiUploadSimple,
 } from 'react-icons/pi';
 import SignatureCanvas from 'react-signature-canvas';
 import Button from './Button';
 import { BaseProps } from '../@types/common';
+import ModalDialog from './ModalDialog';
 
 type SketchButtonProps = BaseProps & {
   isActive?: boolean;
@@ -41,48 +34,9 @@ const SketchButton: React.FC<SketchButtonProps> = (props) => {
   );
 };
 
-type PenWidthButtonProps = BaseProps & {
-  size: 'xs' | 'sm' | 'base' | 'lg' | 'xl';
-  penWidth: number;
-  onChange: (penWidth: number) => void;
-};
-
-const SIZE_LIST: PenWidthButtonProps['size'][] = [
-  'xs',
-  'sm',
-  'base',
-  'lg',
-  'xl',
-];
-
-const SIZE_WIDTH_MAP = {
-  xs: 1,
-  sm: 2,
-  base: 3,
-  lg: 5,
-  xl: 10,
-};
-
-const PenWidthButton: React.FC<PenWidthButtonProps> = (props) => {
-  const isActive = useMemo(() => {
-    return SIZE_WIDTH_MAP[props.size] === props.penWidth;
-  }, [props.penWidth, props.size]);
-
-  return (
-    <SketchButton
-      // eslint-disable-next-line tailwindcss/no-custom-classname
-      className={`text-${props.size}  `}
-      isActive={isActive}
-      onClick={() => {
-        props.onChange(SIZE_WIDTH_MAP[props.size]);
-      }}>
-      <PiCircleFill />
-    </SketchButton>
-  );
-};
-
 type Props = {
   onChange: (imageBase64: string) => void;
+  onCancel: () => void;
 };
 
 const SketchPad: React.FC<Props> = (props) => {
@@ -92,6 +46,8 @@ const SketchPad: React.FC<Props> = (props) => {
   const [isEraseMode, setIsEraseMode] = useState(false);
   const [isOpenPalette, setIsOpenPalette] = useState(false);
   const [isOpenPaletteBg, setIsOpenPaletteBg] = useState(false);
+
+  const [isOpenUpload, setIsOpenUpload] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const undoStack: SignaturePad.Point[][] = [];
@@ -146,19 +102,64 @@ const SketchPad: React.FC<Props> = (props) => {
     }
   }, [bgColor, props]);
 
-  return (
-    <div>
-      <div className="border">
-        <div className="flex">
-          {/* {SIZE_LIST.map((size) => (
-            <PenWidthButton
-              key={size}
-              size={size}
-              penWidth={penWidth}
-              onChange={setPenWidth}
-            />
-          ))} */}
+  const [imageBase64, setImageBase64] = useState('');
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onloadend = (e) => {
+        console.log(e);
+        const img = new Image();
+        img.src = reader.result as string;
+
+        img.onload = () => {
+          // 画像を512x512にリサイズ
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = 512;
+          canvas.height = 512;
+          ctx?.drawImage(img, 0, 0, 512, 512);
+
+          const resizedImageDataUri = canvas.toDataURL(file.type);
+
+          setImageBase64(resizedImageDataUri);
+        };
+      };
+    }
+  };
+  const onClickUploadComplet = useCallback(() => {
+    props.onChange(imageBase64);
+  }, [imageBase64, props]);
+
+  return (
+    <>
+      <ModalDialog isOpen={isOpenUpload} title="画像をアップロード">
+        <div>
+          <div className="mb-3 flex w-full">
+            <input type="file" onChange={handleImageUpload} accept="image/*" />
+          </div>
+          <div className="flex w-full justify-center">
+            {imageBase64 && <img src={imageBase64} />}
+          </div>
+
+          <div className="mt-3 flex w-full justify-end gap-3">
+            <Button
+              outlined
+              onClick={() => {
+                setIsOpenUpload(false);
+              }}>
+              キャンセル
+            </Button>
+            <Button onClick={onClickUploadComplet}>完了</Button>
+          </div>
+        </div>
+      </ModalDialog>
+      <div className="w-full">
+        <div className="flex w-full justify-center">
           <SketchButton
             className="relative text-xl"
             onClick={() => {
@@ -207,25 +208,39 @@ const SketchPad: React.FC<Props> = (props) => {
             <PiArrowClockwise />
           </SketchButton>
         </div>
-      </div>
 
-      <SignatureCanvas
-        // key={bgColor}
-        ref={canvasRef}
-        canvasProps={{
-          width: 512,
-          height: 512,
-          className: 'border',
-          style: { backgroundColor: bgColor },
-        }}
-        penColor={isEraseMode ? bgColor : penColor}
-        dotSize={3}
-        maxWidth={3}
-        minWidth={3}
-        // backgroundColor={bgColor}
-      />
-      <Button onClick={onClickComplete}>OK</Button>
-    </div>
+        <div className="flex w-full justify-center">
+          <SignatureCanvas
+            ref={canvasRef}
+            canvasProps={{
+              width: 512,
+              height: 512,
+              className: 'border',
+              style: { backgroundColor: bgColor },
+            }}
+            penColor={isEraseMode ? bgColor : penColor}
+            dotSize={3}
+            maxWidth={3}
+            minWidth={3}
+          />
+        </div>
+        <div className="mt-3 flex justify-between">
+          <Button
+            onClick={() => {
+              setIsOpenUpload(true);
+            }}>
+            <PiUploadSimple />
+            画像をアップロード
+          </Button>
+          <div className="flex gap-3">
+            <Button outlined onClick={props.onCancel}>
+              キャンセル
+            </Button>
+            <Button onClick={onClickComplete}>完了</Button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
