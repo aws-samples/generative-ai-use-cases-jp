@@ -4,16 +4,20 @@ export default {
 出力のJSONは、以下の出力形式としてください。項目の追加と削除は絶対にしないでください。
 適切な情報が設定できない項目については、値に「N/A」を設定してください。
 
-# 出力形式
+出力形式は、<出力形式></出力形式> の xml タグで囲われた内容のとおりにしてください。例外はありません。
+<出力形式>
 ${JSON.stringify(format)}
+</出力形式>
 `,
   parseErrorRetryPrompt: (
     format: Record<string, string>
   ) => `JSON形式で出力されていません。必ず以下の出力形式のJSONで出力してください。
 JSON以外の文字列は一切出力しないでください。例外はありません。
 
-# 出力形式
+出力形式は、<出力形式></出力形式> の xml タグで囲われた内容のとおりにしてください。例外はありません。
+<出力形式>
 ${JSON.stringify(format)}
+</出力形式>
 `,
   keysInvalidErrorRetryPrompt: (
     format: Record<string, string>
@@ -22,7 +26,9 @@ ${JSON.stringify(format)}
 適切な情報が設定できない項目については、項目を削除せずに値に「N/A」を設定してください。
 なお、JSON以外の文字列は一切出力しないでください。例外はありません。
 
-# 出力形式
+出力形式は、<出力形式></出力形式> の xml タグで囲われた内容のとおりにしてください。例外はありません。
+<出力形式>
 ${JSON.stringify(format)}
+</出力形式>
 `,
 };
