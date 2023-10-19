@@ -82,7 +82,7 @@ export const GenerateTextPrompt = {
     'あなたは指示に従って文章を作成するライターです。' + SYSTEM_CONTEXT_POSTFIX,
   generateTextContext: (information: string, context: string): string => {
     return `inputの情報からcontextの指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
-出力は\`で囲んでください。
+出力は <output></output> の xml タグで囲んでください。
 <input>
 ${information}
 </input>

@@ -89,7 +89,7 @@ const GenerateTextPage: React.FC = () => {
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
-    setText(_response.replace(/`/g, '').trim());
+    setText(_response.replace(/(<output>|<\/output>)/g, '').trim());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
