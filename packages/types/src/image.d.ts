@@ -9,4 +9,6 @@ export type GenerateImageParams = {
   seed: number;
   step: number;
   stylePreset?: string;
+  initImage?: string;
+  imageStrength?: number;
 };

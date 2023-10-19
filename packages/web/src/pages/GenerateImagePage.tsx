@@ -5,9 +5,10 @@ import Textarea from '../components/Textarea';
 import { create } from 'zustand';
 import RangeSlider from '../components/RangeSlider';
 import Select from '../components/Select';
-import { PiImageLight } from 'react-icons/pi';
+import { PiFileImage, PiImageLight } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
+import SketchPad from '../components/SketchPad';
 
 type StateType = {
   prompt: string;
@@ -22,6 +23,8 @@ type StateType = {
   setStep: (n: number) => void;
   cfgScale: number;
   setCfgScale: (n: number) => void;
+  initImageBase64: string;
+  setInitImageBase64: (s: string) => void;
   imageBase64: string;
   setImageBase64: (s: string) => void;
 };
@@ -62,6 +65,12 @@ const useGenerateImagePageState = create<StateType>((set) => {
     setCfgScale: (n) => {
       set(() => ({
         cfgScale: n,
+      }));
+    },
+    initImageBase64: '',
+    setInitImageBase64: (s) => {
+      set(() => ({
+        initImageBase64: s,
       }));
     },
     imageBase64: '',
@@ -110,6 +119,8 @@ const GenerateImagePage: React.FC = () => {
     setStep,
     cfgScale,
     setCfgScale,
+    initImageBase64,
+    setInitImageBase64,
     imageBase64,
     setImageBase64,
   } = useGenerateImagePageState();
@@ -134,6 +145,7 @@ const GenerateImagePage: React.FC = () => {
       seed,
       step,
       stylePreset,
+      initImage: initImageBase64,
     })
       .then((res) => {
         setImageBase64(res);
@@ -144,6 +156,7 @@ const GenerateImagePage: React.FC = () => {
   }, [
     cfgScale,
     generate,
+    initImageBase64,
     negativePrompt,
     prompt,
     seed,
@@ -193,7 +206,13 @@ const GenerateImagePage: React.FC = () => {
                   maxHeight={128}
                   rows={5}
                 />
-                <div className="flex justify-end">
+
+                <img src={initImageBase64} className="h-32 w-32"></img>
+                <div className="flex justify-between">
+                  <Button onClick={onClickGenerate} loading={generating}>
+                    <PiFileImage className="mr-2" />
+                    初期画像設定
+                  </Button>
                   <Button onClick={onClickGenerate} loading={generating}>
                     生成
                   </Button>
@@ -209,6 +228,8 @@ const GenerateImagePage: React.FC = () => {
               }}
             />
           </div>
+
+          <SketchPad onChange={setInitImageBase64} />
 
           <Card label="パラメータ" className="mt-3">
             <div className="grid grid-cols-4 gap-3">
@@ -253,17 +274,6 @@ const GenerateImagePage: React.FC = () => {
               </div>
             </div>
           </Card>
-
-          {/* 
-          <div className="flex justify-end gap-3">
-            <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
-            </Button>
-
-            <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
-            </Button>
-          </div> */}
         </Card>
       </div>
     </div>

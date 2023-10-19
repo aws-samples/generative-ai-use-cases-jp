@@ -11,6 +11,10 @@ const useImage = () => {
           ...params,
           stylePreset:
             params.stylePreset === '' ? undefined : params.stylePreset,
+          initImage:
+            params.initImage === ''
+              ? undefined
+              : params.initImage?.split(',')[1],
         })
       ).data;
     },

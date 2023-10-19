@@ -69,6 +69,8 @@ const bedrockApi: ApiInterface = {
         style_preset: params.stylePreset,
         seed: params.seed,
         steps: params.step,
+        init_image: params.initImage,
+        image_strength: params.imageStrength,
       }),
       contentType: 'application/json',
     });

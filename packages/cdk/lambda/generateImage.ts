@@ -5,7 +5,6 @@ import api from './utils/api';
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  console.log('START', event);
   try {
     const req: GenerateImageRequest = JSON.parse(event.body!);
     const res = await api.generateImage(req);

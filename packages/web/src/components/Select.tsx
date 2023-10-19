@@ -38,17 +38,17 @@ const Select: React.FC<Props> = (props) => {
           <Listbox.Button className="relative h-11 w-full cursor-default rounded border border-black/30 bg-white py-2 pl-3 pr-10 text-left focus:outline-none">
             <span className="block truncate">{selectedLabel}</span>
 
-            {props.clearable && props.value !== '' && (
-              <span className="absolute inset-y-0 right-6 flex items-center pr-2">
-                <ButtonIcon onClick={onClear}>
-                  <PiX className="h-5 w-5 text-gray-400" />
-                </ButtonIcon>
-              </span>
-            )}
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <PiCaretUpDown className="h-5 w-5 text-gray-400" />
             </span>
           </Listbox.Button>
+          {props.clearable && props.value !== '' && (
+            <span className="absolute inset-y-0 right-6 flex items-center pr-2">
+              <ButtonIcon onClick={onClear}>
+                <PiX className="h-5 w-5 text-gray-400" />
+              </ButtonIcon>
+            </span>
+          )}
           <Transition
             as={Fragment}
             leave="transition ease-in duration-100"
