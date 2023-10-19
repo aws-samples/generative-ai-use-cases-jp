@@ -46,7 +46,7 @@ const items: ItemProps[] = [
         icon: <PiChatCircleText />,
         usecase: true,
       }
-  : null,
+    : null,
   {
     label: '文章生成',
     to: '/generate',

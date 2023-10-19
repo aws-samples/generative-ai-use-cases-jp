@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import ExpandedField from '../components/ExpandedField';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
@@ -79,10 +78,7 @@ const GenerateTextPage: React.FC = () => {
 
   const getGeneratedText = (_information: string, _context: string) => {
     postChat(
-      GenerateTextPrompt.generateTextContext(
-        _information,
-        _context,
-      ),
+      GenerateTextPrompt.generateTextContext(_information, _context),
       true
     );
   };
