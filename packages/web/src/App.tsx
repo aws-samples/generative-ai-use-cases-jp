@@ -48,6 +48,12 @@ const items: ItemProps[] = [
       }
     : null,
   {
+    label: '文章生成',
+    to: '/generate',
+    icon: <PiPencil />,
+    usecase: true,
+  },
+  {
     label: '要約',
     to: '/summarize',
     icon: <PiNote />,

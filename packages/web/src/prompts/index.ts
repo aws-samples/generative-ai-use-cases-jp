@@ -76,6 +76,22 @@ ${sentence}
   },
 };
 
+// 文章生成
+export const GenerateTextPrompt = {
+  systemContext:
+    'あなたは指示に従って文章を作成するライターです。' + SYSTEM_CONTEXT_POSTFIX,
+  generateTextContext: (information: string, context: string): string => {
+    return `inputの情報からcontextの指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
+出力は<output></output>のxmlタグで囲んでください。
+<input>
+${information}
+</input>
+<context>
+${context}
+</context>`;
+  },
+};
+
 // 翻訳
 export const TranslatePrompt = {
   systemContext:

@@ -37,6 +37,16 @@ const LandingPage: React.FC = () => {
     });
   };
 
+  const demoGenerate = () => {
+    navigate('/generate', {
+      state: {
+        information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成系 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成系 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+        context:
+          'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+      },
+    });
+  };
+
   const demoSummarize = () => {
     navigate('/summarize', {
       state: {
@@ -174,6 +184,18 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             </div>
           </CardDemo>
         )}
+        <CardDemo label="文章生成" onClickDemo={demoGenerate}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiPencil />
+            </div>
+            <div className="text-sm">
+              あらゆるコンテキストで文章を生成することは LLM
+              が最も得意とするタスクの 1 つです。
+              記事・レポート・メールなど、あらゆるコンテキストに対応します。
+            </div>
+          </div>
+        </CardDemo>
         <CardDemo label="要約" onClickDemo={demoSummarize}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
