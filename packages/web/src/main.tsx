@@ -10,6 +10,7 @@ import {
 import LandingPage from './pages/LandingPage.tsx';
 import ChatPage from './pages/ChatPage.tsx';
 import SummarizePage from './pages/SummarizePage.tsx';
+import GenerateTextPage from './pages/GenerateTextPage.tsx';
 import EditorialPage from './pages/EditorialPage.tsx';
 import TranslatePage from './pages/TranslatePage.tsx';
 import GenerateMail from './pages/GenerateMail.tsx';
@@ -32,6 +33,10 @@ const routes: RouteObject[] = [
   {
     path: '/chat/:chatId',
     element: <ChatPage />,
+  },
+  {
+    path: '/generate',
+    element: <GenerateTextPage />,
   },
   {
     path: '/summarize',

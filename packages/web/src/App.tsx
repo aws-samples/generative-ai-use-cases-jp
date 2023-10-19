@@ -46,7 +46,13 @@ const items: ItemProps[] = [
         icon: <PiChatCircleText />,
         usecase: true,
       }
-    : null,
+  : null,
+  {
+    label: '文章生成',
+    to: '/generate',
+    icon: <PiPencil />,
+    usecase: true,
+  },
   {
     label: '要約',
     to: '/summarize',
