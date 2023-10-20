@@ -14,6 +14,7 @@ import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
 import useConversation from './useConversation';
 import { KeyedMutator } from 'swr';
+import { getPromptGeneratorById } from '../prompts';
 
 const useChatState = create<{
   chats: {
@@ -26,16 +27,12 @@ const useChatState = create<{
     [id: string]: boolean;
   };
   setLoading: (id: string, newLoading: boolean) => void;
-  init: (id: string, systemContext: string) => void;
-  initFromMessages: (
-    id: string,
-    messages: RecordedMessage[],
-    chat: Chat
-  ) => void;
+  init: (id: string) => void;
+  clear: (id: string) => void;
+  restore: (id: string, messages: RecordedMessage[], chat: Chat) => void;
   updateSystemContext: (id: string, systemContext: string) => void;
   pushMessage: (id: string, role: Role, content: string) => void;
   popMessage: (id: string) => ShownMessage | undefined;
-  clear: (id: string, systemContext: string) => void;
   post: (
     id: string,
     content: string,
@@ -80,16 +77,13 @@ const useChatState = create<{
     });
   };
 
-  const clearChat = (id: string) => {
-    set((state) => {
-      return {
-        chats: produce(state.chats, (draft) => {
-          // system context メッセージ以外は削除する
-          draft[id].messages = draft[id].messages.slice(0, 1);
-          delete draft[id].chat;
-        }),
-      };
-    });
+  const initChatWithSystemContext = (id: string) => {
+    const promptGenerator = getPromptGeneratorById(id);
+    initChat(
+      id,
+      [{ role: 'system', content: promptGenerator.systemContext() }],
+      undefined
+    );
   };
 
   const setTitle = (id: string, title: string) => {
@@ -194,22 +188,22 @@ const useChatState = create<{
     chats: {},
     loading: {},
     setLoading,
-    init: (id: string, systemContext: string) => {
+    init: (id: string) => {
       if (!get().chats[id]) {
-        initChat(id, [{ role: 'system', content: systemContext }], undefined);
+        initChatWithSystemContext(id);
       }
     },
-    initFromMessages: (id: string, messages: RecordedMessage[], chat: Chat) => {
-      // 履歴から init する時、既に同一の chatId の state があれば削除する
+    clear: (id: string) => {
+      initChatWithSystemContext(id);
+    },
+    restore: (id: string, messages: RecordedMessage[], chat: Chat) => {
       for (const [key, value] of Object.entries(get().chats)) {
         if (value.chat?.chatId === chat.chatId) {
-          clearChat(key);
+          initChatWithSystemContext(key);
         }
       }
+
       initChat(id, messages, chat);
-    },
-    clear: (id: string, systemContext: string) => {
-      initChat(id, [{ role: 'system', content: systemContext }], undefined);
     },
     updateSystemContext: (id: string, systemContext: string) => {
       set((state) => {
@@ -348,14 +342,14 @@ const useChatState = create<{
  * @param chatId
  * @returns
  */
-const useChat = (id: string, systemContext?: string, chatId?: string) => {
+const useChat = (id: string, chatId?: string) => {
   const {
     chats,
     loading,
     setLoading,
     init,
-    initFromMessages,
     clear,
+    restore,
     post,
     sendFeedback,
     updateSystemContext,
@@ -370,8 +364,8 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
 
   useEffect(() => {
     // 新規チャットの場合
-    if (!chatId && systemContext) {
-      init(id, systemContext);
+    if (!chatId) {
+      init(id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -379,7 +373,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
   useEffect(() => {
     // 登録済みのチャットの場合
     if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
-      initFromMessages(id, messagesData.messages, chatData.chat);
+      restore(id, messagesData.messages, chatData.chat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingMessage, isLoadingChat]);
@@ -388,13 +382,22 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
   }, [chats, id]);
 
+  const promptGenerator = useMemo(() => {
+    return getPromptGeneratorById(id);
+  }, [id]);
+
   return {
     loading: loading[id] ?? false,
     setLoading: (newLoading: boolean) => {
       setLoading(id, newLoading);
     },
     loadingMessages: isLoadingMessage,
-    clearChats: (systemContext: string) => clear(id, systemContext),
+    init: () => {
+      init(id);
+    },
+    clear: () => {
+      clear(id);
+    },
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
     },
@@ -408,6 +411,7 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);
     },
+    promptGenerator,
   };
 };
 

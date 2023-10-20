@@ -5,9 +5,9 @@ import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
-import { GenerateTextPrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
+import { GenerateTextPrompt } from '../prompts';
 
 type StateType = {
   information: string;
@@ -59,10 +59,13 @@ const GenerateTextPage: React.FC = () => {
     clear,
   } = useGenerateTextPageState();
   const { state, pathname } = useLocation();
-  const { loading, messages, postChat } = useChat(
-    pathname,
-    GenerateTextPrompt.systemContext
-  );
+  const {
+    loading,
+    messages,
+    postChat,
+    promptGenerator,
+    clear: clearChat,
+  } = useChat(pathname);
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;
@@ -76,9 +79,12 @@ const GenerateTextPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const getGeneratedText = (_information: string, _context: string) => {
+  const getGeneratedText = (information: string, context: string) => {
     postChat(
-      GenerateTextPrompt.generateTextContext(_information, _context),
+      (promptGenerator as GenerateTextPrompt).generatePrompt({
+        information,
+        context,
+      }),
       true
     );
   };
@@ -103,6 +109,7 @@ const GenerateTextPage: React.FC = () => {
   // リセット
   const onClickClear = useCallback(() => {
     clear();
+    clearChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

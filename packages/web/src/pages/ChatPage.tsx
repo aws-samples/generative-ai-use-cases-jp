@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
-import { ChatPrompt } from '../prompts';
 import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
@@ -29,8 +28,8 @@ const ChatPage: React.FC = () => {
   const { state, pathname } = useLocation();
   const { chatId } = useParams();
 
-  const { loading, loadingMessages, isEmpty, messages, clearChats, postChat } =
-    useChat(pathname, ChatPrompt.systemContext, chatId);
+  const { loading, loadingMessages, isEmpty, messages, clear, postChat } =
+    useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
 
   useEffect(() => {
@@ -48,7 +47,7 @@ const ChatPage: React.FC = () => {
   }, [content]);
 
   const onReset = useCallback(() => {
-    clearChats(ChatPrompt.systemContext);
+    clear();
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
