@@ -2,45 +2,44 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import ExpandedField from '../components/ExpandedField';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
-import { SummarizePrompt } from '../prompts';
+import { GenerateTextPrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 
 type StateType = {
-  sentence: string;
-  setSentence: (s: string) => void;
-  additionalContext: string;
-  setAdditionalContext: (s: string) => void;
-  summarizedSentence: string;
-  setSummarizedSentence: (s: string) => void;
+  information: string;
+  setInformation: (s: string) => void;
+  context: string;
+  setContext: (s: string) => void;
+  text: string;
+  setText: (s: string) => void;
   clear: () => void;
 };
 
-const useSummarizePageState = create<StateType>((set) => {
+const useGenerateTextPageState = create<StateType>((set) => {
   const INIT_STATE = {
-    sentence: '',
-    additionalContext: '',
-    summarizedSentence: '',
+    information: '',
+    context: '',
+    text: '',
   };
   return {
     ...INIT_STATE,
-    setSentence: (s: string) => {
+    setInformation: (s: string) => {
       set(() => ({
-        sentence: s,
+        information: s,
       }));
     },
-    setAdditionalContext: (s: string) => {
+    setContext: (s: string) => {
       set(() => ({
-        additionalContext: s,
+        context: s,
       }));
     },
-    setSummarizedSentence: (s: string) => {
+    setText: (s: string) => {
       set(() => ({
-        summarizedSentence: s,
+        text: s,
       }));
     },
     clear: () => {
@@ -49,40 +48,37 @@ const useSummarizePageState = create<StateType>((set) => {
   };
 });
 
-const SummarizePage: React.FC = () => {
+const GenerateTextPage: React.FC = () => {
   const {
-    sentence,
-    setSentence,
-    additionalContext,
-    setAdditionalContext,
-    summarizedSentence,
-    setSummarizedSentence,
+    information,
+    setInformation,
+    context,
+    setContext,
+    text,
+    setText,
     clear,
-  } = useSummarizePageState();
+  } = useGenerateTextPageState();
   const { state, pathname } = useLocation();
   const { loading, messages, postChat } = useChat(
     pathname,
-    SummarizePrompt.systemContext
+    GenerateTextPrompt.systemContext
   );
 
   const disabledExec = useMemo(() => {
-    return sentence === '' || loading;
-  }, [sentence, loading]);
+    return information === '' || loading;
+  }, [information, loading]);
 
   useEffect(() => {
     if (state !== null) {
-      setSentence(state.sentence);
-      setAdditionalContext(state.additionalContext);
+      setInformation(state.information);
+      setContext(state.context);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const getSummary = (_sentence: string, _additionalContext: string) => {
+  const getGeneratedText = (_information: string, _context: string) => {
     postChat(
-      SummarizePrompt.summaryContext(
-        _sentence,
-        _additionalContext === '' ? undefined : _additionalContext
-      ),
+      GenerateTextPrompt.generateTextContext(_information, _context),
       true
     );
   };
@@ -93,16 +89,16 @@ const SummarizePage: React.FC = () => {
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
-    setSummarizedSentence(_response.replace(/`/g, '').trim());
+    setText(_response.replace(/(<output>|<\/output>)/g, '').trim());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getSummary(sentence, additionalContext);
+    getGeneratedText(information, context);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [information, context, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -113,24 +109,22 @@ const SummarizePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-        要約
+        文章生成
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="要約したい文章">
+        <Card label="文章の元になる情報">
           <Textarea
             placeholder="入力してください"
-            value={sentence}
-            onChange={setSentence}
+            value={information}
+            onChange={setInformation}
             maxHeight={-1}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
-            <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
-              value={additionalContext}
-              onChange={setAdditionalContext}
-            />
-          </ExpandedField>
+          <Textarea
+            placeholder="文章の形式を指示してください。(マークダウン、ブログ、ビジネスメールなど)"
+            value={context}
+            onChange={setContext}
+          />
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
@@ -143,17 +137,17 @@ const SummarizePage: React.FC = () => {
           </div>
 
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            <Markdown>{summarizedSentence}</Markdown>
-            {!loading && summarizedSentence === '' && (
+            <Markdown>{text}</Markdown>
+            {!loading && text === '' && (
               <div className="text-gray-500">
-                要約された文章がここに表示されます
+                生成された文章がここに表示されます
               </div>
             )}
             {loading && (
               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
             <div className="flex w-full justify-end">
-              <ButtonCopy text={summarizedSentence}></ButtonCopy>
+              <ButtonCopy text={text}></ButtonCopy>
             </div>
           </div>
         </Card>
@@ -162,4 +156,4 @@ const SummarizePage: React.FC = () => {
   );
 };
 
-export default SummarizePage;
+export default GenerateTextPage;

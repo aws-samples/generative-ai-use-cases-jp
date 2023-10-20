@@ -38,6 +38,14 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 </details>
 
 <details>
+   <summary>文章生成</summary>
+
+   あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
+
+  <img src="/imgs/usecase_generate_text.gif"/>
+</details>
+
+<details>
   <summary>要約</summary>
 
   LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。
@@ -46,27 +54,19 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 </details>
 
 <details>
-  <summary>メール作成</summary>
+  <summary>校正</summary>
 
-  ビジネスメールの作成を日常的に行う人々は、形式的な挨拶や敬語の繰り返しではなく、メールの内容に集中したいと考えているでしょう。LLM を使用することで、そのような冗長なタスクを極力減らし、ルーチンワークにかかる時間を大幅に削減することが可能です。さらに、単に補完するだけでなく、誤字脱字の防止という効果も期待できます。
+  LLM は、文章の誤字脱字だけでなく文章を理解し改善点を指摘することが可能です。自分が書いたレポートを人に見せる前に LLM に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
 
-  <img src="/imgs/usecase_mail.gif"/>
+  <img src="/imgs/usecase_editorial.gif"/>
 </details>
 
 <details>
-  <summary>情報抽出</summary>
+  <summary>翻訳</summary>
 
-  文章を LLM に読み込ませることで、必要な情報を抽出できます。LLM は文章を的確に理解し、文体に気を使うことなく情報を抽出することが可能です。
+  多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
 
-  <img src="/imgs/usecase_extract.gif"/>
-</details>
-
-<details>
-  <summary>CS 業務効率化</summary>
-
-  人々が手動で処理する必要のある多数の問い合わせに対しても、LLM の活用が可能です。例えば、お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。お客様からの問い合わせ内容をコンテキストとすることで、適切な文章へと変換することができます。さらに、Fine-tuning することで、「OK」や「無理です」といった返答を打つ必要がなくなる可能性もあります。(現在、このリポジトリでは Fine-tuning はサポートされていません。Amazon Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。)
-
-  <img src="/imgs/usecase_cs.gif"/>
+  <img src="/imgs/usecase_translate.gif"/>
 </details>
 
 ## アーキテクチャ
@@ -95,7 +95,19 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
+### RAG 有効化
+
+RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
+
+まず、RAG を有効化して再デプロイします。
+`packages/cdk/cdk.json` を開き、`context` の `ragEnabled` を `true` に変更します。
+その後、以下のコマンドで再デプロイしてください。
+
+```bash
+npm run cdk:deploy
+```
+
+続いて、Kendra の Data source の Sync を以下の手順で行なってください。
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
@@ -105,7 +117,7 @@ RAG のユースケースを試す場合は、Kendra の Data source を手動�
 
 Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
 
-## モデル・リージョンの切り替え
+### モデル・リージョンの切り替え
 
 - デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
 - Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
