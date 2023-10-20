@@ -193,7 +193,6 @@ ${params
 }
 
 export const getPromptGeneratorById = (id: string) => {
-  console.log('getPromptGeneratorById');
   if (id.startsWith('/chat/')) {
     return new ChatPrompt();
   }
