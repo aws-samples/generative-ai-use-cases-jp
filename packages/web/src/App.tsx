@@ -8,7 +8,6 @@ import {
   PiChatCircleText,
   PiPencil,
   PiNote,
-  PiEnvelope,
   PiChatsCircle,
   PiPenNib,
   PiMagnifyingGlass,
@@ -69,18 +68,6 @@ const items: ItemProps[] = [
     label: '翻訳',
     to: '/translate',
     icon: <PiTranslate />,
-    usecase: true,
-  },
-  {
-    label: 'メール生成',
-    to: '/mail',
-    icon: <PiEnvelope />,
-    usecase: true,
-  },
-  {
-    label: 'CS 業務効率化',
-    to: '/cs',
-    icon: <PiPencil />,
     usecase: true,
   },
   {
