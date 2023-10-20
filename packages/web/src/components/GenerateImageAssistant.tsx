@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from './Card';
 import InputChatContent from './InputChatContent';
 import { useLocation } from 'react-router-dom';
@@ -17,11 +17,19 @@ type Props = BaseProps & {
 const GenerateImageAssistant: React.FC<Props> = (props) => {
   const [content, setContent] = useState('');
 
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
   const { loading, messages, postChat } = useChat(
     pathname,
     imagePrompt.systemPrompt
   );
+
+  // LandingPage のデモデータ設定
+  useEffect(() => {
+    if (state !== null) {
+      setContent(state.content);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   const contents = useMemo<
     (

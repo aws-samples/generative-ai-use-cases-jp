@@ -9,6 +9,7 @@ import {
   PiChatsCircle,
   PiPenNib,
   PiTranslate,
+  PiImages,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 
@@ -69,6 +70,15 @@ const LandingPage: React.FC = () => {
       state: {
         sentence:
           'こんちには。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+      },
+    });
+  };
+
+  const demoGenerateImage = () => {
+    navigate('/image', {
+      state: {
+        content: `化粧品の広告デザインを出力してください。
+高級感がある、20代女性がターゲット、親しみやすいデザイン、爽やか、綺麗、清潔感がある、黒髪の女性、化粧品を手にしている、顔をアップにする、肌に優しい、都会的`,
       },
     });
   };
@@ -161,6 +171,18 @@ const LandingPage: React.FC = () => {
             <div className="text-sm">
               多言語で学習した LLM は、翻訳を行うことも可能です。
               また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
+            </div>
+          </div>
+        </CardDemo>
+        <CardDemo label="画像生成" onClickDemo={demoGenerateImage}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiImages />
+            </div>
+            <div className="text-sm">
+              画像生成 AI
+              は、テキストを元に画像を生成することができます。アイデアを即座に可視化することができ、デザイン作業の効率化を期待できます。こちらの機能では、プロンプトの作成を
+              LLM に支援してもらうことができます。
             </div>
           </div>
         </CardDemo>

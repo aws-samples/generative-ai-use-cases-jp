@@ -115,6 +115,8 @@ const stylePresetOptions = [
 }));
 
 const GenerateImagePage: React.FC = () => {
+  // MEMO: LandingPage のデモデータ設定は GenerateImageAssistant.tsx で実施しています
+
   const {
     prompt,
     setPrompt,
