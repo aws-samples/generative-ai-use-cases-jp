@@ -24,6 +24,8 @@ type StateType = {
   setStep: (n: number) => void;
   cfgScale: number;
   setCfgScale: (n: number) => void;
+  imageStrength: number;
+  setImageStrength: (n: number) => void;
   initImageBase64: string;
   setInitImageBase64: (s: string) => void;
   imageBase64: string;
@@ -66,6 +68,12 @@ const useGenerateImagePageState = create<StateType>((set) => {
     setCfgScale: (n) => {
       set(() => ({
         cfgScale: n,
+      }));
+    },
+    imageStrength: 0.35,
+    setImageStrength: (n) => {
+      set(() => ({
+        imageStrength: n,
       }));
     },
     initImageBase64: '',
@@ -124,6 +132,8 @@ const GenerateImagePage: React.FC = () => {
     setInitImageBase64,
     imageBase64,
     setImageBase64,
+    imageStrength,
+    setImageStrength,
   } = useGenerateImagePageState();
 
   const { generate } = useImage();
@@ -148,6 +158,7 @@ const GenerateImagePage: React.FC = () => {
       step,
       stylePreset,
       initImage: initImageBase64,
+      imageStrength: imageStrength,
     })
       .then((res) => {
         setImageBase64(res);
@@ -158,6 +169,7 @@ const GenerateImagePage: React.FC = () => {
   }, [
     cfgScale,
     generate,
+    imageStrength,
     initImageBase64,
     negativePrompt,
     prompt,
@@ -185,10 +197,12 @@ const GenerateImagePage: React.FC = () => {
         isOpen={isOpenSketch}
         title="初期画像の設定"
         className="w-[530px]"
+        help="画像生成の初期状態として使われます。指定した画像に近い画像が生成されます。"
         onClose={() => {
           setIsOpenSketch(false);
         }}>
         <SketchPad
+          imageBase64={initImageBase64}
           onChange={onChangeInitImageBase64}
           onCancel={() => {
             setIsOpenSketch(false);
@@ -220,13 +234,16 @@ const GenerateImagePage: React.FC = () => {
                 <Card>
                   <Textarea
                     label="プロンプト"
+                    help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
                     value={prompt}
                     onChange={setPrompt}
                     maxHeight={128}
                     rows={5}
                   />
+
                   <Textarea
                     label="ネガティブプロンプト"
+                    help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
                     value={negativePrompt}
                     onChange={setNegativePrompt}
                     maxHeight={128}
@@ -235,7 +252,7 @@ const GenerateImagePage: React.FC = () => {
 
                   {initImageBase64 && (
                     <div className="mb-2">
-                      <div className="text-sm">生成元の画像</div>
+                      <div className="text-sm">初期画像</div>
                       <img
                         src={initImageBase64}
                         className=" h-32 w-32 border border-gray-400"></img>
@@ -247,7 +264,7 @@ const GenerateImagePage: React.FC = () => {
                         setIsOpenSketch(true);
                       }}>
                       <PiFileImage className="mr-2" />
-                      生成元の画像を設定
+                      初期画像の設定
                     </Button>
                     <Button onClick={onClickGenerate} loading={generating}>
                       生成
@@ -255,18 +272,21 @@ const GenerateImagePage: React.FC = () => {
                   </div>
                 </Card>
               </div>
-              <GenerateImageAssistant
-                onCopyPrompt={(p) => {
-                  setPrompt(p);
-                }}
-                onCopyNegativePrompt={(p) => {
-                  setNegativePrompt(p);
-                }}
-              />
+              <div className="w-1/2">
+                <GenerateImageAssistant
+                  className={`${initImageBase64 ? 'h-[866px]' : 'h-[728px]'}`}
+                  onCopyPrompt={(p) => {
+                    setPrompt(p);
+                  }}
+                  onCopyNegativePrompt={(p) => {
+                    setNegativePrompt(p);
+                  }}
+                />
+              </div>
             </div>
 
             <Card label="パラメータ" className="mt-3">
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-6 gap-3">
                 <div className="col-span-2 xl:col-span-1">
                   <Select
                     label="StylePreset"
@@ -276,16 +296,17 @@ const GenerateImagePage: React.FC = () => {
                     clearable
                   />
                 </div>
-                <div className="col-span-3 xl:col-span-2">
+                <div className="col-span-3">
                   <RangeSlider
                     label="Seed"
                     min={0}
                     max={4294967295}
                     value={seed}
                     onChange={setSeed}
+                    help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
                   />
                 </div>
-                <div className="col-span-1 flex items-end xl:col-span-1 xl:items-center">
+                <div className="col-span-1 flex items-center">
                   <Button onClick={onClickRandomSeed}>ランダム設定</Button>
                 </div>
                 <div className="col-span-2">
@@ -295,6 +316,7 @@ const GenerateImagePage: React.FC = () => {
                     max={30}
                     value={cfgScale}
                     onChange={setCfgScale}
+                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
                   />
                 </div>
                 <div className="col-span-2">
@@ -304,6 +326,18 @@ const GenerateImagePage: React.FC = () => {
                     max={150}
                     value={step}
                     onChange={setStep}
+                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <RangeSlider
+                    label="ImageStrength"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={imageStrength}
+                    onChange={setImageStrength}
+                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
                   />
                 </div>
               </div>

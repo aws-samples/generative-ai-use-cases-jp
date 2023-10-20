@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import RowItem, { RowItemProps } from './RowItem';
+import Help from './Help';
 
 type Props = RowItemProps & {
   value?: string;
   label?: string;
   placeholder?: string;
   hint?: string;
+  help?: string;
   optional?: boolean;
   noBorder?: boolean;
   rows?: number;
@@ -39,8 +41,9 @@ const Textarea: React.FC<Props> = (props) => {
   return (
     <RowItem notItem={props.notItem}>
       {props.label && (
-        <div>
+        <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
+          {props.help && <Help className="ml-1" text={props.help} />}
           {props.optional && (
             <span className="ml-2 text-xs italic text-gray-500">
               - Optional

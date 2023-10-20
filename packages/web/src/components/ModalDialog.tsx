@@ -1,12 +1,14 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useCallback } from 'react';
 import { BaseProps } from '../@types/common';
+import Help from './Help';
 
 type Props = BaseProps & {
   isOpen: boolean;
   title: string;
   children: React.ReactNode;
   onClose?: () => void;
+  help?: string;
 };
 
 const ModalDialog: React.FC<Props> = (props) => {
@@ -47,8 +49,9 @@ const ModalDialog: React.FC<Props> = (props) => {
                 <Dialog.Panel className="w-full max-w-2xl rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
-                    className="text-aws-font-color border-b pb-2 text-lg font-medium leading-6">
+                    className="text-aws-font-color flex items-center border-b pb-2 text-lg font-medium leading-6">
                     {props.title}
+                    {props.help && <Help className="ml-2" text={props.help} />}
                   </Dialog.Title>
 
                   <div className="mt-3">

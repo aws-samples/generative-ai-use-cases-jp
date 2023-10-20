@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ColorChangeHandler, CompactPicker } from 'react-color';
 import {
   PiArrowClockwise,
@@ -6,6 +12,7 @@ import {
   PiEraserFill,
   PiPaintBrushFill,
   PiPaintBucketFill,
+  PiTrash,
   PiUploadSimple,
 } from 'react-icons/pi';
 import SignatureCanvas from 'react-signature-canvas';
@@ -35,9 +42,13 @@ const SketchButton: React.FC<SketchButtonProps> = (props) => {
 };
 
 type Props = {
+  imageBase64?: string;
   onChange: (imageBase64: string) => void;
   onCancel: () => void;
 };
+
+// Stable Diffusionの制約で64の倍数である必要がある
+const IMAGE_SIZE = 512;
 
 const SketchPad: React.FC<Props> = (props) => {
   const canvasRef = useRef<SignatureCanvas>(null);
@@ -51,6 +62,15 @@ const SketchPad: React.FC<Props> = (props) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const undoStack: SignaturePad.Point[][] = [];
+
+  useEffect(() => {
+    if (props.imageBase64) {
+      canvasRef.current?.fromDataURL(props.imageBase64, {
+        height: IMAGE_SIZE,
+        width: IMAGE_SIZE,
+      });
+    }
+  }, [props.imageBase64]);
 
   const onChangePenColor = useCallback<ColorChangeHandler>((color) => {
     setIsOpenPalette(false);
@@ -85,15 +105,20 @@ const SketchPad: React.FC<Props> = (props) => {
   }, [undoStack]);
 
   const onClickComplete = useCallback(() => {
+    if (canvasRef.current?.toData().length === 0) {
+      props.onChange('');
+      return;
+    }
+
     // 背景色を設定するために、新しくcanvasで四角を作成し合成する
     const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
+    canvas.width = IMAGE_SIZE;
+    canvas.height = IMAGE_SIZE;
     const ctx = canvas.getContext('2d');
 
     if (ctx) {
       ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, 512, 512);
+      ctx.fillRect(0, 0, IMAGE_SIZE, IMAGE_SIZE);
       const img = canvasRef.current?.getCanvas();
       if (img) {
         ctx.drawImage(img, 0, 0);
@@ -117,12 +142,12 @@ const SketchPad: React.FC<Props> = (props) => {
         img.src = reader.result as string;
 
         img.onload = () => {
-          // 画像を512x512にリサイズ
+          // 画像をリサイズ
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          canvas.width = 512;
-          canvas.height = 512;
-          ctx?.drawImage(img, 0, 0, 512, 512);
+          canvas.width = IMAGE_SIZE;
+          canvas.height = IMAGE_SIZE;
+          ctx?.drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
 
           const resizedImageDataUri = canvas.toDataURL(file.type);
 
@@ -134,6 +159,10 @@ const SketchPad: React.FC<Props> = (props) => {
   const onClickUploadComplet = useCallback(() => {
     props.onChange(imageBase64);
   }, [imageBase64, props]);
+
+  const onClickClear = useCallback(() => {
+    canvasRef.current?.clear();
+  }, []);
 
   return (
     <>
@@ -159,62 +188,69 @@ const SketchPad: React.FC<Props> = (props) => {
         </div>
       </ModalDialog>
       <div className="w-full">
-        <div className="flex w-full justify-center">
-          <SketchButton
-            className="relative text-xl"
-            onClick={() => {
-              setIsOpenPalette(!isOpenPalette);
-            }}>
-            <PiPaintBrushFill style={{ color: penColor }} />
-          </SketchButton>
-          {isOpenPalette && (
-            <CompactPicker
-              className="absolute -left-6 top-7 border bg-white"
-              color={penColor}
-              onChangeComplete={onChangePenColor}
-              onChange={onChangePenColor}
-            />
-          )}
+        <div className={`m-auto mb-1 flex w-[512px] items-end justify-between`}>
+          <div className="flex">
+            <SketchButton
+              className="relative text-xl"
+              onClick={() => {
+                setIsOpenPalette(!isOpenPalette);
+              }}>
+              <PiPaintBrushFill style={{ color: penColor }} />
+            </SketchButton>
+            {isOpenPalette && (
+              <CompactPicker
+                className="absolute -left-6 top-7 border bg-white"
+                color={penColor}
+                onChangeComplete={onChangePenColor}
+                onChange={onChangePenColor}
+              />
+            )}
 
-          <SketchButton
-            className="relative ml-1 text-xl"
-            onClick={() => {
-              setIsOpenPaletteBg(!isOpenPaletteBg);
-            }}>
-            <PiPaintBucketFill />
-          </SketchButton>
-          {isOpenPaletteBg && (
-            <CompactPicker
-              className="absolute -left-6 top-7 border bg-white"
-              color={penColor}
-              onChangeComplete={onChangeBgColor}
-              onChange={onChangeBgColor}
-            />
-          )}
+            <SketchButton
+              className="relative ml-1 text-xl"
+              onClick={() => {
+                setIsOpenPaletteBg(!isOpenPaletteBg);
+              }}>
+              <PiPaintBucketFill />
+            </SketchButton>
+            {isOpenPaletteBg && (
+              <CompactPicker
+                className="absolute -left-6 top-7 border bg-white"
+                color={penColor}
+                onChangeComplete={onChangeBgColor}
+                onChange={onChangeBgColor}
+              />
+            )}
 
-          <SketchButton
-            className="ml-1 text-xl"
-            isActive={isEraseMode}
-            onClick={() => {
-              setIsEraseMode(!isEraseMode);
-            }}>
-            <PiEraserFill />
-          </SketchButton>
+            <SketchButton
+              className="ml-1 text-xl"
+              isActive={isEraseMode}
+              onClick={() => {
+                setIsEraseMode(!isEraseMode);
+              }}>
+              <PiEraserFill />
+            </SketchButton>
 
-          <SketchButton className="ml-1 text-xl" onClick={onClickUndo}>
-            <PiArrowCounterClockwise />
-          </SketchButton>
-          <SketchButton className="text-xl" onClick={onClickRedo}>
-            <PiArrowClockwise />
-          </SketchButton>
+            <SketchButton className="ml-1 text-xl" onClick={onClickUndo}>
+              <PiArrowCounterClockwise />
+            </SketchButton>
+            <SketchButton className="text-xl" onClick={onClickRedo}>
+              <PiArrowClockwise />
+            </SketchButton>
+          </div>
+
+          <Button outlined onClick={onClickClear}>
+            <PiTrash className="mr-2" />
+            Clear
+          </Button>
         </div>
 
         <div className="flex w-full justify-center">
           <SignatureCanvas
             ref={canvasRef}
             canvasProps={{
-              width: 512,
-              height: 512,
+              width: IMAGE_SIZE,
+              height: IMAGE_SIZE,
               className: 'border',
               style: { backgroundColor: bgColor },
             }}
