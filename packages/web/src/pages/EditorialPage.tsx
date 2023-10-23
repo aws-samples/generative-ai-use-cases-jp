@@ -4,12 +4,12 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import ExpandedField from '../components/ExpandedField';
-import { EditorialPrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
+import { editorialPrompt } from '../prompts';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -77,10 +77,7 @@ const EditorialPage: React.FC = () => {
 
   const { state } = useLocation();
   const { pathname } = useLocation();
-  const { loading, messages, postChat } = useChat(
-    pathname,
-    EditorialPrompt.systemContext
-  );
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
   const filterComment = (
@@ -200,13 +197,13 @@ const EditorialPage: React.FC = () => {
   };
 
   // LLM にリクエスト送信
-  const getAnnotation = (_sentence: string, _additionalContext: string) => {
+  const getAnnotation = (sentence: string, context: string) => {
     setCommentState({});
     postChat(
-      EditorialPrompt.editorialContext(
-        _sentence,
-        _additionalContext === '' ? undefined : _additionalContext
-      ),
+      editorialPrompt({
+        sentence,
+        context: context === '' ? undefined : context,
+      }),
       true
     );
   };
@@ -221,6 +218,7 @@ const EditorialPage: React.FC = () => {
   // リセット
   const onClickClear = useCallback(() => {
     clear();
+    clearChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

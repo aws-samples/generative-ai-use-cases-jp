@@ -26,13 +26,8 @@ const useRagPageState = create<StateType>((set) => {
 const RagPage: React.FC = () => {
   const { content, setContent } = useRagPageState();
   const { state, pathname } = useLocation();
-  const { postMessage, init, loading, messages, isEmpty } = useRag(pathname);
+  const { postMessage, clear, loading, messages, isEmpty } = useRag(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
-
-  useEffect(() => {
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (state !== null) {
@@ -47,9 +42,9 @@ const RagPage: React.FC = () => {
   }, [content, postMessage, setContent]);
 
   const onReset = useCallback(() => {
-    init();
+    clear();
     setContent('');
-  }, [init, setContent]);
+  }, [clear, setContent]);
 
   useEffect(() => {
     if (messages.length > 0) {

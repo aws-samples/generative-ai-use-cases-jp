@@ -1,13 +1,13 @@
-import ragPrompt from '../prompts/rag-prompt';
 import useChat from './useChat';
 import useChatApi from './useChatApi';
 import useRagApi from './useRagApi';
+import { ragPrompt } from '../prompts';
 
 const useRag = (id: string) => {
   const {
     messages,
     postChat,
-    clearChats,
+    clear,
     loading,
     setLoading,
     updateSystemContext,
@@ -21,9 +21,7 @@ const useRag = (id: string) => {
 
   return {
     isEmpty,
-    init: () => {
-      clearChats('');
-    },
+    clear,
     loading,
     messages,
     postMessage: async (content: string) => {
@@ -36,7 +34,10 @@ const useRag = (id: string) => {
         messages: [
           {
             role: 'user',
-            content: ragPrompt.retrieveQueryPrompt([content]),
+            content: ragPrompt({
+              promptType: 'RETRIEVE',
+              retrieveQueries: [content],
+            }),
           },
         ],
       });
@@ -44,7 +45,10 @@ const useRag = (id: string) => {
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
       const items = await retrieve(query);
       updateSystemContext(
-        ragPrompt.systemContext(items.data.ResultItems ?? [])
+        ragPrompt({
+          promptType: 'SYSTEM_CONTEXT',
+          referenceItems: items.data.ResultItems ?? [],
+        })
       );
 
       // ローディング表示を消してから通常のチャットの POST 処理を実行する
