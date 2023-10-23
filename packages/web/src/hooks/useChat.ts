@@ -365,8 +365,7 @@ const useChat = (id: string, chatId?: string) => {
     if (!chatId) {
       init(id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [init, id, chatId]);
 
   useEffect(() => {
     // 登録済みのチャットの場合
