@@ -3,7 +3,6 @@ import Card from './Card';
 import InputChatContent from './InputChatContent';
 import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
-import imagePrompt from '../prompts/image-prompt';
 import Textarea from './Textarea';
 import Button from './Button';
 import { PiArrowLineLeft, PiLightbulbFilamentBold } from 'react-icons/pi';
@@ -18,10 +17,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const [content, setContent] = useState('');
 
   const { pathname, state } = useLocation();
-  const { loading, messages, postChat } = useChat(
-    pathname,
-    imagePrompt.systemPrompt
-  );
+  const { loading, messages, postChat } = useChat(pathname);
 
   // LandingPage のデモデータ設定
   useEffect(() => {
