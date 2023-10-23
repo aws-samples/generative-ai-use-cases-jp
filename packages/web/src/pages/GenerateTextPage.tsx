@@ -7,7 +7,7 @@ import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
-import { GenerateTextPrompt } from '../prompts';
+import { generateTextPrompt } from '../prompts';
 
 type StateType = {
   information: string;
@@ -59,13 +59,7 @@ const GenerateTextPage: React.FC = () => {
     clear,
   } = useGenerateTextPageState();
   const { state, pathname } = useLocation();
-  const {
-    loading,
-    messages,
-    postChat,
-    promptGenerator,
-    clear: clearChat,
-  } = useChat(pathname);
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;
@@ -81,7 +75,7 @@ const GenerateTextPage: React.FC = () => {
 
   const getGeneratedText = (information: string, context: string) => {
     postChat(
-      (promptGenerator as GenerateTextPrompt).generatePrompt({
+      generateTextPrompt({
         information,
         context,
       }),

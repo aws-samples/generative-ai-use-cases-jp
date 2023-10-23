@@ -14,7 +14,7 @@ import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
 import useConversation from './useConversation';
 import { KeyedMutator } from 'swr';
-import { getPromptGeneratorById } from '../prompts';
+import { getSystemContextById } from '../prompts';
 
 const useChatState = create<{
   chats: {
@@ -78,19 +78,17 @@ const useChatState = create<{
   };
 
   const initChatWithSystemContext = (id: string) => {
-    const promptGenerator = getPromptGeneratorById(id);
-    initChat(
-      id,
-      [{ role: 'system', content: promptGenerator.systemContext() }],
-      undefined
-    );
+    const systemContext = getSystemContextById(id);
+    initChat(id, [{ role: 'system', content: systemContext }], undefined);
   };
 
   const setTitle = (id: string, title: string) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
-          draft[id].chat!.title = title;
+          if (draft[id].chat) {
+            draft[id].chat!.title = title;
+          }
         }),
       };
     });
@@ -382,10 +380,6 @@ const useChat = (id: string, chatId?: string) => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
   }, [chats, id]);
 
-  const promptGenerator = useMemo(() => {
-    return getPromptGeneratorById(id);
-  }, [id]);
-
   return {
     loading: loading[id] ?? false,
     setLoading: (newLoading: boolean) => {
@@ -411,7 +405,6 @@ const useChat = (id: string, chatId?: string) => {
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);
     },
-    promptGenerator,
   };
 };
 

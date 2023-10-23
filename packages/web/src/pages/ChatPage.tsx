@@ -50,7 +50,7 @@ const ChatPage: React.FC = () => {
     clear();
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [clear]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -94,6 +94,7 @@ const ChatPage: React.FC = () => {
           content={content}
           disabled={loading}
           onChangeContent={setContent}
+          resetDisabled={!!chatId}
           onSend={() => {
             onSend();
           }}

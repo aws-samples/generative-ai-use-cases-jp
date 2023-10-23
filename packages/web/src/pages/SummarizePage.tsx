@@ -8,7 +8,7 @@ import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
-import { SummarizePrompt } from '../prompts';
+import { summarizePrompt } from '../prompts';
 
 type StateType = {
   sentence: string;
@@ -60,13 +60,7 @@ const SummarizePage: React.FC = () => {
     clear,
   } = useSummarizePageState();
   const { state, pathname } = useLocation();
-  const {
-    loading,
-    messages,
-    postChat,
-    promptGenerator,
-    clear: clearChat,
-  } = useChat(pathname);
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -82,7 +76,7 @@ const SummarizePage: React.FC = () => {
 
   const getSummary = (sentence: string, context: string) => {
     postChat(
-      (promptGenerator as SummarizePrompt).generatePrompt({
+      summarizePrompt({
         sentence,
         context,
       }),

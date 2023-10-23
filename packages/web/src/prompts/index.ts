@@ -1,36 +1,38 @@
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 
-export interface PromptGenerator<T> {
-  systemContext: () => string;
-  generatePrompt: (params: T) => string;
-}
+const systemContexts: { [key: string]: string } = {
+  '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
+  '/summarize':
+    'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
+  '/editorial': 'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。',
+  '/generate': 'あなたは指示に従って文章を作成するライターです。',
+  '/translate': 'あなたは文章の意図を汲み取り適切な翻訳を行う翻訳者です。',
+  '/rag': '',
+};
+
+export const getSystemContextById = (id: string) => {
+  if (id.startsWith('/chat/')) {
+    return systemContexts['/chat'];
+  }
+
+  return systemContexts[id] || systemContexts['/chat'];
+};
 
 export type ChatParams = {
   content: string;
 };
 
-export class ChatPrompt implements PromptGenerator<ChatParams> {
-  systemContext() {
-    return 'あなたはチャットでユーザを支援するAIアシスタントです。';
-  }
-
-  generatePrompt(params: ChatParams) {
-    return params.content;
-  }
+export function chatPrompt(params: ChatParams) {
+  return params.content;
 }
 
-export type SummarizePromptParams = {
+export type SummarizeParams = {
   sentence: string;
   context?: string;
 };
 
-export class SummarizePrompt implements PromptGenerator<SummarizePromptParams> {
-  systemContext() {
-    return 'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。';
-  }
-
-  generatePrompt(params: SummarizePromptParams) {
-    return `以下の文章を要約してください。
+export function summarizePrompt(params: SummarizeParams) {
+  return `以下の文章を要約してください。
 出力は、要約した文章だけにしてください。それ以外の文章は一切出力しないでください。
 
 # 要約対象の文章
@@ -40,10 +42,9 @@ ${
   !params.context
     ? ''
     : `# 要約時に考慮して欲しいこと
-    ${params.context}`
+  ${params.context}`
 }
 `;
-  }
 }
 
 export type EditorialParams = {
@@ -51,13 +52,8 @@ export type EditorialParams = {
   context?: string;
 };
 
-export class EditorialPrompt implements PromptGenerator<EditorialParams> {
-  systemContext() {
-    return 'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。';
-  }
-
-  generatePrompt(params: EditorialParams) {
-    return `inputの文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は具体的に指摘してください。
+export function editorialPrompt(params: EditorialParams) {
+  return `inputの文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は具体的に指摘してください。
 ${params.context ? 'その他指摘してほしいこと: ' + params.context : ''}
 出力は、必ずJSON形式で行ってください。それ以外の文言は一切出力してはいけません。例外はありません。
 出力のJSONは、output-format のJSON Array形式としてください。項目の追加と削除は絶対にしないでください。
@@ -69,7 +65,6 @@ ${params.context ? 'その他指摘してほしいこと: ' + params.context : '
 ${params.sentence}
 </input>
 `;
-  }
 }
 
 export type GenerateTextParams = {
@@ -77,13 +72,8 @@ export type GenerateTextParams = {
   context: string;
 };
 
-export class GenerateTextPrompt implements PromptGenerator<GenerateTextParams> {
-  systemContext() {
-    return 'あなたは指示に従って文章を作成するライターです。';
-  }
-
-  generatePrompt(params: GenerateTextParams) {
-    return `inputの情報からcontextの指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
+export function generateTextPrompt(params: GenerateTextParams) {
+  return `inputの情報からcontextの指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
 出力は<output></output>のxmlタグで囲んでください。
 <input>
 ${params.information}
@@ -91,7 +81,6 @@ ${params.information}
 <context>
 ${params.context}
 </context>`;
-  }
 }
 
 export type TranslateParams = {
@@ -100,13 +89,8 @@ export type TranslateParams = {
   context?: string;
 };
 
-export class TranslatePrompt implements PromptGenerator<TranslateParams> {
-  systemContext() {
-    return 'あなたは文章の意図を汲み取り適切な翻訳を行う翻訳者です。';
-  }
-
-  generatePrompt(params: TranslateParams) {
-    return `inputの文章を${params.language}に翻訳してください。
+export function translatePrompt(params: TranslateParams) {
+  return `inputの文章を${params.language}に翻訳してください。
 翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。
 出力は\`で囲んでください。
 ${!params.context ? '' : `要約時に考慮して欲しいこと: ${params.context}`}
@@ -114,7 +98,6 @@ ${!params.context ? '' : `要約時に考慮して欲しいこと: ${params.cont
 ${params.sentence}
 </input>
 `;
-  }
 }
 
 export type RagParams = {
@@ -123,14 +106,9 @@ export type RagParams = {
   referenceItems?: RetrieveResultItem[];
 };
 
-export class RagPrompt implements PromptGenerator<RagParams> {
-  systemContext() {
-    return '';
-  }
-
-  generatePrompt(params: RagParams) {
-    if (params.promptType === 'RETRIEVE') {
-      return `あなたは、文書検索で利用するQueryを生成するAIアシスタントです。
+export function ragPrompt(params: RagParams) {
+  if (params.promptType === 'RETRIEVE') {
+    return `あなたは、文書検索で利用するQueryを生成するAIアシスタントです。
 以下の手順通りにQueryを生成してください。
 
 # Query生成の手順
@@ -148,8 +126,8 @@ export class RagPrompt implements PromptGenerator<RagParams> {
 ${params.retrieveQueries!.map((q) => `* ${q}`).join('\n')}
 # Query履歴END
 `;
-    } else {
-      return `あなたはユーザの質問に答えるAIアシスタントです。
+  } else {
+    return `あなたはユーザの質問に答えるAIアシスタントです。
 以下の手順でユーザの質問に答えてください。手順以外のことは絶対にしないでください。
 
 # 回答手順
@@ -159,10 +137,10 @@ ${params.retrieveQueries!.map((q) => `* ${q}`).join('\n')}
 
 # 参考ドキュメントのJSON形式
 {
-  "DocumentId": "ドキュメントを一意に特定するIDです。",
-  "DocumentTitle": "ドキュメントのタイトルです。",
-  "DocumentURI": "ドキュメントが格納されているURIです。",
-  "Content": "ドキュメントの内容です。こちらをもとに回答してください。",
+"DocumentId": "ドキュメントを一意に特定するIDです。",
+"DocumentTitle": "ドキュメントのタイトルです。",
+"DocumentURI": "ドキュメントが格納されているURIです。",
+"Content": "ドキュメントの内容です。こちらをもとに回答してください。",
 }[]
 
 
@@ -188,23 +166,5 @@ ${params
 * 質問に具体性がなく回答できない場合は、質問の仕方をアドバイスしてください。
 * 回答文以外の文字列は一切出力しないでください。回答はJSON形式ではなく、テキストで出力してください。見出しやタイトル等も必要ありません。
 `;
-    }
   }
 }
-
-export const getPromptGeneratorById = (id: string) => {
-  if (id.startsWith('/chat/')) {
-    return new ChatPrompt();
-  }
-
-  return (
-    {
-      '/chat': new ChatPrompt(),
-      '/summarize': new SummarizePrompt(),
-      '/editorial': new EditorialPrompt(),
-      '/generate': new GenerateTextPrompt(),
-      '/translate': new TranslatePrompt(),
-      '/rag': new RagPrompt(),
-    }[id] || new ChatPrompt()
-  );
-};

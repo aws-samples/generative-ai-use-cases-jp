@@ -1,7 +1,7 @@
 import useChat from './useChat';
 import useChatApi from './useChatApi';
 import useRagApi from './useRagApi';
-import { RagPrompt } from '../prompts';
+import { ragPrompt } from '../prompts';
 
 const useRag = (id: string) => {
   const {
@@ -14,7 +14,6 @@ const useRag = (id: string) => {
     popMessage,
     pushMessage,
     isEmpty,
-    promptGenerator,
   } = useChat(id);
 
   const { retrieve } = useRagApi();
@@ -35,7 +34,7 @@ const useRag = (id: string) => {
         messages: [
           {
             role: 'user',
-            content: (promptGenerator as RagPrompt).generatePrompt({
+            content: ragPrompt({
               promptType: 'RETRIEVE',
               retrieveQueries: [content],
             }),
@@ -46,7 +45,7 @@ const useRag = (id: string) => {
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
       const items = await retrieve(query);
       updateSystemContext(
-        (promptGenerator as RagPrompt).generatePrompt({
+        ragPrompt({
           promptType: 'SYSTEM_CONTEXT',
           referenceItems: items.data.ResultItems ?? [],
         })

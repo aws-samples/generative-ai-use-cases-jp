@@ -9,7 +9,7 @@ import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
-import { EditorialPrompt } from '../prompts';
+import { editorialPrompt } from '../prompts';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -77,13 +77,7 @@ const EditorialPage: React.FC = () => {
 
   const { state } = useLocation();
   const { pathname } = useLocation();
-  const {
-    loading,
-    messages,
-    postChat,
-    promptGenerator,
-    clear: clearChat,
-  } = useChat(pathname);
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
   const filterComment = (
@@ -206,7 +200,7 @@ const EditorialPage: React.FC = () => {
   const getAnnotation = (sentence: string, context: string) => {
     setCommentState({});
     postChat(
-      (promptGenerator as EditorialPrompt).generatePrompt({
+      editorialPrompt({
         sentence,
         context: context === '' ? undefined : context,
       }),

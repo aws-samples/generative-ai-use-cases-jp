@@ -12,7 +12,7 @@ import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
-import { TranslatePrompt } from '../prompts';
+import { translatePrompt } from '../prompts';
 
 const languages = [
   { label: '英語' },
@@ -86,13 +86,7 @@ const TranslatePage: React.FC = () => {
 
   const { state } = useLocation();
   const { pathname } = useLocation();
-  const {
-    loading,
-    messages,
-    postChat,
-    promptGenerator,
-    clear: clearChat,
-  } = useChat(pathname);
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
   const disabledExec = useMemo(() => {
@@ -155,7 +149,7 @@ const TranslatePage: React.FC = () => {
     context: string
   ) => {
     postChat(
-      (promptGenerator as TranslatePrompt).generatePrompt({
+      translatePrompt({
         sentence,
         language,
         context: context === '' ? undefined : context,
