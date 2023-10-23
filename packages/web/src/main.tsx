@@ -10,10 +10,9 @@ import {
 import LandingPage from './pages/LandingPage.tsx';
 import ChatPage from './pages/ChatPage.tsx';
 import SummarizePage from './pages/SummarizePage.tsx';
+import GenerateTextPage from './pages/GenerateTextPage.tsx';
 import EditorialPage from './pages/EditorialPage.tsx';
 import TranslatePage from './pages/TranslatePage.tsx';
-import GenerateMail from './pages/GenerateMail.tsx';
-import GenerateMessage from './pages/GenerateMessage.tsx';
 import NotFound from './pages/NotFound.tsx';
 import KendraSearchPage from './pages/KendraSearchPage.tsx';
 import RagPage from './pages/RagPage.tsx';
@@ -34,6 +33,10 @@ const routes: RouteObject[] = [
     element: <ChatPage />,
   },
   {
+    path: '/generate',
+    element: <GenerateTextPage />,
+  },
+  {
     path: '/summarize',
     element: <SummarizePage />,
   },
@@ -44,14 +47,6 @@ const routes: RouteObject[] = [
   {
     path: '/translate',
     element: <TranslatePage />,
-  },
-  {
-    path: '/mail',
-    element: <GenerateMail />,
-  },
-  {
-    path: '/cs',
-    element: <GenerateMessage />,
   },
   ragEnabled
     ? {

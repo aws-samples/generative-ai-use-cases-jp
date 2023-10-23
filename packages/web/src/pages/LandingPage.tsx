@@ -6,8 +6,6 @@ import {
   PiChatCircleText,
   PiPencil,
   PiNote,
-  PiEnvelope,
-  PiListMagnifyingGlass,
   PiChatsCircle,
   PiPenNib,
   PiTranslate,
@@ -37,6 +35,16 @@ const LandingPage: React.FC = () => {
     });
   };
 
+  const demoGenerate = () => {
+    navigate('/generate', {
+      state: {
+        information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成系 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成系 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+        context:
+          'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+      },
+    });
+  };
+
   const demoSummarize = () => {
     navigate('/summarize', {
       state: {
@@ -61,73 +69,6 @@ const LandingPage: React.FC = () => {
       state: {
         sentence:
           'こんちには。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
-      },
-    });
-  };
-
-  const demoEmail = () => {
-    navigate('mail', {
-      state: {
-        recipient: '田中部長',
-        recipientAttr: 'ABC株式会社',
-        sender: '鈴木',
-        context: '契約してもらっている AAA プランについて',
-        situation: '契約更新時期が近づいてきた',
-        message: '契約更新手続きを行ってほしい',
-        action: '弊社のSaaSにログインして、設定ページから契約更新',
-        casual: 1,
-        otherContext:
-          'エンタープライズプランにアップグレードしてもらうと24時間サポートがつく',
-      },
-    });
-  };
-
-  const demoReolayEmail = () => {
-    navigate('mail', {
-      state: {
-        mailContent: `田中部長 様
-
-ABC株式会社の鈴木です。いつもお世話になっております。
-
-この度、契約更新時期が近づいてまいりましたので、ご連絡差し上げました。
-
-弊社のSaaSをご利用頂いておりますが、契約の更新手続きを行っていただきたく存じます。
-
-具体的な手続き方法といたしましては、まずは弊社のウェブサイトにアクセスし、ログインしていただくことから始めます。
-
-ログイン後は、設定ページから契約更新の手続きを行っていただけます。
-
-なお、今回の契約更新に合わせて、エンタープライズプランへのアップグレードもご検討いただければと思います。アップグレードいただけますと、24時間体制のサポートがご利用いただけますので、より円滑な業務運営が可能となります。
-
-ご不明点やお困りごとがございましたら、お気軽にお問い合わせください。弊社担当者が丁寧にお答えいたします。
-
-ご対応いただければ幸いです。
-
-引き続き、ABC株式会社のご支援に努めてまいりますので、今後ともよろしくお願い申し上げます。
-
-鈴木
-        `,
-        recipient: '',
-        recipientAttr: '',
-        sender: '',
-        context: '',
-        situation: '',
-        message: '',
-        action: '',
-        casual: 3,
-        otherContext: '',
-      },
-    });
-  };
-
-  const demoCs = () => {
-    navigate('cs', {
-      state: {
-        context: 'SaaS のサポート業務に従事',
-        situation: 'お客様からの問い合わせを受けている',
-        casual: 1,
-        recipientMessage: '機能Xを使いたいが、画面にない',
-        senderMessage: 'プランAを契約する必要がある',
       },
     });
   };
@@ -174,6 +115,18 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             </div>
           </CardDemo>
         )}
+        <CardDemo label="文章生成" onClickDemo={demoGenerate}>
+          <div className="flex flex-row items-start">
+            <div className="mr-4 text-7xl">
+              <PiPencil />
+            </div>
+            <div className="text-sm">
+              あらゆるコンテキストで文章を生成することは LLM
+              が最も得意とするタスクの 1 つです。
+              記事・レポート・メールなど、あらゆるコンテキストに対応します。
+            </div>
+          </div>
+        </CardDemo>
         <CardDemo label="要約" onClickDemo={demoSummarize}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
@@ -208,42 +161,6 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             <div className="text-sm">
               多言語で学習した LLM は、翻訳を行うことも可能です。
               また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
-            </div>
-          </div>
-        </CardDemo>
-
-        <CardDemo label="メール生成" onClickDemo={demoEmail}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiEnvelope />
-            </div>
-            <div className="text-sm">
-              LLM
-              を活用することで、メールを作成する際の冗長なタスクを極力減らし、ルーチンワークにかかる時間を大幅に削減することが可能です。単に補完するだけでなく、誤字脱字の防止という効果も期待できます。
-            </div>
-          </div>
-        </CardDemo>
-
-        <CardDemo label="情報抽出" onClickDemo={demoReolayEmail}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiListMagnifyingGlass />
-            </div>
-            <div className="text-sm">
-              文章を LLM に読み込ませることで、必要な情報を抽出できます。LLM
-              は文章を的確に理解し、文体に気を使うことなく情報を抽出することが可能です。
-              このデモでは、メール本文を読み込むことで、返信メールを生成する際に必要な情報を抽出します。
-            </div>
-          </div>
-        </CardDemo>
-
-        <CardDemo label="CS 業務効率化" onClickDemo={demoCs}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiPencil />
-            </div>
-            <div className="text-sm">
-              お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。
             </div>
           </div>
         </CardDemo>
