@@ -8,11 +8,11 @@ import MenuDropdown from '../components/MenuDropdown';
 import MenuItem from '../components/MenuItem';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
-import { EditorialPrompt, TranslatePrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
+import { translatePrompt } from '../prompts';
 
 const languages = [
   { label: '英語' },
@@ -86,10 +86,7 @@ const TranslatePage: React.FC = () => {
 
   const { state } = useLocation();
   const { pathname } = useLocation();
-  const { loading, messages, postChat } = useChat(
-    pathname,
-    EditorialPrompt.systemContext
-  );
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
   const disabledExec = useMemo(() => {
@@ -147,16 +144,16 @@ const TranslatePage: React.FC = () => {
 
   // LLM にリクエスト送信
   const getTranslation = (
-    _sentence: string,
-    _language: string,
-    _additionalContext: string
+    sentence: string,
+    language: string,
+    context: string
   ) => {
     postChat(
-      TranslatePrompt.translateContext(
-        _sentence,
-        _language,
-        _additionalContext === '' ? undefined : _additionalContext
-      ),
+      translatePrompt({
+        sentence,
+        language,
+        context: context === '' ? undefined : context,
+      }),
       true
     );
   };
@@ -171,6 +168,7 @@ const TranslatePage: React.FC = () => {
   // リセット
   const onClickClear = useCallback(() => {
     clear();
+    clearChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

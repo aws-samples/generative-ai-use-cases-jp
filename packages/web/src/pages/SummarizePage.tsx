@@ -6,9 +6,9 @@ import ExpandedField from '../components/ExpandedField';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
-import { SummarizePrompt } from '../prompts';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
+import { summarizePrompt } from '../prompts';
 
 type StateType = {
   sentence: string;
@@ -60,10 +60,7 @@ const SummarizePage: React.FC = () => {
     clear,
   } = useSummarizePageState();
   const { state, pathname } = useLocation();
-  const { loading, messages, postChat } = useChat(
-    pathname,
-    SummarizePrompt.systemContext
-  );
+  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -77,12 +74,12 @@ const SummarizePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const getSummary = (_sentence: string, _additionalContext: string) => {
+  const getSummary = (sentence: string, context: string) => {
     postChat(
-      SummarizePrompt.summaryContext(
-        _sentence,
-        _additionalContext === '' ? undefined : _additionalContext
-      ),
+      summarizePrompt({
+        sentence,
+        context,
+      }),
       true
     );
   };
@@ -107,6 +104,7 @@ const SummarizePage: React.FC = () => {
   // リセット
   const onClickClear = useCallback(() => {
     clear();
+    clearChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

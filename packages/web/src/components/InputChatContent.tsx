@@ -10,6 +10,7 @@ type Props = {
   content: string;
   disabled?: boolean;
   placeholder?: string;
+  resetDisabled?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
   onReset: () => void;
@@ -63,7 +64,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           loading={loading}
           onClick={props.onSend}
         />
-        {!isEmpty && (
+        {!isEmpty && !props.resetDisabled && (
           <Button
             className="absolute -top-14 right-0 p-2 text-sm"
             outlined
