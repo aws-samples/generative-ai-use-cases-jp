@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound.tsx';
 import KendraSearchPage from './pages/KendraSearchPage.tsx';
 import RagPage from './pages/RagPage.tsx';
 import GenerateImagePage from './pages/GenerateImagePage.tsx';
+import TranscribePage from './pages/TranscribePage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
@@ -51,7 +52,9 @@ const routes: RouteObject[] = [
   },
   {
     path: '/image',
-    element: <GenerateImagePage />,
+    element: <GenerateImagePage />},{
+    path: '/transcribe',
+    element: <TranscribePage />,
   },
   ragEnabled
     ? {

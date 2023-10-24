@@ -1,6 +1,6 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Auth, Api, Web, Database, Rag } from './construct';
+import { Auth, Api, Web, Database, Rag, Transcribe } from './construct';
 
 export class GenerativeAiUseCasesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -33,6 +33,11 @@ export class GenerativeAiUseCasesStack extends Stack {
         api: api.api,
       });
     }
+
+    new Transcribe(this, 'Transcribe', {
+      userPool: auth.userPool,
+      api: api.api,
+    });
 
     new CfnOutput(this, 'Region', {
       value: this.region,

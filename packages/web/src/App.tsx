@@ -13,6 +13,7 @@ import {
   PiMagnifyingGlass,
   PiTranslate,
   PiImages,
+  PiSpeakerHighBold,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -77,6 +78,12 @@ const items: ItemProps[] = [
     icon: <PiImages />,
     usecase: true,
   },
+  {
+    label: '音声認識',
+    to: '/transcribe',
+    icon: <PiSpeakerHighBold />,
+    usecase: false,
+  },
   ragEnabled
     ? {
         label: 'Kendra 検索',
@@ -84,7 +91,7 @@ const items: ItemProps[] = [
         icon: <PiMagnifyingGlass />,
         usecase: false,
       }
-    : null,
+    : null
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
