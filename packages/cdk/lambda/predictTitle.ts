@@ -30,7 +30,10 @@ export const handler = async (
       },
     ];
 
-    const title = (await api.invoke(messages)).replace(/<([^>]+)>([\s\S]*?)<\/\1>/, '$2');
+    const title = (await api.invoke(messages)).replace(
+      /<([^>]+)>([\s\S]*?)<\/\1>/,
+      '$2'
+    );
 
     await setChatTitle(req.chat.id, req.chat.createdDate, title);
 
