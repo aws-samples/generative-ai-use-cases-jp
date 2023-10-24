@@ -29,7 +29,6 @@ type SketchButtonProps = BaseProps & {
 const SketchButton: React.FC<SketchButtonProps> = (props) => {
   return (
     <div
-      // eslint-disable-next-line tailwindcss/no-custom-classname
       className={`${
         props.className ?? ''
       } flex h-6 w-6 cursor-pointer items-center justify-center border ${

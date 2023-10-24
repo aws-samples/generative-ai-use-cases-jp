@@ -24,7 +24,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     if (state !== null) {
       setContent(state.content);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   const contents = useMemo<
