@@ -70,6 +70,16 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
   <img src="/imgs/usecase_translate.gif"/>
 </details>
 
+
+<details>
+  <summary>画像生成</summary>
+
+  画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。
+
+  <img src="/imgs/usecase_translate.gif"/>
+</details>
+
+
 ## アーキテクチャ
 
 このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。

@@ -97,9 +97,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               文章で書くことが難しい場合は、文章で書く必要はありません。「元気、ボール遊び、ジャンプしている」のように、特徴を羅列して指示をしましょう。
             </div>
             <div className="m-1 rounded border p-2 text-sm">
-              強調して欲しい要素があれば指示しましょう。「太陽をもっと強調して」など。
-            </div>
-            <div className="m-1 rounded border p-2 text-sm">
               除外して欲しい要素も指示することができます。「人間は出力しない」など。
             </div>
             <div className="m-1 rounded border p-2 text-sm">
