@@ -3,14 +3,12 @@ import Card from './Card';
 import InputChatContent from './InputChatContent';
 import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
-import Textarea from './Textarea';
-import Button from './Button';
-import { PiArrowLineLeft, PiLightbulbFilamentBold } from 'react-icons/pi';
+import { PiLightbulbFilamentBold } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 
 type Props = BaseProps & {
-  onCopyPrompt: (prompt: string) => void;
-  onCopyNegativePrompt: (negativePrompt: string) => void;
+  isGeneratingImage: boolean;
+  onGetPrompt: (prompt: string, negativePrompt: string) => void;
 };
 
 const GenerateImageAssistant: React.FC<Props> = (props) => {
@@ -37,6 +35,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
           content: {
             prompt: string;
             negativePrompt: string;
+            comment: string;
           };
         }
     )[]
@@ -65,22 +64,34 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     });
   }, [loading, messages]);
 
+  useEffect(() => {
+    const _length = contents.length;
+    if (contents.length === 0) {
+      return;
+    }
+
+    const message = contents[_length - 1];
+    if (!loading && message.role === 'assistant') {
+      props.onGetPrompt(message.content.prompt, message.content.negativePrompt);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
   const onSend = useCallback(() => {
     postChat(content);
     setContent('');
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, postChat]);
 
   return (
-    <div className="relative w-full">
+    <div className="relative h-full w-full">
       <Card
-        label="AIアシスタント"
+        label="チャット形式で画像生成"
+        help="チャット形式でプロンプトの生成と設定、画像生成を自動で行います。"
         className={`${
           props.className ?? ''
-        } overflow-y-auto overflow-x-hidden pb-16`}>
+        } h-full overflow-y-auto overflow-x-hidden pb-16`}>
         {contents.length === 0 && (
-          <div className="m-2 rounded border border-gray-400 p-2 text-gray-600">
+          <div className="m-2 rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
             <div className="flex items-center font-bold">
               <PiLightbulbFilamentBold className="mr-2" />
               ヒント
@@ -99,6 +110,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               除外して欲しい要素も指示することができます。「人間は出力しない」など。
             </div>
             <div className="m-1 rounded border p-2 text-sm">
+              LLM
+              が会話の流れを考慮してくれるので、「やっぱり犬じゃなくて猫にして」などの会話形式の指示もできます。
+            </div>
+            <div className="m-1 rounded border p-2 text-sm">
               プロンプトで意図した画像が生成できない場合は、初期画像の設定やパラメータの変更を試してみましょう。
             </div>
           </div>
@@ -112,53 +127,35 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
             }`}>
             {c.role === 'user' && (
               <>
-                {c.content.split('\n').map((m) => (
-                  <div>{m}</div>
+                {c.content.split('\n').map((m, idx) => (
+                  <div key={idx}>{m}</div>
                 ))}
               </>
             )}
             {c.role === 'assistant' && c.content.prompt === '' && (
-              <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-            )}
-
-            {c.role === 'assistant' && c.content.prompt !== '' && (
-              <div>
-                <div className="mb-2 font-bold">
-                  プロンプトが提案されました。
-                </div>
-                <div>
-                  <div className="text-sm">プロンプト</div>
-                  <Textarea value={c.content.prompt} onChange={() => {}} />
-                  <Button
-                    className="-mt-3 mb-3 text-sm"
-                    onClick={() => {
-                      props.onCopyPrompt(c.content.prompt);
-                    }}>
-                    <PiArrowLineLeft className="mr-2" />
-                    生成条件へ転記
-                  </Button>
-                </div>
-                <div className="my-2 w-full border-b"></div>
-                <div>
-                  <div className="text-sm">ネガティブプロンプト</div>
-                  <Textarea
-                    value={c.content.negativePrompt}
-                    onChange={() => {}}
-                  />
-                  <Button
-                    className="-mt-3 mb-3 text-sm"
-                    onClick={() => {
-                      props.onCopyNegativePrompt(c.content.negativePrompt);
-                    }}>
-                    <PiArrowLineLeft className="mr-2" />
-                    生成条件へ転記
-                  </Button>
-                </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                プロンプト生成中
               </div>
+            )}
+            {c.role === 'assistant' && c.content.prompt !== '' && (
+              <>
+                {contents.length - 1 === idx && props.isGeneratingImage ? (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                    画像生成中
+                  </div>
+                ) : (
+                  <>
+                    {c.content.comment.split('\n').map((m, idx) => (
+                      <div key={idx}>{m}</div>
+                    ))}
+                  </>
+                )}
+              </>
             )}
           </div>
         ))}
-
         <div className="absolute bottom-0 z-0 -mb-4 -ml-2 flex w-full items-end justify-center pr-6">
           <InputChatContent
             placeholder="出力したい画像の概要を入力してください"

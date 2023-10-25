@@ -25,12 +25,19 @@ const systemContexts: { [key: string]: string } = {
  * 画像のクオリティ、被写体の情報、衣装・ヘアスタイル・表情・アクセサリーなどの情報、画風に関する情報、背景に関する情報、構図に関する情報、ライティングやフィルタに関する情報
 * 画像に含めたくない要素については、negativePromptとして出力してください。なお、negativePromptは必ず出力してください。
 * フィルタリング対象になる不適切な要素は出力しないでください。
+* comment は comment-rule の通りに出力してください。
 </rule>
+
+<comment-rule>
+* 必ず「画像を生成しました。続けて会話することで、画像を理想に近づけていくことができます。以下が改善案です。」という文言を先頭に記載してください。
+* 箇条書きで3つ画像の改善案を提案してください。
+</comment-rule>
 
 <output-format>
 {
   prompt: string,
-  negativePrompt: string
+  negativePrompt: string,
+  comment: string
 }
 </output-format>`,
 };

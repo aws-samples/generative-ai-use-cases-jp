@@ -5,12 +5,13 @@ import Textarea from '../components/Textarea';
 import { create } from 'zustand';
 import RangeSlider from '../components/RangeSlider';
 import Select from '../components/Select';
-import { PiFileImage, PiImageLight } from 'react-icons/pi';
+import { PiFileArrowUp, PiImageLight } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
 import SketchPad from '../components/SketchPad';
 import ModalDialog from '../components/ModalDialog';
 import { produce } from 'immer';
+import Help from '../components/Help';
 
 const MAX_SAMPLE = 7;
 type StateType = {
@@ -170,61 +171,60 @@ const GenerateImagePage: React.FC = () => {
     return Math.floor(Math.random() * 4294967295);
   }, []);
 
-  const onClickGenerate = useCallback(() => {
-    console.log('!!');
-    clearImageBase64();
-    setGenerating(true);
+  const onClickGenerate = useCallback(
+    (_prompt: string, _negativePrompt: string) => {
+      clearImageBase64();
+      setGenerating(true);
 
-    const promises = new Array(imageSample).fill('').map((_, idx) => {
-      let _seed = seed[idx];
-      if (_seed < 0) {
-        const rand = generateRandomSeed();
-        setSeed(rand, idx);
-        _seed = rand;
-      }
+      const promises = new Array(imageSample).fill('').map((_, idx) => {
+        let _seed = seed[idx];
+        if (_seed < 0) {
+          const rand = generateRandomSeed();
+          setSeed(rand, idx);
+          _seed = rand;
+        }
 
-      console.log('gene');
-      return generate({
-        textPrompt: [
-          {
-            text: prompt,
-            weight: 1,
-          },
-          {
-            text: negativePrompt,
-            weight: -1,
-          },
-        ],
-        cfgScale,
-        seed: _seed,
-        step,
-        stylePreset,
-        initImage: initImageBase64,
-        imageStrength: imageStrength,
-      }).then((res) => {
-        setImageBase64(idx, res);
+        return generate({
+          textPrompt: [
+            {
+              text: _prompt,
+              weight: 1,
+            },
+            {
+              text: _negativePrompt,
+              weight: -1,
+            },
+          ],
+          cfgScale,
+          seed: _seed,
+          step,
+          stylePreset,
+          initImage: initImageBase64,
+          imageStrength: imageStrength,
+        }).then((res) => {
+          setImageBase64(idx, res);
+        });
       });
-    });
 
-    Promise.all(promises).finally(() => {
-      setGenerating(false);
-    });
-  }, [
-    cfgScale,
-    clearImageBase64,
-    generate,
-    generateRandomSeed,
-    imageSample,
-    imageStrength,
-    initImageBase64,
-    negativePrompt,
-    prompt,
-    seed,
-    setImageBase64,
-    setSeed,
-    step,
-    stylePreset,
-  ]);
+      Promise.all(promises).finally(() => {
+        setGenerating(false);
+      });
+    },
+    [
+      cfgScale,
+      clearImageBase64,
+      generate,
+      generateRandomSeed,
+      imageSample,
+      imageStrength,
+      initImageBase64,
+      seed,
+      setImageBase64,
+      setSeed,
+      step,
+      stylePreset,
+    ]
+  );
 
   const onClickRandomSeed = useCallback(() => {
     setSeed(generateRandomSeed(), selectedImageIndex);
@@ -271,10 +271,60 @@ const GenerateImagePage: React.FC = () => {
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
           画像生成
         </div>
+
         <div className="col-span-12 col-start-1 m-2 ">
-          <Card label="生成条件">
-            <div className="flex gap-3">
-              <div className="w-1/2">
+          <Card>
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-7 col-start-1">
+                <div className="h-3/5 w-full">
+                  <GenerateImageAssistant
+                    isGeneratingImage={generating}
+                    onGetPrompt={(p, np) => {
+                      setSelectedImageIndex(0);
+                      setPrompt(p);
+                      setNegativePrompt(np);
+                      onClickGenerate(p, np);
+                    }}
+                  />
+                </div>
+
+                <div className="mt-6 flex gap-3">
+                  <div className="w-3/4">
+                    <Textarea
+                      label="プロンプト"
+                      help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                      value={prompt}
+                      onChange={setPrompt}
+                      maxHeight={84}
+                      rows={3}
+                    />
+
+                    <Textarea
+                      label="ネガティブプロンプト"
+                      help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                      value={negativePrompt}
+                      onChange={setNegativePrompt}
+                      maxHeight={84}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="w-1/4">
+                    <div className="mt-3 flex flex-col items-center">
+                      <Button
+                        className="mb-3 h-12 w-full text-lg"
+                        onClick={() => {
+                          setSelectedImageIndex(0);
+                          onClickGenerate(prompt, negativePrompt);
+                        }}
+                        loading={generating}>
+                        生成
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="order-1 col-span-5 col-start-8">
                 <div className="flex justify-center">
                   <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
                     {!imageBase64[selectedImageIndex] ||
@@ -325,130 +375,103 @@ const GenerateImagePage: React.FC = () => {
                   ))}
                 </div>
 
-                <Card>
-                  <Textarea
-                    label="プロンプト"
-                    help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
-                    value={prompt}
-                    onChange={setPrompt}
-                    maxHeight={128}
-                    rows={5}
-                  />
-
-                  <Textarea
-                    label="ネガティブプロンプト"
-                    help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
-                    value={negativePrompt}
-                    onChange={setNegativePrompt}
-                    maxHeight={128}
-                    rows={5}
-                  />
-
-                  {initImageBase64 && (
-                    <div className="mb-2">
-                      <div className="text-sm">初期画像</div>
-                      <img
-                        src={initImageBase64}
-                        className=" h-32 w-32 border border-gray-400"></img>
+                <Card label="パラメータ" className="mt-3">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex">
+                      <div>
+                        <RangeSlider
+                          label="画像生成数"
+                          min={1}
+                          max={7}
+                          value={imageSample}
+                          onChange={setImageSample}
+                          help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+                        />
+                        <Select
+                          label="StylePreset"
+                          options={stylePresetOptions}
+                          value={stylePreset}
+                          onChange={setStylePreset}
+                          clearable
+                        />
+                      </div>
+                      <div className="m-auto -mt-10 pl-6">
+                        <div className="mb-1 flex items-center text-sm font-bold">
+                          初期画像
+                          <Help
+                            className="ml-1"
+                            text="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                          />
+                        </div>
+                        {initImageBase64 ? (
+                          <div className="mb-2">
+                            <img
+                              src={initImageBase64}
+                              className=" h-32 w-32 border border-gray-400"></img>
+                          </div>
+                        ) : (
+                          <>
+                            <PiImageLight className="h-32 w-32 border border-gray-400 text-gray-300" />
+                          </>
+                        )}
+                        <Button
+                          className="m-auto mt-1"
+                          onClick={() => {
+                            setIsOpenSketch(true);
+                          }}>
+                          <PiFileArrowUp className="mr-2" />
+                          設定
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <Button
-                      onClick={() => {
-                        setIsOpenSketch(true);
-                      }}>
-                      <PiFileImage className="mr-2" />
-                      初期画像の設定
-                    </Button>
-                    <Button onClick={onClickGenerate} loading={generating}>
-                      生成
-                    </Button>
+
+                    <RangeSlider
+                      label="Seed"
+                      min={0}
+                      max={4294967295}
+                      value={seed[selectedImageIndex]}
+                      onChange={(n) => {
+                        setSeed(n, selectedImageIndex);
+                      }}
+                      help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
+                    />
+                    <div className="flex w-full justify-end">
+                      <Button onClick={onClickRandomSeed}>
+                        Seed をランダム設定
+                      </Button>
+                    </div>
+
+                    <RangeSlider
+                      label="CFG Scale"
+                      min={0}
+                      max={30}
+                      value={cfgScale}
+                      onChange={setCfgScale}
+                      help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                    />
+
+                    <RangeSlider
+                      label="Step"
+                      min={10}
+                      max={150}
+                      value={step}
+                      onChange={setStep}
+                      help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                    />
+
+                    <RangeSlider
+                      label="ImageStrength"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={imageStrength}
+                      onChange={setImageStrength}
+                      help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                    />
                   </div>
                 </Card>
               </div>
-              <div className="w-1/2">
-                <GenerateImageAssistant
-                  className={`${initImageBase64 ? 'h-[926px]' : 'h-[788px]'}`}
-                  onCopyPrompt={(p) => {
-                    setPrompt(p);
-                  }}
-                  onCopyNegativePrompt={(p) => {
-                    setNegativePrompt(p);
-                  }}
-                />
-              </div>
             </div>
-
-            <Card label="パラメータ" className="mt-3">
-              <div className="grid grid-cols-6 gap-3">
-                <div className="col-span-2">
-                  <RangeSlider
-                    label="画像生成数"
-                    min={1}
-                    max={7}
-                    value={imageSample}
-                    onChange={setImageSample}
-                    help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
-                  />
-                </div>
-
-                <div className="col-span-3">
-                  <RangeSlider
-                    label="Seed"
-                    min={0}
-                    max={4294967295}
-                    value={seed[selectedImageIndex]}
-                    onChange={(n) => {
-                      setSeed(n, selectedImageIndex);
-                    }}
-                    help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
-                  />
-                </div>
-                <div className="col-span-1 flex items-center">
-                  <Button onClick={onClickRandomSeed}>ランダム</Button>
-                </div>
-                <div className="col-span-2 col-start-1 xl:col-span-2 xl:col-start-1">
-                  <Select
-                    label="StylePreset"
-                    options={stylePresetOptions}
-                    value={stylePreset}
-                    onChange={setStylePreset}
-                    clearable
-                  />
-                </div>
-                <div className="col-span-2">
-                  <RangeSlider
-                    label="CFG Scale"
-                    min={0}
-                    max={30}
-                    value={cfgScale}
-                    onChange={setCfgScale}
-                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <RangeSlider
-                    label="Step"
-                    min={10}
-                    max={150}
-                    value={step}
-                    onChange={setStep}
-                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <RangeSlider
-                    label="ImageStrength"
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={imageStrength}
-                    onChange={setImageStrength}
-                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
-                  />
-                </div>
-              </div>
-            </Card>
           </Card>
         </div>
       </div>

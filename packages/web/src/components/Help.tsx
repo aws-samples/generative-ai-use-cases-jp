@@ -10,7 +10,7 @@ const Help: React.FC<Props> = (props) => {
   return (
     <div className={`${props.className ?? ''} group relative`}>
       <PiQuestionFill />
-      <div className="invisible absolute z-50 w-64 rounded border border-gray-400 bg-black/60 p-1 text-xs text-white  opacity-0 transition group-hover:visible group-hover:opacity-100">
+      <div className=" invisible absolute z-50 w-64 rounded border border-gray-400 bg-black/60 p-1 text-xs font-normal text-white  opacity-0 transition group-hover:visible group-hover:opacity-100">
         {props.text}
       </div>
     </div>
