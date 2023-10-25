@@ -202,8 +202,8 @@ const GenerateImagePage: React.FC = () => {
     return Math.floor(Math.random() * 4294967295);
   }, []);
 
-  const onClickGenerate = useCallback(
-    (_prompt: string, _negativePrompt: string) => {
+  const generateImage = useCallback(
+    async (_prompt: string, _negativePrompt: string) => {
       clearImageBase64();
       setGenerating(true);
 
@@ -237,7 +237,7 @@ const GenerateImagePage: React.FC = () => {
         });
       });
 
-      Promise.all(promises).finally(() => {
+      await Promise.all(promises).finally(() => {
         setGenerating(false);
       });
     },
@@ -316,11 +316,11 @@ const GenerateImagePage: React.FC = () => {
                   content={chatContent}
                   onChangeContent={setChatContent}
                   isGeneratingImage={generating}
-                  onGetPrompt={(p, np) => {
+                  onGenerate={(p, np) => {
                     setSelectedImageIndex(0);
                     setPrompt(p);
                     setNegativePrompt(np);
-                    onClickGenerate(p, np);
+                    return generateImage(p, np);
                   }}
                 />
               </div>
@@ -351,7 +351,7 @@ const GenerateImagePage: React.FC = () => {
                       className="h-12 w-full text-lg"
                       onClick={() => {
                         setSelectedImageIndex(0);
-                        onClickGenerate(prompt, negativePrompt);
+                        generateImage(prompt, negativePrompt);
                       }}
                       loading={generating || loadingChat}>
                       生成
@@ -407,7 +407,7 @@ const GenerateImagePage: React.FC = () => {
                             {generating ? (
                               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                             ) : (
-                              <PiImageLight className="h-full w-full text-gray-300" />
+                              <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
                             )}
                           </>
                         ) : (

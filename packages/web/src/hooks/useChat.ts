@@ -232,9 +232,10 @@ const useChatState = create<{
     popMessage: (id: string) => {
       let ret: ShownMessage | undefined;
       set((state) => {
+        ret = state.chats[id].messages[state.chats[id].messages.length - 1];
         return {
           chats: produce(state.chats, (draft) => {
-            ret = draft[id].messages.pop();
+            draft[id].messages.pop();
           }),
         };
       });
@@ -396,8 +397,9 @@ const useChat = (id: string, chatId?: string) => {
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
     },
-    pushMessage,
-    popMessage,
+    pushMessage: (role: Role, content: string) =>
+      pushMessage(id, role, content),
+    popMessage: () => popMessage(id),
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string, ignoreHistory: boolean = false) => {

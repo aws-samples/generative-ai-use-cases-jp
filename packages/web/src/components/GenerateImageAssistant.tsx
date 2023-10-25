@@ -1,21 +1,23 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from './Card';
 import InputChatContent from './InputChatContent';
 import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
-import { PiLightbulbFilamentBold } from 'react-icons/pi';
+import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
+import Button from './Button';
 
 type Props = BaseProps & {
   content: string;
   isGeneratingImage: boolean;
   onChangeContent: (s: string) => void;
-  onGetPrompt: (prompt: string, negativePrompt: string) => void;
+  onGenerate: (prompt: string, negativePrompt: string) => Promise<void>;
 };
 
 const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading, messages, postChat } = useChat(pathname);
+  const { loading, messages, postChat, popMessage } = useChat(pathname);
+  const [isAutoGenerationg, setIsAutoGenerationg] = useState(false);
 
   const contents = useMemo<
     (
@@ -26,9 +28,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
       | {
           role: 'assistant';
           content: {
-            prompt: string;
-            negativePrompt: string;
+            prompt: string | null;
+            negativePrompt: string | null;
             comment: string;
+            error?: boolean;
           };
         }
     )[]
@@ -44,15 +47,29 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
           return {
             role: 'assistant',
             content: {
-              prompt: '',
-              negativePrompt: '',
+              prompt: null,
+              negativePrompt: null,
+              comment: '',
             },
           };
         }
-        return {
-          role: 'assistant',
-          content: JSON.parse(m.content),
-        };
+        try {
+          return {
+            role: 'assistant',
+            content: JSON.parse(m.content),
+          };
+        } catch (e) {
+          console.error(e);
+          return {
+            role: 'assistant',
+            content: {
+              prompt: null,
+              negativePrompt: null,
+              comment: '',
+              error: true,
+            },
+          };
+        }
       }
     });
   }, [loading, messages]);
@@ -64,8 +81,18 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     }
 
     const message = contents[_length - 1];
-    if (!loading && message.role === 'assistant') {
-      props.onGetPrompt(message.content.prompt, message.content.negativePrompt);
+    if (
+      !loading &&
+      message.role === 'assistant' &&
+      message.content.prompt &&
+      message.content.negativePrompt
+    ) {
+      setIsAutoGenerationg(true);
+      props
+        .onGenerate(message.content.prompt, message.content.negativePrompt)
+        .finally(() => {
+          setIsAutoGenerationg(false);
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
@@ -74,6 +101,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(props.content);
     props.onChangeContent('');
   }, [postChat, props]);
+
+  const onRetrySend = useCallback(() => {
+    console.log(messages);
+    popMessage();
+    const lastMessage = popMessage();
+    console.log(lastMessage);
+    postChat(lastMessage?.content ?? '');
+  }, [messages, popMessage, postChat]);
 
   return (
     <div className="relative h-full w-full">
@@ -125,19 +160,45 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 ))}
               </>
             )}
-            {c.role === 'assistant' && c.content.prompt === '' && (
-              <div className="flex items-center gap-2 text-gray-600">
-                <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                プロンプト生成中
+            {c.role === 'assistant' && c.content.error && (
+              <div>
+                <div className="flex items-center gap-2 font-bold text-red-500">
+                  <PiWarningFill />
+                  エラー
+                </div>
+                <div className="text-gray-600">
+                  プロンプト生成中にエラーが発生しました。
+                </div>
+                <div className="mt-3 flex w-full justify-center">
+                  <Button outlined onClick={onRetrySend}>
+                    再実行
+                  </Button>
+                </div>
               </div>
             )}
-            {c.role === 'assistant' && c.content.prompt !== '' && (
+            {c.role === 'assistant' &&
+              c.content.prompt === null &&
+              !c.content.error && (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                  プロンプト生成中
+                </div>
+              )}
+            {c.role === 'assistant' && c.content.prompt !== null && (
               <>
-                {contents.length - 1 === idx && props.isGeneratingImage ? (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                    画像生成中
-                  </div>
+                {contents.length - 1 === idx &&
+                props.isGeneratingImage &&
+                isAutoGenerationg ? (
+                  <>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <div className="h-5 w-5 rounded-full border-4 border-gray-600"></div>
+                      プロンプト生成完了
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                      画像生成中
+                    </div>
+                  </>
                 ) : (
                   <>
                     {c.content.comment.split('\n').map((m, idx) => (
