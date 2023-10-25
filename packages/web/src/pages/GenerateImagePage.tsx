@@ -5,7 +5,7 @@ import Textarea from '../components/Textarea';
 import { create } from 'zustand';
 import RangeSlider from '../components/RangeSlider';
 import Select from '../components/Select';
-import { PiFileArrowUp, PiImageLight } from 'react-icons/pi';
+import { PiFileArrowUp } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
 import SketchPad from '../components/SketchPad';
@@ -14,6 +14,8 @@ import { produce } from 'immer';
 import Help from '../components/Help';
 import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
+import Image from '../components/Image';
+import { AxiosError } from 'axios';
 
 const MAX_SAMPLE = 7;
 type StateType = {
@@ -35,9 +37,14 @@ type StateType = {
   setInitImageBase64: (s: string) => void;
   imageSample: number;
   setImageSample: (n: number) => void;
-  imageBase64: string[];
-  clearImageBase64: () => void;
-  setImageBase64: (index: number, s: string) => void;
+  image: {
+    base64: string;
+    error: boolean;
+    errorMessage?: string;
+  }[];
+  clearImage: () => void;
+  setImage: (index: number, base64: string) => void;
+  setImageError: (index: number, errorMessage: string) => void;
   chatContent: string;
   setChatContent: (s: string) => void;
   clear: () => void;
@@ -54,7 +61,10 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageStrength: 0.35,
     initImageBase64: '',
     imageSample: 3,
-    imageBase64: new Array(MAX_SAMPLE).fill(''),
+    image: new Array(MAX_SAMPLE).fill({
+      base64: '',
+      error: false,
+    }),
     chatContent: '',
   };
 
@@ -107,16 +117,30 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
         imageSample: n,
       }));
     },
-    setImageBase64: (index, s) => {
+    setImage: (index, base64) => {
       set(() => ({
-        imageBase64: produce(get().imageBase64, (draft) => {
-          draft.splice(index, 1, s);
+        image: produce(get().image, (draft) => {
+          draft.splice(index, 1, {
+            base64,
+            error: false,
+          });
         }),
       }));
     },
-    clearImageBase64: () => {
+    setImageError: (index, errorMessage) => {
       set(() => ({
-        imageBase64: new Array(MAX_SAMPLE).fill(''),
+        image: produce(get().image, (draft) => {
+          draft.splice(index, 1, {
+            base64: '',
+            error: true,
+            errorMessage,
+          });
+        }),
+      }));
+    },
+    clearImage: () => {
+      set(() => ({
+        image: [...INIT_STATE.image],
       }));
     },
     setChatContent: (s) => {
@@ -171,9 +195,10 @@ const GenerateImagePage: React.FC = () => {
     setCfgScale,
     initImageBase64,
     setInitImageBase64,
-    imageBase64,
-    setImageBase64,
-    clearImageBase64,
+    image,
+    setImage,
+    setImageError,
+    clearImage,
     imageSample,
     setImageSample,
     imageStrength,
@@ -204,7 +229,7 @@ const GenerateImagePage: React.FC = () => {
 
   const generateImage = useCallback(
     async (_prompt: string, _negativePrompt: string) => {
-      clearImageBase64();
+      clearImage();
       setGenerating(true);
 
       const promises = new Array(imageSample).fill('').map((_, idx) => {
@@ -232,9 +257,14 @@ const GenerateImagePage: React.FC = () => {
           stylePreset,
           initImage: initImageBase64,
           imageStrength: imageStrength,
-        }).then((res) => {
-          setImageBase64(idx, res);
-        });
+        })
+          .then((res) => {
+            setImage(idx, res);
+          })
+          .catch((e: AxiosError<{ message: string }>) => {
+            console.log(e);
+            setImageError(idx, e.response?.data.message ?? e.message);
+          });
       });
 
       await Promise.all(promises).finally(() => {
@@ -243,14 +273,15 @@ const GenerateImagePage: React.FC = () => {
     },
     [
       cfgScale,
-      clearImageBase64,
+      clearImage,
       generate,
       generateRandomSeed,
       imageSample,
       imageStrength,
       initImageBase64,
       seed,
-      setImageBase64,
+      setImage,
+      setImageError,
       setSeed,
       step,
       stylePreset,
@@ -373,50 +404,30 @@ const GenerateImagePage: React.FC = () => {
 
             <div className="order-1 col-span-5 col-start-8">
               <div className="flex justify-center">
-                <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
-                  {!imageBase64[selectedImageIndex] ||
-                  imageBase64[selectedImageIndex] === '' ? (
-                    <>
-                      {generating ? (
-                        <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                      ) : (
-                        <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
-                      )}
-                    </>
-                  ) : (
-                    <img
-                      src={`data:image/jpg;base64,${imageBase64[selectedImageIndex]}`}
-                      className="h-full w-full"
-                    />
-                  )}
-                </div>
+                <Image
+                  className="h-72 w-72"
+                  imageBase64={image[selectedImageIndex].base64}
+                  loading={generating}
+                  error={image[selectedImageIndex].error}
+                  errorMessage={image[selectedImageIndex].errorMessage}
+                />
               </div>
-              <div className="mb-3 flex h-16 justify-center gap-3">
-                {imageBase64.map((image, idx) => (
+              <div className="mb-6 flex h-16 justify-center gap-3">
+                {image.map((image, idx) => (
                   <React.Fragment key={idx}>
                     {idx < imageSample && (
-                      <div
+                      <Image
                         className={`${
                           idx === selectedImageIndex ? 'ring-1' : ''
-                        } flex h-16 w-16 cursor-pointer items-center justify-center rounded border border-black/30 hover:brightness-50`}
+                        } mt-3 h-16 w-16`}
+                        imageBase64={image.base64}
+                        loading={generating}
+                        clickable
+                        error={image.error}
                         onClick={() => {
                           onSelectImage(idx);
-                        }}>
-                        {!image || image === '' ? (
-                          <>
-                            {generating ? (
-                              <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                            ) : (
-                              <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
-                            )}
-                          </>
-                        ) : (
-                          <img
-                            src={`data:image/jpg;base64,${image}`}
-                            className="h-full w-full"
-                          />
-                        )}
-                      </div>
+                        }}
+                      />
                     )}
                   </React.Fragment>
                 ))}
@@ -495,17 +506,10 @@ const GenerateImagePage: React.FC = () => {
                         text="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
                       />
                     </div>
-                    {initImageBase64 ? (
-                      <div className="mb-2">
-                        <img
-                          src={initImageBase64}
-                          className=" h-32 w-32 border border-gray-400"></img>
-                      </div>
-                    ) : (
-                      <>
-                        <PiImageLight className="h-32 w-32 border border-gray-400 text-gray-300" />
-                      </>
-                    )}
+                    <Image
+                      className="h-32 w-32"
+                      imageBase64={initImageBase64}
+                    />
                     <Button
                       className="m-auto mt-1"
                       onClick={() => {

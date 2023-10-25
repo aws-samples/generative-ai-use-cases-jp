@@ -26,7 +26,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
+      body: JSON.stringify({ message: (error as Error).message }),
     };
   }
 };
