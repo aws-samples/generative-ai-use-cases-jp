@@ -1,9 +1,9 @@
 {
     "prefix": "",
-    "suffix": "Assistant: ",
-    "join": "\n",
+    "suffix": "\n\nAssistant: ",
+    "join": "\n\n",
     "user": "Human: {}",
     "assistant": "Assistant: {}",
-    "system": "Human: {}\nAssistant: コンテキストを理解しました。",
+    "system": "\n\nHuman: {}\n\nAssistant: コンテキストを理解しました。",
     "eos_token": ""
 }
