@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import Card from './Card';
 import InputChatContent from './InputChatContent';
 import { useLocation } from 'react-router-dom';
@@ -7,22 +7,15 @@ import { PiLightbulbFilamentBold } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 
 type Props = BaseProps & {
+  content: string;
   isGeneratingImage: boolean;
+  onChangeContent: (s: string) => void;
   onGetPrompt: (prompt: string, negativePrompt: string) => void;
 };
 
 const GenerateImageAssistant: React.FC<Props> = (props) => {
-  const [content, setContent] = useState('');
-
-  const { pathname, state } = useLocation();
+  const { pathname } = useLocation();
   const { loading, messages, postChat } = useChat(pathname);
-
-  // LandingPage のデモデータ設定
-  useEffect(() => {
-    if (state !== null) {
-      setContent(state.content);
-    }
-  }, [state]);
 
   const contents = useMemo<
     (
@@ -78,9 +71,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading]);
 
   const onSend = useCallback(() => {
-    postChat(content);
-    setContent('');
-  }, [content, postChat]);
+    postChat(props.content);
+    props.onChangeContent('');
+  }, [postChat, props]);
 
   return (
     <div className="relative h-full w-full">
@@ -161,8 +154,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
             placeholder="出力したい画像の概要を入力してください"
             fullWidth
             hideReset
-            content={content}
-            onChangeContent={setContent}
+            content={props.content}
+            loading={loading || props.isGeneratingImage}
+            onChangeContent={props.onChangeContent}
             onSend={onSend}
           />
         </div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -12,6 +12,8 @@ import SketchPad from '../components/SketchPad';
 import ModalDialog from '../components/ModalDialog';
 import { produce } from 'immer';
 import Help from '../components/Help';
+import { useLocation } from 'react-router-dom';
+import useChat from '../hooks/useChat';
 
 const MAX_SAMPLE = 7;
 type StateType = {
@@ -36,29 +38,43 @@ type StateType = {
   imageBase64: string[];
   clearImageBase64: () => void;
   setImageBase64: (index: number, s: string) => void;
+  chatContent: string;
+  setChatContent: (s: string) => void;
+  clear: () => void;
 };
 
 const useGenerateImagePageState = create<StateType>((set, get) => {
-  return {
+  const INIT_STATE = {
     prompt: '',
+    negativePrompt: '',
+    stylePreset: '',
+    seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
+    step: 50,
+    cfgScale: 7,
+    imageStrength: 0.35,
+    initImageBase64: '',
+    imageSample: 3,
+    imageBase64: new Array(MAX_SAMPLE).fill(''),
+    chatContent: '',
+  };
+
+  return {
+    ...INIT_STATE,
     setPrompt: (s) => {
       set(() => ({
         prompt: s,
       }));
     },
-    negativePrompt: '',
     setNegativePrompt: (s) => {
       set(() => ({
         negativePrompt: s,
       }));
     },
-    stylePreset: '',
     setStylePreset: (s) => {
       set(() => ({
         stylePreset: s,
       }));
     },
-    seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
     setSeed: (n, idx) => {
       set(() => ({
         seed: produce(get().seed, (draft) => {
@@ -66,37 +82,31 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
         }),
       }));
     },
-    step: 50,
     setStep: (n) => {
       set(() => ({
         step: n,
       }));
     },
-    cfgScale: 7,
     setCfgScale: (n) => {
       set(() => ({
         cfgScale: n,
       }));
     },
-    imageStrength: 0.35,
     setImageStrength: (n) => {
       set(() => ({
         imageStrength: n,
       }));
     },
-    initImageBase64: '',
     setInitImageBase64: (s) => {
       set(() => ({
         initImageBase64: s,
       }));
     },
-    imageSample: 3,
     setImageSample: (n) => {
       set(() => ({
         imageSample: n,
       }));
     },
-    imageBase64: new Array(MAX_SAMPLE).fill(''),
     setImageBase64: (index, s) => {
       set(() => ({
         imageBase64: produce(get().imageBase64, (draft) => {
@@ -107,6 +117,16 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     clearImageBase64: () => {
       set(() => ({
         imageBase64: new Array(MAX_SAMPLE).fill(''),
+      }));
+    },
+    setChatContent: (s) => {
+      set(() => ({
+        chatContent: s,
+      }));
+    },
+    clear: () => {
+      set(() => ({
+        ...INIT_STATE,
       }));
     },
   };
@@ -136,8 +156,6 @@ const stylePresetOptions = [
 }));
 
 const GenerateImagePage: React.FC = () => {
-  // MEMO: LandingPage のデモデータ設定は GenerateImageAssistant.tsx で実施しています
-
   const {
     prompt,
     setPrompt,
@@ -160,12 +178,25 @@ const GenerateImagePage: React.FC = () => {
     setImageSample,
     imageStrength,
     setImageStrength,
+    chatContent,
+    setChatContent,
+    clear,
   } = useGenerateImagePageState();
 
+  const { pathname, state } = useLocation();
   const { generate } = useImage();
+  const { loading: loadingChat, clear: clearChat } = useChat(pathname);
+
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // LandingPage のデモデータ設定
+  useEffect(() => {
+    if (state !== null) {
+      setChatContent(state.content);
+    }
+  }, [setChatContent, state]);
 
   const generateRandomSeed = useCallback(() => {
     return Math.floor(Math.random() * 4294967295);
@@ -248,6 +279,11 @@ const GenerateImagePage: React.FC = () => {
     [generateRandomSeed, seed, setSeed]
   );
 
+  const clearAll = useCallback(() => {
+    clear();
+    clearChat();
+  }, [clear, clearChat]);
+
   return (
     <>
       <ModalDialog
@@ -273,157 +309,129 @@ const GenerateImagePage: React.FC = () => {
         </div>
 
         <div className="col-span-12 col-start-1 m-2 ">
-          <Card>
-            <div className="grid grid-cols-12 gap-3">
-              <div className="col-span-7 col-start-1">
-                <div className="h-3/5 w-full">
-                  <GenerateImageAssistant
-                    isGeneratingImage={generating}
-                    onGetPrompt={(p, np) => {
-                      setSelectedImageIndex(0);
-                      setPrompt(p);
-                      setNegativePrompt(np);
-                      onClickGenerate(p, np);
-                    }}
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-7 col-start-1">
+              <div className="h-3/5 w-full">
+                <GenerateImageAssistant
+                  content={chatContent}
+                  onChangeContent={setChatContent}
+                  isGeneratingImage={generating}
+                  onGetPrompt={(p, np) => {
+                    setSelectedImageIndex(0);
+                    setPrompt(p);
+                    setNegativePrompt(np);
+                    onClickGenerate(p, np);
+                  }}
+                />
+              </div>
+
+              <div className="ml-3 mt-6 flex gap-3">
+                <div className="w-3/4">
+                  <Textarea
+                    label="プロンプト"
+                    help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                    value={prompt}
+                    onChange={setPrompt}
+                    maxHeight={84}
+                    rows={3}
+                  />
+
+                  <Textarea
+                    label="ネガティブプロンプト"
+                    help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                    value={negativePrompt}
+                    onChange={setNegativePrompt}
+                    maxHeight={84}
+                    rows={3}
                   />
                 </div>
+                <div className="w-1/4">
+                  <div className="mt-5 flex flex-col items-center">
+                    <Button
+                      className="h-12 w-full text-lg"
+                      onClick={() => {
+                        setSelectedImageIndex(0);
+                        onClickGenerate(prompt, negativePrompt);
+                      }}
+                      loading={generating || loadingChat}>
+                      生成
+                    </Button>
 
-                <div className="mt-6 flex gap-3">
-                  <div className="w-3/4">
-                    <Textarea
-                      label="プロンプト"
-                      help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
-                      value={prompt}
-                      onChange={setPrompt}
-                      maxHeight={84}
-                      rows={3}
-                    />
-
-                    <Textarea
-                      label="ネガティブプロンプト"
-                      help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
-                      value={negativePrompt}
-                      onChange={setNegativePrompt}
-                      maxHeight={84}
-                      rows={3}
-                    />
-                  </div>
-                  <div className="w-1/4">
-                    <div className="mt-3 flex flex-col items-center">
-                      <Button
-                        className="mb-3 h-12 w-full text-lg"
-                        onClick={() => {
-                          setSelectedImageIndex(0);
-                          onClickGenerate(prompt, negativePrompt);
-                        }}
-                        loading={generating}>
-                        生成
-                      </Button>
-                    </div>
+                    <Button
+                      className="mt-6 h-8 w-full text-lg"
+                      outlined
+                      onClick={() => {
+                        clearAll();
+                      }}
+                      disabled={generating || loadingChat}>
+                      クリア
+                    </Button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="order-1 col-span-5 col-start-8">
-                <div className="flex justify-center">
-                  <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
-                    {!imageBase64[selectedImageIndex] ||
-                    imageBase64[selectedImageIndex] === '' ? (
-                      <>
-                        {generating ? (
-                          <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                        ) : (
-                          <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
-                        )}
-                      </>
-                    ) : (
-                      <img
-                        src={`data:image/jpg;base64,${imageBase64[selectedImageIndex]}`}
-                        className="h-full w-full"
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className="mb-3 flex h-16 justify-center gap-3">
-                  {imageBase64.map((image, idx) => (
-                    <React.Fragment key={idx}>
-                      {idx < imageSample && (
-                        <div
-                          className={`${
-                            idx === selectedImageIndex ? 'ring-1' : ''
-                          } flex h-16 w-16 cursor-pointer items-center justify-center rounded border border-black/30 hover:brightness-50`}
-                          onClick={() => {
-                            onSelectImage(idx);
-                          }}>
-                          {!image || image === '' ? (
-                            <>
-                              {generating ? (
-                                <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                              ) : (
-                                <PiImageLight className="h-full w-full text-gray-300" />
-                              )}
-                            </>
-                          ) : (
-                            <img
-                              src={`data:image/jpg;base64,${image}`}
-                              className="h-full w-full"
-                            />
-                          )}
-                        </div>
+            <div className="order-1 col-span-5 col-start-8">
+              <div className="flex justify-center">
+                <div className="my-3 flex h-72 w-72 items-center justify-center rounded border border-black/30 p-3">
+                  {!imageBase64[selectedImageIndex] ||
+                  imageBase64[selectedImageIndex] === '' ? (
+                    <>
+                      {generating ? (
+                        <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                      ) : (
+                        <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
                       )}
-                    </React.Fragment>
-                  ))}
+                    </>
+                  ) : (
+                    <img
+                      src={`data:image/jpg;base64,${imageBase64[selectedImageIndex]}`}
+                      className="h-full w-full"
+                    />
+                  )}
                 </div>
-
-                <Card label="パラメータ" className="mt-3">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex">
-                      <div>
-                        <RangeSlider
-                          label="画像生成数"
-                          min={1}
-                          max={7}
-                          value={imageSample}
-                          onChange={setImageSample}
-                          help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
-                        />
-                        <Select
-                          label="StylePreset"
-                          options={stylePresetOptions}
-                          value={stylePreset}
-                          onChange={setStylePreset}
-                          clearable
-                        />
-                      </div>
-                      <div className="m-auto -mt-10 pl-6">
-                        <div className="mb-1 flex items-center text-sm font-bold">
-                          初期画像
-                          <Help
-                            className="ml-1"
-                            text="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
-                          />
-                        </div>
-                        {initImageBase64 ? (
-                          <div className="mb-2">
-                            <img
-                              src={initImageBase64}
-                              className=" h-32 w-32 border border-gray-400"></img>
-                          </div>
-                        ) : (
+              </div>
+              <div className="mb-3 flex h-16 justify-center gap-3">
+                {imageBase64.map((image, idx) => (
+                  <React.Fragment key={idx}>
+                    {idx < imageSample && (
+                      <div
+                        className={`${
+                          idx === selectedImageIndex ? 'ring-1' : ''
+                        } flex h-16 w-16 cursor-pointer items-center justify-center rounded border border-black/30 hover:brightness-50`}
+                        onClick={() => {
+                          onSelectImage(idx);
+                        }}>
+                        {!image || image === '' ? (
                           <>
-                            <PiImageLight className="h-32 w-32 border border-gray-400 text-gray-300" />
+                            {generating ? (
+                              <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                            ) : (
+                              <PiImageLight className="h-full w-full text-gray-300" />
+                            )}
                           </>
+                        ) : (
+                          <img
+                            src={`data:image/jpg;base64,${image}`}
+                            className="h-full w-full"
+                          />
                         )}
-                        <Button
-                          className="m-auto mt-1"
-                          onClick={() => {
-                            setIsOpenSketch(true);
-                          }}>
-                          <PiFileArrowUp className="mr-2" />
-                          設定
-                        </Button>
                       </div>
-                    </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <Card label="パラメータ" className="mt-3">
+                <div className="flex flex-col xl:flex-row">
+                  <div className="flex flex-col gap-3 xl:w-2/3">
+                    <Select
+                      label="StylePreset"
+                      options={stylePresetOptions}
+                      value={stylePreset}
+                      onChange={setStylePreset}
+                      clearable
+                    />
 
                     <RangeSlider
                       label="Seed"
@@ -435,11 +443,20 @@ const GenerateImagePage: React.FC = () => {
                       }}
                       help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
                     />
-                    <div className="flex w-full justify-end">
+                    <div className="-mt-3 flex w-full justify-end">
                       <Button onClick={onClickRandomSeed}>
                         Seed をランダム設定
                       </Button>
                     </div>
+
+                    <RangeSlider
+                      label="画像生成数"
+                      min={1}
+                      max={7}
+                      value={imageSample}
+                      onChange={setImageSample}
+                      help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+                    />
 
                     <RangeSlider
                       label="CFG Scale"
@@ -469,10 +486,39 @@ const GenerateImagePage: React.FC = () => {
                       help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
                     />
                   </div>
-                </Card>
-              </div>
+
+                  <div className="order-first m-auto -mt-3 xl:order-none xl:-mt-10 xl:pl-6">
+                    <div className="mb-1 flex items-center text-sm font-bold">
+                      初期画像
+                      <Help
+                        className="ml-1"
+                        text="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                      />
+                    </div>
+                    {initImageBase64 ? (
+                      <div className="mb-2">
+                        <img
+                          src={initImageBase64}
+                          className=" h-32 w-32 border border-gray-400"></img>
+                      </div>
+                    ) : (
+                      <>
+                        <PiImageLight className="h-32 w-32 border border-gray-400 text-gray-300" />
+                      </>
+                    )}
+                    <Button
+                      className="m-auto mt-1"
+                      onClick={() => {
+                        setIsOpenSketch(true);
+                      }}>
+                      <PiFileArrowUp className="mr-2" />
+                      設定
+                    </Button>
+                  </div>
+                </div>
+              </Card>
             </div>
-          </Card>
+          </div>
         </div>
       </div>
     </>

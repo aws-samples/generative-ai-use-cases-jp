@@ -12,6 +12,7 @@ type Props = {
   placeholder?: string;
   fullWidth?: boolean;
   resetDisabled?: boolean;
+  loading?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
 } & (
@@ -26,7 +27,11 @@ type Props = {
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading, isEmpty } = useChat(pathname);
+  const { loading: chatLoading, isEmpty } = useChat(pathname);
+
+  const loading = useMemo(() => {
+    return props.loading === undefined ? chatLoading : props.loading;
+  }, [chatLoading, props.loading]);
 
   const disabledSend = useMemo(() => {
     return props.content === '' || props.disabled;

@@ -15,12 +15,25 @@ type Props = BaseProps & {
 const RangeSlider: React.FC<Props> = (props) => {
   return (
     <div className={`${props.className ?? ''}`}>
-      {props.label && (
-        <div className="flex items-center">
-          <label className="text-sm">{props.label}</label>
-          {props.help && <Help className="ml-1" text={props.help} />}
-        </div>
-      )}
+      <div className="flex justify-between">
+        {props.label && (
+          <div className="flex items-center">
+            <label className="text-sm">{props.label}</label>
+            {props.help && <Help className="ml-1" text={props.help} />}
+          </div>
+        )}
+        <input
+          className="h-8 w-32 rounded border-black/30"
+          type="number"
+          min={props.min}
+          max={props.max}
+          step={props.step}
+          value={props.value}
+          onChange={(e) => {
+            props.onChange(Number.parseFloat(e.target.value));
+          }}
+        />
+      </div>
       <div className="flex gap-3">
         <input
           type="range"
@@ -29,17 +42,6 @@ const RangeSlider: React.FC<Props> = (props) => {
           min={props.min}
           max={props.max}
           step={props.step}
-          onChange={(e) => {
-            props.onChange(Number.parseFloat(e.target.value));
-          }}
-        />
-        <input
-          className="w-32 rounded border-black/30"
-          type="number"
-          min={props.min}
-          max={props.max}
-          step={props.step}
-          value={props.value}
           onChange={(e) => {
             props.onChange(Number.parseFloat(e.target.value));
           }}
