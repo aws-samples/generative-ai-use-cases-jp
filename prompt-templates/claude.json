@@ -3,7 +3,7 @@
     "suffix": "\n\nAssistant: ",
     "join": "\n\n",
     "user": "Human: {}",
-    "assistant": "\n\nAssistant: {}",
+    "assistant": "Assistant: {}",
     "system": "\n\nHuman: {}\n\nAssistant: コンテキストを理解しました。",
     "eos_token": ""
 }
