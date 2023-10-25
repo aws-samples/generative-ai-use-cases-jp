@@ -69,7 +69,7 @@ const LandingPage: React.FC = () => {
     navigate('/translate', {
       state: {
         sentence:
-          'こんちには。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+          'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
       },
     });
   };
