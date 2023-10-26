@@ -358,7 +358,7 @@ const GenerateImagePage: React.FC = () => {
               />
             </div>
 
-            <Card className="flex" className="mt-8">
+            <Card className="flex mt-8">
               <div className="w-full">
                 <Textarea
                   label="プロンプト"
