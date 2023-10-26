@@ -95,6 +95,12 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
+(Option) 東京リージョンにデプロイする場合
+
+```bash
+npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+```
+
 RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
