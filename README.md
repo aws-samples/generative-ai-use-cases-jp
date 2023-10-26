@@ -76,7 +76,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
   画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。
 
-  <img src="/imgs/usecase_generate_image.gif.gif"/>
+  <img src="/imgs/usecase_generate_image.gif"/>
 </details>
 
 
