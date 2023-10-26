@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import RowItem, { RowItemProps } from './RowItem';
+import Help from './Help';
 
 type Props = RowItemProps & {
   value?: string;
   label?: string;
   placeholder?: string;
   hint?: string;
+  help?: string;
   optional?: boolean;
   noBorder?: boolean;
+  rows?: number;
   maxHeight?: number;
   onChange: (value: string) => void;
 };
@@ -38,8 +41,9 @@ const Textarea: React.FC<Props> = (props) => {
   return (
     <RowItem notItem={props.notItem}>
       {props.label && (
-        <div>
+        <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
+          {props.help && <Help className="ml-1" message={props.help} />}
           {props.optional && (
             <span className="ml-2 text-xs italic text-gray-500">
               - Optional
@@ -56,7 +60,7 @@ const Textarea: React.FC<Props> = (props) => {
         } ${
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
         } `}
-        rows={1}
+        rows={props.rows ?? 1}
         placeholder={props.placeholder}
         value={props.value}
         onChange={(e) => {

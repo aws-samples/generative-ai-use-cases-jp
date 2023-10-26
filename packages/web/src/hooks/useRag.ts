@@ -27,8 +27,8 @@ const useRag = (id: string) => {
     postMessage: async (content: string) => {
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
-      pushMessage(id, 'user', content);
-      pushMessage(id, 'assistant', '[Kendra から参照ドキュメントを取得中...]');
+      pushMessage('user', content);
+      pushMessage('assistant', '[Kendra から参照ドキュメントを取得中...]');
 
       const query = await predict({
         messages: [
@@ -52,8 +52,8 @@ const useRag = (id: string) => {
       );
 
       // ローディング表示を消してから通常のチャットの POST 処理を実行する
-      popMessage(id);
-      popMessage(id);
+      popMessage();
+      popMessage();
       postChat(content);
     },
   };
