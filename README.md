@@ -95,7 +95,8 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-(Option) 東京リージョンにデプロイする場合
+(Option) 東京リージョンにデプロイする場合 ※東京リージョンにて Cloud9 を立ち上げていただいてから上記コマンドと合わせて `npm run cdk:deploy
+` の代わりに実行ください
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
