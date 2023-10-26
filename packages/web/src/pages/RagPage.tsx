@@ -3,7 +3,7 @@ import InputChatContent from '../components/InputChatContent';
 import { create } from 'zustand';
 import Alert from '../components/Alert';
 import useRag from '../hooks/useRag';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 
@@ -26,13 +26,8 @@ const useRagPageState = create<StateType>((set) => {
 const RagPage: React.FC = () => {
   const { content, setContent } = useRagPageState();
   const { state, pathname } = useLocation();
-  const { postMessage, init, loading, messages, isEmpty } = useRag(pathname);
+  const { postMessage, clear, loading, messages, isEmpty } = useRag(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
-
-  useEffect(() => {
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (state !== null) {
@@ -47,9 +42,9 @@ const RagPage: React.FC = () => {
   }, [content, postMessage, setContent]);
 
   const onReset = useCallback(() => {
-    init();
+    clear();
     setContent('');
-  }, [init, setContent]);
+  }, [clear, setContent]);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -77,6 +72,13 @@ const RagPage: React.FC = () => {
               メッセージが入力されると Amazon Kendra
               でドキュメントを検索し、検索したドキュメントをもとに LLM
               が回答を生成します。
+            </div>
+            <div className="font-bold">
+              Amazon Kendra の検索のみを実行する場合は
+              <Link className="text-aws-smile" to="/kendra">
+                こちら
+              </Link>
+              のページに遷移してください。
             </div>
           </Alert>
         </div>

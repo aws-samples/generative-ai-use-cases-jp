@@ -6,7 +6,9 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-**このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+- **このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+  - 画像生成のユースケースをご利用になる際は、Stability AI の StableDiffusion XL モデルを有効化する必要があります。上記の手順と同じ要領で、Stability AI の StableDiffusion XL モデルを有効化してください。
+- **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
 
 ## 機能一覧
 
@@ -38,6 +40,14 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 </details>
 
 <details>
+   <summary>文章生成</summary>
+
+   あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
+
+  <img src="/imgs/usecase_generate_text.gif"/>
+</details>
+
+<details>
   <summary>要約</summary>
 
   LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。
@@ -46,28 +56,30 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 </details>
 
 <details>
-  <summary>メール作成</summary>
+  <summary>校正</summary>
 
-  ビジネスメールの作成を日常的に行う人々は、形式的な挨拶や敬語の繰り返しではなく、メールの内容に集中したいと考えているでしょう。LLM を使用することで、そのような冗長なタスクを極力減らし、ルーチンワークにかかる時間を大幅に削減することが可能です。さらに、単に補完するだけでなく、誤字脱字の防止という効果も期待できます。
+  LLM は、文章の誤字脱字だけでなく文章を理解し改善点を指摘することが可能です。自分が書いたレポートを人に見せる前に LLM に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
 
-  <img src="/imgs/usecase_mail.gif"/>
+  <img src="/imgs/usecase_editorial.gif"/>
 </details>
 
 <details>
-  <summary>情報抽出</summary>
+  <summary>翻訳</summary>
 
-  文章を LLM に読み込ませることで、必要な情報を抽出できます。LLM は文章を的確に理解し、文体に気を使うことなく情報を抽出することが可能です。
+  多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
 
-  <img src="/imgs/usecase_extract.gif"/>
+  <img src="/imgs/usecase_translate.gif"/>
 </details>
+
 
 <details>
-  <summary>CS 業務効率化</summary>
+  <summary>画像生成</summary>
 
-  人々が手動で処理する必要のある多数の問い合わせに対しても、LLM の活用が可能です。例えば、お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。お客様からの問い合わせ内容をコンテキストとすることで、適切な文章へと変換することができます。さらに、Fine-tuning することで、「OK」や「無理です」といった返答を打つ必要がなくなる可能性もあります。(現在、このリポジトリでは Fine-tuning はサポートされていません。Amazon Bedrock 及びその Fine-tuning 機能のリリースが完了次第、対応を予定しています。)
+  画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。
 
-  <img src="/imgs/usecase_cs.gif"/>
+  <img src="/imgs/usecase_generate_image.gif"/>
 </details>
+
 
 ## アーキテクチャ
 
@@ -77,7 +89,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## デプロイ
 
-[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。
+[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)でもデプロイ手順を確認できます。
 
 ```bash
 npm ci
@@ -95,6 +107,7 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
+
 (Option) 東京リージョンにデプロイする場合 ※東京リージョンにて Cloud9 を立ち上げていただいてから上記コマンドと合わせて `npm run cdk:deploy
 ` の代わりに実行ください
 
@@ -104,6 +117,21 @@ npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claud
 
 RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
 
+### RAG 有効化
+
+RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
+
+まず、RAG を有効化して再デプロイします。
+`packages/cdk/cdk.json` を開き、`context` の `ragEnabled` を `true` に変更します。
+その後、以下のコマンドで再デプロイしてください。
+
+```bash
+npm run cdk:deploy
+```
+
+続いて、Kendra の Data source の Sync を以下の手順で行なってください。
+
+
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
 1. Data sources をクリック
@@ -112,7 +140,7 @@ RAG のユースケースを試す場合は、Kendra の Data source を手動�
 
 Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
 
-## モデル・リージョンの切り替え
+### モデル・リージョンの切り替え
 
 - デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
 - Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
@@ -126,16 +154,6 @@ npm run lint
 ```
 
 また、ローカル環境の構築手順については [/docs/DEVELOPMENT.md](/docs/DEVELOPMENT.md) をご確認ください。
-
-## 動画でデプロイ手順とデモンストレーションを紹介
-
-動画でデプロイ手順とデモンストレーションをご覧いただけます。以下のサムネイルをクリックして再生してください。なおデプロイ手順につきましては、詳細な手順を後述しております。
-
-| **デプロイ手順**                                                                                             | **デモンストレーション**                                                                             |
-|--------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| [![デプロイ手順](https://img.youtube.com/vi/9sMA17OKP1k/0.jpg)](https://www.youtube.com/watch?v=9sMA17OKP1k) | [![デモ](https://img.youtube.com/vi/rkKZZSuVZUU/0.jpg)](https://www.youtube.com/watch?v=rkKZZSuVZUU) |
-
-> 情報が古くなっている可能性があります。最新の手順については README.md をご確認ください。
 
 ## Security
 

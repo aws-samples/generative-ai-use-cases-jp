@@ -26,3 +26,9 @@ export type ToBeRecordedMessage = UnrecordedMessage & {
 export type ShownMessage = Partial<PrimaryKey> &
   Partial<MessageAttributes> &
   UnrecordedMessage;
+
+export type DocumentComment = {
+  excerpt: string;
+  replace?: string;
+  comment?: string;
+};

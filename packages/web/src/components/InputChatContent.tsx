@@ -10,14 +10,28 @@ type Props = {
   content: string;
   disabled?: boolean;
   placeholder?: string;
+  fullWidth?: boolean;
+  resetDisabled?: boolean;
+  loading?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
-  onReset: () => void;
-};
+} & (
+  | {
+      hideReset?: false;
+      onReset: () => void;
+    }
+  | {
+      hideReset: true;
+    }
+);
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading, isEmpty } = useChat(pathname);
+  const { loading: chatLoading, isEmpty } = useChat(pathname);
+
+  const loading = useMemo(() => {
+    return props.loading === undefined ? chatLoading : props.loading;
+  }, [chatLoading, props.loading]);
 
   const disabledSend = useMemo(() => {
     return props.content === '' || props.disabled;
@@ -48,7 +62,9 @@ const InputChatContent: React.FC<Props> = (props) => {
     <>
       <div
         id="input-chat-content"
-        className="relative mb-7 flex w-11/12 items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 md:w-10/12 lg:w-4/6 xl:w-3/6">
+        className={`relative mb-7 flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+          props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
+        }`}>
         <Textarea
           className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
           placeholder={props.placeholder ?? '入力してください'}
@@ -63,7 +79,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           loading={loading}
           onClick={props.onSend}
         />
-        {!isEmpty && (
+        {!isEmpty && !props.resetDisabled && !props.hideReset && (
           <Button
             className="absolute -top-14 right-0 p-2 text-sm"
             outlined

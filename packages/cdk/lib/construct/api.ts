@@ -38,6 +38,11 @@ export class Api extends Construct {
     // model name for bedrock / sagemaker
     const modelName =
       this.node.tryGetContext('modelName') || 'anthropic.claude-v2';
+    // image generate model name for bedrock / sagemaker
+    const imageGenerateModelName =
+      this.node.tryGetContext('imageGenerateModelName') ||
+      'stability.stable-diffusion-xl-v0';
+
     // prompt template
     const promptTemplateFile =
       this.node.tryGetContext('promptTemplate') || 'claude.json';
@@ -101,6 +106,22 @@ export class Api extends Construct {
     });
     table.grantWriteData(predictTitleFunction);
 
+    const generateImageFunction = new NodejsFunction(this, 'GenerateImage', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/generateImage.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE: promptTemplate,
+        IMAGE_GEN_MODEL_NAME: imageGenerateModelName,
+      },
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
+    });
+
     if (modelType == 'sagemaker') {
       // SageMaker Policy
       const sagemakerPolicy = new PolicyStatement({
@@ -115,6 +136,7 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     } else {
       // Bedrock Policy
       const bedrockPolicy = new PolicyStatement({
@@ -125,6 +147,7 @@ export class Api extends Construct {
       predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
@@ -326,6 +349,15 @@ export class Api extends Construct {
     feedbacksResource.addMethod(
       'POST',
       new LambdaIntegration(updateFeedbackFunction),
+      commonAuthorizerProps
+    );
+
+    const imageResource = api.root.addResource('image');
+    const imageGenerateResource = imageResource.addResource('generate');
+    // POST: /image/generate
+    imageGenerateResource.addMethod(
+      'POST',
+      new LambdaIntegration(generateImageFunction),
       commonAuthorizerProps
     );
 

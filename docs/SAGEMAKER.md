@@ -6,6 +6,8 @@ Text Generation Inference (TGI) の Huggingface Container を使用した SageMa
 
 モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているのが理想的です。
 
+**現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。**
+
 ## SageMaker エンドポイントのデプロイ
 
 **利用可能なモデル**

@@ -1,13 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import RowItem, { RowItemProps } from './RowItem';
+import Help from './Help';
 
 type Props = RowItemProps & {
   value?: string;
   label?: string;
   placeholder?: string;
   hint?: string;
+  help?: string;
   optional?: boolean;
   noBorder?: boolean;
+  rows?: number;
+  maxHeight?: number;
   onChange: (value: string) => void;
 };
 
@@ -16,6 +20,7 @@ const MAX_HEIGHT = 300;
 const Textarea: React.FC<Props> = (props) => {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [isMax, setIsMax] = useState(false);
+  const _maxHeight = props.maxHeight || MAX_HEIGHT;
 
   useEffect(() => {
     if (!ref.current) {
@@ -24,20 +29,21 @@ const Textarea: React.FC<Props> = (props) => {
 
     ref.current.style.height = 'auto';
 
-    if (ref.current.scrollHeight > MAX_HEIGHT) {
-      ref.current.style.height = MAX_HEIGHT + 'px';
+    if (_maxHeight > 0 && ref.current.scrollHeight > _maxHeight) {
+      ref.current.style.height = _maxHeight + 'px';
       setIsMax(true);
     } else {
       ref.current.style.height = ref.current.scrollHeight + 'px';
       setIsMax(false);
     }
-  }, [props.value]);
+  }, [props.value, _maxHeight]);
 
   return (
     <RowItem notItem={props.notItem}>
       {props.label && (
-        <div>
+        <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
+          {props.help && <Help className="ml-1" message={props.help} />}
           {props.optional && (
             <span className="ml-2 text-xs italic text-gray-500">
               - Optional
@@ -54,7 +60,7 @@ const Textarea: React.FC<Props> = (props) => {
         } ${
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
         } `}
-        rows={1}
+        rows={props.rows ?? 1}
         placeholder={props.placeholder}
         value={props.value}
         onChange={(e) => {

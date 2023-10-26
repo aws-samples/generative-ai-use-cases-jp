@@ -8,12 +8,14 @@ import {
   PiChatCircleText,
   PiPencil,
   PiNote,
-  PiEnvelope,
-  PiMagnifyingGlass,
   PiChatsCircle,
+  PiPenNib,
+  PiMagnifyingGlass,
+  PiTranslate,
+  PiImages,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
-import Drawer from './components/Drawer';
+import Drawer, { ItemProps } from './components/Drawer';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import { Amplify, I18n } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
@@ -22,43 +24,66 @@ import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
 
-const items = [
+const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+
+const items: ItemProps[] = [
   {
     label: 'ホーム',
     to: '/',
     icon: <PiHouse />,
+    usecase: true,
   },
   {
     label: 'チャット',
     to: '/chat',
     icon: <PiChatsCircle />,
+    usecase: true,
   },
+  ragEnabled
+    ? {
+        label: 'RAG チャット',
+        to: '/rag',
+        icon: <PiChatCircleText />,
+        usecase: true,
+      }
+    : null,
   {
-    label: 'RAG チャット',
-    to: '/rag',
-    icon: <PiChatCircleText />,
+    label: '文章生成',
+    to: '/generate',
+    icon: <PiPencil />,
+    usecase: true,
   },
   {
     label: '要約',
     to: '/summarize',
     icon: <PiNote />,
+    usecase: true,
   },
   {
-    label: 'メール生成',
-    to: '/mail',
-    icon: <PiEnvelope />,
+    label: '校正',
+    to: '/editorial',
+    icon: <PiPenNib />,
+    usecase: true,
   },
   {
-    label: 'CS 業務効率化',
-    to: '/cs',
-    icon: <PiPencil />,
+    label: '翻訳',
+    to: '/translate',
+    icon: <PiTranslate />,
+    usecase: true,
+  },
+  {
+    label: '画像生成',
+    to: '/image',
+    icon: <PiImages />,
+    usecase: true,
   },
   {
     label: 'Kendra 検索',
     to: '/kendra',
     icon: <PiMagnifyingGlass />,
+    usecase: false,
   },
-];
+].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す

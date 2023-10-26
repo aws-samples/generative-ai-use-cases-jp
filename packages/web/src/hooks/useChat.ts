@@ -14,6 +14,7 @@ import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
 import useConversation from './useConversation';
 import { KeyedMutator } from 'swr';
+import { getSystemContextById } from '../prompts';
 
 const useChatState = create<{
   chats: {
@@ -26,20 +27,17 @@ const useChatState = create<{
     [id: string]: boolean;
   };
   setLoading: (id: string, newLoading: boolean) => void;
-  init: (id: string, systemContext: string) => void;
-  initFromMessages: (
-    id: string,
-    messages: RecordedMessage[],
-    chat: Chat
-  ) => void;
+  init: (id: string) => void;
+  clear: (id: string) => void;
+  restore: (id: string, messages: RecordedMessage[], chat: Chat) => void;
   updateSystemContext: (id: string, systemContext: string) => void;
   pushMessage: (id: string, role: Role, content: string) => void;
   popMessage: (id: string) => ShownMessage | undefined;
-  clear: (id: string, systemContext: string) => void;
   post: (
     id: string,
     content: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>
+    mutateListChat: KeyedMutator<ListChatsResponse>,
+    ignoreHistory: boolean
   ) => void;
   sendFeedback: (
     id: string,
@@ -79,11 +77,18 @@ const useChatState = create<{
     });
   };
 
+  const initChatWithSystemContext = (id: string) => {
+    const systemContext = getSystemContextById(id);
+    initChat(id, [{ role: 'system', content: systemContext }], undefined);
+  };
+
   const setTitle = (id: string, title: string) => {
     set((state) => {
       return {
         chats: produce(state.chats, (draft) => {
-          draft[id].chat!.title = title;
+          if (draft[id].chat) {
+            draft[id].chat!.title = title;
+          }
         }),
       };
     });
@@ -181,16 +186,22 @@ const useChatState = create<{
     chats: {},
     loading: {},
     setLoading,
-    init: (id: string, systemContext: string) => {
+    init: (id: string) => {
       if (!get().chats[id]) {
-        initChat(id, [{ role: 'system', content: systemContext }], undefined);
+        initChatWithSystemContext(id);
       }
     },
-    initFromMessages: (id: string, messages: RecordedMessage[], chat: Chat) => {
-      initChat(id, messages, chat);
+    clear: (id: string) => {
+      initChatWithSystemContext(id);
     },
-    clear: (id: string, systemContext: string) => {
-      initChat(id, [{ role: 'system', content: systemContext }], undefined);
+    restore: (id: string, messages: RecordedMessage[], chat: Chat) => {
+      for (const [key, value] of Object.entries(get().chats)) {
+        if (value.chat?.chatId === chat.chatId) {
+          initChatWithSystemContext(key);
+        }
+      }
+
+      initChat(id, messages, chat);
     },
     updateSystemContext: (id: string, systemContext: string) => {
       set((state) => {
@@ -221,15 +232,21 @@ const useChatState = create<{
     popMessage: (id: string) => {
       let ret: ShownMessage | undefined;
       set((state) => {
+        ret = state.chats[id].messages[state.chats[id].messages.length - 1];
         return {
           chats: produce(state.chats, (draft) => {
-            ret = draft[id].messages.pop();
+            draft[id].messages.pop();
           }),
         };
       });
       return ret;
     },
-    post: async (id: string, content: string, mutateListChat) => {
+    post: async (
+      id: string,
+      content: string,
+      mutateListChat,
+      ignoreHistory: boolean = false
+    ) => {
       setLoading(id, true);
 
       const unrecordedUserMessage: UnrecordedMessage = {
@@ -254,10 +271,14 @@ const useChatState = create<{
         };
       });
 
+      const chatMessages = get().chats[id].messages;
       const stream = predictStream({
         // 最後のメッセージはアシスタントのメッセージなので、排除
+        // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
         messages: omitUnusedMessageProperties(
-          get().chats[id].messages.slice(0, -1)
+          ignoreHistory
+            ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
+            : chatMessages.slice(0, -1)
         ),
       });
 
@@ -268,7 +289,9 @@ const useChatState = create<{
             const oldAssistantMessage = draft[id].messages.pop()!;
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
-              content: oldAssistantMessage.content + chunk,
+              content: (oldAssistantMessage.content + chunk)
+                .replace(/(<output>|<\/output>)/g, '')
+                .trim(),
             };
 
             draft[id].messages.push(newAssistantMessage);
@@ -320,14 +343,14 @@ const useChatState = create<{
  * @param chatId
  * @returns
  */
-const useChat = (id: string, systemContext?: string, chatId?: string) => {
+const useChat = (id: string, chatId?: string) => {
   const {
     chats,
     loading,
     setLoading,
     init,
-    initFromMessages,
     clear,
+    restore,
     post,
     sendFeedback,
     updateSystemContext,
@@ -342,16 +365,15 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
 
   useEffect(() => {
     // 新規チャットの場合
-    if (!chatId && systemContext) {
-      init(id, systemContext);
+    if (!chatId) {
+      init(id);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [init, id, chatId]);
 
   useEffect(() => {
     // 登録済みのチャットの場合
     if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
-      initFromMessages(id, messagesData.messages, chatData.chat);
+      restore(id, messagesData.messages, chatData.chat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingMessage, isLoadingChat]);
@@ -366,16 +388,22 @@ const useChat = (id: string, systemContext?: string, chatId?: string) => {
       setLoading(id, newLoading);
     },
     loadingMessages: isLoadingMessage,
-    clearChats: (systemContext: string) => clear(id, systemContext),
+    init: () => {
+      init(id);
+    },
+    clear: () => {
+      clear(id);
+    },
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
     },
-    pushMessage,
-    popMessage,
+    pushMessage: (role: Role, content: string) =>
+      pushMessage(id, role, content),
+    popMessage: () => popMessage(id),
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
-    postChat: (content: string) => {
-      post(id, content, mutateConversations);
+    postChat: (content: string, ignoreHistory: boolean = false) => {
+      post(id, content, mutateConversations, ignoreHistory);
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);

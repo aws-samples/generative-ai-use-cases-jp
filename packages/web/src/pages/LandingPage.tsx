@@ -6,11 +6,14 @@ import {
   PiChatCircleText,
   PiPencil,
   PiNote,
-  PiEnvelope,
-  PiListMagnifyingGlass,
   PiChatsCircle,
+  PiPenNib,
+  PiTranslate,
+  PiImages,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
+
+const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,78 +36,49 @@ const LandingPage: React.FC = () => {
     });
   };
 
+  const demoGenerate = () => {
+    navigate('/generate', {
+      state: {
+        information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成系 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成系 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+        context:
+          'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+      },
+    });
+  };
+
   const demoSummarize = () => {
     navigate('/summarize', {
       state: {
         sentence:
           'Amazon Bedrock は、Amazon や主要な AI スタートアップ企業が提供する基盤モデル (FM) を API を通じて利用できるようにする完全マネージド型サービスです。そのため、さまざまな FM から選択して、ユースケースに最も適したモデルを見つけることができます。Amazon Bedrock のサーバーレスエクスペリエンスにより、すぐに FM を開始したり、FM を簡単に試したり、独自のデータを使用して FM をプライベートにカスタマイズしたり、AWS のツールや機能を使用して FM をアプリケーションにシームレスに統合してデプロイしたりできます。Amazon Bedrock のエージェントは、開発者が独自の知識源に基づいて最新の回答を提供し、幅広いユースケースのタスクを完了できるジェネレーティブ AI アプリケーションを開発者が簡単に作成できるようにする完全マネージド機能です。Bedrock のサーバーレスエクスペリエンスにより、インフラストラクチャを管理することなく、すぐに使用を開始し、独自のデータを使用して FM をプライベートにカスタマイズし、使い慣れた AWS ツールや機能を使用してそれらをアプリケーションに簡単に統合してデプロイできます (さまざまなモデルをテストするための実験や FM を大規模に管理するためのパイプラインなどの Amazon SageMaker の ML 機能との統合を含みます)。',
+        additionalContext: '',
       },
     });
   };
 
-  const demoEmail = () => {
-    navigate('mail', {
+  const demoEditorial = () => {
+    navigate('/editorial', {
       state: {
-        recipient: '田中部長',
-        recipientAttr: 'ABC株式会社',
-        sender: '鈴木',
-        context: '契約してもらっている AAA プランについて',
-        situation: '契約更新時期が近づいてきた',
-        message: '契約更新手続きを行ってほしい',
-        action: '弊社のSaaSにログインして、設定ページから契約更新',
-        casual: 1,
-        otherContext:
-          'エンタープライズプランにアップグレードしてもらうと24時間サポートがつく',
+        sentence:
+          'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
       },
     });
   };
 
-  const demoReolayEmail = () => {
-    navigate('mail', {
+  const demoTranslate = () => {
+    navigate('/translate', {
       state: {
-        mailContent: `田中部長 様
-
-ABC株式会社の鈴木です。いつもお世話になっております。
-
-この度、契約更新時期が近づいてまいりましたので、ご連絡差し上げました。
-
-弊社のSaaSをご利用頂いておりますが、契約の更新手続きを行っていただきたく存じます。
-
-具体的な手続き方法といたしましては、まずは弊社のウェブサイトにアクセスし、ログインしていただくことから始めます。
-
-ログイン後は、設定ページから契約更新の手続きを行っていただけます。
-
-なお、今回の契約更新に合わせて、エンタープライズプランへのアップグレードもご検討いただければと思います。アップグレードいただけますと、24時間体制のサポートがご利用いただけますので、より円滑な業務運営が可能となります。
-
-ご不明点やお困りごとがございましたら、お気軽にお問い合わせください。弊社担当者が丁寧にお答えいたします。
-
-ご対応いただければ幸いです。
-
-引き続き、ABC株式会社のご支援に努めてまいりますので、今後ともよろしくお願い申し上げます。
-
-鈴木
-`,
-        recipient: '',
-        recipientAttr: '',
-        sender: '',
-        context: '',
-        situation: '',
-        message: '',
-        action: '',
-        casual: 3,
-        otherContext: '',
+        sentence:
+          'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
       },
     });
   };
 
-  const demoCs = () => {
-    navigate('cs', {
+  const demoGenerateImage = () => {
+    navigate('/image', {
       state: {
-        context: 'SaaS のサポート業務に従事',
-        situation: 'お客様からの問い合わせを受けている',
-        casual: 1,
-        recipientMessage: '機能Xを使いたいが、画面にない',
-        senderMessage: 'プランAを契約する必要がある',
+        content: `化粧品の広告デザインを出力してください。
+高級感がある、20代女性がターゲット、親しみやすいデザイン、爽やか、綺麗、清潔感がある、黒髪の女性、化粧品を手にしている、顔をアップにする、肌に優しい、都会的`,
       },
     });
   };
@@ -135,17 +109,31 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="RAG チャット" onClickDemo={demoRag}>
+        {ragEnabled && (
+          <CardDemo label="RAG チャット" onClickDemo={demoRag}>
+            <div className="flex flex-row items-start">
+              <div className="mr-4 text-7xl">
+                <PiChatCircleText />
+              </div>
+              <div className="text-sm">
+                RAG (Retrieval Augmented Generation) は、情報の検索と LLM
+                の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
+                Kendra から取得した参考ドキュメントをベースに LLM
+                が回答を生成してくれるため、「社内情報に対応した LLM
+                チャット」を簡単に実現することが可能です。
+              </div>
+            </div>
+          </CardDemo>
+        )}
+        <CardDemo label="文章生成" onClickDemo={demoGenerate}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
-              <PiChatCircleText />
+              <PiPencil />
             </div>
             <div className="text-sm">
-              RAG (Retrieval Augmented Generation) は、情報の検索と LLM
-              の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
-              Kendra から取得した参考ドキュメントをベースに LLM
-              が回答を生成してくれるため、「社内情報に対応した LLM
-              チャット」を簡単に実現することが可能です。
+              あらゆるコンテキストで文章を生成することは LLM
+              が最も得意とするタスクの 1 つです。
+              記事・レポート・メールなど、あらゆるコンテキストに対応します。
             </div>
           </div>
         </CardDemo>
@@ -162,39 +150,39 @@ ABC株式会社の鈴木です。いつもお世話になっております。
             </div>
           </div>
         </CardDemo>
-
-        <CardDemo label="メール生成" onClickDemo={demoEmail}>
+        <CardDemo label="校正" onClickDemo={demoEditorial}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
-              <PiEnvelope />
+              <PiPenNib />
             </div>
             <div className="text-sm">
               LLM
-              を活用することで、メールを作成する際の冗長なタスクを極力減らし、ルーチンワークにかかる時間を大幅に削減することが可能です。単に補完するだけでなく、誤字脱字の防止という効果も期待できます。
+              は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。
+              人に見せる前に LLM
+              に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
             </div>
           </div>
         </CardDemo>
-
-        <CardDemo label="情報抽出" onClickDemo={demoReolayEmail}>
+        <CardDemo label="翻訳" onClickDemo={demoTranslate}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
-              <PiListMagnifyingGlass />
+              <PiTranslate />
             </div>
             <div className="text-sm">
-              文章を LLM に読み込ませることで、必要な情報を抽出できます。LLM
-              は文章を的確に理解し、文体に気を使うことなく情報を抽出することが可能です。
-              このデモでは、メール本文を読み込むことで、返信メールを生成する際に必要な情報を抽出します。
+              多言語で学習した LLM は、翻訳を行うことも可能です。
+              また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
             </div>
           </div>
         </CardDemo>
-
-        <CardDemo label="CS 業務効率化" onClickDemo={demoCs}>
+        <CardDemo label="画像生成" onClickDemo={demoGenerateImage}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
-              <PiPencil />
+              <PiImages />
             </div>
             <div className="text-sm">
-              お客様からの問い合わせに対して「OK」や「無理です」といった単純な返答から、「承知いたしました。直ちに対応いたします。」や「申し訳ございません。お客様のプランではその機能の有効化はできません。」などの表現への変換が可能です。
+              画像生成 AI
+              は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を
+              LLM に支援してもらうことができます。
             </div>
           </div>
         </CardDemo>

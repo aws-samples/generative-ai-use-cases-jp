@@ -1,215 +1,238 @@
-import { GenerateMessageParams } from '../@types/cs-improvement';
-import { GenerateMailAutoFillFormat, GenerateMailParams } from '../@types/mail';
+import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 
-const SYSTEM_CONTEXT_POSTFIX = '';
+const systemContexts: { [key: string]: string } = {
+  '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
+  '/summarize':
+    'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
+  '/editorial': 'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。',
+  '/generate': 'あなたは指示に従って文章を作成するライターです。',
+  '/translate': 'あなたは文章の意図を汲み取り適切な翻訳を行う翻訳者です。',
+  '/rag': '',
+  '/image': `あなたはStable Diffusionのプロンプトを生成するAIアシスタントです。
+以下の step でStableDiffusionのプロンプトを生成してください。
 
-export const CasualOptionList = [
-  {
-    label: '1',
-    value: 1,
-  },
-  {
-    label: '2',
-    value: 2,
-  },
-  {
-    label: '3',
-    value: 3,
-  },
-  {
-    label: '4',
-    value: 4,
-  },
-  {
-    label: '5',
-    value: 5,
-  },
-];
+<step>
+* rule を理解してください。ルールは必ず守ってください。例外はありません。
+* ユーザは生成して欲しい画像の要件をチャットで指示します。チャットのやり取りを全て理解してください。
+* チャットのやり取りから、生成して欲しい画像の特徴を正しく認識してください。
+* 画像生成において重要な要素をから順にプロンプトに出力してください。ルールで指定された文言以外は一切出力してはいけません。例外はありません。
+</step>
 
-// チャット
-export const ChatPrompt = {
-  systemContext:
-    'あなたはチャットでユーザを支援するAIアシスタントです。' +
-    SYSTEM_CONTEXT_POSTFIX,
+<rule>
+* プロンプトは output-format の通りに、JSON形式で出力してください。JSON以外の文字列は一切出力しないでください。JSONの前にも後にも出力禁止です。
+* JSON形式以外の文言を出力することは一切禁止されています。挨拶、雑談、ルールの説明など一切禁止です。
+* 出力するプロンプトがない場合は、promptとnegativePromptを空文字にして、commentにその理由を記載してください。
+* プロンプトは単語単位で、カンマ区切りで出力してください。長文で出力しないでください。プロンプトは必ず英語で出力してください。
+* プロンプトには以下の要素を含めてください。
+ * 画像のクオリティ、被写体の情報、衣装・ヘアスタイル・表情・アクセサリーなどの情報、画風に関する情報、背景に関する情報、構図に関する情報、ライティングやフィルタに関する情報
+* 画像に含めたくない要素については、negativePromptとして出力してください。なお、negativePromptは必ず出力してください。
+* フィルタリング対象になる不適切な要素は出力しないでください。
+* comment は comment-rule の通りに出力してください。
+* recommendedStylePreset は recommended-style-preset-rule の通りに出力してください。
+</rule>
+
+<comment-rule>
+* 必ず「画像を生成しました。続けて会話することで、画像を理想に近づけていくことができます。以下が改善案です。」という文言を先頭に記載してください。
+* 箇条書きで3つ画像の改善案を提案してください。
+* 改行は\\nを出力してください。
+</comment-rule>
+
+<recommended-style-preset-rule>
+* 生成した画像と相性の良いと思われるStylePresetを3つ提案してください。必ず配列で設定してください。
+* StylePresetは、以下の種類があります。必ず以下のものを提案してください。
+ * 3d-model,analog-film,anime,cinematic,comic-book,digital-art,enhance,fantasy-art,isometric,line-art,low-poly,modeling-compound,neon-punk,origami,photographic,pixel-art,tile-texture
+</recommended-style-preset-rule>
+
+<output-format>
+{
+  prompt: string,
+  negativePrompt: string,
+  comment: string
+  recommendedStylePreset: string[]
+}
+</output-format>`,
 };
 
-// 文章要約
-export const SummarizePrompt = {
-  systemContext:
-    'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。' +
-    SYSTEM_CONTEXT_POSTFIX,
-  summaryContext: (sentence: string, context?: string): string => {
-    return `以下の文章を要約してください。
-出力は、要約した文章だけにしてください。それ以外の文章は一切出力しないでください。
+export const getSystemContextById = (id: string) => {
+  if (id.startsWith('/chat/')) {
+    return systemContexts['/chat'];
+  }
 
-# 要約対象の文章
-${sentence}
-
-${
-  !context
-    ? ''
-    : `# 要約時に考慮して欲しいこと
-${context}`
-}
-`;
-  },
+  return systemContexts[id] || systemContexts['/chat'];
 };
 
-// メール生成
-export const GenerateMailPrompt = {
-  systemContext:
-    'あなたはメール文章の作成を支援するAIアシスタントです。最初のチャットでメール文章生成の指示を出すので、その後のチャットで生成結果の改善を行なってください。',
-  generationContext: (params: GenerateMailParams): string => {
-    return `以下の条件をもとに、メール文章を作成してください。
-なお、「シナリオ」を指定されている場合は、それを元にメール文章の作成を行なってください。
+export type ChatParams = {
+  content: string;
+};
 
-出力は、生成したメール文章だけにしてください。それ以外の文章は一切出力しないでください。例外はありません。
-
-# メールを送る目的・状況
-${params.situation}
-
-# このメールで相手に伝えたいこと
-${params.message}
-
-# このメールで相手に行なって欲しいこと
-${params.action ? params.action : '特になし'}
-
-# 前提条件
-${
-  !params.recipientAttr
-    ? ''
-    : `## 送信先の情報
-${params.recipientAttr}
-`
+export function chatPrompt(params: ChatParams) {
+  return params.content;
 }
-${
-  !params.recipient
-    ? ''
-    : `## 送信先
-${params.recipient}
-`
-}
-${
-  !params.sender
-    ? ''
-    : `## 発信者
-${params.sender}
-`
-}
+
+export type SummarizeParams = {
+  sentence: string;
+  context?: string;
+};
+
+export function summarizePrompt(params: SummarizeParams) {
+  return `以下の <要約対象の文章></要約対象の文章> の xml タグで囲われた文章を要約してください。
+
+<要約対象の文章>
+${params.sentence}
+</要約対象の文章>
+
 ${
   !params.context
     ? ''
-    : `## メール生成の前提条件
-${params.context}`
-}
-${
-  !params.otherContext
-    ? ''
-    : `## その他の考慮して欲しいこと
-${params.otherContext}`
+    : `要約する際、以下の <要約時に考慮して欲しいこと></要約時に考慮して欲しいこと> の xml タグで囲われた内容を考慮してください。
+
+    <要約時に考慮して欲しいこと>
+    ${params.context}
+  </要約時に考慮して欲しいこと>
+    `
 }
 
-## メール文章のカジュアル度
-「5段階中${params.casual}」のカジュアル度でメールを書いてください。
-5が友人に送るレベルのカジュアルさ、1がお客様に送るレベルのカジュアルさです。
-
+要約した文章だけを出力してください。それ以外の文章は一切出力しないでください。
+出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。
 `;
-  },
-  autoFillContext: `あなたは、メール文章を元にメタ情報を抽出するAIアシスタントです。
-チャットでメール本文を送るので、あなたはメールの本文からメタ情報を抽出してください。`,
-  autoFillFormat: (isReply: boolean) =>
-    ({
-      recipientAttr:
-        'メール受信者の肩書きや所属会社などの属性を記載してください。',
-      recipient:
-        'メールの受信者を記載してください。なお、「様」や「さん」および、「課長」や「部長」などの肩書きなどは除いて出力してください。',
-      senderAttr:
-        'メール送信者の肩書きや所属会社などの属性を記載してください。',
-      sender:
-        'メールの送信者を記載してください。なお、「様」や「さん」および、「課長」や「部長」などの肩書きなどは除いて出力してください。',
-      summary:
-        'メール内容を要約してください。「〜について」という文章にしてください。',
-      situation: 'メールの送信されたシチュエーションを詳しく記載してください。',
-      message:
-        '送信者が受信者にこのメールで伝えたことを詳細に記載してください。',
-      action: isReply
-        ? 'メールの受信者が行うべきことを一言で表してください。「〜をお願いします」という文章には絶対しないでください。'
-        : '送信者が受信者に起こしてほしいアクションを記載してください。5W2Hの形式で記載してください',
-      other: '上記以外で重要なことを記載してください。',
-    }) as GenerateMailAutoFillFormat,
-
-  fillNewMailParams: (
-    metadata: GenerateMailAutoFillFormat
-  ): GenerateMailParams => ({
-    recipientAttr: metadata.recipientAttr,
-    recipient: metadata.recipient,
-    sender: metadata.sender,
-    context: metadata.summary,
-    situation: metadata.situation,
-    casual: 3,
-    message: metadata.message,
-    action: metadata.action,
-    otherContext: metadata.other,
-  }),
-  fillReplyMailParams: (
-    metadata: GenerateMailAutoFillFormat
-  ): GenerateMailParams => ({
-    // メールの送信者と受信者を逆にして設定する
-    recipient: metadata.sender,
-    recipientAttr: metadata.senderAttr,
-    sender: metadata.recipient,
-    context: metadata.summary + 'の返信メール',
-    // メールを送る状況に返信対象メールの詳細を設定
-    situation: `## シナリオ
-あなたは「## 発信者」という名前で「${metadata.action}」を行う役割です。「## 送信先」から送られてきた「## 要約されたメール」に返信する必要があります。
-あなたは、「# このメールで相手に伝えたいこと」という意思があり、「# このメールで相手に行なって欲しいこと」というお願いをしたいです。
-あなたは、これらの条件をもとに「## 送信先」への返信メールを書いてください。
-
-## 要約されたメール
-${metadata.situation}
-${metadata.message}
-`,
-    casual: 3,
-    message: '',
-  }),
-};
-
-// メッセージ生成
-export const GenerateMessagePrompt = {
-  systemContext: `あなたは返信文章を生成するAIアシスタントです。
-ユーザが非常に簡素な返信文章を入力するので、それをもとに返信用の文章を生成してください。`,
-  generateMessage: (params: GenerateMessageParams): string => {
-    return `以下の条件をもとに、返信用の文章を生成してください。
-文章生成は、以下のステップで行なってください。
-
-* まずは前提条件を理解してください。この前提条件は必ず守ってください。
-* 「相手からのメッセージ」を理解してください。このメッセージに対する返信文章生成を行います。
-* 「自分が伝えたいこと」をもとに返信文章の生成を行なってください。必ず「相手からのメッセージ」を考慮した文章とし、理由を含めた文章にしてください。
-
-なお、出力は生成した文章だけにしてください。それ以外の文章は一切出力しないでください。例外はありません。
-
-# 前提条件
-## メッセージ生成の前提条件
-${params.context}
-
-## 現在の状況
-${params.situation}
-
-## 返信文章のカジュアル度
-「5段階中${params.casual}」のカジュアル度でメッセージを書いてください。
-5が友人に送るレベルのカジュアルさ、1がお客様に送るレベルのカジュアルさです。
-
-${
-  !params.otherContext
-    ? ''
-    : `## その他の考慮して欲しいこと
-${params.otherContext}`
 }
 
-# 相手からのメッセージ
-${params.recipientMessage}
-
-# 自分が伝えたいこと
-${params.senderMessage}`;
-  },
+export type EditorialParams = {
+  sentence: string;
+  context?: string;
 };
+
+export function editorialPrompt(params: EditorialParams) {
+  return `inputの文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は具体的に指摘してください。
+<input>
+${params.sentence}
+</input>
+${
+  params.context
+    ? 'ただし、修正案や指摘は以下の <その他指摘してほしいこと></その他指摘してほしいこと>の xml タグで囲われたことを考慮してください。 <その他指摘してほしいこと>' +
+      params.context +
+      '</その他指摘してほしいこと>'
+    : ''
+}
+出力は、必ずJSON形式で行ってください。それ以外の文言は一切出力してはいけません。例外はありません。xml のタグも出力してはいけません。
+出力のJSONは、以下の<output-format></output-format> の xml タグで囲われた形式に沿った JSON Array形式としてください。項目の追加と削除は絶対にしないでください。
+<output-format>
+[{excerpt: string; replace?: string; comment?: string}]
+</output-format>
+指摘事項がない場合は空配列を出力してください。「指摘事項はありません」「誤字脱字はありません」などの出力は一切不要です。
+`;
+}
+
+export type GenerateTextParams = {
+  information: string;
+  context: string;
+};
+
+export function generateTextPrompt(params: GenerateTextParams) {
+  return `<input>の情報から指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
+出力は<output></output>のxmlタグで囲んでください。
+<input>
+${params.information}
+</input>
+<作成する文章の形式>
+${params.context}
+</作成する文章の形式>`;
+}
+
+export type TranslateParams = {
+  sentence: string;
+  language: string;
+  context?: string;
+};
+
+export function translatePrompt(params: TranslateParams) {
+  return `<input></input>の xml タグで囲われた文章を ${
+    params.language
+  } に翻訳してください。
+翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。
+<input>
+${params.sentence}
+</input>
+${
+  !params.context
+    ? ''
+    : `ただし、翻訳時に<考慮して欲しいこと></考慮して欲しいこと> の xml タグで囲われた内容を考慮してください。<考慮して欲しいこと>${params.context}</考慮して欲しいこと>`
+}
+
+出力は翻訳結果だけを <output></output> の xml タグで囲って出力してください。
+それ以外の文章は一切出力してはいけません。例外はありません。
+`;
+}
+
+export type RagParams = {
+  promptType: 'RETRIEVE' | 'SYSTEM_CONTEXT';
+  retrieveQueries?: string[];
+  referenceItems?: RetrieveResultItem[];
+};
+
+export function ragPrompt(params: RagParams) {
+  if (params.promptType === 'RETRIEVE') {
+    return `あなたは、文書検索で利用するQueryを生成するAIアシスタントです。
+以下の手順通りにQueryを生成してください。
+
+<Query生成の手順>
+* 以下の<Query履歴>の内容を全て理解してください。履歴は古い順に並んでおり、一番下が最新のQueryです。
+* 「要約して」などの質問ではないQueryは全て無視してください
+* 「〜って何？」「〜とは？」「〜を説明して」というような概要を聞く質問については、「〜の概要」と読み替えてください。
+* ユーザが最も知りたいことは、最も新しいQueryの内容です。最も新しいQueryの内容を元に、30トークン以内でQueryを生成してください。
+* 出力したQueryに主語がない場合は、主語をつけてください。主語の置き換えは絶対にしないでください。
+* 主語や背景を補完する場合は、「# Query履歴」の内容を元に補完してください。
+* Queryは「〜について」「〜を教えてください」「〜について教えます」などの語尾は絶対に使わないでください
+* 出力するQueryがない場合は、「No Query」と出力してください
+* 出力は生成したQueryだけにしてください。他の文字列は一切出力してはいけません。例外はありません。
+</Query生成の手順>
+
+<Query履歴>
+${params.retrieveQueries!.map((q) => `* ${q}`).join('\n')}
+</Query履歴>
+`;
+  } else {
+    return `あなたはユーザの質問に答えるAIアシスタントです。
+以下の手順でユーザの質問に答えてください。手順以外のことは絶対にしないでください。
+
+<回答手順>
+* 「# 参考ドキュメント」に回答の参考となるドキュメントを設定しているので、それを全て理解してください。なお、この「# 参考ドキュメント」は「# 参考ドキュメントのJSON形式」のフォーマットで設定されています。
+* 「# 回答のルール」を理解してください。このルールは絶対に守ってください。ルール以外のことは一切してはいけません。例外は一切ありません。
+* チャットでユーザから質問が入力されるので、あなたは「# 参考ドキュメント」の内容をもとに「# 回答のルール」に従って回答を行なってください。
+</回答手順>
+
+<参考ドキュメントのJSON形式>
+{
+"DocumentId": "ドキュメントを一意に特定するIDです。",
+"DocumentTitle": "ドキュメントのタイトルです。",
+"DocumentURI": "ドキュメントが格納されているURIです。",
+"Content": "ドキュメントの内容です。こちらをもとに回答してください。",
+}[]
+</参考ドキュメントのJSON形式>
+
+<参考ドキュメント>
+[
+${params
+  .referenceItems!.map((item) => {
+    return `${JSON.stringify({
+      DocumentId: item.DocumentId,
+      DocumentTitle: item.DocumentTitle,
+      DocumentURI: item.DocumentURI,
+      Content: item.Content,
+    })}`;
+  })
+  .join(',\n')}
+]
+</参考ドキュメント>
+
+<回答のルール>
+* 雑談や挨拶には応じないでください。「私は雑談はできません。通常のチャット機能をご利用ください。」とだけ出力してください。他の文言は一切出力しないでください。例外はありません。
+* 必ず<参考ドキュメント>をもとに回答してください。<参考ドキュメント>から読み取れないことは、絶対に回答しないでください。
+* 回答の最後に、回答の参考にした「# 参考ドキュメント」を出力してください。「---\n#### 回答の参考ドキュメント」と見出しを出力して、ハイパーリンク形式でDocumentTitleとDocumentURIを出力してください。
+* <参考ドキュメント>をもとに回答できない場合は、「回答に必要な情報が見つかりませんでした。」とだけ出力してください。例外はありません。
+* 質問に具体性がなく回答できない場合は、質問の仕方をアドバイスしてください。
+* 回答文以外の文字列は一切出力しないでください。回答はJSON形式ではなく、テキストで出力してください。見出しやタイトル等も必要ありません。
+</回答のルール>
+`;
+  }
+}

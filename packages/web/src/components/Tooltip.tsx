@@ -3,17 +3,23 @@ import { BaseProps } from '../@types/common';
 
 type Props = BaseProps & {
   message: string;
+  direction?: 'left' | 'right';
   children: React.ReactNode;
 };
 
 const Tooltip: React.FC<Props> = (props) => {
   return (
-    <span className={`${props.className ?? ''} group relative`}>
-      <span className="invisible absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-500 px-2 py-1 text-sm text-white opacity-0 transition group-hover:visible group-hover:opacity-100">
-        {props.message}
-      </span>
+    <div className={`${props.className ?? ''} group relative`}>
+      <div
+        className={`${
+          props.direction === 'left' ? 'right-0' : ''
+        } invisible absolute -top-5 z-50 bg-transparent p-3 pl-5 pt-8 text-xs font-normal text-white opacity-0 transition group-hover:visible group-hover:opacity-100`}>
+        <div className="w-64 rounded border border-gray-400 bg-black/60 p-1 ">
+          {props.message}
+        </div>
+      </div>
       {props.children}
-    </span>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 import {
   RecordedMessage,
-  ShownMessage,
   ToBeRecordedMessage,
   UnrecordedMessage,
 } from './message';
@@ -9,6 +8,7 @@ import {
   QueryCommandOutput,
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
+import { GenerateImageParams } from './image';
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -75,3 +75,6 @@ export type RetrieveKendraRequest = {
 };
 
 export type RetrieveKendraResponse = RetrieveCommandOutput;
+
+export type GenerateImageRequest = GenerateImageParams;
+export type GenerateImageResponse = string;
