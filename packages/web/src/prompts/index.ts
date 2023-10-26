@@ -236,12 +236,3 @@ ${params
 `;
   }
 }
-
-// export type GenerateImageParams = {
-//   context: string;
-// };
-
-// export function generateImagePrompt(params: GenerateImageParams) {
-//   return `
-// `;
-// }

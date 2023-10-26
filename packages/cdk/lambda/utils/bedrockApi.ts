@@ -61,6 +61,9 @@ const bedrockApi: ApiInterface = {
     }
   },
   generateImage: async (params) => {
+    // 現状 StableDiffusion のみの対応です。
+    // パラメータは以下を参照
+    // https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
     const command = new InvokeModelCommand({
       modelId: process.env.IMAGE_GEN_MODEL_NAME,
       body: JSON.stringify({

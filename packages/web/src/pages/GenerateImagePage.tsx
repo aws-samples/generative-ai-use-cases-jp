@@ -14,7 +14,7 @@ import { produce } from 'immer';
 import Help from '../components/Help';
 import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
-import Image from '../components/Image';
+import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
 
 const MAX_SAMPLE = 7;
@@ -156,6 +156,9 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
   };
 });
 
+// StableDiffusion の StylePreset
+// 一覧は、以下の style_preset を参照
+// https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
 const stylePresetOptions = [
   '3d-model',
   'analog-film',
@@ -407,7 +410,7 @@ const GenerateImagePage: React.FC = () => {
 
             <div className="order-1 col-span-5 col-start-8">
               <div className="flex justify-center">
-                <Image
+                <Base64Image
                   className="h-72 w-72"
                   imageBase64={image[selectedImageIndex].base64}
                   loading={generating}
@@ -419,7 +422,7 @@ const GenerateImagePage: React.FC = () => {
                 {image.map((image, idx) => (
                   <React.Fragment key={idx}>
                     {idx < imageSample && (
-                      <Image
+                      <Base64Image
                         className={`${
                           idx === selectedImageIndex ? 'ring-1' : ''
                         } mt-3 h-16 w-16`}
@@ -506,10 +509,11 @@ const GenerateImagePage: React.FC = () => {
                       初期画像
                       <Help
                         className="ml-1"
-                        text="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                        direction="left"
+                        message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
                       />
                     </div>
-                    <Image
+                    <Base64Image
                       className="h-32 w-32"
                       imageBase64={initImageBase64}
                     />

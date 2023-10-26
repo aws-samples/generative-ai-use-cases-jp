@@ -11,7 +11,7 @@ type Props = BaseProps & {
   onClick?: () => void;
 };
 
-const Image: React.FC<Props> = (props) => {
+const Base64Image: React.FC<Props> = (props) => {
   const onClick = useCallback(() => {
     if (props.clickable) {
       props.onClick ? props.onClick() : null;
@@ -62,4 +62,4 @@ const Image: React.FC<Props> = (props) => {
   );
 };
 
-export default Image;
+export default Base64Image;

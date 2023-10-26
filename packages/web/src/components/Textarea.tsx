@@ -43,7 +43,7 @@ const Textarea: React.FC<Props> = (props) => {
       {props.label && (
         <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
-          {props.help && <Help className="ml-1" text={props.help} />}
+          {props.help && <Help className="ml-1" message={props.help} />}
           {props.optional && (
             <span className="ml-2 text-xs italic text-gray-500">
               - Optional

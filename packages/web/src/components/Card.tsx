@@ -18,7 +18,7 @@ const Card: React.FC<Props> = (props) => {
       {props.label && (
         <RowItem className="flex items-center">
           <span className="font-semibold">{props.label}</span>
-          {props.help && <Help className="ml-1" text={props.help} />}
+          {props.help && <Help className="ml-1" message={props.help} />}
         </RowItem>
       )}
       {props.children}

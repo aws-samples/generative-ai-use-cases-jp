@@ -51,7 +51,9 @@ const ModalDialog: React.FC<Props> = (props) => {
                     as="h3"
                     className="text-aws-font-color flex items-center border-b pb-2 text-lg font-medium leading-6">
                     {props.title}
-                    {props.help && <Help className="ml-2" text={props.help} />}
+                    {props.help && (
+                      <Help className="ml-2" message={props.help} />
+                    )}
                   </Dialog.Title>
 
                   <div className="mt-3">
