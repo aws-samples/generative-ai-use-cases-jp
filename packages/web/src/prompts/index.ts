@@ -28,6 +28,7 @@ const systemContexts: { [key: string]: string } = {
 * 画像に含めたくない要素については、negativePromptとして出力してください。なお、negativePromptは必ず出力してください。
 * フィルタリング対象になる不適切な要素は出力しないでください。
 * comment は comment-rule の通りに出力してください。
+* recommendedStylePreset は recommended-style-preset-rule の通りに出力してください。
 </rule>
 
 <comment-rule>
@@ -36,11 +37,18 @@ const systemContexts: { [key: string]: string } = {
 * 改行は\\nを出力してください。
 </comment-rule>
 
+<recommended-style-preset-rule>
+* 生成した画像と相性の良いと思われるStylePresetを3つ提案してください。必ず配列で設定してください。
+* StylePresetは、以下の種類があります。必ず以下のものを提案してください。
+ * 3d-model,analog-film,anime,cinematic,comic-book,digital-art,enhance,fantasy-art,isometric,line-art,low-poly,modeling-compound,neon-punk,origami,photographic,pixel-art,tile-texture
+</recommended-style-preset-rule>
+
 <output-format>
 {
   prompt: string,
   negativePrompt: string,
   comment: string
+  recommendedStylePreset: string[]
 }
 </output-format>`,
 };

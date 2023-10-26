@@ -228,7 +228,7 @@ const GenerateImagePage: React.FC = () => {
   }, []);
 
   const generateImage = useCallback(
-    async (_prompt: string, _negativePrompt: string) => {
+    async (_prompt: string, _negativePrompt: string, _stylePreset?: string) => {
       clearImage();
       setGenerating(true);
 
@@ -254,7 +254,7 @@ const GenerateImagePage: React.FC = () => {
           cfgScale,
           seed: _seed,
           step,
-          stylePreset,
+          stylePreset: _stylePreset ?? stylePreset,
           initImage: initImageBase64,
           imageStrength: imageStrength,
         })
@@ -347,11 +347,14 @@ const GenerateImagePage: React.FC = () => {
                   content={chatContent}
                   onChangeContent={setChatContent}
                   isGeneratingImage={generating}
-                  onGenerate={(p, np) => {
+                  onGenerate={(p, np, sp) => {
                     setSelectedImageIndex(0);
                     setPrompt(p);
                     setNegativePrompt(np);
-                    return generateImage(p, np);
+                    if (sp !== undefined) {
+                      setStylePreset(sp);
+                    }
+                    return generateImage(p, np, sp);
                   }}
                 />
               </div>

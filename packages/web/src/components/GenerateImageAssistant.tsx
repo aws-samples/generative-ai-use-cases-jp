@@ -11,7 +11,11 @@ type Props = BaseProps & {
   content: string;
   isGeneratingImage: boolean;
   onChangeContent: (s: string) => void;
-  onGenerate: (prompt: string, negativePrompt: string) => Promise<void>;
+  onGenerate: (
+    prompt: string,
+    negativePrompt: string,
+    stylePreset?: string
+  ) => Promise<void>;
 };
 
 const GenerateImageAssistant: React.FC<Props> = (props) => {
@@ -31,6 +35,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
             prompt: string | null;
             negativePrompt: string | null;
             comment: string;
+            recommendedStylePreset: string[];
             error?: boolean;
           };
         }
@@ -50,6 +55,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               prompt: null,
               negativePrompt: null,
               comment: '',
+              recommendedStylePreset: [],
             },
           };
         }
@@ -67,6 +73,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               negativePrompt: null,
               comment: '',
               error: true,
+              recommendedStylePreset: [],
             },
           };
         }
@@ -75,6 +82,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading, messages]);
 
   useEffect(() => {
+    // メッセージ追加時の画像の自動生成
     const _length = contents.length;
     if (contents.length === 0) {
       return;
@@ -103,12 +111,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [postChat, props]);
 
   const onRetrySend = useCallback(() => {
-    console.log(messages);
     popMessage();
     const lastMessage = popMessage();
-    console.log(lastMessage);
     postChat(lastMessage?.content ?? '');
-  }, [messages, popMessage, postChat]);
+  }, [popMessage, postChat]);
 
   return (
     <div className="relative h-full w-full">
@@ -204,6 +210,37 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                     {c.content.comment.split('\n').map((m, idx) => (
                       <div key={idx}>{m}</div>
                     ))}
+                    <div className="mt-3">
+                      <div className="font-bold">おすすめの StylePreset</div>
+                      <div className="mt-1 flex gap-3">
+                        {c.content.recommendedStylePreset.flatMap(
+                          (preset, idx) => (
+                            <Button
+                              key={idx}
+                              onClick={() => {
+                                props.onGenerate(
+                                  c.content.prompt ?? '',
+                                  c.content.negativePrompt ?? '',
+                                  preset
+                                );
+                              }}>
+                              {preset}
+                            </Button>
+                          )
+                        )}
+                        <Button
+                          outlined
+                          onClick={() => {
+                            props.onGenerate(
+                              c.content.prompt ?? '',
+                              c.content.negativePrompt ?? '',
+                              ''
+                            );
+                          }}>
+                          未設定
+                        </Button>
+                      </div>
+                    </div>
                   </>
                 )}
               </>
