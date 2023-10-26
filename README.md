@@ -7,6 +7,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 ![sc_lp.png](/imgs/sc_lp.png)
 
 - **このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+  - 画像生成のユースケースをご利用になる際は、Stability AI の StableDiffusion XL モデルを有効化する必要があります。上記の手順と同じ要領で、Stability AI の StableDiffusion XL モデルを有効化してください。
 - **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
 
 ## 機能一覧
