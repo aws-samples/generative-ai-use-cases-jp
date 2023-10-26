@@ -14,7 +14,7 @@ const Card: React.FC<Props> = (props) => {
     <div
       className={`${
         props.className ?? ''
-      } border-aws-font-color/20 rounded-lg border bg-white p-5 shadow `}>
+      } border-aws-font-color/20 rounded-lg border p-5 shadow`}>
       {props.label && (
         <RowItem className="flex items-center">
           <span className="font-semibold">{props.label}</span>
