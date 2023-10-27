@@ -107,6 +107,14 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
+
+(Option) 東京リージョンにデプロイする場合 ※東京リージョンにて Cloud9 を立ち上げていただいてから上記コマンドと合わせて `npm run cdk:deploy
+` の代わりに実行ください
+
+```bash
+npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+```
+
 ### RAG 有効化
 
 RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
@@ -120,6 +128,7 @@ npm run cdk:deploy
 ```
 
 続いて、Kendra の Data source の Sync を以下の手順で行なってください。
+
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
