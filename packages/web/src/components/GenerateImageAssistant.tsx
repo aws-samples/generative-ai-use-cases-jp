@@ -211,10 +211,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                       ))}
                       <div className="mt-3">
                         <div className="font-bold">おすすめの StylePreset</div>
-                        <div className="mt-1 flex gap-3">
+                        <div className="mt-1 grid grid-cols-2 gap-1 xl:flex xl:gap-3">
                           {c.content.recommendedStylePreset.flatMap(
                             (preset, idx) => (
                               <Button
+                                className=""
                                 key={idx}
                                 onClick={() => {
                                   props.onGenerate(
