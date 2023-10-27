@@ -77,12 +77,14 @@ const items: ItemProps[] = [
     icon: <PiImages />,
     usecase: true,
   },
-  {
-    label: 'Kendra 検索',
-    to: '/kendra',
-    icon: <PiMagnifyingGlass />,
-    usecase: false,
-  },
+  ragEnabled
+    ? {
+        label: 'Kendra 検索',
+        to: '/kendra',
+        icon: <PiMagnifyingGlass />,
+        usecase: false,
+      }
+    : null,
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
