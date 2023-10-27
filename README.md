@@ -115,8 +115,6 @@ npm run cdk:deploy
 npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
 ```
 
-RAG のユースケースを試す場合は、Kendra の Data source を手動で Sync する必要があります。以下の手順で行なってください。
-
 ### RAG 有効化
 
 RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
