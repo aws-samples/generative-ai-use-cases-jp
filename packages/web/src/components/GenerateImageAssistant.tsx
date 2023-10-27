@@ -215,7 +215,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                           {c.content.recommendedStylePreset.flatMap(
                             (preset, idx) => (
                               <Button
-                                className=""
                                 key={idx}
                                 onClick={() => {
                                   props.onGenerate(
