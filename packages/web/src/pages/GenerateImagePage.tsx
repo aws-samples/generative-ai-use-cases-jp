@@ -416,8 +416,8 @@ const GenerateImagePage: React.FC = () => {
 
             <Card label="パラメータ" className="mb-14 mt-8">
               <div className="flex flex-col">
-                <div className="mb-8 flex flex-col lg:flex-row">
-                  <div className="flex w-full flex-col items-center justify-center lg:w-1/2">
+                <div className="mb-8 flex flex-col xl:flex-row">
+                  <div className="flex w-full flex-col items-center justify-center xl:w-1/2">
                     <div className="mb-1 flex items-center text-sm font-bold">
                       初期画像
                       <Help
@@ -440,7 +440,7 @@ const GenerateImagePage: React.FC = () => {
                     </Button>
                   </div>
 
-                  <div className="w-full lg:w-1/2">
+                  <div className="w-full xl:w-1/2">
                     <Select
                       label="StylePreset"
                       options={stylePresetOptions}
@@ -468,9 +468,9 @@ const GenerateImagePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row lg:gap-x-4">
+                <div className="flex flex-col xl:flex-row xl:gap-x-4">
                   <RangeSlider
-                    className="w-full lg:w-1/2"
+                    className="w-full xl:w-1/2"
                     label="画像生成数"
                     min={1}
                     max={7}
@@ -480,7 +480,7 @@ const GenerateImagePage: React.FC = () => {
                   />
 
                   <RangeSlider
-                    className="w-full lg:w-1/2"
+                    className="w-full xl:w-1/2"
                     label="CFG Scale"
                     min={0}
                     max={30}
@@ -490,9 +490,9 @@ const GenerateImagePage: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex flex-col lg:flex-row lg:gap-x-4">
+                <div className="flex flex-col xl:flex-row xl:gap-x-4">
                   <RangeSlider
-                    className="w-full lg:w-1/2"
+                    className="w-full xl:w-1/2"
                     label="Step"
                     min={10}
                     max={150}
@@ -502,7 +502,7 @@ const GenerateImagePage: React.FC = () => {
                   />
 
                   <RangeSlider
-                    className="w-full lg:w-1/2"
+                    className="w-full xl:w-1/2"
                     label="ImageStrength"
                     min={0}
                     max={1}
