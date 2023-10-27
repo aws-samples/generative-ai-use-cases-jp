@@ -18,6 +18,7 @@ import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
 
 const MAX_SAMPLE = 7;
+
 type StateType = {
   prompt: string;
   setPrompt: (s: string) => void;
@@ -337,95 +338,68 @@ const GenerateImagePage: React.FC = () => {
         />
       </ModalDialog>
 
-      <div className="grid grid-cols-12">
-        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-          画像生成
-        </div>
-
-        <div className="col-span-12 col-start-1 m-2 ">
-          <div className="grid grid-cols-12 gap-3">
-            <div className="col-span-7 col-start-1">
-              <div className="h-3/5 w-full">
-                <GenerateImageAssistant
-                  content={chatContent}
-                  onChangeContent={setChatContent}
-                  isGeneratingImage={generating}
-                  onGenerate={(p, np, sp) => {
-                    setSelectedImageIndex(0);
-                    setPrompt(p);
-                    setNegativePrompt(np);
-                    if (sp !== undefined) {
-                      setStylePreset(sp);
-                    }
-                    return generateImage(p, np, sp);
-                  }}
-                />
-              </div>
-
-              <div className="ml-3 mt-6 flex gap-3">
-                <div className="w-3/4">
-                  <Textarea
-                    label="プロンプト"
-                    help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
-                    value={prompt}
-                    onChange={setPrompt}
-                    maxHeight={84}
-                    rows={3}
-                  />
-
-                  <Textarea
-                    label="ネガティブプロンプト"
-                    help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
-                    value={negativePrompt}
-                    onChange={setNegativePrompt}
-                    maxHeight={84}
-                    rows={3}
-                  />
-                </div>
-                <div className="w-1/4">
-                  <div className="mt-5 flex flex-col items-center">
-                    <Button
-                      className="h-12 w-full text-lg"
-                      onClick={() => {
-                        setSelectedImageIndex(0);
-                        generateImage(prompt, negativePrompt);
-                      }}
-                      loading={generating || loadingChat}>
-                      生成
-                    </Button>
-
-                    <Button
-                      className="mt-6 h-8 w-full text-lg"
-                      outlined
-                      onClick={() => {
-                        clearAll();
-                      }}
-                      disabled={generating || loadingChat}>
-                      クリア
-                    </Button>
-                  </div>
-                </div>
-              </div>
+      <div className="pt-5">
+        <div className="grid grid-cols-6 gap-x-12 px-8 lg:grid-cols-12 lg:px-32">
+          <div className="col-span-6">
+            <div className="h-[32rem]">
+              <GenerateImageAssistant
+                content={chatContent}
+                onChangeContent={setChatContent}
+                isGeneratingImage={generating}
+                onGenerate={(p, np, sp) => {
+                  setSelectedImageIndex(0);
+                  setPrompt(p);
+                  setNegativePrompt(np);
+                  if (sp !== undefined) {
+                    setStylePreset(sp);
+                  }
+                  return generateImage(p, np, sp);
+                }}
+              />
             </div>
 
-            <div className="order-1 col-span-5 col-start-8">
+            <Card className="flex mt-8">
+              <div className="w-full">
+                <Textarea
+                  label="プロンプト"
+                  help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                  value={prompt}
+                  onChange={setPrompt}
+                  maxHeight={84}
+                  rows={3}
+                />
+
+                <Textarea
+                  label="ネガティブプロンプト"
+                  help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                  value={negativePrompt}
+                  onChange={setNegativePrompt}
+                  maxHeight={84}
+                  rows={3}
+                />
+              </div>
+            </Card>
+          </div>
+
+          <div className="col-span-6">
+            <Card className="mt-8 flex flex-col items-center justify-center lg:mt-0">
               <div className="flex justify-center">
                 <Base64Image
-                  className="h-72 w-72"
+                  className="h-56 w-56"
                   imageBase64={image[selectedImageIndex].base64}
                   loading={generating}
                   error={image[selectedImageIndex].error}
                   errorMessage={image[selectedImageIndex].errorMessage}
                 />
               </div>
-              <div className="mb-6 flex h-16 justify-center gap-3">
+              <div className="flex flex-row justify-center gap-x-2">
                 {image.map((image, idx) => (
                   <React.Fragment key={idx}>
                     {idx < imageSample && (
                       <Base64Image
                         className={`${
                           idx === selectedImageIndex ? 'ring-1' : ''
-                        } mt-3 h-16 w-16`}
+                        } mt-3 h-10 w-10`}
                         imageBase64={image.base64}
                         loading={generating}
                         clickable
@@ -438,10 +412,35 @@ const GenerateImagePage: React.FC = () => {
                   </React.Fragment>
                 ))}
               </div>
+            </Card>
 
-              <Card label="パラメータ" className="mt-3">
-                <div className="flex flex-col xl:flex-row">
-                  <div className="flex flex-col gap-3 xl:w-2/3">
+            <Card label="パラメータ" className="mb-14 mt-8">
+              <div className="flex flex-col">
+                <div className="mb-8 flex flex-col xl:flex-row">
+                  <div className="flex w-full flex-col items-center justify-center xl:w-1/2">
+                    <div className="mb-1 flex items-center text-sm font-bold">
+                      初期画像
+                      <Help
+                        className="ml-1"
+                        direction="left"
+                        message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                      />
+                    </div>
+                    <Base64Image
+                      className="h-32 w-32"
+                      imageBase64={initImageBase64}
+                    />
+                    <Button
+                      className="m-auto mt-2 text-sm"
+                      onClick={() => {
+                        setIsOpenSketch(true);
+                      }}>
+                      <PiFileArrowUp className="mr-2" />
+                      設定
+                    </Button>
+                  </div>
+
+                  <div className="w-full xl:w-1/2">
                     <Select
                       label="StylePreset"
                       options={stylePresetOptions}
@@ -460,75 +459,83 @@ const GenerateImagePage: React.FC = () => {
                       }}
                       help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
                     />
-                    <div className="-mt-3 flex w-full justify-end">
+
+                    <div className="-mt-3 mb-3 flex w-full justify-end text-xs">
                       <Button onClick={onClickRandomSeed}>
                         Seed をランダム設定
                       </Button>
                     </div>
-
-                    <RangeSlider
-                      label="画像生成数"
-                      min={1}
-                      max={7}
-                      value={imageSample}
-                      onChange={setImageSample}
-                      help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
-                    />
-
-                    <RangeSlider
-                      label="CFG Scale"
-                      min={0}
-                      max={30}
-                      value={cfgScale}
-                      onChange={setCfgScale}
-                      help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
-                    />
-
-                    <RangeSlider
-                      label="Step"
-                      min={10}
-                      max={150}
-                      value={step}
-                      onChange={setStep}
-                      help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
-                    />
-
-                    <RangeSlider
-                      label="ImageStrength"
-                      min={0}
-                      max={1}
-                      step={0.01}
-                      value={imageStrength}
-                      onChange={setImageStrength}
-                      help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
-                    />
-                  </div>
-
-                  <div className="order-first m-auto -mt-3 xl:order-none xl:-mt-10 xl:pl-6">
-                    <div className="mb-1 flex items-center text-sm font-bold">
-                      初期画像
-                      <Help
-                        className="ml-1"
-                        direction="left"
-                        message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
-                      />
-                    </div>
-                    <Base64Image
-                      className="h-32 w-32"
-                      imageBase64={initImageBase64}
-                    />
-                    <Button
-                      className="m-auto mt-1"
-                      onClick={() => {
-                        setIsOpenSketch(true);
-                      }}>
-                      <PiFileArrowUp className="mr-2" />
-                      設定
-                    </Button>
                   </div>
                 </div>
-              </Card>
-            </div>
+
+                <div className="flex flex-col xl:flex-row xl:gap-x-4">
+                  <RangeSlider
+                    className="w-full xl:w-1/2"
+                    label="画像生成数"
+                    min={1}
+                    max={7}
+                    value={imageSample}
+                    onChange={setImageSample}
+                    help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+                  />
+
+                  <RangeSlider
+                    className="w-full xl:w-1/2"
+                    label="CFG Scale"
+                    min={0}
+                    max={30}
+                    value={cfgScale}
+                    onChange={setCfgScale}
+                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                  />
+                </div>
+
+                <div className="flex flex-col xl:flex-row xl:gap-x-4">
+                  <RangeSlider
+                    className="w-full xl:w-1/2"
+                    label="Step"
+                    min={10}
+                    max={150}
+                    value={step}
+                    onChange={setStep}
+                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                  />
+
+                  <RangeSlider
+                    className="w-full xl:w-1/2"
+                    label="ImageStrength"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={imageStrength}
+                    onChange={setImageStrength}
+                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-row items-center gap-x-5">
+                <Button
+                  className="h-8 w-full"
+                  onClick={() => {
+                    setSelectedImageIndex(0);
+                    generateImage(prompt, negativePrompt);
+                  }}
+                  loading={generating || loadingChat}>
+                  生成
+                </Button>
+
+                <Button
+                  className="h-8 w-full"
+                  outlined
+                  onClick={() => {
+                    clearAll();
+                  }}
+                  disabled={generating || loadingChat}>
+                  クリア
+                </Button>
+              </div>
+            </Card>
           </div>
         </div>
       </div>

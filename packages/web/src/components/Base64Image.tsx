@@ -28,7 +28,7 @@ const Base64Image: React.FC<Props> = (props) => {
     <div
       className={`${
         props.className ?? ''
-      } flex items-center justify-center rounded border border-black/30 p-3 ${
+      } flex items-center justify-center rounded border border-black/30 ${
         props.clickable ? 'cursor-pointer hover:brightness-50' : ''
       }`}
       onClick={onClick}>

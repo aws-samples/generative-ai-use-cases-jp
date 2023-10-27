@@ -23,7 +23,7 @@ const RangeSlider: React.FC<Props> = (props) => {
           </div>
         )}
         <input
-          className="h-8 w-32 rounded border-black/30"
+          className="h-6 w-32 rounded border-black/30 text-right"
           type="number"
           min={props.min}
           max={props.max}
@@ -34,10 +34,10 @@ const RangeSlider: React.FC<Props> = (props) => {
           }}
         />
       </div>
-      <div className="flex gap-3">
+      <div className="mt-2 flex">
         <input
           type="range"
-          className=" w-full cursor-pointer "
+          className="mb-6 h-1 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
           value={props.value}
           min={props.min}
           max={props.max}
