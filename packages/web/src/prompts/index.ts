@@ -114,8 +114,7 @@ ${
       '</その他指摘してほしいこと>'
     : ''
 }
-出力は、必ずJSON形式で行ってください。それ以外の文言は一切出力してはいけません。例外はありません。xml のタグも出力してはいけません。
-出力のJSONは、以下の<output-format></output-format> の xml タグで囲われた形式に沿った JSON Array形式としてください。項目の追加と削除は絶対にしないでください。
+出力は output-format 形式の JSON Array だけを <output></output> タグで囲って出力してください。
 <output-format>
 [{excerpt: string; replace?: string; comment?: string}]
 </output-format>
