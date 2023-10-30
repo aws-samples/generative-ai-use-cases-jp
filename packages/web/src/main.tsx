@@ -52,7 +52,9 @@ const routes: RouteObject[] = [
   },
   {
     path: '/image',
-    element: <GenerateImagePage />},{
+    element: <GenerateImagePage />,
+  },
+  {
     path: '/transcribe',
     element: <TranscribePage />,
   },

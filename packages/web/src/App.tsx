@@ -91,7 +91,7 @@ const items: ItemProps[] = [
         icon: <PiMagnifyingGlass />,
         usecase: false,
       }
-    : null
+    : null,
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
