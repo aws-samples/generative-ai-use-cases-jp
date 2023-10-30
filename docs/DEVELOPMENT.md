@@ -41,3 +41,11 @@ npm run web:dev
 ```
 
 正常に実行されれば http://localhost:5173 で起動しますので、ブラウザからアクセスしてみてください。
+
+## Pull Request を出す場合
+
+バグ修正や機能改善などの Pull Request は歓迎しております。コミットする前に、lint ツールを実行してください。
+
+```bash
+npm run lint
+```

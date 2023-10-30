@@ -1,4 +1,4 @@
-# Amazon Bedrock を利用する場合
+# Amazon Bedrock の違うモデルを利用したい場合
 
 このソリューションではデフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。
 
@@ -13,7 +13,13 @@ promptTemplate はプロンプトを構築するためのテンプレートを J
 
 ## デプロイの例
 
-**Claude Instant**
+**ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する**
+
+```bash
+npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+```
+
+**us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する**
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=us-east-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
