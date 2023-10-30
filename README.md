@@ -107,7 +107,7 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-- [参考 (別のリージョン or モデルを利用したい場合)](/docs/BEDROCK.md)
+- [参考 (別のモデル or リージョンを利用したい場合)](/docs/BEDROCK.md)
 
 ### RAG 有効化
 
@@ -137,7 +137,7 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 ## その他のドキュメント
 - モデル・リージョンの切り替え
-  - [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md)
+  - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
   - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
 - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
 

@@ -1,6 +1,6 @@
 # Amazon Bedrock の違うモデルを利用したい場合
 
-このソリューションではデフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。
+このソリューションはデフォルトで `us-east-1` の `anthropic.claude-v2` を利用しています。
 
 CDK Deploy 時のパラメータもしくは `packages/cdk/cdk.json` で Context として指定することでリージョン、モデル、プロンプトを変更することが可能です。
 
