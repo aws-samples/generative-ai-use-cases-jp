@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
 import ButtonIcon from './ButtonIcon';
 import { PiSignOut, PiX, PiGithubLogo } from 'react-icons/pi';
-import { ReactComponent as MLLogo } from '../assets/model.svg';
+import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import ChatList from './ChatList';
 
 export type ItemProps = BaseProps & {
@@ -31,7 +31,7 @@ const Item: React.FC<ItemProps> = (props) => {
   }, []);
   return (
     <Link
-      className={`hover:bg-aws-sky flex h-8 items-center rounded p-2 ${
+      className={`hover:bg-aws-sky flex h-8 mt-0.5 items-center rounded p-2 ${
         location.pathname === props.to && 'bg-aws-sky'
       } ${props.className}`}
       to={props.to}
@@ -143,7 +143,7 @@ const Drawer: React.FC<Props> = (props) => {
 
           <RefLink
             to="https://aws.amazon.com/jp/bedrock/"
-            icon={<MLLogo className="w-4 fill-white" />}
+            icon={<BedrockIcon className="w-4 fill-white" />}
             label="Bedrock"
           />
           <RefLink

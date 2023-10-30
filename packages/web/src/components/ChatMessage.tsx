@@ -6,7 +6,7 @@ import ButtonFeedback from './ButtonFeedback';
 import { PiUserFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
-import { ReactComponent as MLLogo } from '../assets/model.svg';
+import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import useChat from '../hooks/useChat';
 
 type Props = BaseProps & {
@@ -56,7 +56,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
           {chatContent?.role === 'assistant' && (
             <div className="bg-aws-ml h-min rounded p-1">
-              <MLLogo className="h-7 w-7 fill-white" />
+              <BedrockIcon className="h-7 w-7 fill-white" />
             </div>
           )}
 

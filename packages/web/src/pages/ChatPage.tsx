@@ -5,7 +5,7 @@ import useChat from '../hooks/useChat';
 import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
-import { ReactComponent as MLLogo } from '../assets/model.svg';
+import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 
 type StateType = {
   content: string;
@@ -74,7 +74,7 @@ const ChatPage: React.FC = () => {
 
         {loadingMessages && (
           <div className="relative flex h-screen flex-col items-center justify-center">
-            <MLLogo className="animate-pulse fill-gray-400" />
+            <BedrockIcon className="animate-pulse fill-gray-400" />
           </div>
         )}
 
