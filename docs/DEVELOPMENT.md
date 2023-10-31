@@ -4,6 +4,8 @@
 
 ### Unix 系コマンドが使えるユーザー (Linux, MacOS 等)
 
+以下のコマンドを実行することで、必要な環境変数を CloudFormation の Output から動的に取得し、サーバーを起動します。
+
 ```bash
 npm run web:devw
 ```
@@ -41,3 +43,11 @@ npm run web:dev
 ```
 
 正常に実行されれば http://localhost:5173 で起動しますので、ブラウザからアクセスしてみてください。
+
+## Pull Request を出す場合
+
+バグ修正や機能改善などの Pull Request は歓迎しております。コミットする前に、lint ツールを実行してください。
+
+```bash
+npm run lint
+```

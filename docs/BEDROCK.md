@@ -1,6 +1,6 @@
-# Amazon Bedrock を利用する場合
+# Amazon Bedrock の違うモデルを利用したい場合
 
-このソリューションではデフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。
+このソリューションはデフォルトで `us-east-1` の `anthropic.claude-v2` を利用しています。
 
 CDK Deploy 時のパラメータもしくは `packages/cdk/cdk.json` で Context として指定することでリージョン、モデル、プロンプトを変更することが可能です。
 
@@ -13,7 +13,15 @@ promptTemplate はプロンプトを構築するためのテンプレートを J
 
 ## デプロイの例
 
-**Claude Instant**
+**ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する**
+
+> **現状、モデルのリージョン (modelRegion) として 東京 (ap-northeast-1) を指定した場合、画像生成のユースケースは動作しません。東京リージョンの Amazon Bedrock で Stable Diffusion XL モデルがサポートされ次第、利用可能になります。**
+
+```bash
+npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+```
+
+**us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する**
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=us-east-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json

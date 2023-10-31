@@ -6,9 +6,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-- **このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
-  - 画像生成のユースケースをご利用になる際は、Stability AI の StableDiffusion XL モデルを有効化する必要があります。上記の手順と同じ要領で、Stability AI の StableDiffusion XL モデルを有効化してください。
-- **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
+> **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
 
 ## 機能一覧
 
@@ -89,6 +87,8 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## デプロイ
 
+**このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+
 [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)でもデプロイ手順を確認できます。
 
 ```bash
@@ -107,13 +107,7 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-
-(Option) 東京リージョンにデプロイする場合 ※東京リージョンにて Cloud9 を立ち上げていただいてから上記コマンドと合わせて `npm run cdk:deploy
-` の代わりに実行ください
-
-```bash
-npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
-```
+- [参考 (別のモデル or リージョンを利用したい場合)](/docs/BEDROCK.md)
 
 ### RAG 有効化
 
@@ -129,7 +123,6 @@ npm run cdk:deploy
 
 続いて、Kendra の Data source の Sync を以下の手順で行なってください。
 
-
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
 1. Data sources をクリック
@@ -138,20 +131,15 @@ npm run cdk:deploy
 
 Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
 
-### モデル・リージョンの切り替え
+### 画像生成の有効化
 
-- デフォルトでは `us-east-1` の `anthropic.claude-v2` を利用しています。異なる設定を利用したい場合は [/docs/BEDROCK.md](docs/BEDROCK.md) をご確認ください。
-- Amazon Bedrock ではなく Amazon SageMaker にデプロイしたカスタムモデルを使うことも可能です。詳細は [/docs/SAGEMAKER.md](docs/SAGEMAKER.md) をご確認ください。
+画像生成のユースケースをご利用になる際は、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
 
-## Pull Request を出す場合
-
-バグ修正や機能改善などの Pull Request は歓迎しております。コミットする前に、lint ツールを実行してください。
-
-```bash
-npm run lint
-```
-
-また、ローカル環境の構築手順については [/docs/DEVELOPMENT.md](/docs/DEVELOPMENT.md) をご確認ください。
+## その他のドキュメント
+- モデル・リージョンの切り替え
+  - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
+  - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
+- [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
 
 ## Security
 
