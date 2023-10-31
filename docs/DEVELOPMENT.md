@@ -4,6 +4,8 @@
 
 ### Unix 系コマンドが使えるユーザー (Linux, MacOS 等)
 
+以下のコマンドを実行することで、必要な環境変数を CloudFormation の Output から動的に取得し、サーバーを起動します。
+
 ```bash
 npm run web:devw
 ```
