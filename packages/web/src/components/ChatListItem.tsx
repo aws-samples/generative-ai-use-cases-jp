@@ -90,7 +90,7 @@ const ChatListItem: React.FC<Props> = (props) => {
         />
       )}
       <Link
-        className={`hover:bg-aws-sky group flex  h-8 w-full items-center justify-start rounded p-2  ${
+        className={`hover:bg-aws-sky group flex h-8 w-full items-center justify-start rounded p-2  ${
           props.active && 'bg-aws-sky'
         }
           ${props.className}`}
