@@ -85,9 +85,32 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ![arch.png](/imgs/arch.png)
 
+## デプロイ
+
+**このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+
+[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)でもデプロイ手順を確認できます。
+
+```bash
+npm ci
+```
+
+CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
+
+```bash
+npx -w packages/cdk cdk bootstrap
+```
+
+続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
+
+```bash
+npm run cdk:deploy
+```
+
 ## その他のドキュメント
 - デプロイ
-  - [デプロイと各種設定](/docs/DEPLOYMENT.md) 
+  - [デプロイのオプション](/docs/DEPLOYMENT.md) 
+  - [別のモデル or リージョンを利用したい場合](/docs/BEDROCK.md)
 - モデル・リージョンの切り替え
   - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
   - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
