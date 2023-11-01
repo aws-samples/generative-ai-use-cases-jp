@@ -9,6 +9,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled') || false;
+    const selfSignUpEnabled: boolean = this.node.tryGetContext('selfSignUpEnabled') || false;
 
     const auth = new Auth(this, 'Auth');
     const database = new Database(this, 'Database');
@@ -25,6 +26,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
+      selfSignUpEnabled,
     });
 
     if (ragEnabled) {
@@ -60,6 +62,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'RagEnabled', {
       value: ragEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'SelfSignUpEnabled', {
+      value: selfSignUpEnabled.toString(),
     });
   }
 }

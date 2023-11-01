@@ -123,6 +123,8 @@ const App: React.FC = () => {
       return items.find((i) => i.to === pathname)?.label || '';
     }
   }, [pathname, getConversationTitle]);
+  
+console.log(selfSignUpEnabled);
 
   return (
     <Authenticator hideSignUp={!selfSignUpEnabled}
