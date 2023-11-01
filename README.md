@@ -135,6 +135,17 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 画像生成のユースケースをご利用になる際は、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
 
+### セルフサインアップを無効化する
+
+このソリューションはデフォルトでセルフサインアップが有効化してあります。セルフサインアップを無効にするには、[cdk.json](./packages/cdk/cdk.json)を開き、`selfSignUpEnabled` を `false` に切り替えてから再デプロイしてください。
+
+```json
+  "context": {
+    "ragEnabled": false,
+    "selfSignUpEnabled": true, // true -> false で無効化
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true, 
+```
+
 ## その他のドキュメント
 - モデル・リージョンの切り替え
   - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)

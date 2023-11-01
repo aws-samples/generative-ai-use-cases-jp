@@ -14,8 +14,10 @@ export class Auth extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
+    const selfSignUpEnabled: boolean = this.node.tryGetContext('selfSignUpEnabled') || false;
+    
     const userPool = new UserPool(this, 'UserPool', {
-      selfSignUpEnabled: true,
+      selfSignUpEnabled: selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,
