@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import CardDemo from '../components/CardDemo';
 import Button from '../components/Button';
 import {
@@ -12,11 +12,25 @@ import {
   PiImages,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
+import useChatApi from '../hooks/useChatApi';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
+const SettingItem = (props: { name: string; value: string }) => {
+  return (
+    <div className="border-aws-squid-ink mb-2 w-2/3 border-b-2 border-solid xl:w-1/3">
+      <div className="flex justify-between py-0.5">
+        <div>{props.name}</div>
+        <div>{props.value}</div>
+      </div>
+    </div>
+  );
+};
+
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { getSetting } = useChatApi();
+  const { data: setting, error, isLoading } = getSetting();
 
   const demoChat = () => {
     navigate('/chat', {
@@ -85,108 +99,136 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="pb-24">
-      <div className="mx-3 my-5 flex items-center justify-center text-xl font-semibold">
+      <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
         <AwsIcon className="mr-5 h-20 w-20" />
         生成系 AI を体験してみましょう。
       </div>
 
-      <div className="mx-3 mb-6 mt-10 flex flex-col items-center justify-center lg:flex-row">
-        <Button className="mb-4 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
+      <h1 className="mt-6 flex justify-center text-2xl font-bold">
+        ユースケース一覧
+      </h1>
+
+      <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
+        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
           デモ
         </Button>
-        をクリックすることで、主要なユースケースを体験できます。
+        をクリックすることで、各ユースケースを体験できます。
       </div>
 
-      <div className="mx-20 grid gap-x-20 gap-y-10 md:grid-cols-1 xl:grid-cols-2">
-        <CardDemo label="チャット" onClickDemo={demoChat}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiChatsCircle />
-            </div>
-            <div className="text-sm">
-              LLM
-              とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。
-            </div>
-          </div>
-        </CardDemo>
+      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
+        <CardDemo
+          label="チャット"
+          onClickDemo={demoChat}
+          icon={<PiChatsCircle />}
+          description="LLM とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。"
+        />
         {ragEnabled && (
-          <CardDemo label="RAG チャット" onClickDemo={demoRag}>
-            <div className="flex flex-row items-start">
-              <div className="mr-4 text-7xl">
-                <PiChatCircleText />
-              </div>
-              <div className="text-sm">
-                RAG (Retrieval Augmented Generation) は、情報の検索と LLM
-                の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
-                Kendra から取得した参考ドキュメントをベースに LLM
-                が回答を生成してくれるため、「社内情報に対応した LLM
-                チャット」を簡単に実現することが可能です。
-              </div>
-            </div>
-          </CardDemo>
+          <CardDemo
+            label="RAG チャット"
+            onClickDemo={demoRag}
+            icon={<PiChatCircleText />}
+            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon Kendra から取得した参考ドキュメントをベースに LLM が回答を生成してくれるため、「社内情報に対応した LLM チャット」を簡単に実現することが可能です。"
+          />
         )}
-        <CardDemo label="文章生成" onClickDemo={demoGenerate}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiPencil />
-            </div>
-            <div className="text-sm">
-              あらゆるコンテキストで文章を生成することは LLM
-              が最も得意とするタスクの 1 つです。
-              記事・レポート・メールなど、あらゆるコンテキストに対応します。
-            </div>
-          </div>
-        </CardDemo>
-        <CardDemo label="要約" onClickDemo={demoSummarize}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiNote />
-            </div>
-            <div className="text-sm">
-              LLM
-              は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX
-              の条件は？」「YYY
-              の金額は？」といった情報を取得することが可能です。
-            </div>
-          </div>
-        </CardDemo>
-        <CardDemo label="校正" onClickDemo={demoEditorial}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiPenNib />
-            </div>
-            <div className="text-sm">
-              LLM
-              は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。
-              人に見せる前に LLM
-              に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
-            </div>
-          </div>
-        </CardDemo>
-        <CardDemo label="翻訳" onClickDemo={demoTranslate}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiTranslate />
-            </div>
-            <div className="text-sm">
-              多言語で学習した LLM は、翻訳を行うことも可能です。
-              また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
-            </div>
-          </div>
-        </CardDemo>
-        <CardDemo label="画像生成" onClickDemo={demoGenerateImage}>
-          <div className="flex flex-row items-start">
-            <div className="mr-4 text-7xl">
-              <PiImages />
-            </div>
-            <div className="text-sm">
-              画像生成 AI
-              は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を
-              LLM に支援してもらうことができます。
-            </div>
-          </div>
-        </CardDemo>
+        <CardDemo
+          label="文章生成"
+          onClickDemo={demoGenerate}
+          icon={<PiPencil />}
+          description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
+        />
+        <CardDemo
+          label="要約"
+          onClickDemo={demoSummarize}
+          icon={<PiNote />}
+          description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+        />
+        <CardDemo
+          label="校正"
+          onClickDemo={demoEditorial}
+          icon={<PiPenNib />}
+          description="LLM は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。人に見せる前に LLM に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。"
+        />
+        <CardDemo
+          label="翻訳"
+          onClickDemo={demoTranslate}
+          icon={<PiTranslate />}
+          description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+        />
+        <CardDemo
+          label="画像生成"
+          onClickDemo={demoGenerateImage}
+          icon={<PiImages />}
+          description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+        />
       </div>
+
+      <h1 className="mt-12 flex justify-center text-2xl font-bold">設定情報</h1>
+
+      <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
+        設定の変更はこの画面ではなく{' '}
+        <Link
+          className="text-aws-smile"
+          to="https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html"
+          target="_blank">
+          AWS CDK
+        </Link>{' '}
+        で行います。方法については{' '}
+        <Link
+          className="text-aws-smile"
+          to="https://github.com/aws-samples/generative-ai-use-cases-jp"
+          target="_blank">
+          generative-ai-use-cases-jp
+        </Link>{' '}
+        をご参照ください。
+      </div>
+
+      {isLoading && (
+        <div className="flex justify-center text-sm">読み込み中...</div>
+      )}
+
+      {!isLoading && error && (
+        <div className="flex justify-center text-sm">
+          エラーで取得できませんでした
+        </div>
+      )}
+
+      {!isLoading && !error && setting && (
+        <>
+          <div className="flex w-full flex-col items-center text-sm">
+            <SettingItem name="LLM モデルタイプ" value={setting.modelType} />
+            <SettingItem name="LLM モデル名" value={setting.modelName} />
+            <SettingItem
+              name="LLM プロンプトテンプレート"
+              value={setting.promptTemplateFile}
+            />
+            <SettingItem
+              name="画像生成 モデル名"
+              value={setting.imageGenModelName}
+            />
+            <SettingItem
+              name="LLM & 画像生成 モデルリージョン"
+              value={setting.modelRegion}
+            />
+            <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
+            {setting.modelType === 'bedrock' && (
+              <div className="mt-5 w-2/3 text-xs xl:w-1/3">
+                ユースケース実行時にエラーになる場合は、必ず{' '}
+                <span className="font-bold">{setting.modelRegion}</span> にて{' '}
+                <span className="font-bold">{setting.modelName}</span> と{' '}
+                <span className="font-bold">{setting.imageGenModelName}</span>{' '}
+                を有効化しているか確認してください。有効化する方法については{' '}
+                <Link
+                  className="text-aws-smile"
+                  to="https://github.com/aws-samples/generative-ai-use-cases-jp"
+                  target="_blank">
+                  generative-ai-use-cases-jp
+                </Link>{' '}
+                をご参照ください。
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

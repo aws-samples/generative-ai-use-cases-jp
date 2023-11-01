@@ -78,3 +78,11 @@ export type RetrieveKendraResponse = RetrieveCommandOutput;
 
 export type GenerateImageRequest = GenerateImageParams;
 export type GenerateImageResponse = string;
+
+export type SettingResponse = {
+  modelType: string;
+  modelRegion: string;
+  modelName: string;
+  promptTemplateFile: string;
+  imageGenModelName: string;
+};
