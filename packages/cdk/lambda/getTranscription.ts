@@ -22,11 +22,30 @@ export const handler = async (
     const transcribeClient = new TranscribeClient({});
     const s3Client = new S3Client({});
     const jobName = event.pathParameters!.jobName;
+    const userId = event.requestContext.authorizer!.claims.sub;
 
     const command = new GetTranscriptionJobCommand({
       TranscriptionJobName: jobName,
     });
     const res = await transcribeClient.send(command);
+    console.log();
+
+    if (
+      // job を start した時のユーザーと異なる場合は Forbidden エラーを返却
+      res.TranscriptionJob?.Tags!.find(
+        (tag) => tag.Key === 'userId' && tag.Value !== userId
+      )
+    ) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
+    }
+
     if (res.TranscriptionJob?.TranscriptionJobStatus === 'COMPLETED') {
       const { bucket, key } = parseS3Url(
         res.TranscriptionJob.Transcript!.TranscriptFileUri!

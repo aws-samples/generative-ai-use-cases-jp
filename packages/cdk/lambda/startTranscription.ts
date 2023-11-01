@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   TranscribeClient,
@@ -11,20 +12,25 @@ export const handler = async (
   try {
     const client = new TranscribeClient({});
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
+    const userId = event.requestContext.authorizer!.claims.sub;
+
     const { audioUrl, mediaFormat } = req;
 
-    const currentDateString = new Date()
-      .toISOString()
-      .replace(/[:T-]/g, '')
-      .split('.')[0];
+    const uuid = uuidv4();
 
     const command = new StartTranscriptionJobCommand({
       IdentifyLanguage: true,
       LanguageOptions: ['ja-JP', 'en-US'],
       MediaFormat: mediaFormat,
       Media: { MediaFileUri: audioUrl },
-      TranscriptionJobName: `job-${currentDateString}`,
+      TranscriptionJobName: uuid,
       OutputBucketName: process.env.TRANSCRIPT_BUCKET_NAME,
+      Tags: [
+        {
+          Key: 'userId',
+          Value: userId,
+        },
+      ],
     });
     const res = await client.send(command);
 

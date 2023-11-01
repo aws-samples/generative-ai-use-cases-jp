@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -9,15 +10,12 @@ export const handler = async (
   try {
     const req: GetSignedUrlRequest = JSON.parse(event.body!);
     const mediaFormat = req.mediaFormat;
-    const currentDateString = new Date()
-      .toISOString()
-      .replace(/[:T-]/g, '')
-      .split('.')[0];
+    const uuid = uuidv4();
 
     const client = new S3Client({});
     const command = new PutObjectCommand({
       Bucket: process.env.AUDIO_BUCKET_NAME,
-      Key: `${currentDateString}.${mediaFormat}`,
+      Key: `${uuid}.${mediaFormat}`,
     });
 
     const signedUrl = await getSignedUrl(client, command, { expiresIn: 3600 });
