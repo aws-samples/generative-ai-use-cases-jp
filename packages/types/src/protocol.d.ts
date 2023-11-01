@@ -9,6 +9,7 @@ import {
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
 import { GenerateImageParams } from './image';
+import { MediaFormat } from '@aws-sdk/client-transcribe';
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -78,6 +79,30 @@ export type RetrieveKendraResponse = RetrieveCommandOutput;
 
 export type GenerateImageRequest = GenerateImageParams;
 export type GenerateImageResponse = string;
+
+export type GetSignedUrlRequest = {
+  mediaFormat: MediaFormat;
+};
+
+export type GetSignedUrlResponse = string;
+
+export type StartTranscriptionRequest = {
+  audioUrl: string;
+  mediaFormat: MediaFormat;
+};
+
+export type StartTranscriptionResponse = {
+  jobName: string;
+};
+
+export type GetTranscriptionResponse = {
+  status: string;
+  transcript?: string;
+};
+
+export type UploadAudioRequest = {
+  file: File;
+};
 
 export type SettingResponse = {
   modelType: string;
