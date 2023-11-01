@@ -13,6 +13,7 @@ import {
   PiMagnifyingGlass,
   PiTranslate,
   PiImages,
+  PiSpeakerHighBold,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -78,6 +79,12 @@ const items: ItemProps[] = [
     to: '/image',
     icon: <PiImages />,
     usecase: true,
+  },
+  {
+    label: '音声認識',
+    to: '/transcribe',
+    icon: <PiSpeakerHighBold />,
+    usecase: false,
   },
   ragEnabled
     ? {
