@@ -25,6 +25,7 @@ import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const selfSignUpEnabled: boolean = import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
 
 const items: ItemProps[] = [
   {
@@ -124,7 +125,7 @@ const App: React.FC = () => {
   }, [pathname, getConversationTitle]);
 
   return (
-    <Authenticator
+    <Authenticator hideSignUp={!selfSignUpEnabled}
       components={{
         Header: () => (
           <div className="text-aws-font-color mb-5 mt-10 flex justify-center text-3xl">
