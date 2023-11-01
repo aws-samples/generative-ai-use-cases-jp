@@ -28,7 +28,6 @@ export const handler = async (
       TranscriptionJobName: jobName,
     });
     const res = await transcribeClient.send(command);
-    console.log();
 
     if (
       // job を start した時のユーザーと異なる場合は Forbidden エラーを返却
