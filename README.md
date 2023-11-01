@@ -110,8 +110,6 @@ npm run cdk:deploy
 ## その他のドキュメント
 - デプロイ
   - [デプロイのオプション](/docs/DEPLOYMENT.md) 
-  - [別のモデル or リージョンを利用したい場合](/docs/BEDROCK.md)
-- モデル・リージョンの切り替え
   - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
   - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
 - 開発
