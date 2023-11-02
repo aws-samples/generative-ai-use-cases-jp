@@ -18,10 +18,8 @@ export class Auth extends Construct {
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
-    const selfSignUpEnabled: boolean = props.selfSignUpEnabled || false;
-
     const userPool = new UserPool(this, 'UserPool', {
-      selfSignUpEnabled: selfSignUpEnabled,
+      selfSignUpEnabled: props.selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,
