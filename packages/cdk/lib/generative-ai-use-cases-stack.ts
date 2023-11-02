@@ -10,10 +10,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled') || false;
     const selfSignUpEnabled: boolean =
-      this.node.tryGetContext('selfSignUpEnabled') || false;
+      this.node.tryGetContext('selfSignUpEnabled') || true;
 
-    const auth = new Auth(this, 'Auth',{
-      selfSignUpEnabled
+    const auth = new Auth(this, 'Auth', {
+      selfSignUpEnabled,
     });
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {
