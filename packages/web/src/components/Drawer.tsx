@@ -31,7 +31,7 @@ const Item: React.FC<ItemProps> = (props) => {
   }, []);
   return (
     <Link
-      className={`hover:bg-aws-sky flex h-8 mt-0.5 items-center rounded p-2 ${
+      className={`hover:bg-aws-sky mt-0.5 flex h-8 items-center rounded p-2 ${
         location.pathname === props.to && 'bg-aws-sky'
       } ${props.className}`}
       to={props.to}
