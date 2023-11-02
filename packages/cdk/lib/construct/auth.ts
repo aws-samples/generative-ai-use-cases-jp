@@ -7,12 +7,6 @@ import {
 import { Construct } from 'constructs';
 
 export interface AuthProps {
-  apiEndpointUrl: string;
-  userPoolId: string;
-  userPoolClientId: string;
-  idPoolId: string;
-  predictStreamFunctionArn: string;
-  ragEnabled: boolean;
   selfSignUpEnabled: boolean;
 }
 
@@ -21,7 +15,7 @@ export class Auth extends Construct {
   readonly client: UserPoolClient;
   readonly idPool: IdentityPool;
 
-  constructor(scope: Construct, id: string, props:AuthProps) {
+  constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
     const selfSignUpEnabled: boolean = props.selfSignUpEnabled || false;

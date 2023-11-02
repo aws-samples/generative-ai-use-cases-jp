@@ -12,7 +12,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled') || false;
 
-    const auth = new Auth(this, 'Auth');
+    const auth = new Auth(this, 'Auth',{
+      selfSignUpEnabled
+    });
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
