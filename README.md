@@ -136,9 +136,10 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 画像生成のユースケースをご利用になる際は、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
 
 ## その他のドキュメント
-- モデル・リージョンの切り替え
+- デプロイのオプション
   - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
   - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
+  - [セキュリティ関連](/docs/SECURITY.md)
 - 開発
   - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
   - [ユースケースの追加方法 (ブログ: Amazon Bedrock で Interpreter を開発!)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
