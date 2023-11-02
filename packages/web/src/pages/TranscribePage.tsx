@@ -41,11 +41,9 @@ const TranscribePage: React.FC = () => {
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="ファイルアップロード">
           <input
-            className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50
-            text-sm text-gray-900 file:mr-4 file:border-0 file:px-4 file:py-2 file:font-semibold
-            file:text-gray-700 focus:outline-none
-            dark:border-gray-600 dark:bg-gray-700
-            dark:text-gray-400 dark:placeholder:text-gray-400"
+            className="block w-full cursor-pointer rounded-lg border border-gray-400
+            text-sm text-gray-900 file:mr-4 file:border-0 file:px-4 file:py-2
+            file:text-gray-700 file:bg-aws-squid-ink file:text-white file:cursor-pointer focus:outline-none"
             onChange={onChangeFile}
             aria-describedby="file_input_help"
             id="file_input"
@@ -53,7 +51,7 @@ const TranscribePage: React.FC = () => {
             accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm"
             ref={ref}></input>
           <p
-            className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+            className="mt-1 ml-0.5 text-sm text-gray-500"
             id="file_input_help">
             mp3, mp4, wav, flac, ogg, amr, webm ファイルが利用可能です
           </p>
