@@ -1,147 +1,150 @@
-> **This repository is optimized for Japanese.**
+> **이 Repository는 한국어에 최적화 되었습니다**
 
-# Generative AI Use Cases JP
+## Original Repo : Generative AI Use Cases JP
+> https://github.com/aws-samples/generative-ai-use-cases-jp/tree/main
 
-Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能性をもたらします。このリポジトリでは、Generative AI を活用したビジネスユースケースをデモンストレーションしています。
+# Generative AI Use Cases KR
+
+Generative AI（생성형 AI）는、혁신적인 비즈니스 가능성을 제공합니다. 이 Repository에서는 Generative AI를 활용한 비즈니스 사용 사례를 소개합니다.
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-> **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
+> **생성형 AI가 발전함에 따라 변화가 심한 경우가 종종 있습니다. 오류 발생시, 메인 브랜치의 업데이트를 확인 부탁드립니다.**
 
-## 機能一覧
+## 기능목록
 
-> :white_check_mark: ... 実装されている、:construction: ... まだ実装されていない
+> :white_check_mark: 구현되어 있음、:construction: ... 아직 구현되어 있지 않음.
 
-- :white_check_mark: Amazon Bedrock を LLM として利用
-- :white_check_mark: Amazon Bedrock Fine-tuning 用のデータ収集
-- :construction: Amazon Bedrock Fine-tuning 用データのラベリング
-- :construction: Amazon Bedrock Fine-tuning の実行
+- :white_check_mark: Amazon Bedrock 을 LLM 으로 사용
+- :white_check_mark: Amazon Bedrock Fine-tuning 을 위한 데이터 수집
+- :construction: Amazon Bedrock Fine-tuning 을 위한 데이터 라벨링
+- :construction: Amazon Bedrock Fine-tuning 실행
 
-## ユースケース一覧
+## 사용 사례 목록
 
-> ユースケースは随時追加予定です。ご要望があれば [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) に起票をお願いいたします。
+> 사용 사례는 수시로 추가될 예정입니다. 요청이 있으시다면 [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) 에 작성 부탁드립니다.
 
 <details>
-  <summary>チャット</summary>
+  <summary>채팅</summary>
 
-  LLM とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。
+  LLM 과 채팅 형식으로 대화할 수 있습니다. LLM과 직접 대화할 수 있는 플랫폼이 존재 한다면, 세세한 사용 사례나 새로운 사용 사례에 대해서 빠르게 대응 할 수 있습니다. 또한 프롬프트 엔지니어링의 검증용 환경으로도 유용합니다.
 
   <img src="/imgs/usecase_chat.gif"/>
 </details>
 
 <details>
-   <summary>RAG チャット</summary>
+   <summary>RAG 채팅</summary>
 
-  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは Amazon Kendra から情報を取得しています。
+  RAG 는 LLM 이 잘 모르는 최신 정보나 도메인 지식을 외부에서 알려줌으로써 LLM 이 답변할 수 없는 내용도 답변할 수 있도록 하는 방식입니다. 동시에 근거에 기반한 답변만 허용하기 때문에 LLM 에서 발생하는 "잘못된 정보"를 포함한 답변을 방지하는 효과도 있습니다. 예를 들어, 사내 문서를 LLM 에게 전달하면서 사내 문의 대응을 자동화 할 수 있습니다. 이 Repository에서는 Amazon Kendra를 이용하고 있습니다.
 
   <img src="/imgs/usecase_rag.gif"/>
 </details>
 
 <details>
-   <summary>文章生成</summary>
+   <summary>문장 생성</summary>
 
-   あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
+   LLM 의 장점은 어떤 문맥의 문장이던 생성 가능하다는 것입니다. 기사, 보고서, 이메일 등의 목적으로 사용 할 수 있습니다.
 
   <img src="/imgs/usecase_generate_text.gif"/>
 </details>
 
 <details>
-  <summary>要約</summary>
+  <summary>요약</summary>
 
-  LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。
+  LLM 은 대량의 문장을 요약하는 작업에 특화되어 있습니다. 단순히 요약하는데 그치지 않고, 문장을 입력하여 필요한 정보를 대화 형식으로 이끌어낼 수도 있습니다. 예를 들어, 계약서를 불러와 "XXX의 조건은?" "YYY의 금액은?" 등의 정보를 얻을 수 있습니다.
 
   <img src="/imgs/usecase_summarize.gif"/>
 </details>
 
 <details>
-  <summary>校正</summary>
+  <summary>교정</summary>
 
-  LLM は、文章の誤字脱字だけでなく文章を理解し改善点を指摘することが可能です。自分が書いたレポートを人に見せる前に LLM に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
+  LLM 은 문장의 오탈자 뿐만이 아니라 문장을 이해하고 개선점을 지적할 수 있습니다. 자신이 작성한 보고서를 남에게 보여주기 전에 LLM 에게 자신이 미처 발견하지 못한 부분을 객관적으로 첨삭받아 품질을 높이는 효과를 기대할 수 있습니다.
 
   <img src="/imgs/usecase_editorial.gif"/>
 </details>
 
 <details>
-  <summary>翻訳</summary>
+  <summary>번역</summary>
 
-  多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
+  다국어로 학습한 LLM은 번역도 가능합니다. 또한, 단순히 번역만 하는 것이 아니라, 캐주얼성, 대상층 등 다양한 지정 컨텍스트 정보를 번역에 반영 할 수 있습니다.
 
   <img src="/imgs/usecase_translate.gif"/>
 </details>
 
 
 <details>
-  <summary>画像生成</summary>
+  <summary>이미지 생성</summary>
 
-  画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。
+  이미지 생성 AI는 텍스트와 이미지를 기반으로 새로운 이미지를 생성할 수 있습니다. 아이디어를 즉시 시각화할 수 있어 디자인 작업 등의 효율화를 기대할 수 있습니다. 이 기능에서는 LLM 이 프롬프트를 생성하는데 도움을 줄 수 있습니다.
 
   <img src="/imgs/usecase_generate_image.gif"/>
 </details>
 
 
-## アーキテクチャ
+## 아키텍쳐
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
+이 샘플에서는, 프론트엔드는 React 을 사용하여 구현하였고、정적 파일은 Amazon CloudFront + Amazon S3 을 통하여 전달하고 있습니다. 백엔드는 Amazon API Gateway + AWS Lambda、인증은 Amazon Congito 을 사용하고 있습니다. 또한, LLM 은 Amazon Bedrock 을 사용하였으며, RAG 의 데이터소스는 Amazon Kendra 을 사용하였습니다.
 
 ![arch.png](/imgs/arch.png)
 
-## デプロイ
+## 배포
 
-**このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。東京リージョンのモデルを利用する場合など、設定を変える方法については [モデル・リージョンの切り替え](#モデルリージョンの切り替え) をご確認ください。**
+**이 Repository에서는 기본적으로 버지니아 북부 (us-east-1) 리전의 Anthropic Claude 모델을 사용하도록 되어 있습니다. [Model access 화면](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) 을 열고、「Edit」 → 「Anthropic Claude 에 체크」 → 「Save changes」 를 눌러서 버지니아 북부 리전에서 Amazon Bedrock (기반 모델: Claude) 을 사용할 수 있도록 설정 바랍니다. 도쿄 리전 모델을 사용하는 경우 등 설정 변경 방법은  [모델/리전 변경](#모델리전변경) 을 참고바랍니다.**
 
-[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)でもデプロイ手順を確認できます。
+[AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（이하 CDK） 를 이용하여 배포합니다. 먼저 npm 패키지를 설치해주세요. 모든 명령어는 루트 디렉토리에 실행바랍니다. 또한, [이 동영상(일본어)](https://www.youtube.com/watch?v=9sMA17OKP1k)에서도 배포 절차를 확인할 수 있습니다
 
 ```bash
 npm ci
 ```
 
-CDK を利用したことがない場合、初回のみ [Bootstrap](https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/bootstrapping.html) 作業が必要です。すでに Bootstrap された環境では以下のコマンドは不要です。
+CDK 를 이용한적이 없는 경우, 최초 1회의 [Bootstrap](https://docs.aws.amazon.com/ko_kr/cdk/v2/guide/bootstrapping.html) 작업이 필요합니다. 이미 Bootstrap 이 완료된 환경이라면 다음 명령어가 필요하지 않습니다.
 
 ```bash
 npx -w packages/cdk cdk bootstrap
 ```
 
-続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
+이어서 다음 명령어로 AWS 리소스를 배포합니다. 배포가 완료될 떄까지 기다리세요 (약 20분 소요)
 
 ```bash
 npm run cdk:deploy
 ```
 
-- [参考 (別のモデル or リージョンを利用したい場合)](/docs/BEDROCK.md)
+- [참고 (다른 모델 혹은 리전을 사용하고 싶은 경우)](/docs/BEDROCK.md)
 
-### RAG 有効化
+### RAG 활성화
 
-RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
+RAG 사용 사례를 이용하고자 하는 경우, RAG 활성화 및 Kendra 의 Data source 을 수동으로 동기화 해야합니다.
 
-まず、RAG を有効化して再デプロイします。
-`packages/cdk/cdk.json` を開き、`context` の `ragEnabled` を `true` に変更します。
-その後、以下のコマンドで再デプロイしてください。
+먼저, RAG 를 활성화 하고 재배포합니다.
+`packages/cdk/cdk.json` 을 열고、`context` 의 `ragEnabled` 을 `true` 로 변경합니다.
+이후 다음 명령어로 재배포합니다.
 
 ```bash
 npm run cdk:deploy
 ```
 
-続いて、Kendra の Data source の Sync を以下の手順で行なってください。
+이어서、Kendra 의 Data source 의 동기화를 다음과 같이 진행합니다.
 
-1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
-1. generative-ai-use-cases-index をクリック
-1. Data sources をクリック
-1. WebCrawler をクリック
-1. Sync now をクリック
+1. [Amazon Kendra 콘솔](https://console.aws.amazon.com/kendra/home) 을 엽니다.
+1. generative-ai-use-cases-index 를 클릭힙니다.
+1. Data sources 를 클릭합니다.
+1. WebCrawler 클릭
+1. Sync now 클릭
 
-Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
+Sync run history 의 Status / Summary 에 Completed 가 표시되면 완료된 것입니다. AWS 의 Amazon Bedrock 관련 페이지를 크롤링하여、자동으로 문서가 추가됩니다.
 
-### 画像生成の有効化
+### 이미지 생성 활성화
 
-画像生成のユースケースをご利用になる際は、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
+이미지 생성 기능을 사용하려면、Stability AI 의 Stable Diffusion XL 모델을 활성화해야 합니다. [Model access 화면](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) 을 열고、「Edit」 → 「Stable Diffusion XL 에 체크」 → 「Save changes」 를 통해 작업한 뒤、버지니아 북부 리전에서 Amazon Bedrock (기반 모델: Stable Diffusion XL) 을 사용가능 한 상태로 설정해주시기 바랍니다. 참고로, 이미지 생성과 관련해서 Stable Diffusion XL 을 활성화 하지 않더라도 화면에 기능 표시되므로 주의해주십시오. 모델을 활성화하지 않은 상태에서 실행하면 오류가 발생합니다.
 
-## その他のドキュメント
-- モデル・リージョンの切り替え
-  - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
-  - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
-- 開発
-  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
-  - [ユースケースの追加方法 (ブログ: Amazon Bedrock で Interpreter を開発!)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
+## 기타 문서
+- 모델 및 지역 변경
+  - [Amazon Bedrock 의 다른 모델/지역을 이용하고 싶은 경우](/docs/BEDROCK.md)
+  - [Amazon SageMaker 를 이용하고 싶은 경우](/docs/SAGEMAKER.md)
+- 개발
+  - [로컬 개발 환경 구축 절차](/docs/DEVELOPMENT.md)
+  - [사용 사례 추가 방법 (블로그: Amazon Bedrock 에서  Interpreter 를 개발하다!)(일본어)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
 
 ## Security
 

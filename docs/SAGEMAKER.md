@@ -1,35 +1,37 @@
-# Amazon SageMaker のカスタムモデルを利用する場合
+# Amazon SageMaker 의 커스텀 모델을 이용하는 경우
 
-Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。
+>해당 가이드는 일본어 사용을 기준으로 되어 있습니다. 참고해주세요.
 
-Text Generation Inference (TGI) の Huggingface Container を使用した SageMaker Endpoint に対応しています。
+Amazon SageMaker 에 배포된 LLM을 이용할 수 있습니다.
 
-モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているのが理想的です。
+Text Generation Inference (TGI) 의 Huggingface Container 를 사용한 SageMaker Endpoint 에 대응합니다.
 
-**現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。**
+이 모델은 사용자와 AI가 번갈아 가면서 말하는 채팅 형식의 프롬프트를 지원하는 것이 이상적입니다.
 
-## SageMaker エンドポイントのデプロイ
+**현재 이미지 생성의 경우에는 Amazon SageMaker Endpoint에서 지원되지 않으므로 참고바랍니다.**
 
-**利用可能なモデル**
+## SageMaker Endpoint 배포
+
+**사용 가능한 모델**
 
 - [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
 - [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
 - [elyza/ELYZA-japanese-Llama-2-7b-instruct](https://github.com/aws-samples/aws-ml-jp/blob/f57da0343d696d740bb980dc16ebf28b1221f90e/tasks/generative-ai/text-to-text/fine-tuning/instruction-tuning/Transformers/Elyza_Inference_TGI_ja.ipynb)
 
-これらのモデル以外でも Text Generation Inference にデプロイしたモデルは利用可能です。
+이 모델 외에도 Text Generation Inference 에 배포한 모델은 사용 할 수 있습니다.
 
-## SageMaker エンドポイントをターゲットにソリューションをデプロイする
+## SageMaker Endpoint를 대상으로 솔루션 배포하기
 
-事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のようにコマンドライン引数で指定することができます。
+미리 배포된 SageMaker Endpoint를 타깃 솔루션으로 배포할 때는, 다음과 같이 명령어의 Argument로 지정 할 수 있습니다.
 
 ```bash
 npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint Region> -c modelName=<SageMaker Endpoint Name> -c promptTemplate=<Prompt Template File>
 ```
 
-promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `llama2.json`)
-プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
+promptTemplate 은 프롬프트를 구축하기 위한 템플릿을 JSON 으로 만든 파일명을 지정합니다. (예: `llama2.json`)
+프롬프트 템플릿 예제는 `prompt-templates` 폴더를 참고합니다.
 
-## デプロイの例
+## 배포 예시:
 
 **Rinna 3.6B**
 
