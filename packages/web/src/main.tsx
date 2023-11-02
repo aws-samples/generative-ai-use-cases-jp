@@ -7,17 +7,18 @@ import {
   createBrowserRouter,
   RouteObject,
 } from 'react-router-dom';
-import LandingPage from './pages/LandingPage.tsx';
-import ChatPage from './pages/ChatPage.tsx';
-import SummarizePage from './pages/SummarizePage.tsx';
-import GenerateTextPage from './pages/GenerateTextPage.tsx';
-import EditorialPage from './pages/EditorialPage.tsx';
-import TranslatePage from './pages/TranslatePage.tsx';
-import NotFound from './pages/NotFound.tsx';
-import KendraSearchPage from './pages/KendraSearchPage.tsx';
-import RagPage from './pages/RagPage.tsx';
-import GenerateImagePage from './pages/GenerateImagePage.tsx';
-import TranscribePage from './pages/TranscribePage.tsx';
+import LandingPage from './pages/LandingPage';
+import Setting from './pages/Setting';
+import ChatPage from './pages/ChatPage';
+import SummarizePage from './pages/SummarizePage';
+import GenerateTextPage from './pages/GenerateTextPage';
+import EditorialPage from './pages/EditorialPage';
+import TranslatePage from './pages/TranslatePage';
+import NotFound from './pages/NotFound';
+import KendraSearchPage from './pages/KendraSearchPage';
+import RagPage from './pages/RagPage';
+import GenerateImagePage from './pages/GenerateImagePage';
+import TranscribePage from './pages/TranscribePage';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
@@ -25,6 +26,10 @@ const routes: RouteObject[] = [
   {
     path: '/',
     element: <LandingPage />,
+  },
+  {
+    path: '/setting',
+    element: <Setting />,
   },
   {
     path: '/chat',
