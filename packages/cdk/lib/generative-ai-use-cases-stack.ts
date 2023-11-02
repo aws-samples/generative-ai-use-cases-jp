@@ -8,9 +8,9 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     process.env.overrideWarningsEnabled = 'false';
 
-    const ragEnabled: boolean = this.node.tryGetContext('ragEnabled') || false;
+    const ragEnabled: boolean = this.node.tryGetContext('ragEnabled') ?? false;
     const selfSignUpEnabled: boolean =
-      this.node.tryGetContext('selfSignUpEnabled') || false;
+      this.node.tryGetContext('selfSignUpEnabled') ?? true;
 
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
