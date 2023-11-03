@@ -6,16 +6,20 @@ import {
 } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Construct } from 'constructs';
 
+export interface AuthProps {
+  selfSignUpEnabled: boolean;
+}
+
 export class Auth extends Construct {
   readonly userPool: UserPool;
   readonly client: UserPoolClient;
   readonly idPool: IdentityPool;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
     const userPool = new UserPool(this, 'UserPool', {
-      selfSignUpEnabled: true,
+      selfSignUpEnabled: props.selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,

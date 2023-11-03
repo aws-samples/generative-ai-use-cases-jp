@@ -138,6 +138,7 @@ Sync run history 의 Status / Summary 에 Completed 가 표시되면 완료된 �
 
 이미지 생성 기능을 사용하려면、Stability AI 의 Stable Diffusion XL 모델을 활성화해야 합니다. [Model access 화면](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) 을 열고、「Edit」 → 「Stable Diffusion XL 에 체크」 → 「Save changes」 를 통해 작업한 뒤、버지니아 북부 리전에서 Amazon Bedrock (기반 모델: Stable Diffusion XL) 을 사용가능 한 상태로 설정해주시기 바랍니다. 참고로, 이미지 생성과 관련해서 Stable Diffusion XL 을 활성화 하지 않더라도 화면에 기능 표시되므로 주의해주십시오. 모델을 활성화하지 않은 상태에서 실행하면 오류가 발생합니다.
 
+
 ## 기타 문서
 - 모델 및 지역 변경
   - [Amazon Bedrock 의 다른 모델/지역을 이용하고 싶은 경우](/docs/BEDROCK.md)
@@ -145,6 +146,7 @@ Sync run history 의 Status / Summary 에 Completed 가 표시되면 완료된 �
 - 개발
   - [로컬 개발 환경 구축 절차](/docs/DEVELOPMENT.md)
   - [사용 사례 추가 방법 (블로그: Amazon Bedrock 에서  Interpreter 를 개발하다!)(일본어)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
+
 
 ## Security
 
