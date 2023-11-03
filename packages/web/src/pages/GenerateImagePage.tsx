@@ -323,9 +323,9 @@ const GenerateImagePage: React.FC = () => {
     <>
       <ModalDialog
         isOpen={isOpenSketch}
-        title="初期画像の設定"
+        title="초기 이미지 설정"
         className="w-[530px]"
-        help="画像生成の初期状態として使われます。指定した画像に近い画像が生成されます。"
+        help="이미지 생성 초기 상태로 사용됩니다. 지정한 이미지에 가까운 이미지가 생성됩니다."
         onClose={() => {
           setIsOpenSketch(false);
         }}>
@@ -361,8 +361,8 @@ const GenerateImagePage: React.FC = () => {
             <Card className="mt-8 flex">
               <div className="w-full">
                 <Textarea
-                  label="プロンプト"
-                  help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                  label="프롬프트"
+                  help="생성하고자 하는 이미지의 설명을 기재해 주세요.문장이 아닌 단어 나열로 기재합니다."
                   value={prompt}
                   onChange={setPrompt}
                   maxHeight={84}
@@ -370,8 +370,8 @@ const GenerateImagePage: React.FC = () => {
                 />
 
                 <Textarea
-                  label="ネガティブプロンプト"
-                  help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                  label="네거티브 프롬프트"
+                  help="생성하고 싶지 않은 요소, 배제하고 싶은 요소를 기재해 주세요.문장이 아닌 단어 나열로 기재합니다."
                   value={negativePrompt}
                   onChange={setNegativePrompt}
                   maxHeight={84}
@@ -414,16 +414,16 @@ const GenerateImagePage: React.FC = () => {
               </div>
             </Card>
 
-            <Card label="パラメータ" className="mb-14 mt-8">
+            <Card label="변수입력" className="mb-14 mt-8">
               <div className="flex flex-col">
                 <div className="mb-8 flex flex-col xl:flex-row">
                   <div className="flex w-full flex-col items-center justify-center xl:w-1/2">
                     <div className="mb-1 flex items-center text-sm font-bold">
-                      初期画像
+                      초기 이미지
                       <Help
                         className="ml-1"
                         direction="left"
-                        message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                        message="이미지 생성의 초기 상태가 되는 이미지를 설정할 수 있습니다.초기 이미지를 설정함으로써 초기 이미지에 가까운 이미지를 생성하도록 유도할 수 있습니다."
                       />
                     </div>
                     <Base64Image
@@ -436,7 +436,7 @@ const GenerateImagePage: React.FC = () => {
                         setIsOpenSketch(true);
                       }}>
                       <PiFileArrowUp className="mr-2" />
-                      設定
+                      설정
                     </Button>
                   </div>
 
@@ -457,12 +457,12 @@ const GenerateImagePage: React.FC = () => {
                       onChange={(n) => {
                         setSeed(n, selectedImageIndex);
                       }}
-                      help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
+                      help="난수의 시드 값입니다.같은 시드 값을 지정하면 같은 이미지가 생성됩니다."
                     />
 
                     <div className="-mt-3 mb-3 flex w-full justify-end text-xs">
                       <Button onClick={onClickRandomSeed}>
-                        Seed をランダム設定
+                        Seed 를 랜덤 설정
                       </Button>
                     </div>
                   </div>
@@ -471,12 +471,12 @@ const GenerateImagePage: React.FC = () => {
                 <div className="flex flex-col xl:flex-row xl:gap-x-4">
                   <RangeSlider
                     className="w-full xl:w-1/2"
-                    label="画像生成数"
+                    label="이미지 생성 수"
                     min={1}
                     max={7}
                     value={imageSample}
                     onChange={setImageSample}
-                    help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+                    help="Seed 를 랜덤 설정하면서 이미지를 지정된 개수만큼 동시에 생성합니다."
                   />
 
                   <RangeSlider
@@ -486,7 +486,7 @@ const GenerateImagePage: React.FC = () => {
                     max={30}
                     value={cfgScale}
                     onChange={setCfgScale}
-                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                    help="이 값이 높을수록 프롬프트 내용에 충실한 이미지를 생성합니다."
                   />
                 </div>
 
@@ -498,7 +498,7 @@ const GenerateImagePage: React.FC = () => {
                     max={150}
                     value={step}
                     onChange={setStep}
-                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                    help="이미지 생성 반복 횟수입니다. Step 수가 많을수록 이미지가 세련되지만 생성에 시간이 걸립니다."
                   />
 
                   <RangeSlider
@@ -509,7 +509,7 @@ const GenerateImagePage: React.FC = () => {
                     step={0.01}
                     value={imageStrength}
                     onChange={setImageStrength}
-                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                    help="1에 가까울수록 '초기 이미지'에 가까운 이미지가 생성되고, 0에 가까울수록 '초기 이미지'와는 다른 이미지가 생성됩니다."
                   />
                 </div>
               </div>
@@ -522,7 +522,7 @@ const GenerateImagePage: React.FC = () => {
                     generateImage(prompt, negativePrompt);
                   }}
                   loading={generating || loadingChat}>
-                  生成
+                  생성
                 </Button>
 
                 <Button
@@ -532,7 +532,7 @@ const GenerateImagePage: React.FC = () => {
                     clearAll();
                   }}
                   disabled={generating || loadingChat}>
-                  クリア
+                  지우기
                 </Button>
               </div>
             </Card>

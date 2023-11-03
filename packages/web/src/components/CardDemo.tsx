@@ -14,7 +14,7 @@ const CardDemo: React.FC<Props> = (props) => {
     <Card label={props.label} className={`${props.className} flex flex-col`}>
       <div className="mb-3 h-full">{props.children}</div>
       <div className="flex items-end justify-end">
-        <Button onClick={props.onClickDemo}>デモ</Button>
+        <Button onClick={props.onClickDemo}>데모</Button>
       </div>
     </Card>
   );

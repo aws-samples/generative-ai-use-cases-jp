@@ -165,7 +165,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
   return (
     <>
-      <ModalDialog isOpen={isOpenUpload} title="画像をアップロード">
+      <ModalDialog isOpen={isOpenUpload} title="이미지 업로드">
         <div>
           <div className="mb-3 flex w-full">
             <input type="file" onChange={handleImageUpload} accept="image/*" />
@@ -180,7 +180,7 @@ const SketchPad: React.FC<Props> = (props) => {
               onClick={() => {
                 setIsOpenUpload(false);
               }}>
-              キャンセル
+              취소
             </Button>
             <Button onClick={onClickUploadComplet}>完了</Button>
           </div>
@@ -265,11 +265,11 @@ const SketchPad: React.FC<Props> = (props) => {
               setIsOpenUpload(true);
             }}>
             <PiUploadSimple />
-            画像をアップロード
+            이미지 업로드
           </Button>
           <div className="flex gap-3">
             <Button outlined onClick={props.onCancel}>
-              キャンセル
+              취소
             </Button>
             <Button onClick={onClickComplete}>完了</Button>
           </div>

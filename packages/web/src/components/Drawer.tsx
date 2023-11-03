@@ -100,7 +100,7 @@ const Drawer: React.FC<Props> = (props) => {
           opened ? 'visible w-64' : 'invisible w-0'
         } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
-          ユースケース <span className="text-gray-400">(生成系AI)</span>
+          사용 사례 <span className="text-gray-400">(생성형 AI)</span>
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {usecases.map((item, idx) => (
@@ -117,7 +117,7 @@ const Drawer: React.FC<Props> = (props) => {
         {tools.length > 0 && (
           <>
             <div className="text-aws-smile mx-3 my-2 text-xs">
-              ツール <span className="text-gray-400">(非生成系AI)</span>
+              도구 <span className="text-gray-400">(비생성형 AI)</span>
             </div>
             <div className="mb-1 ml-2 mr-1">
               {tools.map((item, idx) => (
@@ -133,16 +133,16 @@ const Drawer: React.FC<Props> = (props) => {
             <div className="border-b" />
           </>
         )}
-        <div className="text-aws-smile mx-3 my-2  text-xs">会話履歴</div>
+        <div className="text-aws-smile mx-3 my-2  text-xs">대화이력</div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           <ChatList className="mr-1" />
         </div>
         <div className="border-b" />
         <div className="mb-2">
-          <div className="text-aws-smile mx-3 my-2 text-xs">リンク</div>
+          <div className="text-aws-smile mx-3 my-2 text-xs">링크</div>
 
           <RefLink
-            to="https://aws.amazon.com/jp/bedrock/"
+            to="https://aws.amazon.com/ko/bedrock/"
             icon={<BedrockIcon className="w-4 fill-white" />}
             label="Bedrock"
           />
@@ -155,7 +155,7 @@ const Drawer: React.FC<Props> = (props) => {
         <div className="flex justify-end border-t border-gray-400 p-3">
           <ButtonIcon onClick={props.signOut}>
             <PiSignOut className="text-base" />
-            <span className="ml-1 text-sm">サインアウト</span>
+            <span className="ml-1 text-sm">로그아웃</span>
           </ButtonIcon>
         </div>
       </nav>

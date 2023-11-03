@@ -21,8 +21,7 @@ const LandingPage: React.FC = () => {
   const demoChat = () => {
     navigate('/chat', {
       state: {
-        content: `フィボナッチ数を返す Python の関数を書いてください。
-引数が項で、処理は再帰で書くようにしてください。`,
+        content: `피보나치 수열을 출력하는 Python함수를 적어주세요. 인수가 항이고 처리는 재귀로 작성하세요. `,
       },
     });
   };
@@ -30,8 +29,8 @@ const LandingPage: React.FC = () => {
   const demoRag = () => {
     navigate('/rag', {
       state: {
-        content: `Bedrock のセキュリティについて、教えてください。
-なぜ Bedrock が安全に利用できるのかわかるように説明してください。`,
+        content: `Bedrock 보안에 대해 알려주세요.
+왜 Bedrock를 안전하게 이용할 수 있는지 알 수 있도록 설명해 주세요.`,
       },
     });
   };
@@ -39,9 +38,9 @@ const LandingPage: React.FC = () => {
   const demoGenerate = () => {
     navigate('/generate', {
       state: {
-        information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成系 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成系 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+        information: `Amazon Bedrock 은 AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon 등 대형 AI 기업이 제공하는 고성능 기반 모델(FM)을 단일 API로 선택할 수 있는 풀 매니지드형 서비스입니다. 또한 생성형 AI 애플리케이션 구축에 필요한 폭넓은 기능도 갖추고 있어 프라이버시와 보안을 유지하면서 개발을 간소화할 수 있습니다.Amazon Bedrock의 포괄적인 기능을 사용하면 다양한 상위 FM을 쉽게 시도하거나 미세 조정 및 검색 확장 생성(RAG)과 같은 기법을 사용하여 데이터를 사용하여 필요에 맞게 제작하거나 여행 예약 및 보험금 청구 처리부터 광고 캠페인 작성 및 재고 관리까지 복잡한 비즈니스 작업을 수행하는 관리 에이전트를 만들 수 있습니다. 이것들을 모두 코드를 직접 작성하지 않고도 할 수 있습니다.Amazon Bedrock 은 서버리스이기 때문에 인프라를 관리할 필요가 없습니다. 또, 익숙한 AWS 서비스를 사용하여 생성형 AI 기능을 애플리케이션에 안전하게 통합하여 배포할 수 있습니다.`,
         context:
-          'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+          '프레젠테이션을 위해서 마크다운 형식으로 작성하여 각각 자세하게 설명을 해주세요.',
       },
     });
   };
@@ -50,7 +49,7 @@ const LandingPage: React.FC = () => {
     navigate('/summarize', {
       state: {
         sentence:
-          'Amazon Bedrock は、Amazon や主要な AI スタートアップ企業が提供する基盤モデル (FM) を API を通じて利用できるようにする完全マネージド型サービスです。そのため、さまざまな FM から選択して、ユースケースに最も適したモデルを見つけることができます。Amazon Bedrock のサーバーレスエクスペリエンスにより、すぐに FM を開始したり、FM を簡単に試したり、独自のデータを使用して FM をプライベートにカスタマイズしたり、AWS のツールや機能を使用して FM をアプリケーションにシームレスに統合してデプロイしたりできます。Amazon Bedrock のエージェントは、開発者が独自の知識源に基づいて最新の回答を提供し、幅広いユースケースのタスクを完了できるジェネレーティブ AI アプリケーションを開発者が簡単に作成できるようにする完全マネージド機能です。Bedrock のサーバーレスエクスペリエンスにより、インフラストラクチャを管理することなく、すぐに使用を開始し、独自のデータを使用して FM をプライベートにカスタマイズし、使い慣れた AWS ツールや機能を使用してそれらをアプリケーションに簡単に統合してデプロイできます (さまざまなモデルをテストするための実験や FM を大規模に管理するためのパイプラインなどの Amazon SageMaker の ML 機能との統合を含みます)。',
+          'Amazon Bedrock 은、Amazon 및 AI 스타트업 기업이 제공하는 기반 모델 (FM) 을 API를 통해 이용할 수 있도록 하는 완전 관리형 서비스입니다. 따라서 다양한 FM 중 선택하여 사용사례에 가장 적합한 모델을 찾을 수 있습니다.Amazon Bedrock 서버리스 경험을 통해 즉시 FM을 시작하거나 FM을 쉽게 이용하거나 자체 데이터를 사용하여 FM을 개인 맞춤 제작하거나 AWS의 도구 및 기능을 사용하여 FM을 애플리케이션에 심리스하게 통합하여 배포할 수 있습니다.Amazon Bedrock 에이전트는 개발자가 자체 데이터를 기반으로 최신 답변을 제공하여 폭넓은 사용 사례 작업을 할 수 있는 Generative AI 애플리케이션을 개발자가 쉽게 만들 수 있도록 하는 완전 관리 기능입니다.Bedrock의 서버리스 경험으로 인프라 관리 없이 바로 사용을 시작하고 자체 데이터를 사용하여 FM을 개인 맞춤 제작하여 익숙한 AWS 툴이나 기능을 사용하여 애플리케이션에 쉽게 통합하여 배포할 수 있습니다. (다양한 모델을 테스트하기 위한 실험이나 FM을 대규모로 관리하기 위한 파이프라인 등의 Amazon SageMaker의 ML 기능과의 통합을 포함합니다).',
         additionalContext: '',
       },
     });
@@ -60,7 +59,7 @@ const LandingPage: React.FC = () => {
     navigate('/editorial', {
       state: {
         sentence:
-          'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
+          '안녕하세요. 저는 교정을 지원하는 AI 어시스턴트 입니다. 좋아하는 문장을 입력해주세요.',
       },
     });
   };
@@ -69,7 +68,7 @@ const LandingPage: React.FC = () => {
     navigate('/translate', {
       state: {
         sentence:
-          'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+          '안녕하세요. 저는 번역을 지원하는 AI 어시스턴트 입니다. 좋아하는 문장을 입력해주세요.',
       },
     });
   };
@@ -77,8 +76,7 @@ const LandingPage: React.FC = () => {
   const demoGenerateImage = () => {
     navigate('/image', {
       state: {
-        content: `スマホ広告のデザイン案を出力してください。
-可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街`,
+        content: `스마트폰광고의 디자인안을 출력해주세요. 귀엽다, 멋지다, 사용하기 쉬운, POP컬쳐, 친숙한, 젊은 사람들을 위한, 음악, 사진, 유행하는 스마트폰, 배경이 거리`,
       },
     });
   };
@@ -87,102 +85,102 @@ const LandingPage: React.FC = () => {
     <div className="pb-24">
       <div className="mx-3 my-5 flex items-center justify-center text-xl font-semibold">
         <AwsIcon className="mr-5 h-20 w-20" />
-        生成系 AI を体験してみましょう。
+        생성형 AI를 체험해 봅시다.
       </div>
 
       <div className="mx-3 mb-6 mt-10 flex flex-col items-center justify-center lg:flex-row">
         <Button className="mb-4 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
-          デモ
+          버튼
         </Button>
-        をクリックすることで、主要なユースケースを体験できます。
+        을 클릭하면, 주요 사용 사례를 체험할 수 있습니다.
       </div>
 
       <div className="mx-20 grid gap-x-20 gap-y-10 md:grid-cols-1 xl:grid-cols-2">
-        <CardDemo label="チャット" onClickDemo={demoChat}>
+        <CardDemo label="채팅" onClickDemo={demoChat}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiChatsCircle />
             </div>
             <div className="text-sm">
               LLM
-              とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。
+              과 채팅 형식으로 대화할 수 있습니다.세세하거나 새로운 사용사례에 신속하게 대응할 수 있습니다. 프롬프트 엔지니어링의 검증용 환경으로의 사용도 가능합니다.
             </div>
           </div>
         </CardDemo>
         {ragEnabled && (
-          <CardDemo label="RAG チャット" onClickDemo={demoRag}>
+          <CardDemo label="RAG 채팅" onClickDemo={demoRag}>
             <div className="flex flex-row items-start">
               <div className="mr-4 text-7xl">
                 <PiChatCircleText />
               </div>
               <div className="text-sm">
-                RAG (Retrieval Augmented Generation) は、情報の検索と LLM
-                の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon
-                Kendra から取得した参考ドキュメントをベースに LLM
-                が回答を生成してくれるため、「社内情報に対応した LLM
-                チャット」を簡単に実現することが可能です。
+                AG (Retrieval Augmented Generation) 는 정보검색과 LLM
+                의 문장 생성을 조합하는 방법으로 효과적인 정보 접근을 실현할 수 있습니다.Amazon
+                Kendra 에서 획득한 참고 문서를 기반으로 LLM
+                가 답변을 생성해 주기 때문에, "사내 정보에 대응한 LLM
+                채팅" 같은 예시를 쉽게 구현할 수 있습니다.
               </div>
             </div>
           </CardDemo>
         )}
-        <CardDemo label="文章生成" onClickDemo={demoGenerate}>
+        <CardDemo label="문장생성" onClickDemo={demoGenerate}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiPencil />
             </div>
             <div className="text-sm">
-              あらゆるコンテキストで文章を生成することは LLM
-              が最も得意とするタスクの 1 つです。
-              記事・レポート・メールなど、あらゆるコンテキストに対応します。
+              모든 컨텍스트에서 문장을 생성하는 것은 LLM
+              가 가장 잘하는 작업 중 하나입니다.
+              기사·리포트·메일 등, 모든 콘텍스트에 대응합니다.
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="要約" onClickDemo={demoSummarize}>
+        <CardDemo label="요약" onClickDemo={demoSummarize}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiNote />
             </div>
             <div className="text-sm">
               LLM
-              は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX
-              の条件は？」「YYY
-              の金額は？」といった情報を取得することが可能です。
+              는 대량의 문장을 요약하는 작업을 잘합니다. 단순히 요약하는 것이 아니라 문장을 컨텍스트로 준 다음, 필요한 정보를 대화 형식으로 끌어낼수도 있습니다. 예를 들어 계약서를 읽어들여 XXXX
+              의 조건은?" "YYY
+              의 금액은?'과 같은 정보를 획득할 수 있습니다.
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="校正" onClickDemo={demoEditorial}>
+        <CardDemo label="교정" onClickDemo={demoEditorial}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiPenNib />
             </div>
             <div className="text-sm">
               LLM
-              は、文章を理解することができ、誤字脱字だけでなく文章を理解し客観的に改善点を指摘することが可能です。
-              人に見せる前に LLM
-              に自分では気づかなかった点を客観的に指摘してもらいクオリティを上げる効果が期待できます。
+              은 문장을 이해 할 수 있고 오탈자뿐만 아니라 문장을 이해하고 객관적으로 개선점을 지적할 수 있습니다.
+              남에게 보여주기 전에 LLM
+              에게 스스로 깨닫지 못한 점을 객관적으로 지적받아 퀄리티를 높이는 효과를 기대할 수 있습니다.
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="翻訳" onClickDemo={demoTranslate}>
+        <CardDemo label="번역" onClickDemo={demoTranslate}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiTranslate />
             </div>
             <div className="text-sm">
-              多言語で学習した LLM は、翻訳を行うことも可能です。
-              また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
+              다국어로 학습한 LLM은 번역을 할 수도 있습니다.
+              또한 단순히 번역만 하는 것이 아니라 캐주얼함, 대상층 등의 정보를 번역에 반영하는 것 또한 가능합니다.
             </div>
           </div>
         </CardDemo>
-        <CardDemo label="画像生成" onClickDemo={demoGenerateImage}>
+        <CardDemo label="이미지생성" onClickDemo={demoGenerateImage}>
           <div className="flex flex-row items-start">
             <div className="mr-4 text-7xl">
               <PiImages />
             </div>
             <div className="text-sm">
-              画像生成 AI
-              は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を
-              LLM に支援してもらうことができます。
+              이미지 생성 AI
+              는 텍스트나 이미지를 바탕으로 새로운 이미지를 생성할 수 있습니다. 아이디어를 즉시 가시화할 수 있어 디자인 작업 등의 효율화를 기대할 수 있습니다. 이 기능에서는 프롬프트 작성을
+              LLM에서 지원받을 수 있습니다.
             </div>
           </div>
         </CardDemo>

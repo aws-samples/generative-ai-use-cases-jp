@@ -39,7 +39,7 @@ const TranscribePage: React.FC = () => {
         音声認識
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="ファイルアップロード">
+        <Card label="파일 업로드">
           <input
             className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
             border-gray-400 text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0
@@ -51,14 +51,14 @@ const TranscribePage: React.FC = () => {
             accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm"
             ref={ref}></input>
           <p className="ml-0.5 mt-1 text-sm text-gray-500" id="file_input_help">
-            mp3, mp4, wav, flac, ogg, amr, webm ファイルが利用可能です
+            mp3, mp4, wav, flac, ogg, amr, webm 파일을 이용할 수 있습니다.
           </p>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disabledExec} onClick={onClickClear}>
-              クリア
+              지우기
             </Button>
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              실행
             </Button>
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
@@ -67,7 +67,7 @@ const TranscribePage: React.FC = () => {
             )}
             {!loading && !transcriptData?.transcript && (
               <div className="text-gray-500">
-                音声認識結果がここに表示されます
+                음성 인식 결과가 여기에 표시됩니다.
               </div>
             )}
             {loading && (

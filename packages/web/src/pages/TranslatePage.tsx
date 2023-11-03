@@ -15,13 +15,13 @@ import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
 
 const languages = [
-  { label: '英語' },
-  { label: '日本語' },
-  { label: '中国語' },
-  { label: '韓国語' },
-  { label: 'フランス語' },
-  { label: 'スペイン語' },
-  { label: 'ドイツ語' },
+  { label: '영어' },
+  { label: '일본' },
+  { label: '중국어' },
+  { label: '한국어' },
+  { label: '프랑스어' },
+  { label: '스페인어' },
+  { label: '독일어' },
 ];
 
 type StateType = {
@@ -180,12 +180,12 @@ const TranslatePage: React.FC = () => {
         翻訳
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="翻訳したい文章">
+        <Card label="번역하고 싶은 문장">
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="py-3">言語を自動検出</div>
+              <div className="py-3">언어를 자동 검출합니다</div>
               <Textarea
-                placeholder="入力してください"
+                placeholder="입력해주세요"
                 value={sentence}
                 onChange={setSentence}
                 maxHeight={-1}
@@ -219,9 +219,9 @@ const TranslatePage: React.FC = () => {
             </div>
           </div>
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label="추가 컨텍스트" optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              placeholder="추가로 고려하고 싶은 점을 입력할 수 있습니다(캐주얼함 등)"
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -233,7 +233,7 @@ const TranslatePage: React.FC = () => {
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              실행
             </Button>
           </div>
         </Card>

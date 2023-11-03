@@ -81,7 +81,7 @@ export class Rag extends Construct {
       name: 'WebCrawler',
       type: 'WEBCRAWLER',
       roleArn: webCrawlerRole.roleArn,
-      languageCode: 'ja',
+      languageCode: 'ko',
       dataSourceConfiguration: {
         webCrawlerConfiguration: {
           urls: {

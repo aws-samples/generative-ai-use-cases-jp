@@ -52,7 +52,7 @@ const KendraSearchPage: React.FC = () => {
         <input
           ref={queryRef}
           className="absolute w-full rounded-full border-gray-400 pl-9"
-          placeholder="検索ワードを入力してください"
+          placeholder="검색어를 입력해 주세요."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

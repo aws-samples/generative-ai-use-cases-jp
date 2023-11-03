@@ -32,7 +32,7 @@ exports.handler = async (
         EqualsTo: {
           Key: '_language_code',
           Value: {
-            StringValue: 'ja',
+            StringValue: 'ko',
           },
         },
       },

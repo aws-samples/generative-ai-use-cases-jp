@@ -2,8 +2,8 @@
     "prefix": "",
     "suffix": "",
     "join": "<NL>",
-    "user": "ユーザー: {}",
-    "assistant": "システム: {}",
-    "system": "システム: {}",
+    "user": "사용자: {}",
+    "assistant": "시스템: {}",
+    "system": "시스템: {}",
     "eos_token": "</s>"
 }

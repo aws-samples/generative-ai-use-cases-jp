@@ -29,64 +29,64 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
 const items: ItemProps[] = [
   {
-    label: 'ホーム',
+    label: '홈',
     to: '/',
     icon: <PiHouse />,
     usecase: true,
   },
   {
-    label: 'チャット',
+    label: '채팅',
     to: '/chat',
     icon: <PiChatsCircle />,
     usecase: true,
   },
   ragEnabled
     ? {
-        label: 'RAG チャット',
+        label: 'RAG 채팅',
         to: '/rag',
         icon: <PiChatCircleText />,
         usecase: true,
       }
     : null,
   {
-    label: '文章生成',
+    label: '문장생성',
     to: '/generate',
     icon: <PiPencil />,
     usecase: true,
   },
   {
-    label: '要約',
+    label: '요약',
     to: '/summarize',
     icon: <PiNote />,
     usecase: true,
   },
   {
-    label: '校正',
+    label: '교정',
     to: '/editorial',
     icon: <PiPenNib />,
     usecase: true,
   },
   {
-    label: '翻訳',
+    label: '번역',
     to: '/translate',
     icon: <PiTranslate />,
     usecase: true,
   },
   {
-    label: '画像生成',
+    label: '이미지생성',
     to: '/image',
     icon: <PiImages />,
     usecase: true,
   },
   {
-    label: '音声認識',
+    label: '음성인식',
     to: '/transcribe',
     icon: <PiSpeakerHighBold />,
     usecase: false,
   },
   ragEnabled
     ? {
-        label: 'Kendra 検索',
+        label: 'Kendra 검색',
         to: '/kendra',
         icon: <PiMagnifyingGlass />,
         usecase: false,
@@ -114,7 +114,7 @@ const App: React.FC = () => {
   });
 
   I18n.putVocabularies(translations);
-  I18n.setLanguage('ja');
+  I18n.setLanguage('ko');
 
   const { switchOpen: switchDrawer } = useDrawer();
   const { pathname } = useLocation();
@@ -165,7 +165,7 @@ const App: React.FC = () => {
                       onClick={() => {
                         signOut ? signOut() : null;
                       }}>
-                      サインアウト
+                      로그아웃
                     </MenuItem>
                   </>
                 </MenuDropdown>

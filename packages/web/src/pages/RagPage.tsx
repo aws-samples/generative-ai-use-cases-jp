@@ -58,7 +58,7 @@ const RagPage: React.FC = () => {
   return (
     <div className={`${!isEmpty ? 'pb-36' : ''}`}>
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-        RAG チャット
+        RAG 채팅
       </div>
 
       {isEmpty && (
@@ -66,19 +66,19 @@ const RagPage: React.FC = () => {
           <Alert severity="info">
             <div>
               RAG (Retrieval Augmented Generation)
-              手法のチャットを行うことができます。
+              를 이용한 채팅을 할 수 있습니다.
             </div>
             <div>
-              メッセージが入力されると Amazon Kendra
-              でドキュメントを検索し、検索したドキュメントをもとに LLM
-              が回答を生成します。
+              메시지가 입력되면 Amazon Kendra
+              에서 문서를 검색하고 검색한 문서를 바탕으로 LLM
+              가 답변을 생성합니다.
             </div>
             <div className="font-bold">
-              Amazon Kendra の検索のみを実行する場合は
+              Amazon Kendra 검색만 실행할 경우에는
               <Link className="text-aws-smile" to="/kendra">
-                こちら
+                이곳
               </Link>
-              のページに遷移してください。
+              의 페이지로 이동해 주세요.
             </div>
           </Alert>
         </div>

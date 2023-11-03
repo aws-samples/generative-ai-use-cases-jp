@@ -4,6 +4,6 @@
     "join": "\n\n",
     "user": "Human: {}",
     "assistant": "Assistant: {}",
-    "system": "\n\nHuman: {}\n\nAssistant: コンテキストを理解しました。",
+    "system": "\n\nHuman: {}\n\nAssistant: 문맥을 이해했습니다.",
     "eos_token": ""
 }

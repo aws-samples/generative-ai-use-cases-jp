@@ -116,17 +116,17 @@ const SummarizePage: React.FC = () => {
         要約
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="要約したい文章">
+        <Card label="요약하고 싶은 문장">
           <Textarea
-            placeholder="入力してください"
+            placeholder="입력해주세요"
             value={sentence}
             onChange={setSentence}
             maxHeight={-1}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label="추가 컨텍스트" optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              placeholder="추가로 고려하고 싶은 점을 입력할 수 있습니다(캐주얼함 등)"
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -134,11 +134,11 @@ const SummarizePage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              지우기
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              실행
             </Button>
           </div>
 
@@ -146,7 +146,7 @@ const SummarizePage: React.FC = () => {
             <Markdown>{summarizedSentence}</Markdown>
             {!loading && summarizedSentence === '' && (
               <div className="text-gray-500">
-                要約された文章がここに表示されます
+                요약된 문장이 여기에 표시됩니다.
               </div>
             )}
             {loading && (

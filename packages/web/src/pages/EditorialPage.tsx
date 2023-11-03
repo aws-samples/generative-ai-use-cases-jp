@@ -225,12 +225,12 @@ const EditorialPage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-        校正
+        교정
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="校正したい文章">
+        <Card label="교정하고 싶은 문장">
           <Texteditor
-            placeholder="入力してください"
+            placeholder="입력해 주세요"
             value={sentence}
             loading={loading}
             onChange={setSentence}
@@ -239,9 +239,9 @@ const EditorialPage: React.FC = () => {
             removeComment={removeComment}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label="추가 컨텍스트" optional>
             <Textarea
-              placeholder="追加で指摘してほしい点を入力することができます"
+              placeholder="추가로 지적하고 싶은 점을 입력할 수 있습니다."
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -249,11 +249,11 @@ const EditorialPage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              지우기
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              실행
             </Button>
           </div>
         </Card>

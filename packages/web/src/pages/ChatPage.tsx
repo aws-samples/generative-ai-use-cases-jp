@@ -67,7 +67,7 @@ const ChatPage: React.FC = () => {
         {isEmpty && !loadingMessages && (
           <>
             <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
-              チャット
+              채팅
             </div>
           </>
         )}
