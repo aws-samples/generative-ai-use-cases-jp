@@ -54,8 +54,7 @@ const useTranscribeState = create<{
 
     // 音声認識
     const startTranscripitonRes = await api.startTranscripiton({
-      audioUrl: audioUrl,
-      mediaFormat: mediaFormat,
+      audioUrl: audioUrl
     });
 
     set(() => ({

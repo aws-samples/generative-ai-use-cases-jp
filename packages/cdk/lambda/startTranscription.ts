@@ -21,7 +21,6 @@ export const handler = async (
     const command = new StartTranscriptionJobCommand({
       IdentifyLanguage: true,
       LanguageOptions: ['ja-JP', 'en-US'],
-      MediaFormat: mediaFormat,
       Media: { MediaFileUri: audioUrl },
       TranscriptionJobName: uuid,
       OutputBucketName: process.env.TRANSCRIPT_BUCKET_NAME,

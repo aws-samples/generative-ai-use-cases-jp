@@ -48,10 +48,10 @@ const TranscribePage: React.FC = () => {
             aria-describedby="file_input_help"
             id="file_input"
             type="file"
-            accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm"
+            accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
             ref={ref}></input>
           <p className="ml-0.5 mt-1 text-sm text-gray-500" id="file_input_help">
-            mp3, mp4, wav, flac, ogg, amr, webm ファイルが利用可能です
+            mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
           </p>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disabledExec} onClick={onClickClear}>
