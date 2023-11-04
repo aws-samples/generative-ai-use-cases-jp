@@ -14,7 +14,7 @@ export const handler = async (
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
     const userId = event.requestContext.authorizer!.claims.sub;
 
-    const { audioUrl, mediaFormat } = req;
+    const { audioUrl } = req;
 
     const uuid = uuidv4();
 
