@@ -13,6 +13,7 @@ import {
   UpdateFeedbackResponse,
   UpdateTitleRequest,
   UpdateTitleResponse,
+  SettingResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -120,6 +121,9 @@ const useChatApi = () => {
     ): Promise<PredictTitleResponse> => {
       const res = await http.post('predict/title', req);
       return res.data;
+    },
+    getSetting: () => {
+      return http.get<SettingResponse>('setting');
     },
   };
 };

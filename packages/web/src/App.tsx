@@ -14,6 +14,7 @@ import {
   PiTranslate,
   PiImages,
   PiSpeakerHighBold,
+  PiGear,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -34,64 +35,70 @@ const items: ItemProps[] = [
     label: 'ホーム',
     to: '/',
     icon: <PiHouse />,
-    usecase: true,
+    display: 'usecase' as const,
+  },
+  {
+    label: '設定情報',
+    to: '/setting',
+    icon: <PiGear />,
+    display: 'none' as const,
   },
   {
     label: 'チャット',
     to: '/chat',
     icon: <PiChatsCircle />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   ragEnabled
     ? {
         label: 'RAG チャット',
         to: '/rag',
         icon: <PiChatCircleText />,
-        usecase: true,
+        display: 'usecase' as const,
       }
     : null,
   {
     label: '文章生成',
     to: '/generate',
     icon: <PiPencil />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   {
     label: '要約',
     to: '/summarize',
     icon: <PiNote />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   {
     label: '校正',
     to: '/editorial',
     icon: <PiPenNib />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   {
     label: '翻訳',
     to: '/translate',
     icon: <PiTranslate />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   {
     label: '画像生成',
     to: '/image',
     icon: <PiImages />,
-    usecase: true,
+    display: 'usecase' as const,
   },
   {
     label: '音声認識',
     to: '/transcribe',
     icon: <PiSpeakerHighBold />,
-    usecase: false,
+    display: 'tool' as const,
   },
   ragEnabled
     ? {
         label: 'Kendra 検索',
         to: '/kendra',
         icon: <PiMagnifyingGlass />,
-        usecase: false,
+        display: 'tool' as const,
       }
     : null,
 ].flatMap((i) => (i !== null ? [i] : []));

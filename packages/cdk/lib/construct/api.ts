@@ -234,6 +234,19 @@ export class Api extends Construct {
     });
     table.grantWriteData(updateFeedbackFunction);
 
+    const settingFunction = new NodejsFunction(this, 'Setting', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/setting.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_TYPE: modelType,
+        MODEL_REGION: modelRegion,
+        MODEL_NAME: modelName,
+        PROMPT_TEMPLATE_FILE: promptTemplateFile,
+        IMAGE_GEN_MODEL_NAME: imageGenerateModelName,
+      },
+    });
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -358,6 +371,13 @@ export class Api extends Construct {
     imageGenerateResource.addMethod(
       'POST',
       new LambdaIntegration(generateImageFunction),
+      commonAuthorizerProps
+    );
+
+    const settingResource = api.root.addResource('setting');
+    settingResource.addMethod(
+      'GET',
+      new LambdaIntegration(settingFunction),
       commonAuthorizerProps
     );
 

@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
 import ButtonIcon from './ButtonIcon';
-import { PiSignOut, PiX, PiGithubLogo } from 'react-icons/pi';
+import { PiSignOut, PiX, PiGithubLogo, PiGear } from 'react-icons/pi';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import ChatList from './ChatList';
 
@@ -11,7 +11,7 @@ export type ItemProps = BaseProps & {
   label: string;
   to: string;
   icon: JSX.Element;
-  usecase: boolean;
+  display: 'usecase' | 'tool' | 'none';
 };
 
 const Item: React.FC<ItemProps> = (props) => {
@@ -84,13 +84,14 @@ type Props = BaseProps & {
 
 const Drawer: React.FC<Props> = (props) => {
   const { opened, switchOpen } = useDrawer();
+  const navigate = useNavigate();
 
   const usecases = useMemo(() => {
-    return props.items.filter((i) => i.usecase);
+    return props.items.filter((i) => i.display === 'usecase');
   }, [props.items]);
 
   const tools = useMemo(() => {
-    return props.items.filter((i) => !i.usecase);
+    return props.items.filter((i) => i.display === 'tool');
   }, [props.items]);
 
   return (
@@ -109,7 +110,7 @@ const Drawer: React.FC<Props> = (props) => {
               label={item.label}
               icon={item.icon}
               to={item.to}
-              usecase={item.usecase}
+              display={item.display}
             />
           ))}
         </div>
@@ -126,7 +127,7 @@ const Drawer: React.FC<Props> = (props) => {
                   label={item.label}
                   icon={item.icon}
                   to={item.to}
-                  usecase={item.usecase}
+                  display={item.display}
                 />
               ))}
             </div>
@@ -152,9 +153,16 @@ const Drawer: React.FC<Props> = (props) => {
             label="GitHub"
           />
         </div>
-        <div className="flex justify-end border-t border-gray-400 p-3">
+        <div className="flex justify-between border-t border-gray-400 px-1 py-2">
+          <ButtonIcon
+            onClick={() => {
+              navigate('/setting');
+            }}>
+            <PiGear className="mr-1 text-base" />
+            <span className="ml-1 text-sm">設定情報</span>
+          </ButtonIcon>
           <ButtonIcon onClick={props.signOut}>
-            <PiSignOut className="text-base" />
+            <PiSignOut className="mr-1 text-base" />
             <span className="ml-1 text-sm">サインアウト</span>
           </ButtonIcon>
         </div>

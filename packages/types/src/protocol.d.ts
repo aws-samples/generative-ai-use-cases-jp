@@ -103,3 +103,11 @@ export type GetTranscriptionResponse = {
 export type UploadAudioRequest = {
   file: File;
 };
+
+export type SettingResponse = {
+  modelType: string;
+  modelRegion: string;
+  modelName: string;
+  promptTemplateFile: string;
+  imageGenModelName: string;
+};
