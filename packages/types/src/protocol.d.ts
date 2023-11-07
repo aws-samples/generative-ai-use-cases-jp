@@ -88,7 +88,6 @@ export type GetSignedUrlResponse = string;
 
 export type StartTranscriptionRequest = {
   audioUrl: string;
-  mediaFormat: MediaFormat;
 };
 
 export type StartTranscriptionResponse = {

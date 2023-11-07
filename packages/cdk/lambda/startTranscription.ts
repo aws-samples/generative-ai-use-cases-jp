@@ -14,14 +14,13 @@ export const handler = async (
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
     const userId = event.requestContext.authorizer!.claims.sub;
 
-    const { audioUrl, mediaFormat } = req;
+    const { audioUrl } = req;
 
     const uuid = uuidv4();
 
     const command = new StartTranscriptionJobCommand({
       IdentifyLanguage: true,
       LanguageOptions: ['ja-JP', 'en-US'],
-      MediaFormat: mediaFormat,
       Media: { MediaFileUri: audioUrl },
       TranscriptionJobName: uuid,
       OutputBucketName: process.env.TRANSCRIPT_BUCKET_NAME,
