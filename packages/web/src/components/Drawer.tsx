@@ -65,7 +65,7 @@ const RefLink: React.FC<RefLinkProps> = (props) => {
 
   return (
     <Link
-      className={`flex h-8 items-center rounded px-1 py-2 ${props.className}`}
+      className={`flex h-8 w-fit cursor-pointer items-center rounded px-1 py-2 ${props.className}`}
       to={props.to}
       onClick={onClick}
       target="_blank">
@@ -118,7 +118,7 @@ const Drawer: React.FC<Props> = (props) => {
         {tools.length > 0 && (
           <>
             <div className="text-aws-smile mx-3 my-2 text-xs">
-              ツール <span className="text-gray-400">(非生成系AI)</span>
+              ツール <span className="text-gray-400">(AIサービス)</span>
             </div>
             <div className="mb-1 ml-2 mr-1">
               {tools.map((item, idx) => (

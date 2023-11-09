@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   PiDotsThreeVertical,
   PiList,
@@ -126,6 +126,7 @@ const App: React.FC = () => {
   I18n.setLanguage('ja');
 
   const { switchOpen: switchDrawer } = useDrawer();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
 
@@ -170,6 +171,13 @@ const App: React.FC = () => {
               <div className="flex w-10 justify-end">
                 <MenuDropdown menu={<PiDotsThreeVertical />}>
                   <>
+                    <MenuItem
+                      icon={<PiGear />}
+                      onClick={() => {
+                        navigate('/setting');
+                      }}>
+                      設定情報
+                    </MenuItem>
                     <MenuItem
                       icon={<PiSignOut />}
                       onClick={() => {
