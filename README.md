@@ -87,6 +87,10 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## デプロイ
 
+このアプリケーションをデプロイするために、AWS CDK を実行する環境が必要です。CDK を使ったデプロイに不慣れな方は、[こちらのドキュメント](https://catalog.us-east-1.prod.workshops.aws/workshops/9748a536-3a71-4f0e-a6cd-ece16c0e3487/ja-JP) をご活用ください。CDK 環境の準備、デプロイの手順の説明、セキュリティ機能の追加などを丁寧に説明したワークショップがあります。
+
+CDK に慣れている方は、次の手順に沿ってデプロイ作業を行ってください。
+
 **このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。Claude Instant を利用する場合など、設定を変える方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md) をご確認ください。**
 
 [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。最初に、npm パッケージをインストールしてください。なお、全てのコマンドはルートディレクトリで実行してください。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)でもデプロイ手順を確認できます。
