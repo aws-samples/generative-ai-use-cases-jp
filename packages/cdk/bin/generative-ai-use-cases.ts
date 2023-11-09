@@ -9,7 +9,7 @@ class DeletionPolicySetter implements cdk.IAspect {
 
   visit(node: IConstruct): void {
     if (node instanceof cdk.CfnResource) {
-      node.applyRemovalPolicy(this.policy)
+      node.applyRemovalPolicy(this.policy);
     }
   }
 }
