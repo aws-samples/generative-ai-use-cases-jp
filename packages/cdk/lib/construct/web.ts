@@ -21,19 +21,23 @@ export class Web extends Construct {
   constructor(scope: Construct, id: string, props: WebProps) {
     super(scope, id);
 
+    const commonBucketProps: s3.BucketProps = {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      enforceSSL: true,
+    };
+
     const { cloudFrontWebDistribution, s3BucketInterface } = new CloudFrontToS3(
       this,
       'Web',
       {
         insertHttpSecurityHeaders: false,
-        bucketProps: {
-          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-          encryption: s3.BucketEncryption.S3_MANAGED,
-          autoDeleteObjects: true,
-          removalPolicy: RemovalPolicy.DESTROY,
-          objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-          enforceSSL: true,
-        },
+        loggingBucketProps: commonBucketProps,
+        bucketProps: commonBucketProps,
+        cloudFrontLoggingBucketProps: commonBucketProps,
         cloudFrontDistributionProps: {
           errorResponses: [
             {

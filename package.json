@@ -10,6 +10,7 @@
     "web:build": "npm -w packages/web run build",
     "web:lint": "npm -w packages/web run lint",
     "cdk:deploy": "npm -w packages/cdk run cdk deploy --",
+    "cdk:destroy": "npm -w packages/cdk run cdk destroy",
     "cdk:lint": "npm -w packages/cdk run lint"
   },
   "devDependencies": {
