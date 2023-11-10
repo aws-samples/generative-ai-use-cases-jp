@@ -91,7 +91,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。CDK 環境の準備や、デプロイ手順の説明、セキュリティ機能の追加などを解説している [こちらのドキュメント](https://catalog.workshops.aws/generative-ai-use-cases-jp) で、より詳細な手順を確認できます。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)では、動画形式でもデプロイ手順を確認できます。
 
-以下のコマンドを使ってデプロイを行います。
+以下にデプロイ手順を記載します。
 
 ```bash
 npm ci
