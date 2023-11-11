@@ -10,8 +10,6 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chat = await createChat(req.usecase, userId);
-    console.log(req);
-    console.log(chat);
 
     return {
       statusCode: 200,
