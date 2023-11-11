@@ -60,8 +60,8 @@ const RagPage: React.FC = () => {
 
   return (
     <>
-      <div className={`${!isEmpty ? 'pb-36' : ''}`}>
-        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+      <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
+        <div className="my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
           RAG チャット
         </div>
 
@@ -109,7 +109,7 @@ const RagPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="absolute bottom-0 z-0 flex w-full items-end justify-center">
+      <div className="absolute bottom-0 z-0 flex w-full items-end justify-center print:hidden">
         <InputChatContent
           content={content}
           disabled={loading}
