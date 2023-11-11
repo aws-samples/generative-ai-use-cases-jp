@@ -151,11 +151,11 @@ const App: React.FC = () => {
         ),
       }}>
       {({ signOut }) => (
-        <div className="relative flex h-screen w-screen">
+        <div className="screen:h-screen screen:w-screen relative flex">
           <Drawer signOut={signOut!} items={items} />
 
           <main className="transition-width relative min-h-screen flex-1 overflow-y-hidden">
-            <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0">
+            <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
               <div className="flex w-10 items-center justify-start">
                 <button
                   className="focus:ring-aws-sky mr-2 rounded-full  p-2 hover:opacity-50 focus:outline-none focus:ring-1"
@@ -191,7 +191,7 @@ const App: React.FC = () => {
             </header>
 
             <div
-              className="text-aws-font-color h-full overflow-hidden overflow-y-auto"
+              className="text-aws-font-color screen:h-full screen:overflow-y-auto overflow-hidden"
               id="main">
               <Outlet />
             </div>
