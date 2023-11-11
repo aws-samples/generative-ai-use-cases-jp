@@ -110,7 +110,11 @@ const useChatState = create<{
       return chat.chatId;
     }
 
-    const { chat: newChat } = await createChat();
+    const req = {
+      usecase: id.split("/")[1]
+    };
+
+    const { chat: newChat } = await createChat(req);
 
     set((state) => {
       const newChats = produce(state.chats, (draft) => {

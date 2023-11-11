@@ -18,14 +18,14 @@ const TABLE_NAME: string = process.env.TABLE_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
-export const createChat = async (_userId: string): Promise<Chat> => {
+export const createChat = async (usecase: string, _userId: string): Promise<Chat> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${crypto.randomUUID()}`;
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
     chatId,
-    usecase: '',
+    usecase: usecase,
     title: '',
     updatedDate: '',
   };
