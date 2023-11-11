@@ -135,7 +135,6 @@ export const batchCreateMessages = async (
       };
     }
   );
-
   await dynamoDbDocument.send(
     new BatchWriteCommand({
       RequestItems: {
