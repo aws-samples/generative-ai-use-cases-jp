@@ -18,14 +18,14 @@ const TABLE_NAME: string = process.env.TABLE_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
-export const createChat = async (usecase: string, _userId: string): Promise<Chat> => {
+export const createChat = async (_userId: string): Promise<Chat> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${crypto.randomUUID()}`;
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
     chatId,
-    usecase: usecase,
+    usecase: '',
     title: '',
     updatedDate: '',
   };
@@ -110,6 +110,7 @@ export const listMessages = async (
 
 export const batchCreateMessages = async (
   messages: ToBeRecordedMessage[],
+  _llmType: string,
   _userId: string,
   _chatId: string
 ): Promise<RecordedMessage[]> => {
@@ -117,8 +118,7 @@ export const batchCreateMessages = async (
   const chatId = `chat#${_chatId}`;
   const createdDate = Date.now();
   const feedback = 'none';
-  const usecase = '';
-  const llmType = 'bedrock';
+  const llmType = _llmType;
 
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
@@ -130,7 +130,7 @@ export const batchCreateMessages = async (
         content: m.content,
         userId,
         feedback,
-        usecase,
+        usecase: m.usecase,
         llmType,
       };
     }

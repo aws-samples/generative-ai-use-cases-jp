@@ -110,11 +110,7 @@ const useChatState = create<{
       return chat.chatId;
     }
 
-    const req = {
-      usecase: id.split("/")[1]
-    };
-
-    const { chat: newChat } = await createChat(req);
+    const { chat: newChat } = await createChat();
 
     set((state) => {
       const newChats = produce(state.chats, (draft) => {
@@ -139,6 +135,7 @@ const useChatState = create<{
         for (const m of draft[id].messages) {
           if (!m.messageId) {
             m.messageId = uuid();
+            m.usecase = id.split('/')[1];
             // 参照が切れるとエラーになるため clone する
             toBeRecordedMessages.push(
               Object.assign({}, m as ToBeRecordedMessage)

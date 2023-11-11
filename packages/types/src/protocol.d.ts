@@ -11,10 +11,6 @@ import {
 import { GenerateImageParams } from './image';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
 
-export type CreateChatRequest = {
-  usecase: string;
-};
-
 export type CreateChatResponse = {
   chat: Chat;
 };

@@ -1,7 +1,6 @@
 import {
   PredictRequest,
   PredictResponse,
-  CreateChatRequest,
   CreateChatResponse,
   CreateMessagesRequest,
   CreateMessagesResponse,
@@ -30,10 +29,8 @@ const useChatApi = () => {
   const http = useHttp();
 
   return {
-    createChat: async (
-      req: CreateChatRequest
-    ): Promise<CreateChatResponse> => {
-      const res = await http.post('chats', req);
+    createChat: async (): Promise<CreateChatResponse> => {
+      const res = await http.post('chats', {});
       return res.data;
     },
     createMessages: async (

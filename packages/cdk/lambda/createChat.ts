@@ -1,15 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { CreateChatRequest } from 'generative-ai-use-cases-jp';
 import { createChat } from './repository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req: CreateChatRequest  = JSON.parse(event.body!);
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const chat = await createChat(req.usecase, userId);
+    const chat = await createChat(userId);
 
     return {
       statusCode: 200,
