@@ -20,7 +20,7 @@ const Setting = () => {
 
   return (
     <div>
-      <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+      <div className="my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
         設定情報
       </div>
 
