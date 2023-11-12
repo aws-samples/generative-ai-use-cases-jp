@@ -74,7 +74,7 @@ const ChatPage: React.FC = () => {
   return (
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
-        <div className="my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+        <div className="invisible h-0 my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:h-min print:my-5">
           {title}
         </div>
 

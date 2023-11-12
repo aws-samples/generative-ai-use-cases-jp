@@ -109,7 +109,7 @@ const GenerateTextPage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-12">
-      <div className="col-span-12 my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+      <div className="invisible h-0 col-span-12 my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:h-min print:my-5">
         文章生成
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
