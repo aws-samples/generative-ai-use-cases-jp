@@ -84,20 +84,18 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end lg:-mr-24">
+        <div className="flex items-start justify-end lg:-mr-24 print:hidden">
           {chatContent?.role === 'user' && <div className="lg:w-8"></div>}
           {chatContent?.role === 'assistant' && !props.loading && (
             <>
               <ButtonCopy
-                className="mr-0.5 text-gray-400 print:hidden"
+                className="mr-0.5 text-gray-400"
                 text={chatContent.content}
               />
               {chatContent && (
                 <>
                   <ButtonFeedback
-                    className={`mx-0.5${
-                      chatContent.feedback !== 'good' ? ' print:hidden' : ''
-                    }`}
+                    className="mx-0.5$"
                     feedback="good"
                     message={chatContent}
                     disabled={disabled}
@@ -106,9 +104,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                     }}
                   />
                   <ButtonFeedback
-                    className={`ml-0.5${
-                      chatContent.feedback !== 'bad' ? ' print:hidden' : ''
-                    }`}
+                    className="ml-0.5"
                     feedback="bad"
                     message={chatContent}
                     disabled={disabled}
