@@ -289,9 +289,10 @@ const useChatState = create<{
             const oldAssistantMessage = draft[id].messages.pop()!;
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
-              content: (oldAssistantMessage.content + chunk)
-                .replace(/(<output>|<\/output>)/g, '')
-                .trim(),
+              content: (oldAssistantMessage.content + chunk).replace(
+                /(<output>|<\/output>)/g,
+                ''
+              ),
             };
 
             draft[id].messages.push(newAssistantMessage);
