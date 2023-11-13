@@ -61,7 +61,7 @@ const RagPage: React.FC = () => {
   return (
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
-        <div className="invisible h-0 my-0 flex items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:h-min print:my-5">
+        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
           RAG チャット
         </div>
 

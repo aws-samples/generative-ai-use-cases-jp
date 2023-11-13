@@ -84,7 +84,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end lg:-mr-24 print:hidden">
+        <div className="flex items-start justify-end print:hidden lg:-mr-24">
           {chatContent?.role === 'user' && <div className="lg:w-8"></div>}
           {chatContent?.role === 'assistant' && !props.loading && (
             <>
@@ -95,7 +95,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               {chatContent && (
                 <>
                   <ButtonFeedback
-                    className="mx-0.5$"
+                    className="mx-0.5"
                     feedback="good"
                     message={chatContent}
                     disabled={disabled}

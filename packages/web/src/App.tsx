@@ -191,7 +191,7 @@ const App: React.FC = () => {
             </header>
 
             <div
-              className="text-aws-font-color screen:h-full overflow-y-auto overflow-hidden"
+              className="text-aws-font-color screen:h-full overflow-hidden overflow-y-auto"
               id="main">
               <Outlet />
             </div>
