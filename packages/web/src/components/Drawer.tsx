@@ -99,7 +99,7 @@ const Drawer: React.FC<Props> = (props) => {
       <nav
         className={`h-full lg:visible lg:w-64 ${
           opened ? 'visible w-64' : 'invisible w-0'
-        } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
+        } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white print:hidden lg:static lg:z-0`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
           ユースケース <span className="text-gray-400">(生成系AI)</span>
         </div>

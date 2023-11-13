@@ -84,7 +84,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end lg:-mr-24">
+        <div className="flex items-start justify-end print:hidden lg:-mr-24">
           {chatContent?.role === 'user' && <div className="lg:w-8"></div>}
           {chatContent?.role === 'assistant' && !props.loading && (
             <>
