@@ -19,4 +19,4 @@
     "allowedIpV6AddressRanges": ["2001:0db8::/32"], // null から、許可 CIDR リストを指定することで有効化
 ```
 
-`allowedIpV4AddressRanges`　あるいは `allowedIpV6AddressRanges` のどちらかを指定した場合、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）
+`allowedIpV4AddressRanges` あるいは `allowedIpV6AddressRanges` のどちらかを指定した場合、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）
