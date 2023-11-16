@@ -40,7 +40,7 @@ const Setting = () => {
       {hasUpdate && (
         <div className="mt-5 flex w-full justify-center">
           <Alert severity="info" className="flex w-fit items-center">
-            GitHub にアップデートがあります。
+            GitHub にアップデートがあります。最新の機能を利用したい場合は
             <Link
               className="text-aws-smile"
               to="https://github.com/aws-samples/generative-ai-use-cases-jp"
