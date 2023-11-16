@@ -7,6 +7,7 @@ import ButtonIcon from './ButtonIcon';
 import { ErrorBoundary } from './ErrorBoundary';
 import { PiTrash } from 'react-icons/pi';
 import HighlightWithinTextarea from 'react-highlight-within-textarea';
+import { I18n } from "aws-amplify";
 import 'draft-js/dist/Draft.css';
 
 type Props = RowItemProps & {
@@ -33,6 +34,7 @@ const Texteditor: React.FC<Props> = (props) => {
         <ErrorBoundary>
           {/* 
           draft.js の不具合でクラッシュすることがあるためエラーが発生した際に再レンダリングを行う。
+          Since a crash may occur due to a bug in draft.js, re-rendering is performed when an error occurs.
           https://github.com/facebookarchive/draft-js/issues/1320#issuecomment-472776784
            */}
           <HighlightWithinTextarea
@@ -71,7 +73,7 @@ const Texteditor: React.FC<Props> = (props) => {
               )
           )}
         {!props.loading && props.comments && props.comments.length === 0 && (
-          <div className="mb-2 ml-2 w-80">指摘事項はありません</div>
+          <div className="mb-2 ml-2 w-80">{I18n.get("no_indications")}</div>
         )}
         {props.loading && (
           <div className="mb-2 ml-2 flex w-80 justify-center">

@@ -9,6 +9,7 @@ import useScroll from '../hooks/useScroll';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ReactComponent as KendraIcon } from '../assets/kendra.svg';
 import { PiPlus } from 'react-icons/pi';
+import { I18n } from 'aws-amplify';
 
 type StateType = {
   content: string;
@@ -62,7 +63,7 @@ const RagPage: React.FC = () => {
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-          RAG チャット
+          {I18n.get("rag_chat")}
         </div>
 
         {isEmpty && (
@@ -79,20 +80,16 @@ const RagPage: React.FC = () => {
           <div className="absolute inset-x-0 top-20 m-auto flex justify-center">
             <Alert severity="info">
               <div>
-                RAG (Retrieval Augmented Generation)
-                手法のチャットを行うことができます。
+                {I18n.get("rag_alert")}
               </div>
               <div>
-                メッセージが入力されると Amazon Kendra
-                でドキュメントを検索し、検索したドキュメントをもとに LLM
-                が回答を生成します。
+                {I18n.get("kendra_alert")}
               </div>
               <div className="font-bold">
-                Amazon Kendra の検索のみを実行する場合は
+                {I18n.get("kendra_if_you_only_want")}
                 <Link className="text-aws-smile" to="/kendra">
-                  こちら
+                {I18n.get("click_here")}.
                 </Link>
-                のページに遷移してください。
               </div>
             </Alert>
           </div>

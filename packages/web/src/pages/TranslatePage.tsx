@@ -13,15 +13,17 @@ import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
+import { I18n } from 'aws-amplify';
+
 
 const languages = [
-  { label: '英語' },
-  { label: '日本語' },
-  { label: '中国語' },
-  { label: '韓国語' },
-  { label: 'フランス語' },
-  { label: 'スペイン語' },
-  { label: 'ドイツ語' },
+  { label: I18n.get("english")},
+  { label: I18n.get("japanese")},
+  { label: I18n.get("chinese")},
+  { label: I18n.get("korean")},
+  { label: I18n.get("french")},
+  { label: I18n.get("spanish")},
+  { label: I18n.get("german")},
 ];
 
 type StateType = {
@@ -89,6 +91,7 @@ const TranslatePage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
+  // Memo variables
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
   }, [sentence, loading]);
@@ -103,14 +106,18 @@ const TranslatePage: React.FC = () => {
   }, [state]);
 
   // 文章の更新時にコメントを更新
+  // update comments when text is updated
   useEffect(() => {
     // debounce した後翻訳
+    // translate after debounce
     onSentenceChange(sentence, additionalContext, language, loading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence, language]);
 
   // debounce した後翻訳
+  // translate after debounce
   // 入力を止めて1秒ほど待ってから翻訳リクエストを送信
+  // Stop typing and wait about 1 second before submitting the translation request
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
     debounce(
@@ -133,6 +140,7 @@ const TranslatePage: React.FC = () => {
   );
 
   // リアルタイムにレスポンスを表示
+  // display responses in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -161,6 +169,7 @@ const TranslatePage: React.FC = () => {
   };
 
   // 翻訳を実行
+  // execute translation
   const onClickExec = useCallback(() => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
@@ -177,15 +186,15 @@ const TranslatePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        翻訳
+        {I18n.get("translation")}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="翻訳したい文章">
+        <Card label={I18n.get("translation_sentences")}>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="py-3">言語を自動検出</div>
+              <div className="py-3">{I18n.get("translation_autodetect")}</div>
               <Textarea
-                placeholder="入力してください"
+                placeholder={I18n.get("please_enter")}
                 value={sentence}
                 onChange={setSentence}
                 maxHeight={-1}
@@ -219,9 +228,9 @@ const TranslatePage: React.FC = () => {
             </div>
           </div>
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label={I18n.get("additional_context")} optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              placeholder={I18n.get("additional_context_placeholder")}
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -229,11 +238,11 @@ const TranslatePage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+                {I18n.get("clear")}
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+                  {I18n.get("execute")}
             </Button>
           </div>
         </Card>

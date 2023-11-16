@@ -7,6 +7,8 @@ import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import { I18n } from "aws-amplify";
+
 
 type StateType = {
   content: string;
@@ -36,9 +38,9 @@ const ChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'チャット';
+      return getConversationTitle(chatId) || I18n.get("chats");
     } else {
-      return 'チャット';
+      return I18n.get("chats");
     }
   }, [chatId, getConversationTitle]);
 

@@ -19,6 +19,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import Button from './Button';
 import { BaseProps } from '../@types/common';
 import ModalDialog from './ModalDialog';
+import { I18n } from 'aws-amplify';
 
 type SketchButtonProps = BaseProps & {
   isActive?: boolean;
@@ -142,6 +143,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
         img.onload = () => {
           // 画像をリサイズ
+          // resize image
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           canvas.width = IMAGE_SIZE;
@@ -165,7 +167,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
   return (
     <>
-      <ModalDialog isOpen={isOpenUpload} title="画像をアップロード">
+      <ModalDialog isOpen={isOpenUpload} title={I18n.get("upload_image")}>
         <div>
           <div className="mb-3 flex w-full">
             <input type="file" onChange={handleImageUpload} accept="image/*" />
@@ -180,9 +182,9 @@ const SketchPad: React.FC<Props> = (props) => {
               onClick={() => {
                 setIsOpenUpload(false);
               }}>
-              キャンセル
+                {I18n.get("cancelled")}
             </Button>
-            <Button onClick={onClickUploadComplet}>完了</Button>
+            <Button onClick={onClickUploadComplet}>{I18n.get("completions")}</Button>
           </div>
         </div>
       </ModalDialog>
@@ -240,7 +242,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
           <Button outlined onClick={onClickClear}>
             <PiTrash className="mr-2" />
-            Clear
+            {I18n.get("clear")}
           </Button>
         </div>
 
@@ -265,13 +267,13 @@ const SketchPad: React.FC<Props> = (props) => {
               setIsOpenUpload(true);
             }}>
             <PiUploadSimple />
-            画像をアップロード
+            {I18n.get("upload_image")}
           </Button>
           <div className="flex gap-3">
             <Button outlined onClick={props.onCancel}>
-              キャンセル
+              {I18n.get("cancelled")}
             </Button>
-            <Button onClick={onClickComplete}>完了</Button>
+            <Button onClick={onClickComplete}>{I18n.get("completions")}</Button>
           </div>
         </div>
       </div>

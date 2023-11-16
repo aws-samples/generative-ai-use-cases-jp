@@ -30,6 +30,7 @@ const fetcher = (url: string) => {
 // };
 
 // FIXME:バックエンドができた時点で最適化する
+// FIXME: optimize once the backend is ready
 
 /**
  * Hooks for Http Request

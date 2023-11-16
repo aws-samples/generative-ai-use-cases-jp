@@ -20,11 +20,14 @@ import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import { Amplify, I18n } from 'aws-amplify';
+import { langStrings } from "./utils/i18n";
 import '@aws-amplify/ui-react/styles.css';
 import MenuDropdown from './components/MenuDropdown';
 import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
+
+I18n.putVocabularies(langStrings);
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const selfSignUpEnabled: boolean =
@@ -32,70 +35,70 @@ const selfSignUpEnabled: boolean =
 
 const items: ItemProps[] = [
   {
-    label: 'ホーム',
+    label: I18n.get('home'),
     to: '/',
     icon: <PiHouse />,
     display: 'usecase' as const,
   },
   {
-    label: '設定情報',
+    label: I18n.get('settings'),
     to: '/setting',
     icon: <PiGear />,
     display: 'none' as const,
   },
   {
-    label: 'チャット',
+    label: I18n.get("chat"),
     to: '/chat',
     icon: <PiChatsCircle />,
     display: 'usecase' as const,
   },
   ragEnabled
     ? {
-        label: 'RAG チャット',
+        label: I18n.get('rag_chat'),
         to: '/rag',
         icon: <PiChatCircleText />,
         display: 'usecase' as const,
       }
     : null,
   {
-    label: '文章生成',
+    label: I18n.get("text_gen"),
     to: '/generate',
     icon: <PiPencil />,
     display: 'usecase' as const,
   },
   {
-    label: '要約',
+    label: I18n.get("summarize"),
     to: '/summarize',
     icon: <PiNote />,
     display: 'usecase' as const,
   },
   {
-    label: '校正',
+    label: I18n.get('editor'),
     to: '/editorial',
     icon: <PiPenNib />,
     display: 'usecase' as const,
   },
   {
-    label: '翻訳',
+    label: I18n.get("translation"),
     to: '/translate',
     icon: <PiTranslate />,
     display: 'usecase' as const,
   },
   {
-    label: '画像生成',
+    label: I18n.get("image_gen"),
     to: '/image',
     icon: <PiImages />,
     display: 'usecase' as const,
   },
   {
-    label: '音声認識',
+    label: I18n.get('audio_transcription'),
     to: '/transcribe',
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
   ragEnabled
     ? {
-        label: 'Kendra 検索',
+        label: I18n.get("kendra_search"),
         to: '/kendra',
         icon: <PiMagnifyingGlass />,
         display: 'tool' as const,
@@ -105,6 +108,9 @@ const items: ItemProps[] = [
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す
+///chat/: returns :chatId from the format /chat/ :chatId
+//if path is in another format, it returns null
+
 const extractChatId = (path: string): string | null => {
   const pattern = /\/chat\/(.+)/;
   const match = path.match(pattern);
@@ -121,9 +127,10 @@ const App: React.FC = () => {
       authenticationFlowType: 'USER_SRP_AUTH',
     },
   });
-
-  I18n.putVocabularies(translations);
-  I18n.setLanguage('ja');
+  // Amplify should figure out the language for us.
+  //I18n.setLanguage('en');
+  // I18n.putVocabularies(translations);
+  // I18n.setLanguage('ja');
 
   const { switchOpen: switchDrawer } = useDrawer();
   const navigate = useNavigate();
@@ -146,7 +153,7 @@ const App: React.FC = () => {
       components={{
         Header: () => (
           <div className="text-aws-font-color mb-5 mt-10 flex justify-center text-3xl">
-            Generative AI on AWS
+            {I18n.get("gen_ai_on_aws")}
           </div>
         ),
       }}>
@@ -176,14 +183,14 @@ const App: React.FC = () => {
                       onClick={() => {
                         navigate('/setting');
                       }}>
-                      設定情報
+                      {I18n.get('settings')}
                     </MenuItem>
                     <MenuItem
                       icon={<PiSignOut />}
                       onClick={() => {
                         signOut ? signOut() : null;
                       }}>
-                      サインアウト
+                        {I18n.get("sign_out")}
                     </MenuItem>
                   </>
                 </MenuDropdown>

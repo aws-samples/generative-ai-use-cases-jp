@@ -10,6 +10,8 @@ import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { editorialPrompt } from '../prompts';
+import { I18n } from 'aws-amplify';
+
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -80,6 +82,7 @@ const EditorialPage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
+  // Memo variables
   const filterComment = (
     _comments: DocumentComment[],
     _commentState: { [name: string]: boolean }
@@ -107,22 +110,25 @@ const EditorialPage: React.FC = () => {
   }, [state]);
 
   // 文章の更新時にコメントを更新
+  // Update comments when text is updated
   useEffect(() => {
     // Claude だと全角を半角に変換して出力するため入力を先に正規化
+    // If it's Claude, convert full-width to half-width and output, the input is normalized first
     if (sentence !== '') {
       setSentence(
         sentence
           .replace(REGEX_ZENKAKU, (s) => {
             return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
           })
-          .replace(/[‐－―]/g, '-') // ハイフンなど
-          .replace(/[～〜]/g, '~') // チルダ
+          .replace(/[‐－―]/g, '-') // ハイフンなど | hyphens, etc.
+          .replace(/[～〜]/g, '~') // チルダ | tilde
           // eslint-disable-next-line no-irregular-whitespace
-          .replace(/　/g, ' ') // スペース
+          .replace(/　/g, ' ') // スペース | spaces
       );
     }
 
     // debounce した後コメント更新
+    // Comment updated after debounce
     onSentenceChange(
       sentence,
       additionalContext,
@@ -134,7 +140,9 @@ const EditorialPage: React.FC = () => {
   }, [sentence]);
 
   // debounce した後コメントを更新
+  // Update comment after debounce
   // 入力を止めて1秒ほど待ってからコメントを更新し新規コメント追加リクエストを送信
+  // Stop typing, wait about 1 second, update your comment, and submit a request to add a new comment
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
     debounce(
@@ -146,6 +154,7 @@ const EditorialPage: React.FC = () => {
         _loading: boolean
       ) => {
         // ハイライト部分が変更されたらコメントを削除
+        // Delete comments when highlights are changed
         for (const _comment of _comments) {
           if (_sentence.indexOf(_comment.excerpt) === -1) {
             _commentState[_comment.excerpt] = true;
@@ -154,6 +163,7 @@ const EditorialPage: React.FC = () => {
         setCommentState({ ..._commentState });
 
         // コメントがなくなったらコメントを取得
+        // Get comments when there are no more comments (might need better translation)
         const _shownComment = filterComment(_comments, _commentState);
         if (_shownComment.length === 0 && _sentence !== '' && !_loading) {
           getAnnotation(_sentence, _additionalContext);
@@ -165,6 +175,7 @@ const EditorialPage: React.FC = () => {
   );
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
+  // Extract the JSON part and convert it into a comment in real time when a comment is updated
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -183,6 +194,7 @@ const EditorialPage: React.FC = () => {
   }, [messages, commentState]);
 
   // コメントで指定された修正を実行
+  // Execute the modifications specified in the comments
   const replaceSentence = (_comment: DocumentComment) => {
     if (_comment.replace) {
       setSentence(sentence.replace(_comment.excerpt, _comment.replace));
@@ -191,12 +203,14 @@ const EditorialPage: React.FC = () => {
   };
 
   // コメントを削除
+  // delete comment
   const removeComment = (_comment: DocumentComment) => {
     commentState[_comment.excerpt] = true;
     setCommentState({ ...commentState });
   };
 
   // LLM にリクエスト送信
+  // send request to LLM
   const getAnnotation = (sentence: string, context: string) => {
     setCommentState({});
     postChat(
@@ -209,6 +223,7 @@ const EditorialPage: React.FC = () => {
   };
 
   // コメントを取得
+  // get comments
   const onClickExec = useCallback(() => {
     if (loading) return;
     getAnnotation(sentence, additionalContext);
@@ -216,6 +231,7 @@ const EditorialPage: React.FC = () => {
   }, [sentence, additionalContext, loading]);
 
   // リセット
+  // resetting
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
@@ -225,12 +241,12 @@ const EditorialPage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        校正
+        {I18n.get("editor")}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="校正したい文章">
+        <Card label={I18n.get("editor")}>
           <Texteditor
-            placeholder="入力してください"
+            placeholder={I18n.get("please_enter")}
             value={sentence}
             loading={loading}
             onChange={setSentence}
@@ -239,9 +255,9 @@ const EditorialPage: React.FC = () => {
             removeComment={removeComment}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label={I18n.get("additional_context")} optional>
             <Textarea
-              placeholder="追加で指摘してほしい点を入力することができます"
+              placeholder={I18n.get("additional_context_placeholder")}
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -249,11 +265,11 @@ const EditorialPage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              {I18n.get("clear")}
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              {I18n.get("executions")}
             </Button>
           </div>
         </Card>

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import useRag from '../hooks/useSearch';
 import HighlightText from '../components/HighlightText';
 import ButtonIcon from '../components/ButtonIcon';
+import { I18n } from 'aws-amplify';
+
 
 const KendraSearchPage: React.FC = () => {
   const { loading, resultItems, query, setQuery, search } = useRag();
@@ -32,18 +34,17 @@ const KendraSearchPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        Kendra 検索
+        {I18n.get("kendra_search")}
       </div>
       <div className="text-sm text-gray-600">
         <div>
-          この機能は、Amazon Kendra の標準機能である Query API
-          で検索を行います。
+          {I18n.get("kendra_search_desc")}
           <span className="font-bold">
-            生成系 AI は利用していません。RAG は
+            {I18n.get("kendra_rag_no_llm")}
             <Link className="text-aws-smile" to="/rag">
-              こちら
+              {I18n.get("here")}
             </Link>
-            で実行できます。
+            {I18n.get("it_can_be_executed_by")}
           </span>
         </div>
       </div>
@@ -52,7 +53,7 @@ const KendraSearchPage: React.FC = () => {
         <input
           ref={queryRef}
           className="absolute w-full rounded-full border-gray-400 pl-9"
-          placeholder="検索ワードを入力してください"
+          placeholder={I18n.get("please_enter_search")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

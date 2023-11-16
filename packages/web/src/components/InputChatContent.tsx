@@ -5,7 +5,7 @@ import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import { PiArrowsCounterClockwise } from 'react-icons/pi';
-
+import {I18n} from "aws-amplify";
 type Props = {
   content: string;
   disabled?: boolean;
@@ -86,7 +86,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             disabled={loading}
             onClick={props.onReset}>
             <PiArrowsCounterClockwise className="mr-2" />
-            最初からやり直す
+            {I18n.get("start_over")}
           </Button>
         )}
       </div>

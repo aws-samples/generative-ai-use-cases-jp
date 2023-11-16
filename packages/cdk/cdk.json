@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "selfSignUpEnabled": true,
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

@@ -6,6 +6,7 @@ import ButtonIcon from './ButtonIcon';
 import { PiSignOut, PiX, PiGithubLogo, PiGear } from 'react-icons/pi';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import ChatList from './ChatList';
+import { I18n } from 'aws-amplify';
 
 export type ItemProps = BaseProps & {
   label: string;
@@ -19,6 +20,7 @@ const Item: React.FC<ItemProps> = (props) => {
   const { switchOpen } = useDrawer();
 
   // 狭い画面の場合は、クリックしたらDrawerを閉じる
+  // If the screen is narrow, click to close Drawer
   const onClick = useCallback(() => {
     if (
       document
@@ -52,6 +54,7 @@ const RefLink: React.FC<RefLinkProps> = (props) => {
   const { switchOpen } = useDrawer();
 
   // 狭い画面の場合は、クリックしたらDrawerを閉じる
+  // If the screen is narrow, click to close the Drawer
   const onClick = useCallback(() => {
     if (
       document
@@ -101,7 +104,7 @@ const Drawer: React.FC<Props> = (props) => {
           opened ? 'visible w-64' : 'invisible w-0'
         } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white print:hidden lg:static lg:z-0`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
-          ユースケース <span className="text-gray-400">(生成系AI)</span>
+          {I18n.get('use_case')} <span className="text-gray-400">{I18n.get("gen_ai")}</span>
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {usecases.map((item, idx) => (
@@ -118,7 +121,7 @@ const Drawer: React.FC<Props> = (props) => {
         {tools.length > 0 && (
           <>
             <div className="text-aws-smile mx-3 my-2 text-xs">
-              ツール <span className="text-gray-400">(AIサービス)</span>
+              {I18n.get("tool")} <span className="text-gray-400">({I18n.get("AI Service")})</span>
             </div>
             <div className="mb-1 ml-2 mr-1">
               {tools.map((item, idx) => (
@@ -134,7 +137,7 @@ const Drawer: React.FC<Props> = (props) => {
             <div className="border-b" />
           </>
         )}
-        <div className="text-aws-smile mx-3 my-2  text-xs">会話履歴</div>
+        <div className="text-aws-smile mx-3 my-2  text-xs">{I18n.get("meeting_resume")}</div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           <ChatList className="mr-1" />
         </div>
@@ -159,11 +162,11 @@ const Drawer: React.FC<Props> = (props) => {
               navigate('/setting');
             }}>
             <PiGear className="mr-1 text-base" />
-            <span className="ml-1 text-sm">設定情報</span>
+            <span className="ml-1 text-sm">{I18n.get("Settings")}</span>
           </ButtonIcon>
           <ButtonIcon onClick={props.signOut}>
             <PiSignOut className="mr-1 text-base" />
-            <span className="ml-1 text-sm">サインアウト</span>
+            <span className="ml-1 text-sm">{I18n.get("sign_out")}</span>
           </ButtonIcon>
         </div>
       </nav>

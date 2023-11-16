@@ -16,6 +16,7 @@ import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
 import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
+import { I18n } from 'aws-amplify';
 
 const MAX_SAMPLE = 7;
 
@@ -159,6 +160,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
 
 // StableDiffusion の StylePreset
 // 一覧は、以下の style_preset を参照
+// See style_preset below for a list
 // https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
 const stylePresetOptions = [
   '3d-model',
@@ -221,6 +223,7 @@ const GenerateImagePage: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // LandingPage のデモデータ設定
+  // LandingPage demo data setup
   useEffect(() => {
     if (state !== null) {
       setChatContent(state.content);
@@ -323,9 +326,9 @@ const GenerateImagePage: React.FC = () => {
     <>
       <ModalDialog
         isOpen={isOpenSketch}
-        title="初期画像の設定"
+        title={I18n.get("initial_image_settings")}
         className="w-[530px]"
-        help="画像生成の初期状態として使われます。指定した画像に近い画像が生成されます。"
+        help={I18n.get("initial_image_settings_help")}
         onClose={() => {
           setIsOpenSketch(false);
         }}>
@@ -361,8 +364,8 @@ const GenerateImagePage: React.FC = () => {
             <Card className="mt-8 flex">
               <div className="w-full">
                 <Textarea
-                  label="プロンプト"
-                  help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                  label={I18n.get("prompts")}
+                  help={I18n.get("image_gen_prompt")}
                   value={prompt}
                   onChange={setPrompt}
                   maxHeight={84}
@@ -370,8 +373,8 @@ const GenerateImagePage: React.FC = () => {
                 />
 
                 <Textarea
-                  label="ネガティブプロンプト"
-                  help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                  label={I18n.get("negative_prompt")}
+                  help={I18n.get("negative_prompt_help")}
                   value={negativePrompt}
                   onChange={setNegativePrompt}
                   maxHeight={84}
@@ -419,11 +422,11 @@ const GenerateImagePage: React.FC = () => {
                 <div className="mb-8 flex flex-col xl:flex-row">
                   <div className="flex w-full flex-col items-center justify-center xl:w-1/2">
                     <div className="mb-1 flex items-center text-sm font-bold">
-                      初期画像
+                        {I18n.get("initial_image")}
                       <Help
                         className="ml-1"
                         direction="left"
-                        message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                        message={I18n.get("initial_image_help")}
                       />
                     </div>
                     <Base64Image
@@ -436,7 +439,7 @@ const GenerateImagePage: React.FC = () => {
                         setIsOpenSketch(true);
                       }}>
                       <PiFileArrowUp className="mr-2" />
-                      設定
+                      {I18n.get("settings")}
                     </Button>
                   </div>
 
@@ -457,12 +460,12 @@ const GenerateImagePage: React.FC = () => {
                       onChange={(n) => {
                         setSeed(n, selectedImageIndex);
                       }}
-                      help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
+                      help={I18n.get("seed_help")}
                     />
 
                     <div className="-mt-3 mb-3 flex w-full justify-end text-xs">
                       <Button onClick={onClickRandomSeed}>
-                        Seed をランダム設定
+                        {I18n.get("seed_button_text")}
                       </Button>
                     </div>
                   </div>
@@ -471,45 +474,45 @@ const GenerateImagePage: React.FC = () => {
                 <div className="flex flex-col xl:flex-row xl:gap-x-4">
                   <RangeSlider
                     className="w-full xl:w-1/2"
-                    label="画像生成数"
+                    label={I18n.get("image_gen_num_images")}
                     min={1}
                     max={7}
                     value={imageSample}
                     onChange={setImageSample}
-                    help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+                    help={I18n.get("image_gen_num_images_help")}
                   />
 
                   <RangeSlider
                     className="w-full xl:w-1/2"
-                    label="CFG Scale"
+                    label={I18n.get("cfg_scale")}
                     min={0}
                     max={30}
                     value={cfgScale}
                     onChange={setCfgScale}
-                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                    help={I18n.get("cfg_scale_help")}
                   />
                 </div>
 
                 <div className="flex flex-col xl:flex-row xl:gap-x-4">
                   <RangeSlider
                     className="w-full xl:w-1/2"
-                    label="Step"
+                    label={I18n.get("step")}
                     min={10}
                     max={150}
                     value={step}
                     onChange={setStep}
-                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                    help={I18n.get("image_gen_iterations_help")}
                   />
 
                   <RangeSlider
                     className="w-full xl:w-1/2"
-                    label="ImageStrength"
+                    label={I18n.get("image_gen_strength")}
                     min={0}
                     max={1}
                     step={0.01}
                     value={imageStrength}
                     onChange={setImageStrength}
-                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                    help={I18n.get("image_gen_strength_help")}
                   />
                 </div>
               </div>

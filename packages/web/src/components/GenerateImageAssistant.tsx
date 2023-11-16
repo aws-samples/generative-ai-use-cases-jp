@@ -6,6 +6,8 @@ import useChat from '../hooks/useChat';
 import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
+import { I18n } from "aws-amplify";
+
 
 type Props = BaseProps & {
   content: string;
@@ -83,6 +85,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
 
   useEffect(() => {
     // メッセージ追加時の画像の自動生成
+    // Automatically generate an image when adding a message
     const _length = contents.length;
     if (contents.length === 0) {
       return;
@@ -119,8 +122,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   return (
     <div className="relative h-full w-full">
       <Card
-        label="チャット形式で画像生成"
-        help="チャット形式でプロンプトの生成と設定、画像生成を自動で行います。"
+        label={I18n.get("image_gen_chat")}
+        help={I18n.get("prompts_gen")}
         className={`${props.className ?? ''} h-full pb-32`}>
         <div className="h-full overflow-y-auto overflow-x-hidden">
           {contents.length === 0 && (
@@ -130,24 +133,22 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 ヒント
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                具体的かつ詳細な指示を出すようにしましょう。
-                形容詞や副詞を使って、正確に表現することが重要です。
+                {I18n.get("be_specific")}
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                「犬が遊んでいる」ではなく、「柴犬が草原で楽しそうに走り回っている」のように具体的に指示をしましょう。
+                {I18n.get("dogs_playing_example")}
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                文章で書くことが難しい場合は、文章で書く必要はありません。「元気、ボール遊び、ジャンプしている」のように、特徴を羅列して指示をしましょう。
+                {I18n.get("no_sentences_needed_example")}
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                除外して欲しい要素も指示することができます。「人間は出力しない」など。
+                {I18n.get("exclusion_example")}
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                LLM
-                が会話の流れを考慮してくれるので、「やっぱり犬じゃなくて猫にして」などの会話形式の指示もできます。
+                {I18n.get("conversational_style_example")}
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                プロンプトで意図した画像が生成できない場合は、初期画像の設定やパラメータの変更を試してみましょう。
+                {I18n.get("image_gen_prompt_advice")}
               </div>
             </div>
           )}
@@ -169,14 +170,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 <div>
                   <div className="flex items-center gap-2 font-bold text-red-500">
                     <PiWarningFill />
-                    エラー
+                    {I18n.get("errors")}
                   </div>
                   <div className="text-gray-600">
-                    プロンプト生成中にエラーが発生しました。
+                    {I18n.get("prompts_gen_error")}
                   </div>
                   <div className="mt-3 flex w-full justify-center">
                     <Button outlined onClick={onRetrySend}>
-                      再実行
+                      {I18n.get("rerun")}
                     </Button>
                   </div>
                 </div>
@@ -186,7 +187,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 !c.content.error && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                    プロンプト生成中
+                    {I18n.get("generating_prompts")}
                   </div>
                 )}
               {c.role === 'assistant' && c.content.prompt !== null && (
@@ -197,11 +198,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                     <>
                       <div className="flex items-center gap-2 text-gray-600">
                         <div className="h-5 w-5 rounded-full border-4 border-gray-600"></div>
-                        プロンプト生成完了
+                        {I18n.get("prompt_gen_complete")}
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                        画像生成中
+                        {I18n.get("generating_images")}
                       </div>
                     </>
                   ) : (
@@ -236,7 +237,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                                 ''
                               );
                             }}>
-                            未設定
+                            {I18n.get("not_set")}
                           </Button>
                         </div>
                       </div>

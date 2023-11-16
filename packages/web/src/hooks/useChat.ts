@@ -136,6 +136,7 @@ const useChatState = create<{
           if (!m.messageId) {
             m.messageId = uuid();
             // 参照が切れるとエラーになるため clone する
+            // clone because an error will occur if the reference is broken
             toBeRecordedMessages.push(
               Object.assign({}, m as ToBeRecordedMessage)
             );
@@ -260,6 +261,7 @@ const useChatState = create<{
       };
 
       // User/Assistant の発言を反映
+      // reflect what User/Assistant said
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
           draft[id].messages.push(unrecordedUserMessage);
@@ -275,6 +277,8 @@ const useChatState = create<{
       const stream = predictStream({
         // 最後のメッセージはアシスタントのメッセージなので、排除
         // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
+        // the last message is an assistant message, so remove it
+        // If ignoreHistory is set, only the last conversation is reflected (cost reduction)
         messages: omitUnusedMessageProperties(
           ignoreHistory
             ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
@@ -283,6 +287,7 @@ const useChatState = create<{
       });
 
       // Assistant の発言を更新
+      //Update Assistant's statement
       for await (const chunk of stream) {
         set((state) => {
           const newChats = produce(state.chats, (draft) => {
@@ -309,6 +314,7 @@ const useChatState = create<{
       const chatId = await createChatIfNotExist(id, get().chats[id].chat);
 
       // タイトルが空文字列だった場合、タイトルを予測して設定
+      // If the title is an empty string, the title is predicted and set
       if (get().chats[id].chat?.title === '') {
         setPredictedTitle(id).then(() => {
           mutateListChat();
@@ -344,6 +350,13 @@ const useChatState = create<{
  * @param chatId
  * @returns
  */
+/**
+ * Hooks for manipulating chat
+ * @param ID screen URI (used to identify state)
+ * @param SystemContext
+ * @param ChatID
+ * @returns
+ */
 const useChat = (id: string, chatId?: string) => {
   const {
     chats,
@@ -366,6 +379,7 @@ const useChat = (id: string, chatId?: string) => {
 
   useEffect(() => {
     // 新規チャットの場合
+    // If it's a new chat
     if (!chatId) {
       init(id);
     }
@@ -373,6 +387,7 @@ const useChat = (id: string, chatId?: string) => {
 
   useEffect(() => {
     // 登録済みのチャットの場合
+    // If it's a registered chat
     if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
       restore(id, messagesData.messages, chatData.chat);
     }

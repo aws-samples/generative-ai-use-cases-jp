@@ -8,6 +8,8 @@ import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { generateTextPrompt } from '../prompts';
+import { I18n } from "aws-amplify";
+
 
 type StateType = {
   information: string;
@@ -84,6 +86,7 @@ const GenerateTextPage: React.FC = () => {
   };
 
   // リアルタイムにレスポンスを表示
+  // display responses in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -94,6 +97,7 @@ const GenerateTextPage: React.FC = () => {
   }, [messages]);
 
   // 要約を実行
+  // execute summary
   const onClickExec = useCallback(() => {
     if (loading) return;
     getGeneratedText(information, context);
@@ -101,6 +105,7 @@ const GenerateTextPage: React.FC = () => {
   }, [information, context, loading]);
 
   // リセット
+  // resetting
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
@@ -110,30 +115,30 @@ const GenerateTextPage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        文章生成
+        {I18n.get("text_gen")}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="文章の元になる情報">
+        <Card label={I18n.get("text_gen_source")}>
           <Textarea
-            placeholder="入力してください"
+            placeholder={I18n.get("please_enter")}
             value={information}
             onChange={setInformation}
             maxHeight={-1}
           />
 
           <Textarea
-            placeholder="文章の形式を指示してください。(マークダウン、ブログ、ビジネスメールなど)"
+            placeholder={I18n.get("text_gen_format")}
             value={context}
             onChange={setContext}
           />
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              {I18n.get("clear")}
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              {I18n.get("executions")}
             </Button>
           </div>
 
@@ -141,7 +146,7 @@ const GenerateTextPage: React.FC = () => {
             <Markdown>{text}</Markdown>
             {!loading && text === '' && (
               <div className="text-gray-500">
-                生成された文章がここに表示されます
+                {I18n.get("text_gen_display_label")}
               </div>
             )}
             {loading && (

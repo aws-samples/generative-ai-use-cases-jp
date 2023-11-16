@@ -4,6 +4,8 @@ import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import useTranscribe from '../hooks/useTranscribe';
 import Markdown from '../components/Markdown';
+import { I18n } from 'aws-amplify';
+
 
 const TranscribePage: React.FC = () => {
   const { loading, transcriptData, file, setFile, transcribe, clear } =
@@ -36,10 +38,10 @@ const TranscribePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        音声認識
+        {I18n.get("audio_transcription")}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="ファイルアップロード">
+        <Card label={I18n.get("file_upload")}>
           <input
             className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
             border-gray-400 text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0
@@ -55,10 +57,10 @@ const TranscribePage: React.FC = () => {
           </p>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disabledExec} onClick={onClickClear}>
-              クリア
+              {I18n.get("clear")}
             </Button>
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              {I18n.get("execute")}
             </Button>
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
@@ -67,7 +69,7 @@ const TranscribePage: React.FC = () => {
             )}
             {!loading && !transcriptData?.transcript && (
               <div className="text-gray-500">
-                音声認識結果がここに表示されます
+                {I18n.get("audio_transcription_results")}
               </div>
             )}
             {loading && (

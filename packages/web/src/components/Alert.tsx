@@ -3,6 +3,7 @@ import { BaseProps } from '../@types/common';
 import { PiInfo, PiXCircle } from 'react-icons/pi';
 
 // MEMO: 現在は Error しか実装していない
+// MEMO: Currently only Error is implemented
 type Props = BaseProps & {
   title?: string;
   severity: 'info' | 'error';

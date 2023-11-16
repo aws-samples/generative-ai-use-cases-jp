@@ -9,6 +9,7 @@ import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { summarizePrompt } from '../prompts';
+import { I18n } from 'aws-amplify';
 
 type StateType = {
   sentence: string;
@@ -85,6 +86,7 @@ const SummarizePage: React.FC = () => {
   };
 
   // リアルタイムにレスポンスを表示
+  // show response in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -97,6 +99,7 @@ const SummarizePage: React.FC = () => {
   }, [messages]);
 
   // 要約を実行
+  // execute summary
   const onClickExec = useCallback(() => {
     if (loading) return;
     getSummary(sentence, additionalContext);
@@ -104,6 +107,7 @@ const SummarizePage: React.FC = () => {
   }, [sentence, additionalContext, loading]);
 
   // リセット
+  // resetting
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
@@ -113,20 +117,20 @@ const SummarizePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-        要約
+        {I18n.get("appointment")}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="要約したい文章">
+        <Card label={I18n.get("summarize_sentences")}>
           <Textarea
-            placeholder="入力してください"
+            placeholder={I18n.get("please_enter")}
             value={sentence}
             onChange={setSentence}
             maxHeight={-1}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandedField label={I18n.get("additional_context")}optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              placeholder={I18n.get("additional_context_placeholder")}
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -134,11 +138,11 @@ const SummarizePage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              {I18n.get("clear")}
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              {I18n.get("execute")}
             </Button>
           </div>
 
@@ -146,7 +150,7 @@ const SummarizePage: React.FC = () => {
             <Markdown>{summarizedSentence}</Markdown>
             {!loading && summarizedSentence === '' && (
               <div className="text-gray-500">
-                要約された文章がここに表示されます
+                {I18n.get("summarized_sentences")}
               </div>
             )}
             {loading && (
