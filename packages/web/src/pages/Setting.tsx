@@ -1,13 +1,23 @@
 import useChatApi from '../hooks/useChatApi';
+import useVersion from '../hooks/useVersion';
 import { Link } from 'react-router-dom';
+import Help from '../components/Help';
+import Alert from '../components/Alert';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
-const SettingItem = (props: { name: string; value: string }) => {
+const SettingItem = (props: {
+  name: string;
+  value: string;
+  helpMessage?: string;
+}) => {
   return (
     <div className="border-aws-squid-ink mb-2 w-2/3 border-b-2 border-solid lg:w-1/2">
       <div className="flex justify-between py-0.5">
-        <div>{props.name}</div>
+        <div className="flex items-center">
+          {props.name}
+          {props.helpMessage && <Help message={props.helpMessage} />}
+        </div>
         <div>{props.value}</div>
       </div>
     </div>
@@ -17,6 +27,9 @@ const SettingItem = (props: { name: string; value: string }) => {
 const Setting = () => {
   const { getSetting } = useChatApi();
   const { data: setting, error, isLoading } = getSetting();
+  const { getLocalVersion, getHasUpdate } = useVersion();
+  const localVersion = getLocalVersion();
+  const hasUpdate = getHasUpdate();
 
   return (
     <div>
@@ -24,25 +37,33 @@ const Setting = () => {
         設定情報
       </div>
 
-      <div className="mx-3 mb-6 mt-5 flex flex-row items-center justify-center">
-        <div className="w-2/3 text-xs lg:w-1/2">
-          設定の変更はこの画面ではなく
-          <Link
-            className="text-aws-smile"
-            to="https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html"
-            target="_blank">
-            AWS CDK
-          </Link>
-          で行います。方法については
-          <Link
-            className="text-aws-smile"
-            to="https://github.com/aws-samples/generative-ai-use-cases-jp"
-            target="_blank">
-            generative-ai-use-cases-jp
-          </Link>
-          をご参照ください。
+      {hasUpdate && (
+        <div className="mt-5 flex w-full justify-center">
+          <Alert severity="info" className="flex w-fit items-center">
+            GitHub にアップデートがあります。最新の機能を利用したい場合は
+            <Link
+              className="text-aws-smile"
+              to="https://github.com/aws-samples/generative-ai-use-cases-jp"
+              target="_blank">
+              generative-ai-use-cases-jp
+            </Link>
+            の main ブランチを pull して再度デプロイしてください。
+          </Alert>
         </div>
+      )}
+
+      <div className="my-3 flex justify-center font-semibold">全般</div>
+
+      <div className="flex w-full flex-col items-center text-sm">
+        <SettingItem
+          name="バージョン"
+          value={localVersion || '取得できませんでした'}
+          helpMessage="generative-ai-use-cases-jp の package.json の version を参照しています"
+        />
+        <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
       </div>
+
+      <div className="my-3 flex justify-center font-semibold">生成系 AI</div>
 
       {isLoading && (
         <div className="flex justify-center text-sm">読み込み中...</div>
@@ -71,7 +92,23 @@ const Setting = () => {
               name="LLM & 画像生成 モデルリージョン"
               value={setting.modelRegion}
             />
-            <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
+            <div className="mt-5 w-2/3 text-xs lg:w-1/2">
+              設定の変更はこの画面ではなく
+              <Link
+                className="text-aws-smile"
+                to="https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html"
+                target="_blank">
+                AWS CDK
+              </Link>
+              で行います。方法については
+              <Link
+                className="text-aws-smile"
+                to="https://github.com/aws-samples/generative-ai-use-cases-jp"
+                target="_blank">
+                generative-ai-use-cases-jp
+              </Link>
+              をご参照ください。
+            </div>
             {setting.modelType === 'bedrock' && (
               <div className="mt-5 w-2/3 text-xs lg:w-1/2">
                 ユースケース実行時にエラーになる場合は、必ず
