@@ -57,7 +57,7 @@ const Setting = () => {
       <div className="flex w-full flex-col items-center text-sm">
         <SettingItem
           name="バージョン"
-          value={localVersion}
+          value={localVersion || '取得できませんでした'}
           helpMessage="generative-ai-use-cases-jp の package.json の version を参照しています"
         />
         <SettingItem name="RAG 有効" value={ragEnabled.toString()} />

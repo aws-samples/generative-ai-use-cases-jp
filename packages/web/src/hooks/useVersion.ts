@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import useSWR from 'swr';
 
-const version = import.meta.env.VITE_APP_VERSION || 'unknown';
+const version = import.meta.env.VITE_APP_VERSION;
 const PACKAGE_JSON_URL =
   'https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/main/package.json';
 
@@ -16,14 +16,12 @@ const useRemoteVersion = () => {
     getLocalVersion: () => {
       return version;
     },
-    fetchRemoteVersion: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useSWR<AxiosResponse<PackageJson>>(
-        PACKAGE_JSON_URL,
-        versionFetcher
-      );
-    },
     getHasUpdate: () => {
+      // ローカルのバージョンが参照できない時はアップデートの表示はしない
+      // (アップデートはないものとして扱う)
+      if (!version) {
+        return false;
+      }
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { data: packageJson } = useSWR<AxiosResponse<PackageJson>>(
         PACKAGE_JSON_URL,
