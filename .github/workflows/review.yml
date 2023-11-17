@@ -39,9 +39,7 @@ jobs:
           review_comment_lgtm: true
           only_allow_collaborator: true
           path_filters: |
-            - '**/*.md'
-            - '**/*.ts'
-            - '**/*.tsx'
+            **/*.{md,ts,tsx}
           summarize_release_notes: |
             PullRequest のコード差分を読んで、変更内容の概要がわかるように100文字程度にまとめてください。内容はソフトウェアエンジニアが読んで分かりやすいものにしてください。
           review_file_diff: |
