@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  Creates and OIDC provider and role for use with GitHub Actions.
+  For more information on using OIDC to connect to AWS from GitHub Actions,
+  see https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services.
+  You can deploy this stack by the following command:
+    aws cloudformation deploy --stack-name GHA-ROLE-STACK --template-file oidc-cfn.yaml --capabilities CAPABILITY_IAM
+
+Parameters:
+  SubjectClaimFilters:
+    Type: CommaDelimitedList
+    Default: 'repo:aws-samples/generative-ai-use-cases-jp:*'
+    Description: >
+      Subject claim filter for valid tokens.
+      See https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect#example-subject-claims
+      for examples of fitlering by branch or deployment environment.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: 'GitHub Action Info'
+        Parameters:
+          - SubjectClaimFilters
+
+Resources:
+  GitHubIdentityProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ThumbprintList:
+        - '1234567890123456789012345678901234567890'
+      ClientIdList:
+        - sts.amazonaws.com
+  GitHubActionsServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: RoleForGitHubActions
+            Effect: Allow
+            Principal:
+              Federated: !GetAtt GitHubIdentityProvider.Arn
+            Action:
+              - 'sts:AssumeRoleWithWebIdentity'
+            Condition:
+              StringEquals:
+                'token.actions.githubusercontent.com:aud': sts.amazonaws.com
+              StringLike:
+                'token.actions.githubusercontent.com:sub': !Ref SubjectClaimFilters
+      Description: Service Role for use in GitHub Actions
+  ServiceRolePolicy:
+    Type: 'AWS::IAM::RolePolicy'
+    Properties:
+      PolicyName: root
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: 'bedrock:InvokeModel'
+            Resource: '*'
+      RoleName: !Ref GitHubActionsServiceRole
+
+Outputs:
+  ServiceRoleARN:
+    Description: arn of service role for use in GitHub actions
+    Value: !GetAtt GitHubActionsServiceRole.Arn
