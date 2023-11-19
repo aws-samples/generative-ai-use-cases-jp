@@ -31,7 +31,7 @@ const KendraSearchPage: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min">
+      <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
         Kendra 検索
       </div>
       <div className="text-sm text-gray-600">

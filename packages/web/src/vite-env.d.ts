@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_PREDICT_STREAM_FUNCTION_ARN: string;
   readonly VITE_APP_RAG_ENABLED: string;
   readonly VITE_APP_SELF_SIGN_UP_ENABLED: string;
+  readonly VITE_APP_VERSION: string;
 }
 
 interface ImportMeta {

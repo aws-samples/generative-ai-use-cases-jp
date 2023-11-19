@@ -19,6 +19,10 @@ export default {
         'aws-font-color': '#232F3E',
         'aws-ml': '#01A88D',
       },
+      screens: {
+        print: { raw: 'print' },
+        screen: { raw: 'screen' },
+      },
     },
   },
   // eslint-disable-next-line no-undef

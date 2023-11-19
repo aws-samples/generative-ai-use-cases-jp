@@ -1,0 +1,54 @@
+name: Automated review
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write # This is required for requesting the JWT
+
+on:
+  pull_request_target:
+  pull_request_review_comment:
+    types: [created]
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.event.number || github.head_ref ||
+    github.sha }}-${{ github.workflow }}-${{ github.event_name ==
+    'pull_request_review_comment' && 'pr_comment' || 'pr' }}
+  cancel-in-progress: ${{ github.event_name != 'pull_request_review_comment' }}
+
+env:
+  TARGET_AWS_REGION: us-east-1
+jobs:
+  Run-Bedrock-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: gha-session
+          aws-region: ${{ env.TARGET_AWS_REGION }}
+      - name: PR review
+        uses: tmokmss/bedrock-pr-reviewer@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          debug: true
+          language: ja-JP
+          review_simple_changes: true
+          review_comment_lgtm: true
+          only_allow_collaborator: true
+          path_filters: |
+            **/*.{md,ts,tsx}
+          summarize_release_notes: |
+            PullRequest のコード差分を読んで、変更内容の概要がわかるように100文字程度にまとめてください。内容はソフトウェアエンジニアが読んで分かりやすいものにしてください。
+          review_file_diff: |
+            あなたは一流のソフトウェアエンジニアです。コードの差分が入力されるので、以下の観点でコードレビューをしてください。
+            なお、改善案を示すことができる場合は、改善案の提示も行なってください。
+            - セキュリティ的に脆弱なコードではないか
+            - 意味のないコード、意味のないコメントが含まれていないか
+            - 保守性に問題のある実装ではないか
+            - よりシンプルな実装に改善できないか
+            - 一般的な設計から外れる実装になっていないか
+            - ドキュメントの場合、わかりやすい日本語になっているか、誤解の余地がある表現がないか
+            どんな些細な点でも構わないので、気になる点があれば指摘してください。

@@ -2,7 +2,9 @@ import React, { useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
+import useVersion from '../hooks/useVersion';
 import ButtonIcon from './ButtonIcon';
+import IconWithDot from './IconWithDot';
 import { PiSignOut, PiX, PiGithubLogo, PiGear } from 'react-icons/pi';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import ChatList from './ChatList';
@@ -85,6 +87,9 @@ type Props = BaseProps & {
 const Drawer: React.FC<Props> = (props) => {
   const { opened, switchOpen } = useDrawer();
   const navigate = useNavigate();
+  const { getHasUpdate } = useVersion();
+
+  const hasUpdate = getHasUpdate();
 
   const usecases = useMemo(() => {
     return props.items.filter((i) => i.display === 'usecase');
@@ -99,7 +104,7 @@ const Drawer: React.FC<Props> = (props) => {
       <nav
         className={`h-full lg:visible lg:w-64 ${
           opened ? 'visible w-64' : 'invisible w-0'
-        } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white lg:static lg:z-0`}>
+        } transition-width bg-aws-squid-ink fixed z-50 flex h-screen flex-col justify-between text-sm text-white print:hidden lg:static lg:z-0`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
           ユースケース <span className="text-gray-400">(生成系AI)</span>
         </div>
@@ -158,7 +163,9 @@ const Drawer: React.FC<Props> = (props) => {
             onClick={() => {
               navigate('/setting');
             }}>
-            <PiGear className="mr-1 text-base" />
+            <IconWithDot showDot={hasUpdate} className="mr-1">
+              <PiGear className="text-base" />
+            </IconWithDot>
             <span className="ml-1 text-sm">設定情報</span>
           </ButtonIcon>
           <ButtonIcon onClick={props.signOut}>

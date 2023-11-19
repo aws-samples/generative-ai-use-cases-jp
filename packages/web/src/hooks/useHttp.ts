@@ -1,8 +1,6 @@
-// import { Auth } from "aws-amplify";
 import { Auth } from 'aws-amplify';
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import useSWR, { SWRConfiguration } from 'swr';
-// import useAlertSnackbar from "./useAlertSnackbar";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
@@ -25,19 +23,11 @@ const fetcher = (url: string) => {
   return api.get(url).then((res) => res.data);
 };
 
-// const getErrorMessage = (error: AxiosError<any>): string => {
-//   return error.response?.data?.message ?? error.message;
-// };
-
-// FIXME:バックエンドができた時点で最適化する
-
 /**
  * Hooks for Http Request
  * @returns
  */
 const useHttp = () => {
-  // const alert = useAlertSnackbar();
-
   return {
     /**
      * GET Request
@@ -77,8 +67,6 @@ const useHttp = () => {
           .catch((err) => {
             if (errorProcess) {
               errorProcess(err);
-            } else {
-              // alert.openError(getErrorMessage(err));
             }
             reject(err);
           });
@@ -107,8 +95,6 @@ const useHttp = () => {
           .catch((err) => {
             if (errorProcess) {
               errorProcess(err);
-            } else {
-              // alert.openError(getErrorMessage(err));
             }
             reject(err);
           });
@@ -134,8 +120,6 @@ const useHttp = () => {
           .catch((err) => {
             if (errorProcess) {
               errorProcess(err);
-            } else {
-              // alert.openError(getErrorMessage(err));
             }
             reject(err);
           });
