@@ -135,7 +135,12 @@ const useChatState = create<{
         for (const m of draft[id].messages) {
           if (!m.messageId) {
             m.messageId = uuid();
-            m.usecase = id.split('/')[1];
+            const match = id.match(/([^/]+)/);
+            if (match) {
+              m.usecase = match[1];
+            } else {
+              m.usecase = id;
+            }
             // 参照が切れるとエラーになるため clone する
             toBeRecordedMessages.push(
               Object.assign({}, m as ToBeRecordedMessage)
