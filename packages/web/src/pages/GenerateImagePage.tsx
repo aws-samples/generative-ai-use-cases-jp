@@ -315,6 +315,7 @@ const GenerateImagePage: React.FC = () => {
   );
 
   const clearAll = useCallback(() => {
+    setSelectedImageIndex(0);
     clear();
     clearChat();
   }, [clear, clearChat]);
@@ -346,14 +347,21 @@ const GenerateImagePage: React.FC = () => {
                 content={chatContent}
                 onChangeContent={setChatContent}
                 isGeneratingImage={generating}
-                onGenerate={(p, np, sp) => {
-                  setSelectedImageIndex(0);
-                  setPrompt(p);
-                  setNegativePrompt(np);
-                  if (sp !== undefined) {
-                    setStylePreset(sp);
+                onGenerate={async (p, np, sp) => {
+                  // 設定に変更があった場合のみ生成する
+                  if (
+                    p !== prompt ||
+                    np !== negativePrompt ||
+                    (sp ?? '') !== stylePreset
+                  ) {
+                    setSelectedImageIndex(0);
+                    setPrompt(p);
+                    setNegativePrompt(np);
+                    if (sp !== undefined) {
+                      setStylePreset(sp);
+                    }
+                    return generateImage(p, np, sp);
                   }
-                  return generateImage(p, np, sp);
                 }}
               />
             </div>

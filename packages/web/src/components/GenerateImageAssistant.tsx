@@ -6,6 +6,7 @@ import useChat from '../hooks/useChat';
 import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
+import useScroll from '../hooks/useScroll';
 
 type Props = BaseProps & {
   content: string;
@@ -22,6 +23,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
   const [isAutoGenerationg, setIsAutoGenerationg] = useState(false);
+
+  const { scrollToBottom } = useScroll();
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom('image-assistant-chat');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   const contents = useMemo<
     (
@@ -122,7 +131,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         label="チャット形式で画像生成"
         help="チャット形式でプロンプトの生成と設定、画像生成を自動で行います。"
         className={`${props.className ?? ''} h-full pb-32`}>
-        <div className="h-full overflow-y-auto overflow-x-hidden">
+        <div
+          id="image-assistant-chat"
+          className="h-full overflow-y-auto overflow-x-hidden">
           {contents.length === 0 && (
             <div className="m-2 rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">
