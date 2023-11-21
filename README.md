@@ -8,15 +8,6 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 > **生成系AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
 
-## 機能一覧
-
-> :white_check_mark: ... 実装されている、:construction: ... まだ実装されていない
-
-- :white_check_mark: Amazon Bedrock を LLM として利用
-- :white_check_mark: Amazon Bedrock Fine-tuning 用のデータ収集
-- :construction: Amazon Bedrock Fine-tuning 用データのラベリング
-- :construction: Amazon Bedrock Fine-tuning の実行
-
 ## ユースケース一覧
 
 > ユースケースは随時追加予定です。ご要望があれば [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) に起票をお願いいたします。
@@ -87,11 +78,18 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 
 ## デプロイ
 
-**このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。Claude Instant を利用する場合など、設定を変える方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md) をご確認ください。**
+> [!IMPORTANT]
+> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md)を参照してください。
 
-アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。CDK 環境の準備や、デプロイ手順の説明、セキュリティ機能の追加などを解説している [こちらのドキュメント](https://catalog.workshops.aws/generative-ai-use-cases-jp) で、より詳細な手順を確認できます。また、[こちらの動画](https://www.youtube.com/watch?v=9sMA17OKP1k)では、動画形式でもデプロイ手順を確認できます。
+アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。
 
-以下にデプロイ手順を記載します。
+他にも、以下のリンクにて Step-by-Step のデプロイ手順を解説しています。
+- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
+  - CDK 環境の準備、セキュリティ機能の追加などの解説
+  - クリックでデプロイ可能な CloudFormation テンプレート
+- [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
+
+まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
 
 ```bash
 npm ci
