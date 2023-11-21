@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import ExpandedField from '../components/ExpandedField';
+import ExpandableField from '../components/ExpandableField';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
@@ -124,13 +124,13 @@ const SummarizePage: React.FC = () => {
             maxHeight={-1}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandableField label="追加コンテキスト" optional>
             <Textarea
               placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
               value={additionalContext}
               onChange={setAdditionalContext}
             />
-          </ExpandedField>
+          </ExpandableField>
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>

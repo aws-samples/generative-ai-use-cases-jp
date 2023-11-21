@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
-import ExpandedField from '../components/ExpandedField';
+import ExpandableField from '../components/ExpandableField';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
@@ -239,13 +239,13 @@ const EditorialPage: React.FC = () => {
             removeComment={removeComment}
           />
 
-          <ExpandedField label="追加コンテキスト" optional>
+          <ExpandableField label="追加コンテキスト" optional>
             <Textarea
               placeholder="追加で指摘してほしい点を入力することができます"
               value={additionalContext}
               onChange={setAdditionalContext}
             />
-          </ExpandedField>
+          </ExpandableField>
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
