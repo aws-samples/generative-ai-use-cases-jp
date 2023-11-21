@@ -137,7 +137,7 @@ const useChatState = create<{
             m.messageId = uuid();
             const match = id.match(/([^/]+)/);
             if (match) {
-              m.usecase = "/" + match[1];
+              m.usecase = '/' + match[1];
             } else {
               m.usecase = id;
             }
