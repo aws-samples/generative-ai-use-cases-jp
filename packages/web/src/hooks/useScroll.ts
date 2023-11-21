@@ -1,14 +1,14 @@
 const useScroll = () => {
   return {
-    scrollToTop: () => {
-      document.getElementById('main')?.scrollTo({
+    scrollToTop: (elementId: string = 'main') => {
+      document.getElementById(elementId)?.scrollTo({
         top: 0,
         behavior: 'smooth',
       });
     },
-    scrollToBottom: () => {
-      document.getElementById('main')?.scrollTo({
-        top: document.getElementById('main')?.scrollHeight,
+    scrollToBottom: (elementId: string = 'main') => {
+      document.getElementById(elementId)?.scrollTo({
+        top: document.getElementById(elementId)?.scrollHeight,
         behavior: 'smooth',
       });
     },

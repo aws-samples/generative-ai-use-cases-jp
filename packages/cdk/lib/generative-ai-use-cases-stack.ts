@@ -20,6 +20,12 @@ export class GenerativeAiUseCasesStack extends Stack {
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
 
+    if (typeof selfSignUpEnabled !== 'boolean') {
+      throw new Error(
+        'cdk.json の selfSignUpEnabled には true か false を設定してください。'
+      );
+    }
+
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
     });
