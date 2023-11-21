@@ -195,6 +195,12 @@ const useChatState = create<{
       initChatWithSystemContext(id);
     },
     restore: (id: string, messages: RecordedMessage[], chat: Chat) => {
+      for (const [key, value] of Object.entries(get().chats)) {
+        if (value.chat?.chatId === chat.chatId) {
+          initChatWithSystemContext(key);
+        }
+      }
+
       initChat(id, messages, chat);
     },
     updateSystemContext: (id: string, systemContext: string) => {
