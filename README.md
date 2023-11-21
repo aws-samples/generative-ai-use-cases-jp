@@ -81,11 +81,13 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 > [!IMPORTANT]
 > **このリポジトリでは、デフォルトでバージニア北部 (us-east-1) リージョンの Anthropic Claude モデルを利用する設定になっています。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Anthropic Claude にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Claude) を利用できる状態にしてください。Claude Instant を利用する場合など、設定を変える方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md) をご確認ください。**
 
-アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。他にも、以下のリンクにてデプロイ手順を解説しています。
-- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp) CDK 環境の準備、セキュリティ機能の追加などの解説 + クリックでデプロイ可能な CloudFormation テンプレート
-- [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k) 動画形式でデプロイ手順の確認
+アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。
 
-以下にデプロイ手順を記載します。
+> 他にも、以下のリンクにてデプロイ手順を解説しています。
+> - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp) CDK 環境の準備、セキュリティ機能の追加などの解説 + クリックでデプロイ可能な CloudFormation テンプレート
+> - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k) 動画形式でデプロイ手順の確認
+
+まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
 
 ```bash
 npm ci
