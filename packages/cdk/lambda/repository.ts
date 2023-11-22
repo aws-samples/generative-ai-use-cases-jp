@@ -110,6 +110,7 @@ export const listMessages = async (
 
 export const batchCreateMessages = async (
   messages: ToBeRecordedMessage[],
+  _llmType: string,
   _userId: string,
   _chatId: string
 ): Promise<RecordedMessage[]> => {
@@ -117,8 +118,7 @@ export const batchCreateMessages = async (
   const chatId = `chat#${_chatId}`;
   const createdDate = Date.now();
   const feedback = 'none';
-  const usecase = '';
-  const llmType = 'bedrock';
+  const llmType = _llmType;
 
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
@@ -130,12 +130,11 @@ export const batchCreateMessages = async (
         content: m.content,
         userId,
         feedback,
-        usecase,
+        usecase: m.usecase,
         llmType,
       };
     }
   );
-
   await dynamoDbDocument.send(
     new BatchWriteCommand({
       RequestItems: {

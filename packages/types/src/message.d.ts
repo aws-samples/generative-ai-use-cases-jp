@@ -21,6 +21,7 @@ export type RecordedMessage = PrimaryKey &
 
 export type ToBeRecordedMessage = UnrecordedMessage & {
   messageId: string;
+  usecase: string;
 };
 
 export type ShownMessage = Partial<PrimaryKey> &

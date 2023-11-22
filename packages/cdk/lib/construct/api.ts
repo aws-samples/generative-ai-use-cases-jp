@@ -176,6 +176,7 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        MODEL_TYPE: modelType,
       },
     });
     table.grantWriteData(createMessagesFunction);

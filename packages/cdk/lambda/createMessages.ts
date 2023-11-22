@@ -10,7 +10,13 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const messages = await batchCreateMessages(req.messages, userId, chatId);
+    const llmType = process.env.MODEL_TYPE ?? '';
+    const messages = await batchCreateMessages(
+      req.messages,
+      llmType,
+      userId,
+      chatId
+    );
 
     return {
       statusCode: 200,
