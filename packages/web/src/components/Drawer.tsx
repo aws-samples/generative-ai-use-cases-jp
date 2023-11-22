@@ -5,8 +5,15 @@ import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
 import ButtonIcon from './ButtonIcon';
 import IconWithDot from './IconWithDot';
-import { PiSignOut, PiX, PiGithubLogo, PiGear } from 'react-icons/pi';
+import {
+  PiSignOut,
+  PiX,
+  PiGithubLogo,
+  PiGear,
+  PiBookOpen,
+} from 'react-icons/pi';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
 
 export type ItemProps = BaseProps & {
@@ -122,55 +129,60 @@ const Drawer: React.FC<Props> = (props) => {
         <div className="border-b" />
         {tools.length > 0 && (
           <>
-            <div className="text-aws-smile mx-3 my-2 text-xs">
-              ツール <span className="text-gray-400">(AIサービス)</span>
-            </div>
-            <div className="mb-1 ml-2 mr-1">
-              {tools.map((item, idx) => (
-                <Item
-                  key={idx}
-                  label={item.label}
-                  icon={item.icon}
-                  to={item.to}
-                  display={item.display}
-                />
-              ))}
-            </div>
+            <ExpandableMenu title="ツール" subTitle="(AIサービス)">
+              <div className="mb-2 ml-2 mr-1">
+                {tools.map((item, idx) => (
+                  <Item
+                    key={idx}
+                    label={item.label}
+                    icon={item.icon}
+                    to={item.to}
+                    display={item.display}
+                  />
+                ))}
+              </div>
+            </ExpandableMenu>
             <div className="border-b" />
           </>
         )}
-        <div className="text-aws-smile mx-3 my-2  text-xs">会話履歴</div>
-        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-          <ChatList className="mr-1" />
-        </div>
+        <ExpandableMenu title="会話履歴">
+          <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+            <ChatList className="mr-1" />
+          </div>
+        </ExpandableMenu>
         <div className="border-b" />
-        <div className="mb-2">
-          <div className="text-aws-smile mx-3 my-2 text-xs">リンク</div>
-
-          <RefLink
-            to="https://aws.amazon.com/jp/bedrock/"
-            icon={<BedrockIcon className="w-4 fill-white" />}
-            label="Bedrock"
-          />
-          <RefLink
-            to="https://github.com/aws-samples/generative-ai-use-cases-jp"
-            icon={<PiGithubLogo className="text-base" />}
-            label="GitHub"
-          />
-        </div>
-        <div className="flex justify-between border-t border-gray-400 px-1 py-2">
+        <ExpandableMenu title="リンク" defaultOpened={false}>
+          <div className="mb-2 ml-2">
+            <RefLink
+              to="https://aws.amazon.com/jp/bedrock/"
+              icon={<BedrockIcon className="w-4 fill-white" />}
+              label="Bedrock"
+            />
+            <RefLink
+              to="https://github.com/aws-samples/generative-ai-use-cases-jp"
+              icon={<PiGithubLogo className="text-base" />}
+              label="GitHub"
+            />
+            <RefLink
+              to="https://docs.anthropic.com/claude/docs"
+              icon={<PiBookOpen className="text-base" />}
+              label="Claude Prompt Engineering"
+            />
+          </div>
+        </ExpandableMenu>
+        <div className="flex justify-between border-t border-gray-400 px-3 py-2">
           <ButtonIcon
             onClick={() => {
               navigate('/setting');
             }}>
-            <IconWithDot showDot={hasUpdate} className="mr-1">
-              <PiGear className="text-base" />
+            <IconWithDot showDot={hasUpdate} className="mr-2">
+              <PiGear className="text-sm" />
             </IconWithDot>
-            <span className="ml-1 text-sm">設定情報</span>
+            <span className="text-sm">設定情報</span>
           </ButtonIcon>
           <ButtonIcon onClick={props.signOut}>
-            <PiSignOut className="mr-1 text-base" />
-            <span className="ml-1 text-sm">サインアウト</span>
+            <PiSignOut className="mr-1 text-sm" />
+            <span className="text-sm">サインアウト</span>
           </ButtonIcon>
         </div>
       </nav>

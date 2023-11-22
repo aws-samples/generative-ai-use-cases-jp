@@ -9,7 +9,7 @@ type Props = RowItemProps & {
   children: React.ReactNode;
 };
 
-const ExpandedField: React.FC<Props> = (props) => {
+const ExpandableField: React.FC<Props> = (props) => {
   const [expanded, setExpanded] = useState(props.defaultOpened ?? false);
 
   return (
@@ -19,7 +19,9 @@ const ExpandedField: React.FC<Props> = (props) => {
         onClick={() => {
           setExpanded(!expanded);
         }}>
-        <PiCaretRightFill className={`mr-1 ${expanded && 'rotate-90'} `} />
+        <PiCaretRightFill
+          className={`mr-1 ${expanded && 'rotate-90'} transition`}
+        />
         {props.label}
         {props.optional && (
           <>
@@ -34,4 +36,4 @@ const ExpandedField: React.FC<Props> = (props) => {
   );
 };
 
-export default ExpandedField;
+export default ExpandableField;
