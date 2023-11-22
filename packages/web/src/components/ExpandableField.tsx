@@ -19,7 +19,7 @@ const ExpandableField: React.FC<Props> = (props) => {
         onClick={() => {
           setExpanded(!expanded);
         }}>
-        <PiCaretRightFill className={`mr-1 ${expanded && 'rotate-90'} `} />
+        <PiCaretRightFill className={`mr-1 ${expanded && 'rotate-90'} transition`} />
         {props.label}
         {props.optional && (
           <>
