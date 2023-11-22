@@ -15,11 +15,13 @@ const ExpandableMenu: React.FC<Props> = (props) => {
   return (
     <>
       <div
-        className="text-aws-smile mx-3 my-2 flex items-center cursor-pointer text-xs"
+        className="text-aws-smile mx-3 my-2 flex cursor-pointer items-center text-xs"
         onClick={() => {
           setExpanded(!expanded);
         }}>
-        <PiCaretRightFill className={`mr-1 ${expanded && 'rotate-90'} transition`} />
+        <PiCaretRightFill
+          className={`mr-1 ${expanded && 'rotate-90'} transition`}
+        />
         <span className="mr-1">{props.title}</span>
         {props.subTitle && (
           <span className="text-gray-400">{props.subTitle}</span>
