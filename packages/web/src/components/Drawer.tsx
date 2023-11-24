@@ -160,6 +160,7 @@ const Drawer: React.FC<Props> = (props) => {
               className="bg-aws-squid-ink h-7 w-full rounded-full border border-white pl-8 text-sm text-white focus:border-white focus:ring-0"
               type="text"
               value={searchQuery}
+              placeholder="件名で検索"
               onChange={(event) => {
                 setSearchQuery(event.target.value ?? '');
               }}
