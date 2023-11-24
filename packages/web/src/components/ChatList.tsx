@@ -1,11 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import useConversation from '../hooks/useConversation';
 import { useNavigate, useParams } from 'react-router-dom';
 import ChatListItem from './ChatListItem';
 import { decomposeChatId } from '../utils/ChatUtils';
 
-type Props = BaseProps;
+type Props = BaseProps & {
+  searchWords: string[];
+};
 
 const ChatList: React.FC<Props> = (props) => {
   const {
@@ -34,6 +36,19 @@ const ChatList: React.FC<Props> = (props) => {
     [updateConversationTitle]
   );
 
+  const searchedConversations = useMemo(() => {
+    if (props.searchWords.length === 0) {
+      return conversations;
+    }
+
+    // OR 検索にしています
+    return conversations.filter((c) => {
+      return props.searchWords.some((w) =>
+        c.title.toLowerCase().includes(w.toLowerCase())
+      );
+    });
+  }, [props.searchWords, conversations]);
+
   return (
     <>
       <div
@@ -48,7 +63,7 @@ const ChatList: React.FC<Props> = (props) => {
                 key={idx}
                 className="bg-aws-sky/20 h-8 w-full animate-pulse rounded"></div>
             ))}
-        {conversations.map((chat) => {
+        {searchedConversations.map((chat) => {
           const _chatId = decomposeChatId(chat.chatId);
           return (
             <ChatListItem
@@ -58,6 +73,7 @@ const ChatList: React.FC<Props> = (props) => {
               chat={chat}
               onDelete={onDelete}
               onUpdateTitle={onUpdateTitle}
+              highlightWords={props.searchWords}
             />
           );
         })}

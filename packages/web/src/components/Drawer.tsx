@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
@@ -11,6 +11,7 @@ import {
   PiGithubLogo,
   PiGear,
   PiBookOpen,
+  PiMagnifyingGlass,
 } from 'react-icons/pi';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import ExpandableMenu from './ExpandableMenu';
@@ -106,6 +107,14 @@ const Drawer: React.FC<Props> = (props) => {
     return props.items.filter((i) => i.display === 'tool');
   }, [props.items]);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchWords = useMemo(() => {
+    return searchQuery
+      .split(' ')
+      .flatMap((q) => q.split('　'))
+      .filter((q) => q !== '');
+  }, [searchQuery]);
+
   return (
     <>
       <nav
@@ -146,8 +155,20 @@ const Drawer: React.FC<Props> = (props) => {
           </>
         )}
         <ExpandableMenu title="会話履歴">
+          <div className="relative mb-2 ml-2 mr-1 w-full pl-1.5 pr-7 pt-1">
+            <input
+              className="bg-aws-squid-ink h-7 w-full rounded-full border border-white pl-8 text-sm text-white focus:border-white focus:ring-0"
+              type="text"
+              value={searchQuery}
+              placeholder="件名で検索"
+              onChange={(event) => {
+                setSearchQuery(event.target.value ?? '');
+              }}
+            />
+            <PiMagnifyingGlass className="bg-aws-squid-ink absolute left-1.5 top-1 h-7 w-7 rounded-l-full border border-white p-1.5" />
+          </div>
           <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-            <ChatList className="mr-1" />
+            <ChatList className="mr-1" searchWords={searchWords} />
           </div>
         </ExpandableMenu>
         <div className="border-b" />

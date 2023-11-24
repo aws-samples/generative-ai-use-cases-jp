@@ -13,6 +13,7 @@ import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases-jp';
 import { decomposeChatId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
+import HighlightWithinTextarea from 'react-highlight-within-textarea';
 
 type Props = BaseProps & {
   active: boolean;
@@ -21,6 +22,7 @@ type Props = BaseProps & {
   onDelete: (chatId: string) => Promise<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateTitle: (chatId: string, title: string) => Promise<any>;
+  highlightWords: string[];
 };
 
 const ChatListItem: React.FC<Props> = (props) => {
@@ -74,6 +76,15 @@ const ChatListItem: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
 
+  const highlight = useMemo(() => {
+    return props.highlightWords.map((w) => {
+      return {
+        highlight: w,
+        className: 'text-aws-smile bg-inherit',
+      };
+    });
+  }, [props.highlightWords]);
+
   return (
     <>
       {openDialog && (
@@ -112,7 +123,11 @@ const ChatListItem: React.FC<Props> = (props) => {
                 }}
               />
             ) : (
-              <>{props.chat.title}</>
+              <HighlightWithinTextarea
+                value={props.chat.title}
+                highlight={highlight}
+                readOnly
+              />
             )}
             {!editing && (
               <div
