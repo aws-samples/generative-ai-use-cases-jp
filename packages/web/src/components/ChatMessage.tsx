@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
-import { PiUserFill } from 'react-icons/pi';
+import { PiUserFill, PiBookOpenText } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
@@ -42,7 +42,9 @@ const ChatMessage: React.FC<Props> = (props) => {
   return (
     <div
       className={`flex justify-center ${
-        chatContent?.role === 'assistant' ? 'bg-gray-100/70' : ''
+        chatContent?.role === 'assistant' || chatContent?.role === 'system'
+          ? 'bg-gray-100/70'
+          : ''
       }`}>
       <div
         className={`${
@@ -57,6 +59,11 @@ const ChatMessage: React.FC<Props> = (props) => {
           {chatContent?.role === 'assistant' && (
             <div className="bg-aws-ml h-min rounded p-1">
               <BedrockIcon className="h-7 w-7 fill-white" />
+            </div>
+          )}
+          {chatContent?.role === 'system' && (
+            <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
+              <PiBookOpenText />
             </div>
           )}
 
@@ -78,6 +85,13 @@ const ChatMessage: React.FC<Props> = (props) => {
                   }`}
               </Markdown>
             )}
+            {chatContent?.role === 'system' && (
+              <div className="break-all">
+                {chatContent.content.split('\n').map((c, idx) => (
+                  <div key={idx}>{c}</div>
+                ))}
+              </div>
+            )}
             {props.loading && (chatContent?.content ?? '') === '' && (
               <div className="animate-pulse">▍</div>
             )}
@@ -85,7 +99,9 @@ const ChatMessage: React.FC<Props> = (props) => {
         </div>
 
         <div className="flex items-start justify-end print:hidden lg:-mr-24">
-          {chatContent?.role === 'user' && <div className="lg:w-8"></div>}
+          {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
+            <div className="lg:w-8"></div>
+          )}
           {chatContent?.role === 'assistant' && !props.loading && (
             <>
               <ButtonCopy

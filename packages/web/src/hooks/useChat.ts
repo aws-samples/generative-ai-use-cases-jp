@@ -407,6 +407,7 @@ const useChat = (id: string, chatId?: string) => {
     pushMessage: (role: Role, content: string) =>
       pushMessage(id, role, content),
     popMessage: () => popMessage(id),
+    rawMessages: chats[id]?.messages ?? [],
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
     postChat: (content: string, ignoreHistory: boolean = false) => {
