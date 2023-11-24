@@ -125,6 +125,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             ) : (
               <HighlightWithinTextarea
                 value={props.chat.title}
+                placeholder=""
                 highlight={highlight}
                 readOnly
               />
