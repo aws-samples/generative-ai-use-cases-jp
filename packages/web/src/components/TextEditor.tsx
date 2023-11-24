@@ -38,7 +38,12 @@ const Texteditor: React.FC<Props> = (props) => {
           <HighlightWithinTextarea
             placeholder={props.placeholder}
             value={props.value}
-            highlight={props.comments?.map((comment) => comment.excerpt)}
+            highlight={props.comments?.map((comment) => {
+              return {
+                highlight: comment.excerpt,
+                className: 'text-aws-smile bg-inherit',
+              };
+            })}
             onChange={(value) => {
               props.onChange(value);
             }}
