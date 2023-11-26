@@ -1,9 +1,0 @@
-{
-    "prefix": "",
-    "suffix": "",
-    "join": "\n",
-    "user": "ユーザー: {}",
-    "assistant": "システム: {}",
-    "system": "システム: {}",
-    "eos_token": "</s>"
-}

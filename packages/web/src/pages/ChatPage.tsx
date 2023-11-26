@@ -7,15 +7,25 @@ import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import { SelectField } from '@aws-amplify/ui-react';
+import useSetting from '../hooks/useSetting';
 
 type StateType = {
+  modelName: string;
   content: string;
+  setModelName: (c: string) => void;
   setContent: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
+    modelName: '',
     content: '',
+    setModelName: (s: string) => {
+      set(() => ({
+        modelName: s,
+      }));
+    },
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -25,7 +35,7 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const ChatPage: React.FC = () => {
-  const { content, setContent } = useChatPageState();
+  const { modelName, content, setModelName, setContent } = useChatPageState();
   const { state, pathname } = useLocation();
   const { chatId } = useParams();
 
@@ -40,6 +50,7 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
+  const { models, getModel } = useSetting();
 
   const title = useMemo(() => {
     if (chatId) {
@@ -57,11 +68,10 @@ const ChatPage: React.FC = () => {
   }, [state]);
 
   const onSend = useCallback(() => {
-    postChat(content);
+    postChat(content, false, getModel(modelName));
     setContent('');
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [modelName, content]);
 
   const onReset = useCallback(() => {
     clear();
@@ -93,6 +103,19 @@ const ChatPage: React.FC = () => {
       <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
           {title}
+        </div>
+        <div className="flex w-full items-end justify-center">
+          <SelectField
+            label="モデル"
+            labelHidden
+            value={modelName}
+            onChange={(e) => setModelName(e.target.value)}>
+            {models.map((m) => (
+              <option key={m.modelName} value={m.modelName}>
+                {m.modelName}
+              </option>
+            ))}
+          </SelectField>
         </div>
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (

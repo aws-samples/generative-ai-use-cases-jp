@@ -8,6 +8,7 @@ import {
   Chat,
   ListChatsResponse,
   Role,
+  Model,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -37,6 +38,7 @@ const useChatState = create<{
     id: string,
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>,
+    model: Model,
     ignoreHistory: boolean
   ) => void;
   sendFeedback: (
@@ -251,6 +253,7 @@ const useChatState = create<{
       id: string,
       content: string,
       mutateListChat,
+      model: Model,
       ignoreHistory: boolean = false
     ) => {
       setLoading(id, true);
@@ -279,6 +282,7 @@ const useChatState = create<{
 
       const chatMessages = get().chats[id].messages;
       const stream = predictStream({
+        model: model,
         // 最後のメッセージはアシスタントのメッセージなので、排除
         // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
         messages: omitUnusedMessageProperties(
@@ -299,6 +303,7 @@ const useChatState = create<{
                 /(<output>|<\/output>)/g,
                 ''
               ),
+              llmType: model.modelName,
             };
 
             draft[id].messages.push(newAssistantMessage);
@@ -410,8 +415,15 @@ const useChat = (id: string, chatId?: string) => {
     rawMessages: chats[id]?.messages ?? [],
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
-    postChat: (content: string, ignoreHistory: boolean = false) => {
-      post(id, content, mutateConversations, ignoreHistory);
+    postChat: (
+      content: string,
+      ignoreHistory: boolean = false,
+      model: Model = {
+        type: 'bedrock',
+        modelName: 'anthropic.claude-instant-v1',
+      }
+    ) => {
+      post(id, content, mutateConversations, model, ignoreHistory);
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);

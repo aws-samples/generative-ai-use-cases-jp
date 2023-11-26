@@ -25,83 +25,11 @@ import MenuDropdown from './components/MenuDropdown';
 import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
+import useSetting from './hooks/useSetting';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const selfSignUpEnabled: boolean =
   import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
-
-const items: ItemProps[] = [
-  {
-    label: 'ホーム',
-    to: '/',
-    icon: <PiHouse />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '設定情報',
-    to: '/setting',
-    icon: <PiGear />,
-    display: 'none' as const,
-  },
-  {
-    label: 'チャット',
-    to: '/chat',
-    icon: <PiChatsCircle />,
-    display: 'usecase' as const,
-  },
-  ragEnabled
-    ? {
-        label: 'RAG チャット',
-        to: '/rag',
-        icon: <PiChatCircleText />,
-        display: 'usecase' as const,
-      }
-    : null,
-  {
-    label: '文章生成',
-    to: '/generate',
-    icon: <PiPencil />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '要約',
-    to: '/summarize',
-    icon: <PiNote />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '校正',
-    to: '/editorial',
-    icon: <PiPenNib />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '翻訳',
-    to: '/translate',
-    icon: <PiTranslate />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '画像生成',
-    to: '/image',
-    icon: <PiImages />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '音声認識',
-    to: '/transcribe',
-    icon: <PiSpeakerHighBold />,
-    display: 'tool' as const,
-  },
-  ragEnabled
-    ? {
-        label: 'Kendra 検索',
-        to: '/kendra',
-        icon: <PiMagnifyingGlass />,
-        display: 'tool' as const,
-      }
-    : null,
-].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す
@@ -129,6 +57,82 @@ const App: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
+  const { imageGenModels } = useSetting();
+
+  const items: ItemProps[] = [
+    {
+      label: 'ホーム',
+      to: '/',
+      icon: <PiHouse />,
+      display: 'usecase' as const,
+    },
+    {
+      label: '設定情報',
+      to: '/setting',
+      icon: <PiGear />,
+      display: 'none' as const,
+    },
+    {
+      label: 'チャット',
+      to: '/chat',
+      icon: <PiChatsCircle />,
+      display: 'usecase' as const,
+    },
+    ragEnabled
+      ? {
+          label: 'RAG チャット',
+          to: '/rag',
+          icon: <PiChatCircleText />,
+          display: 'usecase' as const,
+        }
+      : null,
+    {
+      label: '文章生成',
+      to: '/generate',
+      icon: <PiPencil />,
+      display: 'usecase' as const,
+    },
+    {
+      label: '要約',
+      to: '/summarize',
+      icon: <PiNote />,
+      display: 'usecase' as const,
+    },
+    {
+      label: '校正',
+      to: '/editorial',
+      icon: <PiPenNib />,
+      display: 'usecase' as const,
+    },
+    {
+      label: '翻訳',
+      to: '/translate',
+      icon: <PiTranslate />,
+      display: 'usecase' as const,
+    },
+    imageGenModels.length > 0
+      ? {
+          label: '画像生成',
+          to: '/image',
+          icon: <PiImages />,
+          display: 'usecase' as const,
+        }
+      : null,
+    {
+      label: '音声認識',
+      to: '/transcribe',
+      icon: <PiSpeakerHighBold />,
+      display: 'tool' as const,
+    },
+    ragEnabled
+      ? {
+          label: 'Kendra 検索',
+          to: '/kendra',
+          icon: <PiMagnifyingGlass />,
+          display: 'tool' as const,
+        }
+      : null,
+  ].flatMap((i) => (i !== null ? [i] : []));
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -138,7 +142,7 @@ const App: React.FC = () => {
     } else {
       return items.find((i) => i.to === pathname)?.label || '';
     }
-  }, [pathname, getConversationTitle]);
+  }, [items, pathname, getConversationTitle]);
 
   return (
     <Authenticator

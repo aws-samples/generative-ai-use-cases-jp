@@ -12,11 +12,13 @@ import {
   PiImages,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
+import useSetting from '../hooks/useSetting';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { imageGenModels } = useSetting();
 
   const demoChat = () => {
     navigate('/chat', {
@@ -140,12 +142,14 @@ const LandingPage: React.FC = () => {
           icon={<PiTranslate />}
           description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
         />
-        <CardDemo
-          label="画像生成"
-          onClickDemo={demoGenerateImage}
-          icon={<PiImages />}
-          description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
-        />
+        {imageGenModels.length > 0 && (
+          <CardDemo
+            label="画像生成"
+            onClickDemo={demoGenerateImage}
+            icon={<PiImages />}
+            description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+          />
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import {
+  Model,
   RecordedMessage,
   ToBeRecordedMessage,
   UnrecordedMessage,
@@ -53,6 +54,7 @@ export type UpdateTitleResponse = {
 };
 
 export type PredictRequest = {
+  model: Model;
   messages: UnrecordedMessage[];
 };
 
@@ -77,7 +79,10 @@ export type RetrieveKendraRequest = {
 
 export type RetrieveKendraResponse = RetrieveCommandOutput;
 
-export type GenerateImageRequest = GenerateImageParams;
+export type GenerateImageRequest = {
+  model: Model;
+  params: GenerateImageParams;
+};
 export type GenerateImageResponse = string;
 
 export type GetSignedUrlRequest = {
@@ -104,9 +109,24 @@ export type UploadAudioRequest = {
 };
 
 export type SettingResponse = {
-  modelType: string;
   modelRegion: string;
-  modelName: string;
-  promptTemplateFile: string;
-  imageGenModelName: string;
+  models: Model[];
+  imageGenModels: Model[];
+};
+
+export type CreateEndpointResponse = {
+  Message: string;
+};
+
+export type EndpointStatusResponse = {
+  EndpointStatus:
+    | 'OutOfService'
+    | 'Creating'
+    | 'Updating'
+    | 'SystemUpdating'
+    | 'RollingBack'
+    | 'InService'
+    | 'Deleting'
+    | 'Failed'
+    | 'UpdateRollbackFailed';
 };

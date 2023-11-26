@@ -61,6 +61,8 @@ export const getSystemContextById = (id: string) => {
   return systemContexts[id] || systemContexts['/chat'];
 };
 
+// Chat
+
 export type ChatParams = {
   content: string;
 };
@@ -69,13 +71,20 @@ export function chatPrompt(params: ChatParams) {
   return params.content;
 }
 
+// Summarize
+
 export type SummarizeParams = {
   sentence: string;
   context?: string;
 };
 
-export function summarizePrompt(params: SummarizeParams) {
-  return `以下の <要約対象の文章></要約対象の文章> の xml タグで囲われた文章を要約してください。
+export const summarizePrompt = {
+  supportedModels: ['anthropic.claude-instant-v1', 'anthropic.claude-v2'],
+  generatePrompt: (modelName: string, params: SummarizeParams) => {
+    if (
+      ['anthropic.claude-v2', 'anthropic.claude-instant-v1'].includes(modelName)
+    ) {
+      return `以下の <要約対象の文章></要約対象の文章> の xml タグで囲われた文章を要約してください。
 
 <要約対象の文章>
 ${params.sentence}
@@ -86,24 +95,33 @@ ${
     ? ''
     : `要約する際、以下の <要約時に考慮して欲しいこと></要約時に考慮して欲しいこと> の xml タグで囲われた内容を考慮してください。
 
-    <要約時に考慮して欲しいこと>
-    ${params.context}
-  </要約時に考慮して欲しいこと>
-    `
+<要約時に考慮して欲しいこと>
+${params.context}
+</要約時に考慮して欲しいこと>
+`
 }
 
 要約した文章だけを出力してください。それ以外の文章は一切出力しないでください。
 出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。
 `;
-}
+    } else {
+      throw new Error('Unsupported Model');
+    }
+  },
+};
 
 export type EditorialParams = {
   sentence: string;
   context?: string;
 };
 
-export function editorialPrompt(params: EditorialParams) {
-  return `inputの文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は具体的に指摘してください。
+export const editorialPrompt = {
+  supportedModels: ['anthropic.claude-instant-v1', 'anthropic.claude-v2'],
+  generatePrompt: (modelName: string, params: EditorialParams) => {
+    if (
+      ['anthropic.claude-v2', 'anthropic.claude-instant-v1'].includes(modelName)
+    ) {
+      return `inputの文章において誤字脱字は修正案を提示し、根拠やデータが不足している部分は具体的に指摘してください。
 <input>
 ${params.sentence}
 </input>
@@ -120,15 +138,24 @@ ${
 </output-format>
 指摘事項がない場合は空配列を出力してください。「指摘事項はありません」「誤字脱字はありません」などの出力は一切不要です。
 `;
-}
+    } else {
+      throw new Error('Unsupported Model');
+    }
+  },
+};
 
 export type GenerateTextParams = {
   information: string;
   context: string;
 };
 
-export function generateTextPrompt(params: GenerateTextParams) {
-  return `<input>の情報から指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
+export const generateTextPrompt = {
+  supportedModels: ['anthropic.claude-instant-v1', 'anthropic.claude-v2'],
+  generatePrompt: (modelName: string, params: GenerateTextParams) => {
+    if (
+      ['anthropic.claude-v2', 'anthropic.claude-instant-v1'].includes(modelName)
+    ) {
+      return `<input>の情報から指示に従って文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
 出力は<output></output>のxmlタグで囲んでください。
 <input>
 ${params.information}
@@ -136,7 +163,11 @@ ${params.information}
 <作成する文章の形式>
 ${params.context}
 </作成する文章の形式>`;
-}
+    } else {
+      throw new Error('Unsupported Model');
+    }
+  },
+};
 
 export type TranslateParams = {
   sentence: string;
@@ -144,10 +175,15 @@ export type TranslateParams = {
   context?: string;
 };
 
-export function translatePrompt(params: TranslateParams) {
-  return `<input></input>の xml タグで囲われた文章を ${
-    params.language
-  } に翻訳してください。
+export const translatePrompt = {
+  supportedModels: ['anthropic.claude-instant-v1', 'anthropic.claude-v2'],
+  generatePrompt: (modelName: string, params: TranslateParams) => {
+    if (
+      ['anthropic.claude-v2', 'anthropic.claude-instant-v1'].includes(modelName)
+    ) {
+      return `<input></input>の xml タグで囲われた文章を ${
+        params.language
+      } に翻訳してください。
 翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。
 <input>
 ${params.sentence}
@@ -161,7 +197,11 @@ ${
 出力は翻訳結果だけを <output></output> の xml タグで囲って出力してください。
 それ以外の文章は一切出力してはいけません。例外はありません。
 `;
-}
+    } else {
+      throw new Error('Unsupported Model');
+    }
+  },
+};
 
 export type RagParams = {
   promptType: 'RETRIEVE' | 'SYSTEM_CONTEXT';
@@ -169,9 +209,14 @@ export type RagParams = {
   referenceItems?: RetrieveResultItem[];
 };
 
-export function ragPrompt(params: RagParams) {
-  if (params.promptType === 'RETRIEVE') {
-    return `あなたは、文書検索で利用するQueryを生成するAIアシスタントです。
+export const ragPrompt = {
+  supportedModels: ['anthropic.claude-instant-v1', 'anthropic.claude-v2'],
+  generatePrompt: (modelName: string, params: RagParams) => {
+    if (
+      ['anthropic.claude-v2', 'anthropic.claude-instant-v1'].includes(modelName)
+    ) {
+      if (params.promptType === 'RETRIEVE') {
+        return `あなたは、文書検索で利用するQueryを生成するAIアシスタントです。
 以下の手順通りにQueryを生成してください。
 
 <Query生成の手順>
@@ -190,8 +235,8 @@ export function ragPrompt(params: RagParams) {
 ${params.retrieveQueries!.map((q) => `* ${q}`).join('\n')}
 </Query履歴>
 `;
-  } else {
-    return `あなたはユーザの質問に答えるAIアシスタントです。
+      } else {
+        return `あなたはユーザの質問に答えるAIアシスタントです。
 以下の手順でユーザの質問に答えてください。手順以外のことは絶対にしないでください。
 
 <回答手順>
@@ -233,5 +278,9 @@ ${params
 * 回答文以外の文字列は一切出力しないでください。回答はJSON形式ではなく、テキストで出力してください。見出しやタイトル等も必要ありません。
 </回答のルール>
 `;
-  }
-}
+      }
+    } else {
+      throw new Error('Unsupported Model');
+    }
+  },
+};

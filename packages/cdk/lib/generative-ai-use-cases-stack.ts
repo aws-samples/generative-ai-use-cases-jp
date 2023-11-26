@@ -1,6 +1,6 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Auth, Api, Web, Database, Rag, Transcribe } from './construct';
+import { Auth, Api, Web, Database, Rag, Transcribe, LLM } from './construct';
 
 interface GenerativeAiUseCasesStackProps extends StackProps {
   webAclId?: string;
@@ -30,10 +30,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       selfSignUpEnabled,
     });
     const database = new Database(this, 'Database');
+    const llm = new LLM(this, 'LLM');
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
+      endpointName: llm.endpointName,
+      endpointConfigName: llm.endpointConfigName,
+      models: llm.models,
     });
 
     const web = new Web(this, 'Api', {

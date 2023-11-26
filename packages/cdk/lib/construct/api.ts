@@ -14,12 +14,19 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { readFileSync } from 'fs';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cwactions from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import { Model } from 'generative-ai-use-cases-jp';
 
 export interface BackendApiProps {
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
+  endpointName: string;
+  endpointConfigName: string;
+  models: Model[];
 }
 
 export class Api extends Construct {
@@ -29,27 +36,21 @@ export class Api extends Construct {
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
 
-    const { userPool, table, idPool } = props;
+    const {
+      userPool,
+      table,
+      idPool,
+      endpointName,
+      endpointConfigName,
+      models,
+    } = props;
 
-    // sagemaker | bedrock
-    const modelType = this.node.tryGetContext('modelType') || 'bedrock';
     // region for bedrock / sagemaker
-    const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
-    // model name for bedrock / sagemaker
-    const modelName =
-      this.node.tryGetContext('modelName') || 'anthropic.claude-v2';
-    // image generate model name for bedrock / sagemaker
-    const imageGenerateModelName =
-      this.node.tryGetContext('imageGenerateModelName') ||
-      'stability.stable-diffusion-xl-v0';
+    const modelRegion =
+      this.node.tryGetContext('modelRegion') || Stack.of(this).region;
 
-    // prompt template
-    const promptTemplateFile =
-      this.node.tryGetContext('promptTemplate') || 'claude.json';
-    const promptTemplate = readFileSync(
-      '../../prompt-templates/' + promptTemplateFile,
-      'utf-8'
-    );
+    const autoDeleteEndpoint: boolean =
+      this.node.tryGetContext('autoDeleteEndpoint') || false;
 
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
@@ -57,10 +58,9 @@ export class Api extends Construct {
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
       environment: {
-        MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
-        MODEL_NAME: modelName,
-        PROMPT_TEMPLATE: promptTemplate,
+        SAGEMAKER_ENDPOINT: endpointName,
+        SAGEMAKER_MODELS: JSON.stringify(models),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -72,13 +72,13 @@ export class Api extends Construct {
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       environment: {
-        MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
-        MODEL_NAME: modelName,
-        PROMPT_TEMPLATE: promptTemplate,
+        SAGEMAKER_ENDPOINT: endpointName,
+        SAGEMAKER_MODELS: JSON.stringify(models),
       },
       bundling: {
         nodeModules: [
+          '@aws-sdk/client-bedrock',
           '@aws-sdk/client-bedrock-runtime',
           // デフォルトの client-sagemaker-runtime のバージョンは StreamingResponse に
           // 対応していないため package.json に記載のバージョンを Bundle する
@@ -94,14 +94,14 @@ export class Api extends Construct {
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
       bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        nodeModules: [
+          '@aws-sdk/client-bedrock',
+          '@aws-sdk/client-bedrock-runtime',
+        ],
       },
       environment: {
         TABLE_NAME: table.tableName,
-        MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
-        MODEL_NAME: modelName,
-        PROMPT_TEMPLATE: promptTemplate,
       },
     });
     table.grantWriteData(predictTitleFunction);
@@ -111,44 +111,100 @@ export class Api extends Construct {
       entry: './lambda/generateImage.ts',
       timeout: Duration.minutes(15),
       environment: {
-        MODEL_TYPE: modelType,
         MODEL_REGION: modelRegion,
-        MODEL_NAME: modelName,
-        PROMPT_TEMPLATE: promptTemplate,
-        IMAGE_GEN_MODEL_NAME: imageGenerateModelName,
       },
       bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        nodeModules: [
+          '@aws-sdk/client-bedrock',
+          '@aws-sdk/client-bedrock-runtime',
+        ],
       },
     });
 
-    if (modelType == 'sagemaker') {
+    const createEndpointFunction = new NodejsFunction(this, 'createEndpoint', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/createEndpoint.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        ENDPOINT_NAME: endpointName,
+        ENDPOINT_CONFIG_NAME: endpointConfigName,
+      },
+    });
+
+    // Create Lambda to delete
+    const deleteEndpointFunction = new NodejsFunction(this, 'DeleteEndpoint', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteEndpoint.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        ENDPOINT_NAME: endpointName,
+      },
+    });
+
+    const checkEndpointFunction = new NodejsFunction(this, 'checkEndpoint', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/checkEndpoint.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        ENDPOINT_NAME: endpointName,
+      },
+    });
+
+    const settingFunction = new NodejsFunction(this, 'Setting', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/setting.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_REGION: modelRegion,
+        SAGEMAKER_MODELS: JSON.stringify(models),
+      },
+      bundling: {
+        nodeModules: [
+          '@aws-sdk/client-bedrock',
+          '@aws-sdk/client-bedrock-runtime',
+        ],
+      },
+    });
+
+    if (endpointName !== undefined) {
       // SageMaker Policy
       const sagemakerPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
-        actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
+        actions: [
+          'sagemaker:CreateEndpoint',
+          'sagemaker:DeleteEndpoint',
+          'sagemaker:DescribeEndpoint',
+          'sagemaker:InvokeEndpoint',
+        ],
         resources: [
           `arn:aws:sagemaker:${modelRegion}:${
             Stack.of(this).account
-          }:endpoint/${modelName}`,
+          }:endpoint/${endpointName}`,
+          `arn:aws:sagemaker:${modelRegion}:${
+            Stack.of(this).account
+          }:endpoint-config/${endpointConfigName}*`,
         ],
       });
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-    } else {
-      // Bedrock Policy
-      const bedrockPolicy = new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: ['*'],
-        actions: ['bedrock:*', 'logs:*'],
-      });
-      predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      createEndpointFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      deleteEndpointFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      checkEndpointFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
+
+    // Bedrock Policy
+    const bedrockPolicy = new PolicyStatement({
+      effect: Effect.ALLOW,
+      resources: ['*'],
+      actions: ['bedrock:*', 'logs:*'],
+    });
+    predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    settingFunction.role?.addToPrincipalPolicy(bedrockPolicy);
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,
@@ -176,7 +232,6 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
-        MODEL_TYPE: modelType,
       },
     });
     table.grantWriteData(createMessagesFunction);
@@ -235,19 +290,6 @@ export class Api extends Construct {
     });
     table.grantWriteData(updateFeedbackFunction);
 
-    const settingFunction = new NodejsFunction(this, 'Setting', {
-      runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/setting.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        MODEL_TYPE: modelType,
-        MODEL_REGION: modelRegion,
-        MODEL_NAME: modelName,
-        PROMPT_TEMPLATE_FILE: promptTemplateFile,
-        IMAGE_GEN_MODEL_NAME: imageGenerateModelName,
-      },
-    });
-
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -297,6 +339,29 @@ export class Api extends Construct {
     predictTitleResource.addMethod(
       'POST',
       new LambdaIntegration(predictTitleFunction),
+      commonAuthorizerProps
+    );
+
+    const endpointResource = api.root.addResource('endpoint');
+
+    // GET: /endpoint
+    endpointResource.addMethod(
+      'GET',
+      new LambdaIntegration(checkEndpointFunction),
+      commonAuthorizerProps
+    );
+
+    // POST: /endpoint
+    endpointResource.addMethod(
+      'POST',
+      new LambdaIntegration(createEndpointFunction),
+      commonAuthorizerProps
+    );
+
+    // DELETE: /endpoint
+    endpointResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(createEndpointFunction),
       commonAuthorizerProps
     );
 
@@ -381,6 +446,23 @@ export class Api extends Construct {
       new LambdaIntegration(settingFunction),
       commonAuthorizerProps
     );
+
+    // Invocation Monitoring:
+    // Delete SageMaker Endpoint if no request for one hours
+    if (autoDeleteEndpoint) {
+      const endpointAlarm = new cloudwatch.Alarm(this, 'NoTrafficAlarm', {
+        metric: predictStreamFunction.metricInvocations(),
+        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+        evaluationPeriods: 12,
+        threshold: 1,
+        treatMissingData: cloudwatch.TreatMissingData.BREACHING,
+      });
+      const topic = new sns.Topic(this, 'DeleteEndpointTopic');
+      topic.addSubscription(
+        new subscriptions.LambdaSubscription(deleteEndpointFunction)
+      );
+      endpointAlarm.addAlarmAction(new cwactions.SnsAction(topic));
+    }
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

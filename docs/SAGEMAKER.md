@@ -1,50 +1,52 @@
 # Amazon SageMaker のカスタムモデルを利用する場合
 
-Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。
+このソリューションでは Amazon Bedrock のほかに、Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。
 
-Text Generation Inference (TGI) の Huggingface Container を使用した SageMaker Endpoint に対応しています。
+Huggingface ID もしくは S3 URI を指定することで、Text Generation Inference (TGI) の Huggingface Container を使用した SageMaker Endpoint にモデルをデプロイします。利用するモデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているのが理想的です。
 
-モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているのが理想的です。
+SageMaker Endpoint は複数モデルをデプロイすることができ、エンドポイントの起動/停止が可能です。またアクセスがない間の自動停止（デフォルトは1時間）にも対応しています。
 
 **現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。**
 
-## SageMaker エンドポイントのデプロイ
+SageMake Endpoit は
 
-**利用可能なモデル**
+## SageMaker エンドポイントを含めたソリューションのデプロイ
 
-- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
-- [elyza/ELYZA-japanese-Llama-2-7b-instruct](https://github.com/aws-samples/aws-ml-jp/blob/f57da0343d696d740bb980dc16ebf28b1221f90e/tasks/generative-ai/text-to-text/fine-tuning/instruction-tuning/Transformers/Elyza_Inference_TGI_ja.ipynb)
+ソリューションデプロイ前に `packages/cdk/lib/construct/llm.ts` でデプロイしたいモデルを追加します。
 
-これらのモデル以外でも Text Generation Inference にデプロイしたモデルは利用可能です。
-
-## SageMaker エンドポイントをターゲットにソリューションをデプロイする
-
-事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のようにコマンドライン引数で指定することができます。
-
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint Region> -c modelName=<SageMaker Endpoint Name> -c promptTemplate=<Prompt Template File>
+```
+// name は packages/cdk/lambda/utils/promptTemplates.ts でプロンプトテンプレート参照の際に利用される。
+// (llama-2 のプロンプトであれば name に llama-2 が含まれるか確認する)
+// HF_MODEL_ID は Huggingface ID か S3 URI が指定可能
+const models: SageMakerModel[] = [
+  {
+    name: 'elyza-japanese-llama-2-7b-instruct',
+    env: {
+      ...DEFAULT_ENV,
+      HF_MODEL_ID: 'elyza/ELYZA-japanese-Llama-2-7b-instruct',
+    },
+  },
+];
 ```
 
-promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `llama2.json`)
-プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
+## エンドポイントの起動・停止
 
-## デプロイの例
+エンドポイントの起動・停止はソリューションの設定画面（`/setting`）から行うことができます。
 
-**Rinna 3.6B**
+エンドポイントのデプロイにかかる時間はモデルのダウンロードにかかる時間に依存します。
 
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16 -c promptTemplate=rinna.json
-```
+エンドポイントデプロイが失敗した際は CloudWatch Logs を確認してください。
 
-**Bilingual Rinna 4B**
+## エンドポイントの自動停止
 
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16 -c promptTemplate=bilingualRinna.json
-```
+デフォルトではエンドポイントの自動停止が有効化されていますが、無効化することも可能です。
 
-**ELYZA-japanese-Llama-2-7b-instruct**
+無効化するには、`packages/cdk/cdk.json` の `autoDeleteEndpoint` を false にしてください。
 
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=elyza-7b-inference -c promptTemplate=llama2.json
-```
+## 各ユースケースでの SageMaker モデルの利用
+
+SageMaker エンドポイントにデプロイしたモデルはデフォルトでチャットのみで利用できます。
+
+ユースケースで利用する場合は、`packages/web/src/prompts/index.ts` を編集します。
+
+各ユースケースの `supportedModels` にモデル名を追加し `generatePrompt` で既存のプロンプトを利用するか、モデルごとにプロンプトを設定することができます。

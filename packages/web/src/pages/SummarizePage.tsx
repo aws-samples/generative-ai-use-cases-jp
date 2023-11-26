@@ -9,8 +9,12 @@ import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { summarizePrompt } from '../prompts';
+import useSetting from '../hooks/useSetting';
+import { SelectField } from '@aws-amplify/ui-react';
 
 type StateType = {
+  modelName: string;
+  setModelName: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -22,12 +26,18 @@ type StateType = {
 
 const useSummarizePageState = create<StateType>((set) => {
   const INIT_STATE = {
+    modelName: '',
     sentence: '',
     additionalContext: '',
     summarizedSentence: '',
   };
   return {
     ...INIT_STATE,
+    setModelName: (s: string) => {
+      set(() => ({
+        modelName: s,
+      }));
+    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -51,6 +61,8 @@ const useSummarizePageState = create<StateType>((set) => {
 
 const SummarizePage: React.FC = () => {
   const {
+    modelName,
+    setModelName,
     sentence,
     setSentence,
     additionalContext,
@@ -61,6 +73,10 @@ const SummarizePage: React.FC = () => {
   } = useSummarizePageState();
   const { state, pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { getModel, getAvailableModels } = useSetting();
+  const availableModels: string[] = getAvailableModels(
+    summarizePrompt.supportedModels
+  );
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -71,16 +87,18 @@ const SummarizePage: React.FC = () => {
       setSentence(state.sentence);
       setAdditionalContext(state.additionalContext);
     }
+    setModelName(availableModels[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const getSummary = (sentence: string, context: string) => {
+  const getSummary = (modelName: string, sentence: string, context: string) => {
     postChat(
-      summarizePrompt({
+      summarizePrompt.generatePrompt(modelName, {
         sentence,
         context,
       }),
-      true
+      true,
+      getModel(modelName)
     );
   };
 
@@ -99,9 +117,9 @@ const SummarizePage: React.FC = () => {
   // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getSummary(sentence, additionalContext);
+    getSummary(modelName, sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [modelName, sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -117,6 +135,20 @@ const SummarizePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="要約したい文章">
+          <div className="mb-4 flex w-full">
+            <SelectField
+              label="モデル"
+              labelHidden
+              value={modelName}
+              onChange={(e) => setModelName(e.target.value)}>
+              {availableModels.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </SelectField>
+          </div>
+
           <Textarea
             placeholder="入力してください"
             value={sentence}

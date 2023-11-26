@@ -18,6 +18,7 @@
   },
   "context": {
     "ragEnabled": false,
+    "autoDeleteEndpoint": true,
     "selfSignUpEnabled": true,
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

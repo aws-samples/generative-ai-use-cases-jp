@@ -110,7 +110,6 @@ export const listMessages = async (
 
 export const batchCreateMessages = async (
   messages: ToBeRecordedMessage[],
-  _llmType: string,
   _userId: string,
   _chatId: string
 ): Promise<RecordedMessage[]> => {
@@ -118,7 +117,6 @@ export const batchCreateMessages = async (
   const chatId = `chat#${_chatId}`;
   const createdDate = Date.now();
   const feedback = 'none';
-  const llmType = _llmType;
 
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
@@ -131,7 +129,7 @@ export const batchCreateMessages = async (
         userId,
         feedback,
         usecase: m.usecase,
-        llmType,
+        llmType: m.llmType ?? '',
       };
     }
   );
