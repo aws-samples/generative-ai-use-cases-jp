@@ -7,6 +7,8 @@ type SageMakerModel = {
   env: Record<string, string>;
 };
 
+// モデルの定義
+
 // const DEFAULT_ENV = {
 //   SM_NUM_GPUS: '1',
 //   DTYPE: 'bfloat16',
@@ -15,8 +17,8 @@ type SageMakerModel = {
 //   MAX_BATCH_TOTAL_TOKENS: '8192',
 // };
 
-// name は packages/cdk/lambda/utils/promptTemplates.ts でプロンプトテンプレート参照の際に利用される。
-// (llama-2 のプロンプトであれば name に llama-2 が含まれるか確認する)
+// ここにモデル定義を追加
+// name は packages/cdk/lambda/utils/promptTemplates.ts でプロンプトテンプレート参照の際に利用される。(llama-2 のプロンプトであれば name に llama-2 が含まれるか確認する)
 // HF_MODEL_ID は Huggingface ID か S3 URI が指定可能
 const models: SageMakerModel[] = [
   // {
