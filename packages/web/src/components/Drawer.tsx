@@ -138,7 +138,10 @@ const Drawer: React.FC<Props> = (props) => {
         <div className="border-b" />
         {tools.length > 0 && (
           <>
-            <ExpandableMenu title="ツール" subTitle="(AIサービス)">
+            <ExpandableMenu
+              title="ツール"
+              subTitle="(AIサービス)"
+              className="mx-3 my-2 text-xs">
               <div className="mb-2 ml-2 mr-1">
                 {tools.map((item, idx) => (
                   <Item
@@ -154,7 +157,7 @@ const Drawer: React.FC<Props> = (props) => {
             <div className="border-b" />
           </>
         )}
-        <ExpandableMenu title="会話履歴">
+        <ExpandableMenu title="会話履歴" className="mx-3 my-2 text-xs">
           <div className="relative mb-2 ml-2 mr-1 w-full pl-1.5 pr-7 pt-1">
             <input
               className="bg-aws-squid-ink h-7 w-full rounded-full border border-white pl-8 text-sm text-white focus:border-white focus:ring-0"
@@ -172,7 +175,10 @@ const Drawer: React.FC<Props> = (props) => {
           </div>
         </ExpandableMenu>
         <div className="border-b" />
-        <ExpandableMenu title="リンク" defaultOpened={false}>
+        <ExpandableMenu
+          title="リンク"
+          defaultOpened={false}
+          className="mx-3 my-2 text-xs">
           <div className="mb-2 ml-2">
             <RefLink
               to="https://aws.amazon.com/jp/bedrock/"

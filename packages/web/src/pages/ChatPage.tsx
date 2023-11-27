@@ -4,6 +4,7 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
+import PromptList from '../components/PromptList';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
@@ -149,6 +150,8 @@ const ChatPage: React.FC = () => {
           onReset={onReset}
         />
       </div>
+
+      {isEmpty && <PromptList />}
     </>
   );
 };
