@@ -447,6 +447,52 @@ int main() {
 </code>`} />
             </ul>
           </ExpandableMenu>
+          <ExpandableMenu title="Experimental" className="my-2">
+            <ul className="pl-4">
+              <Item
+                title="役割を与えた AI 同士の議論"
+                prompt={`あなたは <Specialist-1></Specialist-1> <Specialist-2></Specialist-2> <Specialist-3></Specialist-3> <Specialist-4></Specialist-4> <Specialist-5></Specialist-5> で与えられる役割を持っています。
+<Specialist-1>データベースエンジニア</Specialist-1>
+<Specialist-2>セキュリティエンジニア</Specialist-2>
+<Specialist-3>AI エンジニア</Specialist-3>
+<Specialist-4>ネットワークエンジニア</Specialist-4>
+<Specialist-5>ガバナンスの専門家</Specialist-5>
+
+今から <topic></topic> について交互に発話させ、課題と解決方法も混ぜながら水平思考を使って <goal></goal> に向かって議論してください。
+ただし、各人は必ず2回以上発言してください。各 Specialist に与えられた数字に意味はないので、発言の順番は自由です。ただし発言をする人は必ず文脈にそった発言をしてください。
+前提条件は<limitation></limitation>で与えられます。
+
+<topic>ゼロから始める Amazon を超える EC サイトの構築について</topic>
+<goal>アーキテクチャーの完成</goal>
+<limitation>
+* アクティブユーザーは 10 億人
+* １秒あたりのトランザクションは100万
+* 個人情報の扱いは厳格に
+* 扱う商品は amazon.co.jp 同等
+* AI によるレコメンド機能を入れる
+</limitation>
+
+会話は以下の形式で出力してください。
+<output>
+<interaction>
+Specialist-x : hoge
+Specialist-x : fuga
+Specialist-x : piyo
+…
+…
+…
+…
+Specialist-x : hoge
+Specialist-x : fuga
+Specialist-x : piyo
+</interaction>
+<conclusion>
+XXX
+</conclusion>
+</output>`}
+              />
+            </ul>
+          </ExpandableMenu>
         </div>
       </div>
     </>
