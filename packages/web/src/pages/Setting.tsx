@@ -1,8 +1,11 @@
+import { useCallback } from 'react';
+import { Auth } from 'aws-amplify';
 import useChatApi from '../hooks/useChatApi';
 import useVersion from '../hooks/useVersion';
 import { Link } from 'react-router-dom';
 import Help from '../components/Help';
 import Alert from '../components/Alert';
+import Button from '../components/Button';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
@@ -30,6 +33,9 @@ const Setting = () => {
   const { getLocalVersion, getHasUpdate } = useVersion();
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
+  const signOut = useCallback(async () => {
+    await Auth.signOut();
+  }, []);
 
   return (
     <div>
@@ -130,6 +136,12 @@ const Setting = () => {
           </div>
         </>
       )}
+
+      <div className="mt-10 flex w-full justify-center">
+        <Button onClick={signOut} className="text-lg">
+          サインアウト
+        </Button>
+      </div>
     </div>
   );
 };
