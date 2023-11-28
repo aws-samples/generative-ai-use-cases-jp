@@ -80,6 +80,7 @@ const PromptList: React.FC<Props> = (props) => {
               <Item
                 title="箇条書きに説明をつける"
                 prompt={`以下の <list></list> の xml タグに囲まれた箇条書きは、<content></content> の xml タグに囲まれた内容の特徴の要点を言及したものです。
+要点を詳しく説明し、それぞれの説明の上に対応する要点を一字一句コピーしてください。
 <list>
 * 静的型付けができる
 * JavaScriptとの互換性が高い
@@ -92,8 +93,32 @@ const PromptList: React.FC<Props> = (props) => {
 * VSCodeなどのエディタの補完機能との相性が良い
 </list>
 <content>TypeScript</content>
-要点を詳しく説明し、それぞれの説明の上に対応する要点を一字一句コピーしてください。
 出力は <output>からはじめ、</output> タグで終えてください。`}
+              />
+              <Item
+                title="返信メールの作成"
+                prompt={`あなたは丁寧で礼儀正しくメールを返すプロフェッショナルです。
+以下の <mail></mail> の xml タグで囲まれたメール文面に対して、<intention></intention> の xml タグで囲まれた内容で返信メールを作成してください。
+                
+<mail>
+鈴木様
+                
+出品されていらっしゃる、キリマンジャロのコーヒー豆 5kg について、１万円で出品されていますが、1000 円に値下げしていただくことは可能でしょうか。
+
+山田
+</mail>
+
+<intention>やだ</intention>
+
+メールを作成する際、以下の<rule></rule>に囲まれたルールを遵守してください。
+<rule>
+* 文面の最初には宛先を様づけで書くこと
+* いきなり本題に入らず挨拶を入れること
+* 相手の幸せを祈ること
+* 文面の最後に自分の名前を敬称なしで入れること
+* 丁寧で礼儀正しいこと
+* 出力は<output></output>タグで囲い、<output>から始めること
+</rule>`}
               />
             </ul>
           </ExpandableMenu>
@@ -380,9 +405,46 @@ Assistant: 明日も晴れだそうですよ。
           </ExpandableMenu>
           <ExpandableMenu title="プログラミング" className="my-2">
             <ul className="pl-4">
-              <Item title="コードを書かせる" prompt={``} />
-              <Item title="コードを解説させる" prompt={``} />
-              <Item title="コードを修正させる" prompt={``} />
+              <Item title="コードを書かせる" prompt={`あなたは人間の指示をよく理解できるプログラマーです。
+<language></language> の xml タグ内に与えられた言語で、<instruction></instruction> の指示に沿ってコードを出力してください。
+<language>エクセルのマクロ</language>
+<instruction>
+Sheet1 シートのセルA1の値を二乗して円周率をかけた値をセルA2に格納する。
+</instruction>`} />
+              <Item title="コードを解説させる" prompt={`以下の <code></code> で囲われたコードについて、使用しているコードはなにかと、どんな処理をするものなのかについて解説してください。
+<code>
+Sub Macro1()
+
+    Dim value1 As Double
+    Dim value2 As Double
+    
+    value1 = Range("A1").Value
+    value2 = value1 ^ 2 * 3.14159265358979
+    
+    Range("A2").Value = value2
+    
+    Sheets("Sheet1").Copy After:=Sheets(Sheets.Count) 
+    ActiveSheet.Name = "Sheet5"
+
+End Sub
+</code>`} />
+              <Item title="コードを修正させる" prompt={`以下の <code></code> で囲われた C 言語のコードについて、if 分岐において else を通ることがないです。
+それはどうしてなのかと、修正したコードを\`\`\`C\`\`\`で囲って教えてください。
+<code>
+#include <stdio.h>
+
+int main() {
+  int x = 5;
+
+  if (x = 5) {
+    printf("x is 5\n"); 
+  } else {
+    printf("x is not 5\n");
+  }
+
+  return 0;
+}
+</code>`} />
             </ul>
           </ExpandableMenu>
         </div>
