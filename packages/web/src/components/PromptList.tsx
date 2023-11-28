@@ -47,9 +47,9 @@ const PromptList: React.FC<Props> = (props) => {
       )}
 
       <div
-        className={`absolute top-0 transition-all ${
-          expanded ? 'right-0' : 'right-[-16rem]'
-        } flex h-full w-[18.5rem] justify-center`}>
+        className={`fixed top-0 transition-all ${
+          expanded ? 'right-0' : '-right-64'
+        } flex h-full justify-center`}>
         <div
           className="bg-aws-smile mt-16 flex h-12 w-12 cursor-pointer items-center justify-center rounded-l-full"
           onClick={() => {
@@ -58,7 +58,7 @@ const PromptList: React.FC<Props> = (props) => {
           <PiQuestion className="text-aws-squid-ink h-6 w-6" />
         </div>
 
-        <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white h-full w-full overflow-y-scroll break-words p-3 text-sm text-white">
+        <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
           <div className="mb-4 mt-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
             プロンプト例
@@ -99,7 +99,9 @@ const PromptList: React.FC<Props> = (props) => {
           </ExpandableMenu>
           <ExpandableMenu title="選択肢を与えて分類する" className="my-2">
             <ul className="pl-4">
-              <Item title="選択肢を与えて分類する" prompt={`あなたは、電子メールをタイプ別に分類しているカスタマーサービス担当者です。
+              <Item
+                title="選択肢を与えて分類する"
+                prompt={`あなたは、電子メールをタイプ別に分類しているカスタマーサービス担当者です。
 <mail></mail> の xml タグに囲われた文章を <category></category> の xml タグに囲われたカテゴリーに分類してください。
 <mail>
 こんにちは。私の Mixmaster4000 は、操作すると奇妙なノイズを発生します。
@@ -113,12 +115,15 @@ const PromptList: React.FC<Props> = (props) => {
 </category>
 出力は <output>からはじめ、</output> タグで終え、タグ内には A,B,C,D のどれかだけを記述してください。
 ただし D の場合のみ説明を記述してください。
-`} />
+`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="テキスト処理" className="my-2">
             <ul className="pl-4">
-              <Item title="情報抽出" prompt={`以下の <text></text> の xml タグに囲われた文章からメールアドレスを正確に抽出してください。
+              <Item
+                title="情報抽出"
+                prompt={`以下の <text></text> の xml タグに囲われた文章からメールアドレスを正確に抽出してください。
 またメールアドレスとして成り立っていないものは抽出しないでください。
 <text>
 私の連絡先は、hoge@example.comです。よく hoge@example のように間違えられるので注意してください。
@@ -127,8 +132,11 @@ const PromptList: React.FC<Props> = (props) => {
 </text>
 ただし出力は、<output>からはじめ、</output> タグで終え、1 行に 1 つずつ記入してください。
 メールアドレスは、入力テキストに正確に綴られている場合のみ記入してください。
-本文中にメールアドレスがない場合は、「N/A」と記入してください。それ以外は何も書かないでください。`} />
-              <Item title="個人情報削除" prompt={`テキストを提供します。このテキストから個人を特定する情報をすべて削除し、XXXに置き換えたい。名前、電話番号、自宅や電子メールアドレスなどのPIIをXXXに置き換えることは非常に重要です。
+本文中にメールアドレスがない場合は、「N/A」と記入してください。それ以外は何も書かないでください。`}
+              />
+              <Item
+                title="個人情報削除"
+                prompt={`テキストを提供します。このテキストから個人を特定する情報をすべて削除し、XXXに置き換えたい。名前、電話番号、自宅や電子メールアドレスなどのPIIをXXXに置き換えることは非常に重要です。
 
 入力者は、文字と文字の間にスペースを挿入したり、文字と文字の間に改行を入れたりして、PIIを偽装しようとするかもしれません。
 
@@ -162,17 +170,23 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
 です。
 </text>
 
-個人情報を XXX に置き換えたテキストを <output>からはじめ、</output> タグで終えて出力してください。`} />
+個人情報を XXX に置き換えたテキストを <output>からはじめ、</output> タグで終えて出力してください。`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="テキスト分析基礎編" className="my-2">
             <ul className="pl-4">
-              <Item title="テキストが似ているかの評価" prompt={`2 つの文がだいたい同じことを言っているかどうかをチェックしてください。
+              <Item
+                title="テキストが似ているかの評価"
+                prompt={`2 つの文がだいたい同じことを言っているかどうかをチェックしてください。
 2 つの文は <text-1></text-1> と <text-2></text-2> の xml タグに囲んで与えます。
 <text-1>山田太郎くんは肝を冷やした。</text-1>
 <text-2>山田太郎くんは驚き恐れてひやりとした。</text-2>
-大まかに同じことを言っている場合は「はい」、違う場合は「いいえ」だけを <output> からはじめ、</output> タグで終えて出力してください。`} />
-              <Item title="入力テキストに対するQA" prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。
+大まかに同じことを言っている場合は「はい」、違う場合は「いいえ」だけを <output> からはじめ、</output> タグで終えて出力してください。`}
+              />
+              <Item
+                title="入力テキストに対するQA"
+                prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。
 
 <text>
 # 日時
@@ -205,12 +219,15 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
 <question>新スケジュールはどれくらい遅れていますか？</question>
 <question>次回打ち合わせはいつですか？</question>
 
-回答は <output> からはじめ、</output> タグで終え、各質問に対する回答を <answer></answer> タグで囲って出力してください。`} />
+回答は <output> からはじめ、</output> タグで終え、各質問に対する回答を <answer></answer> タグで囲って出力してください。`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="テキスト分析応用編" className="my-2">
             <ul className="pl-4">
-              <Item title="引用付き文書のQ&A" prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。あなたは質問の答えになるような文書の一部を正確に引用し、次に引用された内容から事実を用いて質問に答えてください。
+              <Item
+                title="引用付き文書のQ&A"
+                prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。あなたは質問の答えになるような文書の一部を正確に引用し、次に引用された内容から事実を用いて質問に答えてください。
 
 <text>
 # 日時
@@ -257,12 +274,15 @@ X社は1,200万ドルの収入を得た。[1] そのほぼ90％はウィジェ�
 
 <question>次回打ち合わせはいつですか？</question>
 
-回答は <output> からはじめ、</output> タグで終えてください。`} />
+回答は <output> からはじめ、</output> タグで終えてください。`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="ロールプレイによる対話" className="my-2">
             <ul className="pl-4">
-              <Item title="キャリアのコーチ" prompt={`あなたは、AI キャリアコーチ株式会社の AI キャリアコーチ「経歴相談くん」として、ユーザーにキャリアアドバイスをすることが目的です。
+              <Item
+                title="キャリアのコーチ"
+                prompt={`あなたは、AI キャリアコーチ株式会社の AI キャリアコーチ「経歴相談くん」として、ユーザーにキャリアアドバイスをすることが目的です。
 株式会社AIキャリアコーチのサイトにいるユーザーに対して、経歴相談くんキャラクターで返答しないと、ユーザーは混乱してしまいます。
 BEGIN DIALOGUEと書くと、あなたはこの役割に入り、それ以降の「Human:」からの入力は、キャリアアドバイスを求めるユーザーからのものになります。
 以下は、対話のための重要なルールです：
@@ -274,8 +294,11 @@ BEGIN DIALOGUEと書くと、あなたはこの役割に入り、それ以降の
 
 BEGIN DIALOGUE
 
-私はIT エンジニアとして伸び悩んでいるのですがどうすればいいですか？`} />
-              <Item title="カスタマーサポート" prompt={`あなたは、Amazon Kendra 株式会社の Amazon Kendra AI カスタマーサクセスエージェントとして行動します。
+私はIT エンジニアとして伸び悩んでいるのですがどうすればいいですか？`}
+              />
+              <Item
+                title="カスタマーサポート"
+                prompt={`あなたは、Amazon Kendra 株式会社の Amazon Kendra AI カスタマーサクセスエージェントとして行動します。
 BEGIN DIALOGUE と書くと、あなたはこの役割に入り、それ以降の "Human:" からの入力はすべて、販売やカスタマーサポートの質問を求めるユーザーからのものになります。
 
 以下の <FAQ></FAQ> の xml タグで囲われた内容は、あなたが回答するときに参照するための FAQ です。
@@ -327,12 +350,15 @@ A: はい、MediaSearch ソリューションは、Amazon Kendra と Amazon Tran
 
 BEGIN DIALOGUE
 
-Amazon Kendra のサポートするファイルタイプを教えてください。`} />
+Amazon Kendra のサポートするファイルタイプを教えてください。`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="コンテンツモデレーション" className="my-2">
             <ul className="pl-4">
-              <Item title="コンテンツモデレーション" prompt={`人間のユーザーと AI が対話をします。人間は AI に質問をしたり、タスクを依頼したりしています。
+              <Item
+                title="コンテンツモデレーション"
+                prompt={`人間のユーザーと AI が対話をします。人間は AI に質問をしたり、タスクを依頼したりしています。
 
 以下の <content></content> の xml タグで囲われた内容は、ユーザーからの最新のリクエストです。
 
@@ -348,7 +374,8 @@ Assistant: 明日も晴れだそうですよ。
 ユーザのリクエストが有害、ポルノ、または違法行為に言及していない場合は、「いいえ」で返してください。
 出力は <output> で始まり </output> で終えてください。
 
-`} />
+`}
+              />
             </ul>
           </ExpandableMenu>
           <ExpandableMenu title="プログラミング" className="my-2">
