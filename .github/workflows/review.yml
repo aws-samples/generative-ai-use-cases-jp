@@ -35,8 +35,8 @@ jobs:
         with:
           debug: true
           language: ja-JP
-          review_simple_changes: true
-          review_comment_lgtm: true
+          review_simple_changes: false
+          review_comment_lgtm: false
           only_allow_collaborator: true
           path_filters: |
             **/*.{md,ts,tsx}
