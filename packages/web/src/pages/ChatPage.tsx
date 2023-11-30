@@ -129,6 +129,9 @@ const ChatPage: React.FC = () => {
         {!isEmpty &&
           showingMessages.map((chat, idx) => (
             <div key={idx}>
+              {idx === 0 && (
+                <div className="w-full border-b border-gray-300"></div>
+              )}
               <ChatMessage
                 chatContent={chat}
                 loading={loading && idx === showingMessages.length - 1}

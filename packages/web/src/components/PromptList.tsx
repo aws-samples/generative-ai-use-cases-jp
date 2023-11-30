@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
-import { PiQuestion, PiBookOpenText, PiFlask } from 'react-icons/pi';
+import { PiBookOpenText, PiFlask } from 'react-icons/pi';
 
 type Props = BaseProps;
 
@@ -55,7 +55,7 @@ const PromptList: React.FC<Props> = (props) => {
           onClick={() => {
             setExpanded(!expanded);
           }}>
-          <PiQuestion className="text-aws-squid-ink h-6 w-6" />
+          <PiBookOpenText className="text-aws-squid-ink h-6 w-6" />
         </div>
 
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
@@ -63,7 +63,7 @@ const PromptList: React.FC<Props> = (props) => {
             <PiBookOpenText className="mr-1.5 text-lg" />
             プロンプト例
           </div>
-          <ExpandableMenu title="コンテンツ生成" className="my-2">
+          <ExpandableMenu title="コンテンツ生成" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="テキストの書き換え"
@@ -99,10 +99,10 @@ const PromptList: React.FC<Props> = (props) => {
                 title="返信メールの作成"
                 prompt={`あなたは丁寧で礼儀正しくメールを返すプロフェッショナルです。
 以下の <mail></mail> の xml タグで囲まれたメール文面に対して、<intention></intention> の xml タグで囲まれた内容で返信メールを作成してください。
-                
+
 <mail>
 鈴木様
-                
+
 出品されていらっしゃる、キリマンジャロのコーヒー豆 5kg について、１万円で出品されていますが、1000 円に値下げしていただくことは可能でしょうか。
 
 山田
@@ -122,7 +122,7 @@ const PromptList: React.FC<Props> = (props) => {
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="選択肢を与えて分類する" className="my-2">
+          <ExpandableMenu title="選択肢を与えて分類する" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="選択肢を与えて分類する"
@@ -144,7 +144,7 @@ const PromptList: React.FC<Props> = (props) => {
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト処理" className="my-2">
+          <ExpandableMenu title="テキスト処理" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="情報抽出"
@@ -199,7 +199,7 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト分析基礎編" className="my-2">
+          <ExpandableMenu title="テキスト分析基礎編" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="テキストが似ているかの評価"
@@ -248,7 +248,7 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト分析応用編" className="my-2">
+          <ExpandableMenu title="テキスト分析応用編" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="引用付き文書のQ&A"
@@ -303,7 +303,7 @@ X社は1,200万ドルの収入を得た。[1] そのほぼ90％はウィジェ�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="ロールプレイによる対話" className="my-2">
+          <ExpandableMenu title="ロールプレイによる対話" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="キャリアのコーチ"
@@ -379,7 +379,7 @@ Amazon Kendra のサポートするファイルタイプを教えてください
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="コンテンツモデレーション" className="my-2">
+          <ExpandableMenu title="コンテンツモデレーション" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="コンテンツモデレーション"
@@ -403,7 +403,7 @@ Assistant: 明日も晴れだそうですよ。
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="プログラミング" className="my-2">
+          <ExpandableMenu title="プログラミング" className="my-2" defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="コードを書かせる"
@@ -422,13 +422,13 @@ Sub Macro1()
 
     Dim value1 As Double
     Dim value2 As Double
-    
+
     value1 = Range("A1").Value
     value2 = value1 ^ 2 * 3.14159265358979
-    
+
     Range("A2").Value = value2
-    
-    Sheets("Sheet1").Copy After:=Sheets(Sheets.Count) 
+
+    Sheets("Sheet1").Copy After:=Sheets(Sheets.Count)
     ActiveSheet.Name = "Sheet5"
 
 End Sub
@@ -445,7 +445,7 @@ int main() {
   int x = 5;
 
   if (x = 5) {
-    printf("x is 5\n"); 
+    printf("x is 5\n");
   } else {
     printf("x is not 5\n");
   }
@@ -459,7 +459,8 @@ int main() {
           <ExpandableMenu
             title="Experimental"
             icon={<PiFlask />}
-            className="my-2">
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="役割を与えた AI 同士の議論"

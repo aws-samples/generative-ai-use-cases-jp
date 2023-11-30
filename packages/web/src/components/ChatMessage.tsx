@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
-import { PiUserFill, PiBookOpenText } from 'react-icons/pi';
+import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
@@ -63,7 +63,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
           {chatContent?.role === 'system' && (
             <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
-              <PiBookOpenText />
+              <PiChalkboardTeacher />
             </div>
           )}
 
