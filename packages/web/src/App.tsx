@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
-  PiDotsThreeVertical,
   PiList,
-  PiSignOut,
   PiHouse,
   PiChatCircleText,
   PiPencil,
@@ -21,8 +19,6 @@ import Drawer, { ItemProps } from './components/Drawer';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import { Amplify, I18n } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
-import MenuDropdown from './components/MenuDropdown';
-import MenuItem from './components/MenuItem';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
 
@@ -126,7 +122,6 @@ const App: React.FC = () => {
   I18n.setLanguage('ja');
 
   const { switchOpen: switchDrawer } = useDrawer();
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
 
@@ -150,54 +145,34 @@ const App: React.FC = () => {
           </div>
         ),
       }}>
-      {({ signOut }) => (
-        <div className="screen:h-screen screen:w-screen relative flex">
-          <Drawer signOut={signOut!} items={items} />
+      <div className="screen:h-screen screen:w-screen relative flex">
+        <Drawer items={items} />
 
-          <main className="transition-width relative min-h-screen flex-1 overflow-hidden">
-            <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
-              <div className="flex w-10 items-center justify-start">
-                <button
-                  className="focus:ring-aws-sky mr-2 rounded-full  p-2 hover:opacity-50 focus:outline-none focus:ring-1"
-                  onClick={() => {
-                    switchDrawer();
-                  }}>
-                  <PiList />
-                </button>
-              </div>
-
-              {label}
-
-              <div className="flex w-10 justify-end">
-                <MenuDropdown menu={<PiDotsThreeVertical />}>
-                  <>
-                    <MenuItem
-                      icon={<PiGear />}
-                      onClick={() => {
-                        navigate('/setting');
-                      }}>
-                      設定情報
-                    </MenuItem>
-                    <MenuItem
-                      icon={<PiSignOut />}
-                      onClick={() => {
-                        signOut ? signOut() : null;
-                      }}>
-                      サインアウト
-                    </MenuItem>
-                  </>
-                </MenuDropdown>
-              </div>
-            </header>
-
-            <div
-              className="text-aws-font-color screen:h-full overflow-hidden overflow-y-auto"
-              id="main">
-              <Outlet />
+        <main className="transition-width relative min-h-screen flex-1 overflow-hidden">
+          <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
+            <div className="flex w-10 items-center justify-start">
+              <button
+                className="focus:ring-aws-sky mr-2 rounded-full  p-2 hover:opacity-50 focus:outline-none focus:ring-1"
+                onClick={() => {
+                  switchDrawer();
+                }}>
+                <PiList />
+              </button>
             </div>
-          </main>
-        </div>
-      )}
+
+            {label}
+
+            {/* label を真ん中にするためのダミーのブロック */}
+            <div className="w-10" />
+          </header>
+
+          <div
+            className="text-aws-font-color screen:h-full overflow-hidden overflow-y-auto"
+            id="main">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </Authenticator>
   );
 };

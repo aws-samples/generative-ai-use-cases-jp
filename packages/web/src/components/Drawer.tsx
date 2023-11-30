@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { Auth } from 'aws-amplify';
+import useSWR from 'swr';
 import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
 import ButtonIcon from './ButtonIcon';
 import IconWithDot from './IconWithDot';
 import {
-  PiSignOut,
   PiX,
   PiGithubLogo,
   PiGear,
@@ -88,14 +89,21 @@ const RefLink: React.FC<RefLinkProps> = (props) => {
 };
 
 type Props = BaseProps & {
-  signOut: () => void;
   items: ItemProps[];
 };
 
 const Drawer: React.FC<Props> = (props) => {
   const { opened, switchOpen } = useDrawer();
-  const navigate = useNavigate();
   const { getHasUpdate } = useVersion();
+
+  // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
+  const { data } = useSWR('user', async () => {
+    return await Auth.currentAuthenticatedUser();
+  });
+
+  const email = useMemo(() => {
+    return data?.attributes?.email ?? '';
+  }, [data]);
 
   const hasUpdate = getHasUpdate();
 
@@ -197,20 +205,17 @@ const Drawer: React.FC<Props> = (props) => {
             />
           </div>
         </ExpandableMenu>
-        <div className="flex justify-between border-t border-gray-400 px-3 py-2">
-          <ButtonIcon
-            onClick={() => {
-              navigate('/setting');
-            }}>
-            <IconWithDot showDot={hasUpdate} className="mr-2">
-              <PiGear className="text-sm" />
+        <div className="flex items-center justify-between border-t border-gray-400 px-3 py-2">
+          <Link
+            to="/setting"
+            className="mr-2 overflow-x-hidden hover:brightness-75">
+            <span className="text-sm">{email}</span>
+          </Link>
+          <Link to="/setting">
+            <IconWithDot showDot={hasUpdate}>
+              <PiGear className="text-lg" />
             </IconWithDot>
-            <span className="text-sm">設定情報</span>
-          </ButtonIcon>
-          <ButtonIcon onClick={props.signOut}>
-            <PiSignOut className="mr-1 text-sm" />
-            <span className="text-sm">サインアウト</span>
-          </ButtonIcon>
+          </Link>
         </div>
       </nav>
 
