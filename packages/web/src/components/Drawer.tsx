@@ -206,7 +206,7 @@ const Drawer: React.FC<Props> = (props) => {
           </div>
         </ExpandableMenu>
         <div className="flex items-center justify-between border-t border-gray-400 px-3 py-2">
-          <Link to="/setting" className="mr-2 overflow-x-hidden">
+          <Link to="/setting" className="mr-2 hover:brightness-75 overflow-x-hidden">
             <span className="text-sm">{email}</span>
           </Link>
           <Link to="/setting">
