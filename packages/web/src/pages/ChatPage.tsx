@@ -4,6 +4,7 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
+import PromptList from '../components/PromptList';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
@@ -128,6 +129,9 @@ const ChatPage: React.FC = () => {
         {!isEmpty &&
           showingMessages.map((chat, idx) => (
             <div key={idx}>
+              {idx === 0 && (
+                <div className="w-full border-b border-gray-300"></div>
+              )}
               <ChatMessage
                 chatContent={chat}
                 loading={loading && idx === showingMessages.length - 1}
@@ -149,6 +153,8 @@ const ChatPage: React.FC = () => {
           onReset={onReset}
         />
       </div>
+
+      {isEmpty && <PromptList />}
     </>
   );
 };

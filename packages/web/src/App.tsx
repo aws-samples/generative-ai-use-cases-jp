@@ -154,7 +154,7 @@ const App: React.FC = () => {
         <div className="screen:h-screen screen:w-screen relative flex">
           <Drawer signOut={signOut!} items={items} />
 
-          <main className="transition-width relative min-h-screen flex-1 overflow-y-hidden">
+          <main className="transition-width relative min-h-screen flex-1 overflow-hidden">
             <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
               <div className="flex w-10 items-center justify-start">
                 <button
