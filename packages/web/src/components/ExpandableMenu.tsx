@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { PiCaretRightFill } from 'react-icons/pi';
 
 type Props = BaseProps & {
   title: string;
   subTitle?: string;
+  icon?: ReactNode;
   children: React.ReactNode;
   defaultOpened?: boolean;
 };
@@ -22,6 +23,7 @@ const ExpandableMenu: React.FC<Props> = (props) => {
         <PiCaretRightFill
           className={`mr-1 ${expanded && 'rotate-90'} transition`}
         />
+        {props.icon && <span className="mr-1">{props.icon}</span>}
         <span className="mr-1">{props.title}</span>
         {props.subTitle && (
           <span className="text-gray-400">{props.subTitle}</span>

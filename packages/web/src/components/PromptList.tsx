@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
-import { PiQuestion, PiBookOpenText } from 'react-icons/pi';
+import { PiQuestion, PiBookOpenText, PiFlask } from 'react-icons/pi';
 
 type Props = BaseProps;
 
@@ -405,13 +405,18 @@ Assistant: 明日も晴れだそうですよ。
           </ExpandableMenu>
           <ExpandableMenu title="プログラミング" className="my-2">
             <ul className="pl-4">
-              <Item title="コードを書かせる" prompt={`あなたは人間の指示をよく理解できるプログラマーです。
+              <Item
+                title="コードを書かせる"
+                prompt={`あなたは人間の指示をよく理解できるプログラマーです。
 <language></language> の xml タグ内に与えられた言語で、<instruction></instruction> の指示に沿ってコードを出力してください。
 <language>エクセルのマクロ</language>
 <instruction>
 Sheet1 シートのセルA1の値を二乗して円周率をかけた値をセルA2に格納する。
-</instruction>`} />
-              <Item title="コードを解説させる" prompt={`以下の <code></code> で囲われたコードについて、使用しているコードはなにかと、どんな処理をするものなのかについて解説してください。
+</instruction>`}
+              />
+              <Item
+                title="コードを解説させる"
+                prompt={`以下の <code></code> で囲われたコードについて、使用しているコードはなにかと、どんな処理をするものなのかについて解説してください。
 <code>
 Sub Macro1()
 
@@ -427,8 +432,11 @@ Sub Macro1()
     ActiveSheet.Name = "Sheet5"
 
 End Sub
-</code>`} />
-              <Item title="コードを修正させる" prompt={`以下の <code></code> で囲われた C 言語のコードについて、if 分岐において else を通ることがないです。
+</code>`}
+              />
+              <Item
+                title="コードを修正させる"
+                prompt={`以下の <code></code> で囲われた C 言語のコードについて、if 分岐において else を通ることがないです。
 それはどうしてなのかと、修正したコードを\`\`\`C\`\`\`で囲って教えてください。
 <code>
 #include <stdio.h>
@@ -444,10 +452,14 @@ int main() {
 
   return 0;
 }
-</code>`} />
+</code>`}
+              />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="Experimental" className="my-2">
+          <ExpandableMenu
+            title="Experimental"
+            icon={<PiFlask />}
+            className="my-2">
             <ul className="pl-4">
               <Item
                 title="役割を与えた AI 同士の議論"
