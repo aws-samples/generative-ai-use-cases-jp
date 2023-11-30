@@ -63,7 +63,10 @@ const PromptList: React.FC<Props> = (props) => {
             <PiBookOpenText className="mr-1.5 text-lg" />
             プロンプト例
           </div>
-          <ExpandableMenu title="コンテンツ生成" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="コンテンツ生成"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="テキストの書き換え"
@@ -122,7 +125,10 @@ const PromptList: React.FC<Props> = (props) => {
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="選択肢を与えて分類する" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="選択肢を与えて分類する"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="選択肢を与えて分類する"
@@ -144,7 +150,10 @@ const PromptList: React.FC<Props> = (props) => {
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト処理" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="テキスト処理"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="情報抽出"
@@ -199,7 +208,10 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト分析基礎編" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="テキスト分析基礎編"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="テキストが似ているかの評価"
@@ -248,7 +260,10 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="テキスト分析応用編" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="テキスト分析応用編"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="引用付き文書のQ&A"
@@ -303,7 +318,10 @@ X社は1,200万ドルの収入を得た。[1] そのほぼ90％はウィジェ�
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="ロールプレイによる対話" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="ロールプレイによる対話"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="キャリアのコーチ"
@@ -379,7 +397,10 @@ Amazon Kendra のサポートするファイルタイプを教えてください
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="コンテンツモデレーション" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="コンテンツモデレーション"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="コンテンツモデレーション"
@@ -403,7 +424,10 @@ Assistant: 明日も晴れだそうですよ。
               />
             </ul>
           </ExpandableMenu>
-          <ExpandableMenu title="プログラミング" className="my-2" defaultOpened={false}>
+          <ExpandableMenu
+            title="プログラミング"
+            className="my-2"
+            defaultOpened={false}>
             <ul className="pl-4">
               <Item
                 title="コードを書かせる"
