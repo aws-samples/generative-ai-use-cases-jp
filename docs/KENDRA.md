@@ -2,7 +2,7 @@
 
 > 既存の Amazon Kendra Index を利用する場合も、`packages/cdk/cdk.json` の `ragEnabled` は `true` である必要があります。
 
-既存の Amazon Kendra Index を利用する場合、`packages/cdk/cdk.json` の `kendraArn` に Index の ARN を指定します。
+既存の Amazon Kendra Index を利用する場合、`packages/cdk/cdk.json` の `kendraIndexArn` に Index の ARN を指定します。
 
 ARN は以下のような形式です。(`<>` で囲まれた箇所は置き換えが必要です。)
 
@@ -25,5 +25,5 @@ npm run cdk:deploy
 あるいは、`packages/cdk/cdk.json` の値は変更せず、デプロイ時に `-c` オプションで指定することも可能です。
 
 ```bash
-npm run cdk:deploy -- -c kendraArn=arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
+npm run cdk:deploy -- -c kendraIndexArn=arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```

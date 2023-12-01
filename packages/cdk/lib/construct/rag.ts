@@ -24,15 +24,15 @@ export class Rag extends Construct {
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
-    const kendraArnInCdkContext = this.node.tryGetContext('kendraArn');
+    const kendraIndexArnInCdkContext = this.node.tryGetContext('kendraIndexArn');
 
-    let kendraArn: string;
+    let kendraIndexArn: string;
     let kendraIndexId: string;
 
-    if (kendraArnInCdkContext) {
+    if (kendraIndexArnInCdkContext) {
       // 既存の Kendra Index を利用する場合
-      kendraArn = kendraArnInCdkContext!;
-      kendraIndexId = Arn.extractResourceName(kendraArnInCdkContext, 'index');
+      kendraIndexArn = kendraIndexArnInCdkContext!;
+      kendraIndexId = Arn.extractResourceName(kendraIndexArnInCdkContext, 'index');
     } else {
       // 新規に Kendra Index を作成する場合
       const indexRole = new iam.Role(this, 'KendraIndexRole', {
@@ -73,7 +73,7 @@ export class Rag extends Construct {
         ],
       });
 
-      kendraArn = Token.asString(index.getAtt('Arn'));
+      kendraIndexArn = Token.asString(index.getAtt('Arn'));
       kendraIndexId = index.ref;
 
       // WebCrawler を作成
@@ -83,7 +83,7 @@ export class Rag extends Construct {
       webCrawlerRole.addToPolicy(
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [kendraArn],
+          resources: [kendraIndexArn],
           actions: ['kendra:BatchPutDocument', 'kendra:BatchDeleteDocument'],
         })
       );
@@ -134,7 +134,7 @@ export class Rag extends Construct {
     queryFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [kendraArn],
+        resources: [kendraIndexArn],
         actions: ['kendra:Query'],
       })
     );
@@ -154,7 +154,7 @@ export class Rag extends Construct {
     retrieveFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [kendraArn],
+        resources: [kendraIndexArn],
         actions: ['kendra:Retrieve'],
       })
     );
