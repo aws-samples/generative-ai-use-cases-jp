@@ -2,7 +2,7 @@ import * as kendra from 'aws-cdk-lib/aws-kendra';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Duration, Token } from 'aws-cdk-lib';
+import { Duration, Token, Arn } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -24,85 +24,98 @@ export class Rag extends Construct {
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
-    // Kendra のリソースを作成
-    // Index 用の IAM Role を作成
-    const indexRole = new iam.Role(this, 'KendraIndexRole', {
-      assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
-    });
+    const kendraArnInCdkContext = this.node.tryGetContext('kendraArn');
 
-    indexRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: ['*'],
-        actions: ['s3:GetObject'],
-      })
-    );
+    let kendraArn: string;
+    let kendraIndexId: string;
 
-    indexRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess')
-    );
+    if (kendraArnInCdkContext) {
+      // 既存の Kendra Index を利用する場合
+      kendraArn = kendraArnInCdkContext!;
+      kendraIndexId = Arn.extractResourceName(kendraArnInCdkContext, 'index');
+    } else {
+      // 新規に Kendra Index を作成する場合
+      const indexRole = new iam.Role(this, 'KendraIndexRole', {
+        assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
+      });
 
-    const index = new kendra.CfnIndex(this, 'KendraIndex', {
-      name: 'generative-ai-use-cases-index',
-      edition: 'DEVELOPER_EDITION',
-      roleArn: indexRole.roleArn,
+      indexRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: ['s3:GetObject'],
+        })
+      );
 
-      // トークンベースのアクセス制御を実施
-      // 参考: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-kendra-index.html#cfn-kendra-index-usercontextpolicy
-      userContextPolicy: 'USER_TOKEN',
+      indexRole.addManagedPolicy(
+        iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess')
+      );
 
-      // 認可に利用する Cognito の情報を設定
-      userTokenConfigurations: [
-        {
-          jwtTokenTypeConfiguration: {
-            keyLocation: 'URL',
-            userNameAttributeField: 'cognito:username',
-            groupAttributeField: 'cognito:groups',
-            url: `${props.userPool.userPoolProviderUrl}/.well-known/jwks.json`,
-          },
-        },
-      ],
-    });
+      const index = new kendra.CfnIndex(this, 'KendraIndex', {
+        name: 'generative-ai-use-cases-index',
+        edition: 'DEVELOPER_EDITION',
+        roleArn: indexRole.roleArn,
 
-    // WebCrawler を作成
-    const webCrawlerRole = new iam.Role(this, 'KendraWebCrawlerRole', {
-      assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
-    });
-    webCrawlerRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [Token.asString(index.getAtt('Arn'))],
-        actions: ['kendra:BatchPutDocument', 'kendra:BatchDeleteDocument'],
-      })
-    );
+        // トークンベースのアクセス制御を実施
+        // 参考: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-kendra-index.html#cfn-kendra-index-usercontextpolicy
+        userContextPolicy: 'USER_TOKEN',
 
-    new kendra.CfnDataSource(this, 'WebCrawler', {
-      indexId: index.attrId,
-      name: 'WebCrawler',
-      type: 'WEBCRAWLER',
-      roleArn: webCrawlerRole.roleArn,
-      languageCode: 'ja',
-      dataSourceConfiguration: {
-        webCrawlerConfiguration: {
-          urls: {
-            seedUrlConfiguration: {
-              webCrawlerMode: 'HOST_ONLY',
-              // デモ用に AWS の GenAI 関連のページを取り込む
-              seedUrls: [
-                'https://aws.amazon.com/jp/what-is/generative-ai/',
-                'https://aws.amazon.com/jp/generative-ai/',
-                'https://aws.amazon.com/jp/generative-ai/use-cases/',
-                'https://aws.amazon.com/jp/bedrock/',
-                'https://aws.amazon.com/jp/bedrock/features/',
-                'https://aws.amazon.com/jp/bedrock/testimonials/',
-              ],
+        // 認可に利用する Cognito の情報を設定
+        userTokenConfigurations: [
+          {
+            jwtTokenTypeConfiguration: {
+              keyLocation: 'URL',
+              userNameAttributeField: 'cognito:username',
+              groupAttributeField: 'cognito:groups',
+              url: `${props.userPool.userPoolProviderUrl}/.well-known/jwks.json`,
             },
           },
-          crawlDepth: 1,
-          urlInclusionPatterns: ['https://aws.amazon.com/jp/.*'],
+        ],
+      });
+
+      kendraArn = Token.asString(index.getAtt('Arn'));
+      kendraIndexId = index.ref;
+
+      // WebCrawler を作成
+      const webCrawlerRole = new iam.Role(this, 'KendraWebCrawlerRole', {
+        assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
+      });
+      webCrawlerRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [kendraArn],
+          actions: ['kendra:BatchPutDocument', 'kendra:BatchDeleteDocument'],
+        })
+      );
+
+      new kendra.CfnDataSource(this, 'WebCrawler', {
+        indexId: kendraIndexId,
+        name: 'WebCrawler',
+        type: 'WEBCRAWLER',
+        roleArn: webCrawlerRole.roleArn,
+        languageCode: 'ja',
+        dataSourceConfiguration: {
+          webCrawlerConfiguration: {
+            urls: {
+              seedUrlConfiguration: {
+                webCrawlerMode: 'HOST_ONLY',
+                // デモ用に AWS の GenAI 関連のページを取り込む
+                seedUrls: [
+                  'https://aws.amazon.com/jp/what-is/generative-ai/',
+                  'https://aws.amazon.com/jp/generative-ai/',
+                  'https://aws.amazon.com/jp/generative-ai/use-cases/',
+                  'https://aws.amazon.com/jp/bedrock/',
+                  'https://aws.amazon.com/jp/bedrock/features/',
+                  'https://aws.amazon.com/jp/bedrock/testimonials/',
+                ],
+              },
+            },
+            crawlDepth: 1,
+            urlInclusionPatterns: ['https://aws.amazon.com/jp/.*'],
+          },
         },
-      },
-    });
+      });
+    }
 
     // RAG 関連の API を追加する
     // Lambda
@@ -115,13 +128,13 @@ export class Rag extends Construct {
         externalModules: [],
       },
       environment: {
-        INDEX_ID: index.ref,
+        INDEX_ID: kendraIndexId,
       },
     });
     queryFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [Token.asString(index.getAtt('Arn'))],
+        resources: [kendraArn],
         actions: ['kendra:Query'],
       })
     );
@@ -135,13 +148,13 @@ export class Rag extends Construct {
         externalModules: [],
       },
       environment: {
-        INDEX_ID: index.ref,
+        INDEX_ID: kendraIndexId,
       },
     });
     retrieveFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [Token.asString(index.getAtt('Arn'))],
+        resources: [kendraArn],
         actions: ['kendra:Retrieve'],
       })
     );
