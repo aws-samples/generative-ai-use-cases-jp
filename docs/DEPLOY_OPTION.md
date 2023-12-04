@@ -109,7 +109,7 @@ npm run cdk:deploy -- -c selfSignUpEnabled=false
 
 ### AWS WAF による IP 制限を有効化する
 
-Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[cdk.json](./packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
+Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
 
 ```json
   "context": {
