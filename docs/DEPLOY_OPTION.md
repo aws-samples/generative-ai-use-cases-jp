@@ -2,11 +2,11 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の Context で設定を変更します。Context の値を指定するには以下の 2 つの方法があります。**後述のドキュメントでは基本的に `-c` オプションによる設定方法のみをご案内しておりますが、`cdk.json` の値を変更することで同様に設定可能です。**
+このアプリケーションは、AWS CDK の context で設定を変更します。context の値を指定するには以下の 2 つの方法があります。**後述のドキュメントでは基本的に `-c` オプションによる設定方法のみをご案内しておりますが、`cdk.json` の値を変更することで同様に設定可能です。**
 
 ### cdk.json の値を変更する場合
 
-[packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。デプロイオプションの設定変更が必要ない場合は、設定を cdk.json にコミットしてしまうのがおすすめな方法です。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
+[packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。設定を固定化したい場合は、こちらの方法がおすすめです。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
 
 ```bash
 npm run cdk:deploy
@@ -14,7 +14,7 @@ npm run cdk:deploy
 
 ### `-c` オプションで変更する場合
 
-`npm run cdk:deploy` に `-c` オプションを付与して設定します。例えば、以下のコマンドで設定します。(`--` は必要です。) デプロイオプションの検証中で、cdk.json にコミットしたくない場合におすすめな方法です。
+`npm run cdk:deploy` に `-c` オプションを付与して設定します。例えば、以下のコマンドで設定します。(`--` は必要です。) デプロイオプションの検証中で、cdk.json に設定をコミットしたくない場合におすすめです。
 
 ```bash
 npm run cdk:deploy -- -c ragEnabled=true
@@ -42,23 +42,23 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 ### 画像生成の有効化
 
-画像生成のユースケースをご利用になる際は、context の値の変更は必要なく、代わりに Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
+画像生成のユースケースをご利用になる際は、context の値の変更は必要ありません。ただし、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
 
 ## Amazon Bedrock の違うモデルを利用したい場合
 
-以下の形式でモデル、モデルのリージョン、プロンプトのテンプレートを指定します。promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `llama2.json`) プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
+以下の形式でモデル、モデルのリージョン、プロンプトのテンプレートを指定します。promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `claude.json`) プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=<Region> -c modelName=<Model Name> -c promptTemplate=<Prompt Tempalte File>
 ```
 
-### ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する
+### ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
 ```
 
-### us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する
+### us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する例
 
 ```bash
 npm run cdk:deploy -- -c modelRegion=us-east-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
@@ -79,19 +79,19 @@ Amazon SageMaker エンドポイントにデプロイされた大規模言語モ
 npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint Region> -c modelName=<SageMaker Endpoint Name> -c promptTemplate=<Prompt Template File>
 ```
 
-### Rinna 3.6B を利用する
+### Rinna 3.6B を利用する例
 
 ```bash
 npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16 -c promptTemplate=rinna.json
 ```
 
-### Bilingual Rinna 4B を利用する
+### Bilingual Rinna 4B を利用する例
 
 ```bash
 npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16 -c promptTemplate=bilingualRinna.json
 ```
 
-### ELYZA-japanese-Llama-2-7b-instruct を利用する
+### ELYZA-japanese-Llama-2-7b-instruct を利用する例
 
 ```bash
 npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=elyza-7b-inference -c promptTemplate=llama2.json

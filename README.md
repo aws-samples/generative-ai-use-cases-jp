@@ -82,7 +82,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 > [!IMPORTANT]
 > このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md)を参照してください。
 
-アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。Step-by-Step の解説または別のデプロイ手段を利用する場合は以下を参照してください。
+アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
@@ -104,23 +104,23 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-## デプロイオプション
-- [設定方法]()
-  - [cdk.json の値を変更する場合]()
-  - [`-c` オプションで変更する場合]()
-- [ユースケースの設定]()
-  - [RAG チャットユースケースの有効化]()
-  - [画像生成の有効化]()
-- [Amazon Bedrock の違うモデルを利用したい場合]()
-  - [ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する]()
-  - [us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する]()
-- [Amazon SageMaker のカスタムモデルを利用したい場合]()
-  - [Rinna 3.6B を利用する]()
-  - [Bilingual Rinna 4B を利用する]()
-  - [ELYZA-japanese-Llama-2-7b-instruct を利用する]()
-- [セキュリティ関連設定]()
-  - [セルフサインアップを無効化する]()
-  - [AWS WAF による IP 制限を有効化する]()
+## [デプロイオプション](/docs/DEPLOY_OPTION.md)
+- [設定方法](/docs/DEPLOY_OPTION.md#設定方法)
+  - [cdk.json の値を変更する場合](/docs/DEPLOY_OPTION.md#cdkjson-の値を変更する場合)
+  - [`-c` オプションで変更する場合](/docs/DEPLOY_OPTION.md#-c-オプションで変更する場合)
+- [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
+  - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
+  - [画像生成の有効化](/docs/DEPLOY_OPTION.md#画像生成の有効化)
+- [Amazon Bedrock の違うモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-bedrock-の違うモデルを利用したい場合)
+  - [ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-claude-instant-を利用する例)
+  - [us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-claude-instant-を利用する例)
+- [Amazon SageMaker のカスタムモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-sagemaker-のカスタムモデルを利用したい場合)
+  - [Rinna 3.6B を利用する例](/docs/DEPLOY_OPTION.md#rinna-36b-を利用する例)
+  - [Bilingual Rinna 4B を利用する例](/docs/DEPLOY_OPTION.md#bilingual-rinna-4b-を利用する例)
+  - [ELYZA-japanese-Llama-2-7b-instruct を利用する例](/docs/DEPLOY_OPTION.md#elyza-japanese-llama-2-7b-instruct-を利用する例)
+- [セキュリティ関連設定](/docs/DEPLOY_OPTION.md#セキュリティ関連設定)
+  - [セルフサインアップを無効化する](/docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
+  - [AWS WAF による IP 制限を有効化する](/docs/DEPLOY_OPTION.md#aws-waf-による-ip-制限を有効化する)
 
 ## その他
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
