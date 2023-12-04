@@ -1,4 +1,5 @@
-> **This repository is optimized for Japanese.**
+> [!IMPORTANT]
+> This repository is currently developed for Japanese users. If you wish for multilingual support, please react to [this issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues/151).
 
 # Generative AI Use Cases JP
 
@@ -81,12 +82,8 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 > [!IMPORTANT]
 > このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md)を参照してください。
 
-アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。
-
-他にも、以下のリンクにて Step-by-Step のデプロイ手順を解説しています。
+アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
-  - CDK 環境の準備、セキュリティ機能の追加などの解説
-  - クリックでデプロイ可能な CloudFormation テンプレート
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
@@ -107,44 +104,31 @@ npx -w packages/cdk cdk bootstrap
 npm run cdk:deploy
 ```
 
-- [参考 (別のモデル or リージョンを利用したい場合)](/docs/BEDROCK.md)
+## [デプロイオプション](/docs/DEPLOY_OPTION.md)
+- [設定方法](/docs/DEPLOY_OPTION.md#設定方法)
+  - [cdk.json の値を変更する場合](/docs/DEPLOY_OPTION.md#cdkjson-の値を変更する場合)
+  - [`-c` オプションで変更する場合](/docs/DEPLOY_OPTION.md#-c-オプションで変更する場合)
+- [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
+  - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
+    - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
+  - [画像生成の有効化](/docs/DEPLOY_OPTION.md#画像生成の有効化)
+- [Amazon Bedrock の違うモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-bedrock-の違うモデルを利用したい場合)
+  - [ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-claude-instant-を利用する例)
+  - [us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-claude-instant-を利用する例)
+- [Amazon SageMaker のカスタムモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-sagemaker-のカスタムモデルを利用したい場合)
+  - [Rinna 3.6B を利用する例](/docs/DEPLOY_OPTION.md#rinna-36b-を利用する例)
+  - [Bilingual Rinna 4B を利用する例](/docs/DEPLOY_OPTION.md#bilingual-rinna-4b-を利用する例)
+  - [ELYZA-japanese-Llama-2-7b-instruct を利用する例](/docs/DEPLOY_OPTION.md#elyza-japanese-llama-2-7b-instruct-を利用する例)
+- [セキュリティ関連設定](/docs/DEPLOY_OPTION.md#セキュリティ関連設定)
+  - [セルフサインアップを無効化する](/docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
+  - [AWS WAF による IP 制限を有効化する](/docs/DEPLOY_OPTION.md#aws-waf-による-ip-制限を有効化する)
 
-### RAG 有効化
+## その他
+ - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
+ - [リソースの削除方法](/docs/DESTROY.md)
 
-RAG のユースケースを試す場合は、RAG の有効化および Kendra の Data source を手動で Sync する必要があります。
-
-まず、RAG を有効化して再デプロイします。
-`packages/cdk/cdk.json` を開き、`context` の `ragEnabled` を `true` に変更します。
-その後、以下のコマンドで再デプロイしてください。
-
-```bash
-npm run cdk:deploy
-```
-
-続いて、Kendra の Data source の Sync を以下の手順で行なってください。
-
-1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
-1. generative-ai-use-cases-index をクリック
-1. Data sources をクリック
-1. WebCrawler をクリック
-1. Sync now をクリック
-
-Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
-
-### 画像生成の有効化
-
-画像生成のユースケースをご利用になる際は、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
-
-## その他のドキュメント
-- デプロイのオプション
-  - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
-  - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
-  - [既存の Amazon Kendra Index を利用したい場合](/docs/KENDRA.md)
-  - [セキュリティ関連](/docs/SECURITY.md)
-- 開発
-  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
-  - [ユースケースの追加方法 (ブログ: Amazon Bedrock で Interpreter を開発!)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
-  - [リソースの削除方法](/docs/DESTROY.md)
+## 参照
+ - [ブログ: Amazon Bedrock で Interpreter を開発! (ユースケースの追加方法について解説)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
 
 ## Security
 
