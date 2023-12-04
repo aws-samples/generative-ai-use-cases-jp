@@ -139,6 +139,7 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 - デプロイのオプション
   - [Amazon Bedrock の違うモデル・リージョンを利用したい場合](/docs/BEDROCK.md)
   - [Amazon SageMaker を利用したい場合](/docs/SAGEMAKER.md)
+  - [既存の Amazon Kendra Index を利用したい場合](/docs/KENDRA.md)
   - [セキュリティ関連](/docs/SECURITY.md)
 - 開発
   - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
