@@ -110,6 +110,7 @@ npm run cdk:deploy
   - [`-c` オプションで変更する場合](/docs/DEPLOY_OPTION.md#-c-オプションで変更する場合)
 - [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
   - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
+    - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [画像生成の有効化](/docs/DEPLOY_OPTION.md#画像生成の有効化)
 - [Amazon Bedrock の違うモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-bedrock-の違うモデルを利用したい場合)
   - [ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-claude-instant-を利用する例)
