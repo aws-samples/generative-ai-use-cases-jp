@@ -13,6 +13,7 @@
     "@aws-sdk/client-cognito-identity": "^3.398.0",
     "@aws-sdk/client-kendra": "^3.418.0",
     "@aws-sdk/client-lambda": "^3.398.0",
+    "@aws-sdk/client-transcribe": "^3.431.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.398.0",
     "@headlessui/react": "^1.7.15",
     "@react-icons/all-files": "^4.1.0",
