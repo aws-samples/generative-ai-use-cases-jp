@@ -13,6 +13,7 @@ import {
   PiImages,
   PiSpeakerHighBold,
   PiGear,
+  PiGlobe,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -75,6 +76,12 @@ const items: ItemProps[] = [
     label: '翻訳',
     to: '/translate',
     icon: <PiTranslate />,
+    display: 'usecase' as const,
+  },
+  {
+    label: 'Web コンテンツ抽出',
+    to: '/web-content',
+    icon: <PiGlobe />,
     display: 'usecase' as const,
   },
   {

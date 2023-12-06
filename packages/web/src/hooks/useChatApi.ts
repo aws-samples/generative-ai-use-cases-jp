@@ -14,6 +14,8 @@ import {
   UpdateTitleRequest,
   UpdateTitleResponse,
   SettingResponse,
+  WebTextRequest,
+  WebTextResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -24,6 +26,7 @@ import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Auth } from 'aws-amplify';
 import useHttp from '../hooks/useHttp';
 import { decomposeChatId } from '../utils/ChatUtils';
+import { AxiosResponse } from 'axios';
 
 const useChatApi = () => {
   const http = useHttp();
@@ -124,6 +127,11 @@ const useChatApi = () => {
     },
     getSetting: () => {
       return http.get<SettingResponse>('setting');
+    },
+    getWebText: async (
+      req: WebTextRequest
+    ): Promise<AxiosResponse<WebTextResponse>> => {
+      return await http.api.get(`web-text?url=${req.url}`);
     },
   };
 };

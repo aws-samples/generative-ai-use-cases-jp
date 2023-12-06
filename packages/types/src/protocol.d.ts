@@ -110,3 +110,11 @@ export type SettingResponse = {
   promptTemplateFile: string;
   imageGenModelName: string;
 };
+
+export type WebTextRequest = {
+  url: string;
+};
+
+export type WebTextResponse = {
+  text: string;
+};

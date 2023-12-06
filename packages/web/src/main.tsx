@@ -17,6 +17,7 @@ import TranslatePage from './pages/TranslatePage';
 import NotFound from './pages/NotFound';
 import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
+import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 
@@ -54,6 +55,10 @@ const routes: RouteObject[] = [
   {
     path: '/translate',
     element: <TranslatePage />,
+  },
+  {
+    path: '/web-content',
+    element: <WebContent />,
   },
   {
     path: '/image',

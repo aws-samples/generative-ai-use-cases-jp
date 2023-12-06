@@ -248,6 +248,12 @@ export class Api extends Construct {
       },
     });
 
+    const getWebTextFunction = new NodejsFunction(this, 'GetWebText', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/getWebText.ts',
+      timeout: Duration.minutes(15),
+    });
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -376,9 +382,19 @@ export class Api extends Construct {
     );
 
     const settingResource = api.root.addResource('setting');
+    // GET: /setting
     settingResource.addMethod(
       'GET',
       new LambdaIntegration(settingFunction),
+      commonAuthorizerProps
+    );
+
+    // Web コンテンツ抽出のユースケースで利用
+    const webTextResource = api.root.addResource('web-text');
+    // GET: /web-text
+    webTextResource.addMethod(
+      'GET',
+      new LambdaIntegration(getWebTextFunction),
       commonAuthorizerProps
     );
 

@@ -61,6 +61,14 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
   <img src="/imgs/usecase_translate.gif"/>
 </details>
 
+<details>
+  <summary>Web コンテンツ抽出</summary>
+
+  ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。
+
+  <img src="/imgs/usecase_web_content.gif"/>
+</details>
+
 
 <details>
   <summary>画像生成</summary>
