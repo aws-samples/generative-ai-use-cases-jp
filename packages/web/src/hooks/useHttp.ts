@@ -29,6 +29,7 @@ const fetcher = (url: string) => {
  */
 const useHttp = () => {
   return {
+    api,
     /**
      * GET Request
      * Implemented with SWR

@@ -24,7 +24,8 @@ export class Rag extends Construct {
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
-    const kendraIndexArnInCdkContext = this.node.tryGetContext('kendraIndexArn');
+    const kendraIndexArnInCdkContext =
+      this.node.tryGetContext('kendraIndexArn');
 
     let kendraIndexArn: string;
     let kendraIndexId: string;
@@ -32,7 +33,10 @@ export class Rag extends Construct {
     if (kendraIndexArnInCdkContext) {
       // 既存の Kendra Index を利用する場合
       kendraIndexArn = kendraIndexArnInCdkContext!;
-      kendraIndexId = Arn.extractResourceName(kendraIndexArnInCdkContext, 'index');
+      kendraIndexId = Arn.extractResourceName(
+        kendraIndexArnInCdkContext,
+        'index'
+      );
     } else {
       // 新規に Kendra Index を作成する場合
       const indexRole = new iam.Role(this, 'KendraIndexRole', {

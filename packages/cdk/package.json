@@ -32,6 +32,7 @@
     "aws-cdk-lib": "2.100.0",
     "constructs": "^10.0.0",
     "deploy-time-build": "^0.3.2",
+    "node-html-parser": "^6.1.11",
     "source-map-support": "^0.5.21"
   }
 }

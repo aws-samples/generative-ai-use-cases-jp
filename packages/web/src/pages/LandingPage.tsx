@@ -9,6 +9,7 @@ import {
   PiChatsCircle,
   PiPenNib,
   PiTranslate,
+  PiGlobe,
   PiImages,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
@@ -70,6 +71,14 @@ const LandingPage: React.FC = () => {
       state: {
         sentence:
           'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+      },
+    });
+  };
+
+  const demoWebContent = () => {
+    navigate('/web-content', {
+      state: {
+        url: 'https://aws.amazon.com/jp/bedrock/',
       },
     });
   };
@@ -139,6 +148,12 @@ const LandingPage: React.FC = () => {
           onClickDemo={demoTranslate}
           icon={<PiTranslate />}
           description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+        />
+        <CardDemo
+          label="Web コンテンツ抽出"
+          onClickDemo={demoWebContent}
+          icon={<PiGlobe />}
+          description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
         />
         <CardDemo
           label="画像生成"
