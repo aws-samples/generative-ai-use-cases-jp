@@ -2,9 +2,9 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の context で設定を変更します。context の値を指定するには以下の 2 つの方法があります。**後述のドキュメントでは基本的に `-c` オプションによる設定方法のみをご案内しておりますが、`cdk.json` の値を変更することで同様に設定可能です。**
+このアプリケーションは、AWS CDK の context で設定を変更します。context の値を指定するには以下の 2 つの方法があります。**なお「`-c` オプションで変更する方法」では、コードベースに変更が入らないため、フロントエンドのビルドが実施されません。フロントエンドの更新が必要な `ragEnabled` (RAG チャットユースケースの有効化) と `selfSignUpEnabled` (セルフサインアップを無効化する) に関しては「`cdk.json` の値を変更する方法」の方法で更新しないとエラーになります。**
 
-### cdk.json の値を変更する場合
+### cdk.json の値を変更する方法
 
 [packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。設定を固定化したい場合は、こちらの方法がおすすめです。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
 
@@ -12,12 +12,12 @@
 npm run cdk:deploy
 ```
 
-### `-c` オプションで変更する場合
+### `-c` オプションで変更する方法
 
-`npm run cdk:deploy` に `-c` オプションを付与して設定します。例えば、以下のコマンドで設定します。(`--` は必要です。) デプロイオプションの検証中で、cdk.json に設定をコミットしたくない場合におすすめです。
+`npm run cdk:deploy` に `-c` オプションを付与して設定します。例えば、以下のコマンドで利用するモデルを設定します。(`--` は必要です。) デプロイオプションの検証中で、cdk.json に設定をコミットしたくない場合におすすめです。
 
 ```bash
-npm run cdk:deploy -- -c ragEnabled=true
+npm run cdk:deploy -- -c modelName=anthropic.claude-instant-v1
 ```
 
 ## ユースケースの設定
@@ -26,9 +26,16 @@ npm run cdk:deploy -- -c ragEnabled=true
 
 context の `ragEnabled` に `true` を指定します。(デフォルトは `false`)
 
-```bash
-npm run cdk:deploy -- -c ragEnabled=true
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
+{
+  "context": {
+    "ragEnabled": true
+  }
+}
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。
 
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
@@ -42,11 +49,20 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 #### 既存の Amazon Kendra Index を利用したい場合
 
-context の kendraIndexArn に Index の ARN を指定します。
+既存の Kendra Index を利用する場合も、上記のように `ragEnabled` は `true` である必要がある点に注意してください。
 
-```bash
-npm run cdk:deploy -- -c ragEnabled=true -c kendraIndexArn=<Kendra Index ARN>
+context の `kendraIndexArn` に Index の ARN を指定します。
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
+{
+  "context": {
+    "kendraIndexArn": "<Kendra Index ARN>"
+  }
+}
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。
 
 `<Kendra Index ARN>` は以下のような形式です
 
@@ -59,8 +75,6 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
-
-既存の Kendra Index を利用する場合も、上記のように `ragEnabled` は `true` である必要がある点に注意してください。
 
 ### 画像生成の有効化
 
@@ -125,8 +139,13 @@ npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelNa
 
 context の `selfSignUpEnabled` に `false` を指定します。(デフォルトは `true`)
 
-```bash
-npm run cdk:deploy -- -c selfSignUpEnabled=false
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "selfSignUpEnabled": false,
+  }
+}
 ```
 
 ### AWS WAF による IP 制限を有効化する

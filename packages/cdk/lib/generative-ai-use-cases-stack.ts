@@ -2,6 +2,13 @@ import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Auth, Api, Web, Database, Rag, Transcribe } from './construct';
 
+const errorMessageForBooleanContext = (key: string) => {
+  return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
+ - cdk.json の変更ではなく、-c オプションで設定しようとしている
+ - cdk.json に boolean ではない値を設定している (例: "true" ダブルクォートは不要)
+ - cdk.json に項目がない (未設定)`;
+};
+
 interface GenerativeAiUseCasesStackProps extends StackProps {
   webAclId?: string;
 }
@@ -20,10 +27,12 @@ export class GenerativeAiUseCasesStack extends Stack {
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
 
+    if (typeof ragEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('ragEnabled'));
+    }
+
     if (typeof selfSignUpEnabled !== 'boolean') {
-      throw new Error(
-        'cdk.json の selfSignUpEnabled には true か false を設定してください。'
-      );
+      throw new Error(errorMessageForBooleanContext('selfSignUpEnabled'));
     }
 
     const auth = new Auth(this, 'Auth', {

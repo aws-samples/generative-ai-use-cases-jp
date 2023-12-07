@@ -106,8 +106,8 @@ npm run cdk:deploy
 
 ## [デプロイオプション](/docs/DEPLOY_OPTION.md)
 - [設定方法](/docs/DEPLOY_OPTION.md#設定方法)
-  - [cdk.json の値を変更する場合](/docs/DEPLOY_OPTION.md#cdkjson-の値を変更する場合)
-  - [`-c` オプションで変更する場合](/docs/DEPLOY_OPTION.md#-c-オプションで変更する場合)
+  - [cdk.json の値を変更する方法](/docs/DEPLOY_OPTION.md#cdkjson-の値を変更する方法)
+  - [`-c` オプションで変更する方法](/docs/DEPLOY_OPTION.md#-c-オプションで変更する方法)
 - [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
   - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
