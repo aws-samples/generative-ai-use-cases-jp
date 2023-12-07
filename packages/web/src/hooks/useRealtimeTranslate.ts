@@ -59,9 +59,7 @@ const useSpeech2Text = () => {
 
   useEffect(() => {
     // break if already set
-    if(transcribeClient)return
-
-    
+    if (transcribeClient) return
 
     Auth.currentSession().then(data => {
       const transcribe = new TranscribeStreamingClient({
@@ -92,6 +90,8 @@ const useSpeech2Text = () => {
 
 
   const startStream = async (mic: MicrophoneStream, languageCode: LanguageCode) => {
+    if (!transcribeClient) return
+
     const audioStream = async function* () {
       for await (const chunk of mic as unknown as Buffer[]) {
         yield {
@@ -109,7 +109,6 @@ const useSpeech2Text = () => {
       AudioStream: audioStream(),
     });
 
-    if(!transcribeClient)return
     try {
       const response = await transcribeClient.send(command);
 
@@ -217,7 +216,7 @@ const useSpeech2Text = () => {
     if (!translateClient) return
     const res = await translateClient.send(command)
 
-    if ( res !== undefined){
+    if (res) {
       setTranslated((prev) => {
 
         const index = prev.length - 1;
