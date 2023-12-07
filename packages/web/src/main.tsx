@@ -19,6 +19,7 @@ import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
+import RealtimeTranslatePage from './pages/RealtimeTranslatePage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
@@ -62,6 +63,10 @@ const routes: RouteObject[] = [
   {
     path: '/transcribe',
     element: <TranscribePage />,
+  },
+  {
+    path: '/realtimetranslate',
+    element: <RealtimeTranslatePage />,
   },
   ragEnabled
     ? {

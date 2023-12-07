@@ -19,9 +19,12 @@
     "@types/uuid": "^9.0.2",
     "aws-amplify": "^5.3.5",
     "axios": "^1.6.0",
+    "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.3",
     "immer": "^10.0.2",
+    "immutability-helper": "^3.1.1",
     "lodash.debounce": "^4.0.8",
+    "microphone-stream": "^6.0.1",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
@@ -60,6 +63,7 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
+    "vite-plugin-node-polyfills": "^0.17.0",
     "vite-plugin-svgr": "^3.2.0"
   }
 }

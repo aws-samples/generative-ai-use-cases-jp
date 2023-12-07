@@ -89,6 +89,12 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
+  {
+    label: '通訳',
+    to: '/realtimetranslate',
+    icon: <PiSpeakerHighBold />,
+    display: 'tool' as const,
+  },
   ragEnabled
     ? {
         label: 'Kendra 検索',
