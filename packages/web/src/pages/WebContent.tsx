@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -7,6 +7,7 @@ import ExpandableField from '../components/ExpandableField';
 import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
+import Alert from '../components/Alert';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import { create } from 'zustand';
@@ -85,6 +86,7 @@ const WebContent: React.FC = () => {
   const { state, pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { getWebText } = useChatApi();
+  const [showError, setShowError] = useState(false);
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;
@@ -114,11 +116,22 @@ const WebContent: React.FC = () => {
     if (loading || fetching) return;
     setContent('');
     setFetching(true);
+    setShowError(false);
 
-    const res = await getWebText({ url });
+    let res;
+
+    try {
+      res = await getWebText({ url });
+    } catch (e) {
+      setFetching(false);
+      setShowError(true);
+      return;
+    }
+
     setFetching(false);
 
-    const text = res.data.text;
+    const text = res!.data.text;
+
     setText(text);
     getContent(text, context);
   }, [
@@ -142,6 +155,7 @@ const WebContent: React.FC = () => {
   }, [messages, setContent]);
 
   const onClickClear = useCallback(() => {
+    setShowError(false);
     clear();
     clearChat();
   }, [clear, clearChat]);
@@ -153,7 +167,27 @@ const WebContent: React.FC = () => {
       </div>
 
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+        {showError && (
+          <Alert
+            severity="error"
+            className="mb-3"
+            title="エラー"
+            onDissmiss={() => {
+              setShowError(false);
+            }}>
+            指定した URL
+            にアクセスした際にエラーが発生しました。スクレイピングが禁止されているか
+            URL
+            が間違っている可能性があります。一時的な問題と思われる場合は、再実行してください。
+          </Alert>
+        )}
+
         <Card label="コンテンツを抽出したい Web ページ">
+          <div className="text-xs text-black/50">
+            ブログ、記事、ドキュメント等、テキストがメインコンテンツである Web
+            ページを指定してください。そうでない場合、正常に出力されないことがあります。
+          </div>
+
           <RowItem>
             <input
               type="text"
@@ -168,7 +202,7 @@ const WebContent: React.FC = () => {
 
           <ExpandableField label="追加コンテキスト" optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（例: マークダウンで章立てして）"
+              placeholder="追加で考慮してほしい点を入力することができます（例: 要約して）"
               value={context}
               onChange={setContext}
             />
