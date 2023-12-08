@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 import { BaseProps } from '../@types/common';
-import { PiInfo, PiXCircle } from 'react-icons/pi';
+import { PiInfo, PiXCircle, PiX } from 'react-icons/pi';
+import ButtonIcon from './ButtonIcon';
 
 // MEMO: 現在は Error しか実装していない
 type Props = BaseProps & {
   title?: string;
   severity: 'info' | 'error';
   children: React.ReactNode;
+  onDissmiss?: () => void;
 };
 
 const Alert: React.FC<Props> = (props) => {
@@ -38,8 +40,15 @@ const Alert: React.FC<Props> = (props) => {
           <PiInfo className={`m-3 text-4xl ${colors.icon}`} />
         )}
       </div>
-      <div className="my-3 mr-3 text-sm">
-        <div className="font-semibold">{props.title}</div>
+      <div className="my-3 mr-3 w-full text-sm">
+        <div className="flex w-full items-center justify-between">
+          <div className="font-semibold">{props.title}</div>
+          {props.onDissmiss && (
+            <ButtonIcon onClick={props.onDissmiss}>
+              <PiX className="text-sm text-black" />
+            </ButtonIcon>
+          )}
+        </div>
         <div>{props.children}</div>
       </div>
     </div>
