@@ -246,7 +246,9 @@ const WebContent: React.FC = () => {
               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
             <div className="flex w-full justify-end">
-              <ButtonCopy text={content}></ButtonCopy>
+              <ButtonCopy
+                text={content}
+                interUseCasesKey="content"></ButtonCopy>
             </div>
           </div>
         </Card>

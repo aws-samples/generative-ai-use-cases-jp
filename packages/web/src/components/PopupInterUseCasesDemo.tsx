@@ -22,7 +22,18 @@ const PopupInterUseCasesDemo: React.FC<Props> = () => {
         state[to] = copyTemporary[from];
       });
       uc.initState?.constValue?.forEach(({ key, value }) => {
-        state[key] = value;
+        let replacedValue = value;
+
+        // 置換対象がある場合は置換を実施
+        const matches = value.match(/\{(.+?)\}/g);
+        matches?.forEach((m) => {
+          replacedValue = replacedValue.replace(
+            m,
+            copyTemporary[m.replace(/({|})/g, '')]
+          );
+        });
+
+        state[key] = replacedValue;
       });
 
       navigate(uc.path, {
@@ -30,7 +41,8 @@ const PopupInterUseCasesDemo: React.FC<Props> = () => {
         replace: true,
       });
     }
-  }, [copyTemporary, currentIndex, navigate, useCases]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex]);
 
   return (
     <div className="fixed top-0 z-50 w-full  p-3 lg:left-1/3 lg:w-1/2">

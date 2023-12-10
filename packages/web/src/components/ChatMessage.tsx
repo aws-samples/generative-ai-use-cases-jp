@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
@@ -38,10 +38,6 @@ const ChatMessage: React.FC<Props> = (props) => {
       setIsSendingFeedback(false);
     }
   };
-
-  useLayoutEffect(() => {
-    console.log(document.getElementById('test')?.innerText);
-  }, []);
 
   return (
     <div
