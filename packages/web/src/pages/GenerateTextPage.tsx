@@ -148,7 +148,7 @@ const GenerateTextPage: React.FC = () => {
               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
             <div className="flex w-full justify-end">
-              <ButtonCopy text={text}></ButtonCopy>
+              <ButtonCopy text={text} interUseCasesKey="text"></ButtonCopy>
             </div>
           </div>
         </Card>

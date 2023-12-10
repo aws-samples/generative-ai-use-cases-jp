@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
@@ -39,6 +39,10 @@ const ChatMessage: React.FC<Props> = (props) => {
     }
   };
 
+  useLayoutEffect(() => {
+    console.log(document.getElementById('test')?.innerText);
+  }, []);
+
   return (
     <div
       className={`flex justify-center ${
@@ -76,14 +80,16 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
             )}
             {chatContent?.role === 'assistant' && (
-              <Markdown>
-                {chatContent.content +
-                  `${
-                    props.loading && (chatContent?.content ?? '') !== ''
-                      ? '▍'
-                      : ''
-                  }`}
-              </Markdown>
+              <div id="test">
+                <Markdown>
+                  {chatContent.content +
+                    `${
+                      props.loading && (chatContent?.content ?? '') !== ''
+                        ? '▍'
+                        : ''
+                    }`}
+                </Markdown>
+              </div>
             )}
             {chatContent?.role === 'system' && (
               <div className="break-all">

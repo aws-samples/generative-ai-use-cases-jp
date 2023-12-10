@@ -11,13 +11,16 @@ import {
   PiTranslate,
   PiGlobe,
   PiImages,
+  PiNotebook,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
+import useInterUseCases from '../hooks/useInterUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setIsShow, setUseCases, setCurrentIndex } = useInterUseCases();
 
   const demoChat = () => {
     navigate('/chat', {
@@ -92,6 +95,66 @@ const LandingPage: React.FC = () => {
     });
   };
 
+  const demoMeetingReport = () => {
+    setIsShow(true);
+    setCurrentIndex(0);
+    setUseCases([
+      {
+        title: '文字起こし',
+        description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
+音声認識が完了したら、「整形」ボタンを押してください（音声認識結果は自動でコピーされます）。`,
+        path: 'transcribe',
+      },
+      {
+        title: '整形',
+        description:
+          '「文章生成」の機能を使って、文字起こしファイルを整形します。フィラーワードの除去や音声認識が正しくできていない部分などを補正し、人間が理解しやすいようにします。',
+        path: 'generate',
+        initState: {
+          constValue: [
+            {
+              key: 'context',
+              value: `録音データの文字起こし結果が入力されているので、<rules></rules>の通りに整形してください。
+<rules>
+- フィラーワードを除去してください。
+- 文字起こしの誤認識と思われる内容は正しい内容に書き換えてください。
+- 接続詞などが省略されている場合は、読みやすいように保管してください。
+</rules>`,
+            },
+          ],
+          copy: [
+            {
+              from: 'transcript',
+              to: 'information',
+            },
+          ],
+        },
+      },
+      {
+        title: '議事録作成',
+        description:
+          '「文章生成」の機能を使って、議事録を生成します。コンテキストを詳細に指定することで、議事録のフォーマットや記載の粒度を指示できます。',
+        path: 'generate',
+        initState: {
+          constValue: [
+            {
+              key: 'context',
+              value: `会議の発言内容を元にマークダウン形式の議事録を作成してください。
+会議で話したテーマごとに章立てし、議論した内容、決定事項、宿題事項をまとめてください。
+なお、発言者がわかる場合は、発言者の情報も付与してください。`,
+            },
+          ],
+          copy: [
+            {
+              from: 'text',
+              to: 'information',
+            },
+          ],
+        },
+      },
+    ]);
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -160,6 +223,13 @@ const LandingPage: React.FC = () => {
           onClickDemo={demoGenerateImage}
           icon={<PiImages />}
           description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+        />
+
+        <CardDemo
+          label="議事録作成【ユースケース間連携】"
+          onClickDemo={demoMeetingReport}
+          icon={<PiNotebook />}
+          description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
         />
       </div>
     </div>
