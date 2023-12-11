@@ -13,7 +13,6 @@ import {
   UpdateFeedbackResponse,
   UpdateTitleRequest,
   UpdateTitleResponse,
-  SettingResponse,
   WebTextRequest,
   WebTextResponse,
 } from 'generative-ai-use-cases-jp';
@@ -124,9 +123,6 @@ const useChatApi = () => {
     ): Promise<PredictTitleResponse> => {
       const res = await http.post('predict/title', req);
       return res.data;
-    },
-    getSetting: () => {
-      return http.get<SettingResponse>('setting');
     },
     getWebText: async (
       req: WebTextRequest

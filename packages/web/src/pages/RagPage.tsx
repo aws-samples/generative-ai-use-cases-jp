@@ -9,15 +9,25 @@ import useScroll from '../hooks/useScroll';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ReactComponent as KendraIcon } from '../assets/kendra.svg';
 import { PiPlus } from 'react-icons/pi';
+import { SelectField } from '@aws-amplify/ui-react';
+import { ragPrompt } from '../prompts';
 
 type StateType = {
+  modelName: string;
+  setModelName: (c: string) => void;
   content: string;
   setContent: (c: string) => void;
 };
 
 const useRagPageState = create<StateType>((set) => {
   return {
+    modelName: '',
     content: '',
+    setModelName: (s: string) => {
+      set(() => ({
+        modelName: s,
+      }));
+    },
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -27,22 +37,33 @@ const useRagPageState = create<StateType>((set) => {
 });
 
 const RagPage: React.FC = () => {
-  const { content, setContent } = useRagPageState();
+  const { modelName, setModelName, content, setContent } = useRagPageState();
   const { state, pathname } = useLocation();
   const { postMessage, clear, loading, messages, isEmpty } = useRag(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
+  const availableModels: string[] = ragPrompt.supportedModels.map(
+    (m) => m.modelName
+  );
 
   useEffect(() => {
     if (state !== null) {
       setContent(state.content);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, setContent]);
+
+  useEffect(() => {
+    if (!modelName) {
+      setModelName(availableModels[0]);
+    }
+  }, [modelName, availableModels, setModelName]);
 
   const onSend = useCallback(() => {
-    postMessage(content);
+    postMessage(
+      content,
+      ragPrompt.supportedModels.find((m) => m.modelName === modelName)
+    );
     setContent('');
-  }, [content, postMessage, setContent]);
+  }, [modelName, content, postMessage, setContent]);
 
   const onReset = useCallback(() => {
     clear();
@@ -65,6 +86,20 @@ const RagPage: React.FC = () => {
           RAG チャット
         </div>
 
+        <div className="flex w-full items-end justify-center">
+          <SelectField
+            label="モデル"
+            labelHidden
+            value={modelName}
+            onChange={(e) => setModelName(e.target.value)}>
+            {availableModels.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+
         {isEmpty && (
           <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
             <div className="flex items-center gap-x-3">
@@ -76,7 +111,7 @@ const RagPage: React.FC = () => {
         )}
 
         {isEmpty && (
-          <div className="absolute inset-x-0 top-20 m-auto flex justify-center">
+          <div className="absolute inset-x-0 top-32 m-auto flex justify-center">
             <Alert severity="info">
               <div>
                 RAG (Retrieval Augmented Generation)

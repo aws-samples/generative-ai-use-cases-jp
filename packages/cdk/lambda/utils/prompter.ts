@@ -1,8 +1,11 @@
 import { PromptTemplate, UnrecordedMessage } from 'generative-ai-use-cases-jp';
+import { getPromptTemplate } from './promptTemplates';
 
-export const pt: PromptTemplate = JSON.parse(process.env.PROMPT_TEMPLATE || '');
-
-export const generatePrompt = (messages: UnrecordedMessage[]) => {
+export const generatePrompt = (
+  model: string,
+  messages: UnrecordedMessage[]
+) => {
+  const pt: PromptTemplate = getPromptTemplate(model);
   const prompt =
     pt.prefix +
     messages

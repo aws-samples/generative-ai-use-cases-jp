@@ -82,23 +82,25 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 
 ## Amazon Bedrock の違うモデルを利用したい場合
 
-以下の形式でモデル、モデルのリージョン、プロンプトのテンプレートを指定します。promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `claude.json`) プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
+`cdk.json` の `modelRegion`, `modelNames`, `imageGenerationModelNames` でモデルとモデルのリージョンを指定します。`modelNames` と `imageGenerationModelNames` は指定したリージョンで利用できるモデルの中から利用したいモデルをカンマ区切りで指定してください。指定したリージョンで指定したモデルが有効化されているかご確認ください。
+
+### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelRegion=<Region> -c modelName=<Model Name> -c promptTemplate=<Prompt Tempalte File>
+  "modelRegion": "us-east-1",
+  "modelNames": "anthropic.claude-v2,anthropic.claude-instant-v1",
+  "imageGenerateModelNames": "stability.stable-diffusion-xl-v0,amazon.titan-image-generator-v1",
 ```
 
-### ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例
+### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+  "modelRegion": "ap-northeast-1",
+  "modelNames": "anthropic.claude-instant-v1",
+  "imageGenerateModelNames": "",
 ```
 
-### us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する例
-
-```bash
-npm run cdk:deploy -- -c modelRegion=us-east-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
-```
+注：画像生成は現状 ap-northeast-1 では利用できません。
 
 ## Amazon SageMaker のカスタムモデルを利用したい場合
 
@@ -109,28 +111,28 @@ Amazon SageMaker エンドポイントにデプロイされた大規模言語モ
  - [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
  - [elyza/ELYZA-japanese-Llama-2-7b-instruct](https://github.com/aws-samples/aws-ml-jp/blob/f57da0343d696d740bb980dc16ebf28b1221f90e/tasks/generative-ai/text-to-text/fine-tuning/instruction-tuning/Transformers/Elyza_Inference_TGI_ja.ipynb)
 
-事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のようにコマンドライン引数で指定することができます。
+事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+
+endpointNames は SageMaker エンドポイント名をカンマ区切りにしたものです。（例：`elyza-llama-2,rinna`）
+バックエンドでプロンプトを構築する際のテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/promptTemplates.ts` を参照してください。
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint Region> -c modelName=<SageMaker Endpoint Name> -c promptTemplate=<Prompt Template File>
+  "modelRegion": "<SageMaker Endpoint Region>",
+  "endpointNames": "<SageMaker Endpoint Names>",
 ```
 
-### Rinna 3.6B を利用する例
+### Rinna 3.6B と Bilingual Rinna 4B を利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16 -c promptTemplate=rinna.json
-```
-
-### Bilingual Rinna 4B を利用する例
-
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16 -c promptTemplate=bilingualRinna.json
+  "modelRegion": "us-west-2",
+  "endpointNames": "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16,jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16",
 ```
 
 ### ELYZA-japanese-Llama-2-7b-instruct を利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=elyza-7b-inference -c promptTemplate=llama2.json
+  "modelRegion": "us-west-2",
+  "endpointNames": "elyza-japanese-llama-2-7b-inference",
 ```
 
 ## セキュリティ関連設定

@@ -7,7 +7,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: PredictRequest = JSON.parse(event.body!);
-    const response = await api.invoke(req.messages);
+    const response = await api[req.model.type].invoke(req.model, req.messages);
 
     return {
       statusCode: 200,

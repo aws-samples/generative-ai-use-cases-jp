@@ -1,10 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
+  Model,
   PredictTitleRequest,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { setChatTitle } from './repository';
 import api from './utils/api';
+
+// Title は Claude Instant v1 固定
+const model: Model = {
+  type: 'bedrock',
+  modelName: 'anthropic.claude-instant-v1',
+};
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -22,7 +29,7 @@ export const handler = async (
       },
     ];
 
-    const title = (await api.invoke(messages)).replace(
+    const title = (await api[model.type].invoke(model, messages)).replace(
       /<([^>]+)>([\s\S]*?)<\/\1>/,
       '$2'
     );

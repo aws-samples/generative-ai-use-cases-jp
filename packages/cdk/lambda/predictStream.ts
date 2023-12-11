@@ -15,7 +15,10 @@ declare global {
 
 export const handler = awslambda.streamifyResponse(
   async (event, responseStream) => {
-    for await (const token of api.invokeStream(event.messages)) {
+    for await (const token of api[event.model.type].invokeStream(
+      event.model,
+      event.messages
+    )) {
       responseStream.write(token);
     }
 

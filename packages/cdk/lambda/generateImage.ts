@@ -7,7 +7,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: GenerateImageRequest = JSON.parse(event.body!);
-    const res = await api.generateImage(req);
+    const res = await api[req.model.type].generateImage(req.model, req.params);
 
     return {
       statusCode: 200,

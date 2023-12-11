@@ -54,6 +54,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       ragEnabled,
       selfSignUpEnabled,
       webAclId: props.webAclId,
+      modelRegion: api.modelRegion,
+      modelNames: api.modelNames,
+      imageGenerateModelNames: api.imageGenerateModelNames,
+      endpointNames: api.endpointNames,
     });
 
     if (ragEnabled) {
@@ -98,6 +102,22 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'SelfSignUpEnabled', {
       value: selfSignUpEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'ModelRegion', {
+      value: api.modelRegion,
+    });
+
+    new CfnOutput(this, 'ModelNames', {
+      value: api.modelNames,
+    });
+
+    new CfnOutput(this, 'ImageGenerateModelNames', {
+      value: api.imageGenerateModelNames,
+    });
+
+    new CfnOutput(this, 'EndpointNames', {
+      value: api.endpointNames,
     });
   }
 }
