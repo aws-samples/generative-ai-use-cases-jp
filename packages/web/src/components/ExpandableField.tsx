@@ -13,7 +13,7 @@ const ExpandableField: React.FC<Props> = (props) => {
   const [expanded, setExpanded] = useState(props.defaultOpened ?? false);
 
   return (
-    <RowItem notItem={props.notItem}>
+    <RowItem notItem={props.notItem} className={props.className}>
       <div
         className="mb-1 flex cursor-pointer items-center text-sm font-semibold"
         onClick={() => {
