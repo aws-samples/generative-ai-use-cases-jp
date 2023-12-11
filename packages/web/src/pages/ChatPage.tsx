@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { Location, useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
@@ -8,6 +8,7 @@ import PromptList from '../components/PromptList';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import { ChatPageLocationState } from '../@types/navigate';
 
 type StateType = {
   content: string;
@@ -27,7 +28,7 @@ const useChatPageState = create<StateType>((set) => {
 
 const ChatPage: React.FC = () => {
   const { content, setContent } = useChatPageState();
-  const { state, pathname } = useLocation();
+  const { state, pathname } = useLocation() as Location<ChatPageLocationState>;
   const { chatId } = useParams();
 
   const {

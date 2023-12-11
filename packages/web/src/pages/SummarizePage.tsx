@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import ExpandableField from '../components/ExpandableField';
@@ -9,6 +9,7 @@ import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { summarizePrompt } from '../prompts';
+import { SummarizePageLocationState } from '../@types/navigate';
 
 type StateType = {
   sentence: string;
@@ -59,7 +60,8 @@ const SummarizePage: React.FC = () => {
     setSummarizedSentence,
     clear,
   } = useSummarizePageState();
-  const { state, pathname } = useLocation();
+  const { state, pathname } =
+    useLocation() as Location<SummarizePageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   const disabledExec = useMemo(() => {

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import RowItem from '../components/RowItem';
@@ -12,6 +12,7 @@ import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import { create } from 'zustand';
 import { webContentPrompt } from '../prompts';
+import { WebContentPageLocationState } from '../@types/navigate';
 
 type StateType = {
   url: string;
@@ -83,7 +84,8 @@ const WebContent: React.FC = () => {
     clear,
   } = useWebContentPageState();
 
-  const { state, pathname } = useLocation();
+  const { state, pathname } =
+    useLocation() as Location<WebContentPageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { getWebText } = useChatApi();
   const [showError, setShowError] = useState(false);

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -8,6 +8,7 @@ import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { generateTextPrompt } from '../prompts';
+import { GenerateTextPageLocationState } from '../@types/navigate';
 
 type StateType = {
   information: string;
@@ -58,7 +59,8 @@ const GenerateTextPage: React.FC = () => {
     setText,
     clear,
   } = useGenerateTextPageState();
-  const { state, pathname } = useLocation();
+  const { state, pathname } =
+    useLocation() as Location<GenerateTextPageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   const disabledExec = useMemo(() => {
