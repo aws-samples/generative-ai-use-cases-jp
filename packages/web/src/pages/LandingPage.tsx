@@ -21,7 +21,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setIsShow, setUseCases, setCurrentIndex } = useInterUseCases();
+  const { setIsShow, init } = useInterUseCases();
 
   const demoChat = () => {
     navigate('/chat', {
@@ -98,8 +98,7 @@ const LandingPage: React.FC = () => {
 
   const demoBlog = () => {
     setIsShow(true);
-    setCurrentIndex(0);
-    setUseCases('ブログ記事作成【ユースケース間連携】', [
+    init('ブログ記事作成【ユースケース間連携】', [
       {
         title: '参考情報の取得',
         description: `URL を指定して、記事の参考となる情報を自動取得します。
@@ -184,8 +183,7 @@ const LandingPage: React.FC = () => {
 
   const demoMeetingReport = () => {
     setIsShow(true);
-    setCurrentIndex(0);
-    setUseCases('議事録作成【ユースケース間連携】', [
+    init('議事録作成【ユースケース間連携】', [
       {
         title: '文字起こし',
         description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。

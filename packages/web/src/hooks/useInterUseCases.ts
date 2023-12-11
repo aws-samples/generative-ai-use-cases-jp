@@ -1,4 +1,5 @@
 import { produce } from 'immer';
+import { useNavigate } from 'react-router-dom';
 import { create } from 'zustand';
 
 type InterUseCases = {
@@ -76,6 +77,7 @@ const useInterUseCasesState = create<{
 });
 
 const useInterUseCases = () => {
+  const navigate = useNavigate();
   const {
     isShow,
     setIsShow,
@@ -88,6 +90,34 @@ const useInterUseCases = () => {
     setCopyTemporary,
   } = useInterUseCasesState();
 
+  const navigateUseCase_ = (usecase: InterUseCases) => {
+    const state: Record<string, string> = {};
+
+    usecase.initState?.copy?.forEach(({ from, to }) => {
+      state[to] = copyTemporary[from];
+    });
+    usecase.initState?.constValue?.forEach(({ key, value }) => {
+      let replacedValue = value;
+
+      // 遷移元の画面項目の値を埋め込む処理
+      // initState.constValue 内の{}で囲われたキー名を取得し、copyTemporary から当該のキー名の値を取得して、置換する
+      // 例) {context} が設定されている場合は、copyTemporary から context の値を取得し、{context} をその値で置換する。
+      const matches = value.match(/\{(.+?)\}/g);
+      matches?.forEach((m) => {
+        replacedValue = replacedValue.replace(
+          m,
+          copyTemporary[m.replace(/({|})/g, '')]
+        );
+      });
+
+      state[key] = replacedValue;
+    });
+
+    navigate(usecase.path, {
+      state,
+    });
+  };
+
   return {
     isShow,
     setIsShow,
@@ -96,8 +126,15 @@ const useInterUseCases = () => {
     setUseCases,
     currentIndex,
     setCurrentIndex,
-    copyTemporary,
     setCopyTemporary,
+    navigateUseCase: (idx: number) => {
+      navigateUseCase_(useCases[idx]);
+    },
+    init: (title: string, usecasesList: InterUseCases[]) => {
+      setCurrentIndex(0);
+      setUseCases(title, usecasesList);
+      navigateUseCase_(usecasesList[0]);
+    },
   };
 };
 
