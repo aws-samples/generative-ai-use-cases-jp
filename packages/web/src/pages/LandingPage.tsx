@@ -99,7 +99,7 @@ const LandingPage: React.FC = () => {
   const demoBlog = () => {
     setIsShow(true);
     setCurrentIndex(0);
-    setUseCases([
+    setUseCases('ブログ記事作成【ユースケース間連携】', [
       {
         title: '参考情報の取得',
         description: `URL を指定して、記事の参考となる情報を自動取得します。
@@ -130,10 +130,12 @@ const LandingPage: React.FC = () => {
               key: 'context',
               value: `生成系AIの仕組みの解説とAWSで生成系AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
 <rules>
+- マークダウン形式で章立てして書いてください。
 - 生成系AIおよび、AWS初心者をターゲットにした記事にしてください。
 - IT初心者が分からないような用語は使わないか、分かりやすい言葉に置き換えてください。
 - 生成系AIで何ができるのかがわかる記事にしてください。
 - 文章量が少ないと読者が満足しないので、一般的な情報は補完しながら文量を多くしてください。
+- 読者の興味を惹きつけるような文章にしてください。
 </rules>`,
             },
           ],
@@ -141,20 +143,6 @@ const LandingPage: React.FC = () => {
             {
               from: 'content',
               to: 'information',
-            },
-          ],
-        },
-      },
-      {
-        title: '記事の校正',
-        description:
-          '自動生成した記事を校正します。LLM の内容について指摘するので、必要に応じて記事を修正してください。',
-        path: 'editorial',
-        initState: {
-          copy: [
-            {
-              from: 'text',
-              to: 'sentence',
             },
           ],
         },
@@ -197,7 +185,7 @@ const LandingPage: React.FC = () => {
   const demoMeetingReport = () => {
     setIsShow(true);
     setCurrentIndex(0);
-    setUseCases([
+    setUseCases('議事録作成【ユースケース間連携】', [
       {
         title: '文字起こし',
         description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
@@ -217,7 +205,7 @@ const LandingPage: React.FC = () => {
 <rules>
 - フィラーワードを除去してください。
 - 文字起こしの誤認識と思われる内容は正しい内容に書き換えてください。
-- 接続詞などが省略されている場合は、読みやすいように保管してください。
+- 接続詞などが省略されている場合は、読みやすいように補完してください。
 </rules>`,
             },
           ],
