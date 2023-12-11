@@ -3,11 +3,22 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import useTranscribe from '../hooks/useTranscribe';
+import useMicrophone from "../hooks/useMicrophone";
 import Markdown from '../components/Markdown';
+import {
+  PiMicrophone,
+  PiMicrophoneSlash
+} from 'react-icons/pi';
 
 const TranscribePage: React.FC = () => {
   const { loading, transcriptData, file, setFile, transcribe, clear } =
     useTranscribe();
+  const {
+    startTranscription,
+    stopTranscription,
+    transcriptMic,
+    recording,
+  } = useMicrophone();
   const ref = useRef<HTMLInputElement>(null);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,12 +71,27 @@ const TranscribePage: React.FC = () => {
             <Button disabled={disabledExec} onClick={onClickExec}>
               実行
             </Button>
+            {recording ? (
+              <Button onClick={stopTranscription}>
+                <PiMicrophone /> 音声認識中
+              </Button>
+            ) : (
+              <Button outlined onClick={startTranscription}>
+                <PiMicrophoneSlash /> 音声認識停止中
+              </Button>
+            )
+            }
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
             {transcriptData && transcriptData.transcript && (
               <Markdown>{transcriptData.transcript}</Markdown>
             )}
-            {!loading && !transcriptData?.transcript && (
+            {transcriptMic && transcriptMic.length > 0 && (
+              <Markdown> 
+                {transcriptMic.map((t) => t.transcript).join(" ")}
+              </Markdown>
+            )}
+            {(!loading && !transcriptData?.transcript) && (!recording && transcriptMic.length == 0) && (
               <div className="text-gray-500">
                 音声認識結果がここに表示されます
               </div>

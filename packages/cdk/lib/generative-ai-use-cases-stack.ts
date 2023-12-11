@@ -65,6 +65,7 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
+      idPool: auth.idPool,
       api: api.api,
     });
 

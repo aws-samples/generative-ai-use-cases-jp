@@ -6,7 +6,8 @@ import {
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
+import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
@@ -14,6 +15,7 @@ import { Construct } from 'constructs';
 
 export interface TranscribeProps {
   userPool: UserPool;
+  idPool: IdentityPool;
   api: RestApi;
 }
 
@@ -128,5 +130,16 @@ export class Transcribe extends Construct {
         new LambdaIntegration(getTranscriptionFunction),
         commonAuthorizerProps
       );
+
+    // add Policy for Amplify User
+    // grant access policy transcribe stream and translate
+    props.idPool.authenticatedRole.attachInlinePolicy(new Policy(this, 'GrantAccessTranscribeStream', {
+      statements: [new PolicyStatement({
+        actions: [
+          'transcribe:StartStreamTranscriptionWebSocket',
+        ],
+        resources: ['*'],
+      })],
+    }))
   }
 }
