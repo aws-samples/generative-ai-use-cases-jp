@@ -218,24 +218,7 @@ const WebContent: React.FC = () => {
             </Button>
           </div>
 
-          <ExpandableField
-            label={`抽出前のテキスト (${
-              fetching ? '読み込み中...' : text === '' ? '未取得' : '取得済'
-            })`}>
-            <div className="rounded border border-black/30 p-1.5">
-              {text === '' && (
-                <div className="text-gray-500">
-                  未取得です。URL を入力して実行ボタンを押してください。
-                </div>
-              )}
-              {text}
-              <div className="flex w-full justify-end">
-                <ButtonCopy text={text}></ButtonCopy>
-              </div>
-            </div>
-          </ExpandableField>
-
-          <div className="rounded border border-black/30 p-1.5">
+          <div className="mt-2 rounded border border-black/30 p-1.5">
             <Markdown>{content}</Markdown>
             {!loading && content === '' && (
               <div className="text-gray-500">
@@ -249,6 +232,24 @@ const WebContent: React.FC = () => {
               <ButtonCopy text={content}></ButtonCopy>
             </div>
           </div>
+
+          <ExpandableField
+            label={`抽出前のテキスト (${
+              fetching ? '読み込み中...' : text === '' ? '未取得' : '取得済'
+            })`}
+            className="mt-2">
+            <div className="rounded border border-black/30 p-1.5">
+              {text === '' && (
+                <div className="text-gray-500">
+                  未取得です。URL を入力して実行ボタンを押してください。
+                </div>
+              )}
+              {text}
+              <div className="flex w-full justify-end">
+                <ButtonCopy text={text}></ButtonCopy>
+              </div>
+            </div>
+          </ExpandableField>
         </Card>
       </div>
     </div>
