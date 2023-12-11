@@ -18,6 +18,7 @@ const TranscribePage: React.FC = () => {
     stopTranscription,
     transcriptMic,
     recording,
+    clearTranscripts
   } = useMicrophone();
   const ref = useRef<HTMLInputElement>(null);
 
@@ -34,15 +35,28 @@ const TranscribePage: React.FC = () => {
 
   const onClickExec = useCallback(() => {
     if (loading) return;
+    stopTranscription();
+    clearTranscripts()
     transcribe();
-  }, [transcribe, loading]);
+  }, [transcribe, loading, stopTranscription, clearTranscripts]);
 
   const onClickClear = useCallback(() => {
     if (ref.current) {
       ref.current.value = '';
     }
+    stopTranscription();
     clear();
-  }, [clear]);
+    clearTranscripts()
+  }, [clear, stopTranscription, clearTranscripts]);
+
+  const onClickExecStartTranscription = useCallback(() => {
+    if (ref.current) {
+      ref.current.value = '';
+    }
+    clear();
+    clearTranscripts();
+    startTranscription();
+  }, [clear, clearTranscripts, startTranscription]);
 
   return (
     <div className="grid grid-cols-12">
@@ -76,7 +90,7 @@ const TranscribePage: React.FC = () => {
                 <PiMicrophone /> 音声認識中
               </Button>
             ) : (
-              <Button outlined onClick={startTranscription}>
+              <Button outlined onClick={onClickExecStartTranscription}>
                 <PiMicrophoneSlash /> 音声認識停止中
               </Button>
             )

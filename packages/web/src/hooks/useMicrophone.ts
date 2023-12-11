@@ -146,7 +146,6 @@ const useMicrophone = () => {
   };
 
   const startTranscription = async () => {
-    clearTranscripts()
     const mic = new MicrophoneStream();
     try {
       setMicStream(mic);
