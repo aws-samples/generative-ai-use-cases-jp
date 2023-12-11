@@ -21,6 +21,7 @@ import {
   EditorialPageLocationState,
   GenerateImagePageLocationState,
   GenerateTextPageLocationState,
+  InterUseCaseState,
   RagPageLocationState,
   SummarizePageLocationState,
   TranslatePageLocationState,
@@ -125,30 +126,24 @@ const LandingPage: React.FC = () => {
         description: `URL を指定して、記事の参考となる情報を自動取得します。
 追加コンテキストを設定することで、自分の欲しい情報のみを抽出可能です。`,
         path: 'web-content',
-        initState: {
-          constValue: [
-            {
-              key: 'url',
-              value: 'https://aws.amazon.com/jp/what-is/generative-ai/',
-            },
-            {
-              key: 'context',
-              value:
-                '生成系AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
-            },
-          ],
-        },
+        state: {
+          url: {
+            value: 'https://aws.amazon.com/jp/what-is/generative-ai/',
+          },
+          context: {
+            value:
+              '生成系AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
+          },
+        } as InterUseCaseState<WebContentPageLocationState>,
       },
       {
         title: '記事の生成',
         description:
           '参考情報を元にブログの記事を自動生成します。コンテキストを詳細に設定することで、自分の意図した内容で記事が生成されやすくなります。',
         path: 'generate',
-        initState: {
-          constValue: [
-            {
-              key: 'context',
-              value: `生成系AIの仕組みの解説とAWSで生成系AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
+        state: {
+          context: {
+            value: `生成系AIの仕組みの解説とAWSで生成系AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
 <rules>
 - マークダウン形式で章立てして書いてください。
 - 生成系AIおよび、AWS初心者をターゲットにした記事にしてください。
@@ -157,47 +152,37 @@ const LandingPage: React.FC = () => {
 - 文章量が少ないと読者が満足しないので、一般的な情報は補完しながら文量を多くしてください。
 - 読者の興味を惹きつけるような文章にしてください。
 </rules>`,
-            },
-          ],
-          copy: [
-            {
-              from: 'content',
-              to: 'information',
-            },
-          ],
-        },
+          },
+          information: {
+            value: '{content}',
+          },
+        } as InterUseCaseState<GenerateTextPageLocationState>,
       },
       {
         title: '記事の要約',
         description:
           'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、記事を要約します。OGP を適切に設定することで、記事がシェアされた際に記事の概要を正しく伝えることができます。',
         path: 'summarize',
-        initState: {
-          copy: [
-            {
-              from: 'text',
-              to: 'sentence',
-            },
-          ],
-        },
+        state: {
+          sentence: {
+            value: '{text}',
+          },
+        } as InterUseCaseState<SummarizePageLocationState>,
       },
       {
         title: '記事のサムネイル生成',
         description:
           'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、サムネイルを生成します。OGP にキャッチーなサムネイルを設定することで、読者の関心を惹くことができるかもしれません。',
         path: 'image',
-        initState: {
-          constValue: [
-            {
-              key: 'content',
-              value: `ブログ記事のOGP用にサムネイル画像を生成してください。クラウドやAIの記事であることが一目でわかる画像にしてください。
+        state: {
+          content: {
+            value: `ブログ記事のOGP用にサムネイル画像を生成してください。クラウドやAIの記事であることが一目でわかる画像にしてください。
 ブログ記事の概要は<article></article>に設定されています。
 <article>
 {summarizedSentence}
 </article>`,
-            },
-          ],
-        },
+          },
+        } as InterUseCaseState<GenerateImagePageLocationState>,
       },
     ]);
   };
@@ -216,46 +201,34 @@ const LandingPage: React.FC = () => {
         description:
           '「文章生成」の機能を使って、文字起こしファイルを整形します。フィラーワードの除去や音声認識が正しくできていない部分などを補正し、人間が理解しやすいようにします。',
         path: 'generate',
-        initState: {
-          constValue: [
-            {
-              key: 'context',
-              value: `録音データの文字起こし結果が入力されているので、<rules></rules>の通りに整形してください。
+        state: {
+          context: {
+            value: `録音データの文字起こし結果が入力されているので、<rules></rules>の通りに整形してください。
 <rules>
 - フィラーワードを除去してください。
 - 文字起こしの誤認識と思われる内容は正しい内容に書き換えてください。
 - 接続詞などが省略されている場合は、読みやすいように補完してください。
 </rules>`,
-            },
-          ],
-          copy: [
-            {
-              from: 'transcript',
-              to: 'information',
-            },
-          ],
-        },
+          },
+          information: {
+            value: '{transcript}',
+          },
+        } as InterUseCaseState<GenerateTextPageLocationState>,
       },
       {
         title: '議事録作成',
         description:
           '「文章生成」の機能を使って、議事録を生成します。コンテキストを詳細に指定することで、議事録のフォーマットや記載の粒度を指示できます。',
         path: 'generate',
-        initState: {
-          constValue: [
-            {
-              key: 'context',
-              value: `会議の発言内容を元にマークダウン形式の議事録を作成してください。
+        state: {
+          context: {
+            value: `会議の発言内容を元にマークダウン形式の議事録を作成してください。
 会議で話したテーマごとに章立てし、議論した内容、決定事項、宿題事項をまとめてください。`,
-            },
-          ],
-          copy: [
-            {
-              from: 'text',
-              to: 'information',
-            },
-          ],
-        },
+          },
+          information: {
+            value: '{text}',
+          },
+        } as InterUseCaseState<GenerateTextPageLocationState>,
       },
     ]);
   };
