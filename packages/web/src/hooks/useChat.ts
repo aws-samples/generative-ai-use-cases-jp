@@ -38,7 +38,8 @@ const useChatState = create<{
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>,
     ignoreHistory: boolean,
-    postProcess: ((message: string) => string) | undefined
+    preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
+    postProcessOutput: ((message: string) => string) | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -253,7 +254,10 @@ const useChatState = create<{
       content: string,
       mutateListChat,
       ignoreHistory: boolean = false,
-      postProcess: ((message: string) => string) | undefined = undefined
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined
     ) => {
       setLoading(id, true);
 
@@ -280,14 +284,21 @@ const useChatState = create<{
       });
 
       const chatMessages = get().chats[id].messages;
+
+      // 最後のメッセージはアシスタントのメッセージなので、排除
+      // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
+      let inputMessages = ignoreHistory
+        ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
+        : chatMessages.slice(0, -1);
+
+      // メッセージの前処理（例：ログからの footnote の削除）
+      if (preProcessInput) {
+        inputMessages = preProcessInput(inputMessages);
+      }
+
+      // LLM へのリクエスト
       const stream = predictStream({
-        // 最後のメッセージはアシスタントのメッセージなので、排除
-        // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
-        messages: omitUnusedMessageProperties(
-          ignoreHistory
-            ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
-            : chatMessages.slice(0, -1)
-        ),
+        messages: omitUnusedMessageProperties(inputMessages),
       });
 
       // Assistant の発言を更新
@@ -311,13 +322,13 @@ const useChatState = create<{
       }
 
       // メッセージの後処理（例：footnote の付与）
-      if (postProcess) {
+      if (postProcessOutput) {
         set((state) => {
           const newChats = produce(state.chats, (draft) => {
             const oldAssistantMessage = draft[id].messages.pop()!;
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
-              content: postProcess(oldAssistantMessage.content),
+              content: postProcessOutput(oldAssistantMessage.content),
             };
             draft[id].messages.push(newAssistantMessage);
           });
@@ -430,9 +441,19 @@ const useChat = (id: string, chatId?: string) => {
     postChat: (
       content: string,
       ignoreHistory: boolean = false,
-      postProcess: ((message: string) => string) | undefined = undefined
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined
     ) => {
-      post(id, content, mutateConversations, ignoreHistory, postProcess);
+      post(
+        id,
+        content,
+        mutateConversations,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput
+      );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);

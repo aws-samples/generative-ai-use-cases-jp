@@ -2,6 +2,7 @@ import useChat from './useChat';
 import useChatApi from './useChatApi';
 import useRagApi from './useRagApi';
 import { ragPrompt } from '../prompts';
+import { ShownMessage } from 'generative-ai-use-cases-jp';
 
 const useRag = (id: string) => {
   const {
@@ -54,21 +55,28 @@ const useRag = (id: string) => {
       // ローディング表示を消してから通常のチャットの POST 処理を実行する
       popMessage();
       popMessage();
-      postChat(content, false, (message: string) => {
-        return (
-          message +
-          '\n' +
-          items.data.ResultItems?.map((item, idx) => {
-            if (message.includes(`[^${idx}]`)) {
-              return `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`;
-            } else {
-              return '';
-            }
-          })
+      postChat(
+        content,
+        false,
+        (messages: ShownMessage[]) => {
+          // 前処理：Few-shot で参考にされてしまうため、過去ログから footnote を削除
+          return messages.map((message) => ({
+            ...message,
+            content: message.content.replace(/\[\^(\d+)\]:.*/g, ''),
+          }));
+        },
+        (message: string) => {
+          // 後処理：Footnote の付与
+          const footnote = items.data.ResultItems?.map((item, idx) =>
+            message.includes(`[^${idx}]`)
+              ? `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`
+              : ''
+          )
             .filter((x) => x)
-            .join('\n')
-        );
-      });
+            .join('\n');
+          return message + '\n' + footnote;
+        }
+      );
     },
   };
 };

@@ -101,6 +101,7 @@ const RagPage: React.FC = () => {
         {messages.map((chat, idx) => (
           <div key={idx}>
             <ChatMessage
+              idx={idx}
               chatContent={chat}
               loading={loading && idx === messages.length - 1}
             />

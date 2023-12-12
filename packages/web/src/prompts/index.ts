@@ -252,7 +252,6 @@ ${params
       SourceId: idx,
       DocumentId: item.DocumentId,
       DocumentTitle: item.DocumentTitle,
-      // DocumentURI: item.DocumentURI,
       Content: item.Content,
     })}`;
   })
