@@ -238,6 +238,7 @@ ${params.retrieveQueries!.map((q) => `* ${q}`).join('\n')}
 <参考ドキュメントのJSON形式>
 {
 "SourceId": データソースのID,
+"DocumentId": "ドキュメントを一意に特定するIDです。",
 "DocumentTitle": "ドキュメントのタイトルです。",
 "Content": "ドキュメントの内容です。こちらをもとに回答してください。",
 }[]
@@ -249,7 +250,7 @@ ${params
   .referenceItems!.map((item, idx) => {
     return `${JSON.stringify({
       SourceId: idx,
-      // DocumentId: item.DocumentId,
+      DocumentId: item.DocumentId,
       DocumentTitle: item.DocumentTitle,
       // DocumentURI: item.DocumentURI,
       Content: item.Content,
@@ -262,7 +263,7 @@ ${params
 <回答のルール>
 * 雑談や挨拶には応じないでください。「私は雑談はできません。通常のチャット機能をご利用ください。」とだけ出力してください。他の文言は一切出力しないでください。例外はありません。
 * 必ず<参考ドキュメント></参考ドキュメント>をもとに回答してください。<参考ドキュメント></参考ドキュメント>から読み取れないことは、絶対に回答しないでください。
-* 回答の文末ごとに、参照したドキュメントの SourceId を [^<source id>] 形式で文末に追加してください。（例：[^0]）
+* 回答の文末ごとに、参照したドキュメントの SourceId を [^<SourceId>] 形式で文末に追加してください。
 * <参考ドキュメント></参考ドキュメント>をもとに回答できない場合は、「回答に必要な情報が見つかりませんでした。」とだけ出力してください。例外はありません。
 * 質問に具体性がなく回答できない場合は、質問の仕方をアドバイスしてください。
 * 回答文以外の文字列は一切出力しないでください。回答はJSON形式ではなく、テキストで出力してください。見出しやタイトル等も必要ありません。
