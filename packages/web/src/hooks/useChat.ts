@@ -37,7 +37,8 @@ const useChatState = create<{
     id: string,
     content: string,
     mutateListChat: KeyedMutator<ListChatsResponse>,
-    ignoreHistory: boolean
+    ignoreHistory: boolean,
+    postProcess: ((message: string) => string) | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -251,7 +252,8 @@ const useChatState = create<{
       id: string,
       content: string,
       mutateListChat,
-      ignoreHistory: boolean = false
+      ignoreHistory: boolean = false,
+      postProcess: ((message: string) => string) | undefined = undefined
     ) => {
       setLoading(id, true);
 
@@ -300,10 +302,25 @@ const useChatState = create<{
                 ''
               ),
             };
-
             draft[id].messages.push(newAssistantMessage);
           });
+          return {
+            chats: newChats,
+          };
+        });
+      }
 
+      // メッセージの後処理（例：footnote の付与）
+      if (postProcess) {
+        set((state) => {
+          const newChats = produce(state.chats, (draft) => {
+            const oldAssistantMessage = draft[id].messages.pop()!;
+            const newAssistantMessage: UnrecordedMessage = {
+              role: 'assistant',
+              content: postProcess(oldAssistantMessage.content),
+            };
+            draft[id].messages.push(newAssistantMessage);
+          });
           return {
             chats: newChats,
           };
@@ -410,8 +427,12 @@ const useChat = (id: string, chatId?: string) => {
     rawMessages: chats[id]?.messages ?? [],
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
-    postChat: (content: string, ignoreHistory: boolean = false) => {
-      post(id, content, mutateConversations, ignoreHistory);
+    postChat: (
+      content: string,
+      ignoreHistory: boolean = false,
+      postProcess: ((message: string) => string) | undefined = undefined
+    ) => {
+      post(id, content, mutateConversations, ignoreHistory, postProcess);
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);

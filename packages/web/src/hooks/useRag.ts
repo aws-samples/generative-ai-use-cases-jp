@@ -54,7 +54,21 @@ const useRag = (id: string) => {
       // ローディング表示を消してから通常のチャットの POST 処理を実行する
       popMessage();
       popMessage();
-      postChat(content);
+      postChat(content, false, (message: string) => {
+        return (
+          message +
+          '\n' +
+          items.data.ResultItems?.map((item, idx) => {
+            if (message.includes(`[^${idx}]`)) {
+              return `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`;
+            } else {
+              return '';
+            }
+          })
+            .filter((x) => x)
+            .join('\n')
+        );
+      });
     },
   };
 };
