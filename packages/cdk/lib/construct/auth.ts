@@ -1,19 +1,27 @@
 import { Duration } from 'aws-cdk-lib';
-import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
+import {
+  UserPool,
+  UserPoolClient,
+  UserPoolOperation,
+} from 'aws-cdk-lib/aws-cognito';
 import {
   IdentityPool,
   UserPoolAuthenticationProvider,
 } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Construct } from 'constructs';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export interface AuthProps {
   selfSignUpEnabled: boolean;
+  allowedSingUpEmailDomains: string[] | null;
 }
 
 export class Auth extends Construct {
   readonly userPool: UserPool;
   readonly client: UserPoolClient;
   readonly idPool: IdentityPool;
+  readonly checkEmailDomainFunction: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
@@ -47,8 +55,32 @@ export class Auth extends Construct {
       },
     });
 
+    // Lambda
+    const checkEmailDomainFunction = new NodejsFunction(
+      this,
+      'CheckEmailDomain',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/checkEmailDomain.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          ALLOWED_SING_UP_EMAIL_DOMAINS_STR: JSON.stringify(
+            props.allowedSingUpEmailDomains
+          ),
+        },
+      }
+    );
+
+    if (props.allowedSingUpEmailDomains !== null) {
+      userPool.addTrigger(
+        UserPoolOperation.PRE_SIGN_UP,
+        checkEmailDomainFunction
+      );
+    }
+
     this.client = client;
     this.userPool = userPool;
     this.idPool = idPool;
+    this.checkEmailDomainFunction = checkEmailDomainFunction;
   }
 }

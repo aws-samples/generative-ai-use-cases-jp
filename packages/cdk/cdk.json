@@ -20,6 +20,7 @@
     "ragEnabled": false,
     "kendraIndexArn": null,
     "selfSignUpEnabled": true,
+    "allowedSingUpEmailDomains": null, 
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
