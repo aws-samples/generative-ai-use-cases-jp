@@ -22,6 +22,8 @@ import { Amplify, I18n } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
+import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
+import useInterUseCases from './hooks/useInterUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const selfSignUpEnabled: boolean =
@@ -131,6 +133,7 @@ const App: React.FC = () => {
   const { switchOpen: switchDrawer } = useDrawer();
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
+  const { isShow } = useInterUseCases();
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -173,6 +176,7 @@ const App: React.FC = () => {
             <div className="w-10" />
           </header>
 
+          {isShow && <PopupInterUseCasesDemo />}
           <div
             className="text-aws-font-color screen:h-full overflow-hidden overflow-y-auto"
             id="main">

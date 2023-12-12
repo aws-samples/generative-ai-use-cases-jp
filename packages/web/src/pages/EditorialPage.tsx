@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -10,6 +10,7 @@ import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { editorialPrompt } from '../prompts';
+import { EditorialPageLocationState } from '../@types/navigate';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -75,7 +76,7 @@ const EditorialPage: React.FC = () => {
     clear,
   } = useEditorialPageState();
 
-  const { state } = useLocation();
+  const { state } = useLocation() as Location<EditorialPageLocationState>;
   const { pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 

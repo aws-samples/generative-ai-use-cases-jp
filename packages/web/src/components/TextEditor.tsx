@@ -8,6 +8,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { PiTrash } from 'react-icons/pi';
 import HighlightWithinTextarea from 'react-highlight-within-textarea';
 import 'draft-js/dist/Draft.css';
+import ButtonCopy from './ButtonCopy';
 
 type Props = RowItemProps & {
   value: string;
@@ -48,6 +49,9 @@ const Texteditor: React.FC<Props> = (props) => {
               props.onChange(value);
             }}
           />
+          <div className="flex w-full justify-end">
+            <ButtonCopy text={props.value} />
+          </div>
         </ErrorBoundary>
       </div>
       <div className="mb-2 rounded border border-black/30 p-1.5 outline-none lg:ml-2">
