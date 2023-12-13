@@ -76,7 +76,7 @@ const RagPage: React.FC = () => {
         )}
 
         {isEmpty && (
-          <div className="absolute inset-x-0 top-20 m-auto flex justify-center">
+          <div className="absolute inset-x-0 top-12 m-auto flex justify-center">
             <Alert severity="info">
               <div>
                 RAG (Retrieval Augmented Generation)

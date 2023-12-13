@@ -217,18 +217,21 @@ const Drawer: React.FC<Props> = (props) => {
         </div>
       </nav>
 
-      {opened && (
-        <div id="smallDrawerFiller" className="visible lg:invisible">
-          <div
-            className="screen:h-screen fixed left-64 top-0 z-50 w-screen bg-gray-900/90"
-            onClick={switchOpen}></div>
-          <ButtonIcon
-            className="fixed left-64 top-0 z-50 text-white"
-            onClick={switchOpen}>
-            <PiX />
-          </ButtonIcon>
-        </div>
-      )}
+      <div id="smallDrawerFiller" className="visible lg:invisible">
+        <div
+          className={`screen:h-screen fixed top-0 z-50 w-screen bg-gray-900/90 transition-all ${
+            opened ? 'left-64' : '-left-full'
+          }`}
+          onClick={switchOpen}></div>
+
+        <ButtonIcon
+          className={`fixed left-64 top-0 z-50 text-white ${
+            opened ? 'left-64' : '-left-full'
+          }`}
+          onClick={switchOpen}>
+          <PiX />
+        </ButtonIcon>
+      </div>
     </>
   );
 };
