@@ -61,7 +61,7 @@ const RagPage: React.FC = () => {
 
   return (
     <>
-      <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
+      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
           RAG チャット
         </div>
@@ -77,7 +77,7 @@ const RagPage: React.FC = () => {
         )}
 
         {isEmpty && (
-          <div className="absolute inset-x-0 top-20 m-auto flex justify-center">
+          <div className="absolute inset-x-0 top-12 m-auto flex justify-center">
             <Alert severity="info">
               <div>
                 RAG (Retrieval Augmented Generation)
@@ -102,24 +102,25 @@ const RagPage: React.FC = () => {
         {messages.map((chat, idx) => (
           <div key={idx}>
             <ChatMessage
+              idx={idx}
               chatContent={chat}
               loading={loading && idx === messages.length - 1}
             />
             <div className="w-full border-b border-gray-300"></div>
           </div>
         ))}
-      </div>
 
-      <div className="absolute bottom-0 z-0 flex w-full items-end justify-center print:hidden">
-        <InputChatContent
-          content={content}
-          disabled={loading}
-          onChangeContent={setContent}
-          onSend={() => {
-            onSend();
-          }}
-          onReset={onReset}
-        />
+        <div className="fixed bottom-0 z-0 flex w-full items-end justify-center print:hidden lg:pr-64">
+          <InputChatContent
+            content={content}
+            disabled={loading}
+            onChangeContent={setContent}
+            onSend={() => {
+              onSend();
+            }}
+            onReset={onReset}
+          />
+        </div>
       </div>
     </>
   );

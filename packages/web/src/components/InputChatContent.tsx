@@ -59,12 +59,13 @@ const InputChatContent: React.FC<Props> = (props) => {
   });
 
   return (
-    <>
+    <div
+      className={`${
+        props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
+      }`}>
       <div
         id="input-chat-content"
-        className={`relative mb-7 flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
-          props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
-        }`}>
+        className={`relative mb-7 flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40`}>
         <Textarea
           className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
           placeholder={props.placeholder ?? '入力してください'}
@@ -90,7 +91,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           </Button>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

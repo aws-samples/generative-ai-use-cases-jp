@@ -10,6 +10,7 @@ import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import useChat from '../hooks/useChat';
 
 type Props = BaseProps & {
+  idx?: number;
   chatContent?: ShownMessage;
   loading?: boolean;
 };
@@ -76,7 +77,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
             )}
             {chatContent?.role === 'assistant' && (
-              <Markdown>
+              <Markdown prefix={`${props.idx}`}>
                 {chatContent.content +
                   `${
                     props.loading && (chatContent?.content ?? '') !== ''

@@ -39,7 +39,7 @@ const PromptList: React.FC<Props> = (props) => {
     <>
       {expanded && (
         <div
-          className={`${props.className} fixed left-0 top-0 h-screen w-screen bg-gray-900/90`}
+          className={`${props.className} fixed left-0 top-0 z-20 h-screen w-screen bg-gray-900/90`}
           onClick={() => {
             setExpanded(false);
           }}
@@ -48,7 +48,7 @@ const PromptList: React.FC<Props> = (props) => {
 
       <div
         className={`fixed top-0 transition-all ${
-          expanded ? 'right-0' : '-right-64'
+          expanded ? 'right-0 z-50' : '-right-64 z-30'
         } flex h-full justify-center`}>
         <div
           className="bg-aws-smile mt-16 flex h-12 w-12 cursor-pointer items-center justify-center rounded-l-full"

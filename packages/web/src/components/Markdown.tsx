@@ -8,6 +8,7 @@ import remarkBreaks from 'remark-breaks';
 
 type Props = BaseProps & {
   children: string;
+  prefix?: string;
 };
 
 const LinkRenderer: React.FC<
@@ -15,18 +16,23 @@ const LinkRenderer: React.FC<
   any
 > = (props) => {
   return (
-    <a href={props.href} target="_blank" rel="noreferrer">
+    <a
+      id={props.id}
+      href={props.href}
+      target={props.href.startsWith('#') ? '_self' : '_blank'}
+      rel="noreferrer">
       {props.children}
     </a>
   );
 };
 
-const Markdown: React.FC<Props> = ({ className, children }) => {
+const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
   return (
     <ReactMarkdown
       className={`${className ?? ''} prose max-w-full break-all`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
+      remarkRehypeOptions={{ clobberPrefix: prefix }}
       components={{
         a: LinkRenderer,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
