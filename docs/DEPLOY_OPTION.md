@@ -148,6 +148,40 @@ context の `selfSignUpEnabled` に `false` を指定します。(デフォル�
 }
 ```
 
+### サインアップできるメールアドレスのドメインを制限する
+context の allowedSignUpEmailDomains に 許可するドメインのリストを指定します（デフォルトは`null`）。
+
+値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
+
+設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、サービスに進むことができなくなります。また、AWSマネジメントコンソールで、Cognitoのページで「ユーザを作成」を実行したときにエラーになります。
+
+既にCognitoに作成されているユーザには影響ありません。新規にサインアップ・作成しようとしているユーザのみに適用されます。
+
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+設定例
+
+- `amazon.com` のドメインのメールアドレスであればサインアップできるように設定する例
+
+```json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com"], // null から、許可ドメインを指定することで有効化
+  }
+}
+```
+
+- `amazon.com` か `amazon.jp` のどちらかのドメインのメールアドレスであればサインアップできるように設定する例
+
+```json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // null から、許可ドメインを指定することで有効化
+  }
+}
+```
+
 ### AWS WAF による IP 制限を有効化する
 
 Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。

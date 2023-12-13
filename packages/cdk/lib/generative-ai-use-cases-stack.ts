@@ -26,6 +26,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
+    const allowedSignUpEmailDomains: string[] | null | undefined = this.node.tryGetContext(
+      'allowedSignUpEmailDomains'
+    );
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -37,6 +40,7 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
+      allowedSignUpEmailDomains,
     });
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {

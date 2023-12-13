@@ -129,6 +129,7 @@ npm run cdk:deploy
   - [ELYZA-japanese-Llama-2-7b-instruct を利用する例](/docs/DEPLOY_OPTION.md#elyza-japanese-llama-2-7b-instruct-を利用する例)
 - [セキュリティ関連設定](/docs/DEPLOY_OPTION.md#セキュリティ関連設定)
   - [セルフサインアップを無効化する](/docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
+  - [サインアップできるメールアドレスのドメインを制限する](/docs/DEPLOY_OPTION.md#サインアップできるメールアドレスのドメインを制限する)
   - [AWS WAF による IP 制限を有効化する](/docs/DEPLOY_OPTION.md#aws-waf-による-ip-制限を有効化する)
 
 ## その他
