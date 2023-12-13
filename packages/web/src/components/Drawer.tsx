@@ -126,9 +126,7 @@ const Drawer: React.FC<Props> = (props) => {
   return (
     <>
       <nav
-        className={`bg-aws-squid-ink fixed top-0 z-50 flex h-screen w-64 flex-col justify-between text-sm text-white print:hidden lg:z-0 ${
-          opened ? 'left-0' : '-left-64'
-        } transition-all lg:static`}>
+        className={`bg-aws-squid-ink flex h-screen w-64 flex-col justify-between text-sm text-white  print:hidden`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
           ユースケース <span className="text-gray-400">(生成系AI)</span>
         </div>
@@ -221,14 +219,14 @@ const Drawer: React.FC<Props> = (props) => {
 
       {opened && (
         <div id="smallDrawerFiller" className="visible lg:invisible">
+          <div
+            className="screen:h-screen fixed left-64 top-0 z-50 w-screen bg-gray-900/90"
+            onClick={switchOpen}></div>
           <ButtonIcon
             className="fixed left-64 top-0 z-50 text-white"
             onClick={switchOpen}>
             <PiX />
           </ButtonIcon>
-          <div
-            className="fixed z-40 h-screen w-screen bg-gray-900/90"
-            onClick={switchOpen}></div>
         </div>
       )}
     </>

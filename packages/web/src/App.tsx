@@ -128,7 +128,7 @@ const App: React.FC = () => {
   I18n.putVocabularies(translations);
   I18n.setLanguage('ja');
 
-  const { switchOpen: switchDrawer } = useDrawer();
+  const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
 
@@ -152,10 +152,8 @@ const App: React.FC = () => {
           </div>
         ),
       }}>
-      <div className="screen:h-screen screen:w-screen relative flex">
-        <Drawer items={items} />
-
-        <main className="transition-width relative min-h-screen flex-1 overflow-hidden">
+      <div className="screen:h-screen screen:w-screen overflow-x-hidden">
+        <main className="flex-1">
           <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
             <div className="flex w-10 items-center justify-start">
               <button
@@ -174,8 +172,12 @@ const App: React.FC = () => {
           </header>
 
           <div
-            className="text-aws-font-color screen:h-full overflow-hidden overflow-y-auto"
-            id="main">
+            className={`fixed -left-64 top-0 z-50 transition-all lg:left-0 lg:z-0 ${
+              isOpenDrawer ? 'left-0' : '-left-64'
+            }`}>
+            <Drawer items={items} />
+          </div>
+          <div className="text-aws-font-color lg:ml-64" id="main">
             <Outlet />
           </div>
         </main>

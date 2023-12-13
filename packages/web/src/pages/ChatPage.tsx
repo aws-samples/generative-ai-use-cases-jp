@@ -91,7 +91,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <>
-      <div className={`${!isEmpty ? 'screen:pb-36' : ''}`}>
+      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
           {title}
         </div>
@@ -139,19 +139,19 @@ const ChatPage: React.FC = () => {
               <div className="w-full border-b border-gray-300"></div>
             </div>
           ))}
-      </div>
 
-      <div className="absolute bottom-0 z-0 flex w-full items-end justify-center print:hidden">
-        <InputChatContent
-          content={content}
-          disabled={loading}
-          onChangeContent={setContent}
-          resetDisabled={!!chatId}
-          onSend={() => {
-            onSend();
-          }}
-          onReset={onReset}
-        />
+        <div className="fixed bottom-0 z-0 flex w-full items-end justify-center print:hidden lg:pr-64">
+          <InputChatContent
+            content={content}
+            disabled={loading}
+            onChangeContent={setContent}
+            resetDisabled={!!chatId}
+            onSend={() => {
+              onSend();
+            }}
+            onReset={onReset}
+          />
+        </div>
       </div>
 
       {isEmpty && <PromptList />}
