@@ -150,9 +150,12 @@ const TranscribePage: React.FC = () => {
             {loading && (
               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
+
             <div className="flex w-full justify-end">
               {content && content && (
-                <ButtonCopy text={content}></ButtonCopy>
+                <ButtonCopy
+                  text={content}
+                  interUseCasesKey="transcript"></ButtonCopy>
               )}
             </div>
           </div>

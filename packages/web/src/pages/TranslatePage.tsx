@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -13,6 +13,7 @@ import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
+import { TranslatePageLocationState } from '../@types/navigate';
 
 const languages = [
   { label: '英語' },
@@ -84,8 +85,8 @@ const TranslatePage: React.FC = () => {
     clear,
   } = useTranslatePageState();
 
-  const { state } = useLocation();
-  const { pathname } = useLocation();
+  const { state, pathname } =
+    useLocation() as Location<TranslatePageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
 
   // Memo 変数
@@ -213,7 +214,9 @@ const TranslatePage: React.FC = () => {
                   <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
                 <div className="flex w-full justify-end">
-                  <ButtonCopy text={translatedSentence}></ButtonCopy>
+                  <ButtonCopy
+                    text={translatedSentence}
+                    interUseCasesKey="translatedSentence"></ButtonCopy>
                 </div>
               </div>
             </div>
