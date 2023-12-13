@@ -174,7 +174,7 @@ const App: React.FC = () => {
           </header>
 
           <div
-            className={`fixed -left-64 top-0 z-50 transition-all duration-100 lg:left-0 lg:z-0 ${
+            className={`fixed -left-64 top-0 z-50 transition-all lg:left-0 lg:z-0 ${
               isOpenDrawer ? 'left-0' : '-left-64'
             }`}>
             <Drawer items={items} />

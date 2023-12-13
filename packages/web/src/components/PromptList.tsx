@@ -47,7 +47,7 @@ const PromptList: React.FC<Props> = (props) => {
       )}
 
       <div
-        className={`fixed top-0 transition-all duration-1000 ${
+        className={`fixed top-0 transition-all ${
           expanded ? 'right-0 z-50' : '-right-64 z-30'
         } flex h-full justify-center`}>
         <div
