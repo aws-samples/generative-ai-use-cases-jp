@@ -5,10 +5,8 @@ import { Auth } from 'aws-amplify';
 import useSWR from 'swr';
 import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
-import ButtonIcon from './ButtonIcon';
 import IconWithDot from './IconWithDot';
 import {
-  PiX,
   PiGithubLogo,
   PiGear,
   PiBookOpen,
@@ -93,7 +91,6 @@ type Props = BaseProps & {
 };
 
 const Drawer: React.FC<Props> = (props) => {
-  const { opened, switchOpen } = useDrawer();
   const { getHasUpdate } = useVersion();
 
   // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
@@ -216,22 +213,6 @@ const Drawer: React.FC<Props> = (props) => {
           </Link>
         </div>
       </nav>
-
-      <div id="smallDrawerFiller" className="visible lg:invisible">
-        <div
-          className={`screen:h-screen fixed top-0 z-50 w-screen bg-gray-900/90 transition-all ${
-            opened ? 'left-64' : '-left-full'
-          }`}
-          onClick={switchOpen}></div>
-
-        <ButtonIcon
-          className={`fixed left-64 top-0 z-50 text-white ${
-            opened ? 'left-64' : '-left-full'
-          }`}
-          onClick={switchOpen}>
-          <PiX />
-        </ButtonIcon>
-      </div>
     </>
   );
 };

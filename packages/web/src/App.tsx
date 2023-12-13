@@ -14,9 +14,11 @@ import {
   PiSpeakerHighBold,
   PiGear,
   PiGlobe,
+  PiX,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
+import ButtonIcon from './components/ButtonIcon';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import { Amplify, I18n } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
@@ -172,10 +174,25 @@ const App: React.FC = () => {
           </header>
 
           <div
-            className={`fixed -left-64 top-0 z-50 transition-all lg:left-0 lg:z-0 ${
+            className={`fixed -left-64 top-0 z-50 transition-all duration-100 lg:left-0 lg:z-0 ${
               isOpenDrawer ? 'left-0' : '-left-64'
             }`}>
             <Drawer items={items} />
+          </div>
+
+          <div
+            id="smallDrawerFiller"
+            className={`${
+              isOpenDrawer ? 'visible' : 'invisible'
+            } lg:invisible`}>
+            <div
+              className="screen:h-screen fixed top-0 z-40 w-screen bg-gray-900/90"
+              onClick={switchDrawer}></div>
+            <ButtonIcon
+              className="fixed left-64 top-0 z-40 text-white"
+              onClick={switchDrawer}>
+              <PiX />
+            </ButtonIcon>
           </div>
           <div className="text-aws-font-color lg:ml-64" id="main">
             <Outlet />
