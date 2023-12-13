@@ -55,7 +55,7 @@ export class Auth extends Construct {
     });
 
     // Lambda
-    if (!(props.allowedSignUpEmailDomains === undefined || props.allowedSignUpEmailDomains === null)) {
+    if (props.allowedSignUpEmailDomains) {
       const checkEmailDomainFunction = new NodejsFunction(
         this,
         'CheckEmailDomain',
