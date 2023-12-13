@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import { create } from 'zustand';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
@@ -10,6 +11,22 @@ import {
   PiMicrophoneSlash
 } from 'react-icons/pi';
 
+type StateType = {
+  content: string;
+  setContent: (c: string) => void;
+};
+
+const useTranscribeState = create<StateType>((set) => {
+  return {
+    content: '',
+    setContent: (s: string) => {
+      set(() => ({
+        content: s,
+      }));
+    },
+  };
+});
+
 const TranscribePage: React.FC = () => {
   const { loading, transcriptData, file, setFile, transcribe, clear } =
     useTranscribe();
@@ -20,6 +37,7 @@ const TranscribePage: React.FC = () => {
     recording,
     clearTranscripts
   } = useMicrophone();
+  const { content, setContent } = useTranscribeState();
   const ref = useRef<HTMLInputElement>(null);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,34 +47,58 @@ const TranscribePage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (transcriptData && transcriptData.transcript) {
+      setContent(transcriptData.transcript)
+    }
+  }, [setContent, transcriptData]);
+
+  useEffect(() => {
+    if (transcriptMic && transcriptMic.length > 0) {
+      const _content: string = transcriptMic.map((t) => t.transcript).join(" ")
+      setContent(_content)
+    }
+  }, [setContent, transcriptMic]);
+
   const disabledExec = useMemo(() => {
-    return !file || loading;
-  }, [file, loading]);
+    return !file || loading || recording;
+  }, [file, loading, recording]);
+
+  const disableClearExec = useMemo(() => {
+    return (!file && content=='' ) || loading || recording;
+  }, [content, file, loading, recording]);
+
+  const disabledMicExec = useMemo(() => {
+    return loading;
+  }, [loading]);
 
   const onClickExec = useCallback(() => {
     if (loading) return;
+    setContent('');
     stopTranscription();
     clearTranscripts()
     transcribe();
-  }, [transcribe, loading, stopTranscription, clearTranscripts]);
+  }, [loading, setContent, stopTranscription, clearTranscripts, transcribe]);
 
   const onClickClear = useCallback(() => {
     if (ref.current) {
       ref.current.value = '';
     }
+    setContent('');
     stopTranscription();
     clear();
     clearTranscripts()
-  }, [clear, stopTranscription, clearTranscripts]);
+  }, [setContent, stopTranscription, clear, clearTranscripts]);
 
   const onClickExecStartTranscription = useCallback(() => {
     if (ref.current) {
       ref.current.value = '';
     }
+    setContent('');
     clear();
     clearTranscripts();
     startTranscription();
-  }, [clear, clearTranscripts, startTranscription]);
+  }, [clear, clearTranscripts, setContent, startTranscription]);
 
   return (
     <div className="grid grid-cols-12">
@@ -79,33 +121,28 @@ const TranscribePage: React.FC = () => {
             mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
           </p>
           <div className="flex justify-end gap-3">
-            <Button outlined disabled={disabledExec} onClick={onClickClear}>
+            <Button outlined disabled={disableClearExec} onClick={onClickClear}>
               クリア
             </Button>
             <Button disabled={disabledExec} onClick={onClickExec}>
               実行
             </Button>
             {recording ? (
-              <Button onClick={stopTranscription}>
+              <Button disabled={disabledMicExec}  onClick={stopTranscription}>
                 <PiMicrophone /> 音声認識中
               </Button>
             ) : (
-              <Button outlined onClick={onClickExecStartTranscription}>
+              <Button outlined disabled={disabledMicExec} onClick={onClickExecStartTranscription}>
                 <PiMicrophoneSlash /> 音声認識停止中
               </Button>
             )
             }
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            {transcriptData && transcriptData.transcript && (
-              <Markdown>{transcriptData.transcript}</Markdown>
+            {content != '' && (
+              <Markdown>{content}</Markdown>
             )}
-            {transcriptMic && transcriptMic.length > 0 && (
-              <Markdown> 
-                {transcriptMic.map((t) => t.transcript).join(" ")}
-              </Markdown>
-            )}
-            {(!loading && !transcriptData?.transcript) && (!recording && transcriptMic.length == 0) && (
+            {(!loading && content=='') && (
               <div className="text-gray-500">
                 音声認識結果がここに表示されます
               </div>
@@ -114,8 +151,8 @@ const TranscribePage: React.FC = () => {
               <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
             <div className="flex w-full justify-end">
-              {transcriptData && transcriptData.transcript && (
-                <ButtonCopy text={transcriptData.transcript}></ButtonCopy>
+              {content && content && (
+                <ButtonCopy text={content}></ButtonCopy>
               )}
             </div>
           </div>
