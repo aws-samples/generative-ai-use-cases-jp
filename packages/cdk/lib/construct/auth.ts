@@ -14,7 +14,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export interface AuthProps {
   selfSignUpEnabled: boolean;
-  allowedSignUpEmailDomains: string[] | null;
+  allowedSignUpEmailDomains: string[] | null | undefined;
 }
 
 export class Auth extends Construct {
@@ -55,22 +55,22 @@ export class Auth extends Construct {
     });
 
     // Lambda
-    const checkEmailDomainFunction = new NodejsFunction(
-      this,
-      'CheckEmailDomain',
-      {
-        runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/checkEmailDomain.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
-            props.allowedSignUpEmailDomains
-          ),
-        },
-      }
-    );
+    if (!(props.allowedSignUpEmailDomains === undefined || props.allowedSignUpEmailDomains === null)) {
+      const checkEmailDomainFunction = new NodejsFunction(
+        this,
+        'CheckEmailDomain',
+        {
+          runtime: Runtime.NODEJS_18_X,
+          entry: './lambda/checkEmailDomain.ts',
+          timeout: Duration.minutes(15),
+          environment: {
+            ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
+              props.allowedSignUpEmailDomains
+            ),
+          },
+        }
+      );
 
-    if (props.allowedSignUpEmailDomains !== null) {
       userPool.addTrigger(
         UserPoolOperation.PRE_SIGN_UP,
         checkEmailDomainFunction

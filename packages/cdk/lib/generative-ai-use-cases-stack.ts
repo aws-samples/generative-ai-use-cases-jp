@@ -26,7 +26,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
-    const allowedSignUpEmailDomains: string[] | null = this.node.tryGetContext(
+    const allowedSignUpEmailDomains: string[] | null | undefined = this.node.tryGetContext(
       'allowedSignUpEmailDomains'
     );
 
