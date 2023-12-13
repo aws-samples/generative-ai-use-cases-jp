@@ -30,8 +30,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       'allowedSignUpEmailDomains'
     );
 
-    console.log(allowedSignUpEmailDomains);
-
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
     }
