@@ -149,7 +149,7 @@ context の `selfSignUpEnabled` に `false` を指定します。(デフォル�
 ```
 
 ### サインアップできるメールアドレスのドメインを制限する
-context の allowedSingUpEmailDomains に 許可するドメインのリストを指定します（デフォルトは`null`）。
+context の allowedSignUpEmailDomains に 許可するドメインのリストを指定します（デフォルトは`null`）。
 
 値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
 
@@ -167,7 +167,7 @@ context の allowedSingUpEmailDomains に 許可するドメインのリスト�
 ```json
 {
   "context": {
-    "allowedSingUpEmailDomains": ["amazon.com"], // null から、許可ドメインを指定することで有効化
+    "allowedSignUpEmailDomains": ["amazon.com"], // null から、許可ドメインを指定することで有効化
   }
 }
 ```
@@ -177,7 +177,7 @@ context の allowedSingUpEmailDomains に 許可するドメインのリスト�
 ```json
 {
   "context": {
-    "allowedSingUpEmailDomains": ["amazon.com", "amazon.jp"], // null から、許可ドメインを指定することで有効化
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // null から、許可ドメインを指定することで有効化
   }
 }
 ```

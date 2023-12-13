@@ -14,7 +14,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export interface AuthProps {
   selfSignUpEnabled: boolean;
-  allowedSingUpEmailDomains: string[] | null;
+  allowedSignUpEmailDomains: string[] | null;
 }
 
 export class Auth extends Construct {
@@ -64,14 +64,14 @@ export class Auth extends Construct {
         entry: './lambda/checkEmailDomain.ts',
         timeout: Duration.minutes(15),
         environment: {
-          ALLOWED_SING_UP_EMAIL_DOMAINS_STR: JSON.stringify(
-            props.allowedSingUpEmailDomains
+          ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
+            props.allowedSignUpEmailDomains
           ),
         },
       }
     );
 
-    if (props.allowedSingUpEmailDomains !== null) {
+    if (props.allowedSignUpEmailDomains !== null) {
       userPool.addTrigger(
         UserPoolOperation.PRE_SIGN_UP,
         checkEmailDomainFunction

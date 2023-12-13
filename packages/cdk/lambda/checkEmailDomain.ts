@@ -1,10 +1,10 @@
 import { PreSignUpTriggerEvent, Context, Callback } from 'aws-lambda';
 
-const ALLOWED_SING_UP_EMAIL_DOMAINS_STR =
-  process.env.ALLOWED_SING_UP_EMAIL_DOMAINS_STR;
-const ALLOWED_SING_UP_EMAIL_DOMAINS: string[] =
-  ALLOWED_SING_UP_EMAIL_DOMAINS_STR
-    ? JSON.parse(ALLOWED_SING_UP_EMAIL_DOMAINS_STR)
+const ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR =
+  process.env.ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR;
+const ALLOWED_SIGN_UP_EMAIL_DOMAINS: string[] =
+  ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR
+    ? JSON.parse(ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR)
     : []; // 環境変数で設定されていない場合は、空の配列を設定しどのドメインも許可しない
 
 // メールアドレスのドメインを許可するかどうかを判定する
@@ -16,9 +16,9 @@ const checkEmailDomain = (email: string): boolean => {
 
   // メールアドレスのドメイン部分が、許可ドメインの"いずれか"と一致すれば許可する
   // それ以外の場合は、許可しない
-  // (ALLOWED_SING_UP_EMAIL_DOMAINSが空の場合は、常に許可しない)
+  // (ALLOWED_SIGN_UP_EMAIL_DOMAINSが空の場合は、常に許可しない)
   const domain = email.split('@')[1];
-  return ALLOWED_SING_UP_EMAIL_DOMAINS.includes(domain);
+  return ALLOWED_SIGN_UP_EMAIL_DOMAINS.includes(domain);
 };
 
 /**
