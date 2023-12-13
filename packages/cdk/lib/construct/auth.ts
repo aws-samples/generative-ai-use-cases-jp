@@ -21,7 +21,6 @@ export class Auth extends Construct {
   readonly userPool: UserPool;
   readonly client: UserPoolClient;
   readonly idPool: IdentityPool;
-  readonly checkEmailDomainFunction: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
@@ -81,6 +80,5 @@ export class Auth extends Construct {
     this.client = client;
     this.userPool = userPool;
     this.idPool = idPool;
-    this.checkEmailDomainFunction = checkEmailDomainFunction;
   }
 }
