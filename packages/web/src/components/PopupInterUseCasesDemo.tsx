@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { BaseProps } from '../@types/common';
-import { PiArrowFatRightFill, PiCaretDown, PiX } from 'react-icons/pi';
+import {
+  PiArrowFatRightFill,
+  PiCaretDown,
+  PiX,
+  PiCircleFill,
+  PiCheckCircleFill,
+} from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import useInterUseCases from '../hooks/useInterUseCases';
 
@@ -18,21 +24,16 @@ const PopupInterUseCasesDemo: React.FC<Props> = () => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="fixed top-0 z-50 ml-10  w-11/12 pt-1 lg:left-1/3 lg:w-1/2 lg:p-3">
-      <div className="border-aws-squid-ink/50 relative rounded border bg-white p-3 shadow-lg">
-        <div className="flex w-full">
-          <div
-            className=" flex w-full cursor-pointer items-center rounded font-bold hover:bg-gray-200"
-            onClick={() => {
-              setIsOpen(!isOpen);
-            }}>
-            <PiCaretDown
-              className={`transition ${!isOpen && 'rotate-180'} mr-2`}
-            />
-            {title}
-          </div>
+    <div className="fixed top-0 z-10 ml-10 w-11/12 pt-1 lg:left-1/3 lg:w-1/2 lg:p-3">
+      <div className="bg-white text-aws-squid-ink shadow-xl border">
+        <div className="cursor-pointer flex items-center justify-between" onClick={() => {
+          setIsOpen(!isOpen);
+        }}>
+          <PiCaretDown
+            className={`transition ${!isOpen && 'rotate-180'} mr-2`}
+          />
+          {title}
           <ButtonIcon
-            className={`right-1 top-1 -m-1 `}
             onClick={() => {
               setIsShow(false);
             }}>
@@ -40,24 +41,39 @@ const PopupInterUseCasesDemo: React.FC<Props> = () => {
           </ButtonIcon>
         </div>
 
+        <div className="flex items-center justify-between px-24 pb-8">
+          <div className="relative">
+            <PiCheckCircleFill className="text-aws-smile text-2xl bg-white z-10 cursor-pointer"/>
+            <div className="absolute left-1/2 top-6 -translate-x-1/2 text-sm">
+              hogehogehogehgoe
+            </div>
+          </div>
+          <div className="border-t-4 border-aws-smile grow"/>
+          <PiCheckCircleFill className="text-aws-smile text-2xl bg-white z-10 cursor-pointer"/>
+          <div className="border-t-4 border-aws-smile grow"/>
+          <PiCircleFill className="text-aws-smile text-2xl z-10 bg-white cursor-pointer"/>
+          <div className="border-t border-gray-300 grow"/>
+          <PiCircleFill className="text-aws-smile text-xl z-10 bg-white cursor-pointer"/>
+          <div className="border-t border-gray-300 grow"/>
+          <PiCircleFill className="text-gray-400 text-xl z-10 bg-white cursor-pointer"/>
+        </div>
+
+        {/*
         <div
           className={`origin-top transition ${
-            isOpen ? 'visible mt-3 ' : 'h-0 scale-y-0'
-          }`}>
-          <div className=" grid grid-cols-3 gap-2 text-sm">
+            isOpen ? 'visible' : 'h-0 scale-y-0'
+          } duration-1000`}>
+          <div className=" grid grid-cols-3 gap-2 text-sm bg-aws-squid-ink">
             {useCases.map((usecase, idx) => (
               <div
                 key={idx}
-                className={`${
-                  idx === currentIndex &&
-                  'border-aws-squid-ink border font-bold'
-                } 
+                className={`
                 ${
                   idx > currentIndex + 1 || idx < currentIndex - 1
-                    ? 'opacity-50 hover:brightness-100'
-                    : 'cursor-pointer hover:brightness-75 '
+                    ? 'bg-gray-400'
+                    : 'cursor-pointer'
                 }
-                  bg-aws-smile relative mx-2  rounded p-1 px-2 text-white shadow  `}
+                  bg-aws-smile text-white`}
                 onClick={() => {
                   if (idx > currentIndex + 1 || idx < currentIndex - 1) {
                     return;
@@ -65,22 +81,29 @@ const PopupInterUseCasesDemo: React.FC<Props> = () => {
                   setCurrentIndex(idx);
                   navigateUseCase(idx);
                 }}>
-                <div>{usecase.title}</div>
-                <PiArrowFatRightFill
-                  className={`text-aws-squid-ink absolute -right-5 top-2 ${
-                    useCases.length - 1 === idx && 'invisible'
-                  }`}
-                />
+                <div>
+                  {usecase.title}
+                  {idx === currentIndex && (<>
+                    NOW
+                  </>)}
+                  {idx === currentIndex + 1 && (<>
+                    NEXT
+                  </>)}
+                </div>
+                {useCases.length - 1 !== idx && (
+                  <PiArrowFatRightFill className="text-white"/>
+                )}
               </div>
             ))}
           </div>
-          <div className="mt-2 rounded border p-2 text-xs">
+          <div className="text-xs">
             {useCases[currentIndex].description &&
-              useCases[currentIndex].description
-                .split('\n')
-                .map((s, idx) => <div key={idx}>{s}</div>)}
+             useCases[currentIndex].description
+                                   .split('\n')
+                                   .map((s, idx) => <div key={idx}>{s}</div>)}
           </div>
         </div>
+          */}
       </div>
     </div>
   );
