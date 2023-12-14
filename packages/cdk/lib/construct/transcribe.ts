@@ -133,13 +133,15 @@ export class Transcribe extends Construct {
 
     // add Policy for Amplify User
     // grant access policy transcribe stream and translate
-    props.idPool.authenticatedRole.attachInlinePolicy(new Policy(this, 'GrantAccessTranscribeStream', {
-      statements: [new PolicyStatement({
-        actions: [
-          'transcribe:StartStreamTranscriptionWebSocket',
+    props.idPool.authenticatedRole.attachInlinePolicy(
+      new Policy(this, 'GrantAccessTranscribeStream', {
+        statements: [
+          new PolicyStatement({
+            actions: ['transcribe:StartStreamTranscriptionWebSocket'],
+            resources: ['*'],
+          }),
         ],
-        resources: ['*'],
-      })],
-    }))
+      })
+    );
   }
 }

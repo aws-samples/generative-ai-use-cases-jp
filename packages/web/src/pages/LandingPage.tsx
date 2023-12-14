@@ -120,7 +120,7 @@ const LandingPage: React.FC = () => {
 
   const demoBlog = () => {
     setIsShow(true);
-    init('ブログ記事作成【ユースケース間連携】', [
+    init('ブログ記事作成', [
       {
         title: '参考情報の取得',
         description: `URL を指定して、記事の参考となる情報を自動取得します。
@@ -189,7 +189,7 @@ const LandingPage: React.FC = () => {
 
   const demoMeetingReport = () => {
     setIsShow(true);
-    init('議事録作成【ユースケース間連携】', [
+    init('議事録作成', [
       {
         title: '文字起こし',
         description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
@@ -240,16 +240,16 @@ const LandingPage: React.FC = () => {
         生成系 AI を体験してみましょう。
       </div>
 
-      <h1 className="mt-6 flex justify-center text-2xl font-bold">
-        ユースケース一覧
-      </h1>
-
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
         <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
           デモ
         </Button>
         をクリックすることで、各ユースケースを体験できます。
       </div>
+
+      <h1 className="mb-6 flex justify-center text-2xl font-bold">
+        ユースケース一覧
+      </h1>
 
       <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
@@ -302,14 +302,21 @@ const LandingPage: React.FC = () => {
           icon={<PiImages />}
           description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
         />
+      </div>
+
+      <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
+        ユースケース連携
+      </h1>
+
+      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
-          label="ブログ記事作成【ユースケース間連携】"
+          label="ブログ記事作成"
           onClickDemo={demoBlog}
           icon={<PiPen />}
           description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。このデモでは、AWS 公式ページの情報を元に生成系 AI を紹介するブログ記事を生成します。"
         />
         <CardDemo
-          label="議事録作成【ユースケース間連携】"
+          label="議事録作成"
           onClickDemo={demoMeetingReport}
           icon={<PiNotebook />}
           description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"

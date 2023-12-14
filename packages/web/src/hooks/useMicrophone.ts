@@ -1,15 +1,14 @@
 import {
   StartStreamTranscriptionCommand,
   TranscribeStreamingClient,
-} from "@aws-sdk/client-transcribe-streaming";
-import MicrophoneStream from "microphone-stream";
-import { useState, useEffect } from "react";
-import update from "immutability-helper";
-import { Buffer } from "buffer";
+} from '@aws-sdk/client-transcribe-streaming';
+import MicrophoneStream from 'microphone-stream';
+import { useState, useEffect } from 'react';
+import update from 'immutability-helper';
+import { Buffer } from 'buffer';
 import { Auth } from 'aws-amplify';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-
 
 const pcmEncodeChunk = (chunk: Buffer) => {
   const input = MicrophoneStream.toRaw(chunk);
@@ -38,13 +37,14 @@ const useMicrophone = () => {
       transcript: string;
     }[]
   >([]);
-  const [transcribeClient, setTranscribeClient] = useState<TranscribeStreamingClient>();
+  const [transcribeClient, setTranscribeClient] =
+    useState<TranscribeStreamingClient>();
 
   useEffect(() => {
     // break if already set
-    if (transcribeClient) return
+    if (transcribeClient) return;
 
-    Auth.currentSession().then(data => {
+    Auth.currentSession().then((data) => {
       const transcribe = new TranscribeStreamingClient({
         region,
         credentials: fromCognitoIdentityPool({
@@ -55,19 +55,18 @@ const useMicrophone = () => {
           },
         }),
       });
-      setTranscribeClient(transcribe)
-    })
+      setTranscribeClient(transcribe);
+    });
   }, [transcribeClient]);
 
-
   const startStream = async (mic: MicrophoneStream) => {
-    if (!transcribeClient) return
+    if (!transcribeClient) return;
 
     const audioStream = async function* () {
       for await (const chunk of mic as unknown as Buffer[]) {
         yield {
           AudioEvent: {
-            AudioChunk: pcmEncodeChunk(chunk)
+            AudioChunk: pcmEncodeChunk(chunk),
           },
         };
       }
@@ -76,8 +75,8 @@ const useMicrophone = () => {
     const command = new StartStreamTranscriptionCommand({
       // LanguageCode: languageCode,
       IdentifyLanguage: true,
-      LanguageOptions: "en-US,ja-JP",
-      MediaEncoding: "pcm",
+      LanguageOptions: 'en-US,ja-JP',
+      MediaEncoding: 'pcm',
       MediaSampleRateHertz: 48000,
       AudioStream: audioStream(),
     });
@@ -99,9 +98,9 @@ const useMicrophone = () => {
               // transcript from array to string
               const transcript = (
                 result.Alternatives?.map(
-                  (alternative) => alternative.Transcript ?? ""
+                  (alternative) => alternative.Transcript ?? ''
                 ) ?? []
-              ).join("");
+              ).join('');
 
               const index = prev.length - 1;
 
@@ -135,13 +134,13 @@ const useMicrophone = () => {
             });
           }
         }
-      }  
+      }
     } catch (error) {
-      console.error(error)
-      stopTranscription()
+      console.error(error);
+      stopTranscription();
     } finally {
-      stopTranscription()
-      transcribeClient.destroy()
+      stopTranscription();
+      transcribeClient.destroy();
     }
   };
 

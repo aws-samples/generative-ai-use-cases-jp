@@ -4,12 +4,9 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import useTranscribe from '../hooks/useTranscribe';
-import useMicrophone from "../hooks/useMicrophone";
+import useMicrophone from '../hooks/useMicrophone';
 import Markdown from '../components/Markdown';
-import {
-  PiMicrophone,
-  PiMicrophoneSlash
-} from 'react-icons/pi';
+import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
 
 type StateType = {
   content: string;
@@ -35,7 +32,7 @@ const TranscribePage: React.FC = () => {
     stopTranscription,
     transcriptMic,
     recording,
-    clearTranscripts
+    clearTranscripts,
   } = useMicrophone();
   const { content, setContent } = useTranscribeState();
   const ref = useRef<HTMLInputElement>(null);
@@ -49,14 +46,14 @@ const TranscribePage: React.FC = () => {
 
   useEffect(() => {
     if (transcriptData && transcriptData.transcript) {
-      setContent(transcriptData.transcript)
+      setContent(transcriptData.transcript);
     }
   }, [setContent, transcriptData]);
 
   useEffect(() => {
     if (transcriptMic && transcriptMic.length > 0) {
-      const _content: string = transcriptMic.map((t) => t.transcript).join(" ")
-      setContent(_content)
+      const _content: string = transcriptMic.map((t) => t.transcript).join(' ');
+      setContent(_content);
     }
   }, [setContent, transcriptMic]);
 
@@ -65,7 +62,7 @@ const TranscribePage: React.FC = () => {
   }, [file, loading, recording]);
 
   const disableClearExec = useMemo(() => {
-    return (!file && content=='' ) || loading || recording;
+    return (!file && content == '') || loading || recording;
   }, [content, file, loading, recording]);
 
   const disabledMicExec = useMemo(() => {
@@ -76,7 +73,7 @@ const TranscribePage: React.FC = () => {
     if (loading) return;
     setContent('');
     stopTranscription();
-    clearTranscripts()
+    clearTranscripts();
     transcribe();
   }, [loading, setContent, stopTranscription, clearTranscripts, transcribe]);
 
@@ -87,7 +84,7 @@ const TranscribePage: React.FC = () => {
     setContent('');
     stopTranscription();
     clear();
-    clearTranscripts()
+    clearTranscripts();
   }, [setContent, stopTranscription, clear, clearTranscripts]);
 
   const onClickExecStartTranscription = useCallback(() => {
@@ -128,21 +125,21 @@ const TranscribePage: React.FC = () => {
               実行
             </Button>
             {recording ? (
-              <Button disabled={disabledMicExec}  onClick={stopTranscription}>
+              <Button disabled={disabledMicExec} onClick={stopTranscription}>
                 <PiMicrophone /> 音声認識中
               </Button>
             ) : (
-              <Button outlined disabled={disabledMicExec} onClick={onClickExecStartTranscription}>
+              <Button
+                outlined
+                disabled={disabledMicExec}
+                onClick={onClickExecStartTranscription}>
                 <PiMicrophoneSlash /> 音声認識停止中
               </Button>
-            )
-            }
+            )}
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            {content != '' && (
-              <Markdown>{content}</Markdown>
-            )}
-            {(!loading && content=='') && (
+            {content != '' && <Markdown>{content}</Markdown>}
+            {!loading && content == '' && (
               <div className="text-gray-500">
                 音声認識結果がここに表示されます
               </div>
