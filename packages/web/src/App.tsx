@@ -176,7 +176,6 @@ const App: React.FC = () => {
             <div className="w-10" />
           </header>
 
-          {isShow && <PopupInterUseCasesDemo />}
           <div
             className={`fixed -left-64 top-0 z-50 transition-all lg:left-0 lg:z-0 ${
               isOpenDrawer ? 'left-0' : '-left-64'
@@ -199,6 +198,8 @@ const App: React.FC = () => {
             </ButtonIcon>
           </div>
           <div className="text-aws-font-color lg:ml-64" id="main">
+            {/* ユースケース間連携時に表示 */}
+            {isShow && <PopupInterUseCasesDemo />}
             <Outlet />
           </div>
         </main>
