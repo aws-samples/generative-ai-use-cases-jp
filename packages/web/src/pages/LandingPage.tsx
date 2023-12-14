@@ -240,11 +240,18 @@ const LandingPage: React.FC = () => {
         生成系 AI を体験してみましょう。
       </div>
 
-      <h1 className="my-6 flex justify-center text-2xl font-bold">
+      <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
+        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
+          デモ
+        </Button>
+        をクリックすることで、各ユースケースを体験できます。
+      </div>
+
+      <h1 className="mb-6 flex justify-center text-2xl font-bold">
         ユースケース一覧
       </h1>
 
-      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
           label="チャット"
           onClickDemo={demoChat}
@@ -295,6 +302,13 @@ const LandingPage: React.FC = () => {
           icon={<PiImages />}
           description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
         />
+      </div>
+
+      <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
+        ユースケース連携
+      </h1>
+
+      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
           label="ブログ記事作成"
           onClickDemo={demoBlog}
