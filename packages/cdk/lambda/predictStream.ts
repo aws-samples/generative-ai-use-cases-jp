@@ -20,7 +20,6 @@ export const handler = awslambda.streamifyResponse(
     for await (const token of api.invokeStream(event.messages)) {
       responseStream.write(token);
     }
-    
     responseStream.end();
   }
 );
