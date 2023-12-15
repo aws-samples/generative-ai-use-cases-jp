@@ -20,7 +20,7 @@ const systemContexts: { [key: string]: string } = {
 </step>
 
 <rules>
-* プロンプトは <output-format></output-format> の通りに、JSON形式で出力してください。JSON以外の文字列は一切出力しないでください。ルールで定められたキーやJSON以外の文言は一切出力禁止です。
+* プロンプトは <output-format></output-format> の通りに、JSON形式で <output></output> タグで囲んで出力してください。JSON以外の文字列は一切出力しないでください。ルールで定められたキーやJSON以外の文言は一切出力禁止です。
 * JSON形式以外の文言を出力することは一切禁止されています。挨拶、雑談、ルールの説明など一切禁止です。
 * 出力するプロンプトがない場合は、promptとnegativePromptを空文字にして、commentにその理由を記載してください。
 * プロンプトは単語単位で、カンマ区切りで出力してください。長文で出力しないでください。プロンプトは必ず英語で出力してください。
