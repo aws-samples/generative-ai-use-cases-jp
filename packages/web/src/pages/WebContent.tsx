@@ -10,6 +10,7 @@ import ButtonCopy from '../components/ButtonCopy';
 import Alert from '../components/Alert';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
+import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { webContentPrompt } from '../prompts';
 import { WebContentPageLocationState } from '../@types/navigate';
@@ -87,6 +88,7 @@ const WebContent: React.FC = () => {
   const { state, pathname } =
     useLocation() as Location<WebContentPageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { getWebText } = useChatApi();
   const [showError, setShowError] = useState(false);
 
@@ -100,6 +102,10 @@ const WebContent: React.FC = () => {
       setContext(state.context);
     }
   }, [state, setUrl, setContext]);
+
+  useEffect(() => {
+    setTypingTextInput(content);
+  }, [content]);
 
   const getContent = useCallback(
     (text: string, context: string) => {
@@ -221,7 +227,7 @@ const WebContent: React.FC = () => {
           </div>
 
           <div className="mt-2 rounded border border-black/30 p-1.5">
-            <Markdown>{content}</Markdown>
+            <Markdown>{typingTextOutput}</Markdown>
             {!loading && content === '' && (
               <div className="text-gray-500">
                 抽出された文章がここに表示されます

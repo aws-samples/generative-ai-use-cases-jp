@@ -7,6 +7,7 @@ import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
+import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { summarizePrompt } from '../prompts';
 import { SummarizePageLocationState } from '../@types/navigate';
@@ -63,6 +64,7 @@ const SummarizePage: React.FC = () => {
   const { state, pathname } =
     useLocation() as Location<SummarizePageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { setTypingTextInput, typingTextOutput } = useTyping(loading);
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -75,6 +77,10 @@ const SummarizePage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
+
+  useEffect(() => {
+    setTypingTextInput(summarizedSentence);
+  }, [summarizedSentence]);
 
   const getSummary = (sentence: string, context: string) => {
     postChat(
@@ -145,7 +151,7 @@ const SummarizePage: React.FC = () => {
           </div>
 
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            <Markdown>{summarizedSentence}</Markdown>
+            <Markdown>{typingTextOutput}</Markdown>
             {!loading && summarizedSentence === '' && (
               <div className="text-gray-500">
                 要約された文章がここに表示されます

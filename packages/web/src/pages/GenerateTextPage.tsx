@@ -6,6 +6,7 @@ import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
+import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { generateTextPrompt } from '../prompts';
 import { GenerateTextPageLocationState } from '../@types/navigate';
@@ -62,6 +63,7 @@ const GenerateTextPage: React.FC = () => {
   const { state, pathname } =
     useLocation() as Location<GenerateTextPageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { setTypingTextInput, typingTextOutput } = useTyping(loading);
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;
@@ -74,6 +76,10 @@ const GenerateTextPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
+
+  useEffect(() => {
+    setTypingTextInput(text);
+  }, [text]);
 
   const getGeneratedText = (information: string, context: string) => {
     postChat(
@@ -140,7 +146,7 @@ const GenerateTextPage: React.FC = () => {
           </div>
 
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            <Markdown>{text}</Markdown>
+            <Markdown>{typingTextOutput}</Markdown>
             {!loading && text === '' && (
               <div className="text-gray-500">
                 生成された文章がここに表示されます
