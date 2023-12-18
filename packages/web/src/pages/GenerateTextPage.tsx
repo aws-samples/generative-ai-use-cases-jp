@@ -79,7 +79,7 @@ const GenerateTextPage: React.FC = () => {
 
   useEffect(() => {
     setTypingTextInput(text);
-  }, [text]);
+  }, [text, setTypingTextInput]);
 
   const getGeneratedText = (information: string, context: string) => {
     postChat(

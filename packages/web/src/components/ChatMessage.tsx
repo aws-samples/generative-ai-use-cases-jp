@@ -25,13 +25,15 @@ const ChatMessage: React.FC<Props> = (props) => {
   const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
-  const { setTypingTextInput, typingTextOutput } = useTyping(chatContent?.role === 'assistant' && props.loading);
+  const { setTypingTextInput, typingTextOutput } = useTyping(
+    chatContent?.role === 'assistant' && props.loading
+  );
 
   useEffect(() => {
     if (chatContent?.content) {
       setTypingTextInput(chatContent?.content);
     }
-  }, [chatContent]);
+  }, [chatContent, setTypingTextInput]);
 
   const disabled = useMemo(() => {
     return isSendingFeedback || !props.chatContent?.id;

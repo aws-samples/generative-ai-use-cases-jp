@@ -80,7 +80,7 @@ const SummarizePage: React.FC = () => {
 
   useEffect(() => {
     setTypingTextInput(summarizedSentence);
-  }, [summarizedSentence]);
+  }, [summarizedSentence, setTypingTextInput]);
 
   const getSummary = (sentence: string, context: string) => {
     postChat(

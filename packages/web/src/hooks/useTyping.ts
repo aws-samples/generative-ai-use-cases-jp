@@ -14,7 +14,7 @@ const useTyping = (typing?: boolean) => {
 
       return () => clearTimeout(timeout);
     }
-  }, [typingTextInput, currentIndex]);
+  }, [typingTextInput, currentIndex, typing]);
 
   const typingTextOutput = useMemo(() => {
     if (typing) {
@@ -23,12 +23,12 @@ const useTyping = (typing?: boolean) => {
       // typing が false の場合は typingTextInput のまま返す
       return typingTextInput;
     }
-  }, [typingTextInput, currentIndex]);
+  }, [typingTextInput, currentIndex, typing]);
 
   return {
     setTypingTextInput,
     typingTextOutput,
-  }
+  };
 };
 
 export default useTyping;

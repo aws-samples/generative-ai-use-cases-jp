@@ -105,7 +105,7 @@ const WebContent: React.FC = () => {
 
   useEffect(() => {
     setTypingTextInput(content);
-  }, [content]);
+  }, [content, setTypingTextInput]);
 
   const getContent = useCallback(
     (text: string, context: string) => {
