@@ -13,8 +13,12 @@ import useChatApi from '../hooks/useChatApi';
 import { create } from 'zustand';
 import { webContentPrompt } from '../prompts';
 import { WebContentPageLocationState } from '../@types/navigate';
+import { SelectField } from '@aws-amplify/ui-react';
+import { MODELS } from '../hooks/useModel';
 
 type StateType = {
+  modelId: string;
+  setModelId: (c: string) => void;
   url: string;
   setUrl: (s: string) => void;
   fetching: boolean;
@@ -30,6 +34,7 @@ type StateType = {
 
 const useWebContentPageState = create<StateType>((set) => {
   const INIT_STATE = {
+    modelId: '',
     url: '',
     fetching: false,
     text: '',
@@ -38,6 +43,11 @@ const useWebContentPageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
+    setModelId: (s: string) => {
+      set(() => ({
+        modelId: s,
+      }));
+    },
     setUrl: (s: string) => {
       set(() => ({
         url: s,
@@ -71,6 +81,8 @@ const useWebContentPageState = create<StateType>((set) => {
 
 const WebContent: React.FC = () => {
   const {
+    modelId,
+    setModelId,
     url,
     setUrl,
     fetching,
@@ -89,6 +101,7 @@ const WebContent: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { getWebText } = useChatApi();
   const [showError, setShowError] = useState(false);
+  const { modelIds: availableModels, textModels } = MODELS;
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;
@@ -101,17 +114,24 @@ const WebContent: React.FC = () => {
     }
   }, [state, setUrl, setContext]);
 
+  useEffect(() => {
+    if (!modelId) {
+      setModelId(availableModels[0]);
+    }
+  }, [modelId, availableModels, setModelId]);
+
   const getContent = useCallback(
-    (text: string, context: string) => {
+    (modelId: string, text: string, context: string) => {
       postChat(
-        webContentPrompt({
+        webContentPrompt.generatePrompt({
           text,
           context,
         }),
-        true
+        true,
+        textModels.find((m) => m.modelId === modelId)
       );
     },
-    [postChat]
+    [textModels, postChat]
   );
 
   const onClickExec = useCallback(async () => {
@@ -135,8 +155,9 @@ const WebContent: React.FC = () => {
     const text = res!.data.text;
 
     setText(text);
-    getContent(text, context);
+    getContent(modelId, text, context);
   }, [
+    modelId,
     url,
     context,
     loading,
@@ -185,6 +206,20 @@ const WebContent: React.FC = () => {
         )}
 
         <Card label="コンテンツを抽出したい Web ページ">
+          <div className="mb-4 flex w-full">
+            <SelectField
+              label="モデル"
+              labelHidden
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}>
+              {availableModels.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </SelectField>
+          </div>
+
           <div className="text-xs text-black/50">
             ブログ、記事、ドキュメント等、テキストがメインコンテンツである Web
             ページを指定してください。そうでない場合、正常に出力されないことがあります。

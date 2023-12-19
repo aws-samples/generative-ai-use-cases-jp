@@ -2,22 +2,16 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の context で設定を変更します。context の値を指定するには以下の 2 つの方法があります。**なお「`-c` オプションで変更する方法」では、コードベースに変更が入らないため、フロントエンドのビルドが実施されません。フロントエンドの更新が必要な `ragEnabled` (RAG チャットユースケースの有効化) と `selfSignUpEnabled` (セルフサインアップを無効化する) に関しては「`cdk.json` の値を変更する方法」の方法で更新しないとエラーになります。**
+このアプリケーションは、AWS CDK の context で設定を変更します。
+
+**CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
 
 ### cdk.json の値を変更する方法
 
-[packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。設定を固定化したい場合は、こちらの方法がおすすめです。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
+[packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
 
 ```bash
 npm run cdk:deploy
-```
-
-### `-c` オプションで変更する方法
-
-`npm run cdk:deploy` に `-c` オプションを付与して設定します。例えば、以下のコマンドで利用するモデルを設定します。(`--` は必要です。) デプロイオプションの検証中で、cdk.json に設定をコミットしたくない場合におすすめです。
-
-```bash
-npm run cdk:deploy -- -c modelName=anthropic.claude-instant-v1
 ```
 
 ## ユースケースの設定
@@ -76,29 +70,29 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
 
-### 画像生成の有効化
+## Amazon Bedrock のモデルを変更する
 
-画像生成のユースケースをご利用になる際は、context の値の変更は必要ありません。ただし、Stability AI の Stable Diffusion XL モデルを有効化する必要があります。[Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) を開き、「Edit」 → 「Stable Diffusion XL にチェック」 → 「Save changes」 と操作していただいて、バージニア北部リージョンにて Amazon Bedrock (基盤モデル: Stable Diffusion XL) を利用できる状態にしてください。なお、画像生成に関しては Stable Diffusion XL を有効化していない場合でもユースケースとして画面に表示されるため、注意してください。モデルを有効にしていない状態で実行するとエラーになります。
+`cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。モデルの一覧は[ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids-arns.html) をご確認ください。
 
-## Amazon Bedrock の違うモデルを利用したい場合
+**指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
-以下の形式でモデル、モデルのリージョン、プロンプトのテンプレートを指定します。promptTemplate はプロンプトを構築するためのテンプレートを JSON にしたファイル名を指定します。 (例: `claude.json`) プロンプトテンプレートの例は `prompt-templates` フォルダを参照してください。
-
-```bash
-npm run cdk:deploy -- -c modelRegion=<Region> -c modelName=<Model Name> -c promptTemplate=<Prompt Tempalte File>
-```
-
-### ap-northeast-1 (東京) の Amazon Bedrock Claude Instant を利用する例
+### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelRegion=ap-northeast-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+  "modelRegion": "us-east-1",
+  "modelIds": ["anthropic.claude-v2","anthropic.claude-instant-v1"],
+  "imageGenerateModelIds": ["stability.stable-diffusion-xl-v0","amazon.titan-image-generator-v1"],
 ```
 
-### us-east-1 (バージニア) の Amazon Bedrock Claude Instant を利用する例
+### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelRegion=us-east-1 -c modelName=anthropic.claude-instant-v1 -c promptTemplate=claude.json
+  "modelRegion": "ap-northeast-1",
+  "modelIds": ["anthropic.claude-instant-v1"],
+  "imageGenerateModelIds": [],
 ```
+
+**注：UI 上は表示されますが、Stable Diffusion および Titan Image が未対応なため、画像生成は現状 ap-northeast-1 では利用できません。**
 
 ## Amazon SageMaker のカスタムモデルを利用したい場合
 
@@ -109,28 +103,28 @@ Amazon SageMaker エンドポイントにデプロイされた大規模言語モ
  - [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
  - [elyza/ELYZA-japanese-Llama-2-7b-instruct](https://github.com/aws-samples/aws-ml-jp/blob/f57da0343d696d740bb980dc16ebf28b1221f90e/tasks/generative-ai/text-to-text/fine-tuning/instruction-tuning/Transformers/Elyza_Inference_TGI_ja.ipynb)
 
-事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のようにコマンドライン引数で指定することができます。
+事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+
+endpointNames は SageMaker エンドポイント名のリストです。（例：`elyza-llama-2,rinna`）
+バックエンドでプロンプトを構築する際のテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/promptTemplates.ts` を参照してください。
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=<SageMaker Endpoint Region> -c modelName=<SageMaker Endpoint Name> -c promptTemplate=<Prompt Template File>
+  "modelRegion": "<SageMaker Endpoint Region>",
+  "endpointNames": ["<SageMaker Endpoint Name>"],
 ```
 
-### Rinna 3.6B を利用する例
+### Rinna 3.6B と Bilingual Rinna 4B を利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16 -c promptTemplate=rinna.json
-```
-
-### Bilingual Rinna 4B を利用する例
-
-```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16 -c promptTemplate=bilingualRinna.json
+  "modelRegion": "us-west-2",
+  "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
 ```
 
 ### ELYZA-japanese-Llama-2-7b-instruct を利用する例
 
 ```bash
-npm run cdk:deploy -- -c modelType=sagemaker -c modelRegion=us-west-2 -c modelName=elyza-7b-inference -c promptTemplate=llama2.json
+  "modelRegion": "us-west-2",
+  "endpointNames": ["elyza-japanese-llama-2-7b-inference"],
 ```
 
 ## セキュリティ関連設定

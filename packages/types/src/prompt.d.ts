@@ -5,5 +5,5 @@ export type PromptTemplate = {
   user: string;
   assistant: string;
   system: string;
-  eos_token: string;
+  eosToken: string;
 };
