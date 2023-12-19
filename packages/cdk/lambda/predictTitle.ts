@@ -5,6 +5,7 @@ import {
 } from 'generative-ai-use-cases-jp';
 import { setChatTitle } from './repository';
 import api from './utils/api';
+import { defaultModel } from './utils/models';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -22,7 +23,8 @@ export const handler = async (
       },
     ];
 
-    const title = (await api.invoke(messages)).replace(
+    const model = defaultModel;
+    const title = (await api[model.type].invoke(model, messages)).replace(
       /<([^>]+)>([\s\S]*?)<\/\1>/,
       '$2'
     );

@@ -9,15 +9,25 @@ import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageLocationState } from '../@types/navigate';
+import { SelectField } from '@aws-amplify/ui-react';
+import { MODELS } from '../hooks/useModel';
 
 type StateType = {
+  modelId: string;
   content: string;
+  setModelId: (c: string) => void;
   setContent: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
+    modelId: '',
     content: '',
+    setModelId: (s: string) => {
+      set(() => ({
+        modelId: s,
+      }));
+    },
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -27,7 +37,7 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const ChatPage: React.FC = () => {
-  const { content, setContent } = useChatPageState();
+  const { modelId, content, setModelId, setContent } = useChatPageState();
   const { state, pathname } = useLocation() as Location<ChatPageLocationState>;
   const { chatId } = useParams();
 
@@ -42,6 +52,7 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
+  const { modelIds: availableModels, textModels } = MODELS;
 
   const title = useMemo(() => {
     if (chatId) {
@@ -55,15 +66,23 @@ const ChatPage: React.FC = () => {
     if (state !== null) {
       setContent(state.content);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, setContent]);
+
+  useEffect(() => {
+    if (!modelId) {
+      setModelId(availableModels[0]);
+    }
+  }, [modelId, availableModels, setModelId]);
 
   const onSend = useCallback(() => {
-    postChat(content);
+    postChat(
+      content,
+      false,
+      textModels.find((m) => m.modelId === modelId)
+    );
     setContent('');
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [modelId, content]);
 
   const onReset = useCallback(() => {
     clear();
@@ -95,6 +114,20 @@ const ChatPage: React.FC = () => {
       <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
           {title}
+        </div>
+
+        <div className="flex w-full items-end justify-center">
+          <SelectField
+            label="モデル"
+            labelHidden
+            value={modelId}
+            onChange={(e) => setModelId(e.target.value)}>
+            {availableModels.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </SelectField>
         </div>
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (

@@ -7,8 +7,14 @@ import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
 import useScroll from '../hooks/useScroll';
+import { SelectField } from '@aws-amplify/ui-react';
+import { Model } from 'generative-ai-use-cases-jp';
 
 type Props = BaseProps & {
+  modelId: string;
+  onChangeModel: (s: string) => void;
+  modelIds: string[];
+  textModels: Model[];
   content: string;
   isGeneratingImage: boolean;
   onChangeContent: (s: string) => void;
@@ -115,7 +121,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading]);
 
   const onSend = useCallback(() => {
-    postChat(props.content);
+    postChat(
+      props.content,
+      false,
+      props.textModels.find((m) => m.modelId === props.modelId)!
+    );
     props.onChangeContent('');
   }, [postChat, props]);
 
@@ -134,6 +144,18 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         <div
           id="image-assistant-chat"
           className="h-full overflow-y-auto overflow-x-hidden">
+          <div className="mb-4 flex w-full">
+            <SelectField
+              label="モデル"
+              value={props.modelId}
+              onChange={(e) => props.onChangeModel(e.target.value)}>
+              {props.modelIds.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </SelectField>
+          </div>
           {contents.length === 0 && (
             <div className="m-2 rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">

@@ -11,12 +11,16 @@ import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { editorialPrompt } from '../prompts';
 import { EditorialPageLocationState } from '../@types/navigate';
+import { SelectField } from '@aws-amplify/ui-react';
+import { MODELS } from '../hooks/useModel';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
   /[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g;
 
 type StateType = {
+  modelId: string;
+  setModelId: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -30,6 +34,7 @@ type StateType = {
 
 const useEditorialPageState = create<StateType>((set) => {
   const INIT_STATE = {
+    modelId: '',
     sentence: '',
     additionalContext: '',
     comments: [],
@@ -37,6 +42,11 @@ const useEditorialPageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
+    setModelId: (s: string) => {
+      set(() => ({
+        modelId: s,
+      }));
+    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -65,6 +75,8 @@ const useEditorialPageState = create<StateType>((set) => {
 
 const EditorialPage: React.FC = () => {
   const {
+    modelId,
+    setModelId,
     sentence,
     setSentence,
     additionalContext,
@@ -79,6 +91,7 @@ const EditorialPage: React.FC = () => {
   const { state } = useLocation() as Location<EditorialPageLocationState>;
   const { pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { modelIds: availableModels, textModels } = MODELS;
 
   // Memo 変数
   const filterComment = (
@@ -104,8 +117,13 @@ const EditorialPage: React.FC = () => {
     if (state !== null) {
       setSentence(state.sentence);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, setSentence]);
+
+  useEffect(() => {
+    if (!modelId) {
+      setModelId(availableModels[0]);
+    }
+  }, [modelId, availableModels, setModelId]);
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
@@ -125,6 +143,7 @@ const EditorialPage: React.FC = () => {
 
     // debounce した後コメント更新
     onSentenceChange(
+      modelId,
       sentence,
       additionalContext,
       comments,
@@ -132,7 +151,7 @@ const EditorialPage: React.FC = () => {
       loading
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence]);
+  }, [modelId, sentence]);
 
   // debounce した後コメントを更新
   // 入力を止めて1秒ほど待ってからコメントを更新し新規コメント追加リクエストを送信
@@ -140,6 +159,7 @@ const EditorialPage: React.FC = () => {
   const onSentenceChange = useCallback(
     debounce(
       (
+        _modelId: string,
         _sentence: string,
         _additionalContext: string,
         _comments: DocumentComment[],
@@ -157,7 +177,7 @@ const EditorialPage: React.FC = () => {
         // コメントがなくなったらコメントを取得
         const _shownComment = filterComment(_comments, _commentState);
         if (_shownComment.length === 0 && _sentence !== '' && !_loading) {
-          getAnnotation(_sentence, _additionalContext);
+          getAnnotation(_modelId, _sentence, _additionalContext);
         }
       },
       1000
@@ -198,23 +218,28 @@ const EditorialPage: React.FC = () => {
   };
 
   // LLM にリクエスト送信
-  const getAnnotation = (sentence: string, context: string) => {
+  const getAnnotation = (
+    modelId: string,
+    sentence: string,
+    context: string
+  ) => {
     setCommentState({});
     postChat(
-      editorialPrompt({
+      editorialPrompt.generatePrompt({
         sentence,
         context: context === '' ? undefined : context,
       }),
-      true
+      true,
+      textModels.find((m) => m.modelId === modelId)
     );
   };
 
   // コメントを取得
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getAnnotation(sentence, additionalContext);
+    getAnnotation(modelId, sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [modelId, sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -230,6 +255,19 @@ const EditorialPage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
+          <div className="mb-4 flex w-full">
+            <SelectField
+              label="モデル"
+              labelHidden
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}>
+              {availableModels.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </SelectField>
+          </div>
           <Texteditor
             placeholder="入力してください"
             value={sentence}
@@ -239,7 +277,6 @@ const EditorialPage: React.FC = () => {
             replaceSentence={replaceSentence}
             removeComment={removeComment}
           />
-
           <ExpandableField label="追加コンテキスト" optional>
             <Textarea
               placeholder="追加で指摘してほしい点を入力することができます"
@@ -247,7 +284,6 @@ const EditorialPage: React.FC = () => {
               onChange={setAdditionalContext}
             />
           </ExpandableField>
-
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
               クリア

@@ -14,6 +14,8 @@ import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
 import { TranslatePageLocationState } from '../@types/navigate';
+import { SelectField } from '@aws-amplify/ui-react';
+import { MODELS } from '../hooks/useModel';
 
 const languages = [
   { label: '英語' },
@@ -26,6 +28,8 @@ const languages = [
 ];
 
 type StateType = {
+  modelId: string;
+  setModelId: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -39,6 +43,7 @@ type StateType = {
 
 const useTranslatePageState = create<StateType>((set) => {
   const INIT_STATE = {
+    modelId: '',
     sentence: '',
     additionalContext: '',
     language: languages[0].label,
@@ -46,6 +51,11 @@ const useTranslatePageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
+    setModelId: (s: string) => {
+      set(() => ({
+        modelId: s,
+      }));
+    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -74,6 +84,8 @@ const useTranslatePageState = create<StateType>((set) => {
 
 const TranslatePage: React.FC = () => {
   const {
+    modelId,
+    setModelId,
     sentence,
     setSentence,
     additionalContext,
@@ -88,6 +100,7 @@ const TranslatePage: React.FC = () => {
   const { state, pathname } =
     useLocation() as Location<TranslatePageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { modelIds: availableModels, textModels } = MODELS;
 
   // Memo 変数
   const disabledExec = useMemo(() => {
@@ -100,15 +113,20 @@ const TranslatePage: React.FC = () => {
       setAdditionalContext(state.additionalContext);
       setLanguage(state.language || languages[0].label);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
+  }, [state, setSentence, setAdditionalContext, setLanguage]);
+
+  useEffect(() => {
+    if (!modelId) {
+      setModelId(availableModels[0]);
+    }
+  }, [modelId, availableModels, setModelId]);
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
     // debounce した後翻訳
-    onSentenceChange(sentence, additionalContext, language, loading);
+    onSentenceChange(modelId, sentence, additionalContext, language, loading);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, language]);
+  }, [modelId, sentence, language]);
 
   // debounce した後翻訳
   // 入力を止めて1秒ほど待ってから翻訳リクエストを送信
@@ -116,6 +134,7 @@ const TranslatePage: React.FC = () => {
   const onSentenceChange = useCallback(
     debounce(
       (
+        _modelId: string,
         _sentence: string,
         _additionalContext: string,
         _language: string,
@@ -125,7 +144,7 @@ const TranslatePage: React.FC = () => {
           setTranslatedSentence('');
         }
         if (_sentence !== '' && !_loading) {
-          getTranslation(_sentence, _language, _additionalContext);
+          getTranslation(_modelId, _sentence, _language, _additionalContext);
         }
       },
       1000
@@ -147,26 +166,28 @@ const TranslatePage: React.FC = () => {
 
   // LLM にリクエスト送信
   const getTranslation = (
+    modelId: string,
     sentence: string,
     language: string,
     context: string
   ) => {
     postChat(
-      translatePrompt({
+      translatePrompt.generatePrompt({
         sentence,
         language,
         context: context === '' ? undefined : context,
       }),
-      true
+      true,
+      textModels.find((m) => m.modelId === modelId)
     );
   };
 
   // 翻訳を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getTranslation(sentence, language, additionalContext);
+    getTranslation(modelId, sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [modelId, sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -182,6 +203,19 @@ const TranslatePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="翻訳したい文章">
+          <div className="mb-4 flex w-full">
+            <SelectField
+              label="モデル"
+              labelHidden
+              value={modelId}
+              onChange={(e) => setModelId(e.target.value)}>
+              {availableModels.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </SelectField>
+          </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
               <div className="py-3">言語を自動検出</div>

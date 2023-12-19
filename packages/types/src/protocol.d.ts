@@ -1,4 +1,5 @@
 import {
+  Model,
   RecordedMessage,
   ToBeRecordedMessage,
   UnrecordedMessage,
@@ -53,6 +54,7 @@ export type UpdateTitleResponse = {
 };
 
 export type PredictRequest = {
+  model?: Model;
   messages: UnrecordedMessage[];
 };
 
@@ -77,7 +79,10 @@ export type RetrieveKendraRequest = {
 
 export type RetrieveKendraResponse = RetrieveCommandOutput;
 
-export type GenerateImageRequest = GenerateImageParams;
+export type GenerateImageRequest = {
+  model?: Model;
+  params: GenerateImageParams;
+};
 export type GenerateImageResponse = string;
 
 export type GetSignedUrlRequest = {
@@ -101,14 +106,6 @@ export type GetTranscriptionResponse = {
 
 export type UploadAudioRequest = {
   file: File;
-};
-
-export type SettingResponse = {
-  modelType: string;
-  modelRegion: string;
-  modelName: string;
-  promptTemplateFile: string;
-  imageGenModelName: string;
 };
 
 export type WebTextRequest = {
