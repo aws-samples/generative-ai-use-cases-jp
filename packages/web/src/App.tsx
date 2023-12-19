@@ -20,7 +20,8 @@ import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
-import { Amplify, I18n } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
+import { I18n } from 'aws-amplify/utils';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
 import useConversation from './hooks/useConversation';
@@ -122,10 +123,11 @@ const extractChatId = (path: string): string | null => {
 const App: React.FC = () => {
   Amplify.configure({
     Auth: {
-      userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
-      userPoolWebClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
-      identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
-      authenticationFlowType: 'USER_SRP_AUTH',
+      Cognito: {
+        userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
+        userPoolClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
+        identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
+      },
     },
   });
 

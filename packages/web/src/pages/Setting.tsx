@@ -1,5 +1,4 @@
-import { useCallback } from 'react';
-import { Auth } from 'aws-amplify';
+import { signOut } from 'aws-amplify/auth';
 import useChatApi from '../hooks/useChatApi';
 import useVersion from '../hooks/useVersion';
 import { Link } from 'react-router-dom';
@@ -33,9 +32,6 @@ const Setting = () => {
   const { getLocalVersion, getHasUpdate } = useVersion();
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
-  const signOut = useCallback(async () => {
-    await Auth.signOut();
-  }, []);
 
   return (
     <div>

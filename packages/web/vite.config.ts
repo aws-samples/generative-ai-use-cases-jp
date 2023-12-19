@@ -8,7 +8,9 @@ export default defineConfig({
   resolve: { alias: { './runtimeConfig': './runtimeConfig.browser' } },
   plugins: [
     react(),
-    svgr(),
+    svgr({
+      exportAsDefault: true,
+    }),
     nodePolyfills({
       globals: {
         Buffer: true,

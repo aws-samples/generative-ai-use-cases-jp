@@ -23,7 +23,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { Auth } from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import useHttp from '../hooks/useHttp';
 import { decomposeChatId } from '../utils/ChatUtils';
 import { AxiosResponse } from 'axios';
@@ -88,15 +88,14 @@ const useChatApi = () => {
       const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
       const cognito = new CognitoIdentityClient({ region });
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+
       const lambda = new LambdaClient({
         region,
         credentials: fromCognitoIdentityPool({
           client: cognito,
           identityPoolId: idPoolId,
           logins: {
-            [providerName]: (await Auth.currentSession())
-              .getIdToken()
-              .getJwtToken(),
+            [providerName]: (await fetchAuthSession())?.tokens?.idToken?.toString() ?? '',
           },
         }),
       });

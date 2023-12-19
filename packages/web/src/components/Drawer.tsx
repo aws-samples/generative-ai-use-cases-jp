@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useLocation } from 'react-router-dom';
-import { Auth } from 'aws-amplify';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 import useSWR from 'swr';
 import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
@@ -95,11 +95,11 @@ const Drawer: React.FC<Props> = (props) => {
 
   // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
   const { data } = useSWR('user', async () => {
-    return await Auth.currentAuthenticatedUser();
+    return await fetchUserAttributes();
   });
 
   const email = useMemo(() => {
-    return data?.attributes?.email ?? '';
+    return data?.email ?? '';
   }, [data]);
 
   const hasUpdate = getHasUpdate();
