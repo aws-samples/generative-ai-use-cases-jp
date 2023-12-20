@@ -49,16 +49,16 @@ const PromptList: React.FC<Props> = (props) => {
       <div
         className={`fixed top-0 transition-all ${
           expanded ? 'right-0 z-50' : '-right-64 z-30'
-        } flex h-full justify-center`}>
+        } pointer-events-none flex h-full justify-center`}>
         <div
-          className="bg-aws-smile mt-16 flex h-12 w-12 cursor-pointer items-center justify-center rounded-l-full"
+          className="bg-aws-smile pointer-events-auto mt-16 flex h-12 w-12 cursor-pointer items-center justify-center rounded-l-full"
           onClick={() => {
             setExpanded(!expanded);
           }}>
           <PiBookOpenText className="text-aws-squid-ink h-6 w-6" />
         </div>
 
-        <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
+        <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
           <div className="mb-4 mt-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
             プロンプト例
