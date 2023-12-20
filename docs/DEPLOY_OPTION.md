@@ -81,7 +81,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ```bash
   "modelRegion": "us-east-1",
   "modelIds": ["anthropic.claude-v2","anthropic.claude-instant-v1"],
-  "imageGenerateModelIds": ["stability.stable-diffusion-xl-v0","amazon.titan-image-generator-v1"],
+  "imageGenerationModelIds": ["stability.stable-diffusion-xl-v0","amazon.titan-image-generator-v1"],
 ```
 
 ### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
@@ -89,7 +89,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ```bash
   "modelRegion": "ap-northeast-1",
   "modelIds": ["anthropic.claude-instant-v1"],
-  "imageGenerateModelIds": [],
+  "imageGenerationModelIds": [],
 ```
 
 **注：UI 上は表示されますが、Stable Diffusion および Titan Image が未対応なため、画像生成は現状 ap-northeast-1 では利用できません。**
