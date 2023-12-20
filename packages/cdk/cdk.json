@@ -20,7 +20,7 @@
     "ragEnabled": false,
     "kendraIndexArn": null,
     "selfSignUpEnabled": true,
-    "allowedSignUpEmailDomains": null, 
+    "allowedSignUpEmailDomains": null,
     "modelRegion": "us-east-1",
     "modelIds": ["anthropic.claude-v2"],
     "imageGenerationModelIds": ["stability.stable-diffusion-xl-v0"],
