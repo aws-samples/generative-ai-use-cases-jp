@@ -88,7 +88,7 @@ Generative AI（生成系 AI）は、ビジネスの変革に革新的な可能�
 ## デプロイ
 
 > [!IMPORTANT]
-> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock の違うモデルを利用したい場合](/docs/BEDROCK.md)を参照してください。
+> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
 
 アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
