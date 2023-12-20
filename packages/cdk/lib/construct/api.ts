@@ -53,6 +53,7 @@ export class Api extends Construct {
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
       'stability.stable-diffusion-xl-v0',
+      'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
     ];
     for (const modelId of modelIds) {

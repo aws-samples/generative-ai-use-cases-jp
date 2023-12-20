@@ -183,6 +183,10 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStableDiffusion,
     extractOutputImage: extractOutputImageStableDiffusion,
   },
+  'stability.stable-diffusion-xl-v1': {
+    createBodyImage: createBodyImageStableDiffusion,
+    extractOutputImage: extractOutputImageStableDiffusion,
+  },
   'amazon.titan-image-generator-v1': {
     createBodyImage: createBodyImageTitanImage,
     extractOutputImage: extractOutputImageTitanImage,

@@ -13,18 +13,24 @@ export type GenerateImageParams = {
 };
 
 // Stable Diffusion
-// パラメータは Stable Diffusion XL に合わせています
-// https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
+// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-diffusion-1-0-text-image.html
 export type StableDiffusionParams = {
   text_prompts: {
     text: string;
     weight: number;
   }[];
-  cfg_scale: number;
-  seed: number;
-  steps: number;
+  height?: string;
+  width?: string;
+  cfg_scale?: number;
+  clip_guidance_preset?: string;
+  sampler?: string;
+  samples?: number;
+  seed?: number;
+  steps?: number;
   style_preset?: string;
+  // Image to Image
   init_image?: string;
+  init_image_mode?: string;
   image_strength?: number;
 };
 
