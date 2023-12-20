@@ -117,9 +117,9 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
   let body: Partial<TitanImageParams> = {};
   if (params.initImage) {
     body = {
-      taskType: 'TEXT_IMAGE',
+      taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
-        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        text: (params.textPrompt.find((x) => x.weight > 0)?.text || '') + ", " + params.stylePreset,
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
         images: [params.initImage],
       },
@@ -129,7 +129,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     body = {
       taskType: 'TEXT_IMAGE',
       textToImageParams: {
-        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        text: (params.textPrompt.find((x) => x.weight > 0)?.text || '') + ", " + params.stylePreset,
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || '',
       },
       imageGenerationConfig: imageGenerationConfig,
