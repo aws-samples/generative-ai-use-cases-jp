@@ -9,6 +9,7 @@ import MenuItem from '../components/MenuItem';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import useChat from '../hooks/useChat';
+import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
@@ -100,6 +101,7 @@ const TranslatePage: React.FC = () => {
   const { state, pathname } =
     useLocation() as Location<TranslatePageLocationState>;
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
 
   // Memo 変数
@@ -114,6 +116,10 @@ const TranslatePage: React.FC = () => {
       setLanguage(state.language || languages[0].label);
     }
   }, [state, setSentence, setAdditionalContext, setLanguage]);
+
+  useEffect(() => {
+    setTypingTextInput(translatedSentence);
+  }, [translatedSentence, setTypingTextInput]);
 
   useEffect(() => {
     if (!modelId) {
@@ -243,7 +249,7 @@ const TranslatePage: React.FC = () => {
                 ))}
               </MenuDropdown>
               <div className="rounded border border-black/30 p-1.5">
-                <Markdown>{translatedSentence}</Markdown>
+                <Markdown>{typingTextOutput}</Markdown>
                 {loading && (
                   <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
