@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
@@ -8,6 +8,7 @@ import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import useChat from '../hooks/useChat';
+import useTyping from '../hooks/useTyping';
 
 type Props = BaseProps & {
   idx?: number;
@@ -23,6 +24,16 @@ const ChatMessage: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+
+  const { setTypingTextInput, typingTextOutput } = useTyping(
+    chatContent?.role === 'assistant' && props.loading
+  );
+
+  useEffect(() => {
+    if (chatContent?.content) {
+      setTypingTextInput(chatContent?.content);
+    }
+  }, [chatContent, setTypingTextInput]);
 
   const disabled = useMemo(() => {
     return isSendingFeedback || !props.chatContent?.id;
@@ -71,14 +82,14 @@ const ChatMessage: React.FC<Props> = (props) => {
           <div className="ml-5 grow ">
             {chatContent?.role === 'user' && (
               <div className="break-all">
-                {chatContent.content.split('\n').map((c, idx) => (
+                {typingTextOutput.split('\n').map((c, idx) => (
                   <div key={idx}>{c}</div>
                 ))}
               </div>
             )}
             {chatContent?.role === 'assistant' && (
               <Markdown prefix={`${props.idx}`}>
-                {chatContent.content +
+                {typingTextOutput +
                   `${
                     props.loading && (chatContent?.content ?? '') !== ''
                       ? '▍'
@@ -88,7 +99,7 @@ const ChatMessage: React.FC<Props> = (props) => {
             )}
             {chatContent?.role === 'system' && (
               <div className="break-all">
-                {chatContent.content.split('\n').map((c, idx) => (
+                {typingTextOutput.split('\n').map((c, idx) => (
                   <div key={idx}>{c}</div>
                 ))}
               </div>
@@ -107,7 +118,7 @@ const ChatMessage: React.FC<Props> = (props) => {
             <>
               <ButtonCopy
                 className="mr-0.5 text-gray-400"
-                text={chatContent.content}
+                text={chatContent?.content || ''}
               />
               {chatContent && (
                 <>
