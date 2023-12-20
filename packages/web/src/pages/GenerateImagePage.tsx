@@ -17,10 +17,16 @@ import useChat from '../hooks/useChat';
 import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
 import { GenerateImagePageLocationState } from '../@types/navigate';
+import { SelectField } from '@aws-amplify/ui-react';
+import { MODELS } from '../hooks/useModel';
 
 const MAX_SAMPLE = 7;
 
 type StateType = {
+  modelId: string;
+  setModelId: (c: string) => void;
+  imageGenModelId: string;
+  setImageGenModelId: (c: string) => void;
   prompt: string;
   setPrompt: (s: string) => void;
   negativePrompt: string;
@@ -54,6 +60,8 @@ type StateType = {
 
 const useGenerateImagePageState = create<StateType>((set, get) => {
   const INIT_STATE = {
+    modelId: '',
+    imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
     stylePreset: '',
@@ -72,6 +80,16 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
 
   return {
     ...INIT_STATE,
+    setModelId: (s: string) => {
+      set(() => ({
+        modelId: s,
+      }));
+    },
+    setImageGenModelId: (s: string) => {
+      set(() => ({
+        imageGenModelId: s,
+      }));
+    },
     setPrompt: (s) => {
       set(() => ({
         prompt: s,
@@ -186,6 +204,10 @@ const stylePresetOptions = [
 
 const GenerateImagePage: React.FC = () => {
   const {
+    modelId,
+    setModelId,
+    imageGenModelId,
+    setImageGenModelId,
     prompt,
     setPrompt,
     negativePrompt,
@@ -221,6 +243,7 @@ const GenerateImagePage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const { modelIds, imageGenModelIds, textModels, imageGenModels } = MODELS;
 
   // LandingPage のデモデータ設定
   useEffect(() => {
@@ -228,6 +251,18 @@ const GenerateImagePage: React.FC = () => {
       setChatContent(state.content);
     }
   }, [setChatContent, state]);
+
+  useEffect(() => {
+    if (!modelId) {
+      setModelId(modelIds[0]);
+    }
+  }, [modelId, modelIds, setModelId]);
+
+  useEffect(() => {
+    if (!imageGenModelId) {
+      setImageGenModelId(imageGenModelIds[0]);
+    }
+  }, [imageGenModelId, imageGenModelIds, setImageGenModelId]);
 
   const generateRandomSeed = useCallback(() => {
     return Math.floor(Math.random() * 4294967295);
@@ -246,24 +281,27 @@ const GenerateImagePage: React.FC = () => {
           _seed = rand;
         }
 
-        return generate({
-          textPrompt: [
-            {
-              text: _prompt,
-              weight: 1,
-            },
-            {
-              text: _negativePrompt,
-              weight: -1,
-            },
-          ],
-          cfgScale,
-          seed: _seed,
-          step,
-          stylePreset: _stylePreset ?? stylePreset,
-          initImage: initImageBase64,
-          imageStrength: imageStrength,
-        })
+        return generate(
+          {
+            textPrompt: [
+              {
+                text: _prompt,
+                weight: 1,
+              },
+              {
+                text: _negativePrompt,
+                weight: -1,
+              },
+            ],
+            cfgScale,
+            seed: _seed,
+            step,
+            stylePreset: _stylePreset ?? stylePreset,
+            initImage: initImageBase64,
+            imageStrength: imageStrength,
+          },
+          imageGenModels.find((m) => m.modelId === imageGenModelId)
+        )
           .then((res) => {
             setImage(idx, res);
           })
@@ -278,6 +316,8 @@ const GenerateImagePage: React.FC = () => {
       });
     },
     [
+      imageGenModels,
+      imageGenModelId,
       cfgScale,
       clearImage,
       generate,
@@ -346,6 +386,10 @@ const GenerateImagePage: React.FC = () => {
           <div className="col-span-6">
             <div className="h-[32rem]">
               <GenerateImageAssistant
+                modelId={modelId}
+                onChangeModel={setModelId}
+                modelIds={modelIds}
+                textModels={textModels}
                 content={chatContent}
                 onChangeContent={setChatContent}
                 isGeneratingImage={generating}
@@ -425,6 +469,18 @@ const GenerateImagePage: React.FC = () => {
             </Card>
 
             <Card label="パラメータ" className="mb-14 mt-8">
+              <div className="mb-4 flex w-full">
+                <SelectField
+                  label="画像生成モデル"
+                  value={imageGenModelId}
+                  onChange={(e) => setImageGenModelId(e.target.value)}>
+                  {imageGenModelIds.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
               <div className="flex flex-col">
                 <div className="mb-8 flex flex-col xl:flex-row">
                   <div className="flex w-full flex-col items-center justify-center xl:w-1/2">

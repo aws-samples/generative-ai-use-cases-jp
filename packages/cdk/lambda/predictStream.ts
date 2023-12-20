@@ -1,6 +1,7 @@
 import { Handler, Context } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
 import api from './utils/api';
+import { defaultModel } from './utils/models';
 
 declare global {
   namespace awslambda {
@@ -17,7 +18,11 @@ declare global {
 export const handler = awslambda.streamifyResponse(
   async (event, responseStream, context) => {
     context.callbackWaitsForEmptyEventLoop = false;
-    for await (const token of api.invokeStream(event.messages)) {
+    const model = event.model || defaultModel;
+    for await (const token of api[model.type].invokeStream(
+      model,
+      event.messages
+    )) {
       responseStream.write(token);
     }
     responseStream.end();

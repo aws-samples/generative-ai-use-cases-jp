@@ -2,17 +2,22 @@ import { PrimaryKey } from './base';
 
 export type Role = 'system' | 'user' | 'assistant';
 
+export type Model = {
+  type: 'bedrock' | 'sagemaker';
+  modelId: string;
+};
+
 export type MessageAttributes = {
   messageId: string;
   usecase: string;
   userId: string;
   feedback: string;
-  llmType: string;
 };
 
 export type UnrecordedMessage = {
   role: Role;
   content: string;
+  llmType?: string;
 };
 
 export type RecordedMessage = PrimaryKey &

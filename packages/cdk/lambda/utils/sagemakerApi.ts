@@ -3,42 +3,49 @@ import {
   InvokeEndpointCommand,
   InvokeEndpointWithResponseStreamCommand,
 } from '@aws-sdk/client-sagemaker-runtime';
-import { generatePrompt, pt } from './prompter';
+import { generatePrompt } from './prompter';
 import { ApiInterface } from 'generative-ai-use-cases-jp/src/utils';
+import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
+import { getSageMakerModelTemplate } from './models';
 
 const client = new SageMakerRuntimeClient({
   region: process.env.MODEL_REGION,
 });
 
-const PARAMS = {
+const TGI_DEFAULT_PARAMS = {
   max_new_tokens: 512,
   return_full_text: false,
   do_sample: true,
   temperature: 0.3,
 };
 
+const createBodyText = (
+  model: string,
+  messages: UnrecordedMessage[],
+  stream: boolean
+): string => {
+  return JSON.stringify({
+    inputs: generatePrompt(getSageMakerModelTemplate(model), messages),
+    parameters: TGI_DEFAULT_PARAMS,
+    stream: stream,
+  });
+};
+
 const sagemakerApi: ApiInterface = {
-  invoke: async (messages) => {
+  invoke: async (model, messages) => {
     const command = new InvokeEndpointCommand({
-      EndpointName: process.env.MODEL_NAME,
-      Body: JSON.stringify({
-        inputs: generatePrompt(messages),
-        parameters: PARAMS,
-      }),
+      EndpointName: model.modelId,
+      Body: createBodyText(model.modelId, messages, false),
       ContentType: 'application/json',
       Accept: 'application/json',
     });
     const data = await client.send(command);
     return JSON.parse(new TextDecoder().decode(data.Body))[0].generated_text;
   },
-  invokeStream: async function* (messages) {
+  invokeStream: async function* (model, messages) {
     const command = new InvokeEndpointWithResponseStreamCommand({
-      EndpointName: process.env.MODEL_NAME,
-      Body: JSON.stringify({
-        inputs: generatePrompt(messages),
-        parameters: PARAMS,
-        stream: true,
-      }),
+      EndpointName: model.modelId,
+      Body: createBodyText(model.modelId, messages, true),
       ContentType: 'application/json',
       Accept: 'application/json',
     });
@@ -64,6 +71,7 @@ const sagemakerApi: ApiInterface = {
     // to make sure truncations are concatinated.
 
     let buffer = '';
+    const pt = getSageMakerModelTemplate(model.modelId);
     for await (const chunk of stream) {
       buffer += new TextDecoder().decode(chunk.PayloadPart?.Bytes);
       if (!buffer.endsWith('\n')) continue;
@@ -76,7 +84,7 @@ const sagemakerApi: ApiInterface = {
       for (const line of lines) {
         const message = line.replace(/^data:/, '');
         const token: string = JSON.parse(message).token.text || '';
-        if (!token.includes(pt.eos_token)) yield token;
+        if (!token.includes(pt.eosToken)) yield token;
       }
       buffer = '';
     }
