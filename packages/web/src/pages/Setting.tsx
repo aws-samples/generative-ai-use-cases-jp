@@ -7,7 +7,7 @@ import Alert from '../components/Alert';
 import Button from '../components/Button';
 import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
-import { PiGithubLogoFill } from 'react-icons/pi';
+import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 
@@ -118,12 +118,27 @@ const Setting = () => {
             return (
               <li key={idx} className="block truncate text-sm">
                 <a href={p.url} className="hover:underline" target="_blank">
-                  {p.mergedAt.split('T')[0]} {p.title}
+                  {p.mergedAt.toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })}{' '}
+                  {p.title}
                 </a>
               </li>
             );
           })}
         </ul>
+
+        <div className="mt-1 flex w-2/3 justify-end text-xs lg:w-1/2">
+          <a
+            href="https://github.com/aws-samples/generative-ai-use-cases-jp/pulls?q=is%3Apr+is%3Aclosed"
+            className="flex items-center hover:underline"
+            target="_blank">
+            <PiArrowSquareOut className="mr-1 text-base" />
+            全てのアップデートを見る
+          </a>
+        </div>
       </div>
 
       <div className="my-10 flex w-full justify-center">

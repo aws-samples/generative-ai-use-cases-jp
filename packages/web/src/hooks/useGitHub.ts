@@ -27,7 +27,7 @@ interface PullRequestOnGitub {
 export interface PullRequest {
   title: string;
   url: string;
-  mergedAt: string;
+  mergedAt: Date;
 }
 
 const useGitHub = () => {
@@ -49,7 +49,7 @@ const useGitHub = () => {
           return {
             title: p.title,
             url: p.html_url,
-            mergedAt: p.merged_at,
+            mergedAt: new Date(p.merged_at!),
           };
         });
     },
