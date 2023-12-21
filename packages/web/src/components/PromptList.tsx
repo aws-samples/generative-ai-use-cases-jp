@@ -101,7 +101,7 @@ const PromptList: React.FC<Props> = (props) => {
               <Item
                 title="返信メールの作成"
                 prompt={`あなたは丁寧で礼儀正しくメールを返すプロフェッショナルです。
-以下の <mail></mail> の xml タグで囲まれたテキストは、私に送られてきたメールの文面です。<intention></intention> の xml タグで囲まれた内容で私の代わりに返信メールを作成してください。
+以下の <mail></mail> の xml タグで囲まれたテキストが、私にメールで送られてきました。<intention></intention> の xml タグで囲まれた内容の意図で私の代わりに返信メールを作成してください。
 <mail>
 鈴木様
 
