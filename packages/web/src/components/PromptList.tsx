@@ -159,12 +159,12 @@ const PromptList: React.FC<Props> = (props) => {
 またメールアドレスとして成り立っていないものは抽出しないでください。
 <text>
 私の連絡先は、hoge@example.comです。よく hoge@example のように間違えられるので注意してください。
-また、hoge+fuga@example.com や hoge@examples.jp でも受け取ることができます。
+また、hoge+fuga@example.com や fuga@examples.jp でも受け取ることができます。
 メールが使えない方は、https://example.jp/qa のお問い合わせフォームから問い合わせることもできます。
 </text>
 ただし出力は、<output>からはじめ、</output> タグで終え、1 行に 1 つずつ記入してください。
 メールアドレスは、入力テキストに正確に綴られている場合のみ記入してください。
-本文中にメールアドレスがない場合は、「N/A」と記入してください。それ以外は何も書かないでください。`}
+本文中にメールアドレスが 1 つも存在しない場合は、「N/A」とだけ記入してください。メールアドレスが 1 つでもある場合は、「N/A」を出力してはいけません。それ以外は何も書かないでください。`}
               />
               <Item
                 title="個人情報削除"
@@ -431,6 +431,12 @@ Assistant: 明日も晴れだそうですよ。
                 title="コードを書かせる"
                 prompt={`あなたは人間の指示をよく理解できるプログラマーです。
 <language></language> の xml タグ内に与えられた言語で、<instruction></instruction> の指示に沿ってコードを出力してください。
+コードを出力する際、<rule></rule> の xml タグ内で与えたルールは厳守してください。例外はありません。
+<rule>
+* 出力は<output>\`\`\`{code}\`\`\`</output> の形式でコードのみを出力してください。
+* コピー＆ペーストで動くように、コードは完全なものを記述してください。
+* コード内に日本語を使用しないでください。
+</rule>
 <language>エクセルのマクロ</language>
 <instruction>
 Sheet1 シートのセルA1の値を二乗して円周率をかけた値をセルA2に格納する。
@@ -454,12 +460,34 @@ Sub Macro1()
     ActiveSheet.Name = "Sheet5"
 
 End Sub
-</code>`}
+</code>
+出力する際は、
+<output>
+このコードは、{使用している言語} を使用しています。
+\`\`\`
+{something code}
+\`\`\`
+{コードの解説}
+\`\`\`
+{something code}
+\`\`\`
+{コードの解説}
+\`\`\`
+{something code}
+\`\`\`
+{コードの解説}
+…
+</output>
+の形式でどこの部分を解説しているかを明示してください。`}
               />
               <Item
                 title="コードを修正させる"
                 prompt={`以下の <code></code> で囲われた C 言語のコードについて、if 分岐において else を通ることがないです。
-それはどうしてなのかと、修正したコードを\`\`\`C\`\`\`で囲って教えてください。
+それはどうしてなのかと、修正したコードを
+\`\`\`C
+{code}
+\`\`\`
+の形式で出力してください。
 <code>
 #include <stdio.h>
 
@@ -494,7 +522,8 @@ int main() {
 <Specialist-5>ガバナンスの専門家</Specialist-5>
 
 今から <topic></topic> について交互に発話させ、課題と解決方法も混ぜながら水平思考を使って <goal></goal> に向かって議論してください。
-ただし、各人は必ず2回以上発言してください。各 Specialist に与えられた数字に意味はないので、発言の順番は自由です。ただし発言をする人は必ず文脈にそった発言をしてください。
+ただし、対話は最低でも 15 回は重ねてください。各 Specialist に与えられた数字に意味はないので、発言の順番は自由です。
+文脈に沿った適切な人が発言してください。
 前提条件は<limitation></limitation>で与えられます。
 
 <topic>ゼロから始める Amazon を超える EC サイトの構築について</topic>
@@ -505,21 +534,22 @@ int main() {
 * 個人情報の扱いは厳格に
 * 扱う商品は amazon.co.jp 同等
 * AI によるレコメンド機能を入れる
+* AWS を利用する。
 </limitation>
 
 会話は以下の形式で出力してください。
 <output>
 <interaction>
-Specialist-x : hoge
-Specialist-x : fuga
-Specialist-x : piyo
+Specialist-x : …
+Specialist-x : …
+Specialist-x : …
 …
 …
 …
 …
-Specialist-x : hoge
-Specialist-x : fuga
-Specialist-x : piyo
+Specialist-x : …
+Specialist-x : …
+Specialist-x : …
 </interaction>
 <conclusion>
 XXX
