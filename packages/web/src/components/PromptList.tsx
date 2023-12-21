@@ -72,7 +72,7 @@ const PromptList: React.FC<Props> = (props) => {
                 title="テキストの書き換え"
                 prompt={`以下の <text></text> の xml タグに囲われたテキストを、<instruction></instruction> の xml タグに囲われた指示で書き替えてください。
 
-<instruction>より詳細に</instruction>
+<instruction>より詳細に説明を追加する</instruction>
 
 <text>
 1758年、スウェーデンの植物学者であり動物学者でもあったカール・リンネは、その著書『自然科学体系（Systema Naturae）』において、2単語による種の命名法（二命名法）を発表した。カニスはラテン語で "犬 "を意味し、彼はこの属の下に家犬、オオカミ、イヌジャッカルを挙げた。
@@ -101,18 +101,15 @@ const PromptList: React.FC<Props> = (props) => {
               <Item
                 title="返信メールの作成"
                 prompt={`あなたは丁寧で礼儀正しくメールを返すプロフェッショナルです。
-以下の <mail></mail> の xml タグで囲まれたメール文面に対して、<intention></intention> の xml タグで囲まれた内容で返信メールを作成してください。
-
+以下の <mail></mail> の xml タグで囲まれたテキストは、私に送られてきたメールの文面です。<intention></intention> の xml タグで囲まれた内容で私の代わりに返信メールを作成してください。
 <mail>
 鈴木様
 
-出品されていらっしゃる、キリマンジャロのコーヒー豆 5kg について、１万円で出品されていますが、1000 円に値下げしていただくことは可能でしょうか。
+出品されていらっしゃる、キリマンジャロのコーヒー豆 5kg について、1 万円で出品されていますが、1000 円に値下げしていただくことは可能でしょうか。
 
 山田
 </mail>
-
-<intention>やだ</intention>
-
+<intention>嫌だ</intention>
 メールを作成する際、以下の<rule></rule>に囲まれたルールを遵守してください。
 <rule>
 * 文面の最初には宛先を様づけで書くこと
@@ -121,6 +118,7 @@ const PromptList: React.FC<Props> = (props) => {
 * 文面の最後に自分の名前を敬称なしで入れること
 * 丁寧で礼儀正しいこと
 * 出力は<output></output>タグで囲い、<output>から始めること
+* 一通だけ作成すること
 </rule>`}
               />
             </ul>
