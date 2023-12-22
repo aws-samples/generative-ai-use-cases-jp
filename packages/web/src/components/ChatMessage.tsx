@@ -76,7 +76,6 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
               {chatContent?.llmType && (
                 <Help
-                  className=""
                   message={chatContent.llmType}
                   direction="right"
                 />
