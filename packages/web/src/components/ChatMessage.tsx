@@ -62,7 +62,7 @@ const ChatMessage: React.FC<Props> = (props) => {
         className={`${
           props.className ?? ''
         } m-3 flex w-full flex-col justify-between md:w-11/12 lg:-ml-24 lg:w-4/6 lg:flex-row xl:w-3/6`}>
-        <div className="flex">
+        <div className="flex grow">
           {chatContent?.role === 'user' && (
             <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
               <PiUserFill />
@@ -106,6 +106,12 @@ const ChatMessage: React.FC<Props> = (props) => {
             )}
             {props.loading && (chatContent?.content ?? '') === '' && (
               <div className="animate-pulse">▍</div>
+            )}
+
+            {chatContent?.role === 'assistant' && (
+              <div className="mb-1 mt-2 text-right text-xs text-gray-400 lg:mb-0">
+                {chatContent?.llmType}
+              </div>
             )}
           </div>
         </div>
