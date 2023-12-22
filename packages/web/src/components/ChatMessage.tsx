@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
-import Help from './Help';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
@@ -63,23 +62,15 @@ const ChatMessage: React.FC<Props> = (props) => {
         className={`${
           props.className ?? ''
         } m-3 flex w-full flex-col justify-between md:w-11/12 lg:-ml-24 lg:w-4/6 lg:flex-row xl:w-3/6`}>
-        <div className="flex">
+        <div className="flex grow">
           {chatContent?.role === 'user' && (
             <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
               <PiUserFill />
             </div>
           )}
           {chatContent?.role === 'assistant' && (
-            <div className="flex flex-col items-center justify-start">
-              <div className="bg-aws-ml h-min rounded p-1">
-                <BedrockIcon className="h-7 w-7 fill-white" />
-              </div>
-              {chatContent?.llmType && (
-                <Help
-                  message={chatContent.llmType}
-                  direction="right"
-                />
-              )}
+            <div className="bg-aws-ml h-min rounded p-1">
+              <BedrockIcon className="h-7 w-7 fill-white" />
             </div>
           )}
           {chatContent?.role === 'system' && (
@@ -115,6 +106,12 @@ const ChatMessage: React.FC<Props> = (props) => {
             )}
             {props.loading && (chatContent?.content ?? '') === '' && (
               <div className="animate-pulse">▍</div>
+            )}
+
+            {chatContent?.role === 'assistant' && (
+              <div className="mb-1 mt-2 text-right text-xs text-gray-400 lg:mb-0">
+                {chatContent?.llmType}
+              </div>
             )}
           </div>
         </div>
