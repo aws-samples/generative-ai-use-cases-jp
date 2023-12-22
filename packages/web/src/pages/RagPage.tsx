@@ -82,7 +82,7 @@ const RagPage: React.FC = () => {
           RAG チャット
         </div>
 
-        <div className="flex w-full items-end justify-center">
+        <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
           <SelectField
             label="モデル"
             labelHidden

@@ -334,6 +334,7 @@ const useChatState = create<{
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
               content: postProcessOutput(oldAssistantMessage.content),
+              llmType: model?.modelId,
             };
             draft[id].messages.push(newAssistantMessage);
           });

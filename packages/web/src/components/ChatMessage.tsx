@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
+import Help from './Help';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
@@ -69,8 +70,17 @@ const ChatMessage: React.FC<Props> = (props) => {
             </div>
           )}
           {chatContent?.role === 'assistant' && (
-            <div className="bg-aws-ml h-min rounded p-1">
-              <BedrockIcon className="h-7 w-7 fill-white" />
+            <div className="flex flex-col items-center justify-start">
+              <div className="bg-aws-ml h-min rounded p-1">
+                <BedrockIcon className="h-7 w-7 fill-white" />
+              </div>
+              {chatContent?.llmType && (
+                <Help
+                  className=""
+                  message={chatContent.llmType}
+                  direction="right"
+                />
+              )}
             </div>
           )}
           {chatContent?.role === 'system' && (
