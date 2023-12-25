@@ -91,7 +91,8 @@ const ChatPage: React.FC = () => {
         updateSystemContext(state.systemContext);
       }
     }
-  }, [state, setContent, updateSystemContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, setContent]);
 
   useEffect(() => {
     if (!modelId) {
