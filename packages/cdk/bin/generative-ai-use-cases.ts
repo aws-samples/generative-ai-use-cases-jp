@@ -28,7 +28,7 @@ const allowedCountryCodes: string[] | null =
 
 let wafStack: WafStack | undefined;
 
-// allowedIpV4AddressRanges または allowedIpV6AddressRanges が定義されている場合のみ、WafStack をデプロイする
+// IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、WafStack をデプロイする
 if (allowedIpV4AddressRanges || allowedIpV6AddressRanges || allowedCountryCodes) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
   wafStack = new WafStack(app, 'WafStack', {
