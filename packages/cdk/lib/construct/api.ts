@@ -14,11 +14,16 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { CommonWebAcl } from './common-web-acl';
+import {CfnWebACLAssociation} from 'aws-cdk-lib/aws-wafv2';
 
 export interface BackendApiProps {
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
+  allowedIpV4AddressRanges: string[] | null;
+  allowedIpV6AddressRanges: string[] | null;
+  allowedCountryCode: string[] | null;
 }
 
 export class Api extends Construct {
@@ -389,7 +394,19 @@ export class Api extends Construct {
       new LambdaIntegration(getWebTextFunction),
       commonAuthorizerProps
     );
-
+    
+    if (props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges || props.allowedCountryCode){
+      const apiWaf = new CommonWebAcl(this, 'ApiWaf', {
+        scope: 'REGIONAL',
+        allowedIpV4AddressRanges : props.allowedIpV4AddressRanges,
+        allowedIpV6AddressRanges : props.allowedIpV6AddressRanges,
+        allowCountryCodes : props.allowedCountryCode
+      });
+      new CfnWebACLAssociation(this, 'ApiWafAssociation',{
+        resourceArn: api.deploymentStage.stageArn,
+        webAclArn: apiWaf.webAclArn
+      })  
+    }
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
     this.modelRegion = modelRegion;

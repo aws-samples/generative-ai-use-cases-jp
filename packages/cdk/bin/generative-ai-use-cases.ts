@@ -23,18 +23,23 @@ const allowedIpV4AddressRanges: string[] | null = app.node.tryGetContext(
 const allowedIpV6AddressRanges: string[] | null = app.node.tryGetContext(
   'allowedIpV6AddressRanges'
 )!;
+const allowCountryCodes: string[] | null = app.node.tryGetContext(
+  'allowCountryCodes'
+)!;
 
 let wafStack: WafStack | undefined;
 
 // allowedIpV4AddressRanges または allowedIpV6AddressRanges が定義されている場合のみ、WafStack をデプロイする
-if (allowedIpV4AddressRanges || allowedIpV6AddressRanges) {
+if (allowedIpV4AddressRanges || allowedIpV6AddressRanges || allowCountryCodes) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
   wafStack = new WafStack(app, 'WafStack', {
     env: {
       region: 'us-east-1',
     },
+    scope: 'CLOUDFRONT',
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
+    allowCountryCodes
   });
 }
 
@@ -47,6 +52,9 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     },
     webAclId: wafStack ? wafStack.webAclArn.value : undefined,
     crossRegionReferences: true,
+    allowedIpV4AddressRanges,
+    allowedIpV6AddressRanges,
+    allowCountryCodes
   }
 );
 

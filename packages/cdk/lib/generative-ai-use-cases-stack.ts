@@ -11,6 +11,9 @@ const errorMessageForBooleanContext = (key: string) => {
 
 interface GenerativeAiUseCasesStackProps extends StackProps {
   webAclId?: string;
+  allowedIpV4AddressRanges: string[] | null;
+  allowedIpV6AddressRanges: string[] | null;
+  allowCountryCodes: string[] | null;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -46,6 +49,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
+      allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
+      allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
+      allowedCountryCode: props.allowCountryCodes
     });
 
     const web = new Web(this, 'Api', {
