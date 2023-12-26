@@ -14,6 +14,8 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { CommonWebAcl } from 'common-web-acl';
+import {CfnWebACLAssociation} from 'aws-cdk-lib/aws-wafv2';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -389,6 +391,15 @@ export class Api extends Construct {
       new LambdaIntegration(getWebTextFunction),
       commonAuthorizerProps
     );
+
+    const apiWaf = new CommonWebAcl(this, 'ApiWaf', {
+      scope: 'REGIONAL',
+    });
+
+    new CfnWebACLAssociation(this, 'ApiWafAssociation',{
+      resourceArn: api.deploymentStage.stageArn,
+      webAclArn: apiWaf.webAcl.attrArn
+    })
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
