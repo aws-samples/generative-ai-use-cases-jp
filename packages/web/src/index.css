@@ -27,3 +27,8 @@ input[type='number'] {
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* 横スクロール機能を有効化するために、width を指定する。width を指定しない場合、pre tag が延々と横方向に拡張していき、画面からはみ出てしまう挙動となっていた。 */
+pre {
+  width: 50vw;
+}
