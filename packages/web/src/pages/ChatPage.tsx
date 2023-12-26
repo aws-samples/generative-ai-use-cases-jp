@@ -166,9 +166,13 @@ const ChatPage: React.FC = () => {
           </SelectField>
         </div>
 
-        {loadingMessages && chatId && (
-          <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
-            <BedrockIcon className="animate-pulse fill-gray-400" />
+        {((isEmpty && !loadingMessages) || loadingMessages) && (
+          <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center">
+            <BedrockIcon
+              className={`fill-gray-400 ${
+                loadingMessages ? 'animate-pulse' : ''
+              }`}
+            />
           </div>
         )}
 
