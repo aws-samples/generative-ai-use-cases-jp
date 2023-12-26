@@ -32,3 +32,10 @@ input[type='number'] {
 pre {
   width: 50vw;
 }
+
+/* スマートフォンや小さい画面デバイス用のスタイル */
+@media (max-width: 1020px) {
+  pre {
+    width: 80vw;
+  }
+}
