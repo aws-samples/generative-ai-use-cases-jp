@@ -51,7 +51,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       table: database.table,
       allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowedCountryCode: props.allowCountryCodes
+      allowedCountryCode: props.allowCountryCodes,
     });
 
     const web = new Web(this, 'Api', {

@@ -23,9 +23,8 @@ const allowedIpV4AddressRanges: string[] | null = app.node.tryGetContext(
 const allowedIpV6AddressRanges: string[] | null = app.node.tryGetContext(
   'allowedIpV6AddressRanges'
 )!;
-const allowCountryCodes: string[] | null = app.node.tryGetContext(
-  'allowCountryCodes'
-)!;
+const allowCountryCodes: string[] | null =
+  app.node.tryGetContext('allowCountryCodes')!;
 
 let wafStack: WafStack | undefined;
 
@@ -39,7 +38,7 @@ if (allowedIpV4AddressRanges || allowedIpV6AddressRanges || allowCountryCodes) {
     scope: 'CLOUDFRONT',
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
-    allowCountryCodes
+    allowCountryCodes,
   });
 }
 
@@ -54,7 +53,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     crossRegionReferences: true,
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
-    allowCountryCodes
+    allowCountryCodes,
   }
 );
 
