@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { BaseProps } from '../@types/common';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
+import ButtonCopy from './ButtonCopy';
 
 type Props = BaseProps & {
   children: string;
@@ -37,19 +38,28 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
         a: LinkRenderer,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         code({ node, inline, className, children, ...props }) {
-          const match = /language-(\w+)/.exec(className || '');
-          return !inline && match ? (
-            <SyntaxHighlighter
-              {...props}
-              children={String(children).replace(/\n$/, '')}
-              style={vscDarkPlus}
-              language={match[1]}
-              PreTag="div"
-            />
-          ) : (
-            <code {...props} className={className}>
-              {children}
-            </code>
+
+          const language = /language-(\w+)/.exec(className || '')?.[1];
+          const isCodeBlock = !inline && language;
+          const codeText = String(children).replace(/\n$/, '');
+
+          return (
+            <Fragment>
+              <div className="code-block-bar" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>{isCodeBlock ? language : ''}</span>
+                <ButtonCopy
+                  className="mr-0.5 text-gray-400"
+                  text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
+                />
+              </div>
+              <SyntaxHighlighter
+                {...props}
+                children={codeText}
+                style={vscDarkPlus}
+                language={isCodeBlock ? language : 'plaintext'}
+                PreTag="div"
+              />
+            </Fragment>
           );
         },
       }}

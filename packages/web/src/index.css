@@ -31,11 +31,35 @@ input[type='number'] {
 /* 横スクロール機能を有効化するために、width を指定する。width を指定しない場合、pre tag が延々と横方向に拡張していき、画面からはみ出てしまう挙動となっていた。 */
 pre {
   width: 50vw;
+  padding-top: 0 !important; /* pre tag の padding を削除したかったので、important で指定。他に Tailwind のお作法として良い指定方法があるかも。*/
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
 }
 
-/* スマートフォンや小さい画面デバイス用のスタイル */
+/* 横スクロール機能を有効化するために、width を指定する。スマートフォンや小さい画面デバイス用のスタイル */
 @media (max-width: 1020px) {
   pre {
     width: 80vw;
+    padding-top: 0 !important; /* pre tag の padding を削除したかったので、important で指定。他に Tailwind のお作法として良い指定方法があるかも。*/
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
   }
+}
+
+/* Code Block の先頭に表示するバーについての指定 */
+.code-block-bar {
+  display: table;
+  width: 100vw;
+  height: 50px;
+  max-width: 100%;
+  background: #334155;
+  color: #f8fafc;
+  font-size: 0.875rem;
+  padding-top: 6px;
+  padding-right: 12px;
+  padding-bottom: 20px;
+  padding-left: 12px;
+  margin-bottom: -20px;
 }
