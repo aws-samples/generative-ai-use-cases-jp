@@ -46,7 +46,7 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
           return (
             <Fragment>
               <div className="code-block-bar" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{isCodeBlock ? language : ''}</span>
+                <span>{isCodeBlock ? language : 'text'}</span>
                 <ButtonCopy
                   className="mr-0.5 text-gray-400"
                   text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
