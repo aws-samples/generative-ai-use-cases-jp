@@ -11,6 +11,7 @@ interface WafStackProps extends StackProps {
 
 export class WafStack extends Stack {
   public readonly webAclArn: CfnOutput;
+  public readonly webAcl: CommonWebAcl;
 
   constructor(scope: Construct, id: string, props: WafStackProps) {
     super(scope, id, props);
@@ -25,5 +26,7 @@ export class WafStack extends Stack {
     this.webAclArn = new CfnOutput(this, 'WebAclId', {
       value: webAcl.webAclArn,
     });
+
+    this.webAcl = webAcl
   }
 }
