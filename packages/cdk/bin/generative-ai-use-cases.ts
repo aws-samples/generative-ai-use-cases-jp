@@ -23,13 +23,18 @@ const allowedIpV4AddressRanges: string[] | null = app.node.tryGetContext(
 const allowedIpV6AddressRanges: string[] | null = app.node.tryGetContext(
   'allowedIpV6AddressRanges'
 )!;
-const allowedCountryCodes: string[] | null =
-  app.node.tryGetContext('allowedCountryCodes')!;
+const allowedCountryCodes: string[] | null = app.node.tryGetContext(
+  'allowedCountryCodes'
+)!;
 
 let wafStack: WafStack | undefined;
 
 // IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、WafStack をデプロイする
-if (allowedIpV4AddressRanges || allowedIpV6AddressRanges || allowedCountryCodes) {
+if (
+  allowedIpV4AddressRanges ||
+  allowedIpV6AddressRanges ||
+  allowedCountryCodes
+) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
   wafStack = new WafStack(app, 'WafStack', {
     env: {

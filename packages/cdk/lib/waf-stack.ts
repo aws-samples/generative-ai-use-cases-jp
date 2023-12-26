@@ -27,6 +27,6 @@ export class WafStack extends Stack {
       value: webAcl.webAclArn,
     });
 
-    this.webAcl = webAcl
+    this.webAcl = webAcl;
   }
 }

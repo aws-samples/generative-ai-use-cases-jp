@@ -1,6 +1,14 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Auth, Api, Web, Database, Rag, Transcribe, CommonWebAcl } from './construct';
+import {
+  Auth,
+  Api,
+  Web,
+  Database,
+  Rag,
+  Transcribe,
+  CommonWebAcl,
+} from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 
 const errorMessageForBooleanContext = (key: string) => {
@@ -52,7 +60,11 @@ export class GenerativeAiUseCasesStack extends Stack {
       table: database.table,
     });
 
-    if ( props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges || props.allowedCountryCodes) {
+    if (
+      props.allowedIpV4AddressRanges ||
+      props.allowedIpV6AddressRanges ||
+      props.allowedCountryCodes
+    ) {
       const regionalWaf = new CommonWebAcl(this, 'RegionalWaf', {
         scope: 'REGIONAL',
         allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
@@ -68,7 +80,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         webAclArn: regionalWaf.webAclArn,
       });
     }
-    
+
     const web = new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,
