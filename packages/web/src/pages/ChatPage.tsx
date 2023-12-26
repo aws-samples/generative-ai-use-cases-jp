@@ -5,11 +5,10 @@ import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
-import Textarea from '../components/Textarea';
 import Button from '../components/Button';
-import ButtonIcon from '../components/ButtonIcon';
+import ExpandableField from '../components/ExpandableField';
 import useScroll from '../hooks/useScroll';
-import { PiX, PiNotePencil, PiRobot } from 'react-icons/pi';
+import { PiArrowClockwiseBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageLocationState } from '../@types/navigate';
@@ -85,11 +84,14 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     if (state !== null) {
-      setContent(state.content);
-
       if (state.systemContext !== '') {
         updateSystemContext(state.systemContext);
+      } else {
+        clear();
+        setInputSystemContext(currentSystemContext);
       }
+
+      setContent(state.content);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, setContent]);
@@ -135,11 +137,8 @@ const ChatPage: React.FC = () => {
     }
   }, [showSystemContext, rawMessages, messages]);
 
-  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
-
   const currentSystemContext = useMemo(() => {
-    const systemContext = getCurrentSystemContext();
-    return systemContext;
+    return getCurrentSystemContext();
   }, [getCurrentSystemContext]);
 
   useEffect(() => {
@@ -171,84 +170,6 @@ const ChatPage: React.FC = () => {
           <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
             <BedrockIcon className="animate-pulse fill-gray-400" />
           </div>
-        )}
-
-        {isEmpty && !loadingMessages && !chatId && !showSystemContextModal && (
-          <>
-            <div className="flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
-              <div className="flex w-3/4 flex-col items-center justify-center text-gray-500 lg:w-1/2">
-                <div className="mb-2 flex items-center text-sm font-bold">
-                  <PiRobot className="mr-1 text-base" />
-                  システムコンテキスト
-                </div>
-                <div className="mb-4 max-h-64 w-full overflow-y-scroll whitespace-break-spaces text-center">
-                  {currentSystemContext}
-                </div>
-              </div>
-              <Button
-                className=""
-                onClick={() => {
-                  setShowSystemContextModal(true);
-                }}
-                outlined>
-                <PiNotePencil className="mr-1" />
-                変更
-              </Button>
-            </div>
-          </>
-        )}
-
-        {isEmpty && !loadingMessages && !chatId && showSystemContextModal && (
-          <>
-            <div
-              className="fixed left-0 top-0 z-[60] h-screen w-screen bg-gray-900/90"
-              onClick={() => {
-                setShowSystemContextModal(false);
-              }}></div>
-            <div className="h-[calc(100vh-9rem)] w-full">
-              <div className="absolute left-1/2 top-1/2 z-[70] flex w-3/4 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center border-2 bg-white p-4 shadow-lg lg:w-1/2">
-                <div className="mb-3 flex w-full items-center justify-between">
-                  <div></div>
-                  <div className="text-sm font-bold lg:text-lg">
-                    システムコンテキストの設定
-                  </div>
-                  <ButtonIcon
-                    onClick={() => {
-                      setShowSystemContextModal(false);
-                    }}>
-                    <PiX />
-                  </ButtonIcon>
-                </div>
-                <div className="w-full">
-                  <Textarea
-                    value={inputSystemContext}
-                    onChange={setInputSystemContext}
-                    rows={5}
-                  />
-                </div>
-                <div className="flex w-full justify-end">
-                  <Button
-                    className="mr-1"
-                    onClick={() => {
-                      clear();
-                      setInputSystemContext(currentSystemContext);
-                      setShowSystemContextModal(false);
-                    }}
-                    outlined>
-                    初期化
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      updateSystemContext(inputSystemContext);
-                      setShowSystemContextModal(false);
-                    }}
-                    disabled={inputSystemContext === currentSystemContext}>
-                    変更
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </>
         )}
 
         {!isEmpty && !loadingMessages && (
@@ -285,7 +206,39 @@ const ChatPage: React.FC = () => {
             </div>
           ))}
 
-        <div className="fixed bottom-0 z-0 flex w-full items-end justify-center print:hidden lg:pr-64">
+        <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden lg:pr-64">
+          {isEmpty && !loadingMessages && !chatId && (
+            <ExpandableField
+              label="システムコンテキスト"
+              className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
+              <>
+                <div className="absolute -top-2 right-0 mb-2 flex justify-end">
+                  <Button
+                    outlined
+                    className="text-xs"
+                    onClick={() => {
+                      clear();
+                      setInputSystemContext(currentSystemContext);
+                    }}>
+                    初期化
+                  </Button>
+                </div>
+                <InputChatContent
+                  disableMarginBottom={true}
+                  content={inputSystemContext}
+                  onChangeContent={setInputSystemContext}
+                  fullWidth={true}
+                  resetDisabled={true}
+                  disabled={inputSystemContext === currentSystemContext}
+                  sendIcon={<PiArrowClockwiseBold />}
+                  onSend={() => {
+                    updateSystemContext(inputSystemContext);
+                  }}
+                  hideReset={true}
+                />
+              </>
+            </ExpandableField>
+          )}
           <InputChatContent
             content={content}
             disabled={loading}

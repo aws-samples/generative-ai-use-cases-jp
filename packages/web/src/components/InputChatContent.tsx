@@ -15,6 +15,9 @@ type Props = {
   loading?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
+  sendIcon?: React.ReactNode;
+  // ページ下部以外で使う時に margin bottom を無効化するためのオプション
+  disableMarginBottom?: boolean;
 } & (
   | {
       hideReset?: false;
@@ -65,7 +68,9 @@ const InputChatContent: React.FC<Props> = (props) => {
       }`}>
       <div
         id="input-chat-content"
-        className={`relative mb-7 flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40`}>
+        className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+          props.disableMarginBottom ? '' : 'mb-7'
+        }`}>
         <Textarea
           className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
           placeholder={props.placeholder ?? '入力してください'}
@@ -79,6 +84,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           disabled={disabledSend}
           loading={loading}
           onClick={props.onSend}
+          icon={props.sendIcon}
         />
         {!isEmpty && !props.resetDisabled && !props.hideReset && (
           <Button
