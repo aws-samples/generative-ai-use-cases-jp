@@ -1,6 +1,7 @@
 import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Auth, Api, Web, Database, Rag, Transcribe } from './construct';
+import { Auth, Api, Web, Database, Rag, Transcribe, CommonWebAcl } from './construct';
+import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -13,7 +14,7 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   webAclId?: string;
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
-  allowCountryCodes: string[] | null;
+  allowedCountryCodes: string[] | null;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -49,11 +50,25 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
-      allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-      allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowedCountryCode: props.allowCountryCodes,
     });
 
+    if ( props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges || props.allowedCountryCodes) {
+      const regionalWaf = new CommonWebAcl(this, 'RegionalWaf', {
+        scope: 'REGIONAL',
+        allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
+        allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
+        allowedCountryCodes: props.allowedCountryCodes,
+      });
+      new CfnWebACLAssociation(this, 'ApiWafAssociation', {
+        resourceArn: api.api.deploymentStage.stageArn,
+        webAclArn: regionalWaf.webAclArn,
+      });
+      new CfnWebACLAssociation(this, 'UserPoolWafAssociation', {
+        resourceArn: auth.userPool.userPoolArn,
+        webAclArn: regionalWaf.webAclArn,
+      });
+    }
+    
     const web = new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,

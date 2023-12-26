@@ -5,7 +5,7 @@ export interface CommonWebAclProps {
   scope: 'REGIONAL' | 'CLOUDFRONT';
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
-  allowCountryCodes: string[] | null;
+  allowedCountryCodes: string[] | null;
 }
 
 export class CommonWebAcl extends Construct {
@@ -54,7 +54,7 @@ export class CommonWebAcl extends Construct {
       rules.push(generateIpSetRule(2, `IpV6SetRule${id}`, wafIPv6Set.attrArn));
     }
 
-    if (props.allowCountryCodes) {
+    if (props.allowedCountryCodes) {
       rules.push({
         priority: 3,
         name: `GeoMatchSetRule${id}`,
@@ -66,7 +66,7 @@ export class CommonWebAcl extends Construct {
         },
         statement: {
           geoMatchStatement: {
-            countryCodes: props.allowCountryCodes,
+            countryCodes: props.allowedCountryCodes,
           },
         },
       });

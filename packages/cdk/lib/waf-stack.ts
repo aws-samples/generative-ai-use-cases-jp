@@ -6,7 +6,7 @@ interface WafStackProps extends StackProps {
   scope: 'REGIONAL' | 'CLOUDFRONT';
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
-  allowCountryCodes: string[] | null;
+  allowedCountryCodes: string[] | null;
 }
 
 export class WafStack extends Stack {
@@ -20,7 +20,7 @@ export class WafStack extends Stack {
       scope: props.scope,
       allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowCountryCodes: props.allowCountryCodes,
+      allowedCountryCodes: props.allowedCountryCodes,
     });
 
     this.webAclArn = new CfnOutput(this, 'WebAclId', {
