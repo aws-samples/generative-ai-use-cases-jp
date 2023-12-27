@@ -38,11 +38,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  const getJsonString = (text: string) => 
-  text.slice(
-    text.indexOf("{"),
-    text.lastIndexOf("}") + 1
-  );
+  // LLM の出力に JSON 文字列があった場合に出力から JSON 文字列だけ({と}を探してその間だけ抜く)を抜き出す処理
+  const getJsonString = (text: string) =>
+    text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
 
   const contents = useMemo<
     (
