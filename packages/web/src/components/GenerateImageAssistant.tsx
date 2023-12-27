@@ -38,6 +38,12 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
+  const getJsonString = (text: string) => 
+  text.slice(
+    text.indexOf("{"),
+    text.lastIndexOf("}") + 1
+  );
+
   const contents = useMemo<
     (
       | {
@@ -77,7 +83,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         try {
           return {
             role: 'assistant',
-            content: JSON.parse(m.content),
+            content: JSON.parse(getJsonString(m.content)),
           };
         } catch (e) {
           console.error(e);
