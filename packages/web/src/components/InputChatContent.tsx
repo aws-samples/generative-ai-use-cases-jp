@@ -57,14 +57,10 @@ const InputChatContent: React.FC<Props> = (props) => {
         }
       }
     };
-    document
-      .getElementById(id)
-      ?.addEventListener('keypress', listener);
+    document.getElementById(id)?.addEventListener('keypress', listener);
 
     return () => {
-      document
-        .getElementById(id)
-        ?.removeEventListener('keypress', listener);
+      document.getElementById(id)?.removeEventListener('keypress', listener);
     };
   });
 
