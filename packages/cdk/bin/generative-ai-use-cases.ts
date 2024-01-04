@@ -36,7 +36,7 @@ if (
   allowedCountryCodes
 ) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
-  new CloudFrontWafStack(app, 'CloudFrontWafStack', {
+  const cloudFrontWafStack = new CloudFrontWafStack(app, 'CloudFrontWafStack', {
     env: {
       region: 'us-east-1',
     },
