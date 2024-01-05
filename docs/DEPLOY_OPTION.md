@@ -176,7 +176,9 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 }
 ```
 
-### AWS WAF による IP 制限を有効化する
+### AWS WAF による制限を有効化する
+
+#### IP アドレスによる制限
 
 Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
 
@@ -186,7 +188,17 @@ Web ページへのアクセスを IP で制限したい場合、AWS WAF によ�
     "allowedIpV6AddressRanges": ["2001:0db8::/32"], // null から、許可 CIDR リストを指定することで有効化
 ```
 
-`allowedIpV4AddressRanges` あるいは `allowedIpV6AddressRanges` のどちらかを指定して再度 `npm run cdk:deploy` を実行すると、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）。us-east-1 で CDK を利用したことがない場合は、以下のコマンドを実行して、デプロイ前に Bootstrap を行ってください。
+
+#### 地理的制限
+
+Web ページへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
+指定する国の Country Code は[ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2)をご参照ください。
+```json
+  "context": {
+    "allowedCountryCodes": ["JP"], // null から、許可国リストを指定することで有効化
+```
+
+`allowedIpV4AddressRanges` あるいは `allowedIpV6AddressRanges` あるいは `allowedCountryCodes` のいずれかを指定して再度 `npm run cdk:deploy` を実行すると、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）。us-east-1 で CDK を利用したことがない場合は、以下のコマンドを実行して、デプロイ前に Bootstrap を行ってください。
 
 ```bash
 npx -w packages/cdk cdk bootstrap --region us-east-1

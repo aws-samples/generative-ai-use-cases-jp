@@ -198,7 +198,7 @@ const ChatPage: React.FC = () => {
 
         {!isEmpty &&
           showingMessages.map((chat, idx) => (
-            <div key={idx}>
+            <div key={showSystemContext ? idx : idx + 1}>
               {idx === 0 && (
                 <div className="w-full border-b border-gray-300"></div>
               )}
