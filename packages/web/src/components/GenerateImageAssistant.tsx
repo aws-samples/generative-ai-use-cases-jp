@@ -28,7 +28,7 @@ type Props = BaseProps & {
 const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
-  const [isAutoGenerationg, setIsAutoGenerationg] = useState(false);
+  const [isAutoGenerating, setIsAutoGenerating] = useState(false);
 
   const { scrollToBottom } = useScroll();
   useEffect(() => {
@@ -110,11 +110,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
       message.content.prompt &&
       message.content.negativePrompt
     ) {
-      setIsAutoGenerationg(true);
+      setIsAutoGenerating(true);
       props
         .onGenerate(message.content.prompt, message.content.negativePrompt)
         .finally(() => {
-          setIsAutoGenerationg(false);
+          setIsAutoGenerating(false);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -226,7 +226,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 <>
                   {contents.length - 1 === idx &&
                   props.isGeneratingImage &&
-                  isAutoGenerationg ? (
+                  isAutoGenerating ? (
                     <>
                       <div className="flex items-center gap-2 text-gray-600">
                         <div className="h-5 w-5 rounded-full border-4 border-gray-600"></div>

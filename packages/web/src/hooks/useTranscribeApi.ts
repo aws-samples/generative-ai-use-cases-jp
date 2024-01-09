@@ -30,7 +30,7 @@ const useTranscribeApi = () => {
         }
       );
     },
-    startTranscripiton: async (
+    startTranscription: async (
       req: StartTranscriptionRequest
     ): Promise<StartTranscriptionResponse> => {
       const res = await http.post('transcribe/start', req);

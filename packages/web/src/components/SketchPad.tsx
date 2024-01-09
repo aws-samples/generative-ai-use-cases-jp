@@ -155,7 +155,7 @@ const SketchPad: React.FC<Props> = (props) => {
       };
     }
   };
-  const onClickUploadComplet = useCallback(() => {
+  const onClickUploadComplete = useCallback(() => {
     props.onChange(imageBase64);
   }, [imageBase64, props]);
 
@@ -182,7 +182,7 @@ const SketchPad: React.FC<Props> = (props) => {
               }}>
               キャンセル
             </Button>
-            <Button onClick={onClickUploadComplet}>完了</Button>
+            <Button onClick={onClickUploadComplete}>完了</Button>
           </div>
         </div>
       </ModalDialog>

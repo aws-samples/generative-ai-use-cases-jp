@@ -53,12 +53,12 @@ const useTranscribeState = create<{
     await api.uploadAudio(signedUrl, { file: get().file! });
 
     // 音声認識
-    const startTranscripitonRes = await api.startTranscripiton({
+    const startTranscriptionRes = await api.startTranscription({
       audioUrl: audioUrl,
     });
 
     set(() => ({
-      jobName: startTranscripitonRes.jobName,
+      jobName: startTranscriptionRes.jobName,
     }));
   };
 
