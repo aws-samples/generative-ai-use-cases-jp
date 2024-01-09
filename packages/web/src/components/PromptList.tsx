@@ -11,6 +11,7 @@ const PromptList: React.FC<Props> = (props) => {
 
   type ItemProps = {
     title: string;
+    systemContext: string;
     prompt: string;
   };
 
@@ -20,6 +21,7 @@ const PromptList: React.FC<Props> = (props) => {
     const addPrompt = useCallback(() => {
       navigate('/chat', {
         state: {
+          systemContext: props.systemContext,
           content: props.prompt,
         },
         replace: true,
@@ -70,6 +72,7 @@ const PromptList: React.FC<Props> = (props) => {
             <ul className="pl-4">
               <Item
                 title="テキストの書き換え"
+                systemContext={``}
                 prompt={`以下の <text></text> の xml タグに囲われたテキストを、<instruction></instruction> の xml タグに囲われた指示で書き替えてください。
 
 <instruction>より詳細に説明を追加する</instruction>
@@ -82,6 +85,7 @@ const PromptList: React.FC<Props> = (props) => {
               />
               <Item
                 title="箇条書きに説明をつける"
+                systemContext={``}
                 prompt={`以下の <list></list> の xml タグに囲まれた箇条書きは、<content></content> の xml タグに囲まれた内容の特徴の要点を言及したものです。
 要点を詳しく説明し、それぞれの説明の上に対応する要点を一字一句コピーしてください。
 <list>
@@ -100,6 +104,7 @@ const PromptList: React.FC<Props> = (props) => {
               />
               <Item
                 title="返信メールの作成"
+                systemContext={``}
                 prompt={`あなたは丁寧で礼儀正しくメールを返すプロフェッショナルです。
 以下の <mail></mail> の xml タグで囲まれたテキストが、私にメールで送られてきました。<intention></intention> の xml タグで囲まれた内容の意図で私の代わりに返信メールを作成してください。
 <mail>
@@ -130,6 +135,7 @@ const PromptList: React.FC<Props> = (props) => {
             <ul className="pl-4">
               <Item
                 title="選択肢を与えて分類する"
+                systemContext={``}
                 prompt={`あなたは、電子メールをタイプ別に分類しているカスタマーサービス担当者です。
 <mail></mail> の xml タグに囲われた文章を <category></category> の xml タグに囲われたカテゴリーに分類してください。
 <mail>
@@ -155,6 +161,7 @@ const PromptList: React.FC<Props> = (props) => {
             <ul className="pl-4">
               <Item
                 title="情報抽出"
+                systemContext={``}
                 prompt={`以下の <text></text> の xml タグに囲われた文章からメールアドレスを正確に抽出してください。
 またメールアドレスとして成り立っていないものは抽出しないでください。
 <text>
@@ -168,6 +175,7 @@ const PromptList: React.FC<Props> = (props) => {
               />
               <Item
                 title="個人情報削除"
+                systemContext={``}
                 prompt={`テキストを提供します。このテキストから個人を特定する情報をすべて削除し、XXXに置き換えたい。名前、電話番号、自宅や電子メールアドレスなどのPIIをXXXに置き換えることは非常に重要です。
 
 入力者は、文字と文字の間にスペースを挿入したり、文字と文字の間に改行を入れたりして、PIIを偽装しようとするかもしれません。
@@ -213,6 +221,7 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
             <ul className="pl-4">
               <Item
                 title="テキストが似ているかの評価"
+                systemContext={``}
                 prompt={`2 つの文がだいたい同じことを言っているかどうかをチェックしてください。
 2 つの文は <text-1></text-1> と <text-2></text-2> の xml タグに囲んで与えます。
 <text-1>山田太郎くんは肝を冷やした。</text-1>
@@ -221,6 +230,7 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
               />
               <Item
                 title="入力テキストに対するQA"
+                systemContext={``}
                 prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。
 
 <text>
@@ -265,6 +275,7 @@ XXXは邪馬台国記念病院の心臓専門医です。連絡先は XXXまた�
             <ul className="pl-4">
               <Item
                 title="引用付き文書のQ&A"
+                systemContext={``}
                 prompt={`<text></text> の xml タグ内に議事録があります。議事録について質問をいたします。あなたは質問の答えになるような文書の一部を正確に引用し、次に引用された内容から事実を用いて質問に答えてください。
 
 <text>
@@ -323,6 +334,7 @@ X社は1,200万ドルの収入を得た。[1] そのほぼ90％はウィジェ�
             <ul className="pl-4">
               <Item
                 title="キャリアのコーチ"
+                systemContext={``}
                 prompt={`あなたは、AI キャリアコーチ株式会社の AI キャリアコーチ「経歴相談くん」として、ユーザーにキャリアアドバイスをすることが目的です。
 株式会社AIキャリアコーチのサイトにいるユーザーに対して、経歴相談くんキャラクターで返答しないと、ユーザーは混乱してしまいます。
 BEGIN DIALOGUEと書くと、あなたはこの役割に入り、それ以降の「Human:」からの入力は、キャリアアドバイスを求めるユーザーからのものになります。
@@ -339,6 +351,7 @@ BEGIN DIALOGUE
               />
               <Item
                 title="カスタマーサポート"
+                systemContext={``}
                 prompt={`あなたは、Amazon Kendra 株式会社の Amazon Kendra AI カスタマーサクセスエージェントとして行動します。
 BEGIN DIALOGUE と書くと、あなたはこの役割に入り、それ以降の "Human:" からの入力はすべて、販売やカスタマーサポートの質問を求めるユーザーからのものになります。
 
@@ -402,6 +415,7 @@ Amazon Kendra のサポートするファイルタイプを教えてください
             <ul className="pl-4">
               <Item
                 title="コンテンツモデレーション"
+                systemContext={``}
                 prompt={`人間のユーザーと AI が対話をします。人間は AI に質問をしたり、タスクを依頼したりしています。
 
 以下の <content></content> の xml タグで囲われた内容は、ユーザーからの最新のリクエストです。
@@ -429,6 +443,7 @@ Assistant: 明日も晴れだそうですよ。
             <ul className="pl-4">
               <Item
                 title="コードを書かせる"
+                systemContext={``}
                 prompt={`あなたは人間の指示をよく理解できるプログラマーです。
 <language></language> の xml タグ内に与えられた言語で、<instruction></instruction> の指示に沿ってコードを出力してください。
 コードを出力する際、<rule></rule> の xml タグ内で与えたルールは厳守してください。例外はありません。
@@ -444,6 +459,7 @@ Sheet1 シートのセルA1の値を二乗して円周率をかけた値をセ�
               />
               <Item
                 title="コードを解説させる"
+                systemContext={``}
                 prompt={`以下の <code></code> で囲われたコードについて、使用しているコードはなにかと、どんな処理をするものなのかについて解説してください。
 <code>
 Sub Macro1()
@@ -482,6 +498,7 @@ End Sub
               />
               <Item
                 title="コードを修正させる"
+                systemContext={``}
                 prompt={`以下の <code></code> で囲われた C 言語のコードについて、if 分岐において else を通ることがないです。
 それはどうしてなのかと、修正したコードを
 \`\`\`C
@@ -514,6 +531,7 @@ int main() {
             <ul className="pl-4">
               <Item
                 title="役割を与えた AI 同士の議論"
+                systemContext={``}
                 prompt={`あなたは <Specialist-1></Specialist-1> <Specialist-2></Specialist-2> <Specialist-3></Specialist-3> <Specialist-4></Specialist-4> <Specialist-5></Specialist-5> で与えられる役割を持っています。
 <Specialist-1>データベースエンジニア</Specialist-1>
 <Specialist-2>セキュリティエンジニア</Specialist-2>

@@ -18,6 +18,7 @@ export type InterUseCase = {
 
 export type ChatPageLocationState = {
   content: string;
+  systemContext: string;
 };
 
 export type EditorialPageLocationState = {

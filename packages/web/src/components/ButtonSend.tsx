@@ -6,6 +6,7 @@ type Props = BaseProps & {
   disabled?: boolean;
   loading?: boolean;
   onClick: () => void;
+  icon?: React.ReactNode;
 };
 
 const ButtonSend: React.FC<Props> = (props) => {
@@ -21,7 +22,7 @@ const ButtonSend: React.FC<Props> = (props) => {
       {props.loading ? (
         <PiSpinnerGap className="animate-spin" />
       ) : (
-        <PiPaperPlaneRightFill />
+        <>{props.icon ? <>{props.icon}</> : <PiPaperPlaneRightFill />}</>
       )}
     </button>
   );
