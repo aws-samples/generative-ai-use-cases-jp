@@ -5,7 +5,10 @@ import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
+import Button from '../components/Button';
+import ExpandableField from '../components/ExpandableField';
 import useScroll from '../hooks/useScroll';
+import { PiArrowClockwiseBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageLocationState } from '../@types/navigate';
@@ -15,14 +18,17 @@ import { MODELS } from '../hooks/useModel';
 type StateType = {
   modelId: string;
   content: string;
+  inputSystemContext: string;
   setModelId: (c: string) => void;
   setContent: (c: string) => void;
+  setInputSystemContext: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
     modelId: '',
     content: '',
+    inputSystemContext: '',
     setModelId: (s: string) => {
       set(() => ({
         modelId: s,
@@ -33,11 +39,23 @@ const useChatPageState = create<StateType>((set) => {
         content: s,
       }));
     },
+    setInputSystemContext: (s: string) => {
+      set(() => ({
+        inputSystemContext: s,
+      }));
+    },
   };
 });
 
 const ChatPage: React.FC = () => {
-  const { modelId, content, setModelId, setContent } = useChatPageState();
+  const {
+    modelId,
+    content,
+    inputSystemContext,
+    setModelId,
+    setContent,
+    setInputSystemContext,
+  } = useChatPageState();
   const { state, pathname } = useLocation() as Location<ChatPageLocationState>;
   const { chatId } = useParams();
 
@@ -49,6 +67,8 @@ const ChatPage: React.FC = () => {
     rawMessages,
     clear,
     postChat,
+    updateSystemContext,
+    getCurrentSystemContext,
   } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
@@ -64,8 +84,16 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     if (state !== null) {
+      if (state.systemContext !== '') {
+        updateSystemContext(state.systemContext);
+      } else {
+        clear();
+        setInputSystemContext(currentSystemContext);
+      }
+
       setContent(state.content);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, setContent]);
 
   useEffect(() => {
@@ -109,6 +137,14 @@ const ChatPage: React.FC = () => {
     }
   }, [showSystemContext, rawMessages, messages]);
 
+  const currentSystemContext = useMemo(() => {
+    return getCurrentSystemContext();
+  }, [getCurrentSystemContext]);
+
+  useEffect(() => {
+    setInputSystemContext(currentSystemContext);
+  }, [currentSystemContext, setInputSystemContext]);
+
   return (
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
@@ -131,7 +167,7 @@ const ChatPage: React.FC = () => {
         </div>
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (
-          <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
+          <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center">
             <BedrockIcon
               className={`fill-gray-400 ${
                 loadingMessages ? 'animate-pulse' : ''
@@ -174,7 +210,39 @@ const ChatPage: React.FC = () => {
             </div>
           ))}
 
-        <div className="fixed bottom-0 z-0 flex w-full items-end justify-center print:hidden lg:pr-64">
+        <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden lg:pr-64">
+          {isEmpty && !loadingMessages && !chatId && (
+            <ExpandableField
+              label="システムコンテキスト"
+              className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
+              <>
+                <div className="absolute -top-2 right-0 mb-2 flex justify-end">
+                  <Button
+                    outlined
+                    className="text-xs"
+                    onClick={() => {
+                      clear();
+                      setInputSystemContext(currentSystemContext);
+                    }}>
+                    初期化
+                  </Button>
+                </div>
+                <InputChatContent
+                  disableMarginBottom={true}
+                  content={inputSystemContext}
+                  onChangeContent={setInputSystemContext}
+                  fullWidth={true}
+                  resetDisabled={true}
+                  disabled={inputSystemContext === currentSystemContext}
+                  sendIcon={<PiArrowClockwiseBold />}
+                  onSend={() => {
+                    updateSystemContext(inputSystemContext);
+                  }}
+                  hideReset={true}
+                />
+              </>
+            </ExpandableField>
+          )}
           <InputChatContent
             content={content}
             disabled={loading}

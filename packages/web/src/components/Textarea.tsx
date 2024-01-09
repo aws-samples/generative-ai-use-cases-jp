@@ -12,6 +12,7 @@ type Props = RowItemProps & {
   noBorder?: boolean;
   rows?: number;
   maxHeight?: number;
+  onEnter?: () => void;
   onChange: (value: string) => void;
 };
 
@@ -37,6 +38,30 @@ const Textarea: React.FC<Props> = (props) => {
       setIsMax(false);
     }
   }, [props.value, _maxHeight]);
+
+  useEffect(() => {
+    const current = ref.current;
+    if (!current) {
+      return;
+    }
+
+    const listener = (e: DocumentEventMap['keypress']) => {
+      if (props.onEnter) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          props.onEnter();
+        }
+      }
+    };
+
+    current.addEventListener('keypress', listener);
+
+    return () => {
+      if (current) {
+        current.removeEventListener('keypress', listener);
+      }
+    };
+  }, [ref, props]);
 
   return (
     <RowItem notItem={props.notItem}>

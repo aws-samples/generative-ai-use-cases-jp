@@ -38,6 +38,7 @@ const LandingPage: React.FC = () => {
     const state: ChatPageLocationState = {
       content: `フィボナッチ数を返す Python の関数を書いてください。
 引数が項で、処理は再帰で書くようにしてください。`,
+      systemContext: '',
     };
     navigate('/chat', {
       state,

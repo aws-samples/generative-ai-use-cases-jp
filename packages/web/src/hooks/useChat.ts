@@ -32,6 +32,7 @@ const useChatState = create<{
   clear: (id: string) => void;
   restore: (id: string, messages: RecordedMessage[], chat: Chat) => void;
   updateSystemContext: (id: string, systemContext: string) => void;
+  getCurrentSystemContext: (id: string) => string;
   pushMessage: (id: string, role: Role, content: string) => void;
   popMessage: (id: string) => ShownMessage | undefined;
   post: (
@@ -227,6 +228,16 @@ const useChatState = create<{
         };
       });
     },
+    getCurrentSystemContext: (id: string) => {
+      const chat = get().chats[id];
+
+      if (chat) {
+        return chat.messages.filter((message) => message.role === 'system')[0]
+          .content;
+      }
+
+      return '';
+    },
     pushMessage: (id: string, role: Role, content: string) => {
       set((state) => {
         return {
@@ -395,6 +406,7 @@ const useChat = (id: string, chatId?: string) => {
     post,
     sendFeedback,
     updateSystemContext,
+    getCurrentSystemContext,
     pushMessage,
     popMessage,
   } = useChatState();
@@ -437,6 +449,9 @@ const useChat = (id: string, chatId?: string) => {
     },
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
+    },
+    getCurrentSystemContext: () => {
+      return getCurrentSystemContext(id);
     },
     pushMessage: (role: Role, content: string) =>
       pushMessage(id, role, content),
