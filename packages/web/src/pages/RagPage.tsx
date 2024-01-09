@@ -57,7 +57,7 @@ const RagPage: React.FC = () => {
   }, [modelId, availableModels, setModelId]);
 
   const onSend = useCallback(() => {
-    postMessage(content, textModels.find((m) => m.modelId === modelId)!);
+    postMessage(content, textModels.find((m) => m.modelId === modelId)!,['\n\nHuman:']);
     setContent('');
   }, [textModels, modelId, content, postMessage, setContent]);
 

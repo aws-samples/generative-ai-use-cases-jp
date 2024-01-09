@@ -124,6 +124,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(
       props.content,
       false,
+      ['\n\nHuman:'],
       props.textModels.find((m) => m.modelId === props.modelId)!
     );
     props.onChangeContent('');
@@ -132,7 +133,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const onRetrySend = useCallback(() => {
     popMessage();
     const lastMessage = popMessage();
-    postChat(lastMessage?.content ?? '');
+    postChat(
+      lastMessage?.content ?? '',
+      false,
+      ['\n\nHuman:']
+    );
   }, [popMessage, postChat]);
 
   return (

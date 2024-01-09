@@ -110,6 +110,7 @@ const GenerateTextPage: React.FC = () => {
         context,
       }),
       true,
+      ['\n\nHuman:'],
       textModels.find((m) => m.modelId === modelId)
     );
   };

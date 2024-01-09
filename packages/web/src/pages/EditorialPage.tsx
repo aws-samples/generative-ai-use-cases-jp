@@ -230,6 +230,7 @@ const EditorialPage: React.FC = () => {
         context: context === '' ? undefined : context,
       }),
       true,
+      ['\n\nHuman:'],
       textModels.find((m) => m.modelId === modelId)
     );
   };

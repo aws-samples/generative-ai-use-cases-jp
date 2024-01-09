@@ -106,6 +106,7 @@ const ChatPage: React.FC = () => {
     postChat(
       content,
       false,
+      ['\n\nHuman:'],
       textModels.find((m) => m.modelId === modelId)
     );
     setContent('');

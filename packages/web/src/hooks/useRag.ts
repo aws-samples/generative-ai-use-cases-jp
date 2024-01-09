@@ -26,7 +26,7 @@ const useRag = (id: string) => {
     clear,
     loading,
     messages,
-    postMessage: async (content: string, model: Model) => {
+    postMessage: async (content: string, model: Model, stopSequences:string[]) => {
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
       pushMessage('user', content);
@@ -61,6 +61,7 @@ const useRag = (id: string) => {
       postChat(
         content,
         false,
+        stopSequences,
         model,
         (messages: ShownMessage[]) => {
           // 前処理：Few-shot で参考にされてしまうため、過去ログから footnote を削除

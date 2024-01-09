@@ -107,6 +107,7 @@ const SummarizePage: React.FC = () => {
         context,
       }),
       true,
+      ['\n\nHuman:'],
       textModels.find((m) => m.modelId === modelId)
     );
   };
