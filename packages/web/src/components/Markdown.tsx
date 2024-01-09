@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { BaseProps } from '../@types/common';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -30,7 +30,7 @@ const LinkRenderer: React.FC<
 const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
   return (
     <ReactMarkdown
-      className={`${className ?? ''} prose max-w-full break-all`}
+      className={`${className ?? ''} prose max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-screen-md break-all prose-code:w-1/5`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
@@ -44,11 +44,11 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
           const codeText = String(children).replace(/\n$/, '');
 
           return (
-            <Fragment>
-              <div className="code-block-bar" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{isCodeBlock ? language : 'text'}</span>
+            <>
+              <div className="flex">
+                <span className="flex-auto">{isCodeBlock ? language : ''}</span>
                 <ButtonCopy
-                  className="mr-0.5 text-gray-400"
+                  className="mr-2 text-gray-400 justify-end"
                   text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
                 />
               </div>
@@ -59,7 +59,7 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
                 language={isCodeBlock ? language : 'plaintext'}
                 PreTag="div"
               />
-            </Fragment>
+            </>
           );
         },
       }}
