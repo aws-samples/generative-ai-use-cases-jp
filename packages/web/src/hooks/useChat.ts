@@ -103,6 +103,7 @@ const useChatState = create<{
     const title = await predictTitle({
       chat: get().chats[id].chat!,
       messages: omitUnusedMessageProperties(get().chats[id].messages),
+      stopSequences: ['\n\nHuman:'],
     });
     setTitle(id, title);
   };
@@ -271,7 +272,7 @@ const useChatState = create<{
       preProcessInput:
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
-      postProcessOutput: ((message: string) => string) | undefined = undefined
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
     ) => {
       setLoading(id, true);
 
@@ -314,6 +315,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: omitUnusedMessageProperties(inputMessages),
+        stopSequences: ['\n\nHuman:']
       });
 
       // Assistant の発言を更新

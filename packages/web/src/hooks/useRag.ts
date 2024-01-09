@@ -43,6 +43,7 @@ const useRag = (id: string) => {
             }),
           },
         ],
+        stopSequences: ['\n\nHuman:']
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
