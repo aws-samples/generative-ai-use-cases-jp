@@ -21,8 +21,7 @@ const systemContexts: { [key: string]: string } = {
 </step>
 
 <rules>
-* プロンプトは <output-format></output-format> の通りに、JSON形式で <output></output> タグで囲んで出力してください。JSON以外の文字列は一切出力しないでください。ルールで定められたキーやJSON以外の文言は一切出力禁止です。
-* JSON形式以外の文言を出力することは一切禁止されています。挨拶、雑談、ルールの説明など一切禁止です。
+* プロンプトは <output></output> の xml タグに囲われた通りに出力してください。
 * 出力するプロンプトがない場合は、promptとnegativePromptを空文字にして、commentにその理由を記載してください。
 * プロンプトは単語単位で、カンマ区切りで出力してください。長文で出力しないでください。プロンプトは必ず英語で出力してください。
 * プロンプトには以下の要素を含めてください。
@@ -45,14 +44,16 @@ const systemContexts: { [key: string]: string } = {
  * 3d-model,analog-film,anime,cinematic,comic-book,digital-art,enhance,fantasy-art,isometric,line-art,low-poly,modeling-compound,neon-punk,origami,photographic,pixel-art,tile-texture
 </recommended-style-preset-rules>
 
-<output-format>
+<output>
 {
   prompt: string,
   negativePrompt: string,
   comment: string
   recommendedStylePreset: string[]
 }
-</output-format>`,
+</output>
+
+出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
 };
 
 export const getSystemContextById = (id: string) => {
