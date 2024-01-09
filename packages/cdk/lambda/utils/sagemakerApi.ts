@@ -68,7 +68,7 @@ const sagemakerApi: ApiInterface = {
     // This logic accounts for this by concatenating bytes and
     // return lines (ending with a '\n' character) within the buffer.
     // It will also save any pending lines that doe not end with a '\n'
-    // to make sure truncations are concatinated.
+    // to make sure truncations are concatenated.
 
     let buffer = '';
     const pt = getSageMakerModelTemplate(model.modelId);
