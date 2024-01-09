@@ -1,11 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import ButtonSend from './ButtonSend';
 import Textarea from './Textarea';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import { PiArrowsCounterClockwise } from 'react-icons/pi';
-import { v4 as uuid } from 'uuid';
 
 type Props = {
   content: string;
@@ -41,36 +40,12 @@ const InputChatContent: React.FC<Props> = (props) => {
     return props.content === '' || props.disabled;
   }, [props.content, props.disabled]);
 
-  // InputChatContent がページ内に複数存在しても問題ないように
-  // ID をランダムにつける
-  const id = useMemo(() => {
-    return uuid();
-  }, []);
-
-  useEffect(() => {
-    const listener = (e: DocumentEventMap['keypress']) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-
-        if (!disabledSend) {
-          props.onSend();
-        }
-      }
-    };
-    document.getElementById(id)?.addEventListener('keypress', listener);
-
-    return () => {
-      document.getElementById(id)?.removeEventListener('keypress', listener);
-    };
-  });
-
   return (
     <div
       className={`${
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
       }`}>
       <div
-        id={id}
         className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
@@ -81,6 +56,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           notItem
           value={props.content}
           onChange={props.onChangeContent}
+          onEnter={disabledSend ? undefined : props.onSend}
         />
         <ButtonSend
           className="m-2 align-bottom"
