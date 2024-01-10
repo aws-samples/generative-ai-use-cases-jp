@@ -83,9 +83,9 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
 
 // Model Config
 
-const createBodyTextClaude = (messages: UnrecordedMessage[], stopSequences: string[]) => {
+const createBodyTextClaude = (messages: UnrecordedMessage[], stopSequences: string[], extraSuffix: string) => {
   const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
+    prompt: generatePrompt(CLAUDE_PROMPT, messages, extraSuffix),
     stop_sequences: stopSequences,
     ...CLAUDE_DEFAULT_PARAMS,
   };
@@ -163,7 +163,7 @@ const extractOutputImageTitanImage = (
 export const BEDROCK_MODELS: {
   [key: string]: {
     promptTemplate: PromptTemplate;
-    createBodyText: (messages: UnrecordedMessage[], stopSequences: string[]) => string;
+    createBodyText: (messages: UnrecordedMessage[], stopSequences: string[], extraSuffix:string) => string;
   };
 } = {
   'anthropic.claude-v2:1': {

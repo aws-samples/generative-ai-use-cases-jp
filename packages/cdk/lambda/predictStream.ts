@@ -23,6 +23,7 @@ export const handler = awslambda.streamifyResponse(
       model,
       event.messages,
       event.stopSequences,
+      event.extraSuffix,
     )) {
       responseStream.write(token);
     }

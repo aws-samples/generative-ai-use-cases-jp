@@ -24,9 +24,10 @@ export const handler = async (
     ];
 
     const stopSequences: string[] = req.stopSequences;
+    const extraSuffix: string = req.extraSuffix;
 
     const model = defaultModel;
-    const title = (await api[model.type].invoke(model, messages, stopSequences)).replace(
+    const title = (await api[model.type].invoke(model, messages, stopSequences, extraSuffix)).replace(
       /<([^>]+)>([\s\S]*?)<\/\1>/,
       '$2'
     );

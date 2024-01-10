@@ -125,6 +125,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
       props.content,
       false,
       ['\n\nHuman:'],
+      '',
       props.textModels.find((m) => m.modelId === props.modelId)!
     );
     props.onChangeContent('');
@@ -136,7 +137,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(
       lastMessage?.content ?? '',
       false,
-      ['\n\nHuman:']
+      ['\n\nHuman:'],
+      '',
     );
   }, [popMessage, postChat]);
 

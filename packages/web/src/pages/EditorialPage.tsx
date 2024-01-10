@@ -231,6 +231,7 @@ const EditorialPage: React.FC = () => {
       }),
       true,
       ['\n\nHuman:'],
+      '',
       textModels.find((m) => m.modelId === modelId)
     );
   };

@@ -135,7 +135,8 @@ const WebContent: React.FC = () => {
         }),
         true,
         ['\n\nHuman:'],
-        textModels.find((m) => m.modelId === modelId)
+        '',
+        textModels.find((m) => m.modelId === modelId),
       );
     },
     [textModels, postChat]

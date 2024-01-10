@@ -22,30 +22,32 @@ const TGI_DEFAULT_PARAMS = {
 const createBodyText = (
   model: string,
   messages: UnrecordedMessage[],
-  stream: boolean
+  stream: boolean,
+  stopSequences: string[],
+  extraSuffix: string,
 ): string => {
   return JSON.stringify({
-    inputs: generatePrompt(getSageMakerModelTemplate(model), messages),
+    inputs: generatePrompt(getSageMakerModelTemplate(model), messages, extraSuffix),
     parameters: TGI_DEFAULT_PARAMS,
     stream: stream,
   });
 };
 
 const sagemakerApi: ApiInterface = {
-  invoke: async (model, messages) => {
+  invoke: async (model, messages, stopSequences, extraSuffix) => {
     const command = new InvokeEndpointCommand({
       EndpointName: model.modelId,
-      Body: createBodyText(model.modelId, messages, false),
+      Body: createBodyText(model.modelId, messages, false, stopSequences, extraSuffix),
       ContentType: 'application/json',
       Accept: 'application/json',
     });
     const data = await client.send(command);
     return JSON.parse(new TextDecoder().decode(data.Body))[0].generated_text;
   },
-  invokeStream: async function* (model, messages) {
+  invokeStream: async function* (model, messages, stop_sequences, extraSuffix) {
     const command = new InvokeEndpointWithResponseStreamCommand({
       EndpointName: model.modelId,
-      Body: createBodyText(model.modelId, messages, true),
+      Body: createBodyText(model.modelId, messages, true, stop_sequences, extraSuffix),
       ContentType: 'application/json',
       Accept: 'application/json',
     });

@@ -41,6 +41,7 @@ const useChatState = create<{
     mutateListChat: KeyedMutator<ListChatsResponse>,
     ignoreHistory: boolean,
     stopSequences: string[],
+    extraSuffix: string,
     model: Model | undefined,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined
@@ -105,6 +106,7 @@ const useChatState = create<{
       chat: get().chats[id].chat!,
       messages: omitUnusedMessageProperties(get().chats[id].messages),
       stopSequences: ['\n\nHuman:'],
+      extraSuffix: '',
     });
     setTitle(id, title);
   };
@@ -270,6 +272,7 @@ const useChatState = create<{
       mutateListChat,
       ignoreHistory: boolean,
       stopSequences: string[],
+      extraSuffix: string,
       model: Model | undefined,
       preProcessInput:
         | ((message: ShownMessage[]) => ShownMessage[])
@@ -317,7 +320,8 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: omitUnusedMessageProperties(inputMessages),
-        stopSequences: stopSequences
+        stopSequences: stopSequences,
+        extraSuffix: extraSuffix
       });
 
       // Assistant の発言を更新
@@ -467,6 +471,7 @@ const useChat = (id: string, chatId?: string) => {
       content: string,
       ignoreHistory: boolean = false,
       stopSequences: string[],
+      extraSuffix: string,
       model: Model | undefined = undefined,
       preProcessInput:
         | ((message: ShownMessage[]) => ShownMessage[])
@@ -479,6 +484,7 @@ const useChat = (id: string, chatId?: string) => {
         mutateConversations,
         ignoreHistory,
         stopSequences,
+        extraSuffix,
         model,
         preProcessInput,
         postProcessOutput

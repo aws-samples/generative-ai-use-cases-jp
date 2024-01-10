@@ -43,7 +43,8 @@ const useRag = (id: string) => {
             }),
           },
         ],
-        stopSequences: ['\n\nHuman:']
+        stopSequences: ['\n\nHuman:'],
+        extraSuffix: '',
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
@@ -62,6 +63,7 @@ const useRag = (id: string) => {
         content,
         false,
         stopSequences,
+        '',
         model,
         (messages: ShownMessage[]) => {
           // 前処理：Few-shot で参考にされてしまうため、過去ログから footnote を削除

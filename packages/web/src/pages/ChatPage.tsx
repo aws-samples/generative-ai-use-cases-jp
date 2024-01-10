@@ -107,6 +107,7 @@ const ChatPage: React.FC = () => {
       content,
       false,
       ['\n\nHuman:'],
+      '',
       textModels.find((m) => m.modelId === modelId)
     );
     setContent('');
