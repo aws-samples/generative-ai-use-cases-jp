@@ -78,6 +78,8 @@ const SummarizePage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
+  const stopSequences: string[] = ['</output>']
+  const extraSuffix: string = '<output>'
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -107,8 +109,8 @@ const SummarizePage: React.FC = () => {
         context,
       }),
       true,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
       textModels.find((m) => m.modelId === modelId)
     );
   };
@@ -118,10 +120,7 @@ const SummarizePage: React.FC = () => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
-    const _response = messages[messages.length - 1].content;
-    setSummarizedSentence(
-      _response.replace(/(<output>|<\/output>)/g, '').trim()
-    );
+    setSummarizedSentence(messages[messages.length - 1].content);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 

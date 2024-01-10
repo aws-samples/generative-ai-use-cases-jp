@@ -53,7 +53,7 @@ const systemContexts: { [key: string]: string } = {
 }
 </output>
 
-出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
+出力は必ず ＜output> タグから始め、 prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけを入れて、</output> タグで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
 };
 
 export const getSystemContextById = (id: string) => {

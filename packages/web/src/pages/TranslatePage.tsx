@@ -103,6 +103,8 @@ const TranslatePage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
+  const stopSequences: string[] = ['</output>']
+  const extraSuffix: string = '<output>'
 
   // Memo 変数
   const disabledExec = useMemo(() => {
@@ -163,10 +165,7 @@ const TranslatePage: React.FC = () => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
-    const _response = messages[messages.length - 1].content;
-    setTranslatedSentence(
-      _response.replace(/(<output>|<\/output>)/g, '').trim()
-    );
+    setTranslatedSentence(messages[messages.length - 1].content);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
@@ -184,8 +183,8 @@ const TranslatePage: React.FC = () => {
         context: context === '' ? undefined : context,
       }),
       true,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
       textModels.find((m) => m.modelId === modelId)
     );
   };

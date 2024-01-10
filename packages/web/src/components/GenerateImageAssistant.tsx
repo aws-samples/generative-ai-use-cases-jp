@@ -29,8 +29,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
-
   const { scrollToBottom } = useScroll();
+  const stopSequences: string[] = ['</output>']
+  const extraSuffix: string = '<output>'
+
   useEffect(() => {
     if (messages.length > 0) {
       scrollToBottom('image-assistant-chat');
@@ -124,8 +126,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(
       props.content,
       false,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
       props.textModels.find((m) => m.modelId === props.modelId)!
     );
     props.onChangeContent('');
@@ -137,8 +139,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(
       lastMessage?.content ?? '',
       false,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
     );
   }, [popMessage, postChat]);
 

@@ -20,6 +20,8 @@ const useRag = (id: string) => {
 
   const { retrieve } = useRagApi();
   const { predict } = useChatApi();
+  const stopSequences: string[] = ['\n\nHuman:'];
+  const extraSuffix: string = ''
 
   return {
     isEmpty,
@@ -43,8 +45,8 @@ const useRag = (id: string) => {
             }),
           },
         ],
-        stopSequences: ['\n\nHuman:'],
-        extraSuffix: '',
+        stopSequences: stopSequences,
+        extraSuffix: extraSuffix,
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する

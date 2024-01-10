@@ -104,6 +104,8 @@ const WebContent: React.FC = () => {
   const { getWebText } = useChatApi();
   const [showError, setShowError] = useState(false);
   const { modelIds: availableModels, textModels } = MODELS;
+  const stopSequences: string[] = ['</output>']
+  const extraSuffix: string = '<output>'
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;
@@ -134,8 +136,8 @@ const WebContent: React.FC = () => {
           context,
         }),
         true,
-        ['\n\nHuman:'],
-        '',
+        stopSequences,
+        extraSuffix,
         textModels.find((m) => m.modelId === modelId),
       );
     },
@@ -181,8 +183,7 @@ const WebContent: React.FC = () => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
-    const _response = messages[messages.length - 1].content;
-    setContent(_response.replace(/(<output>|<\/output>)/g, '').trim());
+    setContent(messages[messages.length - 1].content);
   }, [messages, setContent]);
 
   const onClickClear = useCallback(() => {

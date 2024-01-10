@@ -77,6 +77,8 @@ const GenerateTextPage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
+  const stopSequences: string[] = ['</output>'];
+  const extraSuffix: string = '<output>'
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;
@@ -110,8 +112,8 @@ const GenerateTextPage: React.FC = () => {
         context,
       }),
       true,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
       textModels.find((m) => m.modelId === modelId)
     );
   };
@@ -121,8 +123,7 @@ const GenerateTextPage: React.FC = () => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
-    const _response = messages[messages.length - 1].content;
-    setText(_response.replace(/(<output>|<\/output>)/g, '').trim());
+    setText(messages[messages.length - 1].content);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 

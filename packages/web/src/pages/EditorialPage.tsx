@@ -92,6 +92,8 @@ const EditorialPage: React.FC = () => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { modelIds: availableModels, textModels } = MODELS;
+  const stopSequences: string[] = ['</output>']
+  const extraSuffix: string = '<output>'
 
   // Memo 変数
   const filterComment = (
@@ -230,8 +232,8 @@ const EditorialPage: React.FC = () => {
         context: context === '' ? undefined : context,
       }),
       true,
-      ['\n\nHuman:'],
-      '',
+      stopSequences,
+      extraSuffix,
       textModels.find((m) => m.modelId === modelId)
     );
   };
