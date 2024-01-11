@@ -30,7 +30,9 @@ const LinkRenderer: React.FC<
 const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
   return (
     <ReactMarkdown
-      className={`${className ?? ''} prose max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-screen-md break-all prose-code:w-1/5`}
+      className={`${
+        className ?? ''
+      } prose prose-code:w-1/5 max-w-sm break-all sm:max-w-md md:max-w-2xl lg:max-w-screen-md`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
@@ -38,7 +40,6 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
         a: LinkRenderer,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         code({ node, inline, className, children, ...props }) {
-
           const language = /language-(\w+)/.exec(className || '')?.[1];
           const isCodeBlock = !inline && language;
           const codeText = String(children).replace(/\n$/, '');
@@ -48,7 +49,7 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
               <div className="flex">
                 <span className="flex-auto">{isCodeBlock ? language : ''}</span>
                 <ButtonCopy
-                  className="mr-2 text-gray-400 justify-end"
+                  className="mr-2 justify-end text-gray-400"
                   text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
                 />
               </div>

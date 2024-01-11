@@ -2,13 +2,20 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Location, useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
+import useChatApi from '../hooks/useChatApi';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
 import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
+import ButtonCopy from '../components/ButtonCopy';
 import ExpandableField from '../components/ExpandableField';
 import useScroll from '../hooks/useScroll';
-import { PiArrowClockwiseBold } from 'react-icons/pi';
+import {
+  PiArrowClockwiseBold,
+  PiShareFatFill,
+  PiX,
+} from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageLocationState } from '../@types/navigate';
@@ -70,9 +77,11 @@ const ChatPage: React.FC = () => {
     updateSystemContext,
     getCurrentSystemContext,
   } = useChat(pathname, chatId);
+  const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
   const { modelIds: availableModels, textModels } = MODELS;
+  const { data: share, mutate: reloadShare } = findShareId(chatId);
 
   const title = useMemo(() => {
     if (chatId) {
@@ -118,6 +127,32 @@ const ChatPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
 
+  const [creatingShareId, setCreatingShareId] = useState(false);
+  const [deletingShareId, setDeletingShareId] = useState(false);
+  const [showShareIdModal, setShowShareIdModal] = useState(false);
+
+  const onCreateShareId = useCallback(async () => {
+    setCreatingShareId(true);
+    await createShareId(chatId!);
+    reloadShare();
+    setCreatingShareId(false);
+  }, [chatId, createShareId]);
+
+  const onDeleteShareId = useCallback(async () => {
+    setDeletingShareId(true);
+    await deleteShareId(share!.shareId.split('#')[1]);
+    reloadShare();
+    setDeletingShareId(false);
+  }, [share, deleteShareId]);
+
+  const shareLink = useMemo(() => {
+    if (share) {
+      return `${window.location.origin}/share/${share.shareId.split('#')[1]}`;
+    } else {
+      return null;
+    }
+  }, [share])
+
   useEffect(() => {
     if (messages.length > 0) {
       scrollToBottom();
@@ -149,8 +184,8 @@ const ChatPage: React.FC = () => {
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
-          {title}
-        </div>
+    {title}
+    </div>
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
           <SelectField
@@ -177,8 +212,14 @@ const ChatPage: React.FC = () => {
         )}
 
         {!isEmpty && !loadingMessages && (
-          <div className="my-2 flex justify-end pr-3">
-            <label className="relative inline-flex cursor-pointer items-center">
+          <div className="my-2 flex flex-col items-end pr-3">
+            {chatId && (<div>
+              <button className="flex items-center justify-center text-xs mb-1 hover:underline" onClick={() => {setShowShareIdModal(true)}}>
+                <PiShareFatFill className="mr-1"/>
+                シェアする
+              </button>
+            </div>)}
+            <label className="relative inline-flex cursor-pointer items-center hover:underline">
               <input
                 type="checkbox"
                 value=""
@@ -257,6 +298,45 @@ const ChatPage: React.FC = () => {
       </div>
 
       {isEmpty && <PromptList />}
+
+    {showShareIdModal && (
+      <div className="fixed top-0 left-0 w-screen h-screen bg-gray-900/90 flex items-center justify-center">
+        <div className="bg-white rounded">
+          <div className="flex justify-between items-center mb-3 border-b border-aws-squid-ink p-3">
+            <div className="flex items-center">
+              <PiShareFatFill className="mr-1"/>
+      シェアする
+            </div>
+            <ButtonIcon>
+    <PiX onClick={() => {setShowShareIdModal(false)}}/>
+            </ButtonIcon>
+          </div>
+
+          <div className="text-xs text-gray-600 p-3">
+            {share ? (
+              <>
+                リンクを削除することで、会話履歴の公開を停止できます。
+              </>
+            ) : (
+              <>
+              リンクを作成することで、このアプリケーションにログイン可能な全ユーザーに対して会話履歴を公開します。
+              </>
+            )}
+          </div>
+          {shareLink && (<div className="px-2 py-1 bg-aws-squid-ink text-white rounded my-2 flex items-center justify-between mx-3">
+        <div className="text-sm">{shareLink}</div>
+        <ButtonCopy text={shareLink}/>
+      </div>)}
+          <div className="flex justify-end p-3">
+    {share ? (
+      <Button onClick={onDeleteShareId} loading={deletingShareId}>リンクの削除</Button>
+    ) : (
+      <Button onClick={onCreateShareId} loading={creatingShareId}>リンクの作成</Button>
+    )}
+      </div>
+        </div>
+      </div>
+    )}
     </>
   );
 };

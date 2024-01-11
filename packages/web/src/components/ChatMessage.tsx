@@ -14,6 +14,7 @@ type Props = BaseProps & {
   idx?: number;
   chatContent?: ShownMessage;
   loading?: boolean;
+  hideFeedback?: boolean;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -120,34 +121,36 @@ const ChatMessage: React.FC<Props> = (props) => {
           {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
             <div className="lg:w-8"></div>
           )}
-          {chatContent?.role === 'assistant' && !props.loading && (
-            <>
-              <ButtonCopy
-                className="mr-0.5 text-gray-400"
-                text={chatContent?.content || ''}
-              />
-              {chatContent && (
-                <>
-                  <ButtonFeedback
-                    className="mx-0.5"
-                    feedback="good"
-                    message={chatContent}
-                    disabled={disabled}
-                    onClick={() => {
-                      onSendFeedback('good');
-                    }}
-                  />
-                  <ButtonFeedback
-                    className="ml-0.5"
-                    feedback="bad"
-                    message={chatContent}
-                    disabled={disabled}
-                    onClick={() => onSendFeedback('bad')}
-                  />
-                </>
-              )}
-            </>
-          )}
+          {chatContent?.role === 'assistant' &&
+            !props.loading &&
+            !props.hideFeedback && (
+              <>
+                <ButtonCopy
+                  className="mr-0.5 text-gray-400"
+                  text={chatContent?.content || ''}
+                />
+                {chatContent && (
+                  <>
+                    <ButtonFeedback
+                      className="mx-0.5"
+                      feedback="good"
+                      message={chatContent}
+                      disabled={disabled}
+                      onClick={() => {
+                        onSendFeedback('good');
+                      }}
+                    />
+                    <ButtonFeedback
+                      className="ml-0.5"
+                      feedback="bad"
+                      message={chatContent}
+                      disabled={disabled}
+                      onClick={() => onSendFeedback('bad')}
+                    />
+                  </>
+                )}
+              </>
+            )}
         </div>
       </div>
     </div>
