@@ -42,6 +42,16 @@ const CLAUDE_PROMPT: PromptTemplate = {
   eosToken: '',
 };
 
+const CLAUDEV21_PROMPT: PromptTemplate = {
+  prefix: '',
+  suffix: '\n\nAssistant: ',
+  join: '\n\n',
+  user: 'Human: {}',
+  assistant: 'Assistant: {}',
+  system: '{}',
+  eosToken: '',
+};
+
 const LLAMA2_PROMPT: PromptTemplate = {
   prefix: '[INST] ',
   suffix: ' [/INST]',
@@ -86,6 +96,14 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
 const createBodyTextClaude = (messages: UnrecordedMessage[]) => {
   const body: ClaudeParams = {
     prompt: generatePrompt(CLAUDE_PROMPT, messages),
+    ...CLAUDE_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const createBodyTextClaudev21 = (messages: UnrecordedMessage[]) => {
+  const body: ClaudeParams = {
+    prompt: generatePrompt(CLAUDEV21_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
   };
   return JSON.stringify(body);
@@ -166,8 +184,8 @@ export const BEDROCK_MODELS: {
   };
 } = {
   'anthropic.claude-v2:1': {
-    promptTemplate: CLAUDE_PROMPT,
-    createBodyText: createBodyTextClaude,
+    promptTemplate: CLAUDEV21_PROMPT,
+    createBodyText: createBodyTextClaudev21,
   },
   'anthropic.claude-v2': {
     promptTemplate: CLAUDE_PROMPT,
