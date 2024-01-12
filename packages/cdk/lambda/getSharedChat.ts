@@ -21,7 +21,6 @@ export const handler = async (
 
     const userId = res.userId;
     const chatId = res.chatId;
-    console.log(userId, chatId);
 
     const chat = await findChatById(userId.split('#')[1], chatId.split('#')[1]);
     const messages = await listMessages(chatId.split('#')[1]);
