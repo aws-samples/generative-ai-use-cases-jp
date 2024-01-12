@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { createShareLink } from './repository';
+import { createShareId } from './repository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,7 +8,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const response = await createShareLink(userId, chatId);
+    const response = await createShareId(userId, chatId);
 
     return {
       statusCode: 200,

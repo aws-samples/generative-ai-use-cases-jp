@@ -10,7 +10,7 @@ import {
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
 import { GenerateImageParams } from './image';
-import { FindShareId, FindUserIdAndChatId } from './share';
+import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
 
 export type CreateChatResponse = {
@@ -118,11 +118,11 @@ export type WebTextResponse = {
 };
 
 export type CreateShareIdResponse = {
-  findShareId: FindShareId;
-  findUserIdAndChatId: FindUserIdAndChatId;
+  shareId: ShareId;
+  userIdAndChatId: userIdAndChatId;
 };
 
-export type FindShareIdResponse = FindShareId;
+export type FindShareIdResponse = ShareId;
 
 export type GetSharedChatResponse = {
   chat: Chat;

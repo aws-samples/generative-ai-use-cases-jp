@@ -1,10 +1,10 @@
 import { PrimaryKey } from './base';
 
-export type FindShareId = PrimaryKey & {
+export type ShareId = PrimaryKey & {
   shareId: string;
 };
 
-export type FindUserIdAndChatId = PrimaryKey & {
+export type UserIdAndChatId = PrimaryKey & {
   userId: string;
   chatId: string;
 };

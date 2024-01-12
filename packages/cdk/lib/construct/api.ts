@@ -254,15 +254,15 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
     });
 
-    const createShareLink = new NodejsFunction(this, 'CreateShareLink', {
+    const createShareId = new NodejsFunction(this, 'CreateShareId', {
       runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/createShareLink.ts',
+      entry: './lambda/createShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
     });
-    table.grantWriteData(createShareLink);
+    table.grantWriteData(createShareId);
 
     const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
       runtime: Runtime.NODEJS_18_X,
@@ -443,7 +443,7 @@ export class Api extends Construct {
     // POST: /shares/chat/{chatId}
     shareChatIdResource.addMethod(
       'POST',
-      new LambdaIntegration(createShareLink),
+      new LambdaIntegration(createShareId),
       commonAuthorizerProps
     );
     const shareShareIdResource = shareResource

@@ -2,8 +2,8 @@ import {
   Chat,
   RecordedMessage,
   ToBeRecordedMessage,
-  FindShareId,
-  FindUserIdAndChatId,
+  ShareId,
+  UserIdAndChatId,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -235,25 +235,25 @@ export const deleteChat = async (
   );
 };
 
-export const createShareLink = async (
+export const createShareId = async (
   _userId: string,
   _chatId: string
 ): Promise<{
-  findShareId: FindShareId;
-  findUserIdAndChatId: FindUserIdAndChatId;
+  shareId: ShareId;
+  userIdAndChatId: UserIdAndChatId;
 }> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
   const createdDate = `${Date.now()}`;
   const shareId = `share#${crypto.randomUUID()}`;
 
-  const itemForFindShareId = {
+  const itemShareId = {
     id: `${userId}_${chatId}`,
     createdDate,
     shareId,
   };
 
-  const itemForFindUserIdAndChatId = {
+  const itemUserIdAndChatId = {
     id: shareId,
     createdDate,
     userId,
@@ -266,13 +266,13 @@ export const createShareLink = async (
         {
           Put: {
             TableName: TABLE_NAME,
-            Item: itemForFindShareId,
+            Item: itemShareId,
           },
         },
         {
           Put: {
             TableName: TABLE_NAME,
-            Item: itemForFindUserIdAndChatId,
+            Item: itemUserIdAndChatId,
           },
         },
       ],
@@ -280,14 +280,14 @@ export const createShareLink = async (
   );
 
   return {
-    findShareId: itemForFindShareId,
-    findUserIdAndChatId: itemForFindUserIdAndChatId,
+    shareId: itemShareId,
+    userIdAndChatId: itemUserIdAndChatId,
   };
 };
 
 export const findUserIdAndChatId = async (
   _shareId: string
-): Promise<FindUserIdAndChatId | null> => {
+): Promise<UserIdAndChatId | null> => {
   const shareId = `share#${_shareId}`;
   const res = await dynamoDbDocument.send(
     new QueryCommand({
@@ -305,14 +305,14 @@ export const findUserIdAndChatId = async (
   if (!res.Items || res.Items.length === 0) {
     return null;
   } else {
-    return res.Items[0] as FindUserIdAndChatId;
+    return res.Items[0] as UserIdAndChatId;
   }
 };
 
 export const findShareId = async (
   _userId: string,
   _chatId: string
-): Promise<FindShareId | null> => {
+): Promise<ShareId | null> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
   const res = await dynamoDbDocument.send(
@@ -331,7 +331,7 @@ export const findShareId = async (
   if (!res.Items || res.Items.length === 0) {
     return null;
   } else {
-    return res.Items[0] as FindShareId;
+    return res.Items[0] as ShareId;
   }
 };
 
