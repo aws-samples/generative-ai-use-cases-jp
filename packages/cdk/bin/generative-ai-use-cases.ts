@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { IConstruct } from 'constructs';
 import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack';
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
+import { DashboardStack } from '../lib/dashboard-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -26,6 +27,8 @@ const allowedIpV6AddressRanges: string[] | null = app.node.tryGetContext(
 const allowedCountryCodes: string[] | null = app.node.tryGetContext(
   'allowedCountryCodes'
 )!;
+
+const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 
 let cloudFrontWafStack: CloudFrontWafStack | undefined;
 
@@ -66,3 +69,13 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
 cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
+
+new DashboardStack(app, 'GenerativeAiUseCasesDashboardStack', {
+  env: {
+    region: modelRegion,
+  },
+  userPool: generativeAiUseCasesStack.userPool,
+  userPoolClient: generativeAiUseCasesStack.userPoolClient,
+  appRegion: process.env.CDK_DEFAULT_REGION!,
+  crossRegionReferences: true,
+});

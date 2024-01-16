@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "kendraIndexArn": null,
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
