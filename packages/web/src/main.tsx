@@ -10,6 +10,7 @@ import {
 import LandingPage from './pages/LandingPage';
 import Setting from './pages/Setting';
 import ChatPage from './pages/ChatPage';
+import SharedChatPage from './pages/SharedChatPage';
 import SummarizePage from './pages/SummarizePage';
 import GenerateTextPage from './pages/GenerateTextPage';
 import EditorialPage from './pages/EditorialPage';
@@ -39,6 +40,10 @@ const routes: RouteObject[] = [
   {
     path: '/chat/:chatId',
     element: <ChatPage />,
+  },
+  {
+    path: '/share/:shareId',
+    element: <SharedChatPage />,
   },
   {
     path: '/generate',

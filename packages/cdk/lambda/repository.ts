@@ -2,6 +2,8 @@ import {
   Chat,
   RecordedMessage,
   ToBeRecordedMessage,
+  ShareId,
+  UserIdAndChatId,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -11,6 +13,7 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
+  TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 
@@ -228,6 +231,139 @@ export const deleteChat = async (
           };
         }),
       },
+    })
+  );
+};
+
+export const createShareId = async (
+  _userId: string,
+  _chatId: string
+): Promise<{
+  shareId: ShareId;
+  userIdAndChatId: UserIdAndChatId;
+}> => {
+  const userId = `user#${_userId}`;
+  const chatId = `chat#${_chatId}`;
+  const createdDate = `${Date.now()}`;
+  const shareId = `share#${crypto.randomUUID()}`;
+
+  const itemShareId = {
+    id: `${userId}_${chatId}`,
+    createdDate,
+    shareId,
+  };
+
+  const itemUserIdAndChatId = {
+    id: shareId,
+    createdDate,
+    userId,
+    chatId,
+  };
+
+  await dynamoDbDocument.send(
+    new TransactWriteCommand({
+      TransactItems: [
+        {
+          Put: {
+            TableName: TABLE_NAME,
+            Item: itemShareId,
+          },
+        },
+        {
+          Put: {
+            TableName: TABLE_NAME,
+            Item: itemUserIdAndChatId,
+          },
+        },
+      ],
+    })
+  );
+
+  return {
+    shareId: itemShareId,
+    userIdAndChatId: itemUserIdAndChatId,
+  };
+};
+
+export const findUserIdAndChatId = async (
+  _shareId: string
+): Promise<UserIdAndChatId | null> => {
+  const shareId = `share#${_shareId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': shareId,
+      },
+    })
+  );
+
+  if (!res.Items || res.Items.length === 0) {
+    return null;
+  } else {
+    return res.Items[0] as UserIdAndChatId;
+  }
+};
+
+export const findShareId = async (
+  _userId: string,
+  _chatId: string
+): Promise<ShareId | null> => {
+  const userId = `user#${_userId}`;
+  const chatId = `chat#${_chatId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': `${userId}_${chatId}`,
+      },
+    })
+  );
+
+  if (!res.Items || res.Items.length === 0) {
+    return null;
+  } else {
+    return res.Items[0] as ShareId;
+  }
+};
+
+export const deleteShareId = async (_shareId: string): Promise<void> => {
+  const userIdAndChatId = await findUserIdAndChatId(_shareId);
+  const share = await findShareId(
+    userIdAndChatId!.userId.split('#')[1],
+    userIdAndChatId!.chatId.split('#')[1]
+  );
+
+  await dynamoDbDocument.send(
+    new TransactWriteCommand({
+      TransactItems: [
+        {
+          Delete: {
+            TableName: TABLE_NAME,
+            Key: {
+              id: share!.id,
+              createdDate: share!.createdDate,
+            },
+          },
+        },
+        {
+          Delete: {
+            TableName: TABLE_NAME,
+            Key: {
+              id: userIdAndChatId!.id,
+              createdDate: userIdAndChatId!.createdDate,
+            },
+          },
+        },
+      ],
     })
   );
 };
