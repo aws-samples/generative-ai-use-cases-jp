@@ -128,17 +128,27 @@ const ChatPage: React.FC = () => {
   const [showShareIdModal, setShowShareIdModal] = useState(false);
 
   const onCreateShareId = useCallback(async () => {
-    setCreatingShareId(true);
-    await createShareId(chatId!);
-    reloadShare();
-    setCreatingShareId(false);
+    try {
+      setCreatingShareId(true);
+      await createShareId(chatId!);
+      reloadShare();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCreatingShareId(false);
+    }
   }, [chatId, createShareId, reloadShare]);
 
   const onDeleteShareId = useCallback(async () => {
-    setDeletingShareId(true);
-    await deleteShareId(share!.shareId.split('#')[1]);
-    reloadShare();
-    setDeletingShareId(false);
+    try {
+      setDeletingShareId(true);
+      await deleteShareId(share!.shareId.split('#')[1]);
+      reloadShare();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeletingShareId(false);
+    }
   }, [share, deleteShareId, reloadShare]);
 
   const shareLink = useMemo(() => {
@@ -217,7 +227,7 @@ const ChatPage: React.FC = () => {
                     setShowShareIdModal(true);
                   }}>
                   <PiShareFatFill className="mr-1" />
-                  シェアする
+                  {share ? <>シェア中</> : <>シェアする</>}
                 </button>
               </div>
             )}
