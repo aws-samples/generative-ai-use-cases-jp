@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "ragEnabled": true,
+    "ragEnabled": false,
     "kendraIndexArn": null,
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
@@ -28,6 +28,7 @@
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
+    "dashboard": false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [

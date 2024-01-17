@@ -166,5 +166,9 @@ export class DashboardStack extends Stack {
     new CfnOutput(this, 'DashboardName', {
       value: this.dashboard.dashboardName,
     });
+
+    new CfnOutput(this, 'DashboardUrl', {
+      value: `https://console.aws.amazon.com/cloudwatch/home#dashboards/dashboard/${this.dashboard.dashboardName}`,
+    });
   }
 }

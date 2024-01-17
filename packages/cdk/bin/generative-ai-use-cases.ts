@@ -28,8 +28,6 @@ const allowedCountryCodes: string[] | null = app.node.tryGetContext(
   'allowedCountryCodes'
 )!;
 
-const modelRegion: string = app.node.tryGetContext('modelRegion')!;
-
 let cloudFrontWafStack: CloudFrontWafStack | undefined;
 
 // IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、CloudFrontWafStack をデプロイする
@@ -70,12 +68,17 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
 
-new DashboardStack(app, 'GenerativeAiUseCasesDashboardStack', {
-  env: {
-    region: modelRegion,
-  },
-  userPool: generativeAiUseCasesStack.userPool,
-  userPoolClient: generativeAiUseCasesStack.userPoolClient,
-  appRegion: process.env.CDK_DEFAULT_REGION!,
-  crossRegionReferences: true,
-});
+const modelRegion: string = app.node.tryGetContext('modelRegion')!;
+const dashboard: boolean = app.node.tryGetContext('dashboard')!;
+
+if (dashboard) {
+  new DashboardStack(app, 'GenerativeAiUseCasesDashboardStack', {
+    env: {
+      region: modelRegion,
+    },
+    userPool: generativeAiUseCasesStack.userPool,
+    userPoolClient: generativeAiUseCasesStack.userPoolClient,
+    appRegion: process.env.CDK_DEFAULT_REGION!,
+    crossRegionReferences: true,
+  });
+}

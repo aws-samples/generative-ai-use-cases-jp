@@ -203,3 +203,22 @@ Web ページへのアクセスをアクセス元の国で制限したい場合�
 ```bash
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
+
+## モニタリング用のダッシュボードの有効化
+
+context の `dashboard` に `true` を設定します。(デフォルトは `false`)
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "dashboard": true
+  }
+}
+```
+
+変更後に `npm run cdk:deploy`　で再度デプロイして反映させます。context の `modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
+
+続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。
+
+設定完了後、`npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.DashboardUrl` を開いてください。入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードが表示されます。
