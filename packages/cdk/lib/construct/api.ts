@@ -254,6 +254,46 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
     });
 
+    const createShareId = new NodejsFunction(this, 'CreateShareId', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/createShareId.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantWriteData(createShareId);
+
+    const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/getSharedChat.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantReadData(getSharedChat);
+
+    const findShareId = new NodejsFunction(this, 'FindShareId', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/findShareId.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantReadData(findShareId);
+
+    const deleteShareId = new NodejsFunction(this, 'DeleteShareId', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteShareId.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantReadWriteData(deleteShareId);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -387,6 +427,38 @@ export class Api extends Construct {
     webTextResource.addMethod(
       'GET',
       new LambdaIntegration(getWebTextFunction),
+      commonAuthorizerProps
+    );
+
+    const shareResource = api.root.addResource('shares');
+    const shareChatIdResource = shareResource
+      .addResource('chat')
+      .addResource('{chatId}');
+    // GET: /shares/chat/{chatId}
+    shareChatIdResource.addMethod(
+      'GET',
+      new LambdaIntegration(findShareId),
+      commonAuthorizerProps
+    );
+    // POST: /shares/chat/{chatId}
+    shareChatIdResource.addMethod(
+      'POST',
+      new LambdaIntegration(createShareId),
+      commonAuthorizerProps
+    );
+    const shareShareIdResource = shareResource
+      .addResource('share')
+      .addResource('{shareId}');
+    // GET: /shares/share/{shareId}
+    shareShareIdResource.addMethod(
+      'GET',
+      new LambdaIntegration(getSharedChat),
+      commonAuthorizerProps
+    );
+    // DELETE: /shares/share/{shareId}
+    shareShareIdResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteShareId),
       commonAuthorizerProps
     );
 

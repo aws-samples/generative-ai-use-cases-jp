@@ -15,6 +15,9 @@ import {
   UpdateTitleResponse,
   WebTextRequest,
   WebTextResponse,
+  CreateShareIdResponse,
+  FindShareIdResponse,
+  GetSharedChatResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   LambdaClient,
@@ -128,6 +131,23 @@ const useChatApi = () => {
       req: WebTextRequest
     ): Promise<AxiosResponse<WebTextResponse>> => {
       return await http.api.get(`web-text?url=${req.url}`);
+    },
+    createShareId: async (
+      chatId: string
+    ): Promise<AxiosResponse<CreateShareIdResponse>> => {
+      const res = await http.post(`shares/chat/${chatId}`, {});
+      return res.data;
+    },
+    findShareId: (chatId?: string) => {
+      return http.get<FindShareIdResponse>(
+        chatId ? `/shares/chat/${chatId}` : null
+      );
+    },
+    getSharedChat: (shareId: string) => {
+      return http.get<GetSharedChatResponse>(`/shares/share/${shareId}`);
+    },
+    deleteShareId: (shareId: string) => {
+      return http.delete<void>(`/shares/share/${shareId}`);
     },
   };
 };

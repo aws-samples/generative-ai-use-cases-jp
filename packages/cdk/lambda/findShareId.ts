@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { deleteChat, deleteShareId, findShareId } from './repository';
+import { findShareId } from './repository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,21 +8,26 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    await deleteChat(userId, chatId);
+    const res = await findShareId(userId, chatId);
 
-    const shareId = await findShareId(userId, chatId);
-
-    if (shareId) {
-      await deleteShareId(shareId.shareId.split('#')[1]);
+    if (res === null) {
+      return {
+        statusCode: 204,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: '',
+      };
     }
 
     return {
-      statusCode: 204,
+      statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: '',
+      body: JSON.stringify(res),
     };
   } catch (error) {
     console.log(error);
