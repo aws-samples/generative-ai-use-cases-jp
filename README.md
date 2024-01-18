@@ -130,6 +130,7 @@ npm run cdk:deploy
   - [AWS WAF による制限を有効化する](/docs/DEPLOY_OPTION.md#aws-waf-による制限を有効化する)
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
+- [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
 
 ## その他
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
