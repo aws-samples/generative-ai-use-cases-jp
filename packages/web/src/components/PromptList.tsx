@@ -53,11 +53,11 @@ const PromptList: React.FC<Props> = (props) => {
           expanded ? 'right-0 z-50' : '-right-64 z-30'
         } pointer-events-none flex h-full justify-center`}>
         <div
-          className="bg-aws-smile pointer-events-auto mt-16 flex h-12 w-12 cursor-pointer items-center justify-center rounded-l-full"
+          className="bg-aws-smile pointer-events-auto mt-16 flex size-12 cursor-pointer items-center justify-center rounded-l-full"
           onClick={() => {
             setExpanded(!expanded);
           }}>
-          <PiBookOpenText className="text-aws-squid-ink h-6 w-6" />
+          <PiBookOpenText className="text-aws-squid-ink size-6" />
         </div>
 
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">

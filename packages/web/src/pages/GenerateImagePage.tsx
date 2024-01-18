@@ -439,7 +439,7 @@ const GenerateImagePage: React.FC = () => {
             <Card className="mt-8 flex flex-col items-center justify-center lg:mt-0">
               <div className="flex justify-center">
                 <Base64Image
-                  className="h-56 w-56"
+                  className="size-56"
                   imageBase64={image[selectedImageIndex].base64}
                   loading={generating}
                   error={image[selectedImageIndex].error}
@@ -453,7 +453,7 @@ const GenerateImagePage: React.FC = () => {
                       <Base64Image
                         className={`${
                           idx === selectedImageIndex ? 'ring-1' : ''
-                        } mt-3 h-10 w-10`}
+                        } mt-3 size-10`}
                         imageBase64={image.base64}
                         loading={generating}
                         clickable
@@ -493,7 +493,7 @@ const GenerateImagePage: React.FC = () => {
                       />
                     </div>
                     <Base64Image
-                      className="h-32 w-32"
+                      className="size-32"
                       imageBase64={initImageBase64}
                     />
                     <Button

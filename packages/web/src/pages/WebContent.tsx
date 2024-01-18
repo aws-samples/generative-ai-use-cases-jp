@@ -191,7 +191,7 @@ const WebContent: React.FC = () => {
 
   return (
     <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
+      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         Web コンテンツ抽出
       </div>
 
@@ -269,7 +269,7 @@ const WebContent: React.FC = () => {
               </div>
             )}
             {loading && (
-              <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+              <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
             )}
             <div className="flex w-full justify-end">
               <ButtonCopy

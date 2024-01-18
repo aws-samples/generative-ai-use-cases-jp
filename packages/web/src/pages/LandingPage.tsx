@@ -237,7 +237,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
-        <AwsIcon className="mr-5 h-20 w-20" />
+        <AwsIcon className="mr-5 size-20" />
         生成系 AI を体験してみましょう。
       </div>
 

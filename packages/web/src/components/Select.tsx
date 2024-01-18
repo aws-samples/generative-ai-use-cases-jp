@@ -76,7 +76,7 @@ const Select: React.FC<Props> = (props) => {
                       </span>
                       {selected ? (
                         <span className="text-aws-smile absolute inset-y-0 left-0 flex items-center pl-3">
-                          <PiCheck className="h-5 w-5" />
+                          <PiCheck className="size-5" />
                         </span>
                       ) : null}
                     </>

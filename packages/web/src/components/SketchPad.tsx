@@ -31,7 +31,7 @@ const SketchButton: React.FC<SketchButtonProps> = (props) => {
     <div
       className={`${
         props.className ?? ''
-      } flex h-6 w-6 cursor-pointer items-center justify-center border ${
+      } flex size-6 cursor-pointer items-center justify-center border ${
         props.isActive ? 'border-black/50 bg-gray-200' : ''
       }`}
       onClick={props.onClick}>

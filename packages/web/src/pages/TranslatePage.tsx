@@ -204,7 +204,7 @@ const TranslatePage: React.FC = () => {
 
   return (
     <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold print:visible print:my-5 print:h-min lg:visible lg:my-5 lg:h-min">
+      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         翻訳
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
@@ -251,7 +251,7 @@ const TranslatePage: React.FC = () => {
               <div className="rounded border border-black/30 p-1.5">
                 <Markdown>{typingTextOutput}</Markdown>
                 {loading && (
-                  <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                  <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
                 <div className="flex w-full justify-end">
                   <ButtonCopy

@@ -14,7 +14,7 @@ const Checkbox: React.FC<Props> = (props) => {
       <input
         id="checkbox"
         type="checkbox"
-        className="text-aws-smile h-4 w-4 rounded border-black/30"
+        className="text-aws-smile size-4 rounded border-black/30"
         checked={props.value}
         onChange={(e) => {
           props.onChange(e.target.checked);
