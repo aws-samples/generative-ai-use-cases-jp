@@ -136,7 +136,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [popMessage, postChat]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative size-full">
       <Card
         label="チャット形式で画像生成"
         help="チャット形式でプロンプトの生成と設定、画像生成を自動で行います。"
@@ -218,7 +218,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 c.content.prompt === null &&
                 !c.content.error && (
                   <div className="flex items-center gap-2 text-gray-600">
-                    <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                    <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     プロンプト生成中
                   </div>
                 )}
@@ -229,11 +229,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                   isAutoGenerating ? (
                     <>
                       <div className="flex items-center gap-2 text-gray-600">
-                        <div className="h-5 w-5 rounded-full border-4 border-gray-600"></div>
+                        <div className="size-5 rounded-full border-4 border-gray-600"></div>
                         プロンプト生成完了
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
-                        <div className="border-aws-sky h-5 w-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                        <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                         画像生成中
                       </div>
                     </>

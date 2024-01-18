@@ -78,7 +78,7 @@ const RefLink: React.FC<RefLinkProps> = (props) => {
       to={props.to}
       onClick={onClick}
       target="_blank">
-      <div className="mr-1 flex h-6 w-6 items-center justify-center">
+      <div className="mr-1 flex size-6 items-center justify-center">
         {props.icon}
       </div>
       <div>{props.label}</div>
@@ -171,7 +171,7 @@ const Drawer: React.FC<Props> = (props) => {
                 setSearchQuery(event.target.value ?? '');
               }}
             />
-            <PiMagnifyingGlass className="bg-aws-squid-ink absolute left-1.5 top-1 h-7 w-7 rounded-l-full border border-white p-1.5" />
+            <PiMagnifyingGlass className="bg-aws-squid-ink absolute left-1.5 top-1 size-7 rounded-l-full border border-white p-1.5" />
           </div>
           <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
             <ChatList className="mr-1" searchWords={searchWords} />

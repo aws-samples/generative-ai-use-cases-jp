@@ -17,5 +17,9 @@ module.exports = {
     ],
     // Prettire で実施するので ESLint の Rule は無効化
     'tailwindcss/classnames-order': ['off'],
+    // x-screen h-screen を size-screen と書くという指示が出るが
+    // size-screen は存在しないというバグがあるためこちらのルールは一時的に無効化する
+    // https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/307
+    'tailwindcss/enforces-shorthand': ['off'],
   },
 };

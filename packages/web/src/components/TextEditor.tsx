@@ -84,7 +84,7 @@ const Texteditor: React.FC<Props> = (props) => {
         )}
         {props.loading && (
           <div className="mb-2 ml-2 flex w-80 justify-center">
-            <div className="border-aws-sky h-10 w-10 animate-spin rounded-full border-4 border-t-transparent"></div>
+            <div className="border-aws-sky size-10 animate-spin rounded-full border-4 border-t-transparent"></div>
           </div>
         )}
       </div>

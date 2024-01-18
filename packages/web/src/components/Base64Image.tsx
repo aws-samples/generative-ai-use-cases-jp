@@ -36,7 +36,7 @@ const Base64Image: React.FC<Props> = (props) => {
         <div className="flex w-full flex-col items-center">
           <PiFileX
             className={`${
-              props.errorMessage ? 'h-1/4 w-1/4' : 'h-3/4 w-3/4'
+              props.errorMessage ? 'size-1/4' : 'size-3/4'
             } text-red-500`}
           />
           <div className="text-sm text-red-500">ERROR</div>
@@ -50,13 +50,13 @@ const Base64Image: React.FC<Props> = (props) => {
       ) : !props.imageBase64 || props.imageBase64 === '' ? (
         <>
           {props.loading ? (
-            <div className="border-aws-sky h-6 w-6 animate-spin rounded-full border-4 border-t-transparent"></div>
+            <div className="border-aws-sky size-6 animate-spin rounded-full border-4 border-t-transparent"></div>
           ) : (
-            <PiImageLight className="h-3/4 w-3/4 text-gray-300" />
+            <PiImageLight className="size-3/4 text-gray-300" />
           )}
         </>
       ) : (
-        <img src={src} className="h-full w-full" />
+        <img src={src} className="size-full" />
       )}
     </div>
   );

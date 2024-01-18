@@ -132,7 +132,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             )}
             {!editing && (
               <div
-                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute inset-y-0 right-0 w-8 bg-gradient-to-l
+                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute right-0 w-8 bg-gradient-to-l
             ${props.active ? 'from-aws-sky' : 'from-aws-squid-ink'}
             `}
               />

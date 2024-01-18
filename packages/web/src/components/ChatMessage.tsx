@@ -71,7 +71,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
           {chatContent?.role === 'assistant' && (
             <div className="bg-aws-ml h-min rounded p-1">
-              <BedrockIcon className="h-7 w-7 fill-white" />
+              <BedrockIcon className="size-7 fill-white" />
             </div>
           )}
           {chatContent?.role === 'system' && (
@@ -117,7 +117,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end print:hidden lg:-mr-24">
+        <div className="flex items-start justify-end lg:-mr-24 print:hidden">
           {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
             <div className="lg:w-8"></div>
           )}
