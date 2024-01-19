@@ -39,7 +39,7 @@ const KendraSearchPage: React.FC = () => {
           この機能は、Amazon Kendra の標準機能である Query API
           で検索を行います。
           <span className="font-bold">
-            生成系 AI は利用していません。RAG は
+            生成 AI は利用していません。RAG は
             <Link className="text-aws-smile" to="/rag">
               こちら
             </Link>
