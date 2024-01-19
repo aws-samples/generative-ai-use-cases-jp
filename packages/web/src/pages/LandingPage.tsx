@@ -57,7 +57,7 @@ const LandingPage: React.FC = () => {
 
   const demoGenerate = () => {
     const state: GenerateTextPageLocationState = {
-      information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成系 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成系 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+      information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
       context:
         'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
     };
@@ -133,7 +133,7 @@ const LandingPage: React.FC = () => {
           },
           context: {
             value:
-              '生成系AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
+              '生成AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
           },
         } as InterUseCaseState<WebContentPageLocationState>,
       },
@@ -144,12 +144,12 @@ const LandingPage: React.FC = () => {
         path: 'generate',
         state: {
           context: {
-            value: `生成系AIの仕組みの解説とAWSで生成系AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
+            value: `生成AIの仕組みの解説とAWSで生成AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
 <rules>
 - マークダウン形式で章立てして書いてください。
-- 生成系AIおよび、AWS初心者をターゲットにした記事にしてください。
+- 生成AIおよび、AWS初心者をターゲットにした記事にしてください。
 - IT初心者が分からないような用語は使わないか、分かりやすい言葉に置き換えてください。
-- 生成系AIで何ができるのかがわかる記事にしてください。
+- 生成AIで何ができるのかがわかる記事にしてください。
 - 文章量が少ないと読者が満足しないので、一般的な情報は補完しながら文量を多くしてください。
 - 読者の興味を惹きつけるような文章にしてください。
 </rules>`,
@@ -238,7 +238,7 @@ const LandingPage: React.FC = () => {
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
         <AwsIcon className="mr-5 size-20" />
-        生成系 AI を体験してみましょう。
+        生成 AI を体験してみましょう。
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
@@ -314,7 +314,7 @@ const LandingPage: React.FC = () => {
           label="ブログ記事作成"
           onClickDemo={demoBlog}
           icon={<PiPen />}
-          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。このデモでは、AWS 公式ページの情報を元に生成系 AI を紹介するブログ記事を生成します。"
+          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。このデモでは、AWS 公式ページの情報を元に生成 AI を紹介するブログ記事を生成します。"
         />
         <CardDemo
           label="議事録作成"

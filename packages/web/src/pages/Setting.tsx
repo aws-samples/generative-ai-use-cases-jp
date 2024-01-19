@@ -74,7 +74,7 @@ const Setting = () => {
         <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
       </div>
 
-      <div className="my-3 flex justify-center font-semibold">生成系 AI</div>
+      <div className="my-3 flex justify-center font-semibold">生成 AI</div>
 
       <div className="flex w-full flex-col items-center text-sm">
         <SettingItem name="LLM モデル名" value={modelIds.join(', ')} />
