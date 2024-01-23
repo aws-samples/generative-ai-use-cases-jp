@@ -70,11 +70,15 @@ const useRag = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = items.data.ResultItems?.map((item, idx) =>
-            message.includes(`[^${idx}]`)
-              ? `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`
-              : ''
-          )
+          const footnote = items.data.ResultItems?.map((item, idx) => {
+            // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
+            const _excerpt_page_number = item.DocumentAttributes?.find(
+              (attr) => attr.Key === '_excerpt_page_number'
+            )?.Value?.LongValue;
+            return message.includes(`[^${idx}]`)
+              ? `[^${idx}]: [${item.DocumentTitle}${_excerpt_page_number ? `(${_excerpt_page_number} ページ)` : ''}](${item.DocumentURI}${_excerpt_page_number ? `#page=${_excerpt_page_number}` : ''})`
+              : '';
+          })
             .filter((x) => x)
             .join('\n');
           return message + '\n' + footnote;

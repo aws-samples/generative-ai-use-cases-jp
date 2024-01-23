@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -6,6 +6,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import ButtonCopy from './ButtonCopy';
+import useRagFile from '../hooks/useRagFile';
 
 type Props = BaseProps & {
   children: string;
@@ -16,14 +17,33 @@ const LinkRenderer: React.FC<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any
 > = (props) => {
+  // 現状、S3 からのファイルダウンロード機能は RAG チャットしか利用しない
+  const { downloadDoc, isS3Url } = useRagFile();
+  const isS3 = useMemo(() => {
+    return isS3Url(props.href);
+  }, [isS3Url, props.href]);
+
   return (
-    <a
-      id={props.id}
-      href={props.href}
-      target={props.href.startsWith('#') ? '_self' : '_blank'}
-      rel="noreferrer">
-      {props.children}
-    </a>
+    <>
+      {isS3 ? (
+        <a
+          id={props.id}
+          onClick={() => {
+            downloadDoc(props.href);
+          }}
+          className="cursor-pointer">
+          {props.children}
+        </a>
+      ) : (
+        <a
+          id={props.id}
+          href={props.href}
+          target={props.href.startsWith('#') ? '_self' : '_blank'}
+          rel="noreferrer">
+          {props.children}
+        </a>
+      )}
+    </>
   );
 };
 

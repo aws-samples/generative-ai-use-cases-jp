@@ -1,6 +1,6 @@
 import {
-  GetSignedUrlRequest,
-  GetSignedUrlResponse,
+  GetMediaUploadSignedUrlRequest,
+  GetMediaUploadSignedUrlResponse,
   StartTranscriptionRequest,
   StartTranscriptionResponse,
   GetTranscriptionResponse,
@@ -12,8 +12,8 @@ import axios from 'axios';
 const useTranscribeApi = () => {
   const http = useHttp();
   return {
-    getSignedUrl: (req: GetSignedUrlRequest) => {
-      return http.post<GetSignedUrlResponse>('transcribe/url', req);
+    getSignedUrl: (req: GetMediaUploadSignedUrlRequest) => {
+      return http.post<GetMediaUploadSignedUrlResponse>('transcribe/url', req);
     },
     getTranscription: (
       jobName: string | null,

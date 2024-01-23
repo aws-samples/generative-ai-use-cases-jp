@@ -47,8 +47,7 @@ const LandingPage: React.FC = () => {
 
   const demoRag = () => {
     const state: RagPageLocationState = {
-      content: `Bedrock のセキュリティについて、教えてください。
-なぜ Bedrock が安全に利用できるのかわかるように説明してください。`,
+      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
     };
     navigate('/rag', {
       state,
