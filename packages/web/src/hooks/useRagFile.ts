@@ -20,7 +20,9 @@ const useRagFile = () => {
       const [filePrefix, anchorLink] = groups.prefix.split('#');
       const signedUrl = await getDocDownloadSignedUrl(
         groups.bucketName,
-        filePrefix
+        // 日本語ファイル名の場合は URI エンコードされたファイル名が URL に設定されているため、
+        // デコードしてから署名付き URL を取得する（二重で URI エンコードされるのを防止する）
+        decodeURIComponent(filePrefix)
       );
       window.open(
         `${signedUrl}${anchorLink ? `#${anchorLink}` : ''}`,
