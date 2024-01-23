@@ -208,7 +208,7 @@ export class Rag extends Construct {
       }
     );
     if (dataSourceBucket) {
-      dataSourceBucket.grantReadWrite(getDocDownloadSignedUrlFunction);
+      dataSourceBucket.grantRead(getDocDownloadSignedUrlFunction);
     }
 
     // API Gateway
@@ -223,7 +223,7 @@ export class Rag extends Construct {
     const ragResource = props.api.root.addResource('rag');
 
     const queryResource = ragResource.addResource('query');
-    // POST: /query
+    // POST: /rag/query
     queryResource.addMethod(
       'POST',
       new LambdaIntegration(queryFunction),
@@ -231,7 +231,7 @@ export class Rag extends Construct {
     );
 
     const retrieveResource = ragResource.addResource('retrieve');
-    // POST: /retrieve
+    // POST: /rag/retrieve
     retrieveResource.addMethod(
       'POST',
       new LambdaIntegration(retrieveFunction),
@@ -239,7 +239,7 @@ export class Rag extends Construct {
     );
 
     const docResource = ragResource.addResource('doc');
-    // POST: /doc/download-url
+    // POST: /rag/doc/download-url
     docResource
       .addResource('download-url')
       .addMethod(
