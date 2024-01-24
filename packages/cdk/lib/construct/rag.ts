@@ -1,8 +1,10 @@
 import * as kendra from 'aws-cdk-lib/aws-kendra';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Duration, Token, Arn } from 'aws-cdk-lib';
+import { Duration, Token, Arn, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -27,8 +29,13 @@ export class Rag extends Construct {
     const kendraIndexArnInCdkContext =
       this.node.tryGetContext('kendraIndexArn');
 
+    const kendraDataSourceBucketName = this.node.tryGetContext(
+      'kendraDataSourceBucketName'
+    );
+
     let kendraIndexArn: string;
     let kendraIndexId: string;
+    let dataSourceBucket: s3.IBucket | null = null;
 
     if (kendraIndexArnInCdkContext) {
       // 既存の Kendra Index を利用する場合
@@ -37,6 +44,14 @@ export class Rag extends Construct {
         kendraIndexArnInCdkContext,
         'index'
       );
+      // 既存の S3 データソースを利用する場合は、バケット名からオブジェクトを生成
+      if (kendraDataSourceBucketName) {
+        dataSourceBucket = s3.Bucket.fromBucketName(
+          this,
+          'DataSourceBucket',
+          kendraDataSourceBucketName
+        );
+      }
     } else {
       // 新規に Kendra Index を作成する場合
       const indexRole = new iam.Role(this, 'KendraIndexRole', {
@@ -80,42 +95,61 @@ export class Rag extends Construct {
       kendraIndexArn = Token.asString(index.getAtt('Arn'));
       kendraIndexId = index.ref;
 
-      // WebCrawler を作成
-      const webCrawlerRole = new iam.Role(this, 'KendraWebCrawlerRole', {
+      // .pdf や .txt などのドキュメントを格納する S3 Bucket
+      dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        serverAccessLogsPrefix: 'logs',
+        enforceSSL: true,
+      });
+
+      // /kendra/docs ディレクトリを Bucket にアップロードする
+      new s3Deploy.BucketDeployment(this, 'DeployDocs', {
+        sources: [s3Deploy.Source.asset('./kendra-docs')],
+        destinationBucket: dataSourceBucket,
+      });
+
+      const s3DataSourceRole = new iam.Role(this, 'DataSourceRole', {
         assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
       });
-      webCrawlerRole.addToPolicy(
+
+      s3DataSourceRole.addToPolicy(
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [kendraIndexArn],
+          resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}`],
+          actions: ['s3:ListBucket'],
+        })
+      );
+
+      s3DataSourceRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}/*`],
+          actions: ['s3:GetObject'],
+        })
+      );
+
+      s3DataSourceRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [Token.asString(index.getAtt('Arn'))],
           actions: ['kendra:BatchPutDocument', 'kendra:BatchDeleteDocument'],
         })
       );
 
-      new kendra.CfnDataSource(this, 'WebCrawler', {
-        indexId: kendraIndexId,
-        name: 'WebCrawler',
-        type: 'WEBCRAWLER',
-        roleArn: webCrawlerRole.roleArn,
+      new kendra.CfnDataSource(this, 'S3DataSource', {
+        indexId: index.ref,
+        type: 'S3',
+        name: 's3-data-source',
+        roleArn: s3DataSourceRole.roleArn,
         languageCode: 'ja',
         dataSourceConfiguration: {
-          webCrawlerConfiguration: {
-            urls: {
-              seedUrlConfiguration: {
-                webCrawlerMode: 'HOST_ONLY',
-                // デモ用に AWS の GenAI 関連のページを取り込む
-                seedUrls: [
-                  'https://aws.amazon.com/jp/what-is/generative-ai/',
-                  'https://aws.amazon.com/jp/generative-ai/',
-                  'https://aws.amazon.com/jp/generative-ai/use-cases/',
-                  'https://aws.amazon.com/jp/bedrock/',
-                  'https://aws.amazon.com/jp/bedrock/features/',
-                  'https://aws.amazon.com/jp/bedrock/testimonials/',
-                ],
-              },
-            },
-            crawlDepth: 1,
-            urlInclusionPatterns: ['https://aws.amazon.com/jp/.*'],
+          s3Configuration: {
+            bucketName: dataSourceBucket.bucketName,
+            inclusionPrefixes: ['docs'],
           },
         },
       });
@@ -163,6 +197,20 @@ export class Rag extends Construct {
       })
     );
 
+    // S3 データソース関連
+    const getDocDownloadSignedUrlFunction = new NodejsFunction(
+      this,
+      'GetDocDownloadSignedUrlFunction',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/getDocDownloadSignedUrl.ts',
+        timeout: Duration.minutes(15),
+      }
+    );
+    if (dataSourceBucket) {
+      dataSourceBucket.grantRead(getDocDownloadSignedUrlFunction);
+    }
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [props.userPool],
@@ -175,7 +223,7 @@ export class Rag extends Construct {
     const ragResource = props.api.root.addResource('rag');
 
     const queryResource = ragResource.addResource('query');
-    // POST: /query
+    // POST: /rag/query
     queryResource.addMethod(
       'POST',
       new LambdaIntegration(queryFunction),
@@ -183,11 +231,21 @@ export class Rag extends Construct {
     );
 
     const retrieveResource = ragResource.addResource('retrieve');
-    // POST: /retrieve
+    // POST: /rag/retrieve
     retrieveResource.addMethod(
       'POST',
       new LambdaIntegration(retrieveFunction),
       commonAuthorizerProps
     );
+
+    const docResource = ragResource.addResource('doc');
+    // POST: /rag/doc/download-url
+    docResource
+      .addResource('download-url')
+      .addMethod(
+        'GET',
+        new LambdaIntegration(getDocDownloadSignedUrlFunction),
+        commonAuthorizerProps
+      );
   }
 }

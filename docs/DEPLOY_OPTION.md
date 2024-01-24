@@ -29,29 +29,30 @@ context の `ragEnabled` に `true` を指定します。(デフォルトは `fa
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/kendra-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
 
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
 1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
 1. generative-ai-use-cases-index をクリック
 1. Data sources をクリック
-1. WebCrawler をクリック
+1. 「s3-data-source」をクリック
 1. Sync now をクリック
 
-Sync run history の Status / Summary に Completed が表示されれば完了です。AWS の Amazon Bedrock 関連のページをクローリングし、自動でドキュメントが追加されます。
+Sync run history の Status / Summary に Completed が表示されれば完了です。S3 に保存されているファイルが同期されて、Kendra から検索できるようになります。
 
 #### 既存の Amazon Kendra Index を利用したい場合
 
 既存の Kendra Index を利用する場合も、上記のように `ragEnabled` は `true` である必要がある点に注意してください。
 
-context の `kendraIndexArn` に Index の ARN を指定します。
+context の `kendraIndexArn` に Index の ARN を指定します。もし、既存の Kendra Index で S3 データソースを利用している場合は、`kendraDataSourceBucketName` にバケット名を指定します。
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
 {
   "context": {
-    "kendraIndexArn": "<Kendra Index ARN>"
+    "kendraIndexArn": "<Kendra Index ARN>",
+    "kendraDataSourceBucketName": "<Kendra S3 Data Source Bucket Name>"
   }
 }
 ```
@@ -69,6 +70,8 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
+
+
 
 ## Amazon Bedrock のモデルを変更する
 

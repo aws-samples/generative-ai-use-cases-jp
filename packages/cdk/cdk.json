@@ -19,11 +19,16 @@
   "context": {
     "ragEnabled": false,
     "kendraIndexArn": null,
+    "kendraDataSourceBucketName": null,
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
     "modelRegion": "us-east-1",
-    "modelIds": ["anthropic.claude-v2"],
-    "imageGenerationModelIds": ["stability.stable-diffusion-xl-v0"],
+    "modelIds": [
+      "anthropic.claude-v2"
+    ],
+    "imageGenerationModelIds": [
+      "stability.stable-diffusion-xl-v0"
+    ],
     "endpointNames": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
