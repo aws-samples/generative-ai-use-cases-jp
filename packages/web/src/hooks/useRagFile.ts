@@ -5,13 +5,23 @@ const useRagFile = () => {
 
   return {
     isS3Url: (url: string) => {
-      return /^https:\/\/s3.[\w\\-]+.amazonaws.com\//.test(url) ? true : false;
+      return /^https:\/\/.*s3.[\w\\-]+.amazonaws.com\//.test(url)
+        ? true
+        : false;
     },
     downloadDoc: async (url: string) => {
-      const result =
+      // S3 データソースの設定項目である S3 field mapping の s3_document_id のチェック有無で、
+      // Document_URI が異なるためそれぞれの URI に対応できるようにする
+      let result =
         /^https:\/\/s3.[\w\\-]+.amazonaws.com\/(?<bucketName>.+?)\/(?<prefix>.+)$/.exec(
           url
         );
+      if (!result) {
+        result =
+          /^https:\/\/(?<bucketName>.+?).s3.[\w\\-]+.amazonaws.com\/(?<prefix>.+)$/.exec(
+            url
+          );
+      }
       const groups = result?.groups as {
         bucketName: string;
         prefix: string;
