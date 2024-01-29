@@ -65,7 +65,9 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
-    description: anonymousUsageTracking ? 'Generative AI Use Cases JP (uksb-1tupboc48)' : undefined,
+    description: anonymousUsageTracking
+      ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
+      : undefined,
   }
 );
 
