@@ -133,6 +133,7 @@ npm run cdk:deploy
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
 
 ## その他
+ - [アップデート方法](/docs/UPDATE.md)
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
  - [リソースの削除方法](/docs/DESTROY.md)
 
