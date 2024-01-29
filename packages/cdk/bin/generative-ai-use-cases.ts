@@ -47,6 +47,10 @@ if (
   });
 }
 
+const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
+  'anonymousUsageTracking'
+);
+
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
   'GenerativeAiUseCasesStack',
@@ -61,6 +65,9 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
+    description: anonymousUsageTracking
+      ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
+      : undefined,
   }
 );
 
