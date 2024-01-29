@@ -42,9 +42,34 @@ git remote add aws https://github.com/aws-samples/generative-ai-use-cases-jp
 
 aws という名前で登録されたので、`git pull aws` を実行して pull を実施します。
 
+## 取り込む前に変更が見たい場合
+
+`git pull` コマンドは `git fetch` (変更を取得) と `git merge` (変更を取り込む) を同時に行います。
+変更点を確認してから取り込みたい場合は、`fetch` と `merge` を別々に実行してください。
+以下のコマンドでは、[aws-samples/generative-ai-use-cases-jp](https://github.com/aws-samples/generative-ai-use-cases-jp) が origin という名前で remote に登録されているとして記述します。
+remote 名を調べる場合は、前述した `git remote -v` コマンドを実行してください。
+
+まずは以下のコマンドで変更を取得します。
+
+```bash
+git fetch origin
+```
+
+続いて、手元のコードと origin/main の違いを確認します。
+
+```bash
+git diff origin/main
+```
+
+問題なければ、マージを実行します。
+
+```bash
+git merge origin/main
+```
+
 ## コンフリクトが発生した場合
 
-コンフリクトが発生した場合、カスタマイズしたコードと、本家の変更が同時に行われてしまっています。
+`git pull` 時にコンフリクトが発生した場合、カスタマイズしたコードと、本家の変更が同時に同じファイルに対して行われてしまっています。
 コンフリクトが入ったコードは手動で修正する必要があります。
 
 特に [cdk.json](/packages/cdk/cdk.json) のコンフリクトには注意が必要です。
