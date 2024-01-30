@@ -22,8 +22,8 @@ git remote -v
 以下の出力例の場合、aws-samples という Organization で管理されているリポジトリ (本家のリポジトリ) が aws という名前で登録されています。
 
 ```
-origin  https://github.com/myawesomeorg/generative-ai-use-cases-jp (fetch)
-origin  https://github.com/myawesomeorg/generative-ai-use-cases-jp (push)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (fetch)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (push)
 aws     https://github.com/aws-samples/generative-ai-use-cases-jp (fetch)
 aws     https://github.com/aws-samples/generative-ai-use-cases-jp (push)
 ```
