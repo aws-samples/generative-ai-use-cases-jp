@@ -24,7 +24,7 @@
     "allowedSignUpEmailDomains": null,
     "modelRegion": "us-east-1",
     "modelIds": [
-      "anthropic.claude-v2"
+      "anthropic.claude-v2:1"
     ],
     "imageGenerationModelIds": [
       "stability.stable-diffusion-xl-v0"
