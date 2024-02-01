@@ -18,6 +18,7 @@ export class Database extends Construct {
         name: 'createdDate',
         type: ddb.AttributeType.STRING,
       },
+      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
     });
 
     table.addGlobalSecondaryIndex({
