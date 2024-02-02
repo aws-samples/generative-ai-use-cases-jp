@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import ButtonCopy from './ButtonCopy';
 import useRagFile from '../hooks/useRagFile';
+import { PiSpinnerGap } from 'react-icons/pi';
 
 type Props = BaseProps & {
   children: string;
@@ -18,7 +19,7 @@ const LinkRenderer: React.FC<
   any
 > = (props) => {
   // 現状、S3 からのファイルダウンロード機能は RAG チャットしか利用しない
-  const { downloadDoc, isS3Url } = useRagFile();
+  const { downloadDoc, isS3Url, downloading } = useRagFile();
   const isS3 = useMemo(() => {
     return isS3Url(props.href);
   }, [isS3Url, props.href]);
@@ -29,10 +30,15 @@ const LinkRenderer: React.FC<
         <a
           id={props.id}
           onClick={() => {
-            downloadDoc(props.href);
+            if (!downloading) {
+              downloadDoc(props.href);
+            }
           }}
-          className="cursor-pointer">
+          className={`cursor-pointer ${downloading ? 'text-gray-400' : ''}`}>
           {props.children}
+          {downloading && (
+            <PiSpinnerGap className="mx-2 inline-block animate-spin" />
+          )}
         </a>
       ) : (
         <a
@@ -78,7 +84,6 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
                 children={codeText}
                 style={vscDarkPlus}
                 language={isCodeBlock ? language : 'plaintext'}
-                PreTag="div"
               />
             </>
           );
