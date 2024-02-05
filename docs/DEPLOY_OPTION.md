@@ -216,6 +216,8 @@ Microsoft Entra ID (旧 Azure Active Directory) などの IdP が提供する SA
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
 ```json
   "samlAuthEnabled": true,
   "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
