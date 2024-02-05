@@ -25,3 +25,6 @@ export VITE_APP_MODEL_REGION=`stack_output ModelRegion`
 export VITE_APP_MODEL_IDS=`stack_output ModelIds`
 export VITE_APP_IMAGE_MODEL_IDS=`stack_output ImageGenerateModelIds`
 export VITE_APP_ENDPOINT_NAMES=`stack_output EndpointNames`
+export VITE_APP_SAMLAUTH_ENABLED=`stack_output SamlAuthEnabled`
+export VITE_APP_SAML_COGNITO_DOMAIN_NAME=`stack_output SamlCognitoDomainName`
+export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=`stack_output SamlCognitoFederatedIdentityProviderName`

@@ -99,7 +99,7 @@ const Drawer: React.FC<Props> = (props) => {
   });
 
   const email = useMemo(() => {
-    return data?.attributes?.email ?? '';
+    return data?.signInUserSession?.idToken?.payload?.email ?? '';
   }, [data]);
 
   const hasUpdate = getHasUpdate();
