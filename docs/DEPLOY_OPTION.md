@@ -71,7 +71,54 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
 
+### Agent チャットユースケースの有効化
 
+Agent チャットユースケースでは Agent for Bedrock を利用してアクションを実行させることが可能です。デフォルトでは検索エンジンの API と連携し最新情報を参照して回答する Agent を作成します。Agent のカスタマイズを行い他のアクションを追加できるほか、複数の Agent を作成し切り替えることが可能です。
+
+デフォルトで使用できる検索エージェントでは、無料利用枠の大きさ・リクエスト数の制限・コストの観点から [Brave Search API の Data for AI](https://brave.com/search/api/) を使用していますが、他の API にカスタマイズすることも可能です。API キーの取得はフリープランでもクレジットカードの登録が必要になります。
+
+> [!NOTE]
+> Agent チャットユースケースを有効化すると Agent チャットユースケースでのみ外部 API にデータを送信します。（デフォルトでは Brave Search API）他のユースケースは引き続き AWS 内のみに閉じて利用することが可能です。社内ポリシー、API の利用規約などを確認してから有効化してください。
+
+Agent のデプロイは最初に Agent で使用する Lambda のデプロイと手動で Agent を作成した後に作成した Agent を登録するため2回のデプロイが必要です。
+
+context の `agentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定し、`searchApiKey` に検索エンジンの API キーを指定します。
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "agentEnabled": true,
+    "agentRegion": "us-west-2",
+    "searchApiKey": "<検索エンジンの API キー>",
+  }
+}
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、Bedrock が参照する Lambda 関数 と OpenAPI Schema が `agentRegion` にデプロイされます。
+
+続いて、 [Agent の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループの設定には、Cfn Output から先ほどデプロイされた Lambda 関数（`AgentLambdaFunctionName`）と S3 にアップロードされた Schema ファイル（`AgentSchemaURI`）を指定します。ナレッジベースは必要ないため削除します。
+
+```
+プロンプト例: あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。
+```
+
+作成された Agent から Alias を作成し、 表示名と Agent ID と Alias ID を context に追加し、`npm run cdk:deploy` で再度デプロイして反映させます。
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "agents": [
+      {
+        "displayName": "SearchEngine",
+        "agentId": "XXXXXXXXX",
+        "aliasId": "YYYYYYYY"
+      }
+    ],
+  }
+}
+```
 
 ## Amazon Bedrock のモデルを変更する
 
