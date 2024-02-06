@@ -5,6 +5,7 @@ import { IConstruct } from 'constructs';
 import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack';
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
+import { BedrockAgentStack } from '../lib/bedrock-agent-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -74,6 +75,19 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
 cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
+
+// Agent
+
+const agentEnabled = app.node.tryGetContext('agentEnabled') || false;
+const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
+
+if (agentEnabled) {
+  new BedrockAgentStack(app, 'BedrockAgentStack', {
+    env: {
+      region: agentRegion,
+    },
+  });
+}
 
 const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;

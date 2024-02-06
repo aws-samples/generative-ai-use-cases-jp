@@ -12,6 +12,7 @@ export interface WebProps {
   idPoolId: string;
   predictStreamFunctionArn: string;
   ragEnabled: boolean;
+  agentEnabled: boolean;
   selfSignUpEnabled: boolean;
   webAclId?: string;
   modelRegion: string;
@@ -21,6 +22,7 @@ export interface WebProps {
   samlAuthEnabled: boolean;
   samlCognitoDomainName: string;
   samlCognitoFederatedIdentityProviderName: string;
+  agentNames: string[];
 }
 
 export class Web extends Construct {
@@ -108,6 +110,7 @@ export class Web extends Construct {
         VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
         VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
+        VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
         VITE_APP_MODEL_REGION: props.modelRegion,
         VITE_APP_MODEL_IDS: JSON.stringify(props.modelIds),
@@ -116,6 +119,7 @@ export class Web extends Construct {
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName.toString(),
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: props.samlCognitoFederatedIdentityProviderName.toString(),
+        VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
       },
     });
 

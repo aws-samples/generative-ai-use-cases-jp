@@ -33,6 +33,11 @@
       "stability.stable-diffusion-xl-v0"
     ],
     "endpointNames": [],
+    "agentEnabled": false,
+    "agentRegion": "us-east-1",
+    "searchApiKey": "",
+    "agents": [
+    ],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
