@@ -21,8 +21,10 @@ import RagPage from './pages/RagPage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
+import AgentChatPage from './pages/AgentChatPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 
 const routes: RouteObject[] = [
   {
@@ -83,6 +85,12 @@ const routes: RouteObject[] = [
     ? {
         path: '/kendra',
         element: <KendraSearchPage />,
+      }
+    : null,
+  agentEnabled
+    ? {
+        path: '/agent',
+        element: <AgentChatPage />,
       }
     : null,
   {

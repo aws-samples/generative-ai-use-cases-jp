@@ -8,12 +8,14 @@ interface ImportMetaEnv {
   readonly VITE_APP_IDENTITY_POOL_ID: string;
   readonly VITE_APP_PREDICT_STREAM_FUNCTION_ARN: string;
   readonly VITE_APP_RAG_ENABLED: string;
+  readonly VITE_APP_AGENT_ENABLED: string;
   readonly VITE_APP_SELF_SIGN_UP_ENABLED: string;
   readonly VITE_APP_VERSION: string;
   readonly VITE_APP_MODEL_REGION: string;
   readonly VITE_APP_MODEL_IDS: string;
   readonly VITE_APP_IMAGE_MODEL_IDS: string;
   readonly VITE_APP_ENDPOINT_NAMES: string;
+  readonly VITE_APP_AGENT_NAMES: string;
 }
 
 interface ImportMeta {

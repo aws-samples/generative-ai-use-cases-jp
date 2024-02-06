@@ -15,6 +15,7 @@ import {
   PiGear,
   PiGlobe,
   PiX,
+  PiRobot,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -28,6 +29,7 @@ import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const selfSignUpEnabled: boolean =
   import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
 
@@ -55,6 +57,14 @@ const items: ItemProps[] = [
         label: 'RAG チャット',
         to: '/rag',
         icon: <PiChatCircleText />,
+        display: 'usecase' as const,
+      }
+    : null,
+  agentEnabled
+    ? {
+        label: 'Agent チャット',
+        to: '/agent',
+        icon: <PiRobot />,
         display: 'usecase' as const,
       }
     : null,
@@ -159,7 +169,7 @@ const App: React.FC = () => {
       }}>
       <div className="screen:w-screen screen:h-screen overflow-x-hidden">
         <main className="flex-1">
-          <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
+          <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white print:hidden lg:invisible lg:h-0">
             <div className="flex w-10 items-center justify-start">
               <button
                 className="focus:ring-aws-sky mr-2 rounded-full  p-2 hover:opacity-50 focus:outline-none focus:ring-1"
