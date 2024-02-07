@@ -64,6 +64,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
       allowedSignUpEmailDomains,
+      samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {

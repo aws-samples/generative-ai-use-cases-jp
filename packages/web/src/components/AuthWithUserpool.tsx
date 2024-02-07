@@ -25,7 +25,7 @@ const AuthWithUserpool: React.FC = () => {
       components={{
         Header: () => (
           <div className="text-aws-font-color mb-5 mt-10 flex justify-center text-3xl">
-            Generative AI on AWS
+            Generative AI Use Cases on AWS
           </div>
         ),
       }}>

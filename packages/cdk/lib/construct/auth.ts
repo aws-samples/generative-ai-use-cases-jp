@@ -15,6 +15,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 export interface AuthProps {
   selfSignUpEnabled: boolean;
   allowedSignUpEmailDomains: string[] | null | undefined;
+  samlAuthEnabled: boolean;
 }
 
 export class Auth extends Construct {
@@ -26,7 +27,8 @@ export class Auth extends Construct {
     super(scope, id);
 
     const userPool = new UserPool(this, 'UserPool', {
-      selfSignUpEnabled: props.selfSignUpEnabled,
+      // SAML 認証を有効化する場合、UserPool を利用したセルフサインアップは利用しない。セキュリティを意識して閉じる。
+      selfSignUpEnabled: props.samlAuthEnabled ? false : props.selfSignUpEnabled, 
       signInAliases: {
         username: false,
         email: true,

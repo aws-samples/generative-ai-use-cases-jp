@@ -13,7 +13,7 @@ CloudFormation の Stack の画面で Outputs タブを開き、WebUrl をメモ
 ![image-20240128114108630](assets/SAML_WITH_ENTRA_ID/image-20240128114108630.png)
 
 # Cognito の設定 : Domain 設定
-Cogitno domain の設定を進めます。
+Cognitno domain の設定を進めます。
 Cognito user pool の画面で、App integration タブを開き、Domain に関する画面を表示します。Cognito Domain が空白なので、Actions から Create Cognito domain を選択します。
 
 ![image-20240128115029927](assets/SAML_WITH_ENTRA_ID/image-20240128115029927.png)
@@ -200,9 +200,9 @@ Edit を押します。
 ![image-20240205185602299](assets/SAML_WITH_ENTRA_ID/image-20240205185602299.png)
 
 
-Identity Provider で Entra ID を選択します。
+Identity Provider で EntraID を選択します。また、Cognito user pool を利用した認証は停止したいため、Cognito user pool のチェックボックスを外します。
 
-![image-20240128132359440](assets/SAML_WITH_ENTRA_ID/image-20240128132359440.png)
+![image-20240207123836497](assets/SAML_WITH_ENTRA_ID/image-20240207123836497.png)
 
 
 Save  changes を押します。

@@ -58,7 +58,7 @@ const AuthWithSAML: React.FC = () => {
       ) : !authenticated ? (
         <div className="grid grid-cols-1 gap-4 justify-items-center">
           <Text className="text-center text-3xl mt-12">
-            Generative AI on AWS
+            Generative AI Use Cases on AWS
           </Text>
           <Button
             variation="primary"
