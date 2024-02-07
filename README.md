@@ -148,6 +148,7 @@ npm run cdk:deploy
 
 ## 参照
  - [ブログ: Amazon Bedrock で Interpreter を開発! (ユースケースの追加方法について解説)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
+ - [ブログ: Generative AI Use Cases JP をカスタマイズする方法 (ユースケースの追加方法について解説)](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
 
 ## Security
 
