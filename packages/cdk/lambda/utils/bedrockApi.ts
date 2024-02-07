@@ -83,9 +83,9 @@ const bedrockApi: ApiInterface = {
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
-        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。'
+        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
       } else {
-        yield 'エラーが発生しました。時間をおいて試してみてください。'
+        yield 'エラーが発生しました。時間をおいて試してみてください。';
       }
     }
   },

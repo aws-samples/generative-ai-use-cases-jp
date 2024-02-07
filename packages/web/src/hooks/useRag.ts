@@ -76,7 +76,11 @@ const useRag = (id: string) => {
               (attr) => attr.Key === '_excerpt_page_number'
             )?.Value?.LongValue;
             return message.includes(`[^${idx}]`)
-              ? `[^${idx}]: [${item.DocumentTitle}${_excerpt_page_number ? `(${_excerpt_page_number} ページ)` : ''}](${item.DocumentURI}${_excerpt_page_number ? `#page=${_excerpt_page_number}` : ''})`
+              ? `[^${idx}]: [${item.DocumentTitle}${
+                  _excerpt_page_number ? `(${_excerpt_page_number} ページ)` : ''
+                }](${item.DocumentURI}${
+                  _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
+                })`
               : '';
           })
             .filter((x) => x)

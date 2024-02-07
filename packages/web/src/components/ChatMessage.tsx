@@ -117,7 +117,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end lg:-mr-24 print:hidden">
+        <div className="flex items-start justify-end print:hidden lg:-mr-24">
           {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
             <div className="lg:w-8"></div>
           )}
