@@ -13,7 +13,7 @@ CloudFormation の Stack の画面で Outputs タブを開き、WebUrl をメモ
 ![image-20240128114108630](assets/SAML_WITH_ENTRA_ID/image-20240128114108630.png)
 
 # Cognito の設定 : Domain 設定
-Cognitno domain の設定を進めます。
+Cognito domain の設定を進めます。
 Cognito user pool の画面で、App integration タブを開き、Domain に関する画面を表示します。Cognito Domain が空白なので、Actions から Create Cognito domain を選択します。
 
 ![image-20240128115029927](assets/SAML_WITH_ENTRA_ID/image-20240128115029927.png)
