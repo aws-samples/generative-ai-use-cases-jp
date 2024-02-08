@@ -5,7 +5,7 @@ import { IConstruct } from 'constructs';
 import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack';
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
-import { BedrockAgentStack } from '../lib/bedrock-agent-stack';
+import { SearchAgentStack } from '../lib/search-agent-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -78,11 +78,11 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
 
 // Agent
 
-const agentEnabled = app.node.tryGetContext('agentEnabled') || false;
+const searchAgentEnabled = app.node.tryGetContext('searchAgentEnabled') || false;
 const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
 
-if (agentEnabled) {
-  new BedrockAgentStack(app, 'BedrockAgentStack', {
+if (searchAgentEnabled) {
+  new SearchAgentStack(app, 'WebSearchAgentStack', {
     env: {
       region: agentRegion,
     },

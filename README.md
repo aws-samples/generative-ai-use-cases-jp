@@ -127,6 +127,8 @@ npm run cdk:deploy
   - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
+    - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
+    - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
   - [ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-のモデルを利用する例)

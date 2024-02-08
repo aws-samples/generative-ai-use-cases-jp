@@ -35,6 +35,7 @@
     "endpointNames": [],
     "agentEnabled": false,
     "agentRegion": "us-east-1",
+    "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [
     ],
