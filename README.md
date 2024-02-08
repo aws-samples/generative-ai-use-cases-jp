@@ -150,7 +150,8 @@ npm run cdk:deploy
  - [リソースの削除方法](/docs/DESTROY.md)
 
 ## 参照
- - [ブログ: Amazon Bedrock で Interpreter を開発! (ユースケースの追加方法について解説)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
+ - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
+ - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
 
 ## Security
 
