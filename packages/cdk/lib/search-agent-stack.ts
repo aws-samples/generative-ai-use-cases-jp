@@ -2,10 +2,10 @@ import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Agent } from './construct';
 
-interface BedrockAgentStackProps extends StackProps {}
+interface SearchAgentStackProps extends StackProps {}
 
-export class BedrockAgentStack extends Stack {
-  constructor(scope: Construct, id: string, props: BedrockAgentStackProps) {
+export class SearchAgentStack extends Stack {
+  constructor(scope: Construct, id: string, props: SearchAgentStackProps) {
     super(scope, id, props);
 
     const agent = new Agent(this, 'Agent');
