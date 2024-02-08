@@ -338,7 +338,9 @@ export const findShareId = async (
 export const deleteShareId = async (_shareId: string): Promise<void> => {
   const userIdAndChatId = await findUserIdAndChatId(_shareId);
   const share = await findShareId(
-    userIdAndChatId!.userId.split('#')[1],
+    // SAML 認証だと userId に # が含まれるため
+    // 例: user#EntraID_hogehoge.com#EXT#@hogehoge.onmicrosoft.com
+    userIdAndChatId!.userId.split('#').slice(1).join('#'),
     userIdAndChatId!.chatId.split('#')[1]
   );
 

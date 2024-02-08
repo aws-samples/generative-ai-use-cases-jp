@@ -254,6 +254,22 @@ Web ページへのアクセスをアクセス元の国で制限したい場合�
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
+### SAML 認証
+
+Microsoft Entra ID (旧 Azure Active Directory) などの IdP が提供する SAML 認証機能と連携ができます。  
+[こちらに Microsoft Entra ID と SAML 設定を行う参考手順](SAML_WITH_ENTRA_ID.md) があります。Microsoft Entra ID の設定を含めた詳細な手順があるので、こちらもご活用ください。
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+  "samlAuthEnabled": true,
+  "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
+  "samlCognitoFederatedIdentityProviderName": "EntraID",
+```
+- samlAuthEnabled : `true` にすることで、SAML 専用の認証画面に切り替わります。Cognito user pools を利用した従来の認証機能は利用できなくなります。
+- samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
+- samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
+
 ## モニタリング用のダッシュボードの有効化
 
 入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
