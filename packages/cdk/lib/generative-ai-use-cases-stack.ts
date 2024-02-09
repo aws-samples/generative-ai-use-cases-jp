@@ -8,6 +8,7 @@ import {
   Rag,
   Transcribe,
   CommonWebAcl,
+  File,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -44,9 +45,13 @@ export class GenerativeAiUseCasesStack extends Stack {
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
       this.node.tryGetContext('allowedSignUpEmailDomains');
-    const samlAuthEnabled: boolean = this.node.tryGetContext('samlAuthEnabled')!;
-    const samlCognitoDomainName: string = this.node.tryGetContext('samlCognitoDomainName')!;
-    const samlCognitoFederatedIdentityProviderName: string = this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
+    const samlAuthEnabled: boolean =
+      this.node.tryGetContext('samlAuthEnabled')!;
+    const samlCognitoDomainName: string = this.node.tryGetContext(
+      'samlCognitoDomainName'
+    )!;
+    const samlCognitoFederatedIdentityProviderName: string =
+      this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
@@ -124,6 +129,11 @@ export class GenerativeAiUseCasesStack extends Stack {
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
+      api: api.api,
+    });
+
+    new File(this, 'File', {
+      userPool: auth.userPool,
       api: api.api,
     });
 
