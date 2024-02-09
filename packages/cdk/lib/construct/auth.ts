@@ -28,7 +28,9 @@ export class Auth extends Construct {
 
     const userPool = new UserPool(this, 'UserPool', {
       // SAML 認証を有効化する場合、UserPool を利用したセルフサインアップは利用しない。セキュリティを意識して閉じる。
-      selfSignUpEnabled: props.samlAuthEnabled ? false : props.selfSignUpEnabled, 
+      selfSignUpEnabled: props.samlAuthEnabled
+        ? false
+        : props.selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,
