@@ -22,5 +22,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "upsert-slr": "^1.0.2"
+  }
 }

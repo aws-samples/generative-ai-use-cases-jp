@@ -20,12 +20,14 @@ const useFileState = create<{
   const clear = () => {
     set(() => ({
       file: null,
+      recognizedText: '',
     }));
   };
 
   const recognizeFile = async () => {
     set(() => ({
       loading: true,
+      recognizedText: '',
     }));
 
     const mediaFormat = get().file?.name.split('.').pop() as string;

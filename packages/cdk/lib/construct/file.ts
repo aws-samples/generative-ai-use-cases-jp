@@ -28,6 +28,7 @@ import {
 } from 'aws-cdk-lib/aws-ecs';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { NetworkLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
+import { ServiceLinkedRole } from 'upsert-slr';
 
 export interface FileProps {
   userPool: UserPool;
@@ -69,6 +70,10 @@ export class File extends Construct {
     // ECS
     const cluster = new Cluster(this, 'Cluster', {
       vpc: vpc,
+    });
+
+    new ServiceLinkedRole(this, 'EcsServiceLinkedRole', {
+      awsServiceName: 'ecs.amazonaws.com',
     });
 
     const taskDefinition = new FargateTaskDefinition(this, 'TaskDefinition', {
