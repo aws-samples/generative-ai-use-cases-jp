@@ -1,10 +1,9 @@
 import { Amplify, I18n } from 'aws-amplify';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
-import App from '../App.tsx'
+import App from '../App.tsx';
 
 const selfSignUpEnabled: boolean =
   import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
-
 
 const AuthWithUserpool: React.FC = () => {
   Amplify.configure({

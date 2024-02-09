@@ -78,7 +78,8 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
 
 // Agent
 
-const searchAgentEnabled = app.node.tryGetContext('searchAgentEnabled') || false;
+const searchAgentEnabled =
+  app.node.tryGetContext('searchAgentEnabled') || false;
 const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
 
 if (searchAgentEnabled) {

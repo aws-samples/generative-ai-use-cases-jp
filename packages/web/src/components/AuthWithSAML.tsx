@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import App from '../App.tsx'
+import App from '../App.tsx';
 import { Button, Text, Loader } from '@aws-amplify/ui-react';
 import { Amplify, Auth } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 
-const samlCognitoDomainName: string = import.meta.env.VITE_APP_SAML_COGNITO_DOMAIN_NAME;
-const samlCognitoFederatedIdentityProviderName: string = import.meta.env.VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
+const samlCognitoDomainName: string = import.meta.env
+  .VITE_APP_SAML_COGNITO_DOMAIN_NAME;
+const samlCognitoFederatedIdentityProviderName: string = import.meta.env
+  .VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
 
 const AuthWithSAML: React.FC = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -26,7 +28,9 @@ const AuthWithSAML: React.FC = () => {
   }, []);
 
   const signIn = () => {
-    Auth.federatedSignIn({ customProvider: samlCognitoFederatedIdentityProviderName }); // cdk.json の値を指定
+    Auth.federatedSignIn({
+      customProvider: samlCognitoFederatedIdentityProviderName,
+    }); // cdk.json の値を指定
   };
 
   Amplify.configure({
@@ -49,21 +53,19 @@ const AuthWithSAML: React.FC = () => {
   return (
     <>
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 justify-items-center">
-          <Text className="text-center mt-12">
-            Loading...
-          </Text>
+        <div className="grid grid-cols-1 justify-items-center gap-4">
+          <Text className="mt-12 text-center">Loading...</Text>
           <Loader width="5rem" height="5rem" />
         </div>
       ) : !authenticated ? (
-        <div className="grid grid-cols-1 gap-4 justify-items-center">
-          <Text className="text-center text-3xl mt-12">
+        <div className="grid grid-cols-1 justify-items-center gap-4">
+          <Text className="mt-12 text-center text-3xl">
             Generative AI Use Cases on AWS
           </Text>
           <Button
             variation="primary"
             onClick={() => signIn()}
-            className="w-60 mt-6">
+            className="mt-6 w-60">
             ログイン
           </Button>
         </div>
