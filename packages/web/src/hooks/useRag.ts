@@ -48,7 +48,7 @@ const useRag = (id: string) => {
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
       const items = await retrieve(query);
 
-      if (items.data.ResultItems.length === 0) {
+      if ((items.data.ResultItems ?? []).length === 0) {
         popMessage();
         pushMessage(
           'assistant',
