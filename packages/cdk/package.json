@@ -21,6 +21,7 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.115.0-alpha.0",
     "@aws-cdk/aws-lambda-python-alpha": "^2.115.0-alpha.0",
     "@aws-sdk/client-bedrock-runtime": "^3.422.1",
+    "@aws-sdk/client-bedrock-agent-runtime": "^3.504.0",
     "@aws-sdk/client-dynamodb": "^3.395.0",
     "@aws-sdk/client-kendra": "^3.418.0",
     "@aws-sdk/client-s3": "^3.431.0",

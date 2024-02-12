@@ -22,7 +22,12 @@ export const handler = async (
     const userId = res.userId;
     const chatId = res.chatId;
 
-    const chat = await findChatById(userId.split('#')[1], chatId.split('#')[1]);
+    const chat = await findChatById(
+      // SAML 認証だと userId に # が含まれるため
+      // 例: user#EntraID_hogehoge.com#EXT#@hogehoge.onmicrosoft.com
+      userId.split('#').slice(1).join('#'),
+      chatId.split('#')[1]
+    );
     const messages = await listMessages(chatId.split('#')[1]);
 
     return {

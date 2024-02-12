@@ -2,9 +2,11 @@ import {
   BedrockRuntimeClient,
   InvokeModelCommand,
   InvokeModelWithResponseStreamCommand,
+  ServiceQuotaExceededException,
+  ThrottlingException,
 } from '@aws-sdk/client-bedrock-runtime';
-import { ApiInterface } from 'generative-ai-use-cases-jp/src/utils';
 import {
+  ApiInterface,
   BedrockImageGenerationResponse,
   GenerateImageParams,
   UnrecordedMessage,
@@ -50,29 +52,40 @@ const bedrockApi: ApiInterface = {
     return JSON.parse(data.body.transformToString()).completion;
   },
   invokeStream: async function* (model, messages) {
-    const command = new InvokeModelWithResponseStreamCommand({
-      modelId: model.modelId,
-      body: createBodyText(model.modelId, messages),
-      contentType: 'application/json',
-    });
-    const res = await client.send(command);
+    try {
+      const command = new InvokeModelWithResponseStreamCommand({
+        modelId: model.modelId,
+        body: createBodyText(model.modelId, messages),
+        contentType: 'application/json',
+      });
+      const res = await client.send(command);
 
-    if (!res.body) {
-      return;
-    }
+      if (!res.body) {
+        return;
+      }
 
-    for await (const streamChunk of res.body) {
-      if (!streamChunk.chunk?.bytes) {
-        break;
+      for await (const streamChunk of res.body) {
+        if (!streamChunk.chunk?.bytes) {
+          break;
+        }
+        const body = JSON.parse(
+          new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes)
+        );
+        if (body.completion) {
+          yield body.completion;
+        }
+        if (body.stop_reason) {
+          break;
+        }
       }
-      const body = JSON.parse(
-        new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes)
-      );
-      if (body.completion) {
-        yield body.completion;
-      }
-      if (body.stop_reason) {
-        break;
+    } catch (e) {
+      if (
+        e instanceof ThrottlingException ||
+        e instanceof ServiceQuotaExceededException
+      ) {
+        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+      } else {
+        yield 'エラーが発生しました。時間をおいて試してみてください。';
       }
     }
   },

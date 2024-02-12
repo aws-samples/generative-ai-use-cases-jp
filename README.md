@@ -30,6 +30,14 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
+   <summary>Agent チャット</summary>
+
+  Agent は LLM を API と連携することでさまざまなタスクを行えるようにする手法です。このソリューションではサンプル実装として検索エンジンを利用し必要な情報を調査して回答する Agent を実装しています。
+
+  <img src="/imgs/usecase_agent.gif"/>
+</details>
+
+<details>
    <summary>文章生成</summary>
 
    あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
@@ -118,6 +126,9 @@ npm run cdk:deploy
 - [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
   - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
+  - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
+    - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
+    - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
   - [ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-のモデルを利用する例)
@@ -130,6 +141,7 @@ npm run cdk:deploy
   - [AWS WAF による制限を有効化する](/docs/DEPLOY_OPTION.md#aws-waf-による制限を有効化する)
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
+  - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
 
 ## その他
@@ -138,7 +150,8 @@ npm run cdk:deploy
  - [リソースの削除方法](/docs/DESTROY.md)
 
 ## 参照
- - [ブログ: Amazon Bedrock で Interpreter を開発! (ユースケースの追加方法について解説)](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/#04)
+ - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
+ - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
 
 ## Security
 

@@ -38,6 +38,10 @@ export type RagPageLocationState = {
   content: stiring;
 };
 
+export type AgentPageLocationState = {
+  content: stiring;
+};
+
 export type SummarizePageLocationState = {
   sentence: string;
   additionalContext: string;

@@ -44,6 +44,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
       this.node.tryGetContext('allowedSignUpEmailDomains');
+    const samlAuthEnabled: boolean =
+      this.node.tryGetContext('samlAuthEnabled')!;
+    const samlCognitoDomainName: string = this.node.tryGetContext(
+      'samlCognitoDomainName'
+    )!;
+    const samlCognitoFederatedIdentityProviderName: string =
+      this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
+    const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -53,9 +61,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('selfSignUpEnabled'));
     }
 
+    if (typeof samlAuthEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
+    }
+
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
       allowedSignUpEmailDomains,
+      samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
     const api = new Api(this, 'API', {
@@ -92,12 +105,17 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
+      agentEnabled,
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
       modelIds: api.modelIds,
       imageGenerationModelIds: api.imageGenerationModelIds,
       endpointNames: api.endpointNames,
+      samlAuthEnabled,
+      samlCognitoDomainName,
+      samlCognitoFederatedIdentityProviderName,
+      agentNames: api.agentNames,
     });
 
     if (ragEnabled) {
@@ -141,6 +159,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: ragEnabled.toString(),
     });
 
+    new CfnOutput(this, 'AgentEnabled', {
+      value: agentEnabled.toString(),
+    });
+
     new CfnOutput(this, 'SelfSignUpEnabled', {
       value: selfSignUpEnabled.toString(),
     });
@@ -159,6 +181,22 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'EndpointNames', {
       value: JSON.stringify(api.endpointNames),
+    });
+
+    new CfnOutput(this, 'SamlAuthEnabled', {
+      value: samlAuthEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'SamlCognitoDomainName', {
+      value: samlCognitoDomainName.toString(),
+    });
+
+    new CfnOutput(this, 'SamlCognitoFederatedIdentityProviderName', {
+      value: samlCognitoFederatedIdentityProviderName.toString(),
+    });
+
+    new CfnOutput(this, 'AgentNames', {
+      value: JSON.stringify(api.agentNames),
     });
 
     this.userPool = auth.userPool;

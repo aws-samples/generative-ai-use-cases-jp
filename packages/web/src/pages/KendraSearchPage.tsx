@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import useRag from '../hooks/useSearch';
 import HighlightText from '../components/HighlightText';
 import ButtonIcon from '../components/ButtonIcon';
+import useRagFile from '../hooks/useRagFile';
 
 const KendraSearchPage: React.FC = () => {
   const { loading, resultItems, query, setQuery, search } = useRag();
+  const { downloadDoc, isS3Url, downloading } = useRagFile();
 
   const searchKendra = useCallback(() => {
     search();
@@ -66,24 +68,52 @@ const KendraSearchPage: React.FC = () => {
         <PiSpinnerGap className="animate-spin text-3xl text-gray-400" />
       )}
       <div className="mb-12 grid w-3/4 gap-6">
-        {resultItems.map((result) => (
-          <div key={result.Id}>
-            <Link
-              className="text-aws-sky font-semibold"
-              to={result.DocumentURI!}>
-              {result.DocumentTitle?.Text}
-            </Link>
-            <div className="mb-2 text-xs">{result.DocumentURI}</div>
-            <HighlightText
-              textWithHighlights={
-                result.DocumentExcerpt ?? {
-                  Text: '',
-                  Highlights: [],
+        {resultItems.map((result) =>
+          isS3Url(result.DocumentURI!) ? (
+            <div key={result.Id}>
+              <a
+                className={`${
+                  downloading ? 'text-gray-400' : 'text-aws-sky'
+                } cursor-pointer font-semibold`}
+                onClick={() => {
+                  if (!downloading) {
+                    downloadDoc(result.DocumentURI!);
+                  }
+                }}>
+                {result.DocumentTitle?.Text}
+                {downloading && (
+                  <PiSpinnerGap className="ml-2 inline-block animate-spin" />
+                )}
+              </a>
+              <div className="mb-2 text-xs">{result.DocumentURI}</div>
+              <HighlightText
+                textWithHighlights={
+                  result.DocumentExcerpt ?? {
+                    Text: '',
+                    Highlights: [],
+                  }
                 }
-              }
-            />
-          </div>
-        ))}
+              />
+            </div>
+          ) : (
+            <div key={result.Id}>
+              <Link
+                className="text-aws-sky font-semibold"
+                to={result.DocumentURI!}>
+                {result.DocumentTitle?.Text}
+              </Link>
+              <div className="mb-2 text-xs">{result.DocumentURI}</div>
+              <HighlightText
+                textWithHighlights={
+                  result.DocumentExcerpt ?? {
+                    Text: '',
+                    Highlights: [],
+                  }
+                }
+              />
+            </div>
+          )
+        )}
       </div>
     </div>
   );

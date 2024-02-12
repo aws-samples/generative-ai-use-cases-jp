@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
+import AuthWithUserpool from './components/AuthWithUserpool';
+import AuthWithSAML from './components/AuthWithSAML';
 import './index.css';
 import {
   RouterProvider,
@@ -21,8 +22,12 @@ import RagPage from './pages/RagPage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
+import AgentChatPage from './pages/AgentChatPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const samlAuthEnabled: boolean =
+  import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
+const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 
 const routes: RouteObject[] = [
   {
@@ -85,6 +90,12 @@ const routes: RouteObject[] = [
         element: <KendraSearchPage />,
       }
     : null,
+  agentEnabled
+    ? {
+        path: '/agent',
+        element: <AgentChatPage />,
+      }
+    : null,
   {
     path: '*',
     element: <NotFound />,
@@ -94,7 +105,7 @@ const routes: RouteObject[] = [
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: samlAuthEnabled ? <AuthWithSAML /> : <AuthWithUserpool />,
     children: routes,
   },
 ]);
