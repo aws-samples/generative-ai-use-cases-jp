@@ -7,7 +7,7 @@ const useRagFile = () => {
 
   return {
     isS3Url: (url: string) => {
-      return /^https:\/\/(s3.[\w\\-]+|[\w\\-]+.s3).amazonaws.com\//.test(url)
+      return /^https:\/\/(|[\w\\-]+\.)s3(|(\.|-)[\w\\-]+).amazonaws.com\//.test(url)
         ? true
         : false;
     },
@@ -23,6 +23,7 @@ const useRagFile = () => {
           );
         if (!result) {
           result =
+            /^https:\/\/(?<bucketName>.+?).s3(|(\.|-)[\w\\-]+).amazonaws.com\/(?<prefix>.+)$/.exec(
             /^https:\/\/(?<bucketName>.+?).s3.[\w\\-]+.amazonaws.com\/(?<prefix>.+)$/.exec(
               url
             );
