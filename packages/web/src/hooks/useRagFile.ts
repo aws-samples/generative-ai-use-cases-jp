@@ -24,7 +24,6 @@ const useRagFile = () => {
         if (!result) {
           result =
             /^https:\/\/(?<bucketName>.+?).s3(|(\.|-)[\w\\-]+).amazonaws.com\/(?<prefix>.+)$/.exec(
-            /^https:\/\/(?<bucketName>.+?).s3.[\w\\-]+.amazonaws.com\/(?<prefix>.+)$/.exec(
               url
             );
         }
