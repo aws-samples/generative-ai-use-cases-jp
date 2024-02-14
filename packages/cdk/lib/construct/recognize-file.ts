@@ -1,6 +1,8 @@
 import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
+  CfnMethod,
+  CfnStage,
   CognitoUserPoolsAuthorizer,
   ConnectionType,
   Integration,
@@ -30,13 +32,13 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { NetworkLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
 import { ServiceLinkedRole } from 'upsert-slr';
 
-export interface FileProps {
+export interface RecognizeFileProps {
   userPool: UserPool;
   api: RestApi;
 }
 
-export class File extends Construct {
-  constructor(scope: Construct, id: string, props: FileProps) {
+export class RecognizeFile extends Construct {
+  constructor(scope: Construct, id: string, props: RecognizeFileProps) {
     super(scope, id);
 
     // S3 (File Bucket)
@@ -124,6 +126,7 @@ export class File extends Construct {
         memoryLimitMiB: 1024,
         cpu: 512,
         taskDefinition: taskDefinition,
+        publicLoadBalancer: false,
       }
     );
 
@@ -138,6 +141,11 @@ export class File extends Construct {
     });
 
     // API Gateway
+    const stage = props.api.deploymentStage.node.defaultChild as CfnStage;
+    stage.variables = {
+      vpcLinkId: link.vpcLinkId,
+    };
+
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [props.userPool],
     });
@@ -150,7 +158,7 @@ export class File extends Construct {
     const fileResource = props.api.root.addResource('file');
 
     // POST: /file/recognize
-    fileResource.addResource('recognize').addMethod(
+    const recognizeMethod = fileResource.addResource('recognize').addMethod(
       'POST',
       new Integration({
         type: IntegrationType.HTTP_PROXY,
@@ -161,6 +169,16 @@ export class File extends Construct {
         },
       }),
       commonAuthorizerProps
+    );
+
+    // REST API の Method で VPC Link を参照すると、正しく削除できない問題がある。
+    // ステージ変数を利用するとその問題を回避できるため、ConnectionId (ここでは VPC Link ID) をステージ変数経由で使うように変更している。
+    // (L2 Construct では ConnectionId を設定できないため、L1 Construct のプロパティを直接変更している)
+    // 参考: https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/api-gateway-known-issues.html
+    const cfnRecognizeMethod = recognizeMethod.node.defaultChild as CfnMethod;
+    cfnRecognizeMethod.addPropertyOverride(
+      'Integration.ConnectionId',
+      '${stageVariables.vpcLinkId}'
     );
 
     // POST: /file/url

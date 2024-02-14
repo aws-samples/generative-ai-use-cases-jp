@@ -16,6 +16,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_IMAGE_MODEL_IDS: string;
   readonly VITE_APP_ENDPOINT_NAMES: string;
   readonly VITE_APP_AGENT_NAMES: string;
+  readonly VITE_APP_RECOGNIZE_FILE_ENABLED: string;
 }
 
 interface ImportMeta {

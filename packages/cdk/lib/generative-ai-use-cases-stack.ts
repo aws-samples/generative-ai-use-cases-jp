@@ -8,7 +8,7 @@ import {
   Rag,
   Transcribe,
   CommonWebAcl,
-  File,
+  RecognizeFile,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -53,6 +53,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     const samlCognitoFederatedIdentityProviderName: string =
       this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
+    const recognizeFileEnabled: boolean = this.node.tryGetContext(
+      'recognizeFileEnabled'
+    )!;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -64,6 +67,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (typeof samlAuthEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
+    }
+
+    if (typeof recognizeFileEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
     }
 
     const auth = new Auth(this, 'Auth', {
@@ -117,6 +124,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoDomainName,
       samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
+      recognizeFileEnabled,
     });
 
     if (ragEnabled) {
@@ -132,10 +140,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       api: api.api,
     });
 
-    new File(this, 'File', {
-      userPool: auth.userPool,
-      api: api.api,
-    });
+    if (recognizeFileEnabled) {
+      new RecognizeFile(this, 'RecognizeFile', {
+        userPool: auth.userPool,
+        api: api.api,
+      });
+    }
 
     new CfnOutput(this, 'Region', {
       value: this.region,
@@ -203,6 +213,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'AgentNames', {
       value: JSON.stringify(api.agentNames),
+    });
+
+    new CfnOutput(this, 'RecognizeFileEnabled', {
+      value: recognizeFileEnabled.toString(),
     });
 
     this.userPool = auth.userPool;

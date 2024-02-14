@@ -23,6 +23,7 @@ export interface WebProps {
   samlCognitoDomainName: string;
   samlCognitoFederatedIdentityProviderName: string;
   agentNames: string[];
+  recognizeFileEnabled: boolean;
 }
 
 export class Web extends Construct {
@@ -117,9 +118,12 @@ export class Web extends Construct {
         VITE_APP_IMAGE_MODEL_IDS: JSON.stringify(props.imageGenerationModelIds),
         VITE_APP_ENDPOINT_NAMES: JSON.stringify(props.endpointNames),
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
-        VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName.toString(),
-        VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: props.samlCognitoFederatedIdentityProviderName.toString(),
+        VITE_APP_SAML_COGNITO_DOMAIN_NAME:
+          props.samlCognitoDomainName.toString(),
+        VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
+          props.samlCognitoFederatedIdentityProviderName.toString(),
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
+        VITE_APP_RECOGNIZE_FILE_ENABLED: props.recognizeFileEnabled.toString(),
       },
     });
 

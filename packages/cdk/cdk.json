@@ -37,13 +37,13 @@
     "agentRegion": "us-east-1",
     "searchAgentEnabled": false,
     "searchApiKey": "",
-    "agents": [
-    ],
+    "agents": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
     "dashboard": false,
     "anonymousUsageTracking": true,
+    "recognizeFileEnabled": false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
