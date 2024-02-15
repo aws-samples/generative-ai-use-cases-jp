@@ -30,3 +30,4 @@ export VITE_APP_SAMLAUTH_ENABLED=`stack_output SamlAuthEnabled`
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=`stack_output SamlCognitoDomainName`
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=`stack_output SamlCognitoFederatedIdentityProviderName`
 export VITE_APP_AGENT_NAMES=`stack_output AgentNames`
+export VITE_APP_RECOGNIZE_FILE_ENABLED=`stack_output RecognizeFileEnabled`

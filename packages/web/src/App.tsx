@@ -16,6 +16,7 @@ import {
   PiGlobe,
   PiX,
   PiRobot,
+  PiUploadSimple,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -28,6 +29,8 @@ import useInterUseCases from './hooks/useInterUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const recognizeFileEnabled: boolean =
+  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 
 const items: ItemProps[] = [
   {
@@ -106,6 +109,14 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
+  recognizeFileEnabled
+    ? {
+        label: 'ファイルアップロード',
+        to: '/file',
+        icon: <PiUploadSimple />,
+        display: 'tool' as const,
+      }
+    : null,
   ragEnabled
     ? {
         label: 'Kendra 検索',

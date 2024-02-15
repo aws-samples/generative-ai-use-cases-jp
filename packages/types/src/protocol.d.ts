@@ -136,3 +136,21 @@ export type GetSharedChatResponse = {
   chat: Chat;
   messages: RecordedMessage[];
 };
+
+export type GetFileUploadSignedUrlRequest = {
+  mediaFormat: string;
+};
+
+export type GetFileUploadSignedUrlResponse = string;
+
+export type UploadFileRequest = {
+  file: File;
+};
+
+export type RecognizeFileRequest = {
+  fileUrl: string;
+};
+
+export type RecognizeFileResponse = {
+  text: string;
+};

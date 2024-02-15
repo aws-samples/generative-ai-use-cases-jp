@@ -14,7 +14,7 @@ export const handler = async (
 
     const client = new S3Client({});
     const command = new PutObjectCommand({
-      Bucket: process.env.AUDIO_BUCKET_NAME,
+      Bucket: process.env.BUCKET_NAME,
       Key: `${uuid}.${mediaFormat}`,
     });
 

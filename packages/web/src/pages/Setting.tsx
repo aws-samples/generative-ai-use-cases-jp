@@ -11,6 +11,8 @@ import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const recognizeFileEnabled: boolean =
+  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 
 const SettingItem = (props: {
   name: string;
@@ -74,6 +76,10 @@ const Setting = () => {
         />
         <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
         <SettingItem name="Agent 有効" value={agentEnabled.toString()} />
+        <SettingItem
+          name="ファイルアップロード 有効"
+          value={recognizeFileEnabled.toString()}
+        />
       </div>
 
       <div className="my-3 flex justify-center font-semibold">生成 AI</div>

@@ -23,11 +23,14 @@ import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
+import FileUploadPage from './pages/FileUploadPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const recognizeFileEnabled: boolean =
+  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 
 const routes: RouteObject[] = [
   {
@@ -78,6 +81,12 @@ const routes: RouteObject[] = [
     path: '/transcribe',
     element: <TranscribePage />,
   },
+  recognizeFileEnabled
+    ? {
+        path: '/file',
+        element: <FileUploadPage />,
+      }
+    : null,
   ragEnabled
     ? {
         path: '/rag',
