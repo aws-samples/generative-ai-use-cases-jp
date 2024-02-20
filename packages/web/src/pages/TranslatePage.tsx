@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -8,6 +8,7 @@ import MenuDropdown from '../components/MenuDropdown';
 import MenuItem from '../components/MenuItem';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
+import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
@@ -103,6 +104,7 @@ const TranslatePage: React.FC = () => {
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
+  const [auto, setAuto] = useState(true);
 
   // Memo 変数
   const disabledExec = useMemo(() => {
@@ -129,8 +131,10 @@ const TranslatePage: React.FC = () => {
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
-    // debounce した後翻訳
-    onSentenceChange(modelId, sentence, additionalContext, language, loading);
+    if (auto) {
+      // debounce した後翻訳
+      onSentenceChange(modelId, sentence, additionalContext, language, loading);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId, sentence, language]);
 
@@ -209,7 +213,7 @@ const TranslatePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="翻訳したい文章">
-          <div className="mb-4 flex w-full">
+          <div className="mb-4 flex w-full items-center justify-between">
             <SelectField
               label="モデル"
               labelHidden
@@ -221,6 +225,7 @@ const TranslatePage: React.FC = () => {
                 </option>
               ))}
             </SelectField>
+            <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
