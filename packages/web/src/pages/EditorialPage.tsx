@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Location, useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
+import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
@@ -92,6 +93,7 @@ const EditorialPage: React.FC = () => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { modelIds: availableModels, textModels } = MODELS;
+  const [auto, setAuto] = useState(true);
 
   // Memo 変数
   const filterComment = (
@@ -127,29 +129,31 @@ const EditorialPage: React.FC = () => {
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
-    // Claude だと全角を半角に変換して出力するため入力を先に正規化
-    if (sentence !== '') {
-      setSentence(
-        sentence
-          .replace(REGEX_ZENKAKU, (s) => {
-            return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-          })
-          .replace(/[‐－―]/g, '-') // ハイフンなど
-          .replace(/[～〜]/g, '~') // チルダ
-          // eslint-disable-next-line no-irregular-whitespace
-          .replace(/　/g, ' ') // スペース
+    if (auto) {
+      // Claude だと全角を半角に変換して出力するため入力を先に正規化
+      if (sentence !== '') {
+        setSentence(
+          sentence
+            .replace(REGEX_ZENKAKU, (s) => {
+              return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+            })
+            .replace(/[‐－―]/g, '-') // ハイフンなど
+            .replace(/[～〜]/g, '~') // チルダ
+            // eslint-disable-next-line no-irregular-whitespace
+            .replace(/　/g, ' ') // スペース
+        );
+      }
+
+      // debounce した後コメント更新
+      onSentenceChange(
+        modelId,
+        sentence,
+        additionalContext,
+        comments,
+        commentState,
+        loading
       );
     }
-
-    // debounce した後コメント更新
-    onSentenceChange(
-      modelId,
-      sentence,
-      additionalContext,
-      comments,
-      commentState,
-      loading
-    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelId, sentence]);
 
@@ -255,7 +259,7 @@ const EditorialPage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
-          <div className="mb-4 flex w-full">
+          <div className="mb-4 flex w-full items-center justify-between">
             <SelectField
               label="モデル"
               labelHidden
@@ -267,6 +271,13 @@ const EditorialPage: React.FC = () => {
                 </option>
               ))}
             </SelectField>
+            <Switch
+              label="自動校正"
+              checked={auto}
+              onChange={() => {
+                setAuto(!auto);
+              }}
+            />
           </div>
           <Texteditor
             placeholder="入力してください"
