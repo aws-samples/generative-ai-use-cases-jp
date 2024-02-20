@@ -271,13 +271,7 @@ const EditorialPage: React.FC = () => {
                 </option>
               ))}
             </SelectField>
-            <Switch
-              label="自動校正"
-              checked={auto}
-              onChange={() => {
-                setAuto(!auto);
-              }}
-            />
+            <Switch label="自動校正" checked={auto} onSwitch={setAuto} />
           </div>
           <Texteditor
             placeholder="入力してください"

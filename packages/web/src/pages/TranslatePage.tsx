@@ -225,13 +225,7 @@ const TranslatePage: React.FC = () => {
                 </option>
               ))}
             </SelectField>
-            <Switch
-              label="自動翻訳"
-              checked={auto}
-              onChange={() => {
-                setAuto(!auto);
-              }}
-            />
+            <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">

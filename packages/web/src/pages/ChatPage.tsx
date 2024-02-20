@@ -234,9 +234,7 @@ const ChatPage: React.FC = () => {
             )}
             <Switch
               checked={showSystemContext}
-              onChange={() => {
-                setShowSystemContext(!showSystemContext);
-              }}
+              onSwitch={setShowSystemContext}
               label="システムコンテキストの表示"
             />
           </div>
