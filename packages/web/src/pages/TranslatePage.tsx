@@ -244,23 +244,21 @@ const TranslatePage: React.FC = () => {
               />
             </div>
             <div className="w-full lg:ml-2 lg:w-1/2">
-              <div className="flex">
-                <MenuDropdown
-                  menu={
-                    <div className="flex items-center py-2">
-                      {language}
-                      <PiCaretDown></PiCaretDown>
-                    </div>
-                  }>
-                  {languages.map((language) => (
-                    <MenuItem
-                      key={language.label}
-                      onClick={() => setLanguage(language.label)}>
-                      {language.label}
-                    </MenuItem>
-                  ))}
-                </MenuDropdown>
-              </div>
+              <MenuDropdown
+                menu={
+                  <div className="flex items-center py-2">
+                    {language}
+                    <PiCaretDown></PiCaretDown>
+                  </div>
+                }>
+                {languages.map((language) => (
+                  <MenuItem
+                    key={language.label}
+                    onClick={() => setLanguage(language.label)}>
+                    {language.label}
+                  </MenuItem>
+                ))}
+              </MenuDropdown>
               <div className="rounded border border-black/30 p-1.5">
                 <Markdown>{typingTextOutput}</Markdown>
                 {loading && (
