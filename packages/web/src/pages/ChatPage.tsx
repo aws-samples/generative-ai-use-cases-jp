@@ -11,12 +11,12 @@ import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
+import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
@@ -206,17 +206,13 @@ const ChatPage: React.FC = () => {
         </div>
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
-          <SelectField
-            label="モデル"
-            labelHidden
+          <Select
             value={modelId}
-            onChange={(e) => setModelId(e.target.value)}>
-            {availableModels.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </SelectField>
+            onChange={setModelId}
+            options={availableModels.map((m) => {
+              return { value: m, label: m };
+            })}
+          />
         </div>
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (

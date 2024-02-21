@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
+import Select from '../components/Select';
 import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
@@ -12,7 +13,6 @@ import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { editorialPrompt } from '../prompts';
 import { EditorialPageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
@@ -263,18 +263,14 @@ const EditorialPage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
-          <div className="mb-4 flex w-full items-center justify-between">
-            <SelectField
-              label="モデル"
-              labelHidden
+          <div className="mb-2 flex w-full items-center justify-between">
+            <Select
               value={modelId}
-              onChange={(e) => setModelId(e.target.value)}>
-              {availableModels.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </SelectField>
+              onChange={setModelId}
+              options={availableModels.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
             <Switch label="自動校正" checked={auto} onSwitch={setAuto} />
           </div>
           <Texteditor

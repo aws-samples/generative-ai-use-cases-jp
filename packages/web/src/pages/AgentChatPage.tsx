@@ -4,11 +4,11 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
+import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { AgentPageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import { v4 as uuidv4 } from 'uuid';
 import queryString from 'query-string';
@@ -117,17 +117,13 @@ const AgentChatPage: React.FC = () => {
         </div>
 
         <div className="mb-6 mt-2 flex w-full items-end justify-center lg:mt-0">
-          <SelectField
-            label="モデル"
-            labelHidden
+          <Select
             value={modelId}
-            onChange={(e) => setModelId(e.target.value)}>
-            {availableModels.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </SelectField>
+            onChange={setModelId}
+            options={availableModels.map((m) => {
+              return { value: m, label: m };
+            })}
+          />
         </div>
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (

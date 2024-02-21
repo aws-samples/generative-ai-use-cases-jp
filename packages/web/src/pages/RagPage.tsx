@@ -5,12 +5,12 @@ import Alert from '../components/Alert';
 import useRag from '../hooks/useRag';
 import { useLocation, Link } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
+import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ReactComponent as KendraIcon } from '../assets/kendra.svg';
 import { PiPlus } from 'react-icons/pi';
 import { RagPageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
@@ -87,17 +87,13 @@ const RagPage: React.FC = () => {
         </div>
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
-          <SelectField
-            label="モデル"
-            labelHidden
+          <Select
             value={modelId}
-            onChange={(e) => setModelId(e.target.value)}>
-            {availableModels.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </SelectField>
+            onChange={setModelId}
+            options={availableModels.map((m) => {
+              return { value: m, label: m };
+            })}
+          />
         </div>
 
         {isEmpty && (

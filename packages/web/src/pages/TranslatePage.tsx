@@ -4,8 +4,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
-import MenuDropdown from '../components/MenuDropdown';
-import MenuItem from '../components/MenuItem';
+import Select from '../components/Select';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import Switch from '../components/Switch';
@@ -13,21 +12,19 @@ import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
-import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
 import { TranslatePageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
 const languages = [
-  { label: '英語' },
-  { label: '日本語' },
-  { label: '中国語' },
-  { label: '韓国語' },
-  { label: 'フランス語' },
-  { label: 'スペイン語' },
-  { label: 'ドイツ語' },
+  '英語',
+  '日本語',
+  '中国語',
+  '韓国語',
+  'フランス語',
+  'スペイン語',
+  'ドイツ語',
 ];
 
 type StateType = {
@@ -49,7 +46,7 @@ const useTranslatePageState = create<StateType>((set) => {
     modelId: '',
     sentence: '',
     additionalContext: '',
-    language: languages[0].label,
+    language: languages[0],
     translatedSentence: '',
   };
   return {
@@ -117,7 +114,7 @@ const TranslatePage: React.FC = () => {
       const params = queryString.parse(search) as TranslatePageQueryParams;
       setSentence(params.sentence ?? '');
       setAdditionalContext(params.additionalContext ?? '');
-      setLanguage(params.language || languages[0].label);
+      setLanguage(params.language || languages[0]);
       setModelId(
         availableModels.includes(params.modelId ?? '')
           ? params.modelId!
@@ -224,23 +221,19 @@ const TranslatePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="翻訳したい文章">
-          <div className="mb-4 flex w-full items-center justify-between">
-            <SelectField
-              label="モデル"
-              labelHidden
+          <div className="flex w-full items-center justify-between">
+            <Select
               value={modelId}
-              onChange={(e) => setModelId(e.target.value)}>
-              {availableModels.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </SelectField>
+              onChange={setModelId}
+              options={availableModels.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
             <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="py-3">言語を自動検出</div>
+              <div className="py-2.5">言語を自動検出</div>
               <Textarea
                 placeholder="入力してください"
                 value={sentence}
@@ -249,6 +242,14 @@ const TranslatePage: React.FC = () => {
               />
             </div>
             <div className="w-full lg:ml-2 lg:w-1/2">
+              <Select
+                value={language}
+                options={languages.map((l) => {
+                  return { value: l, label: l };
+                })}
+                onChange={setLanguage}
+              />
+              {/*
               <MenuDropdown
                 menu={
                   <div className="flex items-center py-2">
@@ -264,6 +265,7 @@ const TranslatePage: React.FC = () => {
                   </MenuItem>
                 ))}
               </MenuDropdown>
+              */}
               <div className="rounded border border-black/30 p-1.5">
                 <Markdown>{typingTextOutput}</Markdown>
                 {loading && (

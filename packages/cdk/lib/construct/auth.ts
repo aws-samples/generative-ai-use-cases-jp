@@ -63,24 +63,30 @@ export class Auth extends Construct {
 
     if (props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges) {
       const ipRanges = [
-        ...(props.allowedIpV4AddressRanges ? props.allowedIpV4AddressRanges : []),
-        ...(props.allowedIpV6AddressRanges ? props.allowedIpV6AddressRanges : []),
+        ...(props.allowedIpV4AddressRanges
+          ? props.allowedIpV4AddressRanges
+          : []),
+        ...(props.allowedIpV6AddressRanges
+          ? props.allowedIpV6AddressRanges
+          : []),
       ];
 
-      idPool.authenticatedRole.attachInlinePolicy(new Policy(this, 'SourceIpPolicy', {
-        statements: [
-          new PolicyStatement({
-            effect: Effect.DENY,
-            resources: ['*'],
-            actions: ['*'],
-            conditions: {
-              NotIpAddress: {
-                'aws:SourceIp': ipRanges,
+      idPool.authenticatedRole.attachInlinePolicy(
+        new Policy(this, 'SourceIpPolicy', {
+          statements: [
+            new PolicyStatement({
+              effect: Effect.DENY,
+              resources: ['*'],
+              actions: ['*'],
+              conditions: {
+                NotIpAddress: {
+                  'aws:SourceIp': ipRanges,
+                },
               },
-            },
-          }),
-        ]
-      }));
+            }),
+          ],
+        })
+      );
     }
 
     // Lambda
