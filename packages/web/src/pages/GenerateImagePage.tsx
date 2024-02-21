@@ -17,7 +17,6 @@ import useChat from '../hooks/useChat';
 import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
 import { GenerateImagePageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
@@ -484,16 +483,13 @@ const GenerateImagePage: React.FC = () => {
 
             <Card label="パラメータ" className="mb-14 mt-8">
               <div className="mb-4 flex w-full">
-                <SelectField
-                  label="画像生成モデル"
+                <Select
                   value={imageGenModelId}
-                  onChange={(e) => setImageGenModelId(e.target.value)}>
-                  {imageGenModelIds.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </SelectField>
+                  onChange={setImageGenModelId}
+                  options={imageGenModelIds.map((m) => {
+                    return { value: m, label: m };
+                  })}
+                />
               </div>
               <div className="flex flex-col">
                 <div className="mb-8 flex flex-col xl:flex-row">
@@ -527,6 +523,7 @@ const GenerateImagePage: React.FC = () => {
                       value={stylePreset}
                       onChange={setStylePreset}
                       clearable
+                      fullWidth
                     />
 
                     <RangeSlider

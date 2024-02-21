@@ -8,13 +8,13 @@ import Textarea from '../components/Textarea';
 import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import Alert from '../components/Alert';
+import Select from '../components/Select';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { webContentPrompt } from '../prompts';
 import { WebContentPageQueryParams } from '../@types/navigate';
-import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
@@ -215,18 +215,14 @@ const WebContent: React.FC = () => {
         )}
 
         <Card label="コンテンツを抽出したい Web ページ">
-          <div className="mb-4 flex w-full">
-            <SelectField
-              label="モデル"
-              labelHidden
+          <div className="mb-2 flex w-full">
+            <Select
               value={modelId}
-              onChange={(e) => setModelId(e.target.value)}>
-              {availableModels.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </SelectField>
+              onChange={setModelId}
+              options={availableModels.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
           </div>
 
           <div className="text-xs text-black/50">
