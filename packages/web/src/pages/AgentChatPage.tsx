@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Location, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useConversation from '../hooks/useConversation';
@@ -7,10 +7,11 @@ import ChatMessage from '../components/ChatMessage';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
-import { ChatPageLocationState } from '../@types/navigate';
+import { AgentPageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
 import { v4 as uuidv4 } from 'uuid';
+import queryString from 'query-string';
 
 type StateType = {
   modelId: string;
@@ -47,7 +48,7 @@ const useChatPageState = create<StateType>((set) => {
 const AgentChatPage: React.FC = () => {
   const { modelId, sessionId, content, setModelId, setContent } =
     useChatPageState();
-  const { state, pathname } = useLocation() as Location<ChatPageLocationState>;
+  const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
   const { loading, loadingMessages, isEmpty, messages, clear, postChat } =
@@ -65,10 +66,19 @@ const AgentChatPage: React.FC = () => {
   }, [chatId, getConversationTitle]);
 
   useEffect(() => {
-    if (state !== null) {
-      setContent(state.content);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as AgentPageQueryParams;
+      setContent(params.content ?? '');
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
-  }, [state, setContent]);
+  }, [setContent, modelId, availableModels, search, setModelId]);
 
   useEffect(() => {
     if (!modelId) {

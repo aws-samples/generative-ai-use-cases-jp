@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type InterUseCaseState<T extends Record<string, unknown> = any> = {
+export type InterUseCaseParams<T extends Record<string, unknown> = any> = {
   // key に設定先の画面項目を設定
   // useLocationのstateで管理している項目のみ指定可能
   [key in keyof T]: {
@@ -13,47 +13,52 @@ export type InterUseCase = {
   title: string;
   description: string;
   path: string;
-  state?: InterUseCaseState;
+  params?: InterUseCaseParams;
 };
 
-export type ChatPageLocationState = {
-  content: string;
-  systemContext: string;
+export type BaseQueryParams = {
+  modelId?: string;
 };
 
-export type EditorialPageLocationState = {
-  sentence: string;
+export type ChatPageQueryParams = BaseQueryParams & {
+  content?: string;
+  systemContext?: string;
 };
 
-export type GenerateImagePageLocationState = {
-  content: string;
+export type EditorialPageQueryParams = BaseQueryParams & {
+  sentence?: string;
 };
 
-export type GenerateTextPageLocationState = {
-  information: string;
-  context: string;
+export type GenerateImagePageQueryParams = BaseQueryParams & {
+  content?: string;
+  imageModelId?: string;
 };
 
-export type RagPageLocationState = {
-  content: stiring;
+export type GenerateTextPageQueryParams = BaseQueryParams & {
+  information?: string;
+  context?: string;
 };
 
-export type AgentPageLocationState = {
-  content: stiring;
+export type RagPageQueryParams = BaseQueryParams & {
+  content?: stiring;
 };
 
-export type SummarizePageLocationState = {
-  sentence: string;
-  additionalContext: string;
+export type AgentPageQueryParams = BaseQueryParams & {
+  content?: stiring;
 };
 
-export type TranslatePageLocationState = {
-  sentence: string;
-  additionalContext: string;
-  language: string;
+export type SummarizePageQueryParams = BaseQueryParams & {
+  sentence?: string;
+  additionalContext?: string;
 };
 
-export type WebContentPageLocationState = {
-  url: string;
-  context: string;
+export type TranslatePageQueryParams = BaseQueryParams & {
+  sentence?: string;
+  additionalContext?: string;
+  language?: string;
+};
+
+export type WebContentPageQueryParams = BaseQueryParams & {
+  url?: string;
+  context?: string;
 };

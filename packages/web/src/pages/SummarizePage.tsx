@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Location, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import ExpandableField from '../components/ExpandableField';
@@ -10,9 +10,10 @@ import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { summarizePrompt } from '../prompts';
-import { SummarizePageLocationState } from '../@types/navigate';
+import { SummarizePageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 type StateType = {
   modelId: string;
@@ -73,8 +74,7 @@ const SummarizePage: React.FC = () => {
     setSummarizedSentence,
     clear,
   } = useSummarizePageState();
-  const { state, pathname } =
-    useLocation() as Location<SummarizePageLocationState>;
+  const { pathname, search } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
@@ -84,21 +84,31 @@ const SummarizePage: React.FC = () => {
   }, [sentence, loading]);
 
   useEffect(() => {
-    if (state !== null) {
-      setSentence(state.sentence);
-      setAdditionalContext(state.additionalContext);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as SummarizePageQueryParams;
+      setSentence(params.sentence ?? '');
+      setAdditionalContext(params.additionalContext ?? '');
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
-  }, [state, setSentence, setAdditionalContext]);
+  }, [
+    setSentence,
+    setAdditionalContext,
+    modelId,
+    availableModels,
+    search,
+    setModelId,
+  ]);
 
   useEffect(() => {
     setTypingTextInput(summarizedSentence);
   }, [summarizedSentence, setTypingTextInput]);
-
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
 
   const getSummary = (modelId: string, sentence: string, context: string) => {
     postChat(

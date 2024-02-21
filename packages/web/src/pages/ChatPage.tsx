@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Location, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
@@ -15,9 +15,10 @@ import useScroll from '../hooks/useScroll';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
-import { ChatPageLocationState } from '../@types/navigate';
+import { ChatPageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 type StateType = {
   modelId: string;
@@ -60,7 +61,7 @@ const ChatPage: React.FC = () => {
     setContent,
     setInputSystemContext,
   } = useChatPageState();
-  const { state, pathname } = useLocation() as Location<ChatPageLocationState>;
+  const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
   const {
@@ -89,24 +90,26 @@ const ChatPage: React.FC = () => {
   }, [chatId, getConversationTitle]);
 
   useEffect(() => {
-    if (state !== null) {
-      if (state.systemContext !== '') {
-        updateSystemContext(state.systemContext);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as ChatPageQueryParams;
+      if (params.systemContext && params.systemContext !== '') {
+        updateSystemContext(params.systemContext);
       } else {
         clear();
         setInputSystemContext(currentSystemContext);
       }
-
-      setContent(state.content);
+      setContent(params.content ?? '');
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, setContent]);
-
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
+  }, [search, setContent, setModelId, availableModels]);
 
   const onSend = useCallback(() => {
     postChat(
