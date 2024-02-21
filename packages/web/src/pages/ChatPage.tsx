@@ -190,6 +190,14 @@ const ChatPage: React.FC = () => {
     setInputSystemContext(currentSystemContext);
   }, [currentSystemContext, setInputSystemContext]);
 
+  const onClickSamplePrompt = useCallback(
+    (params: ChatPageQueryParams) => {
+      setContent(params.content ?? '');
+      updateSystemContext(params.systemContext ?? '');
+    },
+    [setContent, updateSystemContext]
+  );
+
   return (
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
@@ -303,7 +311,9 @@ const ChatPage: React.FC = () => {
         </div>
       </div>
 
-      {isEmpty && !loadingMessages && <PromptList />}
+      {isEmpty && !loadingMessages && (
+        <PromptList onClick={onClickSamplePrompt} />
+      )}
 
       <ModalDialog
         isOpen={showShareIdModal}

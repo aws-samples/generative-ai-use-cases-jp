@@ -1,12 +1,15 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
 import { PiBookOpenText, PiFlask } from 'react-icons/pi';
+import { ChatPageQueryParams } from '../@types/navigate';
 
-type Props = BaseProps;
+type Props = BaseProps & {
+  onClick: (params: ChatPageQueryParams) => void;
+};
 
 const PromptList: React.FC<Props> = (props) => {
+  const { onClick } = props;
   const [expanded, setExpanded] = useState(false);
 
   type ItemProps = {
@@ -17,21 +20,19 @@ const PromptList: React.FC<Props> = (props) => {
 
   // 上位の setExpanded にアクセスするためにコンポーネントをネストする
   const Item: React.FC<ItemProps> = (props) => {
-    const navigate = useNavigate();
-    const addPrompt = useCallback(() => {
-      navigate('/chat', {
-        state: {
-          systemContext: props.systemContext,
-          content: props.prompt,
-        },
-        replace: true,
+    const onClickPrompt = useCallback(() => {
+      onClick({
+        systemContext: props.systemContext,
+        content: props.prompt,
       });
 
       setExpanded(false);
-    }, [props, navigate]);
+    }, [props]);
 
     return (
-      <li className="my-2 cursor-pointer hover:underline" onClick={addPrompt}>
+      <li
+        className="my-2 cursor-pointer hover:underline"
+        onClick={onClickPrompt}>
         {props.title}
       </li>
     );
