@@ -86,7 +86,6 @@ const Select: React.FC<Props> = (props) => {
             ))}
           </Listbox.Options>
         </Transition>
-        {/*</div>*/}
       </Listbox>
     </RowItem>
   );
