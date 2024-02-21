@@ -80,12 +80,6 @@ const AgentChatPage: React.FC = () => {
     }
   }, [setContent, modelId, availableModels, search, setModelId]);
 
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
-
   const onSend = useCallback(() => {
     const model = agentModels.find((m) => m.modelId === modelId);
     if (model) {
