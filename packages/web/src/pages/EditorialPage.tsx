@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Location, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -11,9 +11,10 @@ import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { editorialPrompt } from '../prompts';
-import { EditorialPageLocationState } from '../@types/navigate';
+import { EditorialPageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -89,7 +90,7 @@ const EditorialPage: React.FC = () => {
     clear,
   } = useEditorialPageState();
 
-  const { state } = useLocation() as Location<EditorialPageLocationState>;
+  const { search } = useLocation();
   const { pathname } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { modelIds: availableModels, textModels } = MODELS;
@@ -116,16 +117,19 @@ const EditorialPage: React.FC = () => {
   }, [sentence, loading]);
 
   useEffect(() => {
-    if (state !== null) {
-      setSentence(state.sentence);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as EditorialPageQueryParams;
+      setSentence(params.sentence ?? '');
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
-  }, [state, setSentence]);
-
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
+  }, [setSentence, modelId, availableModels, search, setModelId]);
 
   // 文章の更新時にコメントを更新
   useEffect(() => {

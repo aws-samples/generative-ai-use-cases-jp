@@ -12,13 +12,14 @@ import SketchPad from '../components/SketchPad';
 import ModalDialog from '../components/ModalDialog';
 import { produce } from 'immer';
 import Help from '../components/Help';
-import { Location, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import useChat from '../hooks/useChat';
 import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
-import { GenerateImagePageLocationState } from '../@types/navigate';
+import { GenerateImagePageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 const MAX_SAMPLE = 7;
 
@@ -235,8 +236,7 @@ const GenerateImagePage: React.FC = () => {
     clear,
   } = useGenerateImagePageState();
 
-  const { pathname, state } =
-    useLocation() as Location<GenerateImagePageLocationState>;
+  const { pathname, search } = useLocation();
   const { generate } = useImage();
   const { loading: loadingChat, clear: clearChat } = useChat(pathname);
 
@@ -247,22 +247,36 @@ const GenerateImagePage: React.FC = () => {
 
   // LandingPage のデモデータ設定
   useEffect(() => {
-    if (state !== null) {
-      setChatContent(state.content);
-    }
-  }, [setChatContent, state]);
+    const _modelId = !modelId ? modelIds[0] : modelId;
+    const _imageGenModelId = !imageGenModelId
+      ? imageGenModelIds[0]
+      : imageGenModelId;
 
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(modelIds[0]);
+    if (search !== '') {
+      const params = queryString.parse(search) as GenerateImagePageQueryParams;
+      setChatContent(params.content ?? '');
+      setModelId(
+        modelIds.includes(params.modelId ?? '') ? params.modelId! : _modelId
+      );
+      setImageGenModelId(
+        imageGenModelIds.includes(params.imageModelId ?? '')
+          ? params.imageModelId!
+          : _imageGenModelId
+      );
+    } else {
+      setModelId(_modelId);
+      setImageGenModelId(_imageGenModelId);
     }
-  }, [modelId, modelIds, setModelId]);
-
-  useEffect(() => {
-    if (!imageGenModelId) {
-      setImageGenModelId(imageGenModelIds[0]);
-    }
-  }, [imageGenModelId, imageGenModelIds, setImageGenModelId]);
+  }, [
+    imageGenModelId,
+    imageGenModelIds,
+    modelId,
+    modelIds,
+    search,
+    setChatContent,
+    setImageGenModelId,
+    setModelId,
+  ]);
 
   const generateRandomSeed = useCallback(() => {
     return Math.floor(Math.random() * 4294967295);

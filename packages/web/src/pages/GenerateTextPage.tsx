@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Location, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -9,9 +9,10 @@ import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import { generateTextPrompt } from '../prompts';
-import { GenerateTextPageLocationState } from '../@types/navigate';
+import { GenerateTextPageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 type StateType = {
   modelId: string;
@@ -72,8 +73,7 @@ const GenerateTextPage: React.FC = () => {
     setText,
     clear,
   } = useGenerateTextPageState();
-  const { state, pathname } =
-    useLocation() as Location<GenerateTextPageLocationState>;
+  const { pathname, search } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
@@ -83,21 +83,32 @@ const GenerateTextPage: React.FC = () => {
   }, [information, loading]);
 
   useEffect(() => {
-    if (state !== null) {
-      setInformation(state.information);
-      setContext(state.context);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as GenerateTextPageQueryParams;
+      setInformation(params.information ?? '');
+      setContext(params.context ?? '');
+
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
-  }, [state, setInformation, setContext]);
+  }, [
+    setInformation,
+    setContext,
+    modelId,
+    availableModels,
+    search,
+    setModelId,
+  ]);
 
   useEffect(() => {
     setTypingTextInput(text);
   }, [text, setTypingTextInput]);
-
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
 
   const getGeneratedText = (
     modelId: string,

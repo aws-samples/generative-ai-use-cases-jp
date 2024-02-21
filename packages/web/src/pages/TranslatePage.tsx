@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Location, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -15,9 +15,10 @@ import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { PiCaretDown } from 'react-icons/pi';
 import { translatePrompt } from '../prompts';
-import { TranslatePageLocationState } from '../@types/navigate';
+import { TranslatePageQueryParams } from '../@types/navigate';
 import { SelectField } from '@aws-amplify/ui-react';
 import { MODELS } from '../hooks/useModel';
+import queryString from 'query-string';
 
 const languages = [
   { label: '英語' },
@@ -99,8 +100,7 @@ const TranslatePage: React.FC = () => {
     clear,
   } = useTranslatePageState();
 
-  const { state, pathname } =
-    useLocation() as Location<TranslatePageLocationState>;
+  const { pathname, search } = useLocation();
   const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels, textModels } = MODELS;
@@ -112,22 +112,33 @@ const TranslatePage: React.FC = () => {
   }, [sentence, loading]);
 
   useEffect(() => {
-    if (state !== null) {
-      setSentence(state.sentence);
-      setAdditionalContext(state.additionalContext);
-      setLanguage(state.language || languages[0].label);
+    const _modelId = !modelId ? availableModels[0] : modelId;
+    if (search !== '') {
+      const params = queryString.parse(search) as TranslatePageQueryParams;
+      setSentence(params.sentence ?? '');
+      setAdditionalContext(params.additionalContext ?? '');
+      setLanguage(params.language || languages[0].label);
+      setModelId(
+        availableModels.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setModelId(_modelId);
     }
-  }, [state, setSentence, setAdditionalContext, setLanguage]);
+  }, [
+    setSentence,
+    setAdditionalContext,
+    setLanguage,
+    modelId,
+    availableModels,
+    search,
+    setModelId,
+  ]);
 
   useEffect(() => {
     setTypingTextInput(translatedSentence);
   }, [translatedSentence, setTypingTextInput]);
-
-  useEffect(() => {
-    if (!modelId) {
-      setModelId(availableModels[0]);
-    }
-  }, [modelId, availableModels, setModelId]);
 
   // 文章の更新時にコメントを更新
   useEffect(() => {

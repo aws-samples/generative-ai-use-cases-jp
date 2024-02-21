@@ -27,6 +27,7 @@
     "immutability-helper": "^3.1.1",
     "lodash.debounce": "^4.0.8",
     "microphone-stream": "^6.0.1",
+    "query-string": "^8.2.0",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
