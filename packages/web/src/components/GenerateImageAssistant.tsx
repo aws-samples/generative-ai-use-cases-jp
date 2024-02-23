@@ -124,7 +124,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     postChat(
       props.content,
       false,
-      props.textModels.find((m) => m.modelId === props.modelId)!
+      props.textModels.find((m) => m.modelId === props.modelId)!,
+      undefined,
+      undefined,
+      ['</output>']
     );
     props.onChangeContent('');
   }, [postChat, props]);

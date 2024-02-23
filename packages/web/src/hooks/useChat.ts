@@ -42,7 +42,8 @@ const useChatState = create<{
     ignoreHistory: boolean,
     model: Model | undefined,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
-    postProcessOutput: ((message: string) => string) | undefined
+    postProcessOutput: ((message: string) => string) | undefined,
+    stopSequences: string[] | undefined,
   ) => void;
   sendFeedback: (
     id: string,
@@ -271,7 +272,8 @@ const useChatState = create<{
       preProcessInput:
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
-      postProcessOutput: ((message: string) => string) | undefined = undefined
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      stopSequences: string[] | undefined = undefined,
     ) => {
       setLoading(id, true);
 
@@ -314,6 +316,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: omitUnusedMessageProperties(inputMessages),
+        stopSequences: stopSequences,
       });
 
       // Assistant の発言を更新
@@ -466,7 +469,8 @@ const useChat = (id: string, chatId?: string) => {
       preProcessInput:
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
-      postProcessOutput: ((message: string) => string) | undefined = undefined
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      stopSequences: string[] | undefined = undefined,
     ) => {
       post(
         id,
@@ -475,7 +479,8 @@ const useChat = (id: string, chatId?: string) => {
         ignoreHistory,
         model,
         preProcessInput,
-        postProcessOutput
+        postProcessOutput,
+        stopSequences,
       );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {

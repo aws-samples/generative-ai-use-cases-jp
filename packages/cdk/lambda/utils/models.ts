@@ -93,8 +93,8 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
 
 // Model Config
 
-const createBodyTextClaude = (messages: UnrecordedMessage[], /* stopSequences: string[] | undefined*/) => {
-  // if (stopSequences) CLAUDE_DEFAULT_PARAMS.stop_sequences = ['\n\nHuman:', ...stopSequences]
+const createBodyTextClaude = (messages: UnrecordedMessage[],  stopSequences: string[] | undefined) => {
+  if (stopSequences) CLAUDE_DEFAULT_PARAMS.stop_sequences = ['\n\nHuman:', ...stopSequences]
   const body: ClaudeParams = {
     prompt: generatePrompt(CLAUDE_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
