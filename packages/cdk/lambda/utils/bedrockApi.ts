@@ -20,7 +20,7 @@ const client = new BedrockRuntimeClient({
 const createBodyText = (
   model: string,
   messages: UnrecordedMessage[],
-  stopSequences?: string[],
+  stopSequences?: string[]
 ): string => {
   const modelConfig = BEDROCK_MODELS[model];
   return modelConfig.createBodyText(messages, stopSequences);

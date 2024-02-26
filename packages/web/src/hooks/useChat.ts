@@ -43,7 +43,7 @@ const useChatState = create<{
     model: Model | undefined,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
-    stopSequences: string[] | undefined,
+    stopSequences: string[] | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -273,7 +273,7 @@ const useChatState = create<{
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      stopSequences: string[] | undefined = undefined,
+      stopSequences: string[] | undefined = undefined
     ) => {
       setLoading(id, true);
 
@@ -470,7 +470,7 @@ const useChat = (id: string, chatId?: string) => {
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      stopSequences: string[] | undefined = undefined,
+      stopSequences: string[] | undefined = undefined
     ) => {
       post(
         id,
@@ -480,7 +480,7 @@ const useChat = (id: string, chatId?: string) => {
         model,
         preProcessInput,
         postProcessOutput,
-        stopSequences,
+        stopSequences
       );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
