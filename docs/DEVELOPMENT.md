@@ -25,11 +25,17 @@ export VITE_APP_USER_POOL_CLIENT_ID=<Cognito User Pool Client ID>
 export VITE_APP_IDENTITY_POOL_ID=<Cognito Identity Pool ID>
 export VITE_APP_PREDICT_STREAM_FUNCTION_ARN=<Function ARN>
 export VITE_APP_RAG_ENABLED=<RAG Flag>
+export VITE_APP_AGENT_ENABLED=<Bedrock Agent Flag>
 export VITE_APP_SELF_SIGN_UP_ENABLED=<Self Signup Flag>
 export VITE_APP_MODEL_REGION=<Bedrock/SageMakerモデルのリージョン>
 export VITE_APP_MODEL_IDS=<Bedrock モデルの JSON Array>
 export VITE_APP_IMAGE_MODEL_IDS=<Bedrock 画像生成モデルの JSON Array>
 export VITE_APP_ENDPOINT_NAMES=<SageMaker モデルの JSON Array>
+export VITE_APP_SAMLAUTH_ENABLED=<SAML 認証 Flag>
+export VITE_APP_SAML_COGNITO_DOMAIN_NAME=<SAML Cognito Domain>
+export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Provider Name>
+export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array>
+export VITE_APP_RECOGNIZE_FILE_ENABLED=<ファイルアップロード Flag>
 ```
 
 具体例は以下です。
@@ -42,11 +48,17 @@ export VITE_APP_USER_POOL_CLIENT_ID=abcdefghijklmnopqrstuvwxyz
 export VITE_APP_IDENTITY_POOL_ID=ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxxx
 export VITE_APP_PREDICT_STREAM_FUNCTION_ARN=arn:aws:lambda:ap-northeast-1:000000000000:function:FunctionName
 export VITE_APP_RAG_ENABLED=true
+export VITE_APP_AGENT_ENABLED=true
 export VITE_APP_SELF_SIGN_UP_ENABLED=true
 export VITE_APP_MODEL_REGION=us-west-2
 export VITE_APP_MODEL_IDS=["anthropic.claude-instant-v1","anthropic.claude-v2"]
-export VITE_APP_IMAGE_MODEL_IDS=["stability.stable-diffusion-xl-v0","amazon.titan-image-generator-v1"]
+export VITE_APP_IMAGE_MODEL_IDS=["stability.stable-diffusion-xl-v1","amazon.titan-image-generator-v1"]
 export VITE_APP_ENDPOINT_NAMES=[]
+export VITE_APP_SAMLAUTH_ENABLED=true
+export VITE_APP_SAML_COGNITO_DOMAIN_NAME=your-preferred-name.auth.ap-northeast-1.amazoncognito.com
+export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
+export VITE_APP_AGENT_NAMES=["SearchEngine"]
+export VITE_APP_RECOGNIZE_FILE_ENABLED=true
 ```
 
 続いて以下のコマンドを実行します。

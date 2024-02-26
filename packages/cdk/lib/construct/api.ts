@@ -47,7 +47,7 @@ export class Api extends Construct {
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v0'];
+    ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
     const agents: Agent[] = this.node.tryGetContext('agents') || [];
