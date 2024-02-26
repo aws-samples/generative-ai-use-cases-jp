@@ -45,7 +45,7 @@ export VITE_APP_RAG_ENABLED=true
 export VITE_APP_SELF_SIGN_UP_ENABLED=true
 export VITE_APP_MODEL_REGION=us-west-2
 export VITE_APP_MODEL_IDS=["anthropic.claude-instant-v1","anthropic.claude-v2"]
-export VITE_APP_IMAGE_MODEL_IDS=["stability.stable-diffusion-xl-v0","amazon.titan-image-generator-v1"]
+export VITE_APP_IMAGE_MODEL_IDS=["stability.stable-diffusion-xl-v1","amazon.titan-image-generator-v1"]
 export VITE_APP_ENDPOINT_NAMES=[]
 ```
 

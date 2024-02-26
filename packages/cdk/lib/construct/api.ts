@@ -47,7 +47,7 @@ export class Api extends Construct {
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v0'];
+    ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
     const agents: Agent[] = this.node.tryGetContext('agents') || [];
@@ -57,7 +57,6 @@ export class Api extends Construct {
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
-      'stability.stable-diffusion-xl-v0',
       'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
     ];
