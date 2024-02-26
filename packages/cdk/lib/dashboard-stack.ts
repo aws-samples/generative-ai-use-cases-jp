@@ -23,7 +23,7 @@ export class DashboardStack extends Stack {
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v0'];
+    ) || ['stability.stable-diffusion-xl-v1'];
 
     // Bedrock のログの出力先として設定する LogGroup
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
