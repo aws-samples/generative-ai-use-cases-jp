@@ -95,10 +95,11 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
 
 const createBodyTextClaude = (
   messages: UnrecordedMessage[],
+  extraSuffix: string | undefined,
   stopSequences: string[] | undefined
 ) => {
   const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
+    prompt: generatePrompt(CLAUDE_PROMPT, messages, extraSuffix),
     ...CLAUDE_DEFAULT_PARAMS,
     ...{ stop_sequences: stopSequences },
   };
@@ -107,10 +108,11 @@ const createBodyTextClaude = (
 
 const createBodyTextClaudev21 = (
   messages: UnrecordedMessage[],
+  extraSuffix: string | undefined,
   stopSequences: string[] | undefined
 ) => {
   const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
+    prompt: generatePrompt(CLAUDE_PROMPT, messages, extraSuffix),
     ...CLAUDE_DEFAULT_PARAMS,
     ...{ stop_sequences: stopSequences },
   };
@@ -190,6 +192,7 @@ export const BEDROCK_MODELS: {
     promptTemplate: PromptTemplate;
     createBodyText: (
       messages: UnrecordedMessage[],
+      extraSuffix?: string,
       stopSequences?: string[]
     ) => string;
   };

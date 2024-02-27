@@ -43,6 +43,7 @@ const useChatState = create<{
     model: Model | undefined,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
+    extraSuffix: string | undefined,
     stopSequences: string[] | undefined
   ) => void;
   sendFeedback: (
@@ -273,6 +274,7 @@ const useChatState = create<{
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
+      extraSuffix: string | undefined = undefined,
       stopSequences: string[] | undefined = undefined
     ) => {
       setLoading(id, true);
@@ -316,6 +318,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: omitUnusedMessageProperties(inputMessages),
+        extraSuffix: extraSuffix,
         stopSequences: stopSequences,
       });
 
@@ -470,6 +473,7 @@ const useChat = (id: string, chatId?: string) => {
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
+      extraSuffix: string | undefined = undefined,
       stopSequences: string[] | undefined = undefined
     ) => {
       post(
@@ -480,6 +484,7 @@ const useChat = (id: string, chatId?: string) => {
         model,
         preProcessInput,
         postProcessOutput,
+        extraSuffix,
         stopSequences
       );
     },

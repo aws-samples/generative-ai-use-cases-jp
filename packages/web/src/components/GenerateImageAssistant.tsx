@@ -127,6 +127,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
       props.textModels.find((m) => m.modelId === props.modelId)!,
       undefined,
       undefined,
+      '<output>',
       ['</output>']
     );
     props.onChangeContent('');
