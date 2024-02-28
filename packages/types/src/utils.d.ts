@@ -7,12 +7,14 @@ import {
 export type InvokeInterface = (
   model: Model,
   messages: UnrecordedMessage[],
+  extraSuffix: string | undefined,
   stopSequences: string[] | undefined
 ) => Promise<string>;
 
 export type InvokeStreamInterface = (
   model: Model,
   messages: UnrecordedMessage[],
+  extraSuffix: string | undefined,
   stopSequences: string[] | undefined
 ) => AsyncIterable<string>;
 

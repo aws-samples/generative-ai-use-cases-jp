@@ -22,6 +22,7 @@ export const handler = awslambda.streamifyResponse(
     for await (const token of api[model.type].invokeStream(
       model,
       event.messages,
+      event.extraSuffix,
       event.stopSequences
     )) {
       responseStream.write(token);

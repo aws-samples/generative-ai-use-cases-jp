@@ -12,6 +12,7 @@ export const handler = async (
     const response = await api[model.type].invoke(
       model,
       req.messages,
+      req.extraSuffix,
       req.stopSequences
     );
 
