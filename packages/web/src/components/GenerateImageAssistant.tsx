@@ -156,7 +156,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         </div>
         <div
           id="image-assistant-chat"
-          className="h-full overflow-y-auto overflow-x-hidden">
+          className="h-full overflow-y-auto overflow-x-hidden pb-16">
           {contents.length === 0 && (
             <div className="rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">
