@@ -28,7 +28,7 @@ const Select: React.FC<Props> = (props) => {
   }, [props]);
 
   return (
-    <RowItem notItem={props.notItem}>
+    <RowItem notItem={props.notItem} className="relative">
       {props.label && (
         <div>
           <span className="text-sm">{props.label}</span>
