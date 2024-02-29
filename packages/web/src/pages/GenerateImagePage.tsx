@@ -521,7 +521,7 @@ const GenerateImagePage: React.FC = () => {
                   初期画像
                   <Help
                     className="ml-1"
-                    direction="left"
+                    position="center"
                     message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
                   />
                 </div>
