@@ -396,7 +396,7 @@ const GenerateImagePage: React.FC = () => {
         />
       </ModalDialog>
 
-      <div className="col-span-12 max-h-[calc(100vh-2rem)] lg:col-span-6">
+      <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
         <GenerateImageAssistant
           modelId={modelId}
           onChangeModel={setModelId}
@@ -425,10 +425,10 @@ const GenerateImagePage: React.FC = () => {
       </div>
 
       <div className="col-span-12 lg:col-span-6">
-        <Card>
+        <Card className="lg:min-h-[calc(100vh-2rem)]">
           <div className="flex items-center justify-center">
             <Base64Image
-              className="size-48"
+              className="size-60"
               imageBase64={image[selectedImageIndex].base64}
               loading={generating}
               error={image[selectedImageIndex].error}
@@ -436,7 +436,7 @@ const GenerateImagePage: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-row justify-center gap-x-2">
+          <div className="mb-2 flex flex-row justify-center gap-x-2">
             {image.map((image, idx) => (
               <React.Fragment key={idx}>
                 {idx < imageSample && (
@@ -484,7 +484,7 @@ const GenerateImagePage: React.FC = () => {
           />
 
           <div className="grid w-full grid-cols-2 gap-2 pt-4">
-            <div className="col-span-2 flex flex-row items-center lg:col-span-1">
+            <div className="relative col-span-2 flex flex-row items-center lg:col-span-1">
               <RangeSlider
                 className="w-full"
                 label="Seed"
@@ -496,7 +496,9 @@ const GenerateImagePage: React.FC = () => {
                 }}
                 help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
               />
-              <ButtonIcon onClick={onClickRandomSeed}>
+              <ButtonIcon
+                className="absolute -top-0.5 right-[8.2rem]"
+                onClick={onClickRandomSeed}>
                 <PiDiceFive />
               </ButtonIcon>
             </div>
@@ -538,7 +540,7 @@ const GenerateImagePage: React.FC = () => {
               </div>
 
               <div className="col-span-2 flex flex-col items-center justify-center lg:col-span-1">
-                <div className="relative w-full">
+                <div className="mb-2 w-full">
                   <Select
                     label="StylePreset"
                     options={stylePresetOptions}

@@ -283,7 +283,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         </div>
         <div className="absolute bottom-0 z-0 -ml-2 flex w-full items-end justify-center pr-6">
           <InputChatContent
-            placeholder="出力したい画像の概要を入力してください"
+            placeholder="出力したい画像の概要を入力"
             fullWidth
             hideReset
             content={props.content}
