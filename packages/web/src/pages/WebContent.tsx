@@ -13,14 +13,12 @@ import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
-import { webContentPrompt } from '../prompts';
 import { WebContentPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   url: string;
   setUrl: (s: string) => void;
   fetching: boolean;
@@ -36,7 +34,6 @@ type StateType = {
 
 const useWebContentPageState = create<StateType>((set) => {
   const INIT_STATE = {
-    modelId: '',
     url: '',
     fetching: false,
     text: '',
@@ -45,11 +42,6 @@ const useWebContentPageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setUrl: (s: string) => {
       set(() => ({
         url: s,
@@ -83,8 +75,6 @@ const useWebContentPageState = create<StateType>((set) => {
 
 const WebContent: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     url,
     setUrl,
     fetching,
@@ -99,11 +89,22 @@ const WebContent: React.FC = () => {
   } = useWebContentPageState();
 
   const { pathname, search } = useLocation();
-  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { getWebText } = useChatApi();
   const [showError, setShowError] = useState(false);
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;
@@ -123,24 +124,24 @@ const WebContent: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [setUrl, setContext, modelId, availableModels, search, setModelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setUrl, setContext, modelId, availableModels, search]);
 
   useEffect(() => {
     setTypingTextInput(content);
   }, [content, setTypingTextInput]);
 
   const getContent = useCallback(
-    (modelId: string, text: string, context: string) => {
+    (text: string, context: string) => {
       postChat(
-        webContentPrompt.generatePrompt({
+        prompter.webContentPrompt({
           text,
           context,
         }),
-        true,
-        textModels.find((m) => m.modelId === modelId)
+        true
       );
     },
-    [textModels, postChat]
+    [prompter, postChat]
   );
 
   const onClickExec = useCallback(async () => {
@@ -164,9 +165,8 @@ const WebContent: React.FC = () => {
     const text = res!.data.text;
 
     setText(text);
-    getContent(modelId, text, context);
+    getContent(text, context);
   }, [
-    modelId,
     url,
     context,
     loading,

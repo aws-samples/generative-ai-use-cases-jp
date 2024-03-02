@@ -9,14 +9,12 @@ import Select from '../components/Select';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
-import { generateTextPrompt } from '../prompts';
 import { GenerateTextPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   information: string;
   setInformation: (s: string) => void;
   context: string;
@@ -28,18 +26,12 @@ type StateType = {
 
 const useGenerateTextPageState = create<StateType>((set) => {
   const INIT_STATE = {
-    modelId: '',
     information: '',
     context: '',
     text: '',
   };
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setInformation: (s: string) => {
       set(() => ({
         information: s,
@@ -63,8 +55,6 @@ const useGenerateTextPageState = create<StateType>((set) => {
 
 const GenerateTextPage: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     information,
     setInformation,
     context,
@@ -74,9 +64,20 @@ const GenerateTextPage: React.FC = () => {
     clear,
   } = useGenerateTextPageState();
   const { pathname, search } = useLocation();
-  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;
@@ -97,31 +98,20 @@ const GenerateTextPage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [
-    setInformation,
-    setContext,
-    modelId,
-    availableModels,
-    search,
-    setModelId,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setInformation, setContext, modelId, availableModels, search]);
 
   useEffect(() => {
     setTypingTextInput(text);
   }, [text, setTypingTextInput]);
 
-  const getGeneratedText = (
-    modelId: string,
-    information: string,
-    context: string
-  ) => {
+  const getGeneratedText = (information: string, context: string) => {
     postChat(
-      generateTextPrompt.generatePrompt({
+      prompter.generateTextPrompt({
         information,
         context,
       }),
-      true,
-      textModels.find((m) => m.modelId === modelId)
+      true
     );
   };
 
@@ -138,9 +128,9 @@ const GenerateTextPage: React.FC = () => {
   // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getGeneratedText(modelId, information, context);
+    getGeneratedText(information, context);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, information, context, loading]);
+  }, [information, context, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {

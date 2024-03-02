@@ -14,24 +14,16 @@ import { v4 as uuidv4 } from 'uuid';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
   sessionId: string;
   content: string;
-  setModelId: (c: string) => void;
   setSessionId: (c: string) => void;
   setContent: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
-    modelId: '',
     sessionId: uuidv4(),
     content: '',
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setSessionId: (s: string) => {
       set(() => ({
         sessionId: s,
@@ -46,16 +38,24 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const AgentChatPage: React.FC = () => {
-  const { modelId, sessionId, content, setModelId, setContent } =
-    useChatPageState();
+  const { sessionId, content, setContent } = useChatPageState();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
-  const { loading, loadingMessages, isEmpty, messages, clear, postChat } =
-    useChat(pathname, chatId);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    loadingMessages,
+    isEmpty,
+    messages,
+    clear,
+    postChat,
+  } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
-  const { agentNames: availableModels, agentModels } = MODELS;
+  const { agentNames: availableModels } = MODELS;
+  const modelId = getModelId();
 
   const title = useMemo(() => {
     if (chatId) {
@@ -78,17 +78,22 @@ const AgentChatPage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [setContent, modelId, availableModels, search, setModelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setContent, modelId, availableModels, search]);
 
   const onSend = useCallback(() => {
-    const model = agentModels.find((m) => m.modelId === modelId);
-    if (model) {
-      model.sessionId = sessionId;
-    }
-    postChat(content, false, model);
+    postChat(
+      content,
+      false,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      sessionId
+    );
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, content]);
+  }, [content]);
 
   const onReset = useCallback(() => {
     clear();

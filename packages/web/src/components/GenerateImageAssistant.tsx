@@ -8,13 +8,11 @@ import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
 import useScroll from '../hooks/useScroll';
-import { Model } from 'generative-ai-use-cases-jp';
 
 type Props = BaseProps & {
   modelId: string;
   onChangeModel: (s: string) => void;
   modelIds: string[];
-  textModels: Model[];
   content: string;
   isGeneratingImage: boolean;
   onChangeContent: (s: string) => void;
@@ -121,15 +119,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading]);
 
   const onSend = useCallback(() => {
-    postChat(
-      props.content,
-      false,
-      props.textModels.find((m) => m.modelId === props.modelId)!,
-      undefined,
-      undefined,
-      '<output>',
-      ['</output>']
-    );
+    postChat(props.content, false, undefined, undefined, '<output>', [
+      '</output>',
+    ]);
     props.onChangeContent('');
   }, [postChat, props]);
 

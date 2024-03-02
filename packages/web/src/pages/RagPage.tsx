@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import InputChatContent from '../components/InputChatContent';
 import { create } from 'zustand';
 import Alert from '../components/Alert';
+import useChat from '../hooks/useChat';
 import useRag from '../hooks/useRag';
 import { useLocation, Link } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
@@ -15,21 +16,13 @@ import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   content: string;
   setContent: (c: string) => void;
 };
 
 const useRagPageState = create<StateType>((set) => {
   return {
-    modelId: '',
     content: '',
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -39,11 +32,13 @@ const useRagPageState = create<StateType>((set) => {
 });
 
 const RagPage: React.FC = () => {
-  const { modelId, setModelId, content, setContent } = useRagPageState();
+  const { content, setContent } = useRagPageState();
   const { pathname, search } = useLocation();
+  const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } = useRag(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -58,12 +53,13 @@ const RagPage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [availableModels, modelId, search, setContent, setModelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableModels, modelId, search, setContent]);
 
   const onSend = useCallback(() => {
-    postMessage(content, textModels.find((m) => m.modelId === modelId)!);
+    postMessage(content);
     setContent('');
-  }, [textModels, modelId, content, postMessage, setContent]);
+  }, [content, postMessage, setContent]);
 
   const onReset = useCallback(() => {
     clear();
