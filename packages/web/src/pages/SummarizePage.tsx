@@ -10,14 +10,12 @@ import Select from '../components/Select';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
-import { summarizePrompt } from '../prompts';
 import { SummarizePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -29,18 +27,12 @@ type StateType = {
 
 const useSummarizePageState = create<StateType>((set) => {
   const INIT_STATE = {
-    modelId: '',
     sentence: '',
     additionalContext: '',
     summarizedSentence: '',
   };
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -64,8 +56,6 @@ const useSummarizePageState = create<StateType>((set) => {
 
 const SummarizePage: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     sentence,
     setSentence,
     additionalContext,
@@ -75,9 +65,20 @@ const SummarizePage: React.FC = () => {
     clear,
   } = useSummarizePageState();
   const { pathname, search } = useLocation();
-  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
 
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
@@ -97,27 +98,20 @@ const SummarizePage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [
-    setSentence,
-    setAdditionalContext,
-    modelId,
-    availableModels,
-    search,
-    setModelId,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setSentence, setAdditionalContext, modelId, availableModels, search]);
 
   useEffect(() => {
     setTypingTextInput(summarizedSentence);
   }, [summarizedSentence, setTypingTextInput]);
 
-  const getSummary = (modelId: string, sentence: string, context: string) => {
+  const getSummary = (sentence: string, context: string) => {
     postChat(
-      summarizePrompt.generatePrompt({
+      prompter.summarizePrompt({
         sentence,
         context,
       }),
-      true,
-      textModels.find((m) => m.modelId === modelId)
+      true
     );
   };
 
@@ -136,9 +130,9 @@ const SummarizePage: React.FC = () => {
   // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getSummary(modelId, sentence, additionalContext);
+    getSummary(sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {

@@ -18,27 +18,20 @@ import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 type StateType = {
-  modelId: string;
   content: string;
   inputSystemContext: string;
-  setModelId: (c: string) => void;
   setContent: (c: string) => void;
   setInputSystemContext: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
-    modelId: '',
     content: '',
     inputSystemContext: '',
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -53,18 +46,14 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const ChatPage: React.FC = () => {
-  const {
-    modelId,
-    content,
-    inputSystemContext,
-    setModelId,
-    setContent,
-    setInputSystemContext,
-  } = useChatPageState();
+  const { content, inputSystemContext, setContent, setInputSystemContext } =
+    useChatPageState();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
   const {
+    getModelId,
+    setModelId,
     loading,
     loadingMessages,
     isEmpty,
@@ -78,8 +67,12 @@ const ChatPage: React.FC = () => {
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
 
   const title = useMemo(() => {
     if (chatId) {
@@ -91,6 +84,7 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
+
     if (search !== '') {
       const params = queryString.parse(search) as ChatPageQueryParams;
       if (params.systemContext && params.systemContext !== '') {
@@ -109,17 +103,13 @@ const ChatPage: React.FC = () => {
       setModelId(_modelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, setContent, setModelId, availableModels]);
+  }, [search, setContent, availableModels, pathname]);
 
   const onSend = useCallback(() => {
-    postChat(
-      content,
-      false,
-      textModels.find((m) => m.modelId === modelId)
-    );
+    postChat(prompter.chatPrompt({ content }), false);
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, content]);
+  }, [content]);
 
   const onReset = useCallback(() => {
     clear();

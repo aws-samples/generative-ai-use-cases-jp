@@ -25,8 +25,6 @@ import queryString from 'query-string';
 const MAX_SAMPLE = 7;
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   imageGenModelId: string;
   setImageGenModelId: (c: string) => void;
   prompt: string;
@@ -62,7 +60,6 @@ type StateType = {
 
 const useGenerateImagePageState = create<StateType>((set, get) => {
   const INIT_STATE = {
-    modelId: '',
     imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
@@ -82,11 +79,6 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
 
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setImageGenModelId: (s: string) => {
       set(() => ({
         imageGenModelId: s,
@@ -206,8 +198,6 @@ const stylePresetOptions = [
 
 const GenerateImagePage: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     imageGenModelId,
     setImageGenModelId,
     prompt,
@@ -239,12 +229,18 @@ const GenerateImagePage: React.FC = () => {
 
   const { pathname, search } = useLocation();
   const { generate } = useImage();
-  const { loading: loadingChat, clear: clearChat } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading: loadingChat,
+    clear: clearChat,
+  } = useChat(pathname);
 
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const { modelIds, imageGenModelIds, textModels, imageGenModels } = MODELS;
+  const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
+  const modelId = getModelId();
 
   // LandingPage のデモデータ設定
   useEffect(() => {
@@ -268,6 +264,7 @@ const GenerateImagePage: React.FC = () => {
       setModelId(_modelId);
       setImageGenModelId(_imageGenModelId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     imageGenModelId,
     imageGenModelIds,
@@ -276,7 +273,6 @@ const GenerateImagePage: React.FC = () => {
     search,
     setChatContent,
     setImageGenModelId,
-    setModelId,
   ]);
 
   const generateRandomSeed = useCallback(() => {
@@ -401,7 +397,6 @@ const GenerateImagePage: React.FC = () => {
           modelId={modelId}
           onChangeModel={setModelId}
           modelIds={modelIds}
-          textModels={textModels}
           content={chatContent}
           onChangeContent={setChatContent}
           isGeneratingImage={generating}

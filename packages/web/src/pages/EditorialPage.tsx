@@ -11,9 +11,9 @@ import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
-import { editorialPrompt } from '../prompts';
 import { EditorialPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
@@ -21,8 +21,6 @@ const REGEX_ZENKAKU =
   /[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g;
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -36,7 +34,6 @@ type StateType = {
 
 const useEditorialPageState = create<StateType>((set) => {
   const INIT_STATE = {
-    modelId: '',
     sentence: '',
     additionalContext: '',
     comments: [],
@@ -44,11 +41,6 @@ const useEditorialPageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -77,8 +69,6 @@ const useEditorialPageState = create<StateType>((set) => {
 
 const EditorialPage: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     sentence,
     setSentence,
     additionalContext,
@@ -92,8 +82,19 @@ const EditorialPage: React.FC = () => {
 
   const { search } = useLocation();
   const { pathname } = useLocation();
-  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
-  const { modelIds: availableModels, textModels } = MODELS;
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
   const [auto, setAuto] = useState(true);
 
   // Memo 変数
@@ -129,7 +130,8 @@ const EditorialPage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
-  }, [setSentence, modelId, availableModels, search, setModelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setSentence, modelId, availableModels, search]);
 
   // 文章の更新時にコメントを更新
   useEffect(() => {
@@ -150,7 +152,6 @@ const EditorialPage: React.FC = () => {
 
       // debounce した後コメント更新
       onSentenceChange(
-        modelId,
         sentence,
         additionalContext,
         comments,
@@ -159,7 +160,7 @@ const EditorialPage: React.FC = () => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, sentence]);
+  }, [sentence]);
 
   // debounce した後コメントを更新
   // 入力を止めて1秒ほど待ってからコメントを更新し新規コメント追加リクエストを送信
@@ -167,7 +168,6 @@ const EditorialPage: React.FC = () => {
   const onSentenceChange = useCallback(
     debounce(
       (
-        _modelId: string,
         _sentence: string,
         _additionalContext: string,
         _comments: DocumentComment[],
@@ -185,7 +185,7 @@ const EditorialPage: React.FC = () => {
         // コメントがなくなったらコメントを取得
         const _shownComment = filterComment(_comments, _commentState);
         if (_shownComment.length === 0 && _sentence !== '' && !_loading) {
-          getAnnotation(_modelId, _sentence, _additionalContext);
+          getAnnotation(_sentence, _additionalContext);
         }
       },
       1000
@@ -226,28 +226,23 @@ const EditorialPage: React.FC = () => {
   };
 
   // LLM にリクエスト送信
-  const getAnnotation = (
-    modelId: string,
-    sentence: string,
-    context: string
-  ) => {
+  const getAnnotation = (sentence: string, context: string) => {
     setCommentState({});
     postChat(
-      editorialPrompt.generatePrompt({
+      prompter.editorialPrompt({
         sentence,
         context: context === '' ? undefined : context,
       }),
-      true,
-      textModels.find((m) => m.modelId === modelId)
+      true
     );
   };
 
   // コメントを取得
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getAnnotation(modelId, sentence, additionalContext);
+    getAnnotation(sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {

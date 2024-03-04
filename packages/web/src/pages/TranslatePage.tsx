@@ -12,9 +12,9 @@ import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
-import { translatePrompt } from '../prompts';
 import { TranslatePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 const languages = [
@@ -28,8 +28,6 @@ const languages = [
 ];
 
 type StateType = {
-  modelId: string;
-  setModelId: (c: string) => void;
   sentence: string;
   setSentence: (s: string) => void;
   additionalContext: string;
@@ -43,7 +41,6 @@ type StateType = {
 
 const useTranslatePageState = create<StateType>((set) => {
   const INIT_STATE = {
-    modelId: '',
     sentence: '',
     additionalContext: '',
     language: languages[0],
@@ -51,11 +48,6 @@ const useTranslatePageState = create<StateType>((set) => {
   };
   return {
     ...INIT_STATE,
-    setModelId: (s: string) => {
-      set(() => ({
-        modelId: s,
-      }));
-    },
     setSentence: (s: string) => {
       set(() => ({
         sentence: s,
@@ -84,8 +76,6 @@ const useTranslatePageState = create<StateType>((set) => {
 
 const TranslatePage: React.FC = () => {
   const {
-    modelId,
-    setModelId,
     sentence,
     setSentence,
     additionalContext,
@@ -98,9 +88,20 @@ const TranslatePage: React.FC = () => {
   } = useTranslatePageState();
 
   const { pathname, search } = useLocation();
-  const { loading, messages, postChat, clear: clearChat } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
-  const { modelIds: availableModels, textModels } = MODELS;
+  const { modelIds: availableModels } = MODELS;
+  const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
   const [auto, setAuto] = useState(true);
 
   // Memo 変数
@@ -123,6 +124,7 @@ const TranslatePage: React.FC = () => {
     } else {
       setModelId(_modelId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     setSentence,
     setAdditionalContext,
@@ -130,7 +132,6 @@ const TranslatePage: React.FC = () => {
     modelId,
     availableModels,
     search,
-    setModelId,
   ]);
 
   useEffect(() => {
@@ -141,10 +142,10 @@ const TranslatePage: React.FC = () => {
   useEffect(() => {
     if (auto) {
       // debounce した後翻訳
-      onSentenceChange(modelId, sentence, additionalContext, language, loading);
+      onSentenceChange(sentence, additionalContext, language, loading);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, sentence, language]);
+  }, [sentence, language]);
 
   // debounce した後翻訳
   // 入力を止めて1秒ほど待ってから翻訳リクエストを送信
@@ -152,7 +153,6 @@ const TranslatePage: React.FC = () => {
   const onSentenceChange = useCallback(
     debounce(
       (
-        _modelId: string,
         _sentence: string,
         _additionalContext: string,
         _language: string,
@@ -162,7 +162,7 @@ const TranslatePage: React.FC = () => {
           setTranslatedSentence('');
         }
         if (_sentence !== '' && !_loading) {
-          getTranslation(_modelId, _sentence, _language, _additionalContext);
+          getTranslation(_sentence, _language, _additionalContext);
         }
       },
       1000
@@ -184,28 +184,26 @@ const TranslatePage: React.FC = () => {
 
   // LLM にリクエスト送信
   const getTranslation = (
-    modelId: string,
     sentence: string,
     language: string,
     context: string
   ) => {
     postChat(
-      translatePrompt.generatePrompt({
+      prompter.translatePrompt({
         sentence,
         language,
         context: context === '' ? undefined : context,
       }),
-      true,
-      textModels.find((m) => m.modelId === modelId)
+      true
     );
   };
 
   // 翻訳を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    getTranslation(modelId, sentence, language, additionalContext);
+    getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelId, sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading]);
 
   // リセット
   const onClickClear = useCallback(() => {

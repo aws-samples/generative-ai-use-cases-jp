@@ -41,6 +41,12 @@ const agentModels = [
   ),
 ];
 
+export const findModelByModelId = (modelId: string) => {
+  return [...textModels, ...imageGenModels, ...agentModels].find(
+    (m) => m.modelId === modelId
+  );
+};
+
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: modelIds,
