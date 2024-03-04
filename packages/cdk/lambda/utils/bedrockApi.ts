@@ -19,12 +19,10 @@ const client = new BedrockRuntimeClient({
 
 const createBodyText = (
   model: string,
-  messages: UnrecordedMessage[],
-  extraSuffix?: string,
-  stopSequences?: string[]
+  messages: UnrecordedMessage[]
 ): string => {
   const modelConfig = BEDROCK_MODELS[model];
-  return modelConfig.createBodyText(messages, extraSuffix, stopSequences);
+  return modelConfig.createBodyText(messages);
 };
 
 const createBodyImage = (
@@ -44,25 +42,20 @@ const extractOutputImage = (
 };
 
 const bedrockApi: ApiInterface = {
-  invoke: async (model, messages, extraSuffix, stopSequences) => {
+  invoke: async (model, messages) => {
     const command = new InvokeModelCommand({
       modelId: model.modelId,
-      body: createBodyText(model.modelId, messages, extraSuffix, stopSequences),
+      body: createBodyText(model.modelId, messages),
       contentType: 'application/json',
     });
     const data = await client.send(command);
     return JSON.parse(data.body.transformToString()).completion;
   },
-  invokeStream: async function* (model, messages, extraSuffix, stopSequences) {
+  invokeStream: async function* (model, messages) {
     try {
       const command = new InvokeModelWithResponseStreamCommand({
         modelId: model.modelId,
-        body: createBodyText(
-          model.modelId,
-          messages,
-          extraSuffix,
-          stopSequences
-        ),
+        body: createBodyText(model.modelId, messages),
         contentType: 'application/json',
       });
       const res = await client.send(command);

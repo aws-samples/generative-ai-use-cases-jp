@@ -34,22 +34,22 @@ export const defaultImageGenerationModel: Model = {
 
 const CLAUDE_PROMPT: PromptTemplate = {
   prefix: '',
-  suffix: '\n\nAssistant: ',
+  suffix: '\n\nAssistant: <output>',
   join: '\n\n',
   user: 'Human: {}',
-  assistant: 'Assistant: {}',
+  assistant: 'Assistant: <output>{}',
   system: '\n\nHuman: {}\n\nAssistant: コンテキストを理解しました。',
-  eosToken: '',
+  eosToken: '</output>',
 };
 
 const CLAUDEV21_PROMPT: PromptTemplate = {
   prefix: '',
-  suffix: '\n\nAssistant: ',
+  suffix: '\n\nAssistant: <output>',
   join: '\n\n',
   user: 'Human: {}',
-  assistant: 'Assistant: {}',
+  assistant: 'Assistant: <output>{}</output>',
   system: '{}',
-  eosToken: '',
+  eosToken: '</output>',
 };
 
 const LLAMA2_PROMPT: PromptTemplate = {
@@ -93,28 +93,20 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
 
 // Model Config
 
-const createBodyTextClaude = (
-  messages: UnrecordedMessage[],
-  extraSuffix: string | undefined,
-  stopSequences: string[] | undefined
-) => {
+const createBodyTextClaude = (messages: UnrecordedMessage[]) => {
   const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages, extraSuffix),
+    prompt: generatePrompt(CLAUDE_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
-    ...{ stop_sequences: stopSequences },
+    ...{ stop_sequences: [CLAUDE_PROMPT.eosToken] },
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextClaudev21 = (
-  messages: UnrecordedMessage[],
-  extraSuffix: string | undefined,
-  stopSequences: string[] | undefined
-) => {
+const createBodyTextClaudev21 = (messages: UnrecordedMessage[]) => {
   const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages, extraSuffix),
+    prompt: generatePrompt(CLAUDE_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
-    ...{ stop_sequences: stopSequences },
+    ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
   };
   return JSON.stringify(body);
 };
@@ -190,11 +182,7 @@ const extractOutputImageTitanImage = (
 export const BEDROCK_MODELS: {
   [key: string]: {
     promptTemplate: PromptTemplate;
-    createBodyText: (
-      messages: UnrecordedMessage[],
-      extraSuffix?: string,
-      stopSequences?: string[]
-    ) => string;
+    createBodyText: (messages: UnrecordedMessage[]) => string;
   };
 } = {
   'anthropic.claude-v2:1': {

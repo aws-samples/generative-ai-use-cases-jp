@@ -2,8 +2,7 @@ import { PromptTemplate, UnrecordedMessage } from 'generative-ai-use-cases-jp';
 
 export const generatePrompt = (
   pt: PromptTemplate,
-  messages: UnrecordedMessage[],
-  extraSuffix: string | undefined = ''
+  messages: UnrecordedMessage[]
 ) => {
   const prompt =
     pt.prefix +
@@ -20,7 +19,7 @@ export const generatePrompt = (
         }
       })
       .join(pt.join) +
-    pt.suffix +
-    extraSuffix;
+    pt.suffix;
+
   return prompt;
 };

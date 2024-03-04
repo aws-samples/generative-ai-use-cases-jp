@@ -82,15 +82,7 @@ const AgentChatPage: React.FC = () => {
   }, [setContent, modelId, availableModels, search]);
 
   const onSend = useCallback(() => {
-    postChat(
-      content,
-      false,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      sessionId
-    );
+    postChat(content, false, undefined, undefined, sessionId);
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content]);
