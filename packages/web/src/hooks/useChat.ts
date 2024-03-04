@@ -371,7 +371,6 @@ const useChatState = create<{
               llmType: model?.modelId,
             };
             draft[id].messages.push(newAssistantMessage);
-            console.log(newAssistantMessage);
           });
           return {
             chats: newChats,
