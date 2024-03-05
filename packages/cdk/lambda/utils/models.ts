@@ -1,6 +1,11 @@
 import {
   BedrockImageGenerationResponse,
+  BedrockResponse,
+  ClaudeMessageParams,
   ClaudeParams,
+  TitanParams,
+  Llama2Params,
+  MistralParams,
   GenerateImageParams,
   Model,
   PromptTemplate,
@@ -52,7 +57,27 @@ const CLAUDEV21_PROMPT: PromptTemplate = {
   eosToken: '</output>',
 };
 
+const TITAN_TEXT_PROMPT: PromptTemplate = {
+  prefix: '',
+  suffix: '\nBot: ',
+  join: '\n',
+  user: 'User: {}',
+  assistant: 'Bot: {}',
+  system: 'User: {}\nBot: コンテキストを理解しました。',
+  eosToken: '',
+};
+
 const LLAMA2_PROMPT: PromptTemplate = {
+  prefix: '[INST] ',
+  suffix: ' [/INST]',
+  join: '',
+  user: '{}',
+  assistant: ' [/INST] {}</s><s>[INST] ',
+  system: '<<SYS>>\n{}\n<</SYS>>\n\n',
+  eosToken: '</s>',
+};
+
+const MISTRAL_PROMPT: PromptTemplate = {
   prefix: '[INST] ',
   suffix: ' [/INST]',
   join: '',
@@ -91,6 +116,34 @@ const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
   top_p: 0.8,
 };
 
+const CLAUDE_MESSAGE_DEFAULT_PARAMS: ClaudeMessageParams = {
+  max_tokens: 3000,
+  temperature: 0.6,
+  top_k: 300,
+  top_p: 0.8,
+};
+
+const TITAN_TEXT_DEFAULT_PARAMS: TitanParams = {
+  textGenerationConfig: {
+    maxTokenCount: 2048,
+    stopSequences: ['User:'],
+    temperature: 0.6,
+    topP: 0.999,
+  },
+};
+
+const LLAMA2_DEFAULT_PARAMS: Llama2Params = {
+  temperature: 0.6,
+  top_p: 0.99,
+  max_gen_len: 1024,
+};
+
+const MISTRAL_DEFAULT_PARAMS: MistralParams = {
+  max_tokens: 1024,
+  top_p: 0.99,
+  temperature: 0.6,
+};
+
 // Model Config
 
 const createBodyTextClaude = (messages: UnrecordedMessage[]) => {
@@ -109,6 +162,72 @@ const createBodyTextClaudev21 = (messages: UnrecordedMessage[]) => {
     ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
   };
   return JSON.stringify(body);
+};
+
+const createBodyTextClaudeMessage = (messages: UnrecordedMessage[]) => {
+  const system = messages.find((message) => message.role === 'system');
+  messages = messages.filter((message) => message.role !== 'system');
+  const body: ClaudeMessageParams = {
+    anthropic_version: 'bedrock-2023-05-31',
+    system: system?.content,
+    messages: messages.map((message) => {
+      return {
+        role: message.role,
+        content: [{ type: 'text', text: message.content }],
+      };
+    }),
+    ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const createBodyTextTitanText = (messages: UnrecordedMessage[]) => {
+  const body: TitanParams = {
+    inputText: generatePrompt(TITAN_TEXT_PROMPT, messages),
+    ...TITAN_TEXT_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const createBodyTextLlama2 = (messages: UnrecordedMessage[]) => {
+  const body: Llama2Params = {
+    prompt: generatePrompt(LLAMA2_PROMPT, messages),
+    ...LLAMA2_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const createBodyTextMistral = (messages: UnrecordedMessage[]) => {
+  const body: MistralParams = {
+    prompt: generatePrompt(MISTRAL_PROMPT, messages),
+    ...MISTRAL_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const extractOutputTextClaude = (body: BedrockResponse): string => {
+  return body.completion;
+};
+
+const extractOutputTextClaudeMessage = (body: BedrockResponse): string => {
+  if (body.type === 'message') {
+    return body.content[0].text;
+  } else if (body.type === 'content_block_delta') {
+    return body.delta.text;
+  }
+  return '';
+};
+
+const extractOutputTextTitanText = (body: BedrockResponse): string => {
+  return body.outputText;
+};
+
+const extractOutputTextLlama2 = (body: BedrockResponse): string => {
+  return body.generation;
+};
+
+const extractOutputTextMistral = (body: BedrockResponse): string => {
+  return body.outputs[0].text;
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -183,19 +302,53 @@ export const BEDROCK_MODELS: {
   [key: string]: {
     promptTemplate: PromptTemplate;
     createBodyText: (messages: UnrecordedMessage[]) => string;
+    extractOutputText: (body: BedrockResponse) => string;
   };
 } = {
+  'anthropic.claude-3-sonnet-20240229-v1:0': {
+    promptTemplate: CLAUDEV21_PROMPT,
+    createBodyText: createBodyTextClaudeMessage,
+    extractOutputText: extractOutputTextClaudeMessage,
+  },
   'anthropic.claude-v2:1': {
     promptTemplate: CLAUDEV21_PROMPT,
     createBodyText: createBodyTextClaudev21,
+    extractOutputText: extractOutputTextClaude,
   },
   'anthropic.claude-v2': {
     promptTemplate: CLAUDE_PROMPT,
     createBodyText: createBodyTextClaude,
+    extractOutputText: extractOutputTextClaude,
   },
   'anthropic.claude-instant-v1': {
     promptTemplate: CLAUDE_PROMPT,
     createBodyText: createBodyTextClaude,
+    extractOutputText: extractOutputTextClaude,
+  },
+  'amazon.titan-text-express-v1': {
+    promptTemplate: TITAN_TEXT_PROMPT,
+    createBodyText: createBodyTextTitanText,
+    extractOutputText: extractOutputTextTitanText,
+  },
+  'meta.llama2-13b-chat-v1': {
+    promptTemplate: LLAMA2_PROMPT,
+    createBodyText: createBodyTextLlama2,
+    extractOutputText: extractOutputTextLlama2,
+  },
+  'meta.llama2-70b-chat-v1': {
+    promptTemplate: LLAMA2_PROMPT,
+    createBodyText: createBodyTextLlama2,
+    extractOutputText: extractOutputTextLlama2,
+  },
+  'mistral.mistral-7b-instruct-v0:2': {
+    promptTemplate: MISTRAL_PROMPT,
+    createBodyText: createBodyTextMistral,
+    extractOutputText: extractOutputTextMistral,
+  },
+  'mistral.mixtral-8x7b-instruct-v0:1': {
+    promptTemplate: MISTRAL_PROMPT,
+    createBodyText: createBodyTextMistral,
+    extractOutputText: extractOutputTextMistral,
   },
 };
 

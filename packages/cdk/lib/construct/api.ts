@@ -54,12 +54,19 @@ export class Api extends Construct {
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
+      // Titan は日本語文字化けのため未対応
+      // 'amazon.titan-text-express-v1',
       'stability.stable-diffusion-xl-v0',
       'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
+      'meta.llama2-13b-chat-v1',
+      'meta.llama2-70b-chat-v1',
+      'mistral.mistral-7b-instruct-v0:2',
+      'mistral.mixtral-8x7b-instruct-v0:1',
     ];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
