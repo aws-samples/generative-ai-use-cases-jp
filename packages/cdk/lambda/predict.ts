@@ -9,12 +9,7 @@ export const handler = async (
   try {
     const req: PredictRequest = JSON.parse(event.body!);
     const model = req.model || defaultModel;
-    const response = await api[model.type].invoke(
-      model,
-      req.messages,
-      req.extraSuffix,
-      req.stopSequences
-    );
+    const response = await api[model.type].invoke(model, req.messages);
 
     return {
       statusCode: 200,

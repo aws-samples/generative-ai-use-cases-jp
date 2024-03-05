@@ -119,9 +119,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading]);
 
   const onSend = useCallback(() => {
-    postChat(props.content, false, undefined, undefined, '<output>', [
-      '</output>',
-    ]);
+    postChat(props.content);
     props.onChangeContent('');
   }, [postChat, props]);
 

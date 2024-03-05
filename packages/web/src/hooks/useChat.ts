@@ -47,8 +47,6 @@ const useChatState = create<{
     ignoreHistory: boolean,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
-    extraSuffix: string | undefined,
-    stopSequences: string[] | undefined,
     sessionId: string | undefined
   ) => void;
   sendFeedback: (
@@ -298,8 +296,6 @@ const useChatState = create<{
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      extraSuffix: string | undefined = undefined,
-      stopSequences: string[] | undefined = undefined,
       sessionId: string | undefined = undefined
     ) => {
       const modelId = get().modelIds[id];
@@ -362,8 +358,6 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: omitUnusedMessageProperties(inputMessages),
-        extraSuffix: extraSuffix,
-        stopSequences: stopSequences,
       });
 
       // Assistant の発言を更新
@@ -373,10 +367,7 @@ const useChatState = create<{
             const oldAssistantMessage = draft[id].messages.pop()!;
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
-              content: (oldAssistantMessage.content + chunk).replace(
-                /(<output>|<\/output>)/g,
-                ''
-              ),
+              content: oldAssistantMessage.content + chunk,
               llmType: model?.modelId,
             };
             draft[id].messages.push(newAssistantMessage);
@@ -524,8 +515,6 @@ const useChat = (id: string, chatId?: string) => {
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      extraSuffix: string | undefined = undefined,
-      stopSequences: string[] | undefined = undefined,
       sessionId: string | undefined = undefined
     ) => {
       post(
@@ -535,8 +524,6 @@ const useChat = (id: string, chatId?: string) => {
         ignoreHistory,
         preProcessInput,
         postProcessOutput,
-        extraSuffix,
-        stopSequences,
         sessionId
       );
     },
