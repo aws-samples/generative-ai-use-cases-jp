@@ -2,9 +2,15 @@ import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
 
-// 現状は claudePrompter しか返さない
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getPrompter = (_modelId: string) => {
+export const getPrompter = (modelId: string) => {
+  if (modelId.startsWith('anthropic.claude-')) {
+    return claudePrompter;
+  }
+
+  // デフォルトでは Claude の prompter を返す
+  // modelId は初期時に空文字が入っているため
+  // 初期モデルが Claude ではない場合も、一時的に claudePrompter が選択されている状態になるが
+  // modelId が更新されると適切なモデルが選択されるため、その状態を許容する
   return claudePrompter;
 };
 
@@ -48,6 +54,18 @@ export type SetTitleParams = {
   messages: UnrecordedMessage[];
 };
 
+export type PromptListItem = {
+  title: string;
+  systemContext: string;
+  prompt: string;
+};
+
+export type PromptList = {
+  title: string;
+  items: PromptListItem[];
+  experimental?: boolean;
+}[];
+
 export interface Prompter {
   systemContext(pathname: string): string;
   chatPrompt(params: ChatParams): string;
@@ -58,4 +76,5 @@ export interface Prompter {
   webContentPrompt(params: WebContentParams): string;
   ragPrompt(params: RagParams): string;
   setTitlePrompt(params: SetTitleParams): string;
+  promptList(): PromptList;
 }
