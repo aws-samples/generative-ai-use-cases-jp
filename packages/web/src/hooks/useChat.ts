@@ -373,7 +373,13 @@ const useChatState = create<{
             const oldAssistantMessage = draft[id].messages.pop()!;
             const newAssistantMessage: UnrecordedMessage = {
               role: 'assistant',
-              content: oldAssistantMessage.content + chunk,
+              // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
+              // 出力が <output></output> で囲まれる可能性がある
+              // 以下の処理ではそれに対応するため、<output></output> xml タグを削除している
+              content: (oldAssistantMessage.content + chunk).replace(
+                /(<output>|<\/output>)/g,
+                ''
+              ),
               llmType: model?.modelId,
             };
             draft[id].messages.push(newAssistantMessage);
