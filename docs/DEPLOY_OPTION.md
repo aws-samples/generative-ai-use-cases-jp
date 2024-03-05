@@ -163,14 +163,33 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。モデルの一覧は[ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids-arns.html) をご確認ください。
 
+現状このソリューションが対応しているモデルは以下です
+
+```
+"anthropic.claude-3-sonnet-20240229-v1:0",
+"anthropic.claude-v2",
+"anthropic.claude-instant-v1",
+"meta.llama2-13b-chat-v1",
+"meta.llama2-70b-chat-v1",
+"mistral.mistral-7b-instruct-v0:2",
+"mistral.mixtral-8x7b-instruct-v0:1",
+```
+
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
 ```bash
   "modelRegion": "us-east-1",
-  "modelIds": ["anthropic.claude-v2","anthropic.claude-instant-v1"],
-  "imageGenerationModelIds": ["stability.stable-diffusion-xl-v1","amazon.titan-image-generator-v1"],
+  "modelIds": [
+    "anthropic.claude-3-sonnet-20240229-v1:0",
+    "anthropic.claude-v2",
+    "anthropic.claude-instant-v1",
+  ],
+  "imageGenerationModelIds": [
+    "stability.stable-diffusion-xl-v1",
+    "amazon.titan-image-generator-v1"
+  ],
 ```
 
 ### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
