@@ -1,3 +1,4 @@
+import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
 
@@ -43,6 +44,10 @@ export type RagParams = {
   referenceItems?: RetrieveResultItem[];
 };
 
+export type SetTitleParams = {
+  messages: UnrecordedMessage[];
+};
+
 export interface Prompter {
   systemContext(pathname: string): string;
   chatPrompt(params: ChatParams): string;
@@ -52,4 +57,5 @@ export interface Prompter {
   translatePrompt(params: TranslateParams): string;
   webContentPrompt(params: WebContentParams): string;
   ragPrompt(params: RagParams): string;
+  setTitlePrompt(params: SetTitleParams): string;
 }
