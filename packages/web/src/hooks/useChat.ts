@@ -122,9 +122,15 @@ const useChatState = create<{
   };
 
   const setPredictedTitle = async (id: string) => {
+    const modelId = getModelId(id);
+    const model = findModelByModelId(modelId)!;
+    const prompter = getPrompter(modelId);
     const title = await predictTitle({
+      model,
       chat: get().chats[id].chat!,
-      messages: omitUnusedMessageProperties(get().chats[id].messages),
+      prompt: prompter.setTitlePrompt({
+        messages: omitUnusedMessageProperties(get().chats[id].messages),
+      }),
     });
     setTitle(id, title);
   };
