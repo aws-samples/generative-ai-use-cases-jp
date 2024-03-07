@@ -68,7 +68,7 @@ const TITAN_TEXT_PROMPT: PromptTemplate = {
 };
 
 const LLAMA2_PROMPT: PromptTemplate = {
-  prefix: '[INST] ',
+  prefix: '<s>[INST] ',
   suffix: ' [/INST]',
   join: '',
   user: '{}',
@@ -78,12 +78,12 @@ const LLAMA2_PROMPT: PromptTemplate = {
 };
 
 const MISTRAL_PROMPT: PromptTemplate = {
-  prefix: '[INST] ',
+  prefix: '<s>[INST] ',
   suffix: ' [/INST]',
   join: '',
   user: '{}',
-  assistant: ' [/INST] {}</s><s>[INST] ',
-  system: '<<SYS>>\n{}\n<</SYS>>\n\n',
+  assistant: ' [/INST]\n{}\n[INST] ',
+  system: '{} [/INST]\nコンテキストを理解しました。</s>\n[INST] ',
   eosToken: '</s>',
 };
 
@@ -142,6 +142,7 @@ const MISTRAL_DEFAULT_PARAMS: MistralParams = {
   max_tokens: 1024,
   top_p: 0.99,
   temperature: 0.6,
+  stop: [MISTRAL_PROMPT.eosToken, '[INST]']
 };
 
 // Model Config
