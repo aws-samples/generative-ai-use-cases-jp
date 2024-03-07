@@ -27,6 +27,7 @@ export class Api extends Construct {
   readonly predictStreamFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
+  readonly multiModalModelIds: string[];
   readonly imageGenerationModelIds: string[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
@@ -68,6 +69,7 @@ export class Api extends Construct {
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
     ];
+    const multiModalModelIds = ['anthropic.claude-3-sonnet-20240229-v1:0'];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
         throw new Error(`Unsupported Model Name: ${modelId}`);
@@ -488,6 +490,7 @@ export class Api extends Construct {
     this.predictStreamFunction = predictStreamFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
+    this.multiModalModelIds = multiModalModelIds;
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.endpointNames = endpointNames;
     this.agentNames = Object.keys(agentMap);

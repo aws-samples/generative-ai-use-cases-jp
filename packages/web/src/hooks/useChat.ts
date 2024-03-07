@@ -8,6 +8,7 @@ import {
   Chat,
   ListChatsResponse,
   Role,
+  ExtraData,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -16,6 +17,7 @@ import useConversation from './useConversation';
 import { KeyedMutator } from 'swr';
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
+import useFileApi from '../hooks/useFileApi';
 
 const useChatState = create<{
   chats: {
@@ -47,7 +49,8 @@ const useChatState = create<{
     ignoreHistory: boolean,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
-    sessionId: string | undefined
+    sessionId: string | undefined,
+    extraData: ExtraData[] | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -62,6 +65,7 @@ const useChatState = create<{
     predictStream,
     predictTitle,
   } = useChatApi();
+  const { getDocDownloadSignedUrl } = useFileApi();
 
   const getModelId = (id: string) => {
     return get().modelIds[id] || '';
@@ -176,7 +180,7 @@ const useChatState = create<{
             }
             // 参照が切れるとエラーになるため clone する
             toBeRecordedMessages.push(
-              Object.assign({}, m as ToBeRecordedMessage)
+              JSON.parse(JSON.stringify(m)) as ToBeRecordedMessage
             );
           }
         }
@@ -208,6 +212,58 @@ const useChatState = create<{
         chats: newChats,
       };
     });
+  };
+
+  const formatMessageProperties = async (
+    messages: ShownMessage[]
+  ): Promise<UnrecordedMessage[]> => {
+    return await Promise.all(
+      messages.map(async (m) => {
+        const s3ToBase64 = async (s3Url: string): Promise<string> => {
+          try {
+            const signedUrl = await getDocDownloadSignedUrl(s3Url);
+            const res = await fetch(signedUrl);
+            const blob = await res.blob();
+            return new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => {
+                let encoded = (reader.result || '')
+                  .toString()
+                  .replace(/^data:(.*,)?/, '');
+                if (encoded.length % 4 > 0) {
+                  encoded += '='.repeat(4 - (encoded.length % 4));
+                }
+                resolve(encoded);
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+          } catch (e) {
+            console.error(e);
+            return '';
+          }
+        };
+        const extraData =
+          m.extraData &&
+          (await Promise.all(
+            m.extraData.map(async (data) => {
+              return {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  mediaType: data.source.mediaType,
+                  data: await s3ToBase64(data.source.data),
+                },
+              };
+            })
+          ));
+        return {
+          role: m.role,
+          content: m.content,
+          extraData: extraData?.filter((data) => data.source.data),
+        };
+      })
+    );
   };
 
   const omitUnusedMessageProperties = (
@@ -302,7 +358,8 @@ const useChatState = create<{
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      sessionId: string | undefined = undefined
+      sessionId: string | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined
     ) => {
       const modelId = get().modelIds[id];
 
@@ -328,6 +385,7 @@ const useChatState = create<{
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
         content,
+        extraData: extraData,
       };
 
       const unrecordedAssistantMessage: UnrecordedMessage = {
@@ -361,9 +419,10 @@ const useChatState = create<{
       }
 
       // LLM へのリクエスト
+      const formattedMessages = await formatMessageProperties(inputMessages);
       const stream = predictStream({
         model: model,
-        messages: omitUnusedMessageProperties(inputMessages),
+        messages: formattedMessages,
       });
 
       // Assistant の発言を更新
@@ -527,7 +586,8 @@ const useChat = (id: string, chatId?: string) => {
         | ((message: ShownMessage[]) => ShownMessage[])
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
-      sessionId: string | undefined = undefined
+      sessionId: string | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined
     ) => {
       post(
         id,
@@ -536,7 +596,8 @@ const useChat = (id: string, chatId?: string) => {
         ignoreHistory,
         preProcessInput,
         postProcessOutput,
-        sessionId
+        sessionId,
+        extraData
       );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {

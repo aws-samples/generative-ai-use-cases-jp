@@ -20,6 +20,7 @@ import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
+import useFiles from '../hooks/useFiles';
 
 type StateType = {
   content: string;
@@ -48,6 +49,12 @@ const useChatPageState = create<StateType>((set) => {
 const ChatPage: React.FC = () => {
   const { content, inputSystemContext, setContent, setInputSystemContext } =
     useChatPageState();
+  const {
+    setFiles,
+    uploadFiles,
+    clear: clearFiles,
+    uploadedFiles,
+  } = useFiles();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
@@ -106,10 +113,18 @@ const ChatPage: React.FC = () => {
   }, [search, setContent, availableModels, pathname]);
 
   const onSend = useCallback(() => {
-    postChat(prompter.chatPrompt({ content }), false);
+    postChat(
+      prompter.chatPrompt({ content }),
+      false,
+      undefined,
+      undefined,
+      undefined,
+      uploadedFiles
+    );
     setContent('');
+    clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, uploadedFiles]);
 
   const onReset = useCallback(() => {
     clear();
@@ -179,6 +194,10 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     setInputSystemContext(currentSystemContext);
   }, [currentSystemContext, setInputSystemContext]);
+
+  const fileUpload = useMemo(() => {
+    return MODELS.multiModalModelIds.includes(modelId);
+  }, [modelId]);
 
   const onClickSamplePrompt = useCallback(
     (params: ChatPageQueryParams) => {
@@ -293,6 +312,10 @@ const ChatPage: React.FC = () => {
               onSend();
             }}
             onReset={onReset}
+            uploadedFiles={uploadedFiles}
+            onChangeFiles={setFiles}
+            uploadFiles={uploadFiles}
+            fileUpload={fileUpload}
           />
         </div>
       </div>
