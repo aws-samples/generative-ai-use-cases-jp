@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CfnMethod,
@@ -7,15 +7,12 @@ import {
   ConnectionType,
   Integration,
   IntegrationType,
-  LambdaIntegration,
   RestApi,
   VpcLink,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import { Peer, Port, Vpc } from 'aws-cdk-lib/aws-ec2';
@@ -35,36 +32,26 @@ import { ServiceLinkedRole } from 'upsert-slr';
 export interface RecognizeFileProps {
   userPool: UserPool;
   api: RestApi;
+  fileBucket: Bucket;
 }
 
 export class RecognizeFile extends Construct {
   constructor(scope: Construct, id: string, props: RecognizeFileProps) {
     super(scope, id);
 
-    // S3 (File Bucket)
-    const fileBucket = new Bucket(this, 'FileBucket', {
-      encryption: BucketEncryption.S3_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true,
-    });
-    fileBucket.addCorsRule({
-      allowedOrigins: ['*'],
-      allowedMethods: [HttpMethods.PUT],
-      allowedHeaders: ['*'],
-      exposedHeaders: [],
-      maxAge: 3000,
+    const stage = props.api.deploymentStage.node.defaultChild as CfnStage;
+
+    const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
+      cognitoUserPools: [props.userPool],
     });
 
-    // Lambda
-    const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
-      runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/getMediaUploadSignedUrl.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        BUCKET_NAME: fileBucket.bucketName,
-      },
-    });
-    fileBucket.grantWrite(getSignedUrlFunction);
+    const commonAuthorizerProps = {
+      authorizationType: AuthorizationType.COGNITO,
+      authorizer,
+    };
+
+    const fileResource =
+      props.api.root.getResource('file') || props.api.root.addResource('file');
 
     // VPC
     const vpc = new Vpc(this, 'Vpc', {});
@@ -91,7 +78,7 @@ export class RecognizeFile extends Construct {
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['s3:GetObject'],
-        resources: [fileBucket.arnForObjects('*')],
+        resources: [props.fileBucket.arnForObjects('*')],
       })
     );
 
@@ -141,21 +128,9 @@ export class RecognizeFile extends Construct {
     });
 
     // API Gateway
-    const stage = props.api.deploymentStage.node.defaultChild as CfnStage;
     stage.variables = {
       vpcLinkId: link.vpcLinkId,
     };
-
-    const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
-      cognitoUserPools: [props.userPool],
-    });
-
-    const commonAuthorizerProps = {
-      authorizationType: AuthorizationType.COGNITO,
-      authorizer,
-    };
-
-    const fileResource = props.api.root.addResource('file');
 
     // POST: /file/recognize
     const recognizeMethod = fileResource.addResource('recognize').addMethod(
@@ -180,14 +155,5 @@ export class RecognizeFile extends Construct {
       'Integration.ConnectionId',
       '${stageVariables.vpcLinkId}'
     );
-
-    // POST: /file/url
-    fileResource
-      .addResource('url')
-      .addMethod(
-        'POST',
-        new LambdaIntegration(getSignedUrlFunction),
-        commonAuthorizerProps
-      );
   }
 }

@@ -173,7 +173,19 @@ const createBodyTextClaudeMessage = (messages: UnrecordedMessage[]) => {
     messages: messages.map((message) => {
       return {
         role: message.role,
-        content: [{ type: 'text', text: message.content }],
+        content: [
+          ...(message.extraData
+            ? message.extraData.map((item) => ({
+                type: item.type,
+                source: {
+                  type: item.source.type,
+                  media_type: item.source.mediaType,
+                  data: item.source.data,
+                },
+              }))
+            : []),
+          { type: 'text', text: message.content },
+        ],
       };
     }),
     ...CLAUDE_MESSAGE_DEFAULT_PARAMS,

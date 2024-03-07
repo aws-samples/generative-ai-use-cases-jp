@@ -25,8 +25,20 @@ export type MessageAttributes = {
 
 export type UnrecordedMessage = {
   role: Role;
+  // テキスト
   content: string;
+  // 追加データ（画像など）
+  extraData?: ExtraData[];
   llmType?: string;
+};
+
+export type ExtraData = {
+  type: string;
+  source: {
+    type: string;
+    mediaType: string;
+    data: string;
+  };
 };
 
 export type RecordedMessage = PrimaryKey &

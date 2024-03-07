@@ -129,6 +129,7 @@ export const batchCreateMessages = async (
         messageId: m.messageId,
         role: m.role,
         content: m.content,
+        extraData: m.extraData,
         userId,
         feedback,
         usecase: m.usecase,
