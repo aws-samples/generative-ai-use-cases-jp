@@ -140,7 +140,7 @@ export class Rag extends Construct {
         })
       );
 
-      new kendra.CfnDataSource(this, 'S3DataSource', {
+      const dataSource = new kendra.CfnDataSource(this, 'S3DataSource', {
         indexId: index.ref,
         type: 'S3',
         name: 's3-data-source',
@@ -153,6 +153,7 @@ export class Rag extends Construct {
           },
         },
       });
+      dataSource.addDependency(index);
     }
 
     // RAG 関連の API を追加する
