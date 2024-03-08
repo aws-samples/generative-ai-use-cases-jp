@@ -31,7 +31,9 @@ const agentNames: string[] = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES)
 
 // モデルオブジェクトの定義
 const textModels = [
-  ...bedrockModelIds.map((name) => ({ modelId: name, type: 'bedrock' }) as Model),
+  ...bedrockModelIds.map(
+    (name) => ({ modelId: name, type: 'bedrock' }) as Model
+  ),
   ...endpointNames.map(
     (name) => ({ modelId: name, type: 'sagemaker' }) as Model
   ),
