@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
+import ZoomUpImage from './ZoomUpImage';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
@@ -100,11 +101,13 @@ const ChatMessage: React.FC<Props> = (props) => {
           <div className="ml-5 grow ">
             {chatContent?.role === 'user' && (
               <div className="break-all">
-                <div className="flex flex-wrap">
-                  {signedUrls.map((url) => (
-                    <img key={url} src={url} width="100px" height="100px" />
-                  ))}
-                </div>
+                {signedUrls.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {signedUrls.map((url) => (
+                      <ZoomUpImage key={url} src={url} size={32} />
+                    ))}
+                  </div>
+                )}
                 {typingTextOutput.split('\n').map((c, idx) => (
                   <div key={idx}>{c}</div>
                 ))}

@@ -22,4 +22,12 @@ module.exports = {
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/307
     'tailwindcss/enforces-shorthand': ['off'],
   },
+  settings: {
+    tailwindcss: {
+      // 以下の Warning 対策
+      // Classname 'w-' is not a Tailwind CSS class!
+      // Classname 'h-' is not a Tailwind CSS class!
+      whitelist: ['w-', 'h-'],
+    },
+  },
 };

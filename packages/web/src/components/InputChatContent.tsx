@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ButtonSend from './ButtonSend';
 import Textarea from './Textarea';
+import ZoomUpImage from './ZoomUpImage';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
@@ -90,11 +91,13 @@ const InputChatContent: React.FC<Props> = (props) => {
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
         <div className="flex w-full flex-col">
-          <div className="flex flex-wrap">
-            {signedUrls.map((url: string) => (
-              <img key={url} src={url} width="100px" height="100px" />
-            ))}
-          </div>
+          {signedUrls.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {signedUrls.map((url: string) => (
+                <ZoomUpImage key={url} src={url} size={24} />
+              ))}
+            </div>
+          )}
           <Textarea
             className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
             placeholder={props.placeholder ?? '入力してください'}

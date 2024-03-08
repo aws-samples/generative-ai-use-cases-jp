@@ -142,7 +142,7 @@ const MISTRAL_DEFAULT_PARAMS: MistralParams = {
   max_tokens: 1024,
   top_p: 0.99,
   temperature: 0.6,
-  stop: [MISTRAL_PROMPT.eosToken, '[INST]']
+  stop: [MISTRAL_PROMPT.eosToken, '[INST]'],
 };
 
 // Model Config
