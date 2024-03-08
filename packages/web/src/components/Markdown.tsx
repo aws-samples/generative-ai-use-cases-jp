@@ -72,19 +72,27 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
 
           return (
             <>
-              <div className="flex">
-                <span className="flex-auto">{isCodeBlock ? language : ''}</span>
-                <ButtonCopy
-                  className="mr-2 justify-end text-gray-400"
-                  text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
-                />
-              </div>
-              <SyntaxHighlighter
-                {...props}
-                children={codeText}
-                style={vscDarkPlus}
-                language={isCodeBlock ? language : 'plaintext'}
-              />
+              {isCodeBlock ? (
+                <>
+                  <div className="flex">
+                    <span className="flex-auto">{language} </span>
+                    <ButtonCopy
+                      className="mr-2 justify-end text-gray-400"
+                      text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
+                    />
+                  </div>
+                  <SyntaxHighlighter
+                    {...props}
+                    children={codeText}
+                    style={vscDarkPlus}
+                    language={isCodeBlock ? language : 'plaintext'}
+                  />
+                </>
+              ) : (
+                <div className="bg-aws-squid-ink/10 border-aws-squid-ink/30 inline rounded-md border px-1 py-0.5">
+                  {codeText}
+                </div>
+              )}
             </>
           );
         },
