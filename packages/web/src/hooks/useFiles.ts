@@ -1,37 +1,27 @@
 import { create } from 'zustand';
 import useFileApi from './useFileApi';
 import { ExtraData } from 'generative-ai-use-cases-jp';
+import { produce } from 'immer';
 
 const useFilesState = create<{
   loading: boolean;
-  files: File[] | null;
-  setFiles: (files: File[]) => void;
-  uploadFiles: () => Promise<void>;
+  uploadFiles: (files: File[]) => Promise<void>;
   uploadedFiles: ExtraData[];
+  deleteUploadedFile: (targetIndex: number) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
   const api = useFileApi();
 
-  const setFiles = (files: File[]) => {
-    set(() => ({
-      files: files,
-    }));
-  };
-
   const clear = () => {
     set(() => ({
-      files: [],
       uploadedFiles: [],
     }));
   };
 
-  const uploadFiles = async () => {
+  const uploadFiles = async (files: File[]) => {
     set(() => ({
       loading: true,
-      uploadedFiles: [],
     }));
-
-    const files = get().files;
 
     const fileUrls = files
       ? await Promise.all(
@@ -60,30 +50,51 @@ const useFilesState = create<{
       : [];
 
     set(() => ({
-      uploadedFiles: fileUrls,
+      uploadedFiles: produce(get().uploadedFiles, (draft) => {
+        draft.push(...fileUrls);
+      }),
     }));
   };
 
+  const deleteUploadedFile = async (targetIndex: number) => {
+    const target = get().uploadedFiles[targetIndex];
+
+    if (target) {
+      // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
+      const result = /https:\/\/.+\/(?<fileName>.+)/.exec(target.source.data);
+      const fileName = result?.groups?.fileName;
+
+      if (fileName) {
+        await api.deleteUploadedFile(fileName);
+        set({
+          uploadedFiles: produce(get().uploadedFiles, (draft) => {
+            draft.splice(targetIndex, 1);
+          }),
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
   return {
-    files: null,
     loading: false,
     clear,
-    setFiles,
     uploadedFiles: [],
     uploadFiles,
+    deleteUploadedFile,
   };
 });
 
 const useFiles = () => {
-  const { files, loading, uploadFiles, clear, setFiles, uploadedFiles } =
+  const { loading, uploadFiles, clear, uploadedFiles, deleteUploadedFile } =
     useFilesState();
   return {
-    files,
     loading,
     uploadFiles,
     clear,
-    setFiles,
     uploadedFiles,
+    deleteUploadedFile,
   };
 };
 export default useFiles;

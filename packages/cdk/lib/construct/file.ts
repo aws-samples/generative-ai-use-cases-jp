@@ -64,6 +64,9 @@ export class File extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/deleteFile.ts',
       timeout: Duration.minutes(15),
+      environment: {
+        BUCKET_NAME: fileBucket.bucketName,
+      },
     });
     fileBucket.grantDelete(deleteFileFunction);
 

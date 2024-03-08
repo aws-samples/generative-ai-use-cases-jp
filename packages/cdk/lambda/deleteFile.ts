@@ -6,7 +6,7 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req = event.queryStringParameters as DeleteFileRequest;
+    const req = event.pathParameters as DeleteFileRequest;
 
     const client = new S3Client({});
     const command = new DeleteObjectCommand({

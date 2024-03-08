@@ -49,12 +49,7 @@ const useChatPageState = create<StateType>((set) => {
 const ChatPage: React.FC = () => {
   const { content, inputSystemContext, setContent, setInputSystemContext } =
     useChatPageState();
-  const {
-    setFiles,
-    uploadFiles,
-    clear: clearFiles,
-    uploadedFiles,
-  } = useFiles();
+  const { clear: clearFiles, uploadedFiles } = useFiles();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
@@ -312,9 +307,6 @@ const ChatPage: React.FC = () => {
               onSend();
             }}
             onReset={onReset}
-            uploadedFiles={uploadedFiles}
-            onChangeFiles={setFiles}
-            uploadFiles={uploadFiles}
             fileUpload={fileUpload}
           />
         </div>
