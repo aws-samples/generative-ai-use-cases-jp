@@ -101,6 +101,11 @@ export type GetMediaUploadSignedUrlRequest = {
 
 export type GetMediaUploadSignedUrlResponse = string;
 
+export type DeleteFileRequest = {
+  fileName: string;
+};
+export type DeleteFileResponse = null;
+
 export type StartTranscriptionRequest = {
   audioUrl: string;
 };

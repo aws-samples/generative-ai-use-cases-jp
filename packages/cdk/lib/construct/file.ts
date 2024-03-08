@@ -60,6 +60,13 @@ export class File extends Construct {
     );
     fileBucket.grantRead(getFileDownloadSignedUrlFunction);
 
+    const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteFile.ts',
+      timeout: Duration.minutes(15),
+    });
+    fileBucket.grantDelete(deleteFileFunction);
+
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [props.userPool],
     });
@@ -85,6 +92,15 @@ export class File extends Construct {
       new LambdaIntegration(getFileDownloadSignedUrlFunction),
       commonAuthorizerProps
     );
+
+    // DELETE: /file/{fileName}
+    fileResource
+      .addResource('{fileName}')
+      .addMethod(
+        'DELETE',
+        new LambdaIntegration(deleteFileFunction),
+        commonAuthorizerProps
+      );
 
     this.fielBucket = fileBucket;
   }
