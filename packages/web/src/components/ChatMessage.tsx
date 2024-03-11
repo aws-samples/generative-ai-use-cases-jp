@@ -43,6 +43,7 @@ const ChatMessage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (chatContent?.extraData) {
+      // ローディング表示にするために、画像の数だけ要素を用意して、undefinedを初期値として設定する
       setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
