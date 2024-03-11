@@ -50,9 +50,9 @@ const InputChatContent: React.FC<Props> = (props) => {
   };
 
   const deleteFile = useCallback(
-    (index: number) => {
+    (fileUrl: string) => {
       setDeleting(true);
-      deleteUploadedFile(index).finally(() => {
+      deleteUploadedFile(fileUrl).finally(() => {
         setDeleting(false);
       });
     },
@@ -93,14 +93,14 @@ const InputChatContent: React.FC<Props> = (props) => {
         <div className="flex w-full flex-col">
           {signedUrls.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
-              {signedUrls.map((url, idx) => (
+              {signedUrls.map((url) => (
                 <ZoomUpImage
                   key={url}
                   src={url}
                   size="s"
                   deleting={deleting}
                   onDelete={() => {
-                    deleteFile(idx);
+                    deleteFile(url);
                   }}
                 />
               ))}

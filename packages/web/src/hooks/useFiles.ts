@@ -3,11 +3,15 @@ import useFileApi from './useFileApi';
 import { ExtraData } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 
+const extractBaseURL = (url: string) => {
+  return url.split(/[?#]/)[0];
+};
+
 const useFilesState = create<{
   loading: boolean;
   uploadFiles: (files: File[]) => Promise<void>;
   uploadedFiles: ExtraData[];
-  deleteUploadedFile: (targetIndex: number) => Promise<boolean>;
+  deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
   const api = useFileApi();
@@ -33,7 +37,7 @@ const useFilesState = create<{
               mediaFormat: mediaFormat,
             });
             const signedUrl = signedUrlRes.data;
-            const fileUrl = signedUrl.split(/[?#]/)[0]; // 署名付き url からクエリパラメータを除外
+            const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
 
             // ファイルのアップロード
             await api.uploadFile(signedUrl, { file: file });
@@ -56,16 +60,25 @@ const useFilesState = create<{
     }));
   };
 
-  const deleteUploadedFile = async (targetIndex: number) => {
-    const target = get().uploadedFiles[targetIndex];
+  const deleteUploadedFile = async (fileUrl: string) => {
+    const baseUrl = extractBaseURL(fileUrl);
+    const findTargetIndex = () =>
+      get().uploadedFiles.findIndex((file) => file.source.data === baseUrl);
+    let targetIndex = findTargetIndex();
 
-    if (target) {
+    if (targetIndex > -1) {
       // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
-      const result = /https:\/\/.+\/(?<fileName>.+)/.exec(target.source.data);
+      const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
+        get().uploadedFiles[targetIndex].source.data
+      );
       const fileName = result?.groups?.fileName;
 
       if (fileName) {
         await api.deleteUploadedFile(fileName);
+
+        // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得s
+        targetIndex = findTargetIndex();
+
         set({
           uploadedFiles: produce(get().uploadedFiles, (draft) => {
             draft.splice(targetIndex, 1);
