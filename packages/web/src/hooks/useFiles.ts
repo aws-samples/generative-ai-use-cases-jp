@@ -76,7 +76,7 @@ const useFilesState = create<{
       if (fileName) {
         await api.deleteUploadedFile(fileName);
 
-        // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得s
+        // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
         targetIndex = findTargetIndex();
 
         set({
