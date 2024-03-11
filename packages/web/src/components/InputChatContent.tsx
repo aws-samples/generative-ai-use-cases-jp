@@ -1,12 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import ButtonSend from './ButtonSend';
 import Textarea from './Textarea';
 import ZoomUpImage from './ZoomUpImage';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
-import { PiArrowsCounterClockwise, PiPaperclip } from 'react-icons/pi';
-import useFileApi from '../hooks/useFileApi';
+import {
+  PiArrowsCounterClockwise,
+  PiPaperclip,
+  PiSpinnerGap,
+} from 'react-icons/pi';
+
 import useFiles from '../hooks/useFiles';
 
 type Props = {
@@ -35,11 +39,8 @@ type Props = {
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading: chatLoading, isEmpty } = useChat(pathname);
-  const [signedUrls, setSignedUrls] = useState<string[]>([]);
-  const { getDocDownloadSignedUrl } = useFileApi();
-  const { uploadedFiles, uploadFiles, deleteUploadedFile } = useFiles();
-
-  const [deleting, setDeleting] = useState(false);
+  const { uploadedFiles, uploadFiles, deleteUploadedFile, uploading } =
+    useFiles();
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -51,27 +52,10 @@ const InputChatContent: React.FC<Props> = (props) => {
 
   const deleteFile = useCallback(
     (fileUrl: string) => {
-      setDeleting(true);
-      deleteUploadedFile(fileUrl).finally(() => {
-        setDeleting(false);
-      });
+      deleteUploadedFile(fileUrl);
     },
     [deleteUploadedFile]
   );
-
-  useEffect(() => {
-    // アップロードされたファイルの URL が更新されたら Signed URL を更新
-    if (uploadedFiles) {
-      Promise.all(
-        uploadedFiles.map(async (file) => {
-          return await getDocDownloadSignedUrl(file.source.data);
-        })
-      ).then((results) => setSignedUrls(results));
-    } else {
-      setSignedUrls([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploadedFiles]);
 
   const loading = useMemo(() => {
     return props.loading === undefined ? chatLoading : props.loading;
@@ -91,16 +75,17 @@ const InputChatContent: React.FC<Props> = (props) => {
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
         <div className="flex w-full flex-col">
-          {signedUrls.length > 0 && (
+          {uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
-              {signedUrls.map((url) => (
+              {uploadedFiles.map((uploadedFile, idx) => (
                 <ZoomUpImage
-                  key={url}
-                  src={url}
+                  key={idx}
+                  src={uploadedFile.base64EncodedImage}
+                  loading={uploadedFile.uploading}
                   size="s"
-                  deleting={deleting}
+                  deleting={uploadedFile.deleting}
                   onDelete={() => {
-                    deleteFile(url);
+                    deleteFile(uploadedFile.source.data);
                   }}
                 />
               ))}
@@ -126,15 +111,20 @@ const InputChatContent: React.FC<Props> = (props) => {
               multiple
               value={[]}
             />
-            <div className="bg-aws-smile my-2 flex cursor-pointer items-center justify-center rounded-xl p-2 align-bottom text-xl text-white">
-              <PiPaperclip />
+            <div
+              className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} my-2 flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+              {uploading ? (
+                <PiSpinnerGap className="animate-spin" />
+              ) : (
+                <PiPaperclip />
+              )}
             </div>
           </label>
         )}
         <ButtonSend
           className="m-2 align-bottom"
           disabled={disabledSend}
-          loading={loading}
+          loading={loading || uploading}
           onClick={props.onSend}
           icon={props.sendIcon}
         />

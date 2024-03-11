@@ -43,6 +43,7 @@ const ChatMessage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (chatContent?.extraData) {
+      setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
           return await getDocDownloadSignedUrl(file.source.data);
@@ -104,7 +105,12 @@ const ChatMessage: React.FC<Props> = (props) => {
                 {signedUrls.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-2">
                     {signedUrls.map((url) => (
-                      <ZoomUpImage key={url} src={url} size="m" />
+                      <ZoomUpImage
+                        key={url}
+                        src={url}
+                        size="m"
+                        loading={!url}
+                      />
                     ))}
                   </div>
                 )}

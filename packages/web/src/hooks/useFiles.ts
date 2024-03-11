@@ -3,14 +3,19 @@ import useFileApi from './useFileApi';
 import { ExtraData } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 
+type UploadedFileType = ExtraData & {
+  file: File;
+  base64EncodedImage?: string;
+  uploading: boolean;
+  deleting?: boolean;
+};
+
 const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
-
 const useFilesState = create<{
-  loading: boolean;
   uploadFiles: (files: File[]) => Promise<void>;
-  uploadedFiles: ExtraData[];
+  uploadedFiles: UploadedFileType[];
   deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
@@ -23,41 +28,57 @@ const useFilesState = create<{
   };
 
   const uploadFiles = async (files: File[]) => {
-    set(() => ({
-      loading: true,
+    const uploadedFiles: UploadedFileType[] = files.map((file) => ({
+      file,
+      uploading: true,
+      type: 'image',
+      source: {
+        type: 's3',
+        mediaType: file.type,
+        data: '',
+      },
     }));
-
-    const fileUrls = files
-      ? await Promise.all(
-          files.map(async (file) => {
-            const mediaFormat = file.name.split('.').pop() as string;
-
-            // 署名付き URL の取得
-            const signedUrlRes = await api.getSignedUrl({
-              mediaFormat: mediaFormat,
-            });
-            const signedUrl = signedUrlRes.data;
-            const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
-
-            // ファイルのアップロード
-            await api.uploadFile(signedUrl, { file: file });
-            return {
-              type: 'image',
-              source: {
-                type: 's3',
-                mediaType: file.type,
-                data: fileUrl,
-              },
-            };
-          })
-        )
-      : [];
 
     set(() => ({
       uploadedFiles: produce(get().uploadedFiles, (draft) => {
-        draft.push(...fileUrls);
+        draft.push(...uploadedFiles);
       }),
     }));
+
+    get().uploadedFiles.forEach((uploadedFile, idx) => {
+      // 「画像アップロード => 署名付きURL取得 => 画像ダウンロード」だと、画像が画面に表示されるまでに時間がかかるため、
+      // 選択した画像をローカルでBASE64エンコーディングし、そのまま画面に表示する（UX改善のため）
+      const reader = new FileReader();
+      reader.readAsDataURL(uploadedFile.file);
+      reader.onload = () => {
+        set(() => ({
+          uploadedFiles: produce(get().uploadedFiles, (draft) => {
+            draft[idx].base64EncodedImage = reader.result?.toString();
+          }),
+        }));
+      };
+
+      const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
+
+      // 署名付き URL の取得（並列実行させるために、await せずに実行）
+      api
+        .getSignedUrl({
+          mediaFormat: mediaFormat,
+        })
+        .then(async (signedUrlRes) => {
+          const signedUrl = signedUrlRes.data;
+          const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
+          // ファイルのアップロード
+          api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
+            set({
+              uploadedFiles: produce(get().uploadedFiles, (draft) => {
+                draft[idx].uploading = false;
+                draft[idx].source.data = fileUrl;
+              }),
+            });
+          });
+        });
+    });
   };
 
   const deleteUploadedFile = async (fileUrl: string) => {
@@ -74,6 +95,12 @@ const useFilesState = create<{
       const fileName = result?.groups?.fileName;
 
       if (fileName) {
+        set({
+          uploadedFiles: produce(get().uploadedFiles, (draft) => {
+            draft[targetIndex].deleting = true;
+          }),
+        });
+
         await api.deleteUploadedFile(fileName);
 
         // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
@@ -91,7 +118,6 @@ const useFilesState = create<{
   };
 
   return {
-    loading: false,
     clear,
     uploadedFiles: [],
     uploadFiles,
@@ -100,14 +126,14 @@ const useFilesState = create<{
 });
 
 const useFiles = () => {
-  const { loading, uploadFiles, clear, uploadedFiles, deleteUploadedFile } =
+  const { uploadFiles, clear, uploadedFiles, deleteUploadedFile } =
     useFilesState();
   return {
-    loading,
     uploadFiles,
     clear,
     uploadedFiles,
     deleteUploadedFile,
+    uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
   };
 };
 export default useFiles;
