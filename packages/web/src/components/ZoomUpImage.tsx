@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { BaseProps } from '../@types/common';
+import ButtonIcon from './ButtonIcon';
+import { PiX } from 'react-icons/pi';
 
 type Props = BaseProps & {
   src: string;
-  size: number;
+  size: 's' | 'm';
+  deleting?: boolean;
+  onDelete?: () => void;
 };
 
 const ZoomUpImage: React.FC<Props> = (props) => {
@@ -11,15 +15,22 @@ const ZoomUpImage: React.FC<Props> = (props) => {
 
   return (
     <div className={props.className}>
-      <div
-        className="cursor-pointer border"
-        onClick={() => {
-          setZoom(true);
-        }}>
+      <div className="group relative cursor-pointer">
         <img
-          className={`w-${props.size} h-${props.size} object-cover object-center`}
+          className={`border-aws-squid-ink/50 rounded border object-cover object-center ${props.size === 's' ? 'size-24' : 'size-32'}`}
           src={props.src}
+          onClick={() => {
+            setZoom(true);
+          }}
         />
+        {props.onDelete && (
+          <ButtonIcon
+            className={`${props.deleting ? '' : 'invisible'} absolute right-0 top-0 m-0.5 border bg-white text-xs group-hover:visible`}
+            loading={props.deleting}
+            onClick={props.onDelete}>
+            <PiX />
+          </ButtonIcon>
+        )}
       </div>
 
       {zoom && (

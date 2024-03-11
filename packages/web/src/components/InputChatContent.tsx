@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ButtonSend from './ButtonSend';
 import Textarea from './Textarea';
 import ZoomUpImage from './ZoomUpImage';
@@ -6,8 +6,8 @@ import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import { PiArrowsCounterClockwise, PiPaperclip } from 'react-icons/pi';
-import { ExtraData } from 'generative-ai-use-cases-jp';
 import useFileApi from '../hooks/useFileApi';
+import useFiles from '../hooks/useFiles';
 
 type Props = {
   content: string;
@@ -22,9 +22,6 @@ type Props = {
   // ページ下部以外で使う時に margin bottom を無効化するためのオプション
   disableMarginBottom?: boolean;
   fileUpload?: boolean;
-  uploadedFiles?: ExtraData[];
-  onChangeFiles?: (files: File[]) => void;
-  uploadFiles?: () => void;
 } & (
   | {
       hideReset?: false;
@@ -38,32 +35,35 @@ type Props = {
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading: chatLoading, isEmpty } = useChat(pathname);
-  const ref = useRef<HTMLInputElement>(null);
   const [signedUrls, setSignedUrls] = useState<string[]>([]);
   const { getDocDownloadSignedUrl } = useFileApi();
+  const { uploadedFiles, uploadFiles, deleteUploadedFile } = useFiles();
+
+  const [deleting, setDeleting] = useState(false);
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       // ファイルを反映しアップロード
-      if (props.onChangeFiles) {
-        props.onChangeFiles(Array.from(files));
-      }
-      if (props.uploadFiles) {
-        props.uploadFiles();
-      }
-    } else {
-      if (props.onChangeFiles) {
-        props.onChangeFiles([]);
-      }
+      uploadFiles(Array.from(files));
     }
   };
 
+  const deleteFile = useCallback(
+    (fileUrl: string) => {
+      setDeleting(true);
+      deleteUploadedFile(fileUrl).finally(() => {
+        setDeleting(false);
+      });
+    },
+    [deleteUploadedFile]
+  );
+
   useEffect(() => {
     // アップロードされたファイルの URL が更新されたら Signed URL を更新
-    if (props.uploadedFiles) {
+    if (uploadedFiles) {
       Promise.all(
-        props.uploadedFiles.map(async (file) => {
+        uploadedFiles.map(async (file) => {
           return await getDocDownloadSignedUrl(file.source.data);
         })
       ).then((results) => setSignedUrls(results));
@@ -71,7 +71,7 @@ const InputChatContent: React.FC<Props> = (props) => {
       setSignedUrls([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.uploadedFiles]);
+  }, [uploadedFiles]);
 
   const loading = useMemo(() => {
     return props.loading === undefined ? chatLoading : props.loading;
@@ -92,9 +92,17 @@ const InputChatContent: React.FC<Props> = (props) => {
         }`}>
         <div className="flex w-full flex-col">
           {signedUrls.length > 0 && (
-            <div className="mb-2 flex flex-wrap gap-2">
-              {signedUrls.map((url: string) => (
-                <ZoomUpImage key={url} src={url} size={24} />
+            <div className="m-2 flex flex-wrap gap-2">
+              {signedUrls.map((url) => (
+                <ZoomUpImage
+                  key={url}
+                  src={url}
+                  size="s"
+                  deleting={deleting}
+                  onDelete={() => {
+                    deleteFile(url);
+                  }}
+                />
               ))}
             </div>
           )}
@@ -111,13 +119,13 @@ const InputChatContent: React.FC<Props> = (props) => {
         {props.fileUpload && (
           <label>
             <input
-              className="hidden"
+              hidden
               onChange={onChangeFiles}
-              id="file_input"
               type="file"
               accept=".jpg, .png, .gif, .webp"
-              multiple={true}
-              ref={ref}></input>
+              multiple
+              value={[]}
+            />
             <div className="bg-aws-smile my-2 flex cursor-pointer items-center justify-center rounded-xl p-2 align-bottom text-xl text-white">
               <PiPaperclip />
             </div>

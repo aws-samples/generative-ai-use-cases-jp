@@ -1,37 +1,31 @@
 import { create } from 'zustand';
 import useFileApi from './useFileApi';
 import { ExtraData } from 'generative-ai-use-cases-jp';
+import { produce } from 'immer';
+
+const extractBaseURL = (url: string) => {
+  return url.split(/[?#]/)[0];
+};
 
 const useFilesState = create<{
   loading: boolean;
-  files: File[] | null;
-  setFiles: (files: File[]) => void;
-  uploadFiles: () => Promise<void>;
+  uploadFiles: (files: File[]) => Promise<void>;
   uploadedFiles: ExtraData[];
+  deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
   const api = useFileApi();
 
-  const setFiles = (files: File[]) => {
-    set(() => ({
-      files: files,
-    }));
-  };
-
   const clear = () => {
     set(() => ({
-      files: [],
       uploadedFiles: [],
     }));
   };
 
-  const uploadFiles = async () => {
+  const uploadFiles = async (files: File[]) => {
     set(() => ({
       loading: true,
-      uploadedFiles: [],
     }));
-
-    const files = get().files;
 
     const fileUrls = files
       ? await Promise.all(
@@ -43,7 +37,7 @@ const useFilesState = create<{
               mediaFormat: mediaFormat,
             });
             const signedUrl = signedUrlRes.data;
-            const fileUrl = signedUrl.split(/[?#]/)[0]; // 署名付き url からクエリパラメータを除外
+            const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
 
             // ファイルのアップロード
             await api.uploadFile(signedUrl, { file: file });
@@ -60,30 +54,60 @@ const useFilesState = create<{
       : [];
 
     set(() => ({
-      uploadedFiles: fileUrls,
+      uploadedFiles: produce(get().uploadedFiles, (draft) => {
+        draft.push(...fileUrls);
+      }),
     }));
   };
 
+  const deleteUploadedFile = async (fileUrl: string) => {
+    const baseUrl = extractBaseURL(fileUrl);
+    const findTargetIndex = () =>
+      get().uploadedFiles.findIndex((file) => file.source.data === baseUrl);
+    let targetIndex = findTargetIndex();
+
+    if (targetIndex > -1) {
+      // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
+      const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
+        get().uploadedFiles[targetIndex].source.data
+      );
+      const fileName = result?.groups?.fileName;
+
+      if (fileName) {
+        await api.deleteUploadedFile(fileName);
+
+        // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
+        targetIndex = findTargetIndex();
+
+        set({
+          uploadedFiles: produce(get().uploadedFiles, (draft) => {
+            draft.splice(targetIndex, 1);
+          }),
+        });
+        return true;
+      }
+    }
+    return false;
+  };
+
   return {
-    files: null,
     loading: false,
     clear,
-    setFiles,
     uploadedFiles: [],
     uploadFiles,
+    deleteUploadedFile,
   };
 });
 
 const useFiles = () => {
-  const { files, loading, uploadFiles, clear, setFiles, uploadedFiles } =
+  const { loading, uploadFiles, clear, uploadedFiles, deleteUploadedFile } =
     useFilesState();
   return {
-    files,
     loading,
     uploadFiles,
     clear,
-    setFiles,
     uploadedFiles,
+    deleteUploadedFile,
   };
 };
 export default useFiles;

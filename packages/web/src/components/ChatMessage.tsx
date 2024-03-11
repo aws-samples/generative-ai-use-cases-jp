@@ -104,7 +104,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                 {signedUrls.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-2">
                     {signedUrls.map((url) => (
-                      <ZoomUpImage key={url} src={url} size={32} />
+                      <ZoomUpImage key={url} src={url} size="m" />
                     ))}
                   </div>
                 )}

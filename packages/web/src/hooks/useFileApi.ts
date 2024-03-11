@@ -6,6 +6,7 @@ import {
   UploadFileRequest,
   GetDocDownloadSignedUrlRequest,
   GetDocDownloadSignedUrlResponse,
+  DeleteFileResponse,
 } from 'generative-ai-use-cases-jp';
 import useHttp from './useHttp';
 import axios from 'axios';
@@ -42,6 +43,9 @@ const useFileApi = () => {
         }
       );
       return url;
+    },
+    deleteUploadedFile: async (fileName: string) => {
+      return http.delete<DeleteFileResponse>(`file/${fileName}`);
     },
   };
 };
