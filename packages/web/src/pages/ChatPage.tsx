@@ -49,7 +49,7 @@ const useChatPageState = create<StateType>((set) => {
 const ChatPage: React.FC = () => {
   const { content, inputSystemContext, setContent, setInputSystemContext } =
     useChatPageState();
-  const { clear: clearFiles, uploadedFiles } = useFiles();
+  const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
@@ -130,6 +130,7 @@ const ChatPage: React.FC = () => {
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
   const [showShareIdModal, setShowShareIdModal] = useState(false);
+  const [isOver, setIsOver] = useState(false);
 
   const onCreateShareId = useCallback(async () => {
     try {
@@ -202,12 +203,47 @@ const ChatPage: React.FC = () => {
     [setContent, updateSystemContext]
   );
 
+  const handleDragOver = (event: React.DragEvent) => {
+    // ファイルドラッグ時にオーバーレイを表示
+    event.preventDefault();
+    setIsOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    // ファイルドラッグ時にオーバーレイを非表示
+    event.preventDefault();
+    setIsOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    // ファイルドロップ時にファイルを追加
+    event.preventDefault();
+    setIsOver(false);
+    if (event.dataTransfer.files) {
+      // ファイルを反映しアップロード
+      uploadFiles(Array.from(event.dataTransfer.files));
+    }
+  };
+
   return (
     <>
-      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
+      <div
+        onDragOver={handleDragOver}
+        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
+
+        {isOver && (
+          <div
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className="fixed bottom-0 left-0 right-0 top-0 z-[999] bg-slate-300 p-10 text-center">
+            <div className="flex h-full w-full items-center justify-center outline-dashed">
+              <div className="font-bold">ファイルをドロップしてアップロード</div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
           <Select
