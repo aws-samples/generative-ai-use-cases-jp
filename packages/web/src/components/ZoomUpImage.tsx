@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { BaseProps } from '../@types/common';
 import ButtonIcon from './ButtonIcon';
-import { PiX } from 'react-icons/pi';
+import { PiSpinnerGap, PiX } from 'react-icons/pi';
 
 type Props = BaseProps & {
-  src: string;
+  src?: string;
+  loading?: boolean;
   size: 's' | 'm';
   deleting?: boolean;
   onDelete?: () => void;
@@ -17,15 +18,20 @@ const ZoomUpImage: React.FC<Props> = (props) => {
     <div className={props.className}>
       <div className="group relative cursor-pointer">
         <img
-          className={`border-aws-squid-ink/50 rounded border object-cover object-center ${props.size === 's' ? 'size-24' : 'size-32'}`}
+          className={`border-aws-squid-ink/50 bg-aws-squid-ink/20 rounded border object-cover object-center ${props.size === 's' ? 'size-24' : 'size-32'}`}
           src={props.src}
           onClick={() => {
             setZoom(true);
           }}
         />
+        {(props.loading || props.deleting) && (
+          <div className="bg-aws-squid-ink/20 absolute top-0 flex h-full w-full items-center justify-center rounded">
+            <PiSpinnerGap className="animate-spin text-4xl text-white" />
+          </div>
+        )}
         {props.onDelete && (
           <ButtonIcon
-            className={`${props.deleting ? '' : 'invisible'} absolute right-0 top-0 m-0.5 border bg-white text-xs group-hover:visible`}
+            className={`${props.deleting ? '' : 'group-hover:visible'} invisible absolute right-0 top-0 m-0.5 border bg-white text-xs `}
             loading={props.deleting}
             onClick={props.onDelete}>
             <PiX />

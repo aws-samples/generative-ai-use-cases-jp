@@ -41,6 +41,14 @@ export type ExtraData = {
   };
 };
 
+export type UploadedFileType = {
+  file: File;
+  base64EncodedImage?: string;
+  s3Url?: string;
+  uploading: boolean;
+  deleting?: boolean;
+};
+
 export type RecordedMessage = PrimaryKey &
   MessageAttributes &
   UnrecordedMessage;

@@ -43,6 +43,8 @@ const ChatMessage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (chatContent?.extraData) {
+      // ローディング表示にするために、画像の数だけ要素を用意して、undefinedを初期値として設定する
+      setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
           return await getDocDownloadSignedUrl(file.source.data);
@@ -103,8 +105,13 @@ const ChatMessage: React.FC<Props> = (props) => {
               <div className="break-all">
                 {signedUrls.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-2">
-                    {signedUrls.map((url) => (
-                      <ZoomUpImage key={url} src={url} size="m" />
+                    {signedUrls.map((url, idx) => (
+                      <ZoomUpImage
+                        key={idx}
+                        src={url}
+                        size="m"
+                        loading={!url}
+                      />
                     ))}
                   </div>
                 )}
