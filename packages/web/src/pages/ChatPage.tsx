@@ -83,7 +83,7 @@ const ChatPage: React.FC = () => {
       updateSystemContextByModel();
     }
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [modelId]);
+  }, [prompter]);
 
   const title = useMemo(() => {
     if (chatId) {

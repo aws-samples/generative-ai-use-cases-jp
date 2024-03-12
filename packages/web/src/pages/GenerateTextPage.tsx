@@ -83,7 +83,7 @@ const GenerateTextPage: React.FC = () => {
   useEffect(() => {
     updateSystemContextByModel();
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [modelId]);
+  }, [prompter]);
 
   const disabledExec = useMemo(() => {
     return information === '' || loading;

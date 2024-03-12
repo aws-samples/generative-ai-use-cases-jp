@@ -101,7 +101,7 @@ const EditorialPage: React.FC = () => {
   useEffect(() => {
     updateSystemContextByModel();
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [modelId]);
+  }, [prompter]);
 
   // Memo 変数
   const filterComment = (

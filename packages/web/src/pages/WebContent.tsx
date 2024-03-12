@@ -110,7 +110,7 @@ const WebContent: React.FC = () => {
   useEffect(() => {
     updateSystemContextByModel();
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [modelId]);
+  }, [prompter]);
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;
