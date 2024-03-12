@@ -8,6 +8,7 @@ import {
   Chat,
   ListChatsResponse,
   Role,
+  UploadedFileType,
   ExtraData,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
@@ -17,7 +18,6 @@ import useConversation from './useConversation';
 import { KeyedMutator } from 'swr';
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
-import useFileApi from '../hooks/useFileApi';
 
 const useChatState = create<{
   chats: {
@@ -50,7 +50,7 @@ const useChatState = create<{
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
     sessionId: string | undefined,
-    extraData: ExtraData[] | undefined
+    extraData: UploadedFileType[] | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -65,7 +65,6 @@ const useChatState = create<{
     predictStream,
     predictTitle,
   } = useChatApi();
-  const { getDocDownloadSignedUrl } = useFileApi();
 
   const getModelId = (id: string) => {
     return get().modelIds[id] || '';
@@ -214,56 +213,36 @@ const useChatState = create<{
     });
   };
 
-  const formatMessageProperties = async (
-    messages: ShownMessage[]
-  ): Promise<UnrecordedMessage[]> => {
-    return await Promise.all(
-      messages.map(async (m) => {
-        const s3ToBase64 = async (s3Url: string): Promise<string> => {
-          try {
-            const signedUrl = await getDocDownloadSignedUrl(s3Url);
-            const res = await fetch(signedUrl);
-            const blob = await res.blob();
-            return new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () => {
-                let encoded = (reader.result || '')
-                  .toString()
-                  .replace(/^data:(.*,)?/, '');
-                if (encoded.length % 4 > 0) {
-                  encoded += '='.repeat(4 - (encoded.length % 4));
-                }
-                resolve(encoded);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          } catch (e) {
-            console.error(e);
-            return '';
-          }
-        };
-        const extraData =
-          m.extraData &&
-          (await Promise.all(
-            m.extraData.map(async (data) => {
-              return {
-                type: 'image',
-                source: {
-                  type: 'base64',
-                  mediaType: data.source.mediaType,
-                  data: await s3ToBase64(data.source.data),
-                },
-              };
-            })
-          ));
-        return {
-          role: m.role,
-          content: m.content,
-          extraData: extraData?.filter((data) => data.source.data),
-        };
-      })
-    );
+  const formatMessageProperties = (
+    messages: ShownMessage[],
+    uploadedFiles?: UploadedFileType[]
+  ): UnrecordedMessage[] => {
+    return messages.map((m) => {
+      // LLM で推論する形式に extraData を変換する
+      const extraData: ExtraData[] | undefined = m.extraData?.flatMap(
+        (data) => {
+          // 推論する際は"data:image/png..." のといった情報は必要ないため、削除する
+          const base64EncodedImage = uploadedFiles
+            ?.find((uploadedFile) => uploadedFile.s3Url === data.source.data)
+            ?.base64EncodedImage?.replace(/^data:(.*,)?/, '');
+
+          // Base64 エンコードされた画像情報を設定する
+          return {
+            type: 'image',
+            source: {
+              type: 'base64',
+              mediaType: data.source.mediaType,
+              data: base64EncodedImage ?? '',
+            },
+          };
+        }
+      );
+      return {
+        role: m.role,
+        content: m.content,
+        extraData: extraData?.filter((data) => data.source.data !== ''),
+      };
+    });
   };
 
   const omitUnusedMessageProperties = (
@@ -359,7 +338,7 @@ const useChatState = create<{
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      extraData: ExtraData[] | undefined = undefined
+      uploadedFiles: UploadedFileType[] | undefined = undefined
     ) => {
       const modelId = get().modelIds[id];
 
@@ -385,7 +364,15 @@ const useChatState = create<{
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
         content,
-        extraData: extraData,
+        // DDB に保存する形式で、extraData を設定する
+        extraData: uploadedFiles?.map((uploadedFile) => ({
+          type: 'image',
+          source: {
+            type: 's3',
+            mediaType: uploadedFile.file.type,
+            data: uploadedFile.s3Url ?? '',
+          },
+        })),
       };
 
       const unrecordedAssistantMessage: UnrecordedMessage = {
@@ -419,7 +406,10 @@ const useChatState = create<{
       }
 
       // LLM へのリクエスト
-      const formattedMessages = await formatMessageProperties(inputMessages);
+      const formattedMessages = await formatMessageProperties(
+        inputMessages,
+        uploadedFiles
+      );
       const stream = predictStream({
         model: model,
         messages: formattedMessages,
@@ -587,7 +577,7 @@ const useChat = (id: string, chatId?: string) => {
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      extraData: ExtraData[] | undefined = undefined
+      extraData: UploadedFileType[] | undefined = undefined
     ) => {
       post(
         id,

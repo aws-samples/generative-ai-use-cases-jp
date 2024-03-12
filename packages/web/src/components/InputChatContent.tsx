@@ -85,7 +85,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                   size="s"
                   deleting={uploadedFile.deleting}
                   onDelete={() => {
-                    deleteFile(uploadedFile.source.data);
+                    deleteFile(uploadedFile.s3Url ?? '');
                   }}
                 />
               ))}

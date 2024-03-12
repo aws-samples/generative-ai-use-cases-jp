@@ -1,14 +1,7 @@
 import { create } from 'zustand';
 import useFileApi from './useFileApi';
-import { ExtraData } from 'generative-ai-use-cases-jp';
+import { UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
-
-type UploadedFileType = ExtraData & {
-  file: File;
-  base64EncodedImage?: string;
-  uploading: boolean;
-  deleting?: boolean;
-};
 
 const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
@@ -31,12 +24,6 @@ const useFilesState = create<{
     const uploadedFiles: UploadedFileType[] = files.map((file) => ({
       file,
       uploading: true,
-      type: 'image',
-      source: {
-        type: 's3',
-        mediaType: file.type,
-        data: '',
-      },
     }));
 
     set(() => ({
@@ -73,7 +60,7 @@ const useFilesState = create<{
             set({
               uploadedFiles: produce(get().uploadedFiles, (draft) => {
                 draft[idx].uploading = false;
-                draft[idx].source.data = fileUrl;
+                draft[idx].s3Url = fileUrl;
               }),
             });
           });
@@ -84,13 +71,13 @@ const useFilesState = create<{
   const deleteUploadedFile = async (fileUrl: string) => {
     const baseUrl = extractBaseURL(fileUrl);
     const findTargetIndex = () =>
-      get().uploadedFiles.findIndex((file) => file.source.data === baseUrl);
+      get().uploadedFiles.findIndex((file) => file.s3Url === baseUrl);
     let targetIndex = findTargetIndex();
 
     if (targetIndex > -1) {
       // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
       const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
-        get().uploadedFiles[targetIndex].source.data
+        get().uploadedFiles[targetIndex].s3Url ?? ''
       );
       const fileName = result?.groups?.fileName;
 
