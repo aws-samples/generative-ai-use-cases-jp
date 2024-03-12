@@ -64,6 +64,7 @@ const ChatPage: React.FC = () => {
     clear,
     postChat,
     updateSystemContext,
+    updateSystemContextByModel,
     getCurrentSystemContext,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
@@ -74,6 +75,14 @@ const ChatPage: React.FC = () => {
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);
+  }, [modelId]);
+
+  useEffect(() => {
+    // 会話履歴のページではモデルを変更してもシステムコンテキストを変更しない
+    if (!chatId) {
+      updateSystemContextByModel();
+    }
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [modelId]);
 
   const title = useMemo(() => {

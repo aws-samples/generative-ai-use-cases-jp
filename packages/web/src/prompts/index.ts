@@ -1,10 +1,13 @@
 import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
+import { mistralPrompter } from './mistral';
 
 export const getPrompter = (modelId: string) => {
   if (modelId.startsWith('anthropic.claude-')) {
     return claudePrompter;
+  } else if (modelId.startsWith('mistral.')) {
+    return mistralPrompter;
   }
 
   // デフォルトでは Claude の prompter を返す

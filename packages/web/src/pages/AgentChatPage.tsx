@@ -51,11 +51,17 @@ const AgentChatPage: React.FC = () => {
     messages,
     clear,
     postChat,
+    updateSystemContextByModel,
   } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [modelId]);
 
   const title = useMemo(() => {
     if (chatId) {

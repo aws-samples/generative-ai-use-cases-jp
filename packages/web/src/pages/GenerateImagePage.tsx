@@ -234,6 +234,7 @@ const GenerateImagePage: React.FC = () => {
     setModelId,
     loading: loadingChat,
     clear: clearChat,
+    updateSystemContextByModel,
   } = useChat(pathname);
 
   const [generating, setGenerating] = useState(false);
@@ -241,6 +242,11 @@ const GenerateImagePage: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [modelId]);
 
   // LandingPage のデモデータ設定
   useEffect(() => {
