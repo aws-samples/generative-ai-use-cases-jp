@@ -14,6 +14,7 @@ type Props = RowItemProps & {
   maxHeight?: number;
   onEnter?: () => void;
   onChange: (value: string) => void;
+  onPaste?: (pasteEvent: React.ClipboardEvent) => void;
 };
 
 const MAX_HEIGHT = 300;
@@ -91,6 +92,7 @@ const Textarea: React.FC<Props> = (props) => {
         onChange={(e) => {
           props.onChange(e.target.value);
         }}
+        onPaste={props.onPaste}
       />
       {props.hint && (
         <div className="-mt-0.5 text-xs text-gray-400">{props.hint}</div>

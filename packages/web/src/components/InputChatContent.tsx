@@ -56,6 +56,16 @@ const InputChatContent: React.FC<Props> = (props) => {
     },
     [deleteUploadedFile]
   );
+  const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
+    const fileList = pasteEvent.clipboardData.items || [];
+    if (fileList.length > 0 && fileList[0].kind !== 'file') return; // ファイル以外をペーストした場合は対象外
+    pasteEvent.preventDefault(); // inputのvalueにファイル名が設定されないようにする
+    const files = Array.from(fileList).map((file) => file.getAsFile() as File);
+    if (files) {
+      // ファイルを反映しアップロード
+      uploadFiles(Array.from(files));
+    }
+  };
 
   const loading = useMemo(() => {
     return props.loading === undefined ? chatLoading : props.loading;
@@ -98,6 +108,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             notItem
             value={props.content}
             onChange={props.onChangeContent}
+            onPaste={handlePaste}
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
