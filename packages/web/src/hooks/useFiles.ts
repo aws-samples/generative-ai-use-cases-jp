@@ -21,10 +21,16 @@ const useFilesState = create<{
   };
 
   const uploadFiles = async (files: File[]) => {
-    const uploadedFiles: UploadedFileType[] = files.map((file) => ({
-      file,
-      uploading: true,
-    }));
+    const uploadedFiles: UploadedFileType[] = files
+      .filter((file) => {
+        // 画像ファイルのみ許可
+        const pattern = /^image\/(jpeg|png|gif|webp)/;
+        return file.type.match(pattern);
+      })
+      .map((file) => ({
+        file,
+        uploading: true,
+      }));
 
     set(() => ({
       uploadedFiles: produce(get().uploadedFiles, (draft) => {
