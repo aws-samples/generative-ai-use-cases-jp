@@ -44,7 +44,7 @@ export class Api extends Construct {
 
     // Model IDs
     const modelIds: string[] = this.node.tryGetContext('modelIds') || [
-      'anthropic.claude-v2',
+      'anthropic.claude-3-sonnet-20240229-v1:0',
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
