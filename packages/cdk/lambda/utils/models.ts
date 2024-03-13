@@ -323,6 +323,11 @@ export const BEDROCK_MODELS: {
     createBodyText: createBodyTextClaudeMessage,
     extractOutputText: extractOutputTextClaudeMessage,
   },
+  'anthropic.claude-3-haiku-20240307-v1:0': {
+    promptTemplate: CLAUDEV21_PROMPT,
+    createBodyText: createBodyTextClaudeMessage,
+    extractOutputText: extractOutputTextClaudeMessage,
+  },
   'anthropic.claude-v2:1': {
     promptTemplate: CLAUDEV21_PROMPT,
     createBodyText: createBodyTextClaudev21,
