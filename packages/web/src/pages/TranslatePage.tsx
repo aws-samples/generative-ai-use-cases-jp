@@ -95,6 +95,7 @@ const TranslatePage: React.FC = () => {
     messages,
     postChat,
     clear: clearChat,
+    updateSystemContextByModel,
   } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels } = MODELS;
@@ -103,6 +104,11 @@ const TranslatePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [auto, setAuto] = useState(true);
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   // Memo 変数
   const disabledExec = useMemo(() => {

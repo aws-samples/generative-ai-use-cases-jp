@@ -560,6 +560,11 @@ const useChat = (id: string, chatId?: string) => {
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
     },
+    updateSystemContextByModel: () => {
+      const modelId = getModelId(id);
+      const prompter = getPrompter(modelId);
+      updateSystemContext(id, prompter.systemContext(id));
+    },
     getCurrentSystemContext: () => {
       return getCurrentSystemContext(id);
     },

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Textarea from '../components/Textarea';
@@ -20,6 +20,7 @@ import Base64Image from '../components/Base64Image';
 import { AxiosError } from 'axios';
 import { GenerateImagePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 
 const MAX_SAMPLE = 7;
@@ -234,6 +235,7 @@ const GenerateImagePage: React.FC = () => {
     setModelId,
     loading: loadingChat,
     clear: clearChat,
+    updateSystemContextByModel,
   } = useChat(pathname);
 
   const [generating, setGenerating] = useState(false);
@@ -241,6 +243,14 @@ const GenerateImagePage: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   // LandingPage のデモデータ設定
   useEffect(() => {

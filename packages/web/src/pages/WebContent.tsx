@@ -96,6 +96,7 @@ const WebContent: React.FC = () => {
     messages,
     postChat,
     clear: clearChat,
+    updateSystemContextByModel,
   } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { getWebText } = useChatApi();
@@ -105,6 +106,11 @@ const WebContent: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   const disabledExec = useMemo(() => {
     return url === '' || loading || fetching;

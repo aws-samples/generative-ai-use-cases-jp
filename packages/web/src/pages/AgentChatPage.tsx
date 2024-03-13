@@ -10,6 +10,7 @@ import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { AgentPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
+import { getPrompter } from '../prompts';
 import { v4 as uuidv4 } from 'uuid';
 import queryString from 'query-string';
 
@@ -51,11 +52,20 @@ const AgentChatPage: React.FC = () => {
     messages,
     clear,
     postChat,
+    updateSystemContextByModel,
   } = useChat(pathname, chatId);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   const title = useMemo(() => {
     if (chatId) {

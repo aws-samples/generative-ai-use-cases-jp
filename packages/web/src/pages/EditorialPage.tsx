@@ -89,6 +89,7 @@ const EditorialPage: React.FC = () => {
     messages,
     postChat,
     clear: clearChat,
+    updateSystemContextByModel,
   } = useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
@@ -96,6 +97,11 @@ const EditorialPage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [auto, setAuto] = useState(true);
+
+  useEffect(() => {
+    updateSystemContextByModel();
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   // Memo 変数
   const filterComment = (
