@@ -93,6 +93,10 @@ const ChatPage: React.FC = () => {
     }
   }, [chatId, getConversationTitle]);
 
+  const fileUpload = useMemo(() => {
+    return MODELS.multiModalModelIds.includes(modelId);
+  }, [modelId]);
+
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
 
@@ -123,12 +127,12 @@ const ChatPage: React.FC = () => {
       undefined,
       undefined,
       undefined,
-      uploadedFiles
+      fileUpload ? uploadedFiles : undefined
     );
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, uploadedFiles]);
+  }, [content, uploadedFiles, fileUpload]);
 
   const onReset = useCallback(() => {
     clear();
@@ -200,10 +204,6 @@ const ChatPage: React.FC = () => {
     setInputSystemContext(currentSystemContext);
   }, [currentSystemContext, setInputSystemContext]);
 
-  const fileUpload = useMemo(() => {
-    return MODELS.multiModalModelIds.includes(modelId);
-  }, [modelId]);
-
   const onClickSamplePrompt = useCallback(
     (params: ChatPageQueryParams) => {
       setContent(params.content ?? '');
@@ -237,13 +237,13 @@ const ChatPage: React.FC = () => {
   return (
     <>
       <div
-        onDragOver={handleDragOver}
+        onDragOver={fileUpload ? handleDragOver : undefined}
         className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
 
-        {isOver && (
+        {isOver && fileUpload && (
           <div
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
