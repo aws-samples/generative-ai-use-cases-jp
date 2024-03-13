@@ -1,6 +1,7 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import { BaseProps } from '../@types/common';
 import { PiCaretRightFill } from 'react-icons/pi';
+import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 
 type Props = BaseProps & {
   title: string;
@@ -11,7 +12,10 @@ type Props = BaseProps & {
 };
 
 const ExpandableMenu: React.FC<Props> = (props) => {
-  const [expanded, setExpanded] = useState(props.defaultOpened ?? true);
+  const [expanded, setExpanded] = useLocalStorageBoolean(
+    `Expanded_${props.title}`,
+    props.defaultOpened ?? true
+  );
 
   return (
     <>

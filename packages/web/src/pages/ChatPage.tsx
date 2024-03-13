@@ -249,7 +249,9 @@ const ChatPage: React.FC = () => {
             onDrop={handleDrop}
             className="fixed bottom-0 left-0 right-0 top-0 z-[999] bg-slate-300 p-10 text-center">
             <div className="flex h-full w-full items-center justify-center outline-dashed">
-              <div className="font-bold">ファイルをドロップしてアップロード</div>
+              <div className="font-bold">
+                ファイルをドロップしてアップロード
+              </div>
             </div>
           </div>
         )}
