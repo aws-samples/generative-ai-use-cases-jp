@@ -58,13 +58,16 @@ const InputChatContent: React.FC<Props> = (props) => {
   );
   const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
     const fileList = pasteEvent.clipboardData.items || [];
-    if (fileList.length > 0 && fileList[0].kind !== 'file') return; // ファイル以外をペーストした場合は対象外
-    pasteEvent.preventDefault(); // inputのvalueにファイル名が設定されないようにする
-    const files = Array.from(fileList).map((file) => file.getAsFile() as File);
-    if (files) {
-      // ファイルを反映しアップロード
+    const files = Array.from(fileList)
+      .filter((file) => file.kind === 'file')
+      .map((file) => file.getAsFile() as File);
+    if (files.length > 0) {
+      // ファイルをアップロード
       uploadFiles(Array.from(files));
+      // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
+      pasteEvent.preventDefault();
     }
+    // ファイルがない場合はデフォルトの挙動（テキストのペースト）
   };
 
   const loading = useMemo(() => {
