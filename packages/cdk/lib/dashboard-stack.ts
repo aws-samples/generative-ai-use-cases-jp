@@ -148,10 +148,11 @@ export class DashboardStack extends Stack {
         logGroupNames: [logGroup.logGroupName],
         view: cw.LogQueryVisualizationType.TABLE,
         queryLines: [
-          "filter @logStream = 'aws/bedrock/modelinvocations'",
-          'filter input.inputBodyJson.prompt like /Human: .*/',
-          'filter input.inputBodyJson.prompt not like /Human: <conversation>.*/',
-          'fields @timestamp, input.inputBodyJson.prompt',
+          'filter @logStream = \'aws/bedrock/modelinvocations\'',
+          'filter schemaType like \'ModelInvocationLog\'',
+          'filter concat(input.inputBodyJson.prompt, input.inputBodyJson.messages.0.content.0.text) not like /.*<conversation>.*/',
+          'sort @timestamp desc',
+          'fields @timestamp, concat(input.inputBodyJson.prompt, input.inputBodyJson.messages.0.content.0.text) as input, modelId',
         ],
       })
     );
