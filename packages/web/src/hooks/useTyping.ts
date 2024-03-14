@@ -21,11 +21,28 @@ const useTyping = (typing?: boolean) => {
     }
   }, [typing, animating, setAnimating, setCurrentIndex]);
 
+  // 入力が必要な残りの文字列数
+  const remainingTextLength = useMemo(() => {
+    return typingTextInput.length - currentIndex;
+  }, [currentIndex, typingTextInput]);
+
+  // 一度に入力する文字列の単位
+  const inputUnit = useMemo(() => {
+    // タイピング中は残りの文字列数に応じて入力文字列数を変化させる
+    // 入力文字数の単位は最大でも 10 文字とする
+    if (typing) {
+      return Math.min(Math.floor(remainingTextLength / 10) + 1, 10);
+    } else {
+      // タイピング中ではない場合は 10 文字を 1 単位で入力する (最速で入力する)
+      return 10;
+    }
+  }, [typing, remainingTextLength]);
+
   useEffect(() => {
     if (animating && currentIndex <= typingTextInput.length + 1) {
       const timeout = setTimeout(() => {
         if (currentIndex < typingTextInput.length + 1) {
-          setCurrentIndex(currentIndex + 1);
+          setCurrentIndex(currentIndex + inputUnit);
         } else {
           // 入力文字列の末尾に追いついた時に typing が false になっていたらアニメーションを終了
           if (!typing) {
@@ -43,6 +60,7 @@ const useTyping = (typing?: boolean) => {
     typing,
     setCurrentIndex,
     setAnimating,
+    inputUnit,
   ]);
 
   const typingTextOutput = useMemo(() => {
