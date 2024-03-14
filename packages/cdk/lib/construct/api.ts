@@ -56,6 +56,7 @@ export class Api extends Construct {
     // Validate Model Names
     const supportedModelIds = [
       'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
@@ -69,7 +70,7 @@ export class Api extends Construct {
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
     ];
-    const multiModalModelIds = ['anthropic.claude-3-sonnet-20240229-v1:0'];
+    const multiModalModelIds = ['anthropic.claude-3-sonnet-20240229-v1:0','anthropic.claude-3-haiku-20240307-v1:0'];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
         throw new Error(`Unsupported Model Name: ${modelId}`);
