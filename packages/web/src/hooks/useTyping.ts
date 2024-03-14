@@ -36,7 +36,7 @@ const useTyping = (typing?: boolean) => {
       // タイピング中ではない場合は 10 文字を 1 単位で入力する (最速で入力する)
       return 10;
     }
-  }, [remainingTextLength]);
+  }, [typing, remainingTextLength]);
 
   useEffect(() => {
     if (animating && currentIndex <= typingTextInput.length + 1) {
@@ -60,6 +60,7 @@ const useTyping = (typing?: boolean) => {
     typing,
     setCurrentIndex,
     setAnimating,
+    inputUnit,
   ]);
 
   const typingTextOutput = useMemo(() => {
