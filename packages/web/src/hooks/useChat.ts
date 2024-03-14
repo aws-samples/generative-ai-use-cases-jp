@@ -416,28 +416,52 @@ const useChatState = create<{
       });
 
       // Assistant の発言を更新
+      let tmpChunk = '';
+
       for await (const chunk of stream) {
-        set((state) => {
-          const newChats = produce(state.chats, (draft) => {
-            const oldAssistantMessage = draft[id].messages.pop()!;
-            const newAssistantMessage: UnrecordedMessage = {
-              role: 'assistant',
-              // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
-              // 出力が <output></output> で囲まれる可能性がある
-              // 以下の処理ではそれに対応するため、<output></output> xml タグを削除している
-              content: (oldAssistantMessage.content + chunk).replace(
-                /(<output>|<\/output>)/g,
-                ''
-              ),
-              llmType: model?.modelId,
+        tmpChunk += chunk;
+
+        // chunk は 10 文字以上でまとめて処理する
+        // バッファリングしないと以下のエラーが出る
+        // Maximum update depth exceeded
+        if (tmpChunk.length >= 10) {
+          set((state) => {
+            const newChats = produce(state.chats, (draft) => {
+              draft[id].messages[draft[id].messages.length - 1] = {
+                role: 'assistant',
+                content: (
+                  draft[id].messages[draft[id].messages.length - 1].content +
+                  tmpChunk
+                ).replace(/(<output>|<\/output>)/g, ''),
+                llmType: model?.modelId,
+              };
+            });
+
+            return {
+              chats: newChats,
             };
-            draft[id].messages.push(newAssistantMessage);
           });
-          return {
-            chats: newChats,
+          tmpChunk = '';
+        }
+      }
+
+      // tmpChunk に残っている文字列を処理
+      set((state) => {
+        const newChats = produce(state.chats, (draft) => {
+          draft[id].messages[draft[id].messages.length - 1] = {
+            role: 'assistant',
+            content: (
+              draft[id].messages[draft[id].messages.length - 1].content +
+              tmpChunk
+            ).replace(/(<output>|<\/output>)/g, ''),
+            llmType: model?.modelId,
           };
         });
-      }
+
+        return {
+          chats: newChats,
+        };
+      });
 
       // メッセージの後処理（例：footnote の付与）
       if (postProcessOutput) {
