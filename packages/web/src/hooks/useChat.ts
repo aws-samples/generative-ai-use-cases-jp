@@ -10,6 +10,7 @@ import {
   Role,
   UploadedFileType,
   ExtraData,
+  Model,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -256,6 +257,33 @@ const useChatState = create<{
     });
   };
 
+  const addChunkToAssistantMessage = (
+    id: string,
+    chunk: string,
+    model?: Model
+  ) => {
+    set((state) => {
+      const newChats = produce(state.chats, (draft) => {
+        const oldAssistantMessage = draft[id].messages.pop()!;
+        const newAssistantMessage: UnrecordedMessage = {
+          role: 'assistant',
+          // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
+          // 出力が <output></output> で囲まれる可能性がある
+          // 以下の処理ではそれに対応するため、<output></output> xml タグを削除している
+          content: (oldAssistantMessage.content + chunk).replace(
+            /(<output>|<\/output>)/g,
+            ''
+          ),
+          llmType: model?.modelId,
+        };
+        draft[id].messages.push(newAssistantMessage);
+      });
+      return {
+        chats: newChats,
+      };
+    });
+  };
+
   return {
     chats: {},
     modelIds: {},
@@ -406,7 +434,7 @@ const useChatState = create<{
       }
 
       // LLM へのリクエスト
-      const formattedMessages = await formatMessageProperties(
+      const formattedMessages = formatMessageProperties(
         inputMessages,
         uploadedFiles
       );
@@ -416,27 +444,23 @@ const useChatState = create<{
       });
 
       // Assistant の発言を更新
+      let tmpChunk = '';
+
       for await (const chunk of stream) {
-        set((state) => {
-          const newChats = produce(state.chats, (draft) => {
-            const oldAssistantMessage = draft[id].messages.pop()!;
-            const newAssistantMessage: UnrecordedMessage = {
-              role: 'assistant',
-              // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
-              // 出力が <output></output> で囲まれる可能性がある
-              // 以下の処理ではそれに対応するため、<output></output> xml タグを削除している
-              content: (oldAssistantMessage.content + chunk).replace(
-                /(<output>|<\/output>)/g,
-                ''
-              ),
-              llmType: model?.modelId,
-            };
-            draft[id].messages.push(newAssistantMessage);
-          });
-          return {
-            chats: newChats,
-          };
-        });
+        tmpChunk += chunk;
+
+        // chunk は 10 文字以上でまとめて処理する
+        // バッファリングしないと以下のエラーが出る
+        // Maximum update depth exceeded
+        if (tmpChunk.length >= 10) {
+          addChunkToAssistantMessage(id, tmpChunk, model);
+          tmpChunk = '';
+        }
+      }
+
+      // tmpChunk に文字列が残っている場合は処理する
+      if (tmpChunk.length > 0) {
+        addChunkToAssistantMessage(id, tmpChunk, model);
       }
 
       // メッセージの後処理（例：footnote の付与）
