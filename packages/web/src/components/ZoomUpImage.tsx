@@ -7,7 +7,6 @@ type Props = BaseProps & {
   src?: string;
   loading?: boolean;
   size: 's' | 'm';
-  deleting?: boolean;
   onDelete?: () => void;
 };
 
@@ -24,15 +23,14 @@ const ZoomUpImage: React.FC<Props> = (props) => {
             setZoom(true);
           }}
         />
-        {(props.loading || props.deleting) && (
+        {props.loading && (
           <div className="bg-aws-squid-ink/20 absolute top-0 flex h-full w-full items-center justify-center rounded">
             <PiSpinnerGap className="animate-spin text-4xl text-white" />
           </div>
         )}
-        {props.onDelete && (
+        {props.onDelete && !props.loading && (
           <ButtonIcon
-            className={`${props.deleting ? '' : 'group-hover:visible'} invisible absolute right-0 top-0 m-0.5 border bg-white text-xs `}
-            loading={props.deleting}
+            className={`invisible absolute right-0 top-0 m-0.5 border bg-white text-xs group-hover:visible `}
             onClick={props.onDelete}>
             <PiX />
           </ButtonIcon>

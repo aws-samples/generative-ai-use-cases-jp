@@ -96,7 +96,6 @@ const InputChatContent: React.FC<Props> = (props) => {
                   src={uploadedFile.base64EncodedImage}
                   loading={uploadedFile.uploading}
                   size="s"
-                  deleting={uploadedFile.deleting}
                   onDelete={() => {
                     deleteFile(uploadedFile.s3Url ?? '');
                   }}
