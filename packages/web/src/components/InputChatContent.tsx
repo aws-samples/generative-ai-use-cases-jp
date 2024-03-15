@@ -75,8 +75,8 @@ const InputChatContent: React.FC<Props> = (props) => {
   }, [chatLoading, props.loading]);
 
   const disabledSend = useMemo(() => {
-    return props.content === '' || props.disabled;
-  }, [props.content, props.disabled]);
+    return props.content === '' || props.disabled || uploading;
+  }, [props.content, props.disabled, uploading]);
 
   return (
     <div
