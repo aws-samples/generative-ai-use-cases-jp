@@ -124,7 +124,7 @@ const useFiles = () => {
   return {
     uploadFiles,
     clear,
-    uploadedFiles,
+    uploadedFiles: uploadedFiles.filter((file) => !file.deleting),
     deleteUploadedFile,
     uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
   };
