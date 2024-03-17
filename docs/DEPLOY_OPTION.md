@@ -315,8 +315,9 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 
 ### SAML 認証
 
-Microsoft Entra ID (旧 Azure Active Directory) などの IdP が提供する SAML 認証機能と連携ができます。  
-[こちらに Microsoft Entra ID と SAML 設定を行う参考手順](SAML_WITH_ENTRA_ID.md) があります。Microsoft Entra ID の設定を含めた詳細な手順があるので、こちらもご活用ください。
+Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの IdP が提供する SAML 認証機能と連携ができます。次に詳細な連携手順があります。こちらもご活用ください。  
+- [Google Workspace と SAML 連携](SAML_WITH_GOOGLE_WORKSPACE.md)
+- [Microsoft Entra ID と SAML 連携](SAML_WITH_ENTRA_ID.md)
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 
