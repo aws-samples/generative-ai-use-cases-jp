@@ -5,6 +5,34 @@ import useRagApi from './useRagApi';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { findModelByModelId } from './useModel';
 import { getPrompter } from '../prompts';
+import { RetrieveResultItem, DocumentAttribute } from '@aws-sdk/client-kendra';
+
+// 同一のドキュメントとみなす Key 値
+const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
+  const pageNumber =
+    item.DocumentAttributes?.find(
+      (a: DocumentAttribute) => a.Key === '_excerpt_page_number'
+    )?.Value?.LongValue ?? '';
+  const uri = item.DocumentURI;
+  return `${uri}_${pageNumber}`;
+};
+
+const arrangeItems = (items: RetrieveResultItem[]): RetrieveResultItem[] => {
+  const res: Record<string, RetrieveResultItem> = {};
+
+  for (const item of items) {
+    const key = uniqueKeyOfItem(item);
+
+    if (res[key]) {
+      // 同じソースの Content は ... で接続する
+      res[key].Content += ' ... ' + item.Content;
+    } else {
+      res[key] = item;
+    }
+  }
+
+  return Object.values(res);
+};
 
 const useRag = (id: string) => {
   const {
@@ -59,9 +87,10 @@ const useRag = (id: string) => {
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
-      const items = await retrieve(query);
+      const retrievedItems = await retrieve(query);
+      const items = arrangeItems(retrievedItems.data.ResultItems ?? []);
 
-      if ((items.data.ResultItems ?? []).length === 0) {
+      if (items.length == 0) {
         popMessage();
         pushMessage(
           'assistant',
@@ -77,7 +106,7 @@ const useRag = (id: string) => {
       updateSystemContext(
         prompter.ragPrompt({
           promptType: 'SYSTEM_CONTEXT',
-          referenceItems: items.data.ResultItems ?? [],
+          referenceItems: items,
         })
       );
 
@@ -96,19 +125,22 @@ const useRag = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = items.data.ResultItems?.map((item, idx) => {
-            // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
-            const _excerpt_page_number = item.DocumentAttributes?.find(
-              (attr) => attr.Key === '_excerpt_page_number'
-            )?.Value?.LongValue;
-            return message.includes(`[^${idx}]`)
-              ? `[^${idx}]: [${item.DocumentTitle}${
-                  _excerpt_page_number ? `(${_excerpt_page_number} ページ)` : ''
-                }](${item.DocumentURI}${
-                  _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
-                })`
-              : '';
-          })
+          const footnote = items
+            .map((item, idx) => {
+              // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
+              const _excerpt_page_number = item.DocumentAttributes?.find(
+                (attr) => attr.Key === '_excerpt_page_number'
+              )?.Value?.LongValue;
+              return message.includes(`[^${idx}]`)
+                ? `[^${idx}]: [${item.DocumentTitle}${
+                    _excerpt_page_number
+                      ? `(${_excerpt_page_number} ページ)`
+                      : ''
+                  }](${item.DocumentURI}${
+                    _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
+                  })`
+                : '';
+            })
             .filter((x) => x)
             .join('\n');
           return message + '\n' + footnote;
