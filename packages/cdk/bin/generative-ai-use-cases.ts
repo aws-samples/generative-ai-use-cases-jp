@@ -29,13 +29,52 @@ const allowedCountryCodes: string[] | null = app.node.tryGetContext(
   'allowedCountryCodes'
 )!;
 
+// Props for custom domain name
+const hostName = app.node.tryGetContext('hostName');
+if (
+  typeof hostName != 'undefined' &&
+  typeof hostName != 'string' &&
+  hostName != null
+) {
+  throw new Error('hostName must be a string');
+}
+const zoneName = app.node.tryGetContext('zoneName');
+if (
+  typeof zoneName != 'undefined' &&
+  typeof zoneName != 'string' &&
+  zoneName != null
+) {
+  throw new Error('zoneName must be a string');
+}
+const hostedZoneId = app.node.tryGetContext('hostedZoneId');
+if (
+  typeof hostedZoneId != 'undefined' &&
+  typeof hostedZoneId != 'string' &&
+  hostedZoneId != null
+) {
+  throw new Error('hostedZoneId must be a string');
+}
+
+// check hostName, zoneName hostedZoneId are all set or none of them
+if (
+  !(
+    (hostName && zoneName && hostedZoneId) ||
+    (!hostName && !zoneName && !hostedZoneId)
+  )
+) {
+  throw new Error(
+    'hostName, zoneName and hostedZoneId must be set or none of them'
+  );
+}
+
 let cloudFrontWafStack: CloudFrontWafStack | undefined;
 
 // IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、CloudFrontWafStack をデプロイする
 if (
   allowedIpV4AddressRanges ||
   allowedIpV6AddressRanges ||
-  allowedCountryCodes
+  allowedCountryCodes ||
+  hostName
 ) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
   cloudFrontWafStack = new CloudFrontWafStack(app, 'CloudFrontWafStack', {
@@ -46,6 +85,10 @@ if (
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
+    hostName,
+    zoneName,
+    hostedZoneId,
+    crossRegionReferences: true,
   });
 }
 
@@ -69,9 +112,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
-    webAclId: cloudFrontWafStack
-      ? cloudFrontWafStack.webAclArn.value
-      : undefined,
+    webAclId: cloudFrontWafStack?.webAclArn,
     crossRegionReferences: true,
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
@@ -80,6 +121,10 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     description: anonymousUsageTracking
       ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
       : undefined,
+    cert: cloudFrontWafStack?.cert,
+    hostName,
+    zoneName,
+    hostedZoneId,
   }
 );
 
