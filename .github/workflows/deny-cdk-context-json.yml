@@ -1,0 +1,17 @@
+name: Deny cdk.context.json
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-cdk-context:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for cdk.context.json
+        run: |
+          if [ -f "packages/cdk/cdk.context.json" ]; then
+            echo "cdk.context.json file found in the PR. This is not allowed."
+            exit 1
+          fi

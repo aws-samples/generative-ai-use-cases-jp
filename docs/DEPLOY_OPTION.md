@@ -359,12 +359,26 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 PDF や Excel などのファイルをアップロードしてテキストを抽出する、ファイルアップロード機能を利用することができます。対応しているファイルは、csv, doc, docx, md, pdf, ppt, pptx, tsv, xlsx です。
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
 {
   "context": {
-    "recognizeFileEnabled": true
+    "recognizeFileEnabled": true,
+    "vpcId": null
   }
 }
 ```
 
-ファイルアップロード機能は ECS (Fargate) 上で実行されます。そのため、有効化すると VPC が新たに作成されます。また、Fargate 上で動くコンテナのビルドを行うために、デプロイ用のマシンでは Docker がインストールされている必要があり、Docker デーモンが起動している必要があります。
+ファイルアップロード機能は ECS (Fargate) 上で実行されます。`vpcId`を指定しない場合は、VPC が新たに作成されます。また、Fargate 上で動くコンテナのビルドを行うために、デプロイ用のマシンでは Docker がインストールされている必要があり、Docker デーモンが起動している必要があります。
+
+既存の VPC を使用する場合は、`vpcId` を指定してください。
+
+
+```json
+{
+  "context": {
+    "recognizeFileEnabled": true,
+    "vpcId": "vpc-xxxxxxxxxxxxxxxxx"
+  }
+}
+```
+
