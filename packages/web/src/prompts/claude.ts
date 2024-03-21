@@ -17,7 +17,7 @@ const systemContexts: { [key: string]: string } = {
     'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
   '/editorial': 'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。',
   '/generate': 'あなたは指示に従って文章を作成するライターです。',
-  '/translate': 'あなたは文章の意図を汲み取り適切な翻訳を行う翻訳者です。',
+  '/translate': '以下は文章を翻訳したいユーザーと、ユーザーの意図と文章を理解して適切に翻訳する AI のやりとりです。ユーザーは <input> タグで翻訳する文章と、<language> タグで翻訳先の言語を与えます。また、<考慮してほしいこと> タグで翻訳時に考慮してほしいことを与えることもあります。AI は <考慮してほしいこと> がある場合は考慮しつつ、<input> で与えるテキストを <language> で与える言語に翻訳してください。出力は<output>{翻訳結果}</output>の形で翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。',
   '/web-content': 'あなたはHTMLからコンテンツを抽出する仕事に従事してます。',
   '/rag': '',
   '/image': `あなたはStable Diffusionのプロンプトを生成するAIアシスタントです。
@@ -128,17 +128,11 @@ ${params.context}
 </作成する文章の形式>`;
   },
   translatePrompt(params: TranslateParams): string {
-    return `<input></input>の xml タグで囲われた文章を ${
-      params.language
-    } に翻訳してください。
-翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。
-<input>
-${params.sentence}
-</input>
+    return `<input>${params.sentence}</input><language>${params.language}</language>
 ${
   !params.context
     ? ''
-    : `ただし、翻訳時に<考慮して欲しいこと></考慮して欲しいこと> の xml タグで囲われた内容を考慮してください。<考慮して欲しいこと>${params.context}</考慮して欲しいこと>`
+    : `<考慮して欲しいこと>${params.context}</考慮して欲しいこと>`
 }
 
 出力は翻訳結果だけを <output></output> の xml タグで囲って出力してください。
