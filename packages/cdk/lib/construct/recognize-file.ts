@@ -59,7 +59,9 @@ export class RecognizeFile extends Construct {
     if (props.vpcId) {
       vpc = Vpc.fromLookup(this, 'Vpc', { vpcId: props.vpcId });
     } else {
-      vpc = new Vpc(this, 'Vpc', {});
+      vpc = new Vpc(this, 'Vpc', {
+        maxAzs: 2,
+      });
     }
     // ECS
     const cluster = new Cluster(this, 'Cluster', {
@@ -119,7 +121,9 @@ export class RecognizeFile extends Construct {
         cpu: 512,
         taskDefinition: taskDefinition,
         publicLoadBalancer: false,
-        taskSubnets: vpc.selectSubnets({ subnetType: SubnetType.PRIVATE_WITH_EGRESS })
+        taskSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
       }
     );
 
