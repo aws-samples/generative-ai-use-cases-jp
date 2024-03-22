@@ -5,6 +5,7 @@ import {
   UnrecordedMessage,
 } from './message';
 import { Chat } from './chat';
+import { SystemContext } from './systemContext';
 import {
   QueryCommandOutput,
   RetrieveCommandOutput,
@@ -12,6 +13,7 @@ import {
 import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
+import { SystemContextList } from '../../web/src/prompts';
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -35,6 +37,18 @@ export type FindChatByIdResponse = {
 
 export type ListMessagesResponse = {
   messages: RecordedMessage[];
+};
+
+export type CreateSystemContextRequest = {
+  systemContext: SystemContext;
+};
+
+export type FindSystemContextByIdResponse = {
+  systemContext: SystemContext;
+};
+
+export type ListSystemContextsResponce = {
+  systemContextList: SystemContextList;
 };
 
 export type UpdateFeedbackRequest = {
