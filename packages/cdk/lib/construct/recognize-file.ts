@@ -15,7 +15,7 @@ import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
-import { Peer, Port, Vpc } from 'aws-cdk-lib/aws-ec2';
+import { IVpc, Peer, Port, SubnetType, Vpc } from 'aws-cdk-lib/aws-ec2';
 import {
   Cluster,
   ContainerImage,
@@ -33,6 +33,7 @@ export interface RecognizeFileProps {
   userPool: UserPool;
   api: RestApi;
   fileBucket: Bucket;
+  vpcId?: string;
 }
 
 export class RecognizeFile extends Construct {
@@ -54,8 +55,14 @@ export class RecognizeFile extends Construct {
       props.api.root.getResource('file') || props.api.root.addResource('file');
 
     // VPC
-    const vpc = new Vpc(this, 'Vpc', {});
-
+    let vpc: IVpc;
+    if (props.vpcId) {
+      vpc = Vpc.fromLookup(this, 'Vpc', { vpcId: props.vpcId });
+    } else {
+      vpc = new Vpc(this, 'Vpc', {
+        maxAzs: 2,
+      });
+    }
     // ECS
     const cluster = new Cluster(this, 'Cluster', {
       vpc: vpc,
@@ -114,6 +121,9 @@ export class RecognizeFile extends Construct {
         cpu: 512,
         taskDefinition: taskDefinition,
         publicLoadBalancer: false,
+        taskSubnets: vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+        }),
       }
     );
 

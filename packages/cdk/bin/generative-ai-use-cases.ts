@@ -40,6 +40,7 @@ if (
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
   cloudFrontWafStack = new CloudFrontWafStack(app, 'CloudFrontWafStack', {
     env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
       region: 'us-east-1',
     },
     allowedIpV4AddressRanges,
@@ -52,11 +53,20 @@ const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
   'anonymousUsageTracking'
 );
 
+const vpcId = app.node.tryGetContext('vpcId');
+if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string' ) {
+  throw new Error('vpcId must be string or undefined');
+}
+if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
+  throw new Error('vpcId must start with "vpc-"');
+}
+
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
   'GenerativeAiUseCasesStack',
   {
     env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
       region: process.env.CDK_DEFAULT_REGION,
     },
     webAclId: cloudFrontWafStack
@@ -66,6 +76,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
+    vpcId,
     description: anonymousUsageTracking
       ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
       : undefined,
@@ -85,6 +96,7 @@ const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
 if (searchAgentEnabled) {
   new SearchAgentStack(app, 'WebSearchAgentStack', {
     env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
       region: agentRegion,
     },
   });
@@ -96,6 +108,7 @@ const dashboard: boolean = app.node.tryGetContext('dashboard')!;
 if (dashboard) {
   new DashboardStack(app, 'GenerativeAiUseCasesDashboardStack', {
     env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
       region: modelRegion,
     },
     userPool: generativeAiUseCasesStack.userPool,
