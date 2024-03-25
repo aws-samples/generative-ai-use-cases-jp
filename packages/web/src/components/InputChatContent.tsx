@@ -20,7 +20,7 @@ type Props = {
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
-  sendIconEnabled?:boolean;
+  sendIconEnabled?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
   sendIcon?: React.ReactNode;

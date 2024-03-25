@@ -1,22 +1,24 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
-import { PiBookOpenText, PiFlask, PiTrash } from 'react-icons/pi';
+import { PiBookOpenText, PiFlask, PiSpinnerGap, PiTrash } from 'react-icons/pi';
 import { ChatPageQueryParams } from '../@types/navigate';
 import useChat from '../hooks/useChat';
-import { getPrompter, SystemContextList,SystemContextListItem,PromptListItem } from '../prompts';
+import { getPrompter, PromptListItem } from '../prompts';
+
 import type { PromptList } from '../prompts';
 import ButtonIcon from './ButtonIcon';
+import { SystemContextListItem } from 'generative-ai-use-cases-jp/src/systemContext';
 
 type Props = BaseProps & {
   onClick: (params: ChatPageQueryParams) => void;
-  systemContextList:SystemContextList;
-  onClickDeleteSystemContext: (params: string) => void;
-  
+  systemContextListItem: SystemContextListItem[];
+  onClickDeleteSystemContext: (params: string, index: number) => void;
+  loadingList: number | undefined;
 };
 
 const PromptList: React.FC<Props> = (props) => {
-  const { onClick,onClickDeleteSystemContext } = props;
+  const { onClick, onClickDeleteSystemContext } = props;
   const [expanded, setExpanded] = useState(false);
   // PromptList はチャットのページでの利用に固定
   const { getModelId } = useChat('/chat');
@@ -27,7 +29,7 @@ const PromptList: React.FC<Props> = (props) => {
   }, [modelId]);
 
   // 上位の setExpanded にアクセスするためにコンポーネントをネストする
-  const Item: React.FC<PromptListItem|SystemContextListItem> = (props) => {
+  const Item: React.FC<PromptListItem | SystemContextListItem> = (props) => {
     const onClickPrompt = useCallback(() => {
       onClick({
         systemContext: props.systemContext,
@@ -39,7 +41,11 @@ const PromptList: React.FC<Props> = (props) => {
 
     return (
       <li
-        className={props.className ? props.className: "my-2 cursor-pointer hover:underline"}
+        className={
+          props.className
+            ? props.className
+            : 'my-2 cursor-pointer hover:underline'
+        }
         onClick={onClickPrompt}>
         {props.title}
       </li>
@@ -98,41 +104,38 @@ const PromptList: React.FC<Props> = (props) => {
               </ExpandableMenu>
             );
           })}
-          {props.systemContextList.map((category, i) => {
-            return (
-              <ExpandableMenu
-                title={category.title}
-                className="my-2"
-                defaultOpened={false}
-                key={`systemContext-${i}`}>
-                <ul className="pl-4">
-                  {category.items.map((item, j) => {
-                    return (
-                      <div 
-                      className='flex'
-                      key={`systemContext-item-${j}`}
-                      >
-                        <Item
-                          title={item.title}
-                          systemContext={item.systemContext}
-                          prompt={''}
-                          key={`systemContext-${i}-${j}`}
-                          className='mt-0  cursor-pointer hover:underline'
-                        />
-                        <ButtonIcon
-                          onClick={() => {
-                            onClickDeleteSystemContext(item.systemContextId)
-                          }}
-                          className="ml-auto">
-                          <PiTrash />
-                        </ButtonIcon>
-                      </div>
-                    );
-                  })}
-                </ul>
-              </ExpandableMenu>
-            );
-          })}
+          <ExpandableMenu
+            title={'システムコンテキスト'}
+            className="my-2"
+            defaultOpened={false}>
+            <ul className="pl-4">
+              {props.systemContextListItem.map((item, i) => {
+                return (
+                  <div className="flex" key={`systemContext-item-${i}`}>
+                    <Item
+                      title={item.title}
+                      systemContext={item.systemContext}
+                      prompt={''}
+                      key={`${i}`}
+                      className="mt-1 w-5/6 cursor-pointer break-words hover:underline"
+                    />
+                    <ButtonIcon
+                      onClick={() => {
+                        onClickDeleteSystemContext(item.systemContextId, i);
+                      }}
+                      className="ml-auto"
+                      disabled={props.loadingList == i}>
+                      {props.loadingList == i ? (
+                        <PiSpinnerGap className="animate-spin" />
+                      ) : (
+                        <PiTrash />
+                      )}
+                    </ButtonIcon>
+                  </div>
+                );
+              })}
+            </ul>
+          </ExpandableMenu>
         </div>
       </div>
     </>

@@ -62,26 +62,13 @@ export type PromptListItem = {
   title: string;
   systemContext: string;
   prompt?: string;
-  className?:string;
+  className?: string;
 };
 
 export type PromptList = {
   title: string;
   items: PromptListItem[];
   experimental?: boolean;
-}[];
-
-export type SystemContextListItem = {
-  title: string;
-  systemContext: string;
-  systemContextId: string;
-  prompt?: string;
-  className?:string;
-};
-
-export type SystemContextList = {
-  title: string;
-  items: SystemContextListItem[];
 }[];
 
 export interface Prompter {

@@ -86,7 +86,7 @@ export const findSystemContextById = async (
       FilterExpression: '#systemContextId = :systemContextId',
       ExpressionAttributeNames: {
         '#id': 'id',
-        '#systemContextId': 'systemContextId',        
+        '#systemContextId': 'systemContextId',
       },
       ExpressionAttributeValues: {
         ':id': userId,
@@ -316,7 +316,7 @@ export const deleteSystemContext = async (
   _systemContextId: string
 ): Promise<void> => {
   // System Context の削除
-  const systemContext = await findSystemContextById(_userId, _systemContextId)
+  const systemContext = await findSystemContextById(_userId, _systemContextId);
   await dynamoDbDocument.send(
     new DeleteCommand({
       TableName: TABLE_NAME,

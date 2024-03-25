@@ -15,7 +15,11 @@ import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
-import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
+import {
+  PiArrowClockwiseBold,
+  PiShareFatFill,
+  PiSpinnerGap,
+} from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
@@ -23,8 +27,7 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import type { SystemContextList } from '../prompts';
-
+import { SystemContextListItem } from 'generative-ai-use-cases-jp/src/systemContext';
 
 type StateType = {
   content: string;
@@ -81,12 +84,16 @@ const ChatPage: React.FC = () => {
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
-  const {listSystemContexts, deleteSystemContext } = useSystemContextApi();
-  const [systemContextList, setSystemContextList] = useState<SystemContextList>([]);
-  const {data:systemContextResponse, mutate} = listSystemContexts();
-  useEffect(()=>{
-    setSystemContextList(systemContextResponse ? systemContextResponse : [])
-  },[systemContextResponse,setSystemContextList])
+  const { listSystemContexts, deleteSystemContext } = useSystemContextApi();
+  const [systemContextListItem, setSystemContextListItem] = useState<
+    SystemContextListItem[]
+  >([]);
+  const { data: systemContextResponse, mutate } = listSystemContexts();
+  useEffect(() => {
+    setSystemContextListItem(
+      systemContextResponse ? systemContextResponse : []
+    );
+  }, [systemContextResponse, setSystemContextListItem]);
 
   const {
     getModelId,
@@ -176,6 +183,8 @@ const ChatPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
 
+  const [systemContextLoading, setSystemContextLoading] = useState(false);
+  const [loadingList, setLoadingList] = useState<number | undefined>();
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
   const [showShareIdModal, setShowShareIdModal] = useState(false);
@@ -196,7 +205,8 @@ const ChatPage: React.FC = () => {
 
   const onCreateSystemContext = useCallback(async () => {
     try {
-      await createSystemContext(systemContextTitle,systemContext)
+      setSystemContextLoading(true);
+      await createSystemContext(systemContextTitle, systemContext);
     } catch (e) {
       console.error(e);
     } finally {
@@ -204,9 +214,21 @@ const ChatPage: React.FC = () => {
       setInputSystemContext(systemContext);
       setSystemContextTitle('');
       mutate();
-      setSystemContextList(systemContextResponse??[]);
+      setSystemContextListItem(systemContextResponse ?? []);
+      setSystemContextLoading(false);
     }
-  }, [systemContextTitle,systemContext,mutate,systemContextResponse,createSystemContext,setShowSystemContextModal,setInputSystemContext,setSystemContextTitle]);
+  }, [
+    systemContextTitle,
+    systemContext,
+    mutate,
+    systemContextResponse,
+    createSystemContext,
+    setShowSystemContextModal,
+    setInputSystemContext,
+    setSystemContextTitle,
+    setSystemContextListItem,
+    setSystemContextLoading,
+  ]);
   const onDeleteShareId = useCallback(async () => {
     try {
       setDeletingShareId(true);
@@ -254,6 +276,8 @@ const ChatPage: React.FC = () => {
     setInputSystemContext(currentSystemContext);
   }, [currentSystemContext, setInputSystemContext]);
 
+  useEffect(() => setLoadingList(undefined), [systemContextListItem]);
+
   const onClickSamplePrompt = useCallback(
     (params: ChatPageQueryParams) => {
       setContent(params.content ?? '');
@@ -262,12 +286,16 @@ const ChatPage: React.FC = () => {
     [setContent, updateSystemContext]
   );
 
-  const onClickDeleteSystemContext = async(systemContextId:string) => {
-    try{
-      deleteSystemContext(systemContextId)
-      mutate()
-      setSystemContextList(systemContextResponse??[])
-    }catch (e) {
+  const onClickDeleteSystemContext = async (
+    systemContextId: string,
+    index: number
+  ) => {
+    try {
+      setLoadingList(index);
+      await deleteSystemContext(systemContextId);
+      mutate();
+      setSystemContextListItem(systemContextResponse ?? []);
+    } catch (e) {
       console.error(e);
     }
   };
@@ -431,7 +459,12 @@ const ChatPage: React.FC = () => {
       </div>
 
       {isEmpty && !loadingMessages && (
-        <PromptList onClick={onClickSamplePrompt} systemContextList={systemContextList} onClickDeleteSystemContext={onClickDeleteSystemContext}  />
+        <PromptList
+          onClick={onClickSamplePrompt}
+          systemContextListItem={systemContextListItem}
+          onClickDeleteSystemContext={onClickDeleteSystemContext}
+          loadingList={loadingList}
+        />
       )}
 
       <ModalDialog
@@ -456,7 +489,6 @@ const ChatPage: React.FC = () => {
           onChangeContent={setSystemContext}
           fullWidth={true}
           resetDisabled={true}
-          disabled={systemContext === currentSystemContext}
           sendIcon={undefined}
           onSend={() => {
             updateSystemContext(systemContext);
@@ -472,13 +504,18 @@ const ChatPage: React.FC = () => {
             className="p-2">
             Cancel
           </Button>
-          <Button
-            onClick={() => {
-              onCreateSystemContext()
-            }}
-            className="bg-red-500 p-2 text-white">
-            作成
-          </Button>
+          {systemContextLoading ? (
+            <PiSpinnerGap className="size-8 animate-spin" />
+          ) : (
+            <Button
+              onClick={() => {
+                onCreateSystemContext();
+              }}
+              className="bg-red-500 p-2 text-white"
+              disabled={systemContext === '' || systemContextTitle === ''}>
+              作成
+            </Button>
+          )}
         </div>
       </ModalDialog>
 
