@@ -50,6 +50,10 @@ export type RagParams = {
   referenceItems?: RetrieveResultItem[];
 };
 
+export type VideoAnalyzerParams = {
+  content: string;
+};
+
 export type SetTitleParams = {
   messages: UnrecordedMessage[];
 };
@@ -75,6 +79,7 @@ export interface Prompter {
   translatePrompt(params: TranslateParams): string;
   webContentPrompt(params: WebContentParams): string;
   ragPrompt(params: RagParams): string;
+  videoAnalyzerPrompt(params: VideoAnalyzerParams): string;
   setTitlePrompt(params: SetTitleParams): string;
   promptList(): PromptList;
 }

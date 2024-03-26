@@ -16,6 +16,7 @@ import SummarizePage from './pages/SummarizePage';
 import GenerateTextPage from './pages/GenerateTextPage';
 import EditorialPage from './pages/EditorialPage';
 import TranslatePage from './pages/TranslatePage';
+import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
 import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
@@ -80,6 +81,10 @@ const routes: RouteObject[] = [
   {
     path: '/transcribe',
     element: <TranscribePage />,
+  },
+  {
+    path: '/video',
+    element: <VideoAnalyzerPage />,
   },
   recognizeFileEnabled
     ? {

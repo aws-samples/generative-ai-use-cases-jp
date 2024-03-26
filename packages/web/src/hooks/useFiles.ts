@@ -3,7 +3,7 @@ import useFileApi from './useFileApi';
 import { UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 
-const extractBaseURL = (url: string) => {
+export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 const useFilesState = create<{
