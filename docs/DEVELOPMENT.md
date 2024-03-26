@@ -15,7 +15,12 @@ npm run web:devw
 
 デプロイ完了時に表示される Outputs から API の Endpoint (Output key = APIApiEndpoint...)、Cognito User Pool ID (Output key = AuthUserPoolId...)、Cognito User Pool Client ID (Output Key = AuthUserPoolClientId...) 、Cognito Identity Pool ID (Output Key = AuthIdPoolId...)、レスポンスストリーミングの Lambda 関数の ARN (Output Key = APIPredictStreamFunctionArn...) を取得します。
 デプロイ時の出力が消えている場合、[CloudFormation](https://console.aws.amazon.com/cloudformation/home) の GenerativeAiUseCasesStack をクリックして Outputs タブから確認できます。
-それらの値を以下のように環境変数に設定してください。
+
+それらの値を環境変数に設定する必要がありますが、環境変数の設定は以下のいずれかの方法で行うことができます。
+
+#### シェル変数を export する方法
+
+以下のコマンドでシェル変数に値を設定し `export` とすることで、環境変数として利用できます。Windows 利用者でかつ PowerShell を利用している方は、コマンドが異なりますので[こちら](https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.core/about/about_environment_variables)を参照の上、設定を行なってください。
 
 ```bash
 export VITE_APP_API_ENDPOINT=<API Endpoint>
@@ -63,7 +68,19 @@ export VITE_APP_AGENT_NAMES=["SearchEngine"]
 export VITE_APP_RECOGNIZE_FILE_ENABLED=true
 ```
 
-続いて以下のコマンドを実行します。
+#### `.env` ファイルを利用する方法
+
+フロントエンドは Vite を利用してビルドを行っていますが、Vite は `.env` ファイルを利用して環境変数を設定できます（[参考](https://ja.vitejs.dev/guide/env-and-mode#env-files)）。`/packages/web/.env` ファイルを作成し、上記の「シェル変数を export する方法」と同様の項目を設定してください。なお、`export` の記載は不要なので、ご注意ください。
+
+```bash
+VITE_APP_API_ENDPOINT=https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/api/
+VITE_APP_REGION=ap-northeast-1
+### 以降省略 ###
+```
+
+#### ローカルサーバの起動
+
+環境変数の設定ができたら、以下のコマンドを実行します。
 
 ```bash
 npm run web:dev
