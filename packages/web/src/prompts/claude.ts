@@ -67,7 +67,7 @@ const systemContexts: { [key: string]: string } = {
 
 出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
   '/video':
-    'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。',
+    'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。また出力は {} で囲わないでください。',
 };
 
 export const claudePrompter: Prompter = {

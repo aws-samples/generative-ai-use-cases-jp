@@ -75,7 +75,6 @@ const useTyping = (typing?: boolean) => {
   return {
     setTypingTextInput,
     typingTextOutput,
-    animating,
   };
 };
 
