@@ -94,7 +94,7 @@ const PromptList: React.FC<Props> = (props) => {
           </div>
           <ExpandableMenu
             title={'システムコンテキスト'}
-            className="my-2 mb-4"
+            className=""
             defaultOpened={false}>
             <ul className="pl-4">
               {props.systemContextListItem.map((item, i) => {
