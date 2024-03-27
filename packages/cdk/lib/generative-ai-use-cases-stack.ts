@@ -13,6 +13,7 @@ import {
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -27,6 +28,10 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   allowedIpV6AddressRanges: string[] | null;
   allowedCountryCodes: string[] | null;
   vpcId?: string;
+  cert?: ICertificate;
+  zoneName?: string;
+  hostName?: string;
+  hostedZoneId?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -130,6 +135,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
       recognizeFileEnabled,
+      cert: props.cert,
+      hostName: props.hostName,
+      zoneName: props.zoneName,
+      hostedZoneId: props.hostedZoneId,
     });
 
     if (ragEnabled) {
