@@ -13,7 +13,6 @@ import {
 import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
-import { SystemContextListItem } from './systemContext';
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -40,10 +39,6 @@ export type ListMessagesResponse = {
 };
 
 export type CreateSystemContextRequest = {
-  systemContext: SystemContext;
-};
-
-export type FindSystemContextByIdResponse = {
   systemContext: SystemContext;
 };
 

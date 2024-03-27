@@ -20,7 +20,6 @@ type Props = {
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
-  sendIconEnabled?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
   sendIcon?: React.ReactNode;
@@ -135,15 +134,14 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           </label>
         )}
-        {!props!.sendIconEnabled && (
-          <ButtonSend
-            className="m-2 align-bottom"
-            disabled={disabledSend}
-            loading={loading || uploading}
-            onClick={props.onSend}
-            icon={props.sendIcon}
-          />
-        )}
+        <ButtonSend
+          className="m-2 align-bottom"
+          disabled={disabledSend}
+          loading={loading || uploading}
+          onClick={props.onSend}
+          icon={props.sendIcon}
+        />
+
         {!isEmpty && !props.resetDisabled && !props.hideReset && (
           <Button
             className="absolute -top-14 right-0 p-2 text-sm"

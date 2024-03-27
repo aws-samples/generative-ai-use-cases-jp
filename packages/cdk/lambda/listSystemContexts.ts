@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { listSystemContexts } from './repository';
-import { SystemContextListItem } from 'generative-ai-use-cases-jp/src/systemContext';
+import { SystemContext } from 'generative-ai-use-cases-jp';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,7 +8,7 @@ export const handler = async (
   try {
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const systemContextItems: SystemContextListItem[] =
+    const systemContextItems: SystemContext[] =
       await listSystemContexts(userId);
 
     return {

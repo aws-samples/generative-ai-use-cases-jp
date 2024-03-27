@@ -350,20 +350,6 @@ export class Api extends Construct {
     );
     table.grantWriteData(createSystemContextFunction);
 
-    const findSystemContextbyIdFunction = new NodejsFunction(
-      this,
-      'FindSystemContextbyId',
-      {
-        runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/findSystemContextById.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-      }
-    );
-    table.grantReadData(findSystemContextbyIdFunction);
-
     const deleteSystemContextFunction = new NodejsFunction(
       this,
       'DeleteSystemContexts',

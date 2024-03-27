@@ -153,7 +153,7 @@ export const createSystemContext = async (
     createdDate: `${Date.now()}`,
     systemContextId: systemContextId,
     systemContext: systemContext,
-    title: title,
+    systemContextTitle: title,
   };
 
   await dynamoDbDocument.send(

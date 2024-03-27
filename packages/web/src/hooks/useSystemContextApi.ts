@@ -1,11 +1,10 @@
 import {
   CreateSystemContextRequest,
-  FindSystemContextByIdResponse,
+  SystemContext,
 } from 'generative-ai-use-cases-jp';
 
 import useHttp from './useHttp';
 import { decomposeSystemContextId } from '../utils/SystemContextUtils';
-import { SystemContextListItem } from 'generative-ai-use-cases-jp/src/systemContext';
 
 const useSystemContextApi = () => {
   const http = useHttp();
@@ -26,13 +25,8 @@ const useSystemContextApi = () => {
       return http.delete<void>(`/systemcontexts/${systemContextId}`);
     },
     listSystemContexts: () => {
-      const res = http.get<SystemContextListItem[]>('/systemcontexts');
+      const res = http.get<SystemContext[]>('/systemcontexts');
       return res;
-    },
-    findSystemContextById: (systemContextId?: string) => {
-      return http.get<FindSystemContextByIdResponse>(
-        systemContextId ? `/systemcontexts/${systemContextId}` : null
-      );
     },
   };
 };
