@@ -52,55 +52,32 @@ export class Web extends Construct {
       enforceSSL: true,
     };
 
-    // Because CloudFrontToS3Props has readonly properties, we have to declare whole of it.
-    let cloudFrontToS3Props: CloudFrontToS3Props;
+    const cloudFrontToS3Props: CloudFrontToS3Props = {
+      insertHttpSecurityHeaders: false,
+      loggingBucketProps: commonBucketProps,
+      bucketProps: commonBucketProps,
+      cloudFrontLoggingBucketProps: commonBucketProps,
+      cloudFrontDistributionProps: {
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+        ],
+      },
+    };
 
     if (props.cert && props.hostName && props.zoneName && props.hostedZoneId) {
-      // Using custom domain
-      cloudFrontToS3Props = {
-        insertHttpSecurityHeaders: false,
-        loggingBucketProps: commonBucketProps,
-        bucketProps: commonBucketProps,
-        cloudFrontLoggingBucketProps: commonBucketProps,
-        cloudFrontDistributionProps: {
-          certificate: props.cert,
-          domainNames: [`${props.hostName}.${props.zoneName}`],
-          errorResponses: [
-            {
-              httpStatus: 403,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-            {
-              httpStatus: 404,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-          ],
-        },
-      };
-    } else {
-      // Using CloudFront's domain
-      cloudFrontToS3Props = {
-        insertHttpSecurityHeaders: false,
-        loggingBucketProps: commonBucketProps,
-        bucketProps: commonBucketProps,
-        cloudFrontLoggingBucketProps: commonBucketProps,
-        cloudFrontDistributionProps: {
-          errorResponses: [
-            {
-              httpStatus: 403,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-            {
-              httpStatus: 404,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-          ],
-        },
-      };
+      cloudFrontToS3Props.cloudFrontDistributionProps.certificate = props.cert;
+      cloudFrontToS3Props.cloudFrontDistributionProps.domainNames = [
+        `${props.hostName}.${props.zoneName}`,
+      ];
     }
 
     const { cloudFrontWebDistribution, s3BucketInterface } = new CloudFrontToS3(
