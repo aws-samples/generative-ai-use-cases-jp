@@ -141,6 +141,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           onClick={props.onSend}
           icon={props.sendIcon}
         />
+
         {!isEmpty && !props.resetDisabled && !props.hideReset && (
           <Button
             className="absolute -top-14 right-0 p-2 text-sm"

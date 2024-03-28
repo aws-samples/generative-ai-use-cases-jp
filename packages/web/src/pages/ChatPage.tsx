@@ -3,12 +3,14 @@ import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
+import useSystemContextApi from '../hooks/useSystemContextApi';
 import useConversation from '../hooks/useConversation';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
+import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
@@ -18,21 +20,28 @@ import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
-import { getPrompter } from '../prompts';
+import { getPrompter, SystemContextListItem } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
+import { SystemContext } from 'generative-ai-use-cases-jp';
 
 type StateType = {
   content: string;
   inputSystemContext: string;
+  saveSystemContext: string;
+  saveSystemContextTitle: string;
   setContent: (c: string) => void;
   setInputSystemContext: (c: string) => void;
+  setSaveSystemContext: (c: string) => void;
+  setSaveSystemContextTitle: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
     content: '',
     inputSystemContext: '',
+    saveSystemContext: '',
+    saveSystemContextTitle: '',
     setContent: (s: string) => {
       set(() => ({
         content: s,
@@ -43,15 +52,44 @@ const useChatPageState = create<StateType>((set) => {
         inputSystemContext: s,
       }));
     },
+    setSaveSystemContext: (s: string) => {
+      set(() => ({
+        saveSystemContext: s,
+      }));
+    },
+    setSaveSystemContextTitle: (s: string) => {
+      set(() => ({
+        saveSystemContextTitle: s,
+      }));
+    },
   };
 });
 
 const ChatPage: React.FC = () => {
-  const { content, inputSystemContext, setContent, setInputSystemContext } =
-    useChatPageState();
+  const {
+    content,
+    inputSystemContext,
+    saveSystemContext,
+    saveSystemContextTitle,
+    setContent,
+    setInputSystemContext,
+    setSaveSystemContext,
+    setSaveSystemContextTitle,
+  } = useChatPageState();
   const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
+
+  const { listSystemContexts, deleteSystemContext } = useSystemContextApi();
+  const [systemContextListItem, setSystemContextListItem] = useState<
+    SystemContext[]
+  >([]);
+  const { data: systemContextResponse, mutate } = listSystemContexts();
+  useEffect(() => {
+    setSystemContextListItem(
+      systemContextResponse ? systemContextResponse : []
+    );
+  }, [systemContextResponse, setSystemContextListItem]);
 
   const {
     getModelId,
@@ -68,6 +106,7 @@ const ChatPage: React.FC = () => {
     getCurrentSystemContext,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
+  const { createSystemContext } = useSystemContextApi();
   const { scrollToBottom, scrollToTop } = useScroll();
   const { getConversationTitle } = useConversation();
   const { modelIds: availableModels } = MODELS;
@@ -143,6 +182,7 @@ const ChatPage: React.FC = () => {
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
   const [showShareIdModal, setShowShareIdModal] = useState(false);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
   const [isOver, setIsOver] = useState(false);
 
   const onCreateShareId = useCallback(async () => {
@@ -157,6 +197,29 @@ const ChatPage: React.FC = () => {
     }
   }, [chatId, createShareId, reloadShare]);
 
+  const onCreateSystemContext = useCallback(async () => {
+    try {
+      await createSystemContext(saveSystemContextTitle, saveSystemContext);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSystemContextModal(false);
+      setInputSystemContext(saveSystemContext);
+      setSaveSystemContextTitle('');
+      mutate();
+      setSystemContextListItem(systemContextResponse ?? []);
+    }
+  }, [
+    saveSystemContextTitle,
+    saveSystemContext,
+    systemContextResponse,
+    createSystemContext,
+    setShowSystemContextModal,
+    setInputSystemContext,
+    setSaveSystemContextTitle,
+    mutate,
+    setSystemContextListItem,
+  ]);
   const onDeleteShareId = useCallback(async () => {
     try {
       setDeletingShareId(true);
@@ -211,6 +274,22 @@ const ChatPage: React.FC = () => {
     },
     [setContent, updateSystemContext]
   );
+
+  const onClickDeleteSystemContext = async (
+    systemContextId: string,
+    index: number
+  ) => {
+    try {
+      setSystemContextListItem(
+        systemContextListItem.filter((_, i) => i !== index)
+      );
+      await deleteSystemContext(systemContextId);
+      mutate();
+      // setSystemContextListItem(systemContextResponse ?? []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleDragOver = (event: React.DragEvent) => {
     // ファイルドラッグ時にオーバーレイを表示
@@ -328,7 +407,17 @@ const ChatPage: React.FC = () => {
                     }}>
                     初期化
                   </Button>
+                  <Button
+                    outlined
+                    className="ml-1 text-xs"
+                    onClick={() => {
+                      setSaveSystemContext(inputSystemContext);
+                      setShowSystemContextModal(true);
+                    }}>
+                    保存
+                  </Button>
                 </div>
+
                 <InputChatContent
                   disableMarginBottom={true}
                   content={inputSystemContext}
@@ -360,8 +449,58 @@ const ChatPage: React.FC = () => {
       </div>
 
       {isEmpty && !loadingMessages && (
-        <PromptList onClick={onClickSamplePrompt} />
+        <PromptList
+          onClick={onClickSamplePrompt}
+          systemContextListItem={
+            systemContextListItem as SystemContextListItem[]
+          }
+          onClickDeleteSystemContext={onClickDeleteSystemContext}
+        />
       )}
+
+      <ModalDialog
+        title="システムコンテキストの作成"
+        isOpen={showSystemContextModal}
+        onClose={() => {
+          setShowSystemContextModal(false);
+        }}>
+        <div className="py-2.5">タイトル</div>
+
+        <Textarea
+          placeholder="入力してください"
+          value={saveSystemContextTitle}
+          onChange={setSaveSystemContextTitle}
+          maxHeight={-1}
+        />
+
+        <div className="py-2.5">システムコンテキスト</div>
+        <Textarea
+          placeholder={saveSystemContext ?? '入力してください'}
+          value={saveSystemContext}
+          onChange={setSaveSystemContext}
+          maxHeight={-1}
+        />
+
+        <div className="mt-4 flex justify-end gap-2">
+          <Button
+            outlined
+            onClick={() => setShowSystemContextModal(false)}
+            className="p-2">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setShowSystemContextModal(false);
+              onCreateSystemContext();
+            }}
+            className="bg-red-500 p-2 text-white"
+            disabled={
+              saveSystemContext === '' || saveSystemContextTitle === ''
+            }>
+            作成
+          </Button>
+        </div>
+      </ModalDialog>
 
       <ModalDialog
         isOpen={showShareIdModal}

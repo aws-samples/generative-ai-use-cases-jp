@@ -61,7 +61,8 @@ export type SetTitleParams = {
 export type PromptListItem = {
   title: string;
   systemContext: string;
-  prompt: string;
+  prompt?: string;
+  className?: string;
 };
 
 export type PromptList = {
@@ -69,6 +70,12 @@ export type PromptList = {
   items: PromptListItem[];
   experimental?: boolean;
 }[];
+
+export type SystemContextListItem = {
+  systemContextTitle: string;
+  systemContext: string;
+  systemContextId: string;
+};
 
 export interface Prompter {
   systemContext(pathname: string): string;
