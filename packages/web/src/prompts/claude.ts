@@ -8,6 +8,7 @@ import {
   SetTitleParams,
   SummarizeParams,
   TranslateParams,
+  VideoAnalyzerParams,
   WebContentParams,
 } from './index';
 
@@ -17,7 +18,8 @@ const systemContexts: { [key: string]: string } = {
     'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
   '/editorial': 'あなたは丁寧に細かいところまで指摘する厳しい校閲担当者です。',
   '/generate': 'あなたは指示に従って文章を作成するライターです。',
-  '/translate': '以下は文章を翻訳したいユーザーと、ユーザーの意図と文章を理解して適切に翻訳する AI のやりとりです。ユーザーは <input> タグで翻訳する文章と、<language> タグで翻訳先の言語を与えます。また、<考慮してほしいこと> タグで翻訳時に考慮してほしいことを与えることもあります。AI は <考慮してほしいこと> がある場合は考慮しつつ、<input> で与えるテキストを <language> で与える言語に翻訳してください。出力は<output>{翻訳結果}</output>の形で翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。',
+  '/translate':
+    '以下は文章を翻訳したいユーザーと、ユーザーの意図と文章を理解して適切に翻訳する AI のやりとりです。ユーザーは <input> タグで翻訳する文章と、<language> タグで翻訳先の言語を与えます。また、<考慮してほしいこと> タグで翻訳時に考慮してほしいことを与えることもあります。AI は <考慮してほしいこと> がある場合は考慮しつつ、<input> で与えるテキストを <language> で与える言語に翻訳してください。出力は<output>{翻訳結果}</output>の形で翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。',
   '/web-content': 'あなたはHTMLからコンテンツを抽出する仕事に従事してます。',
   '/rag': '',
   '/image': `あなたはStable Diffusionのプロンプトを生成するAIアシスタントです。
@@ -64,6 +66,8 @@ const systemContexts: { [key: string]: string } = {
 </output>
 
 出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
+  '/video':
+    'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。また出力は {} で囲わないでください。',
 };
 
 export const claudePrompter: Prompter = {
@@ -232,6 +236,9 @@ ${params
 </回答のルール>
 `;
     }
+  },
+  videoAnalyzerPrompt(params: VideoAnalyzerParams): string {
+    return `<input>${params.content}</input>`;
   },
   setTitlePrompt(params: SetTitleParams): string {
     return `以下はユーザーとAIアシスタントの会話です。まずはこちらを読み込んでください。<conversation>${JSON.stringify(

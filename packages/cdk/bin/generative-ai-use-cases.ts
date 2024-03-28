@@ -54,7 +54,7 @@ const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
 );
 
 const vpcId = app.node.tryGetContext('vpcId');
-if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string' ) {
+if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string') {
   throw new Error('vpcId must be string or undefined');
 }
 if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {

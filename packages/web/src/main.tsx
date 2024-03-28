@@ -16,6 +16,7 @@ import SummarizePage from './pages/SummarizePage';
 import GenerateTextPage from './pages/GenerateTextPage';
 import EditorialPage from './pages/EditorialPage';
 import TranslatePage from './pages/TranslatePage';
+import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
 import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
@@ -24,6 +25,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
+import { MODELS } from './hooks/useModel';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
@@ -31,6 +33,8 @@ const samlAuthEnabled: boolean =
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
+const { multiModalModelIds } = MODELS;
+const multiModalEnabled: boolean = multiModalModelIds.length > 0;
 
 const routes: RouteObject[] = [
   {
@@ -81,6 +85,12 @@ const routes: RouteObject[] = [
     path: '/transcribe',
     element: <TranscribePage />,
   },
+  multiModalEnabled
+    ? {
+        path: '/video',
+        element: <VideoAnalyzerPage />,
+      }
+    : null,
   recognizeFileEnabled
     ? {
         path: '/file',

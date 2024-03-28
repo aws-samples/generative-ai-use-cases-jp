@@ -62,3 +62,7 @@ export type WebContentPageQueryParams = BaseQueryParams & {
   url?: string;
   context?: string;
 };
+
+export type VideoAnalyzerPageQueryParams = BaseQueryParams & {
+  content: string;
+};
