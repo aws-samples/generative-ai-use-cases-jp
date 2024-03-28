@@ -89,7 +89,6 @@ const VideoAnalyzerPage: React.FC = () => {
 
   useEffect(() => {
     const _modelId = !modelId ? availableMultiModalModels[0] : modelId;
-    console.log(_modelId);
     if (search !== '') {
       const params = queryString.parse(search) as VideoAnalyzerPageQueryParams;
       setContent(params.content);
@@ -109,7 +108,14 @@ const VideoAnalyzerPage: React.FC = () => {
   }, [analysis, setTypingTextInput]);
 
   useEffect(() => {
-    navigator.mediaDevices.enumerateDevices().then((devices) => {
+    const getDevices = async () => {
+      // 新規で画面を開いたユーザーにカメラの利用を要求する (ダミーのリクエスト)
+      await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: true,
+      });
+
+      const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices
         .filter((device) => device.kind === 'videoinput')
         .map((device) => {
@@ -119,7 +125,9 @@ const VideoAnalyzerPage: React.FC = () => {
           };
         });
       setDevices(videoDevices);
-    });
+    };
+
+    getDevices();
   }, []);
 
   useEffect(() => {
@@ -286,7 +294,7 @@ const VideoAnalyzerPage: React.FC = () => {
 
               <div className="relative h-48 overflow-y-scroll rounded border border-black/30 p-1.5 xl:h-96">
                 <Markdown>{typingTextOutput}</Markdown>
-                {loading && (
+                {(loading || sending) && (
                   <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
 
