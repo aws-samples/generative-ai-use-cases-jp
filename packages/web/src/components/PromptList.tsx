@@ -38,7 +38,7 @@ const PromptList: React.FC<Props> = (props) => {
 
     return (
       <li
-        className='my-2 cursor-pointer hover:underline'
+        className="my-2 cursor-pointer hover:underline"
         onClick={onClickPrompt}>
         {props.title}
       </li>
@@ -55,9 +55,7 @@ const PromptList: React.FC<Props> = (props) => {
 
     return (
       <li
-        className={
-          'mt-1 w-5/6 cursor-pointer break-words hover:underline'
-        }
+        className={'mt-1 w-5/6 cursor-pointer break-words hover:underline'}
         onClick={onClickPrompt}>
         {props.systemContextTitle}
       </li>
@@ -92,9 +90,7 @@ const PromptList: React.FC<Props> = (props) => {
             <PiBookOpenText className="mr-1.5 text-lg" />
             保存したシステムコンテキスト
           </div>
-          <ExpandableMenu
-            title={'システムコンテキスト'}
-            defaultOpened={false}>
+          <ExpandableMenu title={'システムコンテキスト'} defaultOpened={false}>
             <ul className="pl-4">
               {props.systemContextListItem.map((item, i) => {
                 return (

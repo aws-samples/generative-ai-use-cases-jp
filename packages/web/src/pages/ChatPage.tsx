@@ -15,15 +15,12 @@ import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
-import {
-  PiArrowClockwiseBold,
-  PiShareFatFill,
-} from 'react-icons/pi';
+import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
-import { getPrompter,SystemContextListItem } from '../prompts';
+import { getPrompter, SystemContextListItem } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
 import { SystemContext } from 'generative-ai-use-cases-jp';
@@ -454,7 +451,9 @@ const ChatPage: React.FC = () => {
       {isEmpty && !loadingMessages && (
         <PromptList
           onClick={onClickSamplePrompt}
-          systemContextListItem={systemContextListItem as SystemContextListItem[]}
+          systemContextListItem={
+            systemContextListItem as SystemContextListItem[]
+          }
           onClickDeleteSystemContext={onClickDeleteSystemContext}
         />
       )}
@@ -495,7 +494,9 @@ const ChatPage: React.FC = () => {
               onCreateSystemContext();
             }}
             className="bg-red-500 p-2 text-white"
-            disabled={saveSystemContext === '' || saveSystemContextTitle === ''}>
+            disabled={
+              saveSystemContext === '' || saveSystemContextTitle === ''
+            }>
             作成
           </Button>
         </div>
