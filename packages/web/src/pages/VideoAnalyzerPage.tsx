@@ -110,21 +110,26 @@ const VideoAnalyzerPage: React.FC = () => {
   useEffect(() => {
     const getDevices = async () => {
       // 新規で画面を開いたユーザーにカメラの利用を要求する (ダミーのリクエスト)
-      await navigator.mediaDevices.getUserMedia({
+      const dummyStream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: true,
       });
 
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices
-        .filter((device) => device.kind === 'videoinput')
-        .map((device) => {
-          return {
-            value: device.deviceId,
-            label: device.label.replace(/\s\(.*?\)/g, ''),
-          };
-        });
-      setDevices(videoDevices);
+      if (dummyStream) {
+        // 録画ボタンがついてしまうため消す
+        dummyStream.getTracks().forEach((track) => track.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices
+          .filter((device) => device.kind === 'videoinput')
+          .map((device) => {
+            return {
+              value: device.deviceId,
+              label: device.label.replace(/\s\(.*?\)/g, ''),
+            };
+          });
+        setDevices(videoDevices);
+      }
     };
 
     getDevices();
