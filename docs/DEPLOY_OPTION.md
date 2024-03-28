@@ -159,6 +159,29 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 }
 ```
 
+### 映像分析ユースケースの有効化
+
+映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
+映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
+
+2024/03 現在、マルチモーダルのモデルは以下です。
+
+```
+"anthropic.claude-3-sonnet-20240229-v1:0",
+"anthropic.claude-3-haiku-20240307-v1:0",
+```
+
+これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
+
+```json
+  "modelIds": [
+    "anthropic.claude-3-haiku-20240307-v1:0",
+    "anthropic.claude-3-sonnet-20240229-v1:0"
+  ]
+```
+
+> 2024/03 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
+
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。モデルの一覧は[ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids-arns.html) をご確認ください。

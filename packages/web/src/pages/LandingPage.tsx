@@ -14,6 +14,7 @@ import {
   PiNotebook,
   PiPen,
   PiRobot,
+  PiVideoCamera,
 } from 'react-icons/pi';
 import { ReactComponent as AwsIcon } from '../assets/aws.svg';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -28,11 +29,15 @@ import {
   SummarizePageQueryParams,
   TranslatePageQueryParams,
   WebContentPageQueryParams,
+  VideoAnalyzerPageQueryParams,
 } from '../@types/navigate';
 import queryString from 'query-string';
+import { MODELS } from '../hooks/useModel';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const { multiModalModelIds } = MODELS;
+const multiModalEnabled: boolean = multiModalModelIds.length > 0;
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -111,6 +116,14 @@ const LandingPage: React.FC = () => {
 可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街`,
     };
     navigate(`/image?${queryString.stringify(params)}`);
+  };
+
+  const demoVideoAnalyzer = () => {
+    const params: VideoAnalyzerPageQueryParams = {
+      content:
+        '映っているものを説明してください。もし映っているものに文字が書かれている場合はそれも読んでください。',
+    };
+    navigate(`/video?${queryString.stringify(params)}`);
   };
 
   const demoBlog = () => {
@@ -305,6 +318,14 @@ const LandingPage: React.FC = () => {
           icon={<PiImages />}
           description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
         />
+        {multiModalEnabled && (
+          <CardDemo
+            label="映像分析"
+            onClickDemo={demoVideoAnalyzer}
+            icon={<PiVideoCamera />}
+            description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
+          />
+        )}
       </div>
 
       <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
