@@ -4,7 +4,7 @@ import {
 } from 'generative-ai-use-cases-jp';
 
 import useHttp from './useHttp';
-import { decomposeSystemContextId } from '../utils/SystemContextUtils';
+import { decomposeId } from '../utils/ChatUtils';
 
 const useSystemContextApi = () => {
   const http = useHttp();
@@ -21,7 +21,7 @@ const useSystemContextApi = () => {
       return res.data;
     },
     deleteSystemContext: async (_systemContextId: string) => {
-      const systemContextId = decomposeSystemContextId(_systemContextId);
+      const systemContextId = decomposeId(_systemContextId);
       return http.delete<void>(`/systemcontexts/${systemContextId}`);
     },
     listSystemContexts: () => {

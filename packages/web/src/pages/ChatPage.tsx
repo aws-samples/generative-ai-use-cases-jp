@@ -20,7 +20,7 @@ import { create } from 'zustand';
 import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
-import { getPrompter, SystemContextListItem } from '../prompts';
+import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
 import { SystemContext } from 'generative-ai-use-cases-jp';
@@ -81,15 +81,13 @@ const ChatPage: React.FC = () => {
   const { chatId } = useParams();
 
   const { listSystemContexts, deleteSystemContext } = useSystemContextApi();
-  const [systemContextListItem, setSystemContextListItem] = useState<
-    SystemContext[]
-  >([]);
+  const [systemContextList, setSystemContextList] = useState<SystemContext[]>(
+    []
+  );
   const { data: systemContextResponse, mutate } = listSystemContexts();
   useEffect(() => {
-    setSystemContextListItem(
-      systemContextResponse ? systemContextResponse : []
-    );
-  }, [systemContextResponse, setSystemContextListItem]);
+    setSystemContextList(systemContextResponse ? systemContextResponse : []);
+  }, [systemContextResponse, setSystemContextList]);
 
   const {
     getModelId,
@@ -207,7 +205,7 @@ const ChatPage: React.FC = () => {
       setInputSystemContext(saveSystemContext);
       setSaveSystemContextTitle('');
       mutate();
-      setSystemContextListItem(systemContextResponse ?? []);
+      setSystemContextList(systemContextResponse ?? []);
     }
   }, [
     saveSystemContextTitle,
@@ -218,7 +216,7 @@ const ChatPage: React.FC = () => {
     setInputSystemContext,
     setSaveSystemContextTitle,
     mutate,
-    setSystemContextListItem,
+    setSystemContextList,
   ]);
   const onDeleteShareId = useCallback(async () => {
     try {
@@ -275,17 +273,16 @@ const ChatPage: React.FC = () => {
     [setContent, updateSystemContext]
   );
 
-  const onClickDeleteSystemContext = async (
-    systemContextId: string,
-    index: number
-  ) => {
+  const onClickDeleteSystemContext = async (systemContextId: string) => {
     try {
-      setSystemContextListItem(
-        systemContextListItem.filter((_, i) => i !== index)
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
       );
+      if (idx >= 0) {
+        setSystemContextList(systemContextList.filter((_, i) => i !== idx));
+      }
       await deleteSystemContext(systemContextId);
       mutate();
-      // setSystemContextListItem(systemContextResponse ?? []);
     } catch (e) {
       console.error(e);
     }
@@ -451,9 +448,7 @@ const ChatPage: React.FC = () => {
       {isEmpty && !loadingMessages && (
         <PromptList
           onClick={onClickSamplePrompt}
-          systemContextListItem={
-            systemContextListItem as SystemContextListItem[]
-          }
+          systemContextList={systemContextList as SystemContext[]}
           onClickDeleteSystemContext={onClickDeleteSystemContext}
         />
       )}

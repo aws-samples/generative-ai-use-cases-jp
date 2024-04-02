@@ -5,13 +5,14 @@ import { PiBookOpenText, PiFlask, PiTrash } from 'react-icons/pi';
 import { ChatPageQueryParams } from '../@types/navigate';
 import useChat from '../hooks/useChat';
 import { getPrompter, PromptListItem } from '../prompts';
-import type { PromptList, SystemContextListItem } from '../prompts';
+import type { PromptList } from '../prompts';
 import ButtonIcon from './ButtonIcon';
+import { SystemContext } from 'generative-ai-use-cases-jp';
 
 type Props = BaseProps & {
   onClick: (params: ChatPageQueryParams) => void;
-  systemContextListItem: SystemContextListItem[];
-  onClickDeleteSystemContext: (params: string, index: number) => void;
+  systemContextList: SystemContext[];
+  onClickDeleteSystemContext: (systemContextId: string) => void;
 };
 
 const PromptList: React.FC<Props> = (props) => {
@@ -47,7 +48,7 @@ const PromptList: React.FC<Props> = (props) => {
       </li>
     );
   };
-  const SystemContextItem: React.FC<SystemContextListItem> = (props) => {
+  const SystemContextItem: React.FC<SystemContext> = (props) => {
     const onClickPrompt = useCallback(() => {
       setSelectSystemContextId(props.systemContextId);
       onClick({
@@ -93,19 +94,20 @@ const PromptList: React.FC<Props> = (props) => {
             保存したシステムコンテキスト
           </div>
           <ul className="pl-4">
-            {props.systemContextListItem.map((item, i) => {
+            {props.systemContextList.map((item, i) => {
               return (
                 <div className="flex" key={`systemContext-item-${i}`}>
                   <SystemContextItem
                     systemContextTitle={item.systemContextTitle}
                     systemContext={item.systemContext}
-                    key={`${i}`}
                     systemContextId={item.systemContextId}
+                    id={''}
+                    createdDate={''}
                   />
                   {item.systemContextId === selectSystemContextId && (
                     <ButtonIcon
                       onClick={() => {
-                        onClickDeleteSystemContext(item.systemContextId, i);
+                        onClickDeleteSystemContext(item.systemContextId);
                       }}
                       className="ml-auto">
                       <PiTrash />

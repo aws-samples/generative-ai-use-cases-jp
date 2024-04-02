@@ -41,7 +41,7 @@
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
-    "dashboard": false,
+    "dashboard": true,
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,
     "vpcId": null,

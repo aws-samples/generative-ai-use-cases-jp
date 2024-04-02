@@ -71,12 +71,6 @@ export type PromptList = {
   experimental?: boolean;
 }[];
 
-export type SystemContextListItem = {
-  systemContextTitle: string;
-  systemContext: string;
-  systemContextId: string;
-};
-
 export interface Prompter {
   systemContext(pathname: string): string;
   chatPrompt(params: ChatParams): string;
