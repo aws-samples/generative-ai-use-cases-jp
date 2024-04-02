@@ -20,6 +20,9 @@ const PromptList: React.FC<Props> = (props) => {
   // PromptList はチャットのページでの利用に固定
   const { getModelId } = useChat('/chat');
   const modelId = getModelId();
+  const [selectSystemContextId, setSelectSystemContextId] = useState<
+    string | undefined
+  >();
 
   const prompter = useMemo(() => {
     return getPrompter(modelId);
@@ -46,16 +49,15 @@ const PromptList: React.FC<Props> = (props) => {
   };
   const SystemContextItem: React.FC<SystemContextListItem> = (props) => {
     const onClickPrompt = useCallback(() => {
+      setSelectSystemContextId(props.systemContextId);
       onClick({
         systemContext: props.systemContext,
       });
-
-      setExpanded(false);
     }, [props]);
 
     return (
       <li
-        className={'mt-1 w-5/6 cursor-pointer break-words hover:underline'}
+        className="my-1 cursor-pointer truncate hover:underline"
         onClick={onClickPrompt}>
         {props.systemContextTitle}
       </li>
@@ -86,21 +88,21 @@ const PromptList: React.FC<Props> = (props) => {
         </div>
 
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
-          <div className="mb-4 mt-2 flex items-center text-sm font-semibold">
+          <div className="mb-2 mt-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
             保存したシステムコンテキスト
           </div>
-          <ExpandableMenu title={'システムコンテキスト'} defaultOpened={false}>
-            <ul className="pl-4">
-              {props.systemContextListItem.map((item, i) => {
-                return (
-                  <div className="flex" key={`systemContext-item-${i}`}>
-                    <SystemContextItem
-                      systemContextTitle={item.systemContextTitle}
-                      systemContext={item.systemContext}
-                      key={`${i}`}
-                      systemContextId={item.systemContextId}
-                    />
+          <ul className="pl-4">
+            {props.systemContextListItem.map((item, i) => {
+              return (
+                <div className="flex" key={`systemContext-item-${i}`}>
+                  <SystemContextItem
+                    systemContextTitle={item.systemContextTitle}
+                    systemContext={item.systemContext}
+                    key={`${i}`}
+                    systemContextId={item.systemContextId}
+                  />
+                  {item.systemContextId === selectSystemContextId && (
                     <ButtonIcon
                       onClick={() => {
                         onClickDeleteSystemContext(item.systemContextId, i);
@@ -108,11 +110,11 @@ const PromptList: React.FC<Props> = (props) => {
                       className="ml-auto">
                       <PiTrash />
                     </ButtonIcon>
-                  </div>
-                );
-              })}
-            </ul>
-          </ExpandableMenu>
+                  )}
+                </div>
+              );
+            })}
+          </ul>
 
           <div className="mb-4 mt-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
