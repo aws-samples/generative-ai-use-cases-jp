@@ -184,7 +184,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ## Amazon Bedrock のモデルを変更する
 
-`cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。モデルの一覧は[ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids-arns.html) をご確認ください。
+`cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
 現状このソリューションが対応しているモデルは以下です
 
@@ -192,6 +192,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 "anthropic.claude-v2",
+"anthropic.claude-v2:1",
 "anthropic.claude-instant-v1",
 "meta.llama2-13b-chat-v1",
 "meta.llama2-70b-chat-v1",
@@ -208,7 +209,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
   "modelRegion": "us-east-1",
   "modelIds": [
     "anthropic.claude-3-sonnet-20240229-v1:0",
-    "anthropic.claude-v2",
+    "anthropic.claude-3-haiku-20240307-v1:0",
+    "anthropic.claude-v2:1",
     "anthropic.claude-instant-v1",
   ],
   "imageGenerationModelIds": [
@@ -221,7 +223,10 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ```bash
   "modelRegion": "ap-northeast-1",
-  "modelIds": ["anthropic.claude-instant-v1"],
+  "modelIds": [
+    "anthropic.claude-v2:1",
+    "anthropic.claude-instant-v1"
+  ],
   "imageGenerationModelIds": [],
 ```
 
