@@ -69,6 +69,7 @@ export class Api extends Construct {
       'meta.llama2-70b-chat-v1',
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
+      'mistral.mistral-large-2402-v1:0',
     ];
     const multiModalModelIds = [
       'anthropic.claude-3-sonnet-20240229-v1:0',
