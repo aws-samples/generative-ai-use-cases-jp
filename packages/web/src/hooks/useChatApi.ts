@@ -27,7 +27,7 @@ import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-id
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Auth } from 'aws-amplify';
 import useHttp from '../hooks/useHttp';
-import { decomposeChatId } from '../utils/ChatUtils';
+import { decomposeId } from '../utils/ChatUtils';
 import { AxiosResponse } from 'axios';
 
 const useChatApi = () => {
@@ -42,7 +42,7 @@ const useChatApi = () => {
       _chatId: string,
       req: CreateMessagesRequest
     ): Promise<CreateMessagesResponse> => {
-      const chatId = decomposeChatId(_chatId);
+      const chatId = decomposeId(_chatId);
       const res = await http.post(`chats/${chatId}/messages`, req);
       return res.data;
     },
@@ -74,7 +74,7 @@ const useChatApi = () => {
       _chatId: string,
       req: UpdateFeedbackRequest
     ): Promise<UpdateFeedbackResponse> => {
-      const chatId = decomposeChatId(_chatId);
+      const chatId = decomposeId(_chatId);
       const res = await http.post(`chats/${chatId}/feedbacks`, req);
       return res.data;
     },

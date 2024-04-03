@@ -3,7 +3,7 @@ import { BaseProps } from '../@types/common';
 import useConversation from '../hooks/useConversation';
 import { useNavigate, useParams } from 'react-router-dom';
 import ChatListItem from './ChatListItem';
-import { decomposeChatId } from '../utils/ChatUtils';
+import { decomposeId } from '../utils/ChatUtils';
 
 type Props = BaseProps & {
   searchWords: string[];
@@ -64,7 +64,7 @@ const ChatList: React.FC<Props> = (props) => {
                 className="bg-aws-sky/20 h-8 w-full animate-pulse rounded"></div>
             ))}
         {searchedConversations.map((chat) => {
-          const _chatId = decomposeChatId(chat.chatId);
+          const _chatId = decomposeId(chat.chatId);
           return (
             <ChatListItem
               key={_chatId}

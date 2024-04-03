@@ -5,6 +5,7 @@ import {
   UnrecordedMessage,
 } from './message';
 import { Chat } from './chat';
+import { SystemContext } from './systemContext';
 import {
   QueryCommandOutput,
   RetrieveCommandOutput,
@@ -35,6 +36,10 @@ export type FindChatByIdResponse = {
 
 export type ListMessagesResponse = {
   messages: RecordedMessage[];
+};
+
+export type CreateSystemContextRequest = {
+  systemContext: SystemContext;
 };
 
 export type UpdateFeedbackRequest = {
