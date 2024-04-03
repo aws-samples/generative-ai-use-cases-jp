@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -9,6 +9,7 @@ import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
+import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
@@ -86,6 +87,13 @@ const TranslatePage: React.FC = () => {
     setTranslatedSentence,
     clear,
   } = useTranslatePageState();
+  const {
+    startTranscription,
+    stopTranscription,
+    transcriptMic,
+    recording,
+    clearTranscripts,
+  } = useMicrophone();
 
   const { pathname, search } = useLocation();
   const {
@@ -104,6 +112,7 @@ const TranslatePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [auto, setAuto] = useState(true);
+  const [audio, setAudioInput] = useState(false);  // 音声入力フラグ
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -186,6 +195,41 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
+  // 音声入力フラグの切り替え
+  // audioのトグルボタンがOnになったら、startTranscriptionを実行する
+  useEffect(()=> {
+    if (audio) {
+      startTranscription();
+    } else {
+      stopTranscription();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audio])
+
+  // 録音機能がエラー終了した時にトグルスイッチをOFFにする
+  useEffect(() => {
+    if (!recording) {
+      setAudioInput(false)
+    }
+  }, [recording])
+
+  const transcriptsRef = useRef(transcriptMic); 
+  // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
+  useEffect(() => {
+    // transcriptsのtranscriptをフラットな文字列として結合する
+    const transcriptsString = transcriptMic.reduce((acc, cur) => {
+      return acc + cur.transcript;
+    }, '');
+    // 要素が追加された時の処理
+    const added = transcriptMic.filter(item => !transcriptsRef.current.includes(item));
+    // 追加要素のみ出力
+    added.forEach(() => {
+      setSentence(transcriptsString)
+    });
+    transcriptsRef.current = transcriptMic;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcriptMic]);
+
   // LLM にリクエスト送信
   const getTranslation = (
     sentence: string,
@@ -213,6 +257,7 @@ const TranslatePage: React.FC = () => {
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
+    clearTranscripts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -231,7 +276,10 @@ const TranslatePage: React.FC = () => {
                 return { value: m, label: m };
               })}
             />
-            <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
+            <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+              <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
+              <Switch label="音声入力" checked={audio} onSwitch={setAudioInput} />
+            </div>
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
