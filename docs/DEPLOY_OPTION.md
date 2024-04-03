@@ -211,7 +211,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-v2:1",
-    "anthropic.claude-instant-v1",
+    "anthropic.claude-instant-v1"
   ],
   "imageGenerationModelIds": [
     "stability.stable-diffusion-xl-v1",
