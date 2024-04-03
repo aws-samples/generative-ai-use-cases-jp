@@ -466,6 +466,7 @@ const ChatPage: React.FC = () => {
           value={saveSystemContextTitle}
           onChange={setSaveSystemContextTitle}
           maxHeight={-1}
+          className="text-aws-font-color"
         />
 
         <div className="py-2.5">システムコンテキスト</div>
@@ -473,7 +474,8 @@ const ChatPage: React.FC = () => {
           placeholder={saveSystemContext ?? '入力してください'}
           value={saveSystemContext}
           onChange={setSaveSystemContext}
-          maxHeight={-1}
+          maxHeight={500}
+          className="text-aws-font-color"
         />
 
         <div className="mt-4 flex justify-end gap-2">
