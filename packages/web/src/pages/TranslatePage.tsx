@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -17,7 +11,7 @@ import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
-import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
+import { PiMicrophoneFill, PiMicrophoneSlash } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { TranslatePageQueryParams } from '../@types/navigate';
@@ -219,23 +213,22 @@ const TranslatePage: React.FC = () => {
       setAudioInput(false);
     }
   }, [recording]);
-
-  const transcriptsRef = useRef(transcriptMic);
   // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
   useEffect(() => {
-    // transcriptsのtranscriptをフラットな文字列として結合する
-    const transcriptsString = transcriptMic.reduce((acc, cur) => {
-      return acc + cur.transcript;
-    }, '');
-    // 要素が追加された時の処理
-    const added = transcriptMic.filter(
-      (item) => !transcriptsRef.current.includes(item)
-    );
-    // 追加要素のみ出力
-    added.forEach(() => {
-      setSentence(transcriptsString);
+    console.log('transcriptMic', transcriptMic);
+    // transcriptMic[*].transcriptが重複していたら削除する
+    const uniqueTranscripts = transcriptMic.filter((transcript, index) => {
+      const transcripts = transcriptMic.map((t) => t.transcript);
+      return transcripts.indexOf(transcript.transcript) === index;
     });
-    transcriptsRef.current = transcriptMic;
+    console.log('uniqueTranscripts', uniqueTranscripts);
+
+    // uniqueTranscripts[*].transcriptの文字列を結合する
+    const combinedTranscript = uniqueTranscripts.map(
+      (transcript) => transcript.transcript
+    );
+    setSentence(combinedTranscript.join(''));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcriptMic]);
 
@@ -293,16 +286,14 @@ const TranslatePage: React.FC = () => {
             <div className="w-full lg:w-1/2">
               <div className="flex py-2.5">
                 言語を自動検出
-                {/* 少し離す */}
                 <div className="ml-2 justify-end">
-                  {/* audioのフラグがonの場合 */}
                   {audio && (
-                    <PiMicrophone
+                    <PiMicrophoneFill
                       onClick={() => {
                         stopTranscription();
                         setAudioInput(false);
                       }}
-                      className="h-7 w-7"></PiMicrophone>
+                      className="h-7 w-7 text-orange-500"></PiMicrophoneFill>
                   )}
                   {!audio && (
                     <PiMicrophoneSlash
