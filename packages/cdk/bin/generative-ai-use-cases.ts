@@ -86,7 +86,7 @@ if (
     allowedIpV6AddressRanges,
     allowedCountryCodes,
     hostName,
-    domainName: domainName,
+    domainName,
     hostedZoneId,
     crossRegionReferences: true,
   });
@@ -123,7 +123,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
       : undefined,
     cert: cloudFrontWafStack?.cert,
     hostName,
-    domainName: domainName,
+    domainName,
     hostedZoneId,
   }
 );
