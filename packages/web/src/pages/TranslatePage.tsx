@@ -17,6 +17,7 @@ import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
+import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { TranslatePageQueryParams } from '../@types/navigate';
@@ -286,16 +287,34 @@ const TranslatePage: React.FC = () => {
             />
             <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
               <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
-              <Switch
-                label="音声入力"
-                checked={audio}
-                onSwitch={setAudioInput}
-              />
             </div>
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="py-2.5">言語を自動検出</div>
+              <div className="flex py-2.5">
+                言語を自動検出
+                {/* 少し離す */}
+                <div className="ml-2 justify-end">
+                  {/* audioのフラグがonの場合 */}
+                  {audio && (
+                    <PiMicrophone
+                      onClick={() => {
+                        stopTranscription();
+                        setAudioInput(false);
+                      }}
+                      className="h-7 w-7"></PiMicrophone>
+                  )}
+                  {!audio && (
+                    <PiMicrophoneSlash
+                      onClick={() => {
+                        startTranscription();
+                        setAudioInput(true);
+                      }}
+                      className="h-7 w-7"></PiMicrophoneSlash>
+                  )}
+                </div>
+              </div>
+
               <Textarea
                 placeholder="入力してください"
                 value={sentence}
