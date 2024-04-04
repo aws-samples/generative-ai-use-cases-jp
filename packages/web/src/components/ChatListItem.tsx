@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases-jp';
-import { decomposeChatId } from '../utils/ChatUtils';
+import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
 import HighlightWithinTextarea from 'react-highlight-within-textarea';
 
@@ -29,7 +29,7 @@ const ChatListItem: React.FC<Props> = (props) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editing, setEditing] = useState(false);
   const chatId = useMemo(() => {
-    return decomposeChatId(props.chat.chatId) ?? '';
+    return decomposeId(props.chat.chatId) ?? '';
   }, [props.chat.chatId]);
 
   const inputRef = useRef<HTMLInputElement>(null);

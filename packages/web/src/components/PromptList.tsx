@@ -1,22 +1,30 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
-import { PiBookOpenText, PiFlask } from 'react-icons/pi';
+import { PiBookOpenText, PiFlask, PiTrash } from 'react-icons/pi';
 import { ChatPageQueryParams } from '../@types/navigate';
 import useChat from '../hooks/useChat';
 import { getPrompter, PromptListItem } from '../prompts';
+import type { PromptList } from '../prompts';
+import ButtonIcon from './ButtonIcon';
+import { SystemContext } from 'generative-ai-use-cases-jp';
 
 type Props = BaseProps & {
   onClick: (params: ChatPageQueryParams) => void;
+  systemContextList: SystemContext[];
+  onClickDeleteSystemContext: (systemContextId: string) => void;
 };
 
 const PromptList: React.FC<Props> = (props) => {
-  const { onClick } = props;
+  const { onClick, onClickDeleteSystemContext } = props;
   const [expanded, setExpanded] = useState(false);
-
   // PromptList はチャットのページでの利用に固定
   const { getModelId } = useChat('/chat');
   const modelId = getModelId();
+  const [selectSystemContextId, setSelectSystemContextId] = useState<
+    string | undefined
+  >();
+
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
@@ -37,6 +45,22 @@ const PromptList: React.FC<Props> = (props) => {
         className="my-2 cursor-pointer hover:underline"
         onClick={onClickPrompt}>
         {props.title}
+      </li>
+    );
+  };
+  const SystemContextItem: React.FC<SystemContext> = (props) => {
+    const onClickPrompt = useCallback(() => {
+      setSelectSystemContextId(props.systemContextId);
+      onClick({
+        systemContext: props.systemContext,
+      });
+    }, [props]);
+
+    return (
+      <li
+        className="my-1 cursor-pointer truncate hover:underline"
+        onClick={onClickPrompt}>
+        {props.systemContextTitle}
       </li>
     );
   };
@@ -65,6 +89,35 @@ const PromptList: React.FC<Props> = (props) => {
         </div>
 
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
+          <div className="mb-2 mt-2 flex items-center text-sm font-semibold">
+            <PiBookOpenText className="mr-1.5 text-lg" />
+            保存したシステムコンテキスト
+          </div>
+          <ul className="pl-4">
+            {props.systemContextList.map((item, i) => {
+              return (
+                <div className="flex" key={`systemContext-item-${i}`}>
+                  <SystemContextItem
+                    systemContextTitle={item.systemContextTitle}
+                    systemContext={item.systemContext}
+                    systemContextId={item.systemContextId}
+                    id={''}
+                    createdDate={''}
+                  />
+                  {item.systemContextId === selectSystemContextId && (
+                    <ButtonIcon
+                      onClick={() => {
+                        onClickDeleteSystemContext(item.systemContextId);
+                      }}
+                      className="ml-auto">
+                      <PiTrash />
+                    </ButtonIcon>
+                  )}
+                </div>
+              );
+            })}
+          </ul>
+
           <div className="mb-4 mt-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
             プロンプト例

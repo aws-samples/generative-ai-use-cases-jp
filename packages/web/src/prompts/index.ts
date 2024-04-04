@@ -61,7 +61,8 @@ export type SetTitleParams = {
 export type PromptListItem = {
   title: string;
   systemContext: string;
-  prompt: string;
+  prompt?: string;
+  className?: string;
 };
 
 export type PromptList = {

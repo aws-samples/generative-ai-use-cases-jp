@@ -69,6 +69,7 @@ export class Api extends Construct {
       'meta.llama2-70b-chat-v1',
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
+      'mistral.mistral-large-2402-v1:0',
     ];
     const multiModalModelIds = [
       'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -322,6 +323,48 @@ export class Api extends Construct {
     });
     table.grantReadWriteData(deleteShareId);
 
+    const listSystemContextsFunction = new NodejsFunction(
+      this,
+      'ListSystemContexts',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/listSystemContexts.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadData(listSystemContextsFunction);
+
+    const createSystemContextFunction = new NodejsFunction(
+      this,
+      'CreateSystemContexts',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/createSystemContext.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantWriteData(createSystemContextFunction);
+
+    const deleteSystemContextFunction = new NodejsFunction(
+      this,
+      'DeleteSystemContexts',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/deleteSystemContext.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadWriteData(deleteSystemContextFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -428,6 +471,32 @@ export class Api extends Construct {
     messagesResource.addMethod(
       'POST',
       new LambdaIntegration(createMessagesFunction),
+      commonAuthorizerProps
+    );
+
+    const systemContextsResource = api.root.addResource('systemcontexts');
+
+    // POST: /systemcontexts
+    systemContextsResource.addMethod(
+      'POST',
+      new LambdaIntegration(createSystemContextFunction),
+      commonAuthorizerProps
+    );
+
+    // GET: /systemcontexts
+    systemContextsResource.addMethod(
+      'GET',
+      new LambdaIntegration(listSystemContextsFunction),
+      commonAuthorizerProps
+    );
+
+    const systemContextResource =
+      systemContextsResource.addResource('{systemContextId}');
+
+    // DELETE: /systemcontexts/{systemContextId}
+    systemContextResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteSystemContextFunction),
       commonAuthorizerProps
     );
 

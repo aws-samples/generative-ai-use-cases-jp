@@ -1,11 +1,11 @@
 /**
- * chat#xxxx 形式の ChatId から xxxx の部分を取り出す
- * @param _chatId chat#xxxx 形式の ChatId
- * @returns chat#xxxx ではない場合は null を返す
+ * usecase#xxxx 形式の それぞれの usecaseId (usecase: chat, systemContext) から xxxx の部分を取り出す
+ * @param _usecaseId usecase#xxxx 形式の usecaseId
+ * @returns usecase#xxxx ではない場合は null を返す
  */
-export const decomposeChatId = (_chatId: string): string | null => {
-  if (!_chatId.includes('#')) {
+export const decomposeId = (_usecaseId: string): string | null => {
+  if (!_usecaseId.includes('#')) {
     return null;
   }
-  return _chatId.split('#')[1];
+  return _usecaseId.split('#')[1];
 };
