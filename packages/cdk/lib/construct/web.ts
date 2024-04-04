@@ -1,4 +1,4 @@
-import { Stack, RemovalPolicy, CfnOutput } from 'aws-cdk-lib';
+import { Stack, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   CloudFrontToS3,
