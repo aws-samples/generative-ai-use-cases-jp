@@ -42,7 +42,7 @@
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
     "hostName": null,
-    "zoneName": null,
+    "domainName": null,
     "hostedZoneId": null,
     "dashboard": false,
     "anonymousUsageTracking": true,

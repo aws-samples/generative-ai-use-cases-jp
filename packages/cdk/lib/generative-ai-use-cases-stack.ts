@@ -29,8 +29,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   allowedCountryCodes: string[] | null;
   vpcId?: string;
   cert?: ICertificate;
-  zoneName?: string;
   hostName?: string;
+  domainName?: string;
   hostedZoneId?: string;
 }
 
@@ -137,7 +137,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       recognizeFileEnabled,
       cert: props.cert,
       hostName: props.hostName,
-      zoneName: props.zoneName,
+      domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
     });
 
@@ -172,9 +172,15 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: this.region,
     });
 
-    new CfnOutput(this, 'WebUrl', {
-      value: `https://${web.distribution.domainName}`,
-    });
+    if (props.hostName && props.domainName) {
+      new CfnOutput(this, 'WebUrl', {
+        value: `https://${props.hostName}.${props.domainName}`,
+      });
+    } else {
+      new CfnOutput(this, 'WebUrl', {
+        value: `https://${web.distribution.domainName}`,
+      });
+    }
 
     new CfnOutput(this, 'ApiEndpoint', {
       value: api.api.url,

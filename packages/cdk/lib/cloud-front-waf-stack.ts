@@ -13,7 +13,7 @@ interface CloudFrontWafStackProps extends StackProps {
   allowedIpV6AddressRanges: string[] | null;
   allowedCountryCodes: string[] | null;
   hostName?: string;
-  zoneName?: string;
+  domainName?: string;
   hostedZoneId?: string;
 }
 
@@ -44,17 +44,17 @@ export class CloudFrontWafStack extends Stack {
       this.webAcl = webAcl;
     }
 
-    if (props.hostName && props.zoneName && props.hostedZoneId) {
+    if (props.hostName && props.domainName && props.hostedZoneId) {
       const hostedZone = HostedZone.fromHostedZoneAttributes(
         this,
         'HostedZone',
         {
           hostedZoneId: props.hostedZoneId,
-          zoneName: props.zoneName,
+          zoneName: props.domainName,
         }
       );
       const cert = new Certificate(this, 'Cert', {
-        domainName: `${props.hostName}.${props.zoneName}`,
+        domainName: `${props.hostName}.${props.domainName}`,
         validation: CertificateValidation.fromDns(hostedZone),
       });
       this.cert = cert;

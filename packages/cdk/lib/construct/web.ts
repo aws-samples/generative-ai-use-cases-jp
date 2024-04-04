@@ -32,8 +32,8 @@ export interface WebProps {
   agentNames: string[];
   recognizeFileEnabled: boolean;
   cert?: ICertificate;
-  zoneName?: string;
   hostName?: string;
+  domainName?: string;
   hostedZoneId?: string;
 }
 
@@ -73,10 +73,15 @@ export class Web extends Construct {
       },
     };
 
-    if (props.cert && props.hostName && props.zoneName && props.hostedZoneId) {
+    if (
+      props.cert &&
+      props.hostName &&
+      props.domainName &&
+      props.hostedZoneId
+    ) {
       cloudFrontToS3Props.cloudFrontDistributionProps.certificate = props.cert;
       cloudFrontToS3Props.cloudFrontDistributionProps.domainNames = [
-        `${props.hostName}.${props.zoneName}`,
+        `${props.hostName}.${props.domainName}`,
       ];
     }
 
@@ -86,14 +91,19 @@ export class Web extends Construct {
       cloudFrontToS3Props
     );
 
-    if (props.cert && props.hostName && props.zoneName && props.hostedZoneId) {
+    if (
+      props.cert &&
+      props.hostName &&
+      props.domainName &&
+      props.hostedZoneId
+    ) {
       // DNS record for custom domain
       const hostedZone = HostedZone.fromHostedZoneAttributes(
         this,
         'HostedZone',
         {
           hostedZoneId: props.hostedZoneId,
-          zoneName: props.zoneName,
+          zoneName: props.domainName,
         }
       );
       new ARecord(this, 'ARecord', {
@@ -102,9 +112,6 @@ export class Web extends Construct {
         target: RecordTarget.fromAlias(
           new CloudFrontTarget(cloudFrontWebDistribution)
         ),
-      });
-      new CfnOutput(this, 'CustomDomain', {
-        value: `${props.hostName}.${props.zoneName}`,
       });
     }
 

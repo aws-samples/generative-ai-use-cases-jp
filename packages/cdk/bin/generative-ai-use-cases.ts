@@ -38,13 +38,13 @@ if (
 ) {
   throw new Error('hostName must be a string');
 }
-const zoneName = app.node.tryGetContext('zoneName');
+const domainName = app.node.tryGetContext('domainName');
 if (
-  typeof zoneName != 'undefined' &&
-  typeof zoneName != 'string' &&
-  zoneName != null
+  typeof domainName != 'undefined' &&
+  typeof domainName != 'string' &&
+  domainName != null
 ) {
-  throw new Error('zoneName must be a string');
+  throw new Error('domainName must be a string');
 }
 const hostedZoneId = app.node.tryGetContext('hostedZoneId');
 if (
@@ -55,15 +55,15 @@ if (
   throw new Error('hostedZoneId must be a string');
 }
 
-// check hostName, zoneName hostedZoneId are all set or none of them
+// check hostName, domainName hostedZoneId are all set or none of them
 if (
   !(
-    (hostName && zoneName && hostedZoneId) ||
-    (!hostName && !zoneName && !hostedZoneId)
+    (hostName && domainName && hostedZoneId) ||
+    (!hostName && !domainName && !hostedZoneId)
   )
 ) {
   throw new Error(
-    'hostName, zoneName and hostedZoneId must be set or none of them'
+    'hostName, domainName and hostedZoneId must be set or none of them'
   );
 }
 
@@ -86,7 +86,7 @@ if (
     allowedIpV6AddressRanges,
     allowedCountryCodes,
     hostName,
-    zoneName,
+    domainName: domainName,
     hostedZoneId,
     crossRegionReferences: true,
   });
@@ -97,7 +97,7 @@ const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
 );
 
 const vpcId = app.node.tryGetContext('vpcId');
-if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string' ) {
+if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string') {
   throw new Error('vpcId must be string or undefined');
 }
 if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
@@ -123,7 +123,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
       : undefined,
     cert: cloudFrontWafStack?.cert,
     hostName,
-    zoneName,
+    domainName: domainName,
     hostedZoneId,
   }
 );
