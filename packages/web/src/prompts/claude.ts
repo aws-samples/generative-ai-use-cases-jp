@@ -16,7 +16,8 @@ const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
   '/summarize':
     'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
-  '/editorial': '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。ユーザーは <input> タグで校正したほしい文章を与えます。また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。AI は文章について問題がある部分だけを指摘してください。ただし、出力は、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
+  '/editorial':
+    '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。ユーザーは <input> タグで校正したほしい文章を与えます。また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。AI は文章について問題がある部分だけを指摘してください。ただし、出力は、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
   '/generate': 'あなたは指示に従って文章を作成するライターです。',
   '/translate':
     '以下は文章を翻訳したいユーザーと、ユーザーの意図と文章を理解して適切に翻訳する AI のやりとりです。ユーザーは <input> タグで翻訳する文章と、<language> タグで翻訳先の言語を与えます。また、<考慮してほしいこと> タグで翻訳時に考慮してほしいことを与えることもあります。AI は <考慮してほしいこと> がある場合は考慮しつつ、<input> で与えるテキストを <language> で与える言語に翻訳してください。出力は<output>{翻訳結果}</output>の形で翻訳した文章だけを出力してください。それ以外の文章は一切出力してはいけません。',
@@ -106,7 +107,9 @@ ${params.context}
     return `<input>${params.sentence}</input>
 ${
   params.context
-    ? '<その他指摘してほしいこと>' + params.context + '</その他指摘してほしいこと>'
+    ? '<その他指摘してほしいこと>' +
+      params.context +
+      '</その他指摘してほしいこと>'
     : ''
 }
 `;
