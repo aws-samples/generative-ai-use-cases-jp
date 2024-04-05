@@ -17,7 +17,7 @@ import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
-import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import BedrockIcon from '../assets/bedrock.svg?react';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';

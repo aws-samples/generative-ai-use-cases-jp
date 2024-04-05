@@ -16,7 +16,7 @@ import {
   PiRobot,
   PiVideoCamera,
 } from 'react-icons/pi';
-import { ReactComponent as AwsIcon } from '../assets/aws.svg';
+import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
 import {
   AgentPageQueryParams,

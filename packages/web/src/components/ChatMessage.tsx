@@ -7,7 +7,7 @@ import ZoomUpImage from './ZoomUpImage';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
-import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import useFileApi from '../hooks/useFileApi';
