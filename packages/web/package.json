@@ -65,7 +65,7 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "vite": "^4.5.3",
     "vite-plugin-node-polyfills": "^0.17.0",
     "vite-plugin-svgr": "^3.2.0"
   }
