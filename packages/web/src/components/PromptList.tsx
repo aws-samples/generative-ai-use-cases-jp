@@ -48,7 +48,9 @@ const PromptList: React.FC<Props> = (props) => {
       </li>
     );
   };
-  const SystemContextItem: React.FC<SystemContext> = (props) => {
+  const SystemContextItem: React.FC<
+    Omit<SystemContext, 'id' | 'createdDate'> & { selected: boolean }
+  > = (props) => {
     const onClickPrompt = useCallback(() => {
       setSelectSystemContextId(props.systemContextId);
       onClick({
@@ -57,11 +59,22 @@ const PromptList: React.FC<Props> = (props) => {
     }, [props]);
 
     return (
-      <div
-        className="my-1 cursor-pointer truncate hover:underline"
-        onClick={onClickPrompt}>
-        {props.systemContextTitle}
-      </div>
+      <li className="flex">
+        <div
+          className="my-1 cursor-pointer truncate hover:underline"
+          onClick={onClickPrompt}>
+          {props.systemContextTitle}
+        </div>
+        {props.selected && (
+          <ButtonIcon
+            onClick={() => {
+              onClickDeleteSystemContext(props.systemContextId);
+            }}
+            className="ml-auto">
+            <PiTrash />
+          </ButtonIcon>
+        )}
+      </li>
     );
   };
 
@@ -95,29 +108,18 @@ const PromptList: React.FC<Props> = (props) => {
           </div>
           <ul className="pl-6">
             {props.systemContextList.length == 0 && (
-              <div className="text-gray-400">ありません</div>
+              <li className="text-gray-400">ありません</li>
             )}
             {props.systemContextList.length > 0 &&
               props.systemContextList.map((item, i) => {
                 return (
-                  <li className="flex" key={`systemContext-item-${i}`}>
-                    <SystemContextItem
-                      systemContextTitle={item.systemContextTitle}
-                      systemContext={item.systemContext}
-                      systemContextId={item.systemContextId}
-                      id={''}
-                      createdDate={''}
-                    />
-                    {item.systemContextId === selectSystemContextId && (
-                      <ButtonIcon
-                        onClick={() => {
-                          onClickDeleteSystemContext(item.systemContextId);
-                        }}
-                        className="ml-auto">
-                        <PiTrash />
-                      </ButtonIcon>
-                    )}
-                  </li>
+                  <SystemContextItem
+                    systemContextTitle={item.systemContextTitle}
+                    systemContext={item.systemContext}
+                    systemContextId={item.systemContextId}
+                    selected={item.systemContextId === selectSystemContextId}
+                    key={i}
+                  />
                 );
               })}
           </ul>
