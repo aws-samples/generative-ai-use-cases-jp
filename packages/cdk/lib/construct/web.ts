@@ -1,9 +1,15 @@
 import { Stack, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CloudFrontToS3 } from '@aws-solutions-constructs/aws-cloudfront-s3';
+import {
+  CloudFrontToS3,
+  CloudFrontToS3Props,
+} from '@aws-solutions-constructs/aws-cloudfront-s3';
 import { CfnDistribution, Distribution } from 'aws-cdk-lib/aws-cloudfront';
 import { NodejsBuild } from 'deploy-time-build';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -25,6 +31,10 @@ export interface WebProps {
   samlCognitoFederatedIdentityProviderName: string;
   agentNames: string[];
   recognizeFileEnabled: boolean;
+  cert?: ICertificate;
+  hostName?: string;
+  domainName?: string;
+  hostedZoneId?: string;
 }
 
 export class Web extends Construct {
@@ -42,30 +52,68 @@ export class Web extends Construct {
       enforceSSL: true,
     };
 
+    const cloudFrontToS3Props: CloudFrontToS3Props = {
+      insertHttpSecurityHeaders: false,
+      loggingBucketProps: commonBucketProps,
+      bucketProps: commonBucketProps,
+      cloudFrontLoggingBucketProps: commonBucketProps,
+      cloudFrontDistributionProps: {
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: '/index.html',
+          },
+        ],
+      },
+    };
+
+    if (
+      props.cert &&
+      props.hostName &&
+      props.domainName &&
+      props.hostedZoneId
+    ) {
+      cloudFrontToS3Props.cloudFrontDistributionProps.certificate = props.cert;
+      cloudFrontToS3Props.cloudFrontDistributionProps.domainNames = [
+        `${props.hostName}.${props.domainName}`,
+      ];
+    }
+
     const { cloudFrontWebDistribution, s3BucketInterface } = new CloudFrontToS3(
       this,
       'Web',
-      {
-        insertHttpSecurityHeaders: false,
-        loggingBucketProps: commonBucketProps,
-        bucketProps: commonBucketProps,
-        cloudFrontLoggingBucketProps: commonBucketProps,
-        cloudFrontDistributionProps: {
-          errorResponses: [
-            {
-              httpStatus: 403,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-            {
-              httpStatus: 404,
-              responseHttpStatus: 200,
-              responsePagePath: '/index.html',
-            },
-          ],
-        },
-      }
+      cloudFrontToS3Props
     );
+
+    if (
+      props.cert &&
+      props.hostName &&
+      props.domainName &&
+      props.hostedZoneId
+    ) {
+      // DNS record for custom domain
+      const hostedZone = HostedZone.fromHostedZoneAttributes(
+        this,
+        'HostedZone',
+        {
+          hostedZoneId: props.hostedZoneId,
+          zoneName: props.domainName,
+        }
+      );
+      new ARecord(this, 'ARecord', {
+        zone: hostedZone,
+        recordName: props.hostName,
+        target: RecordTarget.fromAlias(
+          new CloudFrontTarget(cloudFrontWebDistribution)
+        ),
+      });
+    }
 
     if (props.webAclId) {
       const existingCloudFrontWebDistribution = cloudFrontWebDistribution.node

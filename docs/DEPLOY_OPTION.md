@@ -411,3 +411,26 @@ PDF や Excel などのファイルをアップロードしてテキストを抽
 }
 ```
 
+## カスタムドメインの使用
+
+Web サイトの URL としてカスタムドメインを使用することができます。同一 AWS アカウントの Route53 にパブリックホストゾーンが作成済みであることが必要です。パブリックホストゾーンについてはこちらをご参照ください: [パブリックホストゾーンの使用 - Amazon Route 53](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)
+
+同一 AWS アカウントにパブリックホストゾーンを持っていない場合は、AWS ACM による SSL 証明書の検証時に手動で DNS レコードを追加する方法や、Eメール検証を行う方法もあります。これらの方法を利用する場合は、CDK のドキュメントを参照してカスタマイズしてください: [aws-cdk-lib.aws_certificatemanager module · AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html)
+
+cdk.json には以下の値を設定します。
+
+- `hostName` ... Web サイトのホスト名です。A レコードは CDK によって作成されます。事前に作成する必要はありません
+- `domainName` ... 事前に作成したパブリックホストゾーンのドメイン名です
+- `hostedZoneId` ... 事前に作成したパブリックホストゾーンのIDです
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+{
+  "context": {
+    "hostName": "genai",
+    "domainName": "example.com",
+    "hostedZoneId": "XXXXXXXXXXXXXXXXXXXX"
+  }
+}
+```
