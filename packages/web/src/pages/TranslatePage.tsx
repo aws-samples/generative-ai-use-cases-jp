@@ -216,7 +216,9 @@ const TranslatePage: React.FC = () => {
   // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
   useEffect(() => {
     // transcriptMic[*].transcriptが重複していたら削除する
-    const combinedTranscript = Array.from(new Set(transcriptMic.map(t => t.transcript))).join('');
+    const combinedTranscript = Array.from(
+      new Set(transcriptMic.map((t) => t.transcript))
+    ).join('');
 
     setSentence(combinedTranscript);
 
@@ -275,16 +277,16 @@ const TranslatePage: React.FC = () => {
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="flex py-2.5 items-center">
+              <div className="flex items-center py-2.5">
                 言語を自動検出
                 <div className="ml-2 justify-end">
                   {audio && (
-                    <PiStopCircleBold PiMicrophoneSlash
+                    <PiStopCircleBold
                       onClick={() => {
                         stopTranscription();
                         setAudioInput(false);
                       }}
-                      className="h-5 w-5 text-orange-500 cursor-pointer"></PiStopCircleBold>
+                      className="h-5 w-5 cursor-pointer text-orange-500"></PiStopCircleBold>
                   )}
                   {!audio && (
                     <PiMicrophoneBold
