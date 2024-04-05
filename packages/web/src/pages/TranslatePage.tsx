@@ -11,7 +11,7 @@ import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
-import { PiMicrophoneFill, PiMicrophoneSlash } from 'react-icons/pi';
+import { PiMicrophoneBold, PiStopCircleBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { TranslatePageQueryParams } from '../@types/navigate';
@@ -215,19 +215,10 @@ const TranslatePage: React.FC = () => {
   }, [recording]);
   // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
   useEffect(() => {
-    console.log('transcriptMic', transcriptMic);
     // transcriptMic[*].transcriptが重複していたら削除する
-    const uniqueTranscripts = transcriptMic.filter((transcript, index) => {
-      const transcripts = transcriptMic.map((t) => t.transcript);
-      return transcripts.indexOf(transcript.transcript) === index;
-    });
-    console.log('uniqueTranscripts', uniqueTranscripts);
+    const combinedTranscript = Array.from(new Set(transcriptMic.map(t => t.transcript))).join('');
 
-    // uniqueTranscripts[*].transcriptの文字列を結合する
-    const combinedTranscript = uniqueTranscripts.map(
-      (transcript) => transcript.transcript
-    );
-    setSentence(combinedTranscript.join(''));
+    setSentence(combinedTranscript);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcriptMic]);
@@ -284,24 +275,24 @@ const TranslatePage: React.FC = () => {
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="flex py-2.5">
+              <div className="flex py-2.5 items-center">
                 言語を自動検出
                 <div className="ml-2 justify-end">
                   {audio && (
-                    <PiMicrophoneFill
+                    <PiStopCircleBold PiMicrophoneSlash
                       onClick={() => {
                         stopTranscription();
                         setAudioInput(false);
                       }}
-                      className="h-7 w-7 text-orange-500"></PiMicrophoneFill>
+                      className="h-5 w-5 text-orange-500 cursor-pointer"></PiStopCircleBold>
                   )}
                   {!audio && (
-                    <PiMicrophoneSlash
+                    <PiMicrophoneBold
                       onClick={() => {
                         startTranscription();
                         setAudioInput(true);
                       }}
-                      className="h-7 w-7"></PiMicrophoneSlash>
+                      className="h-5 w-5 cursor-pointer"></PiMicrophoneBold>
                   )}
                 </div>
               </div>
