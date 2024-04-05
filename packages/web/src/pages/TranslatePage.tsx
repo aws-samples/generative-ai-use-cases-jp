@@ -9,7 +9,9 @@ import Markdown from '../components/Markdown';
 import ButtonCopy from '../components/ButtonCopy';
 import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
+import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
+import { PiMicrophoneBold, PiStopCircleBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { TranslatePageQueryParams } from '../@types/navigate';
@@ -86,6 +88,13 @@ const TranslatePage: React.FC = () => {
     setTranslatedSentence,
     clear,
   } = useTranslatePageState();
+  const {
+    startTranscription,
+    stopTranscription,
+    transcriptMic,
+    recording,
+    clearTranscripts,
+  } = useMicrophone();
 
   const { pathname, search } = useLocation();
   const {
@@ -104,6 +113,7 @@ const TranslatePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [auto, setAuto] = useState(true);
+  const [audio, setAudioInput] = useState(false); // 音声入力フラグ
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -186,6 +196,35 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
+  // 音声入力フラグの切り替え
+  // audioのトグルボタンがOnになったら、startTranscriptionを実行する
+  useEffect(() => {
+    if (audio) {
+      startTranscription();
+    } else {
+      stopTranscription();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audio]);
+
+  // 録音機能がエラー終了した時にトグルスイッチをOFFにする
+  useEffect(() => {
+    if (!recording) {
+      setAudioInput(false);
+    }
+  }, [recording]);
+  // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
+  useEffect(() => {
+    // transcriptMic[*].transcriptが重複していたら削除する
+    const combinedTranscript = Array.from(
+      new Set(transcriptMic.map((t) => t.transcript))
+    ).join('');
+
+    setSentence(combinedTranscript);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcriptMic]);
+
   // LLM にリクエスト送信
   const getTranslation = (
     sentence: string,
@@ -213,6 +252,7 @@ const TranslatePage: React.FC = () => {
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
+    clearTranscripts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -231,11 +271,34 @@ const TranslatePage: React.FC = () => {
                 return { value: m, label: m };
               })}
             />
-            <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
+            <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+              <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
+            </div>
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="py-2.5">言語を自動検出</div>
+              <div className="flex items-center py-2.5">
+                言語を自動検出
+                <div className="ml-2 justify-end">
+                  {audio && (
+                    <PiStopCircleBold
+                      onClick={() => {
+                        stopTranscription();
+                        setAudioInput(false);
+                      }}
+                      className="h-5 w-5 cursor-pointer text-orange-500"></PiStopCircleBold>
+                  )}
+                  {!audio && (
+                    <PiMicrophoneBold
+                      onClick={() => {
+                        startTranscription();
+                        setAudioInput(true);
+                      }}
+                      className="h-5 w-5 cursor-pointer"></PiMicrophoneBold>
+                  )}
+                </div>
+              </div>
+
               <Textarea
                 placeholder="入力してください"
                 value={sentence}
