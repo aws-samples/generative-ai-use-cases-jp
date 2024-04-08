@@ -3,6 +3,6 @@
   "types": "src/index.d.ts",
   "private": true,
   "dependencies": {
-    "@aws-sdk/client-kendra": "^3.418.0"
+    "@aws-sdk/client-kendra": "^3.549.0"
   }
 }
