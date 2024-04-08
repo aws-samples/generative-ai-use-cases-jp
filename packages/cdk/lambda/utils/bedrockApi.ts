@@ -13,10 +13,59 @@ import {
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { BEDROCK_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
+import { STSClient, AssumeRoleCommand, } from "@aws-sdk/client-sts";
 
-const client = new BedrockRuntimeClient({
-  region: process.env.MODEL_REGION,
-});
+// STSから一時的な認証情報を取得する関数を追加
+const assumeRole = async (roleArn: string, sessionName: string) => {
+  const stsClient = new STSClient({ region: process.env.MODEL_REGION });
+  const command = new AssumeRoleCommand({
+    RoleArn: roleArn,
+    RoleSessionName: sessionName,
+  });
+
+  try {
+    const response = await stsClient.send(command);
+    if (response.Credentials) {
+    return {
+      accessKeyId: response.Credentials?.AccessKeyId,
+      secretAccessKey: response.Credentials?.SecretAccessKey,
+      sessionToken: response.Credentials?.SessionToken,
+    };
+    } else {
+      throw new Error("認証情報を取得できませんでした。");
+    }
+  } catch (error) {
+    console.error("Error assuming role: ", error);
+    throw error;
+  }
+};
+
+// BedrockRuntimeClientを初期化する関数
+const initBedrockClient = async () => {
+  // ROLE_ARN が設定されているかチェック
+  if (process.env.ROLE_ARN && process.env.SESSION_NAME) {
+    // STS から一時的な認証情報を取得してクライアントを初期化
+    const tempCredentials = await assumeRole(process.env.ROLE_ARN, process.env.SESSION_NAME);
+
+    if (!tempCredentials.accessKeyId || !tempCredentials.secretAccessKey || !tempCredentials.sessionToken) {
+      throw new Error("STSからの認証情報が不完全です。");
+    }
+
+    return new BedrockRuntimeClient({
+      region: process.env.MODEL_REGION,
+      credentials: {
+        accessKeyId: tempCredentials.accessKeyId,
+        secretAccessKey: tempCredentials.secretAccessKey,
+        sessionToken: tempCredentials.sessionToken,
+      }
+    });
+  } else {
+    // STSを使用しない場合のクライアント初期化
+    return new BedrockRuntimeClient({
+      region: process.env.MODEL_REGION,
+    });
+  }
+};
 
 const createBodyText = (
   model: string,
@@ -49,6 +98,7 @@ const extractOutputImage = (
 
 const bedrockApi: ApiInterface = {
   invoke: async (model, messages) => {
+    const client = await initBedrockClient();
     const command = new InvokeModelCommand({
       modelId: model.modelId,
       body: createBodyText(model.modelId, messages),
@@ -59,6 +109,7 @@ const bedrockApi: ApiInterface = {
     return extractOutputText(model.modelId, body);
   },
   invokeStream: async function* (model, messages) {
+    const client = await initBedrockClient();
     try {
       const command = new InvokeModelWithResponseStreamCommand({
         modelId: model.modelId,
@@ -98,6 +149,7 @@ const bedrockApi: ApiInterface = {
     }
   },
   generateImage: async (model, params) => {
+    const client = await initBedrockClient();
     const command = new InvokeModelCommand({
       modelId: model.modelId,
       body: createBodyImage(model.modelId, params),

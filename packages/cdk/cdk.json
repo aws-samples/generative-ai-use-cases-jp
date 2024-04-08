@@ -48,6 +48,8 @@
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,
     "vpcId": null,
+    "roleArn": "",
+    "sessionName": "BedrockApiAccess",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
