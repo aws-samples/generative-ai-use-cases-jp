@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useChatApi from '../hooks/useChatApi';
 import ChatMessage from '../components/ChatMessage';
-import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import BedrockIcon from '../assets/bedrock.svg?react';
 
 const SharedChatPage: React.FC = () => {
   const { shareId } = useParams();

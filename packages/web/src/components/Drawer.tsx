@@ -12,7 +12,7 @@ import {
   PiBookOpen,
   PiMagnifyingGlass,
 } from 'react-icons/pi';
-import { ReactComponent as BedrockIcon } from '../assets/bedrock.svg';
+import BedrockIcon from '../assets/bedrock.svg?react';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
 
