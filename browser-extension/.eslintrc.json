@@ -1,0 +1,34 @@
+{
+  "env": {
+    "es2020": true,
+    "browser": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2020,
+    "ecmaFeatures": { "jsx": true }
+  },
+  "plugins": ["@typescript-eslint", "prettier", "react", "react-hooks"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "prettier/prettier": 0
+  },
+  "overrides": [
+    {
+      "files": [".*rc.js", ".*rc.cjs", "*.config.js", "*.config.cjs"],
+      "env": {
+        "node": true
+      }
+    }
+  ],
+  "ignorePatterns": ["dist/**", "dist-firefox-v2"]
+}

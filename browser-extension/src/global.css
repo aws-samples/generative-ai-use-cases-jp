@@ -1,0 +1,5 @@
+/* shared tailwind.css except content script */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
