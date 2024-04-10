@@ -31,8 +31,7 @@ export class Api extends Construct {
   readonly imageGenerationModelIds: string[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
-  readonly roleArn: string;
-  readonly sessionName: string
+  readonly crossAccountBedrockRoleArn: string;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
@@ -96,8 +95,9 @@ export class Api extends Construct {
     }
 
     // cross account access IAM role
-    const roleArn = this.node.tryGetContext('roleArn');
-    const sessionName = this.node.tryGetContext('sessionName');
+    const crossAccountBedrockRoleArn = this.node.tryGetContext(
+      'crossAccountBedrockRoleArn'
+    );
 
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
@@ -108,8 +108,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-	ROLE_ARN: roleArn,
-	SESSION_NAME: sessionName,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -126,8 +125,7 @@ export class Api extends Construct {
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         AGENT_REGION: agentRegion,
         AGENT_MAP: JSON.stringify(agentMap),
-	ROLE_ARN: roleArn,
-	SESSION_NAME: sessionName,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: [
@@ -154,8 +152,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-	ROLE_ARN: roleArn,
-	SESSION_NAME: sessionName,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
     });
     table.grantWriteData(predictTitleFunction);
@@ -168,8 +165,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-	ROLE_ARN: roleArn,
-	SESSION_NAME: sessionName,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -197,7 +193,10 @@ export class Api extends Construct {
 
     // Bedrock は常に権限付与
     // Bedrock Policy
-    if (typeof roleArn !== 'string' || roleArn === '') {
+    if (
+      typeof crossAccountBedrockRoleArn !== 'string' ||
+      crossAccountBedrockRoleArn === ''
+    ) {
       const bedrockPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         resources: ['*'],
@@ -208,7 +207,7 @@ export class Api extends Construct {
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
-      // roleArn が指定されている場合のポリシー
+      // crossAccountBedrockRoleArn が指定されている場合のポリシー
       const logsPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['logs:*'],
@@ -217,7 +216,7 @@ export class Api extends Construct {
       const assumeRolePolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['sts:AssumeRole'],
-        resources: [roleArn],
+        resources: [crossAccountBedrockRoleArn],
       });
       predictStreamFunction.role?.addToPrincipalPolicy(logsPolicy);
       predictFunction.role?.addToPrincipalPolicy(logsPolicy);

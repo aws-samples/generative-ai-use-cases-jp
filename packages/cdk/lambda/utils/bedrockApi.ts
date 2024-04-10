@@ -13,42 +13,52 @@ import {
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { BEDROCK_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
-import { STSClient, AssumeRoleCommand, } from "@aws-sdk/client-sts";
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 
-// STSから一時的な認証情報を取得する関数を追加
-const assumeRole = async (roleArn: string, sessionName: string) => {
+// STSから一時的な認証情報を取得する関数
+const assumeRole = async (crossAccountBedrockRoleArn: string) => {
   const stsClient = new STSClient({ region: process.env.MODEL_REGION });
   const command = new AssumeRoleCommand({
-    RoleArn: roleArn,
-    RoleSessionName: sessionName,
+    RoleArn: crossAccountBedrockRoleArn,
+    RoleSessionName: 'BedrockApiAccess',
   });
 
   try {
     const response = await stsClient.send(command);
     if (response.Credentials) {
-    return {
-      accessKeyId: response.Credentials?.AccessKeyId,
-      secretAccessKey: response.Credentials?.SecretAccessKey,
-      sessionToken: response.Credentials?.SessionToken,
-    };
+      return {
+        accessKeyId: response.Credentials?.AccessKeyId,
+        secretAccessKey: response.Credentials?.SecretAccessKey,
+        sessionToken: response.Credentials?.SessionToken,
+      };
     } else {
-      throw new Error("認証情報を取得できませんでした。");
+      throw new Error('認証情報を取得できませんでした。');
     }
   } catch (error) {
-    console.error("Error assuming role: ", error);
+    console.error('Error assuming role: ', error);
     throw error;
   }
 };
 
-// BedrockRuntimeClientを初期化する関数
+// BedrockRuntimeClient を初期化するこの関数は、通常では単純に BedrockRuntimeClient を環境変数で指定されたリージョンで初期化します。
+// 特別なケースとして、異なる AWS アカウントに存在する Bedrock リソースを利用したい場合があります。
+// そのような場合、CROSS_ACCOUNT_BEDROCK_ROLE_ARN 環境変数が設定されているかをチェックします。(cdk.json で crossAccountBedrockRoleArn が設定されている場合に環境変数として設定される)
+// 設定されている場合、指定されたロールを AssumeRole 操作によって引き受け、取得した一時的な認証情報を用いて BedrockRuntimeClient を初期化します。
+// これにより、別の AWS アカウントの Bedrock リソースへのアクセスが可能になります。
 const initBedrockClient = async () => {
-  // ROLE_ARN が設定されているかチェック
-  if (process.env.ROLE_ARN && process.env.SESSION_NAME) {
+  // CROSS_ACCOUNT_BEDROCK_ROLE_ARN が設定されているかチェック
+  if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
     // STS から一時的な認証情報を取得してクライアントを初期化
-    const tempCredentials = await assumeRole(process.env.ROLE_ARN, process.env.SESSION_NAME);
+    const tempCredentials = await assumeRole(
+      process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN
+    );
 
-    if (!tempCredentials.accessKeyId || !tempCredentials.secretAccessKey || !tempCredentials.sessionToken) {
-      throw new Error("STSからの認証情報が不完全です。");
+    if (
+      !tempCredentials.accessKeyId ||
+      !tempCredentials.secretAccessKey ||
+      !tempCredentials.sessionToken
+    ) {
+      throw new Error('STSからの認証情報が不完全です。');
     }
 
     return new BedrockRuntimeClient({
@@ -57,7 +67,7 @@ const initBedrockClient = async () => {
         accessKeyId: tempCredentials.accessKeyId,
         secretAccessKey: tempCredentials.secretAccessKey,
         sessionToken: tempCredentials.sessionToken,
-      }
+      },
     });
   } else {
     // STSを使用しない場合のクライアント初期化

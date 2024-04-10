@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
     "selfSignUpEnabled": true,
@@ -48,8 +48,7 @@
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,
     "vpcId": null,
-    "roleArn": "",
-    "sessionName": "BedrockApiAccess",
+    "crossAccountBedrockRoleArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
