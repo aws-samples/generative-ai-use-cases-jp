@@ -15,7 +15,8 @@
     "extension:ci": "cd browser-extension && npm ci",
     "extension:dev": "cd browser-extension && npm run dev",
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",
-    "extension:build": "cd browser-extension && npm run build"
+    "extension:build": "cd browser-extension && npm run build",
+    "extension:buildw": "source ./setup-env.sh && cd browser-extension && npm run build"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
