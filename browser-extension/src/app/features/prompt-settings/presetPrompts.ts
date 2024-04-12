@@ -17,6 +17,7 @@ export const presetPrompts: PromptSetting[] = [
 <output>{要約結果}</output>`,
     ignoreHistory: true,
     directSend: true,
+    initializeMessages: true,
   },
   {
     systemContextId: 'translate-japanese',
@@ -27,6 +28,7 @@ export const presetPrompts: PromptSetting[] = [
 <output>{翻訳結果}</output>`,
     ignoreHistory: true,
     directSend: true,
+    initializeMessages: true,
   },
   {
     systemContextId: 'translate-english',
@@ -37,6 +39,7 @@ Follow the format below for the output.
 <output>{translated result}</output>`,
     ignoreHistory: true,
     directSend: true,
+    initializeMessages: true,
   },
   {
     systemContextId: 'question',
@@ -84,5 +87,6 @@ AI はユーザーの代わりに返信メールを出力してください。
         autoCopy: false,
       },
     ],
+    initializeMessages: true,
   },
 ];

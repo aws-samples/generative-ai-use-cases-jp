@@ -185,6 +185,20 @@ const PromptSettingItem: React.FC<Props> = (props) => {
           }}
         />
       </div>
+      <div>
+        <Checkbox
+          label="初期化した状態で拡張機能を開く"
+          value={props.prompt.initializeMessages ?? false}
+          onChange={(checked) => {
+            props.onChange
+              ? props.onChange({
+                  ...props.prompt,
+                  initializeMessages: checked,
+                })
+              : null;
+          }}
+        />
+      </div>
     </div>
   );
 };

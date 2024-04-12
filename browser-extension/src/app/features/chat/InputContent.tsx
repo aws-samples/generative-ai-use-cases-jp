@@ -27,8 +27,15 @@ const InputContent: React.FC<Props> = (props) => {
   });
 
   useEffect(() => {
+    if (props.initPromptSetting.initializeMessages && !props.initPromptSetting.directSend) {
+      clearMessages();
+    }
     if (props.initPromptSetting.directSend) {
-      sendMessage(props.initPromptSetting, props.initContent);
+      sendMessage(
+        props.initPromptSetting,
+        props.initContent,
+        props.initPromptSetting.initializeMessages
+      );
     } else {
       if (props.initContent) {
         setContent(props.initContent);

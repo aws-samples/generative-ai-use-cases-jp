@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { chatMessages, clearMessages, overwriteLatestMessage, pushMessages } from './chatSlice';
+import {
+  chatMessages,
+  clearMessages,
+  overwriteLatestMessage,
+  pushMessages,
+  replaceMessages,
+} from './chatSlice';
 import usePredict from './usePredict';
 import { Message } from '../../../@types/chat';
 import Browser from 'webextension-polyfill';
@@ -29,7 +35,7 @@ const useChat = () => {
   return {
     messages,
     isEmptyMessages,
-    sendMessage: async (promptSetting: PromptSetting, content: string) => {
+    sendMessage: async (promptSetting: PromptSetting, content: string, isReplace?: boolean) => {
       if (tabId === -1) {
         throw new Error('Tab IDが取得できませんでした');
       }
@@ -56,16 +62,27 @@ const useChat = () => {
             modelId: 'anthropic.claude-3-haiku-20240307-v1:0',
             type: 'bedrock',
           },
-          messages: promptSetting.ignoreHistory ? sendingMessage : [...messages, ...sendingMessage],
+          messages:
+            isReplace || promptSetting.ignoreHistory
+              ? sendingMessage
+              : [...messages, ...sendingMessage],
         });
         dispatch(
-          pushMessages(tabId, [
-            ...sendingMessage,
-            {
-              role: 'assistant',
-              content: '▍',
-            },
-          ])
+          isReplace
+            ? replaceMessages(tabId, [
+                ...sendingMessage,
+                {
+                  role: 'assistant',
+                  content: '▍',
+                },
+              ])
+            : pushMessages(tabId, [
+                ...sendingMessage,
+                {
+                  role: 'assistant',
+                  content: '▍',
+                },
+              ])
         );
 
         // Assistant の発言を更新

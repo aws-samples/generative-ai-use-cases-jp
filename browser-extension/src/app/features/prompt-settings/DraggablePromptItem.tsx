@@ -160,7 +160,7 @@ const DraggablePromptItem: React.FC<Props> = (props) => {
       <div
         className={twMerge(
           'transition-all',
-          isOpenSettings ? 'max-h-[300px] overflow-y-auto' : 'max-h-0 overflow-hidden '
+          isOpenSettings ? 'max-h-[350px] overflow-y-auto' : 'max-h-0 overflow-hidden '
         )}
       >
         {props.isPromptSetting ? (

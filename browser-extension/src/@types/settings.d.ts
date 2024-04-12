@@ -13,6 +13,7 @@ export type PromptSetting = SystemContext & {
   ignoreHistory?: boolean;
   directSend?: boolean;
   useForm?: boolean;
+  initializeMessages?: boolean;
   formDefinitions?: {
     label: string;
     tag: string;

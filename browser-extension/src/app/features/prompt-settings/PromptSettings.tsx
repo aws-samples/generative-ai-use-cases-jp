@@ -117,7 +117,8 @@ const PromptSettings: React.FC<Props> = (props) => {
       <div>
         <div className="text-base font-semibold mb-1">プロンプト設定</div>
         <div className="font-light text-aws-font-color-gray mb-1 text-xs">
-          この拡張機能で利用したいプロンプトを設定してください。ドラッグ & ドロップで設定できます。
+          この拡張機能で利用したいプロンプトを設定してください。ドラッグ &
+          ドロップで設定できます。「利用するプロンプト」は、プロンプトごとに詳細な設定を行うことも可能です。
         </div>
       </div>
 

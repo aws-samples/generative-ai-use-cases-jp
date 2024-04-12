@@ -47,6 +47,18 @@ export const chatMessages = (state: RootState, tabId: number) => {
   return state.chat[tabId].messages;
 };
 
+export const replaceMessages =
+  (tabId: number, messages: Message[]): AppThunk =>
+  (dispatch, getState) => {
+    setInitialStateIfNeeded(getState().chat, tabId);
+    dispatch(
+      setMessages({
+        tabId,
+        messages,
+      })
+    );
+  };
+
 export const pushMessages =
   (tabId: number, messages: Message[]): AppThunk =>
   (dispatch, getState) => {
