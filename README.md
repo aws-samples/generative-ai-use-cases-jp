@@ -154,6 +154,7 @@ npm run cdk:deploy
   - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
 - [ファイルアップロード機能の有効化](/docs/DEPLOY_OPTION.md#ファイルアップロード機能の有効化)
+- [別 AWS アカウントの Bedrock を利用したい場合](/docs/DEPLOY_OPTION.md#別-AWS-アカウントの-Bedrock-を利用したい場合)
 
 ## その他
  - [アップデート方法](/docs/UPDATE.md)
