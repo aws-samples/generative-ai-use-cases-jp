@@ -2,10 +2,11 @@ import useSystemContextApi from './useSystemContextApi';
 
 const useSystemContext = () => {
   const { listSystemContexts } = useSystemContextApi();
-  const { data } = listSystemContexts();
+  const { data, isLoading } = listSystemContexts();
 
   return {
     systemContexts: data ?? [],
+    isLoading,
   };
 };
 

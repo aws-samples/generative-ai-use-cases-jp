@@ -26,9 +26,13 @@ const useHttp = () => {
 
   const getUrl = useCallback(
     (url: string) => {
-      return `${settings?.apiEndpoint}${url}`;
+      if (settings) {
+        return `${settings.apiEndpoint}${url}`;
+      } else {
+        return null;
+      }
     },
-    [settings?.apiEndpoint]
+    [settings]
   );
 
   return {

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { BaseProps } from '../../../@types/common';
 import { produce } from 'immer';
 import DraggablePromptItem, { DragPromptItem } from './DraggablePromptItem';
