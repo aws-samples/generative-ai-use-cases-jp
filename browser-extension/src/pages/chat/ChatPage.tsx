@@ -80,7 +80,7 @@ const ChatPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="text-white text-sm">
+    <div className="text-white text-sm bg-aws-squid-ink h-dvh">
       <Header
         onClickPromptSettings={() => {
           setIsOpenPromptSettings(!isOpenPromptSettings);

@@ -14,7 +14,7 @@ const Chat: React.FC<Props> = (props) => {
 
   return (
     <div className="relative h-full w-full overflow-y-auto">
-      <div className="mb-36x1xz1">
+      <div className="mb-36">
         {messages.map((message, idx) => (
           <ChatMessage key={idx} message={message} />
         ))}
