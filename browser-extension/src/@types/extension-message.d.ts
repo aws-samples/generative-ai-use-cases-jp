@@ -5,6 +5,9 @@ export type MessagePayload =
       type: 'CHAT-OPEN';
     }
   | {
+      type: 'CHAT-CLOSE';
+    }
+  | {
       type: 'CONTENT';
       content: string;
     }

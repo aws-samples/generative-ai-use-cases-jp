@@ -74,13 +74,13 @@ const ChatPage: React.FC = () => {
     setIsOpenSettings(false);
     Browser.tabs?.query({ active: true, currentWindow: true }).then(([tab]) => {
       Browser.tabs.sendMessage(tab.id ?? 0, {
-        type: 'CHAT-OPEN',
+        type: 'CHAT-CLOSE',
       } as MessagePayload);
     });
   }, []);
 
   return (
-    <div className="text-white text-sm bg-aws-squid-ink h-dvh">
+    <div className="text-white text-sm">
       <Header
         onClickPromptSettings={() => {
           setIsOpenPromptSettings(!isOpenPromptSettings);

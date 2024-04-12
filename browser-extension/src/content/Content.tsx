@@ -10,7 +10,9 @@ const Content = () => {
 
   Browser.runtime.onMessage.addListener((message: MessagePayload) => {
     if (message.type === 'CHAT-OPEN') {
-      setIsOpenChat(!isOpenChat);
+      setIsOpenChat(true);
+    } else if (message.type === 'CHAT-CLOSE') {
+      setIsOpenChat(false);
     }
   });
 
@@ -20,9 +22,9 @@ const Content = () => {
         onOpenChat={(content, systemContext) => {
           setIsOpenChat(true);
 
-          // 複数画面を立ち上げている場合を考慮してiframeにメッセージを送信
-          // Contentからはruntimeのメッセージしか利用できない（全てのTABにブロードキャストされる）
-          // ContentからはBrowser.tabsは使えない
+          // Contentからはruntimeのメッセージしか利用できないため、すべてのTABにブロードキャストでメッセージが送信される（ContentからはBrowser.tabsは使えない）
+          // 複数画面を立ち上げていると、すべての画面に値が設定されてしまう
+          // 拡張機能のメッセージではなく、iframeのメッセージを使い特定のタブのみにメッセージを送る
           iframe.current?.contentWindow?.postMessage(
             {
               type: 'CONTENT',
@@ -42,7 +44,7 @@ const Content = () => {
       <iframe
         ref={iframe}
         className={twMerge(
-          'fixed z-[9999999999999] right-0 top-0 h-full shadow-xl border-1 bg-aws-squid-ink transition-all',
+          'fixed z-[9999999999999] right-0 top-0 h-dvh shadow-xl border-1 bg-aws-squid-ink transition-all',
           isOpenChat ? 'xl:w-1/3 lg:2/5 md:w-2/5 sm:w-2/3' : 'w-0'
         )}
         src={Browser.runtime.getURL('pages/chat/index.html')}
