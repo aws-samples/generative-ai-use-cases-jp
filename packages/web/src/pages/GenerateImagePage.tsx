@@ -597,7 +597,8 @@ const GenerateImagePage: React.FC = () => {
                 setSelectedImageIndex(0);
                 generateImage(prompt, negativePrompt);
               }}
-              loading={generating || loadingChat}>
+              loading={generating || loadingChat}
+              disabled={prompt.length === 0}>
               生成
             </Button>
 
