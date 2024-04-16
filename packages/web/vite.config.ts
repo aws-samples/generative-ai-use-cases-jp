@@ -28,7 +28,7 @@ export default defineConfig({
         description:
           'Generative AI を活用したビジネスユースケースのデモンストレーション',
         start_url: '/',
-        display: 'standalone',
+        display: 'minimal-ui',
         theme_color: '#232F3E',
         background_color: '#FFFFFF',
         icons: [
