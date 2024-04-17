@@ -56,6 +56,7 @@ export class Api extends Construct {
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
@@ -73,6 +74,7 @@ export class Api extends Construct {
       'mistral.mistral-large-2402-v1:0',
     ];
     const multiModalModelIds = [
+      'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
     ];
