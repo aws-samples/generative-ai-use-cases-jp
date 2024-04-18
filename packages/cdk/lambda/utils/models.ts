@@ -318,6 +318,11 @@ export const BEDROCK_MODELS: {
     extractOutputText: (body: BedrockResponse) => string;
   };
 } = {
+  'anthropic.claude-3-opus-20240229-v1:0': {
+    promptTemplate: CLAUDEV21_PROMPT,
+    createBodyText: createBodyTextClaudeMessage,
+    extractOutputText: extractOutputTextClaudeMessage,
+  },
   'anthropic.claude-3-sonnet-20240229-v1:0': {
     promptTemplate: CLAUDEV21_PROMPT,
     createBodyText: createBodyTextClaudeMessage,

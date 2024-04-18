@@ -189,6 +189,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 現状このソリューションが対応しているモデルは以下です
 
 ```
+"anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 "anthropic.claude-v2",
@@ -434,3 +435,65 @@ cdk.json には以下の値を設定します。
   }
 }
 ```
+
+## 別 AWS アカウントの Bedrock を利用したい場合
+
+別 AWS アカウントの Bedrock を利用することができます。前提条件として、本サンプルアプリケーションによるデプロイは完了済みとします。
+
+別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、本サンプルアプリケーションでデプロイされた以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
+
+- `GenerativeAiUseCasesStack-APIPredictTitleService`
+- `GenerativeAiUseCasesStack-APIPredictService`
+- `GenerativeAiUseCasesStack-APIPredictStreamService`
+- `GenerativeAiUseCasesStack-APIGenerateImageService`
+
+Principal の指定方法について詳細を確認したい場合はこちらを参照ください: [AWS JSON ポリシーの要素: Principal](https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/reference_policies_elements_principal.html)
+
+Principal 設定例 (別アカウントにて設定)
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictTitleServiceXXX-XXXXXXXXXXXX",
+                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictServiceXXXXXXXX-XXXXXXXXXXXX",
+                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictStreamServiceXX-XXXXXXXXXXXX",
+                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGenerateImageServiceXX-XXXXXXXXXXXX"
+                ]
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {}
+        }
+    ]
+}
+```
+
+cdk.json には以下の値を設定します。
+
+- `crossAccountBedrockRoleArn` ... 別アカウントで事前に作成した IAM ロールの ARN です
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+{
+  "context": {
+    "crossAccountBedrockRoleArn": "arn:aws:iam::アカウントID:role/事前に作成したロール名"
+  }
+}
+```
+
+cdk.json 設定例
+
+```json
+{
+  "context": {
+    "crossAccountBedrockRoleArn": "arn:aws:iam::222222222222:role/YYYYYYYYYYYYYYYYYYYYY"
+  }
+}
+```
+
+設定変更後に `npm run cdk:deploy` を実行して変更内容を反映させます。

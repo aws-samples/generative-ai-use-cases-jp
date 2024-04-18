@@ -31,6 +31,7 @@ export class Api extends Construct {
   readonly imageGenerationModelIds: string[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
+  readonly crossAccountBedrockRoleArn: string;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
@@ -55,6 +56,7 @@ export class Api extends Construct {
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
@@ -72,6 +74,7 @@ export class Api extends Construct {
       'mistral.mistral-large-2402-v1:0',
     ];
     const multiModalModelIds = [
+      'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
     ];
@@ -93,6 +96,11 @@ export class Api extends Construct {
       };
     }
 
+    // cross account access IAM role
+    const crossAccountBedrockRoleArn = this.node.tryGetContext(
+      'crossAccountBedrockRoleArn'
+    );
+
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
       runtime: Runtime.NODEJS_18_X,
@@ -102,6 +110,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -118,6 +127,7 @@ export class Api extends Construct {
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         AGENT_REGION: agentRegion,
         AGENT_MAP: JSON.stringify(agentMap),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: [
@@ -144,6 +154,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
     });
     table.grantWriteData(predictTitleFunction);
@@ -156,6 +167,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -183,15 +195,40 @@ export class Api extends Construct {
 
     // Bedrock は常に権限付与
     // Bedrock Policy
-    const bedrockPolicy = new PolicyStatement({
-      effect: Effect.ALLOW,
-      resources: ['*'],
-      actions: ['bedrock:*', 'logs:*'],
-    });
-    predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-    predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-    predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-    generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    if (
+      typeof crossAccountBedrockRoleArn !== 'string' ||
+      crossAccountBedrockRoleArn === ''
+    ) {
+      const bedrockPolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      });
+      predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+    } else {
+      // crossAccountBedrockRoleArn が指定されている場合のポリシー
+      const logsPolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['logs:*'],
+        resources: ['*'],
+      });
+      const assumeRolePolicy = new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['sts:AssumeRole'],
+        resources: [crossAccountBedrockRoleArn],
+      });
+      predictStreamFunction.role?.addToPrincipalPolicy(logsPolicy);
+      predictFunction.role?.addToPrincipalPolicy(logsPolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(logsPolicy);
+      generateImageFunction.role?.addToPrincipalPolicy(logsPolicy);
+      predictStreamFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+    }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
       runtime: Runtime.NODEJS_18_X,
