@@ -1,147 +1,64 @@
-<div align="center">
-  <br>
- <img src="https://raw.githubusercontent.com/sinanbekar/browser-extension-react-typescript-starter/main/public/images/extension_128.png" alt="Browser Extension React & TypeScript Starter" width="128">
-  <br>
-  <h2>
-    Browser Extension <br>
-    React & TypeScript Starter
-    <br>
-  </h2>
-</div>
+# ブラウザ拡張機能
 
-<p align="center">A cross-platform (Chrome, Firefox, Edge, Opera, Brave) web browser extension (Manifest V3 and Manifest V2) starter kit with hot reload support, built with React, Typescript, Redux, Vite, ESLint, Prettier, TailwindCSS, Jest and more! </p>
-<hr />
+こちらは、Generative AI Use Cases JP をより便利に利用するためのブラウザ拡張機能です。
 
-<div align="center" >
-  <a href="https://github.com/sinanbekar/browser-extension-react-typescript-starter/actions">
-    <img src="https://github.com/sinanbekar/browser-extension-react-typescript-starter/actions/workflows/ci.yml/badge.svg" alt="CI">
-  </a>
-    &nbsp;
-  <a>
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome">
-  </a>
-    &nbsp;
-  <a href="https://github.com/sinanbekar/browser-extension-react-typescript-starter/blob/main/LICENSE">
-    <img src="https://img.shields.io/apm/l/atomic-design-ui.svg" alt="MIT License">
-  </a>
+> [!IMPORTANT]
+> このブラウザ拡張機能を利用するためには、Generative AI Use Cases JP を事前にデプロイする必要があります。まずは、[こちら](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)を参考にデプロイをしてください。
 
-</div>
+![拡張機能イメージ](../imgs/extension/extension_demo.png)
 
-<p align="center">
-  <a href="#features">Features</a> ·
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#important-notes">Important Notes</a> ·
-  <a href="#license">License</a>
-</p>
+## Why use ブラウザ拡張機能 ?
 
-> 🚀 **NEW** (experimental) Zustand for state management instead Redux, with [`webext-zustand`](https://github.com/sinanbekar/webext-zustand) package. You can try it now on the branch [`experimental-zustand`](https://github.com/sinanbekar/browser-extension-react-typescript-starter/tree/experimental-zustand)
+標準の Generative AI Use Cases JP の Web ページは便利に生成 AI を利用できますが、利用するたびに Web ページを開いてコピペするという使い方は、時には煩わしく感じることもあるでしょう。
+このブラウザ拡張機能を利用すると、他の Web ページを開いている状態で直接生成 AI を利用することができるため、さらに便利に生成 AI を活用することができます。
 
-## Features
+### 利用シチュエーション
 
-- **Instant HMR** (hot reload)[^1]
-- Write once run on any browser
-- Global Redux support with persist option. Effortless communication between content, background, popup, options, and more pages.
-- Provides a basic content example and popup, options, and welcome pages with all React
-- Latest Manifest V3 support
-- Manifest V2 support (beta)
-- Dynamic manifest.json
-- Includes ESLint configured to work with TypeScript and Prettier
-- Includes tests with Jest
+- メールなどの返信
+  - Web ブラウザからメーラーやチャットアプリを利用すれば、直接生成 AI に返信文を考えてもらうことができます。
+- 翻訳
+  - 社内情報であっても情報流出を気にすることなく、翻訳することができます。
+- 単語の意味を調べる
+  - 専門用語、英単語、読み方のわからない漢字などを、LLM に質問して意味を調べることができます。
+- 要約
+  - 長文の Web サイトの文章を要約してもらうことで、素早く概要を理解することができます。
+- その他
+  - このブラウザ拡張機能はプロンプトを自由にカスタマイズすることができるで、あなたのアイデア次第でさまざまな使い方が可能です。
 
-#### Built with
+## 利用方法
 
-- React
-- TypeScript
-- Redux (toolkit and redux-persist)
-- TailwindCSS
-- Vite
-- Jest
-- ESLint
-- Prettier
-- simple-git-hooks (lightweight husky alternative)
-- nano-staged
+ブラウザ拡張機能を利用するためには、拡張機能をビルドして、そのビルドしたファイルをブラウザにインストールする必要があります。
 
-[^1]: While it is fully supported and stable in most cases, hard reloading is rarely recommended.
+詳しくは以下の手順を参照してください。
 
-## Browser Support
+- [ビルド手順](../docs/EXTENSION_BUILD.md)
+- [インストール手順](../docs/EXTENSION_INSTALL.md)
 
-| [![Chrome](https://raw.github.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png)](/) | [![Firefox](https://raw.github.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png)](/) | [![Edge](https://raw.github.com/alrra/browser-logos/master/src/edge/edge_48x48.png)](/) | [![Opera](https://raw.github.com/alrra/browser-logos/master/src/opera/opera_48x48.png)](/) | [![Brave](https://raw.github.com/alrra/browser-logos/master/src/brave/brave_48x48.png)](/) |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| ✔                                                                                             | ✔ (Beta)                                                                                         | ✔                                                                                       | ✔                                                                                          | ✔                                                                                          |
+## FAQ
 
-## Quick Start
-
-Ensure you have
-
-- [Node.js](https://nodejs.org) 16 or later installed
-- [Yarn](https://yarnpkg.com) installed
-
-### Use the Template
-
-#### GitHub Template
-
-[Create a repo from this template on GitHub](https://github.com/sinanbekar/browser-extension-react-typescript-starter/generate).
-
-**_or_**
-
-#### Clone to local
-
-If you prefer to do it manually with the cleaner git history
-
-> **Note** If you don't have yarn installed, run: npm install -g yarn
-
-```bash
-npx degit sinanbekar/browser-extension-react-typescript-starter my-web-extension
-cd my-web-extension
-git init
-```
-
-Then run the following:
-
-- `yarn install` to install dependencies.
-- `yarn dev` to start the development server.
-- `yarn build` to build an unpacked extension.
-
-- **Load extension in Chrome (Chromium, Manifest V3)**
-
-  - Go to the browser address bar and type `chrome://extensions`
-  - Check the `Developer Mode` button to enable it.
-  - Click on the `Load Unpacked Extension` button.
-  - Select your `dist` folder in the project root.
-
-- **Load extension in Firefox (Manifest V2)**
-
-  - Go to the browser address bar and type `about://debugger`
-  - Click on the `Load Temporary Add-on` button.
-  - Select your `dist-firefox-v2` folder in the project root.
-
-### Available Commands
-
-- `yarn clean` to remove dist folder. `dev` and `build` commands call this command.
-- `yarn format` to fix code with eslint and prettier.
-- `yarn lint` to call ESLint and Prettier.
-- `yarn test` for testing.
-
-### Redux
-
-You can use redux (redux-toolkit) as state manager between popup, background, content and custom pages. Read the documentation for more.
-
-#### [@eduardoac-skimlinks/webext-redux](https://github.com/eduardoacskimlinks/webext-redux)
-
-### Bundling
-
-#### [@crxjs/vite-plugin](https://github.com/crxjs/chrome-extension-tools)
-
-> **Note** This plugin powers the development side of this starter.
->
-> docs: https://crxjs.dev/vite-plugin
->
-> Special thanks to [@jacksteamdev](https://github.com/jacksteamdev) and contributors for this amazing plugin.
-
-## Contributing
-
-This repository is following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) standard.
-
-## License
-
-MIT © [Sinan Bekar](https://sinan.engineer)
+- 拡張機能をインストールすると誰でも利用できますか？
+  - Generative AI Use Cases JP でユーザ登録している方は、ログインすることで全員利用可能です。
+  - 各種認証の設定は、Generative AI Use Cases JP に従います。
+  - **ユーザ登録していない方は、一切利用できません。**
+- 社内情報を入れても安全ですか？
+  - Amazon Bedrock は、入力データを学習データとして利用しないと明言されていますので、安心してご利用いただけます（[参考](https://aws.amazon.com/jp/bedrock/faqs/)）。
+  - **社内情報を入力する前に、社内規定は十分に確認するようにしてください。**
+- 拡張機能で送信した内容を見返すことはできますか？
+  - 拡張機能で送信した内容は、一切保存しておりません。
+  - 会話履歴機能の要望がある場合は、Issue へ投稿ください（対応を約束するものではありません）。
+- どのブラウザで利用できますか？
+  - Google Chrome と Microsoft Edge で利用できることは、確認しております。
+- 社内に配布する方法を教えてください
+  - [こちらの方法](../docs/EXTENSION_BUILD.md#配布方法)を参照ください。
+- プリセットのプロンプトを追加したい
+  - `browser-extension/src/app/features/prompt-settings/presetPrompts.ts` にプロンプトを設定して、再度ビルド + インストールをしてください。
+- Generative AI Use Cases JP の Web 画面で使っているプロンプトを利用したい
+  - Web 画面から保存したシステムコンテキストを利用できます。
+  - 拡張機能の「プロンプト設定」画面から、利用設定を行なってください。
+- ログインに失敗します
+  - 以下のいずれかの原因が考えられます。
+    - ユーザが登録されていない。
+      - Web ページからログインできるか確認してください。
+    - 設定が間違っている
+      - 拡張機能の「設定」画面を開き、各設定項目が正しいかご確認ください。
+      - 設定値は、[こちらの方法](../docs/EXTENSION_BUILD.md#その他のユーザー-windows-等)で確認できます。

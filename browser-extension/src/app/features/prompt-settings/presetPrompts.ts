@@ -1,5 +1,21 @@
 import { PromptSetting } from '../../../@types/settings';
 
+/**
+ * 各項目の説明
+ *  systemContextId: 一意に識別するID
+ *  systemContextTitle: 見出しとして表示されます
+ *  systemContext: プロンプトを記載してください。
+ *                 <output></output>の形式で出力するように指示をすると、出力が安定します（outputタグは自動除去されます）。
+ *  ignoreHistory: 会話履歴が送信されません。対話形式である必要がないタスクは、trueに設定することをおすすめします。
+ *  directSend: 拡張機能を開いた瞬間に送信されます。入力値を個別に修正する必要がない場合は、trueに設定することをおすすめします。
+ *  initializeMessages: 過去の送信内容をクリアしてから表示します。画面に常に最新のメッセージしか表示したくない場合は、trueを設定してください。
+ *  useForm: フォーム形式で入力したい場合に、trueを設定してください。
+ *  formDefinitions: フォームの定義をします。以下の項目を配列形式で入力してください。
+ *    label: 項目のラベルを入力します。
+ *    tag: プロンプトに埋め込むXMLタグを入力します。フォームの入力値が、このXMLタグで囲われて送信されます。
+ *    autoCopy: Web画面で選択した値を自動入力する場合は、trueを設定してください。
+ */
+
 export const presetPrompts: PromptSetting[] = [
   {
     systemContextId: 'chat',
