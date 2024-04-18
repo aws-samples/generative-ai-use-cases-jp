@@ -72,4 +72,4 @@ Web 画面の構造によっては、ポップアップが表示されないこ�
 ### Microsoft Edge の場合
 
 インストール方法を同じ手順で「拡張機能」の管理画面を開いてください。アンインストールしたい拡張機能の「削除」ボタンを押してください。
-![Edgeアンインストール](../imgs/extension/chrome_delete.png)
+![Edgeアンインストール](../imgs/extension/edge_delete.png)
