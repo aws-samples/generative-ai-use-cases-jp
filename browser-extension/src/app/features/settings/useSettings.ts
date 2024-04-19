@@ -23,7 +23,7 @@ const useSettings = () => {
           };
         }
         draft[key] = value;
-      })
+      }),
     );
   }, []);
 
@@ -80,7 +80,7 @@ const useSettings = () => {
                 !!settings.lambdaArn &&
                 !!settings.userPoolClientId &&
                 !!settings.userPoolId &&
-                !!settings.region
+                !!settings.region,
             );
             window.location.reload();
           } else {

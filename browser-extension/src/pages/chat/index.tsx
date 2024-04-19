@@ -15,6 +15,6 @@ proxyStore.ready().then(() => {
           <ChatPage />
         </DndProvider>
       </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 });

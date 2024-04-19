@@ -54,7 +54,7 @@ const SelectPrompt: React.FC<Props> = (props) => {
       <div
         className={twMerge(
           'transition-all text-xs text-aws-font-color-gray px-2',
-          isOpenContext ? 'max-h-[300px] overflow-y-auto pb-2 ' : 'max-h-0 overflow-hidden'
+          isOpenContext ? 'max-h-[300px] overflow-y-auto pb-2 ' : 'max-h-0 overflow-hidden',
         )}
       >
         {selectedPrompt && <PromptSettingItem prompt={selectedPrompt} />}
@@ -63,7 +63,7 @@ const SelectPrompt: React.FC<Props> = (props) => {
       <div
         className={twMerge(
           'absolute transition bottom-11 border rounded w-full bg-aws-squid-ink brightness-150',
-          isOpenSelect ? 'opacity-100 max-h-[200px]' : 'opacity-0 max-h-0 overflow-hidden'
+          isOpenSelect ? 'opacity-100 max-h-[200px]' : 'opacity-0 max-h-0 overflow-hidden',
         )}
       >
         {prompts.map((prompt) => (

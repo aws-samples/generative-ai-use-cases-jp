@@ -64,7 +64,7 @@ const TextareaChatContent: React.FC<Props> = (props) => {
       className={twMerge(
         props.className,
         'w-full resize-none outline-none pr-12 bg-aws-squid-ink brightness-150 border rounded',
-        isMax ? 'overflow-y-auto' : 'overflow-hidden'
+        isMax ? 'overflow-y-auto' : 'overflow-hidden',
       )}
       rows={3}
       value={props.value}

@@ -15,7 +15,7 @@ const Button: React.FC<Props> = (props) => {
       className={twMerge(
         ' p-1 px-3 rounded hover:brightness-75 flex items-center',
         props.outlined ? 'border' : 'bg-aws-smile',
-        props.className
+        props.className,
       )}
       onClick={props.onClick}
     >

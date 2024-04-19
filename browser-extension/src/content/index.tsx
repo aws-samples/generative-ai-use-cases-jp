@@ -50,6 +50,6 @@ proxyStore.ready().then(() => {
       <Provider store={proxyStore}>
         <Content />
       </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
 import { BaseProps } from '../../../@types/common';
 import { produce } from 'immer';
 import DraggablePromptItem, { DragPromptItem } from './DraggablePromptItem';
@@ -35,10 +35,10 @@ const PromptSettings: React.FC<Props> = (props) => {
         produce(prev, (draft) => {
           draft.splice(dragIndex, 1);
           draft.splice(hoverIndex, 0, prev[dragIndex]);
-        })
+        }),
       );
     },
-    [savePrompts]
+    [savePrompts],
   );
 
   const renderAvailablePromptItem = useCallback((prompt: PromptSetting, index: number) => {
@@ -52,7 +52,7 @@ const PromptSettings: React.FC<Props> = (props) => {
         isPromptSetting
         isPreset={
           PRESET_PROMPTS.findIndex(
-            (prompt_) => prompt_.systemContextId === prompt.systemContextId
+            (prompt_) => prompt_.systemContextId === prompt.systemContextId,
           ) > -1
         }
         movePrompt={movePrompt}
@@ -60,14 +60,14 @@ const PromptSettings: React.FC<Props> = (props) => {
           savePrompts((prev) =>
             produce(prev, (draft) => {
               draft.splice(index, 1);
-            })
+            }),
           );
         }}
         onChange={(prompt_) => {
           savePrompts((prev) =>
             produce(prev, (draft) => {
               draft[index] = prompt_;
-            })
+            }),
           );
         }}
       />
@@ -91,7 +91,7 @@ const PromptSettings: React.FC<Props> = (props) => {
         />
       );
     },
-    [prompts]
+    [prompts],
   );
 
   const [, drop] = useDrop({
@@ -105,7 +105,7 @@ const PromptSettings: React.FC<Props> = (props) => {
       savePrompts((prev) =>
         produce(prev, (draft) => {
           draft.splice(item.index, 0, item.prompt);
-        })
+        }),
       );
     },
   });
@@ -134,7 +134,7 @@ const PromptSettings: React.FC<Props> = (props) => {
           <div
             className={twMerge(
               'border border-b-0 p-2 rounded-tl cursor-pointer hover:bg-white/50',
-              !isSelectedPreset ? 'bg-white/30' : ''
+              !isSelectedPreset ? 'bg-white/30' : '',
             )}
             onClick={() => {
               setisSelectedPreset(false);
@@ -145,7 +145,7 @@ const PromptSettings: React.FC<Props> = (props) => {
           <div
             className={twMerge(
               'border border-b-0 p-2 rounded-tr border-l-0 flex items-center gap-1 cursor-pointer hover:bg-white/50',
-              isSelectedPreset ? 'bg-white/30' : ''
+              isSelectedPreset ? 'bg-white/30' : '',
             )}
             onClick={() => {
               setisSelectedPreset(true);

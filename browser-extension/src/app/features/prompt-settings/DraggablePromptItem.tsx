@@ -122,7 +122,7 @@ const DraggablePromptItem: React.FC<Props> = (props) => {
         'flex flex-col border border-b-0 last:border-b first:rounded-t p-1 last:rounded-b bg-aws-squid-ink',
         props.canDrag === false ? 'bg-white/30 cursor-no-drop' : '',
         isDragging ? 'opacity-30' : '',
-        isPromptSetting ? '' : 'cursor-grab'
+        isPromptSetting ? '' : 'cursor-grab',
       )}
       data-handler-id={handlerId}
     >
@@ -135,7 +135,7 @@ const DraggablePromptItem: React.FC<Props> = (props) => {
         <div
           className={twMerge(
             'flex items-center gap-2 p-1 w-full ',
-            isPromptSetting ? 'hover:bg-white/20 rounded cursor-pointer' : ''
+            isPromptSetting ? 'hover:bg-white/20 rounded cursor-pointer' : '',
           )}
           onClick={() => {
             if (isPromptSetting) {
@@ -160,7 +160,7 @@ const DraggablePromptItem: React.FC<Props> = (props) => {
       <div
         className={twMerge(
           'transition-all',
-          isOpenSettings ? 'max-h-[350px] overflow-y-auto' : 'max-h-0 overflow-hidden '
+          isOpenSettings ? 'max-h-[350px] overflow-y-auto' : 'max-h-0 overflow-hidden ',
         )}
       >
         {props.isPromptSetting ? (

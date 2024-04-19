@@ -21,7 +21,7 @@ manifest.manifest_version = 2;
 
 fs.writeFileSync(
   `${outDir}/background.html`,
-  '<script type="module" src="./service-worker-loader.js"></script>'
+  '<script type="module" src="./service-worker-loader.js"></script>',
 );
 manifest.background = { page: 'background.html' };
 

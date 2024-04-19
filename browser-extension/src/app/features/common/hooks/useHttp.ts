@@ -32,7 +32,7 @@ const useHttp = () => {
         return null;
       }
     },
-    [settings]
+    [settings],
   );
 
   return {

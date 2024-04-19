@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.6",
   "scripts": {
-    "lint": "run-s root:lint web:lint cdk:lint",
+    "lint": "run-s root:lint web:lint cdk:lint extension:lint",
     "root:lint": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
     "web:dev": "VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
@@ -16,7 +16,8 @@
     "extension:dev": "cd browser-extension && npm run dev",
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",
     "extension:build": "cd browser-extension && npm run build",
-    "extension:buildw": "source ./setup-env.sh && cd browser-extension && npm run build"
+    "extension:buildw": "source ./setup-env.sh && cd browser-extension && npm run build",
+    "extension:lint": "cd browser-extension && npm run lint"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",

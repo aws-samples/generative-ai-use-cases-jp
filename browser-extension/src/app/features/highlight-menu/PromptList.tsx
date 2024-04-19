@@ -15,7 +15,7 @@ const PromptList: React.FC<Props> = (props) => {
     <div
       className={twMerge(
         'bg-aws-squid-ink text-white rounded flex flex-col w-52 items-start border text-[13px]',
-        props.className
+        props.className,
       )}
     >
       {prompts.map((prompt, idx) => (

@@ -11,6 +11,6 @@ proxyStore.ready().then(() => {
       <Provider store={proxyStore}>
         <Popup />
       </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 });
