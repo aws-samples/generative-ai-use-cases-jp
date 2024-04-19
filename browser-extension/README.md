@@ -51,7 +51,7 @@
 - 社内に配布する方法を教えてください
   - [こちらの方法](../docs/EXTENSION_BUILD.md#配布方法)を参照ください。
 - プリセットのプロンプトを追加したい
-  - `browser-extension/src/app/features/prompt-settings/presetPrompts.ts` にプロンプトを設定して、再度ビルド + インストールをしてください。
+  - `browser-extension/src/app/features/prompt-settings/presetPrompts.ts` にプロンプトを設定して、再度「ビルド + インストール」をしてください。
 - Generative AI Use Cases JP の Web 画面で使っているプロンプトを利用したい
   - Web 画面から保存したシステムコンテキストを利用できます。
   - 拡張機能の「プロンプト設定」画面から、利用設定を行なってください。
