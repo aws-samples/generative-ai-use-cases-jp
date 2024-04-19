@@ -13,7 +13,6 @@ import {
 } from 'reduxjs-toolkit-persist';
 import type { WebStorage } from 'reduxjs-toolkit-persist/lib/types';
 
-import counterReducer from './features/counter/counterSlice';
 import chatReducer from './features/chat/chatSlice';
 
 const persistConfig = {
@@ -22,7 +21,6 @@ const persistConfig = {
 };
 
 const reducers = combineReducers({
-  counter: counterReducer,
   chat: chatReducer,
 });
 
