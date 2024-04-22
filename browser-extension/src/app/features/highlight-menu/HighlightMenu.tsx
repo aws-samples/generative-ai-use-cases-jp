@@ -21,6 +21,8 @@ type Props = BaseProps & {
 const HighlightMenu: React.FC<Props> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Floating UIのExampleを参考に実装
+  // https://floating-ui.com/docs/react-examples
   const { refs, floatingStyles, context } = useFloating({
     placement: 'bottom',
     open: isOpen,

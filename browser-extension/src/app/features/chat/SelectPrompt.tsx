@@ -23,8 +23,8 @@ const SelectPrompt: React.FC<Props> = (props) => {
   const [isOpenContext, setIsOpenContext] = useState(false);
 
   return (
-    <div className={twMerge(props.className, 'relative w-full border rounded')}>
-      <div className="flex justify-between items-center w-full">
+    <div className={twMerge(props.className, 'w-full border rounded')}>
+      <div className="flex justify-between items-center w-full relative">
         {selectedPrompt ? (
           <div
             className="flex items-center gap-1 p-1 ml-1 hover:bg-white/20 cursor-pointer flex-1"
@@ -49,35 +49,37 @@ const SelectPrompt: React.FC<Props> = (props) => {
         >
           選択
         </Button>
+
+        <div
+          className={twMerge(
+            'absolute transition border bottom-11 rounded w-full bg-aws-squid-ink brightness-150',
+            isOpenSelect
+              ? 'opacity-100 max-h-[200px] overflow-y-auto'
+              : 'opacity-0 max-h-0 overflow-hidden'
+          )}
+        >
+          {prompts.map((prompt) => (
+            <div
+              key={prompt.systemContextId}
+              className="border-b p-1 last:border-b-0 hover:bg-white/20 cursor-pointer"
+              onClick={() => {
+                props.onChange(prompt);
+                setIsOpenSelect(false);
+              }}
+            >
+              {prompt.systemContextTitle}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div
         className={twMerge(
           'transition-all text-xs text-aws-font-color-gray px-2',
-          isOpenContext ? 'max-h-[300px] overflow-y-auto pb-2 ' : 'max-h-0 overflow-hidden',
+          isOpenContext ? 'max-h-[300px] overflow-y-auto pb-2 ' : 'max-h-0 overflow-hidden'
         )}
       >
-        {selectedPrompt && <PromptSettingItem prompt={selectedPrompt} />}
-      </div>
-
-      <div
-        className={twMerge(
-          'absolute transition bottom-11 border rounded w-full bg-aws-squid-ink brightness-150',
-          isOpenSelect ? 'opacity-100 max-h-[200px]' : 'opacity-0 max-h-0 overflow-hidden',
-        )}
-      >
-        {prompts.map((prompt) => (
-          <div
-            key={prompt.systemContextId}
-            className="border-b p-1 last:border-b-0 hover:bg-white/20 cursor-pointer"
-            onClick={() => {
-              props.onChange(prompt);
-              setIsOpenSelect(false);
-            }}
-          >
-            {prompt.systemContextTitle}
-          </div>
-        ))}
+        {selectedPrompt && <PromptSettingItem prompt={selectedPrompt} disabled />}
       </div>
     </div>
   );

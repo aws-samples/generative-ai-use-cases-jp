@@ -4,6 +4,7 @@ import { BaseProps } from '../../../../@types/common';
 type Props = BaseProps & {
   label: string;
   value: boolean;
+  disabled?: boolean;
   onChange: (checked: boolean) => void;
 };
 
@@ -14,6 +15,7 @@ const Checkbox: React.FC<Props> = (props) => {
         <input
           type="checkbox"
           className="rounded accent-aws-smile"
+          disabled={props.disabled}
           checked={props.value}
           onChange={(e) => {
             props.onChange(e.target.checked);

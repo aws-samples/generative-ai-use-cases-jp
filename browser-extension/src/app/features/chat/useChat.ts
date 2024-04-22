@@ -13,6 +13,7 @@ import Browser from 'webextension-polyfill';
 import { PromptSetting } from '../../../@types/settings';
 
 const useChat = () => {
+  // 複数のタブで起動する場合があるので、タブごとに状態を管理する
   const [tabId, setTabId] = useState<number>(-1);
   Browser.tabs?.getCurrent().then((tab) => {
     if (tab) {
@@ -82,7 +83,7 @@ const useChat = () => {
                   role: 'assistant',
                   content: '▍',
                 },
-              ]),
+              ])
         );
 
         // Assistant の発言を更新

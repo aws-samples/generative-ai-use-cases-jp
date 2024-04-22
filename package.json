@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.6",
   "scripts": {
-    "lint": "run-s root:lint web:lint cdk:lint extension:lint",
+    "lint": "run-s root:lint web:lint cdk:lint",
     "root:lint": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
     "web:dev": "VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",

@@ -4,6 +4,7 @@ import { AppThunk, RootState } from '../../store';
 import { Message } from '../../../@types/chat';
 import { produce } from 'immer';
 
+// 複数画面で立ち上げることがあるのでタブごとに状態を管理
 export type ChatState = {
   [tabId: number]: {
     messages: Message[];
@@ -55,7 +56,7 @@ export const replaceMessages =
       setMessages({
         tabId,
         messages,
-      }),
+      })
     );
   };
 
@@ -70,7 +71,7 @@ export const pushMessages =
         messages: produce(currentMessages, (draft) => {
           draft.push(...messages);
         }),
-      }),
+      })
     );
   };
 
@@ -88,7 +89,7 @@ export const overwriteLatestMessage =
         messages: produce(currentMessages, (draft) => {
           draft[draft.length - 1].content = content.replace(/<([^>]+)>([\s\S]*?)<\/\1>/, '$2');
         }),
-      }),
+      })
     );
   };
 

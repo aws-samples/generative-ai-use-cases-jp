@@ -8,7 +8,7 @@ import { version } from '../package.json';
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
   name: `${env.mode === 'development' ? '[Dev] ' : ''}generative-ai-use-cases-jp 拡張機能`,
-  description: 'generative-ai-use-case-jp をブラウザ拡張機能として利用できます。',
+  description: 'generative-ai-use-cases-jp をブラウザ拡張機能として利用できます。',
   version,
   background: {
     service_worker: 'background/index.ts',

@@ -6,7 +6,7 @@ import { PromptSetting } from '../../../@types/settings';
 
 type Props = {
   initContent: string;
-  initPromptSetting: PromptSetting;
+  initPromptSetting?: PromptSetting;
 };
 
 const Chat: React.FC<Props> = (props) => {

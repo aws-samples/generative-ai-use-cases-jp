@@ -145,6 +145,7 @@ export class Web extends Construct {
             '!packages/cdk/cdk.json',
             'packages/web/dist',
             'packages/web/node_modules',
+            'browser-extension',
           ],
         },
       ],

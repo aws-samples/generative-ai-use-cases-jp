@@ -11,7 +11,7 @@ import { produce } from 'immer';
 
 type Props = BaseProps & {
   initContent: string;
-  initPromptSetting: PromptSetting;
+  initPromptSetting?: PromptSetting;
 };
 
 const InputContent: React.FC<Props> = (props) => {
@@ -27,14 +27,14 @@ const InputContent: React.FC<Props> = (props) => {
   });
 
   useEffect(() => {
-    if (props.initPromptSetting.initializeMessages && !props.initPromptSetting.directSend) {
+    if (props.initPromptSetting?.initializeMessages && !props.initPromptSetting?.directSend) {
       clearMessages();
     }
-    if (props.initPromptSetting.directSend) {
+    if (props.initPromptSetting?.directSend) {
       sendMessage(
         props.initPromptSetting,
         props.initContent,
-        props.initPromptSetting.initializeMessages,
+        props.initPromptSetting.initializeMessages
       );
     } else {
       if (props.initContent) {
@@ -108,7 +108,7 @@ ${formValues[idx]}
                   setFormValues(
                     produce(formValues, (draft) => {
                       draft[idx] = value;
-                    }),
+                    })
                   );
                 }}
               />
@@ -127,7 +127,7 @@ ${formValues[idx]}
       <button
         className={twMerge(
           'absolute right-3 bottom-3 mb-0.5  text-white p-2 rounded text-xl',
-          isLoading ? 'border' : 'bg-aws-smile',
+          isLoading ? 'border' : 'bg-aws-smile'
         )}
         disabled={isLoading}
         onClick={() => {
