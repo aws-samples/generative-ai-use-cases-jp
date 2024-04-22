@@ -30,10 +30,10 @@ export const handler = async (
     // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
     // 出力が <output></output> で囲まれる可能性がある
     // 以下の処理ではそれに対応するため、<output></output> を含む xml タグを削除している
-    const title = (await api[model.type].invoke(model, messages)).replace(
+    const title = (await api[model.type].invoke?.(model, messages))?.replace(
       /<([^>]+)>([\s\S]*?)<\/\1>/,
       '$2'
-    );
+    ) ?? '';
 
     await setChatTitle(req.chat.id, req.chat.createdDate, title);
 
