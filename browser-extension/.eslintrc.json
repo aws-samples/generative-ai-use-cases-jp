@@ -30,5 +30,10 @@
       }
     }
   ],
-  "ignorePatterns": ["dist/**", "dist-firefox-v2"]
+  "ignorePatterns": ["dist/**", "dist-firefox-v2"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
 }
