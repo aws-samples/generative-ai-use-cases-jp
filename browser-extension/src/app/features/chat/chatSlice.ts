@@ -56,7 +56,7 @@ export const replaceMessages =
       setMessages({
         tabId,
         messages,
-      })
+      }),
     );
   };
 
@@ -71,7 +71,7 @@ export const pushMessages =
         messages: produce(currentMessages, (draft) => {
           draft.push(...messages);
         }),
-      })
+      }),
     );
   };
 
@@ -89,7 +89,7 @@ export const overwriteLatestMessage =
         messages: produce(currentMessages, (draft) => {
           draft[draft.length - 1].content = content.replace(/<([^>]+)>([\s\S]*?)<\/\1>/, '$2');
         }),
-      })
+      }),
     );
   };
 

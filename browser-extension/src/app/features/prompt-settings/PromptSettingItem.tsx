@@ -23,7 +23,7 @@ const PromptSettingItem: React.FC<Props> = (props) => {
         <div className="text-xs ">プロンプト</div>
         <textarea
           className={twMerge(
-            'text-xs text-aws-font-color-gray border p-1 rounded bg-aws-squid-ink w-full resize-none'
+            'text-xs text-aws-font-color-gray border p-1 rounded bg-aws-squid-ink w-full resize-none',
           )}
           rows={13}
           value={props.prompt.systemContext}

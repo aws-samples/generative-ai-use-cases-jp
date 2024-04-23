@@ -34,7 +34,7 @@ const InputContent: React.FC<Props> = (props) => {
       sendMessage(
         props.initPromptSetting,
         props.initContent,
-        props.initPromptSetting.initializeMessages
+        props.initPromptSetting.initializeMessages,
       );
     } else {
       if (props.initContent) {
@@ -108,7 +108,7 @@ ${formValues[idx]}
                   setFormValues(
                     produce(formValues, (draft) => {
                       draft[idx] = value;
-                    })
+                    }),
                   );
                 }}
               />
@@ -127,7 +127,7 @@ ${formValues[idx]}
       <button
         className={twMerge(
           'absolute right-3 bottom-3 mb-0.5  text-white p-2 rounded text-xl',
-          isLoading ? 'border' : 'bg-aws-smile'
+          isLoading ? 'border' : 'bg-aws-smile',
         )}
         disabled={isLoading}
         onClick={() => {
