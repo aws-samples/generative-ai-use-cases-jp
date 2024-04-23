@@ -1,0 +1,11 @@
+{
+  "extends": ["config:base", ":semanticCommits", ":preserveSemverRanges"],
+  "postUpdateOptions": ["yarnDedupeHighest"],
+  "prCreation": "not-pending",
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "stabilityDays": 3,
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  }
+}

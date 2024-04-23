@@ -5,3 +5,5 @@
 **/dist
 
 cdk.out
+packages/web/dev-dist
+browser-extension/dist-firefox-v2
