@@ -145,27 +145,51 @@ const MISTRAL_DEFAULT_PARAMS: MistralParams = {
   stop: [MISTRAL_PROMPT.eosToken, '[INST]'],
 };
 
+// Usecase Params
+
+interface UseCaseParams {
+  temperature?: number;
+  // ex）top_p?: number;
+}
+
+// ユースケース固有のパラメータを指定します。各モデルのデフォルトパラメータより優先されます。
+const USE_CASE_PARAMS: Record<string, UseCaseParams> = {
+  rag: { temperature: 0.0 },
+  // ex）someusecase: { temperature: 1.0, top_p: 1.0 },
+};
+
 // Model Config
 
-const createBodyTextClaude = (messages: UnrecordedMessage[]) => {
+const createBodyTextClaude = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
   const body: ClaudeParams = {
     prompt: generatePrompt(CLAUDE_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
+    ...USE_CASE_PARAMS[usecase],
     ...{ stop_sequences: [CLAUDE_PROMPT.eosToken] },
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextClaudev21 = (messages: UnrecordedMessage[]) => {
+const createBodyTextClaudev21 = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
   const body: ClaudeParams = {
     prompt: generatePrompt(CLAUDE_PROMPT, messages),
     ...CLAUDE_DEFAULT_PARAMS,
+    ...USE_CASE_PARAMS[usecase],
     ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextClaudeMessage = (messages: UnrecordedMessage[]) => {
+const createBodyTextClaudeMessage = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
   const system = messages.find((message) => message.role === 'system');
   messages = messages.filter((message) => message.role !== 'system');
   const body: ClaudeMessageParams = {
@@ -190,30 +214,53 @@ const createBodyTextClaudeMessage = (messages: UnrecordedMessage[]) => {
       };
     }),
     ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
+    ...USE_CASE_PARAMS[usecase],
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextTitanText = (messages: UnrecordedMessage[]) => {
+const convertUseCaseParamsToTitanTextConfig = (params: UseCaseParams) => ({
+  ...(params.temperature !== undefined && { temperature: params.temperature }),
+  // ex）...(params.top_p !== undefined && { topP: params.top_p }),
+});
+
+const createBodyTextTitanText = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
+  const useCaseParams = convertUseCaseParamsToTitanTextConfig(
+    USE_CASE_PARAMS[usecase] || {}
+  );
   const body: TitanParams = {
     inputText: generatePrompt(TITAN_TEXT_PROMPT, messages),
-    ...TITAN_TEXT_DEFAULT_PARAMS,
+    textGenerationConfig: {
+      ...TITAN_TEXT_DEFAULT_PARAMS.textGenerationConfig,
+      ...useCaseParams,
+    },
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextLlama2 = (messages: UnrecordedMessage[]) => {
+const createBodyTextLlama2 = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
   const body: Llama2Params = {
     prompt: generatePrompt(LLAMA2_PROMPT, messages),
     ...LLAMA2_DEFAULT_PARAMS,
+    ...USE_CASE_PARAMS[usecase],
   };
   return JSON.stringify(body);
 };
 
-const createBodyTextMistral = (messages: UnrecordedMessage[]) => {
+const createBodyTextMistral = (
+  messages: UnrecordedMessage[],
+  usecase: string = ''
+) => {
   const body: MistralParams = {
     prompt: generatePrompt(MISTRAL_PROMPT, messages),
     ...MISTRAL_DEFAULT_PARAMS,
+    ...USE_CASE_PARAMS[usecase],
   };
   return JSON.stringify(body);
 };
@@ -314,7 +361,7 @@ const extractOutputImageTitanImage = (
 export const BEDROCK_MODELS: {
   [key: string]: {
     promptTemplate: PromptTemplate;
-    createBodyText: (messages: UnrecordedMessage[]) => string;
+    createBodyText: (messages: UnrecordedMessage[], usecase?: string) => string;
     extractOutputText: (body: BedrockResponse) => string;
   };
 } = {

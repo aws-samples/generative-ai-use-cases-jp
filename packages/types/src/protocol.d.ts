@@ -62,6 +62,7 @@ export type UpdateTitleResponse = {
 export type PredictRequest = {
   model?: Model;
   messages: UnrecordedMessage[];
+  usecase?: string;
 };
 
 export type PredictResponse = string;

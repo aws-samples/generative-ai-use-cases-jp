@@ -51,7 +51,8 @@ const useChatState = create<{
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
     sessionId: string | undefined,
-    extraData: UploadedFileType[] | undefined
+    extraData: UploadedFileType[] | undefined,
+    usecase: string | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -366,7 +367,8 @@ const useChatState = create<{
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      uploadedFiles: UploadedFileType[] | undefined = undefined
+      uploadedFiles: UploadedFileType[] | undefined = undefined,
+      usecase: string | undefined = undefined
     ) => {
       const modelId = get().modelIds[id];
 
@@ -441,6 +443,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: formattedMessages,
+        usecase: usecase,
       });
 
       // Assistant の発言を更新
@@ -606,7 +609,8 @@ const useChat = (id: string, chatId?: string) => {
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      extraData: UploadedFileType[] | undefined = undefined
+      extraData: UploadedFileType[] | undefined = undefined,
+      usecase: string | undefined = undefined
     ) => {
       post(
         id,
@@ -616,7 +620,8 @@ const useChat = (id: string, chatId?: string) => {
         preProcessInput,
         postProcessOutput,
         sessionId,
-        extraData
+        extraData,
+        usecase
       );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {

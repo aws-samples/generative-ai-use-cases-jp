@@ -73,6 +73,7 @@ const useRag = (id: string) => {
       pushMessage('user', content);
       pushMessage('assistant', 'Kendra から参照ドキュメントを取得中...');
 
+      const usecasekey = 'rag';
       const query = await predict({
         model: model,
         messages: [
@@ -84,6 +85,7 @@ const useRag = (id: string) => {
             }),
           },
         ],
+        usecase: usecasekey,
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
@@ -144,7 +146,10 @@ const useRag = (id: string) => {
             .filter((x) => x)
             .join('\n');
           return message + '\n' + footnote;
-        }
+        },
+        undefined,
+        undefined,
+        usecasekey
       );
     },
   };
