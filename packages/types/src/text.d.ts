@@ -45,7 +45,7 @@ export type ClaudeMessageParams = {
 
 // Llama2
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-meta.html
-export type Llama2Params = {
+export type LlamaParams = {
   prompt?: string;
   max_gen_len?: number;
   temperature?: number;
