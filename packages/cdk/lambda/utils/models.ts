@@ -67,7 +67,7 @@ const TITAN_TEXT_PROMPT: PromptTemplate = {
   eosToken: '',
 };
 
-const LLAMA_PROMPT: PromptTemplate = {
+const LLAMA2_PROMPT: PromptTemplate = {
   prefix: '<s>[INST] ',
   suffix: ' [/INST]',
   join: '',
@@ -75,6 +75,16 @@ const LLAMA_PROMPT: PromptTemplate = {
   assistant: ' [/INST] {}</s><s>[INST] ',
   system: '<<SYS>>\n{}\n<</SYS>>\n\n',
   eosToken: '</s>',
+};
+
+const LLAMA3_PROMPT: PromptTemplate = {
+  prefix: '<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n',
+  suffix: ' [/INST]',
+  join: '',
+  user: '{}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n',
+  assistant: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n',
+  system: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n',
+  eosToken: '',
 };
 
 const MISTRAL_PROMPT: PromptTemplate = {
@@ -202,9 +212,17 @@ const createBodyTextTitanText = (messages: UnrecordedMessage[]) => {
   return JSON.stringify(body);
 };
 
-const createBodyTextLlama = (messages: UnrecordedMessage[]) => {
+const createBodyTextLlama2 = (messages: UnrecordedMessage[]) => {
   const body: LlamaParams = {
-    prompt: generatePrompt(LLAMA_PROMPT, messages),
+    prompt: generatePrompt(LLAMA2_PROMPT, messages),
+    ...LLAMA_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
+const createBodyTextLlama3 = (messages: UnrecordedMessage[]) => {
+  const body: LlamaParams = {
+    prompt: generatePrompt(LLAMA3_PROMPT, messages),
     ...LLAMA_DEFAULT_PARAMS,
   };
   return JSON.stringify(body);
@@ -354,23 +372,23 @@ export const BEDROCK_MODELS: {
     extractOutputText: extractOutputTextTitanText,
   },
   'meta.llama3-8b-instruct-v1:0': {
-    promptTemplate: LLAMA_PROMPT,
-    createBodyText: createBodyTextLlama,
+    promptTemplate: LLAMA3_PROMPT,
+    createBodyText: createBodyTextLlama3,
     extractOutputText: extractOutputTextLlama,
   },
   'meta.llama3-70b-instruct-v1:0': {
-    promptTemplate: LLAMA_PROMPT,
-    createBodyText: createBodyTextLlama,
+    promptTemplate: LLAMA3_PROMPT,
+    createBodyText: createBodyTextLlama3,
     extractOutputText: extractOutputTextLlama,
   },
   'meta.llama2-13b-chat-v1': {
-    promptTemplate: LLAMA_PROMPT,
-    createBodyText: createBodyTextLlama,
+    promptTemplate: LLAMA2_PROMPT,
+    createBodyText: createBodyTextLlama2,
     extractOutputText: extractOutputTextLlama,
   },
   'meta.llama2-70b-chat-v1': {
-    promptTemplate: LLAMA_PROMPT,
-    createBodyText: createBodyTextLlama,
+    promptTemplate: LLAMA2_PROMPT,
+    createBodyText: createBodyTextLlama2,
     extractOutputText: extractOutputTextLlama,
   },
   'mistral.mistral-7b-instruct-v0:2': {
@@ -412,7 +430,7 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
 
 export const getSageMakerModelTemplate = (model: string): PromptTemplate => {
   if (model.includes('llama-2')) {
-    return LLAMA_PROMPT;
+    return LLAMA2_PROMPT;
   } else if (model.includes('bilingual-rinna')) {
     return BILINGUAL_RINNA_PROMPT;
   } else if (model.includes('rinna')) {
