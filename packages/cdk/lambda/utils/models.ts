@@ -79,11 +79,11 @@ const LLAMA2_PROMPT: PromptTemplate = {
 
 const LLAMA3_PROMPT: PromptTemplate = {
   prefix: '<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n',
-  suffix: ' [/INST]',
-  join: '',
-  user: '{}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n',
-  assistant: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n',
-  system: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n',
+  suffix: '',
+  join: '\n\n',
+  user: '{}<|eot_id|><|start_header_id|>assistant<|end_header_id|>',
+  assistant: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>',
+  system: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>',
   eosToken: '',
 };
 
