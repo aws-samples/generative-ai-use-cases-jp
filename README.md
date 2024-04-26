@@ -169,6 +169,12 @@ npm run cdk:deploy
  - [ネイティブアプリのように利用する方法](/docs/PWA.md)
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 
+## 料金試算
+[本アプリケーションをご利用いただく際の、構成と料金試算例](https://aws.amazon.com/jp/cdp/ai-chatapp/)を公開しております。  
+この料金試算例は、Amazon Kendra を活用した RAG チャット機能を有効化する前提となっています。
+セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
+従量課金制となっており、実際の料金はご利用内容により変動いたします。
+
 ## 参照
  - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
