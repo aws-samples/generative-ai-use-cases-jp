@@ -81,8 +81,6 @@ Agent チャットユースケースでは Agent for Amazon Bedrock を利用し
 
 API と連携し最新情報を参照して回答する Agent を作成します。Agent のカスタマイズを行い他のアクションを追加できるほか、複数の Agent を作成し切り替えることが可能です。
 
-検索エージェント をデプロイする際は、最初に Agent で使用する Lambda のデプロイと手動で Agent を作成した後に作成した Agent を登録するため2回のデプロイが必要です。
-
 デフォルトで使用できる検索エージェントでは、無料利用枠の大きさ・リクエスト数の制限・コストの観点から [Brave Search API の Data for AI](https://brave.com/search/api/) を使用していますが、他の API にカスタマイズすることも可能です。API キーの取得はフリープランでもクレジットカードの登録が必要になります。
 
 > [!NOTE]
@@ -102,15 +100,9 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、Bedrock が参照する Lambda 関数 と OpenAPI Schema が `agentRegion` にデプロイされます。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、デフォルトの検索エンジン Agent がデプロイされます。
 
-続いて、 [Agent の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループ名はモデルに入力されるためわかりやすい名前（例：`Search`）にし、アクショングループの設定には、デプロイした際の出力の Cfn Output から Lambda 関数（`AgentLambdaFunctionName`）と S3 にアップロードされた Schema ファイル（`AgentSchemaURI`）を指定します。（複数スタックに分かれているため上にスクロールする必要があります）ナレッジベースは必要ないため設定不要です。
-
-```
-プロンプト例: あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。
-```
-
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で context 追加します。`displayName` は UI に表示したい名称を設定してください。`npm run cdk:deploy` で再度デプロイして反映させます。
+デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
@@ -126,6 +118,8 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
   }
 }
 ```
+
+また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
 
 #### Knowledge base エージェントのデプロイ
 
