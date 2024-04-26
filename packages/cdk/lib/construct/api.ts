@@ -53,9 +53,12 @@ export class Api extends Construct {
     ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
-    const agents: Agent[] = [...(props.agents || []), ...(this.node.tryGetContext('agents') || [])];
+    const agents: Agent[] = [
+      ...(props.agents || []),
+      ...(this.node.tryGetContext('agents') || []),
+    ];
 
-    console.log(agents)
+    console.log(agents);
 
     // Validate Model Names
     const supportedModelIds = [

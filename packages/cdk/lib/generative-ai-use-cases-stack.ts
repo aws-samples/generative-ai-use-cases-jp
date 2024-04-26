@@ -94,7 +94,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
-      agents: props.agents
+      agents: props.agents,
     });
 
     if (

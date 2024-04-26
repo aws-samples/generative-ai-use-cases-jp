@@ -72,45 +72,51 @@ export class Agent extends Construct {
               actions: ['bedrock:*'],
             }),
           ],
-        })
-      }
+        }),
+      },
     });
 
     const searchAgent = new CfnAgent(this, 'SearchAgent', {
       agentName: 'SearchEngine',
-      actionGroups: [{
-        actionGroupName: 'Search',
-        actionGroupExecutor: {
-          lambda: bedrockAgentLambda.functionArn,
-        },
-        apiSchema: {
-          s3: {
-            s3BucketName: schema.deployedBucket.bucketName,
-            s3ObjectKey: 'api-schema/api-schema.json',
+      actionGroups: [
+        {
+          actionGroupName: 'Search',
+          actionGroupExecutor: {
+            lambda: bedrockAgentLambda.functionArn,
           },
+          apiSchema: {
+            s3: {
+              s3BucketName: schema.deployedBucket.bucketName,
+              s3ObjectKey: 'api-schema/api-schema.json',
+            },
+          },
+          description: 'Search',
         },
-        description: 'Search',
-      }, {
-        actionGroupName: 'UserInput',
-        parentActionGroupSignature: 'AMAZON.UserInput',
-      }],
+        {
+          actionGroupName: 'UserInput',
+          parentActionGroupSignature: 'AMAZON.UserInput',
+        },
+      ],
       agentResourceRoleArn: bedrockAgentRole.roleArn,
       idleSessionTtlInSeconds: 3600,
       autoPrepare: true,
       description: 'Search Agent',
       foundationModel: 'anthropic.claude-3-haiku-20240307-v1:0',
-      instruction: 'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
+      instruction:
+        'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
     });
 
     const searchAgentAlias = new CfnAgentAlias(this, 'SearchAgentAlias', {
       agentId: searchAgent.attrAgentId,
       agentAliasName: 'v1',
-    })
+    });
 
-    this.agents = [{
-      "displayName": "SearchEngine",
-      "agentId": searchAgent.attrAgentId,
-      "aliasId": searchAgentAlias.attrAgentAliasId
-    }];
+    this.agents = [
+      {
+        displayName: 'SearchEngine',
+        agentId: searchAgent.attrAgentId,
+        aliasId: searchAgentAlias.attrAgentAliasId,
+      },
+    ];
   }
 }

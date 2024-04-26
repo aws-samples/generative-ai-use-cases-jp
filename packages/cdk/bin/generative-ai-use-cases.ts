@@ -109,13 +109,15 @@ if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
 const searchAgentEnabled =
   app.node.tryGetContext('searchAgentEnabled') || false;
 const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
-const searchAgentStack = searchAgentEnabled ? new SearchAgentStack(app, 'WebSearchAgentStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: agentRegion,
-  },
-  crossRegionReferences: true,
-}) : null;
+const searchAgentStack = searchAgentEnabled
+  ? new SearchAgentStack(app, 'WebSearchAgentStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: agentRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
 
 // GenU Stack
 
