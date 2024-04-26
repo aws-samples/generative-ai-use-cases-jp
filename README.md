@@ -1,7 +1,7 @@
 > [!IMPORTANT]
 > This repository is currently developed for Japanese users. If you wish for multilingual support, please react to [this issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues/151).
 
-# Generative AI Use Cases JP
+# Generative AI Use Cases JP (略称:GenU)
 
 Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性をもたらします。このリポジトリでは、Generative AI を活用したビジネスユースケースをデモンストレーションしています。
 
