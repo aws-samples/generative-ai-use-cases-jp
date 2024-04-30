@@ -6,6 +6,7 @@ import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack'
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
 import { SearchAgentStack } from '../lib/search-agent-stack';
+import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -104,6 +105,15 @@ if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
   throw new Error('vpcId must start with "vpc-"');
 }
 
+const modelRegion: string = app.node.tryGetContext('modelRegion')!;
+
+new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: modelRegion,
+  },
+});
+
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
   'GenerativeAiUseCasesStack',
@@ -147,7 +157,6 @@ if (searchAgentEnabled) {
   });
 }
 
-const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;
 
 if (dashboard) {

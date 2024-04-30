@@ -5,7 +5,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "postinstall": "npm ci --prefix custom-resources"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.137",
