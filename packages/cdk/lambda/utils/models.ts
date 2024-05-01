@@ -98,6 +98,8 @@ const MISTRAL_PROMPT: PromptTemplate = {
   eosToken: '</s>',
 };
 
+// CommandR/R+ではプロンプトの前処理にPromptTemplateを使用していないが、
+// BEDROCK_MODELSで指定が必要なためダミーで作成しています
 const COMMANDR_PROMPT: PromptTemplate = {
   prefix: '',
   suffix: '',

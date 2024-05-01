@@ -65,7 +65,7 @@ export type MistralParams = {
 
 // Cohere Command R / Command R+
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-cohere-command-r-plus.html
-// stream, tools, tools_results looks not available in Bedrock at this moment.
+// stream, tools, tools_results は2024/05現在Bedrockで対応していないため、コメントアウトしています。
 export type CommandRParams = {
   message?: string;
   chat_history?: {
