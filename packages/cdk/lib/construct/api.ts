@@ -58,8 +58,6 @@ export class Api extends Construct {
       ...(this.node.tryGetContext('agents') || []),
     ];
 
-    console.log(agents);
-
     // Validate Model Names
     const supportedModelIds = [
       'anthropic.claude-3-opus-20240229-v1:0',
