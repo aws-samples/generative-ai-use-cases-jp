@@ -62,6 +62,7 @@ export type UpdateTitleResponse = {
 export type PredictRequest = {
   model?: Model;
   messages: UnrecordedMessage[];
+  id: string;
 };
 
 export type PredictResponse = string;
@@ -70,6 +71,7 @@ export type PredictTitleRequest = {
   model: Model;
   chat: Chat;
   prompt: string;
+  id: string;
 };
 
 export type PredictTitleResponse = string;
