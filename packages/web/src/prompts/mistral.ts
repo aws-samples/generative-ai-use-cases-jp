@@ -15,9 +15,9 @@ import {
 const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
   '/summarize':
-    'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
-  '/editorial':
-    '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。ユーザーは <input> タグで校正したほしい文章を与えます。また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。AI は文章について問題がある部分だけを指摘してください。ただし、出力は、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
+    'あなたは文章を要約する AI アシスタントです。',
+  '/editorial':`あなたは文章を校正する AI アシスタントで適切に修正すべき箇所を指摘します。`,
+    // `ユーザーは <input> タグで校正したほしい文章を与えます。また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。AI は文章について問題がある部分だけを指摘してください。ただし、出力は、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。`,
   '/generate': 'あなたは指示に従って文章を作成するライターです。',
   '/translate':'あなたは文章を翻訳する AI アシスタントです。',
   '/web-content': 'あなたはHTMLからコンテンツを抽出する仕事に従事してます。',
@@ -81,40 +81,43 @@ export const mistralPrompter: Prompter = {
     return params.content;
   },
   summarizePrompt(params: SummarizeParams): string {
-    return `以下の <要約対象の文章></要約対象の文章> の xml タグで囲われた文章を要約してください。
-
-<要約対象の文章>
-${params.sentence}
-</要約対象の文章>
-
-${
+    return `これから文章を与えるので${
   !params.context
     ? ''
-    : `要約する際、以下の <要約時に考慮して欲しいこと></要約時に考慮して欲しいこと> の xml タグで囲われた内容を考慮してください。
-
-<要約時に考慮して欲しいこと>
-${params.context}
-</要約時に考慮して欲しいこと>
-`
+    : `「${params.context}」という指示に従って`
 }
-
-要約した文章だけを出力してください。それ以外の文章は一切出力しないでください。
-出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。
-`;
+要約してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は要約結果だけを <output>{要約結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]$「{params.sentence}」`;
   },
   editorialPrompt(params: EditorialParams): string {
-    return `<input>${params.sentence}</input>
-${
-  params.context
-    ? '<その他指摘してほしいこと>' +
-      params.context +
-      '</その他指摘してほしいこと>'
-    : ''
-}
-`;
+    return `これから文章を与えるので、${
+      params.context
+      ? ''
+      : `「${params.context}」という指示に従って`
+    }文章について問題がある部分だけを日本語で指摘してください。
+ただし、出力は <output>[{excerpt: {指摘箇所}, replace: {適切な表現}, comment: {理由}}]</output> で出力し、指摘事項がない場合は空配列を出力してください。出力は<output>タグで囲ったものだけを出力してください。xmlタグの外に解説などを入れてはいけません。
+例えば入力が「こちらの資料でよろしかったでしょうか」だった場合は、以下のように出力してください。
+<output>[
+  {
+    "excerpt":"よろしかったでしょうか", 
+    "replace":"よろしいでしょうか",
+    "comment":"現在のことなので過去形はおかしい"
+  }
+]</output>
+だけを出力します。
+または入力が「私はどこでも寝れます」だった場合は、以下のように出力してください。
+<output>[
+  {
+    "excerpt":"寝れます", 
+    "replace":"寝られます",
+    "comment":"ら抜き言葉"
+  }
+]</output>
+だけを出力します。
+[/INST]わかりました。[INST]
+${params.sentence}`;
   },
   generateTextPrompt(params: GenerateTextParams): string {
-    return `これから文章を与えるので「${params.context}」という指示に従って日本語の文章を作成してください。指示された形式の文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は生成結果だけを <output>{生成結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.information}`;
+    return `これから文章を与えるので「${params.context}」という指示通りに日本語の文章に変換してください。出力は変換結果の文章だけを <output>{変換結果の文章}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.information}`;
   },
   translatePrompt(params: TranslateParams): string {
     return `これから文章を与えるので${params.language}に翻訳してください。${
