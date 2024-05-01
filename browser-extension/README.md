@@ -1,16 +1,17 @@
 # ブラウザ拡張機能
 
-こちらは、Generative AI Use Cases JP をより便利に利用するためのブラウザ拡張機能です。
+こちらは、Generative AI Use Cases JP (略称:GenU) をより便利に利用するためのブラウザ拡張機能です。
 
 > [!IMPORTANT]
-> このブラウザ拡張機能を利用するためには、Generative AI Use Cases JP を事前にデプロイする必要があります。まずは、[こちら](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)を参考にデプロイをしてください。
+> このブラウザ拡張機能を利用するためには、GenU を事前にデプロイする必要があります。まずは、[こちら](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)を参考にデプロイをしてください。
 
 ![拡張機能イメージ](../imgs/extension/extension_demo.png)
 
 ## Why Use ブラウザ拡張機能 ?
 
-標準の Generative AI Use Cases JP の Web ページは便利に生成 AI を利用できますが、利用するたびに Web ページを開いてコピペするという使い方は、時には煩わしく感じることもあるでしょう。
+標準の GenU の Web ページは便利に生成 AI を利用できますが、利用するたびに Web ページを開いてコピペするという使い方は、時には煩わしく感じることもあるでしょう。
 このブラウザ拡張機能を利用すると、ブラウジング中に生成 AI を利用したくなったらページ変えずにそのまま生成 AI を利用できるため、さらに便利に生成 AI を活用することができます。
+[拡張機能紹介記事](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)もあわせてご参照ください。
 
 ### 利用シチュエーション
 
@@ -37,8 +38,8 @@
 ## FAQ
 
 - 拡張機能をインストールすると誰でも利用できますか？
-  - Generative AI Use Cases JP でユーザ登録している方は、ログインすることで全員利用可能です。
-  - 各種認証の設定は、Generative AI Use Cases JP に従います。
+  - GenU でユーザ登録している方は、ログインすることで全員利用可能です。
+  - 各種認証の設定は、GenU に従います。
   - **ユーザ登録していない方は、一切利用できません。**
 - 社内情報を入れても安全ですか？
   - Amazon Bedrock は入力データを学習データとして利用しませんので、安心してご利用いただけます（[参考](https://aws.amazon.com/jp/bedrock/faqs/)）。
@@ -52,7 +53,7 @@
   - [こちらの方法](../docs/EXTENSION_BUILD.md#配布方法)を参照ください。
 - プリセットのプロンプトを追加したい
   - `browser-extension/src/app/features/prompt-settings/presetPrompts.ts` にプロンプトを設定して、再度「ビルド + インストール」をしてください。
-- Generative AI Use Cases JP の Web 画面で使っているプロンプトを利用したい
+- GenU の Web 画面で使っているプロンプトを利用したい
   - Web 画面から保存したシステムコンテキストを利用できます。
   - 拡張機能の「プロンプト設定」画面から、利用設定を行なってください。
 - ログインに失敗します

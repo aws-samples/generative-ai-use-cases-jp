@@ -2,7 +2,7 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の context で設定を変更します。
+GenU は、AWS CDK の context で設定を変更します。
 
 **CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
 
@@ -367,7 +367,7 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 ## モニタリング用のダッシュボードの有効化
 
 入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
-**ダッシュボードはアプリケーションに組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
+**ダッシュボードは GenU に組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
 Amazon CloudWatch のダッシュボードは、[マネージメントコンソール](https://console.aws.amazon.com/cloudwatch/home#dashboards)から閲覧できます。
 ダッシュボードを閲覧するには、マネージメントコンソールにログイン可能かつダッシュボードが閲覧可能な権限を持った IAM ユーザーの作成が必要です。
 
@@ -442,9 +442,9 @@ cdk.json には以下の値を設定します。
 
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
-別 AWS アカウントの Bedrock を利用することができます。前提条件として、本サンプルアプリケーションによるデプロイは完了済みとします。
+別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 
-別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、本サンプルアプリケーションでデプロイされた以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
+別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、GenU デプロイ時に作成された以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
 
 - `GenerativeAiUseCasesStack-APIPredictTitleService`
 - `GenerativeAiUseCasesStack-APIPredictService`
