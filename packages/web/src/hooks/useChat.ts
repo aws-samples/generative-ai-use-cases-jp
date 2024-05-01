@@ -135,7 +135,7 @@ const useChatState = create<{
       prompt: prompter.setTitlePrompt({
         messages: omitUnusedMessageProperties(get().chats[id].messages),
       }),
-      id: id,
+      id: '/title',
     });
     setTitle(id, title);
   };
