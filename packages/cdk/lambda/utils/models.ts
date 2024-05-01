@@ -6,6 +6,7 @@ import {
   TitanParams,
   LlamaParams,
   MistralParams,
+  CommandRParams,
   GenerateImageParams,
   Model,
   PromptTemplate,
@@ -95,6 +96,18 @@ const MISTRAL_PROMPT: PromptTemplate = {
   assistant: ' [/INST]\n{}\n[INST] ',
   system: '{} [/INST]\nコンテキストを理解しました。</s>\n[INST] ',
   eosToken: '</s>',
+};
+
+// CommandR/R+ではプロンプトの前処理にPromptTemplateを使用していないが、
+// BEDROCK_MODELSで指定が必要なためダミーで作成しています
+const COMMANDR_PROMPT: PromptTemplate = {
+  prefix: '',
+  suffix: '',
+  join: '',
+  user: '',
+  assistant: '',
+  system: '',
+  eosToken: '',
 };
 
 const BILINGUAL_RINNA_PROMPT: PromptTemplate = {
@@ -187,6 +200,23 @@ const MISTRAL_DEFAULT_PARAMS: MistralParams = {
 
 export type MistralParamsUsecases = Record<string, MistralParams>;
 const MISTRAL_USECASE_PARAMS: MistralParamsUsecases = {
+  '/rag': {
+    temperature: 0.0,
+  },
+};
+
+const COMMANDR_DEFAULT_PARAMS: CommandRParams = {
+  max_tokens: 3000,
+  temperature: 0.3,
+  p: 0.75,
+  k: 0,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  stop_sequences: [],
+};
+
+export type CommandRParamsUsecases = Record<string, CommandRParams>;
+const COMMANDR_USECASE_PARAMS: CommandRParamsUsecases = {
   '/rag': {
     temperature: 0.0,
   },
@@ -299,6 +329,24 @@ const createBodyTextMistral = (messages: UnrecordedMessage[], id: string) => {
   return JSON.stringify(body);
 };
 
+const createBodyTextCommandR = (messages: UnrecordedMessage[], id: string) => {
+  const system = messages.find((message) => message.role === 'system');
+  messages = messages.filter((message) => message.role !== 'system');
+  const body: CommandRParams = {
+    preamble: system?.content,
+    message: messages.pop()?.content,
+    chat_history: messages.map((msg) => {
+      return {
+        role: msg.role === 'user' ? 'USER' : 'CHATBOT',
+        message: msg.content,
+      };
+    }),
+    ...COMMANDR_DEFAULT_PARAMS,
+    ...COMMANDR_USECASE_PARAMS[normalizeId(id)],
+  };
+  return JSON.stringify(body);
+};
+
 const extractOutputTextClaude = (body: BedrockResponse): string => {
   return body.completion;
 };
@@ -322,6 +370,10 @@ const extractOutputTextLlama = (body: BedrockResponse): string => {
 
 const extractOutputTextMistral = (body: BedrockResponse): string => {
   return body.outputs[0].text;
+};
+
+const extractOutputTextCommandR = (body: BedrockResponse): string => {
+  return body.text;
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -468,6 +520,16 @@ export const BEDROCK_MODELS: {
     promptTemplate: MISTRAL_PROMPT,
     createBodyText: createBodyTextMistral,
     extractOutputText: extractOutputTextMistral,
+  },
+  'cohere.command-r-v1:0': {
+    promptTemplate: COMMANDR_PROMPT,
+    createBodyText: createBodyTextCommandR,
+    extractOutputText: extractOutputTextCommandR,
+  },
+  'cohere.command-r-plus-v1:0': {
+    promptTemplate: COMMANDR_PROMPT,
+    createBodyText: createBodyTextCommandR,
+    extractOutputText: extractOutputTextCommandR,
   },
 };
 
