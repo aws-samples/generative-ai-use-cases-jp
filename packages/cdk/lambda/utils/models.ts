@@ -539,10 +539,6 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     extractOutputImage: (response: BedrockImageGenerationResponse) => string;
   };
 } = {
-  'stability.stable-diffusion-xl-v0': {
-    createBodyImage: createBodyImageStableDiffusion,
-    extractOutputImage: extractOutputImageStableDiffusion,
-  },
   'stability.stable-diffusion-xl-v1': {
     createBodyImage: createBodyImageStableDiffusion,
     extractOutputImage: extractOutputImageStableDiffusion,

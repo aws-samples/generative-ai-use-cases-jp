@@ -164,9 +164,10 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
 
-2024/03 現在、マルチモーダルのモデルは以下です。
+2024/05 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 ```
@@ -175,18 +176,19 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0"
   ]
 ```
 
-> 2024/03 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
+> 2024/05 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
 
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-現状このソリューションが対応しているモデルは以下です
+このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
 "anthropic.claude-3-opus-20240229-v1:0",
@@ -206,6 +208,14 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "mistral.mistral-7b-instruct-v0:2",
 ```
 
+
+このソリューションが対応している画像生成モデルは以下です。
+
+```
+"amazon.titan-image-generator-v1",
+"stability.stable-diffusion-xl-v1",
+```
+
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
@@ -215,12 +225,15 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
   "modelIds": [
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
-    "anthropic.claude-v2:1",
-    "anthropic.claude-instant-v1"
+    "meta.llama3-70b-instruct-v1:0",
+    "meta.llama3-8b-instruct-v1:0",
+    "cohere.command-r-plus-v1:0",
+    "cohere.command-r-v1:0",
+    "mistral.mistral-large-2402-v1:0",
   ],
   "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v1",
     "stability.stable-diffusion-xl-v1",
-    "amazon.titan-image-generator-v1"
   ],
 ```
 
