@@ -6,6 +6,7 @@ import {
   TitanParams,
   LlamaParams,
   MistralParams,
+  CommandRParams,
   GenerateImageParams,
   Model,
   PromptTemplate,
@@ -97,6 +98,16 @@ const MISTRAL_PROMPT: PromptTemplate = {
   eosToken: '</s>',
 };
 
+const COMMANDR_PROMPT: PromptTemplate = {
+  prefix: '',
+  suffix: '',
+  join: '',
+  user: '',
+  assistant: '',
+  system: '',
+  eosToken: '',
+};
+
 const BILINGUAL_RINNA_PROMPT: PromptTemplate = {
   prefix: '',
   suffix: 'システム: ',
@@ -154,6 +165,17 @@ const MISTRAL_DEFAULT_PARAMS: MistralParams = {
   temperature: 0.6,
   stop: [MISTRAL_PROMPT.eosToken, '[INST]'],
 };
+
+const COMMANDR_DEFAULT_PARAMS: CommandRParams = {
+  max_tokens: 3000,
+  temperature: 0.3,
+  p: 0.75,
+  k: 0,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  stop_sequences: [],
+};
+
 
 // Model Config
 
@@ -236,6 +258,23 @@ const createBodyTextMistral = (messages: UnrecordedMessage[]) => {
   return JSON.stringify(body);
 };
 
+const createBodyTextCommandR = (messages: UnrecordedMessage[]) => {
+  const system = messages.find((message) => message.role === 'system');
+  messages = messages.filter((message) => message.role !== 'system');
+  const body: CommandRParams = {
+    preamble: system?.content,
+    message: messages.pop()?.content,
+    chat_history: messages.map((msg) => {
+      return {
+        role: msg.role === 'user' ? 'USER' : 'CHATBOT',
+        message: msg.content,
+      };
+    }),
+    ...COMMANDR_DEFAULT_PARAMS,
+  };
+  return JSON.stringify(body);
+};
+
 const extractOutputTextClaude = (body: BedrockResponse): string => {
   return body.completion;
 };
@@ -259,6 +298,10 @@ const extractOutputTextLlama = (body: BedrockResponse): string => {
 
 const extractOutputTextMistral = (body: BedrockResponse): string => {
   return body.outputs[0].text;
+};
+
+const extractOutputTextCommandR = (body: BedrockResponse): string => {
+  return body.text;
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -405,6 +448,16 @@ export const BEDROCK_MODELS: {
     promptTemplate: MISTRAL_PROMPT,
     createBodyText: createBodyTextMistral,
     extractOutputText: extractOutputTextMistral,
+  },
+  'cohere.command-r-v1:0': {
+    promptTemplate: COMMANDR_PROMPT,
+    createBodyText: createBodyTextCommandR,
+    extractOutputText: extractOutputTextCommandR,
+  },
+  'cohere.command-r-plus-v1:0': {
+    promptTemplate: COMMANDR_PROMPT,
+    createBodyText: createBodyTextCommandR,
+    extractOutputText: extractOutputTextCommandR,
   },
 };
 

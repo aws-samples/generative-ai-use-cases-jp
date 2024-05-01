@@ -202,6 +202,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "mistral.mistral-7b-instruct-v0:2",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-large-2402-v1:0",
+"cohere.command-r-v1:0",
+"cohere.command-r-plus-v1:0"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
