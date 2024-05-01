@@ -37,7 +37,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 <details>
    <summary>Agent チャット</summary>
 
-  Agent は LLM を API と連携することでさまざまなタスクを行えるようにする手法です。このソリューショ実装実装として検索エンジンを利用し必要な情報を調査して回答する Agent を実装しています。
+  Agent は LLM を API と連携することでさまざまなタスクを行えるようにする手法です。このソリューションではサンプル実装として検索エンジンを利用し必要な情報を調査して回答する Agent を実装しています。
 
   <img src="/imgs/usecase_agent.gif"/>
 </details>
