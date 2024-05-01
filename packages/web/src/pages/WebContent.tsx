@@ -220,7 +220,7 @@ const WebContent: React.FC = () => {
           </Alert>
         )}
 
-        <Card label="コンテンツを抽出したい Web ページ">
+        <Card label="コンテンツを抽出したい Web サイト">
           <div className="mb-2 flex w-full">
             <Select
               value={modelId}
