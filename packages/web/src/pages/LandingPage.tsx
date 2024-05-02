@@ -251,7 +251,7 @@ const LandingPage: React.FC = () => {
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
         <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
-          使用例
+          試す
         </Button>
         をクリックすることで、各ユースケースを体験できます。
       </div>
@@ -338,7 +338,7 @@ const LandingPage: React.FC = () => {
           label="ブログ記事作成"
           onClickDemo={demoBlog}
           icon={<PiPen />}
-          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。使用例では、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
+          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
         />
         <CardDemo
           label="議事録作成"
