@@ -2,7 +2,7 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の context で設定を変更します。
+GenU は、AWS CDK の context で設定を変更します。
 
 **CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
 
@@ -158,9 +158,10 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
 
-2024/03 現在、マルチモーダルのモデルは以下です。
+2024/05 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 ```
@@ -169,33 +170,44 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0"
   ]
 ```
 
-> 2024/03 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
+> 2024/05 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
 
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-現状このソリューションが対応しているモデルは以下です
+このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
-"anthropic.claude-v2",
-"anthropic.claude-v2:1",
-"anthropic.claude-instant-v1",
-"meta.llama3-8b-instruct-v1:0",
 "meta.llama3-70b-instruct-v1:0",
-"meta.llama2-13b-chat-v1",
-"meta.llama2-70b-chat-v1",
-"mistral.mistral-7b-instruct-v0:2",
-"mistral.mixtral-8x7b-instruct-v0:1",
+"meta.llama3-8b-instruct-v1:0",
+"cohere.command-r-plus-v1:0",
+"cohere.command-r-v1:0",
 "mistral.mistral-large-2402-v1:0",
+"anthropic.claude-v2:1",
+"anthropic.claude-v2",
+"anthropic.claude-instant-v1",
+"meta.llama2-70b-chat-v1",
+"meta.llama2-13b-chat-v1",
+"mistral.mixtral-8x7b-instruct-v0:1",
+"mistral.mistral-7b-instruct-v0:2",
+```
+
+
+このソリューションが対応している画像生成モデルは以下です。
+
+```
+"amazon.titan-image-generator-v1",
+"stability.stable-diffusion-xl-v1",
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -207,12 +219,15 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
   "modelIds": [
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
-    "anthropic.claude-v2:1",
-    "anthropic.claude-instant-v1"
+    "meta.llama3-70b-instruct-v1:0",
+    "meta.llama3-8b-instruct-v1:0",
+    "cohere.command-r-plus-v1:0",
+    "cohere.command-r-v1:0",
+    "mistral.mistral-large-2402-v1:0",
   ],
   "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v1",
     "stability.stable-diffusion-xl-v1",
-    "amazon.titan-image-generator-v1"
   ],
 ```
 
@@ -282,7 +297,7 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
 
-設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、サービスに進むことができなくなります。また、AWSマネジメントコンソールで、Cognitoのページで「ユーザを作成」を実行したときにエラーになります。
+設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、GenU へのサインアップができなくなります。また、AWSマネジメントコンソールで、Cognitoのサービス画面から「ユーザを作成」を実行したときにエラーになります。
 
 既にCognitoに作成されているユーザには影響ありません。新規にサインアップ・作成しようとしているユーザのみに適用されます。
 
@@ -315,7 +330,7 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 #### IP アドレスによる制限
 
-Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
+Web アプリへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
 
 ```json
   "context": {
@@ -326,7 +341,7 @@ Web ページへのアクセスを IP で制限したい場合、AWS WAF によ�
 
 #### 地理的制限
 
-Web ページへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
+Web アプリへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
 指定する国の Country Code は[ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2)をご参照ください。
 ```json
   "context": {
@@ -359,7 +374,7 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 ## モニタリング用のダッシュボードの有効化
 
 入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
-**ダッシュボードはアプリケーションに組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
+**ダッシュボードは GenU に組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
 Amazon CloudWatch のダッシュボードは、[マネージメントコンソール](https://console.aws.amazon.com/cloudwatch/home#dashboards)から閲覧できます。
 ダッシュボードを閲覧するには、マネージメントコンソールにログイン可能かつダッシュボードが閲覧可能な権限を持った IAM ユーザーの作成が必要です。
 
@@ -434,9 +449,9 @@ cdk.json には以下の値を設定します。
 
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
-別 AWS アカウントの Bedrock を利用することができます。前提条件として、本サンプルアプリケーションによるデプロイは完了済みとします。
+別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 
-別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、本サンプルアプリケーションでデプロイされた以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
+別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、GenU デプロイ時に作成された以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
 
 - `GenerativeAiUseCasesStack-APIPredictTitleService`
 - `GenerativeAiUseCasesStack-APIPredictService`

@@ -135,6 +135,7 @@ const useChatState = create<{
       prompt: prompter.setTitlePrompt({
         messages: omitUnusedMessageProperties(get().chats[id].messages),
       }),
+      id: '/title',
     });
     setTitle(id, title);
   };
@@ -441,6 +442,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: formattedMessages,
+        id: id,
       });
 
       // Assistant の発言を更新
