@@ -104,6 +104,23 @@ if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
   throw new Error('vpcId must start with "vpc-"');
 }
 
+// Agent
+
+const searchAgentEnabled =
+  app.node.tryGetContext('searchAgentEnabled') || false;
+const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
+const searchAgentStack = searchAgentEnabled
+  ? new SearchAgentStack(app, 'WebSearchAgentStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: agentRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
+
+// GenU Stack
+
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
   'GenerativeAiUseCasesStack',
@@ -125,27 +142,13 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     hostName,
     domainName,
     hostedZoneId,
+    agents: searchAgentStack?.agents,
   }
 );
 
 cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
-
-// Agent
-
-const searchAgentEnabled =
-  app.node.tryGetContext('searchAgentEnabled') || false;
-const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
-
-if (searchAgentEnabled) {
-  new SearchAgentStack(app, 'WebSearchAgentStack', {
-    env: {
-      account: process.env.CDK_DEFAULT_ACCOUNT,
-      region: agentRegion,
-    },
-  });
-}
 
 const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;
