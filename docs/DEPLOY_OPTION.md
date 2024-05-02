@@ -2,7 +2,7 @@
 
 ## 設定方法
 
-このアプリケーションは、AWS CDK の context で設定を変更します。
+GenU は、AWS CDK の context で設定を変更します。
 
 **CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
 
@@ -303,7 +303,7 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
 
-設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、サービスに進むことができなくなります。また、AWSマネジメントコンソールで、Cognitoのページで「ユーザを作成」を実行したときにエラーになります。
+設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、GenU へのサインアップができなくなります。また、AWSマネジメントコンソールで、Cognitoのサービス画面から「ユーザを作成」を実行したときにエラーになります。
 
 既にCognitoに作成されているユーザには影響ありません。新規にサインアップ・作成しようとしているユーザのみに適用されます。
 
@@ -336,7 +336,7 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 #### IP アドレスによる制限
 
-Web ページへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
+Web アプリへのアクセスを IP で制限したい場合、AWS WAF による IP 制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
 
 ```json
   "context": {
@@ -347,7 +347,7 @@ Web ページへのアクセスを IP で制限したい場合、AWS WAF によ�
 
 #### 地理的制限
 
-Web ページへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
+Web アプリへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
 指定する国の Country Code は[ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2)をご参照ください。
 ```json
   "context": {
@@ -380,7 +380,7 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 ## モニタリング用のダッシュボードの有効化
 
 入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
-**ダッシュボードはアプリケーションに組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
+**ダッシュボードは GenU に組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
 Amazon CloudWatch のダッシュボードは、[マネージメントコンソール](https://console.aws.amazon.com/cloudwatch/home#dashboards)から閲覧できます。
 ダッシュボードを閲覧するには、マネージメントコンソールにログイン可能かつダッシュボードが閲覧可能な権限を持った IAM ユーザーの作成が必要です。
 
@@ -455,9 +455,9 @@ cdk.json には以下の値を設定します。
 
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
-別 AWS アカウントの Bedrock を利用することができます。前提条件として、本サンプルアプリケーションによるデプロイは完了済みとします。
+別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 
-別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、本サンプルアプリケーションでデプロイされた以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
+別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、GenU デプロイ時に作成された以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
 
 - `GenerativeAiUseCasesStack-APIPredictTitleService`
 - `GenerativeAiUseCasesStack-APIPredictService`

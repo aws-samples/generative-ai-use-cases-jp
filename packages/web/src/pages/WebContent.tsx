@@ -220,7 +220,7 @@ const WebContent: React.FC = () => {
           </Alert>
         )}
 
-        <Card label="コンテンツを抽出したい Web ページ">
+        <Card label="コンテンツを抽出したい Web サイト">
           <div className="mb-2 flex w-full">
             <Select
               value={modelId}
@@ -233,7 +233,7 @@ const WebContent: React.FC = () => {
 
           <div className="text-xs text-black/50">
             ブログ、記事、ドキュメント等、テキストがメインコンテンツである Web
-            ページを指定してください。そうでない場合、正常に出力されないことがあります。
+            サイトを指定してください。そうでない場合、正常に出力されないことがあります。
           </div>
 
           <RowItem>

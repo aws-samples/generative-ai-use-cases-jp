@@ -43,7 +43,7 @@ const KendraSearchPage: React.FC = () => {
           <span className="font-bold">
             生成 AI は利用していません。RAG は
             <Link className="text-aws-smile" to="/rag">
-              こちら
+              RAG チャット
             </Link>
             で実行できます。
           </span>
