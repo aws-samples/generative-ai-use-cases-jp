@@ -83,8 +83,7 @@ const systemContexts: { [key: string]: string } = {
 }
 </output>だけを出力します。また negative prompt も必ず出力します。[INST]
 `,
-  '/video':
-    'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。また出力は {} で囲わないでください。',
+  '/video':`dummy`,
 };
 
 export const mistralPrompter: Prompter = {
@@ -225,7 +224,7 @@ ${params
     }
   },
   videoAnalyzerPrompt(params: VideoAnalyzerParams): string {
-    return `<input>${params.content}</input>`;
+    return `dummy${params.content}dummy`;
   },
   setTitlePrompt(params: SetTitleParams): string {
     return `以下はユーザーとAIアシスタントの会話です。まずはこちらを読み込んでください。<conversation>${JSON.stringify(
