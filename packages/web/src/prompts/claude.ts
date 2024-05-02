@@ -59,10 +59,10 @@ const systemContexts: { [key: string]: string } = {
 
 <output>
 {
-  prompt: string,
-  negativePrompt: string,
-  comment: string
-  recommendedStylePreset: string[]
+  "prompt": string,
+  "negativePrompt": string,
+  "comment": string,
+  "recommendedStylePreset": string[]
 }
 </output>
 

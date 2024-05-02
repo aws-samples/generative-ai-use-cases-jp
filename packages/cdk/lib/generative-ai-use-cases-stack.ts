@@ -14,6 +14,7 @@ import {
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Agent } from 'generative-ai-use-cases-jp';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -32,6 +33,7 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
+  agents?: Agent[];
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -92,6 +94,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
+      agents: props.agents,
     });
 
     if (

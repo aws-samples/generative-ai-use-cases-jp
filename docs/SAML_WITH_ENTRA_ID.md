@@ -2,7 +2,7 @@
 Microsoft Entra ID (旧 Azure Active Directory) と SAML 連携を行う参考手順を紹介します。詳細なパラメーターは各環境に合わせて変更してください。
 
 # 事前作業
-Generative AI Use Cases JP の初回デプロイを行います。初回デプロイを行ったあと、Cognito と Entra ID の SAML 連携を行います。
+GenU の初回デプロイを行います。初回デプロイを行ったあと、Cognito と Entra ID の SAML 連携を行います。
 
 CloudFormation の Stack の画面で Outputs タブを開き、WebUrl をメモします。
 

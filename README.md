@@ -1,13 +1,13 @@
 > [!IMPORTANT]
 > This repository is currently developed for Japanese users. If you wish for multilingual support, please react to [this issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues/151).
 
-# Generative AI Use Cases JP
+# Generative AI Use Cases JP (略称:GenU)
 
-Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性をもたらします。このリポジトリでは、Generative AI を活用したビジネスユースケースをデモンストレーションしています。
+Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性をもたらします。GenU は、生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装です。
 
 ![sc_lp.png](/imgs/sc_lp.png)
 
-このリポジトリではブラウザ拡張機能も提供しており、より便利に Generative AI を活用することができます。詳しくは[こちらのページ](/browser-extension/README.md)をご覧ください。
+このリポジトリではブラウザ拡張機能も提供しており、より便利に 生成 AI を活用することができます。詳しくは[こちらのページ](/browser-extension/README.md)をご覧ください。
 
 ![拡張機能](/imgs/extension/extension_demo.png)
 
@@ -21,7 +21,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 <details>
   <summary>チャット</summary>
 
-  LLM とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。
+  大規模言語モデル (LLM) とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。
 
   <img src="/imgs/usecase_chat.gif"/>
 </details>
@@ -103,16 +103,16 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 ## アーキテクチャ
 
-このサンプルでは、フロントエンドは React を用いて実装し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
 
 ![arch.drawio.png](/imgs/arch.drawio.png)
 
 ## デプロイ
 
 > [!IMPORTANT]
-> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude 3 Sonnet モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude 3 Sonnet にチェックして Save changes してください。Claude Instant を利用する場合など、設定を変更する方法については [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
+> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude 3 Sonnet モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude 3 Sonnet にチェックして Save changes してください。その他のモデル (Anthropic Claude 3 Haiku, Meta Llama3, Cohere Command-R など) を利用するために設定を変更する方法については [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
 
-アプリケーションは [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用してデプロイします。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
+GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
@@ -169,9 +169,16 @@ npm run cdk:deploy
  - [ネイティブアプリのように利用する方法](/docs/PWA.md)
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 
+## 料金試算
+[GenU をご利用いただく際の、構成と料金試算例](https://aws.amazon.com/jp/cdp/ai-chatapp/)を公開しております。  
+この料金試算例は、Amazon Kendra を活用した RAG チャット機能を有効化する前提となっています。
+セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
+従量課金制となっており、実際の料金はご利用内容により変動いたします。
+
 ## 参照
  - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
+ - [ブログ: 無茶振りは生成 AI に断ってもらおう ~ ブラウザに生成 AI を組み込んでみた ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
 
 ## Security
 

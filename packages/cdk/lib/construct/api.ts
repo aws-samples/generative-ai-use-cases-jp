@@ -20,6 +20,7 @@ export interface BackendApiProps {
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
+  agents?: Agent[];
 }
 
 export class Api extends Construct {
@@ -52,7 +53,10 @@ export class Api extends Construct {
     ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
-    const agents: Agent[] = this.node.tryGetContext('agents') || [];
+    const agents: Agent[] = [
+      ...(props.agents || []),
+      ...(this.node.tryGetContext('agents') || []),
+    ];
 
     // Validate Model Names
     const supportedModelIds = [
@@ -64,7 +68,6 @@ export class Api extends Construct {
       'anthropic.claude-instant-v1',
       // Titan は日本語文字化けのため未対応
       // 'amazon.titan-text-express-v1',
-      'stability.stable-diffusion-xl-v0',
       'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',
@@ -74,6 +77,8 @@ export class Api extends Construct {
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
       'mistral.mistral-large-2402-v1:0',
+      'cohere.command-r-v1:0',
+      'cohere.command-r-plus-v1:0',
     ];
     const multiModalModelIds = [
       'anthropic.claude-3-opus-20240229-v1:0',
