@@ -97,10 +97,9 @@ export const mistralPrompter: Prompter = {
     return params.content;
   },
   summarizePrompt(params: SummarizeParams): string {
-    return `これから文章を与えるので${!params.context? '' : `「${params.context}」という指示に従って`}要約してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は要約結果だけを <output>{要約結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]$「{params.sentence}」`;
+    return `これから文章を与えるので${!params.context? '' : `「${params.context}」という指示に従って`}要約してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は要約結果だけを <output>{要約結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
   },
   editorialPrompt(params: EditorialParams): string {
-    console.log('using mistral editorial prompt');
     return `これから文章を与えるので、${params.context? '': `「${params.context}」という指示に従って`}文章について問題がある部分だけを日本語で指摘してください。
 ただし、出力は <output>[{excerpt: {指摘箇所}, replace: {適切な表現}, comment: {理由}}]</output> で出力し、指摘事項がない場合は空配列を出力してください。出力は<output>タグで囲ったものだけを出力してください。xmlタグの外に解説などを入れてはいけません。
 例えば入力が「こちらの資料でよろしかったでしょうか」だった場合は、以下のように出力してください。
@@ -112,25 +111,41 @@ export const mistralPrompter: Prompter = {
   }
 ]</output>
 だけを出力します。
-また、入力が「あたしはどこでも寝れます」だった場合は、以下のように出力してください。
+入力が「あたしはどこでも寝れます」だった場合は、以下のように出力してください。
 <output>[
   {
     "excerpt":"あたし", 
     "replace":"私",
-    "comment":"あたしという表現は文書には不適切"
+    "comment":"あたしという表現は不適切"
   },
   {
     "excerpt":"寝れます", 
     "replace":"寝られます",
     "comment":"ら抜き言葉"
   }
-]</output>だけを出力します。[/INST]わかりました。[INST]${params.sentence}`;
+]</output>
+入力が「本をお読みになられる」だった場合は、以下のように出力してください。
+<output>[
+  {
+    "excerpt":"お読みになられる", 
+    "replace":"お読みになる",
+    "comment":"二重敬語"
+  }
+]</output>
+入力が「田中様が伺う」だった場合は、以下のように出力してください。
+<output>[
+  {
+    "excerpt":"伺う", 
+    "replace":"お越しになる",
+    "comment":"謙譲語ではなく尊敬語を使う"
+  }
+]</output>
+[/INST]わかりました。[INST]${params.sentence}`;
   },
   generateTextPrompt(params: GenerateTextParams): string {
     return `これから文章を与えるので「${params.context}」という指示通りに日本語の文章に変換してください。出力は変換結果の文章だけを <output>{変換結果の文章}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.information}`;
   },
   translatePrompt(params: TranslateParams): string {
-    console.log('using mistral translate prompt');
     return `これから文章を与えるので${params.language}に翻訳してください。${!params.context? '' : `また「${params.context}」という指示を守ってください。`}出力は${params.language}の翻訳結果だけを <output>{${params.language}の翻訳結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
   },
   webContentPrompt(params: WebContentParams): string {

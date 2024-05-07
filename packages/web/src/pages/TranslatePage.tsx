@@ -183,7 +183,7 @@ const TranslatePage: React.FC = () => {
       },
       1000
     ),
-    []
+    [prompter]
   );
 
   // リアルタイムにレスポンスを表示
@@ -246,7 +246,7 @@ const TranslatePage: React.FC = () => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading, prompter]);
 
   // リセット
   const onClickClear = useCallback(() => {

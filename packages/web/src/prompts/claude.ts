@@ -104,7 +104,6 @@ ${params.context}
 `;
   },
   editorialPrompt(params: EditorialParams): string {
-    console.log('using claude editorial prompt')
     return `<input>${params.sentence}</input>
 ${
   params.context
@@ -126,7 +125,6 @@ ${params.context}
 </作成する文章の形式>`;
   },
   translatePrompt(params: TranslateParams): string {
-    console.log('using claude translate prompt')
     return `<input>${params.sentence}</input><language>${params.language}</language>
 ${
   !params.context

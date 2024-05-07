@@ -5,10 +5,8 @@ import { mistralPrompter } from './mistral';
 
 export const getPrompter = (modelId: string) => {
   if (modelId.startsWith('anthropic.claude-')) {
-    console.log('claude prompter')
     return claudePrompter;
   } else if (modelId.startsWith('mistral.mi')) {
-    console.log('mistral prompter')
     return mistralPrompter;
   } else {
     // デフォルトでは Claude の prompter を返す
