@@ -196,7 +196,7 @@ const EditorialPage: React.FC = () => {
       },
       1000
     ),
-    []
+    [prompter]
   );
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
@@ -248,7 +248,7 @@ const EditorialPage: React.FC = () => {
     if (loading) return;
     getAnnotation(sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading, prompter]);
 
   // リセット
   const onClickClear = useCallback(() => {
