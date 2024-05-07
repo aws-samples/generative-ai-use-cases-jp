@@ -10,9 +10,9 @@ export const getPrompter = (modelId: string) => {
     return mistralPrompter;
   } else {
     // デフォルトでは Claude の prompter を返す
-  // modelId は初期時に空文字が入っているため
-  // 初期モデルが Claude ではない場合も、一時的に claudePrompter が選択されている状態になるが
-  // modelId が更新されると適切なモデルが選択されるため、その状態を許容する
+    // modelId は初期時に空文字が入っているため
+    // 初期モデルが Claude ではない場合も、一時的に claudePrompter が選択されている状態になるが
+    // modelId が更新されると適切なモデルが選択されるため、その状態を許容する
     return claudePrompter;
   }
 };

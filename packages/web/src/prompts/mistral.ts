@@ -14,11 +14,13 @@ import {
 
 const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援する AI アシスタントです。',
-  '/summarize':'あなたは文章を要約する AI アシスタントです。',
-  '/editorial':'あなたは文章を校正する AI アシスタントで適切に修正すべき箇所を指摘します。',
-  '/generate':'あなたは指示に従って文章を作成するライターです。',
-  '/translate':'あなたは文章を翻訳する AI アシスタントです。',
-  '/web-content': 'あなたは HTML からメインのコンテンツだけを抽出する仕事に従事してます。',
+  '/summarize': 'あなたは文章を要約する AI アシスタントです。',
+  '/editorial':
+    'あなたは文章を校正する AI アシスタントで適切に修正すべき箇所を指摘します。',
+  '/generate': 'あなたは指示に従って文章を作成するライターです。',
+  '/translate': 'あなたは文章を翻訳する AI アシスタントです。',
+  '/web-content':
+    'あなたは HTML からメインのコンテンツだけを抽出する仕事に従事してます。',
   '/rag': 'あなたは',
   '/image': `あなたはStable Diffusion のプロンプトを生成するAIアシスタントです。
 これからテキストを与えます。### ステップ の手順で StableDiffusion のプロンプトを生成してください。
@@ -83,7 +85,7 @@ const systemContexts: { [key: string]: string } = {
 }
 </output>だけを出力します。また negative prompt も必ず出力します。[INST]
 `,
-  '/video':`dummy`,
+  '/video': `dummy`,
 };
 
 export const mistralPrompter: Prompter = {
@@ -97,10 +99,10 @@ export const mistralPrompter: Prompter = {
     return params.content;
   },
   summarizePrompt(params: SummarizeParams): string {
-    return `これから文章を与えるので${!params.context? '' : `「${params.context}」という指示に従って`}要約してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は要約結果だけを <output>{要約結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
+    return `これから文章を与えるので${!params.context ? '' : `「${params.context}」という指示に従って`}要約してください。それ以外の文言は一切出力してはいけません。例外はありません。出力は要約結果だけを <output>{要約結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
   },
   editorialPrompt(params: EditorialParams): string {
-    return `これから文章を与えるので、${params.context? '': `「${params.context}」という指示に従って`}文章について問題がある部分だけを日本語で指摘してください。
+    return `これから文章を与えるので、${params.context ? '' : `「${params.context}」という指示に従って`}文章について問題がある部分だけを日本語で指摘してください。
 ただし、出力は <output>[{excerpt: {指摘箇所}, replace: {適切な表現}, comment: {理由}}]</output> で出力し、指摘事項がない場合は空配列を出力してください。出力は<output>タグで囲ったものだけを出力してください。xmlタグの外に解説などを入れてはいけません。
 例えば入力が「こちらの資料でよろしかったでしょうか」だった場合は、以下のように出力してください。
 <output>[
@@ -146,10 +148,10 @@ export const mistralPrompter: Prompter = {
     return `これから文章を与えるので「${params.context}」という指示通りに日本語の文章に変換してください。出力は変換結果の文章だけを <output>{変換結果の文章}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.information}`;
   },
   translatePrompt(params: TranslateParams): string {
-    return `これから文章を与えるので${params.language}に翻訳してください。${!params.context? '' : `また「${params.context}」という指示を守ってください。`}出力は${params.language}の翻訳結果だけを <output>{${params.language}の翻訳結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
+    return `これから文章を与えるので${params.language}に翻訳してください。${!params.context ? '' : `また「${params.context}」という指示を守ってください。`}出力は${params.language}の翻訳結果だけを <output>{${params.language}の翻訳結果}</output> のように xml タグで囲って出力してください。それ以外の文章は一切出力してはいけません。例外はありません。[/INST]わかりました。[INST]${params.sentence}`;
   },
   webContentPrompt(params: WebContentParams): string {
-    return `これから <input> タグで囲って html からタグを除去したテキストを与えます。${params.context? '': `「${params.context}」という指示に従って`}メインコンテンツの文章のみを書かれている言語のまま抽出してください。
+    return `これから <input> タグで囲って html からタグを除去したテキストを与えます。${params.context ? '' : `「${params.context}」という指示に従って`}メインコンテンツの文章のみを書かれている言語のまま抽出してください。
 ただし抽出する時は以下のステップで実施します。
 文章全体を眺めて何に関するトピックなのかを考えます。
 次にトピックと外れるメインコンテンツの文章ではない削除すべき文章を削除します。削除すべき文章は例えば以下のようなものが考えられます。
@@ -240,8 +242,10 @@ ${params
 </input>`;
     }
   },
-  videoAnalyzerPrompt(params: VideoAnalyzerParams): string {
-    return `dummy${params.content}dummy`;
+  // 現状 mistral では画像を利用できないので空文字を返す
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  videoAnalyzerPrompt(_params: VideoAnalyzerParams): string {
+    return ``;
   },
   setTitlePrompt(params: SetTitleParams): string {
     return `以下はユーザーとAIアシスタントの会話です。まずはこちらを読み込んでください。<conversation>${JSON.stringify(
