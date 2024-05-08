@@ -261,7 +261,7 @@ const EditorialPage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
-          <div className="mb-2 flex w-full items-center justify-between">
+          <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
             <Select
               value={modelId}
               onChange={setModelId}
