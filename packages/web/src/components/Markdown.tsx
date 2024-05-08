@@ -56,7 +56,7 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
     <ReactMarkdown
       className={`${
         className ?? ''
-      } prose prose-code:w-1/5 max-w-sm break-all sm:max-w-md md:max-w-2xl lg:max-w-screen-md`}
+      } prose prose-code:w-1/5 max-w-full break-all`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
