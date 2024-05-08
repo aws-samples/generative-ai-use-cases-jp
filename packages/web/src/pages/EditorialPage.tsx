@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -7,6 +7,7 @@ import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
 import useChat from '../hooks/useChat';
+import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
@@ -106,7 +107,7 @@ const EditorialPage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [auto, setAuto] = useState(true);
+  const [auto, setAuto] = useLocalStorageBoolean('Auto_Editorial', true);
 
   useEffect(() => {
     updateSystemContextByModel();

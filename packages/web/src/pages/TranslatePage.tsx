@@ -11,6 +11,7 @@ import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
+import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 import { PiMicrophoneBold, PiStopCircleBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
@@ -112,7 +113,7 @@ const TranslatePage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [auto, setAuto] = useState(true);
+  const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
 
   useEffect(() => {
