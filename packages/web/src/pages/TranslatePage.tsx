@@ -266,7 +266,7 @@ const TranslatePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="翻訳したい文章">
-          <div className="flex w-full items-between justify-between flex-col sm:flex-row">
+          <div className="flex w-full flex-col justify-between sm:flex-row">
             <Select
               value={modelId}
               onChange={setModelId}
