@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
+import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import Markdown from '../components/Markdown';
 import useFile from '../hooks/useFile';
 
@@ -74,9 +75,12 @@ const FileUploadPage: React.FC = () => {
 
             <div className="flex w-full justify-end">
               {recognizedText && (
-                <ButtonCopy
-                  text={recognizedText}
-                  interUseCasesKey="transcript"></ButtonCopy>
+                <>
+                  <ButtonCopy
+                    text={recognizedText}
+                    interUseCasesKey="transcript"></ButtonCopy>
+                  <ButtonSendToUseCase text={recognizedText} />
+                </>
               )}
             </div>
           </div>

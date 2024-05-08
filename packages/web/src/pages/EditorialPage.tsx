@@ -42,8 +42,18 @@ const useEditorialPageState = create<StateType>((set) => {
   return {
     ...INIT_STATE,
     setSentence: (s: string) => {
+      // Claude だと全角を半角に変換して出力するため入力を先に正規化
+      const sentence = s
+        .replace(REGEX_ZENKAKU, (s) => {
+          return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+        })
+        .replace(/[‐－―]/g, '-') // ハイフンなど
+        .replace(/[～〜]/g, '~') // チルダ
+        // eslint-disable-next-line no-irregular-whitespace
+        .replace(/　/g, ' '); // スペース
+
       set(() => ({
-        sentence: s,
+        sentence,
       }));
     },
     setAdditionalContext: (s: string) => {
@@ -142,20 +152,6 @@ const EditorialPage: React.FC = () => {
   // 文章の更新時にコメントを更新
   useEffect(() => {
     if (auto) {
-      // Claude だと全角を半角に変換して出力するため入力を先に正規化
-      if (sentence !== '') {
-        setSentence(
-          sentence
-            .replace(REGEX_ZENKAKU, (s) => {
-              return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-            })
-            .replace(/[‐－―]/g, '-') // ハイフンなど
-            .replace(/[～〜]/g, '~') // チルダ
-            // eslint-disable-next-line no-irregular-whitespace
-            .replace(/　/g, ' ') // スペース
-        );
-      }
-
       // debounce した後コメント更新
       onSentenceChange(
         sentence,
