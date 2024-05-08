@@ -162,7 +162,7 @@ const CLAUDE_MESSAGE_USECASE_PARAMS: ClaudeMessageParamsUsecases = {
 
 const TITAN_TEXT_DEFAULT_PARAMS: TitanParams = {
   textGenerationConfig: {
-    maxTokenCount: 8000,
+    maxTokenCount: 3072,
     stopSequences: ['User:'],
     temperature: 0.7,
     topP: 1.0,
