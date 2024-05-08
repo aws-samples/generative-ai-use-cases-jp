@@ -220,7 +220,9 @@ const TranslatePage: React.FC = () => {
       new Set(transcriptMic.map((t) => t.transcript))
     ).join('');
 
-    setSentence(combinedTranscript);
+    if (combinedTranscript.length > 0) {
+      setSentence(combinedTranscript);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcriptMic]);
