@@ -162,10 +162,10 @@ const CLAUDE_MESSAGE_USECASE_PARAMS: ClaudeMessageParamsUsecases = {
 
 const TITAN_TEXT_DEFAULT_PARAMS: TitanParams = {
   textGenerationConfig: {
-    maxTokenCount: 2048,
+    maxTokenCount: 3072,
     stopSequences: ['User:'],
-    temperature: 0.6,
-    topP: 0.999,
+    temperature: 0.7,
+    topP: 1.0,
   },
 };
 
@@ -482,6 +482,11 @@ export const BEDROCK_MODELS: {
     extractOutputText: extractOutputTextClaude,
   },
   'amazon.titan-text-express-v1': {
+    promptTemplate: TITAN_TEXT_PROMPT,
+    createBodyText: createBodyTextTitanText,
+    extractOutputText: extractOutputTextTitanText,
+  },
+  'amazon.titan-text-premier-v1:0': {
     promptTemplate: TITAN_TEXT_PROMPT,
     createBodyText: createBodyTextTitanText,
     extractOutputText: extractOutputTextTitanText,

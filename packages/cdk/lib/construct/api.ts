@@ -66,8 +66,9 @@ export class Api extends Construct {
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
-      // Titan は日本語文字化けのため未対応
+      // Titan Express は日本語文字化けのため未対応
       // 'amazon.titan-text-express-v1',
+      'amazon.titan-text-premier-v1:0',
       'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',
