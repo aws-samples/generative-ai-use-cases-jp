@@ -166,7 +166,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       new RecognizeFile(this, 'RecognizeFile', {
         userPool: auth.userPool,
         api: api.api,
-        fileBucket: file.fielBucket,
+        fileBucket: file.fileBucket,
         vpcId: props.vpcId,
       });
     }
