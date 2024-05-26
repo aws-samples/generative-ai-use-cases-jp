@@ -193,6 +193,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "meta.llama3-8b-instruct-v1:0",
 "cohere.command-r-plus-v1:0",
 "cohere.command-r-v1:0",
+"mistral.mistral-small-2402-v1:0",
 "mistral.mistral-large-2402-v1:0",
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
@@ -200,7 +201,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "meta.llama2-70b-chat-v1",
 "meta.llama2-13b-chat-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
-"mistral.mistral-7b-instruct-v0:2",
+"mistral.mistral-7b-instruct-v0:2"
 ```
 
 
@@ -208,7 +209,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ```
 "amazon.titan-image-generator-v1",
-"stability.stable-diffusion-xl-v1",
+"stability.stable-diffusion-xl-v1"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
