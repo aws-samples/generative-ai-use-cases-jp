@@ -521,6 +521,11 @@ export const BEDROCK_MODELS: {
     createBodyText: createBodyTextMistral,
     extractOutputText: extractOutputTextMistral,
   },
+  'mistral.mistral-small-2402-v1:0': {
+    promptTemplate: MISTRAL_PROMPT,
+    createBodyText: createBodyTextMistral,
+    extractOutputText: extractOutputTextMistral,
+  },
   'mistral.mistral-large-2402-v1:0': {
     promptTemplate: MISTRAL_PROMPT,
     createBodyText: createBodyTextMistral,
