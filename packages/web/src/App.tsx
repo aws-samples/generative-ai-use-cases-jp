@@ -137,6 +137,12 @@ const items: ItemProps[] = [
         display: 'tool' as const,
       }
     : null,
+  {
+    label: 'TBD',
+    to: '/translate',
+    icon: <PiGear />,
+    display: 'summit' as const,
+  },
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
