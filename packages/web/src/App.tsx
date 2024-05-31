@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiUploadSimple,
   PiVideoCamera,
+  PiDatabase,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -137,10 +138,11 @@ const items: ItemProps[] = [
         display: 'tool' as const,
       }
     : null,
+  // Summit用
   {
-    label: 'TBD',
-    to: '/translate',
-    icon: <PiGear />,
+    label: 'SQL 生成',
+    to: '/generate-sql',
+    icon: <PiDatabase />,
     display: 'summit' as const,
   },
 ].flatMap((i) => (i !== null ? [i] : []));

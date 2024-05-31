@@ -10,6 +10,7 @@ import {
   TranslateParams,
   VideoAnalyzerParams,
   WebContentParams,
+  GenerateSqlParams,
 } from './index';
 
 const systemContexts: { [key: string]: string } = {
@@ -70,6 +71,77 @@ const systemContexts: { [key: string]: string } = {
 出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
   '/video':
     'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。また出力は {} で囲わないでください。',
+
+  // Summit用
+  '/generate-sql': `以下はユーザーと AI のやりとりです。
+ユーザーは AI に <schemas></schemas> の xml タグで囲って RDB のスキーマ情報を渡します。
+さらに、<input></input> の xml タグで囲って AI に記述して欲しい SQL の説明を渡します。
+AI は、ユーザーの指示をよく理解する熟練のデータベーススペシャリストなので、以下の <rules></rules> を守って、SQL だけを出力してください。
+<rules>
+* <schemas> と <input> の情報を頼りに、ユーザーが求める SQL を ANSI SQL に準拠して出力してください。
+* join する場合はテーブル名に別名をつけた上で、Select 文の列名は必ず \`別名.列名\` と表記してください。
+* GROUP BY や ORDER BY 句には、必ず \`列名\` あるいは \`別名.列名\`を使用することを遵守してください。
+</rules>
+出力は 
+<output>\`\`\`sql
+{SQL}
+\`\`\`</output>
+の形式を遵守してください。
+SQL のコード以外を出力してはいけません。解説なども出力してはいけません。
+出力例を <examples></examples> で与えます。
+
+<examples>
+<output>\`\`\`sql
+SELECT * FROM v_schedule;
+\`\`\`</output>
+<output>\`\`\`sql
+SELECT 
+  e.id AS employee_id, 
+  e.name AS employee_name, 
+  c.id AS company_id, 
+  c.name AS company_name
+FROM
+  employees e
+JOIN
+  companies c ON c.id = e.company_id
+;
+\`\`\`</output>
+<output>\`\`\`sql
+SELECT
+  id,
+  COUNT(price),
+  SUM(price),
+  MIN(price),
+  MAX(price)
+FROM
+  transaction
+GROUP BY
+  id
+;
+\`\`\`</output>
+</examples>
+`,
+  '/explain-sql': `以下はユーザーと AI のやりとりです。
+ユーザーは AI に <schemas></schemas> の xml タグで囲って RDB のスキーマ情報を渡します。
+さらに、<sql></sql> の xml タグで囲って AI に解説して欲しい SQL のコードを渡します。
+AI は SQL の初心者にもわかるように、<sql></sql> の SQL を解説してください。
+ただし、出力は、
+<output>
+{解説}
+</output>
+の形で出力し、それ以外の情報は出さないでください。
+また、SQL がネストされている場合は、ネストの一番小さい部分からコードをコピーして解説をしてください。
+コードをコピーする場合は、
+\`\`\`sql
+{コード}
+\`\`\`
+のようにシンタックスハイライトを効かせながら解説してください。
+また、必ずテーブルの依存関係を graphviz 形式で、
+\`\`\`graphviz
+{graphvizのコード}
+\`\`\`
+で出力してください。
+`,
 };
 
 export const claudePrompter: Prompter = {
@@ -723,5 +795,14 @@ XXX
         ],
       },
     ];
+  },
+  // Summit用
+  generateSqlPrompt(params: GenerateSqlParams): string {
+    return `<schemas>
+${params.schemas}
+</schemas>
+<input>
+${params.instruction}
+</input>`;
   },
 };

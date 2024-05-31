@@ -15,6 +15,7 @@ import {
   PiPen,
   PiRobot,
   PiVideoCamera,
+  PiDatabase,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -30,6 +31,7 @@ import {
   TranslatePageQueryParams,
   WebContentPageQueryParams,
   VideoAnalyzerPageQueryParams,
+  GenerateSqlPageQueryParams,
 } from '../@types/navigate';
 import queryString from 'query-string';
 import { MODELS } from '../hooks/useModel';
@@ -242,6 +244,65 @@ const LandingPage: React.FC = () => {
     ]);
   };
 
+  // Summit用
+
+  const demoGenerateSql = () => {
+    const params: GenerateSqlPageQueryParams = {
+      schemas: `-- ユーザテーブル
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- 支出カテゴリテーブル
+CREATE TABLE expense_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 収入カテゴリテーブル
+CREATE TABLE income_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 支出テーブル
+CREATE TABLE expenses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  amount DECIMAL(10, 2) NOT NULL,
+  date DATE NOT NULL,
+  description VARCHAR(255),
+  category_id INT NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (category_id) REFERENCES expense_categories(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 収入テーブル
+CREATE TABLE incomes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  amount DECIMAL(10, 2) NOT NULL,
+  date DATE NOT NULL,
+  description VARCHAR(255),
+  category_id INT NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (category_id) REFERENCES income_categories(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);`,
+      instruction: `- 2023年下期の支出をカテゴリごとに集計し、支出の多い順に表示する
+- ユーザIDをキーに絞込みする`,
+    };
+    navigate(`/generate-sql?${queryString.stringify(params)}`);
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -345,6 +406,21 @@ const LandingPage: React.FC = () => {
           onClickDemo={demoMeetingReport}
           icon={<PiNotebook />}
           description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
+        />
+      </div>
+
+      <div className="border-aws-squid-ink/50 my-6 border-b-2" />
+
+      <h1 className="mb-6 flex justify-center text-2xl font-bold">
+        AWS Summit Japan 2024 特別ユースケース
+      </h1>
+
+      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
+        <CardDemo
+          label="SQL 生成"
+          onClickDemo={demoGenerateSql}
+          icon={<PiDatabase />}
+          description="テーブル定義の DDL を元に、指示通りに SQL を生成します。アプリケーション開発やデータ分析の効率化が期待できます。"
         />
       </div>
     </div>

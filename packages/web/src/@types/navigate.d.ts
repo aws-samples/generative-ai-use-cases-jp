@@ -66,3 +66,10 @@ export type WebContentPageQueryParams = BaseQueryParams & {
 export type VideoAnalyzerPageQueryParams = BaseQueryParams & {
   content: string;
 };
+
+// Summit用
+
+export type GenerateSqlPageQueryParams = BaseQueryParams & {
+  schemas: string;
+  instruction: string;
+};

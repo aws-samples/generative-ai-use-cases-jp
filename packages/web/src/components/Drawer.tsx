@@ -144,8 +144,8 @@ const Drawer: React.FC<Props> = (props) => {
         </div>
         <div className="border-b" />
 
-        <div className="text-aws-smile mx-3 my-2 text-xs">
-          Summit 用ユースケース <span className="text-gray-400">(生成 AI)</span>
+        <div className="text-aws-smile mx-3 my-2 text-xs font-bold">
+          AWS Summit Japan 2024
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {summitUsecases.map((item, idx) => (
