@@ -88,10 +88,6 @@ const routes: RouteObject[] = [
     path: '/transcribe',
     element: <TranscribePage />,
   },
-  {
-    path: '/slide',
-    element: <GenerateSlidePage />,
-  },
   multiModalEnabled
     ? {
         path: '/video',
@@ -133,6 +129,10 @@ const routes: RouteObject[] = [
         element: <GenerateUIPage />,
       }
     : null,
+  {
+    path: '/slide',
+    element: <GenerateSlidePage />,
+  },
   {
     path: '*',
     element: <NotFound />,

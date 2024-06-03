@@ -1,6 +1,8 @@
 import {
   ChatParams,
   EditorialParams,
+  GenerateDeckParams,
+  GenerateSqlParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -10,6 +12,7 @@ import {
   TranslateParams,
   VideoAnalyzerParams,
   WebContentParams,
+  GenerateSqlParams,
 } from './index';
 
 const systemContexts: { [key: string]: string } = {
@@ -277,5 +280,17 @@ ${params
         ],
       },
     ];
+  },
+  generateDeckPrompt: function (_params: GenerateDeckParams): string {
+    throw new Error('Function not implemented.');
+  },
+  // Summit用
+  generateSqlPrompt(params: GenerateSqlParams): string {
+    return `<schemas>
+${params.schemas}
+</schemas>
+<input>
+${params.instruction}
+</input>`;
   },
 };
