@@ -1,6 +1,8 @@
 import {
   ChatParams,
   EditorialParams,
+  GenerateDeckParams,
+  GenerateSqlParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -277,5 +279,11 @@ ${params
         ],
       },
     ];
+  },
+  generateDeckPrompt: function (_params: GenerateDeckParams): string {
+    throw new Error('Function not implemented.');
+  },
+  generateSqlPrompt: function (_params: GenerateSqlParams): string {
+    throw new Error('Function not implemented.');
   },
 };
