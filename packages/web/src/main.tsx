@@ -25,8 +25,9 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
-import GenerateSlidePage from './pages/GenerateSlidePage.tsx';
+import GenerateSlidePage from './pages/summit/GenerateSlidePage.tsx';
 import { MODELS } from './hooks/useModel';
+import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
@@ -120,6 +121,11 @@ const routes: RouteObject[] = [
         element: <AgentChatPage />,
       }
     : null,
+  // Summit用
+  {
+    path: '/generate-sql',
+    element: <GenerateSqlPage />,
+  },
   {
     path: '*',
     element: <NotFound />,

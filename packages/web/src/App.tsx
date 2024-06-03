@@ -19,6 +19,7 @@ import {
   PiUploadSimple,
   PiVideoCamera,
   PiSlideshow,
+  PiDatabase,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -108,12 +109,6 @@ const items: ItemProps[] = [
     icon: <PiImages />,
     display: 'usecase' as const,
   },
-  {
-    label: 'スライド生成',
-    to: '/slide',
-    icon: <PiSlideshow />,
-    display: 'usecase' as const,
-  },
   multiModalEnabled
     ? {
         label: '映像分析',
@@ -144,6 +139,19 @@ const items: ItemProps[] = [
         display: 'tool' as const,
       }
     : null,
+  // Summit用
+  {
+    label: 'SQL 生成',
+    to: '/generate-sql',
+    icon: <PiDatabase />,
+    display: 'summit' as const,
+  },
+  {
+    label: 'スライド生成',
+    to: '/slide',
+    icon: <PiSlideshow />,
+    display: 'usecase' as const,
+  },
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す

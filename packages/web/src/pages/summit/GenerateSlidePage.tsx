@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import Card from '../components/Card';
-import Select from '../components/Select';
-import useChat from '../hooks/useChat';
+import Card from '../../components/Card';
+import Select from '../../components/Select';
+import useChat from '../../hooks/useChat';
 import { create } from 'zustand';
-import { GenerateTextPageQueryParams } from '../@types/navigate';
-import { MODELS } from '../hooks/useModel';
-import { getPrompter } from '../prompts';
+import { GenerateTextPageQueryParams } from '../../@types/navigate';
+import { MODELS } from '../../hooks/useModel';
+import { getPrompter } from '../../prompts';
 import queryString from 'query-string';
-import InputChatContent from '../components/InputChatContent';
+import InputChatContent from '../../components/InputChatContent';
 import { Marp } from '@marp-team/marp-react';
 
 type StateType = {

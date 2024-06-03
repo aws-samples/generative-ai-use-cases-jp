@@ -65,6 +65,11 @@ export type SetTitleParams = {
   messages: UnrecordedMessage[];
 };
 
+export type GenerateSqlParams = {
+  schemas: string;
+  instruction: string;
+};
+
 export type PromptListItem = {
   title: string;
   systemContext: string;
@@ -91,4 +96,6 @@ export interface Prompter {
   generateDeckPrompt(params: GenerateDeckParams): string;
   setTitlePrompt(params: SetTitleParams): string;
   promptList(): PromptList;
+  // Summit用
+  generateSqlPrompt(params: GenerateSqlParams): string;
 }

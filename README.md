@@ -1,5 +1,16 @@
-> [!IMPORTANT]
-> This repository is currently developed for Japanese users. If you wish for multilingual support, please react to [this issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues/151).
+# AWS Summit Japan 2024 展示
+
+このブランチは、AWS Summit Japan 2024 で展示したデモのコードです。デモの内容やそのコードを参考にしていただくことを目的に公開しています。
+
+> [!CAUTION]
+**`main` ブランチからの差分取り込みは一切しておらず、今後も更新を一切行いません（セキュリティ対応含む）。このブランチをベースに開発することは、セキュリティの観点から推奨しておりません。[こちらの `main` ブランチの最新のコード](https://github.com/aws-samples/generative-ai-use-cases-jp)をベースに開発を行うようにしてください。**
+
+> [!WARNING]
+このままデプロイすると、Amazon Kendra がデプロイされて、利用料金が高額（月額 810 USD）になるためご注意ください。
+
+## Summit デモ用に追加している機能
+
+- TBD
 
 # Generative AI Use Cases JP (略称:GenU)
 

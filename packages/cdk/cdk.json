@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
     "selfSignUpEnabled": true,
@@ -27,9 +27,25 @@
     "samlCognitoFederatedIdentityProviderName": "",
     "modelRegion": "us-east-1",
     "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0"
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "amazon.titan-text-premier-v1:0",
+      "meta.llama3-70b-instruct-v1:0",
+      "meta.llama3-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-small-2402-v1:0",
+      "mistral.mistral-large-2402-v1:0",
+      "anthropic.claude-v2:1",
+      "anthropic.claude-v2",
+      "anthropic.claude-instant-v1",
+      "meta.llama2-70b-chat-v1",
+      "meta.llama2-13b-chat-v1",
+      "mistral.mixtral-8x7b-instruct-v0:1",
+      "mistral.mistral-7b-instruct-v0:2"
     ],
     "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
     "endpointNames": [],
@@ -44,9 +60,9 @@
     "hostName": null,
     "domainName": null,
     "hostedZoneId": null,
-    "dashboard": false,
+    "dashboard": true,
     "anonymousUsageTracking": true,
-    "recognizeFileEnabled": false,
+    "recognizeFileEnabled": true,
     "vpcId": null,
     "crossAccountBedrockRoleArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,

@@ -20,7 +20,7 @@ export type ItemProps = BaseProps & {
   label: string;
   to: string;
   icon: JSX.Element;
-  display: 'usecase' | 'tool' | 'none';
+  display: 'usecase' | 'summit' | 'tool' | 'none';
 };
 
 const Item: React.FC<ItemProps> = (props) => {
@@ -108,6 +108,10 @@ const Drawer: React.FC<Props> = (props) => {
     return props.items.filter((i) => i.display === 'usecase');
   }, [props.items]);
 
+  const summitUsecases = useMemo(() => {
+    return props.items.filter((i) => i.display === 'summit');
+  }, [props.items]);
+
   const tools = useMemo(() => {
     return props.items.filter((i) => i.display === 'tool');
   }, [props.items]);
@@ -129,6 +133,22 @@ const Drawer: React.FC<Props> = (props) => {
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {usecases.map((item, idx) => (
+            <Item
+              key={idx}
+              label={item.label}
+              icon={item.icon}
+              to={item.to}
+              display={item.display}
+            />
+          ))}
+        </div>
+        <div className="border-b" />
+
+        <div className="text-aws-smile mx-3 my-2 text-xs font-bold">
+          AWS Summit Japan 2024
+        </div>
+        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+          {summitUsecases.map((item, idx) => (
             <Item
               key={idx}
               label={item.label}
