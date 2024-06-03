@@ -7,7 +7,7 @@ import RangeSlider from '../components/RangeSlider';
 import Select from '../components/Select';
 import ExpandableField from '../components/ExpandableField';
 import ButtonIcon from '../components/ButtonIcon';
-import { PiFileArrowUp, PiDiceFive, PiShuffle } from 'react-icons/pi';
+import { PiFileArrowUp, PiDiceFive, PiNotePencil } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
 import SketchPad from '../components/SketchPad';
@@ -278,6 +278,7 @@ const GenerateImagePage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [detailExpanded, setDetailExpanded] = useState(0);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -361,7 +362,7 @@ const GenerateImagePage: React.FC = () => {
           stylePreset: _stylePreset ?? stylePreset,
         };
 
-        if (generationMode === "IMAGE_VARIATION") {
+        if (generationMode === 'IMAGE_VARIATION') {
           params = {
             ...params,
             initImage: initImageBase64,
@@ -397,6 +398,7 @@ const GenerateImagePage: React.FC = () => {
       height,
       imageSample,
       imageStrength,
+      generationMode,
       initImageBase64,
       seed,
       setImage,
@@ -435,8 +437,15 @@ const GenerateImagePage: React.FC = () => {
       setInitImageBase64(
         `data:image/png;base64,${image[selectedImageIndex].base64}`
       );
+      setDetailExpanded(performance.now());
     }
-  }, [image, selectedImageIndex, setGenerationMode, setInitImageBase64]);
+  }, [
+    image,
+    selectedImageIndex,
+    setGenerationMode,
+    setInitImageBase64,
+    setDetailExpanded,
+  ]);
 
   const clearAll = useCallback(() => {
     setSelectedImageIndex(0);
@@ -524,10 +533,11 @@ const GenerateImagePage: React.FC = () => {
               </React.Fragment>
             ))}
             <Button
+              title="Generate Variant"
               outlined
               className="mt-3 size-10"
               onClick={generateImageVariant}>
-              <PiShuffle></PiShuffle>
+              <PiNotePencil></PiNotePencil>
             </Button>
           </div>
 
@@ -597,7 +607,7 @@ const GenerateImagePage: React.FC = () => {
             />
           </div>
 
-          <ExpandableField label="詳細なパラメータ">
+          <ExpandableField label="詳細なパラメータ" expanded={detailExpanded}>
             <div className="grid grid-cols-2 gap-2 pt-4">
               <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
                 <Select

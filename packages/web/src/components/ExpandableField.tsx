@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RowItem, { RowItemProps } from './RowItem';
 import { PiCaretRightFill } from 'react-icons/pi';
 
 type Props = RowItemProps & {
   label: string;
   defaultOpened?: boolean;
+  expanded?: number;
   optional?: boolean;
   children: React.ReactNode;
 };
 
 const ExpandableField: React.FC<Props> = (props) => {
   const [expanded, setExpanded] = useState(props.defaultOpened ?? false);
+
+  useEffect(() => {
+    setExpanded(props.expanded !== undefined && props.expanded > 0);
+  }, [props.expanded]);
 
   return (
     <RowItem notItem={props.notItem} className={props.className}>
