@@ -1,6 +1,7 @@
 import {
   ChatParams,
   EditorialParams,
+  GenerateSqlParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -278,12 +279,16 @@ ${params
       },
     ];
   },
-  // @typescript-eslint/no-unused-vars
-  generateDeckPrompt: function (): string {
-    throw new Error('Function not implemented.');
+  // Summit用
+  generateSqlPrompt(params: GenerateSqlParams): string {
+    return `<schemas>
+${params.schemas}
+</schemas>
+<input>
+${params.instruction}
+</input>`;
   },
-  // @typescript-eslint/no-unused-vars
-  generateSqlPrompt: function (): string {
+  generateDeckPrompt: function (): string {
     throw new Error('Function not implemented.');
   },
 };
