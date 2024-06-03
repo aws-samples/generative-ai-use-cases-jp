@@ -5,10 +5,10 @@ name: Node.js(Web + CDK) CI
 
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'summit-2024']
     paths-ignore: ['browser-extension/**']
   pull_request:
-    branches: ['main']
+    branches: ['main', 'summit-2024']
     paths-ignore: ['browser-extension/**']
 
 jobs:
