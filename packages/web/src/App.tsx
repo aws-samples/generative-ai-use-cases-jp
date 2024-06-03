@@ -150,7 +150,7 @@ const items: ItemProps[] = [
     label: 'スライド生成',
     to: '/slide',
     icon: <PiSlideshow />,
-    display: 'usecase' as const,
+    display: 'summit' as const,
   },
 ].flatMap((i) => (i !== null ? [i] : []));
 

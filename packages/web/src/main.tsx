@@ -87,10 +87,6 @@ const routes: RouteObject[] = [
     path: '/transcribe',
     element: <TranscribePage />,
   },
-  {
-    path: '/slide',
-    element: <GenerateSlidePage />,
-  },
   multiModalEnabled
     ? {
         path: '/video',
@@ -125,6 +121,10 @@ const routes: RouteObject[] = [
   {
     path: '/generate-sql',
     element: <GenerateSqlPage />,
+  },
+  {
+    path: '/slide',
+    element: <GenerateSlidePage />,
   },
   {
     path: '*',
