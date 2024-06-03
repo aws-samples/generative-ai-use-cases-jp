@@ -10,6 +10,7 @@ import {
   TranslateParams,
   VideoAnalyzerParams,
   WebContentParams,
+  GenerateSqlParams,
 } from './index';
 
 const systemContexts: { [key: string]: string } = {
@@ -277,5 +278,14 @@ ${params
         ],
       },
     ];
+  },
+  // Summit用
+  generateSqlPrompt(params: GenerateSqlParams): string {
+    return `<schemas>
+${params.schemas}
+</schemas>
+<input>
+${params.instruction}
+</input>`;
   },
 };
