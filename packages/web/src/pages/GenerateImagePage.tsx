@@ -342,7 +342,7 @@ const GenerateImagePage: React.FC = () => {
           _seed = rand;
         }
 
-        const params: GenerateImageParams = {
+        let params: GenerateImageParams = {
           textPrompt: [
             {
               text: _prompt,
@@ -359,9 +359,15 @@ const GenerateImagePage: React.FC = () => {
           seed: _seed,
           step,
           stylePreset: _stylePreset ?? stylePreset,
-          initImage: initImageBase64,
-          imageStrength: imageStrength,
         };
+
+        if (generationMode === "IMAGE_VARIATION") {
+          params = {
+            ...params,
+            initImage: initImageBase64,
+            imageStrength,
+          };
+        }
 
         return generate(
           params,
