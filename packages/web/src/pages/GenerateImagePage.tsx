@@ -278,7 +278,7 @@ const GenerateImagePage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [detailExpanded, setDetailExpanded] = useState(0);
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -437,7 +437,7 @@ const GenerateImagePage: React.FC = () => {
       setInitImageBase64(
         `data:image/png;base64,${image[selectedImageIndex].base64}`
       );
-      setDetailExpanded(performance.now());
+      setDetailExpanded(true);
     }
   }, [
     image,
@@ -536,6 +536,7 @@ const GenerateImagePage: React.FC = () => {
               title="Generate Variant"
               outlined
               className="mt-3 size-10"
+              disabled={!image[selectedImageIndex].base64}
               onClick={generateImageVariant}>
               <PiNotePencil></PiNotePencil>
             </Button>
@@ -607,7 +608,10 @@ const GenerateImagePage: React.FC = () => {
             />
           </div>
 
-          <ExpandableField label="詳細なパラメータ" expanded={detailExpanded}>
+          <ExpandableField
+            label="詳細なパラメータ"
+            overrideExpanded={detailExpanded}
+            setOverrideExpanded={setDetailExpanded}>
             <div className="grid grid-cols-2 gap-2 pt-4">
               <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
                 <Select
