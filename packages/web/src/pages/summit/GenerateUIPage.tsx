@@ -5,8 +5,7 @@ import useChat from '../../hooks/useChat';
 import Button from '../../components/Button';
 import ExpandableField from '../../components/ExpandableField';
 import Select from '../../components/Select';
-import useScroll from '../../hooks/useScroll';
-import { PiArrowClockwiseBold } from 'react-icons/pi';
+import { PiArrowClockwiseBold, PiCornersOut } from 'react-icons/pi';
 import { create } from 'zustand';
 import BedrockIcon from '../../assets/bedrock.svg?react';
 import { MODELS } from '../../hooks/useModel';
@@ -15,6 +14,8 @@ import useFiles from '../../hooks/useFiles';
 import Switch from '../../components/Switch';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useDebounce } from '../../hooks/useDebounce';
+import ButtonIcon from '../../components/ButtonIcon';
 
 type StateType = {
   content: string;
@@ -61,7 +62,6 @@ const GenerateUIPage: React.FC = () => {
     useChatPageState();
   const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
   const { chatId } = useParams();
-  // uselocation
   const { pathname } = useLocation();
 
   const {
@@ -78,7 +78,6 @@ const GenerateUIPage: React.FC = () => {
     updateSystemContextByModel,
     getCurrentSystemContext,
   } = useChat(pathname);
-  const { scrollToBottom, scrollToTop } = useScroll();
   const { modelIds: availableModels } = MODELS;
   const availableMultiModalModels = useMemo(() => {
     return availableModels.filter((modelId) =>
@@ -129,18 +128,7 @@ const GenerateUIPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
 
-  const [isOver, setIsOver] = useState(false);
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
-
   const [showSystemContext] = useState(false);
-
   const showingMessages = useMemo(() => {
     if (showSystemContext) {
       return rawMessages;
@@ -158,6 +146,7 @@ const GenerateUIPage: React.FC = () => {
     setInputSystemContext(currentSystemContext);
   }, [currentSystemContext, setInputSystemContext]);
 
+  const [isOver, setIsOver] = useState(false);
   const handleDragOver = (event: React.DragEvent) => {
     // ファイルドラッグ時にオーバーレイを表示
     event.preventDefault();
@@ -192,6 +181,7 @@ const GenerateUIPage: React.FC = () => {
   }, [latestCode]);
 
   const [showCode, setShowCode] = useState(false);
+  const debouncedCode = useDebounce(code, 100);
 
   return (
     <>
@@ -224,7 +214,7 @@ const GenerateUIPage: React.FC = () => {
             })}
           />
           {!isEmpty && (
-            <div className="mb-2">
+            <div className="mb-2 hidden lg:inline-block">
               <Switch
                 label="ソースコードを表示"
                 checked={showCode}
@@ -250,10 +240,22 @@ const GenerateUIPage: React.FC = () => {
             <div className={`${showCode ? 'w-1/2' : 'w-full'} pt-2`}>
               <iframe
                 className="h-[calc(100vh-30rem)] w-full rounded-md border"
-                srcDoc={code}
+                srcDoc={debouncedCode}
                 title="Preview"
                 sandbox="allow-same-origin allow-scripts allow-popups"
               />
+              <div className="relative -top-10 flex justify-end pr-1">
+                <ButtonIcon
+                  onClick={() => {
+                    const iframe = document.querySelector('iframe');
+                    if (iframe) {
+                      iframe.requestFullscreen();
+                    }
+                  }}
+                  children={<PiCornersOut />}
+                  className="p-2"
+                />
+              </div>
             </div>
             <div className={`${showCode ? 'w-1/2' : 'hidden'}`}>
               <SyntaxHighlighter
@@ -270,16 +272,16 @@ const GenerateUIPage: React.FC = () => {
         {!isEmpty && (
           <div className="m-2 rounded-md border border-gray-300 p-2">
             <h2 className="p-2 text-lg">History</h2>
-            <div className="mb-4 flex w-11/12 gap-2 overflow-x-auto p-2">
+            <div className="mb-4 flex w-11/12 gap-4 overflow-x-auto p-2">
               {showingMessages
                 .filter((msg) => msg.role === 'assistant')
                 .map((msg) => {
                   return (
                     <div
                       onClick={() => setCode(msg.content)}
-                      className="h-36 w-1/6 cursor-pointer">
+                      className="h-36 w-60 cursor-pointer opacity-70  transition-opacity duration-300  hover:opacity-100">
                       <iframe
-                        className="pointer-events-none relative origin-top-left select-none rounded-[36px] border border-black opacity-80 transition-opacity"
+                        className="pointer-events-none relative origin-top-left select-none rounded-[36px] border border-gray-400"
                         sandbox="allow-scripts allow-same-origin"
                         loading="lazy"
                         srcDoc={msg.content}
@@ -344,11 +346,12 @@ const GenerateUIPage: React.FC = () => {
           />
           {/* Recommended Button Container */}
           <div className="mb-4 flex gap-2">
-            {examplePrompts.map(({ value, label }) => (
-              <RoundedButton onClick={() => setContent(value)} key={label}>
-                {label} ↗️
-              </RoundedButton>
-            ))}
+            {!showingMessages.length &&
+              examplePrompts.map(({ value, label }) => (
+                <RoundedButton onClick={() => setContent(value)} key={label}>
+                  {label} ↗️
+                </RoundedButton>
+              ))}
           </div>
         </div>
       </div>
