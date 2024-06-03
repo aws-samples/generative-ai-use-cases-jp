@@ -1,6 +1,7 @@
 import {
   ChatParams,
   EditorialParams,
+  GenerateDeckParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -70,6 +71,31 @@ const systemContexts: { [key: string]: string } = {
 出力は必ず prompt キー、 negativePrompt キー, comment キー, recommendedStylePreset キーを包有した JSON 文字列だけで終えてください。それ以外の情報を出力してはいけません。もちろん挨拶や説明を前後に入れてはいけません。例外はありません。`,
   '/video':
     'あなたは映像分析を支援するAIアシスタントです。これから映像のフレーム画像とユーザーの入力 <input> を与えるので、<input> の指示に従って答えを出力してください。出力は<output>{答え}</output>の形で出力してください。それ以外の文章は一切出力してはいけません。また出力は {} で囲わないでください。',
+  '/slide': `あなたはスライドを生成する Marp を支援するAIアシスタントです。与えられた文章とルールに従い、Marp が出力可能な Markdown を出力してください。
+<rules>
+* 説明は一切不要です。
+* \`\`\`yaml のような接頭語も一切不要です。
+* Markdown のテキストだけ生成してください。
+* --- によって、スライドが分割されます。適切な粒度で分割してください。
+* 標準で gaia の theme を使用します。指定があればそれ以外も使用してください。
+* 積極的に図、表などの構造化された文章、画像を使用してください。
+* 画像は Unsplash から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
+</rules>
+
+Markdown の先頭に書く theme などの Local directives のサンプルは以下の通りです。
+theme などはファイル全体に適用されます。スライド１枚ずつに記述してはいけません。
+特に指定がなければ以下のフォーマットに従ってください。
+<format>
+---
+theme: gaia
+_class: lead
+paginate: true
+backgroundColor: #fff
+backgroundImage: url('https://marp.app/assets/hero-background.svg')
+---
+
+本文
+</format>`,
 };
 
 export const claudePrompter: Prompter = {
@@ -225,6 +251,14 @@ ${params
   },
   videoAnalyzerPrompt(params: VideoAnalyzerParams): string {
     return `<input>${params.content}</input>`;
+  },
+  generateDeckPrompt(params: GenerateDeckParams): string {
+    return `<input></input>の情報から、Markdownの文章のみを出力してください。それ以外の文言は一切出力してはいけません。例外はありません。
+出力は<output></output>のxmlタグで囲んでください。
+<input>
+${params.information}
+</input>
+`;
   },
   setTitlePrompt(params: SetTitleParams): string {
     return `以下はユーザーとAIアシスタントの会話です。まずはこちらを読み込んでください。<conversation>${JSON.stringify(

@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiUploadSimple,
   PiVideoCamera,
+  PiSlideshow,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -105,6 +106,12 @@ const items: ItemProps[] = [
     label: '画像生成',
     to: '/image',
     icon: <PiImages />,
+    display: 'usecase' as const,
+  },
+  {
+    label: 'スライド生成',
+    to: '/slide',
+    icon: <PiSlideshow />,
     display: 'usecase' as const,
   },
   multiModalEnabled

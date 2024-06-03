@@ -25,6 +25,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
+import GenerateSlidePage from './pages/GenerateSlidePage.tsx';
 import { MODELS } from './hooks/useModel';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
@@ -84,6 +85,10 @@ const routes: RouteObject[] = [
   {
     path: '/transcribe',
     element: <TranscribePage />,
+  },
+  {
+    path: '/slide',
+    element: <GenerateSlidePage />,
   },
   multiModalEnabled
     ? {
