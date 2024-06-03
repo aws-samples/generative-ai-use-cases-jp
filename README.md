@@ -110,7 +110,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 ## デプロイ
 
 > [!IMPORTANT]
-> このリポジトリでは、デフォルトでバージニア北部リージョン (us-east-1) の Anthropic Claude 3 Sonnet モデルを利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude 3 Sonnet にチェックして Save changes してください。その他のモデル (Anthropic Claude 3 Haiku, Meta Llama3, Cohere Command-R など) を利用するために設定を変更する方法については [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
+> このリポジトリでは、デフォルトのモデルとしてバージニア北部リージョン (us-east-1) の Anthropic Claude 3 Sonnet (テキスト生成)と、Stability AI の SDXL 1.0(画像生成) を利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude 3 Sonnet にチェックして Save changes してください。その他のモデル (Anthropic Claude 3 Haiku, Meta Llama3, Cohere Command-R など) を利用するために設定を変更する方法については [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
@@ -179,6 +179,7 @@ npm run cdk:deploy
  - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
  - [ブログ: 無茶振りは生成 AI に断ってもらおう ~ ブラウザに生成 AI を組み込んでみた ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
+ - [動画： 生成 AI ユースケースを考え倒すための Generative AI Use Cases JP (GenU) の魅力と使い方](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
 
 ## Security
 
