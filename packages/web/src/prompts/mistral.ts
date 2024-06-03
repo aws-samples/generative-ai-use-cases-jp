@@ -1,8 +1,6 @@
 import {
   ChatParams,
   EditorialParams,
-  GenerateDeckParams,
-  GenerateSqlParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -280,10 +278,12 @@ ${params
       },
     ];
   },
-  generateDeckPrompt: function (_params: GenerateDeckParams): string {
+  // @typescript-eslint/no-unused-vars
+  generateDeckPrompt: function (): string {
     throw new Error('Function not implemented.');
   },
-  generateSqlPrompt: function (_params: GenerateSqlParams): string {
+  // @typescript-eslint/no-unused-vars
+  generateSqlPrompt: function (): string {
     throw new Error('Function not implemented.');
   },
 };
