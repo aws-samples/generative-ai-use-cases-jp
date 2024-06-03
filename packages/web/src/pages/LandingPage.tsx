@@ -15,6 +15,7 @@ import {
   PiPen,
   PiRobot,
   PiVideoCamera,
+  PiSlideshow,
   PiDatabase,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
@@ -245,6 +246,9 @@ const LandingPage: React.FC = () => {
   };
 
   // Summit用
+  const demoSlideGenerator = () => {
+    navigate(`/slide`);
+  };
 
   const demoGenerateSql = () => {
     const params: GenerateSqlPageQueryParams = {
@@ -421,6 +425,12 @@ CREATE TABLE incomes (
           onClickDemo={demoGenerateSql}
           icon={<PiDatabase />}
           description="テーブル定義の DDL を元に、指示通りに SQL を生成します。アプリケーション開発やデータ分析の効率化が期待できます。"
+        />
+        <CardDemo
+          label="スライド生成"
+          onClickDemo={demoSlideGenerator}
+          icon={<PiSlideshow />}
+          description="チャット形式でスライド資料を作成します。LLM によって構造化されたテキストを生成し、スライド資料として画面に描画します。"
         />
       </div>
     </div>

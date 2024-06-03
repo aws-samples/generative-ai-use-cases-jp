@@ -1,6 +1,7 @@
 import {
   ChatParams,
   EditorialParams,
+  GenerateSqlParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -10,7 +11,6 @@ import {
   TranslateParams,
   VideoAnalyzerParams,
   WebContentParams,
-  GenerateSqlParams,
 } from './index';
 
 const systemContexts: { [key: string]: string } = {
@@ -287,5 +287,8 @@ ${params.schemas}
 <input>
 ${params.instruction}
 </input>`;
+  },
+  generateDeckPrompt: function (): string {
+    throw new Error('Function not implemented.');
   },
 };

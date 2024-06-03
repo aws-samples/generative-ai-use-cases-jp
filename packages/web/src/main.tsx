@@ -25,6 +25,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
+import GenerateSlidePage from './pages/summit/GenerateSlidePage.tsx';
 import { MODELS } from './hooks/useModel';
 import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
 
@@ -120,6 +121,10 @@ const routes: RouteObject[] = [
   {
     path: '/generate-sql',
     element: <GenerateSqlPage />,
+  },
+  {
+    path: '/slide',
+    element: <GenerateSlidePage />,
   },
   {
     path: '*',

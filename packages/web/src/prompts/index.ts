@@ -57,6 +57,10 @@ export type VideoAnalyzerParams = {
   content: string;
 };
 
+export type GenerateDeckParams = {
+  information: string;
+};
+
 export type SetTitleParams = {
   messages: UnrecordedMessage[];
 };
@@ -89,6 +93,7 @@ export interface Prompter {
   webContentPrompt(params: WebContentParams): string;
   ragPrompt(params: RagParams): string;
   videoAnalyzerPrompt(params: VideoAnalyzerParams): string;
+  generateDeckPrompt(params: GenerateDeckParams): string;
   setTitlePrompt(params: SetTitleParams): string;
   promptList(): PromptList;
   // Summit用

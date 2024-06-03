@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiUploadSimple,
   PiVideoCamera,
+  PiSlideshow,
   PiDatabase,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
@@ -143,6 +144,12 @@ const items: ItemProps[] = [
     label: 'SQL 生成',
     to: '/generate-sql',
     icon: <PiDatabase />,
+    display: 'summit' as const,
+  },
+  {
+    label: 'スライド生成',
+    to: '/slide',
+    icon: <PiSlideshow />,
     display: 'summit' as const,
   },
 ].flatMap((i) => (i !== null ? [i] : []));
