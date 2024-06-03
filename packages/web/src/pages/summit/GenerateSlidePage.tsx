@@ -9,7 +9,10 @@ import { MODELS } from '../../hooks/useModel';
 import { getPrompter } from '../../prompts';
 import queryString from 'query-string';
 import InputChatContent from '../../components/InputChatContent';
-import { Marp } from '@marp-team/marp-react';
+import { Marp, MarpRenderedSlide } from '@marp-team/marp-react';
+import Switch from '../../components/Switch';
+import Button from '../../components/Button';
+import { PiArrowsCounterClockwise } from 'react-icons/pi';
 
 type StateType = {
   information: string;
@@ -75,32 +78,14 @@ const useGenerateSlidePageState = create<StateType>((set) => {
   };
 });
 
-const customRenderer = (slides: any) => (
+const customRenderer = (slides: MarpRenderedSlide[]) => (
   <div className="flex flex-col gap-4 overflow-y-auto p-4">
-    {slides.map(({ slide, comments }: any, i: React.Key | null | undefined) => (
+    {slides.map(({ slide, comments }, i: React.Key | null | undefined) => (
       <div className="min-w-full border" key={i}>
         {slide}
-        {comments.map(
-          (
-            comment:
-              | string
-              | number
-              | boolean
-              | React.ReactElement<
-                  any,
-                  string | React.JSXElementConstructor<any>
-                >
-              | Iterable<React.ReactNode>
-              | React.ReactPortal
-              | null
-              | undefined,
-            ci: React.Key | null | undefined
-          ) => (
-            <p className="comment" key={ci}>
-              {comment}
-            </p>
-          )
-        )}
+        {comments.map((comment, ci) => (
+          <p key={ci}>{comment}</p>
+        ))}
       </div>
     ))}
   </div>
@@ -187,8 +172,22 @@ const GenerateSlidePage: React.FC = () => {
 
   const examplePrompts = [
     {
-      label: 'Amazon EC2 の紹介',
-      value: 'Amazon EC2 の紹介スライドを作ってください。',
+      label: 'AWS の紹介',
+      value:
+        'AWS の良さを熱く語るスライドを8枚にまとめてください。タイトルはエモい感じでお願いします。',
+    },
+    {
+      label: 'AWS Lambda でプログラミング！',
+      value: `AWS Lambda で Node.js ランタイムを使って、API の処理を実装したいです。
+コード例を交えて説明するスライドを10枚にまとめてください。タイトルは以下の通りでお願いします。
+スライドを読んだ人がワクワクするように意識してください。表形式で AWS Lambda のクォータに関しても補足してください。
+
+タイトル: AWS Lambda で API を作ろう`,
+    },
+    {
+      label: '半導体市場の動向',
+      value:
+        '半導体市場の動向について、現状分析と将来予測を行い、10枚のスライドにまとめてください。表形式で数値的エビデンスも提示してください。',
     },
     {
       label: 'アウトラインから作る',
@@ -218,18 +217,12 @@ const GenerateSlidePage: React.FC = () => {
               })}
             />
 
-            <button onClick={() => setShowCode((status) => !status)}>
-              {showCode ? 'hide' : 'show'} code
-            </button>
-          </div>
-
-          {/* Recommended Button Container */}
-          <div className="mb-2 flex gap-2">
-            {examplePrompts.map(({ value, label }) => (
-              <RoundedButton onClick={() => setInformation(value)} key={label}>
-                {label}
-              </RoundedButton>
-            ))}
+            <button onClick={() => setShowCode((status) => !status)}></button>
+            <Switch
+              label="Markdown テキストを表示する"
+              checked={showCode}
+              onSwitch={setShowCode}
+            />
           </div>
 
           <InputChatContent
@@ -243,6 +236,33 @@ const GenerateSlidePage: React.FC = () => {
             content={information}
             onChangeContent={setInformation}
           />
+
+          {/* Recommended Button Container */}
+          <div className="mb-2 mt-4 flex justify-between">
+            <div className="mb-2 flex gap-2">
+              {examplePrompts.map(({ value, label }) => (
+                <RoundedButton
+                  onClick={() => setInformation(value)}
+                  key={label}>
+                  {label} ↗️
+                </RoundedButton>
+              ))}
+            </div>
+
+            {!loading && text && (
+              <Button
+                className="h-9 text-sm"
+                outlined
+                disabled={loading}
+                onClick={() => {
+                  setText(slidesSample);
+                  setInformation('');
+                }}>
+                <PiArrowsCounterClockwise className="mr-2" />
+                最初からやり直す
+              </Button>
+            )}
+          </div>
         </Card>
 
         {/* 1/2 half window */}
