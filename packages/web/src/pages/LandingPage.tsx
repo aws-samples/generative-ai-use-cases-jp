@@ -17,6 +17,7 @@ import {
   PiVideoCamera,
   PiSlideshow,
   PiDatabase,
+  PiBroom,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -307,6 +308,10 @@ CREATE TABLE incomes (
     navigate(`/generate-sql?${queryString.stringify(params)}`);
   };
 
+  const demoUIGenerator = () => {
+    navigate(`/genui`);
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -432,6 +437,14 @@ CREATE TABLE incomes (
           icon={<PiSlideshow />}
           description="チャット形式でスライド資料を作成します。LLM によって構造化されたテキストを生成し、スライド資料として画面に描画します。"
         />
+        {multiModalEnabled && (
+          <CardDemo
+            label="ウェブサイト生成"
+            onClickDemo={demoUIGenerator}
+            icon={<PiBroom />}
+            description="HTML, CSS, JavaScript を生成し、ウェブサイトのプレビューを表示します。マルチモーダルによってテキストによる指示に加えて、スケッチ画像を入力としてウェブサイトを生成することもできます。"
+          />
+        )}
       </div>
     </div>
   );

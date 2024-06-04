@@ -28,6 +28,7 @@ import FileUploadPage from './pages/FileUploadPage.tsx';
 import GenerateSlidePage from './pages/summit/GenerateSlidePage.tsx';
 import { MODELS } from './hooks/useModel';
 import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
+import GenerateUIPage from './pages/summit/GenerateUIPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
@@ -122,6 +123,12 @@ const routes: RouteObject[] = [
     path: '/generate-sql',
     element: <GenerateSqlPage />,
   },
+  multiModalEnabled
+    ? {
+        path: '/genui',
+        element: <GenerateUIPage />,
+      }
+    : null,
   {
     path: '/slide',
     element: <GenerateSlidePage />,

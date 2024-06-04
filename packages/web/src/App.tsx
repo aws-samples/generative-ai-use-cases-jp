@@ -20,6 +20,7 @@ import {
   PiVideoCamera,
   PiSlideshow,
   PiDatabase,
+  PiBroom,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -152,6 +153,14 @@ const items: ItemProps[] = [
     icon: <PiSlideshow />,
     display: 'summit' as const,
   },
+  multiModalEnabled
+    ? {
+        label: 'ウェブサイト生成',
+        to: '/genui',
+        icon: <PiBroom />,
+        display: 'summit' as const,
+      }
+    : null,
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
