@@ -383,8 +383,11 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
     style_preset: params.stylePreset,
     seed: params.seed,
     steps: params.step,
-    init_image: params.initImage,
     image_strength: params.imageStrength,
+    height: params.height,
+    width: params.width,
+    // Image to Image
+    init_image: params.initImage,
   };
   return JSON.stringify(body);
 };
@@ -394,8 +397,8 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
   const imageGenerationConfig = {
     numberOfImages: 1,
     quality: 'standard',
-    height: 512,
-    width: 512,
+    height: params.height,
+    width: params.width,
     cfgScale: params.cfgScale,
     seed: params.seed % 214783648, // max for titan image
   };
@@ -410,6 +413,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
           params.stylePreset,
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
         images: [params.initImage],
+        similarityStrength: Math.max(params.imageStrength || 0.2, 0.2), // Min 0.2
       },
       imageGenerationConfig: imageGenerationConfig,
     };

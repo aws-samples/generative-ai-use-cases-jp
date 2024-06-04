@@ -8,8 +8,15 @@ export type GenerateImageParams = {
   seed: number;
   step: number;
   stylePreset?: string;
-  initImage?: string;
   imageStrength?: number;
+  height: number;
+  width: number;
+  // Image to Image
+  initImage?: string;
+  // Inpaint / Outpaint
+  maskImage?: string;
+  maskPrompt?: string;
+  maskMode?: 'INPAINTING' | 'OUTPAINTING';
 };
 
 // Stable Diffusion
@@ -19,8 +26,8 @@ export type StableDiffusionParams = {
     text: string;
     weight: number;
   }[];
-  height?: string;
-  width?: string;
+  height?: number;
+  width?: number;
   cfg_scale?: number;
   clip_guidance_preset?: string;
   sampler?: string;
@@ -32,6 +39,9 @@ export type StableDiffusionParams = {
   init_image?: string;
   init_image_mode?: string;
   image_strength?: number;
+  // Image to Image (Masking)
+  mask_source?: string;
+  mask_image?: string;
 };
 
 // Titan Image
@@ -61,6 +71,7 @@ export type TitanImageParams = {
     text?: string;
     negativeText?: string;
     images: string[];
+    similarityStrength?: number;
   };
   imageGenerationConfig: {
     numberOfImages: number;
@@ -68,7 +79,7 @@ export type TitanImageParams = {
     height: number;
     width: number;
     cfgScale: number;
-    seed: number;
+    seed?: number;
   };
 };
 

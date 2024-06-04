@@ -41,13 +41,12 @@ const SketchButton: React.FC<SketchButtonProps> = (props) => {
 };
 
 type Props = {
+  width: number;
+  height: number;
   imageBase64?: string;
   onChange: (imageBase64: string) => void;
   onCancel: () => void;
 };
-
-// Stable Diffusionの制約で64の倍数である必要がある
-const IMAGE_SIZE = 512;
 
 const SketchPad: React.FC<Props> = (props) => {
   const canvasRef = useRef<SignatureCanvas>(null);
@@ -65,11 +64,11 @@ const SketchPad: React.FC<Props> = (props) => {
   useEffect(() => {
     if (props.imageBase64) {
       canvasRef.current?.fromDataURL(props.imageBase64, {
-        height: IMAGE_SIZE,
-        width: IMAGE_SIZE,
+        height: props.height,
+        width: props.width,
       });
     }
-  }, [props.imageBase64]);
+  }, [props.imageBase64, props.height, props.width]);
 
   const onChangePenColor = useCallback<ColorChangeHandler>((color) => {
     setIsOpenPalette(false);
@@ -111,13 +110,13 @@ const SketchPad: React.FC<Props> = (props) => {
 
     // 背景色を設定するために、新しくcanvasで四角を作成し合成する
     const canvas = document.createElement('canvas');
-    canvas.width = IMAGE_SIZE;
-    canvas.height = IMAGE_SIZE;
+    canvas.width = props.width;
+    canvas.height = props.height;
     const ctx = canvas.getContext('2d');
 
     if (ctx) {
       ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, IMAGE_SIZE, IMAGE_SIZE);
+      ctx.fillRect(0, 0, props.width, props.height);
       const img = canvasRef.current?.getCanvas();
       if (img) {
         ctx.drawImage(img, 0, 0);
@@ -141,12 +140,26 @@ const SketchPad: React.FC<Props> = (props) => {
         img.src = reader.result as string;
 
         img.onload = () => {
-          // 画像をリサイズ
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          canvas.width = IMAGE_SIZE;
-          canvas.height = IMAGE_SIZE;
-          ctx?.drawImage(img, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+          canvas.width = props.width;
+          canvas.height = props.height;
+
+          // Fit Image
+          const imgRatio = img.width / img.height;
+          const canvasRatio = canvas.width / canvas.height;
+          let width, height;
+          if (imgRatio > canvasRatio) {
+            width = canvas.width;
+            height = canvas.width / imgRatio;
+          } else {
+            height = canvas.height;
+            width = canvas.height * imgRatio;
+          }
+          const x = (canvas.width - width) / 2;
+          const y = (canvas.height - height) / 2;
+
+          ctx?.drawImage(img, x, y, width, height);
 
           const resizedImageDataUri = canvas.toDataURL(file.type);
 
@@ -248,8 +261,8 @@ const SketchPad: React.FC<Props> = (props) => {
           <SignatureCanvas
             ref={canvasRef}
             canvasProps={{
-              width: IMAGE_SIZE,
-              height: IMAGE_SIZE,
+              width: props.width,
+              height: props.height,
               className: 'border',
               style: { backgroundColor: bgColor },
             }}
