@@ -12,6 +12,7 @@ type Props = RowItemProps & {
   noBorder?: boolean;
   rows?: number;
   maxHeight?: number;
+  disabled?: boolean;
   onEnter?: () => void;
   onChange: (value: string) => void;
   onPaste?: (pasteEvent: React.ClipboardEvent) => void;
@@ -93,6 +94,7 @@ const Textarea: React.FC<Props> = (props) => {
           props.onChange(e.target.value);
         }}
         onPaste={props.onPaste}
+        disabled={props.disabled}
       />
       {props.hint && (
         <div className="-mt-0.5 text-xs text-gray-400">{props.hint}</div>

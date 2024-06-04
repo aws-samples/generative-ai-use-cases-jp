@@ -26,8 +26,17 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-type GenerationMode = 'TEXT_IMAGE' | 'IMAGE_VARIATION';
-const modeOptions = ['TEXT_IMAGE', 'IMAGE_VARIATION'].map((s) => ({
+type GenerationMode =
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING';
+const modeOptions = [
+  'TEXT_IMAGE',
+  'IMAGE_VARIATION',
+  'INPAINTING',
+  'OUTPAINTING',
+].map((s) => ({
   value: s as GenerationMode,
   label: s as GenerationMode,
 }));
@@ -65,6 +74,10 @@ type StateType = {
   setGenerationMode: (s: GenerationMode) => void;
   initImageBase64: string;
   setInitImageBase64: (s: string) => void;
+  maskImageBase64: string;
+  setMaskImageBase64: (s: string) => void;
+  maskPrompt: string;
+  setMaskPrompt: (s: string) => void;
   imageSample: number;
   setImageSample: (n: number) => void;
   image: {
@@ -93,6 +106,8 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageStrength: 0.35,
     generationMode: modeOptions[0]['value'],
     initImageBase64: '',
+    maskImageBase64: '',
+    maskPrompt: '',
     imageSample: 3,
     image: new Array(MAX_SAMPLE).fill({
       base64: '',
@@ -158,6 +173,16 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     setInitImageBase64: (s) => {
       set(() => ({
         initImageBase64: s,
+      }));
+    },
+    setMaskImageBase64: (s) => {
+      set(() => ({
+        maskImageBase64: s,
+      }));
+    },
+    setMaskPrompt: (s) => {
+      set(() => ({
+        maskPrompt: s,
       }));
     },
     setImageSample: (n) => {
@@ -252,6 +277,10 @@ const GenerateImagePage: React.FC = () => {
     setGenerationMode,
     initImageBase64,
     setInitImageBase64,
+    maskImageBase64,
+    setMaskImageBase64,
+    maskPrompt,
+    setMaskPrompt,
     image,
     setImage,
     setImageError,
@@ -277,6 +306,7 @@ const GenerateImagePage: React.FC = () => {
 
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
+  const [isOpenMask, setIsOpenMask] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
@@ -287,6 +317,14 @@ const GenerateImagePage: React.FC = () => {
   const [width, height] = useMemo(() => {
     return resolution.split('x').map((v) => Number(v));
   }, [resolution]);
+
+  const maskMode = useMemo(() => {
+    return generationMode === 'INPAINTING' || generationMode === 'OUTPAINTING';
+  }, [generationMode]);
+  const maskPromptSupported = useMemo(() => {
+    // TODO: Remove Hard Coding
+    return imageGenModelId === 'amazon.titan-image-generator-v1';
+  }, [imageGenModelId]);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -368,6 +406,17 @@ const GenerateImagePage: React.FC = () => {
             initImage: initImageBase64,
             imageStrength,
           };
+        } else if (
+          generationMode === 'INPAINTING' ||
+          generationMode === 'OUTPAINTING'
+        ) {
+          params = {
+            ...params,
+            initImage: initImageBase64,
+            maskPrompt: maskImageBase64 ? undefined : maskPrompt,
+            maskImage: maskImageBase64,
+            maskMode: generationMode,
+          };
         }
 
         return generate(
@@ -400,6 +449,8 @@ const GenerateImagePage: React.FC = () => {
       imageStrength,
       generationMode,
       initImageBase64,
+      maskPrompt,
+      maskImageBase64,
       seed,
       setImage,
       setImageError,
@@ -419,6 +470,14 @@ const GenerateImagePage: React.FC = () => {
       setIsOpenSketch(false);
     },
     [setInitImageBase64]
+  );
+
+  const onChangeMaskImageBase64 = useCallback(
+    (s: string) => {
+      setMaskImageBase64(s);
+      setIsOpenMask(false);
+    },
+    [setMaskImageBase64]
   );
 
   const onSelectImage = useCallback(
@@ -470,6 +529,26 @@ const GenerateImagePage: React.FC = () => {
           onChange={onChangeInitImageBase64}
           onCancel={() => {
             setIsOpenSketch(false);
+          }}
+        />
+      </ModalDialog>
+      <ModalDialog
+        isOpen={isOpenMask}
+        title="マスク画像の設定"
+        className="w-[530px]"
+        help="画像生成のマスクとして使われます。マスクした範囲（Inpaint）もしくは外側（Outpaint）が生成されます。"
+        onClose={() => {
+          setIsOpenMask(false);
+        }}>
+        <SketchPad
+          width={width}
+          height={height}
+          imageBase64={maskImageBase64}
+          backgroundBase64={initImageBase64}
+          maskMode={true}
+          onChange={onChangeMaskImageBase64}
+          onCancel={() => {
+            setIsOpenMask(false);
           }}
         />
       </ModalDialog>
@@ -646,7 +725,44 @@ const GenerateImagePage: React.FC = () => {
                       </Button>
                     </div>
                   )}
+                  {maskMode && (
+                    <div className="flex flex-col items-center">
+                      <div className="mb-1 flex items-center text-sm font-bold">
+                        マスク画像
+                        <Help
+                          className="ml-1"
+                          position="center"
+                          message="画像のマスクを設定できます。マスク画像を設定することで、マスクされた領域（Inpaint）もしくは外側の領域（Outpaint)を生成できます。マスクプロンプトと併用はできません。"
+                        />
+                      </div>
+                      <Base64Image
+                        className="size-32"
+                        imageBase64={maskImageBase64}
+                      />
+                      <Button
+                        className="m-auto mt-2 text-sm"
+                        disabled={!!maskPrompt}
+                        onClick={() => {
+                          setIsOpenMask(true);
+                        }}>
+                        <PiFileArrowUp className="mr-2" />
+                        設定
+                      </Button>
+                    </div>
+                  )}
                 </div>
+                {maskMode && maskPromptSupported && (
+                  <Textarea
+                    label="マスクプロンプト"
+                    help="マスクしたい/排除したい要素（Inpaint）、マスクしたくない/残したい要素（Outpaint）を記載してください。文章ではなく、単語の羅列で記載します。マスク画像と併用はできません。"
+                    value={maskPrompt}
+                    onChange={setMaskPrompt}
+                    maxHeight={60}
+                    rows={2}
+                    className="w-full"
+                    disabled={!!maskImageBase64}
+                  />
+                )}
               </div>
 
               <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">

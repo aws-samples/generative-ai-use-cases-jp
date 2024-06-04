@@ -9,6 +9,7 @@ import { ColorChangeHandler, CompactPicker } from 'react-color';
 import {
   PiArrowClockwise,
   PiArrowCounterClockwise,
+  PiDotBold,
   PiEraserFill,
   PiPaintBrushFill,
   PiPaintBucketFill,
@@ -19,6 +20,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import Button from './Button';
 import { BaseProps } from '../@types/common';
 import ModalDialog from './ModalDialog';
+import RangeSlider from './RangeSlider';
 
 type SketchButtonProps = BaseProps & {
   isActive?: boolean;
@@ -44,6 +46,8 @@ type Props = {
   width: number;
   height: number;
   imageBase64?: string;
+  backgroundBase64?: string;
+  maskMode?: boolean;
   onChange: (imageBase64: string) => void;
   onCancel: () => void;
 };
@@ -52,9 +56,11 @@ const SketchPad: React.FC<Props> = (props) => {
   const canvasRef = useRef<SignatureCanvas>(null);
   const [penColor, setPenColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#FFFFFF');
+  const [dotSize, setDotSize] = useState(3);
   const [isEraseMode, setIsEraseMode] = useState(false);
   const [isOpenPalette, setIsOpenPalette] = useState(false);
   const [isOpenPaletteBg, setIsOpenPaletteBg] = useState(false);
+  const [isOpendotSizeSlider, setIsOpendotSizeSlider] = useState(false);
 
   const [isOpenUpload, setIsOpenUpload] = useState(false);
 
@@ -119,7 +125,21 @@ const SketchPad: React.FC<Props> = (props) => {
       ctx.fillRect(0, 0, props.width, props.height);
       const img = canvasRef.current?.getCanvas();
       if (img) {
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, props.width, props.height);
+
+        // 二値化処理
+        if (props.maskMode) {
+          const imageData = ctx.getImageData(0, 0, props.width, props.height);
+          const data = imageData.data;
+          const threshold = 128; // 閾値（0～255）
+          for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3; // 平均値を計算
+            const value = avg > threshold ? 255 : 0; // 閾値を基に二値化
+            data[i] = data[i + 1] = data[i + 2] = value; // RGBを同じ値に設定
+          }
+          ctx.putImageData(imageData, 0, 0);
+        }
+
         props.onChange(canvas.toDataURL('image/png'));
       }
     }
@@ -202,13 +222,15 @@ const SketchPad: React.FC<Props> = (props) => {
       <div className="w-full">
         <div className={`m-auto mb-1 flex w-[512px] items-end justify-between`}>
           <div className="flex">
-            <SketchButton
-              className="relative text-xl"
-              onClick={() => {
-                setIsOpenPalette(!isOpenPalette);
-              }}>
-              <PiPaintBrushFill style={{ color: penColor }} />
-            </SketchButton>
+            {!props.maskMode && (
+              <SketchButton
+                className="relative text-xl"
+                onClick={() => {
+                  setIsOpenPalette(!isOpenPalette);
+                }}>
+                <PiPaintBrushFill style={{ color: penColor }} />
+              </SketchButton>
+            )}
             {isOpenPalette && (
               <CompactPicker
                 className="absolute -left-6 top-7 border bg-white"
@@ -219,12 +241,46 @@ const SketchPad: React.FC<Props> = (props) => {
             )}
 
             <SketchButton
-              className="relative ml-1 text-xl"
+              className="relative text-xl"
               onClick={() => {
-                setIsOpenPaletteBg(!isOpenPaletteBg);
+                setIsOpendotSizeSlider(!isOpendotSizeSlider);
               }}>
-              <PiPaintBucketFill />
+              <PiDotBold />
             </SketchButton>
+            {isOpendotSizeSlider && (
+              <div className="relative">
+                <div className="absolute -left-6 top-7 flex flex-row gap-2 border bg-white p-2">
+                  <div
+                    className="flex items-center justify-center border"
+                    style={{ width: '80px', height: '80px' }}>
+                    <div
+                      className="rounded-full bg-black"
+                      style={{ width: dotSize * 2, height: dotSize * 2 }}></div>
+                  </div>
+                  <RangeSlider
+                    className=""
+                    label="PenSize"
+                    min={1}
+                    max={30}
+                    value={dotSize}
+                    onChange={(n) => {
+                      setDotSize(n);
+                    }}
+                    help="ペンのサイズ"
+                  />
+                </div>
+              </div>
+            )}
+
+            {!props.maskMode && (
+              <SketchButton
+                className="relative ml-1 text-xl"
+                onClick={() => {
+                  setIsOpenPaletteBg(!isOpenPaletteBg);
+                }}>
+                <PiPaintBucketFill />
+              </SketchButton>
+            )}
             {isOpenPaletteBg && (
               <CompactPicker
                 className="absolute -left-6 top-7 border bg-white"
@@ -264,12 +320,15 @@ const SketchPad: React.FC<Props> = (props) => {
               width: props.width,
               height: props.height,
               className: 'border',
-              style: { backgroundColor: bgColor },
+              style: {
+                backgroundColor: bgColor,
+                backgroundImage: `url(${props.backgroundBase64})`,
+              },
             }}
             penColor={isEraseMode ? bgColor : penColor}
-            dotSize={3}
-            maxWidth={3}
-            minWidth={3}
+            dotSize={dotSize}
+            maxWidth={dotSize}
+            minWidth={dotSize}
           />
         </div>
         <div className="mt-3 flex justify-between">
