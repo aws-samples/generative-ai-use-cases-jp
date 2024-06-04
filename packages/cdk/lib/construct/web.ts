@@ -178,6 +178,7 @@ export class Web extends Construct {
           props.samlCognitoFederatedIdentityProviderName.toString(),
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
         VITE_APP_RECOGNIZE_FILE_ENABLED: props.recognizeFileEnabled.toString(),
+        NODE_OPTIONS: '--max-old-space-size=2048'
       },
     });
 
