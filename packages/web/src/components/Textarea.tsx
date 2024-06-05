@@ -86,7 +86,7 @@ const Textarea: React.FC<Props> = (props) => {
           isMax ? 'overflow-y-auto' : 'overflow-hidden'
         } ${
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
-        } `}
+        } ${props.disabled ? 'bg-gray-200 ' : ''}`}
         rows={props.rows ?? 1}
         placeholder={props.placeholder}
         value={props.value}

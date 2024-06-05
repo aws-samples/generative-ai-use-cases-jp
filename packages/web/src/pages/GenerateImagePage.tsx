@@ -10,7 +10,7 @@ import ButtonIcon from '../components/ButtonIcon';
 import { PiFileArrowUp, PiDiceFive, PiNotePencil } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
-import SketchPad from '../components/SketchPad';
+import SketchPad, { Canvas } from '../components/SketchPad';
 import ModalDialog from '../components/ModalDialog';
 import { produce } from 'immer';
 import Help from '../components/Help';
@@ -72,10 +72,10 @@ type StateType = {
   setImageStrength: (n: number) => void;
   generationMode: GenerationMode;
   setGenerationMode: (s: GenerationMode) => void;
-  initImageBase64: string;
-  setInitImageBase64: (s: string) => void;
-  maskImageBase64: string;
-  setMaskImageBase64: (s: string) => void;
+  initImage: Canvas;
+  setInitImage: (s: Canvas) => void;
+  maskImage: Canvas;
+  setMaskImage: (s: Canvas) => void;
   maskPrompt: string;
   setMaskPrompt: (s: string) => void;
   imageSample: number;
@@ -105,8 +105,16 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     cfgScale: 7,
     imageStrength: 0.35,
     generationMode: modeOptions[0]['value'],
-    initImageBase64: '',
-    maskImageBase64: '',
+    initImage: {
+      imageBase64: '',
+      foregroundBase64: '',
+      backgroundColor: '',
+    },
+    maskImage: {
+      imageBase64: '',
+      foregroundBase64: '',
+      backgroundColor: '',
+    },
     maskPrompt: '',
     imageSample: 3,
     image: new Array(MAX_SAMPLE).fill({
@@ -170,14 +178,14 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
         generationMode: s,
       }));
     },
-    setInitImageBase64: (s) => {
+    setInitImage: (s) => {
       set(() => ({
-        initImageBase64: s,
+        initImage: s,
       }));
     },
-    setMaskImageBase64: (s) => {
+    setMaskImage: (s) => {
       set(() => ({
-        maskImageBase64: s,
+        maskImage: s,
       }));
     },
     setMaskPrompt: (s) => {
@@ -275,10 +283,10 @@ const GenerateImagePage: React.FC = () => {
     setCfgScale,
     generationMode,
     setGenerationMode,
-    initImageBase64,
-    setInitImageBase64,
-    maskImageBase64,
-    setMaskImageBase64,
+    initImage,
+    setInitImage,
+    maskImage,
+    setMaskImage,
     maskPrompt,
     setMaskPrompt,
     image,
@@ -403,7 +411,7 @@ const GenerateImagePage: React.FC = () => {
         if (generationMode === 'IMAGE_VARIATION') {
           params = {
             ...params,
-            initImage: initImageBase64,
+            initImage: initImage.imageBase64,
             imageStrength,
           };
         } else if (
@@ -412,9 +420,9 @@ const GenerateImagePage: React.FC = () => {
         ) {
           params = {
             ...params,
-            initImage: initImageBase64,
-            maskPrompt: maskImageBase64 ? undefined : maskPrompt,
-            maskImage: maskImageBase64,
+            initImage: initImage.imageBase64,
+            maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
+            maskImage: maskImage.imageBase64,
             maskMode: generationMode,
           };
         }
@@ -448,9 +456,9 @@ const GenerateImagePage: React.FC = () => {
       imageSample,
       imageStrength,
       generationMode,
-      initImageBase64,
+      initImage,
       maskPrompt,
-      maskImageBase64,
+      maskImage,
       seed,
       setImage,
       setImageError,
@@ -465,19 +473,19 @@ const GenerateImagePage: React.FC = () => {
   }, [generateRandomSeed, selectedImageIndex, setSeed]);
 
   const onChangeInitImageBase64 = useCallback(
-    (s: string) => {
-      setInitImageBase64(s);
+    (s: Canvas) => {
+      setInitImage(s);
       setIsOpenSketch(false);
     },
-    [setInitImageBase64]
+    [setInitImage]
   );
 
   const onChangeMaskImageBase64 = useCallback(
-    (s: string) => {
-      setMaskImageBase64(s);
+    (s: Canvas) => {
+      setMaskImage(s);
       setIsOpenMask(false);
     },
-    [setMaskImageBase64]
+    [setMaskImage]
   );
 
   const onSelectImage = useCallback(
@@ -492,17 +500,23 @@ const GenerateImagePage: React.FC = () => {
 
   const generateImageVariant = useCallback(() => {
     if (image[selectedImageIndex].base64) {
-      setGenerationMode('IMAGE_VARIATION');
-      setInitImageBase64(
-        `data:image/png;base64,${image[selectedImageIndex].base64}`
-      );
+      if (generationMode === 'TEXT_IMAGE') {
+        setGenerationMode('IMAGE_VARIATION');
+      }
+      const img = `data:image/png;base64,${image[selectedImageIndex].base64}`;
+      setInitImage({
+        imageBase64: img,
+        foregroundBase64: img,
+        backgroundColor: '',
+      });
       setDetailExpanded(true);
     }
   }, [
     image,
+    generationMode,
     selectedImageIndex,
     setGenerationMode,
-    setInitImageBase64,
+    setInitImage,
     setDetailExpanded,
   ]);
 
@@ -525,7 +539,7 @@ const GenerateImagePage: React.FC = () => {
         <SketchPad
           width={width}
           height={height}
-          imageBase64={initImageBase64}
+          image={initImage}
           onChange={onChangeInitImageBase64}
           onCancel={() => {
             setIsOpenSketch(false);
@@ -543,8 +557,8 @@ const GenerateImagePage: React.FC = () => {
         <SketchPad
           width={width}
           height={height}
-          imageBase64={maskImageBase64}
-          backgroundBase64={initImageBase64}
+          image={maskImage}
+          background={initImage}
           maskMode={true}
           onChange={onChangeMaskImageBase64}
           onCancel={() => {
@@ -713,7 +727,7 @@ const GenerateImagePage: React.FC = () => {
                       </div>
                       <Base64Image
                         className="size-32"
-                        imageBase64={initImageBase64}
+                        imageBase64={initImage.imageBase64}
                       />
                       <Button
                         className="m-auto mt-2 text-sm"
@@ -737,7 +751,7 @@ const GenerateImagePage: React.FC = () => {
                       </div>
                       <Base64Image
                         className="size-32"
-                        imageBase64={maskImageBase64}
+                        imageBase64={maskImage.imageBase64}
                       />
                       <Button
                         className="m-auto mt-2 text-sm"
@@ -760,7 +774,7 @@ const GenerateImagePage: React.FC = () => {
                     maxHeight={60}
                     rows={2}
                     className="w-full"
-                    disabled={!!maskImageBase64}
+                    disabled={!!maskImage.imageBase64}
                   />
                 )}
               </div>
@@ -821,7 +835,14 @@ const GenerateImagePage: React.FC = () => {
                 generateImage(prompt, negativePrompt);
               }}
               loading={generating || loadingChat}
-              disabled={prompt.length === 0}>
+              disabled={
+                prompt.length === 0 ||
+                (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
+                ((generationMode === 'INPAINTING' ||
+                  generationMode === 'OUTPAINTING') &&
+                  !maskImage.imageBase64 &&
+                  !maskPrompt)
+              }>
               生成
             </Button>
 

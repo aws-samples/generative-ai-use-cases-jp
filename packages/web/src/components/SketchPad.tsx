@@ -42,13 +42,19 @@ const SketchButton: React.FC<SketchButtonProps> = (props) => {
   );
 };
 
+export type Canvas = {
+  imageBase64: string;
+  foregroundBase64: string;
+  backgroundColor: string;
+};
+
 type Props = {
   width: number;
   height: number;
-  imageBase64?: string;
-  backgroundBase64?: string;
+  image?: Canvas;
+  background?: Canvas;
   maskMode?: boolean;
-  onChange: (imageBase64: string) => void;
+  onChange: (image: Canvas) => void;
   onCancel: () => void;
 };
 
@@ -68,13 +74,14 @@ const SketchPad: React.FC<Props> = (props) => {
   const undoStack: SignaturePad.Point[][] = [];
 
   useEffect(() => {
-    if (props.imageBase64) {
-      canvasRef.current?.fromDataURL(props.imageBase64, {
+    if (props.image?.imageBase64) {
+      canvasRef.current?.fromDataURL(props.image.foregroundBase64, {
         height: props.height,
         width: props.width,
       });
+      setBgColor(props.image.backgroundColor);
     }
-  }, [props.imageBase64, props.height, props.width]);
+  }, [props.image, props.height, props.width]);
 
   const onChangePenColor = useCallback<ColorChangeHandler>((color) => {
     setIsOpenPalette(false);
@@ -109,10 +116,14 @@ const SketchPad: React.FC<Props> = (props) => {
   }, [undoStack]);
 
   const onClickComplete = useCallback(() => {
-    if (canvasRef.current?.toData().length === 0) {
-      props.onChange('');
-      return;
-    }
+    // if (canvasRef.current?.toData().length === 0) {
+    //   props.onChange({
+    //     imageBase64: '',
+    //     foregroundBase64: '',
+    //     backgroundColor: '#ffffff',
+    //   });
+    //   return;
+    // }
 
     // 背景色を設定するために、新しくcanvasで四角を作成し合成する
     const canvas = document.createElement('canvas');
@@ -140,7 +151,11 @@ const SketchPad: React.FC<Props> = (props) => {
           ctx.putImageData(imageData, 0, 0);
         }
 
-        props.onChange(canvas.toDataURL('image/png'));
+        props.onChange({
+          imageBase64: canvas.toDataURL('image/png'),
+          foregroundBase64: canvasRef.current?.toDataURL('image/png') || '',
+          backgroundColor: bgColor,
+        });
       }
     }
   }, [bgColor, props]);
@@ -189,8 +204,12 @@ const SketchPad: React.FC<Props> = (props) => {
     }
   };
   const onClickUploadComplete = useCallback(() => {
-    props.onChange(imageBase64);
-  }, [imageBase64, props]);
+    props.onChange({
+      imageBase64: imageBase64,
+      foregroundBase64: imageBase64,
+      backgroundColor: bgColor,
+    });
+  }, [imageBase64, bgColor, props]);
 
   const onClickClear = useCallback(() => {
     canvasRef.current?.clear();
@@ -266,7 +285,6 @@ const SketchPad: React.FC<Props> = (props) => {
                     onChange={(n) => {
                       setDotSize(n);
                     }}
-                    help="ペンのサイズ"
                   />
                 </div>
               </div>
@@ -322,7 +340,7 @@ const SketchPad: React.FC<Props> = (props) => {
               className: 'border',
               style: {
                 backgroundColor: bgColor,
-                backgroundImage: `url(${props.backgroundBase64})`,
+                backgroundImage: `url(${props.background?.imageBase64})`,
               },
             }}
             penColor={isEraseMode ? bgColor : penColor}
