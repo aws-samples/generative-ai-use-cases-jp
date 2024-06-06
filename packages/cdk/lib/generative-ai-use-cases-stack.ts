@@ -15,6 +15,7 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
+import { Interpreter } from './construct/summit/interpreter';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -118,6 +119,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
     }
 
+    // Summit用のInterpreter機能
+    const interpreter = new Interpreter(this, 'Interpreter', {
+      userPool: auth.userPool,
+      api: api.api,
+    });
+
     const web = new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,
@@ -142,6 +149,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostName: props.hostName,
       domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
+      createFunctionRoleArn: interpreter.createFunctionRole.roleArn,
     });
 
     if (ragEnabled) {
@@ -251,6 +259,11 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'RecognizeFileEnabled', {
       value: recognizeFileEnabled.toString(),
+    });
+
+    // Summit
+    new CfnOutput(this, 'CreateFunctionRoleArn', {
+      value: interpreter.createFunctionRole.roleArn,
     });
 
     this.userPool = auth.userPool;
