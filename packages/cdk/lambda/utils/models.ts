@@ -377,18 +377,34 @@ const extractOutputTextCommandR = (body: BedrockResponse): string => {
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
-  const body: StableDiffusionParams = {
+  let body: StableDiffusionParams = {
     text_prompts: params.textPrompt,
     cfg_scale: params.cfgScale,
     style_preset: params.stylePreset,
     seed: params.seed,
     steps: params.step,
-    image_strength: params.imageStrength,
+    image_strength: params.maskImage ? 0 : params.imageStrength, // Inpaint/Outpaint 時に 0 以上だと悪さする
     height: params.height,
     width: params.width,
-    // Image to Image
-    init_image: params.initImage,
   };
+  if (params.initImage && params.maskImage === undefined) {
+    // Image to Image
+    body = {
+      ...body,
+      init_image: params.initImage,
+    };
+  } else if (params.initImage && params.maskImage) {
+    // Image to Image (Masking)
+    body = {
+      ...body,
+      init_image: params.initImage,
+      mask_image: params.maskImage,
+      mask_source:
+        params.maskMode === 'INPAINTING'
+          ? 'MASK_IMAGE_BLACK'
+          : 'MASK_IMAGE_WHITE',
+    };
+  }
   return JSON.stringify(body);
 };
 
@@ -403,7 +419,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     seed: params.seed % 214783648, // max for titan image
   };
   let body: Partial<TitanImageParams> = {};
-  if (params.initImage) {
+  if (params.initImage && params.maskMode === undefined) {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -414,6 +430,37 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
         images: [params.initImage],
         similarityStrength: Math.max(params.imageStrength || 0.2, 0.2), // Min 0.2
+      },
+      imageGenerationConfig: imageGenerationConfig,
+    };
+  } else if (params.initImage && params.maskMode === 'INPAINTING') {
+    body = {
+      taskType: 'INPAINTING',
+      inPaintingParams: {
+        text:
+          (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
+          ', ' +
+          params.stylePreset,
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        image: params.initImage,
+        maskImage: params.maskImage,
+        maskPrompt: params.maskPrompt,
+      },
+      imageGenerationConfig: imageGenerationConfig,
+    };
+  } else if (params.initImage && params.maskMode === 'OUTPAINTING') {
+    body = {
+      taskType: 'OUTPAINTING',
+      outPaintingParams: {
+        text:
+          (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
+          ', ' +
+          params.stylePreset,
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        image: params.initImage,
+        maskImage: params.maskImage,
+        maskPrompt: params.maskPrompt,
+        outPaintingMode: 'DEFAULT',
       },
       imageGenerationConfig: imageGenerationConfig,
     };
