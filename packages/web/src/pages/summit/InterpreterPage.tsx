@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Card from '../../components/Card';
 import Select from '../../components/Select';
 import { create } from 'zustand';
@@ -15,6 +21,7 @@ import {
   PiCheckCircleBold,
   PiCheckCircleThin,
   PiLightningBold,
+  PiPowerBold,
   PiRocketLaunchBold,
   PiSlidersBold,
   PiSpinnerGap,
@@ -80,7 +87,7 @@ const useInterpreterPageState = create<StateType>((set) => {
         roleArn: s,
       }));
     },
-    runtime: 'nodejs18.x',
+    runtime: 'nodejs20.x',
     setRuntime: (s: string) => {
       set(() => ({
         runtime: s,
@@ -121,12 +128,12 @@ const useInterpreterPageState = create<StateType>((set) => {
 
 const runtimeOptions = [
   {
-    value: 'nodejs18.x',
-    label: 'nodejs18.x',
+    value: 'nodejs20.x',
+    label: 'nodejs20.x',
   },
   {
-    value: 'python3.11',
-    label: 'python3.11',
+    value: 'python3.12',
+    label: 'python3.12',
   },
 ];
 
@@ -191,6 +198,24 @@ const InterpreterPage: React.FC = () => {
   const [disabledDeploy, setDisabledDeploy] = useState(true);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
 
+  const [callFunctionInput, setCallFunctionInput] = useState('');
+  const [callFunctionOutput, setCallFunctionOutput] = useState('');
+  const [disabledCallFunction, setDisabledCallFunction] = useState(true);
+  const [callingFunction, setCallingFunction] = useState(false);
+  const [callFunctionStatus, setCallFunctionStatus] = useState('');
+
+  const codeLanguage = useMemo(() => {
+    if (runtime.startsWith('nodejs')) {
+      return 'js';
+    } else if (runtime.startsWith('python')) {
+      return 'python';
+    } else if (runtime.startsWith('java')) {
+      return 'java';
+    } else {
+      return 'ruby';
+    }
+  }, [runtime]);
+
   // const currentSystemContext = useMemo(
   //   () => getCurrentSystemContext(),
   //   [getCurrentSystemContext]
@@ -222,10 +247,6 @@ const InterpreterPage: React.FC = () => {
     }
   }, [codeIndex, codes, loading]);
 
-  // useEffect(() => {
-  //   setCode(WELCOME_CODE);
-  // }, []);
-
   useEffect(() => {
     updateSystemContext(interpreterPrompt.systemContext(runtime));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -233,6 +254,7 @@ const InterpreterPage: React.FC = () => {
 
   const checkDeployable = useCallback(() => {
     setDisabledDeploy(true);
+    setDisabledCallFunction(true);
     if (functionName === '') {
       return;
     }
@@ -241,6 +263,7 @@ const InterpreterPage: React.FC = () => {
       .then((exists) => {
         setShouldUpdate(exists);
         setDisabledDeploy(false);
+        setDisabledCallFunction(false);
       })
       .finally(() => {
         setLoadingFunctionName(false);
@@ -273,22 +296,33 @@ const InterpreterPage: React.FC = () => {
 
   const onClickDeploy = useCallback(() => {
     setLoadingDeploy(true);
+    setDisabledCallFunction(true);
     if (shouldUpdate) {
       updateFunction({
         functionName: functionName,
         code: code,
-      }).finally(() => {
-        setLoadingDeploy(false);
-      });
+        role: roleArn,
+        runtime: runtime,
+      })
+        .then(() => {
+          setDisabledCallFunction(false);
+        })
+        .finally(() => {
+          setLoadingDeploy(false);
+        });
     } else {
       createFunction({
         functionName: functionName,
         code: code,
         role: roleArn,
         runtime: runtime,
-      }).finally(() => {
-        setLoadingDeploy(false);
-      });
+      })
+        .then(() => {
+          setDisabledCallFunction(false);
+        })
+        .finally(() => {
+          setLoadingDeploy(false);
+        });
     }
   }, [
     code,
@@ -299,6 +333,35 @@ const InterpreterPage: React.FC = () => {
     shouldUpdate,
     updateFunction,
   ]);
+
+  const callFunction = useCallback(() => {
+    setCallingFunction(true);
+    setCallFunctionStatus('');
+    invokeFunction({
+      functionName,
+      payload: callFunctionInput,
+    })
+      .then((res) => {
+        setCallFunctionOutput(JSON.stringify(res.data));
+        console.log(res.data);
+        if (res.data instanceof Object) {
+          if ('errorMessage' in res.data && 'errorType' in res.data) {
+            setCallFunctionStatus('error');
+          } else {
+            setCallFunctionStatus('success');
+          }
+        } else {
+          setCallFunctionStatus('success');
+        }
+      })
+      .catch((e) => {
+        setCallFunctionOutput(e);
+        setCallFunctionStatus('error');
+      })
+      .finally(() => {
+        setCallingFunction(false);
+      });
+  }, [callFunctionInput, functionName, invokeFunction]);
 
   useEffect(() => {
     setErrorMessage(null);
@@ -345,7 +408,6 @@ const InterpreterPage: React.FC = () => {
 
   const onClickTest = useCallback(() => {
     setLoadingTest(true);
-    setIsOpenTest(true);
     setTestResults(
       new Array(testCases.length).fill({
         status: 'testing',
@@ -390,7 +452,7 @@ const InterpreterPage: React.FC = () => {
     });
   }, [functionName, invokeFunction, setTestResults, testCases]);
 
-  const onClickFixCode = useCallback(() => {
+  const onClickFixCodeByTests = useCallback(() => {
     setContent(
       interpreterPrompt.fixFaildedTest(
         testCases.map((c, idx) => ({
@@ -401,6 +463,10 @@ const InterpreterPage: React.FC = () => {
     );
     setIsOpenTest(false);
   }, [setContent, testCases, testResults]);
+
+  const onClickFixCodeByError = useCallback(() => {
+    setContent(interpreterPrompt.fixError(callFunctionOutput));
+  }, [callFunctionOutput, setContent]);
 
   const functionNameRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -444,7 +510,7 @@ const InterpreterPage: React.FC = () => {
         </div>
         <div className="relative mx-5">
           <SyntaxHighlighter
-            language="js"
+            language={codeLanguage}
             style={vscDarkPlus}
             className={`h-[calc(100vh-20rem)] whitespace-pre-wrap rounded-lg ${isEmpty && 'flex items-center justify-center'}`}>
             {code}
@@ -543,6 +609,67 @@ const InterpreterPage: React.FC = () => {
                 <div className="mx-3 flex items-start justify-between">
                   <div className="mr-3 w-full">
                     <div className="flex items-center font-semibold">
+                      <PiPowerBold className="mr-1" />
+                      実行
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      デプロイした Lambda 関数を実行します。
+                    </div>
+
+                    <div className="mt-3 text-sm font-semibold">
+                      関数の INPUT
+                    </div>
+                    <Textarea
+                      className="w-32"
+                      value={callFunctionInput}
+                      rows={3}
+                      onChange={setCallFunctionInput}
+                    />
+
+                    <div className="mt-3 text-sm font-semibold">実行結果</div>
+                    <div className="mt-3 flex items-center gap-2 text-sm">
+                      ステータス:
+                      {callFunctionStatus === 'error' && (
+                        <div className="flex items-center gap-1">
+                          <PiXCircleBold className="text-red-600" />
+                          <div className="text-red-600">エラー</div>
+                        </div>
+                      )}
+                      {callFunctionStatus === 'success' && (
+                        <div className="flex items-center gap-1">
+                          <PiCheckCircleBold className="text-green-600" />
+                          <div className="text-green-600">正常終了</div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-3 text-sm">関数の OUTPUT</div>
+                    <div className="min-h-8 rounded border p-1">
+                      {callFunctionOutput}
+                    </div>
+                  </div>
+                  <div className="flex w-32 flex-col items-end">
+                    <Button
+                      className="whitespace-nowrap"
+                      disabled={disabledCallFunction}
+                      loading={callingFunction}
+                      onClick={callFunction}>
+                      実行
+                    </Button>
+
+                    {callFunctionStatus === 'error' && (
+                      <Button
+                        className="whitespace-nowrap"
+                        onClick={onClickFixCodeByError}>
+                        エラーの修正を指示する
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className="my-3 border-b"></div>
+                <div className="mx-3 flex items-start justify-between">
+                  <div className="mr-3 w-full">
+                    <div className="flex items-center font-semibold">
                       <PiLightningBold className="mr-1" />
                       テスト
                     </div>
@@ -576,7 +703,7 @@ const InterpreterPage: React.FC = () => {
                       onChange={setTestData}
                     />
                   </div>
-                  <div className="flex flex-col items-end">
+                  <div className="flex w-32 flex-col items-end">
                     <Button
                       disabled={loadingTest}
                       className="whitespace-nowrap"
@@ -588,7 +715,9 @@ const InterpreterPage: React.FC = () => {
                       className="mt-3 whitespace-nowrap"
                       disabled={disabledDeploy || loadingGenerateTestData}
                       loading={loadingTest}
-                      onClick={onClickTest}>
+                      onClick={() => {
+                        setIsOpenTest(true);
+                      }}>
                       テスト実行
                     </Button>
                   </div>
@@ -600,13 +729,19 @@ const InterpreterPage: React.FC = () => {
       </div>
       <ModalDialog isOpen={isOpenTest} title="テスト実行">
         <>
-          {testResults.filter((r) => r.status === 'pass').length ===
-            testResults.length && (
-            <div className="flex items-center font-bold text-green-600">
-              <PiCheckCircleBold className="mr-1" />
-              テストが全て PASS しました。
+          {testCases.length === 0 && (
+            <div className="mb-3 flex items-center font-bold">
+              テストケースがありません。
             </div>
           )}
+          {testResults.length > 0 &&
+            testResults.filter((r) => r.status === 'pass').length ===
+              testResults.length && (
+              <div className="flex items-center font-bold text-green-600">
+                <PiCheckCircleBold className="mr-1" />
+                テストが全て PASS しました。
+              </div>
+            )}
           {testResults.filter((r) => r.status === 'fail').length > 0 && (
             <div className="flex items-center font-bold text-red-600">
               <PiXCircleBold className="mr-1" />
@@ -644,17 +779,28 @@ const InterpreterPage: React.FC = () => {
             );
           })}
           <div className="flex justify-between">
-            {testResults.filter((r) => r.status === 'fail').length > 0 && (
+            <div className="flex gap-3">
               <Button
+                disabled={testCases.length === 0}
                 loading={loadingTest}
                 onClick={() => {
-                  onClickFixCode();
+                  onClickTest();
                 }}>
-                コード修正を依頼する
+                テストの実行
               </Button>
-            )}
+              {testResults.filter((r) => r.status === 'fail').length > 0 && (
+                <Button
+                  loading={loadingTest}
+                  onClick={() => {
+                    onClickFixCodeByTests();
+                  }}>
+                  コード修正を指示する
+                </Button>
+              )}
+            </div>
 
             <Button
+              outlined
               loading={loadingTest}
               onClick={() => {
                 setIsOpenTest(false);
@@ -699,10 +845,6 @@ const InterpreterPage: React.FC = () => {
             </>
           </ExpandableField>
         )} */}
-        {/* 
-        <div className="relative mb-2 w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
-          <Button className="">デプロイ／テスト</Button>
-        </div> */}
 
         <InputChatContent
           content={content}

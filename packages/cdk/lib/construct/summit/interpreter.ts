@@ -64,7 +64,14 @@ export class Interpreter extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         resources: ['*'],
-        actions: ['lambda:UpdateFunctionCode'],
+        actions: ['lambda:CreateFunction', 'lambda:DeleteFunction'],
+      })
+    );
+    updateFunction.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [createFunctionRole.roleArn],
+        actions: ['iam:PassRole'],
       })
     );
 

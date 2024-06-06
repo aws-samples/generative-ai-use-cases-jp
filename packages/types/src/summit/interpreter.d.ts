@@ -7,6 +7,8 @@ export type CreateLambdaFunctionRequest = {
 
 export type UpdateLambdaFunctionRequest = {
   functionName: string;
+  runtime: string;
+  role: string;
   code: string;
 };
 

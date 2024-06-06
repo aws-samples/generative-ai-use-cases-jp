@@ -1,7 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateLambdaFunctionRequest } from 'generative-ai-use-cases-jp';
 import {
-  UpdateFunctionCodeCommand,
+  DeleteFunctionCommand,
+  CreateFunctionCommand,
   LambdaClient,
 } from '@aws-sdk/client-lambda';
 import JSZip = require('jszip');
@@ -13,17 +14,40 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: UpdateLambdaFunctionRequest = JSON.parse(event.body!);
-    zip.file('index.js', req.code);
+    const setZipFileName = (runtime: string): string => {
+      if (runtime.startsWith('nodejs')) {
+        return 'index.js';
+      } else if (runtime.startsWith('python')) {
+        return 'index.py';
+      } else {
+        throw new Error('Unknown Runtime.');
+      }
+    };
+    const zipFileName = setZipFileName(req.runtime);
+    zip.file(zipFileName, req.code);
     const zipFile = await zip.generateAsync({ type: 'uint8array' });
 
     const client = new LambdaClient({});
-    const command = new UpdateFunctionCodeCommand({
-      FunctionName: req.functionName,
 
-      ZipFile: zipFile,
-    });
+    // ロールやランタイムを変更する場合があるので、再作成する
+    await client.send(
+      new DeleteFunctionCommand({
+        FunctionName: req.functionName,
+      })
+    );
 
-    await client.send(command);
+    await client.send(
+      new CreateFunctionCommand({
+        FunctionName: req.functionName,
+        Code: {
+          ZipFile: zipFile,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        Runtime: req.runtime as any,
+        Role: req.role,
+        Handler: 'index.handler',
+      })
+    );
 
     return {
       statusCode: 200,
