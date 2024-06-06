@@ -116,15 +116,6 @@ const SketchPad: React.FC<Props> = (props) => {
   }, [undoStack]);
 
   const onClickComplete = useCallback(() => {
-    // if (canvasRef.current?.toData().length === 0) {
-    //   props.onChange({
-    //     imageBase64: '',
-    //     foregroundBase64: '',
-    //     backgroundColor: '#ffffff',
-    //   });
-    //   return;
-    // }
-
     // 背景色を設定するために、新しくcanvasで四角を作成し合成する
     const canvas = document.createElement('canvas');
     canvas.width = props.width;
@@ -213,6 +204,11 @@ const SketchPad: React.FC<Props> = (props) => {
 
   const onClickClear = useCallback(() => {
     canvasRef.current?.clear();
+    props.onChange({
+      imageBase64: '',
+      foregroundBase64: '',
+      backgroundColor: '#ffffff',
+    });
   }, []);
 
   return (
