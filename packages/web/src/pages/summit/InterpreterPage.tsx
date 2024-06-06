@@ -196,6 +196,7 @@ const InterpreterPage: React.FC = () => {
   const [loadingGenerateTestData, setLoadingGenerateTestData] = useState(false);
   const [loadingFunctionName, setLoadingFunctionName] = useState(false);
   const [disabledDeploy, setDisabledDeploy] = useState(true);
+  const [notDeployed, setNotDeployed] = useState(true);
   const [errorMessage, setErrorMessage] = useState<null | string>(null);
 
   const [callFunctionInput, setCallFunctionInput] = useState('');
@@ -273,6 +274,7 @@ const InterpreterPage: React.FC = () => {
   const onSend = useCallback(() => {
     setCodeIndex(codes.length);
     setDisabledDeploy(true);
+    setNotDeployed(true);
     postChat(
       interpreterPrompt.generationContext(content),
       false,
@@ -306,6 +308,7 @@ const InterpreterPage: React.FC = () => {
       })
         .then(() => {
           setDisabledCallFunction(false);
+          setNotDeployed(false);
         })
         .finally(() => {
           setLoadingDeploy(false);
@@ -319,6 +322,7 @@ const InterpreterPage: React.FC = () => {
       })
         .then(() => {
           setDisabledCallFunction(false);
+          setNotDeployed(false);
         })
         .finally(() => {
           setLoadingDeploy(false);
@@ -377,17 +381,18 @@ const InterpreterPage: React.FC = () => {
       }
 
       data.forEach((d) => {
-        if (!d['input'] && d['input'] !== '') {
+        if (!('input' in d)) {
           setErrorMessage('各テストデータには input キーが必要です。');
           return;
         }
-        if (!d['output'] && d['output'] !== '') {
+        if (!('output' in d)) {
           setErrorMessage('各テストデータには output キーが必要です。');
           return;
         }
       });
       setTestCases([...data]);
     } catch (e) {
+      console.log(e);
       setErrorMessage('JSON形式ではありません。');
       return;
     }
@@ -455,10 +460,12 @@ const InterpreterPage: React.FC = () => {
   const onClickFixCodeByTests = useCallback(() => {
     setContent(
       interpreterPrompt.fixFaildedTest(
-        testCases.map((c, idx) => ({
-          ...c,
-          result: testResults[idx].result,
-        }))
+        testResults
+          .filter((result) => result.status === 'fail')
+          .map((result, idx) => ({
+            ...testCases[idx],
+            result: result.result,
+          }))
       )
     );
     setIsOpenTest(false);
@@ -596,7 +603,13 @@ const InterpreterPage: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <div className="">
+
+                  <div className="flex items-center gap-1">
+                    {notDeployed && (
+                      <div className="bg-aws-squid-ink rounded-full px-2 py-1 text-xs text-white">
+                        NOT Deployed
+                      </div>
+                    )}
                     <Button
                       disabled={disabledDeploy}
                       loading={loadingDeploy}
