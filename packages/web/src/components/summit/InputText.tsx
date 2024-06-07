@@ -1,7 +1,6 @@
 import React from 'react';
 import RowItem, { RowItemProps } from '../RowItem';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Props = RowItemProps & {
   value?: string;
   label?: string;
