@@ -96,7 +96,7 @@ const GenerateUIPage: React.FC = () => {
       updateSystemContextByModel();
     }
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [prompter]);
+  }, [prompter, chatId]);
 
   const fileUpload = useMemo(() => {
     return MODELS.multiModalModelIds.includes(modelId);
@@ -183,6 +183,24 @@ const GenerateUIPage: React.FC = () => {
   const [showCode, setShowCode] = useState(false);
   const debouncedCode = useDebounce(code, 100);
 
+  const [selectedExamplePrompt, setSelectedExamplePrompt] =
+    useState<string>('');
+
+  // AWS Summit ではキーボード操作はあまりしたくないと想定されるので、あらかじめ追加で入力したくなるプロンプトを用意しておき、選択するだけでインタラクティブな操作ができるようにしておく
+  const additionalRecommennds = examplePrompts
+    .filter((examplePrompt) => examplePrompt.label === selectedExamplePrompt)[0]
+    ?.additionalExamplePrompts?.map(({ label, value }) => {
+      return (
+        <RoundedButton
+          onClick={() => {
+            setContent(value);
+          }}
+          key={label}>
+          {label} ↗️
+        </RoundedButton>
+      );
+    });
+
   return (
     <>
       <div
@@ -262,7 +280,7 @@ const GenerateUIPage: React.FC = () => {
                 language="html"
                 style={atomDark}
                 className="h-[calc(100vh-30rem)] whitespace-pre-wrap">
-                {code}
+                {debouncedCode}
               </SyntaxHighlighter>
             </div>
           </div>
@@ -273,13 +291,25 @@ const GenerateUIPage: React.FC = () => {
           <div className="m-2 rounded-md border border-gray-300 p-2">
             <h2 className="p-2 text-lg">History</h2>
             <div className="mb-4 flex w-11/12 gap-4 overflow-x-auto p-2">
-              {showingMessages
-                .filter((msg) => msg.role === 'assistant')
-                .map((msg) => {
-                  return (
-                    <div
-                      onClick={() => setCode(msg.content)}
-                      className="h-36 w-60 cursor-pointer opacity-70  transition-opacity duration-300  hover:opacity-100">
+              {showingMessages.map((msg, index) => {
+                if (msg.role === 'user') return;
+                return (
+                  <div
+                    onClick={() => {
+                      setCode(msg.content);
+                      setContent(showingMessages[index - 1].content);
+                    }}
+                    key={index + '-msg'}
+                    className="h-36 w-60 cursor-pointer opacity-60 transition-opacity duration-300 hover:opacity-100">
+                    {loading && index === showingMessages.length - 1 ? (
+                      <div
+                        className="relative origin-top-left animate-pulse rounded-[36px] border border-gray-400 bg-gray-300"
+                        style={{
+                          width: '1024px',
+                          height: '576px',
+                          transform: 'scale(0.24)',
+                        }}></div>
+                    ) : (
                       <iframe
                         className="pointer-events-none relative origin-top-left select-none rounded-[36px] border border-gray-400"
                         sandbox="allow-scripts allow-same-origin"
@@ -292,9 +322,10 @@ const GenerateUIPage: React.FC = () => {
                           transform: 'scale(0.24)',
                         }}
                       />
-                    </div>
-                  );
-                })}
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -348,10 +379,16 @@ const GenerateUIPage: React.FC = () => {
           <div className="mb-4 flex gap-2">
             {!showingMessages.length &&
               examplePrompts.map(({ value, label }) => (
-                <RoundedButton onClick={() => setContent(value)} key={label}>
+                <RoundedButton
+                  onClick={() => {
+                    setContent(value);
+                    setSelectedExamplePrompt(label);
+                  }}
+                  key={label}>
                   {label} ↗️
                 </RoundedButton>
               ))}
+            {showingMessages.length > 0 && !loading && additionalRecommennds}
           </div>
         </div>
       </div>
@@ -371,6 +408,37 @@ const examplePrompts = [
 買い物カゴに追加すると、アニメーションもつけてください。
 現在何が買い物カゴに入っているのか確認し、合計金額の計算もできます。
 ページ遷移は行わず、SPAのように1ページで処理を行ってください。`,
+    additionalExamplePrompts: [
+      {
+        label: 'ヘッダーとフッターを追加',
+        value: 'ヘッダーとフッターをつけてください。',
+      },
+      {
+        label: '他のページを追加する',
+        value:
+          'ユーザのプロフィールページ、買い物カゴの一覧を確認するページを追加して遷移可能にしてください。',
+      },
+    ],
+  },
+  {
+    label: 'ECサイトの管理画面',
+    value: `ECサイトの管理画面を作ってください。
+
+サイドバーナビゲーションがあるダッシュボードを実装してください。
+ダッシュボードには直近の注文を表示するテーブルがあり、発注などのステータス管理ができます。
+
+この EC サイトの名前は「Green Village」です。観葉植物を専門に取り扱うECサイトです。`,
+    additionalExamplePrompts: [
+      {
+        label: 'ページング',
+        value:
+          'ページング実装をしてください。デフォルトで１画面に１０件まで表示でき、１ページあたりの表示件数も調整できるようにします。',
+      },
+      {
+        label: 'グラフを描画する',
+        value: '日毎の注文数の推移を折線グラフとして描画してください。',
+      },
+    ],
   },
   {
     label: '動画配信サイト',
@@ -401,10 +469,29 @@ AWS AI Week for Developers
 - 生成系 AI のユースケースと AWS サービスの活用例 | AWS AI Week for Developers (ビギナートラック)
   - https://www.youtube.com/watch?v=PhlpsCT_NPw&list=PLzWGOASvSx6GpTyGBB6rLapnY9N_xrBKW&index=3
 `,
+    additionalExamplePrompts: [
+      {
+        label: 'おすすめエリアの作成',
+        value:
+          'ユーザに推奨する動画をピックアップしておすすめする領域を作ってください。',
+      },
+      {
+        label: '他のページを追加する',
+        value:
+          'ユーザのプロフィールページ、買い物カゴの一覧を確認するページを追加して遷移可能にしてください。',
+      },
+    ],
   },
   {
     label: 'TODOアプリ',
     value: `TODOアプリを SPA で実装してください。`,
+    additionalExamplePrompts: [
+      {
+        label: 'アニメーションをつけて',
+        value:
+          'TODOリストに追加したとき、削除したときにアニメーションをつけてください。',
+      },
+    ],
   },
   {
     label: 'CSVデータの可視化',
@@ -430,6 +517,33 @@ C001,P003,2023-04-10,120.00
 - 'product_id': 商品ID
 - 'purchase_date': 購買日
 - 'purchase_amount': 購買金額`,
+    additionalExamplePrompts: [
+      {
+        label: 'パイチャートも',
+        value: '商品別に購入された比率をパイチャートとしても表示してください。',
+      },
+      {
+        label: '購買傾向の未来予測',
+        value:
+          '購入された実績から、今後の傾向を予測してデータを生成、プロットしてください。予測値のデータは色を変えて表示して欲しいです。また、その予測される理由を文章として説明するWebページにしてください。',
+      },
+    ],
+  },
+  {
+    label: 'VRアプリ',
+    value: `VRコンテンツが見えるアプリを実装してください。
+3Dモデルは以下のサイトから適切なものを使用してください。
+
+Sketchfab
+Clara.io
+Archive3D
+Sketchup’s 3D Warehouse
+TurboSquid
+`,
+  },
+  {
+    label: '手書きスケッチ',
+    value: '添付する画像のようなレイアウトでウェブサイトを実装してください',
   },
 ];
 
