@@ -728,14 +728,12 @@ C001,P003,2023-04-10,120.00
   },
   {
     label: 'VRアプリ',
-    value: `VRコンテンツが見えるアプリを実装してください。
-3Dモデルは以下のサイトから適切なものを使用してください。
+    value: `宇宙感のある3Dモデルを表示するWebサイトを作ってください
 
-Sketchfab
-Clara.io
-Archive3D
-Sketchup’s 3D Warehouse
-TurboSquid
+3D モデルの例
+https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf
+
+特に指定がなければ Vue.js は使わずにシンプルに実装してください。
 `,
   },
 ];
