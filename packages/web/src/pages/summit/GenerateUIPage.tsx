@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../../components/InputChatContent';
 import useChat from '../../hooks/useChat';
@@ -10,12 +16,14 @@ import { create } from 'zustand';
 import BedrockIcon from '../../assets/bedrock.svg?react';
 import { MODELS } from '../../hooks/useModel';
 import { getPrompter } from '../../prompts';
-import useFiles from '../../hooks/useFiles';
+import useFiles, { extractBaseURL } from '../../hooks/useFiles';
 import Switch from '../../components/Switch';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useDebounce } from '../../hooks/useDebounce';
 import ButtonIcon from '../../components/ButtonIcon';
+import { UploadedFileType } from 'generative-ai-use-cases-jp';
+import useFileApi from '../../hooks/useFileApi';
 
 type StateType = {
   content: string;
@@ -61,6 +69,7 @@ const GenerateUIPage: React.FC = () => {
   const { content, inputSystemContext, setContent, setInputSystemContext } =
     useChatPageState();
   const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
+
   const { chatId } = useParams();
   const { pathname } = useLocation();
 
@@ -201,6 +210,143 @@ const GenerateUIPage: React.FC = () => {
       );
     });
 
+  // Video Feature
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [devices, setDevices] = useState<{ value: string; label: string }[]>(
+    []
+  );
+  const [deviceId, setDeviceId] = useState('');
+  const [sending, setSending] = useState(false);
+  const videoElement = useRef<HTMLVideoElement | null>(null);
+  const callbackRef = useRef<() => void>();
+  const { getSignedUrl, uploadFile } = useFileApi();
+
+  useEffect(() => {
+    const getDevices = async () => {
+      // 新規で画面を開いたユーザーにカメラの利用を要求する (ダミーのリクエスト)
+      const dummyStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: true,
+      });
+
+      if (dummyStream) {
+        // 録画ボタンがついてしまうため消す
+        dummyStream.getTracks().forEach((track) => track.stop());
+
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices
+          .filter((device) => device.kind === 'videoinput')
+          .map((device) => {
+            return {
+              value: device.deviceId,
+              label: device.label.replace(/\s\(.*?\)/g, ''),
+            };
+          });
+        setDevices(videoDevices);
+      }
+    };
+
+    getDevices();
+  }, []);
+
+  useEffect(() => {
+    if (deviceId.length === 0 && devices.length > 0) {
+      setDeviceId(devices[0].value);
+    }
+  }, [deviceId, devices]);
+
+  const sendFrame = useCallback(() => {
+    if (!videoElement.current) return;
+
+    setSending(true);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.current.videoWidth;
+    canvas.height = videoElement.current.videoHeight;
+    const context = canvas.getContext('2d');
+    context!.drawImage(videoElement.current, 0, 0, canvas.width, canvas.height);
+    // toDataURL() で返す値は以下の形式 (;base64, 以降のみを使う)
+    // ```
+    // data:image/png;base64,<以下base64...>
+    // ```
+    const imageBase64 = canvas.toDataURL('image/png').split(';base64,')[1];
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob!], 'tmp.png', { type: 'image/png' });
+      const signedUrl = (await getSignedUrl({ mediaFormat: 'png' })).data;
+      await uploadFile(signedUrl, { file });
+      const baseUrl = extractBaseURL(signedUrl);
+      const uploadedFiles: UploadedFileType[] = [
+        {
+          file,
+          s3Url: baseUrl,
+          base64EncodedImage: imageBase64,
+          uploading: false,
+        },
+      ];
+
+      postChat(
+        prompter.videoAnalyzerPrompt({
+          content,
+        }),
+        false,
+        undefined,
+        undefined,
+        undefined,
+        uploadedFiles
+      );
+
+      setSending(false);
+    });
+  }, [prompter, content, postChat, getSignedUrl, uploadFile]);
+
+  const startRecording = useCallback(async () => {
+    try {
+      if (videoElement.current) {
+        setRecording(true);
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            deviceId: {
+              exact: deviceId,
+            },
+          },
+        });
+        videoElement.current.srcObject = stream;
+        videoElement.current.play();
+
+        setMediaStream(stream);
+      }
+    } catch (e) {
+      console.error('ウェブカメラにアクセスできませんでした:', e);
+    }
+  }, [setRecording, videoElement, deviceId]);
+
+  // ビデオの停止
+  const stopRecording = useCallback(() => {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => track.stop());
+    }
+    setRecording(false);
+  }, [mediaStream]);
+
+  // Callback 関数を常に最新にしておく
+  useEffect(() => {
+    callbackRef.current = stopRecording;
+  }, [stopRecording]);
+
+  // Unmount 時 (画面を離れた時) の処理
+  useEffect(() => {
+    return () => {
+      if (callbackRef.current) {
+        callbackRef.current();
+        callbackRef.current = undefined;
+      }
+    };
+  }, []);
+
   return (
     <>
       <div
@@ -244,12 +390,31 @@ const GenerateUIPage: React.FC = () => {
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (
           <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center">
-            <BedrockIcon
-              className={`fill-gray-400 ${
-                loadingMessages ? 'animate-pulse' : ''
-              }`}
-            />
-            <span className="text-gray-400">Generate UI</span>
+            {!recording && (
+              <BedrockIcon
+                className={`fill-gray-400 ${
+                  loadingMessages ? 'animate-pulse' : ''
+                }`}
+              />
+            )}
+            {!recording && <span className="text-gray-400">Generate UI</span>}
+
+            <div className="justify-center">
+              <video ref={videoElement} className={recording ? '' : 'hidden'} />
+              {recording && (
+                <div className="flex flex-col">
+                  <span className="pb-2 pt-2 text-gray-400">
+                    手書きのスケッチを読み込ませてみましょう
+                  </span>
+                  <Select
+                    value={deviceId}
+                    options={devices}
+                    clearable={false}
+                    onChange={setDeviceId}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -364,17 +529,36 @@ const GenerateUIPage: React.FC = () => {
               </>
             </ExpandableField>
           )}
-          <InputChatContent
-            content={content}
-            disabled={loading}
-            onChangeContent={setContent}
-            resetDisabled={!!chatId}
-            onSend={() => {
-              onSend();
-            }}
-            onReset={onReset}
-            fileUpload={fileUpload}
-          />
+
+          {recording ? (
+            <InputChatContent
+              onSend={() => {
+                sendFrame();
+                stopRecording();
+              }}
+              disabled={
+                !recording || loading || sending || content.length === 0
+              }
+              loading={loading}
+              disableMarginBottom={true}
+              hideReset={true}
+              content={content}
+              onChangeContent={setContent}
+            />
+          ) : (
+            <InputChatContent
+              content={content}
+              disabled={loading}
+              onChangeContent={setContent}
+              resetDisabled={!!chatId}
+              onSend={() => {
+                onSend();
+              }}
+              onReset={onReset}
+              fileUpload={fileUpload}
+            />
+          )}
+
           {/* Recommended Button Container */}
           <div className="mb-4 flex gap-2">
             {!showingMessages.length &&
@@ -388,6 +572,19 @@ const GenerateUIPage: React.FC = () => {
                   {label} ↗️
                 </RoundedButton>
               ))}
+            {!showingMessages.length && (
+              <RoundedButton
+                onClick={() => {
+                  setContent(
+                    'カメラから読み取った画像を参考にウェブサイトを実装してください'
+                  );
+
+                  startRecording();
+                }}>
+                手書きスケッチ ↗️
+              </RoundedButton>
+            )}
+
             {showingMessages.length > 0 && !loading && additionalRecommennds}
           </div>
         </div>
@@ -540,10 +737,6 @@ Archive3D
 Sketchup’s 3D Warehouse
 TurboSquid
 `,
-  },
-  {
-    label: '手書きスケッチ',
-    value: '添付する画像のようなレイアウトでウェブサイトを実装してください',
   },
 ];
 
