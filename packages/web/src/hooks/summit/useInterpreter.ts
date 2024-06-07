@@ -1,6 +1,5 @@
 import useHttp from '../useHttp';
 import useChatApi from '../useChatApi';
-import interpreterPrompt from '../../prompts/interpreter-prompt';
 import {
   CreateLambdaFunctionRequest,
   InvokeLambdaFunctionRequest,
@@ -12,13 +11,13 @@ const useInterpreter = () => {
   const http = useHttp();
   const { predict } = useChatApi();
   return {
-    generateTestData: (messages: UnrecordedMessage[]) => {
+    generateTestData: (messages: UnrecordedMessage[], prompt: string) => {
       return predict({
         messages: [
           ...messages,
           {
             role: 'user',
-            content: interpreterPrompt.generationTestData(),
+            content: prompt,
           },
         ],
         id: '',

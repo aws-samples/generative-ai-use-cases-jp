@@ -13,9 +13,9 @@ import Textarea from '../../components/Textarea';
 import Button from '../../components/Button';
 import { useLocation, useParams } from 'react-router-dom';
 import useChat from '../../hooks/useChat';
-import interpreterPrompt from '../../prompts/interpreter-prompt';
 import useInterpreter from '../../hooks/summit/useInterpreter';
 import {
+  PiArrowClockwiseBold,
   PiArrowLeft,
   PiArrowRight,
   PiCheckCircleBold,
@@ -38,6 +38,7 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import InputChatContent from '../../components/InputChatContent';
 import ButtonIcon from '../../components/ButtonIcon';
+import { getPrompter } from '../../prompts';
 
 const WELCOME_CODE = `                                 █████╗ ██╗    ██╗███████╗   
                                 ██╔══██╗██║    ██║██╔════╝   
@@ -71,6 +72,8 @@ type StateType = {
   setTestCases: (c: TestCaseType[]) => void;
   testResults: TestResultType[];
   setTestResults: (r: TestResultType[]) => void;
+  inputSystemContext: string;
+  setInputSystemContext: (c: string) => void;
 };
 
 const useInterpreterPageState = create<StateType>((set) => {
@@ -123,6 +126,13 @@ const useInterpreterPageState = create<StateType>((set) => {
         testResults: r,
       }));
     },
+    inputSystemContext: '',
+
+    setInputSystemContext: (s: string) => {
+      set(() => ({
+        inputSystemContext: s,
+      }));
+    },
   };
 });
 
@@ -162,6 +172,8 @@ const InterpreterPage: React.FC = () => {
     setTestCases,
     testResults,
     setTestResults,
+    inputSystemContext,
+    setInputSystemContext,
   } = useInterpreterPageState();
 
   const { pathname } = useLocation();
@@ -175,9 +187,9 @@ const InterpreterPage: React.FC = () => {
     isEmpty,
     updateSystemContext,
     loading,
-    // loadingMessages,
+    loadingMessages,
     clear,
-    // getCurrentSystemContext,
+    getCurrentSystemContext,
   } = useChat(pathname);
   const {
     createFunction,
@@ -205,6 +217,10 @@ const InterpreterPage: React.FC = () => {
   const [callingFunction, setCallingFunction] = useState(false);
   const [callFunctionStatus, setCallFunctionStatus] = useState('');
 
+  const prompter = useMemo(() => {
+    return getPrompter(modelId);
+  }, [modelId]);
+
   const codeLanguage = useMemo(() => {
     if (runtime.startsWith('nodejs')) {
       return 'js';
@@ -217,14 +233,14 @@ const InterpreterPage: React.FC = () => {
     }
   }, [runtime]);
 
-  // const currentSystemContext = useMemo(
-  //   () => getCurrentSystemContext(),
-  //   [getCurrentSystemContext]
-  // );
+  const currentSystemContext = useMemo(
+    () => getCurrentSystemContext(),
+    [getCurrentSystemContext]
+  );
 
-  // useEffect(() => {
-  //   setInputSystemContext(currentSystemContext);
-  // }, [currentSystemContext, setInputSystemContext]);
+  useEffect(() => {
+    setInputSystemContext(currentSystemContext);
+  }, [currentSystemContext, setInputSystemContext]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -247,11 +263,6 @@ const InterpreterPage: React.FC = () => {
       setCode(WELCOME_CODE);
     }
   }, [codeIndex, codes, loading]);
-
-  useEffect(() => {
-    updateSystemContext(interpreterPrompt.systemContext(runtime));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runtime]);
 
   const checkDeployable = useCallback(() => {
     setDisabledDeploy(true);
@@ -276,7 +287,7 @@ const InterpreterPage: React.FC = () => {
     setDisabledDeploy(true);
     setNotDeployed(true);
     postChat(
-      interpreterPrompt.generationContext(content),
+      prompter.interpreterGenerationPrompt(runtime, content),
       false,
       undefined,
       undefined,
@@ -402,14 +413,14 @@ const InterpreterPage: React.FC = () => {
     setLoadingGenerateTestData(true);
     setTestData('');
 
-    generateTestData(messages)
+    generateTestData(messages, prompter.interpreterGenerationTestDataPrompt())
       .then((testData) => {
         setTestData(testData);
       })
       .finally(() => {
         setLoadingGenerateTestData(false);
       });
-  }, [generateTestData, messages, setTestData]);
+  }, [generateTestData, messages, prompter, setTestData]);
 
   const onClickTest = useCallback(() => {
     setLoadingTest(true);
@@ -459,7 +470,7 @@ const InterpreterPage: React.FC = () => {
 
   const onClickFixCodeByTests = useCallback(() => {
     setContent(
-      interpreterPrompt.fixFaildedTest(
+      prompter.interpreterFixFailedTestPrompt(
         testResults
           .filter((result) => result.status === 'fail')
           .map((result, idx) => ({
@@ -469,11 +480,11 @@ const InterpreterPage: React.FC = () => {
       )
     );
     setIsOpenTest(false);
-  }, [setContent, testCases, testResults]);
+  }, [prompter, setContent, testCases, testResults]);
 
   const onClickFixCodeByError = useCallback(() => {
-    setContent(interpreterPrompt.fixError(callFunctionOutput));
-  }, [callFunctionOutput, setContent]);
+    setContent(prompter.interpreterFixErrorPrompt(callFunctionOutput));
+  }, [callFunctionOutput, prompter, setContent]);
 
   const functionNameRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -825,7 +836,7 @@ const InterpreterPage: React.FC = () => {
       </ModalDialog>
 
       <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
-        {/* {isEmpty && !loadingMessages && !chatId && (
+        {isEmpty && !loadingMessages && !chatId && (
           <ExpandableField
             label="システムコンテキスト"
             className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
@@ -857,7 +868,7 @@ const InterpreterPage: React.FC = () => {
               />
             </>
           </ExpandableField>
-        )} */}
+        )}
 
         <InputChatContent
           content={content}

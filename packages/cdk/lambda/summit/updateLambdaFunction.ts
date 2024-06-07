@@ -46,6 +46,7 @@ export const handler = async (
         Runtime: req.runtime as any,
         Role: req.role,
         Handler: 'index.handler',
+        Timeout: 10,
       })
     );
 
