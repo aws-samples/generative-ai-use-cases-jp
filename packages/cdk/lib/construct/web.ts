@@ -181,7 +181,7 @@ export class Web extends Construct {
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
         VITE_APP_RECOGNIZE_FILE_ENABLED: props.recognizeFileEnabled.toString(),
         VITE_APP_CREATE_FUNCTION_ROLE_ARN: props.createFunctionRoleArn,
-        NODE_OPTIONS: '--max-old-space-size=2048'
+        NODE_OPTIONS: '--max-old-space-size=2048',
       },
     });
 
