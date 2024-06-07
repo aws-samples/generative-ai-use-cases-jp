@@ -52,7 +52,7 @@ const useChatState = create<{
     postProcessOutput: ((message: string) => string) | undefined,
     sessionId: string | undefined,
     extraData: UploadedFileType[] | undefined
-  ) => void;
+  ) => Promise<void>;
   sendFeedback: (
     id: string,
     createdDate: string,
@@ -615,7 +615,7 @@ const useChat = (id: string, chatId?: string) => {
       sessionId: string | undefined = undefined,
       extraData: UploadedFileType[] | undefined = undefined
     ) => {
-      post(
+      return post(
         id,
         content,
         mutateConversations,
