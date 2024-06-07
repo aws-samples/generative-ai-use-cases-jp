@@ -2,6 +2,7 @@ import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
 import { mistralPrompter } from './mistral';
+import { TestCaseType } from '../@types/summit/interpreter';
 
 export const getPrompter = (modelId: string) => {
   if (modelId.startsWith('anthropic.claude-')) {
@@ -98,4 +99,10 @@ export interface Prompter {
   promptList(): PromptList;
   // Summit用
   generateSqlPrompt(params: GenerateSqlParams): string;
+  interpreterGenerationPrompt(runtime: string, context: string): string;
+  interpreterFixErrorPrompt(errorMessage: string): string;
+  interpreterGenerationTestDataPrompt(): string;
+  interpreterFixFailedTestPrompt(
+    failedTests: (TestCaseType & { result: string | object })[]
+  ): string;
 }

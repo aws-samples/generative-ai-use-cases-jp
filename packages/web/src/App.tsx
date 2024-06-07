@@ -21,6 +21,7 @@ import {
   PiSlideshow,
   PiDatabase,
   PiBroom,
+  PiTerminal,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -161,6 +162,12 @@ const items: ItemProps[] = [
         display: 'summit' as const,
       }
     : null,
+  {
+    label: 'AWS Interpreter',
+    to: '/interpreter',
+    icon: <PiTerminal />,
+    display: 'summit' as const,
+  },
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す

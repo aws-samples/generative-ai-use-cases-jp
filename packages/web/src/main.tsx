@@ -29,6 +29,7 @@ import GenerateSlidePage from './pages/summit/GenerateSlidePage.tsx';
 import { MODELS } from './hooks/useModel';
 import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
 import GenerateUIPage from './pages/summit/GenerateUIPage.tsx';
+import InterpreterPage from './pages/summit/InterpreterPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
@@ -132,6 +133,10 @@ const routes: RouteObject[] = [
   {
     path: '/slide',
     element: <GenerateSlidePage />,
+  },
+  {
+    path: '/interpreter',
+    element: <InterpreterPage />,
   },
   {
     path: '*',
