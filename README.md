@@ -1,16 +1,35 @@
 # AWS Summit Japan 2024 展示
 
-このブランチは、AWS Summit Japan 2024 で展示したデモのコードです。デモの内容やそのコードを参考にしていただくことを目的に公開しています。
+このブランチは、AWS Summit Japan 2024 (以降、Summit)で展示したデモのコードです。デモの内容やそのコードを参考にしていただくことを目的に公開しています。
 
 > [!CAUTION]
 **`main` ブランチからの差分取り込みは一切しておらず、今後も更新を一切行いません（セキュリティ対応含む）。このブランチをベースに開発することは、セキュリティの観点から推奨しておりません。[こちらの `main` ブランチの最新のコード](https://github.com/aws-samples/generative-ai-use-cases-jp)をベースに開発を行うようにしてください。**
 
 > [!WARNING]
-このままデプロイすると、Amazon Kendra がデプロイされて、利用料金が高額（月額 810 USD）になるためご注意ください。
+このままデプロイすると、Amazon Kendra がデプロイされて、利用料金が高額（月額 810 USD）になるためご注意ください。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `ragEnabled` を `false` にすることで無効化できます。
 
-## Summit デモ用に追加している機能
+## bedrock-claude-chat
 
-- TBD
+generative-ai-use-cases-jp(GenU) と共同展示していた bedrock-claude-chat のリポジトリは、[こちら](https://github.com/aws-samples/bedrock-claude-chat/blob/v1/docs/README_ja.md)です。Summit での展示では、リポジトリで公開している `v1` のバージョンをそのまま利用していました。そのまま、最新版をデプロイしてください。
+
+Summit 展示で体験していただいたデモ用ボットの定義は、[こちら](./docs/summit/BOT_DEFINITION.md)で確認できますので、ぜひ参考にしてみてください。
+
+## Summit 特別ユースケース
+
+Summit のために開発した GenU の特別ユースケースです。
+
+- SQL 生成
+  - テーブル定義の DDL を元に、生成 AI が指示通りに SQL を生成します。
+  - アプリケーション開発やデータ分析の効率化が期待できる機能です。
+- スライド作成
+  - チャット形式でスライド資料を作成します。
+  - スライド作成時のアイデア出しや、草案を作成する際に便利な機能です。
+- ウェブサイト生成
+  - チャット形式で、HTML、CSS、JavaScript を生成し、ウェブサイトをプレビュー表示します。
+  - スケッチ画像を元にウェブサイトを生成することも可能です。
+- AWS Interpreter
+  - チャット形式で、Lambda 関数のコードを生成し、そのまま Lambda 関数をデプロイできます。
+  - 生成した関数のテストデータを自動で作成し、自動テストを行うことも可能です。
 
 # Generative AI Use Cases JP (略称:GenU)
 
