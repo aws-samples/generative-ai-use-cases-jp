@@ -18,18 +18,26 @@ Summit 展示で体験していただいたデモ用ボットの定義は、[こ
 
 Summit のために開発した GenU の特別ユースケースです。
 
-- SQL 生成
-  - テーブル定義の DDL を元に、生成 AI が指示通りに SQL を生成します。
-  - アプリケーション開発やデータ分析の効率化が期待できる機能です。
-- スライド作成
-  - チャット形式でスライド資料を作成します。
-  - スライド作成時のアイデア出しや、草案を作成する際に便利な機能です。
-- ウェブサイト生成
-  - チャット形式で、HTML、CSS、JavaScript を生成し、ウェブサイトをプレビュー表示します。
-  - スケッチ画像を元にウェブサイトを生成することも可能です。
-- AWS Interpreter
-  - チャット形式で、Lambda 関数のコードを生成し、そのまま Lambda 関数をデプロイできます。
-  - 生成した関数のテストデータを自動で作成し、自動テストを行うことも可能です。
+### SQL 生成
+テーブル定義の DDL を元に、生成 AI が指示通りに SQL を生成します。
+アプリケーション開発やデータ分析の効率化が期待できる機能です。
+  ![alt text](./imgs/summit/image.png)
+
+### スライド作成
+チャット形式でスライド資料を作成します。スライド作成時のアイデア出しや、草案を作成する際に便利な機能です。
+  ![alt text](./imgs/summit/image-1.png)
+  ![alt text](./imgs/summit/image-3.png)
+  ![alt text](./imgs/summit/image-4.png)
+### ウェブサイト生成
+チャット形式で、HTML、CSS、JavaScript を生成し、ウェブサイトをプレビュー表示します。スケッチ画像を元にウェブサイトを生成することも可能です。
+![alt text](./imgs/summit/image-5.png)
+![alt text](./imgs/summit/image-6.png)
+
+### AWS Interpreter
+チャット形式で、Lambda 関数のコードを生成し、そのまま Lambda 関数をデプロイできます。生成した関数のテストデータを自動で作成し、自動テストを行うことも可能です。
+![alt text](./imgs/summit/image-7.png)
+![alt text](./imgs/summit/image-8.png)
+![alt text](./imgs/summit/image-9.png)
 
 # Generative AI Use Cases JP (略称:GenU)
 
