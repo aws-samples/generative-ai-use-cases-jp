@@ -18,6 +18,7 @@ import {
   PiSlideshow,
   PiDatabase,
   PiBroom,
+  PiCubeDuotone,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -443,6 +444,14 @@ CREATE TABLE incomes (
             onClickDemo={demoUIGenerator}
             icon={<PiBroom />}
             description="HTML, CSS, JavaScript を生成し、ウェブサイトのプレビューを表示します。マルチモーダルによってテキストによる指示に加えて、スケッチ画像を入力としてウェブサイトを生成することもできます。"
+          />
+        )}
+        {multiModalEnabled && (
+          <CardDemo
+            label="AWS 構成図生成"
+            onClickDemo={() => navigate('/diagram')}
+            icon={<PiCubeDuotone />}
+            description="Draw.io のファイルを生成し、AWSの構成図を描画します。"
           />
         )}
       </div>

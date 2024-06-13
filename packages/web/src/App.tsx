@@ -22,6 +22,7 @@ import {
   PiDatabase,
   PiBroom,
   PiTerminal,
+  PiCubeDuotone,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -168,6 +169,14 @@ const items: ItemProps[] = [
     icon: <PiTerminal />,
     display: 'summit' as const,
   },
+  multiModalEnabled
+    ? {
+        label: 'AWS構成図生成',
+        to: '/diagram',
+        icon: <PiCubeDuotone />,
+        display: 'summit' as const,
+      }
+    : null,
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
