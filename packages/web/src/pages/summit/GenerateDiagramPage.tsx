@@ -236,6 +236,14 @@ const GenerateDiagramPage: React.FC = () => {
 
             <span className="text-gray-400">AWS Diagram Generator</span>
             {loading && <SkeltonLoader>構成図を作成中です</SkeltonLoader>}
+            {loading && (
+              <span className="mt-2 text-center text-sm text-gray-400">
+                生成まで数十秒かかる場合があります。
+                <br />
+                構成図を保存するなど、draw.io
+                の一部機能が利用できないことに注意ください。
+              </span>
+            )}
           </div>
         )}
 
