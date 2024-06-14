@@ -86,6 +86,7 @@ const GenerateUIPage: React.FC = () => {
     updateSystemContext,
     updateSystemContextByModel,
     getCurrentSystemContext,
+    continueGenerate,
   } = useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const availableMultiModalModels = useMemo(() => {
@@ -136,6 +137,11 @@ const GenerateUIPage: React.FC = () => {
     setContent('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
+
+  // Summit用
+  const onContinueGenerate = useCallback(() => {
+    continueGenerate(false, undefined, undefined, undefined);
+  }, [continueGenerate]);
 
   const [showSystemContext] = useState(false);
   const showingMessages = useMemo(() => {
@@ -553,6 +559,9 @@ const GenerateUIPage: React.FC = () => {
               resetDisabled={!!chatId}
               onSend={() => {
                 onSend();
+              }}
+              onContinueGenerate={() => {
+                onContinueGenerate();
               }}
               onReset={onReset}
               fileUpload={fileUpload}

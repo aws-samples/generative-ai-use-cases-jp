@@ -144,7 +144,17 @@ const bedrockApi: ApiInterface = {
         if (outputText) {
           yield outputText;
         }
+
         if (body.stop_reason) {
+          if (body.stop_reason === 'max_tokens') {
+            yield '$MAX_TOKENS$';
+          }
+          break;
+        }
+        if (body.delta?.stop_reason) {
+          if (body.delta.stop_reason === 'max_tokens') {
+            yield '$MAX_TOKENS$';
+          }
           break;
         }
       }

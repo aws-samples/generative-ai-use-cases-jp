@@ -8,6 +8,7 @@ import Button from './Button';
 import {
   PiArrowsCounterClockwise,
   PiPaperclip,
+  PiPlay,
   PiSpinnerGap,
 } from 'react-icons/pi';
 
@@ -22,6 +23,7 @@ type Props = {
   loading?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
+  onContinueGenerate?: () => void;
   sendIcon?: React.ReactNode;
   // ページ下部以外で使う時に margin bottom を無効化するためのオプション
   disableMarginBottom?: boolean;
@@ -38,7 +40,11 @@ type Props = {
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading: chatLoading, isEmpty } = useChat(pathname);
+  const {
+    loading: chatLoading,
+    isEmpty,
+    canContinueGenerate,
+  } = useChat(pathname);
   const { uploadedFiles, uploadFiles, deleteUploadedFile, uploading } =
     useFiles();
 
@@ -84,7 +90,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
       }`}>
       <div
-        className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+        className={`relative flex w-full items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
         <div className="flex w-full flex-col">
@@ -150,6 +156,16 @@ const InputChatContent: React.FC<Props> = (props) => {
             onClick={props.onReset}>
             <PiArrowsCounterClockwise className="mr-2" />
             最初からやり直す
+          </Button>
+        )}
+
+        {canContinueGenerate && props.onContinueGenerate && (
+          <Button
+            className="absolute -top-14 left-1/2 -ml-20 w-40 p-2 text-sm"
+            outlined
+            onClick={props.onContinueGenerate}>
+            <PiPlay className="mr-2" />
+            続きを生成する
           </Button>
         )}
       </div>

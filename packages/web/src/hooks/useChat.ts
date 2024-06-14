@@ -53,6 +53,13 @@ const useChatState = create<{
     sessionId: string | undefined,
     extraData: UploadedFileType[] | undefined
   ) => Promise<void>;
+  continueGenerate: (
+    id: string,
+    ignoreHistory: boolean,
+    preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
+    postProcessOutput: ((message: string) => string) | undefined,
+    sessionId: string | undefined
+  ) => Promise<void>;
   sendFeedback: (
     id: string,
     createdDate: string,
@@ -507,6 +514,128 @@ const useChatState = create<{
       replaceMessages(id, messages);
     },
 
+    // Summit用 続きを生成する機能
+    continueGenerate: async (
+      id: string,
+      ignoreHistory: boolean,
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      sessionId: string | undefined = undefined
+    ) => {
+      const modelId = get().modelIds[id];
+
+      if (!modelId) {
+        console.error('modelId is not set');
+        return;
+      }
+
+      const model = findModelByModelId(modelId);
+
+      if (!model) {
+        console.error(`model not found for ${modelId}`);
+        return;
+      }
+
+      // Agent 用の対応
+      if (sessionId) {
+        model.sessionId = sessionId;
+      }
+
+      setLoading(id, true);
+
+      // const unrecordedAssistantMessage: UnrecordedMessage = {
+      //   role: 'assistant',
+      //   content: '',
+      // };
+
+      // User/Assistant の発言を反映
+      set((state) => {
+        const newChats = produce(state.chats, (draft) => {
+          const tmp = draft[id].messages.pop()!;
+          tmp.content = tmp.content.replace(/\$MAX_TOKENS\$$/, '');
+          draft[id].messages.push(tmp);
+          // draft[id].messages.push(unrecordedAssistantMessage);
+        });
+
+        return {
+          chats: newChats,
+        };
+      });
+
+      const chatMessages = get().chats[id].messages;
+
+      // 最後のメッセージはアシスタントのメッセージなので、排除
+      // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
+      let inputMessages = ignoreHistory
+        ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
+        : // : chatMessages.slice(0, -1);
+          chatMessages;
+
+      // メッセージの前処理（例：ログからの footnote の削除）
+      if (preProcessInput) {
+        inputMessages = preProcessInput(inputMessages);
+      }
+
+      // LLM へのリクエスト
+      const formattedMessages = formatMessageProperties(inputMessages);
+      const stream = predictStream({
+        model: model,
+        messages: formattedMessages,
+        id: id,
+      });
+
+      // Assistant の発言を更新
+      let tmpChunk = '';
+
+      for await (const chunk of stream) {
+        tmpChunk += chunk;
+
+        // chunk は 10 文字以上でまとめて処理する
+        // バッファリングしないと以下のエラーが出る
+        // Maximum update depth exceeded
+        if (tmpChunk.length >= 10) {
+          addChunkToAssistantMessage(id, tmpChunk, model);
+          tmpChunk = '';
+        }
+      }
+
+      // tmpChunk に文字列が残っている場合は処理する
+      if (tmpChunk.length > 0) {
+        addChunkToAssistantMessage(id, tmpChunk, model);
+      }
+
+      // メッセージの後処理（例：footnote の付与）
+      if (postProcessOutput) {
+        set((state) => {
+          const newChats = produce(state.chats, (draft) => {
+            const oldAssistantMessage = draft[id].messages.pop()!;
+            const newAssistantMessage: UnrecordedMessage = {
+              role: 'assistant',
+              content: postProcessOutput(oldAssistantMessage.content),
+              llmType: model?.modelId,
+            };
+            draft[id].messages.push(newAssistantMessage);
+          });
+          return {
+            chats: newChats,
+          };
+        });
+      }
+
+      setLoading(id, false);
+
+      // const chatId = await createChatIfNotExist(id, get().chats[id].chat);
+
+      // const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
+      // const { messages } = await createMessages(chatId, {
+      //   messages: toBeRecordedMessages,
+      // });
+
+      // replaceMessages(id, messages);
+    },
+
     sendFeedback: async (id: string, createdDate: string, feedback: string) => {
       const chat = get().chats[id].chat;
 
@@ -544,6 +673,7 @@ const useChat = (id: string, chatId?: string) => {
     getCurrentSystemContext,
     pushMessage,
     popMessage,
+    continueGenerate,
   } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
@@ -566,8 +696,50 @@ const useChat = (id: string, chatId?: string) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingMessage, isLoadingChat]);
 
+  // summit用
+  const withoutMetadataMessages = useMemo(() => {
+    if (!chats[id]?.messages || chats[id].messages.length === 0) {
+      return [];
+    }
+    const lastIndex = chats[id].messages.length - 1;
+    const latestMessage = chats[id].messages[lastIndex];
+
+    if (
+      latestMessage.role === 'assistant' &&
+      latestMessage.content.endsWith('$MAX_TOKENS$')
+    ) {
+      return produce(chats[id].messages, (draft) => {
+        draft[lastIndex].content = draft[lastIndex].content.replace(
+          /\$MAX_TOKENS\$$/,
+          ''
+        );
+      });
+    } else {
+      return chats[id].messages;
+    }
+  }, [chats, id]);
+
   const filteredMessages = useMemo(() => {
-    return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
+    return (
+      withoutMetadataMessages.filter((chat) => chat.role !== 'system') ?? []
+    );
+  }, [withoutMetadataMessages]);
+
+  // summit用
+  const canContinueGenerate = useMemo(() => {
+    if (!chats[id]?.messages || chats[id].messages.length === 0) {
+      return false;
+    }
+    const latestMessage = chats[id].messages[chats[id].messages.length - 1];
+
+    if (
+      latestMessage.role === 'assistant' &&
+      latestMessage.content.endsWith('$MAX_TOKENS$')
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }, [chats, id]);
 
   return {
@@ -602,9 +774,10 @@ const useChat = (id: string, chatId?: string) => {
     pushMessage: (role: Role, content: string) =>
       pushMessage(id, role, content),
     popMessage: () => popMessage(id),
-    rawMessages: chats[id]?.messages ?? [],
+    rawMessages: withoutMetadataMessages,
     messages: filteredMessages,
     isEmpty: filteredMessages.length === 0,
+    canContinueGenerate,
     postChat: (
       content: string,
       ignoreHistory: boolean = false,
@@ -624,6 +797,22 @@ const useChat = (id: string, chatId?: string) => {
         postProcessOutput,
         sessionId,
         extraData
+      );
+    },
+    continueGenerate: (
+      ignoreHistory: boolean = false,
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      sessionId: string | undefined = undefined
+    ) => {
+      return continueGenerate(
+        id,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput,
+        sessionId
       );
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
