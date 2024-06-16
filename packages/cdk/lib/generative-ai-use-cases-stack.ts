@@ -16,6 +16,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
 import { Interpreter } from './construct/summit/interpreter';
+import { Ehon } from './construct/summit/ehon';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -125,6 +126,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       api: api.api,
     });
 
+    // Summit用の絵本生成機能
+    const ehon = new Ehon(this, 'Ehon', {
+      userPool: auth.userPool,
+      api: api.api,
+    });
+
     const web = new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,
@@ -150,6 +157,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
       createFunctionRoleArn: interpreter.createFunctionRole.roleArn,
+      ehonAPIEndpoint: ehon.ehonAPI.url,
+      ehonStateMachineArn: ehon.ehonStateMachine.stateMachineArn,
     });
 
     if (ragEnabled) {
@@ -264,6 +273,14 @@ export class GenerativeAiUseCasesStack extends Stack {
     // Summit
     new CfnOutput(this, 'CreateFunctionRoleArn', {
       value: interpreter.createFunctionRole.roleArn,
+    });
+
+    new CfnOutput(this, 'EhonStateMachineArn', {
+      value: ehon.ehonStateMachine.stateMachineArn,
+    });
+
+    new CfnOutput(this, 'EhonAPIEndpoint', {
+      value: ehon.ehonAPI.url,
     });
 
     this.userPool = auth.userPool;
