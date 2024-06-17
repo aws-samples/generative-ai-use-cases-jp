@@ -1,7 +1,21 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+} from 'react';
 import { BaseProps } from '../@types/common';
 import ExpandableMenu from './ExpandableMenu';
-import { PiBookOpenText, PiFlask, PiTrash } from 'react-icons/pi';
+import {
+  PiBookOpenText,
+  PiFlask,
+  PiTrash,
+  PiPencilLine,
+  PiCheck,
+  PiX,
+} from 'react-icons/pi';
 import { ChatPageQueryParams } from '../@types/navigate';
 import useChat from '../hooks/useChat';
 import { getPrompter, PromptListItem } from '../prompts';
@@ -12,18 +26,20 @@ import { SystemContext } from 'generative-ai-use-cases-jp';
 type Props = BaseProps & {
   onClick: (params: ChatPageQueryParams) => void;
   systemContextList: SystemContext[];
-  onClickDeleteSystemContext: (systemContextId: string) => void;
+  onClickDeleteSystemContext: (systemContextId: string) => Promise<void>;
+  onClickUpdateSystemContext: (
+    systemContextId: string,
+    title: string
+  ) => Promise<void>;
 };
 
 const PromptList: React.FC<Props> = (props) => {
-  const { onClick, onClickDeleteSystemContext } = props;
+  const { onClick, onClickDeleteSystemContext, onClickUpdateSystemContext } =
+    props;
   const [expanded, setExpanded] = useState(false);
   // PromptList はチャットのページでの利用に固定
   const { getModelId } = useChat('/chat');
   const modelId = getModelId();
-  const [selectSystemContextId, setSelectSystemContextId] = useState<
-    string | undefined
-  >();
 
   const prompter = useMemo(() => {
     return getPrompter(modelId);
@@ -49,30 +65,102 @@ const PromptList: React.FC<Props> = (props) => {
     );
   };
   const SystemContextItem: React.FC<
-    Omit<SystemContext, 'id' | 'createdDate'> & { selected: boolean }
+    Omit<SystemContext, 'id' | 'createdDate'>
   > = (props) => {
+    const [editing, setEditing] = useState(false);
+    const [tempTitle, setTempTitle] = useState('');
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (editing) {
+        setTempTitle(props.systemContextTitle);
+      }
+    }, [editing, props.systemContextTitle]);
+
+    useLayoutEffect(() => {
+      if (editing) {
+        const listener = (e: DocumentEventMap['keypress']) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+
+            setEditing(false);
+            onClickUpdateSystemContext(props.systemContextId, tempTitle).catch(
+              () => {
+                setEditing(true);
+              }
+            );
+          }
+        };
+        inputRef.current?.addEventListener('keypress', listener);
+        inputRef.current?.focus();
+
+        return () => {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          inputRef.current?.removeEventListener('keypress', listener);
+        };
+      }
+    }, [editing, props.systemContextId, tempTitle]);
+
     const onClickPrompt = useCallback(() => {
-      setSelectSystemContextId(props.systemContextId);
       onClick({
         systemContext: props.systemContext,
       });
+
+      setExpanded(false);
     }, [props]);
 
     return (
-      <li className="flex">
-        <div
-          className="my-1 cursor-pointer truncate hover:underline"
-          onClick={onClickPrompt}>
-          {props.systemContextTitle}
-        </div>
-        {props.selected && (
-          <ButtonIcon
-            onClick={() => {
-              onClickDeleteSystemContext(props.systemContextId);
-            }}
-            className="ml-auto">
-            <PiTrash />
-          </ButtonIcon>
+      <li className="flex items-center">
+        {editing ? (
+          <>
+            <input
+              ref={inputRef}
+              type="text"
+              className="max-h-5 w-full bg-transparent p-0 text-sm ring-0"
+              value={tempTitle}
+              onChange={(e) => {
+                setTempTitle(e.target.value);
+              }}
+            />
+            <ButtonIcon
+              onClick={() => {
+                setEditing(false);
+                onClickUpdateSystemContext(
+                  props.systemContextId,
+                  tempTitle
+                ).catch(() => {
+                  setEditing(true);
+                });
+              }}>
+              <PiCheck />
+            </ButtonIcon>
+            <ButtonIcon
+              onClick={() => {
+                setEditing(false);
+              }}>
+              <PiX />
+            </ButtonIcon>
+          </>
+        ) : (
+          <>
+            <div
+              className="grow cursor-pointer truncate hover:underline"
+              onClick={onClickPrompt}>
+              {props.systemContextTitle}
+            </div>
+            <ButtonIcon
+              onClick={() => {
+                setEditing(true);
+              }}>
+              <PiPencilLine />
+            </ButtonIcon>
+            <ButtonIcon
+              onClick={() => {
+                onClickDeleteSystemContext(props.systemContextId);
+              }}>
+              <PiTrash />
+            </ButtonIcon>
+          </>
         )}
       </li>
     );
@@ -117,7 +205,6 @@ const PromptList: React.FC<Props> = (props) => {
                     systemContextTitle={item.systemContextTitle}
                     systemContext={item.systemContext}
                     systemContextId={item.systemContextId}
-                    selected={item.systemContextId === selectSystemContextId}
                     key={i}
                   />
                 );

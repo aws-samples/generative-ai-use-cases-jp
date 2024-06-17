@@ -311,6 +311,30 @@ export const deleteChat = async (
   );
 };
 
+export const updateSystemContextTitle = async (
+  _userId: string,
+  _systemContextId: string,
+  title: string
+): Promise<SystemContext> => {
+  const systemContext = await findSystemContextById(_userId, _systemContextId);
+  const res = await dynamoDbDocument.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: systemContext?.id,
+        createdDate: systemContext?.createdDate,
+      },
+      UpdateExpression: 'set systemContextTitle = :systemContextTitle',
+      ExpressionAttributeValues: {
+        ':systemContextTitle': title,
+      },
+      ReturnValues: 'ALL_NEW',
+    })
+  );
+
+  return res.Attributes as SystemContext;
+};
+
 export const deleteSystemContext = async (
   _userId: string,
   _systemContextId: string
