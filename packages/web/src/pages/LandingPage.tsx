@@ -19,6 +19,7 @@ import {
   PiDatabase,
   PiBroom,
   PiCubeDuotone,
+  PiTerminal,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -59,7 +60,7 @@ const LandingPage: React.FC = () => {
 
   const demoRag = () => {
     const params: RagPageQueryParams = {
-      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+      content: `生成AIに関するおすすめの展示を教えてください。`,
     };
     navigate(`/rag?${queryString.stringify(params)}`);
   };
@@ -313,6 +314,10 @@ CREATE TABLE incomes (
     navigate(`/genui`);
   };
 
+  const demoInterpreter = () => {
+    navigate(`/interpreter`);
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -446,6 +451,12 @@ CREATE TABLE incomes (
             description="HTML, CSS, JavaScript を生成し、ウェブサイトのプレビューを表示します。マルチモーダルによってテキストによる指示に加えて、スケッチ画像を入力としてウェブサイトを生成することもできます。"
           />
         )}
+        <CardDemo
+          label="AWS Interpreter"
+          onClickDemo={demoInterpreter}
+          icon={<PiTerminal />}
+          description="チャット形式で Lambda 関数のコードを生成します。そのままデプロイ、実行、自動テストを行うことができます。"
+        />
         {multiModalEnabled && (
           <CardDemo
             label="AWS 構成図生成"

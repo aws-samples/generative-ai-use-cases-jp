@@ -144,6 +144,11 @@ const CLAUDE_USECASE_PARAMS: ClaudeParamsUsecases = {
   '/rag': {
     temperature: 0.0,
   },
+  '/genui': {
+    temperature: 0.0,
+    top_k: 10,
+    top_p: 0.3,
+  },
 };
 
 const CLAUDE_MESSAGE_DEFAULT_PARAMS: ClaudeMessageParams = {
@@ -157,6 +162,11 @@ export type ClaudeMessageParamsUsecases = Record<string, ClaudeMessageParams>;
 const CLAUDE_MESSAGE_USECASE_PARAMS: ClaudeMessageParamsUsecases = {
   '/rag': {
     temperature: 0.0,
+  },
+  '/genui': {
+    temperature: 0.0,
+    top_k: 10,
+    top_p: 0.3,
   },
 };
 
