@@ -80,7 +80,8 @@ const ChatPage: React.FC = () => {
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
-  const { listSystemContexts, deleteSystemContext } = useSystemContextApi();
+  const { listSystemContexts, deleteSystemContext, updateSystemContextTitle } =
+    useSystemContextApi();
   const [systemContextList, setSystemContextList] = useState<SystemContext[]>(
     []
   );
@@ -288,6 +289,31 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  const onClickUpdateSystemContext = async (
+    systemContextId: string,
+    title: string
+  ) => {
+    try {
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
+      );
+      if (idx >= 0) {
+        setSystemContextList(
+          systemContextList.map((item, i) => {
+            if (i === idx) {
+              return { ...item, systemContextTitle: title };
+            }
+            return item;
+          })
+        );
+      }
+      await updateSystemContextTitle(systemContextId, title);
+      mutate();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleDragOver = (event: React.DragEvent) => {
     // ファイルドラッグ時にオーバーレイを表示
     event.preventDefault();
@@ -450,6 +476,7 @@ const ChatPage: React.FC = () => {
           onClick={onClickSamplePrompt}
           systemContextList={systemContextList as SystemContext[]}
           onClickDeleteSystemContext={onClickDeleteSystemContext}
+          onClickUpdateSystemContext={onClickUpdateSystemContext}
         />
       )}
 

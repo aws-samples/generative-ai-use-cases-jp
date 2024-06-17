@@ -397,6 +397,20 @@ export class Api extends Construct {
     );
     table.grantWriteData(createSystemContextFunction);
 
+    const updateSystemContextTitleFunction = new NodejsFunction(
+      this,
+      'UpdateSystemContextTitle',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/updateSystemContextTitle.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadWriteData(updateSystemContextTitleFunction);
+
     const deleteSystemContextFunction = new NodejsFunction(
       this,
       'DeleteSystemContexts',
@@ -543,6 +557,16 @@ export class Api extends Construct {
     systemContextResource.addMethod(
       'DELETE',
       new LambdaIntegration(deleteSystemContextFunction),
+      commonAuthorizerProps
+    );
+
+    const systemContextTitleResource =
+      systemContextResource.addResource('title');
+
+    // PUT: /systemcontexts/{systemContextId}/title
+    systemContextTitleResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateSystemContextTitleFunction),
       commonAuthorizerProps
     );
 
