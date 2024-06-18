@@ -253,6 +253,10 @@ const LandingPage: React.FC = () => {
     navigate(`/slide`);
   };
 
+  const demoEhonGenerator = () => {
+    navigate(`/ehon`);
+  };
+
   const demoGenerateSql = () => {
     const params: GenerateSqlPageQueryParams = {
       schemas: `-- ユーザテーブル
@@ -465,6 +469,12 @@ CREATE TABLE incomes (
             description="Draw.io のファイルを生成し、AWSの構成図を描画します。"
           />
         )}
+        <CardDemo
+          label="絵本生成"
+          onClickDemo={demoEhonGenerator}
+          icon={<PiImages />}
+          description="テーマを与えると、与えられたテーマに基づく絵本のあらすじ・起承転結を表す 4 つのシーンの説明文と画像を生成します。"
+        />        
       </div>
     </div>
   );

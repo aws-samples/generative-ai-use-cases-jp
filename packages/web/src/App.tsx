@@ -170,13 +170,19 @@ const items: ItemProps[] = [
     display: 'summit' as const,
   },
   multiModalEnabled
-    ? {
-        label: 'AWS構成図生成',
-        to: '/diagram',
-        icon: <PiCubeDuotone />,
-        display: 'summit' as const,
-      }
-    : null,
+  ? {
+      label: 'AWS構成図生成',
+      to: '/diagram',
+      icon: <PiCubeDuotone />,
+      display: 'summit' as const,
+    }
+  : null,
+  {
+    label: '絵本生成',
+    to: '/ehon',
+    icon: <PiImages />,
+    display: 'summit' as const,
+  },
 ].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す

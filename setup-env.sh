@@ -31,3 +31,5 @@ export VITE_APP_AGENT_NAMES=`extract_value "$stack_output" AgentNames`
 export VITE_APP_RECOGNIZE_FILE_ENABLED=`extract_value "$stack_output" RecognizeFileEnabled`
 # Summit
 export VITE_APP_CREATE_FUNCTION_ROLE_ARN=`extract_value "$stack_output" CreateFunctionRoleArn`
+export VITE_APP_EHON_API_ENDPOINT=`extract_value "$stack_output" EhonAPIEndpoint`
+export VITE_APP_EHON_STATE_MACHINE_ARN=`extract_value "$stack_output" EhonStateMachineArn`

@@ -31,6 +31,7 @@ import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
 import GenerateUIPage from './pages/summit/GenerateUIPage.tsx';
 import InterpreterPage from './pages/summit/InterpreterPage.tsx';
 import GenerateDiagramPage from './pages/summit/GenerateDiagramPage.tsx';
+import EhonPage from './pages/summit/EhonPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const samlAuthEnabled: boolean =
@@ -125,6 +126,10 @@ const routes: RouteObject[] = [
     path: '/generate-sql',
     element: <GenerateSqlPage />,
   },
+  {
+    path: '/ehon',
+    element: <EhonPage />,
+  },  
   multiModalEnabled
     ? {
         path: '/genui',
