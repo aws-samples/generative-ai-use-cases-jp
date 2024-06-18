@@ -41,6 +41,18 @@ Summit のために開発した GenU の特別ユースケースです。
 ![alt text](./imgs/summit/image-8.png)
 ![alt text](./imgs/summit/image-9.png)
 
+#### AWS 構成図生成
+チャット形式で draw.io を利用して AWS の構成図を生成します。構成図は、draw.io の形式で出力されるので、そのまま draw.io で修正したり、エクスポートしたりできます。
+
+![alt text](./imgs/summit/image-10.png)
+
+#### 絵本生成
+テーマを与えると、与えられたテーマに基づく絵本のあらすじ・起承転結を表す 4 つのシーンの説明文と画像を生成します。
+
+![alt text](./imgs/summit/image-11.png)
+![alt text](./imgs/summit/image-12.png)
+
+
 # Generative AI Use Cases JP (略称:GenU)
 
 Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性をもたらします。GenU は、生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装です。
