@@ -72,7 +72,7 @@ export class Rag extends Construct {
 
       const index = new kendra.CfnIndex(this, 'KendraIndex', {
         name: 'generative-ai-use-cases-index',
-        edition: 'DEVELOPER_EDITION',
+        edition: 'ENTERPRISE_EDITION',
         roleArn: indexRole.roleArn,
 
         // トークンベースのアクセス制御を実施
