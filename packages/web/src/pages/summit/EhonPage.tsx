@@ -9,7 +9,6 @@ type StateType = {
   inputTheme: string;
   summary: string[];
   scenes: { S: string }[];
-  scenesCount: number;
   scenesImage: string[];
   isLoading: boolean;
   executionArn: string;
@@ -19,7 +18,6 @@ type StateType = {
   setInputTheme: (value: string) => void;
   setSummary: (summary: string[]) => void;
   setScenes: (scenes: { S: string }[]) => void;
-  setScenesCount: (count: number) => void;
   setScenesImage: (images: string[]) => void;
   setIsLoading: (loading: boolean) => void;
   setExecutionArn: (arn: string) => void;
@@ -31,7 +29,6 @@ const useEhonPageState = create<StateType>((set) => {
     inputTheme: '',
     summary: [],
     scenes: [],
-    scenesCount: 0,
     scenesImage: [],
     isLoading: false,
     ehonStatus: 0, 
@@ -57,11 +54,6 @@ const useEhonPageState = create<StateType>((set) => {
         scenes,
       }));
     },
-    setScenesCount: (count: number) => {
-      set(() => ({
-        scenesCount: count,
-      }));
-    },
     setScenesImage: (images: string[]) => {
       set(() => ({
         scenesImage: images,
@@ -85,12 +77,25 @@ const useEhonPageState = create<StateType>((set) => {
   };
 });
 
+const RoundedButton = (
+  props: React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  >
+) => {
+  return (
+    <button
+      className="cursor-pointer rounded-full border p-2 text-xs hover:border-gray-300 hover:bg-gray-50"
+      {...props}
+    />
+  );
+};
+
 const EhonPage: React.FC = () => {
   const {
     inputTheme,
     summary,
     scenes,
-    scenesCount,
     scenesImage,
     isLoading,
     executionArn,
@@ -100,7 +105,6 @@ const EhonPage: React.FC = () => {
     setInputTheme,
     setSummary,
     setScenes,
-    setScenesCount,
     setScenesImage,
     setIsLoading,
     setExecutionArn,
@@ -108,7 +112,8 @@ const EhonPage: React.FC = () => {
   } = useEhonPageState();
   const {
     ehonRequest,
-    isExistRequest,
+    usePolling,
+    response,
   } = useEhon();
 
   const handleSubmit = async () => {
@@ -117,7 +122,6 @@ const EhonPage: React.FC = () => {
       setExecutionArn('');
       setSummary([]);
       setScenes([]);
-      setScenesCount(0);
       setScenesImage([]);
       setEhonStatus(1);
       try {
@@ -135,58 +139,67 @@ const EhonPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const pollForSummary = async () => {
-      const res = await isExistRequest(`${ehonAPIEndpoint}check_summary?id=${executionArn}`);
-      if (res.data.isFinished) {
-        setSummary(res.data.summary);
-      } else {
-        setTimeout(pollForSummary, 5000);
-      }
-    };
-
-    if (executionArn) {
-      summary.length === 0 && pollForSummary();
+    if(response?.summary){
+      setSummary(response.summary);
     }
-  }, [executionArn, summary]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
   useEffect(() => {
-    const pollForScenesText = async () => {
-      const result = await isExistRequest(`${ehonAPIEndpoint}check_scenes_text?id=${executionArn}`);
-      if (result.data.isFinished) {
-        setScenes(result.data.scenes);
-        setScenesCount(result.data.scenes_count);
-        setScenesImage(Array(result.data.scenes_count).fill(''));
-      } else {
-        setTimeout(pollForScenesText, 5000);
-      }
-    };
-
-    if (executionArn && summary.length) {
-      !scenes.length && pollForScenesText();
+    if(response && response?.scenes && ehonStatus !== 2){
+      setScenes(response.scenes);
+      setScenesImage(Array(response.scenes.length).fill(''));
     }
-  }, [executionArn, summary, scenes.length]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
   useEffect(() => {
-    const pollForScenesImage = async (index: number) => {
-      const result = await isExistRequest(`${ehonAPIEndpoint}check_scenes_image?id=${executionArn}&index=${index}`);
-      if (result.data.isFinished) {
-        const newScenesImage = [...scenesImage];
-        newScenesImage[index] = result.data.s3_presigned_url;
-        setScenesImage(newScenesImage);
-        setEhonStatus(2);
-        setIsLoading(false);
-      } else {
-        setTimeout(() => pollForScenesImage(index), 10000);
-      }
-    };
-
-    if (executionArn && scenesCount) {
-      for (let i = 0; i < scenesCount; i++) {
-        !scenesImage[i] && pollForScenesImage(i);
-      }
+    if(response && response?.s3_presigned_urls && ehonStatus !== 2){
+      setScenesImage(response.s3_presigned_urls);
+      setEhonStatus(2);
+      setIsLoading(false);
     }
-  }, [executionArn, scenesCount, scenesImage]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);  
 
+  usePolling(executionArn ? `${ehonAPIEndpoint}check_summary?id=${executionArn}` : null , summary.length ? 0 : 1000)
+  usePolling(summary.length ? `${ehonAPIEndpoint}check_scenes_text?id=${executionArn}` : null , scenes.length ? 0 : 3000)
+  usePolling(scenes.length ? `${ehonAPIEndpoint}check_scenes_image?id=${executionArn}&count=${scenes.length}` : null , scenesImage[0] ? 0 : 3000)
+
+  const examplePrompts = [
+    {
+      label: '鶴の恩返し',
+      value: '昔話のつるのおんがえしを題材に、困っている人を助けると自分に善い行いが返ってくることや、約束を破ってはいけないといったことの大切さを描写してください',
+    },
+    {
+      label: '桃太郎',
+      value: '昔話の桃太郎を題材に、鬼と人間が種族を超えて手を取り合うことの大切さを描写してください',
+    },
+    {
+      label: 'わらしべ長者',
+      value: '昔話のわらしべ長者を題材に、信心の大切さやどのような物でも大切に扱わないといけないことの重要性を描いてください',
+    },
+    {
+      label: 'こぶとりじいさん',
+      value:
+        '昔話のこぶとりじいさんを題材に、何事も行動力や好奇心を持って挑めば、物事は良い方向に進むということの大切さを描いてください',
+    },
+    {
+      label: 'さるかに合戦',
+      value:
+        '昔話のさるかに合戦を題材に、悪い行いをすると自分に返ってくるということの大切さを描いてください',
+    },
+    {
+      label: 'おむすびころりん',
+      value: '昔話のおむすびころりんを題材に、欲張りすぎると痛い目を見るという教訓を描いてください',
+    },
+    {
+      label: '地球を救うヒーロー',
+      value: '悪の組織から地球を救うヒーローの物語を描いてください',
+    },
+    {
+      label: '天才エンジニアの物語',
+      value: '人口減少に苦しむ村を救った天才エンジニアの物語を描いてください',
+    },
+  ];
 
   return (
     <div className="grid grid-cols-12">
@@ -204,13 +217,19 @@ const EhonPage: React.FC = () => {
             value={inputTheme}
             onChange={setInputTheme}
           />
-          <p>
-            (例)<br/>
-            ・昔話のつるのおんがえしを題材に、困っている人を助けると自分に善い行いが返ってくることや、約束を破ってはいけないといったことの大切さを描写してください<br/>
-            ・昔話のわらしべ長者を題材に、信心の大切さやどのような物でも大切に扱わないといけないことの重要性を描いてください
-          </p>
+          <div className="mb-2 mt-4 flex justify-between">
+            <div className="mb-2 flex gap-2">
+              {examplePrompts.map(({ value, label }) => (
+                <RoundedButton
+                  onClick={() => setInputTheme(value)}
+                  key={label}>
+                  {label} ↗️
+                </RoundedButton>
+              ))}
+            </div>
+          </div>          
           <div className="flex justify-end gap-3">
-            <Button disabled={ehonStatus === 1} onClick={handleSubmit}>
+            <Button disabled={ehonStatus === 1 || !inputTheme} onClick={handleSubmit}>
               実行
             </Button>
           </div>
@@ -231,12 +250,12 @@ const EhonPage: React.FC = () => {
             <div className="m-auto border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
           ) : (
             <>
-              {scenes.map((scene, index) => (
+              {scenesImage && scenesImage.map((url, index) => (
                 <div key={index}>
-                  <p>{index + 1}: {scene.S}</p>
+                  <p>{index + 1}: {scenes[index].S}</p>
                   <div>
-                    {scenesImage[index] && <img src={scenesImage[index]} alt={`Scene ${index + 1}`} className="m-auto mt-5 mb-5 max-h-[30vh]" />}
-                    {!scenesImage[index] && <div className="m-auto mt-5 mb-5 border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>}
+                    {url && <img src={url} alt={`Scene ${index + 1}`} className="m-auto mt-5 mb-5 max-h-[30vh]" />}
+                    {!url && <div className="m-auto mt-5 mb-5 border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>}
                   </div>
                 </div>
               ))}
