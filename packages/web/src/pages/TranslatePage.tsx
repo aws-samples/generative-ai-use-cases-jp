@@ -11,6 +11,7 @@ import Switch from '../components/Switch';
 import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
+import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 import { PiMicrophoneBold, PiStopCircleBold } from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
@@ -112,7 +113,7 @@ const TranslatePage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [auto, setAuto] = useState(true);
+  const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
 
   useEffect(() => {
@@ -183,7 +184,7 @@ const TranslatePage: React.FC = () => {
       },
       1000
     ),
-    []
+    [prompter]
   );
 
   // リアルタイムにレスポンスを表示
@@ -220,7 +221,9 @@ const TranslatePage: React.FC = () => {
       new Set(transcriptMic.map((t) => t.transcript))
     ).join('');
 
-    setSentence(combinedTranscript);
+    if (combinedTranscript.length > 0) {
+      setSentence(combinedTranscript);
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcriptMic]);
@@ -246,7 +249,7 @@ const TranslatePage: React.FC = () => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading, prompter]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -263,7 +266,7 @@ const TranslatePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="翻訳したい文章">
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-full flex-col justify-between sm:flex-row">
             <Select
               value={modelId}
               onChange={setModelId}

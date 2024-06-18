@@ -12,6 +12,7 @@ type Props = RowItemProps & {
   noBorder?: boolean;
   rows?: number;
   maxHeight?: number;
+  disabled?: boolean;
   onEnter?: () => void;
   onChange: (value: string) => void;
   onPaste?: (pasteEvent: React.ClipboardEvent) => void;
@@ -85,7 +86,7 @@ const Textarea: React.FC<Props> = (props) => {
           isMax ? 'overflow-y-auto' : 'overflow-hidden'
         } ${
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
-        } `}
+        } ${props.disabled ? 'bg-gray-200 ' : ''}`}
         rows={props.rows ?? 1}
         placeholder={props.placeholder}
         value={props.value}
@@ -93,6 +94,7 @@ const Textarea: React.FC<Props> = (props) => {
           props.onChange(e.target.value);
         }}
         onPaste={props.onPaste}
+        disabled={props.disabled}
       />
       {props.hint && (
         <div className="-mt-0.5 text-xs text-gray-400">{props.hint}</div>

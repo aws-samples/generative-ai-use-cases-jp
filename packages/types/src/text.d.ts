@@ -45,7 +45,7 @@ export type ClaudeMessageParams = {
 
 // Llama2
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-meta.html
-export type Llama2Params = {
+export type LlamaParams = {
   prompt?: string;
   max_gen_len?: number;
   temperature?: number;
@@ -61,6 +61,57 @@ export type MistralParams = {
   temperature?: number;
   top_k?: number;
   top_p?: number;
+};
+
+// Cohere Command R / Command R+
+// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-cohere-command-r-plus.html
+// stream, tools, tools_results は2024/05現在Bedrockで対応していないため、コメントアウトしています。
+export type CommandRParams = {
+  message?: string;
+  chat_history?: {
+    role: 'USER' | 'CHATBOT';
+    message: string;
+  }[];
+  documents?: {
+    title: string;
+    snippet: string;
+  }[];
+  search_queries_only?: boolean;
+  preamble?: string;
+  // stream?: boolean;
+  max_tokens?: number;
+  temperature?: number;
+  p?: number;
+  k?: number;
+  prompt_truncation?: string;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+  seed?: number;
+  return_prompt?: boolean;
+  // tools?: {
+  //   name: string;
+  //   description: string;
+  //   parameter_definitions: {
+  //     [key: string]: {
+  //       description: string;
+  //       type: string;
+  //       required: boolean;
+  //     };
+  //   };
+  // }[];
+  // tool_results?: {
+  //   call: {
+  //     name: string;
+  //     parameters: {
+  //       [key: string]: string;
+  //     };
+  //   };
+  //   outputs: {
+  //     text: string;
+  //   }[];
+  // }[];
+  stop_sequences?: string[];
+  raw_prompting?: boolean;
 };
 
 // Text Generation Inference
@@ -96,4 +147,6 @@ export type BedrockResponse = {
   outputs: {
     text: string;
   }[];
+  // CommandR
+  text: string;
 };

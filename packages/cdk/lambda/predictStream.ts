@@ -21,7 +21,8 @@ export const handler = awslambda.streamifyResponse(
     const model = event.model || defaultModel;
     for await (const token of api[model.type].invokeStream?.(
       model,
-      event.messages
+      event.messages,
+      event.id
     ) ?? []) {
       responseStream.write(token);
     }

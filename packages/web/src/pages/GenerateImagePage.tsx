@@ -7,10 +7,10 @@ import RangeSlider from '../components/RangeSlider';
 import Select from '../components/Select';
 import ExpandableField from '../components/ExpandableField';
 import ButtonIcon from '../components/ButtonIcon';
-import { PiFileArrowUp, PiDiceFive } from 'react-icons/pi';
+import { PiFileArrowUp, PiDiceFive, PiNotePencil } from 'react-icons/pi';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
-import SketchPad from '../components/SketchPad';
+import SketchPad, { Canvas } from '../components/SketchPad';
 import ModalDialog from '../components/ModalDialog';
 import { produce } from 'immer';
 import Help from '../components/Help';
@@ -22,8 +22,34 @@ import { GenerateImagePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
+import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
+
+type GenerationMode =
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING';
+const modeOptions = [
+  'TEXT_IMAGE',
+  'IMAGE_VARIATION',
+  'INPAINTING',
+  'OUTPAINTING',
+].map((s) => ({
+  value: s as GenerationMode,
+  label: s as GenerationMode,
+}));
+
+const resolutionPresets = [
+  '512 x 512',
+  '1024 x 1024',
+  '1280 x 768',
+  '768 x 1280',
+].map((s) => ({
+  value: s,
+  label: s,
+}));
 
 type StateType = {
   imageGenModelId: string;
@@ -32,6 +58,8 @@ type StateType = {
   setPrompt: (s: string) => void;
   negativePrompt: string;
   setNegativePrompt: (s: string) => void;
+  resolution: string;
+  setResolution: (s: string) => void;
   stylePreset: string;
   setStylePreset: (s: string) => void;
   seed: number[];
@@ -42,8 +70,14 @@ type StateType = {
   setCfgScale: (n: number) => void;
   imageStrength: number;
   setImageStrength: (n: number) => void;
-  initImageBase64: string;
-  setInitImageBase64: (s: string) => void;
+  generationMode: GenerationMode;
+  setGenerationMode: (s: GenerationMode) => void;
+  initImage: Canvas;
+  setInitImage: (s: Canvas) => void;
+  maskImage: Canvas;
+  setMaskImage: (s: Canvas) => void;
+  maskPrompt: string;
+  setMaskPrompt: (s: string) => void;
   imageSample: number;
   setImageSample: (n: number) => void;
   image: {
@@ -64,12 +98,24 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
+    resolution: resolutionPresets[0].value,
     stylePreset: '',
     seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
     step: 50,
     cfgScale: 7,
     imageStrength: 0.35,
-    initImageBase64: '',
+    generationMode: modeOptions[0]['value'],
+    initImage: {
+      imageBase64: '',
+      foregroundBase64: '',
+      backgroundColor: '',
+    },
+    maskImage: {
+      imageBase64: '',
+      foregroundBase64: '',
+      backgroundColor: '',
+    },
+    maskPrompt: '',
     imageSample: 3,
     image: new Array(MAX_SAMPLE).fill({
       base64: '',
@@ -93,6 +139,11 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     setNegativePrompt: (s) => {
       set(() => ({
         negativePrompt: s,
+      }));
+    },
+    setResolution: (s) => {
+      set(() => ({
+        resolution: s,
       }));
     },
     setStylePreset: (s) => {
@@ -122,9 +173,24 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
         imageStrength: n,
       }));
     },
-    setInitImageBase64: (s) => {
+    setGenerationMode: (s) => {
       set(() => ({
-        initImageBase64: s,
+        generationMode: s,
+      }));
+    },
+    setInitImage: (s) => {
+      set(() => ({
+        initImage: s,
+      }));
+    },
+    setMaskImage: (s) => {
+      set(() => ({
+        maskImage: s,
+      }));
+    },
+    setMaskPrompt: (s) => {
+      set(() => ({
+        maskPrompt: s,
       }));
     },
     setImageSample: (n) => {
@@ -205,6 +271,8 @@ const GenerateImagePage: React.FC = () => {
     setPrompt,
     negativePrompt,
     setNegativePrompt,
+    resolution,
+    setResolution,
     stylePreset,
     setStylePreset,
     seed,
@@ -213,8 +281,14 @@ const GenerateImagePage: React.FC = () => {
     setStep,
     cfgScale,
     setCfgScale,
-    initImageBase64,
-    setInitImageBase64,
+    generationMode,
+    setGenerationMode,
+    initImage,
+    setInitImage,
+    maskImage,
+    setMaskImage,
+    maskPrompt,
+    setMaskPrompt,
     image,
     setImage,
     setImageError,
@@ -240,12 +314,25 @@ const GenerateImagePage: React.FC = () => {
 
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
+  const [isOpenMask, setIsOpenMask] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
+  const [width, height] = useMemo(() => {
+    return resolution.split('x').map((v) => Number(v));
+  }, [resolution]);
+
+  const maskMode = useMemo(() => {
+    return generationMode === 'INPAINTING' || generationMode === 'OUTPAINTING';
+  }, [generationMode]);
+  const maskPromptSupported = useMemo(() => {
+    // TODO: Remove Hard Coding
+    return imageGenModelId === 'amazon.titan-image-generator-v1';
+  }, [imageGenModelId]);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -302,25 +389,46 @@ const GenerateImagePage: React.FC = () => {
           _seed = rand;
         }
 
+        let params: GenerateImageParams = {
+          textPrompt: [
+            {
+              text: _prompt,
+              weight: 1,
+            },
+            {
+              text: _negativePrompt,
+              weight: -1,
+            },
+          ],
+          width: width,
+          height: height,
+          cfgScale,
+          seed: _seed,
+          step,
+          stylePreset: _stylePreset ?? stylePreset,
+        };
+
+        if (generationMode === 'IMAGE_VARIATION') {
+          params = {
+            ...params,
+            initImage: initImage.imageBase64,
+            imageStrength,
+          };
+        } else if (
+          generationMode === 'INPAINTING' ||
+          generationMode === 'OUTPAINTING'
+        ) {
+          params = {
+            ...params,
+            initImage: initImage.imageBase64,
+            maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
+            maskImage: maskImage.imageBase64,
+            maskMode: generationMode,
+          };
+        }
+
         return generate(
-          {
-            textPrompt: [
-              {
-                text: _prompt,
-                weight: 1,
-              },
-              {
-                text: _negativePrompt,
-                weight: -1,
-              },
-            ],
-            cfgScale,
-            seed: _seed,
-            step,
-            stylePreset: _stylePreset ?? stylePreset,
-            initImage: initImageBase64,
-            imageStrength: imageStrength,
-          },
+          params,
           imageGenModels.find((m) => m.modelId === imageGenModelId)
         )
           .then((res) => {
@@ -343,9 +451,14 @@ const GenerateImagePage: React.FC = () => {
       clearImage,
       generate,
       generateRandomSeed,
+      width,
+      height,
       imageSample,
       imageStrength,
-      initImageBase64,
+      generationMode,
+      initImage,
+      maskPrompt,
+      maskImage,
       seed,
       setImage,
       setImageError,
@@ -360,11 +473,19 @@ const GenerateImagePage: React.FC = () => {
   }, [generateRandomSeed, selectedImageIndex, setSeed]);
 
   const onChangeInitImageBase64 = useCallback(
-    (s: string) => {
-      setInitImageBase64(s);
+    (s: Canvas) => {
+      setInitImage(s);
       setIsOpenSketch(false);
     },
-    [setInitImageBase64]
+    [setInitImage]
+  );
+
+  const onChangeMaskImageBase64 = useCallback(
+    (s: Canvas) => {
+      setMaskImage(s);
+      setIsOpenMask(false);
+    },
+    [setMaskImage]
   );
 
   const onSelectImage = useCallback(
@@ -376,6 +497,28 @@ const GenerateImagePage: React.FC = () => {
     },
     [generateRandomSeed, seed, setSeed]
   );
+
+  const generateImageVariant = useCallback(() => {
+    if (image[selectedImageIndex].base64) {
+      if (generationMode === 'TEXT_IMAGE') {
+        setGenerationMode('IMAGE_VARIATION');
+      }
+      const img = `data:image/png;base64,${image[selectedImageIndex].base64}`;
+      setInitImage({
+        imageBase64: img,
+        foregroundBase64: img,
+        backgroundColor: '',
+      });
+      setDetailExpanded(true);
+    }
+  }, [
+    image,
+    generationMode,
+    selectedImageIndex,
+    setGenerationMode,
+    setInitImage,
+    setDetailExpanded,
+  ]);
 
   const clearAll = useCallback(() => {
     setSelectedImageIndex(0);
@@ -394,10 +537,32 @@ const GenerateImagePage: React.FC = () => {
           setIsOpenSketch(false);
         }}>
         <SketchPad
-          imageBase64={initImageBase64}
+          width={width}
+          height={height}
+          image={initImage}
           onChange={onChangeInitImageBase64}
           onCancel={() => {
             setIsOpenSketch(false);
+          }}
+        />
+      </ModalDialog>
+      <ModalDialog
+        isOpen={isOpenMask}
+        title="マスク画像の設定"
+        className="w-[530px]"
+        help="画像生成のマスクとして使われます。マスクした範囲（Inpaint）もしくは外側（Outpaint）が生成されます。"
+        onClose={() => {
+          setIsOpenMask(false);
+        }}>
+        <SketchPad
+          width={width}
+          height={height}
+          image={maskImage}
+          background={initImage}
+          maskMode={true}
+          onChange={onChangeMaskImageBase64}
+          onCancel={() => {
+            setIsOpenMask(false);
           }}
         />
       </ModalDialog>
@@ -433,7 +598,7 @@ const GenerateImagePage: React.FC = () => {
         <Card className="lg:min-h-[calc(100vh-2rem)]">
           <div className="flex items-center justify-center">
             <Base64Image
-              className="size-60"
+              className="min-h-60 min-w-60 max-w-lg"
               imageBase64={image[selectedImageIndex].base64}
               loading={generating}
               error={image[selectedImageIndex].error}
@@ -460,6 +625,14 @@ const GenerateImagePage: React.FC = () => {
                 )}
               </React.Fragment>
             ))}
+            <Button
+              title="Generate Variant"
+              outlined
+              className="mt-3 size-10"
+              disabled={!image[selectedImageIndex].base64}
+              onClick={generateImageVariant}>
+              <PiNotePencil></PiNotePencil>
+            </Button>
           </div>
 
           <Textarea
@@ -480,13 +653,22 @@ const GenerateImagePage: React.FC = () => {
             rows={2}
           />
 
-          <Select
-            value={imageGenModelId}
-            onChange={setImageGenModelId}
-            options={imageGenModelIds.map((m) => {
-              return { value: m, label: m };
-            })}
-          />
+          <div className="grid w-full grid-cols-2 gap-2">
+            <Select
+              label="モデル"
+              value={imageGenModelId}
+              onChange={setImageGenModelId}
+              options={imageGenModelIds.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
+            <Select
+              label="サイズ"
+              value={resolution}
+              onChange={setResolution}
+              options={resolutionPresets}
+            />
+          </div>
 
           <div className="grid w-full grid-cols-2 gap-2 pt-4">
             <div className="relative col-span-2 flex flex-row items-center lg:col-span-1">
@@ -519,32 +701,85 @@ const GenerateImagePage: React.FC = () => {
             />
           </div>
 
-          <ExpandableField label="詳細なパラメータ">
-            <div className="grid grid-cols-2 pt-4">
-              <div className="col-span-2 flex flex-col items-center justify-center lg:col-span-1">
-                <div className="mb-1 flex items-center text-sm font-bold">
-                  初期画像
-                  <Help
-                    className="ml-1"
-                    position="center"
-                    message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
-                  />
-                </div>
-                <Base64Image
-                  className="size-32"
-                  imageBase64={initImageBase64}
+          <ExpandableField
+            label="詳細なパラメータ"
+            overrideExpanded={detailExpanded}
+            setOverrideExpanded={setDetailExpanded}>
+            <div className="grid grid-cols-2 gap-2 pt-4">
+              <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
+                <Select
+                  label="GenerationMode"
+                  options={modeOptions}
+                  value={generationMode}
+                  onChange={(v) => setGenerationMode(v as GenerationMode)}
+                  fullWidth
                 />
-                <Button
-                  className="m-auto mt-2 text-sm"
-                  onClick={() => {
-                    setIsOpenSketch(true);
-                  }}>
-                  <PiFileArrowUp className="mr-2" />
-                  設定
-                </Button>
+                <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
+                  {generationMode !== 'TEXT_IMAGE' && (
+                    <div className="flex flex-col items-center">
+                      <div className="mb-1 flex items-center text-sm font-bold">
+                        初期画像
+                        <Help
+                          className="ml-1"
+                          position="center"
+                          message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                        />
+                      </div>
+                      <Base64Image
+                        className="size-32"
+                        imageBase64={initImage.imageBase64}
+                      />
+                      <Button
+                        className="m-auto mt-2 text-sm"
+                        onClick={() => {
+                          setIsOpenSketch(true);
+                        }}>
+                        <PiFileArrowUp className="mr-2" />
+                        設定
+                      </Button>
+                    </div>
+                  )}
+                  {maskMode && (
+                    <div className="flex flex-col items-center">
+                      <div className="mb-1 flex items-center text-sm font-bold">
+                        マスク画像
+                        <Help
+                          className="ml-1"
+                          position="center"
+                          message="画像のマスクを設定できます。マスク画像を設定することで、マスクされた領域（Inpaint）もしくは外側の領域（Outpaint)を生成できます。マスクプロンプトと併用はできません。"
+                        />
+                      </div>
+                      <Base64Image
+                        className="size-32"
+                        imageBase64={maskImage.imageBase64}
+                      />
+                      <Button
+                        className="m-auto mt-2 text-sm"
+                        disabled={!!maskPrompt}
+                        onClick={() => {
+                          setIsOpenMask(true);
+                        }}>
+                        <PiFileArrowUp className="mr-2" />
+                        設定
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {maskMode && maskPromptSupported && (
+                  <Textarea
+                    label="マスクプロンプト"
+                    help="マスクしたい/排除したい要素（Inpaint）、マスクしたくない/残したい要素（Outpaint）を記載してください。文章ではなく、単語の羅列で記載します。マスク画像と併用はできません。"
+                    value={maskPrompt}
+                    onChange={setMaskPrompt}
+                    maxHeight={60}
+                    rows={2}
+                    className="w-full"
+                    disabled={!!maskImage.imageBase64}
+                  />
+                )}
               </div>
 
-              <div className="col-span-2 flex flex-col items-center justify-center lg:col-span-1">
+              <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">
                 <div className="mb-2 w-full">
                   <Select
                     label="StylePreset"
@@ -570,22 +805,24 @@ const GenerateImagePage: React.FC = () => {
                   className="w-full"
                   label="Step"
                   min={10}
-                  max={150}
+                  max={50}
                   value={step}
                   onChange={setStep}
                   help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
                 />
 
-                <RangeSlider
-                  className="w-full"
-                  label="ImageStrength"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={imageStrength}
-                  onChange={setImageStrength}
-                  help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
-                />
+                {generationMode === 'IMAGE_VARIATION' && (
+                  <RangeSlider
+                    className="w-full"
+                    label="ImageStrength"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={imageStrength}
+                    onChange={setImageStrength}
+                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                  />
+                )}
               </div>
             </div>
           </ExpandableField>
@@ -598,7 +835,14 @@ const GenerateImagePage: React.FC = () => {
                 generateImage(prompt, negativePrompt);
               }}
               loading={generating || loadingChat}
-              disabled={prompt.length === 0}>
+              disabled={
+                prompt.length === 0 ||
+                (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
+                ((generationMode === 'INPAINTING' ||
+                  generationMode === 'OUTPAINTING') &&
+                  !maskImage.imageBase64 &&
+                  !maskPrompt)
+              }>
               生成
             </Button>
 

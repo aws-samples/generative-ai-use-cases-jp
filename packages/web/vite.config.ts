@@ -24,9 +24,9 @@ export default defineConfig({
       injectRegister: 'auto',
       manifest: {
         name: 'Generative AI Use Cases JP',
-        short_name: 'GenAI UseCases',
+        short_name: 'GenU',
         description:
-          'Generative AI を活用したビジネスユースケースのデモンストレーション',
+          'Generative AI を活用したビジネスユースケースのアプリケーション実装',
         start_url: '/',
         display: 'minimal-ui',
         theme_color: '#232F3E',
