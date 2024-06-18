@@ -2,7 +2,7 @@ import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
-import { Role, ServicePrincipal, ManagedPolicy } from 'aws-cdk-lib/aws-iam';
+import { Role, ServicePrincipal, ManagedPolicy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { TaskInput, JsonPath, Parallel, Map, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { BedrockInvokeModel, DynamoPutItem, DynamoAttributeValue, LambdaInvoke, DynamoUpdateItem } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda';
@@ -48,13 +48,31 @@ export class Ehon extends Construct {
     const ehonLambdaRole = new Role(this, "EhonCommonLambdaRole", {
       assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
       managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess'),   
         ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonPollyFullAccess'),
       ]
     });
+
+    s3Bucket.grantReadWrite(ehonLambdaRole);
+    
+    ddbTable.grantReadData(ehonLambdaRole);
+    
+    ehonLambdaRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole'));
+    
+    ehonLambdaRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["bedrock:InvokeModel"],
+        resources: ["*"],
+      })
+    );
+    
+    ehonLambdaRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ["polly:SynthesizeSpeech"],
+        resources: ["*"],
+      })
+    );
 
     const createSceneFunction = new Function(this, 'CreateSceneFunction', {
       runtime: Runtime.PYTHON_3_12,
@@ -151,15 +169,6 @@ export class Ehon extends Construct {
       'Model',
       FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0
     );
-
-    const ehonStepFunctionsExecutionRole = new Role(this, 'EhonStepFunctionsExecutionRole', {
-      assumedBy: new ServicePrincipal('states.amazonaws.com'),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaRole'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'),
-        ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess'),
-      ],
-    });
 
     const createSummary = new BedrockInvokeModel(this, 'Create Summary', {
       model,
@@ -274,16 +283,23 @@ export class Ehon extends Construct {
 
     this.ehonAPI = ehonAPI;
 
-    const stepFunctionsRole = new Role(this, 'StepFunctionsRole', {
+    const stepFunctionsRoleForAPIGW = new Role(this, 'StepFunctionsRoleForAPIGW', {
       assumedBy: new ServicePrincipal('apigateway.amazonaws.com'),
-      managedPolicies: [ManagedPolicy.fromAwsManagedPolicyName('AWSStepFunctionsFullAccess')],
     });
+    
+    stepFunctionsRoleForAPIGW.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['states:StartExecution'],
+        resources: [ehonStateMachine.stateMachineArn],
+      })
+    );
 
     const postIntegration = new AwsIntegration({
       service: 'states',
       action: 'StartExecution',
       options: {
-        credentialsRole: stepFunctionsRole,
+        credentialsRole: stepFunctionsRoleForAPIGW,
         integrationResponses: [
           {
             statusCode: '200',
