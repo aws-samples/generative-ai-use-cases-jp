@@ -311,7 +311,7 @@ export class Ehon extends Construct {
       },
     });
 
-    const generateEhonResourece = ehonAPI.root.addResource('create_ehon').addMethod(
+    ehonAPI.root.addResource('create_ehon').addMethod(
       'POST',
       postIntegration,
       {
@@ -341,27 +341,27 @@ export class Ehon extends Construct {
     const summaryResource = ehonAPI.root.addResource('check_summary');
     summaryResource.addMethod('GET', new LambdaIntegration(checkSummaryFunction), commonAuthorizerProps);
 
-    const generateEhonResoureceCors = ehonAPI.root.resourceForPath('create_ehon').addCorsPreflight({
+    ehonAPI.root.resourceForPath('create_ehon').addCorsPreflight({
       allowOrigins: Cors.ALL_ORIGINS,
       allowMethods: Cors.ALL_METHODS,
     });
 
-    const scenesAudioResourceCors = ehonAPI.root.resourceForPath('check_scenes_audio').addCorsPreflight({
+    ehonAPI.root.resourceForPath('check_scenes_audio').addCorsPreflight({
       allowOrigins: Cors.ALL_ORIGINS,
       allowMethods: Cors.ALL_METHODS,
     });
 
-    const scenesImageResourceCors = ehonAPI.root.resourceForPath('check_scenes_image').addCorsPreflight({
+    ehonAPI.root.resourceForPath('check_scenes_image').addCorsPreflight({
       allowOrigins: Cors.ALL_ORIGINS,
       allowMethods: Cors.ALL_METHODS,
     });
     
-    const scenesTextResourceCors = ehonAPI.root.resourceForPath('check_scenes_text').addCorsPreflight({
+    ehonAPI.root.resourceForPath('check_scenes_text').addCorsPreflight({
       allowOrigins: Cors.ALL_ORIGINS,
       allowMethods: Cors.ALL_METHODS,
     });
     
-    const summaryResourceCors = ehonAPI.root.resourceForPath('check_summary').addCorsPreflight({
+    ehonAPI.root.resourceForPath('check_summary').addCorsPreflight({
       allowOrigins: Cors.ALL_ORIGINS,
       allowMethods: Cors.ALL_METHODS,
     });    
