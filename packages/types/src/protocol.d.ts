@@ -42,6 +42,14 @@ export type CreateSystemContextRequest = {
   systemContext: SystemContext;
 };
 
+export type UpdateSystemContextTitleRequest = {
+  title: string;
+};
+
+export type UpdateSystemContextTitleResponse = {
+  systemContext: SystemContext;
+};
+
 export type UpdateFeedbackRequest = {
   createdDate: string;
   feedback: string;

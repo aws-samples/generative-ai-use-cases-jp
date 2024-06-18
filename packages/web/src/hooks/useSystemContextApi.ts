@@ -1,6 +1,7 @@
 import {
   CreateSystemContextRequest,
   SystemContext,
+  UpdateSystemContextTitleResponse,
 } from 'generative-ai-use-cases-jp';
 
 import useHttp from './useHttp';
@@ -23,6 +24,16 @@ const useSystemContextApi = () => {
     deleteSystemContext: async (_systemContextId: string) => {
       const systemContextId = decomposeId(_systemContextId);
       return http.delete<void>(`/systemcontexts/${systemContextId}`);
+    },
+    updateSystemContextTitle: async (
+      _systemContextId: string,
+      title: string
+    ): Promise<UpdateSystemContextTitleResponse> => {
+      const systemContextId = decomposeId(_systemContextId);
+      const res = await http.put(`systemcontexts/${systemContextId}/title`, {
+        title,
+      });
+      return res.data;
     },
     listSystemContexts: () => {
       const res = http.get<SystemContext[]>('/systemcontexts');

@@ -54,7 +54,13 @@ Cloud9 の Preview 機能を使うためには、localhost の 8080 ~ 8082 ポ�
   ... 省略
 ```
 
-変更後にファイルを保存してください。その後は[こちら](/docs/DEVELOPMENT.md) の手順に従います。以下のコマンドを実行してください。
+変更後にファイルを保存してください。続いて、後続のコマンドの内部で利用する `jq` をインストールします。
+
+```bash
+sudo yum -y install jq
+```
+
+その後は[こちら](/docs/DEVELOPMENT.md) の手順に従います。以下のコマンドを実行してください。
 
 ```bash
 npm run web:devw
