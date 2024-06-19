@@ -3,10 +3,9 @@ import { Construct } from 'constructs';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Table, AttributeType, BillingMode } from 'aws-cdk-lib/aws-dynamodb';
 import { Role, ServicePrincipal, ManagedPolicy, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
-import { TaskInput, JsonPath, Parallel, Map, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
-import { BedrockInvokeModel, DynamoPutItem, DynamoAttributeValue, LambdaInvoke, DynamoUpdateItem } from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { JsonPath, Parallel, Map, StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
+import { DynamoPutItem, DynamoAttributeValue, LambdaInvoke, DynamoUpdateItem } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda';
-import { FoundationModel, FoundationModelIdentifier } from 'aws-cdk-lib/aws-bedrock';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import {
   AuthorizationType,
@@ -73,6 +72,16 @@ export class Ehon extends Construct {
         resources: ["*"],
       })
     );
+
+    const createSummaryFunction = new Function(this, 'CreateSummaryFunction', {
+      runtime: Runtime.PYTHON_3_12,
+      handler: 'summit/ehon/create_summary.lambda_handler',
+      code: Code.fromAsset('lambda'),
+      architecture: Architecture.X86_64,
+      role: ehonLambdaRole,
+      timeout: Duration.minutes(15),
+      memorySize: 1000,
+    });
 
     const createSceneFunction = new Function(this, 'CreateSceneFunction', {
       runtime: Runtime.PYTHON_3_12,
@@ -164,35 +173,12 @@ export class Ehon extends Construct {
     });  
 
     // Step Functions
-    const model = FoundationModel.fromFoundationModelId(
-      this,
-      'Model',
-      FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0
-    );
-
-    const createSummary = new BedrockInvokeModel(this, 'Create Summary', {
-      model,
-      body: TaskInput.fromObject({
-        anthropic_version: "bedrock-2023-05-31",
-        messages: [
-          {
-            "role": "user",
-            "content": [
-              {
-                "type": "text",
-                "text.$": "States.Format('{}{}{}', '\n\nHuman: あなたはセンスに溢れた気鋭に溢れる情熱的な作家です。Humanがテーマを与えるので、膨らませて、物語のあらすじを考えてください。\nあらすじは物語を起承転結のシーンごとに分け、情景や描写を詳しく書くようにしてください。\n起の部分では、登場人物の人となりを説明し、読者が主人公たちに親近感を抱くような情景を描写してください。\n承の部分では、主人公は誤ちを犯しますが、途中でそのことに気づき、新たな視点で物事に取り組むようになります。\n転の部分では、承で培った経験をもとに、困難を乗り越えます。\n結の部分では、主人公がテーマを達成した様子を描写します。\n以上のような形であらすじを考案してください。シーンは4個生成してください。\nまた、出来上がったあらすじはjson形式で、plot要素の中で各シーンをリスト形式で出力してください。リストの要素には、インデックス番号を含めないでください。また、json以外の文字列は出力しないでください。\n\n<テーマ>',$.theme,'</テーマ>\n\nAssistant: ')"
-              }
-            ]
-          }],
-        max_tokens: 10000,
-        temperature: 0,
-        top_k: 250,
-        top_p: 1,
-      }),
-      resultSelector: {             
-        'theme.$': '$$.Execution.Input.theme',
-        'summary.$': '$.Body.content[0].text',
-        'id.$': '$$.Execution.Name',
+    const createSummary = new LambdaInvoke(this, 'Create Summary', {
+      lambdaFunction: createSummaryFunction,
+      resultSelector: {
+        "theme.$": "$$.Execution.Input.theme",
+        "summary.$": "$.Payload",
+        "id.$": "$$.Execution.Name"
       },
     });
 

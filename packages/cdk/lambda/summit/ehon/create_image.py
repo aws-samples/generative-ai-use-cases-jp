@@ -4,7 +4,7 @@ import os
 
 s3 = boto3.client('s3')
 ddb = boto3.client('dynamodb')
-bedrock_runtime = boto3.client(service_name='bedrock-runtime')
+bedrock_runtime = boto3.client(service_name='bedrock-runtime', region_name="us-east-1")
 
 def lambda_handler(event, context):
     prompt_draw_image = '''
