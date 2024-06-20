@@ -158,18 +158,20 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
 
-2024/05 現在、マルチモーダルのモデルは以下です。
+2024/06 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
-"anthropic.claude-3-haiku-20240307-v1:0",
+"anthropic.claude-3-haiku-20240307-v1:0"
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0"
@@ -185,6 +187,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
@@ -219,6 +222,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```bash
   "modelRegion": "us-east-1",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "amazon.titan-text-premier-v1:0",
