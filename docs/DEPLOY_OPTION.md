@@ -374,6 +374,43 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 
+
+## コスト関連設定
+
+### Kendraのインデックスを自動で作成・削除するスケジュールを設定する
+
+GenerativeAiUseCasesDashboardStackで作成するKendraのインデックスを、決められたスケジュールで自動で作成・削除するための設定を行います。これによって、Kendraのインデックスを稼働時間に対して発生する利用料を抑えることができます。
+
+この機能は、「contextの `ragEnabled` が `true` 」かつ「contextの `kendraIndexArn` が `null` 」の場合にのみ有効で、それ以外の場合は機能しません。（つまり、外部で作成したKendraのインデックスに対しては機能しません）
+
+以下の例のように設定してください。
+* `kendraIndexScheduleEnabled`を`true`に設定することで、スケジュール設定を有効になり、`false`にした場合、その状態でデプロイした以降は、スケジュール設定が無効になります。
+* `kendraIndexScheduleCreateCron`と`kendraIndexScheduleDeleteCron`には、作成開始時刻と削除開始時刻をCron形式で指定します。
+  + Cron形式の詳細は[こちら](https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/events/ScheduledEvents.html)を参照してください。ただし、EventBridgeの仕様に合わせるため、UTC時間で指定してください。現状では、minute・hour・month・weekDayのみ指定可能です。これら項目は必ず指定する必要があり、それ以外の項目は指定しても無視されます。
+  + `null`を設定した場合は、作成・削除が実行されません。片方を`null`のままにする（どちらかのみを設定する）ことも、両者を`null`にする（何も実行しない）ことも可能です。
+
+下記の例は、日本時間の月～金08時にインデックスの作成を開始し、日本時間の月～金20時にインデックスの削除を開始する場合の設定です。
+
+ **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集** 
+
+```json
+{
+  "context": {
+    "kendraIndexScheduleEnabled": true,
+    "kendraIndexScheduleCreateCron": { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
+    "kendraIndexScheduleDeleteCron": { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
+  }
+}
+```
+
+Kendraのインデックスが削除されていても、RAG機能はオンのままです。WebアプリケーションではRAG関連のメニューは表示されたままです。RAGチャットを実行すると、インデックスが存在しないためエラーが発生し、エラーメッセージに「スケジュールを確認してください」という旨のテキストが表示されます。
+
+> [! NOTE]
+> - Kendraのインデックス作成を開始してから、利用可能な状態になるまでには時間がかかります。具体的には、インデックスの作成と、データソースの同期に時間がかかります。そのため、 **RAGチャットの利用を開始したい時刻が決まっている場合、設定する起動時刻はそれよりも前に設定してください** 。リソースの空き状況・データソースの種類・データソース内のドキュメントのサイズ・数によって変動しますので、厳密な稼働時間を設定したい場合は、実際の所要時間を確認して設定するようにしてください。おおよその目安として、インデックスの作成には30分程度、S3データソースに数百件のテキストファイルを配置した場合、データソースの同期には10分程度かかります（あくまで目安です）。この場合ですと、40分前に設定する、ということになります。
+> - 特に外部サービスをデータソースとして利用する場合は、所要時間が大きく変動することが予想されるため、注意してください。また、APIのコール制限などにも注意してください。
+> - 上記の設定時間外にインデックスが停止されていることを保証するものではなく、あくまでスケジュールで起動・停止を実行するものです。デプロイやスケジュールのタイミングに、ご注意ください（例えば、20時に削除する設定を、21時にデプロイしても、その時点では削除されず、翌日の21時にならないと削除が開始されません）。また、現状では、起動・停止のエラーを通知する機能はありません。
+> - インデックスを再作成するたびに、IndexIdやDataSourceIdが変わります。他のサービスなどから参照している場合は、その変更に対応する必要があります。
+
 ## モニタリング用のダッシュボードの有効化
 
 入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
