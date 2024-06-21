@@ -88,8 +88,19 @@ const useRag = (id: string) => {
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
-      const retrievedItems = await retrieve(query);
-      const items = arrangeItems(retrievedItems.data.ResultItems ?? []);
+      let items: RetrieveResultItem[] = [];
+      try {
+        const retrievedItems = await retrieve(query);
+        items = arrangeItems(retrievedItems.data.ResultItems ?? []);
+      } catch (error) {
+        popMessage();
+        pushMessage(
+          'assistant',
+          `Kendra から参照ドキュメントを取得できませんでした。次の対応を検討してください。
+- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
+- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`);
+        return;
+      }
 
       if (items.length == 0) {
         popMessage();
@@ -98,9 +109,7 @@ const useRag = (id: string) => {
           `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
 - Amazon Kendra の data source に対象のドキュメントが追加されているか確認する
 - Amazon Kendra の data source が sync されているか確認する
-- 入力の表現を変更する
-- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
-- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
+- 入力の表現を変更する`
         );
         setLoading(false);
         return;
