@@ -98,7 +98,9 @@ const useRag = (id: string) => {
           `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
 - Amazon Kendra の data source に対象のドキュメントが追加されているか確認する
 - Amazon Kendra の data source が sync されているか確認する
-- 入力の表現を変更する`
+- 入力の表現を変更する
+- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
+- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
         );
         setLoading(false);
         return;
