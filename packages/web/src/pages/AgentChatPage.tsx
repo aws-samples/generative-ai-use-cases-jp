@@ -151,6 +151,7 @@ const AgentChatPage: React.FC = () => {
                 <div className="w-full border-b border-gray-300"></div>
               )}
               <ChatMessage
+                idx={idx}
                 chatContent={chat}
                 loading={loading && idx === showingMessages.length - 1}
               />
