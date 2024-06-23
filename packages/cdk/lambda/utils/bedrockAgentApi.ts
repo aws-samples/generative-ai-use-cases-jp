@@ -27,15 +27,42 @@ const bedrockAgentApi: Partial<ApiInterface> = {
       }
 
       for await (const streamChunk of res.completion) {
-        if (!streamChunk.chunk?.bytes) {
+        if (!streamChunk.chunk?.bytes && !streamChunk.chunk?.attribution) {
           break;
         }
-        const body = new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes);
+        let body = new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes);
+
+        // Attribution の追加
+        const sources: { [key: string]: number } = {};
+        let offset = 0;
+        for (const citation of streamChunk.chunk?.attribution?.citations ||
+          []) {
+          for (const ref of citation.retrievedReferences || []) {
+            const s3Uri = ref?.location?.s3Location?.uri || '';
+            const [bucket, ...objectPath] = s3Uri.slice(5).split('/');
+            const objectName = objectPath.join('/');
+            const url = `https://${bucket}.s3.amazonaws.com/${objectName})`;
+
+            if (sources[url] === undefined) {
+              sources[url] = Object.keys(sources).length;
+              body += `\n[^${sources[url]}]: ${url}`;
+            }
+            const referenceId = sources[url];
+
+            const position =
+              (citation.generatedResponsePart?.textResponsePart?.span?.end ||
+                0) +
+              offset +
+              1;
+            const referenceText = `[^${referenceId}]`;
+            offset += referenceText.length;
+            body =
+              body.slice(0, position) + referenceText + body.slice(position);
+          }
+        }
+
         if (body) {
           yield body;
-        }
-        if (body) {
-          break;
         }
       }
     } catch (e) {
