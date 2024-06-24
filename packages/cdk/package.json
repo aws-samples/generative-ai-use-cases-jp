@@ -35,6 +35,7 @@
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "node-html-parser": "^6.1.13",
+    "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4"
   }
