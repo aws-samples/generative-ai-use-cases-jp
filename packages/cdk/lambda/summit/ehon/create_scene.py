@@ -1,6 +1,6 @@
 import json
 import boto3
-bedrock_runtime = boto3.client(service_name='bedrock-runtime')
+bedrock_runtime = boto3.client(service_name='bedrock-runtime', region_name="us-east-1")
 
 def lambda_handler(event, context):
     prompt_make_story = '''
