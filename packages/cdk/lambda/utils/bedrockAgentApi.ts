@@ -38,17 +38,21 @@ const bedrockAgentApi: Partial<ApiInterface> = {
         for (const citation of streamChunk.chunk?.attribution?.citations ||
           []) {
           for (const ref of citation.retrievedReferences || []) {
+            // S3 URI を取得し URL に変換
             const s3Uri = ref?.location?.s3Location?.uri || '';
+            if (!s3Uri) continue;
             const [bucket, ...objectPath] = s3Uri.slice(5).split('/');
             const objectName = objectPath.join('/');
             const url = `https://${bucket}.s3.amazonaws.com/${objectName})`;
 
+            // データソースがユニークであれば文末に Reference 追加
             if (sources[url] === undefined) {
               sources[url] = Object.keys(sources).length;
               body += `\n[^${sources[url]}]: ${url}`;
             }
             const referenceId = sources[url];
 
+            // 文中に Reference 追加
             const position =
               (citation.generatedResponsePart?.textResponsePart?.span?.end ||
                 0) +
