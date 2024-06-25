@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useLocation } from 'react-router-dom';
-import { Auth } from 'aws-amplify';
 import useSWR from 'swr';
 import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
@@ -15,6 +14,7 @@ import {
 import BedrockIcon from '../assets/bedrock.svg?react';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 export type ItemProps = BaseProps & {
   label: string;
@@ -94,12 +94,12 @@ const Drawer: React.FC<Props> = (props) => {
   const { getHasUpdate } = useVersion();
 
   // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
-  const { data } = useSWR('user', async () => {
-    return await Auth.currentAuthenticatedUser();
+  const { data } = useSWR('user', () => {
+    return fetchAuthSession();
   });
 
-  const email = useMemo(() => {
-    return data?.signInUserSession?.idToken?.payload?.email ?? '';
+  const email = useMemo<string>(() => {
+    return (data?.tokens?.idToken?.payload.email ?? '') as string;
   }, [data]);
 
   const hasUpdate = getHasUpdate();

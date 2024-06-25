@@ -6,9 +6,9 @@ import MicrophoneStream from 'microphone-stream';
 import { useState, useEffect } from 'react';
 import update from 'immutability-helper';
 import { Buffer } from 'buffer';
-import { Auth } from 'aws-amplify';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const pcmEncodeChunk = (chunk: Buffer) => {
   const input = MicrophoneStream.toRaw(chunk);
@@ -44,14 +44,20 @@ const useMicrophone = () => {
     // break if already set
     if (transcribeClient) return;
 
-    Auth.currentSession().then((data) => {
+    fetchAuthSession().then((session) => {
+      const token = session.tokens?.idToken?.toString();
+      // break if unauthenticated
+      if (!token) {
+        return;
+      }
+
       const transcribe = new TranscribeStreamingClient({
         region,
         credentials: fromCognitoIdentityPool({
           client: cognito,
           identityPoolId: idPoolId,
           logins: {
-            [providerName]: data.getIdToken().getJwtToken(),
+            [providerName]: token,
           },
         }),
       });
