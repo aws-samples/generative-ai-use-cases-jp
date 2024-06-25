@@ -6,6 +6,7 @@ import {
   Web,
   Database,
   Rag,
+  RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
   File,
@@ -14,6 +15,7 @@ import {
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { Agent } from 'generative-ai-use-cases-jp';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -32,6 +34,7 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
+  agents?: Agent[];
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -48,6 +51,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
+    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext('ragKnowledgeBaseEnabled')!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
@@ -66,6 +70,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
+    }
+
+    if (typeof ragKnowledgeBaseEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('ragKnowledgeBaseEnabled'));
     }
 
     if (typeof selfSignUpEnabled !== 'boolean') {
@@ -92,6 +100,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
+      agents: props.agents,
     });
 
     if (
@@ -148,6 +157,13 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
     }
 
+    if (ragKnowledgeBaseEnabled) {
+      new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+        userPool: auth.userPool,
+        api: api.api,
+      });
+    }
+
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
@@ -163,7 +179,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       new RecognizeFile(this, 'RecognizeFile', {
         userPool: auth.userPool,
         api: api.api,
-        fileBucket: file.fielBucket,
+        fileBucket: file.fileBucket,
         vpcId: props.vpcId,
       });
     }

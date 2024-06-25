@@ -65,12 +65,11 @@ exports.handler = async (event, context) => {
                 },
                 [props.textField]: {
                   type: 'text',
-                  // analyzer: 'custom_kuromoji_analyzer'
-                  analyzer: 'custom_ngram_analyzer',
+                  analyzer: 'custom_kuromoji_analyzer'
                 },
                 [props.vectorField]: {
                   type: 'knn_vector',
-                  dimension: 1536,
+                  dimension: Number(props.vectorDimension),
                   method: {
                     engine: 'faiss',
                     space_type: 'l2',
@@ -85,30 +84,19 @@ exports.handler = async (event, context) => {
                 knn: true,
                 analysis: {
                   analyzer: {
-                    // custom_kuromoji_analyzer: {
-                    //   tokenizer: 'kuromoji_tokenizer',
-                    //   filter: [
-                    //     'kuromoji_baseform',
-                    //     'ja_stop'
-                    //   ],
-                    //   char_filter: [
-                    //     'icu_normalizer'
-                    //   ]
-                    // }
-                    custom_ngram_analyzer: {
+                    custom_kuromoji_analyzer: {
                       type: 'custom',
-                      tokenizer: 'custom_ngram_tokenizer',
-                      char_filter: ['icu_normalizer', 'html_strip'],
-                      filter: ['lowercase', 'ja_stop'],
-                    },
-                  },
-                  tokenizer: {
-                    custom_ngram_tokenizer: {
-                      type: 'ngram',
-                      min_gram: 2,
-                      max_gram: 3,
-                      token_chars: ['letter', 'digit'],
-                    },
+                      tokenizer: 'kuromoji_tokenizer',
+                      filter: [
+                        'kuromoji_baseform',
+                        'lowercase',
+                        'ja_stop'
+                      ],
+                      char_filter: [
+                        'icu_normalizer',
+                        'html_strip'
+                      ]
+                    }
                   },
                 },
               },

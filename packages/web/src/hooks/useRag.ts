@@ -84,6 +84,7 @@ const useRag = (id: string) => {
             }),
           },
         ],
+        id: id,
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する

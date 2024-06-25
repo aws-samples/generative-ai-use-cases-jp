@@ -4,17 +4,18 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import {
   Effect,
-  Policy,
+  PolicyDocument,
   PolicyStatement,
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
+import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
+import { Agent as AgentType } from 'generative-ai-use-cases-jp';
 
 export class Agent extends Construct {
-  public readonly schemaUri: string;
-  public readonly lambdaFunctionName: string;
+  public readonly agents: AgentType[];
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -51,63 +52,71 @@ export class Agent extends Construct {
 
     // Agent
     const bedrockAgentRole = new Role(this, 'BedrockAgentRole', {
+      roleName: 'AmazonBedrockExecutionRoleForAgents_SearchEngine',
       assumedBy: new ServicePrincipal('bedrock.amazonaws.com'),
+      inlinePolicies: {
+        BedrockAgentS3BucketPolicy: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              resources: [s3Bucket.bucketArn, `${s3Bucket.bucketArn}/*`],
+              actions: ['*'],
+            }),
+          ],
+        }),
+        BedrockAgentBedrockModelPolicy: new PolicyDocument({
+          statements: [
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              resources: ['*'],
+              actions: ['bedrock:*'],
+            }),
+          ],
+        }),
+      },
     });
 
-    const bedrockAgentLambdaPolicy = new Policy(
-      this,
-      'BedrockAgentLambdaPolicy',
+    const searchAgent = new CfnAgent(this, 'SearchAgent', {
+      agentName: 'SearchEngine',
+      actionGroups: [
+        {
+          actionGroupName: 'Search',
+          actionGroupExecutor: {
+            lambda: bedrockAgentLambda.functionArn,
+          },
+          apiSchema: {
+            s3: {
+              s3BucketName: schema.deployedBucket.bucketName,
+              s3ObjectKey: 'api-schema/api-schema.json',
+            },
+          },
+          description: 'Search',
+        },
+        {
+          actionGroupName: 'UserInput',
+          parentActionGroupSignature: 'AMAZON.UserInput',
+        },
+      ],
+      agentResourceRoleArn: bedrockAgentRole.roleArn,
+      idleSessionTtlInSeconds: 3600,
+      autoPrepare: true,
+      description: 'Search Agent',
+      foundationModel: 'anthropic.claude-3-haiku-20240307-v1:0',
+      instruction:
+        'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
+    });
+
+    const searchAgentAlias = new CfnAgentAlias(this, 'SearchAgentAlias', {
+      agentId: searchAgent.attrAgentId,
+      agentAliasName: 'v1',
+    });
+
+    this.agents = [
       {
-        policyName: 'BedrockAgentLambdaPolicy',
-        statements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            resources: [bedrockAgentLambda.role?.roleArn || ''],
-            actions: ['*'],
-          }),
-        ],
-      }
-    );
-
-    const bedrockAgentS3BucketPolicy = new Policy(
-      this,
-      'BedrockAgentS3BucketPolicy',
-      {
-        policyName: 'BedrockAgentS3BucketPolicy',
-        statements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            resources: [s3Bucket.bucketArn, `${s3Bucket.bucketArn}/*`],
-            actions: ['*'],
-          }),
-        ],
-      }
-    );
-
-    const bedrockAgentBedrockModelPolicy = new Policy(
-      this,
-      'BedrockAgentBedrockModelPolicy',
-      {
-        policyName: 'BedrockAgentBedrockModelPolicy',
-        statements: [
-          new PolicyStatement({
-            effect: Effect.ALLOW,
-            resources: ['*'],
-            actions: ['bedrock:*'],
-          }),
-        ],
-      }
-    );
-
-    bedrockAgentBedrockModelPolicy.node.addDependency(bedrockAgentRole);
-    bedrockAgentLambdaPolicy.node.addDependency(bedrockAgentRole);
-    bedrockAgentS3BucketPolicy.node.addDependency(bedrockAgentRole);
-
-    bedrockAgentRole.attachInlinePolicy(bedrockAgentLambdaPolicy);
-    bedrockAgentRole.attachInlinePolicy(bedrockAgentS3BucketPolicy);
-    bedrockAgentRole.attachInlinePolicy(bedrockAgentBedrockModelPolicy);
-
-    this.lambdaFunctionName = bedrockAgentLambda.functionName;
-    this.schemaUri = `s3://${schema.deployedBucket.bucketName}/api-schema/api-schema.json`;
+        displayName: 'SearchEngine',
+        agentId: searchAgent.attrAgentId,
+        aliasId: searchAgentAlias.attrAgentAliasId,
+      },
+    ];
   }
 }

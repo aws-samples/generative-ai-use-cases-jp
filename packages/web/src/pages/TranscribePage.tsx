@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
+import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import useTranscribe from '../hooks/useTranscribe';
 import useMicrophone from '../hooks/useMicrophone';
 import Markdown from '../components/Markdown';
@@ -150,9 +151,12 @@ const TranscribePage: React.FC = () => {
 
             <div className="flex w-full justify-end">
               {content && content && (
-                <ButtonCopy
-                  text={content}
-                  interUseCasesKey="transcript"></ButtonCopy>
+                <>
+                  <ButtonCopy
+                    text={content}
+                    interUseCasesKey="transcript"></ButtonCopy>
+                  <ButtonSendToUseCase text={content} />
+                </>
               )}
             </div>
           </div>

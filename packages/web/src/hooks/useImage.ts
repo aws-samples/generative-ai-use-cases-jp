@@ -17,6 +17,10 @@ const useImage = () => {
               params.initImage === ''
                 ? undefined
                 : params.initImage?.split(',')[1],
+            maskImage:
+              params.maskImage === ''
+                ? undefined
+                : params.maskImage?.split(',')[1],
           },
         })
       ).data;

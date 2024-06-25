@@ -42,6 +42,14 @@ export type CreateSystemContextRequest = {
   systemContext: SystemContext;
 };
 
+export type UpdateSystemContextTitleRequest = {
+  title: string;
+};
+
+export type UpdateSystemContextTitleResponse = {
+  systemContext: SystemContext;
+};
+
 export type UpdateFeedbackRequest = {
   createdDate: string;
   feedback: string;
@@ -62,6 +70,7 @@ export type UpdateTitleResponse = {
 export type PredictRequest = {
   model?: Model;
   messages: UnrecordedMessage[];
+  id: string;
 };
 
 export type PredictResponse = string;
@@ -70,6 +79,7 @@ export type PredictTitleRequest = {
   model: Model;
   chat: Chat;
   prompt: string;
+  id: string;
 };
 
 export type PredictTitleResponse = string;

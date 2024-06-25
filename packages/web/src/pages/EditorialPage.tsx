@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -7,6 +7,7 @@ import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
 import useChat from '../hooks/useChat';
+import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 import { create } from 'zustand';
 import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
@@ -42,8 +43,18 @@ const useEditorialPageState = create<StateType>((set) => {
   return {
     ...INIT_STATE,
     setSentence: (s: string) => {
+      // Claude だと全角を半角に変換して出力するため入力を先に正規化
+      const sentence = s
+        .replace(REGEX_ZENKAKU, (s) => {
+          return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
+        })
+        .replace(/[‐－―]/g, '-') // ハイフンなど
+        .replace(/[～〜]/g, '~') // チルダ
+        // eslint-disable-next-line no-irregular-whitespace
+        .replace(/　/g, ' '); // スペース
+
       set(() => ({
-        sentence: s,
+        sentence,
       }));
     },
     setAdditionalContext: (s: string) => {
@@ -96,7 +107,7 @@ const EditorialPage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [auto, setAuto] = useState(true);
+  const [auto, setAuto] = useLocalStorageBoolean('Auto_Editorial', true);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -142,20 +153,6 @@ const EditorialPage: React.FC = () => {
   // 文章の更新時にコメントを更新
   useEffect(() => {
     if (auto) {
-      // Claude だと全角を半角に変換して出力するため入力を先に正規化
-      if (sentence !== '') {
-        setSentence(
-          sentence
-            .replace(REGEX_ZENKAKU, (s) => {
-              return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
-            })
-            .replace(/[‐－―]/g, '-') // ハイフンなど
-            .replace(/[～〜]/g, '~') // チルダ
-            // eslint-disable-next-line no-irregular-whitespace
-            .replace(/　/g, ' ') // スペース
-        );
-      }
-
       // debounce した後コメント更新
       onSentenceChange(
         sentence,
@@ -196,7 +193,7 @@ const EditorialPage: React.FC = () => {
       },
       1000
     ),
-    []
+    [prompter]
   );
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
@@ -248,7 +245,7 @@ const EditorialPage: React.FC = () => {
     if (loading) return;
     getAnnotation(sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading]);
+  }, [sentence, additionalContext, loading, prompter]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -264,7 +261,7 @@ const EditorialPage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="校正したい文章">
-          <div className="mb-2 flex w-full items-center justify-between">
+          <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
             <Select
               value={modelId}
               onChange={setModelId}

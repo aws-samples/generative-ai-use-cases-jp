@@ -6,8 +6,26 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import {
+  AuthorizationType,
+  CognitoUserPoolsAuthorizer,
+  LambdaIntegration,
+  RestApi,
+} from 'aws-cdk-lib/aws-apigateway';
 
 const UUID = '73A9FD8B-CA85-46CA-972A-FE85F735A084';
+
+// Dimension は最終的に Custom resource の props として渡すが
+// 勝手に型が変換されてしまう Issue があるため、dimension は number ではなく string にしておく
+// https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/1037
+const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
+  'amazon.titan-embed-text-v1': '1536',
+  'amazon.titan-embed-text-v2:0': '1024',
+  'cohere.embed-multilingual-v3': '1024',
+  'cohere.embed-english-v3': '1024',
+}
+const EMBEDDING_MODELS = Object.keys(MODEL_VECTOR_MAPPING);
 
 interface OpenSearchServerlessIndexProps {
   collectionId: string;
@@ -15,6 +33,7 @@ interface OpenSearchServerlessIndexProps {
   vectorField: string;
   metadataField: string;
   textField: string;
+  vectorDimension: string;
 }
 
 class OpenSearchServerlessIndex extends Construct {
@@ -53,6 +72,8 @@ class OpenSearchServerlessIndex extends Construct {
 }
 
 export interface RagKnowledgeBaseProps {
+  userPool: UserPool;
+  api: RestApi;
   collectionName?: string;
   vectorIndexName?: string;
   vectorField?: string;
@@ -63,6 +84,18 @@ export interface RagKnowledgeBaseProps {
 export class RagKnowledgeBase extends Construct {
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseProps) {
     super(scope, id);
+
+    const embeddingModelId: string | null | undefined = this.node.tryGetContext(
+      'embeddingModelId'
+    )!;
+
+    if (typeof embeddingModelId !== 'string') {
+      throw new Error('Knowledge Base RAG が有効になっていますが、embeddingModelId が指定されていません');
+    }
+
+    if (!EMBEDDING_MODELS.includes(embeddingModelId)) {
+      throw new Error(`embeddingModelId が無効な値です (有効な embeddingModelId ${EMBEDDING_MODELS})`);
+    }
 
     const collectionName = props.collectionName ?? 'generative-ai-use-cases-jp';
     const vectorIndexName =
@@ -87,6 +120,7 @@ export class RagKnowledgeBase extends Construct {
       vectorField,
       textField,
       metadataField,
+      vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
     });
 
     ossIndex.customResourceHandler.addToRolePolicy(
@@ -182,6 +216,7 @@ export class RagKnowledgeBase extends Construct {
       autoDeleteObjects: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
     });
 
@@ -189,7 +224,7 @@ export class RagKnowledgeBase extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         resources: [
-          `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/amazon.titan-embed-text-v1`,
+          `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/${embeddingModelId}`,
         ],
         actions: ['bedrock:InvokeModel'],
       })
@@ -225,23 +260,21 @@ export class RagKnowledgeBase extends Construct {
       knowledgeBaseConfiguration: {
         type: 'VECTOR',
         vectorKnowledgeBaseConfiguration: {
-          embeddingModelArn: `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/amazon.titan-embed-text-v1`,
+          embeddingModelArn: `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/${embeddingModelId}`,
         },
       },
-    });
-
-    // TODO: 次のリリースで CfnKnowledgeBase に追加される
-    knowledgeBase.addPropertyOverride('StorageConfiguration', {
-      OpensearchServerlessConfiguration: {
-        CollectionArn: cdk.Token.asString(collection.getAtt('Arn')),
-        FieldMapping: {
-          MetadataField: metadataField,
-          TextField: textField,
-          VectorField: vectorField,
+      storageConfiguration: {
+        type: 'OPENSEARCH_SERVERLESS',
+        opensearchServerlessConfiguration: {
+          collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
+          fieldMapping: {
+            metadataField,
+            textField,
+            vectorField,
+          },
+          vectorIndexName,
         },
-        VectorIndexName: vectorIndexName,
       },
-      Type: 'OPENSEARCH_SERVERLESS',
     });
 
     new bedrock.CfnDataSource(this, 'DataSource', {

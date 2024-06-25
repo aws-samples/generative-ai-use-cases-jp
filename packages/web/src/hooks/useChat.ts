@@ -135,6 +135,7 @@ const useChatState = create<{
       prompt: prompter.setTitlePrompt({
         messages: omitUnusedMessageProperties(get().chats[id].messages),
       }),
+      id: '/title',
     });
     setTitle(id, title);
   };
@@ -326,8 +327,13 @@ const useChatState = create<{
       const chat = get().chats[id];
 
       if (chat) {
-        return chat.messages.filter((message) => message.role === 'system')[0]
-          .content;
+        const systemMessage = chat.messages.filter(
+          (message) => message.role === 'system'
+        )[0];
+
+        if (systemMessage) {
+          return systemMessage.content;
+        }
       }
 
       return '';
@@ -441,6 +447,7 @@ const useChatState = create<{
       const stream = predictStream({
         model: model,
         messages: formattedMessages,
+        id: id,
       });
 
       // Assistant の発言を更新

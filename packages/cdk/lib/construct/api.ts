@@ -20,6 +20,7 @@ export interface BackendApiProps {
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
+  agents?: Agent[];
 }
 
 export class Api extends Construct {
@@ -52,19 +53,23 @@ export class Api extends Construct {
     ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
-    const agents: Agent[] = this.node.tryGetContext('agents') || [];
+    const agents: Agent[] = [
+      ...(props.agents || []),
+      ...(this.node.tryGetContext('agents') || []),
+    ];
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
-      // Titan は日本語文字化けのため未対応
+      // Titan Express は日本語文字化けのため未対応
       // 'amazon.titan-text-express-v1',
-      'stability.stable-diffusion-xl-v0',
+      'amazon.titan-text-premier-v1:0',
       'stability.stable-diffusion-xl-v1',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',
@@ -73,9 +78,13 @@ export class Api extends Construct {
       'meta.llama2-70b-chat-v1',
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
+      'mistral.mistral-small-2402-v1:0',
       'mistral.mistral-large-2402-v1:0',
+      'cohere.command-r-v1:0',
+      'cohere.command-r-plus-v1:0',
     ];
     const multiModalModelIds = [
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
@@ -390,6 +399,20 @@ export class Api extends Construct {
     );
     table.grantWriteData(createSystemContextFunction);
 
+    const updateSystemContextTitleFunction = new NodejsFunction(
+      this,
+      'UpdateSystemContextTitle',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/updateSystemContextTitle.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+      }
+    );
+    table.grantReadWriteData(updateSystemContextTitleFunction);
+
     const deleteSystemContextFunction = new NodejsFunction(
       this,
       'DeleteSystemContexts',
@@ -536,6 +559,16 @@ export class Api extends Construct {
     systemContextResource.addMethod(
       'DELETE',
       new LambdaIntegration(deleteSystemContextFunction),
+      commonAuthorizerProps
+    );
+
+    const systemContextTitleResource =
+      systemContextResource.addResource('title');
+
+    // PUT: /systemcontexts/{systemContextId}/title
+    systemContextTitleResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateSystemContextTitleFunction),
       commonAuthorizerProps
     );
 

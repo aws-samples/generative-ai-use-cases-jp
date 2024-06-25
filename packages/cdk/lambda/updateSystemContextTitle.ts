@@ -1,18 +1,19 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { PredictRequest } from 'generative-ai-use-cases-jp';
-import api from './utils/api';
-import { defaultModel } from './utils/models';
+import { UpdateSystemContextTitleRequest } from 'generative-ai-use-cases-jp';
+import { updateSystemContextTitle } from './repository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req: PredictRequest = JSON.parse(event.body!);
-    const model = req.model || defaultModel;
-    const response = await api[model.type].invoke?.(
-      model,
-      req.messages,
-      req.id
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
+    const systemContextId = event.pathParameters!.systemContextId!;
+    const req: UpdateSystemContextTitleRequest = JSON.parse(event.body!);
+    const systemContext = await updateSystemContextTitle(
+      userId,
+      systemContextId,
+      req.title
     );
 
     return {
@@ -21,7 +22,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(response),
+      body: JSON.stringify({ systemContext }),
     };
   } catch (error) {
     console.log(error);

@@ -6,7 +6,6 @@ import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack'
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
 import { SearchAgentStack } from '../lib/search-agent-stack';
-import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -105,14 +104,22 @@ if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
   throw new Error('vpcId must start with "vpc-"');
 }
 
-const modelRegion: string = app.node.tryGetContext('modelRegion')!;
+// Agent
 
-new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: modelRegion,
-  },
-});
+const searchAgentEnabled =
+  app.node.tryGetContext('searchAgentEnabled') || false;
+const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
+const searchAgentStack = searchAgentEnabled
+  ? new SearchAgentStack(app, 'WebSearchAgentStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: agentRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
+
+// GenU Stack
 
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
@@ -135,6 +142,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     hostName,
     domainName,
     hostedZoneId,
+    agents: searchAgentStack?.agents,
   }
 );
 
@@ -142,21 +150,7 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
 
-// Agent
-
-const searchAgentEnabled =
-  app.node.tryGetContext('searchAgentEnabled') || false;
-const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
-
-if (searchAgentEnabled) {
-  new SearchAgentStack(app, 'WebSearchAgentStack', {
-    env: {
-      account: process.env.CDK_DEFAULT_ACCOUNT,
-      region: agentRegion,
-    },
-  });
-}
-
+const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;
 
 if (dashboard) {

@@ -17,7 +17,7 @@ export interface FileProps {
 }
 
 export class File extends Construct {
-  readonly fielBucket: Bucket;
+  readonly fileBucket: Bucket;
 
   constructor(scope: Construct, id: string, props: FileProps) {
     super(scope, id);
@@ -105,6 +105,6 @@ export class File extends Construct {
         commonAuthorizerProps
       );
 
-    this.fielBucket = fileBucket;
+    this.fileBucket = fileBucket;
   }
 }

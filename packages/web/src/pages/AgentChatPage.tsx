@@ -39,7 +39,7 @@ const useChatPageState = create<StateType>((set) => {
 });
 
 const AgentChatPage: React.FC = () => {
-  const { sessionId, content, setContent } = useChatPageState();
+  const { sessionId, content, setContent, setSessionId } = useChatPageState();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
@@ -100,6 +100,7 @@ const AgentChatPage: React.FC = () => {
   const onReset = useCallback(() => {
     clear();
     setContent('');
+    setSessionId(uuidv4());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
 
@@ -150,6 +151,7 @@ const AgentChatPage: React.FC = () => {
                 <div className="w-full border-b border-gray-300"></div>
               )}
               <ChatMessage
+                idx={idx}
                 chatContent={chat}
                 loading={loading && idx === showingMessages.length - 1}
               />
