@@ -597,6 +597,11 @@ export const BEDROCK_MODELS: {
     createBodyText: createBodyTextCommandR,
     extractOutputText: extractOutputTextCommandR,
   },
+  'ai21.jamba-instruct-v1:0': {
+    promptTemplate: MISTRAL_PROMPT,
+    createBodyText: createBodyTextMistral,
+    extractOutputText: extractOutputTextMistral,
+  },
 };
 
 export const BEDROCK_IMAGE_GEN_MODELS: {

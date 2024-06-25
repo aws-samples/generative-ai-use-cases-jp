@@ -204,7 +204,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "meta.llama2-70b-chat-v1",
 "meta.llama2-13b-chat-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
-"mistral.mistral-7b-instruct-v0:2"
+"mistral.mistral-7b-instruct-v0:2",
+"ai21.jamba-instruct-v1:0"
 ```
 
 
@@ -230,7 +231,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "meta.llama3-8b-instruct-v1:0",
     "cohere.command-r-plus-v1:0",
     "cohere.command-r-v1:0",
-    "mistral.mistral-large-2402-v1:0"
+    "mistral.mistral-large-2402-v1:0",
+    "ai21.jamba-instruct-v1:0"
   ],
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v1",
