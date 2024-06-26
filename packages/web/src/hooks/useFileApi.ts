@@ -54,8 +54,6 @@ const useFileApi = () => {
       const [filePrefix, anchorLink] = groups.prefix.split('#');
 
       // Signed URL を取得
-      // const bucketName = s3Url.split('/')[2].split('.')[0];
-      // const filePrefix = s3Url.split('/').slice(3).join('/');
       const params: GetDocDownloadSignedUrlRequest = {
         bucketName: groups.bucketName,
         filePrefix: decodeURIComponent(filePrefix),
