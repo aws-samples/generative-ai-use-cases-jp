@@ -16,7 +16,7 @@ npm run cdk:deploy
 
 ## ユースケースの設定
 
-### RAG チャットユースケースの有効化
+### RAG チャット (Amazon Kendra) ユースケースの有効化
 
 context の `ragEnabled` に `true` を指定します。(デフォルトは `false`)
 
@@ -70,6 +70,41 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
+
+### RAG チャット (Knowledge Base) ユースケースの有効化
+
+context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "ragKnowledgeBaseEnabled": true,
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+  }
+}
+```
+
+`embeddingModelId` は embedding に利用するモデルです。現状、以下モデルをサポートしています。
+
+```
+"amazon.titan-embed-text-v1"
+"amazon.titan-embed-text-v2:0"
+"cohere.embed-multilingual-v3"
+"cohere.embed-english-v3"
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。よって、`modelRegion` で指定しているリージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+
+また、`/packages/cdk/kendra-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(パス名に kendra が含まれますが、Amazon Kendra はデプロイされません。)
+
+デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+
+1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
+1. generative-ai-use-cases-jp をクリック
+1. s3-data-source を選択肢、Sync をクリック
+
+Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
 
 ### Agent チャットユースケースの有効化
 
