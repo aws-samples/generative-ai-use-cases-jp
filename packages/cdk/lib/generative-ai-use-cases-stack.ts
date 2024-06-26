@@ -236,7 +236,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
-      value: ragEnabled.toString(),
+      value: ragKnowledgeBaseEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentEnabled', {

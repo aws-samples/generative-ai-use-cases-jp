@@ -51,15 +51,32 @@ const useRagKnowledgeBase = (id: string) => {
     postMessage: async (content: string) => {
       setLoading(true);
 
+      const modelRegion = import.meta.env.VITE_APP_MODEL_REGION!;
+
       pushMessage('user', content);
       pushMessage(
         'assistant',
         'Knowledge base から参考ドキュメントを取得中...'
       );
 
-      const retrievedItems = await retrieve(content);
+      let retrievedItems = null;
+
+      try {
+        retrievedItems = await retrieve(content);
+      } catch (e) {
+        console.error(e);
+        popMessage();
+        pushMessage(
+          'assistant',
+          `Retrieve 時にエラーになりました。次の対応を検討してください。
+- cdk.json で指定した embeddingModelId のモデルが Amazon Bedrock (${modelRegion}) で有効になっているか確認`
+        );
+        setLoading(false);
+        return;
+      }
 
       if (
+        !retrievedItems ||
         !retrievedItems.data.retrievalResults ||
         retrievedItems.data.retrievalResults.length === 0
       ) {
@@ -80,7 +97,6 @@ const useRagKnowledgeBase = (id: string) => {
       const retrievedItemsKendraFormat: RetrieveResultItem[] =
         retrievedItems.data.retrievalResults!.map((r, idx) => {
           const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
-          const bucketRegion = import.meta.env.VITE_APP_MODEL_REGION!;
 
           return {
             Content: r.content?.text ?? '',
@@ -88,7 +104,7 @@ const useRagKnowledgeBase = (id: string) => {
             DocumentTitle: docFile,
             DocumentURI: convertS3UriToUrl(
               r.location?.s3Location?.uri ?? '',
-              bucketRegion
+              modelRegion
             ),
           };
         });
