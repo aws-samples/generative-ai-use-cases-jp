@@ -1,6 +1,6 @@
 import {
-  GetDocDownloadSignedUrlRequest,
-  GetDocDownloadSignedUrlResponse,
+  // GetDocDownloadSignedUrlRequest,
+  // GetDocDownloadSignedUrlResponse,
   QueryKendraRequest,
   QueryKendraResponse,
   RetrieveKendraRequest,
@@ -24,19 +24,20 @@ const useRagApi = () => {
         }
       );
     },
-    getDocDownloadSignedUrl: async (bucketName: string, filePrefix: string) => {
-      const params: GetDocDownloadSignedUrlRequest = {
-        bucketName,
-        filePrefix,
-      };
-      const { data: url } = await http.api.get<GetDocDownloadSignedUrlResponse>(
-        '/rag/doc/download-url',
-        {
-          params,
-        }
-      );
-      return url;
-    },
+    // getDocDownloadSignedUrl: async (bucketName: string, filePrefix: string, region?: string) => {
+    //   const params: GetDocDownloadSignedUrlRequest = {
+    //     bucketName,
+    //     filePrefix,
+    //     region,
+    //   };
+    //   const { data: url } = await http.api.get<GetDocDownloadSignedUrlResponse>(
+    //     '/rag/doc/download-url',
+    //     {
+    //       params,
+    //     }
+    //   );
+    //   return url;
+    // },
   };
 };
 

@@ -23,6 +23,8 @@ export interface RagProps {
  * RAG を実行するためのリソースを作成する
  */
 export class Rag extends Construct {
+  public readonly dataSourceBucketName: string;
+
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
@@ -198,20 +200,6 @@ export class Rag extends Construct {
       })
     );
 
-    // S3 データソース関連
-    const getDocDownloadSignedUrlFunction = new NodejsFunction(
-      this,
-      'GetDocDownloadSignedUrlFunction',
-      {
-        runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/getDocDownloadSignedUrl.ts',
-        timeout: Duration.minutes(15),
-      }
-    );
-    if (dataSourceBucket) {
-      dataSourceBucket.grantRead(getDocDownloadSignedUrlFunction);
-    }
-
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [props.userPool],
@@ -239,14 +227,6 @@ export class Rag extends Construct {
       commonAuthorizerProps
     );
 
-    const docResource = ragResource.addResource('doc');
-    // POST: /rag/doc/download-url
-    docResource
-      .addResource('download-url')
-      .addMethod(
-        'GET',
-        new LambdaIntegration(getDocDownloadSignedUrlFunction),
-        commonAuthorizerProps
-      );
+    this.dataSourceBucketName = dataSourceBucket?.bucketName!;
   }
 }

@@ -65,7 +65,7 @@ exports.handler = async (event, context) => {
                 },
                 [props.textField]: {
                   type: 'text',
-                  analyzer: 'custom_kuromoji_analyzer'
+                  analyzer: 'custom_kuromoji_analyzer',
                 },
                 [props.vectorField]: {
                   type: 'knn_vector',
@@ -87,16 +87,9 @@ exports.handler = async (event, context) => {
                     custom_kuromoji_analyzer: {
                       type: 'custom',
                       tokenizer: 'kuromoji_tokenizer',
-                      filter: [
-                        'kuromoji_baseform',
-                        'lowercase',
-                        'ja_stop'
-                      ],
-                      char_filter: [
-                        'icu_normalizer',
-                        'html_strip'
-                      ]
-                    }
+                      filter: ['kuromoji_baseform', 'lowercase', 'ja_stop'],
+                      char_filter: ['icu_normalizer', 'html_strip'],
+                    },
                   },
                 },
               },
@@ -112,7 +105,6 @@ exports.handler = async (event, context) => {
         );
         break;
       case 'Update':
-        // TODO
         await updateStatus(
           event,
           'SUCCESS',

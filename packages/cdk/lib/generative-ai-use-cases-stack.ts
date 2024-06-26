@@ -16,6 +16,7 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -35,6 +36,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   domainName?: string;
   hostedZoneId?: string;
   agents?: Agent[];
+  knowledgeBaseId?: string;
+  knowledgeBaseDataSourceBucketName?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -51,7 +54,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
-    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext('ragKnowledgeBaseEnabled')!;
+    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext(
+      'ragKnowledgeBaseEnabled'
+    )!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
@@ -131,6 +136,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
+      ragKnowledgeBaseEnabled,
       agentEnabled,
       selfSignUpEnabled,
       webAclId: props.webAclId,
@@ -150,28 +156,36 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: props.hostedZoneId,
     });
 
+    const file = new File(this, 'File', {
+      userPool: auth.userPool,
+      api: api.api,
+    });
+
     if (ragEnabled) {
-      new Rag(this, 'Rag', {
+      const rag = new Rag(this, 'Rag', {
         userPool: auth.userPool,
         api: api.api,
       });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      file.allowDownloadFile(rag.dataSourceBucketName);
     }
 
     if (ragKnowledgeBaseEnabled) {
       new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+        knowledgeBaseId: props.knowledgeBaseId!,
+        dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
         userPool: auth.userPool,
         api: api.api,
       });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      file.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
     }
 
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
-      api: api.api,
-    });
-
-    const file = new File(this, 'File', {
-      userPool: auth.userPool,
       api: api.api,
     });
 
@@ -215,6 +229,10 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'RagEnabled', {
+      value: ragEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
       value: ragEnabled.toString(),
     });
 

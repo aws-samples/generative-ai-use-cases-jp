@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-import { Auth } from 'aws-amplify';
 import useVersion from '../hooks/useVersion';
 import { Link } from 'react-router-dom';
 import Help from '../components/Help';
@@ -8,6 +6,7 @@ import Button from '../components/Button';
 import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
 import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
@@ -36,14 +35,11 @@ const Setting = () => {
   const { modelRegion, modelIds, imageGenModelIds, agentNames } = MODELS;
   const { getLocalVersion, getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
+  const { signOut } = useAuthenticator();
 
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();
-
-  const signOut = useCallback(async () => {
-    await Auth.signOut();
-  }, []);
 
   return (
     <div>

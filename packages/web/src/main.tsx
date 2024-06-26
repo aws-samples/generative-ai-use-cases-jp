@@ -20,14 +20,17 @@ import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
 import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
+import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
 import { MODELS } from './hooks/useModel';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean = import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
@@ -102,7 +105,12 @@ const routes: RouteObject[] = [
         path: '/rag',
         element: <RagPage />,
       }
-    : null,
+  : null,
+  ragKnowledgeBaseEnabled
+  ? {
+    path: '/rag-knowledge-base',
+    element: <RagKnowledgeBasePage />,
+  } : null,
   ragEnabled
     ? {
         path: '/kendra',
@@ -131,6 +139,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Authenticator.Provider>
+      <RouterProvider router={router} />
+    </Authenticator.Provider>
   </React.StrictMode>
 );

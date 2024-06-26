@@ -9,7 +9,9 @@ export const handler = async (
   try {
     const req = event.queryStringParameters as GetDocDownloadSignedUrlRequest;
 
-    const client = new S3Client({});
+    const client = new S3Client({
+      region: req.region,
+    });
     const command = new GetObjectCommand({
       Bucket: req.bucketName,
       Key: req.filePrefix,
