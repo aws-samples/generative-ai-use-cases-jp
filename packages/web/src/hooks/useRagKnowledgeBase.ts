@@ -70,8 +70,8 @@ const useRagKnowledgeBase = (id: string) => {
         return;
       }
 
-      // Prompt を使いまわすために Amazon Kendra の retrieve item と同じ形式にします
-      // Knowledge Base のみを利用する場合は本来不要な処理です
+      // Prompt を使いまわすために Amazon Kendra の retrieve item と同じ形式にする
+      // Knowledge Base のみを利用する場合は本来不要な処理
       const retrievedItemsKendraFormat: RetrieveResultItem[] = retrievedItems.data.retrievalResults!.map((r, idx) => {
         const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
         const bucketRegion = import.meta.env.VITE_APP_MODEL_REGION!;
