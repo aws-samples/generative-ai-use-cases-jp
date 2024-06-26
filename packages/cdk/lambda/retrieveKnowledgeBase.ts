@@ -39,7 +39,7 @@ exports.handler = async (
         overrideSearchType: 'HYBRID',
       },
     },
-  })
+  });
 
   const retrieveRes = await kb.send(retrieveCommand);
 

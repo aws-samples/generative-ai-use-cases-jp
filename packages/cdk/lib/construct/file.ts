@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -113,17 +113,15 @@ export class File extends Construct {
 
   // Bucket 名を指定してダウンロード可能にする
   allowDownloadFile(bucketName: string) {
-    this.getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      resources: [
-        `arn:aws:s3:::${bucketName}`,
-        `arn:aws:s3:::${bucketName}/*`,
-      ],
-      actions: [
-        's3:GetBucket*',
-        's3:GetObject*',
-        's3:List*'
-      ],
-    }))
+    this.getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [
+          `arn:aws:s3:::${bucketName}`,
+          `arn:aws:s3:::${bucketName}/*`,
+        ],
+        actions: ['s3:GetBucket*', 's3:GetObject*', 's3:List*'],
+      })
+    );
   }
 }

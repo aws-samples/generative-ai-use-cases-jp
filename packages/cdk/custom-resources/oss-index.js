@@ -25,18 +25,16 @@ const updateStatus = async (event, status, reason, physicalResourceId) => {
     },
   });
 
+  // 失敗時の記録のために残す
   console.log(res);
   console.log(await res.text());
 };
 
 exports.handler = async (event, context) => {
+  // 失敗時の記録のために残す
   console.log(event);
-  console.log(JSON.stringify(event));
-  console.log(context);
 
   const props = event.ResourceProperties;
-  console.log(props);
-
   const collectionId = props.collectionId;
   const region = process.env.AWS_DEFAULT_REGION;
   const client = new Client({

@@ -39,8 +39,10 @@ export class RagKnowledgeBase extends Construct {
     retrieveFunction.role?.addToPrincipalPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [`arn:aws:bedrock:${modelRegion}:${cdk.Stack.of(this).account}:knowledge-base/${props.knowledgeBaseId}`],
-        actions: ['bedrock:Retrieve']
+        resources: [
+          `arn:aws:bedrock:${modelRegion}:${cdk.Stack.of(this).account}:knowledge-base/${props.knowledgeBaseId}`,
+        ],
+        actions: ['bedrock:Retrieve'],
       })
     );
 
@@ -59,7 +61,7 @@ export class RagKnowledgeBase extends Construct {
     retrieveResource.addMethod(
       'POST',
       new LambdaIntegration(retrieveFunction),
-      commonAuthorizerProps,
+      commonAuthorizerProps
     );
   }
 }

@@ -3,15 +3,12 @@ import InputChatContent from '../components/InputChatContent';
 import { create } from 'zustand';
 import Alert from '../components/Alert';
 import useChat from '../hooks/useChat';
-// import useRag from '../hooks/useRag';
 import useRagKnowledgeBase from '../hooks/useRagKnowledgeBase';
 import { useLocation } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import BedrockIcon from '../assets/bedrock.svg?react';
-import KendraIcon from '../assets/kendra.svg?react';
-import { PiPlus } from 'react-icons/pi';
 import { RagPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
@@ -36,7 +33,8 @@ const RagKnowledgeBasePage: React.FC = () => {
   const { content, setContent } = useRagKnowledgeBasePageState();
   const { pathname, search } = useLocation();
   const { getModelId, setModelId } = useChat(pathname);
-  const { postMessage, clear, loading, messages, isEmpty } = useRagKnowledgeBase(pathname);
+  const { postMessage, clear, loading, messages, isEmpty } =
+    useRagKnowledgeBase(pathname);
   const { scrollToBottom, scrollToTop } = useScroll();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
@@ -95,11 +93,7 @@ const RagKnowledgeBasePage: React.FC = () => {
 
         {isEmpty && (
           <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
-            <div className="flex items-center gap-x-3">
-              <KendraIcon className="size-[64px] fill-gray-400" />
-              <PiPlus className="text-2xl text-gray-400" />
-              <BedrockIcon className="fill-gray-400" />
-            </div>
+            <BedrockIcon className="fill-gray-400" />
           </div>
         )}
 
@@ -112,7 +106,7 @@ const RagKnowledgeBasePage: React.FC = () => {
                 手法のチャットを行うことができます。
               </div>
               <div>
-                メッセージが入力されると Bedrock Knowledge bases
+                メッセージが入力されると Knowledge Base
                 でドキュメントを検索し、検索したドキュメントをもとに LLM
                 が回答を生成します。
               </div>

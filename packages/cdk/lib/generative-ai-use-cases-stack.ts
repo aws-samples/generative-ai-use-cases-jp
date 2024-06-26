@@ -16,7 +16,6 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
-import * as s3 from 'aws-cdk-lib/aws-s3';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -168,7 +167,11 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
 
       // File API から data source の Bucket のファイルをダウンロードできるようにする
-      file.allowDownloadFile(rag.dataSourceBucketName);
+      // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
+      // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
+      if (rag.dataSourceBucketName) {
+        file.allowDownloadFile(rag.dataSourceBucketName);
+      }
     }
 
     if (ragKnowledgeBaseEnabled) {

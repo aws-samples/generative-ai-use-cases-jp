@@ -110,15 +110,16 @@ const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 // RAG Knowledge Base
 
 const ragKnowledgeBaseEnabled =
-      app.node.tryGetContext('ragKnowledgeBaseEnabled') || false;
+  app.node.tryGetContext('ragKnowledgeBaseEnabled') || false;
 const ragKnowledgeBaseStack = ragKnowledgeBaseEnabled
-      ? new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
-        env: {
-          account: process.env.CDK_DEFAULT_ACCOUNT,
-          region: modelRegion,
-        },
-        crossRegionReferences: true,
-      }) : null;
+  ? new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: modelRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
 
 // Agent
 
@@ -160,8 +161,9 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     hostedZoneId,
     agents: searchAgentStack?.agents,
     knowledgeBaseId: ragKnowledgeBaseStack?.knowledgeBaseId,
-    knowledgeBaseDataSourceBucketName: ragKnowledgeBaseStack?.dataSourceBucketName,
-  },
+    knowledgeBaseDataSourceBucketName:
+      ragKnowledgeBaseStack?.dataSourceBucketName,
+  }
 );
 
 cdk.Aspects.of(generativeAiUseCasesStack).add(

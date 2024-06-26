@@ -23,7 +23,7 @@ export interface RagProps {
  * RAG を実行するためのリソースを作成する
  */
 export class Rag extends Construct {
-  public readonly dataSourceBucketName: string;
+  public readonly dataSourceBucketName?: string;
 
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
@@ -227,6 +227,6 @@ export class Rag extends Construct {
       commonAuthorizerProps
     );
 
-    this.dataSourceBucketName = dataSourceBucket?.bucketName!;
+    this.dataSourceBucketName = dataSourceBucket?.bucketName;
   }
 }

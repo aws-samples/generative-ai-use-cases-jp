@@ -52,12 +52,17 @@ const useRagKnowledgeBase = (id: string) => {
       setLoading(true);
 
       pushMessage('user', content);
-      pushMessage('assistant', 'Knowledge base から参考ドキュメントを取得中...');
+      pushMessage(
+        'assistant',
+        'Knowledge base から参考ドキュメントを取得中...'
+      );
 
       const retrievedItems = await retrieve(content);
-      console.log(retrievedItems);
 
-      if (!retrievedItems.data.retrievalResults || retrievedItems.data.retrievalResults.length === 0) {
+      if (
+        !retrievedItems.data.retrievalResults ||
+        retrievedItems.data.retrievalResults.length === 0
+      ) {
         popMessage();
         pushMessage(
           'assistant',
@@ -65,24 +70,28 @@ const useRagKnowledgeBase = (id: string) => {
 - Bedrock Knowledge bases の data source に対象のドキュメントが追加されているか確認する
 - Bedrock Knowledge bases の data source が sync されているか確認する
 - 入力の表現を変更する`
-        )
+        );
         setLoading(false);
         return;
       }
 
       // Prompt を使いまわすために Amazon Kendra の retrieve item と同じ形式にする
       // Knowledge Base のみを利用する場合は本来不要な処理
-      const retrievedItemsKendraFormat: RetrieveResultItem[] = retrievedItems.data.retrievalResults!.map((r, idx) => {
-        const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
-        const bucketRegion = import.meta.env.VITE_APP_MODEL_REGION!;
+      const retrievedItemsKendraFormat: RetrieveResultItem[] =
+        retrievedItems.data.retrievalResults!.map((r, idx) => {
+          const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
+          const bucketRegion = import.meta.env.VITE_APP_MODEL_REGION!;
 
-        return {
-          Content: r.content?.text ?? '',
-          DocumentId: `${idx}`,
-          DocumentTitle: docFile,
-          DocumentURI: convertS3UriToUrl(r.location?.s3Location?.uri ?? '', bucketRegion),
-        };
-      });
+          return {
+            Content: r.content?.text ?? '',
+            DocumentId: `${idx}`,
+            DocumentTitle: docFile,
+            DocumentURI: convertS3UriToUrl(
+              r.location?.s3Location?.uri ?? '',
+              bucketRegion
+            ),
+          };
+        });
 
       updateSystemContext(
         prompter.ragPrompt({
@@ -114,10 +123,8 @@ const useRagKnowledgeBase = (id: string) => {
             .filter((x) => x)
             .join('\n');
           return message + '\n' + footnote;
-        },
-      )
-
-      setLoading(false);
+        }
+      );
     },
   };
 };

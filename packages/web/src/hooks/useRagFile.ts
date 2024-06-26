@@ -19,11 +19,7 @@ const useRagFile = () => {
       try {
         const signedUrl = await getDocDownloadSignedUrl(url);
 
-        window.open(
-          signedUrl,
-          '_blank',
-          'noopener,noreferrer'
-        );
+        window.open(signedUrl, '_blank', 'noopener,noreferrer');
       } catch (e) {
         console.error(e);
       } finally {

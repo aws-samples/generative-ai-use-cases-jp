@@ -10,9 +10,7 @@ import {
   QueryCommandOutput,
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
-import {
-  RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase,
-} from '@aws-sdk/client-bedrock-agent-runtime'
+import { RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase } from '@aws-sdk/client-bedrock-agent-runtime';
 import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
