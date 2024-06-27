@@ -224,7 +224,7 @@ export class RagKnowledgeBaseStack extends Stack {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         resources: [
-          `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/${embeddingModelId}`,
+          `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
         ],
         actions: ['bedrock:InvokeModel'],
       })
@@ -260,7 +260,7 @@ export class RagKnowledgeBaseStack extends Stack {
       knowledgeBaseConfiguration: {
         type: 'VECTOR',
         vectorKnowledgeBaseConfiguration: {
-          embeddingModelArn: `arn:aws:bedrock:${cdk.Stack.of(this).region}::foundation-model/${embeddingModelId}`,
+          embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
         },
       },
       storageConfiguration: {
@@ -293,7 +293,7 @@ export class RagKnowledgeBaseStack extends Stack {
     knowledgeBase.node.addDependency(ossIndex.customResource);
 
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
-      sources: [s3Deploy.Source.asset('./kendra-docs')],
+      sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
     });
 

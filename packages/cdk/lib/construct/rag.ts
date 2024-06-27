@@ -110,7 +110,7 @@ export class Rag extends Construct {
 
       // /kendra/docs ディレクトリを Bucket にアップロードする
       new s3Deploy.BucketDeployment(this, 'DeployDocs', {
-        sources: [s3Deploy.Source.asset('./kendra-docs')],
+        sources: [s3Deploy.Source.asset('./rag-docs')],
         destinationBucket: dataSourceBucket,
       });
 

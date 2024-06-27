@@ -85,8 +85,18 @@ exports.handler = async (event, context) => {
                     custom_kuromoji_analyzer: {
                       type: 'custom',
                       tokenizer: 'kuromoji_tokenizer',
-                      filter: ['kuromoji_baseform', 'lowercase', 'ja_stop'],
-                      char_filter: ['icu_normalizer', 'html_strip'],
+                      filter: [
+                        'kuromoji_baseform',
+                        'kuromoji_part_of_speech',
+                        'kuromoji_stemmer',
+                        'lowercase',
+                        'ja_stop',
+                      ],
+                      char_filter: [
+                        'kuromoji_iteration_mark',
+                        'icu_normalizer',
+                        'html_strip',
+                      ],
                     },
                   },
                 },
@@ -94,7 +104,7 @@ exports.handler = async (event, context) => {
             },
           },
         });
-        await sleep(30 * 1000); // sleep 30s to confirm the creation
+        await sleep(60 * 1000); // sleep 60s to confirm the creation
         await updateStatus(
           event,
           'SUCCESS',

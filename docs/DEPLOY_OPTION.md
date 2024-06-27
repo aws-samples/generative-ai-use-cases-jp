@@ -29,7 +29,7 @@ context の `ragEnabled` に `true` を指定します。(デフォルトは `fa
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/kendra-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
 
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
@@ -96,7 +96,7 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。よって、`modelRegion` で指定しているリージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
 
-また、`/packages/cdk/kendra-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(パス名に kendra が含まれますが、Amazon Kendra はデプロイされません。)
+また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。
 
 デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
 
