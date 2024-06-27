@@ -7,6 +7,7 @@ import {
   LlamaParams,
   MistralParams,
   CommandRParams,
+  JambaParams,
   GenerateImageParams,
   Model,
   PromptTemplate,
@@ -101,6 +102,18 @@ const MISTRAL_PROMPT: PromptTemplate = {
 // CommandR/R+ではプロンプトの前処理にPromptTemplateを使用していないが、
 // BEDROCK_MODELSで指定が必要なためダミーで作成しています
 const COMMANDR_PROMPT: PromptTemplate = {
+  prefix: '',
+  suffix: '',
+  join: '',
+  user: '',
+  assistant: '',
+  system: '',
+  eosToken: '',
+};
+
+// Jambaではプロンプトの前処理にPromptTemplateを使用していないが、
+// BEDROCK_MODELSで指定が必要なためダミーで作成しています
+const JAMBA_PROMPT: PromptTemplate = {
   prefix: '',
   suffix: '',
   join: '',
@@ -222,6 +235,22 @@ const COMMANDR_USECASE_PARAMS: CommandRParamsUsecases = {
   },
 };
 
+const JAMBA_DEFAULT_PARAMS: JambaParams = {
+  max_tokens: 4096,
+  temperature: 0.3,
+  top_p: 0.999,
+  n: 1,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  stop: [],
+};
+
+export type JambaParamsUsecases = Record<string, JambaParams>;
+const JAMBA_USECASE_PARAMS: JambaParamsUsecases = {
+  '/rag': {
+    temperature: 0.0,
+  },
+};
 // ID変換ルール
 const idTransformationRules = [
   // チャット履歴 -> チャット
@@ -347,6 +376,20 @@ const createBodyTextCommandR = (messages: UnrecordedMessage[], id: string) => {
   return JSON.stringify(body);
 };
 
+const createBodyTextJamba = (messages: UnrecordedMessage[], id: string) => {
+  const body: JambaParams = {
+    messages: messages.map((message) => {
+      return {
+        role: message.role,
+        content: message.content,
+      };
+    }),
+    ...JAMBA_DEFAULT_PARAMS,
+    ...JAMBA_USECASE_PARAMS[normalizeId(id)],
+  };
+  return JSON.stringify(body);
+};
+
 const extractOutputTextClaude = (body: BedrockResponse): string => {
   return body.completion;
 };
@@ -374,6 +417,10 @@ const extractOutputTextMistral = (body: BedrockResponse): string => {
 
 const extractOutputTextCommandR = (body: BedrockResponse): string => {
   return body.text;
+};
+
+const extractOutputTextJamba = (body: BedrockResponse): string => {
+  return body.choices[0].message.content;
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -598,9 +645,9 @@ export const BEDROCK_MODELS: {
     extractOutputText: extractOutputTextCommandR,
   },
   'ai21.jamba-instruct-v1:0': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
+    promptTemplate: JAMBA_PROMPT,
+    createBodyText: createBodyTextJamba,
+    extractOutputText: extractOutputTextJamba,
   },
 };
 
