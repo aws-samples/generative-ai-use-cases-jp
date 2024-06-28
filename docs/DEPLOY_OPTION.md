@@ -106,6 +106,34 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 
 Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
 
+#### embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法
+
+`embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
+変更する場合は、以下の手順に従い既存の Index を削除してから再生成してください。
+
+1. `cdk.json` の `embeddingModelId` の変更等、なんらかの変更を加える
+1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
+1. 右上の Delete をクリック ( **削除した時点で一時的に RAG チャットが利用不可になります** )
+1. 削除完了後、再度 `npm run cdk:deploy` でデプロイ
+
+RagKnowledgeBaseStack の削除に伴い、RAG チャット用の S3 Bucket も削除されます。
+手動でアップロードしたデータが存在する場合は、再度アップロードしてください。
+また、前述した手順に従い Data source を再度 Sync してください。
+
+#### OpenSearch Service の Index をマネージメントコンソールで確認する方法
+
+デフォルトでは、マネージメントコンソールから OpenSearch Service の Indexes タブを開くと `User does not have permissions for the requested resource` というエラーが表示されます。
+これは、Data access policy でマネージメントコンソールにログインしている IAM ユーザーを許可していないためです。
+以下の手順に従い、必要な権限を手動で追加してください。
+
+1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases-jp をクリック
+1. ページ下部 Data access の Associated policy である generative-ai-use-cases-jp をクリック
+1. 右上の Edit をクリック
+1. ページ中部の Select principals の Add principals をクリックし、IAM User/Role 等 (マネージメントコンソールにログインしている権限) を追加
+1. Save
+
+保存後、少し時間をおいて再度アクセスしてください。
+
 ### Agent チャットユースケースの有効化
 
 Agent チャットユースケースでは Agent for Amazon Bedrock を利用してアクションを実行させたり、Knowledge base for Amazon Bedrock のベクトルデータベースを参照することが可能です。
