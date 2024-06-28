@@ -141,6 +141,8 @@ npm run cdk:deploy
   - [RAG チャット (Amazon Kendra) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-amazon-kendra-ユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
+    - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
+    - [OpenSearch Service の Index をマネージメントコンソールで確認する方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-index-をマネージメントコンソールで確認する方法)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
