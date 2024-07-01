@@ -18,6 +18,7 @@ export interface WebProps {
   idPoolId: string;
   predictStreamFunctionArn: string;
   ragEnabled: boolean;
+  ragKnowledgeBaseEnabled: boolean;
   agentEnabled: boolean;
   selfSignUpEnabled: boolean;
   webAclId?: string;
@@ -162,6 +163,8 @@ export class Web extends Construct {
         VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
         VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
+        VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
+          props.ragKnowledgeBaseEnabled.toString(),
         VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
         VITE_APP_MODEL_REGION: props.modelRegion,

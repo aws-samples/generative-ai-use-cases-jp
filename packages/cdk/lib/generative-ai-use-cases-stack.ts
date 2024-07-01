@@ -6,6 +6,7 @@ import {
   Web,
   Database,
   Rag,
+  RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
   File,
@@ -34,6 +35,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   domainName?: string;
   hostedZoneId?: string;
   agents?: Agent[];
+  knowledgeBaseId?: string;
+  knowledgeBaseDataSourceBucketName?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -50,6 +53,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
+    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext(
+      'ragKnowledgeBaseEnabled'
+    )!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
@@ -68,6 +74,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
+    }
+
+    if (typeof ragKnowledgeBaseEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('ragKnowledgeBaseEnabled'));
     }
 
     if (typeof selfSignUpEnabled !== 'boolean') {
@@ -125,6 +135,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
+      ragKnowledgeBaseEnabled,
       agentEnabled,
       selfSignUpEnabled,
       webAclId: props.webAclId,
@@ -144,21 +155,40 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: props.hostedZoneId,
     });
 
+    const file = new File(this, 'File', {
+      userPool: auth.userPool,
+      api: api.api,
+    });
+
     if (ragEnabled) {
-      new Rag(this, 'Rag', {
+      const rag = new Rag(this, 'Rag', {
         userPool: auth.userPool,
         api: api.api,
       });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
+      // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
+      if (rag.dataSourceBucketName) {
+        file.allowDownloadFile(rag.dataSourceBucketName);
+      }
+    }
+
+    if (ragKnowledgeBaseEnabled) {
+      new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+        knowledgeBaseId: props.knowledgeBaseId!,
+        dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
+        userPool: auth.userPool,
+        api: api.api,
+      });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      file.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
     }
 
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
-      api: api.api,
-    });
-
-    const file = new File(this, 'File', {
-      userPool: auth.userPool,
       api: api.api,
     });
 
@@ -203,6 +233,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'RagEnabled', {
       value: ragEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
+      value: ragKnowledgeBaseEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentEnabled', {

@@ -20,6 +20,8 @@
     "ragEnabled": false,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
+    "ragKnowledgeBaseEnabled": false,
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
     "samlAuthEnabled": false,

@@ -5,21 +5,22 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "postinstall": "npm ci --prefix custom-resources"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.137",
     "@types/node": "^20.12.5",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
-    "aws-cdk": "2.139.0",
+    "aws-cdk": "2.147.1",
     "eslint": "^8.56.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.4.5"
   },
   "dependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.22.0-alpha.0",
-    "@aws-cdk/aws-lambda-python-alpha": "2.139.0-alpha.0",
+    "@aws-cdk/aws-lambda-python-alpha": "2.147.1-alpha.0",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.549.0",
     "@aws-sdk/client-bedrock-runtime": "^3.549.0",
     "@aws-sdk/client-dynamodb": "^3.549.0",
@@ -31,7 +32,7 @@
     "@aws-sdk/lib-dynamodb": "^3.549.0",
     "@aws-sdk/s3-request-presigner": "^3.549.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.54.1",
-    "aws-cdk-lib": "2.139.0",
+    "aws-cdk-lib": "2.147.1",
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "node-html-parser": "^6.1.13",

@@ -35,6 +35,8 @@ import queryString from 'query-string';
 import { MODELS } from '../hooks/useModel';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
@@ -57,6 +59,13 @@ const LandingPage: React.FC = () => {
       content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
     };
     navigate(`/rag?${queryString.stringify(params)}`);
+  };
+
+  const demoRagKnowledgeBase = () => {
+    const params: RagPageQueryParams = {
+      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+    };
+    navigate(`/rag-knowledge-base?${queryString.stringify(params)}`);
   };
 
   const demoAgent = () => {
@@ -270,9 +279,19 @@ const LandingPage: React.FC = () => {
         {ragEnabled && (
           <CardDemo
             label="RAG チャット"
+            sub="Amazon Kendra"
             onClickDemo={demoRag}
             icon={<PiChatCircleText />}
             description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon Kendra から取得した参考ドキュメントをベースに LLM が回答を生成してくれるため、「社内情報に対応した LLM チャット」を簡単に実現することが可能です。"
+          />
+        )}
+        {ragKnowledgeBaseEnabled && (
+          <CardDemo
+            label="RAG チャット"
+            sub="Knowledge Base"
+            onClickDemo={demoRagKnowledgeBase}
+            icon={<PiChatCircleText />}
+            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
           />
         )}
         {agentEnabled && (

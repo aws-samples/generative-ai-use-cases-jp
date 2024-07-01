@@ -21,6 +21,7 @@ export type ItemProps = BaseProps & {
   to: string;
   icon: JSX.Element;
   display: 'usecase' | 'tool' | 'none';
+  sub?: string;
 };
 
 const Item: React.FC<ItemProps> = (props) => {
@@ -38,6 +39,7 @@ const Item: React.FC<ItemProps> = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <Link
       className={`hover:bg-aws-sky mt-0.5 flex h-8 items-center rounded p-2 ${
@@ -46,7 +48,12 @@ const Item: React.FC<ItemProps> = (props) => {
       to={props.to}
       onClick={onClick}>
       <span className="mr-2">{props.icon}</span>
-      <span>{props.label}</span>
+      <div className="flex w-full items-center justify-between">
+        <span>{props.label}</span>
+        {props.sub && (
+          <span className="text-xs text-gray-300">{props.sub}</span>
+        )}
+      </div>
     </Link>
   );
 };
@@ -135,6 +142,7 @@ const Drawer: React.FC<Props> = (props) => {
               icon={item.icon}
               to={item.to}
               display={item.display}
+              sub={item.sub}
             />
           ))}
         </div>

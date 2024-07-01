@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/credential-provider-node": "^3.565.0",
+    "@opensearch-project/opensearch": "^2.7.0"
+  }
+}

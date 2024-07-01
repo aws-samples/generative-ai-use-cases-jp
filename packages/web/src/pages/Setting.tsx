@@ -9,6 +9,8 @@ import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
@@ -70,7 +72,14 @@ const Setting = () => {
           value={localVersion || '取得できませんでした'}
           helpMessage="generative-ai-use-cases-jp の package.json の version を参照しています"
         />
-        <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
+        <SettingItem
+          name="RAG (Amazon Kendra) 有効"
+          value={ragEnabled.toString()}
+        />
+        <SettingItem
+          name="RAG (Knowledge Base) 有効"
+          value={ragKnowledgeBaseEnabled.toString()}
+        />
         <SettingItem name="Agent 有効" value={agentEnabled.toString()} />
         <SettingItem
           name="ファイルアップロード 有効"
