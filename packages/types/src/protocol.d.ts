@@ -10,6 +10,7 @@ import {
   QueryCommandOutput,
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
+import { RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase } from '@aws-sdk/client-bedrock-agent-runtime';
 import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
@@ -96,9 +97,16 @@ export type RetrieveKendraRequest = {
 
 export type RetrieveKendraResponse = RetrieveCommandOutput;
 
+export type RetrieveKnowledgeBaseRequest = {
+  query: string;
+};
+
+export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
+
 export type GetDocDownloadSignedUrlRequest = {
   bucketName: string;
   filePrefix: string;
+  region?: string;
   contentType?: string;
 };
 

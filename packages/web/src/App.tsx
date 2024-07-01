@@ -30,6 +30,8 @@ import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
@@ -61,6 +63,16 @@ const items: ItemProps[] = [
         to: '/rag',
         icon: <PiChatCircleText />,
         display: 'usecase' as const,
+        sub: 'Amazon Kendra',
+      }
+    : null,
+  ragKnowledgeBaseEnabled
+    ? {
+        label: 'RAG チャット',
+        to: '/rag-knowledge-base',
+        icon: <PiChatCircleText />,
+        display: 'usecase' as const,
+        sub: 'Knowledge Base',
       }
     : null,
   agentEnabled

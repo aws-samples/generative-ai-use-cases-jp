@@ -17,6 +17,7 @@ export VITE_APP_USER_POOL_CLIENT_ID=`extract_value "$stack_output" 'UserPoolClie
 export VITE_APP_IDENTITY_POOL_ID=`extract_value "$stack_output" 'IdPoolId'`
 export VITE_APP_PREDICT_STREAM_FUNCTION_ARN=`extract_value "$stack_output" PredictStreamFunctionArn`
 export VITE_APP_RAG_ENABLED=`extract_value "$stack_output" RagEnabled`
+export VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED=`extract_value "$stack_output" RagKnowledgeBaseEnabled`
 export VITE_APP_AGENT_ENABLED=`extract_value "$stack_output" AgentEnabled`
 export VITE_APP_SELF_SIGN_UP_ENABLED=`extract_value "$stack_output" SelfSignUpEnabled`
 export VITE_APP_MODEL_REGION=`extract_value "$stack_output" ModelRegion`

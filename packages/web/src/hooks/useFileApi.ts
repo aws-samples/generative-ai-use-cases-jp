@@ -28,13 +28,36 @@ const useFileApi = () => {
         data: req.file,
       });
     },
-    getDocDownloadSignedUrl: async (s3Url: string) => {
+    getDocDownloadSignedUrl: async (s3Uri: string) => {
+      let result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
+
+      if (!result) {
+        result =
+          /^https:\/\/s3.(?<region>.+?).amazonaws.com\/(?<bucketName>.+?)\/(?<prefix>.+)$/.exec(
+            s3Uri
+          );
+
+        if (!result) {
+          result =
+            /^https:\/\/(?<bucketName>.+?).s3(|(\.|-)(?<region>.+?)).amazonaws.com\/(?<prefix>.+)$/.exec(
+              s3Uri
+            );
+        }
+      }
+
+      const groups = result?.groups as {
+        bucketName: string;
+        prefix: string;
+        region?: string;
+      };
+
+      const [filePrefix, anchorLink] = groups.prefix.split('#');
+
       // Signed URL を取得
-      const bucketName = s3Url.split('/')[2].split('.')[0];
-      const filePrefix = s3Url.split('/').slice(3).join('/');
       const params: GetDocDownloadSignedUrlRequest = {
-        bucketName,
-        filePrefix,
+        bucketName: groups.bucketName,
+        filePrefix: decodeURIComponent(filePrefix),
+        region: groups.region,
       };
       const { data: url } = await http.api.get<GetDocDownloadSignedUrlResponse>(
         '/file/url',
@@ -42,7 +65,7 @@ const useFileApi = () => {
           params,
         }
       );
-      return url;
+      return `${url}${anchorLink ? `#${anchorLink}` : ''}`;
     },
     deleteUploadedFile: async (fileName: string) => {
       return http.delete<DeleteFileResponse>(`file/${fileName}`);

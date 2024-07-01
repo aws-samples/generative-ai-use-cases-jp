@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^5.3.3",
+    "@aws-amplify/ui-react": "^6.1.12",
     "@aws-sdk/client-cognito-identity": "^3.549.0",
     "@aws-sdk/client-kendra": "^3.549.0",
     "@aws-sdk/client-lambda": "^3.549.0",
@@ -19,7 +19,7 @@
     "@headlessui/react": "^1.7.18",
     "@react-icons/all-files": "^4.1.0",
     "@types/uuid": "^9.0.8",
-    "aws-amplify": "^5.3.18",
+    "aws-amplify": "^6.3.8",
     "axios": "^1.6.8",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.3",

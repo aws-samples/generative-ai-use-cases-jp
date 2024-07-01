@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-import { Auth } from 'aws-amplify';
 import useVersion from '../hooks/useVersion';
 import { Link } from 'react-router-dom';
 import Help from '../components/Help';
@@ -8,8 +6,11 @@ import Button from '../components/Button';
 import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
 import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
@@ -36,14 +37,11 @@ const Setting = () => {
   const { modelRegion, modelIds, imageGenModelIds, agentNames } = MODELS;
   const { getLocalVersion, getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
+  const { signOut } = useAuthenticator();
 
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();
-
-  const signOut = useCallback(async () => {
-    await Auth.signOut();
-  }, []);
 
   return (
     <div>
@@ -74,7 +72,14 @@ const Setting = () => {
           value={localVersion || '取得できませんでした'}
           helpMessage="generative-ai-use-cases-jp の package.json の version を参照しています"
         />
-        <SettingItem name="RAG 有効" value={ragEnabled.toString()} />
+        <SettingItem
+          name="RAG (Amazon Kendra) 有効"
+          value={ragEnabled.toString()}
+        />
+        <SettingItem
+          name="RAG (Knowledge Base) 有効"
+          value={ragKnowledgeBaseEnabled.toString()}
+        />
         <SettingItem name="Agent 有効" value={agentEnabled.toString()} />
         <SettingItem
           name="ファイルアップロード 有効"

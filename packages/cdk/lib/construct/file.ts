@@ -6,10 +6,11 @@ import {
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { IFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export interface FileProps {
   userPool: UserPool;
@@ -18,6 +19,7 @@ export interface FileProps {
 
 export class File extends Construct {
   readonly fileBucket: Bucket;
+  readonly getFileDownloadSignedUrlFunction: IFunction;
 
   constructor(scope: Construct, id: string, props: FileProps) {
     super(scope, id);
@@ -106,5 +108,20 @@ export class File extends Construct {
       );
 
     this.fileBucket = fileBucket;
+    this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
+  }
+
+  // Bucket 名を指定してダウンロード可能にする
+  allowDownloadFile(bucketName: string) {
+    this.getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [
+          `arn:aws:s3:::${bucketName}`,
+          `arn:aws:s3:::${bucketName}/*`,
+        ],
+        actions: ['s3:GetBucket*', 's3:GetObject*', 's3:List*'],
+      })
+    );
   }
 }
