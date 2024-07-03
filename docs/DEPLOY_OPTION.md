@@ -94,11 +94,17 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 "cohere.embed-english-v3"
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。よって、`modelRegion` で指定しているリージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
 
-また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。
+- `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+- `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
 
-デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+```bash
+# 以下はBootstrap するコマンドの例 (modelRegion が us-east-1 だとした場合)
+npx -w packages/cdk cdk bootstrap --region us-east-1
+```
+
+デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
 1. generative-ai-use-cases-jp をクリック
