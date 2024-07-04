@@ -147,7 +147,7 @@ export class Rag extends Construct {
 
       // /kendra/docs ディレクトリを Bucket にアップロードする
       new s3Deploy.BucketDeployment(this, 'DeployDocs', {
-        sources: [s3Deploy.Source.asset('./kendra-docs')],
+        sources: [s3Deploy.Source.asset('./rag-docs')],
         destinationBucket: dataSourceBucket,
       });
 
@@ -200,11 +200,6 @@ export class Rag extends Construct {
         kendraIndexId = index.ref;
       }
 
-      // /kendra/docs ディレクトリを Bucket にアップロードする
-      new s3Deploy.BucketDeployment(this, 'DeployDocs', {
-        sources: [s3Deploy.Source.asset('./rag-docs')],
-        destinationBucket: dataSourceBucket,
-      });
 
       const s3DataSourceRole = new iam.Role(this, 'DataSourceRole', {
         assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
