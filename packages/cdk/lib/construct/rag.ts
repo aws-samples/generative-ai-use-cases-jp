@@ -200,7 +200,6 @@ export class Rag extends Construct {
         kendraIndexId = index.ref;
       }
 
-
       const s3DataSourceRole = new iam.Role(this, 'DataSourceRole', {
         assumedBy: new iam.ServicePrincipal('kendra.amazonaws.com'),
       });
@@ -250,6 +249,7 @@ export class Rag extends Construct {
       else {
         dataSource = new kendra.CfnDataSource(this, 'S3DataSource', dataSourceProps);
       }
+      dataSource.addDependency(index);
 
       if (kendraIndexScheduleEnabled) {
         if (kendraIndexScheduleCreateCron) {
