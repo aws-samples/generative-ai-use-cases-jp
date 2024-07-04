@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import App from '../App.tsx';
-import { Button, Text, Loader } from '@aws-amplify/ui-react';
-import { Amplify, Auth } from 'aws-amplify';
+import { Button, Text, Loader, useAuthenticator } from '@aws-amplify/ui-react';
+import { Amplify } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
+import { signInWithRedirect } from 'aws-amplify/auth';
 
 const samlCognitoDomainName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_DOMAIN_NAME;
@@ -10,42 +11,49 @@ const samlCognitoFederatedIdentityProviderName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
 
 const AuthWithSAML: React.FC = () => {
+  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
+
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 未ログインの場合は、ログイン画面を表示する
   useEffect(() => {
-    Auth.currentAuthenticatedUser()
-      .then(() => {
-        setAuthenticated(true);
-      })
-      .catch(() => {
-        setAuthenticated(false);
-      })
-      .finally(() => {
-        setLoading(false); // 認証チェックが完了したらローディングを終了
-      });
-  }, []);
+    // 認証状態の検証
+    if (authStatus === 'configuring') {
+      setLoading(true);
+      setAuthenticated(false);
+    } else if (authStatus === 'authenticated') {
+      setLoading(false);
+      setAuthenticated(true);
+    } else {
+      setLoading(false);
+      setAuthenticated(false);
+    }
+  }, [authStatus]);
 
   const signIn = () => {
-    Auth.federatedSignIn({
-      customProvider: samlCognitoFederatedIdentityProviderName,
-    }); // cdk.json の値を指定
+    signInWithRedirect({
+      provider: {
+        custom: samlCognitoFederatedIdentityProviderName,
+      },
+    });
   };
 
   Amplify.configure({
     Auth: {
-      region: import.meta.env.VITE_APP_REGION,
-      userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
-      userPoolWebClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
-      identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
-      oauth: {
-        domain: samlCognitoDomainName, // cdk.json の値を指定
-        scope: ['openid', 'email', 'profile'],
-        // CloudFront で展開している Web ページを動的に取得
-        redirectSignIn: window.location.origin,
-        redirectSignOut: window.location.origin,
-        responseType: 'code',
+      Cognito: {
+        userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
+        userPoolClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
+        identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
+        loginWith: {
+          oauth: {
+            domain: samlCognitoDomainName, // cdk.json の値を指定
+            scopes: ['openid', 'email', 'profile'],
+            // CloudFront で展開している Web ページを動的に取得
+            redirectSignIn: [window.location.origin],
+            redirectSignOut: [window.location.origin],
+            responseType: 'code',
+          },
+        },
       },
     },
   });

@@ -9,9 +9,6 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 このリポジトリではブラウザ拡張機能も提供しており、より便利に 生成 AI を活用することができます。詳しくは[こちらのページ](/browser-extension/README.md)をご覧ください。
 
-![拡張機能](/imgs/extension/extension_demo.png)
-
-
 > **生成AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
 
 ## ユースケース一覧
@@ -29,7 +26,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 <details>
    <summary>RAG チャット</summary>
 
-  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは Amazon Kendra から情報を取得しています。
+  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは Amazon Kendra か Knowledge Base から情報を取得します。
 
   <img src="/imgs/usecase_rag.gif"/>
 </details>
@@ -138,8 +135,11 @@ npm run cdk:deploy
 - [設定方法](/docs/DEPLOY_OPTION.md#設定方法)
   - [cdk.json の値を変更する方法](/docs/DEPLOY_OPTION.md#cdkjson-の値を変更する方法)
 - [ユースケースの設定](/docs/DEPLOY_OPTION.md#ユースケースの設定)
-  - [RAG チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャットユースケースの有効化)
+  - [RAG チャット (Amazon Kendra) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-amazon-kendra-ユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
+  - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
+    - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
+    - [OpenSearch Service の Index をマネージメントコンソールで確認する方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-index-をマネージメントコンソールで確認する方法)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)

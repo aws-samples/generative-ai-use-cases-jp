@@ -16,7 +16,7 @@ npm run cdk:deploy
 
 ## ユースケースの設定
 
-### RAG チャットユースケースの有効化
+### RAG チャット (Amazon Kendra) ユースケースの有効化
 
 context の `ragEnabled` に `true` を指定します。(デフォルトは `false`)
 
@@ -29,7 +29,7 @@ context の `ragEnabled` に `true` を指定します。(デフォルトは `fa
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/kendra-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
 
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
@@ -70,6 +70,69 @@ arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
+
+### RAG チャット (Knowledge Base) ユースケースの有効化
+
+context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "ragKnowledgeBaseEnabled": true,
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+  }
+}
+```
+
+`embeddingModelId` は embedding に利用するモデルです。現状、以下モデルをサポートしています。
+
+```
+"amazon.titan-embed-text-v1"
+"amazon.titan-embed-text-v2:0"
+"cohere.embed-multilingual-v3"
+"cohere.embed-english-v3"
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。よって、`modelRegion` で指定しているリージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+
+また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。
+
+デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+
+1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
+1. generative-ai-use-cases-jp をクリック
+1. s3-data-source を選択肢、Sync をクリック
+
+Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
+
+#### embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法
+
+`embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
+変更する場合は、以下の手順に従い既存の Index を削除してから再生成してください。
+
+1. `cdk.json` の `embeddingModelId` の変更等、なんらかの変更を加える
+1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
+1. 右上の Delete をクリック ( **削除した時点で一時的に RAG チャットが利用不可になります** )
+1. 削除完了後、再度 `npm run cdk:deploy` でデプロイ
+
+RagKnowledgeBaseStack の削除に伴い、RAG チャット用の S3 Bucket も削除されます。
+手動でアップロードしたデータが存在する場合は、再度アップロードしてください。
+また、前述した手順に従い Data source を再度 Sync してください。
+
+#### OpenSearch Service の Index をマネージメントコンソールで確認する方法
+
+デフォルトでは、マネージメントコンソールから OpenSearch Service の Indexes タブを開くと `User does not have permissions for the requested resource` というエラーが表示されます。
+これは、Data access policy でマネージメントコンソールにログインしている IAM ユーザーを許可していないためです。
+以下の手順に従い、必要な権限を手動で追加してください。
+
+1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases-jp をクリック
+1. ページ下部 Data access の Associated policy である generative-ai-use-cases-jp をクリック
+1. 右上の Edit をクリック
+1. ページ中部の Select principals の Add principals をクリックし、IAM User/Role 等 (マネージメントコンソールにログインしている権限) を追加
+1. Save
+
+保存後、少し時間をおいて再度アクセスしてください。
 
 ### Agent チャットユースケースの有効化
 
@@ -158,18 +221,20 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
 
-2024/05 現在、マルチモーダルのモデルは以下です。
+2024/06 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
-"anthropic.claude-3-haiku-20240307-v1:0",
+"anthropic.claude-3-haiku-20240307-v1:0"
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0"
@@ -185,6 +250,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
@@ -219,6 +285,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```bash
   "modelRegion": "us-east-1",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
     "amazon.titan-text-premier-v1:0",

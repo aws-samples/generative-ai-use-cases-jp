@@ -62,6 +62,9 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
       remarkRehypeOptions={{ clobberPrefix: prefix }}
       components={{
         a: LinkRenderer,
+        sup: ({ children }) => (
+          <sup className="m-0.5 rounded-full bg-gray-200 px-1">{children}</sup>
+        ),
         code({ className, children }) {
           const language = /language-(\w+)/.exec(className || '')?.[1];
           const isCodeBlock = !!language;
