@@ -1,12 +1,12 @@
-import * as cdk from "aws-cdk-lib";
-import * as events from "aws-cdk-lib/aws-events";
-import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as cdk from 'aws-cdk-lib';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as kendra from 'aws-cdk-lib/aws-kendra';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
-import * as stepfunctions from "aws-cdk-lib/aws-stepfunctions";
-import * as stepfunctionsTasks from "aws-cdk-lib/aws-stepfunctions-tasks";
+import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
+import * as stepfunctionsTasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { Duration, Token, Arn, RemovalPolicy } from 'aws-cdk-lib';
@@ -37,7 +37,12 @@ class KendraIndexWithCfnParameter extends kendra.CfnIndex {
   attrId: string;
   attrArn: string;
 
-  constructor(scope: Construct, id: string, props: kendra.CfnIndexProps, kendraSwitchCfnCondition: cdk.CfnCondition) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: kendra.CfnIndexProps,
+    kendraSwitchCfnCondition: cdk.CfnCondition
+  ) {
     super(scope, id, props);
 
     this.attrId = cdk.Fn.conditionIf(
@@ -58,7 +63,12 @@ class KendraDataSourceWithCfnParameter extends kendra.CfnDataSource {
   attrId: string;
   attrArn: string;
 
-  constructor(scope: Construct, id: string, props: kendra.CfnDataSourceProps, kendraSwitchCfnCondition: cdk.CfnCondition) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: kendra.CfnDataSourceProps,
+    kendraSwitchCfnCondition: cdk.CfnCondition
+  ) {
     super(scope, id, props);
 
     this.attrId = cdk.Fn.conditionIf(
@@ -73,9 +83,7 @@ class KendraDataSourceWithCfnParameter extends kendra.CfnDataSource {
       `arn:aws:kendra:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:index/*/data-source/` // kendraがオフの場合は、index/以降を空文字列にする（IAMの許可をさせない）
     ).toString();
   }
-
 }
-
 
 /**
  * RAG を実行するためのリソースを作成する
@@ -93,9 +101,13 @@ export class Rag extends Construct {
       'kendraDataSourceBucketName'
     );
 
-    const kendraIndexScheduleEnabled: boolean = this.node.tryGetContext('kendraIndexScheduleEnabled');
-    const kendraIndexScheduleCreateCron: IndexScheduleCron | null = this.node.tryGetContext('kendraIndexScheduleCreateCron');
-    const kendraIndexScheduleDeleteCron: IndexScheduleCron | null = this.node.tryGetContext('kendraIndexScheduleDeleteCron');
+    const kendraIndexScheduleEnabled: boolean = this.node.tryGetContext(
+      'kendraIndexScheduleEnabled'
+    );
+    const kendraIndexScheduleCreateCron: IndexScheduleCron | null =
+      this.node.tryGetContext('kendraIndexScheduleCreateCron');
+    const kendraIndexScheduleDeleteCron: IndexScheduleCron | null =
+      this.node.tryGetContext('kendraIndexScheduleDeleteCron');
 
     let kendraIndexArn: string;
     let kendraIndexId: string;
@@ -177,23 +189,40 @@ export class Rag extends Construct {
       let kendraIsOnCfnCondition;
       if (kendraIndexScheduleEnabled) {
         // Cloudfomation Parameterの読み込み
-        const kendraStateCfnParameter = new cdk.CfnParameter(scope, KENDRA_STATE_CFN_PARAMETER_NAME, { // NOTE contructの名前が付加されないように、thisではなくscopeを指定する
-          type: "String",
-          description: "parameter to create kendra index. on: create kendra index, off: delete kendra index.",
-          allowedValues: ["on", "off"],
-          default: "on"
-        });
-        kendraIsOnCfnCondition = new cdk.CfnCondition(scope, "IsKendraOnCondition", {
-          expression: cdk.Fn.conditionEquals(kendraStateCfnParameter.valueAsString, "on"),
-        });
+        const kendraStateCfnParameter = new cdk.CfnParameter(
+          scope,
+          KENDRA_STATE_CFN_PARAMETER_NAME,
+          {
+            // NOTE contructの名前が付加されないように、thisではなくscopeを指定する
+            type: 'String',
+            description:
+              'parameter to create kendra index. on: create kendra index, off: delete kendra index.',
+            allowedValues: ['on', 'off'],
+            default: 'on',
+          }
+        );
+        kendraIsOnCfnCondition = new cdk.CfnCondition(
+          scope,
+          'IsKendraOnCondition',
+          {
+            expression: cdk.Fn.conditionEquals(
+              kendraStateCfnParameter.valueAsString,
+              'on'
+            ),
+          }
+        );
 
-        index = new KendraIndexWithCfnParameter(this, 'KendraIndex', indexProps, kendraIsOnCfnCondition);
+        index = new KendraIndexWithCfnParameter(
+          this,
+          'KendraIndex',
+          indexProps,
+          kendraIsOnCfnCondition
+        );
         index.cfnOptions.condition = kendraIsOnCfnCondition; // Cfn Parameterに応じて、リソースをオンオフする
 
         kendraIndexArn = index.attrArn;
         kendraIndexId = index.attrId;
-      }
-      else {
+      } else {
         index = new kendra.CfnIndex(this, 'KendraIndex', indexProps);
 
         kendraIndexArn = Token.asString(index.getAtt('Arn'));
@@ -241,79 +270,124 @@ export class Rag extends Construct {
             inclusionPrefixes: ['docs'],
           },
         },
-      }
+      };
       if (kendraIndexScheduleEnabled) {
-        dataSource = new KendraDataSourceWithCfnParameter(this, 'S3DataSource', dataSourceProps, kendraIsOnCfnCondition as cdk.CfnCondition);
+        dataSource = new KendraDataSourceWithCfnParameter(
+          this,
+          'S3DataSource',
+          dataSourceProps,
+          kendraIsOnCfnCondition as cdk.CfnCondition
+        );
         dataSource.cfnOptions.condition = kendraIsOnCfnCondition; // Cfn Parameterに応じて、リソースをオンオフする
-      }
-      else {
-        dataSource = new kendra.CfnDataSource(this, 'S3DataSource', dataSourceProps);
+      } else {
+        dataSource = new kendra.CfnDataSource(
+          this,
+          'S3DataSource',
+          dataSourceProps
+        );
       }
       dataSource.addDependency(index);
 
       if (kendraIndexScheduleEnabled) {
         if (kendraIndexScheduleCreateCron) {
-          const taskStartDataSourceSyncJob = new stepfunctionsTasks.CallAwsService(this, "TaskStartDataSourceSyncJob", {
-            service: "kendra",
-            action: "startDataSourceSyncJob",
-            parameters: {
-              IndexId: index.attrId,
-              Id: dataSource.attrId,
-            },
-            iamResources: [
-              // NOTE インデックス・データソースの両方に対する権限が必要
-              index.attrArn,
-              dataSource.attrArn,
-            ],
-          });
+          const taskStartDataSourceSyncJob =
+            new stepfunctionsTasks.CallAwsService(
+              this,
+              'TaskStartDataSourceSyncJob',
+              {
+                service: 'kendra',
+                action: 'startDataSourceSyncJob',
+                parameters: {
+                  IndexId: index.attrId,
+                  Id: dataSource.attrId,
+                },
+                iamResources: [
+                  // NOTE インデックス・データソースの両方に対する権限が必要
+                  index.attrArn,
+                  dataSource.attrArn,
+                ],
+              }
+            );
 
-          const definitionStartDataSourceSyncJob = stepfunctions.Chain.start(taskStartDataSourceSyncJob);
+          const definitionStartDataSourceSyncJob = stepfunctions.Chain.start(
+            taskStartDataSourceSyncJob
+          );
 
-          const stateMachineStartDataSourceSyncJob = new stepfunctions.StateMachine(this, "StepFunctionsStateMachineStartDataSourceSyncJob", {
-            definition: definitionStartDataSourceSyncJob,
-            timeout: cdk.Duration.minutes(180),
-          });
+          const stateMachineStartDataSourceSyncJob =
+            new stepfunctions.StateMachine(
+              this,
+              'StepFunctionsStateMachineStartDataSourceSyncJob',
+              {
+                definition: definitionStartDataSourceSyncJob,
+                timeout: cdk.Duration.minutes(180),
+              }
+            );
 
           // Kendra On用のStep Functions
-          const taskUpdateCloudformationStackWithKendraOn = new stepfunctionsTasks.CallAwsService(this, "TaskUpdateCloudformationStackWithKendraOn", {
-            service: "cloudformation",
-            action: "updateStack",
-            parameters: {
-              StackName: cdk.Stack.of(this).stackName,
-              UsePreviousTemplate: true,
-              Parameters: [
-                {
-                  ParameterKey: KENDRA_STATE_CFN_PARAMETER_NAME,
-                  ParameterValue: "on",
+          const taskUpdateCloudformationStackWithKendraOn =
+            new stepfunctionsTasks.CallAwsService(
+              this,
+              'TaskUpdateCloudformationStackWithKendraOn',
+              {
+                service: 'cloudformation',
+                action: 'updateStack',
+                parameters: {
+                  StackName: cdk.Stack.of(this).stackName,
+                  UsePreviousTemplate: true,
+                  Parameters: [
+                    {
+                      ParameterKey: KENDRA_STATE_CFN_PARAMETER_NAME,
+                      ParameterValue: 'on',
+                    },
+                  ],
+                  Capabilities: ['CAPABILITY_IAM'],
                 },
-              ],
-              Capabilities: ["CAPABILITY_IAM"],
-            },
-            iamResources: [cdk.Stack.of(this).stackId], // NOTE stackId (arn:aws:cloudformation:ap-northeast-1:123456789012:stack/myStack/i-01234567890abcdef0) can be used an Resource ARN
-          });
+                iamResources: [cdk.Stack.of(this).stackId], // NOTE stackId (arn:aws:cloudformation:ap-northeast-1:123456789012:stack/myStack/i-01234567890abcdef0) can be used an Resource ARN
+              }
+            );
 
-          const taskCheckCloudformationState = new stepfunctionsTasks.CallAwsService(this, "TaskCheckCloudformationState", {
-            service: "cloudformation",
-            action: "describeStacks",
-            parameters: {
-              StackName: cdk.Stack.of(this).stackName,
-            },
-            iamResources: [cdk.Stack.of(this).stackId], // NOTE stackId (arn:aws:cloudformation:ap-northeast-1:123456789012:stack/myStack/i-01234567890abcdef0) can be used an Resource ARN
-          });
+          const taskCheckCloudformationState =
+            new stepfunctionsTasks.CallAwsService(
+              this,
+              'TaskCheckCloudformationState',
+              {
+                service: 'cloudformation',
+                action: 'describeStacks',
+                parameters: {
+                  StackName: cdk.Stack.of(this).stackName,
+                },
+                iamResources: [cdk.Stack.of(this).stackId], // NOTE stackId (arn:aws:cloudformation:ap-northeast-1:123456789012:stack/myStack/i-01234567890abcdef0) can be used an Resource ARN
+              }
+            );
 
-          const taskCallStartDataSourceSyncJob = new stepfunctionsTasks.StepFunctionsStartExecution(this, "TaskCallStateMachineStartDataSourceSyncJob", {
-            stateMachine: stateMachineStartDataSourceSyncJob,
-            integrationPattern: stepfunctions.IntegrationPattern.RUN_JOB,
-          });
+          const taskCallStartDataSourceSyncJob =
+            new stepfunctionsTasks.StepFunctionsStartExecution(
+              this,
+              'TaskCallStateMachineStartDataSourceSyncJob',
+              {
+                stateMachine: stateMachineStartDataSourceSyncJob,
+                integrationPattern: stepfunctions.IntegrationPattern.RUN_JOB,
+              }
+            );
 
-          const definitionKendraOn = stepfunctions.Chain.start(taskUpdateCloudformationStackWithKendraOn)
+          const definitionKendraOn = stepfunctions.Chain.start(
+            taskUpdateCloudformationStackWithKendraOn
+          )
             .next(taskCheckCloudformationState)
             .next(
-              new stepfunctions.Choice(this, "TaskChoiceWithCloudformationState")
+              new stepfunctions.Choice(
+                this,
+                'TaskChoiceWithCloudformationState'
+              )
                 .when(
-                  stepfunctions.Condition.stringEquals("$.Stacks[0].StackStatus", "UPDATE_IN_PROGRESS"), // 完了するまでループ
-                  new stepfunctions.Wait(this, "TaskWaitCloudformationChange", {
-                    time: stepfunctions.WaitTime.duration(cdk.Duration.minutes(5)),
+                  stepfunctions.Condition.stringEquals(
+                    '$.Stacks[0].StackStatus',
+                    'UPDATE_IN_PROGRESS'
+                  ), // 完了するまでループ
+                  new stepfunctions.Wait(this, 'TaskWaitCloudformationChange', {
+                    time: stepfunctions.WaitTime.duration(
+                      cdk.Duration.minutes(5)
+                    ),
                   }).next(taskCheckCloudformationState) // ループ
                 )
                 .otherwise(
@@ -323,12 +397,17 @@ export class Rag extends Construct {
                 )
             );
 
-          const stateMachineKendraOn = new stepfunctions.StateMachine(this, "StepFunctionsStateMachineKendraOn", {
-            definition: definitionKendraOn,
-            timeout: cdk.Duration.minutes(180),
-          });
+          const stateMachineKendraOn = new stepfunctions.StateMachine(
+            this,
+            'StepFunctionsStateMachineKendraOn',
+            {
+              definitionBody: stepfunctions.DefinitionBody.fromChainable(definitionKendraOn),
+              timeout: cdk.Duration.minutes(180),
+            }
+          );
 
-          const cronJobKendraOn = new events.Rule(this, "CronJobKendraOn", {
+          // cronJobKendraOn
+          new events.Rule(this, 'CronJobKendraOn', {
             schedule: events.Schedule.cron({
               minute: kendraIndexScheduleCreateCron.minute,
               hour: kendraIndexScheduleCreateCron.hour,
@@ -341,31 +420,43 @@ export class Rag extends Construct {
 
         if (kendraIndexScheduleDeleteCron) {
           // Kendra Off用のStep Function
-          const taskUpdateCloudformationStackWithKendraOff = new stepfunctionsTasks.CallAwsService(this, "TaskUpdateCloudformationStackWithKendraOff", {
-            service: "cloudformation",
-            action: "updateStack",
-            parameters: {
-              StackName: cdk.Stack.of(this).stackName,
-              UsePreviousTemplate: true,
-              Parameters: [
-                {
-                  ParameterKey: KENDRA_STATE_CFN_PARAMETER_NAME,
-                  ParameterValue: "off",
+          const taskUpdateCloudformationStackWithKendraOff =
+            new stepfunctionsTasks.CallAwsService(
+              this,
+              'TaskUpdateCloudformationStackWithKendraOff',
+              {
+                service: 'cloudformation',
+                action: 'updateStack',
+                parameters: {
+                  StackName: cdk.Stack.of(this).stackName,
+                  UsePreviousTemplate: true,
+                  Parameters: [
+                    {
+                      ParameterKey: KENDRA_STATE_CFN_PARAMETER_NAME,
+                      ParameterValue: 'off',
+                    },
+                  ],
+                  Capabilities: ['CAPABILITY_IAM'],
                 },
-              ],
-              Capabilities: ["CAPABILITY_IAM"],
-            },
-            iamResources: [cdk.Stack.of(this).stackId],
-          });
+                iamResources: [cdk.Stack.of(this).stackId],
+              }
+            );
 
-          const definitionKendraOff = stepfunctions.Chain.start(taskUpdateCloudformationStackWithKendraOff);
+          const definitionKendraOff = stepfunctions.Chain.start(
+            taskUpdateCloudformationStackWithKendraOff
+          );
 
-          const stateMachineKendraOff = new stepfunctions.StateMachine(this, "StepFunctionsStateMachineKendraOff", {
-            definition: definitionKendraOff,
-            timeout: cdk.Duration.minutes(180),
-          });
+          const stateMachineKendraOff = new stepfunctions.StateMachine(
+            this,
+            'StepFunctionsStateMachineKendraOff',
+            {
+              definitionBody: stepfunctions.DefinitionBody.fromChainable(definitionKendraOff),
+              timeout: cdk.Duration.minutes(180),
+            }
+          );
 
-          const cronJobKendraOff = new events.Rule(this, "CronJobKendraOff", {
+          // cronJobKendraOff
+          new events.Rule(this, 'CronJobKendraOff', {
             schedule: events.Schedule.cron({
               minute: kendraIndexScheduleDeleteCron.minute,
               hour: kendraIndexScheduleDeleteCron.hour,
@@ -374,7 +465,6 @@ export class Rag extends Construct {
             }), // NOTE UTC時間で指定
             targets: [new targets.SfnStateMachine(stateMachineKendraOff, {})],
           });
-
         }
       }
     }

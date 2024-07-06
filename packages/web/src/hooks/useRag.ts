@@ -98,7 +98,9 @@ const useRag = (id: string) => {
           'assistant',
           `Kendra から参照ドキュメントを取得できませんでした。次の対応を検討してください。
 - Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
-- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`);
+- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
+        );
+        setLoading(false);
         return;
       }
 
