@@ -401,7 +401,8 @@ export class Rag extends Construct {
             this,
             'StepFunctionsStateMachineKendraOn',
             {
-              definitionBody: stepfunctions.DefinitionBody.fromChainable(definitionKendraOn),
+              definitionBody:
+                stepfunctions.DefinitionBody.fromChainable(definitionKendraOn),
               timeout: cdk.Duration.minutes(180),
             }
           );
@@ -450,7 +451,8 @@ export class Rag extends Construct {
             this,
             'StepFunctionsStateMachineKendraOff',
             {
-              definitionBody: stepfunctions.DefinitionBody.fromChainable(definitionKendraOff),
+              definitionBody:
+                stepfunctions.DefinitionBody.fromChainable(definitionKendraOff),
               timeout: cdk.Duration.minutes(180),
             }
           );
