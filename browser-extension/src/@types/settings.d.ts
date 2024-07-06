@@ -7,6 +7,10 @@ export type Settings = {
   lambdaArn: strng;
   region: string;
   apiEndpoint: string;
+  enabledSamlAuth: boolean;
+  enabledSelfSignUp: boolean;
+  cognitoDomain?: string;
+  federatedIdentityProviderName?: string;
 };
 
 export type PromptSetting = SystemContext & {
