@@ -5,6 +5,9 @@ import {
   ConverseCommand,
   ConverseCommandInput,
   ConverseCommandOutput,
+  ConverseStreamCommand,
+  ConverseStreamCommandInput,
+  ConverseStreamOutput,
   ConversationRole,
   ServiceQuotaExceededException,
   ThrottlingException,
@@ -90,9 +93,23 @@ const createConverseCommandInput = (
   return modelConfig.createConverseCommandInput(messages, id, modelConfig.defaultParams, modelConfig.usecaseParams);
 };
 
-const extractOutputText = (model: string, output: ConverseCommandOutput): string => {
+const createConverseStreamCommandInput = (
+  model: string,
+  messages: UnrecordedMessage[],
+  id: string
+): ConverseStreamCommandInput => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.extractOutputText(output);
+  return modelConfig.createConverseStreamCommandInput(messages, id, modelConfig.defaultParams, modelConfig.usecaseParams);
+};
+
+const extractConverseOutputText = (model: string, output: ConverseCommandOutput): string => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.extractConverseOutputText(output);
+};
+
+const extractConverseStreamOutputText = (model: string, output: ConverseStreamOutput): string => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.extractConverseStreamOutputText(output);
 };
 
 const createBodyImage = (
@@ -119,35 +136,33 @@ const bedrockApi: ApiInterface = {
     const command = new ConverseCommand(converseCommandInput);
     const output = await client.send(command);
 
-    return extractOutputText(model.modelId, output);
+    return extractConverseOutputText(model.modelId, output);
   },
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
-    try {
-      const command = new InvokeModelWithResponseStreamCommand({
-        modelId: model.modelId,
-        // body: createConverseCommandInput(model.modelId, messages, id),
-        body: "TODO",
-        contentType: 'application/json',
-      });
-      const res = await client.send(command);
 
-      if (!res.body) {
+    try {
+      const converseStreamCommandInput = createConverseStreamCommandInput(model.modelId, messages, id);
+      const command = new ConverseStreamCommand(converseStreamCommandInput);
+
+      const responseStream = await client.send(command);
+
+      if (!responseStream.stream) {
         return;
       }
 
-      for await (const streamChunk of res.body) {
-        if (!streamChunk.chunk?.bytes) {
+      for await (const response of responseStream.stream) {
+        if (!response) {
           break;
         }
-        const body = JSON.parse(
-          new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes)
-        );
-        const outputText = extractOutputText(model.modelId, body);
+        
+        const outputText = extractConverseStreamOutputText(model.modelId, response);
+
         if (outputText) {
           yield outputText;
         }
-        if (body.stop_reason) {
+
+        if (response.contentBlockStop) {
           break;
         }
       }

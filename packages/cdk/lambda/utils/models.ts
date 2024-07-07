@@ -20,6 +20,8 @@ import { generatePrompt } from './prompter';
 import { 
   ConverseCommandInput,
   ConverseCommandOutput, 
+  ConverseStreamCommandInput,
+  ConverseStreamOutput,
   ConversationRole
 } from '@aws-sdk/client-bedrock-runtime';
 
@@ -296,6 +298,20 @@ const createConverseCommandInput = (
   return converseCommandInput;
 };
 
+// ConverseStreamCommandInput は、同じ構造を持つため「createConverseCommandInput」で作成したインプットをそのまま利用する。
+const createConverseStreamCommandInput = (
+  messages: UnrecordedMessage[],
+  id: string,
+  defaultParams: ConverseInferenceParams,
+  usecaseParams: UsecaseConverseInferenceParams
+): ConverseStreamCommandInput => {
+  const converseCommandInput = createConverseCommandInput(messages, id, defaultParams, usecaseParams);
+  return {
+    ...converseCommandInput,
+    // 将来的に、ConserseStream 用に追加したいパラメータがここに付与する
+  } as ConverseStreamCommandInput;
+};
+
 const createBodyTextTitanText = (messages: UnrecordedMessage[], id: string) => {
   const body: TitanParams = {
     inputText: generatePrompt(TITAN_TEXT_PROMPT, messages),
@@ -360,6 +376,14 @@ const extractConverseOutputText = (output: ConverseCommandOutput): string => {
   if (output.output && output.output.message && output.output.message.content) {
     const responseText = output.output.message.content.map(block => block.text).join(" ");
     return responseText;
+  }
+  
+  return "";
+};
+
+const extractConverseStreamOutputText = (output: ConverseStreamOutput): string => {
+  if (output.contentBlockDelta && output.contentBlockDelta.delta?.text) {
+    return output.contentBlockDelta.delta?.text;
   }
   
   return "";
@@ -510,7 +534,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
       defaultParams: ConverseInferenceParams, 
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseCommandInput;
-    extractOutputText: (body: ConverseCommandOutput) => string;
+    createConverseStreamCommandInput: (
+      messages: UnrecordedMessage[], 
+      id: string, 
+      defaultParams: ConverseInferenceParams, 
+      usecaseParams: UsecaseConverseInferenceParams
+    ) => ConverseStreamCommandInput;
+    extractConverseOutputText: (body: ConverseCommandOutput) => string;
+    extractConverseStreamOutputText: (body: ConverseStreamOutput) => string;
   };
 } = {
   // 'anthropic.claude-3-5-sonnet-20240620-v1:0': {
@@ -527,7 +558,9 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: CLAUDE_USECASE_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
-    extractOutputText: extractConverseOutputText,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   // 'anthropic.claude-3-haiku-20240307-v1:0': {
   //   promptTemplate: CLAUDEV21_PROMPT,
