@@ -13,8 +13,14 @@ import {
   StableDiffusionParams,
   TitanImageParams,
   UnrecordedMessage,
+  ConverseInferenceParams,
+  UsecaseConverseInferenceParams,
 } from 'generative-ai-use-cases-jp';
 import { generatePrompt } from './prompter';
+import { 
+  ConverseCommandInput, 
+  ConversationRole
+} from '@aws-sdk/client-bedrock-runtime';
 
 // Default Models
 
@@ -132,15 +138,13 @@ const RINNA_PROMPT: PromptTemplate = {
 
 // Model Params
 
-const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
-  max_tokens_to_sample: 3000,
+const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 3000,
   temperature: 0.6,
-  top_k: 300,
-  top_p: 0.8,
+  topP: 0.8,
 };
 
-export type ClaudeParamsUsecases = Record<string, ClaudeParams>;
-const CLAUDE_USECASE_PARAMS: ClaudeParamsUsecases = {
+const CLAUDE_USECASE_PARAMS: UsecaseConverseInferenceParams = {
   '/rag': {
     temperature: 0.0,
   },
@@ -238,57 +242,95 @@ function normalizeId(id: string): string {
 
 // Model Config
 
-const createBodyTextClaude = (messages: UnrecordedMessage[], id: string) => {
-  const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
-    ...CLAUDE_DEFAULT_PARAMS,
-    ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
-    ...{ stop_sequences: [CLAUDE_PROMPT.eosToken] },
-  };
-  return JSON.stringify(body);
-};
+// 削除かも
+// const createBodyTextClaude = (messages: UnrecordedMessage[], id: string) => {
+//   const body: ClaudeParams = {
+//     prompt: generatePrompt(CLAUDE_PROMPT, messages),
+//     ...CLAUDE_DEFAULT_PARAMS,
+//     ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
+//     ...{ stop_sequences: [CLAUDE_PROMPT.eosToken] },
+//   };
+//   return JSON.stringify(body);
+// };
 
-const createBodyTextClaudev21 = (messages: UnrecordedMessage[], id: string) => {
-  const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
-    ...CLAUDE_DEFAULT_PARAMS,
-    ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
-    ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
-  };
-  return JSON.stringify(body);
-};
+// const createBodyTextClaudev21 = (messages: UnrecordedMessage[], id: string) => {
+//   const body: ClaudeParams = {
+//     prompt: generatePrompt(CLAUDE_PROMPT, messages),
+//     ...CLAUDE_DEFAULT_PARAMS,
+//     ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
+//     ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
+//   };
+//   return JSON.stringify(body);
+// };
 
-const createBodyTextClaudeMessage = (
+const createConverseCommandInput = (
   messages: UnrecordedMessage[],
-  id: string
+  id: string,
+  defaultConverseInferenceParams: ConverseInferenceParams,
+  usecaseConverseInferenceParams: UsecaseConverseInferenceParams,
 ) => {
+  // system role で渡された文字列を、システムコンテキストに設定
   const system = messages.find((message) => message.role === 'system');
+  const systemContext = system ? [{ text: system.content }] : [];
+
+  // system role 以外の、user role と assistant role の文字列を conversation に入れる
   messages = messages.filter((message) => message.role !== 'system');
-  const body: ClaudeMessageParams = {
-    anthropic_version: 'bedrock-2023-05-31',
-    system: system?.content,
-    messages: messages.map((message) => {
-      return {
-        role: message.role,
-        content: [
-          ...(message.extraData
-            ? message.extraData.map((item) => ({
-                type: item.type,
-                source: {
-                  type: item.source.type,
-                  media_type: item.source.mediaType,
-                  data: item.source.data,
-                },
-              }))
-            : []),
-          { type: 'text', text: message.content },
-        ],
-      };
-    }),
-    ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
-    ...CLAUDE_MESSAGE_USECASE_PARAMS[normalizeId(id)],
+  const conversation = messages.map((message) => ({
+    role: message.role === 'user' ? ConversationRole.USER : ConversationRole.ASSISTANT,
+    content: [{ text: message.content }],
+  }));
+
+  // TODO
+  console.log("defaultConverseInferenceParams")
+  console.log(defaultConverseInferenceParams)
+  console.log("usecaseConverseInferenceParams")
+  console.log(usecaseConverseInferenceParams)
+
+
+  const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
+  const inferenceConfig = usecaseParams 
+    ? { ...defaultConverseInferenceParams, ...usecaseParams } 
+    : defaultConverseInferenceParams;
+
+  console.log("inferenceConfig")
+  console.log(inferenceConfig)
+  
+  const converseCommandInput: ConverseCommandInput = {
+    modelId: modelId,
+    messages: conversation,
+    system: systemContext,
+    inferenceConfig: inferenceConfig,
   };
-  return JSON.stringify(body);
+
+  return converseCommandInput;
+
+  // const system = messages.find((message) => message.role === 'system');
+  // messages = messages.filter((message) => message.role !== 'system');
+  // const body: ClaudeMessageParams = {
+  //   anthropic_version: 'bedrock-2023-05-31',
+  //   system: system?.content,
+  //   messages: messages.map((message) => {
+  //     return {
+  //       role: message.role,
+  //       content: [
+  //         ...(message.extraData
+  //           ? message.extraData.map((item) => ({
+  //               type: item.type,
+  //               source: {
+  //                 type: item.source.type,
+  //                 media_type: item.source.mediaType,
+  //                 data: item.source.data,
+  //               },
+  //             }))
+  //           : []),
+  //         { type: 'text', text: message.content },
+  //       ],
+  //     };
+  //   }),
+  //   ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
+  //   ...CLAUDE_MESSAGE_USECASE_PARAMS[normalizeId(id)],
+  // };
+  // return JSON.stringify(body);
 };
 
 const createBodyTextTitanText = (messages: UnrecordedMessage[], id: string) => {
@@ -495,108 +537,115 @@ const extractOutputImageTitanImage = (
   return response.images[0];
 };
 
-export const BEDROCK_MODELS: {
+export const BEDROCK_TEXT_GEN_MODELS: {
   [key: string]: {
-    promptTemplate: PromptTemplate;
-    createBodyText: (messages: UnrecordedMessage[], id: string) => string;
+    defaultParams: ConverseInferenceParams;
+    usecaseParams: UsecaseConverseInferenceParams;
+    createConverseCommandInput: (
+      messages: UnrecordedMessage[], 
+      id: string, 
+      defaultParams: ConverseInferenceParams, 
+      usecaseParams: UsecaseConverseInferenceParams
+    ) => ConverseCommandInput;
     extractOutputText: (body: BedrockResponse) => string;
   };
 } = {
-  'anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
-  },
-  'anthropic.claude-3-opus-20240229-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
-  },
+  // 'anthropic.claude-3-5-sonnet-20240620-v1:0': {
+  //   promptTemplate: CLAUDEV21_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaudeMessage,
+  //   extractOutputText: extractOutputTextClaudeMessage,
+  // },
+  // 'anthropic.claude-3-opus-20240229-v1:0': {
+  //   promptTemplate: CLAUDEV21_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaudeMessage,
+  //   extractOutputText: extractOutputTextClaudeMessage,
+  // },
   'anthropic.claude-3-sonnet-20240229-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: CLAUDE_USECASE_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
     extractOutputText: extractOutputTextClaudeMessage,
   },
-  'anthropic.claude-3-haiku-20240307-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
-  },
-  'anthropic.claude-v2:1': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudev21,
-    extractOutputText: extractOutputTextClaude,
-  },
-  'anthropic.claude-v2': {
-    promptTemplate: CLAUDE_PROMPT,
-    createBodyText: createBodyTextClaude,
-    extractOutputText: extractOutputTextClaude,
-  },
-  'anthropic.claude-instant-v1': {
-    promptTemplate: CLAUDE_PROMPT,
-    createBodyText: createBodyTextClaude,
-    extractOutputText: extractOutputTextClaude,
-  },
-  'amazon.titan-text-express-v1': {
-    promptTemplate: TITAN_TEXT_PROMPT,
-    createBodyText: createBodyTextTitanText,
-    extractOutputText: extractOutputTextTitanText,
-  },
-  'amazon.titan-text-premier-v1:0': {
-    promptTemplate: TITAN_TEXT_PROMPT,
-    createBodyText: createBodyTextTitanText,
-    extractOutputText: extractOutputTextTitanText,
-  },
-  'meta.llama3-8b-instruct-v1:0': {
-    promptTemplate: LLAMA3_PROMPT,
-    createBodyText: createBodyTextLlama3,
-    extractOutputText: extractOutputTextLlama,
-  },
-  'meta.llama3-70b-instruct-v1:0': {
-    promptTemplate: LLAMA3_PROMPT,
-    createBodyText: createBodyTextLlama3,
-    extractOutputText: extractOutputTextLlama,
-  },
-  'meta.llama2-13b-chat-v1': {
-    promptTemplate: LLAMA2_PROMPT,
-    createBodyText: createBodyTextLlama2,
-    extractOutputText: extractOutputTextLlama,
-  },
-  'meta.llama2-70b-chat-v1': {
-    promptTemplate: LLAMA2_PROMPT,
-    createBodyText: createBodyTextLlama2,
-    extractOutputText: extractOutputTextLlama,
-  },
-  'mistral.mistral-7b-instruct-v0:2': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
-  },
-  'mistral.mixtral-8x7b-instruct-v0:1': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
-  },
-  'mistral.mistral-small-2402-v1:0': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
-  },
-  'mistral.mistral-large-2402-v1:0': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
-  },
-  'cohere.command-r-v1:0': {
-    promptTemplate: COMMANDR_PROMPT,
-    createBodyText: createBodyTextCommandR,
-    extractOutputText: extractOutputTextCommandR,
-  },
-  'cohere.command-r-plus-v1:0': {
-    promptTemplate: COMMANDR_PROMPT,
-    createBodyText: createBodyTextCommandR,
-    extractOutputText: extractOutputTextCommandR,
-  },
+  // 'anthropic.claude-3-haiku-20240307-v1:0': {
+  //   promptTemplate: CLAUDEV21_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaudeMessage,
+  //   extractOutputText: extractOutputTextClaudeMessage,
+  // },
+  // 'anthropic.claude-v2:1': {
+  //   promptTemplate: CLAUDEV21_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaudev21,
+  //   extractOutputText: extractOutputTextClaude,
+  // },
+  // 'anthropic.claude-v2': {
+  //   promptTemplate: CLAUDE_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaude,
+  //   extractOutputText: extractOutputTextClaude,
+  // },
+  // 'anthropic.claude-instant-v1': {
+  //   promptTemplate: CLAUDE_PROMPT,
+  //   createConverseCommandInput: createBodyTextClaude,
+  //   extractOutputText: extractOutputTextClaude,
+  // },
+  // 'amazon.titan-text-express-v1': {
+  //   promptTemplate: TITAN_TEXT_PROMPT,
+  //   createConverseCommandInput: createBodyTextTitanText,
+  //   extractOutputText: extractOutputTextTitanText,
+  // },
+  // 'amazon.titan-text-premier-v1:0': {
+  //   promptTemplate: TITAN_TEXT_PROMPT,
+  //   createConverseCommandInput: createBodyTextTitanText,
+  //   extractOutputText: extractOutputTextTitanText,
+  // },
+  // 'meta.llama3-8b-instruct-v1:0': {
+  //   promptTemplate: LLAMA3_PROMPT,
+  //   createConverseCommandInput: createBodyTextLlama3,
+  //   extractOutputText: extractOutputTextLlama,
+  // },
+  // 'meta.llama3-70b-instruct-v1:0': {
+  //   promptTemplate: LLAMA3_PROMPT,
+  //   createConverseCommandInput: createBodyTextLlama3,
+  //   extractOutputText: extractOutputTextLlama,
+  // },
+  // 'meta.llama2-13b-chat-v1': {
+  //   promptTemplate: LLAMA2_PROMPT,
+  //   createConverseCommandInput: createBodyTextLlama2,
+  //   extractOutputText: extractOutputTextLlama,
+  // },
+  // 'meta.llama2-70b-chat-v1': {
+  //   promptTemplate: LLAMA2_PROMPT,
+  //   createConverseCommandInput: createBodyTextLlama2,
+  //   extractOutputText: extractOutputTextLlama,
+  // },
+  // 'mistral.mistral-7b-instruct-v0:2': {
+  //   promptTemplate: MISTRAL_PROMPT,
+  //   createConverseCommandInput: createBodyTextMistral,
+  //   extractOutputText: extractOutputTextMistral,
+  // },
+  // 'mistral.mixtral-8x7b-instruct-v0:1': {
+  //   promptTemplate: MISTRAL_PROMPT,
+  //   createConverseCommandInput: createBodyTextMistral,
+  //   extractOutputText: extractOutputTextMistral,
+  // },
+  // 'mistral.mistral-small-2402-v1:0': {
+  //   promptTemplate: MISTRAL_PROMPT,
+  //   createConverseCommandInput: createBodyTextMistral,
+  //   extractOutputText: extractOutputTextMistral,
+  // },
+  // 'mistral.mistral-large-2402-v1:0': {
+  //   promptTemplate: MISTRAL_PROMPT,
+  //   createConverseCommandInput: createBodyTextMistral,
+  //   extractOutputText: extractOutputTextMistral,
+  // },
+  // 'cohere.command-r-v1:0': {
+  //   promptTemplate: COMMANDR_PROMPT,
+  //   createConverseCommandInput: createBodyTextCommandR,
+  //   extractOutputText: extractOutputTextCommandR,
+  // },
+  // 'cohere.command-r-plus-v1:0': {
+  //   promptTemplate: COMMANDR_PROMPT,
+  //   createConverseCommandInput: createBodyTextCommandR,
+  //   extractOutputText: extractOutputTextCommandR,
+  // },
 };
 
 export const BEDROCK_IMAGE_GEN_MODELS: {
