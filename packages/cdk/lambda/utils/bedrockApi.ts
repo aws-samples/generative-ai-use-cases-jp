@@ -138,17 +138,8 @@ const bedrockApi: ApiInterface = {
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
 
-    console.log("debug")    
-    console.log(model)    
-    console.log(messages)    
-    console.log(id)    
-
-
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(model.modelId, messages, id);
-
-      console.log("converseStreamCommandInput")
-      console.log(converseStreamCommandInput)
 
       const command = new ConverseStreamCommand(converseStreamCommandInput);
 
