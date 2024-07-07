@@ -1,21 +1,18 @@
 import {
   BedrockRuntimeClient,
   InvokeModelCommand,
-  InvokeModelWithResponseStreamCommand,
   ConverseCommand,
   ConverseCommandInput,
   ConverseCommandOutput,
   ConverseStreamCommand,
   ConverseStreamCommandInput,
   ConverseStreamOutput,
-  ConversationRole,
   ServiceQuotaExceededException,
   ThrottlingException,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   ApiInterface,
   BedrockImageGenerationResponse,
-  BedrockResponse,
   GenerateImageParams,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
@@ -90,7 +87,7 @@ const createConverseCommandInput = (
   id: string
 ): ConverseCommandInput => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.createConverseCommandInput(messages, id, modelConfig.defaultParams, modelConfig.usecaseParams);
+  return modelConfig.createConverseCommandInput(messages, id, model, modelConfig.defaultParams, modelConfig.usecaseParams);
 };
 
 const createConverseStreamCommandInput = (
@@ -99,7 +96,7 @@ const createConverseStreamCommandInput = (
   id: string
 ): ConverseStreamCommandInput => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.createConverseStreamCommandInput(messages, id, modelConfig.defaultParams, modelConfig.usecaseParams);
+  return modelConfig.createConverseStreamCommandInput(messages, id, model, modelConfig.defaultParams, modelConfig.usecaseParams);
 };
 
 const extractConverseOutputText = (model: string, output: ConverseCommandOutput): string => {
@@ -141,8 +138,18 @@ const bedrockApi: ApiInterface = {
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
 
+    console.log("debug")    
+    console.log(model)    
+    console.log(messages)    
+    console.log(id)    
+
+
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(model.modelId, messages, id);
+
+      console.log("converseStreamCommandInput")
+      console.log(converseStreamCommandInput)
+
       const command = new ConverseStreamCommand(converseStreamCommandInput);
 
       const responseStream = await client.send(command);
