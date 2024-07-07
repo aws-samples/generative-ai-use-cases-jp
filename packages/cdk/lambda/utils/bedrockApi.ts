@@ -4,6 +4,7 @@ import {
   InvokeModelWithResponseStreamCommand,
   ConverseCommand,
   ConverseCommandInput,
+  ConverseCommandOutput,
   ConversationRole,
   ServiceQuotaExceededException,
   ThrottlingException,
@@ -89,9 +90,9 @@ const createConverseCommandInput = (
   return modelConfig.createConverseCommandInput(messages, id, modelConfig.defaultParams, modelConfig.usecaseParams);
 };
 
-const extractOutputText = (model: string, body: BedrockResponse): string => {
+const extractOutputText = (model: string, output: ConverseCommandOutput): string => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.extractOutputText(body);
+  return modelConfig.extractOutputText(output);
 };
 
 const createBodyImage = (
@@ -116,26 +117,9 @@ const bedrockApi: ApiInterface = {
 
     const converseCommandInput = createConverseCommandInput(model.modelId, messages, id);
     const command = new ConverseCommand(converseCommandInput);
-    const response = await client.send(command);
+    const output = await client.send(command);
 
-    // TODO
-    if (response.output && response.output.message && response.output.message.content) {
-      const responseText = response.output.message.content.map(block => block.text).join(" ");
-      console.log(responseText);
-    }
-
-    return "test" // TODO
-
-
-
-    // const command = new InvokeModelCommand({
-    //   modelId: model.modelId,
-    //   body: createBodyText(model.modelId, messages, id),
-    //   contentType: 'application/json',
-    // });
-    // const data = await client.send(command);
-    // const body = JSON.parse(data.body.transformToString());
-    // return extractOutputText(model.modelId, body);
+    return extractOutputText(model.modelId, output);
   },
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();

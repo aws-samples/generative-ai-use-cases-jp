@@ -18,7 +18,8 @@ import {
 } from 'generative-ai-use-cases-jp';
 import { generatePrompt } from './prompter';
 import { 
-  ConverseCommandInput, 
+  ConverseCommandInput,
+  ConverseCommandOutput, 
   ConversationRole
 } from '@aws-sdk/client-bedrock-runtime';
 
@@ -280,20 +281,10 @@ const createConverseCommandInput = (
     content: [{ text: message.content }],
   }));
 
-  // TODO
-  console.log("defaultConverseInferenceParams")
-  console.log(defaultConverseInferenceParams)
-  console.log("usecaseConverseInferenceParams")
-  console.log(usecaseConverseInferenceParams)
-
-
   const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
   const inferenceConfig = usecaseParams 
     ? { ...defaultConverseInferenceParams, ...usecaseParams } 
     : defaultConverseInferenceParams;
-
-  console.log("inferenceConfig")
-  console.log(inferenceConfig)
   
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
@@ -303,34 +294,6 @@ const createConverseCommandInput = (
   };
 
   return converseCommandInput;
-
-  // const system = messages.find((message) => message.role === 'system');
-  // messages = messages.filter((message) => message.role !== 'system');
-  // const body: ClaudeMessageParams = {
-  //   anthropic_version: 'bedrock-2023-05-31',
-  //   system: system?.content,
-  //   messages: messages.map((message) => {
-  //     return {
-  //       role: message.role,
-  //       content: [
-  //         ...(message.extraData
-  //           ? message.extraData.map((item) => ({
-  //               type: item.type,
-  //               source: {
-  //                 type: item.source.type,
-  //                 media_type: item.source.mediaType,
-  //                 data: item.source.data,
-  //               },
-  //             }))
-  //           : []),
-  //         { type: 'text', text: message.content },
-  //       ],
-  //     };
-  //   }),
-  //   ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
-  //   ...CLAUDE_MESSAGE_USECASE_PARAMS[normalizeId(id)],
-  // };
-  // return JSON.stringify(body);
 };
 
 const createBodyTextTitanText = (messages: UnrecordedMessage[], id: string) => {
@@ -393,13 +356,13 @@ const extractOutputTextClaude = (body: BedrockResponse): string => {
   return body.completion;
 };
 
-const extractOutputTextClaudeMessage = (body: BedrockResponse): string => {
-  if (body.type === 'message') {
-    return body.content[0].text;
-  } else if (body.type === 'content_block_delta') {
-    return body.delta.text;
+const extractConverseOutputText = (output: ConverseCommandOutput): string => {
+  if (output.output && output.output.message && output.output.message.content) {
+    const responseText = output.output.message.content.map(block => block.text).join(" ");
+    return responseText;
   }
-  return '';
+  
+  return "";
 };
 
 const extractOutputTextTitanText = (body: BedrockResponse): string => {
@@ -547,7 +510,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
       defaultParams: ConverseInferenceParams, 
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseCommandInput;
-    extractOutputText: (body: BedrockResponse) => string;
+    extractOutputText: (body: ConverseCommandOutput) => string;
   };
 } = {
   // 'anthropic.claude-3-5-sonnet-20240620-v1:0': {
@@ -564,7 +527,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: CLAUDE_USECASE_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
-    extractOutputText: extractOutputTextClaudeMessage,
+    extractOutputText: extractConverseOutputText,
   },
   // 'anthropic.claude-3-haiku-20240307-v1:0': {
   //   promptTemplate: CLAUDEV21_PROMPT,
