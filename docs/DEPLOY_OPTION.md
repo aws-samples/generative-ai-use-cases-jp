@@ -80,10 +80,15 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStandbyReplicas": false,
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
   }
 }
 ```
+
+`ragKnowledgeBaseStandbyReplicas` は自動作成される OpenSearch Serverless の冗長化に関する値です。
+- `false` : 開発およびテスト目的に適した指定。シングル AZ で稼働し、OCU のコストを半分にできる。
+- `true` : 本番環境に適した設定。複数の AZ で稼働し、高可用性な構成が実現できる。
 
 `embeddingModelId` は embedding に利用するモデルです。現状、以下モデルをサポートしています。
 
