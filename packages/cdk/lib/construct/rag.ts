@@ -318,7 +318,9 @@ export class Rag extends Construct {
               this,
               'StepFunctionsStateMachineStartDataSourceSyncJob',
               {
-                definition: definitionStartDataSourceSyncJob,
+                definitionBody: stepfunctions.DefinitionBody.fromChainable(
+                  definitionStartDataSourceSyncJob
+                ),
                 timeout: cdk.Duration.minutes(180),
               }
             );
