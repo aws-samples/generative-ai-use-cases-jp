@@ -117,12 +117,15 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 
 Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
 
-#### embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法
+#### OpenSearch Service の Collection/Index に変更を加える方法
 
-`embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
+`embeddingModelId` 及び `ragKnowledgeBaseStandbyReplicas` は `cdk.json` に変更を加えて `npm run cdk:deploy` しても変更が反映されません。
+- `embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
+- `ragKnowledgeBaseStandbyReplicas` は OpenSearch Service の仕様により、作成後変更ができません。
+
 変更する場合は、以下の手順に従い既存の Index を削除してから再生成してください。
 
-1. `cdk.json` の `embeddingModelId` の変更等、なんらかの変更を加える
+1. `cdk.json` に変更を加える (`embeddingModelId` または `ragKnowledgeBaseStandbyReplicas` の変更)
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
 1. 右上の Delete をクリック ( **削除した時点で一時的に RAG チャットが利用不可になります** )
 1. 削除完了後、再度 `npm run cdk:deploy` でデプロイ
