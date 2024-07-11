@@ -76,12 +76,6 @@ interface RagKnowledgeBaseStackProps extends StackProps {
   textField?: string;
 }
 
-// PineconeのApiキーを取得する
-// ApiKeyの取得
-const vectorStoreSecret = Secret.fromSecretAttributes(this, "vectorstore_secret", {
-  secretCompleteArn: `arn:aws:secretsmanager:${Stack.of(this).region}:${Stack.of(this).account}:secret:pinecone-kb-test-hclZGp`,
-});
-
 export class RagKnowledgeBaseStack extends Stack {
   public readonly knowledgeBaseId: string;
   public readonly dataSourceBucketName: string;
@@ -112,26 +106,30 @@ export class RagKnowledgeBaseStack extends Stack {
     const textField = props.textField ?? 'AMAZON_BEDROCK_TEXT_CHUNK';
     const metadataField = props.metadataField ?? 'AMAZON_BEDROCK_METADATA';
 
-    const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
-      assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
+    // PineconeのApiキーを取得する
+    // ApiKeyの取得
+    const vectorStoreSecret = Secret.fromSecretAttributes(this, "pinecone-kb-test", {
+      secretCompleteArn: `arn:aws:secretsmanager:${Stack.of(this).region}:${Stack.of(this).account}:secret:pinecone-kb-test-hclZGp`,
     });
-
     // secretFullArnがundefinedでないことを確認
     if (!vectorStoreSecret.secretFullArn) {
       throw new Error("Secret ARN is undefined");
     };
     // インラインポリシーでシークレットを取得する
-    knowledgeBaseRole.attachInlinePolicy(
-      new iam.Policy(this, 'Allow-GetSecretValue', {
-        statements: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            resources: [vectorStoreSecret.secretFullArn],
-            actions: ['secretsmanager:GetSecretValue'],
-          }),
-        ],
-      })
-    );
+    const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
+      assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
+      inlinePolicies: {
+        'AllowGetSecretValue': new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              resources: [vectorStoreSecret.secretFullArn],
+              actions: ['secretsmanager:GetSecretValue'],
+            }),
+          ],
+        }),
+      },
+    });
 
     const standbyReplicas = this.node.tryGetContext('ragKnowledgeBaseStandbyReplicas');
 
@@ -280,7 +278,7 @@ export class RagKnowledgeBaseStack extends Stack {
         actions: ['s3:GetObject'],
       })
     );
-
+    
     const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
       name: collectionName,
       roleArn: knowledgeBaseRole.roleArn,

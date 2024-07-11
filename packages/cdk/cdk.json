@@ -41,7 +41,7 @@
     "endpointNames": [],
     "agentEnabled": true,
     "agentRegion": "us-east-1",
-    "searchAgentEnabled": false,
+    "searchAgentEnabled": true,
     "searchApiKey": "",
     "agents": [],
     "allowedIpV4AddressRanges": null,
