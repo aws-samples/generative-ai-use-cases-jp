@@ -37,7 +37,8 @@
       "anthropic.claude-3-sonnet-20240229-v1:0"
     ],
     "imageGenerationModelIds": [
-      "stability.stable-diffusion-xl-v1"
+      "stability.stable-diffusion-xl-v1",
+      "amazon.titan-image-generator-v1"
     ],
     "endpointNames": [],
     "agentEnabled": false,
