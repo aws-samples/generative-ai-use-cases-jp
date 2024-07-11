@@ -33,17 +33,15 @@
     "samlCognitoFederatedIdentityProviderName": "",
     "modelRegion": "us-east-1",
     "modelIds": [
-      "anthropic.claude-v2",
       "anthropic.claude-3-sonnet-20240229-v1:0"
     ],
     "imageGenerationModelIds": [
-      "stability.stable-diffusion-xl-v1",
-      "amazon.titan-image-generator-v1"
+      "stability.stable-diffusion-xl-v1"
     ],
     "endpointNames": [],
-    "agentEnabled": true,
+    "agentEnabled": false,
     "agentRegion": "us-east-1",
-    "searchAgentEnabled": true,
+    "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [],
     "allowedIpV4AddressRanges": null,
@@ -52,9 +50,9 @@
     "hostName": null,
     "domainName": null,
     "hostedZoneId": null,
-    "dashboard": true,
+    "dashboard": false,
     "anonymousUsageTracking": true,
-    "recognizeFileEnabled": true,
+    "recognizeFileEnabled": false,
     "vpcId": null,
     "crossAccountBedrockRoleArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
