@@ -114,6 +114,22 @@ export type CommandRParams = {
   raw_prompting?: boolean;
 };
 
+// AI21 Jamba
+// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-jamba.html
+export type JambaParams = {
+  messages?: {
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+  }[];
+  max_tokens?: number;
+  stop?: string[];
+  temperature?: number;
+  top_p?: number;
+  n?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+};
+
 // Text Generation Inference
 // https://github.com/huggingface/text-generation-inference
 export type TGIParams = {
@@ -149,4 +165,10 @@ export type BedrockResponse = {
   }[];
   // CommandR
   text: string;
+  // Jamba
+  choices: {
+    message: {
+      content: string;
+    }
+  }[];
 };
