@@ -14,7 +14,8 @@ import {
   ConverseCommandOutput, 
   ConverseStreamCommandInput,
   ConverseStreamOutput,
-  ConversationRole
+  ConversationRole,
+  ContentBlock
 } from '@aws-sdk/client-bedrock-runtime';
 
 // Default Models
@@ -136,10 +137,31 @@ const createConverseCommandInput = (
 
   // system role 以外の、user role と assistant role の文字列を conversation に入れる
   messages = messages.filter((message) => message.role !== 'system');
-  const conversation = messages.map((message) => ({
-    role: message.role === 'user' ? ConversationRole.USER : ConversationRole.ASSISTANT,
-    content: [{ text: message.content }],
-  }));
+  const conversation = messages.map((message) => {
+    const contentBlocks: ContentBlock[] = [
+      { text: message.content } as ContentBlock.TextMember,
+    ];
+
+    if (message.extraData) {
+      message.extraData.forEach((extra) => {
+        if (extra.type === 'image' && extra.source.type === 'base64') {
+          contentBlocks.push({
+            image: {
+              format: extra.source.mediaType.split('/')[1],
+              source: {
+                bytes: Buffer.from(extra.source.data, 'base64'),
+              },
+            },
+          } as ContentBlock.ImageMember);
+        }
+      });
+    }
+
+    return {
+      role: message.role === 'user' ? ConversationRole.USER : ConversationRole.ASSISTANT,
+      content: contentBlocks,
+    };
+  });
 
   const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
   const inferenceConfig = usecaseParams 
