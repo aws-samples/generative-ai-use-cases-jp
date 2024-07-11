@@ -8,4 +8,3 @@ node_modules
 .cdk.staging
 cdk.out
 !custom-resources/*.js
-rag-docs/docs
