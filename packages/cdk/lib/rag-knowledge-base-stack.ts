@@ -109,9 +109,12 @@ export class RagKnowledgeBaseStack extends Stack {
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
     });
 
+    const standbyReplicas = this.node.tryGetContext('ragKnowledgeBaseStandbyReplicas');
+
     const collection = new oss.CfnCollection(this, 'Collection', {
       name: collectionName,
       type: 'VECTORSEARCH',
+      standbyReplicas: standbyReplicas ? 'ENABLED' : 'DISABLED',
     });
 
     const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
