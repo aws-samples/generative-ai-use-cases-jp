@@ -245,11 +245,13 @@ const createConverseStreamCommandInputWithoutSystemContext = (
 
 const extractConverseOutputText = (output: ConverseCommandOutput): string => {
   if (output.output && output.output.message && output.output.message.content) {
-    const responseText = output.output.message.content.map(block => block.text).join(" ");
+    // output.message.content は配列になっているが、基本的に要素は 1 個しか返ってこないため、join をする必要はない。
+    // ただ、安全側に実装することを意識して、配列に複数の要素が来ても問題なく動作するように、join で改行を付けるよ実装にしておく。
+    const responseText = output.output.message.content.map(block => block.text).join("\n");
     return responseText;
   }
   
-  return "";
+  return '';
 };
 
 const extractConverseStreamOutputText = (output: ConverseStreamOutput): string => {
@@ -257,7 +259,7 @@ const extractConverseStreamOutputText = (output: ConverseStreamOutput): string =
     return output.contentBlockDelta.delta?.text;
   }
   
-  return "";
+  return '';
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
