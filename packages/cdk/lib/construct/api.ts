@@ -1,4 +1,4 @@
-import { Stack, Duration } from 'aws-cdk-lib';
+import { Stack, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -8,12 +8,13 @@ import {
   ResponseType,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { IFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
 
 export interface BackendApiProps {
@@ -33,6 +34,8 @@ export class Api extends Construct {
   readonly endpointNames: string[];
   readonly agentNames: string[];
   readonly crossAccountBedrockRoleArn: string;
+  readonly fileBucket: Bucket;
+  readonly getFileDownloadSignedUrlFunction: IFunction;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
@@ -107,6 +110,20 @@ export class Api extends Construct {
       };
     }
 
+    // S3 (File Bucket)
+    const fileBucket = new Bucket(this, 'FileBucket', {
+      encryption: BucketEncryption.S3_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+    });
+    fileBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+      allowedHeaders: ['*'],
+      exposedHeaders: [],
+      maxAge: 3000,
+    });
+
     // cross account access IAM role
     const crossAccountBedrockRoleArn = this.node.tryGetContext(
       'crossAccountBedrockRoleArn'
@@ -139,6 +156,7 @@ export class Api extends Construct {
         AGENT_REGION: agentRegion,
         AGENT_MAP: JSON.stringify(agentMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        BUCKET_NAME: fileBucket.bucketName,
       },
       bundling: {
         nodeModules: [
@@ -150,7 +168,7 @@ export class Api extends Construct {
         ],
       },
     });
-
+    fileBucket.grantWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
@@ -427,6 +445,37 @@ export class Api extends Construct {
     );
     table.grantReadWriteData(deleteSystemContextFunction);
 
+    const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/getMediaUploadSignedUrl.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        BUCKET_NAME: fileBucket.bucketName,
+      },
+    });
+    fileBucket.grantWrite(getSignedUrlFunction);
+
+    const getFileDownloadSignedUrlFunction = new NodejsFunction(
+      this,
+      'GetFileDownloadSignedUrlFunction',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/getDocDownloadSignedUrl.ts',
+        timeout: Duration.minutes(15),
+      }
+    );
+    fileBucket.grantRead(getFileDownloadSignedUrlFunction);
+
+    const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteFile.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        BUCKET_NAME: fileBucket.bucketName,
+      },
+    });
+    fileBucket.grantDelete(deleteFileFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -631,6 +680,29 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
+    const fileResource = api.root.addResource('file');
+    const urlResource = fileResource.addResource('url');
+    // POST: /file/url
+    urlResource.addMethod(
+      'POST',
+      new LambdaIntegration(getSignedUrlFunction),
+      commonAuthorizerProps
+    );
+    // Get: /file/url
+    urlResource.addMethod(
+      'GET',
+      new LambdaIntegration(getFileDownloadSignedUrlFunction),
+      commonAuthorizerProps
+    );
+    // DELETE: /file/{fileName}
+    fileResource
+      .addResource('{fileName}')
+      .addMethod(
+        'DELETE',
+        new LambdaIntegration(deleteFileFunction),
+        commonAuthorizerProps
+      );
+
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
     this.modelRegion = modelRegion;
@@ -639,5 +711,21 @@ export class Api extends Construct {
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.endpointNames = endpointNames;
     this.agentNames = Object.keys(agentMap);
+    this.fileBucket = fileBucket;
+    this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
+  }
+
+  // Bucket 名を指定してダウンロード可能にする
+  allowDownloadFile(bucketName: string) {
+    this.getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: [
+          `arn:aws:s3:::${bucketName}`,
+          `arn:aws:s3:::${bucketName}/*`,
+        ],
+        actions: ['s3:GetBucket*', 's3:GetObject*', 's3:List*'],
+      })
+    );
   }
 }

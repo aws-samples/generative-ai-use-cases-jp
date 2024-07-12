@@ -33,10 +33,10 @@ export type UnrecordedMessage = {
 };
 
 export type ExtraData = {
-  type: string;
+  type: string; // 'image'
   source: {
-    type: string;
-    mediaType: string;
+    type: string; // 'S3'
+    mediaType: string; // file type
     data: string;
   };
 };
