@@ -36,7 +36,7 @@ exports.handler = async (
     retrievalConfiguration: {
       vectorSearchConfiguration: {
         numberOfResults: 10,
-        overrideSearchType: 'HYBRID',
+        overrideSearchType: 'SEMANTIC', // 'SEMANTIC' or 'HYBRID'
       },
     },
   });
