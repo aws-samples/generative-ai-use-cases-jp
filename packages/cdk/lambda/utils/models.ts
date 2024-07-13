@@ -233,7 +233,7 @@ const createConverseStreamCommandInput = (
   );
   return {
     ...converseCommandInput,
-    // 将来的に、ConserseStream 用に追加したいパラメータがある場合、ここに入力する
+    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
   } as ConverseStreamCommandInput;
 };
 
@@ -257,7 +257,7 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   );
   return {
     ...converseCommandInput,
-    // 将来的に、ConserseStream 用に追加したいパラメータがある場合、ここに入力する
+    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
   } as ConverseStreamCommandInput;
 };
 
