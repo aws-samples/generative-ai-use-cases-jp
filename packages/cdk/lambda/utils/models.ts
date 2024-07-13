@@ -9,13 +9,13 @@ import {
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
 } from 'generative-ai-use-cases-jp';
-import { 
+import {
   ConverseCommandInput,
-  ConverseCommandOutput, 
+  ConverseCommandOutput,
   ConverseStreamCommandInput,
   ConverseStreamOutput,
   ConversationRole,
-  ContentBlock
+  ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
 
 // Default Models
@@ -129,7 +129,7 @@ const createConverseCommandInput = (
   id: string,
   modelId: string,
   defaultConverseInferenceParams: ConverseInferenceParams,
-  usecaseConverseInferenceParams: UsecaseConverseInferenceParams,
+  usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
   // system role で渡された文字列を、システムコンテキストに設定
   const system = messages.find((message) => message.role === 'system');
@@ -158,16 +158,19 @@ const createConverseCommandInput = (
     }
 
     return {
-      role: message.role === 'user' ? ConversationRole.USER : ConversationRole.ASSISTANT,
+      role:
+        message.role === 'user'
+          ? ConversationRole.USER
+          : ConversationRole.ASSISTANT,
       content: contentBlocks,
     };
   });
 
   const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
-  const inferenceConfig = usecaseParams 
-    ? { ...defaultConverseInferenceParams, ...usecaseParams } 
+  const inferenceConfig = usecaseParams
+    ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
-  
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
@@ -187,20 +190,23 @@ const createConverseCommandInputWithoutSystemContext = (
   id: string,
   modelId: string,
   defaultConverseInferenceParams: ConverseInferenceParams,
-  usecaseConverseInferenceParams: UsecaseConverseInferenceParams,
+  usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
   // system が利用できないので、system も user として入れる。
   messages = messages.filter((message) => message.role !== 'system');
   const conversation = messages.map((message) => ({
-    role: message.role === 'user' || message.role === 'system' ? ConversationRole.USER : ConversationRole.ASSISTANT,
+    role:
+      message.role === 'user' || message.role === 'system'
+        ? ConversationRole.USER
+        : ConversationRole.ASSISTANT,
     content: [{ text: message.content }],
   }));
 
   const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
-  const inferenceConfig = usecaseParams 
-    ? { ...defaultConverseInferenceParams, ...usecaseParams } 
+  const inferenceConfig = usecaseParams
+    ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
-  
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
@@ -218,7 +224,13 @@ const createConverseStreamCommandInput = (
   defaultParams: ConverseInferenceParams,
   usecaseParams: UsecaseConverseInferenceParams
 ): ConverseStreamCommandInput => {
-  const converseCommandInput = createConverseCommandInput(messages, id, modelId, defaultParams, usecaseParams);
+  const converseCommandInput = createConverseCommandInput(
+    messages,
+    id,
+    modelId,
+    defaultParams,
+    usecaseParams
+  );
   return {
     ...converseCommandInput,
     // 将来的に、ConserseStream 用に追加したいパラメータがある場合、ここに入力する
@@ -236,7 +248,13 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   defaultParams: ConverseInferenceParams,
   usecaseParams: UsecaseConverseInferenceParams
 ): ConverseStreamCommandInput => {
-  const converseCommandInput = createConverseCommandInputWithoutSystemContext(messages, id, modelId, defaultParams, usecaseParams);
+  const converseCommandInput = createConverseCommandInputWithoutSystemContext(
+    messages,
+    id,
+    modelId,
+    defaultParams,
+    usecaseParams
+  );
   return {
     ...converseCommandInput,
     // 将来的に、ConserseStream 用に追加したいパラメータがある場合、ここに入力する
@@ -247,18 +265,22 @@ const extractConverseOutputText = (output: ConverseCommandOutput): string => {
   if (output.output && output.output.message && output.output.message.content) {
     // output.message.content は配列になっているが、基本的に要素は 1 個しか返ってこないため、join をする必要はない。
     // ただ、安全側に実装することを意識して、配列に複数の要素が来ても問題なく動作するように、join で改行を付けるよ実装にしておく。
-    const responseText = output.output.message.content.map(block => block.text).join("\n");
+    const responseText = output.output.message.content
+      .map((block) => block.text)
+      .join('\n');
     return responseText;
   }
-  
+
   return '';
 };
 
-const extractConverseStreamOutputText = (output: ConverseStreamOutput): string => {
+const extractConverseStreamOutputText = (
+  output: ConverseStreamOutput
+): string => {
   if (output.contentBlockDelta && output.contentBlockDelta.delta?.text) {
     return output.contentBlockDelta.delta?.text;
   }
-  
+
   return '';
 };
 
@@ -388,17 +410,17 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: ConverseInferenceParams;
     usecaseParams: UsecaseConverseInferenceParams;
     createConverseCommandInput: (
-      messages: UnrecordedMessage[], 
+      messages: UnrecordedMessage[],
       id: string,
       modelId: string,
-      defaultParams: ConverseInferenceParams, 
+      defaultParams: ConverseInferenceParams,
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseCommandInput;
     createConverseStreamCommandInput: (
-      messages: UnrecordedMessage[], 
+      messages: UnrecordedMessage[],
       id: string,
       modelId: string,
-      defaultParams: ConverseInferenceParams, 
+      defaultParams: ConverseInferenceParams,
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseStreamCommandInput;
     extractConverseOutputText: (body: ConverseCommandOutput) => string;
@@ -465,7 +487,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
-    createConverseStreamCommandInput: createConverseStreamCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
@@ -473,7 +496,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
-    createConverseStreamCommandInput: createConverseStreamCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
@@ -513,7 +537,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
-    createConverseStreamCommandInput: createConverseStreamCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
@@ -521,7 +546,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
-    createConverseStreamCommandInput: createConverseStreamCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },

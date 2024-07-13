@@ -87,7 +87,13 @@ const createConverseCommandInput = (
   id: string
 ): ConverseCommandInput => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.createConverseCommandInput(messages, id, model, modelConfig.defaultParams, modelConfig.usecaseParams);
+  return modelConfig.createConverseCommandInput(
+    messages,
+    id,
+    model,
+    modelConfig.defaultParams,
+    modelConfig.usecaseParams
+  );
 };
 
 const createConverseStreamCommandInput = (
@@ -96,15 +102,27 @@ const createConverseStreamCommandInput = (
   id: string
 ): ConverseStreamCommandInput => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
-  return modelConfig.createConverseStreamCommandInput(messages, id, model, modelConfig.defaultParams, modelConfig.usecaseParams);
+  return modelConfig.createConverseStreamCommandInput(
+    messages,
+    id,
+    model,
+    modelConfig.defaultParams,
+    modelConfig.usecaseParams
+  );
 };
 
-const extractConverseOutputText = (model: string, output: ConverseCommandOutput): string => {
+const extractConverseOutputText = (
+  model: string,
+  output: ConverseCommandOutput
+): string => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
   return modelConfig.extractConverseOutputText(output);
 };
 
-const extractConverseStreamOutputText = (model: string, output: ConverseStreamOutput): string => {
+const extractConverseStreamOutputText = (
+  model: string,
+  output: ConverseStreamOutput
+): string => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
   return modelConfig.extractConverseStreamOutputText(output);
 };
@@ -129,7 +147,11 @@ const bedrockApi: ApiInterface = {
   invoke: async (model, messages, id) => {
     const client = await initBedrockClient();
 
-    const converseCommandInput = createConverseCommandInput(model.modelId, messages, id);
+    const converseCommandInput = createConverseCommandInput(
+      model.modelId,
+      messages,
+      id
+    );
     const command = new ConverseCommand(converseCommandInput);
     const output = await client.send(command);
 
@@ -139,7 +161,11 @@ const bedrockApi: ApiInterface = {
     const client = await initBedrockClient();
 
     try {
-      const converseStreamCommandInput = createConverseStreamCommandInput(model.modelId, messages, id);
+      const converseStreamCommandInput = createConverseStreamCommandInput(
+        model.modelId,
+        messages,
+        id
+      );
 
       const command = new ConverseStreamCommand(converseStreamCommandInput);
 
@@ -153,8 +179,11 @@ const bedrockApi: ApiInterface = {
         if (!response) {
           break;
         }
-        
-        const outputText = extractConverseStreamOutputText(model.modelId, response);
+
+        const outputText = extractConverseStreamOutputText(
+          model.modelId,
+          response
+        );
 
         if (outputText) {
           yield outputText;

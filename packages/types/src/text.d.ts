@@ -5,11 +5,11 @@ export type ConverseInferenceParams = {
   stopSequences?: string[];
   temperature?: number;
   topP?: number;
-}
+};
 
 export type UsecaseConverseInferenceParams = {
   [key: string]: ConverseInferenceParams;
-}
+};
 
 export type TitanParams = {
   inputText?: string;
