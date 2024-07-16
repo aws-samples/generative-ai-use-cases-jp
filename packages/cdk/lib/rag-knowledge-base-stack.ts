@@ -113,6 +113,7 @@ export class RagKnowledgeBaseStack extends Stack {
 
     const collection = new oss.CfnCollection(this, 'Collection', {
       name: collectionName,
+      description: 'GenU Collection',
       type: 'VECTORSEARCH',
       standbyReplicas: standbyReplicas ? 'ENABLED' : 'DISABLED',
     });
