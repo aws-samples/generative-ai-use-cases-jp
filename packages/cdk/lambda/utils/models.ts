@@ -1,20 +1,22 @@
 import {
   BedrockImageGenerationResponse,
-  BedrockResponse,
-  ClaudeMessageParams,
-  ClaudeParams,
-  TitanParams,
-  LlamaParams,
-  MistralParams,
-  CommandRParams,
   GenerateImageParams,
   Model,
   PromptTemplate,
   StableDiffusionParams,
   TitanImageParams,
   UnrecordedMessage,
+  ConverseInferenceParams,
+  UsecaseConverseInferenceParams,
 } from 'generative-ai-use-cases-jp';
-import { generatePrompt } from './prompter';
+import {
+  ConverseCommandInput,
+  ConverseCommandOutput,
+  ConverseStreamCommandInput,
+  ConverseStreamOutput,
+  ConversationRole,
+  ContentBlock,
+} from '@aws-sdk/client-bedrock-runtime';
 
 // Default Models
 
@@ -38,36 +40,6 @@ export const defaultImageGenerationModel: Model = {
 
 // Prompt Templates
 
-const CLAUDE_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: '\n\nAssistant: <output>',
-  join: '\n\n',
-  user: 'Human: {}',
-  assistant: 'Assistant: <output>{}',
-  system: '\n\nHuman: {}\n\nAssistant: コンテキストを理解しました。',
-  eosToken: '</output>',
-};
-
-const CLAUDEV21_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: '\n\nAssistant: <output>',
-  join: '\n\n',
-  user: 'Human: {}',
-  assistant: 'Assistant: <output>{}</output>',
-  system: '{}',
-  eosToken: '</output>',
-};
-
-const TITAN_TEXT_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: '\nBot: ',
-  join: '\n',
-  user: 'User: {}',
-  assistant: 'Bot: {}',
-  system: 'User: {}\nBot: コンテキストを理解しました。',
-  eosToken: '',
-};
-
 const LLAMA2_PROMPT: PromptTemplate = {
   prefix: '<s>[INST] ',
   suffix: ' [/INST]',
@@ -76,38 +48,6 @@ const LLAMA2_PROMPT: PromptTemplate = {
   assistant: ' [/INST] {}</s><s>[INST] ',
   system: '<<SYS>>\n{}\n<</SYS>>\n\n',
   eosToken: '</s>',
-};
-
-const LLAMA3_PROMPT: PromptTemplate = {
-  prefix: '<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n',
-  suffix: '\n\n',
-  join: '\n\n',
-  user: '{}<|eot_id|><|start_header_id|>assistant<|end_header_id|>',
-  assistant: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>',
-  system: '{}<|eot_id|><|start_header_id|>user<|end_header_id|>',
-  eosToken: '',
-};
-
-const MISTRAL_PROMPT: PromptTemplate = {
-  prefix: '<s>[INST] ',
-  suffix: ' [/INST]',
-  join: '',
-  user: '{}',
-  assistant: ' [/INST]\n{}\n[INST] ',
-  system: '{} [/INST]\nコンテキストを理解しました。</s>\n[INST] ',
-  eosToken: '</s>',
-};
-
-// CommandR/R+ではプロンプトの前処理にPromptTemplateを使用していないが、
-// BEDROCK_MODELSで指定が必要なためダミーで作成しています
-const COMMANDR_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: '',
-  join: '',
-  user: '',
-  assistant: '',
-  system: '',
-  eosToken: '',
 };
 
 const BILINGUAL_RINNA_PROMPT: PromptTemplate = {
@@ -132,91 +72,37 @@ const RINNA_PROMPT: PromptTemplate = {
 
 // Model Params
 
-const CLAUDE_DEFAULT_PARAMS: ClaudeParams = {
-  max_tokens_to_sample: 3000,
+const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 3000,
   temperature: 0.6,
-  top_k: 300,
-  top_p: 0.8,
+  topP: 0.8,
 };
 
-export type ClaudeParamsUsecases = Record<string, ClaudeParams>;
-const CLAUDE_USECASE_PARAMS: ClaudeParamsUsecases = {
-  '/rag': {
-    temperature: 0.0,
-  },
+const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 3000,
+  temperature: 0.7,
+  topP: 1.0,
 };
 
-const CLAUDE_MESSAGE_DEFAULT_PARAMS: ClaudeMessageParams = {
-  max_tokens: 3000,
+const LLAMA_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 1024,
   temperature: 0.6,
-  top_k: 300,
-  top_p: 0.8,
+  topP: 0.99,
 };
 
-export type ClaudeMessageParamsUsecases = Record<string, ClaudeMessageParams>;
-const CLAUDE_MESSAGE_USECASE_PARAMS: ClaudeMessageParamsUsecases = {
-  '/rag': {
-    temperature: 0.0,
-  },
-};
-
-const TITAN_TEXT_DEFAULT_PARAMS: TitanParams = {
-  textGenerationConfig: {
-    maxTokenCount: 3072,
-    stopSequences: ['User:'],
-    temperature: 0.7,
-    topP: 1.0,
-  },
-};
-
-export type TitanParamsUsecases = Record<string, TitanParams>;
-const TITAN_TEXT_USECASE_PARAMS: TitanParamsUsecases = {
-  '/rag': {
-    textGenerationConfig: {
-      temperature: 0.0,
-    },
-  },
-};
-
-const LLAMA_DEFAULT_PARAMS: LlamaParams = {
+const MISTRAL_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 1024,
   temperature: 0.6,
-  top_p: 0.99,
-  max_gen_len: 1024,
+  topP: 0.99,
 };
 
-export type LlamaParamsUsecases = Record<string, LlamaParams>;
-const LLAMA_USECASE_PARAMS: LlamaParamsUsecases = {
-  '/rag': {
-    temperature: 0.0,
-  },
-};
-
-const MISTRAL_DEFAULT_PARAMS: MistralParams = {
-  max_tokens: 1024,
-  top_p: 0.99,
-  temperature: 0.6,
-  stop: [MISTRAL_PROMPT.eosToken, '[INST]'],
-};
-
-export type MistralParamsUsecases = Record<string, MistralParams>;
-const MISTRAL_USECASE_PARAMS: MistralParamsUsecases = {
-  '/rag': {
-    temperature: 0.0,
-  },
-};
-
-const COMMANDR_DEFAULT_PARAMS: CommandRParams = {
-  max_tokens: 3000,
+const COMMANDR_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 3000,
   temperature: 0.3,
-  p: 0.75,
-  k: 0,
-  frequency_penalty: 0,
-  presence_penalty: 0,
-  stop_sequences: [],
+  topP: 0.75,
 };
 
-export type CommandRParamsUsecases = Record<string, CommandRParams>;
-const COMMANDR_USECASE_PARAMS: CommandRParamsUsecases = {
+const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   '/rag': {
     temperature: 0.0,
   },
@@ -236,144 +122,166 @@ function normalizeId(id: string): string {
   return ret;
 }
 
-// Model Config
+// API の呼び出しや、出力から文字列を抽出、などの処理
 
-const createBodyTextClaude = (messages: UnrecordedMessage[], id: string) => {
-  const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
-    ...CLAUDE_DEFAULT_PARAMS,
-    ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
-    ...{ stop_sequences: [CLAUDE_PROMPT.eosToken] },
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextClaudev21 = (messages: UnrecordedMessage[], id: string) => {
-  const body: ClaudeParams = {
-    prompt: generatePrompt(CLAUDE_PROMPT, messages),
-    ...CLAUDE_DEFAULT_PARAMS,
-    ...CLAUDE_USECASE_PARAMS[normalizeId(id)],
-    ...{ stop_sequences: [CLAUDEV21_PROMPT.eosToken] },
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextClaudeMessage = (
+const createConverseCommandInput = (
   messages: UnrecordedMessage[],
-  id: string
+  id: string,
+  modelId: string,
+  defaultConverseInferenceParams: ConverseInferenceParams,
+  usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
+  // system role で渡された文字列を、システムコンテキストに設定
   const system = messages.find((message) => message.role === 'system');
+  const systemContext = system ? [{ text: system.content }] : [];
+
+  // system role 以外の、user role と assistant role の文字列を conversation に入れる
   messages = messages.filter((message) => message.role !== 'system');
-  const body: ClaudeMessageParams = {
-    anthropic_version: 'bedrock-2023-05-31',
-    system: system?.content,
-    messages: messages.map((message) => {
-      return {
-        role: message.role,
-        content: [
-          ...(message.extraData
-            ? message.extraData.map((item) => ({
-                type: item.type,
-                source: {
-                  type: item.source.type,
-                  media_type: item.source.mediaType,
-                  data: item.source.data,
-                },
-              }))
-            : []),
-          { type: 'text', text: message.content },
-        ],
-      };
-    }),
-    ...CLAUDE_MESSAGE_DEFAULT_PARAMS,
-    ...CLAUDE_MESSAGE_USECASE_PARAMS[normalizeId(id)],
+  const conversation = messages.map((message) => {
+    const contentBlocks: ContentBlock[] = [
+      { text: message.content } as ContentBlock.TextMember,
+    ];
+
+    if (message.extraData) {
+      message.extraData.forEach((extra) => {
+        if (extra.type === 'image' && extra.source.type === 'base64') {
+          contentBlocks.push({
+            image: {
+              format: extra.source.mediaType.split('/')[1],
+              source: {
+                bytes: Buffer.from(extra.source.data, 'base64'),
+              },
+            },
+          } as ContentBlock.ImageMember);
+        }
+      });
+    }
+
+    return {
+      role:
+        message.role === 'user'
+          ? ConversationRole.USER
+          : ConversationRole.ASSISTANT,
+      content: contentBlocks,
+    };
+  });
+
+  const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
+  const inferenceConfig = usecaseParams
+    ? { ...defaultConverseInferenceParams, ...usecaseParams }
+    : defaultConverseInferenceParams;
+
+  const converseCommandInput: ConverseCommandInput = {
+    modelId: modelId,
+    messages: conversation,
+    system: systemContext,
+    inferenceConfig: inferenceConfig,
   };
-  return JSON.stringify(body);
+
+  return converseCommandInput;
 };
 
-const createBodyTextTitanText = (messages: UnrecordedMessage[], id: string) => {
-  const body: TitanParams = {
-    inputText: generatePrompt(TITAN_TEXT_PROMPT, messages),
-    textGenerationConfig: {
-      ...TITAN_TEXT_DEFAULT_PARAMS.textGenerationConfig,
-      ...TITAN_TEXT_USECASE_PARAMS[normalizeId(id)]?.textGenerationConfig,
-    },
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextLlama2 = (messages: UnrecordedMessage[], id: string) => {
-  const body: LlamaParams = {
-    prompt: generatePrompt(LLAMA2_PROMPT, messages),
-    ...LLAMA_DEFAULT_PARAMS,
-    ...LLAMA_USECASE_PARAMS[normalizeId(id)],
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextLlama3 = (messages: UnrecordedMessage[], id: string) => {
-  const body: LlamaParams = {
-    prompt: generatePrompt(LLAMA3_PROMPT, messages),
-    ...LLAMA_DEFAULT_PARAMS,
-    ...LLAMA_USECASE_PARAMS[normalizeId(id)],
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextMistral = (messages: UnrecordedMessage[], id: string) => {
-  const body: MistralParams = {
-    prompt: generatePrompt(MISTRAL_PROMPT, messages),
-    ...MISTRAL_DEFAULT_PARAMS,
-    ...MISTRAL_USECASE_PARAMS[normalizeId(id)],
-  };
-  return JSON.stringify(body);
-};
-
-const createBodyTextCommandR = (messages: UnrecordedMessage[], id: string) => {
-  const system = messages.find((message) => message.role === 'system');
+// システムコンテキストに対応していないモデル用の関数
+// - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
+// - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
+// https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
+const createConverseCommandInputWithoutSystemContext = (
+  messages: UnrecordedMessage[],
+  id: string,
+  modelId: string,
+  defaultConverseInferenceParams: ConverseInferenceParams,
+  usecaseConverseInferenceParams: UsecaseConverseInferenceParams
+) => {
+  // system が利用できないので、system も user として入れる。
   messages = messages.filter((message) => message.role !== 'system');
-  const body: CommandRParams = {
-    preamble: system?.content,
-    message: messages.pop()?.content,
-    chat_history: messages.map((msg) => {
-      return {
-        role: msg.role === 'user' ? 'USER' : 'CHATBOT',
-        message: msg.content,
-      };
-    }),
-    ...COMMANDR_DEFAULT_PARAMS,
-    ...COMMANDR_USECASE_PARAMS[normalizeId(id)],
+  const conversation = messages.map((message) => ({
+    role:
+      message.role === 'user' || message.role === 'system'
+        ? ConversationRole.USER
+        : ConversationRole.ASSISTANT,
+    content: [{ text: message.content }],
+  }));
+
+  const usecaseParams = usecaseConverseInferenceParams[normalizeId(id)];
+  const inferenceConfig = usecaseParams
+    ? { ...defaultConverseInferenceParams, ...usecaseParams }
+    : defaultConverseInferenceParams;
+
+  const converseCommandInput: ConverseCommandInput = {
+    modelId: modelId,
+    messages: conversation,
+    inferenceConfig: inferenceConfig,
   };
-  return JSON.stringify(body);
+
+  return converseCommandInput;
 };
 
-const extractOutputTextClaude = (body: BedrockResponse): string => {
-  return body.completion;
+// ConverseStreamCommandInput は、同じ構造を持つため「createConverseCommandInput」で作成したインプットをそのまま利用する。
+const createConverseStreamCommandInput = (
+  messages: UnrecordedMessage[],
+  id: string,
+  modelId: string,
+  defaultParams: ConverseInferenceParams,
+  usecaseParams: UsecaseConverseInferenceParams
+): ConverseStreamCommandInput => {
+  const converseCommandInput = createConverseCommandInput(
+    messages,
+    id,
+    modelId,
+    defaultParams,
+    usecaseParams
+  );
+  return {
+    ...converseCommandInput,
+    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+  } as ConverseStreamCommandInput;
 };
 
-const extractOutputTextClaudeMessage = (body: BedrockResponse): string => {
-  if (body.type === 'message') {
-    return body.content[0].text;
-  } else if (body.type === 'content_block_delta') {
-    return body.delta.text;
+// システムコンテキストに対応していないモデル用の関数
+// - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
+// - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
+// https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
+const createConverseStreamCommandInputWithoutSystemContext = (
+  messages: UnrecordedMessage[],
+  id: string,
+  modelId: string,
+  defaultParams: ConverseInferenceParams,
+  usecaseParams: UsecaseConverseInferenceParams
+): ConverseStreamCommandInput => {
+  const converseCommandInput = createConverseCommandInputWithoutSystemContext(
+    messages,
+    id,
+    modelId,
+    defaultParams,
+    usecaseParams
+  );
+  return {
+    ...converseCommandInput,
+    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+  } as ConverseStreamCommandInput;
+};
+
+const extractConverseOutputText = (output: ConverseCommandOutput): string => {
+  if (output.output && output.output.message && output.output.message.content) {
+    // output.message.content は配列になっているが、基本的に要素は 1 個しか返ってこないため、join をする必要はない。
+    // ただ、安全側に実装することを意識して、配列に複数の要素が来ても問題なく動作するように、join で改行を付けるよ実装にしておく。
+    const responseText = output.output.message.content
+      .map((block) => block.text)
+      .join('\n');
+    return responseText;
   }
+
   return '';
 };
 
-const extractOutputTextTitanText = (body: BedrockResponse): string => {
-  return body.outputText;
-};
+const extractConverseStreamOutputText = (
+  output: ConverseStreamOutput
+): string => {
+  if (output.contentBlockDelta && output.contentBlockDelta.delta?.text) {
+    return output.contentBlockDelta.delta?.text;
+  }
 
-const extractOutputTextLlama = (body: BedrockResponse): string => {
-  return body.generation;
-};
-
-const extractOutputTextMistral = (body: BedrockResponse): string => {
-  return body.outputs[0].text;
-};
-
-const extractOutputTextCommandR = (body: BedrockResponse): string => {
-  return body.text;
+  return '';
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -495,109 +403,189 @@ const extractOutputImageTitanImage = (
   return response.images[0];
 };
 
-export const BEDROCK_MODELS: {
+// テキスト生成に関する、各のModel のパラメーターや関数の定義
+
+export const BEDROCK_TEXT_GEN_MODELS: {
   [key: string]: {
-    promptTemplate: PromptTemplate;
-    createBodyText: (messages: UnrecordedMessage[], id: string) => string;
-    extractOutputText: (body: BedrockResponse) => string;
+    defaultParams: ConverseInferenceParams;
+    usecaseParams: UsecaseConverseInferenceParams;
+    createConverseCommandInput: (
+      messages: UnrecordedMessage[],
+      id: string,
+      modelId: string,
+      defaultParams: ConverseInferenceParams,
+      usecaseParams: UsecaseConverseInferenceParams
+    ) => ConverseCommandInput;
+    createConverseStreamCommandInput: (
+      messages: UnrecordedMessage[],
+      id: string,
+      modelId: string,
+      defaultParams: ConverseInferenceParams,
+      usecaseParams: UsecaseConverseInferenceParams
+    ) => ConverseStreamCommandInput;
+    extractConverseOutputText: (body: ConverseCommandOutput) => string;
+    extractConverseStreamOutputText: (body: ConverseStreamOutput) => string;
   };
 } = {
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-3-opus-20240229-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-3-sonnet-20240229-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-3-haiku-20240307-v1:0': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudeMessage,
-    extractOutputText: extractOutputTextClaudeMessage,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-v2:1': {
-    promptTemplate: CLAUDEV21_PROMPT,
-    createBodyText: createBodyTextClaudev21,
-    extractOutputText: extractOutputTextClaude,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-v2': {
-    promptTemplate: CLAUDE_PROMPT,
-    createBodyText: createBodyTextClaude,
-    extractOutputText: extractOutputTextClaude,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-instant-v1': {
-    promptTemplate: CLAUDE_PROMPT,
-    createBodyText: createBodyTextClaude,
-    extractOutputText: extractOutputTextClaude,
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'amazon.titan-text-express-v1': {
-    promptTemplate: TITAN_TEXT_PROMPT,
-    createBodyText: createBodyTextTitanText,
-    extractOutputText: extractOutputTextTitanText,
+    defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'amazon.titan-text-premier-v1:0': {
-    promptTemplate: TITAN_TEXT_PROMPT,
-    createBodyText: createBodyTextTitanText,
-    extractOutputText: extractOutputTextTitanText,
+    defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'meta.llama3-8b-instruct-v1:0': {
-    promptTemplate: LLAMA3_PROMPT,
-    createBodyText: createBodyTextLlama3,
-    extractOutputText: extractOutputTextLlama,
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'meta.llama3-70b-instruct-v1:0': {
-    promptTemplate: LLAMA3_PROMPT,
-    createBodyText: createBodyTextLlama3,
-    extractOutputText: extractOutputTextLlama,
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'meta.llama2-13b-chat-v1': {
-    promptTemplate: LLAMA2_PROMPT,
-    createBodyText: createBodyTextLlama2,
-    extractOutputText: extractOutputTextLlama,
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'meta.llama2-70b-chat-v1': {
-    promptTemplate: LLAMA2_PROMPT,
-    createBodyText: createBodyTextLlama2,
-    extractOutputText: extractOutputTextLlama,
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mistral-7b-instruct-v0:2': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mixtral-8x7b-instruct-v0:1': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
+    createConverseStreamCommandInput:
+      createConverseStreamCommandInputWithoutSystemContext,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mistral-small-2402-v1:0': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mistral-large-2402-v1:0': {
-    promptTemplate: MISTRAL_PROMPT,
-    createBodyText: createBodyTextMistral,
-    extractOutputText: extractOutputTextMistral,
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'cohere.command-r-v1:0': {
-    promptTemplate: COMMANDR_PROMPT,
-    createBodyText: createBodyTextCommandR,
-    extractOutputText: extractOutputTextCommandR,
+    defaultParams: COMMANDR_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'cohere.command-r-plus-v1:0': {
-    promptTemplate: COMMANDR_PROMPT,
-    createBodyText: createBodyTextCommandR,
-    extractOutputText: extractOutputTextCommandR,
+    defaultParams: COMMANDR_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
 };
+
+// 画像生成に関する、各のModel のパラメーターや関数の定義
 
 export const BEDROCK_IMAGE_GEN_MODELS: {
   [key: string]: {
