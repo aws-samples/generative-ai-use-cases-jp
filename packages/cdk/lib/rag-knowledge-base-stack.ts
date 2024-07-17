@@ -424,7 +424,9 @@ export class RagKnowledgeBaseStack extends Stack {
       },
       iamResources: ['*'],
       resultSelector: {
-        'Payload.Text.$': '$.Output.Text'
+        Payload: {
+          'Text.$': '$.Output.Text'
+        }
       },
       resultPath: '$.Payload'
     });
@@ -474,7 +476,11 @@ export class RagKnowledgeBaseStack extends Stack {
         }]
       }),
       resultSelector: {
-        'Payload.toolUse.input.$': '$.Body.content[?(@.type==\'tool_use\')].input'
+        Payload: {
+          'toolUse': {
+            'input.$': "$.Body.content[?(@.type=='tool_use')].input"
+          }
+        }
       },
       resultPath: '$.Payload'
     });
