@@ -433,7 +433,7 @@ export class RagKnowledgeBaseStack extends Stack {
     });
 
     const invokeClaudeApi = new tasks.CallAwsService(this, 'Invoke Claude API', {
-      service: 'bedrock',
+      service: 'bedrock-runtime',
       action: 'invokeModel',
       parameters: {
         ModelId: 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0',
