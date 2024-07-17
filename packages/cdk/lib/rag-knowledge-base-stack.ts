@@ -432,34 +432,35 @@ export class RagKnowledgeBaseStack extends Stack {
       resultPath: '$.GetSchemaVersion'
     });
 
-    const invokeClaudeApi = new tasks.CallAwsService(this, 'Invoke Claude API', {
-      service: 'bedrock-runtime',
-      action: 'invokeModel',
-      parameters: {
-        ModelId: 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0',
-        Body: {
-          anthropic_version: 'bedrock-2023-05-31',
-          max_tokens: 1000,
-          temperature: 0,
-          tools: [{
-            name: 'print_paper_keywords',
-            description: '与えられた論文からキーワードを print out します。',
-            'input_schema.$': '$.GetSchemaVersion.SchemaDefinition'
-          }],
-          tool_choice: {
-            type: 'tool',
-            name: 'print_paper_keywords'
-          },
-          messages: [{
-            role: 'user',
-            content: [{
-              type: 'text',
-              'text.$': "States.Format('<text>{}</text> print_paper_keywords ツールのみを利用すること。', $.Text)"
-            }]
+    const model = bedrock.FoundationModel.fromFoundationModelId(
+      this,
+      'Model',
+      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
+    );
+    // Invoke Claude APIタスクの定義
+    const invokeClaudeApi = new tasks.BedrockInvokeModel(this, 'Invoke Claude API', {
+      model,
+      body: sfn.TaskInput.fromObject({
+        anthropic_version: 'bedrock-2023-05-31',
+        max_tokens: 1000,
+        temperature: 0,
+        tools: [{
+          name: 'print_paper_keywords',
+          description: '与えられた論文からキーワードを print out します。',
+          'input_schema.$': '$.GetSchemaVersion.SchemaDefinition'
+        }],
+        tool_choice: {
+          type: 'tool',
+          name: 'print_paper_keywords'
+        },
+        messages: [{
+          role: 'user',
+          content: [{
+            type: 'text',
+            'text.$': "States.Format('<text>{}</text> print_paper_keywords ツールのみを利用すること。', $.Text)"
           }]
-        }
-      },
-      iamResources: ['*'],
+        }]
+      }),
       resultSelector: {
         'Payload.toolUse.input.$': '$.Body.content[?(@.type==\'tool_use\')].input'
       },
