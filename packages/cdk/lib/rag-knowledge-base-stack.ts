@@ -251,7 +251,6 @@ export class RagKnowledgeBaseStack extends Stack {
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
       // serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
-      eventBridgeEnabled: true,
     });
 
     knowledgeBaseRole.addToPolicy(
@@ -338,6 +337,17 @@ export class RagKnowledgeBaseStack extends Stack {
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
       sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
+    });
+
+    // PDF files Bucket
+    const rawTextFileBucket = new s3.Bucket(this, 'rawTextFileBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      enforceSSL: true,
+      eventBridgeEnabled: true,
     });
 
     // Glue Schema Registry
@@ -493,14 +503,11 @@ export class RagKnowledgeBaseStack extends Stack {
     const rule = new events.Rule(this, 'DataSourceCreatedRule', {
       eventPattern: {
         source: ['aws.s3'],
+        resources: [rawTextFileBucket.bucketArn],
         detailType: ['Object Created'],
         detail: {
-          bucket: {
-            name: [dataSourceBucket.bucketName]
-          },
           object: {
             key: [{
-              prefix: 'docs/',
               suffix: '.pdf'
             }]
           }
