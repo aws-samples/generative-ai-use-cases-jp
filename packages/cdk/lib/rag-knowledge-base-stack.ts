@@ -398,7 +398,7 @@ export class RagKnowledgeBaseStack extends Stack {
     const model = bedrock.FoundationModel.fromFoundationModelId(
       this,
       'Model',
-      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
+      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_5_SONNET_20240620_V1_0,
     );
     
     const ragApi = new tasks.CallAwsService(this, 'RAG API', {
