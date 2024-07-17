@@ -8,6 +8,12 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import * as glue from 'aws-cdk-lib/aws-glue';
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
+import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
+
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -79,6 +85,8 @@ interface RagKnowledgeBaseStackProps extends StackProps {
 export class RagKnowledgeBaseStack extends Stack {
   public readonly knowledgeBaseId: string;
   public readonly dataSourceBucketName: string;
+  public readonly registryName: string;
+  public readonly schemaName: string;
 
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseStackProps) {
     super(scope, id, props);
@@ -243,6 +251,7 @@ export class RagKnowledgeBaseStack extends Stack {
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
       serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
+      eventBridgeEnabled: true,
     });
 
     knowledgeBaseRole.addToPolicy(
@@ -330,6 +339,175 @@ export class RagKnowledgeBaseStack extends Stack {
       sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
     });
+
+    // Glue Schema Registry
+    const registry = new glue.CfnRegistry(this, 'S3DataSourceKnowledgeBase', {
+      name: 'S3DataSource_KnowledgeBase',
+      description: 'Registry for S3 data source metadata schemas',
+    });
+    const registryProperty: glue.CfnSchema.RegistryProperty = {
+      arn: registry.attrArn,
+      name: registry.name,
+    };
+
+    const metadataSchema = new glue.CfnSchema(this, 'MetadataSchema', {
+      name: 'metadata',
+      registry: registryProperty,
+      dataFormat: 'JSON',
+      compatibility: 'BACKWARDS',
+      schemaDefinition: JSON.stringify({
+        $schema: "http://json-schema.org/draft-07/schema#",
+        type: "object",
+        properties: {
+          metadataAttributes: {
+            type: "object",
+            description: "論文のメタデータ",
+            properties: {
+              keywords: {
+                type: "string",
+                description: "論文のキーワード"
+              }
+            }
+          }
+        },
+        required: ["metadataAttributes"]
+      })
+    });
+
+    metadataSchema.addDependency(registry);
+
+
+    // Step Functions
+    const stepFunctionsRole = new iam.Role(this, 'StepFunctionsRole', {
+      assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
+    });
+
+    stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3FullAccess'));
+    stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSGlueConsoleFullAccess'));
+    stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess'));
+
+    const ragApi = new tasks.CallAwsService(this, 'RAG API', {
+      service: 'bedrockagentruntime',
+      action: 'retrieveAndGenerate',
+      parameters: {
+        Input: {
+          Text: 'Give me a summary of Brain-X.pdf and list the keywords found on the first page in the abstract section'
+        },
+        RetrieveAndGenerateConfiguration: {
+          ExternalSourcesConfiguration: {
+            ModelArn: 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0',
+            Sources: [{
+              S3Location: {
+                'Uri.$': "States.Format('s3://{}/{}', $$.Execution.Input.detail.bucket.name, $$.Execution.Input.detail.object.key)"
+              },
+              SourceType: 'S3'
+            }]
+          },
+          Type: 'EXTERNAL_SOURCES'
+        }
+      },
+      iamResources: ['*'],
+      resultSelector: {
+        'Payload.Text.$': '$.Output.Text'
+      },
+      resultPath: '$.Payload'
+    });
+
+    const getSchemaVersion = new tasks.CallAwsService(this, 'Get Schema Version', {
+      service: 'glue',
+      action: 'getSchemaVersion',
+      parameters: {
+        SchemaId: {
+          RegistryName: registry.name,
+          SchemaName: metadataSchema.name
+        },
+        SchemaVersionNumber: {
+          LatestVersion: true
+        }
+      },
+      iamResources: ['*'],
+      resultSelector: {
+        'SchemaDefinition.$': 'States.StringToJson($.SchemaDefinition)',
+        'VersionNumber.$': '$.VersionNumber'
+      },
+      resultPath: '$.GetSchemaVersion'
+    });
+
+    const invokeClaudeApi = new tasks.CallAwsService(this, 'Invoke Claude API', {
+      service: 'bedrock',
+      action: 'invokeModel',
+      parameters: {
+        ModelId: 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0',
+        Body: {
+          anthropic_version: 'bedrock-2023-05-31',
+          max_tokens: 1000,
+          temperature: 0,
+          tools: [{
+            name: 'print_paper_keywords',
+            description: '与えられた論文からキーワードを print out します。',
+            'input_schema.$': '$.GetSchemaVersion.SchemaDefinition'
+          }],
+          tool_choice: {
+            type: 'tool',
+            name: 'print_paper_keywords'
+          },
+          messages: [{
+            role: 'user',
+            content: [{
+              type: 'text',
+              'text.$': "States.Format('<text>{}</text> print_paper_keywords ツールのみを利用すること。', $.Text)"
+            }]
+          }]
+        }
+      },
+      iamResources: ['*'],
+      resultSelector: {
+        'Payload.toolUse.input.$': '$.Body.content[?(@.type==\'tool_use\')].input'
+      },
+      resultPath: '$.Payload'
+    });
+
+    const uploadToS3 = new tasks.CallAwsService(this, 'Upload to S3', {
+      service: 's3',
+      action: 'putObject',
+      parameters: {
+        'Body.$': '$.toolUse.input[0]',
+        'Bucket.$': '$$.Execution.Input.detail.bucket.name',
+        'Key.$': "States.Format('{}.metadata.json', $$.Execution.Input.detail.object.key)",
+        ContentType: 'application/json'
+      },
+      iamResources: ['*']
+    });
+
+    const definition = ragApi
+      .next(getSchemaVersion)
+      .next(invokeClaudeApi)
+      .next(uploadToS3);
+
+    const metadataJsonGenerator = new sfn.StateMachine(this, 'MetadataGeneratorStateMachine', {
+      definition,
+      role: stepFunctionsRole,
+    });
+
+    // event bridge rule
+    const rule = new events.Rule(this, 'DataSourceCreatedRule', {
+      eventPattern: {
+        source: ['aws.s3'],
+        detailType: ['Object Created'],
+        detail: {
+          bucket: {
+            name: [dataSourceBucket.bucketName]
+          },
+          object: {
+            key: [{
+              prefix: 'docs/',
+              suffix: '.pdf'
+            }]
+          }
+        }
+      }
+    });
+    rule.addTarget(new targets.SfnStateMachine(metadataJsonGenerator));
 
     this.knowledgeBaseId = knowledgeBase.ref;
     this.dataSourceBucketName = dataSourceBucket.bucketName;
