@@ -395,10 +395,11 @@ export class RagKnowledgeBaseStack extends Stack {
     stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSGlueConsoleFullAccess'));
     stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess'));
 
+    // Too Use を使用できるモデルを選ぶ
     const model = bedrock.FoundationModel.fromFoundationModelId(
       this,
       'Model',
-      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_5_SONNET_20240620_V1_0,
+      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
     );
     
     const ragApi = new tasks.CallAwsService(this, 'RAG API', {
@@ -406,7 +407,7 @@ export class RagKnowledgeBaseStack extends Stack {
       action: 'retrieveAndGenerate',
       parameters: {
         Input: {
-          Text: 'Give me a summary of Brain-X.pdf and list the keywords found on the first page in the abstract section'
+          'Text.$': "States.Format('Give me a summary of {} and list the keywords found on the first page in the abstract section.', $$.Execution.Input.detail.object.key)"
         },
         RetrieveAndGenerateConfiguration: {
           ExternalSourcesConfiguration: {
