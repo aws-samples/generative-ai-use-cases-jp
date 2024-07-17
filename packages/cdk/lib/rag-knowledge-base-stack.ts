@@ -249,7 +249,7 @@ export class RagKnowledgeBaseStack extends Stack {
       autoDeleteObjects: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      serverAccessLogsPrefix: 'AccessLogs/',
+      // serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
       eventBridgeEnabled: true,
     });
@@ -346,8 +346,7 @@ export class RagKnowledgeBaseStack extends Stack {
       description: 'Registry for S3 data source metadata schemas',
     });
     const registryProperty: glue.CfnSchema.RegistryProperty = {
-      arn: registry.attrArn,
-      name: registry.name,
+      arn : registry.attrArn
     };
 
     const metadataSchema = new glue.CfnSchema(this, 'MetadataJsonSchema', {
