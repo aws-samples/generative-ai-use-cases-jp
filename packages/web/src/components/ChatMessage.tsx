@@ -121,16 +121,14 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
             )}
             {chatContent?.role === 'assistant' && (
-                <span>
-                  <Markdown prefix={`${props.idx}`}>
-                    {typingTextOutput +
-                        `${
-                            props.loading && (chatContent?.content ?? '') !== ''
-                                ? '▍'
-                                : ''
-                        }`}
-                  </Markdown>
-                </span>
+              <Markdown prefix={`${props.idx}`}>
+                {typingTextOutput +
+                  `${
+                    props.loading && (chatContent?.content ?? '') !== ''
+                      ? '▍'
+                      : ''
+                  }`}
+              </Markdown>
             )}
             {chatContent?.role === 'system' && (
               <div className="break-all">
