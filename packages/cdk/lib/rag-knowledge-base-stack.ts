@@ -428,7 +428,7 @@ export class RagKnowledgeBaseStack extends Stack {
           'Text.$': '$.Output.Text'
         }
       },
-      resultPath: '$.Payload'
+      outputPath: '$.Payload'
     });
 
     const getSchemaVersion = new tasks.CallAwsService(this, 'Get Schema Version', {
@@ -482,7 +482,7 @@ export class RagKnowledgeBaseStack extends Stack {
           }
         }
       },
-      resultPath: '$.Payload'
+      outputPath: '$.Payload'
     });
 
     const uploadToS3 = new tasks.CallAwsService(this, 'Upload to S3', {
