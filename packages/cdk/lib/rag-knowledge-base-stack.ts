@@ -341,8 +341,8 @@ export class RagKnowledgeBaseStack extends Stack {
     });
 
     // Glue Schema Registry
-    const registry = new glue.CfnRegistry(this, 'S3DataSourceKnowledgeBase', {
-      name: 'S3DataSource_KnowledgeBase',
+    const registry = new glue.CfnRegistry(this, 'S3DataSourceSchemaRegistry', {
+      name: 'S3DataSource',
       description: 'Registry for S3 data source metadata schemas',
     });
     const registryProperty: glue.CfnSchema.RegistryProperty = {
@@ -350,11 +350,11 @@ export class RagKnowledgeBaseStack extends Stack {
       name: registry.name,
     };
 
-    const metadataSchema = new glue.CfnSchema(this, 'MetadataSchema', {
-      name: 'metadata',
+    const metadataSchema = new glue.CfnSchema(this, 'MetadataJsonSchema', {
+      name: 'metadataJson',
       registry: registryProperty,
       dataFormat: 'JSON',
-      compatibility: 'BACKWARDS',
+      compatibility: 'NONE',
       schemaDefinition: JSON.stringify({
         $schema: "http://json-schema.org/draft-07/schema#",
         type: "object",
