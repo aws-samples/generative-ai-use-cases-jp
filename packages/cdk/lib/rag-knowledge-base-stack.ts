@@ -395,6 +395,12 @@ export class RagKnowledgeBaseStack extends Stack {
     stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSGlueConsoleFullAccess'));
     stepFunctionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonBedrockFullAccess'));
 
+    const model = bedrock.FoundationModel.fromFoundationModelId(
+      this,
+      'Model',
+      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
+    );
+    
     const ragApi = new tasks.CallAwsService(this, 'RAG API', {
       service: 'bedrockagentruntime',
       action: 'retrieveAndGenerate',
@@ -404,7 +410,7 @@ export class RagKnowledgeBaseStack extends Stack {
         },
         RetrieveAndGenerateConfiguration: {
           ExternalSourcesConfiguration: {
-            ModelArn: 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0',
+            ModelArn: model.modelArn,
             Sources: [{
               S3Location: {
                 'Uri.$': "States.Format('s3://{}/{}', $$.Execution.Input.detail.bucket.name, $$.Execution.Input.detail.object.key)"
@@ -442,11 +448,6 @@ export class RagKnowledgeBaseStack extends Stack {
       resultPath: '$.GetSchemaVersion'
     });
 
-    const model = bedrock.FoundationModel.fromFoundationModelId(
-      this,
-      'Model',
-      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
-    );
     // Invoke Claude APIタスクの定義
     const invokeClaudeApi = new tasks.BedrockInvokeModel(this, 'Invoke Claude API', {
       model,
