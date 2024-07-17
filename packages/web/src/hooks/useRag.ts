@@ -67,7 +67,7 @@ const useRag = (id: string) => {
         console.error(`model not found for ${modelId}`);
         return;
       }
-      const prevQueries = messages.filter((m) => m.role == 'user').map((m) => m.content);
+      const prevQueries = messages.filter((m) => m.role === 'user').map((m) => m.content);
 
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
