@@ -1,14 +1,15 @@
 import { create } from 'zustand';
 import useFileApi from './useFileApi';
-import { UploadedFileType } from 'generative-ai-use-cases-jp';
+import { FileLimit, UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 
 export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 const useFilesState = create<{
-  uploadFiles: (files: File[]) => Promise<void>;
+  uploadFiles: (files: File[], fileLimit?: FileLimit) => Promise<void>;
   uploadedFiles: UploadedFileType[];
+  errorMessages: string[];
   deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
@@ -16,19 +17,75 @@ const useFilesState = create<{
 
   const clear = () => {
     set(() => ({
+      errorMessages: [],
       uploadedFiles: [],
     }));
   };
 
-  const uploadFiles = async (files: File[]) => {
+  const uploadFiles = async (files: File[], fileLimit?: FileLimit) => {
+    // 現在のファイル数を取得
+    const currentUploadedFiles = get().uploadedFiles;
+    let fileCount = currentUploadedFiles.filter(
+      (file) => file.type === 'file'
+    ).length;
+    let imageFileCount = currentUploadedFiles.filter(
+      (file) => file.type === 'image'
+    ).length;
+
+    // アップロードされたファイルの検証
+    const errorMessages: string[] = [];
     const uploadedFiles: UploadedFileType[] = files
       .filter((file) => {
-        // 画像ファイルのみ許可
-        const pattern = /^image\/(jpeg|png|gif|webp)/;
-        return file.type.match(pattern);
+        // 許可されたファイルタイプをフィルタリング
+        const mediaFormat = ('.' + file.name.split('.').pop()) as string;
+        const isFileAllowed = fileLimit?.accept.includes(mediaFormat);
+        if (!isFileAllowed) {
+          errorMessages.push(
+            `${file.name} は許可されていない拡張子です。利用できる拡張子は ${fileLimit?.accept.join(', ')} です`
+          );
+        }
+        return isFileAllowed;
+      })
+      .filter((file) => {
+        // ファイルサイズによるフィルタリング
+        const maxSizeMB =
+          (file.type.includes('image')
+            ? fileLimit?.maxImageFileSizeMB
+            : fileLimit?.maxFileSizeMB) || 0;
+        const isFileAllowed = file.size <= maxSizeMB * 1e6;
+        if (!isFileAllowed) {
+          errorMessages.push(
+            `${file.name} は最大ファイルサイズ ${maxSizeMB} MB を超えています。`
+          );
+        }
+        return isFileAllowed;
+      })
+      .filter((file) => {
+        // ファイル数によるフィルタリング
+        let isFileAllowed = false;
+        if (file.type.includes('image')) {
+          imageFileCount += 1;
+          isFileAllowed = imageFileCount <= (fileLimit?.maxImageFileCount || 0);
+          if (!isFileAllowed) {
+            errorMessages.push(
+              `画像ファイルは ${fileLimit?.maxImageFileCount} 個以下にしてください`
+            );
+          }
+        } else {
+          fileCount += 1;
+          isFileAllowed = fileCount <= (fileLimit?.maxFileCount || 0);
+          if (!isFileAllowed) {
+            errorMessages.push(
+              `ファイルは ${fileLimit?.maxFileCount} 個以下にしてください`
+            );
+          }
+        }
+        return isFileAllowed;
       })
       .map((file) => ({
         file,
+        name: file.name,
+        type: file.type.includes('image') ? 'image' : 'file',
         uploading: true,
       }));
 
@@ -36,6 +93,7 @@ const useFilesState = create<{
       uploadedFiles: produce(get().uploadedFiles, (draft) => {
         draft.push(...uploadedFiles);
       }),
+      errorMessages: [...new Set(errorMessages)],
     }));
 
     get().uploadedFiles.forEach((uploadedFile, idx) => {
@@ -46,7 +104,7 @@ const useFilesState = create<{
       reader.onload = () => {
         set(() => ({
           uploadedFiles: produce(get().uploadedFiles, (draft) => {
-            draft[idx].base64EncodedImage = reader.result?.toString();
+            draft[idx].base64EncodedData = reader.result?.toString();
           }),
         }));
       };
@@ -56,6 +114,7 @@ const useFilesState = create<{
       // 署名付き URL の取得（並列実行させるために、await せずに実行）
       api
         .getSignedUrl({
+          filename: uploadedFile.file.name,
           mediaFormat: mediaFormat,
         })
         .then(async (signedUrlRes) => {
@@ -113,16 +172,23 @@ const useFilesState = create<{
   return {
     clear,
     uploadedFiles: [],
+    errorMessages: [],
     uploadFiles,
     deleteUploadedFile,
   };
 });
 
 const useFiles = () => {
-  const { uploadFiles, clear, uploadedFiles, deleteUploadedFile } =
-    useFilesState();
+  const {
+    uploadFiles,
+    clear,
+    uploadedFiles,
+    deleteUploadedFile,
+    errorMessages,
+  } = useFilesState();
   return {
     uploadFiles,
+    errorMessages,
     clear,
     uploadedFiles: uploadedFiles.filter((file) => !file.deleting),
     deleteUploadedFile,

@@ -11,6 +11,7 @@ import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import useFileApi from '../hooks/useFileApi';
+import FileCard from './FileCard';
 
 type Props = BaseProps & {
   idx?: number;
@@ -103,16 +104,26 @@ const ChatMessage: React.FC<Props> = (props) => {
           <div className="ml-5 grow ">
             {chatContent?.role === 'user' && (
               <div className="break-all">
-                {signedUrls.length > 0 && (
+                {(chatContent.extraData?.length || 0) > 0 && (
                   <div className="mb-2 flex flex-wrap gap-2">
-                    {signedUrls.map((url, idx) => (
-                      <ZoomUpImage
-                        key={idx}
-                        src={url}
-                        size="m"
-                        loading={!url}
-                      />
-                    ))}
+                    {chatContent.extraData?.map((data, idx) =>
+                      data.type === 'image' ? (
+                        <ZoomUpImage
+                          key={idx}
+                          src={signedUrls[idx]}
+                          size="m"
+                          loading={!signedUrls[idx]}
+                        />
+                      ) : (
+                        <FileCard
+                          key={idx}
+                          filename={data.name}
+                          url={signedUrls[idx]}
+                          loading={!signedUrls[idx]}
+                          size="m"
+                        />
+                      )
+                    )}
                   </div>
                 )}
                 {typingTextOutput.split('\n').map((c, idx) => (

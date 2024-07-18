@@ -224,17 +224,18 @@ const useChatState = create<{
       const extraData: ExtraData[] | undefined = m.extraData?.flatMap(
         (data) => {
           // 推論する際は"data:image/png..." のといった情報は必要ないため、削除する
-          const base64EncodedImage = uploadedFiles
+          const base64EncodedData = uploadedFiles
             ?.find((uploadedFile) => uploadedFile.s3Url === data.source.data)
-            ?.base64EncodedImage?.replace(/^data:(.*,)?/, '');
+            ?.base64EncodedData?.replace(/^data:(.*,)?/, '');
 
           // Base64 エンコードされた画像情報を設定する
           return {
-            type: 'image',
+            type: data.type,
+            name: data.name,
             source: {
               type: 'base64',
               mediaType: data.source.mediaType,
-              data: base64EncodedImage ?? '',
+              data: base64EncodedData ?? '',
             },
           };
         }
@@ -400,7 +401,8 @@ const useChatState = create<{
         content,
         // DDB に保存する形式で、extraData を設定する
         extraData: uploadedFiles?.map((uploadedFile) => ({
-          type: 'image',
+          type: uploadedFile.type,
+          name: uploadedFile.name,
           source: {
             type: 's3',
             mediaType: uploadedFile.file.type,

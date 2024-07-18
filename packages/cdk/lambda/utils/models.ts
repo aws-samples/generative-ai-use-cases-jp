@@ -153,6 +153,18 @@ const createConverseCommandInput = (
               },
             },
           } as ContentBlock.ImageMember);
+        } else if (extra.type === 'file' && extra.source.type === 'base64') {
+          contentBlocks.push({
+            document: {
+              format: extra.name.split('.').pop(),
+              name: extra.name
+                .split('.')[0]
+                .replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X'), // ファイル名に日本語などが入っているとエラーになるため変換
+              source: {
+                bytes: Buffer.from(extra.source.data, 'base64'),
+              },
+            },
+          } as ContentBlock.DocumentMember);
         }
       });
     }

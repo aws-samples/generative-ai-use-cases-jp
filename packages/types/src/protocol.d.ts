@@ -118,10 +118,6 @@ export type GenerateImageRequest = {
 };
 export type GenerateImageResponse = string;
 
-export type GetMediaUploadSignedUrlRequest = {
-  mediaFormat: MediaFormat;
-};
-
 export type GetMediaUploadSignedUrlResponse = string;
 
 export type DeleteFileRequest = {
@@ -167,6 +163,7 @@ export type GetSharedChatResponse = {
 };
 
 export type GetFileUploadSignedUrlRequest = {
+  filename: string;
   mediaFormat: string;
 };
 

@@ -1,5 +1,5 @@
 import {
-  GetMediaUploadSignedUrlRequest,
+  GetFileUploadSignedUrlRequest,
   GetMediaUploadSignedUrlResponse,
   StartTranscriptionRequest,
   StartTranscriptionResponse,
@@ -12,7 +12,7 @@ import axios from 'axios';
 const useTranscribeApi = () => {
   const http = useHttp();
   return {
-    getSignedUrl: (req: GetMediaUploadSignedUrlRequest) => {
+    getSignedUrl: (req: GetFileUploadSignedUrlRequest) => {
       return http.post<GetMediaUploadSignedUrlResponse>('transcribe/url', req);
     },
     getTranscription: (
