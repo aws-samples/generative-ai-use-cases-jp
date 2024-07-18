@@ -1,7 +1,7 @@
 import React from 'react';
 import { BaseProps } from '../@types/common';
 import ButtonIcon from './ButtonIcon';
-import { PiSpinnerGap, PiX } from 'react-icons/pi';
+import { PiFile, PiSpinnerGap, PiX } from 'react-icons/pi';
 
 type Props = BaseProps & {
   filename?: string;
@@ -16,7 +16,8 @@ const FileCard: React.FC<Props> = (props) => {
     <div className={props.className}>
       <div className="group relative cursor-pointer">
         <div
-          className={`border-aws-squid-ink/50 bg-aws-squid-ink/20 w-32 break-all rounded border object-cover object-center ${props.size === 's' ? 'max-h-24' : 'max-h-32'}`}>
+          className={`border-aws-squid-ink/50 break-all rounded border object-cover object-center p-1 max-w-36 ${props.size === 's' ? 'max-h-24' : 'max-h-32'}`}>
+          <PiFile className='size-4 mb-1 mr-1 inline' />
           {props.url ? (
             <a href={props.url}>{props.filename}</a>
           ) : (
