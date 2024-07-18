@@ -163,7 +163,7 @@ export type GetSharedChatResponse = {
 };
 
 export type GetFileUploadSignedUrlRequest = {
-  filename: string;
+  filename?: string;
   mediaFormat: string;
 };
 
