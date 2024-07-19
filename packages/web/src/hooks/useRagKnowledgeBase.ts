@@ -132,8 +132,11 @@ const useRagKnowledgeBase = (id: string) => {
           // 後処理：Footnote の付与
           const footnote = retrievedItemsKendraFormat
             .map((item, idx) => {
+              const encodedURI = encodeURI(item.DocumentURI!)
+                .replace(/\(/g, '\\(')
+                .replace(/\)/g, '\\)');
               return message.includes(`[^${idx}]`)
-                ? `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`
+                ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
                 : '';
             })
             .filter((x) => x)
