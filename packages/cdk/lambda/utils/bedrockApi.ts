@@ -9,6 +9,7 @@ import {
   ConverseStreamOutput,
   ServiceQuotaExceededException,
   ThrottlingException,
+  AccessDeniedException,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   ApiInterface,
@@ -199,6 +200,8 @@ const bedrockApi: ApiInterface = {
         e instanceof ServiceQuotaExceededException
       ) {
         yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+      } else if (e instanceof AccessDeniedException) {
+        yield '選択したモデルが有効化されていないようです。Bedrock コンソールの Model Access 画面にて、利用したいモデルを有効化してください。';
       } else {
         yield 'エラーが発生しました。時間をおいて試してみてください。';
       }
