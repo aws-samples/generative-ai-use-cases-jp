@@ -201,7 +201,8 @@ const bedrockApi: ApiInterface = {
       ) {
         yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
       } else if (e instanceof AccessDeniedException) {
-        yield '選択したモデルが有効化されていないようです。Bedrock コンソールの Model Access 画面にて、利用したいモデルを有効化してください。';
+        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
+        yield `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`;
       } else {
         yield 'エラーが発生しました。時間をおいて試してみてください。';
       }
