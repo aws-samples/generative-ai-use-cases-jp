@@ -26,7 +26,7 @@ const bedrockAgentApi: Partial<ApiInterface> = {
         sessionState: {
           files:
             messages[messages.length - 1].extraData?.map((file) => ({
-              name: file.name.replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X'), // ファイル名に日本語などが入っていると認識されないため置き換え
+              name: file.name.replace(/[^a-zA-Z0-9\s\-()[\].]/g, 'X'), // ファイル名に日本語などが入っていると認識されないため置き換え
               source: {
                 sourceType: 'BYTE_CONTENT',
                 byteContent: {

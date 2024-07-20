@@ -1,10 +1,10 @@
 import {
   GetFileUploadSignedUrlRequest,
-  GetMediaUploadSignedUrlResponse,
   StartTranscriptionRequest,
   StartTranscriptionResponse,
   GetTranscriptionResponse,
   UploadAudioRequest,
+  GetFileUploadSignedUrlResponse,
 } from 'generative-ai-use-cases-jp';
 import useHttp from './useHttp';
 import axios from 'axios';
@@ -13,7 +13,7 @@ const useTranscribeApi = () => {
   const http = useHttp();
   return {
     getSignedUrl: (req: GetFileUploadSignedUrlRequest) => {
-      return http.post<GetMediaUploadSignedUrlResponse>('transcribe/url', req);
+      return http.post<GetFileUploadSignedUrlResponse>('transcribe/url', req);
     },
     getTranscription: (
       jobName: string | null,

@@ -103,22 +103,20 @@ export type RetrieveKnowledgeBaseRequest = {
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
 
-export type GetDocDownloadSignedUrlRequest = {
+export type GetFileDownloadSignedUrlRequest = {
   bucketName: string;
   filePrefix: string;
   region?: string;
   contentType?: string;
 };
 
-export type GetDocDownloadSignedUrlResponse = string;
+export type GetFileDownloadSignedUrlResponse = string;
 
 export type GenerateImageRequest = {
   model?: Model;
   params: GenerateImageParams;
 };
 export type GenerateImageResponse = string;
-
-export type GetMediaUploadSignedUrlResponse = string;
 
 export type DeleteFileRequest = {
   fileName: string;

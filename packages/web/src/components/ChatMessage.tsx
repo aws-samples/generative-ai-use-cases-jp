@@ -28,7 +28,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
-  const { getDocDownloadSignedUrl } = useFileApi();
+  const { getFileDownloadSignedUrl } = useFileApi();
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
@@ -48,7 +48,7 @@ const ChatMessage: React.FC<Props> = (props) => {
       setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
-          return await getDocDownloadSignedUrl(file.source.data);
+          return await getFileDownloadSignedUrl(file.source.data);
         })
       ).then((results) => setSignedUrls(results));
     } else {

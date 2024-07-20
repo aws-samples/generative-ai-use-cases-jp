@@ -2,7 +2,7 @@ import { useState } from 'react';
 import useFileApi from './useFileApi';
 
 const useRagFile = () => {
-  const { getDocDownloadSignedUrl } = useFileApi();
+  const { getFileDownloadSignedUrl } = useFileApi();
   const [downloading, setDownloading] = useState(false);
 
   return {
@@ -17,7 +17,7 @@ const useRagFile = () => {
       setDownloading(true);
 
       try {
-        const signedUrl = await getDocDownloadSignedUrl(url);
+        const signedUrl = await getFileDownloadSignedUrl(url);
 
         window.open(signedUrl, '_blank', 'noopener,noreferrer');
       } catch (e) {
