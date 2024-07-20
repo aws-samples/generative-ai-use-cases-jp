@@ -35,13 +35,16 @@ const useFilesState = create<{
 
     // アップロードされたファイルの検証
     const errorMessages: string[] = [];
-    const isMimeSpoofedResults = await Promise.all(files.map(async file => {
-      // filter は非同期関数が利用できないため先に評価を行う
-      // file.type は拡張子ベースで MIME を取得する一方、fileTypeFromStream はファイルヘッダの Signature を確認する
-      const realMimeType = (await fileTypeFromStream(file.stream()))?.mime;
-      const isMimeSpoofed = file.type && realMimeType && (file.type != realMimeType);
-      return isMimeSpoofed
-    }))
+    const isMimeSpoofedResults = await Promise.all(
+      files.map(async (file) => {
+        // filter は非同期関数が利用できないため先に評価を行う
+        // file.type は拡張子ベースで MIME を取得する一方、fileTypeFromStream はファイルヘッダの Signature を確認する
+        const realMimeType = (await fileTypeFromStream(file.stream()))?.mime;
+        const isMimeSpoofed =
+          file.type && realMimeType && file.type != realMimeType;
+        return isMimeSpoofed;
+      })
+    );
     const uploadedFiles: UploadedFileType[] = files
       .filter((file, idx) => {
         // ファイルの拡張子が間違っている場合はフィルタリング

@@ -16,8 +16,8 @@ const FileCard: React.FC<Props> = (props) => {
     <div className={props.className}>
       <div className="group relative cursor-pointer">
         <div
-          className={`border-aws-squid-ink/50 break-all rounded border object-cover object-center p-1 max-w-36 ${props.size === 's' ? 'max-h-24' : 'max-h-32'}`}>
-          <PiFile className='size-4 mb-1 mr-1 inline' />
+          className={`border-aws-squid-ink/50 max-w-36 break-all rounded border object-cover object-center p-1 ${props.size === 's' ? 'max-h-24' : 'max-h-32'}`}>
+          <PiFile className="mb-1 mr-1 inline size-4" />
           {props.url ? (
             <a href={props.url}>{props.filename}</a>
           ) : (

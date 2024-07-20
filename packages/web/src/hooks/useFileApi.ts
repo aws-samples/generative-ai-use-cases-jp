@@ -59,12 +59,10 @@ const useFileApi = () => {
         filePrefix: decodeURIComponent(filePrefix),
         region: groups.region,
       };
-      const { data: url } = await http.api.get<GetFileDownloadSignedUrlResponse>(
-        '/file/url',
-        {
+      const { data: url } =
+        await http.api.get<GetFileDownloadSignedUrlResponse>('/file/url', {
           params,
-        }
-      );
+        });
       return `${url}${anchorLink ? `#${anchorLink}` : ''}`;
     },
     deleteUploadedFile: async (fileName: string) => {
