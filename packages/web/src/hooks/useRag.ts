@@ -67,6 +67,9 @@ const useRag = (id: string) => {
         console.error(`model not found for ${modelId}`);
         return;
       }
+      const prevQueries = messages
+        .filter((m) => m.role === 'user')
+        .map((m) => m.content);
 
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
@@ -80,7 +83,7 @@ const useRag = (id: string) => {
             role: 'user',
             content: prompter.ragPrompt({
               promptType: 'RETRIEVE',
-              retrieveQueries: [content],
+              retrieveQueries: [...prevQueries, content],
             }),
           },
         ],
@@ -151,11 +154,14 @@ const useRag = (id: string) => {
                       ? `(${_excerpt_page_number} ページ)`
                       : ''
                   }](
-                  ${item.DocumentURI
-                    ? encodeURI(item.DocumentURI).replace(/\(/g, '\\(').replace(/\)/g, '\\)')
-                    : ''
+                  ${
+                    item.DocumentURI
+                      ? encodeURI(item.DocumentURI)
+                          .replace(/\(/g, '\\(')
+                          .replace(/\)/g, '\\)')
+                      : ''
                   }${
-                  _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
+                    _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
                   })`
                 : '';
             })
