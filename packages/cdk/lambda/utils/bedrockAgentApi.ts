@@ -24,6 +24,20 @@ const bedrockAgentApi: Partial<ApiInterface> = {
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
     try {
       const command = new InvokeAgentCommand({
+        sessionState: {
+          files:
+            messages[messages.length - 1].extraData?.map((file) => ({
+              name: file.name.replace(/[^a-zA-Z0-9\s\-()[\].]/g, 'X'), // ファイル名に日本語などが入っていると認識されないため置き換え
+              source: {
+                sourceType: 'BYTE_CONTENT',
+                byteContent: {
+                  mediaType: file.source.mediaType,
+                  data: Buffer.from(file.source.data, 'base64'),
+                },
+              },
+              useCase: 'CODE_INTERPRETER',
+            })) || [],
+        },
         agentId: agentMap[model.modelId].agentId,
         agentAliasId: agentMap[model.modelId].aliasId,
         sessionId: model.sessionId,
