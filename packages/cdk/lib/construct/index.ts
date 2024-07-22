@@ -9,3 +9,4 @@ export * from './agent';
 export * from './file';
 export * from './recognize-file';
 export * from './rag-knowledge-base';
+export * from './metadata-json';
