@@ -447,7 +447,7 @@ export class Api extends Construct {
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
       runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/getMediaUploadSignedUrl.ts',
+      entry: './lambda/getFileUploadSignedUrl.ts',
       timeout: Duration.minutes(15),
       environment: {
         BUCKET_NAME: fileBucket.bucketName,
@@ -460,7 +460,7 @@ export class Api extends Construct {
       'GetFileDownloadSignedUrlFunction',
       {
         runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/getDocDownloadSignedUrl.ts',
+        entry: './lambda/getFileDownloadSignedUrl.ts',
         timeout: Duration.minutes(15),
       }
     );

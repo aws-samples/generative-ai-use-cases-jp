@@ -200,6 +200,7 @@ const bedrockApi: ApiInterface = {
       ) {
         yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
       } else {
+        console.error(e);
         yield 'エラーが発生しました。時間をおいて試してみてください。';
       }
     }

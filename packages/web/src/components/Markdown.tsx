@@ -54,14 +54,14 @@ const LinkRenderer = (props: any) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ImageRenderer = (props: any) => {
   const { isS3Url } = useRagFile();
-  const { getDocDownloadSignedUrl } = useFileApi();
+  const { getFileDownloadSignedUrl } = useFileApi();
   const [src, setSrc] = useState(props.src);
 
   useEffect(() => {
     if (isS3Url(props.src)) {
-      getDocDownloadSignedUrl(props.src).then((url) => setSrc(url));
+      getFileDownloadSignedUrl(props.src).then((url) => setSrc(url));
     }
-  }, [getDocDownloadSignedUrl, isS3Url, props.src]);
+  }, [getFileDownloadSignedUrl, isS3Url, props.src]);
 
   return <img id={props.id} src={src} />;
 };

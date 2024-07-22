@@ -4,8 +4,8 @@ import {
   RecognizeFileRequest,
   RecognizeFileResponse,
   UploadFileRequest,
-  GetDocDownloadSignedUrlRequest,
-  GetDocDownloadSignedUrlResponse,
+  GetFileDownloadSignedUrlRequest,
+  GetFileDownloadSignedUrlResponse,
   DeleteFileResponse,
 } from 'generative-ai-use-cases-jp';
 import useHttp from './useHttp';
@@ -28,7 +28,7 @@ const useFileApi = () => {
         data: req.file,
       });
     },
-    getDocDownloadSignedUrl: async (s3Uri: string) => {
+    getFileDownloadSignedUrl: async (s3Uri: string) => {
       let result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
 
       if (!result) {
@@ -54,17 +54,15 @@ const useFileApi = () => {
       const [filePrefix, anchorLink] = groups.prefix.split('#');
 
       // Signed URL を取得
-      const params: GetDocDownloadSignedUrlRequest = {
+      const params: GetFileDownloadSignedUrlRequest = {
         bucketName: groups.bucketName,
         filePrefix: decodeURIComponent(filePrefix),
         region: groups.region,
       };
-      const { data: url } = await http.api.get<GetDocDownloadSignedUrlResponse>(
-        '/file/url',
-        {
+      const { data: url } =
+        await http.api.get<GetFileDownloadSignedUrlResponse>('/file/url', {
           params,
-        }
-      );
+        });
       return `${url}${anchorLink ? `#${anchorLink}` : ''}`;
     },
     deleteUploadedFile: async (fileName: string) => {
