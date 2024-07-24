@@ -37,6 +37,7 @@ const fileLimit: FileLimit = {
     '.xls',
     '.xlsx',
     '.gif',
+    '.jpg',
     '.jpeg',
     '.png',
     '.webp',
