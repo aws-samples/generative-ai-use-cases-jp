@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
+import Button from './Button';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
 import ZoomUpImage from './ZoomUpImage';
@@ -17,6 +18,8 @@ type Props = BaseProps & {
   idx?: number;
   chatContent?: ShownMessage;
   loading?: boolean;
+  setSaveSystemContext?: any;
+  setShowSystemContextModal?: any;
   hideFeedback?: boolean;
 };
 
@@ -161,7 +164,7 @@ const ChatMessage: React.FC<Props> = (props) => {
         </div>
 
         <div className="flex items-start justify-end lg:-mr-24 print:hidden">
-          {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
+          {(chatContent?.role === 'user') && (
             <div className="lg:w-8"></div>
           )}
           {chatContent?.role === 'assistant' &&
@@ -194,6 +197,20 @@ const ChatMessage: React.FC<Props> = (props) => {
                 )}
               </>
             )}
+          {chatContent?.role === 'system' && (
+            <div className="lg:-mr-24 print:hidden">
+              <Button
+                outlined
+                className=""
+                onClick={() => {
+                  props.setSaveSystemContext(props.chatContent?.content)
+                  props.setShowSystemContextModal(true)
+                }}
+              >
+                保存
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
