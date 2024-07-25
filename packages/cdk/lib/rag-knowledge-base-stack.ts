@@ -287,7 +287,7 @@ export class RagKnowledgeBaseStack extends Stack {
       dataSourceConfiguration: {
         s3Configuration: {
           bucketArn: `arn:aws:s3:::${dataSourceBucket.bucketName}`,
-          inclusionPrefixes: ['docs'],
+          inclusionPrefixes: ['docs/'],
         },
         type: 'S3',
       },
