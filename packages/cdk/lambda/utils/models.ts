@@ -73,7 +73,8 @@ const RINNA_PROMPT: PromptTemplate = {
 // Model Params
 
 const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3000,
+  // maxTokens: 3000,
+  maxTokens: 100,
   temperature: 0.6,
   topP: 0.8,
 };

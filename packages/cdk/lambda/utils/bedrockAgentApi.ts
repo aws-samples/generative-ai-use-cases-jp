@@ -13,6 +13,7 @@ import {
   Model,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
+import { streamingChunk } from './streamingChunk';
 
 const agentMap: AgentMap = JSON.parse(process.env.AGENT_MAP || '{}');
 const client = new BedrockAgentRuntimeClient({
@@ -89,7 +90,7 @@ const bedrockAgentApi: Partial<ApiInterface> = {
           }
 
           if (body) {
-            yield body;
+            yield streamingChunk({ text: body });
           }
         }
 
@@ -110,9 +111,9 @@ const bedrockAgentApi: Partial<ApiInterface> = {
 
             // Yield file path
             if (file.type?.split('/')[0] === 'image') {
-              yield `\n![${file.name}](${url})`;
+              yield streamingChunk({ text: `\n![${file.name}](${url})` });
             } else {
-              yield `\n[${file.name}](${url})`;
+              yield streamingChunk({ text: `\n[${file.name}](${url})` });
             }
           }
         }
@@ -122,13 +123,19 @@ const bedrockAgentApi: Partial<ApiInterface> = {
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
-        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+        yield streamingChunk({
+          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+        });
       } else if (e instanceof DependencyFailedException) {
         const modelAccessURL = `https://${process.env.AGENT_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.AGENT_REGION}#/modelaccess`;
-        yield `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`;
+        yield streamingChunk({
+          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+        });
       } else {
         console.error(e);
-        yield 'エラーが発生しました。時間をおいて試してみてください。';
+        yield streamingChunk({
+          text: 'エラーが発生しました。時間をおいて試してみてください。',
+        });
       }
     }
   },
