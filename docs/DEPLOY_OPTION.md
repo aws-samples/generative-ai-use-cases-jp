@@ -269,15 +269,16 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 "amazon.titan-text-premier-v1:0",
-"meta.llama3-1-8b-instruct-v1:0",
-"meta.llama3-1-70b-instruct-v1:0",
 "meta.llama3-1-405b-instruct-v1:0",
+"meta.llama3-1-70b-instruct-v1:0",
+"meta.llama3-1-8b-instruct-v1:0",
 "meta.llama3-70b-instruct-v1:0",
 "meta.llama3-8b-instruct-v1:0",
 "cohere.command-r-plus-v1:0",
 "cohere.command-r-v1:0",
-"mistral.mistral-small-2402-v1:0",
+"mistral.mistral-large-2407-v1:0",
 "mistral.mistral-large-2402-v1:0",
+"mistral.mistral-small-2402-v1:0",
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
@@ -330,7 +331,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "meta.llama3-1-8b-instruct-v1:0",
     "cohere.command-r-plus-v1:0",
     "cohere.command-r-v1:0",
-    "mistral.mistral-large-2402-v1:0"
+    "mistral.mistral-large-2407-v1:0"
   ],
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v1",
