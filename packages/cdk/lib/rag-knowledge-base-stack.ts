@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, SecretValue } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -8,8 +8,9 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
-import {StepFunctionsConstruct} from './construct'
-
+import {StepFunctionsConstruct, VectorStoreSecretsConstruct} from './construct';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { version } from 'os';
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -111,11 +112,29 @@ export class RagKnowledgeBaseStack extends Stack {
     const metadataField = props.metadataField ?? 'AMAZON_BEDROCK_METADATA';
 
     // PineconeのApiキーを取得する
-    // ApiKeyの取得
-    const vectorStoreSecret = Secret.fromSecretAttributes(this, "pinecone-kb-test", {
-      secretCompleteArn: `arn:aws:secretsmanager:${Stack.of(this).region}:${Stack.of(this).account}:secret:pinecone-kb-test-hclZGp`,
-    });
+    // const pineconeApiKey = process.env.PINECONE_API_KEY
+    // if (!pineconeApiKey) {
+    //   throw new Error("process.env.PINECONE_API_KEY is undefined");
+    // };
+    // const vectorStoreSecret = new Secret(
+    //   this,
+    //   "pinecone-api-key",
+    //   {
+    //     secretName: "pinecone-api-key",
+    //     description: "Pinecone API Key",
+    //     secretObjectValue: {
+    //       // 本番環境ではSecretValue.unsafePlainTextを使わないようにする
+    //       apiKey: SecretValue.unsafePlainText(pineconeApiKey),
+    //     },
+    //   });
     // secretFullArnがundefinedでないことを確認
+    // if (!vectorStoreSecret.secretFullArn) {
+    //   throw new Error("Secret ARN is undefined");
+    // };
+
+    const vectorStoreSecretsConstruct = new VectorStoreSecretsConstruct(this, 'VectorStoreSecretsConstruct',{})
+    const vectorStoreUrl = vectorStoreSecretsConstruct.vectorStoreUrl;
+    const vectorStoreSecret = vectorStoreSecretsConstruct.vectorStoreSecret
     if (!vectorStoreSecret.secretFullArn) {
       throw new Error("Secret ARN is undefined");
     };
@@ -134,6 +153,26 @@ export class RagKnowledgeBaseStack extends Stack {
         }),
       },
     });
+    vectorStoreUrl.grantRead(knowledgeBaseRole);
+    vectorStoreSecret.grantRead(knowledgeBaseRole);
+
+    // pineconeの接続用urlを取得する
+    // const pineconeUrl = process.env.PINECONE_URL;
+    // if (!pineconeUrl) {
+    //   throw new Error("process.env.PINECONE_URL is undefined");
+    // };
+
+    // const vectorStoreUrl = new StringParameter(
+    //   this,
+    //   "vector-store-url",
+    //   {
+    //     parameterName: "Pinecone URL",
+    //     stringValue: pineconeUrl,
+    //   }
+    // )
+    // vectorStoreUrl.grantRead(knowledgeBaseRole);
+
+    
 
     const standbyReplicas = this.node.tryGetContext('ragKnowledgeBaseStandbyReplicas');
 
@@ -305,7 +344,7 @@ export class RagKnowledgeBaseStack extends Stack {
         // },
         type: "PINECONE", // ストレージのタイプをPineconeに設定
         pineconeConfiguration: {
-          connectionString: "https://pinecone-kb-test-index-h7u1t19.svc.aped-4627-b74a.pinecone.io", // Pineconeの接続文字列を設定
+          connectionString: vectorStoreUrl.stringValue, // Pineconeの接続文字列を設定
           credentialsSecretArn: vectorStoreSecret.secretFullArn, // PineconeのAPIキーシークレットのARNを設定
           fieldMapping: {
             metadataField: "metadata", // メタデータフィールドを設定

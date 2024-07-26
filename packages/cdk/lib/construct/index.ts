@@ -10,3 +10,4 @@ export * from './file';
 export * from './recognize-file';
 export * from './rag-knowledge-base';
 export * from './metadata-json';
+export * from './vector-store-secrets';
