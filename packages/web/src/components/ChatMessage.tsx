@@ -18,8 +18,8 @@ type Props = BaseProps & {
   idx?: number;
   chatContent?: ShownMessage;
   loading?: boolean;
-  setSaveSystemContext?: any;
-  setShowSystemContextModal?: any;
+  setSaveSystemContext?: (s: string) => void;
+  setShowSystemContextModal?: (value: boolean) => void;
   hideFeedback?: boolean;
 };
 
@@ -203,8 +203,8 @@ const ChatMessage: React.FC<Props> = (props) => {
                 outlined
                 className=""
                 onClick={() => {
-                  props.setSaveSystemContext(props.chatContent?.content)
-                  props.setShowSystemContextModal(true)
+                  props.setSaveSystemContext?.(props.chatContent?.content ?? '');
+                  props.setShowSystemContextModal?.(true);
                 }}
               >
                 保存
