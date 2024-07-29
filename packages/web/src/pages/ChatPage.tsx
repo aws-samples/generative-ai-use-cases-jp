@@ -603,4 +603,3 @@ const ChatPage: React.FC = () => {
 };
 
 export default ChatPage;
-export const _useChatPageState = useChatPageState;
