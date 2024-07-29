@@ -23,6 +23,7 @@ type Props = BaseProps & {
   hideFeedback?: boolean;
 };
 
+
 const ChatMessage: React.FC<Props> = (props) => {
   const chatContent = useMemo(() => {
     return props.chatContent;
