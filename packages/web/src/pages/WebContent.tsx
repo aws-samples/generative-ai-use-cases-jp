@@ -263,6 +263,7 @@ const WebContent: React.FC = () => {
             {stopReason === 'max_tokens' && (
               <Button onClick={continueGeneration}>続きを出力</Button>
             )}
+
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
               クリア
             </Button>

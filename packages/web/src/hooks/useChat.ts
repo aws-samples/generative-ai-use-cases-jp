@@ -391,6 +391,7 @@ const useChatState = create<{
       inputMessages,
       uploadedFiles
     );
+
     const stream = predictStream({
       model: model,
       messages: formattedMessages,
