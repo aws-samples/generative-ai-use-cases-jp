@@ -1,3 +1,16 @@
+// ConverseAPI
+// https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html#API_runtime_Converse_RequestSyntax
+export type ConverseInferenceParams = {
+  maxTokens?: number;
+  stopSequences?: string[];
+  temperature?: number;
+  topP?: number;
+};
+
+export type UsecaseConverseInferenceParams = {
+  [key: string]: ConverseInferenceParams;
+};
+
 export type TitanParams = {
   inputText?: string;
   textGenerationConfig?: {

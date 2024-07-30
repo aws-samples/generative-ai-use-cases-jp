@@ -178,8 +178,10 @@ const VideoAnalyzerPage: React.FC = () => {
       const uploadedFiles: UploadedFileType[] = [
         {
           file,
+          name: file.name,
+          type: 'image',
           s3Url: baseUrl,
-          base64EncodedImage: imageBase64,
+          base64EncodedData: imageBase64,
           uploading: false,
         },
       ];

@@ -33,20 +33,31 @@ export type UnrecordedMessage = {
 };
 
 export type ExtraData = {
-  type: string;
+  type: string; // 'image' | 'file'
+  name: string;
   source: {
-    type: string;
-    mediaType: string;
+    type: string; // 'S3'
+    mediaType: string; // file type
     data: string;
   };
 };
 
 export type UploadedFileType = {
   file: File;
-  base64EncodedImage?: string;
+  name: string;
+  type: string; // 'image' | 'file'
+  base64EncodedData?: string;
   s3Url?: string;
   uploading: boolean;
   deleting?: boolean;
+};
+
+export type FileLimit = {
+  accept: string[];
+  maxFileCount: number;
+  maxFileSizeMB: number;
+  maxImageFileCount: number;
+  maxImageFileSizeMB: number;
 };
 
 export type RecordedMessage = PrimaryKey &

@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { GetDocDownloadSignedUrlRequest } from 'generative-ai-use-cases-jp';
+import { GetFileDownloadSignedUrlRequest } from 'generative-ai-use-cases-jp';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const req = event.queryStringParameters as GetDocDownloadSignedUrlRequest;
+    const req = event.queryStringParameters as GetFileDownloadSignedUrlRequest;
 
     const client = new S3Client({
       region: req.region,

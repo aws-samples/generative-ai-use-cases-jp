@@ -23,7 +23,30 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import { SystemContext } from 'generative-ai-use-cases-jp';
+import { FileLimit, SystemContext } from 'generative-ai-use-cases-jp';
+
+const fileLimit: FileLimit = {
+  accept: [
+    '.csv',
+    '.doc',
+    '.docx',
+    '.html',
+    '.md',
+    '.pdf',
+    '.txt',
+    '.xls',
+    '.xlsx',
+    '.gif',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+  ],
+  maxFileCount: 5,
+  maxFileSizeMB: 4.5,
+  maxImageFileCount: 20,
+  maxImageFileSizeMB: 3.75,
+};
 
 type StateType = {
   content: string;
@@ -332,7 +355,7 @@ const ChatPage: React.FC = () => {
     setIsOver(false);
     if (event.dataTransfer.files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(event.dataTransfer.files));
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit);
     }
   };
 
@@ -467,6 +490,7 @@ const ChatPage: React.FC = () => {
             }}
             onReset={onReset}
             fileUpload={fileUpload}
+            fileLimit={fileLimit}
           />
         </div>
       </div>
