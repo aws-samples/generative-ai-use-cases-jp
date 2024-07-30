@@ -166,6 +166,8 @@ export class Web extends Construct {
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
         VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
           props.ragKnowledgeBaseEnabled.toString(),
+        VITE_APP_RAG_KNOWLEDGE_BASE_PINECONE_ENABLED:
+          props.ragKnowledgeBasePineconeEnabled.toString(),
         VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
         VITE_APP_MODEL_REGION: props.modelRegion,

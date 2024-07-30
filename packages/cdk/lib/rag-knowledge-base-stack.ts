@@ -1,4 +1,4 @@
-import { Stack, StackProps, SecretValue } from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -7,10 +7,6 @@ import * as oss from 'aws-cdk-lib/aws-opensearchserverless';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { Secret } from "aws-cdk-lib/aws-secretsmanager";
-import {StepFunctionsConstruct, VectorStoreSecretsConstruct} from './construct';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { version } from 'os';
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -82,8 +78,6 @@ interface RagKnowledgeBaseStackProps extends StackProps {
 export class RagKnowledgeBaseStack extends Stack {
   public readonly knowledgeBaseId: string;
   public readonly dataSourceBucketName: string;
-  public readonly registryName: string;
-  public readonly schemaName: string;
 
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseStackProps) {
     super(scope, id, props);
@@ -111,172 +105,113 @@ export class RagKnowledgeBaseStack extends Stack {
     const textField = props.textField ?? 'AMAZON_BEDROCK_TEXT_CHUNK';
     const metadataField = props.metadataField ?? 'AMAZON_BEDROCK_METADATA';
 
-    // PineconeのApiキーを取得する
-    // const pineconeApiKey = process.env.PINECONE_API_KEY
-    // if (!pineconeApiKey) {
-    //   throw new Error("process.env.PINECONE_API_KEY is undefined");
-    // };
-    // const vectorStoreSecret = new Secret(
-    //   this,
-    //   "pinecone-api-key",
-    //   {
-    //     secretName: "pinecone-api-key",
-    //     description: "Pinecone API Key",
-    //     secretObjectValue: {
-    //       // 本番環境ではSecretValue.unsafePlainTextを使わないようにする
-    //       apiKey: SecretValue.unsafePlainText(pineconeApiKey),
-    //     },
-    //   });
-    // secretFullArnがundefinedでないことを確認
-    // if (!vectorStoreSecret.secretFullArn) {
-    //   throw new Error("Secret ARN is undefined");
-    // };
-
-    const vectorStoreSecretsConstruct = new VectorStoreSecretsConstruct(this, 'VectorStoreSecretsConstruct',{})
-    const vectorStoreUrl = vectorStoreSecretsConstruct.vectorStoreUrl;
-    const vectorStoreSecret = vectorStoreSecretsConstruct.vectorStoreSecret
-    if (!vectorStoreSecret.secretFullArn) {
-      throw new Error("Secret ARN is undefined");
-    };
-    // インラインポリシーでシークレットを取得する
     const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
-      inlinePolicies: {
-        'AllowGetSecretValue': new iam.PolicyDocument({
-          statements: [
-            new iam.PolicyStatement({
-              effect: iam.Effect.ALLOW,
-              resources: [vectorStoreSecret.secretFullArn],
-              actions: ['secretsmanager:GetSecretValue'],
-            }),
-          ],
-        }),
-      },
     });
-    vectorStoreUrl.grantRead(knowledgeBaseRole);
-    vectorStoreSecret.grantRead(knowledgeBaseRole);
-
-    // pineconeの接続用urlを取得する
-    // const pineconeUrl = process.env.PINECONE_URL;
-    // if (!pineconeUrl) {
-    //   throw new Error("process.env.PINECONE_URL is undefined");
-    // };
-
-    // const vectorStoreUrl = new StringParameter(
-    //   this,
-    //   "vector-store-url",
-    //   {
-    //     parameterName: "Pinecone URL",
-    //     stringValue: pineconeUrl,
-    //   }
-    // )
-    // vectorStoreUrl.grantRead(knowledgeBaseRole);
-
-    
 
     const standbyReplicas = this.node.tryGetContext('ragKnowledgeBaseStandbyReplicas');
 
-    // const collection = new oss.CfnCollection(this, 'Collection', {
-    //   name: collectionName,
-    //   type: 'VECTORSEARCH',
-    //   standbyReplicas: standbyReplicas ? 'ENABLED' : 'DISABLED',
-    // });
+    const collection = new oss.CfnCollection(this, 'Collection', {
+      name: collectionName,
+      type: 'VECTORSEARCH',
+      standbyReplicas: standbyReplicas ? 'ENABLED' : 'DISABLED',
+    });
 
-    // const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
-    //   collectionId: collection.ref,
-    //   vectorIndexName,
-    //   vectorField,
-    //   textField,
-    //   metadataField,
-    //   vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
-    // });
+    const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
+      collectionId: collection.ref,
+      vectorIndexName,
+      vectorField,
+      textField,
+      metadataField,
+      vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
+    });
 
-    // ossIndex.customResourceHandler.addToRolePolicy(
-    //   new iam.PolicyStatement({
-    //     effect: iam.Effect.ALLOW,
-    //     resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-    //     actions: ['aoss:APIAccessAll'],
-    //   })
-    // );
+    ossIndex.customResourceHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+        actions: ['aoss:APIAccessAll'],
+      })
+    );
 
-    // const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
-    //   name: collectionName,
-    //   policy: JSON.stringify([
-    //     {
-    //       Rules: [
-    //         {
-    //           Resource: [`collection/${collectionName}`],
-    //           Permission: [
-    //             'aoss:DescribeCollectionItems',
-    //             'aoss:CreateCollectionItems',
-    //             'aoss:UpdateCollectionItems',
-    //           ],
-    //           ResourceType: 'collection',
-    //         },
-    //         {
-    //           Resource: [`index/${collectionName}/*`],
-    //           Permission: [
-    //             'aoss:UpdateIndex',
-    //             'aoss:DescribeIndex',
-    //             'aoss:ReadDocument',
-    //             'aoss:WriteDocument',
-    //             'aoss:CreateIndex',
-    //             'aoss:DeleteIndex',
-    //           ],
-    //           ResourceType: 'index',
-    //         },
-    //       ],
-    //       Principal: [
-    //         knowledgeBaseRole.roleArn,
-    //         ossIndex.customResourceHandler.role?.roleArn,
-    //       ],
-    //       Description: '',
-    //     },
-    //   ]),
-    //   type: 'data',
-    // });
+    const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
+      name: collectionName,
+      policy: JSON.stringify([
+        {
+          Rules: [
+            {
+              Resource: [`collection/${collectionName}`],
+              Permission: [
+                'aoss:DescribeCollectionItems',
+                'aoss:CreateCollectionItems',
+                'aoss:UpdateCollectionItems',
+              ],
+              ResourceType: 'collection',
+            },
+            {
+              Resource: [`index/${collectionName}/*`],
+              Permission: [
+                'aoss:UpdateIndex',
+                'aoss:DescribeIndex',
+                'aoss:ReadDocument',
+                'aoss:WriteDocument',
+                'aoss:CreateIndex',
+                'aoss:DeleteIndex',
+              ],
+              ResourceType: 'index',
+            },
+          ],
+          Principal: [
+            knowledgeBaseRole.roleArn,
+            ossIndex.customResourceHandler.role?.roleArn,
+          ],
+          Description: '',
+        },
+      ]),
+      type: 'data',
+    });
 
-    // const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
-    //   name: collectionName,
-    //   policy: JSON.stringify([
-    //     {
-    //       Rules: [
-    //         {
-    //           Resource: [`collection/${collectionName}`],
-    //           ResourceType: 'collection',
-    //         },
-    //         {
-    //           Resource: [`collection/${collectionName}`],
-    //           ResourceType: 'dashboard',
-    //         },
-    //       ],
-    //       AllowFromPublic: true,
-    //     },
-    //   ]),
-    //   type: 'network',
-    // });
+    const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
+      name: collectionName,
+      policy: JSON.stringify([
+        {
+          Rules: [
+            {
+              Resource: [`collection/${collectionName}`],
+              ResourceType: 'collection',
+            },
+            {
+              Resource: [`collection/${collectionName}`],
+              ResourceType: 'dashboard',
+            },
+          ],
+          AllowFromPublic: true,
+        },
+      ]),
+      type: 'network',
+    });
 
-    // const encryptionPolicy = new oss.CfnSecurityPolicy(
-    //   this,
-    //   'EncryptionPolicy',
-    //   {
-    //     name: collectionName,
-    //     policy: JSON.stringify({
-    //       Rules: [
-    //         {
-    //           Resource: [`collection/${collectionName}`],
-    //           ResourceType: 'collection',
-    //         },
-    //       ],
-    //       AWSOwnedKey: true,
-    //     }),
-    //     type: 'encryption',
-    //   }
-    // );
+    const encryptionPolicy = new oss.CfnSecurityPolicy(
+      this,
+      'EncryptionPolicy',
+      {
+        name: collectionName,
+        policy: JSON.stringify({
+          Rules: [
+            {
+              Resource: [`collection/${collectionName}`],
+              ResourceType: 'collection',
+            },
+          ],
+          AWSOwnedKey: true,
+        }),
+        type: 'encryption',
+      }
+    );
 
-    // collection.node.addDependency(accessPolicy);
-    // collection.node.addDependency(networkPolicy);
-    // collection.node.addDependency(encryptionPolicy);
+    collection.node.addDependency(accessPolicy);
+    collection.node.addDependency(networkPolicy);
+    collection.node.addDependency(encryptionPolicy);
 
     const dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -284,7 +219,7 @@ export class RagKnowledgeBaseStack extends Stack {
       autoDeleteObjects: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      // serverAccessLogsPrefix: 'AccessLogs/',
+      serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
     });
 
@@ -298,13 +233,13 @@ export class RagKnowledgeBaseStack extends Stack {
       })
     );
 
-    // knowledgeBaseRole.addToPolicy(
-    //   new iam.PolicyStatement({
-    //     effect: iam.Effect.ALLOW,
-    //     resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-    //     actions: ['aoss:APIAccessAll'],
-    //   })
-    // );
+    knowledgeBaseRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+        actions: ['aoss:APIAccessAll'],
+      })
+    );
 
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
@@ -321,7 +256,7 @@ export class RagKnowledgeBaseStack extends Stack {
         actions: ['s3:GetObject'],
       })
     );
-    
+
     const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
       name: collectionName,
       roleArn: knowledgeBaseRole.roleArn,
@@ -332,24 +267,15 @@ export class RagKnowledgeBaseStack extends Stack {
         },
       },
       storageConfiguration: {
-        // type: 'OPENSEARCH_SERVERLESS',
-        // opensearchServerlessConfiguration: {
-        //   collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
-        //   fieldMapping: {
-        //     metadataField,
-        //     textField,
-        //     vectorField,
-        //   },
-        //   vectorIndexName,
-        // },
-        type: "PINECONE", // ストレージのタイプをPineconeに設定
-        pineconeConfiguration: {
-          connectionString: vectorStoreUrl.stringValue, // Pineconeの接続文字列を設定
-          credentialsSecretArn: vectorStoreSecret.secretFullArn, // PineconeのAPIキーシークレットのARNを設定
+        type: 'OPENSEARCH_SERVERLESS',
+        opensearchServerlessConfiguration: {
+          collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
           fieldMapping: {
-            metadataField: "metadata", // メタデータフィールドを設定
-            textField: "text", // テキストフィールドを設定
+            metadataField,
+            textField,
+            vectorField,
           },
+          vectorIndexName,
         },
       },
     });
@@ -366,26 +292,14 @@ export class RagKnowledgeBaseStack extends Stack {
       name: 's3-data-source',
     });
 
-    // knowledgeBase.addDependency(collection);
-    // knowledgeBase.node.addDependency(ossIndex.customResource);
+    knowledgeBase.addDependency(collection);
+    knowledgeBase.node.addDependency(ossIndex.customResource);
 
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
       sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
     });
 
-    // Too Use を使用できるモデルを選ぶ
-    const model = bedrock.FoundationModel.fromFoundationModelId(
-      this,
-      'Model',
-      bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
-    );
-    
-    const stepFunctionsConstruct = new StepFunctionsConstruct(this, 'StepFunctionsConstruct', {
-      knowledgeBase: knowledgeBase,
-      model: model,
-    });
-    
     this.knowledgeBaseId = knowledgeBase.ref;
     this.dataSourceBucketName = dataSourceBucket.bucketName;
   }

@@ -259,7 +259,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: ragKnowledgeBaseEnabled.toString(),
     });
 
-    new CfnOutput(this, 'RagKnowledgeBasePienconeEnabled', {
+    new CfnOutput(this, 'RagKnowledgeBasePineconeEnabled', {
       value: ragKnowledgeBasePineconeEnabled.toString(),
     });
 

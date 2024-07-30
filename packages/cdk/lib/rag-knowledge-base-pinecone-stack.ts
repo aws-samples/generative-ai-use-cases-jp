@@ -5,7 +5,7 @@ import * as bedrock from 'aws-cdk-lib/aws-bedrock';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import {StepFunctionsConstruct, VectorStoreSecretsConstruct} from './construct';
+import {MetadataJsonGeneratorConstruct, CopyObjectConstruct, VectorStoreSecretsConstruct} from './construct';
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -164,6 +164,16 @@ export class RagKnowledgeBasePineconeStack extends Stack {
       destinationBucket: dataSourceBucket,
     });
 
+    // PDF files Bucket
+    const rawTextFileBucket = new s3.Bucket(this, 'rawTextFileBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      enforceSSL: true,
+      eventBridgeEnabled: true,
+    });
     // Too Use を使用できるモデルを選ぶ
     const model = bedrock.FoundationModel.fromFoundationModelId(
       this,
@@ -171,10 +181,14 @@ export class RagKnowledgeBasePineconeStack extends Stack {
       bedrock.FoundationModelIdentifier.ANTHROPIC_CLAUDE_3_SONNET_20240229_V1_0,
     );
     
-    const stepFunctionsConstruct = new StepFunctionsConstruct(this, 'StepFunctionsConstruct', {
-      knowledgeBase: knowledgeBase,
+    const metadataJsonGeneratorConstruct = new MetadataJsonGeneratorConstruct(this, 'metadataJsonGeneratorConstruct', {
       model: model,
+      sourceBucket: rawTextFileBucket,
     });
+    const copyObjectConstruct = new CopyObjectConstruct(this, "copyObjectConstruct", {
+      knowledgeBaseId: knowledgeBase.ref,
+      sourceBucket: rawTextFileBucket
+    })
     
     this.knowledgeBaseId = knowledgeBase.ref;
     this.dataSourceBucketName = dataSourceBucket.bucketName;

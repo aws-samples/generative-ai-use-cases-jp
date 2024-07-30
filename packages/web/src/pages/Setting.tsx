@@ -10,7 +10,8 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
-  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true' ||
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_PINECONE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
