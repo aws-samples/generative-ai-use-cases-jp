@@ -73,31 +73,37 @@ const RINNA_PROMPT: PromptTemplate = {
 // Model Params
 
 const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3000,
+  maxTokens: 4096,
   temperature: 0.6,
   topP: 0.8,
 };
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3000,
+  maxTokens: 3072,
   temperature: 0.7,
   topP: 1.0,
 };
 
 const LLAMA_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 1024,
+  maxTokens: 2048,
   temperature: 0.6,
   topP: 0.99,
 };
 
 const MISTRAL_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 1024,
+  maxTokens: 8192,
+  temperature: 0.6,
+  topP: 0.99,
+};
+
+const MIXTRAL_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 4096,
   temperature: 0.6,
   topP: 0.99,
 };
 
 const COMMANDR_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3000,
+  maxTokens: 4000,
   temperature: 0.3,
   topP: 0.75,
 };
@@ -579,7 +585,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mixtral-8x7b-instruct-v0:1': {
-    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    defaultParams: MIXTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
     createConverseStreamCommandInput:
@@ -596,6 +602,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'mistral.mistral-large-2402-v1:0': {
+    defaultParams: MISTRAL_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'mistral.mistral-large-2407-v1:0': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
