@@ -27,6 +27,7 @@ export class Transcribe extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
     });
     audioBucket.addCorsRule({
       allowedOrigins: ['*'],
@@ -40,6 +41,7 @@ export class Transcribe extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
     });
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {

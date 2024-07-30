@@ -28,6 +28,7 @@ export class Agent extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
     });
 
     // schema を s3 に配置
