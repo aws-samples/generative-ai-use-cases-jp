@@ -7,6 +7,7 @@ import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
 import { SearchAgentStack } from '../lib/search-agent-stack';
 import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
+import { RagKnowledgeBasePineconeStack } from '../lib/rag-knowledge-base-pinecone-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -111,8 +112,19 @@ const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 
 const ragKnowledgeBaseEnabled =
   app.node.tryGetContext('ragKnowledgeBaseEnabled') || false;
+const ragKnowledgeBasePineconeEnabled =
+app.node.tryGetContext('ragKnowledgeBasePineconeEnabled') || false;
 const ragKnowledgeBaseStack = ragKnowledgeBaseEnabled
   ? new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: modelRegion,
+      },
+      crossRegionReferences: true,
+    }):
+    // RAG Knowledge Base Pinecone
+    ragKnowledgeBasePineconeEnabled
+  ? new RagKnowledgeBasePineconeStack(app, 'RagKnowledgeBasePineconeStack', {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: modelRegion,

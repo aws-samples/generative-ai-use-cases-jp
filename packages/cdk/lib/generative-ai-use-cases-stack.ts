@@ -56,6 +56,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext(
       'ragKnowledgeBaseEnabled'
     )!;
+    const ragKnowledgeBasePineconeEnabled: boolean = this.node.tryGetContext(
+      'ragKnowledgeBasePineconeEnabled'
+    )!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
@@ -78,6 +81,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (typeof ragKnowledgeBaseEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragKnowledgeBaseEnabled'));
+    }
+
+    if (typeof ragKnowledgeBasePineconeEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('ragKnowledgeBasePineconeEnabled'));
     }
 
     if (typeof selfSignUpEnabled !== 'boolean') {
@@ -136,6 +143,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
       ragKnowledgeBaseEnabled,
+      ragKnowledgeBasePineconeEnabled,
       agentEnabled,
       selfSignUpEnabled,
       webAclId: props.webAclId,
@@ -176,6 +184,18 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (ragKnowledgeBaseEnabled) {
       new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+        knowledgeBaseId: props.knowledgeBaseId!,
+        dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
+        userPool: auth.userPool,
+        api: api.api,
+      });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      file.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+    }
+
+    if (ragKnowledgeBasePineconeEnabled) {
+      new RagKnowledgeBase(this, 'RagKnowledgeBasePinecone', {
         knowledgeBaseId: props.knowledgeBaseId!,
         dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
         userPool: auth.userPool,
@@ -237,6 +257,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
       value: ragKnowledgeBaseEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'RagKnowledgeBasePienconeEnabled', {
+      value: ragKnowledgeBasePineconeEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentEnabled', {

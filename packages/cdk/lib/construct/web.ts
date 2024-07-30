@@ -19,6 +19,7 @@ export interface WebProps {
   predictStreamFunctionArn: string;
   ragEnabled: boolean;
   ragKnowledgeBaseEnabled: boolean;
+  ragKnowledgeBasePineconeEnabled: boolean;
   agentEnabled: boolean;
   selfSignUpEnabled: boolean;
   webAclId?: string;

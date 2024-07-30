@@ -23,7 +23,8 @@
     "kendraIndexScheduleEnabled": false,
     "kendraIndexScheduleCreateCron": null,
     "kendraIndexScheduleDeleteCron": null,
-    "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseEnabled": false,
+    "ragKnowledgeBasePineconeEnabled": true,
     "ragKnowledgeBaseStandbyReplicas": false,
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "selfSignUpEnabled": true,
@@ -39,7 +40,7 @@
       "stability.stable-diffusion-xl-v1"
     ],
     "endpointNames": [],
-    "agentEnabled": true,
+    "agentEnabled": false,
     "agentRegion": "us-east-1",
     "searchAgentEnabled": false,
     "searchApiKey": "",
