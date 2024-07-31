@@ -119,6 +119,7 @@ export class Api extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
     });
     fileBucket.addCorsRule({
       allowedOrigins: ['*'],
