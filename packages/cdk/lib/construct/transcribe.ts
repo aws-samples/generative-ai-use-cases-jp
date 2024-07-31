@@ -10,7 +10,12 @@ import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+  HttpMethods,
+} from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 export interface TranscribeProps {
@@ -28,6 +33,7 @@ export class Transcribe extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       enforceSSL: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
     audioBucket.addCorsRule({
       allowedOrigins: ['*'],
@@ -42,6 +48,7 @@ export class Transcribe extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       enforceSSL: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
