@@ -14,7 +14,12 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Bucket, BucketEncryption, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+  HttpMethods,
+} from 'aws-cdk-lib/aws-s3';
 import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
 
 export interface BackendApiProps {
@@ -120,6 +125,7 @@ export class Api extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       enforceSSL: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
     fileBucket.addCorsRule({
       allowedOrigins: ['*'],
