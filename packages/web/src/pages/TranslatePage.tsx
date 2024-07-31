@@ -249,7 +249,7 @@ const TranslatePage: React.FC = () => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading, prompter]);
+  }, [sentence, additionalContext, loading, prompter, language]);
 
   // リセット
   const onClickClear = useCallback(() => {
