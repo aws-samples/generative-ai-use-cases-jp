@@ -15,6 +15,11 @@ import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
 
+export type StreamingChunk = {
+  text: string;
+  stopReason?: string;
+};
+
 export type CreateChatResponse = {
   chat: Chat;
 };

@@ -6,6 +6,7 @@ import {
 import { generatePrompt } from './prompter';
 import { ApiInterface, UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { getSageMakerModelTemplate } from './models';
+import { streamingChunk } from './streamingChunk';
 
 const client = new SageMakerRuntimeClient({
   region: process.env.MODEL_REGION,
@@ -83,7 +84,7 @@ const sagemakerApi: ApiInterface = {
       for (const line of lines) {
         const message = line.replace(/^data:/, '');
         const token: string = JSON.parse(message).token.text || '';
-        if (!token.includes(pt.eosToken)) yield token;
+        if (!token.includes(pt.eosToken)) yield streamingChunk({ text: token });
       }
       buffer = '';
     }

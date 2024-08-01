@@ -95,8 +95,10 @@ const WebContent: React.FC = () => {
     loading,
     messages,
     postChat,
+    continueGeneration,
     clear: clearChat,
     updateSystemContextByModel,
+    getStopReason,
   } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { getWebText } = useChatApi();
@@ -106,6 +108,7 @@ const WebContent: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
+  const stopReason = getStopReason();
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -257,6 +260,10 @@ const WebContent: React.FC = () => {
           </ExpandableField>
 
           <div className="flex justify-end gap-3">
+            {stopReason === 'max_tokens' && (
+              <Button onClick={continueGeneration}>続きを出力</Button>
+            )}
+
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
               クリア
             </Button>

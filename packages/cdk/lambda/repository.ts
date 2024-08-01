@@ -200,7 +200,7 @@ export const batchCreateMessages = async (
     (m: ToBeRecordedMessage, i: number) => {
       return {
         id: chatId,
-        createdDate: `${createdDate + i}#0`,
+        createdDate: m.createdDate ?? `${createdDate + i}#0`,
         messageId: m.messageId,
         role: m.role,
         content: m.content,
