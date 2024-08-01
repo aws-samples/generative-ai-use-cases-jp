@@ -5,6 +5,8 @@ import ButtonCopy from '../components/ButtonCopy';
 import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import Markdown from '../components/Markdown';
 import useFile from '../hooks/useFile';
+import Alert from '../components/Alert';
+import { Link } from 'react-router-dom';
 
 const FileUploadPage: React.FC = () => {
   const { file, loading, recognizedText, clear, setFile, recognizeFile } =
@@ -40,6 +42,23 @@ const FileUploadPage: React.FC = () => {
         ファイルアップロード
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+        <Alert severity="warning" className="mb-4">
+          <span className="font-bold">
+            「ファイルアップロード」機能は Deprecated (廃止予定)
+            になりました。2024/09 末に完全に廃止される予定です。
+          </span>
+          チャットや Agent
+          チャットのユースケースでファイルを読み込ませることが可能ですので、代わりにそちらをご利用ください。
+          ファイルアップロードの廃止予定についてのご意見・ご要望がある方は{' '}
+          <Link
+            className="text-aws-smile"
+            to="https://github.com/aws-samples/generative-ai-use-cases-jp/issues"
+            target="_blank">
+            GitHub の Issue を起票
+          </Link>{' '}
+          してください。
+        </Alert>
+
         <Card label="ファイルアップロード">
           <input
             className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
