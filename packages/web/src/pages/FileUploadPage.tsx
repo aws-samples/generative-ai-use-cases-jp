@@ -44,8 +44,8 @@ const FileUploadPage: React.FC = () => {
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Alert severity="warning" className="mb-4">
           <span className="font-bold">
-            「ファイルアップロード」は Deprecated (廃止予定)
-            になりました。2024/09 末に完全に排除される予定です。
+            「ファイルアップロード」機能は Deprecated (廃止予定)
+            になりました。2024/09 末に完全に廃止される予定です。
           </span>
           チャットや Agent
           チャットのユースケースでファイルを読み込ませることが可能ですので、代わりにそちらをご利用ください。
