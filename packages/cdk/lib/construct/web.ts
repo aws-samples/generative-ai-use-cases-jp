@@ -58,6 +58,7 @@ export class Web extends Construct {
       loggingBucketProps: commonBucketProps,
       bucketProps: commonBucketProps,
       cloudFrontLoggingBucketProps: commonBucketProps,
+      cloudFrontLoggingBucketAccessLogBucketProps: commonBucketProps,
       cloudFrontDistributionProps: {
         errorResponses: [
           {
