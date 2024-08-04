@@ -83,6 +83,7 @@ Create Alias を押します。
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804103540739.png)<br><br><br>
 
 適当に名前を付与します。
+
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804113704597.png)<br><br><br>
 
 Agent の ID を控えます
