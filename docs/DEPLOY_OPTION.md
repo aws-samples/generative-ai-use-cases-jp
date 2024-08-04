@@ -158,7 +158,7 @@ Agent チャットユースケースでは、以下のご利用が可能です�
 #### Code Interpreter エージェントのデプロイ
 
 Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。  
-[詳細な手順はこちら]((AGENTS_CODE_INTERPRETER.md))を参照してください。この章では、変更手順の概要を記載します。  
+[詳細な手順はこちら](AGENTS_CODE_INTERPRETER.md)を参照してください。この章では、変更手順の概要を記載します。  
 
 AWSマネジメントコンソール画面で、Code Interpreter 機能を有効にした Agent を作成します。  
 
