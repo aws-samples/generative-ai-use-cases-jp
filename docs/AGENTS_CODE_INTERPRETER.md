@@ -7,7 +7,10 @@ Agents for Amazon Bedrock では、Code Interpreter を利用したデータの�
 Code Interpreter 機能を持つ Agent の作成方法を紹介します。詳細なパラメーターは各環境に合わせて変更してください。
 
 # Agents for Amazon Bedrock の作成
-Code Interpreter 機能を持つ Agent を作成します。  
+現在、Code Interpreter 機能を持つ Agent を手動で作成する必要があります。これは、CDK や CloudFormation で Code Interpreter 機能を持つ Agent を作成できないためです。  
+この手順は、今後のアップデートによって自動化される可能性がある点をご留意ください。  
+
+それでは、Code Interpreter 機能を持つ Agent を手動で作成する手順を紹介します。  
 まず、[AWS マネジメントコンソールで Agent の作成画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/agents)を開きます。　　
 作成先のリージョンは、GenU で利用する Bedrock のリージョンに合わせて変更してください。バージニア北部か、オレゴンがよくある選択肢になると思います。  
 リージョンを選択したあとに、Create Agent を選択します。
