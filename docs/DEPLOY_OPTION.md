@@ -150,9 +150,36 @@ RagKnowledgeBaseStack の削除に伴い、RAG チャット用の S3 Bucket も�
 
 ### Agent チャットユースケースの有効化
 
-Agent チャットユースケースでは Agent for Amazon Bedrock を利用してアクションを実行させたり、Knowledge base for Amazon Bedrock のベクトルデータベースを参照することが可能です。
+Agent チャットユースケースでは、以下のご利用が可能です。
+- Code Interpreter を利用したデータの可視化、コード実行、データ分析
+- Agents for Amazon Bedrock を利用したアクションを実行させたり
+- Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
+#### Code Interpreter エージェントのデプロイ
 
+Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。  
+[詳細な手順はこちら](AGENTS_CODE_INTERPRETER.md)を参照してください。この章では、変更手順の概要を記載します。  
+
+AWSマネジメントコンソール画面で、Code Interpreter 機能を有効にした Agent を作成します。  
+
+作成された Agent で Alias を作成し、`agentId` と `aliasId` をコピーし、`cdk.json` に以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "agentEnabled": true,
+    "agentRegion": "us-west-2",
+    "agents": [
+      {
+        "displayName": "Code Interpreter",
+        "agentId": "XXXXXXXXX",
+        "aliasId": "YYYYYYYY"
+      }
+    ],
+  }
+}
+```
 
 #### 検索エージェントのデプロイ
 
