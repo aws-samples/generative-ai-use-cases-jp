@@ -651,6 +651,10 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageTitanImage,
     extractOutputImage: extractOutputImageTitanImage,
   },
+  'amazon.titan-image-generator-v2:0': {
+    createBodyImage: createBodyImageTitanImage,
+    extractOutputImage: extractOutputImageTitanImage,
+  },
 };
 
 export const getSageMakerModelTemplate = (model: string): PromptTemplate => {

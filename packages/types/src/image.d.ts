@@ -83,6 +83,27 @@ export type TitanImageParams = {
   };
 };
 
+export type TitanImageParamsV2 = Omit<TitanImageParams, 'taskType'> & {
+  taskType:
+    | TitanImageParams['taskType']
+    | 'COLOR_GUIDED_GENERATION'
+    | 'BACKGROUND_REMOVAL';
+  textToImageParams?: TitanImageParams['textToImageParams'] & {
+    conditionImage?: string; // base64 encoded image
+    controlMode?: 'CANNY_EDGE' | 'SEGMENTATION';
+    controlStrength?: number;
+  };
+  colorGuidedGenerationParams?: {
+    text: string;
+    negativeText?: string;
+    referenceImage?: string; // base64 encoded image
+    colors: string[]; // list of color hex codes
+  };
+  backgroundRemovalParams?: {
+    image: string; // base64 encoded image
+  };
+};
+
 export type BedrockImageGenerationResponse = {
   result: string;
   artifacts: {
