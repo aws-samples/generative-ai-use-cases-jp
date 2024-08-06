@@ -5,6 +5,7 @@ import {
   PromptTemplate,
   StableDiffusionParams,
   TitanImageParams,
+  TitanImageParamsV2,
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
@@ -403,6 +404,47 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       imageGenerationConfig: imageGenerationConfig,
     };
   }
+  return JSON.stringify(body);
+};
+
+
+const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
+  // 既存の関数を呼び出して基本的なボディを取得
+  const baseBody = JSON.parse(createBodyImageTitanImage(params));
+
+  let body: Partial<TitanImageParamsV2> = {
+    ...baseBody,
+  };
+
+  // 新しいタスクタイプの処理
+  if (params.taskType === 'COLOR_GUIDED_GENERATION') {
+    body = {
+      taskType: 'COLOR_GUIDED_GENERATION',
+      colorGuidedGenerationParams: {
+        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        referenceImage: params.referenceImage,
+        colors: params.colors,
+      },
+      imageGenerationConfig: body.imageGenerationConfig,
+    };
+  } else if (params.taskType === 'BACKGROUND_REMOVAL') {
+    body = {
+      taskType: 'BACKGROUND_REMOVAL',
+      backgroundRemovalParams: {
+        image: params.initImage!,
+      },
+    };
+  } else if (body.textToImageParams) {
+    // TEXT_IMAGE タスクタイプの拡張
+    body.textToImageParams = {
+      ...body.textToImageParams,
+      conditionImage: params.conditionImage,
+      controlMode: params.controlMode,
+      controlStrength: params.controlStrength,
+    };
+  }
+
   return JSON.stringify(body);
 };
 
