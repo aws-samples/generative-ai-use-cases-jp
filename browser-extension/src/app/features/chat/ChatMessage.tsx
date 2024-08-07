@@ -37,7 +37,7 @@ const ChatMessage: React.FC<Props> = (props) => {
 
       <div
         className={twMerge(
-          // 'transition-all ',
+          'transition-all ',
           message.role === 'system' && isOpen && 'max-h-[300px] overflow-y-auto',
           message.role === 'system' && !isOpen && 'max-h-0 overflow-hidden'
         )}
