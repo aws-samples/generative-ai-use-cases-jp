@@ -65,6 +65,7 @@ export type RecordedMessage = PrimaryKey &
   UnrecordedMessage;
 
 export type ToBeRecordedMessage = UnrecordedMessage & {
+  createdDate?: string;
   messageId: string;
   usecase: string;
 };

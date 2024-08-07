@@ -19,6 +19,7 @@ import {
 } from 'generative-ai-use-cases-jp';
 import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+import { streamingChunk } from './streamingChunk';
 
 // STSから一時的な認証情報を取得する関数
 const assumeRole = async (crossAccountBedrockRoleArn: string) => {
@@ -187,10 +188,14 @@ const bedrockApi: ApiInterface = {
         );
 
         if (outputText) {
-          yield outputText;
+          yield streamingChunk({ text: outputText });
         }
 
-        if (response.contentBlockStop) {
+        if (response.messageStop) {
+          yield streamingChunk({
+            text: '',
+            stopReason: response.messageStop.stopReason,
+          });
           break;
         }
       }
@@ -199,13 +204,19 @@ const bedrockApi: ApiInterface = {
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
-        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+        yield streamingChunk({
+          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+        });
       } else if (e instanceof AccessDeniedException) {
         const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
-        yield `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`;
+        yield streamingChunk({
+          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+        });
       } else {
         console.error(e);
-        yield 'エラーが発生しました。時間をおいて試してみてください。';
+        yield streamingChunk({
+          text: 'エラーが発生しました。時間をおいて試してみてください。',
+        });
       }
     }
   },

@@ -104,8 +104,10 @@ const TranslatePage: React.FC = () => {
     loading,
     messages,
     postChat,
+    continueGeneration,
     clear: clearChat,
     updateSystemContextByModel,
+    getStopReason,
   } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { modelIds: availableModels } = MODELS;
@@ -113,6 +115,7 @@ const TranslatePage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
+  const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
 
@@ -249,7 +252,7 @@ const TranslatePage: React.FC = () => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sentence, additionalContext, loading, prompter]);
+  }, [sentence, additionalContext, loading, prompter, language]);
 
   // リセット
   const onClickClear = useCallback(() => {
@@ -340,6 +343,10 @@ const TranslatePage: React.FC = () => {
           </ExpandableField>
 
           <div className="flex justify-end gap-3">
+            {stopReason === 'max_tokens' && (
+              <Button onClick={continueGeneration}>続きを出力</Button>
+            )}
+
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
               クリア
             </Button>

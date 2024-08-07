@@ -139,6 +139,7 @@ const items: ItemProps[] = [
         to: '/file',
         icon: <PiUploadSimple />,
         display: 'tool' as const,
+        sub: 'Deprecated',
       }
     : null,
   ragEnabled

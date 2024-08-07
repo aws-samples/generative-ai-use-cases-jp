@@ -161,6 +161,7 @@ const Drawer: React.FC<Props> = (props) => {
                     icon={item.icon}
                     to={item.to}
                     display={item.display}
+                    sub={item.sub}
                   />
                 ))}
               </div>

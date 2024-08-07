@@ -100,7 +100,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 ## アーキテクチャ
 
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
 
 ![arch.drawio.png](/imgs/arch.drawio.png)
 
@@ -141,6 +141,7 @@ npm run cdk:deploy
     - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
     - [OpenSearch Service の Collection/Index に変更を加える方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-collectionindex-に変更を加える方法)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
+    - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
@@ -193,6 +194,11 @@ GenUを活用した介護現場の記録・報告業務の効率化。介護利�
 
 ![tamura.png](/imgs/株式会社タムラ製作所_事例.png)
 製品の実験を行うにあたり、大量の製品書類があり必要な情報がどの文書に記載されているか特定が困難であるという課題があった。GenU の RAG を活用することで、文書の発見を容易にした。加えて、文字起こしや文書生成も活用し、議事録を簡単に作成できるようになったことで、情報の共有が活発化した。
+
+### [株式会社JDSC](https://jdsc.ai/)
+
+![jdsc.png](/imgs/株式会社JDSC_事例.png)
+GenU をリファレンスにし、Bedrock の生成AI の出力を実際にアプリケーションで確認しつつ、開発できたことが成功要因でした。海事産業特有の専門的な問合せについて、90%以上の性能改善ができたのは、Haiku, Sonnet, Opus の適宜の利用と、AWSの各種サービス活用によります。特に性能向上の観点で新たにSonnet 3.5 への適用、 Kendra から RDS for PostgreSQL の pgvector への切替など、確固たるGenUのベースと自社ノウハウを両立させられたのも良かったです。
 
 活用頂いた事例を掲載頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
