@@ -331,7 +331,10 @@ const GenerateImagePage: React.FC = () => {
   }, [generationMode]);
   const maskPromptSupported = useMemo(() => {
     // TODO: Remove Hard Coding
-    return imageGenModelId === 'amazon.titan-image-generator-v1';
+    return (
+      imageGenModelId === 'amazon.titan-image-generator-v1' ||
+      imageGenModelId === 'amazon.titan-image-generator-v2:0'
+    );
   }, [imageGenModelId]);
 
   useEffect(() => {

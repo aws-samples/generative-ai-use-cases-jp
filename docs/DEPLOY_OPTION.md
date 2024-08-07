@@ -319,6 +319,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 このソリューションが対応している画像生成モデルは以下です。
 
 ```
+"amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
 "stability.stable-diffusion-xl-v1"
 ```
@@ -341,6 +342,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "mistral.mistral-large-2402-v1:0"
   ],
   "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
     "stability.stable-diffusion-xl-v1"
   ],
@@ -351,6 +353,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
@@ -361,6 +364,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "mistral.mistral-large-2407-v1:0"
   ],
   "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
     "stability.stable-diffusion-xl-v1"
   ],
@@ -371,8 +375,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```bash
   "modelRegion": "ap-northeast-1",
   "modelIds": [
-    "anthropic.claude-v2:1",
-    "anthropic.claude-instant-v1"
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "anthropic.claude-3-haiku-20240307-v1:0"
   ],
   "imageGenerationModelIds": [],
 ```

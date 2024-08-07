@@ -79,6 +79,7 @@ export class Api extends Construct {
       // 'amazon.titan-text-express-v1',
       'amazon.titan-text-premier-v1:0',
       'stability.stable-diffusion-xl-v1',
+      'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',
       'meta.llama3-70b-instruct-v1:0',
