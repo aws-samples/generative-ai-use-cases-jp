@@ -55,7 +55,6 @@ const ChatPage: React.FC = () => {
     if (message.type === 'CONTENT') {
       setContent(message.content);
     } else if (message.type === 'SYSTEM-CONTEXT') {
-      console.log(message);
       setPromptSetting(message.systemContext);
     }
   });
@@ -66,7 +65,6 @@ const ChatPage: React.FC = () => {
     if (message.type === 'CONTENT') {
       setContent(message.content);
     } else if (message.type === 'SYSTEM-CONTEXT') {
-      console.log(message);
       setPromptSetting(message.systemContext);
     }
   });
