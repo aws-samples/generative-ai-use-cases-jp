@@ -559,6 +559,22 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'meta.llama2-13b-chat-v1': {
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'meta.llama2-70b-chat-v1': {
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'mistral.mistral-7b-instruct-v0:2': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
