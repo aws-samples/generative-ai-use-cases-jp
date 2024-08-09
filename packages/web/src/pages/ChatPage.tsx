@@ -432,6 +432,8 @@ const ChatPage: React.FC = () => {
               <ChatMessage
                 chatContent={chat}
                 loading={loading && idx === showingMessages.length - 1}
+                setSaveSystemContext={setSaveSystemContext}
+                setShowSystemContextModal={setShowSystemContextModal}
               />
               <div className="w-full border-b border-gray-300"></div>
             </div>
