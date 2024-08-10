@@ -16,7 +16,13 @@ export type GenerateImageParams = {
   // Inpaint / Outpaint
   maskImage?: string;
   maskPrompt?: string;
-  maskMode?: 'INPAINTING' | 'OUTPAINTING';
+  taskType?:
+    | 'TEXT_IMAGE'
+    | 'INPAINTING'
+    | 'OUTPAINTING'
+    | 'IMAGE_CONDITIONING'
+    | 'COLOR_GUIDED_GENERATION'
+    | 'BACKGROUND_REMOVAL';
 };
 
 // Stable Diffusion

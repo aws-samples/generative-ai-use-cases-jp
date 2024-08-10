@@ -327,7 +327,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
       init_image: params.initImage,
       mask_image: params.maskImage,
       mask_source:
-        params.maskMode === 'INPAINTING'
+        params.taskType === 'INPAINTING'
           ? 'MASK_IMAGE_BLACK'
           : 'MASK_IMAGE_WHITE',
     };
@@ -346,7 +346,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     seed: params.seed % 214783648, // max for titan image
   };
   let body: Partial<TitanImageParams> = {};
-  if (params.initImage && params.maskMode === undefined) {
+  if (params.initImage && params.taskType === undefined) {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -360,7 +360,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'INPAINTING') {
+  } else if (params.initImage && params.taskType === 'INPAINTING') {
     body = {
       taskType: 'INPAINTING',
       inPaintingParams: {
@@ -375,7 +375,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'OUTPAINTING') {
+  } else if (params.initImage && params.taskType === 'OUTPAINTING') {
     body = {
       taskType: 'OUTPAINTING',
       outPaintingParams: {
@@ -391,7 +391,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else {
+  } else if (params.taskType === 'TEXT_IMAGE') {
     body = {
       taskType: 'TEXT_IMAGE',
       textToImageParams: {
@@ -406,7 +406,6 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
   }
   return JSON.stringify(body);
 };
-
 
 const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
   // 既存の関数を呼び出して基本的なボディを取得
