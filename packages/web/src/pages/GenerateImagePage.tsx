@@ -22,18 +22,10 @@ import { GenerateImagePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
-import { GenerateImageParams } from 'generative-ai-use-cases-jp';
+import { GenerateImageParams, ControlMode, GenerationMode } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-type GenerationMode =
-  | 'TEXT_IMAGE'
-  | 'IMAGE_VARIATION'
-  | 'INPAINTING'
-  | 'OUTPAINTING'
-  | 'IMAGE_CONDITIONING'
-  | 'COLOR_GUIDED_GENERATION'
-  | 'BACKGROUND_REMOVAL';
 const getModeOptions = (imageGenModelId: string) => {
   const baseOptions = [
     'TEXT_IMAGE',
@@ -91,8 +83,8 @@ type StateType = {
   setImageStrength: (n: number) => void;
   controlStrength: number;
   setControlStrength: (n: number) => void;
-  controlMode: string;
-  setControlMode: (s: string) => void;
+  controlMode: ControlMode;
+  setControlMode: (s: ControlMode) => void;
   generationMode: GenerationMode;
   setGenerationMode: (s: GenerationMode) => void;
   initImage: Canvas;
@@ -128,7 +120,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     cfgScale: 7,
     imageStrength: 0.35,
     controlStrength: 0.7,
-    controlMode: 'CANNY_EDGE',
+    controlMode: 'CANNY_EDGE' as ControlMode,
     generationMode: 'TEXT_IMAGE' as GenerationMode,
     initImage: {
       imageBase64: '',
@@ -310,8 +302,8 @@ const stylePresetOptions = [
 // Titan Image Generator v2のImage Conditioning適用時のControl Mode
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
 const controlModeOptions = ['CANNY_EDGE', 'SEGMENTATION'].map((s) => ({
-  value: s,
-  label: s,
+  value: s as ControlMode,
+  label: s as ControlMode,
 }));
 
 const GenerateImagePage: React.FC = () => {
@@ -503,8 +495,26 @@ const GenerateImagePage: React.FC = () => {
             maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
             maskImage: maskImage.imageBase64,
           };
+        } else if (generationMode === 'IMAGE_CONDITIONING') {
+          params = {
+            ...params,
+            initImage: initImage.imageBase64,
+            controlStrength,
+            controlMode,
+          };
+        } else if (generationMode === 'COLOR_GUIDED_GENERATION'){
+          params = {
+            ...params,
+            initImage: initImage.imageBase64,
+            colors: ['#00ff00'],
+          }
+        } else if (generationMode === 'BACKGROUND_REMOVAL'){
+          params = {
+            ...params,
+            initImage: initImage.imageBase64,
+          };
         }
-
+        console.log(params)
         return generate(
           params,
           imageGenModels.find((m) => m.modelId === imageGenModelId)
@@ -608,9 +618,9 @@ const GenerateImagePage: React.FC = () => {
     <div className="grid h-screen grid-cols-12 gap-4 p-4">
       <ModalDialog
         isOpen={isOpenSketch}
-        title="初期画像の設定"
+        title="参照画像の設定"
         className="w-[530px]"
-        help="画像生成の初期状態として使われます。指定した画像に近い画像が生成されます。"
+        help="画像生成のインプットとして使われます。"
         onClose={() => {
           setIsOpenSketch(false);
         }}>
@@ -788,7 +798,7 @@ const GenerateImagePage: React.FC = () => {
             <div className="grid grid-cols-2 gap-2 pt-4">
               <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
                 <Select
-                  label="GenerationMode"
+                  label="生成モード"
                   options={modeOptions}
                   value={generationMode}
                   onChange={(v) => setGenerationMode(v as GenerationMode)}
@@ -798,11 +808,11 @@ const GenerateImagePage: React.FC = () => {
                   {generationMode !== 'TEXT_IMAGE' && (
                     <div className="flex flex-col items-center">
                       <div className="mb-1 flex items-center text-sm font-bold">
-                        初期画像
+                        参照画像
                         <Help
                           className="ml-1"
                           position="center"
-                          message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                          message="画像生成のインプットとなる画像を設定できます。生成モードによって役割が異なります。"
                         />
                       </div>
                       <Base64Image
@@ -922,7 +932,7 @@ const GenerateImagePage: React.FC = () => {
                       label="ControlMode"
                       options={controlModeOptions}
                       value={controlMode}
-                      onChange={setControlMode}
+                      onChange={(v) => setControlMode(v as ControlMode)}
                       clearable
                       fullWidth
                     />

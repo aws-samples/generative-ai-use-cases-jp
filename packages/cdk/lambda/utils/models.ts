@@ -5,7 +5,7 @@ import {
   PromptTemplate,
   StableDiffusionParams,
   TitanImageParams,
-  TitanImageParamsV2,
+  TitanImageV2Params,
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
@@ -346,7 +346,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     seed: params.seed % 214783648, // max for titan image
   };
   let body: Partial<TitanImageParams> = {};
-  if (params.initImage && params.taskType === undefined) {
+  if (params.initImage && params.taskType === 'IMAGE_VARIATION') {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -403,6 +403,10 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
+  } else {
+    body = {
+      imageGenerationConfig: imageGenerationConfig,
+    }
   }
   return JSON.stringify(body);
 };
@@ -411,7 +415,7 @@ const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
   // 既存の関数を呼び出して基本的なボディを取得
   const baseBody = JSON.parse(createBodyImageTitanImage(params));
 
-  let body: Partial<TitanImageParamsV2> = {
+  let body: Partial<TitanImageV2Params> = {
     ...baseBody,
   };
 
@@ -422,8 +426,8 @@ const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
       colorGuidedGenerationParams: {
         text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
-        referenceImage: params.referenceImage,
-        colors: params.colors,
+        referenceImage: params.initImage,
+        colors: params.colors!,
       },
       imageGenerationConfig: body.imageGenerationConfig,
     };
@@ -435,10 +439,10 @@ const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
       },
     };
   } else if (body.textToImageParams) {
-    // TEXT_IMAGE タスクタイプの拡張
+    // TEXT_IMAGE タスクタイプの拡張(Image Conditioning)
     body.textToImageParams = {
       ...body.textToImageParams,
-      conditionImage: params.conditionImage,
+      conditionImage: params.initImage,
       controlMode: params.controlMode,
       controlStrength: params.controlStrength,
     };
@@ -693,7 +697,7 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     extractOutputImage: extractOutputImageTitanImage,
   },
   'amazon.titan-image-generator-v2:0': {
-    createBodyImage: createBodyImageTitanImage,
+    createBodyImage: createBodyImageTitanImageV2,
     extractOutputImage: extractOutputImageTitanImage,
   },
 };

@@ -1,5 +1,24 @@
+export type ControlMode = 'CANNY_EDGE' | 'SEGMENTATION'
+export type BaseGenerationMode =
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING'
+export type TitanImageV2GenerationMode =
+  | 'IMAGE_CONDITIONING'
+  | 'COLOR_GUIDED_GENERATION'
+  | 'BACKGROUND_REMOVAL';
+export type GenerationMode = BaseGenerationMode | TitanImageV2GenerationMode
 // 標準化したパラメータ
 export type GenerateImageParams = {
+  taskType?:
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING'
+  | 'IMAGE_CONDITIONING'
+  | 'COLOR_GUIDED_GENERATION'
+  | 'BACKGROUND_REMOVAL';
   textPrompt: {
     text: string;
     weight: number;
@@ -16,14 +35,11 @@ export type GenerateImageParams = {
   // Inpaint / Outpaint
   maskImage?: string;
   maskPrompt?: string;
-  taskType?:
-    | 'TEXT_IMAGE'
-    | 'IMAGE_VARIATION'
-    | 'INPAINTING'
-    | 'OUTPAINTING'
-    | 'IMAGE_CONDITIONING'
-    | 'COLOR_GUIDED_GENERATION'
-    | 'BACKGROUND_REMOVAL';
+  // Color Guided Generation
+  colors?: string[];
+  // Image Conditioning
+  controlStrength?: number;
+  controlMode?: ControlMode;
 };
 
 // Stable Diffusion
@@ -90,14 +106,14 @@ export type TitanImageParams = {
   };
 };
 
-export type TitanImageParamsV2 = Omit<TitanImageParams, 'taskType'> & {
+export type TitanImageV2Params = Omit<TitanImageParams, 'taskType'> & {
   taskType:
     | TitanImageParams['taskType']
     | 'COLOR_GUIDED_GENERATION'
     | 'BACKGROUND_REMOVAL';
   textToImageParams?: TitanImageParams['textToImageParams'] & {
     conditionImage?: string; // base64 encoded image
-    controlMode?: 'CANNY_EDGE' | 'SEGMENTATION';
+    controlMode?: ControlMode;
     controlStrength?: number;
   };
   colorGuidedGenerationParams?: {
