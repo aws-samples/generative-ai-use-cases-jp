@@ -30,12 +30,18 @@ type GenerationMode =
   | 'TEXT_IMAGE'
   | 'IMAGE_VARIATION'
   | 'INPAINTING'
-  | 'OUTPAINTING';
+  | 'OUTPAINTING'
+  | 'IMAGE_CONDITIONING'
+  | 'COLOR_GUIDED_GENERATION'
+  | 'BACKGROUND_REMOVAL';
 const modeOptions = [
   'TEXT_IMAGE',
   'IMAGE_VARIATION',
   'INPAINTING',
   'OUTPAINTING',
+  'IMAGE_CONDITIONING',
+  'COLOR_GUIDED_GENERATION',
+  'BACKGROUND_REMOVAL',
 ].map((s) => ({
   value: s as GenerationMode,
   label: s as GenerationMode,
@@ -70,6 +76,10 @@ type StateType = {
   setCfgScale: (n: number) => void;
   imageStrength: number;
   setImageStrength: (n: number) => void;
+  controlStrength: number;
+  setControlStrength: (n: number) => void;
+  controlMode: string;
+  setControlMode: (s: string) => void;
   generationMode: GenerationMode;
   setGenerationMode: (s: GenerationMode) => void;
   initImage: Canvas;
@@ -263,6 +273,13 @@ const stylePresetOptions = [
   label: s,
 }));
 
+// Titan Image Generator v2のImage Conditioning適用時のControl Mode
+// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
+const controlModeOptions = ['CANNY_EDGE', 'SEGMENTATION'].map((s) => ({
+  value: s,
+  label: s,
+}));
+
 const GenerateImagePage: React.FC = () => {
   const {
     imageGenModelId,
@@ -426,7 +443,10 @@ const GenerateImagePage: React.FC = () => {
             initImage: initImage.imageBase64,
             maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
             maskImage: maskImage.imageBase64,
-            maskMode: generationMode,
+            taskType:
+              generationMode === 'IMAGE_CONDITIONING'
+                ? 'TEXT_IMAGE'
+                : generationMode,
           };
         }
 
@@ -825,6 +845,29 @@ const GenerateImagePage: React.FC = () => {
                     onChange={setImageStrength}
                     help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
                   />
+                )}
+
+                {generationMode === 'IMAGE_CONDITIONING' && (
+                  <>
+                    <RangeSlider
+                      className="w-full"
+                      label="ImageStrength"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={controlStrength}
+                      onChange={setControlStrength}
+                      help="1に近いほど「初期画像」の構図に基づいた画像が生成され、0に近いほど「初期画像」の構図とは異なる画像が生成されます。"
+                    />
+                    <Select
+                      label="ControlMode"
+                      options={controlModeOptions}
+                      value={controlMode}
+                      onChange={setControlMode}
+                      clearable
+                      fullWidth
+                    />
+                  </>
                 )}
               </div>
             </div>
