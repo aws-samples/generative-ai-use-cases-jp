@@ -406,7 +406,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
   } else {
     body = {
       imageGenerationConfig: imageGenerationConfig,
-    }
+    };
   }
   return JSON.stringify(body);
 };

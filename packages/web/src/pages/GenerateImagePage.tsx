@@ -22,7 +22,11 @@ import { GenerateImagePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
-import { GenerateImageParams, ControlMode, GenerationMode } from 'generative-ai-use-cases-jp';
+import {
+  GenerateImageParams,
+  ControlMode,
+  GenerationMode,
+} from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
@@ -474,9 +478,9 @@ const GenerateImagePage: React.FC = () => {
           step,
           stylePreset: _stylePreset ?? stylePreset,
           taskType:
-          generationMode === 'IMAGE_CONDITIONING'
-            ? 'TEXT_IMAGE'
-            : generationMode,
+            generationMode === 'IMAGE_CONDITIONING'
+              ? 'TEXT_IMAGE'
+              : generationMode,
         };
 
         if (generationMode === 'IMAGE_VARIATION') {
@@ -502,19 +506,19 @@ const GenerateImagePage: React.FC = () => {
             controlStrength,
             controlMode,
           };
-        } else if (generationMode === 'COLOR_GUIDED_GENERATION'){
+        } else if (generationMode === 'COLOR_GUIDED_GENERATION') {
           params = {
             ...params,
             initImage: initImage.imageBase64,
             colors: ['#00ff00'],
-          }
-        } else if (generationMode === 'BACKGROUND_REMOVAL'){
+          };
+        } else if (generationMode === 'BACKGROUND_REMOVAL') {
           params = {
             ...params,
             initImage: initImage.imageBase64,
           };
         }
-        console.log(params)
+        console.log(params);
         return generate(
           params,
           imageGenModels.find((m) => m.modelId === imageGenModelId)
@@ -722,24 +726,27 @@ const GenerateImagePage: React.FC = () => {
               <PiNotePencil></PiNotePencil>
             </Button>
           </div>
+          {generationMode !== 'BACKGROUND_REMOVAL' && (
+            <>
+              <Textarea
+                label="プロンプト"
+                help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+                value={prompt}
+                onChange={setPrompt}
+                maxHeight={60}
+                rows={2}
+              />
 
-          <Textarea
-            label="プロンプト"
-            help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
-            value={prompt}
-            onChange={setPrompt}
-            maxHeight={60}
-            rows={2}
-          />
-
-          <Textarea
-            label="ネガティブプロンプト"
-            help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
-            value={negativePrompt}
-            onChange={setNegativePrompt}
-            maxHeight={60}
-            rows={2}
-          />
+              <Textarea
+                label="ネガティブプロンプト"
+                help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+                value={negativePrompt}
+                onChange={setNegativePrompt}
+                maxHeight={60}
+                rows={2}
+              />
+            </>
+          )}
 
           <div className="grid w-full grid-cols-2 gap-2">
             <Select
@@ -750,35 +757,37 @@ const GenerateImagePage: React.FC = () => {
                 return { value: m, label: m };
               })}
             />
-            <Select
-              label="サイズ"
-              value={resolution}
-              onChange={setResolution}
-              options={resolutionPresets}
-            />
+            {generationMode !== 'BACKGROUND_REMOVAL' && (
+              <Select
+                label="サイズ"
+                value={resolution}
+                onChange={setResolution}
+                options={resolutionPresets}
+              />
+            )}
           </div>
 
-          <div className="grid w-full grid-cols-2 gap-2 pt-4">
-            <div className="relative col-span-2 flex flex-row items-center lg:col-span-1">
-              <RangeSlider
-                className="w-full"
-                label="Seed"
-                min={0}
-                max={4294967295}
-                value={seed[selectedImageIndex]}
-                onChange={(n) => {
-                  setSeed(n, selectedImageIndex);
-                }}
-                help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
-              />
-              <ButtonIcon
-                className="absolute -top-0.5 right-[8.2rem]"
-                onClick={onClickRandomSeed}>
-                <PiDiceFive />
-              </ButtonIcon>
-            </div>
+          {generationMode !== 'BACKGROUND_REMOVAL' && (
+            <div className="grid w-full grid-cols-2 gap-2 pt-4">
+              <div className="relative col-span-2 flex flex-row items-center lg:col-span-1">
+                <RangeSlider
+                  className="w-full"
+                  label="Seed"
+                  min={0}
+                  max={4294967295}
+                  value={seed[selectedImageIndex]}
+                  onChange={(n) => {
+                    setSeed(n, selectedImageIndex);
+                  }}
+                  help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
+                />
+                <ButtonIcon
+                  className="absolute -top-0.5 right-[8.2rem]"
+                  onClick={onClickRandomSeed}>
+                  <PiDiceFive />
+                </ButtonIcon>
+              </div>
 
-            {generationMode !== 'BACKGROUND_REMOVAL' && (
               <RangeSlider
                 className="col-span-2 lg:col-span-1"
                 label="画像生成数"
@@ -788,9 +797,8 @@ const GenerateImagePage: React.FC = () => {
                 onChange={setImageSample}
                 help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
               />
-            )}
-          </div>
-
+            </div>
+          )}
           <ExpandableField
             label="詳細なパラメータ"
             overrideExpanded={detailExpanded}
@@ -868,77 +876,78 @@ const GenerateImagePage: React.FC = () => {
                   />
                 )}
               </div>
+              {generationMode !== 'BACKGROUND_REMOVAL' && (
+                <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">
+                  {imageGenModelId === 'stability.stable-diffusion-xl-v1' && (
+                    <div className="mb-2 w-full">
+                      <Select
+                        label="StylePreset"
+                        options={stylePresetOptions}
+                        value={stylePreset}
+                        onChange={setStylePreset}
+                        clearable
+                        fullWidth
+                      />
+                    </div>
+                  )}
 
-              <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">
-                {imageGenModelId === 'stability.stable-diffusion-xl-v1' && (
-                  <div className="mb-2 w-full">
-                    <Select
-                      label="StylePreset"
-                      options={stylePresetOptions}
-                      value={stylePreset}
-                      onChange={setStylePreset}
-                      clearable
-                      fullWidth
-                    />
-                  </div>
-                )}
-
-                <RangeSlider
-                  className="w-full"
-                  label="CFG Scale"
-                  min={0}
-                  max={30}
-                  value={cfgScale}
-                  onChange={setCfgScale}
-                  help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
-                />
-
-                <RangeSlider
-                  className="w-full"
-                  label="Step"
-                  min={10}
-                  max={50}
-                  value={step}
-                  onChange={setStep}
-                  help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
-                />
-
-                {generationMode === 'IMAGE_VARIATION' && (
                   <RangeSlider
                     className="w-full"
-                    label="ImageStrength"
+                    label="CFG Scale"
                     min={0}
-                    max={1}
-                    step={0.01}
-                    value={imageStrength}
-                    onChange={setImageStrength}
-                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                    max={30}
+                    value={cfgScale}
+                    onChange={setCfgScale}
+                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
                   />
-                )}
 
-                {generationMode === 'IMAGE_CONDITIONING' && (
-                  <>
+                  <RangeSlider
+                    className="w-full"
+                    label="Step"
+                    min={10}
+                    max={50}
+                    value={step}
+                    onChange={setStep}
+                    help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                  />
+
+                  {generationMode === 'IMAGE_VARIATION' && (
                     <RangeSlider
                       className="w-full"
-                      label="ControlStrength"
+                      label="ImageStrength"
                       min={0}
                       max={1}
                       step={0.01}
-                      value={controlStrength}
-                      onChange={setControlStrength}
-                      help="1に近いほど「初期画像」の構図に基づいた画像が生成され、0に近いほど「初期画像」の構図とは異なる画像が生成されます。"
+                      value={imageStrength}
+                      onChange={setImageStrength}
+                      help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
                     />
-                    <Select
-                      label="ControlMode"
-                      options={controlModeOptions}
-                      value={controlMode}
-                      onChange={(v) => setControlMode(v as ControlMode)}
-                      clearable
-                      fullWidth
-                    />
-                  </>
-                )}
-              </div>
+                  )}
+
+                  {generationMode === 'IMAGE_CONDITIONING' && (
+                    <>
+                      <RangeSlider
+                        className="w-full"
+                        label="ControlStrength"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={controlStrength}
+                        onChange={setControlStrength}
+                        help="1に近いほど「初期画像」の構図に基づいた画像が生成され、0に近いほど「初期画像」の構図とは異なる画像が生成されます。"
+                      />
+                      <Select
+                        label="ControlMode"
+                        options={controlModeOptions}
+                        value={controlMode}
+                        onChange={(v) => setControlMode(v as ControlMode)}
+                        clearable
+                        fullWidth
+                      />
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </ExpandableField>
 

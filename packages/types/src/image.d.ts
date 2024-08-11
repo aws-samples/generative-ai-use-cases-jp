@@ -1,24 +1,24 @@
-export type ControlMode = 'CANNY_EDGE' | 'SEGMENTATION'
+export type ControlMode = 'CANNY_EDGE' | 'SEGMENTATION';
 export type BaseGenerationMode =
   | 'TEXT_IMAGE'
   | 'IMAGE_VARIATION'
   | 'INPAINTING'
-  | 'OUTPAINTING'
+  | 'OUTPAINTING';
 export type TitanImageV2GenerationMode =
   | 'IMAGE_CONDITIONING'
   | 'COLOR_GUIDED_GENERATION'
   | 'BACKGROUND_REMOVAL';
-export type GenerationMode = BaseGenerationMode | TitanImageV2GenerationMode
+export type GenerationMode = BaseGenerationMode | TitanImageV2GenerationMode;
 // 標準化したパラメータ
 export type GenerateImageParams = {
   taskType?:
-  | 'TEXT_IMAGE'
-  | 'IMAGE_VARIATION'
-  | 'INPAINTING'
-  | 'OUTPAINTING'
-  | 'IMAGE_CONDITIONING'
-  | 'COLOR_GUIDED_GENERATION'
-  | 'BACKGROUND_REMOVAL';
+    | 'TEXT_IMAGE'
+    | 'IMAGE_VARIATION'
+    | 'INPAINTING'
+    | 'OUTPAINTING'
+    | 'IMAGE_CONDITIONING'
+    | 'COLOR_GUIDED_GENERATION'
+    | 'BACKGROUND_REMOVAL';
   textPrompt: {
     text: string;
     weight: number;
