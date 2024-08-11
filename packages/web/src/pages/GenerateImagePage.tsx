@@ -34,18 +34,31 @@ type GenerationMode =
   | 'IMAGE_CONDITIONING'
   | 'COLOR_GUIDED_GENERATION'
   | 'BACKGROUND_REMOVAL';
-const modeOptions = [
-  'TEXT_IMAGE',
-  'IMAGE_VARIATION',
-  'INPAINTING',
-  'OUTPAINTING',
-  'IMAGE_CONDITIONING',
-  'COLOR_GUIDED_GENERATION',
-  'BACKGROUND_REMOVAL',
-].map((s) => ({
-  value: s as GenerationMode,
-  label: s as GenerationMode,
-}));
+const getModeOptions = (imageGenModelId: string) => {
+  const baseOptions = [
+    'TEXT_IMAGE',
+    'IMAGE_VARIATION',
+    'INPAINTING',
+    'OUTPAINTING',
+  ];
+
+  if (imageGenModelId === 'amazon.titan-image-generator-v2:0') {
+    return [
+      ...baseOptions,
+      'IMAGE_CONDITIONING',
+      'COLOR_GUIDED_GENERATION',
+      'BACKGROUND_REMOVAL',
+    ].map((s) => ({
+      value: s as GenerationMode,
+      label: s as GenerationMode,
+    }));
+  }
+
+  return baseOptions.map((s) => ({
+    value: s as GenerationMode,
+    label: s as GenerationMode,
+  }));
+};
 
 const resolutionPresets = [
   '512 x 512',
@@ -116,7 +129,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageStrength: 0.35,
     controlStrength: 0.7,
     controlMode: 'CANNY_EDGE',
-    generationMode: modeOptions[0]['value'],
+    generationMode: 'TEXT_IMAGE' as GenerationMode,
     initImage: {
       imageBase64: '',
       foregroundBase64: '',
@@ -139,9 +152,18 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
   return {
     ...INIT_STATE,
     setImageGenModelId: (s: string) => {
-      set(() => ({
-        imageGenModelId: s,
-      }));
+      set((state) => {
+        const newModeOptions = getModeOptions(s);
+        const newGenerationMode = newModeOptions.some(
+          (option) => option.value === state.generationMode
+        )
+          ? state.generationMode
+          : newModeOptions[0].value;
+        return {
+          imageGenModelId: s,
+          generationMode: newGenerationMode,
+        };
+      });
     },
     setPrompt: (s) => {
       set(() => ({
@@ -350,6 +372,10 @@ const GenerateImagePage: React.FC = () => {
   const [isOpenMask, setIsOpenMask] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailExpanded, setDetailExpanded] = useState(false);
+  const [previousImageSample, setPreviousImageSample] = useState(3);
+  const [modeOptions, setModeOptions] = useState(
+    getModeOptions(imageGenModelId)
+  );
   const { modelIds, imageGenModelIds, imageGenModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -369,6 +395,19 @@ const GenerateImagePage: React.FC = () => {
       imageGenModelId === 'amazon.titan-image-generator-v2:0'
     );
   }, [imageGenModelId]);
+
+  useEffect(() => {
+    setModeOptions(getModeOptions(imageGenModelId));
+  }, [imageGenModelId]);
+
+  useEffect(() => {
+    if (generationMode === 'BACKGROUND_REMOVAL') {
+      setPreviousImageSample(imageSample);
+      setImageSample(1);
+    } else if (imageSample === 1) {
+      setImageSample(previousImageSample);
+    }
+  }, [generationMode]);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -442,6 +481,10 @@ const GenerateImagePage: React.FC = () => {
           seed: _seed,
           step,
           stylePreset: _stylePreset ?? stylePreset,
+          taskType:
+          generationMode === 'IMAGE_CONDITIONING'
+            ? 'TEXT_IMAGE'
+            : generationMode,
         };
 
         if (generationMode === 'IMAGE_VARIATION') {
@@ -459,10 +502,6 @@ const GenerateImagePage: React.FC = () => {
             initImage: initImage.imageBase64,
             maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
             maskImage: maskImage.imageBase64,
-            taskType:
-              generationMode === 'IMAGE_CONDITIONING'
-                ? 'TEXT_IMAGE'
-                : generationMode,
           };
         }
 
@@ -729,15 +768,17 @@ const GenerateImagePage: React.FC = () => {
               </ButtonIcon>
             </div>
 
-            <RangeSlider
-              className="col-span-2 lg:col-span-1"
-              label="画像生成数"
-              min={1}
-              max={7}
-              value={imageSample}
-              onChange={setImageSample}
-              help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
-            />
+            {generationMode !== 'BACKGROUND_REMOVAL' && (
+              <RangeSlider
+                className="col-span-2 lg:col-span-1"
+                label="画像生成数"
+                min={1}
+                max={7}
+                value={imageSample}
+                onChange={setImageSample}
+                help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+              />
+            )}
           </div>
 
           <ExpandableField
@@ -819,16 +860,18 @@ const GenerateImagePage: React.FC = () => {
               </div>
 
               <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">
-                <div className="mb-2 w-full">
-                  <Select
-                    label="StylePreset"
-                    options={stylePresetOptions}
-                    value={stylePreset}
-                    onChange={setStylePreset}
-                    clearable
-                    fullWidth
-                  />
-                </div>
+                {imageGenModelId === 'stability.stable-diffusion-xl-v1' && (
+                  <div className="mb-2 w-full">
+                    <Select
+                      label="StylePreset"
+                      options={stylePresetOptions}
+                      value={stylePreset}
+                      onChange={setStylePreset}
+                      clearable
+                      fullWidth
+                    />
+                  </div>
+                )}
 
                 <RangeSlider
                   className="w-full"
@@ -898,7 +941,8 @@ const GenerateImagePage: React.FC = () => {
               }}
               loading={generating || loadingChat}
               disabled={
-                prompt.length === 0 ||
+                (generationMode !== 'BACKGROUND_REMOVAL' &&
+                  prompt.length === 0) ||
                 (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
                 ((generationMode === 'INPAINTING' ||
                   generationMode === 'OUTPAINTING') &&

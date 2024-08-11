@@ -18,6 +18,7 @@ export type GenerateImageParams = {
   maskPrompt?: string;
   taskType?:
     | 'TEXT_IMAGE'
+    | 'IMAGE_VARIATION'
     | 'INPAINTING'
     | 'OUTPAINTING'
     | 'IMAGE_CONDITIONING'
