@@ -369,6 +369,8 @@ const GenerateImagePage: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [previousImageSample, setPreviousImageSample] = useState(3);
+  const [previousGenerationMode, setPreviousGenerationMode] =
+    useState<GenerationMode>('TEXT_IMAGE');
   const [modeOptions, setModeOptions] = useState(
     getModeOptions(imageGenModelId)
   );
@@ -397,12 +399,17 @@ const GenerateImagePage: React.FC = () => {
   }, [imageGenModelId]);
 
   useEffect(() => {
+    setPreviousGenerationMode(generationMode);
+  }, [generationMode]);
+
+  useEffect(() => {
     if (generationMode === 'BACKGROUND_REMOVAL') {
       setPreviousImageSample(imageSample);
       setImageSample(1);
-    } else if (imageSample === 1) {
+    } else if (previousGenerationMode === 'BACKGROUND_REMOVAL') {
       setImageSample(previousImageSample);
     }
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [generationMode]);
 
   useEffect(() => {
@@ -518,7 +525,6 @@ const GenerateImagePage: React.FC = () => {
             initImage: initImage.imageBase64,
           };
         }
-        console.log(params);
         return generate(
           params,
           imageGenModels.find((m) => m.modelId === imageGenModelId)
@@ -557,6 +563,8 @@ const GenerateImagePage: React.FC = () => {
       setSeed,
       step,
       stylePreset,
+      controlMode,
+      controlStrength,
     ]
   );
 
