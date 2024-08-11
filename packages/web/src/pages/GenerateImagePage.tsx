@@ -114,6 +114,8 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     step: 50,
     cfgScale: 7,
     imageStrength: 0.35,
+    controlStrength: 0.7,
+    controlMode: 'CANNY_EDGE',
     generationMode: modeOptions[0]['value'],
     initImage: {
       imageBase64: '',
@@ -181,6 +183,16 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     setImageStrength: (n) => {
       set(() => ({
         imageStrength: n,
+      }));
+    },
+    setControlStrength: (n) => {
+      set(() => ({
+        controlStrength: n,
+      }));
+    },
+    setControlMode: (n) => {
+      set(() => ({
+        controlMode: n,
       }));
     },
     setGenerationMode: (s) => {
@@ -314,6 +326,10 @@ const GenerateImagePage: React.FC = () => {
     setImageSample,
     imageStrength,
     setImageStrength,
+    controlStrength,
+    setControlStrength,
+    controlMode,
+    setControlMode,
     chatContent,
     setChatContent,
     clear,
@@ -851,7 +867,7 @@ const GenerateImagePage: React.FC = () => {
                   <>
                     <RangeSlider
                       className="w-full"
-                      label="ImageStrength"
+                      label="ControlStrength"
                       min={0}
                       max={1}
                       step={0.01}
