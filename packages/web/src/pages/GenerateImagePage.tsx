@@ -27,7 +27,6 @@ import {
   ControlMode,
   GenerationMode,
 } from 'generative-ai-use-cases-jp';
-import ColorPicker from '../components/ColorPicker';
 
 const MAX_SAMPLE = 7;
 
@@ -432,7 +431,6 @@ const GenerateImagePage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [isOpenMask, setIsOpenMask] = useState(false);
-  const [isOpenColorPicker, setIsOpenColorPicker] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [previousImageSample, setPreviousImageSample] = useState(3);
@@ -666,12 +664,6 @@ const GenerateImagePage: React.FC = () => {
     [generateRandomSeed, seed, setSeed]
   );
 
-  // const onChangeColors = useCallback(
-  //   (pickedColors: string) => {
-  //     setColors(pickedColors);
-  //   },
-  //   [setColors]
-  // );
   const generateImageVariant = useCallback(() => {
     if (image[selectedImageIndex].base64) {
       if (generationMode === 'TEXT_IMAGE') {
@@ -738,17 +730,6 @@ const GenerateImagePage: React.FC = () => {
             setIsOpenMask(false);
           }}
         />
-      </ModalDialog>
-      <ModalDialog
-        isOpen={isOpenColorPicker}
-        title="生成画像の色指定"
-        className="w-[530px]"
-        help="生成画像の色合いを指定できます。"
-        // onChange={onChangeColors}
-        onClose={() => {
-          setIsOpenColorPicker(false);
-        }}>
-        <ColorPicker />
       </ModalDialog>
 
       <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
