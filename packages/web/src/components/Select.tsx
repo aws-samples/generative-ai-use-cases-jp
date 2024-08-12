@@ -3,6 +3,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { PiCaretUpDown, PiCheck, PiX } from 'react-icons/pi';
 import RowItem, { RowItemProps } from './RowItem';
 import ButtonIcon from './ButtonIcon';
+import Help from './Help';
 
 type Props = RowItemProps & {
   label?: string;
@@ -11,34 +12,71 @@ type Props = RowItemProps & {
     value: string;
     label: string;
   }[];
+  help?: string;
   clearable?: boolean;
   fullWidth?: boolean;
+  colorchip?: boolean;
   onChange: (value: string) => void;
 };
 
 const Select: React.FC<Props> = (props) => {
-  const selectedLabel = useMemo(() => {
+  const selectedOption = useMemo(() => {
     return props.value === ''
-      ? ''
-      : props.options.filter((o) => o.value === props.value)[0].label;
+      ? null
+      : props.options.find((o) => o.value === props.value);
   }, [props.options, props.value]);
 
   const onClear = useCallback(() => {
     props.onChange('');
   }, [props]);
 
+  const renderColorChips = (value: string) => {
+    const colors = value.split(',').map((color) => color.trim());
+    return (
+      <div className="flex items-center">
+        {colors.map((color, index) => (
+          <div
+            key={index}
+            style={{
+              backgroundColor: color,
+              width: '16px',
+              height: '16px',
+              marginRight: '4px',
+              border: '1px solid #ccc',
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const renderOptionContent = (option: { value: string; label: string }) => {
+    if (props.colorchip) {
+      return (
+        <div className="flex items-center">
+          {renderColorChips(option.value)}
+          <span className="mr-2">{option.label}</span>
+        </div>
+      );
+    }
+    return option.label;
+  };
+
   return (
     <RowItem notItem={props.notItem} className="relative">
       {props.label && (
-        <div>
+        <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
+          {props.help && <Help className="ml-1" message={props.help} />}
         </div>
       )}
       <Listbox value={props.value} onChange={props.onChange}>
         <div className="relative">
           <Listbox.Button
             className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
-            <span className="block truncate">{selectedLabel}</span>
+            <span className="block truncate">
+              {selectedOption ? renderOptionContent(selectedOption) : ''}
+            </span>
 
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <PiCaretUpDown className="text-sm" />
@@ -73,7 +111,7 @@ const Select: React.FC<Props> = (props) => {
                       className={`block truncate ${
                         selected ? 'font-medium' : 'font-normal'
                       }`}>
-                      {option.label}
+                      {renderOptionContent(option)}
                     </span>
                     {selected ? (
                       <span className="text-aws-smile absolute inset-y-0 left-0 flex items-center pl-3">

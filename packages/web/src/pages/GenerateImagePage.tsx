@@ -27,6 +27,7 @@ import {
   ControlMode,
   GenerationMode,
 } from 'generative-ai-use-cases-jp';
+import ColorPicker from '../components/ColorPicker';
 
 const MAX_SAMPLE = 7;
 
@@ -66,6 +67,61 @@ const resolutionPresets = [
   label: s,
 }));
 
+const colorsOptions = [
+  {
+    value: '#efd9b4,#d6a692,#a39081,#4d6164,#292522',
+    label: 'Earthy Neutrals',
+  },
+  {
+    value: '#001449,#012677,#005bc5,#00b4fc,#17f9ff',
+    label: 'Ocean Blues',
+  },
+  {
+    value: '#c7003f,#f90050,#f96a00,#faab00,#daf204',
+    label: 'Fiery Sunset',
+  },
+  {
+    value: '#ffd100,#ffee32,#ffd100,#00a86b,#004b23',
+    label: 'Lemon Lime',
+  },
+  {
+    value: '#006400,#228B22,#32CD32,#90EE90,#98FB98',
+    label: 'Forest Greens',
+  },
+  {
+    value: '#4B0082,#8A2BE2,#9370DB,#BA55D3,#DDA0DD',
+    label: 'Royal Purples',
+  },
+  {
+    value: '#FF8C00,#FFA500,#FFD700,#FFFF00,#F0E68C',
+    label: 'Golden Ambers',
+  },
+  {
+    value: '#FFB6C1,#FFC0CB,#FFE4E1,#E6E6FA,#F0F8FF',
+    label: 'Soft Pastels',
+  },
+  {
+    value: '#FF00FF,#00FFFF,#FF0000,#00FF00,#0000FF',
+    label: 'Vivid Rainbow',
+  },
+  {
+    value: '#000000,#333333,#666666,#999999,#CCCCCC',
+    label: 'Classic Monochrome',
+  },
+  {
+    value: '#FFFFFF,#F2F2F2,#E6E6E6,#D9D9D9,#CCCCCC',
+    label: 'Light Grayscale',
+  },
+  {
+    value: '#704214,#8B4513,#A0522D,#CD853F,#DEB887',
+    label: 'Vintage Sepia',
+  },
+  {
+    value: '#FF9900,#232F3E,#ffffff,#00464F,#6C7778',
+    label: 'Smile and Sky',
+  },
+];
+
 type StateType = {
   imageGenModelId: string;
   setImageGenModelId: (c: string) => void;
@@ -97,6 +153,8 @@ type StateType = {
   setMaskImage: (s: Canvas) => void;
   maskPrompt: string;
   setMaskPrompt: (s: string) => void;
+  colors: string;
+  setColors: (colors: string) => void;
   imageSample: number;
   setImageSample: (n: number) => void;
   image: {
@@ -137,6 +195,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
       backgroundColor: '',
     },
     maskPrompt: '',
+    colors: colorsOptions[0].value,
     imageSample: 3,
     image: new Array(MAX_SAMPLE).fill({
       base64: '',
@@ -231,6 +290,11 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     setMaskPrompt: (s) => {
       set(() => ({
         maskPrompt: s,
+      }));
+    },
+    setColors: (s) => {
+      set(() => ({
+        colors: s,
       }));
     },
     setImageSample: (n) => {
@@ -336,6 +400,8 @@ const GenerateImagePage: React.FC = () => {
     setMaskImage,
     maskPrompt,
     setMaskPrompt,
+    colors,
+    setColors,
     image,
     setImage,
     setImageError,
@@ -366,6 +432,7 @@ const GenerateImagePage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [isOpenSketch, setIsOpenSketch] = useState(false);
   const [isOpenMask, setIsOpenMask] = useState(false);
+  const [isOpenColorPicker, setIsOpenColorPicker] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailExpanded, setDetailExpanded] = useState(false);
   const [previousImageSample, setPreviousImageSample] = useState(3);
@@ -517,7 +584,7 @@ const GenerateImagePage: React.FC = () => {
           params = {
             ...params,
             initImage: initImage.imageBase64,
-            colors: ['#00ff00'],
+            colors: colors.split(',').map((color) => color.trim()),
           };
         } else if (generationMode === 'BACKGROUND_REMOVAL') {
           params = {
@@ -557,6 +624,7 @@ const GenerateImagePage: React.FC = () => {
       initImage,
       maskPrompt,
       maskImage,
+      colors,
       seed,
       setImage,
       setImageError,
@@ -598,6 +666,12 @@ const GenerateImagePage: React.FC = () => {
     [generateRandomSeed, seed, setSeed]
   );
 
+  // const onChangeColors = useCallback(
+  //   (pickedColors: string) => {
+  //     setColors(pickedColors);
+  //   },
+  //   [setColors]
+  // );
   const generateImageVariant = useCallback(() => {
     if (image[selectedImageIndex].base64) {
       if (generationMode === 'TEXT_IMAGE') {
@@ -609,7 +683,6 @@ const GenerateImagePage: React.FC = () => {
         foregroundBase64: img,
         backgroundColor: '',
       });
-      setDetailExpanded(true);
     }
   }, [
     image,
@@ -665,6 +738,17 @@ const GenerateImagePage: React.FC = () => {
             setIsOpenMask(false);
           }}
         />
+      </ModalDialog>
+      <ModalDialog
+        isOpen={isOpenColorPicker}
+        title="生成画像の色指定"
+        className="w-[530px]"
+        help="生成画像の色合いを指定できます。"
+        // onChange={onChangeColors}
+        onClose={() => {
+          setIsOpenColorPicker(false);
+        }}>
+        <ColorPicker />
       </ModalDialog>
 
       <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
@@ -800,92 +884,130 @@ const GenerateImagePage: React.FC = () => {
                 className="col-span-2 lg:col-span-1"
                 label="画像生成数"
                 min={1}
-                max={7}
+                max={MAX_SAMPLE}
                 value={imageSample}
                 onChange={setImageSample}
                 help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
               />
             </div>
           )}
-          <ExpandableField
-            label="詳細なパラメータ"
-            overrideExpanded={detailExpanded}
-            setOverrideExpanded={setDetailExpanded}>
-            <div className="grid grid-cols-2 gap-2 pt-4">
-              <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
-                <Select
-                  label="生成モード"
-                  options={modeOptions}
-                  value={generationMode}
-                  onChange={(v) => setGenerationMode(v as GenerationMode)}
-                  fullWidth
-                />
-                <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
-                  {generationMode !== 'TEXT_IMAGE' && (
-                    <div className="flex flex-col items-center">
-                      <div className="mb-1 flex items-center text-sm font-bold">
-                        参照画像
-                        <Help
-                          className="ml-1"
-                          position="center"
-                          message="画像生成のインプットとなる画像を設定できます。生成モードによって役割が異なります。"
-                        />
-                      </div>
-                      <Base64Image
-                        className="size-32"
-                        imageBase64={initImage.imageBase64}
+
+          <div className="grid grid-cols-2 gap-2 pt-4">
+            <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
+              <Select
+                label="生成モード"
+                options={modeOptions}
+                value={generationMode}
+                onChange={(v) => setGenerationMode(v as GenerationMode)}
+                fullWidth
+              />
+            </div>
+            <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1"></div>
+            <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
+              <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
+                {generationMode !== 'TEXT_IMAGE' && (
+                  <div className="flex flex-col items-center">
+                    <div className="mb-1 flex items-center text-sm font-bold">
+                      参照画像
+                      <Help
+                        className="ml-1"
+                        position="center"
+                        message="画像生成のインプットとなる画像を設定できます。生成モードによって役割が異なります。"
                       />
-                      <Button
-                        className="m-auto mt-2 text-sm"
-                        onClick={() => {
-                          setIsOpenSketch(true);
-                        }}>
-                        <PiFileArrowUp className="mr-2" />
-                        設定
-                      </Button>
                     </div>
-                  )}
-                  {maskMode && (
-                    <div className="flex flex-col items-center">
-                      <div className="mb-1 flex items-center text-sm font-bold">
-                        マスク画像
-                        <Help
-                          className="ml-1"
-                          position="center"
-                          message="画像のマスクを設定できます。マスク画像を設定することで、マスクされた領域（Inpaint）もしくは外側の領域（Outpaint)を生成できます。マスクプロンプトと併用はできません。"
-                        />
-                      </div>
-                      <Base64Image
-                        className="size-32"
-                        imageBase64={maskImage.imageBase64}
+                    <Base64Image
+                      className="size-32"
+                      imageBase64={initImage.imageBase64}
+                    />
+                    <Button
+                      className="m-auto mt-2 text-sm"
+                      onClick={() => {
+                        setIsOpenSketch(true);
+                      }}>
+                      <PiFileArrowUp className="mr-2" />
+                      設定
+                    </Button>
+                  </div>
+                )}
+                {maskMode && (
+                  <div className="flex flex-col items-center">
+                    <div className="mb-1 flex items-center text-sm font-bold">
+                      マスク画像
+                      <Help
+                        className="ml-1"
+                        position="center"
+                        message="画像のマスクを設定できます。マスク画像を設定することで、マスクされた領域（Inpaint）もしくは外側の領域（Outpaint)を生成できます。マスクプロンプトと併用はできません。"
                       />
-                      <Button
-                        className="m-auto mt-2 text-sm"
-                        disabled={!!maskPrompt}
-                        onClick={() => {
-                          setIsOpenMask(true);
-                        }}>
-                        <PiFileArrowUp className="mr-2" />
-                        設定
-                      </Button>
                     </div>
-                  )}
-                </div>
-                {maskMode && maskPromptSupported && (
-                  <Textarea
-                    label="マスクプロンプト"
-                    help="マスクしたい/排除したい要素（Inpaint）、マスクしたくない/残したい要素（Outpaint）を記載してください。文章ではなく、単語の羅列で記載します。マスク画像と併用はできません。"
-                    value={maskPrompt}
-                    onChange={setMaskPrompt}
-                    maxHeight={60}
-                    rows={2}
-                    className="w-full"
-                    disabled={!!maskImage.imageBase64}
-                  />
+                    <Base64Image
+                      className="size-32"
+                      imageBase64={maskImage.imageBase64}
+                    />
+                    <Button
+                      className="m-auto mt-2 text-sm"
+                      disabled={!!maskPrompt}
+                      onClick={() => {
+                        setIsOpenMask(true);
+                      }}>
+                      <PiFileArrowUp className="mr-2" />
+                      設定
+                    </Button>
+                  </div>
                 )}
               </div>
-              {generationMode !== 'BACKGROUND_REMOVAL' && (
-                <div className="col-span-2 flex flex-col items-center justify-start lg:col-span-1">
+            </div>
+            <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
+              {maskMode && maskPromptSupported && (
+                <Textarea
+                  label="マスクプロンプト"
+                  help="マスクしたい/排除したい要素（Inpaint）、マスクしたくない/残したい要素（Outpaint）を記載してください。文章ではなく、単語の羅列で記載します。マスク画像と併用はできません。"
+                  value={maskPrompt}
+                  onChange={setMaskPrompt}
+                  maxHeight={120}
+                  rows={6}
+                  className="w-full"
+                  disabled={!!maskImage.imageBase64}
+                />
+              )}
+              {generationMode === 'COLOR_GUIDED_GENERATION' && (
+                <Select
+                  label="カラーパレット"
+                  help="生成画像の色合いを指定指定します。"
+                  options={colorsOptions}
+                  value={colors}
+                  onChange={setColors}
+                  fullWidth
+                  colorchip
+                />
+              )}
+              {generationMode === 'IMAGE_CONDITIONING' && (
+                <Select
+                  label="コントロールモード"
+                  help="CANNY_EDGE:参照画像のエッジを抽出します。詳細な模様などを反映したい場合に最適です。SEGMENTATION:参照画像内を領域に区切ります。複数の物体の位置関係を反映したい場合に最適です。"
+                  options={controlModeOptions}
+                  value={controlMode}
+                  onChange={(v) => setControlMode(v as ControlMode)}
+                  fullWidth
+                />
+              )}
+            </div>
+          </div>
+          {generationMode !== 'BACKGROUND_REMOVAL' && (
+            <ExpandableField
+              label="詳細なパラメータ"
+              overrideExpanded={detailExpanded}
+              setOverrideExpanded={setDetailExpanded}>
+              <div className="grid grid-cols-2 gap-2 pt-4">
+                <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
+                  <RangeSlider
+                    className="w-full"
+                    label="CFG Scale"
+                    min={0}
+                    max={30}
+                    value={cfgScale}
+                    onChange={setCfgScale}
+                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                  />
                   {imageGenModelId === 'stability.stable-diffusion-xl-v1' && (
                     <div className="mb-2 w-full">
                       <Select
@@ -898,17 +1020,9 @@ const GenerateImagePage: React.FC = () => {
                       />
                     </div>
                   )}
+                </div>
 
-                  <RangeSlider
-                    className="w-full"
-                    label="CFG Scale"
-                    min={0}
-                    max={30}
-                    value={cfgScale}
-                    onChange={setCfgScale}
-                    help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
-                  />
-
+                <div className="col-span-2 flex flex-col items-stretch justify-start lg:col-span-1">
                   <RangeSlider
                     className="w-full"
                     label="Step"
@@ -928,36 +1042,26 @@ const GenerateImagePage: React.FC = () => {
                       step={0.01}
                       value={imageStrength}
                       onChange={setImageStrength}
-                      help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                      help="1に近いほど「参照画像」に近い画像が生成され、0に近いほど「参照画像」とは異なる画像が生成されます。"
                     />
                   )}
 
                   {generationMode === 'IMAGE_CONDITIONING' && (
-                    <>
-                      <RangeSlider
-                        className="w-full"
-                        label="ControlStrength"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={controlStrength}
-                        onChange={setControlStrength}
-                        help="1に近いほど「初期画像」の構図に基づいた画像が生成され、0に近いほど「初期画像」の構図とは異なる画像が生成されます。"
-                      />
-                      <Select
-                        label="ControlMode"
-                        options={controlModeOptions}
-                        value={controlMode}
-                        onChange={(v) => setControlMode(v as ControlMode)}
-                        clearable
-                        fullWidth
-                      />
-                    </>
+                    <RangeSlider
+                      className="w-full"
+                      label="ControlStrength"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={controlStrength}
+                      onChange={setControlStrength}
+                      help="1に近いほど「参照画像」の構図に基づいた画像が生成され、0に近いほど「参照画像」の構図とは異なる画像が生成されます。"
+                    />
                   )}
                 </div>
-              )}
-            </div>
-          </ExpandableField>
+              </div>
+            </ExpandableField>
+          )}
 
           <div className="flex flex-row items-center gap-x-5">
             <Button
@@ -970,11 +1074,14 @@ const GenerateImagePage: React.FC = () => {
               disabled={
                 (generationMode !== 'BACKGROUND_REMOVAL' &&
                   prompt.length === 0) ||
-                (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
+                (generationMode !== 'TEXT_IMAGE' &&
+                  generationMode !== 'COLOR_GUIDED_GENERATION' &&
+                  !initImage.imageBase64) ||
                 ((generationMode === 'INPAINTING' ||
                   generationMode === 'OUTPAINTING') &&
                   !maskImage.imageBase64 &&
-                  !maskPrompt)
+                  !maskPrompt) ||
+                (generationMode === 'COLOR_GUIDED_GENERATION' && !colors)
               }>
               生成
             </Button>
