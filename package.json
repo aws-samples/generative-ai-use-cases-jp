@@ -29,8 +29,5 @@
   },
   "workspaces": [
     "packages/*"
-  ],
-  "dependencies": {
-    "react-color": "^2.19.3"
-  }
+  ]
 }
