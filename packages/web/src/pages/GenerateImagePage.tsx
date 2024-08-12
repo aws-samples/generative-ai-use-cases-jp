@@ -682,7 +682,6 @@ const GenerateImagePage: React.FC = () => {
     selectedImageIndex,
     setGenerationMode,
     setInitImage,
-    setDetailExpanded,
   ]);
 
   const clearAll = useCallback(() => {
