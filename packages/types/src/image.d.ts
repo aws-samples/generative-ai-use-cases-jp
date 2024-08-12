@@ -12,11 +12,7 @@ export type GenerationMode = BaseGenerationMode | TitanImageV2GenerationMode;
 // 標準化したパラメータ
 export type GenerateImageParams = {
   taskType?:
-    | 'TEXT_IMAGE'
-    | 'IMAGE_VARIATION'
-    | 'INPAINTING'
-    | 'OUTPAINTING'
-    | 'IMAGE_CONDITIONING'
+    | BaseGenerationMode
     | 'COLOR_GUIDED_GENERATION'
     | 'BACKGROUND_REMOVAL';
   textPrompt: {
@@ -70,7 +66,7 @@ export type StableDiffusionParams = {
 // Titan Image
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
 export type TitanImageParams = {
-  taskType: 'TEXT_IMAGE' | 'INPAINTING' | 'OUTPAINTING' | 'IMAGE_VARIATION';
+  taskType: BaseGenerationMode;
   textToImageParams?: {
     text: string;
     negativeText?: string;
@@ -108,7 +104,7 @@ export type TitanImageParams = {
 
 export type TitanImageV2Params = Omit<TitanImageParams, 'taskType'> & {
   taskType:
-    | TitanImageParams['taskType']
+    | BaseGenerationMode
     | 'COLOR_GUIDED_GENERATION'
     | 'BACKGROUND_REMOVAL';
   textToImageParams?: TitanImageParams['textToImageParams'] & {
