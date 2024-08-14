@@ -359,6 +359,14 @@ const TranslatePage: React.FC = () => {
                 maxHeight={-1}
                 rows={5}
               />
+
+              <ExpandableField label="追加コンテキスト" optional>
+                <Textarea
+                  placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+                  value={additionalContext}
+                  onChange={setAdditionalContext}
+                />
+              </ExpandableField>
             </div>
             <div className="w-full lg:ml-2 lg:w-1/2">
               <div className="flex h-12 items-center">
@@ -396,29 +404,20 @@ const TranslatePage: React.FC = () => {
                     interUseCasesKey="translatedSentence"></ButtonCopy>
                 </div>
               </div>
+              <div className="mt-3 flex justify-end gap-3">
+                {stopReason === 'max_tokens' && (
+                  <Button onClick={continueGeneration}>続きを出力</Button>
+                )}
+
+                <Button outlined onClick={onClickClear} disabled={disabledExec}>
+                  クリア
+                </Button>
+
+                <Button disabled={disabledExec} onClick={onClickExec}>
+                  実行
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <ExpandableField label="追加コンテキスト" optional>
-            <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
-              value={additionalContext}
-              onChange={setAdditionalContext}
-            />
-          </ExpandableField>
-
-          <div className="flex justify-end gap-3">
-            {stopReason === 'max_tokens' && (
-              <Button onClick={continueGeneration}>続きを出力</Button>
-            )}
-
-            <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
-            </Button>
-
-            <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
-            </Button>
           </div>
         </Card>
       </div>
