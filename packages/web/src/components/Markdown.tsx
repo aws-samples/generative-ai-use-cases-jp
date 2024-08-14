@@ -66,7 +66,7 @@ const ImageRenderer = (props: any) => {
   return <img id={props.id} src={src} />;
 };
 
-const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
+const Markdown = React.memo(({ className, prefix, children }: Props) => {
   return (
     <ReactMarkdown
       className={`${
@@ -114,6 +114,6 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
       }}
     />
   );
-};
+});
 
 export default Markdown;
