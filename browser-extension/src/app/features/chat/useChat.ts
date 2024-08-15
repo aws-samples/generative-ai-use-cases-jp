@@ -84,7 +84,7 @@ const useChat = () => {
                   role: 'assistant',
                   content: '▍',
                 },
-              ])
+              ]),
         );
 
         // Assistant の発言を更新

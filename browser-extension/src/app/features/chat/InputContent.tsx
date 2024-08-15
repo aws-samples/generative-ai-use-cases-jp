@@ -103,7 +103,7 @@ ${formValues[idx]}
             <div key={idx}>
               <div className="text-xs">{def.label}</div>
               <TextareaChatContent
-                value={def.autoCopy ? content : formValues[idx] ?? ''}
+                value={def.autoCopy ? content : (formValues[idx] ?? '')}
                 onChange={(value) => {
                   setFormValues(
                     produce(formValues, (draft) => {
