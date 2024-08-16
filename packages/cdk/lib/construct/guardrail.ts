@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
 import { aws_bedrock as bedrock } from 'aws-cdk-lib';
 
-export class GuardrailsForAmazonBedrock extends Construct{
+export class Guardrail extends Construct{
   public readonly guardrailIdentifier: string;
   public readonly guardrailVersion: string;
 

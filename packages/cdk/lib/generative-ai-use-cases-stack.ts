@@ -10,7 +10,7 @@ import {
   Transcribe,
   CommonWebAcl,
   RecognizeFile,
-  GuardrailsForAmazonBedrock,
+  Guardrail,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -71,7 +71,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const recognizeFileEnabled: boolean = this.node.tryGetContext(
       'recognizeFileEnabled'
     )!;
-    const guardrailsForAmazonBedrockEnabled: boolean = this.node.tryGetContext('guardrailsForAmazonBedrockEnabled') || false;
+    const guardrailEnabled: boolean = this.node.tryGetContext('guardrailEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -93,7 +93,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
     }
 
-    if (typeof guardrailsForAmazonBedrockEnabled !== 'boolean') {
+    if (typeof guardrailEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled'));
     }
 
@@ -201,8 +201,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
     }
 
-    if (guardrailsForAmazonBedrockEnabled) {
-      const guardrailsForAmazonBedrock = new GuardrailsForAmazonBedrock(this, 'GuardrailsForAmazonBedrock',)
+    if (guardrailEnabled) {
+      new Guardrail(this, 'Guardrail',)
     }
 
     new CfnOutput(this, 'Region', {
