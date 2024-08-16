@@ -12,7 +12,7 @@ export class GuardrailsForAmazonBedrock extends Construct{
       blockedOutputsMessaging: '禁止 PII の出力を検出しました。管理者に問い合わせください。',
       name : `PIIGuardrail${id}`,
       sensitiveInformationPolicyConfig: {
-        // 日本の名前、免許番号は機能しないので設定しない
+        // NAME, DRIVER_ID は日本のものが機能しないので設定しない
         // CA_*, US_*, UK_* はそれぞれの国固有のものなので設定しない
         piiEntitiesConfig: [
           {'action': 'BLOCK', 'type': 'AGE'},
@@ -40,7 +40,7 @@ export class GuardrailsForAmazonBedrock extends Construct{
       description: `GenU PII Guardrail`,
     })
 
-    this.guardrailIdentifier=cfnGuardrail.attrGuardrailId
-    this.guardrailVersion=cfnGuardrailVersion.attrVersion
+    this.guardrailIdentifier = cfnGuardrail.attrGuardrailId;
+    this.guardrailVersion = cfnGuardrailVersion.attrVersion;
   }
 }
