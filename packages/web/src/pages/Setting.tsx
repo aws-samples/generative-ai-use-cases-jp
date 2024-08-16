@@ -44,7 +44,7 @@ const Setting = () => {
   const closedPullRequests = getClosedPullRequests();
 
   return (
-    <div>
+    <div className="h-screen overflow-y-scroll">
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         設定情報
       </div>

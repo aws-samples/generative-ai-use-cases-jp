@@ -1,17 +1,58 @@
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+
 const useScroll = () => {
+  // スクロールされる要素が含まれる要素
+  // サイズが動的に変更されることが想定される
+  // チャットのページであればメッセージを wrap した要素
+  const scrollableContainer = useRef<HTMLDivElement>(null);
+
+  // スクロール下部
+  const scrolledAnchor = useRef<HTMLDivElement>(null);
+
+  // フォローするか否か
+  // ページ最下部まで到達している場合はフォローする
+  // そうでない場合 (手動で上にスクロールした場合) はフォローしないようにする
+  const [following, setFollowing] = useState(true);
+
+  // フォロー中であれば最下部までスクロールする
+  const scrollToBottom = useCallback(() => {
+    if (scrolledAnchor.current && following) {
+      scrolledAnchor.current.scrollIntoView();
+    }
+  }, [scrolledAnchor, following]);
+
+  // scrollableContainer のサイズ変更を監視
+  useEffect(() => {
+    if (scrollableContainer.current) {
+      const observer = new ResizeObserver(() => {
+        // 画面サイズ変更されたらフォローする
+        scrollToBottom();
+      });
+
+      observer.observe(scrollableContainer.current);
+
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [following, scrollToBottom]);
+
   return {
-    scrollToTop: (elementId: string = 'main') => {
-      document.getElementById(elementId)?.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+    // 実際にスクロールされる高さが決まっている要素 (scrollableContainer とは異なる)
+    handleScroll: (e: React.UIEvent<HTMLDivElement>) => {
+      const div = e.target as HTMLDivElement;
+      // 最下部に到達している時に following を true に
+      // 小数点が省略されることがあるため、1.0 の余裕を設ける
+      if (div.clientHeight + div.scrollTop + 1.0 >= div.scrollHeight) {
+        setFollowing(true);
+      } else {
+        setFollowing(false);
+      }
     },
-    scrollToBottom: (elementId: string = 'main') => {
-      document.getElementById(elementId)?.scrollTo({
-        top: document.getElementById(elementId)?.scrollHeight,
-        behavior: 'smooth',
-      });
-    },
+    setFollowing,
+    scrollToBottom,
+    scrollableContainer,
+    scrolledAnchor,
   };
 };
 

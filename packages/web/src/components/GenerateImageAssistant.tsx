@@ -27,14 +27,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
-
-  const { scrollToBottom } = useScroll();
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom('image-assistant-chat');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
+    useScroll();
 
   const contents = useMemo<
     (
@@ -119,9 +113,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, [loading]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(props.content);
     props.onChangeContent('');
-  }, [postChat, props]);
+  }, [postChat, props, setFollowing]);
 
   const onRetrySend = useCallback(() => {
     popMessage();
@@ -146,7 +141,9 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         </div>
         <div
           id="image-assistant-chat"
-          className="h-full overflow-y-auto overflow-x-hidden pb-16">
+          className="h-full overflow-y-auto overflow-x-hidden pb-16"
+          onScroll={handleScroll}
+          ref={scrollableContainer}>
           {contents.length === 0 && (
             <div className="rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">
@@ -270,6 +267,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               )}
             </div>
           ))}
+          <div ref={scrolledAnchor} />
         </div>
         <div className="absolute bottom-0 z-0 -ml-2 flex w-full items-end justify-center pr-6">
           <InputChatContent

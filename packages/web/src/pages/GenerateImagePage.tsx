@@ -530,7 +530,7 @@ const GenerateImagePage: React.FC = () => {
   }, [clear, clearChat]);
 
   return (
-    <div className="grid h-screen grid-cols-12 gap-4 p-4">
+    <div className="grid h-screen grid-cols-12 gap-4 overflow-y-scroll p-4">
       <ModalDialog
         isOpen={isOpenSketch}
         title="初期画像の設定"

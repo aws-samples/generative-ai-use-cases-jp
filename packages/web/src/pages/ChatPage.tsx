@@ -129,7 +129,8 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollToBottom, scrollToTop } = useScroll();
+  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
+    useScroll();
   const { getConversationTitle } = useConversation();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
@@ -182,6 +183,7 @@ const ChatPage: React.FC = () => {
   }, [search, setContent, availableModels, pathname]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(
       prompter.chatPrompt({ content }),
       false,
@@ -193,7 +195,7 @@ const ChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, uploadedFiles, fileUpload]);
+  }, [content, uploadedFiles, fileUpload, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -261,15 +263,6 @@ const ChatPage: React.FC = () => {
       return null;
     }
   }, [share]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const [showSystemContext, setShowSystemContext] = useState(false);
 
@@ -363,7 +356,8 @@ const ChatPage: React.FC = () => {
     <>
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
+        className={`${!isEmpty ? 'screen:pb-36' : ''} relative h-screen overflow-y-scroll`}
+        onScroll={handleScroll}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
@@ -423,19 +417,22 @@ const ChatPage: React.FC = () => {
           </div>
         )}
 
-        {!isEmpty &&
-          showingMessages.map((chat, idx) => (
-            <div key={showSystemContext ? idx : idx + 1}>
-              {idx === 0 && (
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={showSystemContext ? idx : idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
+                <ChatMessage
+                  chatContent={chat}
+                  loading={loading && idx === showingMessages.length - 1}
+                />
                 <div className="w-full border-b border-gray-300"></div>
-              )}
-              <ChatMessage
-                chatContent={chat}
-                loading={loading && idx === showingMessages.length - 1}
-              />
-              <div className="w-full border-b border-gray-300"></div>
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
+        <div ref={scrolledAnchor} />
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (

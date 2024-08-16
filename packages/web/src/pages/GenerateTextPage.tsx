@@ -149,64 +149,66 @@ const GenerateTextPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        文章生成
-      </div>
-      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="文章の元になる情報">
-          <div className="mb-2 flex w-full">
-            <Select
-              value={modelId}
-              onChange={setModelId}
-              options={availableModels.map((m) => {
-                return { value: m, label: m };
-              })}
-            />
-          </div>
-
-          <Textarea
-            placeholder="入力してください"
-            value={information}
-            onChange={setInformation}
-            maxHeight={-1}
-          />
-
-          <Textarea
-            placeholder="文章の形式を指示してください。(マークダウン、ブログ、ビジネスメールなど)"
-            value={context}
-            onChange={setContext}
-          />
-
-          <div className="flex justify-end gap-3">
-            {stopReason === 'max_tokens' && (
-              <Button onClick={continueGeneration}>続きを出力</Button>
-            )}
-
-            <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
-            </Button>
-
-            <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
-            </Button>
-          </div>
-
-          <div className="mt-5 rounded border border-black/30 p-1.5">
-            <Markdown>{typingTextOutput}</Markdown>
-            {!loading && text === '' && (
-              <div className="text-gray-500">
-                生成された文章がここに表示されます
-              </div>
-            )}
-            {loading && (
-              <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-            )}
-            <div className="flex w-full justify-end">
-              <ButtonCopy text={text} interUseCasesKey="text"></ButtonCopy>
+    <div className="h-screen overflow-y-scroll">
+      <div className="grid grid-cols-12">
+        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+          文章生成
+        </div>
+        <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+          <Card label="文章の元になる情報">
+            <div className="mb-2 flex w-full">
+              <Select
+                value={modelId}
+                onChange={setModelId}
+                options={availableModels.map((m) => {
+                  return { value: m, label: m };
+                })}
+              />
             </div>
-          </div>
-        </Card>
+
+            <Textarea
+              placeholder="入力してください"
+              value={information}
+              onChange={setInformation}
+              maxHeight={-1}
+            />
+
+            <Textarea
+              placeholder="文章の形式を指示してください。(マークダウン、ブログ、ビジネスメールなど)"
+              value={context}
+              onChange={setContext}
+            />
+
+            <div className="flex justify-end gap-3">
+              {stopReason === 'max_tokens' && (
+                <Button onClick={continueGeneration}>続きを出力</Button>
+              )}
+
+              <Button outlined onClick={onClickClear} disabled={disabledExec}>
+                クリア
+              </Button>
+
+              <Button disabled={disabledExec} onClick={onClickExec}>
+                実行
+              </Button>
+            </div>
+
+            <div className="mt-5 rounded border border-black/30 p-1.5">
+              <Markdown>{typingTextOutput}</Markdown>
+              {!loading && text === '' && (
+                <div className="text-gray-500">
+                  生成された文章がここに表示されます
+                </div>
+              )}
+              {loading && (
+                <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+              )}
+              <div className="flex w-full justify-end">
+                <ButtonCopy text={text} interUseCasesKey="text"></ButtonCopy>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

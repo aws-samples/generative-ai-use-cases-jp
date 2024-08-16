@@ -32,7 +32,7 @@ const KendraSearchPage: React.FC = () => {
   }, [searchKendra]);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex h-screen flex-col items-center overflow-y-scroll">
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         Kendra 検索
       </div>

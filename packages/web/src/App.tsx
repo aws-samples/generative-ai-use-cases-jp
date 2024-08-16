@@ -178,7 +178,7 @@ const App: React.FC = () => {
   }, [pathname, getConversationTitle]);
 
   return (
-    <div className="screen:w-screen screen:h-screen overflow-x-hidden">
+    <div className="screen:w-screen screen:h-screen overflow-hidden">
       <main className="flex-1">
         <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
           <div className="flex w-10 items-center justify-start">
@@ -216,7 +216,7 @@ const App: React.FC = () => {
             <PiX />
           </ButtonIcon>
         </div>
-        <div className="text-aws-font-color lg:ml-64" id="main">
+        <div className="text-aws-font-color lg:ml-64">
           {/* ユースケース間連携時に表示 */}
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />

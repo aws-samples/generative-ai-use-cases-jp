@@ -255,48 +255,50 @@ const EditorialPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        校正
-      </div>
-      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="校正したい文章">
-          <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
-            <Select
-              value={modelId}
-              onChange={setModelId}
-              options={availableModels.map((m) => {
-                return { value: m, label: m };
-              })}
+    <div className="h-screen overflow-y-scroll">
+      <div className="grid grid-cols-12">
+        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+          校正
+        </div>
+        <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+          <Card label="校正したい文章">
+            <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
+              <Select
+                value={modelId}
+                onChange={setModelId}
+                options={availableModels.map((m) => {
+                  return { value: m, label: m };
+                })}
+              />
+              <Switch label="自動校正" checked={auto} onSwitch={setAuto} />
+            </div>
+            <Texteditor
+              placeholder="入力してください"
+              value={sentence}
+              loading={loading}
+              onChange={setSentence}
+              comments={shownComment}
+              replaceSentence={replaceSentence}
+              removeComment={removeComment}
             />
-            <Switch label="自動校正" checked={auto} onSwitch={setAuto} />
-          </div>
-          <Texteditor
-            placeholder="入力してください"
-            value={sentence}
-            loading={loading}
-            onChange={setSentence}
-            comments={shownComment}
-            replaceSentence={replaceSentence}
-            removeComment={removeComment}
-          />
-          <ExpandableField label="追加コンテキスト" optional>
-            <Textarea
-              placeholder="追加で指摘してほしい点を入力することができます"
-              value={additionalContext}
-              onChange={setAdditionalContext}
-            />
-          </ExpandableField>
-          <div className="flex justify-end gap-3">
-            <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
-            </Button>
+            <ExpandableField label="追加コンテキスト" optional>
+              <Textarea
+                placeholder="追加で指摘してほしい点を入力することができます"
+                value={additionalContext}
+                onChange={setAdditionalContext}
+              />
+            </ExpandableField>
+            <div className="flex justify-end gap-3">
+              <Button outlined onClick={onClickClear} disabled={disabledExec}>
+                クリア
+              </Button>
 
-            <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
-            </Button>
-          </div>
-        </Card>
+              <Button disabled={disabledExec} onClick={onClickExec}>
+                実行
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
