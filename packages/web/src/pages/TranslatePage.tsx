@@ -1,7 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import ButtonIcon from '../components/ButtonIcon';
 import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
 import Select from '../components/Select';
@@ -12,13 +19,19 @@ import useChat from '../hooks/useChat';
 import useMicrophone from '../hooks/useMicrophone';
 import useTyping from '../hooks/useTyping';
 import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
-import { PiMicrophoneBold, PiStopCircleBold } from 'react-icons/pi';
+import {
+  PiMicrophoneBold,
+  PiStopCircleBold,
+  PiSpeakerSimpleHigh,
+  PiSpeakerSimpleHighFill,
+} from 'react-icons/pi';
 import { create } from 'zustand';
 import debounce from 'lodash.debounce';
 import { TranslatePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
+import useSpeach from '../hooks/useSpeach';
 
 const languages = [
   '英語',
@@ -118,6 +131,7 @@ const TranslatePage: React.FC = () => {
   const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
+  const { synthesizeSpeach, loading: speachIsLoading } = useSpeach();
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -262,6 +276,44 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isSpeachPlaying, setIsSpeachPlaying] = useState(false);
+
+  const handleSpeachEnded = useCallback(() => {
+    setIsSpeachPlaying(false);
+  }, [setIsSpeachPlaying]);
+
+  const startOrStopSpeach = useCallback(async () => {
+    if (speachIsLoading) return;
+
+    // 再生中の場合は止める
+    if (isSpeachPlaying && audioRef.current) {
+      setIsSpeachPlaying(false);
+
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+      return;
+    }
+
+    setIsSpeachPlaying(true);
+
+    const speachUrl = await synthesizeSpeach(translatedSentence);
+    const audio = new Audio(speachUrl!);
+
+    audioRef.current = audio;
+    audio.addEventListener('ended', handleSpeachEnded);
+    audio.play();
+  }, [
+    translatedSentence,
+    synthesizeSpeach,
+    audioRef,
+    setIsSpeachPlaying,
+    isSpeachPlaying,
+    handleSpeachEnded,
+    speachIsLoading,
+  ]);
+
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
@@ -283,7 +335,7 @@ const TranslatePage: React.FC = () => {
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
-              <div className="flex items-center py-2.5">
+              <div className="flex h-12 items-center">
                 言語を自動検出
                 <div className="ml-2 justify-end">
                   {audio && (
@@ -310,50 +362,67 @@ const TranslatePage: React.FC = () => {
                 value={sentence}
                 onChange={setSentence}
                 maxHeight={-1}
+                rows={5}
               />
+
+              <ExpandableField label="追加コンテキスト" optional>
+                <Textarea
+                  placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+                  value={additionalContext}
+                  onChange={setAdditionalContext}
+                />
+              </ExpandableField>
             </div>
             <div className="w-full lg:ml-2 lg:w-1/2">
-              <Select
-                value={language}
-                options={languages.map((l) => {
-                  return { value: l, label: l };
-                })}
-                onChange={setLanguage}
-              />
+              <div className="flex h-12 items-center">
+                <Select
+                  notItem={true}
+                  value={language}
+                  options={languages.map((l) => {
+                    return { value: l, label: l };
+                  })}
+                  onChange={setLanguage}
+                />
+              </div>
               <div className="rounded border border-black/30 p-1.5">
                 <Markdown>{typingTextOutput}</Markdown>
                 {loading && (
                   <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                 )}
+                {!loading && translatedSentence === '' && (
+                  <div className="text-gray-500">
+                    翻訳結果がここに表示されます
+                  </div>
+                )}
                 <div className="flex w-full justify-end">
+                  {language === '英語' && (
+                    <ButtonIcon onClick={startOrStopSpeach}>
+                      {isSpeachPlaying ? (
+                        <PiSpeakerSimpleHighFill />
+                      ) : (
+                        <PiSpeakerSimpleHigh />
+                      )}
+                    </ButtonIcon>
+                  )}
                   <ButtonCopy
                     text={translatedSentence}
                     interUseCasesKey="translatedSentence"></ButtonCopy>
                 </div>
               </div>
+              <div className="mt-3 flex justify-end gap-3">
+                {stopReason === 'max_tokens' && (
+                  <Button onClick={continueGeneration}>続きを出力</Button>
+                )}
+
+                <Button outlined onClick={onClickClear} disabled={disabledExec}>
+                  クリア
+                </Button>
+
+                <Button disabled={disabledExec} onClick={onClickExec}>
+                  実行
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <ExpandableField label="追加コンテキスト" optional>
-            <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
-              value={additionalContext}
-              onChange={setAdditionalContext}
-            />
-          </ExpandableField>
-
-          <div className="flex justify-end gap-3">
-            {stopReason === 'max_tokens' && (
-              <Button onClick={continueGeneration}>続きを出力</Button>
-            )}
-
-            <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
-            </Button>
-
-            <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
-            </Button>
           </div>
         </Card>
       </div>
