@@ -8,6 +8,8 @@ import {
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
+  GuardrailConverseConfigParams,
+  GuardrailConverseStreamingConfigParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -114,6 +116,29 @@ const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   },
 };
 
+// guardrail 設定
+const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
+  if (process.env.GUARDRAIL_IDENTIFIER !== undefined && process.env.GUARDRAIL_VERSION !== undefined) {
+    return {
+      guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
+      guardrailVersion: process.env.GUARDRAIL_VERSION,
+      trace: 'disabled'
+    };
+  }
+  return undefined;
+};
+
+const createGuardrailStreamingConfig = (): GuardrailConverseStreamingConfigParams | undefined => {
+  const baseConfig = createGuardrailConfig();
+  if (baseConfig) {
+    return {
+      ...baseConfig,
+      streamProcessingMode: 'async',
+    };
+  }
+  return undefined;
+};
+
 // ID変換ルール
 const idTransformationRules = [
   // チャット履歴 -> チャット
@@ -189,11 +214,14 @@ const createConverseCommandInput = (
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
 
+  const guardrailConfig = createGuardrailConfig();
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     system: systemContext,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -224,11 +252,14 @@ const createConverseCommandInputWithoutSystemContext = (
   const inferenceConfig = usecaseParams
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
+  
+  const guardrailConfig = createGuardrailConfig();
 
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -252,6 +283,7 @@ const createConverseStreamCommandInput = (
   return {
     ...converseCommandInput,
     // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    createGuardrailStreamingConfig(){},
   } as ConverseStreamCommandInput;
 };
 
@@ -276,6 +308,7 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   return {
     ...converseCommandInput,
     // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    createGuardrailStreamingConfig(){}
   } as ConverseStreamCommandInput;
 };
 

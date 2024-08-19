@@ -11,6 +11,18 @@ export type UsecaseConverseInferenceParams = {
   [key: string]: ConverseInferenceParams;
 };
 
+export type BaseGuardrailConfigParams = {
+  guardrailIdentifier: string,
+  guardrailVersion: string,
+  trace?: 'disabled' | 'enabled'
+}
+
+export type GuardrailConverseConfigParams = BaseGuardrailConfigParams
+
+export type GuardrailConverseStreamingConfigParams = BaseGuardrailConfigParams & {
+  streamProcessingMode?: 'sync' | 'async'
+}
+
 export type TitanParams = {
   inputText?: string;
   textGenerationConfig?: {
