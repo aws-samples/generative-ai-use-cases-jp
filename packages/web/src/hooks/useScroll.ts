@@ -1,6 +1,9 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
+import useObserveScreen from './useObserveScreen';
 
 const useScroll = () => {
+  const { isAtBottom } = useObserveScreen();
+
   // スクロールされる要素が含まれる要素
   // サイズが動的に変更されることが想定される
   // チャットのページであればメッセージを wrap した要素
@@ -37,8 +40,15 @@ const useScroll = () => {
     }
   }, [following, scrollToBottom]);
 
+  // ページ最下部に到達した場合は following を true に
+  // 手動で上にスクロールした場合は following を false にする
+  useEffect(() => {
+    setFollowing(isAtBottom);
+  }, [isAtBottom, setFollowing]);
+
   return {
-    // 実際にスクロールされる高さが決まっている要素 (scrollableContainer とは異なる)
+    // App.tsx スクリーン "以外" でスクロールする場合はこちらの handleScroll を onScroll に設定する
+    // 現状 GenerateImageAssistant.tsx のみで利用されている
     handleScroll: (e: React.UIEvent<HTMLDivElement>) => {
       const div = e.target as HTMLDivElement;
       // 最下部に到達している時に following を true に

@@ -35,8 +35,7 @@ const RagKnowledgeBasePage: React.FC = () => {
   const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } =
     useRagKnowledgeBase(pathname);
-  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
-    useScroll();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
 
@@ -69,9 +68,7 @@ const RagKnowledgeBasePage: React.FC = () => {
 
   return (
     <>
-      <div
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative h-screen overflow-y-scroll`}
-        onScroll={handleScroll}>
+      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           RAG チャット
         </div>

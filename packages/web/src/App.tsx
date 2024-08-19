@@ -28,6 +28,7 @@ import useConversation from './hooks/useConversation';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
+import useObserveScreen from './hooks/useObserveScreen';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -166,6 +167,7 @@ const App: React.FC = () => {
   const { pathname } = useLocation();
   const { getConversationTitle } = useConversation();
   const { isShow } = useInterUseCases();
+  const { handleScroll } = useObserveScreen();
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -178,7 +180,9 @@ const App: React.FC = () => {
   }, [pathname, getConversationTitle]);
 
   return (
-    <div className="screen:w-screen screen:h-screen overflow-hidden">
+    <div
+      className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll"
+      onScroll={handleScroll}>
       <main className="flex-1">
         <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
           <div className="flex w-10 items-center justify-start">

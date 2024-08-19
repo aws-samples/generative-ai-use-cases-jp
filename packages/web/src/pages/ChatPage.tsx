@@ -129,8 +129,7 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
-    useScroll();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { getConversationTitle } = useConversation();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
@@ -356,8 +355,7 @@ const ChatPage: React.FC = () => {
     <>
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative h-screen overflow-y-scroll`}
-        onScroll={handleScroll}>
+        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>

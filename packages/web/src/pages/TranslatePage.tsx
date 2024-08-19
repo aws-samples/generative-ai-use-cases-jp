@@ -263,101 +263,99 @@ const TranslatePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="h-screen overflow-y-scroll">
-      <div className="grid grid-cols-12">
-        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-          翻訳
-        </div>
-        <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-          <Card label="翻訳したい文章">
-            <div className="flex w-full flex-col justify-between sm:flex-row">
-              <Select
-                value={modelId}
-                onChange={setModelId}
-                options={availableModels.map((m) => {
-                  return { value: m, label: m };
-                })}
-              />
-              <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-                <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
-              </div>
+    <div className="grid grid-cols-12">
+      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+        翻訳
+      </div>
+      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+        <Card label="翻訳したい文章">
+          <div className="flex w-full flex-col justify-between sm:flex-row">
+            <Select
+              value={modelId}
+              onChange={setModelId}
+              options={availableModels.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
+            <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+              <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
             </div>
-            <div className="flex w-full flex-col lg:flex-row">
-              <div className="w-full lg:w-1/2">
-                <div className="flex items-center py-2.5">
-                  言語を自動検出
-                  <div className="ml-2 justify-end">
-                    {audio && (
-                      <PiStopCircleBold
-                        onClick={() => {
-                          stopTranscription();
-                          setAudioInput(false);
-                        }}
-                        className="h-5 w-5 cursor-pointer text-orange-500"></PiStopCircleBold>
-                    )}
-                    {!audio && (
-                      <PiMicrophoneBold
-                        onClick={() => {
-                          startTranscription();
-                          setAudioInput(true);
-                        }}
-                        className="h-5 w-5 cursor-pointer"></PiMicrophoneBold>
-                    )}
-                  </div>
-                </div>
-
-                <Textarea
-                  placeholder="入力してください"
-                  value={sentence}
-                  onChange={setSentence}
-                  maxHeight={-1}
-                />
-              </div>
-              <div className="w-full lg:ml-2 lg:w-1/2">
-                <Select
-                  value={language}
-                  options={languages.map((l) => {
-                    return { value: l, label: l };
-                  })}
-                  onChange={setLanguage}
-                />
-                <div className="rounded border border-black/30 p-1.5">
-                  <Markdown>{typingTextOutput}</Markdown>
-                  {loading && (
-                    <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+          </div>
+          <div className="flex w-full flex-col lg:flex-row">
+            <div className="w-full lg:w-1/2">
+              <div className="flex items-center py-2.5">
+                言語を自動検出
+                <div className="ml-2 justify-end">
+                  {audio && (
+                    <PiStopCircleBold
+                      onClick={() => {
+                        stopTranscription();
+                        setAudioInput(false);
+                      }}
+                      className="h-5 w-5 cursor-pointer text-orange-500"></PiStopCircleBold>
                   )}
-                  <div className="flex w-full justify-end">
-                    <ButtonCopy
-                      text={translatedSentence}
-                      interUseCasesKey="translatedSentence"></ButtonCopy>
-                  </div>
+                  {!audio && (
+                    <PiMicrophoneBold
+                      onClick={() => {
+                        startTranscription();
+                        setAudioInput(true);
+                      }}
+                      className="h-5 w-5 cursor-pointer"></PiMicrophoneBold>
+                  )}
+                </div>
+              </div>
+
+              <Textarea
+                placeholder="入力してください"
+                value={sentence}
+                onChange={setSentence}
+                maxHeight={-1}
+              />
+            </div>
+            <div className="w-full lg:ml-2 lg:w-1/2">
+              <Select
+                value={language}
+                options={languages.map((l) => {
+                  return { value: l, label: l };
+                })}
+                onChange={setLanguage}
+              />
+              <div className="rounded border border-black/30 p-1.5">
+                <Markdown>{typingTextOutput}</Markdown>
+                {loading && (
+                  <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                )}
+                <div className="flex w-full justify-end">
+                  <ButtonCopy
+                    text={translatedSentence}
+                    interUseCasesKey="translatedSentence"></ButtonCopy>
                 </div>
               </div>
             </div>
+          </div>
 
-            <ExpandableField label="追加コンテキスト" optional>
-              <Textarea
-                placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
-                value={additionalContext}
-                onChange={setAdditionalContext}
-              />
-            </ExpandableField>
+          <ExpandableField label="追加コンテキスト" optional>
+            <Textarea
+              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              value={additionalContext}
+              onChange={setAdditionalContext}
+            />
+          </ExpandableField>
 
-            <div className="flex justify-end gap-3">
-              {stopReason === 'max_tokens' && (
-                <Button onClick={continueGeneration}>続きを出力</Button>
-              )}
+          <div className="flex justify-end gap-3">
+            {stopReason === 'max_tokens' && (
+              <Button onClick={continueGeneration}>続きを出力</Button>
+            )}
 
-              <Button outlined onClick={onClickClear} disabled={disabledExec}>
-                クリア
-              </Button>
+            <Button outlined onClick={onClickClear} disabled={disabledExec}>
+              クリア
+            </Button>
 
-              <Button disabled={disabledExec} onClick={onClickExec}>
-                実行
-              </Button>
-            </div>
-          </Card>
-        </div>
+            <Button disabled={disabledExec} onClick={onClickExec}>
+              実行
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );

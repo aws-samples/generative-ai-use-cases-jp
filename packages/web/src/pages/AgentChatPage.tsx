@@ -76,8 +76,7 @@ const AgentChatPage: React.FC = () => {
     postChat,
     updateSystemContextByModel,
   } = useChat(pathname, chatId);
-  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
-    useScroll();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { getConversationTitle } = useConversation();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
@@ -162,8 +161,7 @@ const AgentChatPage: React.FC = () => {
     <>
       <div
         onDragOver={handleDragOver}
-        onScroll={handleScroll}
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative h-screen overflow-y-scroll`}>
+        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
