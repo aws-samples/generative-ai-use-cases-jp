@@ -21,7 +21,7 @@
     "@react-icons/all-files": "^4.1.0",
     "@types/uuid": "^9.0.8",
     "aws-amplify": "^6.3.8",
-    "axios": "^1.6.8",
+    "axios": "^1.7.4",
     "buffer": "^6.0.3",
     "copy-to-clipboard": "^3.3.3",
     "file-type": "^19.2.0",
