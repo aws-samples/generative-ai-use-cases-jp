@@ -7,10 +7,10 @@ export class Guardrail extends Construct{
 
   constructor(scope: Construct, id: string){
     super(scope, id);
-    const cfnGuardrail = new bedrock.CfnGuardrail(this,`contentGuardrail`,{
+    const cfnGuardrail = new bedrock.CfnGuardrail(this,`guardrail`,{
       blockedInputMessaging: '禁止された入力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
       blockedOutputsMessaging: 'システムが禁じている内容の出力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
-      name : `PIIGuardrail${id}`,
+      name : `Guardrail${id}`,
       sensitiveInformationPolicyConfig: {
         // NAME, DRIVER_ID は日本のものが機能しないので設定しない
         // CA_*, US_*, UK_* はそれぞれの国固有のものなので設定しない
@@ -35,7 +35,7 @@ export class Guardrail extends Construct{
         ],
       },
     })
-    const cfnGuardrailVersion = new bedrock.CfnGuardrailVersion(this, `contentGuardrailVersion`, {
+    const cfnGuardrailVersion = new bedrock.CfnGuardrailVersion(this, `guardrailVersion`, {
       guardrailIdentifier:cfnGuardrail.attrGuardrailId,
       description: `GenU PII Guardrail`,
     })
