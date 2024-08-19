@@ -89,6 +89,18 @@ export class Auth extends Construct {
       );
     }
 
+    idPool.authenticatedRole.attachInlinePolicy(
+      new Policy(this, 'PollyPolicy', {
+        statements: [
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            resources: ['*'],
+            actions: ['polly:SynthesizeSpeech'],
+          }),
+        ],
+      })
+    );
+
     // Lambda
     if (props.allowedSignUpEmailDomains) {
       const checkEmailDomainFunction = new NodejsFunction(
