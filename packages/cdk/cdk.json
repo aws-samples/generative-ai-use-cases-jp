@@ -53,7 +53,7 @@
     "dashboard": false,
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,
-    "guardrailsForAmazonBedrockEnabled" : false,
+    "guardrailEnabled" : false,
     "vpcId": null,
     "crossAccountBedrockRoleArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
