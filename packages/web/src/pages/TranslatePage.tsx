@@ -131,7 +131,7 @@ const TranslatePage: React.FC = () => {
   const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
-  const { synthesizeSpeach } = useSpeach();
+  const { synthesizeSpeach, loading: speachIsLoading } = useSpeach();
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -284,22 +284,26 @@ const TranslatePage: React.FC = () => {
   }, [setIsSpeachPlaying]);
 
   const startOrStopSpeach = useCallback(async () => {
+    if (speachIsLoading) return;
+
     // 再生中の場合は止める
     if (isSpeachPlaying && audioRef.current) {
+      setIsSpeachPlaying(false);
+
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setIsSpeachPlaying(false);
+      audioRef.current = null;
       return;
     }
 
-    const speachUrl = await synthesizeSpeach(translatedSentence);
-
     setIsSpeachPlaying(true);
 
-    const audio = new Audio(speachUrl);
+    const speachUrl = await synthesizeSpeach(translatedSentence);
+    const audio = new Audio(speachUrl!);
+
+    audioRef.current = audio;
     audio.addEventListener('ended', handleSpeachEnded);
     audio.play();
-    audioRef.current = audio;
   }, [
     translatedSentence,
     synthesizeSpeach,
@@ -307,6 +311,7 @@ const TranslatePage: React.FC = () => {
     setIsSpeachPlaying,
     isSpeachPlaying,
     handleSpeachEnded,
+    speachIsLoading,
   ]);
 
   return (

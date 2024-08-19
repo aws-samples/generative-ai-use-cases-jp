@@ -1,13 +1,21 @@
+import { useState } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Polly, SynthesizeSpeechCommand } from '@aws-sdk/client-polly';
 
 const useSpeach = () => {
+  const [loading, setLoading] = useState(false);
+
   return {
+    loading,
     synthesizeSpeach: async (text: string): Promise<string> => {
+      setLoading(true);
+
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
+
       if (!token) {
+        setLoading(false);
         throw new Error('認証されていません。');
       }
 
@@ -39,6 +47,8 @@ const useSpeach = () => {
 
       const audioBlob = await new Response(audioStream).blob();
       const audioUrl = URL.createObjectURL(audioBlob);
+
+      setLoading(false);
 
       return audioUrl;
     },
