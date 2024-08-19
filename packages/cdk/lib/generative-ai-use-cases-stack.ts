@@ -105,11 +105,18 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
+    
+    const guardrail = guardrailEnabled ? new Guardrail(this, 'Guardrail') : undefined;
+    
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
+      ...(guardrail && {
+        guardrailIdentify: guardrail.guardrailIdentifier,
+        guardrailVersion: guardrail.guardrailVersion,
+      }),
     });
 
     if (
@@ -199,10 +206,6 @@ export class GenerativeAiUseCasesStack extends Stack {
         fileBucket: api.fileBucket,
         vpcId: props.vpcId,
       });
-    }
-
-    if (guardrailEnabled) {
-      new Guardrail(this, 'Guardrail',)
     }
 
     new CfnOutput(this, 'Region', {

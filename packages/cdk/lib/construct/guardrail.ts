@@ -8,8 +8,8 @@ export class Guardrail extends Construct{
   constructor(scope: Construct, id: string){
     super(scope, id);
     const cfnGuardrail = new bedrock.CfnGuardrail(this,`contentGuardrail`,{
-      blockedInputMessaging: '禁止 PII の入力を検出しました。管理者に問い合わせください。',
-      blockedOutputsMessaging: '禁止 PII の出力を検出しました。管理者に問い合わせください。',
+      blockedInputMessaging: '禁止された入力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
+      blockedOutputsMessaging: 'システムが禁じている内容の出力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
       name : `PIIGuardrail${id}`,
       sensitiveInformationPolicyConfig: {
         // NAME, DRIVER_ID は日本のものが機能しないので設定しない

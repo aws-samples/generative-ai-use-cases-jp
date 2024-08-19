@@ -122,6 +122,7 @@ const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
     return {
       guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
       guardrailVersion: process.env.GUARDRAIL_VERSION,
+      // 出力が重くなる&現状トレースを確認する手段がアプリ側に無いので disabled をハードコーディング
       trace: 'disabled'
     };
   }
@@ -133,6 +134,9 @@ const createGuardrailStreamingConfig = (): GuardrailConverseStreamingConfigParam
   if (baseConfig) {
     return {
       ...baseConfig,
+      // 非同期だとマズい出力が出る可能性があるが、まずい入力をしない限り出力が出たことがない（＝入力時点でストップ）ので、
+      // 非同期で体験を良くすることとする
+      // https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-streaming.html
       streamProcessingMode: 'async',
     };
   }
