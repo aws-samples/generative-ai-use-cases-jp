@@ -7,7 +7,6 @@ import useChat from '../hooks/useChat';
 import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
-import useScroll from '../hooks/useScroll';
 
 type Props = BaseProps & {
   modelId: string;
@@ -27,14 +26,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
-
-  const { scrollToBottom } = useScroll();
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom('image-assistant-chat');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const contents = useMemo<
     (
@@ -94,6 +85,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     });
   }, [loading, messages]);
 
+  const scrollToBottom = useCallback(() => {
+    const elementId = 'image-assistant-chat';
+    document.getElementById(elementId)?.scrollTo({
+      top: document.getElementById(elementId)?.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, []);
+
   useEffect(() => {
     // メッセージ追加時の画像の自動生成
     const _length = contents.length;
@@ -113,15 +112,17 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         .onGenerate(message.content.prompt, message.content.negativePrompt)
         .finally(() => {
           setIsAutoGenerating(false);
+          scrollToBottom();
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, scrollToBottom]);
 
   const onSend = useCallback(() => {
     postChat(props.content);
     props.onChangeContent('');
-  }, [postChat, props]);
+    scrollToBottom();
+  }, [postChat, props, scrollToBottom]);
 
   const onRetrySend = useCallback(() => {
     popMessage();

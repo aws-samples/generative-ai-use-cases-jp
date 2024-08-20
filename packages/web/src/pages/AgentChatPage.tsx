@@ -76,7 +76,7 @@ const AgentChatPage: React.FC = () => {
     postChat,
     updateSystemContextByModel,
   } = useChat(pathname, chatId);
-  const { scrollToBottom, scrollToTop } = useScroll();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { getConversationTitle } = useConversation();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
@@ -117,11 +117,12 @@ const AgentChatPage: React.FC = () => {
   }, [setContent, modelId, availableModels, search]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(content, false, undefined, undefined, sessionId, uploadedFiles);
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -129,15 +130,6 @@ const AgentChatPage: React.FC = () => {
     setSessionId(uuidv4());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const showingMessages = useMemo(() => {
     return messages;
@@ -207,20 +199,23 @@ const AgentChatPage: React.FC = () => {
           </div>
         )}
 
-        {!isEmpty &&
-          showingMessages.map((chat, idx) => (
-            <div key={idx + 1}>
-              {idx === 0 && (
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
+                <ChatMessage
+                  idx={idx}
+                  chatContent={chat}
+                  loading={loading && idx === showingMessages.length - 1}
+                />
                 <div className="w-full border-b border-gray-300"></div>
-              )}
-              <ChatMessage
-                idx={idx}
-                chatContent={chat}
-                loading={loading && idx === showingMessages.length - 1}
-              />
-              <div className="w-full border-b border-gray-300"></div>
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
+        <div ref={scrolledAnchor} />
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           <InputChatContent
