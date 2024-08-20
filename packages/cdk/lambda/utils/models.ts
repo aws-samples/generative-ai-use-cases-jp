@@ -9,7 +9,7 @@ import {
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
   GuardrailConverseConfigParams,
-  GuardrailConverseStreamingConfigParams,
+  GuardrailConverseStreamConfigParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -129,7 +129,7 @@ const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
   return undefined;
 };
 
-const createGuardrailStreamingConfig = (): GuardrailConverseStreamingConfigParams | undefined => {
+const createGuardrailStreamConfig = (): GuardrailConverseStreamConfigParams | undefined => {
   const baseConfig = createGuardrailConfig();
   if (baseConfig) {
     return {
@@ -284,10 +284,10 @@ const createConverseStreamCommandInput = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
-    // createGuardrailStreamingConfig(){},
+    guardrailStreamConfig
   } as ConverseStreamCommandInput;
 };
 
@@ -309,10 +309,10 @@ const createConverseStreamCommandInputWithoutSystemContext = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
-    // createGuardrailStreamingConfig(){}
+    guardrailStreamConfig
   } as ConverseStreamCommandInput;
 };
 

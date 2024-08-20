@@ -19,7 +19,7 @@ export type BaseGuardrailConfigParams = {
 
 export type GuardrailConverseConfigParams = BaseGuardrailConfigParams
 
-export type GuardrailConverseStreamingConfigParams = BaseGuardrailConfigParams & {
+export type GuardrailConverseStreamConfigParams = BaseGuardrailConfigParams & {
   streamProcessingMode?: 'sync' | 'async'
 }
 
