@@ -137,14 +137,17 @@ const searchAgentStack = searchAgentEnabled
     })
   : null;
 
-const guardrailEnabled: boolean = app.node.tryGetContext('guardrailEnabled') || false;
-const guardrail = guardrailEnabled ? new GuardrailStack(app, 'GuardrailStack',{
-  env:{
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: modelRegion,
-  },
-  crossRegionReferences: true,
-}): null;
+const guardrailEnabled: boolean =
+  app.node.tryGetContext('guardrailEnabled') || false;
+const guardrail = guardrailEnabled
+  ? new GuardrailStack(app, 'GuardrailStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: modelRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
 
 // GenU Stack
 

@@ -12,16 +12,16 @@ export type UsecaseConverseInferenceParams = {
 };
 
 export type BaseGuardrailConfigParams = {
-  guardrailIdentifier: string,
-  guardrailVersion: string,
-  trace?: 'disabled' | 'enabled'
-}
+  guardrailIdentifier: string;
+  guardrailVersion: string;
+  trace?: 'disabled' | 'enabled';
+};
 
-export type GuardrailConverseConfigParams = BaseGuardrailConfigParams
+export type GuardrailConverseConfigParams = BaseGuardrailConfigParams;
 
 export type GuardrailConverseStreamConfigParams = BaseGuardrailConfigParams & {
-  streamProcessingMode?: 'sync' | 'async'
-}
+  streamProcessingMode?: 'sync' | 'async';
+};
 
 export type TitanParams = {
   inputText?: string;

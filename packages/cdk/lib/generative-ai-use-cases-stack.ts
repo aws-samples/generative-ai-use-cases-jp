@@ -10,7 +10,6 @@ import {
   Transcribe,
   CommonWebAcl,
   RecognizeFile,
-  Guardrail,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -73,7 +72,8 @@ export class GenerativeAiUseCasesStack extends Stack {
     const recognizeFileEnabled: boolean = this.node.tryGetContext(
       'recognizeFileEnabled'
     )!;
-    const guardrailEnabled: boolean = this.node.tryGetContext('guardrailEnabled') || false;
+    const guardrailEnabled: boolean =
+      this.node.tryGetContext('guardrailEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -96,7 +96,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     if (typeof guardrailEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled'));
+      throw new Error(
+        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
+      );
     }
 
     const auth = new Auth(this, 'Auth', {
@@ -107,7 +109,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
-    
+
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,

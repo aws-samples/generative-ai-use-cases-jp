@@ -118,18 +118,23 @@ const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
 
 // guardrail 設定
 const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
-  if (process.env.GUARDRAIL_IDENTIFIER !== undefined && process.env.GUARDRAIL_VERSION !== undefined) {
+  if (
+    process.env.GUARDRAIL_IDENTIFIER !== undefined &&
+    process.env.GUARDRAIL_VERSION !== undefined
+  ) {
     return {
       guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
       guardrailVersion: process.env.GUARDRAIL_VERSION,
       // 出力が重くなる&現状トレースを確認する手段がアプリ側に無いので disabled をハードコーディング
-      trace: 'disabled'
+      trace: 'disabled',
     };
   }
   return undefined;
 };
 
-const createGuardrailStreamConfig = (): GuardrailConverseStreamConfigParams | undefined => {
+const createGuardrailStreamConfig = ():
+  | GuardrailConverseStreamConfigParams
+  | undefined => {
   const baseConfig = createGuardrailConfig();
   if (baseConfig) {
     return {
@@ -256,7 +261,7 @@ const createConverseCommandInputWithoutSystemContext = (
   const inferenceConfig = usecaseParams
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
-  
+
   const guardrailConfig = createGuardrailConfig();
 
   const converseCommandInput: ConverseCommandInput = {
@@ -287,7 +292,7 @@ const createConverseStreamCommandInput = (
   const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    guardrailStreamConfig
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 
@@ -312,7 +317,7 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    guardrailStreamConfig
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 
