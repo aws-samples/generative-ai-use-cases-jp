@@ -47,18 +47,6 @@ const useScroll = () => {
   }, [isAtBottom, setFollowing]);
 
   return {
-    // App.tsx スクリーン "以外" でスクロールする場合はこちらの handleScroll を onScroll に設定する
-    // 現状 GenerateImageAssistant.tsx のみで利用されている
-    handleScroll: (e: React.UIEvent<HTMLDivElement>) => {
-      const div = e.target as HTMLDivElement;
-      // 最下部に到達している時に following を true に
-      // 小数点が省略されることがあるため、1.0 の余裕を設ける
-      if (div.clientHeight + div.scrollTop + 1.0 >= div.scrollHeight) {
-        setFollowing(true);
-      } else {
-        setFollowing(false);
-      }
-    },
     setFollowing,
     scrollToBottom,
     scrollableContainer,

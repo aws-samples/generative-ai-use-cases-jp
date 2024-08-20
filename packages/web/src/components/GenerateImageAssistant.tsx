@@ -7,7 +7,6 @@ import useChat from '../hooks/useChat';
 import { PiLightbulbFilamentBold, PiWarningFill } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import Button from './Button';
-import useScroll from '../hooks/useScroll';
 
 type Props = BaseProps & {
   modelId: string;
@@ -27,8 +26,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading, messages, postChat, popMessage } = useChat(pathname);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
-  const { scrollableContainer, handleScroll, scrolledAnchor, setFollowing } =
-    useScroll();
 
   const contents = useMemo<
     (
@@ -88,6 +85,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
     });
   }, [loading, messages]);
 
+  const scrollToBottom = useCallback(() => {
+    const elementId = 'image-assistant-chat';
+    document.getElementById(elementId)?.scrollTo({
+      top: document.getElementById(elementId)?.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, []);
+
   useEffect(() => {
     // メッセージ追加時の画像の自動生成
     const _length = contents.length;
@@ -107,16 +112,17 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         .onGenerate(message.content.prompt, message.content.negativePrompt)
         .finally(() => {
           setIsAutoGenerating(false);
+          scrollToBottom();
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, scrollToBottom]);
 
   const onSend = useCallback(() => {
-    setFollowing(true);
     postChat(props.content);
     props.onChangeContent('');
-  }, [postChat, props, setFollowing]);
+    scrollToBottom();
+  }, [postChat, props, scrollToBottom]);
 
   const onRetrySend = useCallback(() => {
     popMessage();
@@ -141,9 +147,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         </div>
         <div
           id="image-assistant-chat"
-          className="h-full overflow-y-auto overflow-x-hidden pb-16"
-          onScroll={handleScroll}
-          ref={scrollableContainer}>
+          className="h-full overflow-y-auto overflow-x-hidden pb-16">
           {contents.length === 0 && (
             <div className="rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">
@@ -267,7 +271,6 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
               )}
             </div>
           ))}
-          <div ref={scrolledAnchor} />
         </div>
         <div className="absolute bottom-0 z-0 -ml-2 flex w-full items-end justify-center pr-6">
           <InputChatContent
