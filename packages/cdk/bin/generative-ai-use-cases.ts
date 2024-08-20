@@ -7,6 +7,7 @@ import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
 import { SearchAgentStack } from '../lib/search-agent-stack';
 import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
+import { GuardrailStack } from '../lib/guardrail-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -136,6 +137,15 @@ const searchAgentStack = searchAgentEnabled
     })
   : null;
 
+const guardrailEnabled: boolean = app.node.tryGetContext('guardrailEnabled') || false;
+const guardrail = guardrailEnabled ? new GuardrailStack(app, 'GuardrailStack',{
+  env:{
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: modelRegion,
+  },
+  crossRegionReferences: true,
+}): null;
+
 // GenU Stack
 
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
@@ -163,6 +173,8 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     knowledgeBaseId: ragKnowledgeBaseStack?.knowledgeBaseId,
     knowledgeBaseDataSourceBucketName:
       ragKnowledgeBaseStack?.dataSourceBucketName,
+    guardrailIdentifier: guardrail?.guardrailIdentifier,
+    guardrailVersion: guardrail?.guardrailVersion,
   }
 );
 

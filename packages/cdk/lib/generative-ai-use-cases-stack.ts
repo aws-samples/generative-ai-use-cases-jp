@@ -37,6 +37,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   agents?: Agent[];
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
+  guardrailIdentifier?: string;
+  guardrailVersion?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -106,17 +108,13 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
     const database = new Database(this, 'Database');
     
-    const guardrail = guardrailEnabled ? new Guardrail(this, 'Guardrail') : undefined;
-    
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
-      ...(guardrail && {
-        guardrailIdentify: guardrail.guardrailIdentifier,
-        guardrailVersion: guardrail.guardrailVersion,
-      }),
+      guardrailIdentify: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
     });
 
     if (

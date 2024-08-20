@@ -287,7 +287,7 @@ const createConverseStreamCommandInput = (
   return {
     ...converseCommandInput,
     // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
-    createGuardrailStreamingConfig(){},
+    // createGuardrailStreamingConfig(){},
   } as ConverseStreamCommandInput;
 };
 
@@ -312,7 +312,7 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   return {
     ...converseCommandInput,
     // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
-    createGuardrailStreamingConfig(){}
+    // createGuardrailStreamingConfig(){}
   } as ConverseStreamCommandInput;
 };
 
