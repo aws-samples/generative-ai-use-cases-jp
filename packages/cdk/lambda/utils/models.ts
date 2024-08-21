@@ -8,6 +8,8 @@ import {
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
+  GuardrailConverseConfigParams,
+  GuardrailConverseStreamConfigParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -114,6 +116,38 @@ const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   },
 };
 
+// guardrail 設定
+const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
+  if (
+    process.env.GUARDRAIL_IDENTIFIER !== undefined &&
+    process.env.GUARDRAIL_VERSION !== undefined
+  ) {
+    return {
+      guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
+      guardrailVersion: process.env.GUARDRAIL_VERSION,
+      // 出力が重くなる&現状トレースを確認する手段がアプリ側に無いので disabled をハードコーディング
+      trace: 'disabled',
+    };
+  }
+  return undefined;
+};
+
+const createGuardrailStreamConfig = ():
+  | GuardrailConverseStreamConfigParams
+  | undefined => {
+  const baseConfig = createGuardrailConfig();
+  if (baseConfig) {
+    return {
+      ...baseConfig,
+      // 非同期だとマズい出力が出る可能性があるが、まずい入力をしない限り出力が出たことがない（＝入力時点でストップ）ので、
+      // 非同期で体験を良くすることとする
+      // https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-streaming.html
+      streamProcessingMode: 'async',
+    };
+  }
+  return undefined;
+};
+
 // ID変換ルール
 const idTransformationRules = [
   // チャット履歴 -> チャット
@@ -189,11 +223,14 @@ const createConverseCommandInput = (
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
 
+  const guardrailConfig = createGuardrailConfig();
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     system: systemContext,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -225,10 +262,13 @@ const createConverseCommandInputWithoutSystemContext = (
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
 
+  const guardrailConfig = createGuardrailConfig();
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -249,9 +289,10 @@ const createConverseStreamCommandInput = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 
@@ -273,9 +314,10 @@ const createConverseStreamCommandInputWithoutSystemContext = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 

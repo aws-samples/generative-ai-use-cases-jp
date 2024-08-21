@@ -36,6 +36,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   agents?: Agent[];
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
+  guardrailIdentifier?: string;
+  guardrailVersion?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -70,6 +72,8 @@ export class GenerativeAiUseCasesStack extends Stack {
     const recognizeFileEnabled: boolean = this.node.tryGetContext(
       'recognizeFileEnabled'
     )!;
+    const guardrailEnabled: boolean =
+      this.node.tryGetContext('guardrailEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -91,6 +95,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
     }
 
+    if (typeof guardrailEnabled !== 'boolean') {
+      throw new Error(
+        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
+      );
+    }
+
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
       allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
@@ -99,11 +109,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
+
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
+      guardrailIdentify: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
     });
 
     if (

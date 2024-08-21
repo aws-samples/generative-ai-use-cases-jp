@@ -511,6 +511,19 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 
 
+### ガードレール
+
+Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `packages/cdk/cdk.json` の `guardrailEnabled` キーを `true` に変更、デプロイしなおします。
+```json
+  "context": {
+    "guardrailEnabled" : true,
+  }
+```
+デフォルトで適用されるガードレールは機微情報フィルターで日本語での会話の中で効果があったものを適用しています。他にも単語フィルターのカスタム、機微情報フィルターの正規表現は機能することを確認しており、必要に応じて、`packages/cdk/lib/construct/guardrail.ts` を修正してください。詳細は[Guardrails for Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)と[CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html)をご参照ください。
+
+> [!NOTE]
+> ガードレールの設定を有効後に、再度無効化する場合は、`guardrailEnabled : false` にして再デプロイすれば生成 AI を呼び出す際にガードレールは無効化されますが、ガードレール自体は残ります。CloudFormation から `GuardrailStack` というスタックを削除することで完全に消去ができます。ガードレールが残ること自体にコストは発生しませんが、使用しないリソースは削除するのが望ましいです。
+
 ## コスト関連設定
 
 ### Kendraのインデックスを自動で作成・削除するスケジュールを設定する
