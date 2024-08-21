@@ -158,6 +158,7 @@ npm run cdk:deploy
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
   - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
+  - [ガードレール](/docs/DEPLOY_OPTION.md#ガードレール)
 - [コスト関連設定](/docs/DEPLOY_OPTION.md#コスト関連設定)
   - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](/docs/DEPLOY_OPTION.md#Kendraを自動でオン・オフするスケジュールを設定する)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
