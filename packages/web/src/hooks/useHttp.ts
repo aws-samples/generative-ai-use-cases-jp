@@ -1,6 +1,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import useSWR, { SWRConfiguration } from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
@@ -43,6 +44,16 @@ const useHttp = () => {
     ) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return useSWR<Data, Error>(url, fetcher, config);
+    },
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getPagination: <Data = any, Error = any>(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getKey: (pageIndex: number, previousPageData: any) => string | null,
+      config?: SWRConfiguration
+    ) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useSWRInfinite<Data, Error>(getKey, fetcher, config);
     },
 
     /**

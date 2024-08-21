@@ -7,7 +7,6 @@ import {
   UnrecordedMessage,
   ToBeRecordedMessage,
   Chat,
-  ListChatsResponse,
   Role,
   UploadedFileType,
   ExtraData,
@@ -16,8 +15,12 @@ import {
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
-import useConversation from './useConversation';
-import { KeyedMutator } from 'swr';
+import useChatList from './useChatList';
+// TODO: SWR 2.2.5 では InifiniteKeyedMutator が export されていない
+// 以下のコミットで対応されている => 2.2.6 が stable になり次第こちらを対応する (それまでは any を許容する)
+// https://github.com/vercel/swr/commit/cb2946ddcafbeedecf724aa19b3929865c026bc7
+// import { InfiniteKeyedMutator } from 'swr/infinite';
+// mutateListChat の本来の型は InfiniteKeyedMutator<ListChatsResponse[]>
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
 
@@ -48,7 +51,8 @@ const useChatState = create<{
   post: (
     id: string,
     content: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
     ignoreHistory: boolean,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
@@ -57,7 +61,8 @@ const useChatState = create<{
   ) => void;
   continueGeneration: (
     id: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
     ignoreHistory: boolean,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
@@ -312,7 +317,8 @@ const useChatState = create<{
 
   const generateMessage = async (
     id: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
     ignoreHistory: boolean,
     preProcessInput:
       | ((message: ShownMessage[]) => ShownMessage[])
@@ -673,7 +679,7 @@ const useChat = (id: string, chatId?: string) => {
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
     useChatApi().findChatById(chatId);
-  const { mutate: mutateConversations } = useConversation();
+  const { mutate: mutateChatList } = useChatList();
 
   useEffect(() => {
     // 新規チャットの場合
@@ -742,7 +748,7 @@ const useChat = (id: string, chatId?: string) => {
       post(
         id,
         content,
-        mutateConversations,
+        mutateChatList,
         ignoreHistory,
         preProcessInput,
         postProcessOutput,
@@ -761,7 +767,7 @@ const useChat = (id: string, chatId?: string) => {
     ) => {
       continueGeneration(
         id,
-        mutateConversations,
+        mutateChatList,
         ignoreHistory,
         preProcessInput,
         postProcessOutput,

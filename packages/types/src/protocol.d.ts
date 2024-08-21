@@ -34,6 +34,7 @@ export type CreateMessagesResponse = {
 
 export type ListChatsResponse = {
   chats: Chat[];
+  lastEvaluatedKey?: string;
 };
 
 export type FindChatByIdResponse = {
