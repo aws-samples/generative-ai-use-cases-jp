@@ -100,7 +100,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 ## アーキテクチャ
 
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
 
 ![arch.drawio.png](/imgs/arch.drawio.png)
 
@@ -139,8 +139,9 @@ npm run cdk:deploy
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
     - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
-    - [OpenSearch Service の Index をマネージメントコンソールで確認する方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-index-をマネージメントコンソールで確認する方法)
+    - [OpenSearch Service の Collection/Index に変更を加える方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-collectionindex-に変更を加える方法)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
+    - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
@@ -157,6 +158,9 @@ npm run cdk:deploy
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
   - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
+  - [ガードレール](/docs/DEPLOY_OPTION.md#ガードレール)
+- [コスト関連設定](/docs/DEPLOY_OPTION.md#コスト関連設定)
+  - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](/docs/DEPLOY_OPTION.md#Kendraを自動でオン・オフするスケジュールを設定する)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
 - [ファイルアップロード機能の有効化](/docs/DEPLOY_OPTION.md#ファイルアップロード機能の有効化)
 - [別 AWS アカウントの Bedrock を利用したい場合](/docs/DEPLOY_OPTION.md#別-AWS-アカウントの-Bedrock-を利用したい場合)
@@ -175,10 +179,36 @@ npm run cdk:deploy
 セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
 従量課金制となっており、実際の料金はご利用内容により変動いたします。
 
+## お客様事例
+
+### [株式会社やさしい手](https://www.yasashiite.com/)
+
+![yasashiite_logo.png](/imgs/株式会社やさしい手_ロゴ.png)
+GenUを活用した介護現場の記録・報告業務の効率化。介護利用者の家族や医師、ケアマネージャーが読みやすい報告業務の自動化を実現。介護記録データから個別作業手順の生成や自動更新を行ったり、ケアマネージャーと利用者の会話音声から標準項目に沿ったケアプランの作成を行う。中堅・中小企業向け事業戦略に関する[説明会](https://japan.zdnet.com/article/35221718/)に登壇。
+
+### [株式会社サルソニード](https://salsonido.com/)
+
+![salsonido.png](/imgs/株式会社サルソニード_事例.png)
+マーケターの記事執筆支援に GenU を活用。専門知識を持ったうえで記事の執筆が必要であり、記事制作に時間・人・スキルの面で課題があった。GenU の RAG を利用し、情報をもとに記事を作成することで課題を克服。リライト業務にかける時間を 70% 削減した。
+
+### [株式会社タムラ製作所](https://www.tamura-ss.co.jp/jp/index.html)
+
+![tamura.png](/imgs/株式会社タムラ製作所_事例.png)
+製品の実験を行うにあたり、大量の製品書類があり必要な情報がどの文書に記載されているか特定が困難であるという課題があった。GenU の RAG を活用することで、文書の発見を容易にした。加えて、文字起こしや文書生成も活用し、議事録を簡単に作成できるようになったことで、情報の共有が活発化した。
+
+### [株式会社JDSC](https://jdsc.ai/)
+
+![jdsc.png](/imgs/株式会社JDSC_事例.png)
+GenU をリファレンスにし、Bedrock の生成AI の出力を実際にアプリケーションで確認しつつ、開発できたことが成功要因でした。海事産業特有の専門的な問合せについて、90%以上の性能改善ができたのは、Haiku, Sonnet, Opus の適宜の利用と、AWSの各種サービス活用によります。特に性能向上の観点で新たにSonnet 3.5 への適用、 Kendra から RDS for PostgreSQL の pgvector への切替など、確固たるGenUのベースと自社ノウハウを両立させられたのも良かったです。
+
+活用頂いた事例を掲載頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
+
+
 ## 参照
  - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
  - [ブログ: 無茶振りは生成 AI に断ってもらおう ~ ブラウザに生成 AI を組み込んでみた ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
+ - [ブログ: RAG チャットで精度向上のためのデバッグ方法](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
  - [動画： 生成 AI ユースケースを考え倒すための Generative AI Use Cases JP (GenU) の魅力と使い方](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
 
 ## Security

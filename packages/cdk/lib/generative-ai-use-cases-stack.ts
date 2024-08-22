@@ -9,7 +9,6 @@ import {
   RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
-  File,
   RecognizeFile,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
@@ -37,6 +36,8 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   agents?: Agent[];
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
+  guardrailIdentifier?: string;
+  guardrailVersion?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -71,6 +72,8 @@ export class GenerativeAiUseCasesStack extends Stack {
     const recognizeFileEnabled: boolean = this.node.tryGetContext(
       'recognizeFileEnabled'
     )!;
+    const guardrailEnabled: boolean =
+      this.node.tryGetContext('guardrailEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -92,6 +95,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
     }
 
+    if (typeof guardrailEnabled !== 'boolean') {
+      throw new Error(
+        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
+      );
+    }
+
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
       allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
@@ -100,11 +109,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
+
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
+      guardrailIdentify: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
     });
 
     if (
@@ -155,11 +167,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: props.hostedZoneId,
     });
 
-    const file = new File(this, 'File', {
-      userPool: auth.userPool,
-      api: api.api,
-    });
-
     if (ragEnabled) {
       const rag = new Rag(this, 'Rag', {
         userPool: auth.userPool,
@@ -170,7 +177,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
       // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
       if (rag.dataSourceBucketName) {
-        file.allowDownloadFile(rag.dataSourceBucketName);
+        api.allowDownloadFile(rag.dataSourceBucketName);
       }
     }
 
@@ -183,7 +190,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
 
       // File API から data source の Bucket のファイルをダウンロードできるようにする
-      file.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+      api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
     }
 
     new Transcribe(this, 'Transcribe', {
@@ -196,7 +203,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       new RecognizeFile(this, 'RecognizeFile', {
         userPool: auth.userPool,
         api: api.api,
-        fileBucket: file.fileBucket,
+        fileBucket: api.fileBucket,
         vpcId: props.vpcId,
       });
     }

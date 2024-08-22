@@ -1,12 +1,12 @@
 import { produce } from 'immer';
 import { create } from 'zustand';
 import {
+  StreamingChunk,
   ShownMessage,
   RecordedMessage,
   UnrecordedMessage,
   ToBeRecordedMessage,
   Chat,
-  ListChatsResponse,
   Role,
   UploadedFileType,
   ExtraData,
@@ -15,8 +15,12 @@ import {
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
-import useConversation from './useConversation';
-import { KeyedMutator } from 'swr';
+import useChatList from './useChatList';
+// TODO: SWR 2.2.5 では InifiniteKeyedMutator が export されていない
+// 以下のコミットで対応されている => 2.2.6 が stable になり次第こちらを対応する (それまでは any を許容する)
+// https://github.com/vercel/swr/commit/cb2946ddcafbeedecf724aa19b3929865c026bc7
+// import { InfiniteKeyedMutator } from 'swr/infinite';
+// mutateListChat の本来の型は InfiniteKeyedMutator<ListChatsResponse[]>
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
 
@@ -25,6 +29,7 @@ const useChatState = create<{
     [id: string]: {
       chat?: Chat;
       messages: ShownMessage[];
+      stopReason: string;
     };
   };
   modelIds: {
@@ -46,7 +51,18 @@ const useChatState = create<{
   post: (
     id: string,
     content: string,
-    mutateListChat: KeyedMutator<ListChatsResponse>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
+    ignoreHistory: boolean,
+    preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
+    postProcessOutput: ((message: string) => string) | undefined,
+    sessionId: string | undefined,
+    extraData: UploadedFileType[] | undefined
+  ) => void;
+  continueGeneration: (
+    id: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
     ignoreHistory: boolean,
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
@@ -58,6 +74,7 @@ const useChatState = create<{
     createdDate: string,
     feedback: string
   ) => Promise<void>;
+  getStopReason: (id: string) => string;
 }>((set, get) => {
   const {
     createChat,
@@ -100,6 +117,7 @@ const useChatState = create<{
           draft[id] = {
             chat,
             messages,
+            stopReason: '',
           };
         }),
       };
@@ -224,17 +242,18 @@ const useChatState = create<{
       const extraData: ExtraData[] | undefined = m.extraData?.flatMap(
         (data) => {
           // 推論する際は"data:image/png..." のといった情報は必要ないため、削除する
-          const base64EncodedImage = uploadedFiles
+          const base64EncodedData = uploadedFiles
             ?.find((uploadedFile) => uploadedFile.s3Url === data.source.data)
-            ?.base64EncodedImage?.replace(/^data:(.*,)?/, '');
+            ?.base64EncodedData?.replace(/^data:(.*,)?/, '');
 
           // Base64 エンコードされた画像情報を設定する
           return {
-            type: 'image',
+            type: data.type,
+            name: data.name,
             source: {
               type: 'base64',
               mediaType: data.source.mediaType,
-              data: base64EncodedImage ?? '',
+              data: base64EncodedData ?? '',
             },
           };
         }
@@ -267,6 +286,7 @@ const useChatState = create<{
       const newChats = produce(state.chats, (draft) => {
         const oldAssistantMessage = draft[id].messages.pop()!;
         const newAssistantMessage: UnrecordedMessage = {
+          ...oldAssistantMessage,
           role: 'assistant',
           // 新規モデル追加時は、デフォルトで Claude の prompter が利用されるため
           // 出力が <output></output> で囲まれる可能性がある
@@ -283,6 +303,193 @@ const useChatState = create<{
         chats: newChats,
       };
     });
+  };
+
+  const updateStopReason = (id: string, stopReason: string) => {
+    set((state) => {
+      return {
+        chats: produce(state.chats, (draft) => {
+          draft[id].stopReason = stopReason;
+        }),
+      };
+    });
+  };
+
+  const generateMessage = async (
+    id: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
+    ignoreHistory: boolean,
+    preProcessInput:
+      | ((message: ShownMessage[]) => ShownMessage[])
+      | undefined = undefined,
+    postProcessOutput: ((message: string) => string) | undefined = undefined,
+    sessionId: string | undefined = undefined,
+    uploadedFiles: UploadedFileType[] | undefined = undefined
+  ) => {
+    const modelId = get().modelIds[id];
+
+    if (!modelId) {
+      console.error('modelId is not set');
+      return;
+    }
+
+    const model = findModelByModelId(modelId);
+
+    if (!model) {
+      console.error(`model not found for ${modelId}`);
+      return;
+    }
+
+    // Agent 用の対応
+    if (sessionId) {
+      model.sessionId = sessionId;
+    }
+
+    setLoading(id, true);
+
+    // 停止理由をリセット
+    updateStopReason(id, '');
+
+    const chatMessages = get().chats[id].messages;
+
+    // 最後のアシスタントのメッセージが存在するか確認
+    const isContinue = chatMessages[chatMessages.length - 1].content.length > 0;
+    // slice の第二引数
+    // - 続きを出力の場合は undefined (最後まで)
+    // - そうでない場合は -1 (Assistant のメッセージはカット)
+    const sliceEndIndex = isContinue ? undefined : -1;
+
+    // 最後のメッセージはアシスタントのメッセージなので、排除
+    // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
+    let inputMessages = ignoreHistory
+      ? [chatMessages[0], ...chatMessages.slice(-2, sliceEndIndex)]
+      : chatMessages.slice(0, sliceEndIndex);
+
+    // 続きを出力でアシスタントのメッセージが trailing whitespace で終了している場合以下のエラーが出る
+    // final assistant content cannot end with trailing whitespace
+    // Assistant のメッセージは trimEnd() で末尾の空白を排除
+    // 排除された空白をカウント (trimedSpaces) し、改めて Assistant のメッセージに付与
+    let trimedSpaces = 0;
+
+    if (isContinue) {
+      inputMessages = inputMessages.map((m, i) => {
+        if (i === inputMessages.length - 1) {
+          const trimedContent = m.content.trimEnd();
+          trimedSpaces = m.content.length - trimedContent.length;
+          return {
+            ...m,
+            content: trimedContent,
+          };
+        } else {
+          return m;
+        }
+      });
+    }
+
+    // メッセージの前処理（例：ログからの footnote の削除）
+    if (preProcessInput) {
+      inputMessages = preProcessInput(inputMessages);
+    }
+
+    // LLM へのリクエスト
+    const formattedMessages = formatMessageProperties(
+      inputMessages,
+      uploadedFiles
+    );
+
+    const stream = predictStream({
+      model: model,
+      messages: formattedMessages,
+      id: id,
+    });
+
+    // Assistant の発言を更新
+    // 続きを出力の際に trimEnd() された空白をデフォルトで付与
+    // trimedSpaces が 0 の場合は tmpChunk は空文字
+    let tmpChunk = ' '.repeat(trimedSpaces);
+
+    for await (const chunk of stream) {
+      const chunks = chunk.split('\n');
+
+      for (const c of chunks) {
+        if (c && c.length > 0) {
+          const payload = JSON.parse(c) as StreamingChunk;
+
+          if (payload.text.length > 0) {
+            tmpChunk += payload.text;
+          }
+
+          if (payload.stopReason && payload.stopReason.length > 0) {
+            updateStopReason(id, payload.stopReason);
+          }
+        }
+      }
+
+      // chunk は 10 文字以上でまとめて処理する
+      // バッファリングしないと以下のエラーが出る
+      // Maximum update depth exceeded
+      if (tmpChunk.length >= 10) {
+        addChunkToAssistantMessage(id, tmpChunk, model);
+        tmpChunk = '';
+      }
+    }
+
+    // tmpChunk に文字列が残っている場合は処理する
+    if (tmpChunk.length > 0) {
+      addChunkToAssistantMessage(id, tmpChunk, model);
+    }
+
+    // メッセージの後処理（例：footnote の付与）
+    if (postProcessOutput) {
+      set((state) => {
+        const newChats = produce(state.chats, (draft) => {
+          const oldAssistantMessage = draft[id].messages.pop()!;
+          const newAssistantMessage: UnrecordedMessage = {
+            ...oldAssistantMessage,
+            role: 'assistant',
+            content: postProcessOutput(oldAssistantMessage.content),
+            llmType: model?.modelId,
+          };
+          draft[id].messages.push(newAssistantMessage);
+        });
+        return {
+          chats: newChats,
+        };
+      });
+    }
+
+    setLoading(id, false);
+
+    const chatId = await createChatIfNotExist(id, get().chats[id].chat);
+
+    // タイトルが空文字列だった場合、タイトルを予測して設定
+    if (get().chats[id].chat?.title === '') {
+      setPredictedTitle(id).then(() => {
+        mutateListChat();
+      });
+    }
+
+    const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
+
+    // 続きを出力の場合は最後のアシスタントのメッセージを更新する
+    if (isContinue) {
+      const lastAssistantMessage: ShownMessage =
+        get().chats[id].messages[get().chats[id].messages.length - 1];
+      const updatedAssistantMessage: ToBeRecordedMessage = {
+        createdDate: lastAssistantMessage.createdDate!,
+        messageId: lastAssistantMessage.messageId!,
+        usecase: lastAssistantMessage.usecase!,
+        ...lastAssistantMessage,
+      };
+      toBeRecordedMessages.push(updatedAssistantMessage);
+    }
+
+    const { messages } = await createMessages(chatId, {
+      messages: toBeRecordedMessages,
+    });
+
+    replaceMessages(id, messages);
   };
 
   return {
@@ -374,33 +581,13 @@ const useChatState = create<{
       sessionId: string | undefined = undefined,
       uploadedFiles: UploadedFileType[] | undefined = undefined
     ) => {
-      const modelId = get().modelIds[id];
-
-      if (!modelId) {
-        console.error('modelId is not set');
-        return;
-      }
-
-      const model = findModelByModelId(modelId);
-
-      if (!model) {
-        console.error(`model not found for ${modelId}`);
-        return;
-      }
-
-      // Agent 用の対応
-      if (sessionId) {
-        model.sessionId = sessionId;
-      }
-
-      setLoading(id, true);
-
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
         content,
         // DDB に保存する形式で、extraData を設定する
         extraData: uploadedFiles?.map((uploadedFile) => ({
-          type: 'image',
+          type: uploadedFile.type,
+          name: uploadedFile.name,
           source: {
             type: 's3',
             mediaType: uploadedFile.file.type,
@@ -426,87 +613,18 @@ const useChatState = create<{
         };
       });
 
-      const chatMessages = get().chats[id].messages;
-
-      // 最後のメッセージはアシスタントのメッセージなので、排除
-      // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
-      let inputMessages = ignoreHistory
-        ? [chatMessages[0], ...chatMessages.slice(-2, -1)]
-        : chatMessages.slice(0, -1);
-
-      // メッセージの前処理（例：ログからの footnote の削除）
-      if (preProcessInput) {
-        inputMessages = preProcessInput(inputMessages);
-      }
-
-      // LLM へのリクエスト
-      const formattedMessages = formatMessageProperties(
-        inputMessages,
+      await generateMessage(
+        id,
+        mutateListChat,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput,
+        sessionId,
         uploadedFiles
       );
-      const stream = predictStream({
-        model: model,
-        messages: formattedMessages,
-        id: id,
-      });
-
-      // Assistant の発言を更新
-      let tmpChunk = '';
-
-      for await (const chunk of stream) {
-        tmpChunk += chunk;
-
-        // chunk は 10 文字以上でまとめて処理する
-        // バッファリングしないと以下のエラーが出る
-        // Maximum update depth exceeded
-        if (tmpChunk.length >= 10) {
-          addChunkToAssistantMessage(id, tmpChunk, model);
-          tmpChunk = '';
-        }
-      }
-
-      // tmpChunk に文字列が残っている場合は処理する
-      if (tmpChunk.length > 0) {
-        addChunkToAssistantMessage(id, tmpChunk, model);
-      }
-
-      // メッセージの後処理（例：footnote の付与）
-      if (postProcessOutput) {
-        set((state) => {
-          const newChats = produce(state.chats, (draft) => {
-            const oldAssistantMessage = draft[id].messages.pop()!;
-            const newAssistantMessage: UnrecordedMessage = {
-              role: 'assistant',
-              content: postProcessOutput(oldAssistantMessage.content),
-              llmType: model?.modelId,
-            };
-            draft[id].messages.push(newAssistantMessage);
-          });
-          return {
-            chats: newChats,
-          };
-        });
-      }
-
-      setLoading(id, false);
-
-      const chatId = await createChatIfNotExist(id, get().chats[id].chat);
-
-      // タイトルが空文字列だった場合、タイトルを予測して設定
-      if (get().chats[id].chat?.title === '') {
-        setPredictedTitle(id).then(() => {
-          mutateListChat();
-        });
-      }
-
-      const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
-      const { messages } = await createMessages(chatId, {
-        messages: toBeRecordedMessages,
-      });
-
-      replaceMessages(id, messages);
     },
 
+    continueGeneration: generateMessage,
     sendFeedback: async (id: string, createdDate: string, feedback: string) => {
       const chat = get().chats[id].chat;
 
@@ -517,6 +635,16 @@ const useChatState = create<{
         });
         replaceMessages(id, [message]);
       }
+    },
+
+    getStopReason: (id: string) => {
+      const chat = get().chats[id];
+
+      if (chat) {
+        return chat.stopReason;
+      }
+
+      return '';
     },
   };
 });
@@ -539,17 +667,19 @@ const useChat = (id: string, chatId?: string) => {
     clear,
     restore,
     post,
+    continueGeneration,
     sendFeedback,
     updateSystemContext,
     getCurrentSystemContext,
     pushMessage,
     popMessage,
+    getStopReason,
   } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
     useChatApi().findChatById(chatId);
-  const { mutate: mutateConversations } = useConversation();
+  const { mutate: mutateChatList } = useChatList();
 
   useEffect(() => {
     // 新規チャットの場合
@@ -618,7 +748,26 @@ const useChat = (id: string, chatId?: string) => {
       post(
         id,
         content,
-        mutateConversations,
+        mutateChatList,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput,
+        sessionId,
+        extraData
+      );
+    },
+    continueGeneration: (
+      ignoreHistory: boolean = false,
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      sessionId: string | undefined = undefined,
+      extraData: UploadedFileType[] | undefined = undefined
+    ) => {
+      continueGeneration(
+        id,
+        mutateChatList,
         ignoreHistory,
         preProcessInput,
         postProcessOutput,
@@ -628,6 +777,9 @@ const useChat = (id: string, chatId?: string) => {
     },
     sendFeedback: async (createdDate: string, feedback: string) => {
       await sendFeedback(id, createdDate, feedback);
+    },
+    getStopReason: () => {
+      return getStopReason(id);
     },
   };
 };

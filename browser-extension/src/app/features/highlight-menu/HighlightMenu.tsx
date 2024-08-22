@@ -5,7 +5,6 @@ import {
   useInteractions,
   flip,
   shift,
-  inline,
   autoUpdate,
   autoPlacement,
 } from '@floating-ui/react';
@@ -25,9 +24,16 @@ const HighlightMenu: React.FC<Props> = (props) => {
   // https://floating-ui.com/docs/react-examples
   const { refs, floatingStyles, context } = useFloating({
     placement: 'bottom',
+    transform: true,
     open: isOpen,
     onOpenChange: setIsOpen,
-    middleware: [inline(), flip(), shift(), autoPlacement()],
+    middleware: [
+      flip(),
+      shift(),
+      autoPlacement({
+        allowedPlacements: ['top', 'top-start', 'top-end', 'bottom', 'bottom-start', 'bottom-end'],
+      }),
+    ],
     whileElementsMounted: autoUpdate,
   });
 
@@ -99,10 +105,11 @@ const HighlightMenu: React.FC<Props> = (props) => {
           ref={refs.setFloating}
           style={{
             ...floatingStyles,
+            zIndex: 9999999999999,
           }}
           {...getFloatingProps()}
         >
-          <div className="">
+          <div>
             {isOpenContextList ? (
               <PromptList
                 onClick={(systemContext) => {
@@ -111,18 +118,17 @@ const HighlightMenu: React.FC<Props> = (props) => {
               />
             ) : (
               <button
-                className="py-2 rounded-full px-4 bg-aws-squid-ink text-white"
+                className="rounded-full p-2 py-3 bg-aws-squid-ink text-white"
                 onClick={() => {
                   setContent(window.getSelection()?.toString() ?? '');
                   setIsOpenContextList(true);
                 }}
               >
                 {/* Integration先のフォント設置に影響を受けるのでピクセル指定 */}
-                <div className="flex items-center gap-2 text-[13px]">
+                <div className="flex items-center">
                   <div className="rounded">
                     <AwsLogo className="h-[13px]" />
                   </div>
-                  <div className="inline">Bedrock連携</div>
                 </div>
               </button>
             )}

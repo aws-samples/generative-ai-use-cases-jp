@@ -10,3 +10,8 @@ export type CreateSystemContextRequest = {
 };
 
 export type GetSystemContextsRequest = (PrimaryKey & SystemContext)[];
+
+export type StreamingChunk = {
+  text: string;
+  stopReason?: string;
+};

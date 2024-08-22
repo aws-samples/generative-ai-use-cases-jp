@@ -15,6 +15,11 @@ import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
 import { MediaFormat } from '@aws-sdk/client-transcribe';
 
+export type StreamingChunk = {
+  text: string;
+  stopReason?: string;
+};
+
 export type CreateChatResponse = {
   chat: Chat;
 };
@@ -29,6 +34,7 @@ export type CreateMessagesResponse = {
 
 export type ListChatsResponse = {
   chats: Chat[];
+  lastEvaluatedKey?: string;
 };
 
 export type FindChatByIdResponse = {
@@ -103,26 +109,20 @@ export type RetrieveKnowledgeBaseRequest = {
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
 
-export type GetDocDownloadSignedUrlRequest = {
+export type GetFileDownloadSignedUrlRequest = {
   bucketName: string;
   filePrefix: string;
   region?: string;
   contentType?: string;
 };
 
-export type GetDocDownloadSignedUrlResponse = string;
+export type GetFileDownloadSignedUrlResponse = string;
 
 export type GenerateImageRequest = {
   model?: Model;
   params: GenerateImageParams;
 };
 export type GenerateImageResponse = string;
-
-export type GetMediaUploadSignedUrlRequest = {
-  mediaFormat: MediaFormat;
-};
-
-export type GetMediaUploadSignedUrlResponse = string;
 
 export type DeleteFileRequest = {
   fileName: string;
@@ -167,6 +167,7 @@ export type GetSharedChatResponse = {
 };
 
 export type GetFileUploadSignedUrlRequest = {
+  filename?: string;
   mediaFormat: string;
 };
 

@@ -4,7 +4,7 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import useSystemContextApi from '../hooks/useSystemContextApi';
-import useConversation from '../hooks/useConversation';
+import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
 import Button from '../components/Button';
@@ -23,7 +23,30 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import { SystemContext } from 'generative-ai-use-cases-jp';
+import { FileLimit, SystemContext } from 'generative-ai-use-cases-jp';
+
+const fileLimit: FileLimit = {
+  accept: [
+    '.csv',
+    '.doc',
+    '.docx',
+    '.html',
+    '.md',
+    '.pdf',
+    '.txt',
+    '.xls',
+    '.xlsx',
+    '.gif',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+  ],
+  maxFileCount: 5,
+  maxFileSizeMB: 4.5,
+  maxImageFileCount: 20,
+  maxImageFileSizeMB: 3.75,
+};
 
 type StateType = {
   content: string;
@@ -106,8 +129,8 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollToBottom, scrollToTop } = useScroll();
-  const { getConversationTitle } = useConversation();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { getChatTitle } = useChatList();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
@@ -125,11 +148,11 @@ const ChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'チャット';
+      return getChatTitle(chatId) || 'チャット';
     } else {
       return 'チャット';
     }
-  }, [chatId, getConversationTitle]);
+  }, [chatId, getChatTitle]);
 
   const fileUpload = useMemo(() => {
     return MODELS.multiModalModelIds.includes(modelId);
@@ -159,6 +182,7 @@ const ChatPage: React.FC = () => {
   }, [search, setContent, availableModels, pathname]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(
       prompter.chatPrompt({ content }),
       false,
@@ -170,7 +194,7 @@ const ChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, uploadedFiles, fileUpload]);
+  }, [content, uploadedFiles, fileUpload, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -238,15 +262,6 @@ const ChatPage: React.FC = () => {
       return null;
     }
   }, [share]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const [showSystemContext, setShowSystemContext] = useState(false);
 
@@ -332,7 +347,7 @@ const ChatPage: React.FC = () => {
     setIsOver(false);
     if (event.dataTransfer.files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(event.dataTransfer.files));
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit);
     }
   };
 
@@ -400,19 +415,22 @@ const ChatPage: React.FC = () => {
           </div>
         )}
 
-        {!isEmpty &&
-          showingMessages.map((chat, idx) => (
-            <div key={showSystemContext ? idx : idx + 1}>
-              {idx === 0 && (
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={showSystemContext ? idx : idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
+                <ChatMessage
+                  chatContent={chat}
+                  loading={loading && idx === showingMessages.length - 1}
+                />
                 <div className="w-full border-b border-gray-300"></div>
-              )}
-              <ChatMessage
-                chatContent={chat}
-                loading={loading && idx === showingMessages.length - 1}
-              />
-              <div className="w-full border-b border-gray-300"></div>
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
+        <div ref={scrolledAnchor} />
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (
@@ -467,6 +485,7 @@ const ChatPage: React.FC = () => {
             }}
             onReset={onReset}
             fileUpload={fileUpload}
+            fileLimit={fileLimit}
           />
         </div>
       </div>

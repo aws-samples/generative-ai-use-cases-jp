@@ -9,7 +9,11 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { Bucket, BucketEncryption } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketEncryption,
+} from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
 import { Agent as AgentType } from 'generative-ai-use-cases-jp';
@@ -28,6 +32,8 @@ export class Agent extends Construct {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      enforceSSL: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
 
     // schema を s3 に配置

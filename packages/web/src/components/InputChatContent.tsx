@@ -12,6 +12,8 @@ import {
 } from 'react-icons/pi';
 
 import useFiles from '../hooks/useFiles';
+import FileCard from './FileCard';
+import { FileLimit } from 'generative-ai-use-cases-jp';
 
 type Props = {
   content: string;
@@ -26,6 +28,7 @@ type Props = {
   // ページ下部以外で使う時に margin bottom を無効化するためのオプション
   disableMarginBottom?: boolean;
   fileUpload?: boolean;
+  fileLimit?: FileLimit;
 } & (
   | {
       hideReset?: false;
@@ -39,14 +42,19 @@ type Props = {
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading: chatLoading, isEmpty } = useChat(pathname);
-  const { uploadedFiles, uploadFiles, deleteUploadedFile, uploading } =
-    useFiles();
+  const {
+    uploadedFiles,
+    uploadFiles,
+    deleteUploadedFile,
+    uploading,
+    errorMessages,
+  } = useFiles();
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(files));
+      uploadFiles(Array.from(files), props?.fileLimit);
     }
   };
 
@@ -63,7 +71,7 @@ const InputChatContent: React.FC<Props> = (props) => {
       .map((file) => file.getAsFile() as File);
     if (files.length > 0) {
       // ファイルをアップロード
-      uploadFiles(Array.from(files));
+      uploadFiles(Array.from(files), props.fileLimit);
       // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
       pasteEvent.preventDefault();
     }
@@ -90,16 +98,37 @@ const InputChatContent: React.FC<Props> = (props) => {
         <div className="flex w-full flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
-              {uploadedFiles.map((uploadedFile, idx) => (
-                <ZoomUpImage
-                  key={idx}
-                  src={uploadedFile.base64EncodedImage}
-                  loading={uploadedFile.uploading}
-                  size="s"
-                  onDelete={() => {
-                    deleteFile(uploadedFile.s3Url ?? '');
-                  }}
-                />
+              {uploadedFiles.map((uploadedFile, idx) =>
+                uploadedFile.type === 'image' ? (
+                  <ZoomUpImage
+                    key={idx}
+                    src={uploadedFile.base64EncodedData}
+                    loading={uploadedFile.uploading}
+                    size="s"
+                    onDelete={() => {
+                      deleteFile(uploadedFile.s3Url ?? '');
+                    }}
+                  />
+                ) : (
+                  <FileCard
+                    key={idx}
+                    filename={uploadedFile.name}
+                    loading={uploadedFile.uploading}
+                    size="s"
+                    onDelete={() => {
+                      deleteFile(uploadedFile.s3Url ?? '');
+                    }}
+                  />
+                )
+              )}
+            </div>
+          )}
+          {errorMessages.length > 0 && (
+            <div className="m-2 flex flex-wrap gap-2">
+              {errorMessages.map((errorMessage, idx) => (
+                <p key={idx} className="text-red-500">
+                  {errorMessage}
+                </p>
               ))}
             </div>
           )}
@@ -120,7 +149,7 @@ const InputChatContent: React.FC<Props> = (props) => {
               hidden
               onChange={onChangeFiles}
               type="file"
-              accept=".jpg, .png, .gif, .webp"
+              accept={props.fileLimit?.accept?.join(',')}
               multiple
               value={[]}
             />

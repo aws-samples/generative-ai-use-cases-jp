@@ -35,7 +35,7 @@ const RagKnowledgeBasePage: React.FC = () => {
   const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } =
     useRagKnowledgeBase(pathname);
-  const { scrollToBottom, scrollToTop } = useScroll();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
 
@@ -56,23 +56,15 @@ const RagKnowledgeBasePage: React.FC = () => {
   }, [availableModels, modelId, search, setContent]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postMessage(content);
     setContent('');
-  }, [content, postMessage, setContent]);
+  }, [content, postMessage, setContent, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
     setContent('');
   }, [clear, setContent]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   return (
     <>
@@ -114,16 +106,19 @@ const RagKnowledgeBasePage: React.FC = () => {
           </div>
         )}
 
-        {messages.map((chat, idx) => (
-          <div key={idx}>
-            <ChatMessage
-              idx={idx}
-              chatContent={chat}
-              loading={loading && idx === messages.length - 1}
-            />
-            <div className="w-full border-b border-gray-300"></div>
-          </div>
-        ))}
+        <div ref={scrollableContainer}>
+          {messages.map((chat, idx) => (
+            <div key={idx}>
+              <ChatMessage
+                idx={idx}
+                chatContent={chat}
+                loading={loading && idx === messages.length - 1}
+              />
+              <div className="w-full border-b border-gray-300"></div>
+            </div>
+          ))}
+        </div>
+        <div ref={scrolledAnchor} />
 
         <div className="fixed bottom-0 z-0 flex w-full items-end justify-center lg:pr-64 print:hidden">
           <InputChatContent
