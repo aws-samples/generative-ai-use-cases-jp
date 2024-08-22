@@ -1,52 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Text, Loader, useAuthenticator } from '@aws-amplify/ui-react';
+import React, { useEffect } from 'react';
 import { Amplify } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
-import { signInWithRedirect } from 'aws-amplify/auth';
 import useSettings from '../../settings/useSettings';
+import Browser from 'webextension-polyfill';
+import useAuth from '../hooks/useAuth';
+import Button from './Button';
+import { PiCircleNotchBold } from 'react-icons/pi';
 
 type Props = {
   children: React.ReactNode;
 };
 
 const AuthWithSAML: React.FC<Props> = (props) => {
-  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
   const { settings } = useSettings();
-
-  const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { loading, authenticate, hasAuthenticated } = useAuth();
 
   useEffect(() => {
-    // 認証状態の検証
-    if (authStatus === 'configuring') {
-      setLoading(true);
-      setAuthenticated(false);
-    } else if (authStatus === 'authenticated') {
-      setLoading(false);
-      setAuthenticated(true);
-    } else {
-      setLoading(false);
-      setAuthenticated(false);
-    }
-  }, [authStatus]);
-
-  const signIn = () => {
-    console.log('Login');
-    signInWithRedirect({
-      provider: {
-        custom: settings?.federatedIdentityProviderName ?? '',
-      },
-    })
-      .then((data) => {
-        console.log('success', data);
-      })
-      .catch((err) => {
-        console.log('error', err);
-      });
-  };
-
-  useEffect(() => {
-    if (settings?.cognitoDomain) {
+    if (settings) {
       Amplify.configure({
         Auth: {
           Cognito: {
@@ -55,7 +25,7 @@ const AuthWithSAML: React.FC<Props> = (props) => {
             identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
             loginWith: {
               oauth: {
-                domain: settings.cognitoDomain,
+                domain: settings.cognitoDomain ?? '',
                 scopes: ['openid', 'email', 'profile'],
                 redirectSignIn: [window.location.origin],
                 redirectSignOut: [window.location.origin],
@@ -65,26 +35,31 @@ const AuthWithSAML: React.FC<Props> = (props) => {
           },
         },
       });
+      // 認証の設定をしたら認証を実行
+      authenticate();
     }
-  }, [settings]);
+  }, [authenticate, settings]);
+
+  const signIn = () => {
+    const url = Browser.runtime.getURL('/');
+    Browser.tabs.create({ url });
+  };
 
   return (
-    <>
+    <div className="flex justify-center mt-3">
       {loading ? (
-        <div className="grid grid-cols-1 justify-items-center gap-4">
-          <Text className="mt-12 text-center">Loading...</Text>
-          <Loader width="5rem" height="5rem" />
+        <div>
+          <div className="italic">Loading...</div>
+          <PiCircleNotchBold className="text-6xl animate-spin" />
         </div>
-      ) : !authenticated ? (
-        <div className="grid grid-cols-1 justify-items-center gap-4">
-          <Button variation="primary" onClick={() => signIn()} className="mt-6 w-60">
-            ログイン
-          </Button>
+      ) : !hasAuthenticated ? (
+        <div>
+          <Button onClick={() => signIn()}>ログイン画面へ</Button>
         </div>
       ) : (
         <>{props.children}</>
       )}
-    </>
+    </div>
   );
 };
 

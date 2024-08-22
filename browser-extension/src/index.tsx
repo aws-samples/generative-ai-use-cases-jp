@@ -1,11 +1,9 @@
-import '../../global.css';
+import './global.css';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { proxyStore } from '../../app/proxyStore';
-import ChatPage from './ChatPage';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { proxyStore } from './app/proxyStore';
+import SSOPage from './pages/sso/SSOPage';
 import { Authenticator } from '@aws-amplify/ui-react';
 
 proxyStore.ready().then(() => {
@@ -13,9 +11,7 @@ proxyStore.ready().then(() => {
     <React.StrictMode>
       <Provider store={proxyStore}>
         <Authenticator.Provider>
-          <DndProvider backend={HTML5Backend}>
-            <ChatPage />
-          </DndProvider>
+          <SSOPage />
         </Authenticator.Provider>
       </Provider>
     </React.StrictMode>

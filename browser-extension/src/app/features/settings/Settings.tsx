@@ -12,7 +12,7 @@ type Props = {
 
 const Settings: React.FC<Props> = (props) => {
   const { settings, setSetting, save } = useSettings();
-  const { hasAuthrized, email, signOut } = useAuth();
+  const { hasAuthenticated, email, signOut } = useAuth();
 
   const enabledSamlAuth = useMemo(() => {
     return settings?.enabledSamlAuth ?? false;
@@ -111,7 +111,7 @@ const Settings: React.FC<Props> = (props) => {
       <div className="mt-5">
         <div className="text-base font-semibold mb-1">ログイン情報</div>
         <div className="text-aws-font-color-gray">
-          {hasAuthrized ? (
+          {hasAuthenticated ? (
             <div>
               <div>ログイン者：{email}</div>
               <div className="flex justify-end">
