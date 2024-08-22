@@ -4,7 +4,7 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import useSystemContextApi from '../hooks/useSystemContextApi';
-import useConversation from '../hooks/useConversation';
+import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
 import Button from '../components/Button';
@@ -130,7 +130,7 @@ const ChatPage: React.FC = () => {
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
   const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
-  const { getConversationTitle } = useConversation();
+  const { getChatTitle } = useChatList();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
@@ -148,11 +148,11 @@ const ChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'チャット';
+      return getChatTitle(chatId) || 'チャット';
     } else {
       return 'チャット';
     }
-  }, [chatId, getConversationTitle]);
+  }, [chatId, getChatTitle]);
 
   const fileUpload = useMemo(() => {
     return MODELS.multiModalModelIds.includes(modelId);

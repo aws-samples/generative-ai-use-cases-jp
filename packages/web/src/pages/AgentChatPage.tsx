@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
-import useConversation from '../hooks/useConversation';
+import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
@@ -77,7 +77,7 @@ const AgentChatPage: React.FC = () => {
     updateSystemContextByModel,
   } = useChat(pathname, chatId);
   const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
-  const { getConversationTitle } = useConversation();
+  const { getChatTitle } = useChatList();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -94,11 +94,11 @@ const AgentChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'Agent チャット';
+      return getChatTitle(chatId) || 'Agent チャット';
     } else {
       return 'Agent チャット';
     }
-  }, [chatId, getConversationTitle]);
+  }, [chatId, getChatTitle]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;

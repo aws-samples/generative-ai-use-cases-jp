@@ -24,7 +24,7 @@ import Drawer, { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
-import useConversation from './hooks/useConversation';
+import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
@@ -165,7 +165,7 @@ const extractChatId = (path: string): string | null => {
 const App: React.FC = () => {
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { pathname } = useLocation();
-  const { getConversationTitle } = useConversation();
+  const { getChatTitle } = useChatList();
   const { isShow } = useInterUseCases();
   const { handleScroll } = useObserveScreen();
 
@@ -173,11 +173,11 @@ const App: React.FC = () => {
     const chatId = extractChatId(pathname);
 
     if (chatId) {
-      return getConversationTitle(chatId) || '';
+      return getChatTitle(chatId) || '';
     } else {
       return items.find((i) => i.to === pathname)?.label || '';
     }
-  }, [pathname, getConversationTitle]);
+  }, [pathname, getChatTitle]);
 
   return (
     <div
