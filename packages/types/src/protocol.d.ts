@@ -17,6 +17,7 @@ import { MediaFormat } from '@aws-sdk/client-transcribe';
 
 export type StreamingChunk = {
   text: string;
+  trace?: string;
   stopReason?: string;
 };
 

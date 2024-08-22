@@ -280,6 +280,7 @@ const useChatState = create<{
   const addChunkToAssistantMessage = (
     id: string,
     chunk: string,
+    trace?: string,
     model?: Model
   ) => {
     set((state) => {
@@ -295,6 +296,7 @@ const useChatState = create<{
             /(<output>|<\/output>)/g,
             ''
           ),
+          trace: (oldAssistantMessage.trace || '') + (trace || ''),
           llmType: model?.modelId,
         };
         draft[id].messages.push(newAssistantMessage);
@@ -416,12 +418,17 @@ const useChatState = create<{
         if (c && c.length > 0) {
           const payload = JSON.parse(c) as StreamingChunk;
 
-          if (payload.text.length > 0) {
+          if (payload.text) {
             tmpChunk += payload.text;
           }
 
           if (payload.stopReason && payload.stopReason.length > 0) {
             updateStopReason(id, payload.stopReason);
+          }
+
+          // Trace
+          if (payload.trace) {
+            addChunkToAssistantMessage(id, '', payload.trace, model);
           }
         }
       }
@@ -430,14 +437,14 @@ const useChatState = create<{
       // バッファリングしないと以下のエラーが出る
       // Maximum update depth exceeded
       if (tmpChunk.length >= 10) {
-        addChunkToAssistantMessage(id, tmpChunk, model);
+        addChunkToAssistantMessage(id, tmpChunk, undefined, model);
         tmpChunk = '';
       }
     }
 
     // tmpChunk に文字列が残っている場合は処理する
     if (tmpChunk.length > 0) {
-      addChunkToAssistantMessage(id, tmpChunk, model);
+      addChunkToAssistantMessage(id, tmpChunk, undefined, model);
     }
 
     // メッセージの後処理（例：footnote の付与）
@@ -449,6 +456,7 @@ const useChatState = create<{
             ...oldAssistantMessage,
             role: 'assistant',
             content: postProcessOutput(oldAssistantMessage.content),
+            trace: oldAssistantMessage.trace,
             llmType: model?.modelId,
           };
           draft[id].messages.push(newAssistantMessage);
