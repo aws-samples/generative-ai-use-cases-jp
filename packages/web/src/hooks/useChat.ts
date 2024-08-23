@@ -418,7 +418,7 @@ const useChatState = create<{
         if (c && c.length > 0) {
           const payload = JSON.parse(c) as StreamingChunk;
 
-          if (payload.text) {
+          if (payload.text.length > 0) {
             tmpChunk += payload.text;
           }
 
