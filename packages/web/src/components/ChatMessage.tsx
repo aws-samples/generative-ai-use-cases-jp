@@ -103,8 +103,15 @@ const ChatMessage: React.FC<Props> = (props) => {
 
           <div className="ml-5 grow ">
             {chatContent?.trace && (
-              <details className="mb-2 rounded border p-2" open>
-                <summary className="text-sm">トレース</summary>
+              <details className="mb-2 cursor-pointer rounded border p-2">
+                <summary className="text-sm">
+                  <div className="inline-flex gap-1">
+                    トレース
+                    {props.loading && !chatContent?.content && (
+                      <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                    )}
+                  </div>
+                </summary>
                 <Markdown prefix={`${props.idx}-trace`}>
                   {chatContent.trace}
                 </Markdown>
