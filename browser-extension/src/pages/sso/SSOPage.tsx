@@ -23,7 +23,7 @@ const SSOPage: React.FC = () => {
               oauth: {
                 domain: settings.cognitoDomain ?? '',
                 scopes: ['openid', 'email', 'profile'],
-                redirectSignIn: [window.location.origin],
+                redirectSignIn: [`${window.location.origin}/index.html`],
                 redirectSignOut: [window.location.origin],
                 responseType: 'code',
               },

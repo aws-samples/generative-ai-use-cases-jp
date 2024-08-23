@@ -27,7 +27,7 @@ const AuthWithSAML: React.FC<Props> = (props) => {
               oauth: {
                 domain: settings.cognitoDomain ?? '',
                 scopes: ['openid', 'email', 'profile'],
-                redirectSignIn: [window.location.origin],
+                redirectSignIn: [`${window.location.origin}/index.html`],
                 redirectSignOut: [window.location.origin],
                 responseType: 'code',
               },
@@ -41,7 +41,7 @@ const AuthWithSAML: React.FC<Props> = (props) => {
   }, [authenticate, settings]);
 
   const signIn = () => {
-    const url = Browser.runtime.getURL('/');
+    const url = Browser.runtime.getURL('/index.html');
     Browser.tabs.create({ url });
   };
 

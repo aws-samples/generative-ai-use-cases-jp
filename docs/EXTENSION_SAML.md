@@ -36,11 +36,11 @@ GenU の SAML の設定で Cognito の Hosted UI を設定しましたが、そ�
 「拡張機能の URL 確認」でメモしていた拡張機能の URL を、「許可されているコールバック URL」に設定してください。拡張機能の URL は、必ず以下の形式にしてください。
 
 ```text
-chrome-extension://拡張機能のID
+chrome-extension://拡張機能のID/index.html
 ```
 
 >[!IMPORTANT]
-> Microsoft Edgeを利用している場合は、ブラウザ上のURLは `extension://拡張機能のID` となっていますが、Cognito の設定は、`chrome-extension` と表記する必要があります。
+> Microsoft Edgeを利用している場合は、ブラウザ上のURLは `extension://拡張機能のID/index.html` となっていますが、Cognito の設定は、`chrome-extension` と表記する必要があります。
 
 ### 動作確認
 
