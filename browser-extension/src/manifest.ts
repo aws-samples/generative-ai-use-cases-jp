@@ -15,7 +15,7 @@ const manifest = defineManifest(async (env) => ({
   },
   web_accessible_resources: [
     {
-      resources: ['pages/chat/index.html', 'pages/sso/index.html'],
+      resources: ['pages/chat/index.html'],
       matches: ['http://*/*', 'https://*/*'],
     },
   ],
