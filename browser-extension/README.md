@@ -34,7 +34,7 @@
 
 - [ビルド手順](../docs/EXTENSION_BUILD.md)
 - [インストール手順](../docs/EXTENSION_INSTALL.md)
-- [SAML認証の利用方法](../docs/EXTENSION_SAML.md)
+- [SAML 認証の利用方法](../docs/EXTENSION_SAML.md)
 
 ## FAQ
 
