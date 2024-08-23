@@ -42,10 +42,6 @@ const manifest = defineManifest(async (env) => ({
     '128': 'images/bedrock_icon_64.png',
   },
   permissions: ['storage', 'tabs', 'contextMenus'],
-  content_security_policy: {
-    extension_pages:
-      "frame-src 'self' https://*.amazoncognito.com; script-src 'self'; object-src 'self'",
-  },
 }));
 
 export default manifest;
