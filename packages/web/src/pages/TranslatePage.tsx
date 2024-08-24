@@ -214,36 +214,22 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  // 音声入力フラグの切り替え
-  // audioのトグルボタンがOnになったら、startTranscriptionを実行する
-  useEffect(() => {
-    if (audio) {
-      startTranscription();
-    } else {
-      stopTranscription();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [audio]);
-
   // 録音機能がエラー終了した時にトグルスイッチをOFFにする
   useEffect(() => {
     if (!recording) {
       setAudioInput(false);
     }
   }, [recording]);
+
   // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
   useEffect(() => {
-    // transcriptMic[*].transcriptが重複していたら削除する
-    const combinedTranscript = Array.from(
-      new Set(transcriptMic.map((t) => t.transcript))
-    ).join('');
-
+    const combinedTranscript = transcriptMic
+      .map((item) => item.transcript)
+      .join('\n');
     if (combinedTranscript.length > 0) {
       setSentence(combinedTranscript);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcriptMic]);
+  }, [transcriptMic, setSentence]);
 
   // LLM にリクエスト送信
   const getTranslation = (
