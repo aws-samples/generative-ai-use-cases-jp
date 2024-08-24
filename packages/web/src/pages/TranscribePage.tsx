@@ -12,19 +12,10 @@ import RangeSlider from '../components/RangeSlider';
 import ExpandableField from '../components/ExpandableField';
 import { Transcript } from 'generative-ai-use-cases-jp';
 import Textarea from '../components/Textarea';
-import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
-import Select from '../components/Select';
-
-const languageOptions = [
-  { value: 'ja-JP', label: '日本語' },
-  { value: 'en-US', label: 'English' },
-];
 
 type StateType = {
   content: Transcript[];
   setContent: (c: Transcript[]) => void;
-  language: LanguageCode;
-  setLanguage: (s: LanguageCode) => void;
   speakerLabel: boolean;
   setSpeakerLabel: (b: boolean) => void;
   maxSpeakers: number;
@@ -36,18 +27,12 @@ type StateType = {
 const useTranscribeState = create<StateType>((set) => {
   return {
     content: [],
-    language: 'ja-JP',
     speakerLabel: false,
     maxSpeakers: 2,
     speakers: '',
     setContent: (s: Transcript[]) => {
       set(() => ({
         content: s,
-      }));
-    },
-    setLanguage: (s: LanguageCode) => {
-      set(() => ({
-        language: s,
       }));
     },
     setSpeakerLabel: (b: boolean) => {
@@ -81,8 +66,6 @@ const TranscribePage: React.FC = () => {
   const {
     content,
     setContent,
-    language,
-    setLanguage,
     speakerLabel,
     setSpeakerLabel,
     maxSpeakers,
@@ -172,15 +155,8 @@ const TranscribePage: React.FC = () => {
     setContent([]);
     clear();
     clearTranscripts();
-    startTranscription(language, speakerLabel);
-  }, [
-    language,
-    speakerLabel,
-    clear,
-    clearTranscripts,
-    setContent,
-    startTranscription,
-  ]);
+    startTranscription(undefined, speakerLabel);
+  }, [speakerLabel, clear, clearTranscripts, setContent, startTranscription]);
 
   return (
     <div className="grid grid-cols-12">
@@ -205,16 +181,6 @@ const TranscribePage: React.FC = () => {
             mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
           </p>
           <ExpandableField label="詳細なパラメータ">
-            <div className="grid grid-cols-2 gap-2 pt-4">
-              {!file && (
-                <Select
-                  label="Language"
-                  options={languageOptions}
-                  value={language}
-                  onChange={(v) => setLanguage(v as LanguageCode)}
-                />
-              )}
-            </div>
             <div className="grid grid-cols-2 gap-2 pt-4">
               <Switch
                 label="話者認識"

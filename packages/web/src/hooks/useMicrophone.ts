@@ -126,11 +126,9 @@ const useMicrophone = () => {
       IdentifyLanguage: languageCode ? false : true,
       LanguageOptions: languageCode ? undefined : 'en-US,ja-JP',
       MediaEncoding: 'pcm',
-      MediaSampleRateHertz: 16000,
+      MediaSampleRateHertz: 48000,
       AudioStream: audioStream(),
       ShowSpeakerLabel: speakerLabel,
-      // EnablePartialResultsStabilization: true,
-      // PartialResultsStability: 'high',
     });
 
     try {
@@ -222,12 +220,7 @@ const useMicrophone = () => {
     languageCode?: LanguageCode,
     speakerLabel?: boolean
   ) => {
-    const audioContext = new AudioContext({ sampleRate: 16000 });
-    const mic = new MicrophoneStream({
-      objectMode: false,
-      context: audioContext,
-    });
-    // const mic = new MicrophoneStream();
+    const mic = new MicrophoneStream();
     try {
       setMicStream(mic);
       mic.setStream(
