@@ -152,14 +152,14 @@ const useRagKnowledgeBase = (id: string) => {
           });
 
           // 本文中の脚注番号に合わせてフッター部分を作成
-          const footnoteText = Array.from(uriToFootnote)
+          const footnote = Array.from(uriToFootnote)
             .map(
               ([uri, { updatedIndex, title }]) =>
                 `[^${updatedIndex}]: [${title}](${encodeURI(uri).replace(/\(/g, '%28').replace(/\)/g, '%29')})`
             )
             .join('\n');
 
-          return `${updatedMessage}\n${footnoteText}`;
+          return `${updatedMessage}\n\n${footnote}`;
         }
       );
     },
