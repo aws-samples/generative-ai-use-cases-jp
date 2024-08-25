@@ -10,7 +10,7 @@ const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
 
   if (!result) {
-    return '';
+    return s3Uri;
   }
 
   const groups = result?.groups as {
@@ -96,16 +96,14 @@ const useRagKnowledgeBase = (id: string) => {
       // Knowledge Base のみを利用する場合は本来不要な処理
       const retrievedItemsKendraFormat: RetrieveResultItem[] =
         retrievedItems.data.retrievalResults!.map((r, idx) => {
-          const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
+          const sourceUri =
+            r.metadata?.['x-amz-bedrock-kb-source-uri']?.toString() ?? '';
 
           return {
             Content: r.content?.text ?? '',
             DocumentId: `${idx}`,
-            DocumentTitle: docFile,
-            DocumentURI: convertS3UriToUrl(
-              r.location?.s3Location?.uri ?? '',
-              modelRegion
-            ),
+            DocumentTitle: sourceUri.split('/').pop(),
+            DocumentURI: convertS3UriToUrl(sourceUri, modelRegion),
           };
         });
 
@@ -130,18 +128,38 @@ const useRagKnowledgeBase = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = retrievedItemsKendraFormat
-            .map((item, idx) => {
-              const encodedURI = encodeURI(item.DocumentURI!)
-                .replace(/\(/g, '\\(')
-                .replace(/\)/g, '\\)');
-              return message.includes(`[^${idx}]`)
-                ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
-                : '';
-            })
-            .filter((x) => x)
+          const uriToFootnote = new Map<
+            string,
+            { updatedIndex: number; title: string }
+          >();
+
+          // 本文中の脚注番号を連番で採番
+          const updatedMessage = message.replace(/\[\^(\d+)\]/g, (_, idx) => {
+            const { DocumentURI, DocumentTitle } =
+              retrievedItemsKendraFormat[idx];
+            const uri = DocumentURI!;
+            const title = DocumentTitle!;
+            let updatedIndex: number;
+
+            if (!uriToFootnote.has(uri)) {
+              updatedIndex = uriToFootnote.size + 1;
+              uriToFootnote.set(uri, { updatedIndex, title });
+            } else {
+              updatedIndex = uriToFootnote.get(uri)!.updatedIndex;
+            }
+
+            return `[^${updatedIndex}]`;
+          });
+
+          // 本文中の脚注番号に合わせてフッター部分を作成
+          const footnoteText = Array.from(uriToFootnote)
+            .map(
+              ([uri, { updatedIndex, title }]) =>
+                `[^${updatedIndex}]: [${title}](${encodeURI(uri).replace(/\(/g, '%28').replace(/\)/g, '%29')})`
+            )
             .join('\n');
-          return message + '\n' + footnote;
+
+          return `${updatedMessage}\n${footnoteText}`;
         }
       );
     },
