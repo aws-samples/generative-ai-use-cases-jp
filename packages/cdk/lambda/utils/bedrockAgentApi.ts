@@ -2,6 +2,7 @@ import {
   BedrockAgentRuntimeClient,
   DependencyFailedException,
   InvokeAgentCommand,
+  Parameter,
   ServiceQuotaExceededException,
   ThrottlingException,
 } from '@aws-sdk/client-bedrock-agent-runtime';
@@ -12,6 +13,7 @@ import {
   AgentMap,
   Model,
   UnrecordedMessage,
+  BraveSearchResult,
 } from 'generative-ai-use-cases-jp';
 import { streamingChunk } from './streamingChunk';
 
@@ -20,6 +22,19 @@ const client = new BedrockAgentRuntimeClient({
   region: process.env.AGENT_REGION,
 });
 const s3Client = new S3Client({});
+
+// s3://<BUCKET>/<PREFIX> から https://<BUCKET>.s3.amazonaws.com/<PREFIX> に変換する
+const convertS3UriToUrl = (s3Uri: string): string => {
+  const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
+  if (result) {
+    const groups = result?.groups as {
+      bucketName: string;
+      prefix: string;
+    };
+    return `https://${groups.bucketName}.s3.amazonaws.com/${groups.prefix}`;
+  }
+  return '';
+};
 
 const bedrockAgentApi: Partial<ApiInterface> = {
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
@@ -51,9 +66,11 @@ const bedrockAgentApi: Partial<ApiInterface> = {
         return;
       }
 
+      const existingFiles = new Set<string>();
+
       for await (const streamChunk of res.completion) {
+        // Chunk
         if (streamChunk.chunk) {
-          // Chunk の追加
           let body = new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes);
 
           // Attribution の追加
@@ -65,9 +82,7 @@ const bedrockAgentApi: Partial<ApiInterface> = {
               // S3 URI を取得し URL に変換
               const s3Uri = ref?.location?.s3Location?.uri || '';
               if (!s3Uri) continue;
-              const [bucket, ...objectPath] = s3Uri.slice(5).split('/');
-              const objectName = objectPath.join('/');
-              const url = `https://${bucket}.s3.amazonaws.com/${objectName})`;
+              const url = convertS3UriToUrl(s3Uri);
 
               // データソースがユニークであれば文末に Reference 追加
               if (sources[url] === undefined) {
@@ -94,9 +109,17 @@ const bedrockAgentApi: Partial<ApiInterface> = {
           }
         }
 
-        // File の追加
+        // File
+        // 画像は S3 にアップロードし画像として表示
+        // ファイルは S3 にアップロードしリンクを表示
         if (streamChunk.files) {
           for (const file of streamChunk.files.files || []) {
+            // 同じファイルが何度か出現することがあるため初出のみ表示
+            if (existingFiles.has(file.name || '')) {
+              continue;
+            }
+            existingFiles.add(file.name || '');
+
             // ファイルを S3 にアップロード
             const uuid = uuidv4();
             const bucket = process.env.BUCKET_NAME;
@@ -116,6 +139,103 @@ const bedrockAgentApi: Partial<ApiInterface> = {
               yield streamingChunk({ text: `\n[${file.name}](${url})` });
             }
           }
+        }
+
+        // Trace
+        if (streamChunk.trace && streamChunk.trace.trace?.orchestrationTrace) {
+          let trace: string = '';
+          const rationale =
+            streamChunk.trace.trace?.orchestrationTrace.rationale;
+          const invocationInput =
+            streamChunk.trace.trace?.orchestrationTrace.invocationInput;
+          const observation =
+            streamChunk.trace.trace?.orchestrationTrace.observation;
+
+          if (rationale?.text) {
+            // 思考過程はそのまま表示
+            trace = rationale.text;
+          } else if (invocationInput) {
+            // Action への入力
+            if (invocationInput.codeInterpreterInvocationInput?.code) {
+              // CodeInterpreter への入力は Python コードをブロックで表示
+              trace =
+                '```python' +
+                invocationInput.codeInterpreterInvocationInput.code +
+                '\n```';
+            } else if (
+              invocationInput.actionGroupInvocationInput?.actionGroupName
+            ) {
+              // カスタムアクション
+              // 自前のアクションを呼び出す時は必要に応じてここを編集
+              if (
+                invocationInput.actionGroupInvocationInput.actionGroupName ===
+                'Search'
+              ) {
+                // 検索エージェントは検索キーワードを表示
+                const content =
+                  invocationInput.actionGroupInvocationInput.requestBody
+                    ?.content || {};
+                const parameters: Parameter[] | undefined =
+                  content['application/json'];
+                trace =
+                  invocationInput.actionGroupInvocationInput.actionGroupName +
+                  ': ' +
+                  parameters?.map((item) => item.value).join(' ');
+              } else {
+                // それ以外は Action Group 名のみ表示。
+                trace =
+                  invocationInput.actionGroupInvocationInput.actionGroupName;
+              }
+            } else if (invocationInput.knowledgeBaseLookupInput?.text) {
+              // Knowledge Base は検索キーワードを表示
+              trace =
+                'Search: ' + invocationInput.knowledgeBaseLookupInput.text;
+            }
+          } else if (observation) {
+            // Action からの出力
+            if (observation.codeInterpreterInvocationOutput?.executionOutput) {
+              // CodeInterpreter の出力（Python の stdout）はそのまま表示
+              trace =
+                observation.codeInterpreterInvocationOutput.executionOutput;
+            } else if (observation.actionGroupInvocationOutput?.text) {
+              // カスタムアクション
+              // 自前のアクションを呼び出す時は必要に応じてここを編集
+              const output = observation.actionGroupInvocationOutput.text;
+              if (output.startsWith('<search_results>')) {
+                // 検索エージェントはタイトルと URL を表示
+                const searchResult: BraveSearchResult[] = JSON.parse(
+                  output
+                    .replace('<search_results>', '')
+                    .replace('</search_results>', '')
+                );
+                trace = searchResult
+                  .map((item) => `- [${item.title}](${item.url})`)
+                  .join('\n');
+              } else {
+                // それ以外は出力の冒頭1000文字を表示
+                trace =
+                  output.length > 1000 ? output.slice(0, 1000) + '...' : output;
+              }
+            } else if (
+              observation.knowledgeBaseLookupOutput?.retrievedReferences
+            ) {
+              // Knowledge Base はソース URL を表示
+              const refs =
+                observation.knowledgeBaseLookupOutput.retrievedReferences?.flatMap(
+                  (ref) => {
+                    const location = Object.values(ref.location || {}).find(
+                      (loc) => loc?.uri || loc?.url
+                    );
+                    return location
+                      ? `- ${location.uri ? convertS3UriToUrl(location.uri) : location.url}`
+                      : [];
+                  }
+                );
+              trace = Array.from(new Set(refs)).join('\n');
+            }
+          }
+          // Markdown を正しく動作させるための改行
+          yield streamingChunk({ text: '', trace: trace + '\n' });
         }
       }
     } catch (e) {

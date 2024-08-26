@@ -28,6 +28,7 @@ export type UnrecordedMessage = {
   // テキスト
   content: string;
   // 追加データ（画像など）
+  trace?: string;
   extraData?: ExtraData[];
   llmType?: string;
 };

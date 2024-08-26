@@ -102,30 +102,49 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
 
           <div className="ml-5 grow ">
-            {chatContent?.role === 'user' && (
-              <div className="break-all">
-                {(chatContent.extraData?.length || 0) > 0 && (
-                  <div className="mb-2 flex flex-wrap gap-2">
-                    {chatContent.extraData?.map((data, idx) =>
-                      data.type === 'image' ? (
-                        <ZoomUpImage
-                          key={idx}
-                          src={signedUrls[idx]}
-                          size="m"
-                          loading={!signedUrls[idx]}
-                        />
-                      ) : (
-                        <FileCard
-                          key={idx}
-                          filename={data.name}
-                          url={signedUrls[idx]}
-                          loading={!signedUrls[idx]}
-                          size="m"
-                        />
-                      )
+            {chatContent?.trace && (
+              <details className="mb-2 cursor-pointer rounded border p-2">
+                <summary className="text-sm">
+                  <div className="inline-flex gap-1">
+                    トレース
+                    {props.loading && !chatContent?.content && (
+                      <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     )}
                   </div>
-                )}
+                </summary>
+                <Markdown prefix={`${props.idx}-trace`}>
+                  {chatContent.trace}
+                </Markdown>
+              </details>
+            )}
+            {chatContent?.extraData && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {chatContent.extraData.map((data, idx) => {
+                  if (data.type === 'image') {
+                    return (
+                      <ZoomUpImage
+                        key={idx}
+                        src={signedUrls[idx]}
+                        size="m"
+                        loading={!signedUrls[idx]}
+                      />
+                    );
+                  } else if (data.type === 'file') {
+                    return (
+                      <FileCard
+                        key={idx}
+                        filename={data.name}
+                        url={signedUrls[idx]}
+                        loading={!signedUrls[idx]}
+                        size="m"
+                      />
+                    );
+                  }
+                })}
+              </div>
+            )}
+            {chatContent?.role === 'user' && (
+              <div className="break-all">
                 {typingTextOutput.split('\n').map((c, idx) => (
                   <div key={idx}>{c}</div>
                 ))}

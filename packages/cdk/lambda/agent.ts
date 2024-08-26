@@ -1,40 +1,8 @@
-type AgentInput = {
-  actionGroup: string;
-  apiPath: string;
-  httpMethod: string;
-  requestBody: {
-    content: {
-      'application/json': {
-        properties: {
-          name: string;
-          type: string;
-          value: string;
-        }[];
-      };
-    };
-  };
-};
-
-type AgentOutput = {
-  messageVersion: string;
-  response: {
-    actionGroup: string;
-    apiPath: string;
-    httpMethod: string;
-    httpStatusCode: number;
-    responseBody: {
-      'application/json': {
-        body: string;
-      };
-    };
-  };
-};
-
-type BraveSearchResult = {
-  title: string;
-  description: string;
-  extra_snippets?: string[];
-};
+import {
+  AgentInput,
+  AgentOutput,
+  BraveSearchResult,
+} from 'generative-ai-use-cases-jp';
 
 export const handler = async (event: AgentInput): Promise<AgentOutput> => {
   try {
@@ -62,6 +30,7 @@ export const handler = async (event: AgentInput): Promise<AgentOutput> => {
       title: result.title,
       description: result.description,
       extra_snippets: result.extra_snippets,
+      url: result.url,
     }));
 
     // Create Response Object
