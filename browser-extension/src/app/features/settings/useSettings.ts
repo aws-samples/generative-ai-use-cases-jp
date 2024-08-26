@@ -39,7 +39,7 @@ const useSettings = () => {
             throw new Error(`${key}は、string型で入力してください`);
           }
         }
-      })
+      }),
     );
   }, []);
 
@@ -120,7 +120,7 @@ const useSettings = () => {
                 !!settings.lambdaArn &&
                 !!settings.userPoolClientId &&
                 !!settings.userPoolId &&
-                !!settings.region
+                !!settings.region,
             );
             window.location.reload();
           } else {

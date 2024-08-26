@@ -18,6 +18,6 @@ proxyStore.ready().then(() => {
           </DndProvider>
         </Authenticator.Provider>
       </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 });

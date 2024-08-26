@@ -14,6 +14,6 @@ proxyStore.ready().then(() => {
           <SSOPage />
         </Authenticator.Provider>
       </Provider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 });
