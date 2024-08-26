@@ -166,8 +166,28 @@ const TranscribePage: React.FC = () => {
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card>
           <div className="mb-4 flex flex-col sm:mb-0 sm:flex-row">
-            <div className="basis-1/2 p-2 pr-6">
-              <label className="mb-4 block font-bold">
+            <div className="basis-1/4 p-2">
+              <label className="mb-2 block font-bold">マイク入力</label>
+              <div className="flex justify-center">
+                {recording ? (
+                  <PiStopCircleBold
+                    className="text-aws-smile h-9 w-9 cursor-pointer"
+                    onClick={stopTranscription}
+                  />
+                ) : (
+                  <PiMicrophoneBold
+                    className={`h-9 w-9 ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                    onClick={() => {
+                      if (!disabledMicExec) {
+                        onClickExecStartTranscription();
+                      }
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+            <div className="basis-3/4 p-2">
+              <label className="mb-2 block font-bold">
                 ファイルアップロード
               </label>
               <input
@@ -185,26 +205,6 @@ const TranscribePage: React.FC = () => {
                 id="file_input_help">
                 mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
               </p>
-            </div>
-            <div className="basis-1/2 p-2">
-              <label className="mb-4 block font-bold">マイク入力</label>
-              <div className="flex justify-center">
-                {recording ? (
-                  <PiStopCircleBold
-                    className="text-aws-smile h-12 w-12 cursor-pointer"
-                    onClick={stopTranscription}
-                  />
-                ) : (
-                  <PiMicrophoneBold
-                    className={`h-12 w-12 ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
-                    onClick={() => {
-                      if (!disabledMicExec) {
-                        onClickExecStartTranscription();
-                      }
-                    }}
-                  />
-                )}
-              </div>
             </div>
           </div>
           <ExpandableField label="詳細なパラメータ" className="p-2">
