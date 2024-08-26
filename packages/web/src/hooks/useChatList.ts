@@ -5,7 +5,7 @@ import { ListChatsResponse, Chat } from 'generative-ai-use-cases-jp';
 
 const useChatList = () => {
   const { listChats, deleteChat: deleteChatApi, updateTitle } = useChatApi();
-  const { data, size, setSize, isLoading, mutate } = listChats();
+  const { data, size, setSize, mutate } = listChats();
 
   const chats = useMemo(() => {
     if (data) {
@@ -15,14 +15,16 @@ const useChatList = () => {
     }
   }, [data]);
 
-  const isLoadingMore = useMemo(() => {
-    return (
-      isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined')
-    );
-  }, [isLoading, size, data]);
+  const isLoading = useMemo(() => {
+    if (!data) return false;
+    return data!.length < size || data![size - 1] === undefined;
+  }, [data, size]);
 
   const canLoadMore = useMemo(() => {
-    return !data || data!.length === size;
+    // チャットリストは 1 度に最大で 100 件取得される
+    return (
+      !data || (data!.length === size && data![size - 1].chats.length === 100)
+    );
   }, [data, size]);
 
   const loadMore = useCallback(() => {
@@ -93,7 +95,7 @@ const useChatList = () => {
   };
 
   return {
-    loading: isLoadingMore,
+    loading: isLoading,
     chats,
     mutate,
     updateChatTitle,
