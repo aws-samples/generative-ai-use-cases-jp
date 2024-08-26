@@ -6,20 +6,48 @@ import ButtonCopy from '../components/ButtonCopy';
 import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import useTranscribe from '../hooks/useTranscribe';
 import useMicrophone from '../hooks/useMicrophone';
-import Markdown from '../components/Markdown';
 import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
+import Switch from '../components/Switch';
+import RangeSlider from '../components/RangeSlider';
+import ExpandableField from '../components/ExpandableField';
+import { Transcript } from 'generative-ai-use-cases-jp';
+import Textarea from '../components/Textarea';
 
 type StateType = {
-  content: string;
-  setContent: (c: string) => void;
+  content: Transcript[];
+  setContent: (c: Transcript[]) => void;
+  speakerLabel: boolean;
+  setSpeakerLabel: (b: boolean) => void;
+  maxSpeakers: number;
+  setMaxSpeakers: (n: number) => void;
+  speakers: string;
+  setSpeakers: (s: string) => void;
 };
 
 const useTranscribeState = create<StateType>((set) => {
   return {
-    content: '',
-    setContent: (s: string) => {
+    content: [],
+    speakerLabel: false,
+    maxSpeakers: 2,
+    speakers: '',
+    setContent: (s: Transcript[]) => {
       set(() => ({
         content: s,
+      }));
+    },
+    setSpeakerLabel: (b: boolean) => {
+      set(() => ({
+        speakerLabel: b,
+      }));
+    },
+    setMaxSpeakers: (n: number) => {
+      set(() => ({
+        maxSpeakers: n,
+      }));
+    },
+    setSpeakers: (s: string) => {
+      set(() => ({
+        speakers: s,
       }));
     },
   };
@@ -35,8 +63,33 @@ const TranscribePage: React.FC = () => {
     recording,
     clearTranscripts,
   } = useMicrophone();
-  const { content, setContent } = useTranscribeState();
+  const {
+    content,
+    setContent,
+    speakerLabel,
+    setSpeakerLabel,
+    maxSpeakers,
+    setMaxSpeakers,
+    speakers,
+    setSpeakers,
+  } = useTranscribeState();
   const ref = useRef<HTMLInputElement>(null);
+
+  const speakerMapping = useMemo(() => {
+    return Object.fromEntries(
+      speakers.split(',').map((speaker, idx) => [`spk_${idx}`, speaker.trim()])
+    );
+  }, [speakers]);
+
+  const formattedOutput: string = useMemo(() => {
+    return content
+      .map((item) =>
+        item.speakerLabel
+          ? `${speakerMapping[item.speakerLabel] || item.speakerLabel}: ${item.transcript}`
+          : item.transcript
+      )
+      .join('\n');
+  }, [content, speakerMapping]);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -46,15 +99,14 @@ const TranscribePage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (transcriptData && transcriptData.transcript) {
-      setContent(transcriptData.transcript);
+    if (transcriptData && transcriptData.transcripts) {
+      setContent(transcriptData.transcripts);
     }
   }, [setContent, transcriptData]);
 
   useEffect(() => {
     if (transcriptMic && transcriptMic.length > 0) {
-      const _content: string = transcriptMic.map((t) => t.transcript).join(' ');
-      setContent(_content);
+      setContent(transcriptMic);
     }
   }, [setContent, transcriptMic]);
 
@@ -63,7 +115,7 @@ const TranscribePage: React.FC = () => {
   }, [file, loading, recording]);
 
   const disableClearExec = useMemo(() => {
-    return (!file && content == '') || loading || recording;
+    return (!file && content.length === 0) || loading || recording;
   }, [content, file, loading, recording]);
 
   const disabledMicExec = useMemo(() => {
@@ -72,17 +124,25 @@ const TranscribePage: React.FC = () => {
 
   const onClickExec = useCallback(() => {
     if (loading) return;
-    setContent('');
+    setContent([]);
     stopTranscription();
     clearTranscripts();
-    transcribe();
-  }, [loading, setContent, stopTranscription, clearTranscripts, transcribe]);
+    transcribe(speakerLabel, maxSpeakers);
+  }, [
+    loading,
+    speakerLabel,
+    maxSpeakers,
+    setContent,
+    stopTranscription,
+    clearTranscripts,
+    transcribe,
+  ]);
 
   const onClickClear = useCallback(() => {
     if (ref.current) {
       ref.current.value = '';
     }
-    setContent('');
+    setContent([]);
     stopTranscription();
     clear();
     clearTranscripts();
@@ -92,11 +152,11 @@ const TranscribePage: React.FC = () => {
     if (ref.current) {
       ref.current.value = '';
     }
-    setContent('');
+    setContent([]);
     clear();
     clearTranscripts();
-    startTranscription();
-  }, [clear, clearTranscripts, setContent, startTranscription]);
+    startTranscription(undefined, speakerLabel);
+  }, [speakerLabel, clear, clearTranscripts, setContent, startTranscription]);
 
   return (
     <div className="grid grid-cols-12">
@@ -115,9 +175,31 @@ const TranscribePage: React.FC = () => {
             type="file"
             accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
             ref={ref}></input>
-          <p className="ml-0.5 mt-1 text-sm text-gray-500" id="file_input_help">
+          <p
+            className="mb-2 ml-0.5 mt-1 text-sm text-gray-500"
+            id="file_input_help">
             mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
           </p>
+          <ExpandableField label="詳細なパラメータ">
+            <div className="grid grid-cols-2 gap-2 pt-4">
+              <Switch
+                label="話者認識"
+                checked={speakerLabel}
+                onSwitch={setSpeakerLabel}
+              />
+              {speakerLabel && (
+                <RangeSlider
+                  className=""
+                  label="Max Speakers"
+                  min={2}
+                  max={10}
+                  value={maxSpeakers}
+                  onChange={setMaxSpeakers}
+                  help="認識する話者の最大数"
+                />
+              )}
+            </div>
+          </ExpandableField>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disableClearExec} onClick={onClickClear}>
               クリア
@@ -138,9 +220,33 @@ const TranscribePage: React.FC = () => {
               </Button>
             )}
           </div>
+          {speakerLabel && (
+            <div className="mt-5">
+              <Textarea
+                placeholder="話し手の名前（カンマ区切り）"
+                value={speakers}
+                onChange={setSpeakers}
+              />
+            </div>
+          )}
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            {content != '' && <Markdown>{content}</Markdown>}
-            {!loading && content == '' && (
+            {content.length > 0 && (
+              <div>
+                {content.map((transcript, idx) => (
+                  <div key={idx} className="flex">
+                    {transcript.speakerLabel && (
+                      <div className="min-w-20">
+                        {speakerMapping[transcript.speakerLabel] ||
+                          transcript.speakerLabel}
+                        :
+                      </div>
+                    )}
+                    <div className="grow">{transcript.transcript}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!loading && formattedOutput == '' && (
               <div className="text-gray-500">
                 音声認識結果がここに表示されます
               </div>
@@ -150,12 +256,12 @@ const TranscribePage: React.FC = () => {
             )}
 
             <div className="flex w-full justify-end">
-              {content && content && (
+              {content && (
                 <>
                   <ButtonCopy
-                    text={content}
+                    text={formattedOutput}
                     interUseCasesKey="transcript"></ButtonCopy>
-                  <ButtonSendToUseCase text={content} />
+                  <ButtonSendToUseCase text={formattedOutput} />
                 </>
               )}
             </div>

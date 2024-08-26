@@ -14,7 +14,7 @@ export const handler = async (
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
     const userId = event.requestContext.authorizer!.claims.sub;
 
-    const { audioUrl } = req;
+    const { audioUrl, speakerLabel, maxSpeakers } = req;
 
     const uuid = uuidv4();
 
@@ -23,6 +23,10 @@ export const handler = async (
       LanguageOptions: ['ja-JP', 'en-US'],
       Media: { MediaFileUri: audioUrl },
       TranscriptionJobName: uuid,
+      Settings: {
+        ShowSpeakerLabels: speakerLabel,
+        MaxSpeakerLabels: speakerLabel ? maxSpeakers : undefined,
+      },
       OutputBucketName: process.env.TRANSCRIPT_BUCKET_NAME,
       Tags: [
         {
