@@ -231,7 +231,7 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 > [!NOTE]
 > 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
-#### Agents for Amazon Bedrock のデプロイ
+#### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
 Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
 
