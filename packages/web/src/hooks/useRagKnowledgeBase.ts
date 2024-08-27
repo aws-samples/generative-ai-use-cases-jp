@@ -56,7 +56,7 @@ const useRagKnowledgeBase = (id: string) => {
       pushMessage('user', content);
       pushMessage(
         'assistant',
-        'Knowledge base から参考ドキュメントを取得中...'
+        'Knowledge Base から参考ドキュメントを取得中...'
       );
 
       let retrievedItems = null;
@@ -84,8 +84,8 @@ const useRagKnowledgeBase = (id: string) => {
         pushMessage(
           'assistant',
           `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Bedrock Knowledge bases の data source に対象のドキュメントが追加されているか確認する
-- Bedrock Knowledge bases の data source が sync されているか確認する
+- Knowledge Base のデータソースに対象のドキュメントが追加されているか確認する
+- Knowledge Base のデータソースが同期されているか確認する
 - 入力の表現を変更する`
         );
         setLoading(false);

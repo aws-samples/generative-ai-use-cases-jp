@@ -299,7 +299,7 @@ const LandingPage: React.FC = () => {
             label="Agent チャット"
             onClickDemo={demoAgent}
             icon={<PiRobot />}
-            description="Agent チャットユースケースでは Agent for Amazon Bedrock を利用してアクションを実行させたり、Knowledge base for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
+            description="Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
           />
         )}
         <CardDemo

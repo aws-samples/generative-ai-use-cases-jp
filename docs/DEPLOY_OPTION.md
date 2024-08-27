@@ -231,17 +231,17 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 > [!NOTE]
 > 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
-#### Knowledge base エージェントのデプロイ
+#### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
-Knowledge base for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
+Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
 
-まず、[Knowledge base の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge base for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
 
-続いて、 [Agent の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
+続いて、 [エージェントの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
 
 ```
 Agent プロンプト例: あなたは指示に応えるアシスタントです。 指示に応じて情報を検索し、その内容から適切に回答してください。情報に記載のないものについては回答しないでください。複数回検索することが可能です。
-Knowledge base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
+Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
 作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で context 追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
@@ -254,7 +254,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "agentRegion": "us-west-2",
     "agents": [
       {
-        "displayName": "Knowledge base",
+        "displayName": "Knowledge Base",
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }

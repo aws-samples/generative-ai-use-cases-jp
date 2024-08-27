@@ -529,7 +529,7 @@ const ChatPage: React.FC = () => {
             outlined
             onClick={() => setShowSystemContextModal(false)}
             className="p-2">
-            Cancel
+            キャンセル
           </Button>
           <Button
             onClick={() => {
