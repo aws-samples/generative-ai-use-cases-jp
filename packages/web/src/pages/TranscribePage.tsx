@@ -165,35 +165,43 @@ const TranscribePage: React.FC = () => {
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card>
-          <div className="mb-4 flex flex-col sm:mb-0 sm:flex-row">
-            <div className="basis-1/4 p-2">
+          <div className="mb-2 flex justify-center text-sm text-gray-500">
+            マイク入力 or ファイルアップロードから選択してください
+          </div>
+          <div className="mb-4 flex flex-col justify-center sm:flex-row">
+            <div className="basis-1/2 p-2 xl:basis-2/5">
               <label className="mb-2 block font-bold">マイク入力</label>
               <div className="flex justify-center">
                 {recording ? (
-                  <PiStopCircleBold
-                    className="text-aws-smile h-9 w-9 cursor-pointer"
-                    onClick={stopTranscription}
-                  />
+                  <Button
+                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                    onClick={stopTranscription}>
+                    <PiStopCircleBold className="mr-2 h-5 w-5" />
+                    録音を停止する
+                  </Button>
                 ) : (
-                  <PiMicrophoneBold
-                    className={`h-9 w-9 ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                  <Button
+                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
                     onClick={() => {
                       if (!disabledMicExec) {
                         onClickExecStartTranscription();
                       }
                     }}
-                  />
+                    outlined={true}>
+                    <PiMicrophoneBold className="mr-2 h-5 w-5" />
+                    録音を開始する
+                  </Button>
                 )}
               </div>
             </div>
-            <div className="basis-3/4 p-2">
-              <label className="mb-2 block font-bold">
+            <div className="basis-1/2 p-2 xl:basis-2/5">
+              <label className="mb-2 block font-bold" htmlFor="file_input">
                 ファイルアップロード
               </label>
               <input
-                className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
-            border-gray-400 text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0
-            file:px-4 file:py-2 file:text-white focus:outline-none"
+                className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+                file:px-4 file:py-2.5 file:text-white focus:outline-none"
                 onChange={onChangeFile}
                 aria-describedby="file_input_help"
                 id="file_input"
@@ -201,13 +209,16 @@ const TranscribePage: React.FC = () => {
                 accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
                 ref={ref}></input>
               <p
-                className="mb-2 ml-0.5 mt-1 text-sm text-gray-500"
+                className="ml-0.5 mt-1 text-xs text-gray-500"
                 id="file_input_help">
                 mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
               </p>
             </div>
           </div>
-          <ExpandableField label="詳細なパラメータ" className="p-2">
+          <ExpandableField
+            label="詳細なパラメータ"
+            className="p-2"
+            notItem={true}>
             <div className="grid grid-cols-2 gap-2 pt-2">
               <Switch
                 label="話者認識"
