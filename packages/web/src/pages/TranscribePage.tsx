@@ -174,14 +174,16 @@ const TranscribePage: React.FC = () => {
               <div className="flex justify-center">
                 {recording ? (
                   <Button
-                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
-                    onClick={stopTranscription}>
+                    className="h-10 w-full"
+                    onClick={stopTranscription}
+                    disabled={disabledMicExec}>
                     <PiStopCircleBold className="mr-2 h-5 w-5" />
                     録音を停止する
                   </Button>
                 ) : (
                   <Button
-                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                    className="h-10 w-full"
+                    disabled={disabledMicExec}
                     onClick={() => {
                       if (!disabledMicExec) {
                         onClickExecStartTranscription();
