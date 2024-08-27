@@ -6,7 +6,7 @@ import ButtonCopy from '../components/ButtonCopy';
 import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import useTranscribe from '../hooks/useTranscribe';
 import useMicrophone from '../hooks/useMicrophone';
-import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
+import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
 import Switch from '../components/Switch';
 import RangeSlider from '../components/RangeSlider';
 import ExpandableField from '../components/ExpandableField';
@@ -164,24 +164,62 @@ const TranscribePage: React.FC = () => {
         音声認識
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="ファイルアップロード">
-          <input
-            className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
-            border-gray-400 text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0
-            file:px-4 file:py-2 file:text-white focus:outline-none"
-            onChange={onChangeFile}
-            aria-describedby="file_input_help"
-            id="file_input"
-            type="file"
-            accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
-            ref={ref}></input>
-          <p
-            className="mb-2 ml-0.5 mt-1 text-sm text-gray-500"
-            id="file_input_help">
-            mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
-          </p>
-          <ExpandableField label="詳細なパラメータ">
-            <div className="grid grid-cols-2 gap-2 pt-4">
+        <Card>
+          <div className="mb-2 flex justify-center text-sm text-gray-500">
+            マイク入力 or ファイルアップロードから選択してください
+          </div>
+          <div className="mb-4 flex flex-col justify-center sm:flex-row">
+            <div className="basis-1/2 p-2 xl:basis-2/5">
+              <label className="mb-2 block font-bold">マイク入力</label>
+              <div className="flex justify-center">
+                {recording ? (
+                  <Button
+                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                    onClick={stopTranscription}>
+                    <PiStopCircleBold className="mr-2 h-5 w-5" />
+                    録音を停止する
+                  </Button>
+                ) : (
+                  <Button
+                    className={`h-10 w-full ${disabledMicExec ? 'text-gray-400' : 'cursor-pointer'}`}
+                    onClick={() => {
+                      if (!disabledMicExec) {
+                        onClickExecStartTranscription();
+                      }
+                    }}
+                    outlined={true}>
+                    <PiMicrophoneBold className="mr-2 h-5 w-5" />
+                    録音を開始する
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="basis-1/2 p-2 xl:basis-2/5">
+              <label className="mb-2 block font-bold" htmlFor="file_input">
+                ファイルアップロード
+              </label>
+              <input
+                className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+                file:px-4 file:py-2.5 file:text-white focus:outline-none"
+                onChange={onChangeFile}
+                aria-describedby="file_input_help"
+                id="file_input"
+                type="file"
+                accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
+                ref={ref}></input>
+              <p
+                className="ml-0.5 mt-1 text-xs text-gray-500"
+                id="file_input_help">
+                mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
+              </p>
+            </div>
+          </div>
+          <ExpandableField
+            label="詳細なパラメータ"
+            className="p-2"
+            notItem={true}>
+            <div className="grid grid-cols-2 gap-2 pt-2">
               <Switch
                 label="話者認識"
                 checked={speakerLabel}
@@ -199,6 +237,15 @@ const TranscribePage: React.FC = () => {
                 />
               )}
             </div>
+            {speakerLabel && (
+              <div className="">
+                <Textarea
+                  placeholder="話し手の名前（カンマ区切り）"
+                  value={speakers}
+                  onChange={setSpeakers}
+                />
+              </div>
+            )}
           </ExpandableField>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disableClearExec} onClick={onClickClear}>
@@ -207,28 +254,7 @@ const TranscribePage: React.FC = () => {
             <Button disabled={disabledExec} onClick={onClickExec}>
               実行
             </Button>
-            {recording ? (
-              <Button disabled={disabledMicExec} onClick={stopTranscription}>
-                <PiMicrophone /> 音声認識中
-              </Button>
-            ) : (
-              <Button
-                outlined
-                disabled={disabledMicExec}
-                onClick={onClickExecStartTranscription}>
-                <PiMicrophoneSlash /> 音声認識停止中
-              </Button>
-            )}
           </div>
-          {speakerLabel && (
-            <div className="mt-5">
-              <Textarea
-                placeholder="話し手の名前（カンマ区切り）"
-                value={speakers}
-                onChange={setSpeakers}
-              />
-            </div>
-          )}
           <div className="mt-5 rounded border border-black/30 p-1.5">
             {content.length > 0 && (
               <div>
