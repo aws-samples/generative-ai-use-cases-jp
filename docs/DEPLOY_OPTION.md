@@ -285,7 +285,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
-詳細は[Amazon Bedrock のモデルを変更する](##Amazon-Bedrock-のモデルを変更する)を参照してください。
+詳細は[Amazon Bedrock のモデルを変更する](#Amazon-Bedrock-のモデルを変更する)を参照してください。
 
 ```json
   "modelIds": [
