@@ -408,6 +408,8 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "us.anthropic.claude-3-opus-20240229-v1:0",
     "us.anthropic.claude-3-sonnet-20240229-v1:0",
     "us.anthropic.claude-3-haiku-20240307-v1:0",
+    "meta.llama3-1-70b-instruct-v1:0",
+    "meta.llama3-1-8b-instruct-v1:0",
     "cohere.command-r-plus-v1:0",
     "cohere.command-r-v1:0",
     "mistral.mistral-large-2407-v1:0"
