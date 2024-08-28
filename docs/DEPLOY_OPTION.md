@@ -285,6 +285,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
+詳細は[Amazon-Bedrock-のモデルを変更する](## Amazon Bedrock のモデルを変更する)を参照してください。
 
 ```json
   "modelIds": [
@@ -301,8 +302,6 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "eu.anthropic.claude-3-haiku-20240307-v1:0",
   ]
 ```
-
-> 2024/05 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
 
 ## Amazon Bedrock のモデルを変更する
 
