@@ -274,25 +274,42 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
-"anthropic.claude-3-haiku-20240307-v1:0"
+"anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"us.anthropic.claude-3-opus-20240229-v1:0",
+"us.anthropic.claude-3-sonnet-20240229-v1:0",
+"us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"eu.anthropic.claude-3-sonnet-20240229-v1:0",
+"eu.anthropic.claude-3-haiku-20240307-v1:0",
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
+詳細は[Amazon Bedrock のモデルを変更する](#Amazon-Bedrock-のモデルを変更する)を参照してください。
 
 ```json
   "modelIds": [
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
+    "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0"
+    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "us.anthropic.claude-3-opus-20240229-v1:0",
+    "us.anthropic.claude-3-sonnet-20240229-v1:0",
+    "us.anthropic.claude-3-haiku-20240307-v1:0",
+    "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "eu.anthropic.claude-3-sonnet-20240229-v1:0",
+    "eu.anthropic.claude-3-haiku-20240307-v1:0",
   ]
 ```
-
-> 2024/05 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
 
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
+
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、`cdk.json` で設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
+
+(例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
 このソリューションが対応しているテキスト生成モデルは以下です。
 
@@ -301,6 +318,13 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"us.anthropic.claude-3-opus-20240229-v1:0",
+"us.anthropic.claude-3-sonnet-20240229-v1:0",
+"us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"eu.anthropic.claude-3-sonnet-20240229-v1:0",
+"eu.anthropic.claude-3-haiku-20240307-v1:0",
 "amazon.titan-text-premier-v1:0",
 "meta.llama3-1-405b-instruct-v1:0",
 "meta.llama3-1-70b-instruct-v1:0",
@@ -363,6 +387,26 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
+    "meta.llama3-1-70b-instruct-v1:0",
+    "meta.llama3-1-8b-instruct-v1:0",
+    "cohere.command-r-plus-v1:0",
+    "cohere.command-r-v1:0",
+    "mistral.mistral-large-2407-v1:0"
+  ],
+  "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v2:0",
+    "amazon.titan-image-generator-v1",
+    "stability.stable-diffusion-xl-v1"
+  ],
+```
+### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
+```bash
+  "modelRegion": "us-west-2",
+  "modelIds": [
+    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "us.anthropic.claude-3-opus-20240229-v1:0",
+    "us.anthropic.claude-3-sonnet-20240229-v1:0",
+    "us.anthropic.claude-3-haiku-20240307-v1:0",
     "meta.llama3-1-70b-instruct-v1:0",
     "meta.llama3-1-8b-instruct-v1:0",
     "cohere.command-r-plus-v1:0",
