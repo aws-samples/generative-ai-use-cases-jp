@@ -15,6 +15,7 @@ interface CloudFrontWafStackProps extends StackProps {
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
+  certificateArn?: string;
 }
 
 export class CloudFrontWafStack extends Stack {
@@ -44,7 +45,11 @@ export class CloudFrontWafStack extends Stack {
       this.webAcl = webAcl;
     }
 
-    if (props.hostName && props.domainName && props.hostedZoneId) {
+    if (props.certificateArn) {
+      // 既存の証明書を使用
+      this.cert = Certificate.fromCertificateArn(this, 'ExistingCert', props.certificateArn);
+    } else if (props.hostName && props.domainName && props.hostedZoneId) {
+      // ホスト名、ドメイン名、ホストゾーンIDがすべて提供された場合のみ、新しい証明書を作成
       const hostedZone = HostedZone.fromHostedZoneAttributes(
         this,
         'HostedZone',
@@ -53,11 +58,10 @@ export class CloudFrontWafStack extends Stack {
           zoneName: props.domainName,
         }
       );
-      const cert = new Certificate(this, 'Cert', {
+      this.cert = new Certificate(this, 'Cert', {
         domainName: `${props.hostName}.${props.domainName}`,
         validation: CertificateValidation.fromDns(hostedZone),
       });
-      this.cert = cert;
     }
   }
 }

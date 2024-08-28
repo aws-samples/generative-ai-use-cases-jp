@@ -50,6 +50,7 @@
     "hostName": null,
     "domainName": null,
     "hostedZoneId": null,
+    "certificateArn": null,
     "dashboard": false,
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,

@@ -78,8 +78,7 @@ export class Web extends Construct {
     if (
       props.cert &&
       props.hostName &&
-      props.domainName &&
-      props.hostedZoneId
+      props.domainName
     ) {
       cloudFrontToS3Props.cloudFrontDistributionProps.certificate = props.cert;
       cloudFrontToS3Props.cloudFrontDistributionProps.domainNames = [
@@ -93,28 +92,28 @@ export class Web extends Construct {
       cloudFrontToS3Props
     );
 
-    if (
-      props.cert &&
-      props.hostName &&
-      props.domainName &&
-      props.hostedZoneId
-    ) {
-      // DNS record for custom domain
-      const hostedZone = HostedZone.fromHostedZoneAttributes(
-        this,
-        'HostedZone',
-        {
-          hostedZoneId: props.hostedZoneId,
-          zoneName: props.domainName,
-        }
-      );
-      new ARecord(this, 'ARecord', {
-        zone: hostedZone,
-        recordName: props.hostName,
-        target: RecordTarget.fromAlias(
-          new CloudFrontTarget(cloudFrontWebDistribution)
-        ),
-      });
+    if (props.hostName && props.domainName) {
+      // DNS records will be created only if hostedZoneId is provided.
+      if (props.hostedZoneId) {
+        // DNS record for custom domain
+        const hostedZone = HostedZone.fromHostedZoneAttributes(
+          this,
+          'HostedZone',
+          {
+            hostedZoneId: props.hostedZoneId,
+            zoneName: props.domainName,
+          }
+        );
+        new ARecord(this, 'ARecord', {
+          zone: hostedZone,
+          recordName: props.hostName,
+          target: RecordTarget.fromAlias(
+            new CloudFrontTarget(cloudFrontWebDistribution)
+          ),
+        });
+      } else {
+        console.warn('hostedZoneId not provided. DNS record will not be created or deleted automatically.');
+      }
     }
 
     if (props.webAclId) {
