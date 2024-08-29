@@ -24,7 +24,7 @@ const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
 // parsingConfiguration で PDF ファイルの中に埋め込まれている画像を読み取る機能がある。
 // この画像を読み取る際のプロンプトは任意のものが定義できる。以下に const として定義する。
 // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing
-const PARSING_PROMPT = `ドキュメントに含まれる画像からテキストを書き写して、コードブロックではないMarkdown構文で出力してください。以下の手順に従ってください：
+const PARSING_PROMPT = `ドキュメントに含まれる画像やグラフや表などの Image コンテンツからテキストを書き写して、コードブロックではないMarkdown構文で出力してください。以下の手順に従ってください：
 
 1. 提供されたページを注意深く調べてください。
 
@@ -70,9 +70,7 @@ EPS：$1.25
 キャッシュフロー：		
 営業活動	$ 46,327	$ 46,752
 投資活動	(58,154)	(37,601)
-財務活動	6,291	9,718
-
-以上が画像コンテンツの内容です。`;
+財務活動	6,291	9,718`;
 
 const EMBEDDING_MODELS = Object.keys(MODEL_VECTOR_MAPPING);
 
