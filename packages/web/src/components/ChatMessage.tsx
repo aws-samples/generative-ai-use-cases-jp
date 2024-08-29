@@ -83,8 +83,8 @@ const ChatMessage: React.FC<Props> = (props) => {
       <div
         className={`${
           props.className ?? ''
-        } m-3 flex w-full flex-col justify-between md:w-11/12 lg:-ml-24 lg:w-4/6 lg:flex-row xl:w-3/6`}>
-        <div className="flex grow">
+        } flex w-full flex-col justify-between p-3 md:w-11/12 lg:w-5/6 xl:w-4/6 2xl:flex-row`}>
+        <div className="flex w-full">
           {chatContent?.role === 'user' && (
             <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
               <PiUserFill />
@@ -101,7 +101,7 @@ const ChatMessage: React.FC<Props> = (props) => {
             </div>
           )}
 
-          <div className="ml-5 grow ">
+          <div className="ml-5 w-full pr-14">
             {chatContent?.trace && (
               <details className="mb-2 cursor-pointer rounded border p-2">
                 <summary className="text-sm">
@@ -179,7 +179,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        <div className="flex items-start justify-end lg:-mr-24 print:hidden">
+        <div className="flex items-start justify-end print:hidden">
           {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
             <div className="lg:w-8"></div>
           )}
