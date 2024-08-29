@@ -155,11 +155,7 @@ const useRag = (id: string) => {
                       ? `(${_excerpt_page_number} ページ)`
                       : ''
                   }](
-                  ${
-                    item.DocumentURI
-                      ? cleanEncode(item.DocumentURI)
-                      : ''
-                  }${
+                  ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${
                     _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
                   })`
                 : '';
