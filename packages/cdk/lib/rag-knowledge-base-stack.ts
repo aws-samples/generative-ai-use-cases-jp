@@ -21,8 +21,8 @@ const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
   'cohere.embed-english-v3': '1024',
 };
 
-// parsingConfiguration で PDF ファイルの中に埋め込まれている画像を読み取る機能がある。
-// この画像を読み取る際のプロンプトは任意のものが定義できる。以下に const として定義する。
+// parsingConfiguration で PDF ファイルの中に埋め込まれている画像やグラフや表を読み取る機能がある。
+// 読み取る際のプロンプトは任意のものが定義できる。以下に const として定義する。利用環境によってプロンプトを変更することで、より高い精度を期待できる。
 // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing
 const PARSING_PROMPT = `ドキュメントに含まれる画像やグラフや表などの Image コンテンツからテキストを書き写して、コードブロックではないMarkdown構文で出力してください。以下の手順に従ってください：
 
