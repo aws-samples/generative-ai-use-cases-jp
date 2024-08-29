@@ -31,7 +31,7 @@
     "@aws-sdk/client-transcribe-streaming": "^3.614.0",
     "@aws-sdk/lib-dynamodb": "^3.614.0",
     "@aws-sdk/s3-request-presigner": "^3.614.0",
-    "@aws-solutions-constructs/aws-cloudfront-s3": "2.63.0",
+    "@aws-solutions-constructs/aws-cloudfront-s3": "^2.68.0",
     "aws-cdk-lib": "^2.154.1",
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
