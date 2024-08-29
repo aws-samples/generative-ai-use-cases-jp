@@ -81,7 +81,7 @@ const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
 };
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3072,
+  maxTokens: 3000,
   temperature: 0.7,
   topP: 1.0,
 };
