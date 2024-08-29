@@ -69,9 +69,7 @@ const ImageRenderer = (props: any) => {
 const Markdown = React.memo(({ className, prefix, children }: Props) => {
   return (
     <ReactMarkdown
-      className={`${
-        className ?? ''
-      } prose prose-code:w-1/5 max-w-full break-all`}
+      className={`${className ?? ''} prose max-w-full`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
