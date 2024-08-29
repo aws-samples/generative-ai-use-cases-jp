@@ -6,6 +6,7 @@ import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { findModelByModelId } from './useModel';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem, DocumentAttribute } from '@aws-sdk/client-kendra';
+import { cleanEncode } from '../utils/URLUtils';
 
 // 同一のドキュメントとみなす Key 値
 const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
@@ -156,9 +157,7 @@ const useRag = (id: string) => {
                   }](
                   ${
                     item.DocumentURI
-                      ? encodeURI(item.DocumentURI)
-                          .replace(/\(/g, '\\(')
-                          .replace(/\)/g, '\\)')
+                      ? cleanEncode(item.DocumentURI)
                       : ''
                   }${
                     _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
