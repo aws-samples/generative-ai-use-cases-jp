@@ -141,12 +141,6 @@ Status が Available になれば完了です。S3 に保存されているフ�
   }
 }
 ```
-
-#### チャンク戦略を変更
-
-[rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts) に chunkingConfiguration を指定する箇所があります。
-コメントアウトを外して、[CDK ドキュメント](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html)や [CloudFormation ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html)を参考に任意のチャンク戦略へ変更が可能です。
-
 #### Knowledge Base や OpenSearch Service を再作成して変更を加える
 
 Knowledge Base のチャンク動作や、OpenSearch Service に関する以下のパラメーターについて、`cdk.json` に変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。

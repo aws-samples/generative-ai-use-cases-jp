@@ -371,7 +371,7 @@ export class RagKnowledgeBaseStack extends Stack {
               },
             }
           : {}),
-        // チャンク戦略を指定したい場合は、次のコメントアウトを外して任意のものを指定する。
+        // TODO: 別の実装で、チャンク戦略を cdk.json で指定できるようにする
         // chunkingConfiguration: {
         //   chunkingStrategy: 'SEMANTIC',
         //   semanticChunkingConfiguration: {
