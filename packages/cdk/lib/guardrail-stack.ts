@@ -6,13 +6,11 @@ interface GuardrailStackProps extends StackProps {}
 
 export class GuardrailStack extends Stack {
   public readonly guardrailIdentifier: string;
-  public readonly guardrailVersion: string;
 
   constructor(scope: Construct, id: string, props: GuardrailStackProps) {
     super(scope, id, props);
 
     const guardrail = new Guardrail(this, 'Guardrail');
     this.guardrailIdentifier = guardrail.guardrailIdentifier;
-    this.guardrailVersion = guardrail.guardrailVersion;
   }
 }

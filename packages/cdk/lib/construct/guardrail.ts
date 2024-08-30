@@ -3,7 +3,6 @@ import { aws_bedrock as bedrock } from 'aws-cdk-lib';
 
 export class Guardrail extends Construct {
   public readonly guardrailIdentifier: string;
-  public readonly guardrailVersion: string;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -37,16 +36,7 @@ export class Guardrail extends Construct {
         ],
       },
     });
-    const cfnGuardrailVersion = new bedrock.CfnGuardrailVersion(
-      this,
-      `guardrailVersion`,
-      {
-        guardrailIdentifier: cfnGuardrail.attrGuardrailId,
-        description: `GenU PII Guardrail`,
-      }
-    );
 
     this.guardrailIdentifier = cfnGuardrail.attrGuardrailId;
-    this.guardrailVersion = cfnGuardrailVersion.attrVersion;
   }
 }
