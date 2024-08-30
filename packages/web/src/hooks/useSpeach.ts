@@ -1,11 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { Polly, SynthesizeSpeechCommand } from '@aws-sdk/client-polly';
+import { Polly, SynthesizeSpeechCommand, VoiceId } from '@aws-sdk/client-polly';
 
-const useSpeach = () => {
+// Engine=neural のものが指定可能
+// https://docs.aws.amazon.com/ja_jp/polly/latest/dg/available-voices.html
+const LanguageVoiceMapping: Record<string, VoiceId> = {
+  英語: 'Joanna',
+  日本語: 'Kazuha',
+  中国語: 'Zhiyu',
+  韓国語: 'Seoyeon',
+  フランス語: 'Lea',
+  スペイン語: 'Lucia',
+  ドイツ語: 'Vicki',
+};
+
+const useSpeach = (language: string) => {
   const [loading, setLoading] = useState(false);
+  const [voiceId, setVoiceId] = useState<VoiceId>('Joanna');
+
+  useEffect(() => {
+    const tmpVoiceId = LanguageVoiceMapping[language];
+    if (tmpVoiceId) {
+      setVoiceId(tmpVoiceId);
+    } else {
+      console.error(`No voiceId found for language ${language}`);
+    }
+  }, [language]);
 
   return {
     loading,
@@ -39,7 +61,8 @@ const useSpeach = () => {
       const command = new SynthesizeSpeechCommand({
         Text: text,
         OutputFormat: 'mp3',
-        VoiceId: 'Joanna', // TODO: 多言語対応
+        VoiceId: voiceId,
+        Engine: 'neural',
       });
 
       const response = await polly.send(command);

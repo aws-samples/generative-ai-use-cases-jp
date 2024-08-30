@@ -131,7 +131,7 @@ const TranslatePage: React.FC = () => {
   const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
-  const { synthesizeSpeach, loading: speachIsLoading } = useSpeach();
+  const { synthesizeSpeach, loading: speachIsLoading } = useSpeach(language);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -381,15 +381,13 @@ const TranslatePage: React.FC = () => {
                   </div>
                 )}
                 <div className="flex w-full justify-end">
-                  {language === '英語' && (
-                    <ButtonIcon onClick={startOrStopSpeach}>
-                      {isSpeachPlaying ? (
-                        <PiSpeakerSimpleHighFill />
-                      ) : (
-                        <PiSpeakerSimpleHigh />
-                      )}
-                    </ButtonIcon>
-                  )}
+                  <ButtonIcon onClick={startOrStopSpeach}>
+                    {isSpeachPlaying ? (
+                      <PiSpeakerSimpleHighFill />
+                    ) : (
+                      <PiSpeakerSimpleHigh />
+                    )}
+                  </ButtonIcon>
                   <ButtonCopy
                     text={translatedSentence}
                     interUseCasesKey="translatedSentence"></ButtonCopy>
