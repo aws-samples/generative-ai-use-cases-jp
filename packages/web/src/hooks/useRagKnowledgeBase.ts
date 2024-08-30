@@ -4,13 +4,14 @@ import useRagKnowledgeBaseApi from './useRagKnowledgeBaseApi';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
+import { cleanEncode } from '../utils/URLUtils';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
 
   if (!result) {
-    return '';
+    return s3Uri;
   }
 
   const groups = result?.groups as {
@@ -96,16 +97,14 @@ const useRagKnowledgeBase = (id: string) => {
       // Knowledge Base のみを利用する場合は本来不要な処理
       const retrievedItemsKendraFormat: RetrieveResultItem[] =
         retrievedItems.data.retrievalResults!.map((r, idx) => {
-          const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
+          const sourceUri =
+            r.metadata?.['x-amz-bedrock-kb-source-uri']?.toString() ?? '';
 
           return {
             Content: r.content?.text ?? '',
             DocumentId: `${idx}`,
-            DocumentTitle: docFile,
-            DocumentURI: convertS3UriToUrl(
-              r.location?.s3Location?.uri ?? '',
-              modelRegion
-            ),
+            DocumentTitle: sourceUri.split('/').pop(),
+            DocumentURI: convertS3UriToUrl(sourceUri, modelRegion),
           };
         });
 
@@ -132,9 +131,9 @@ const useRagKnowledgeBase = (id: string) => {
           // 後処理：Footnote の付与
           const footnote = retrievedItemsKendraFormat
             .map((item, idx) => {
-              const encodedURI = encodeURI(item.DocumentURI!)
-                .replace(/\(/g, '\\(')
-                .replace(/\)/g, '\\)');
+              const encodedURI = item.DocumentURI
+                ? cleanEncode(item.DocumentURI)
+                : '';
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
                 : '';
