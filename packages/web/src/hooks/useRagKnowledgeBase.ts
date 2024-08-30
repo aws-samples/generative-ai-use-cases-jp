@@ -128,38 +128,18 @@ const useRagKnowledgeBase = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const uriToFootnote = new Map<
-            string,
-            { updatedIndex: number; title: string }
-          >();
-
-          // 本文中の脚注番号を連番で採番
-          const updatedMessage = message.replace(/\[\^(\d+)\]/g, (_, idx) => {
-            const { DocumentURI, DocumentTitle } =
-              retrievedItemsKendraFormat[idx];
-            const uri = DocumentURI!;
-            const title = DocumentTitle!;
-            let updatedIndex: number;
-
-            if (!uriToFootnote.has(uri)) {
-              updatedIndex = uriToFootnote.size + 1;
-              uriToFootnote.set(uri, { updatedIndex, title });
-            } else {
-              updatedIndex = uriToFootnote.get(uri)!.updatedIndex;
-            }
-
-            return `[^${updatedIndex}]`;
-          });
-
-          // 本文中の脚注番号に合わせてフッター部分を作成
-          const footnote = Array.from(uriToFootnote)
-            .map(
-              ([uri, { updatedIndex, title }]) =>
-                `[^${updatedIndex}]: [${title}](${encodeURI(uri).replace(/\(/g, '%28').replace(/\)/g, '%29')})`
-            )
+          const footnote = retrievedItemsKendraFormat
+            .map((item, idx) => {
+              const encodedURI = encodeURI(item.DocumentURI!)
+                .replace(/\(/g, '\\(')
+                .replace(/\)/g, '\\)');
+              return message.includes(`[^${idx}]`)
+                ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
+                : '';
+            })
+            .filter((x) => x)
             .join('\n');
-
-          return `${updatedMessage}\n\n${footnote}`;
+          return message + '\n' + footnote;
         }
       );
     },
