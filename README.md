@@ -139,6 +139,7 @@ npm run cdk:deploy
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
     - [Advanced Parsing を有効化](/docs/DEPLOY_OPTION.md#Advanced-Parsing-を有効化)
+    - [チャンク戦略を変更](/docs/DEPLOY_OPTION.md#チャンク戦略を変更)
     - [Knowledge Base や OpenSearch Service を変更](/docs/DEPLOY_OPTION.md#Knowledge-Base-や-OpenSearch-Service-を再作成して変更を加える)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
     - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
