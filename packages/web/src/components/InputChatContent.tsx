@@ -133,7 +133,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
+            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-28' : 'pr-14'}`}
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
@@ -144,27 +144,29 @@ const InputChatContent: React.FC<Props> = (props) => {
           />
         </div>
         {props.fileUpload && (
-          <label>
-            <input
-              hidden
-              onChange={onChangeFiles}
-              type="file"
-              accept={props.fileLimit?.accept?.join(',')}
-              multiple
-              value={[]}
-            />
-            <div
-              className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} my-2 flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-              {uploading ? (
-                <PiSpinnerGap className="animate-spin" />
-              ) : (
-                <PiPaperclip />
-              )}
-            </div>
-          </label>
+          <div className="absolute bottom-2 right-14">
+            <label>
+              <input
+                hidden
+                onChange={onChangeFiles}
+                type="file"
+                accept={props.fileLimit?.accept?.join(',')}
+                multiple
+                value={[]}
+              />
+              <div
+                className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+                {uploading ? (
+                  <PiSpinnerGap className="animate-spin" />
+                ) : (
+                  <PiPaperclip />
+                )}
+              </div>
+            </label>
+          </div>
         )}
         <ButtonSend
-          className="m-2 align-bottom"
+          className="absolute bottom-2  right-2"
           disabled={disabledSend}
           loading={loading || uploading}
           onClick={props.onSend}
