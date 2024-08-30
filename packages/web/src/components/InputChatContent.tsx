@@ -133,7 +133,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-28' : 'pr-14'}`}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-24' : 'pr-14'}`}
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
@@ -144,7 +144,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           />
         </div>
         {props.fileUpload && (
-          <div className="absolute bottom-2 right-14">
+          <div className="absolute bottom-2 right-12">
             <label>
               <input
                 hidden
