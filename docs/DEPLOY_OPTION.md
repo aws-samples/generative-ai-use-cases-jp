@@ -144,22 +144,46 @@ Status が Available になれば完了です。S3 に保存されているフ�
   }
 }
 ```
+
+#### チャンク戦略を変更
+
+[rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts) に chunkingConfiguration を指定する箇所があります。
+コメントアウトを外して、[CDK ドキュメント](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html)や [CloudFormation ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html)を参考に任意のチャンク戦略へ変更が可能です。
+
+例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
+
+```typescript
+        // セマンティックチャンク
+        chunkingConfiguration: {
+          chunkingStrategy: 'SEMANTIC',
+          semanticChunkingConfiguration: {
+            maxTokens: 300,
+            bufferSize: 0,
+            breakpointPercentileThreshold: 95,
+          }
+        }
+```
+
+その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
+
+
+
 #### Knowledge Base や OpenSearch Service を再作成して変更を加える
 
-Knowledge Base のチャンク動作や、OpenSearch Service に関する以下のパラメーターについて、`cdk.json` に変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
+[Knowledge Base のチャンク戦略]((./DEPLOY_OPTION.md#チャンク戦略を変更))や、OpenSearch Service に関する以下の `cdk.json` パラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
 - `ragKnowledgeBaseAdvancedParsing`
 - `ragKnowledgeBaseAdvancedParsingModelId`
 
-変更する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
+変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
 
 1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
 1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除
  **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
-1. `cdk.json` に変更を加える
+1. `cdk.json` やチャンク戦略に変更を加える
 1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
 
 RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
