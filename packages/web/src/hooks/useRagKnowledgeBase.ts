@@ -4,6 +4,7 @@ import useRagKnowledgeBaseApi from './useRagKnowledgeBaseApi';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
+import { cleanEncode } from '../utils/URLUtils';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
@@ -130,9 +131,7 @@ const useRagKnowledgeBase = (id: string) => {
           // 後処理：Footnote の付与
           const footnote = retrievedItemsKendraFormat
             .map((item, idx) => {
-              const encodedURI = encodeURI(item.DocumentURI!)
-                .replace(/\(/g, '\\(')
-                .replace(/\)/g, '\\)');
+              const encodedURI = item.DocumentURI ? cleanEncode(item.DocumentURI) : '';
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
                 : '';
