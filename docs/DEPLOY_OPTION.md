@@ -124,10 +124,13 @@ Status が Available になれば完了です。S3 に保存されているフ�
 
 #### Advanced Parsing を有効化
 
-[Advanced Parsing 機能](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing) を有効化できます。Advanced Parsing は、ファイル内の表やグラフなどの非構造化データから、意味のある情報を分析および抽出する機能です。ファイル内のテキストに加えて、表やグラフなどを意味を付け加えることで、RAG の精度を上げやすくするメリットがあります。
+[Advanced Parsing 機能](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing) を有効化できます。Advanced Parsing は、ファイル内の表やグラフなどの非構造化データから、情報を分析および抽出する機能です。ファイル内のテキストに加えて、表やグラフなどから抽出したデータを付け加えることで、RAG の精度を上げやすくするメリットがあります。
 
 - `ragKnowledgeBaseAdvancedParsing` : `true` で Advanced Parsing を有効化
-- `ragKnowledgeBaseAdvancedParsingModelId` : 意味のある情報を取得するときに利用するモデル ID を指定。`anthropic.claude-3-sonnet-20240229-v1:0` と `anthropic.claude-3-haiku-20240307-v1:0` をサポート
+- `ragKnowledgeBaseAdvancedParsingModelId` : 情報を抽出するときに利用するモデル ID を指定
+  - サポートしているモデル (2024/08 現在)
+    - `anthropic.claude-3-sonnet-20240229-v1:0`
+    - `anthropic.claude-3-haiku-20240307-v1:0`
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
