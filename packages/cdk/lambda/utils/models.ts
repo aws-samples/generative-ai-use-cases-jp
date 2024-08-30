@@ -81,6 +81,9 @@ const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
 };
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
+  // Doc 上は 3072 まで受け付けるが、Converse API だと 3000 までしか受け付けなかったため、3000 を設定する。
+  // 3072 が受け付けられるように修正されたら戻す。
+  // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-text.html
   maxTokens: 3000,
   temperature: 0.7,
   topP: 1.0,
