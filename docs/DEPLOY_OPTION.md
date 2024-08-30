@@ -437,7 +437,7 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 
 Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。[Text Generation Inference (TGI) の Hugging Face LLM 推論コンテナ](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/) を使用した SageMaker Endpoint に対応しています。モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているものが理想的です。現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。
 
-TGI コンテナを使用したモデルを SageMaker エンドポイントにデプロイする方法は現在2通りあります
+TGI コンテナを使用したモデルを SageMaker エンドポイントにデプロイする方法は現在2通りあります。
 
 **SageMaker JumpStart で AWS が事前に用意したモデルをデプロイ**
 
@@ -455,6 +455,10 @@ SageMaker JumpStart では OSS の大規模言語モデルをワンクリック�
 [AWS と Hugging Face の提携](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/)により、SageMaker SDK で Hugging Face に公開されているモデルの ID を指定するだけでモデルのデプロイが可能です。
 
 公開されている Hugging Face のモデルページから *Deploy* > *Amazon SageMaker* を選択するとモデルをデプロイするためのコードが表示されるため、こちらをコピーして実行すればモデルをデプロイすることが可能です。（モデルによりインスタンスサイズや `SM_NUM_GPUS` などのパラメータを変更する必要がある場合があります。デプロイに失敗した際は CloudWatch Logs からログを確認することが可能です）
+
+> [!NOTE]
+> デプロイする際、一箇所だけ修正点があります。エンドポイント名が GenU アプリケーションに表示されるほか、モデルのプロンプトテンプレート（次セクションにて説明）をエンドポイント名から判断しているためモデルを区別できるエンドポイント名を指定する必要があります。
+そのため、デプロイする際に `huggingface_model.deploy()` の引数に `endpoint_name="<モデルを区別できるエンドポイント名>"` を追加してください。
 
 ![Hugging Face モデルページにて Deploy から Amazon SageMaker を選択](./assets/DEPLOY_OPTION/HF_Deploy.png)
 ![Hugging Face モデルページのデプロイスクリプトのガイド](./assets/DEPLOY_OPTION/HF_Deploy2.png)
