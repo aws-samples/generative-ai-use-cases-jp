@@ -10,7 +10,7 @@ const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
 
   if (!result) {
-    return '';
+    return s3Uri;
   }
 
   const groups = result?.groups as {
@@ -96,16 +96,14 @@ const useRagKnowledgeBase = (id: string) => {
       // Knowledge Base のみを利用する場合は本来不要な処理
       const retrievedItemsKendraFormat: RetrieveResultItem[] =
         retrievedItems.data.retrievalResults!.map((r, idx) => {
-          const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
+          const sourceUri =
+            r.metadata?.['x-amz-bedrock-kb-source-uri']?.toString() ?? '';
 
           return {
             Content: r.content?.text ?? '',
             DocumentId: `${idx}`,
-            DocumentTitle: docFile,
-            DocumentURI: convertS3UriToUrl(
-              r.location?.s3Location?.uri ?? '',
-              modelRegion
-            ),
+            DocumentTitle: sourceUri.split('/').pop(),
+            DocumentURI: convertS3UriToUrl(sourceUri, modelRegion),
           };
         });
 
