@@ -181,7 +181,7 @@ Status が Available になれば完了です。S3 に保存されているフ�
 
 1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
-1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除
+1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除  
  **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
 1. `cdk.json` やチャンク戦略に変更を加える
 1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
