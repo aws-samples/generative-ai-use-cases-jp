@@ -160,8 +160,8 @@ Status が Available になれば完了です。S3 に保存されているフ�
             maxTokens: 300,
             bufferSize: 0,
             breakpointPercentileThreshold: 95,
-          }
-        }
+          },
+        },
 ```
 
 その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。

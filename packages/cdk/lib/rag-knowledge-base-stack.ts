@@ -388,21 +388,24 @@ export class RagKnowledgeBaseStack extends Stack {
         //     maxTokens: 300,
         //     bufferSize: 0,
         //     breakpointPercentileThreshold: 95,
-        //   }
-        // }
+        //   },
+        // },
         //
         // 階層チャンク
         // chunkingConfiguration: {
         //   chunkingStrategy: 'HIERARCHICAL',
         //   hierarchicalChunkingConfiguration: {
-        //     levelConfigurations: [{
-        //       maxTokens: 1500, // 親チャンクの Max Token サイズ
-        //     },{
-        //       maxTokens: 300, // 子チャンクの Max Token サイズ
-        //     }],
+        //     levelConfigurations: [
+        //       {
+        //         maxTokens: 1500, // 親チャンクの Max Token サイズ
+        //       },
+        //       {
+        //         maxTokens: 300, // 子チャンクの Max Token サイズ
+        //       },
+        //     ],
         //     overlapTokens: 60,
-        //   }
-        // }
+        //   },
+        // },
         //
         // 標準チャンク
         // chunkingConfiguration: {
@@ -410,8 +413,8 @@ export class RagKnowledgeBaseStack extends Stack {
         //   fixedSizeChunkingConfiguration: {
         //     maxTokens: 300,
         //     overlapPercentage: 10,
-        //   }
-        // }
+        //   },
+        // },
       },
       knowledgeBaseId: knowledgeBase.ref,
       name: 's3-data-source',
