@@ -81,8 +81,6 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
   "context": {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseStandbyReplicas": false,
-    "ragKnowledgeBaseAdvancedParsing": false,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
   }
 }
@@ -122,72 +120,21 @@ Status が Available になれば完了です。S3 に保存されているフ�
 > [!NOTE]
 > RAG チャット (Knowledge Base) の設定を有効後に、再度無効化する場合は、`ragKnowledgeBaseEnabled: false` にして再デプロイすれば RAG チャット (Knowledge Base) は無効化されますが、`RagKnowledgeBaseStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `RagKnowledgeBaseStack` というスタックを削除することで完全に消去ができます。
 
-#### Advanced Parsing を有効化
+#### OpenSearch Service の Collection/Index に変更を加える方法
 
-[Advanced Parsing 機能](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing) を有効化できます。Advanced Parsing は、ファイル内の表やグラフなどの非構造化データから、情報を分析および抽出する機能です。ファイル内のテキストに加えて、表やグラフなどから抽出したデータを付け加えることで、RAG の精度を上げやすくするメリットがあります。
+`embeddingModelId` 及び `ragKnowledgeBaseStandbyReplicas` は `cdk.json` に変更を加えて `npm run cdk:deploy` しても変更が反映されません。
+- `embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
+- `ragKnowledgeBaseStandbyReplicas` は OpenSearch Service の仕様により、作成後変更ができません。
 
-- `ragKnowledgeBaseAdvancedParsing` : `true` で Advanced Parsing を有効化
-- `ragKnowledgeBaseAdvancedParsingModelId` : 情報を抽出するときに利用するモデル ID を指定
-  - サポートしているモデル (2024/08 現在)
-    - `anthropic.claude-3-sonnet-20240229-v1:0`
-    - `anthropic.claude-3-haiku-20240307-v1:0`
+変更する場合は、以下の手順に従い既存の Index を削除してから再生成してください。
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
-{
-  "context": {
-    "ragKnowledgeBaseEnabled": true,
-    "ragKnowledgeBaseStandbyReplicas": false,
-    "ragKnowledgeBaseAdvancedParsing": true,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
-    "embeddingModelId": "amazon.titan-embed-text-v2:0",
-  }
-}
-```
-
-#### チャンク戦略を変更
-
-[rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts) に chunkingConfiguration を指定する箇所があります。
-コメントアウトを外して、[CDK ドキュメント](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html)や [CloudFormation ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html)を参考に任意のチャンク戦略へ変更が可能です。
-
-例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
-
-```typescript
-// セマンティックチャンク
-chunkingConfiguration: {
-  chunkingStrategy: 'SEMANTIC',
-  semanticChunkingConfiguration: {
-    maxTokens: 300,
-    bufferSize: 0,
-    breakpointPercentileThreshold: 95,
-  },
-},
-```
-
-その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
-
-
-
-#### Knowledge Base や OpenSearch Service を再作成して変更を加える
-
-[Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下の `cdk.json` パラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
-
-- `embeddingModelId`
-- `ragKnowledgeBaseStandbyReplicas`
-- `ragKnowledgeBaseAdvancedParsing`
-- `ragKnowledgeBaseAdvancedParsingModelId`
-
-変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
-
-1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
+1. `cdk.json` に変更を加える (`embeddingModelId` または `ragKnowledgeBaseStandbyReplicas` の変更)
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
-1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除  
- **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
-1. `cdk.json` やチャンク戦略に変更を加える
-1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
+1. 右上の Delete をクリック ( **削除した時点で一時的に RAG チャットが利用不可になります** )
+1. 削除完了後、再度 `npm run cdk:deploy` でデプロイ
 
-RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
-S3 バケット内にアップロードした RAG 用のファイルが存在する場合は、退避したあとに再度アップロードしてください。
+RagKnowledgeBaseStack の削除に伴い、RAG チャット用の S3 Bucket も削除されます。
+手動でアップロードしたデータが存在する場合は、再度アップロードしてください。
 また、前述した手順に従い Data source を再度 Sync してください。
 
 #### OpenSearch Service の Index をマネージメントコンソールで確認する方法
