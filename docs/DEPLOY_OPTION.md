@@ -153,15 +153,15 @@ Status が Available になれば完了です。S3 に保存されているフ�
 例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
 
 ```typescript
-        // セマンティックチャンク
-        chunkingConfiguration: {
-          chunkingStrategy: 'SEMANTIC',
-          semanticChunkingConfiguration: {
-            maxTokens: 300,
-            bufferSize: 0,
-            breakpointPercentileThreshold: 95,
-          },
-        },
+// セマンティックチャンク
+chunkingConfiguration: {
+  chunkingStrategy: 'SEMANTIC',
+  semanticChunkingConfiguration: {
+    maxTokens: 300,
+    bufferSize: 0,
+    breakpointPercentileThreshold: 95,
+  },
+},
 ```
 
 その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
