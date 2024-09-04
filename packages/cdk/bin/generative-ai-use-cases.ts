@@ -177,7 +177,7 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     knowledgeBaseDataSourceBucketName:
       ragKnowledgeBaseStack?.dataSourceBucketName,
     guardrailIdentifier: guardrail?.guardrailIdentifier,
-    guardrailVersion: guardrail?.guardrailVersion,
+    guardrailVersion: 'DRAFT',
   }
 );
 
