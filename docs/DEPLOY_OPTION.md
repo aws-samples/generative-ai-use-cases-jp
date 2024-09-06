@@ -81,6 +81,8 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
   "context": {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseAdvancedParsing": false,
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
   }
 }
@@ -117,21 +119,75 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 
 Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
 
-#### OpenSearch Service の Collection/Index に変更を加える方法
+> [!NOTE]
+> RAG チャット (Knowledge Base) の設定を有効後に、再度無効化する場合は、`ragKnowledgeBaseEnabled: false` にして再デプロイすれば RAG チャット (Knowledge Base) は無効化されますが、`RagKnowledgeBaseStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `RagKnowledgeBaseStack` というスタックを削除することで完全に消去ができます。
 
-`embeddingModelId` 及び `ragKnowledgeBaseStandbyReplicas` は `cdk.json` に変更を加えて `npm run cdk:deploy` しても変更が反映されません。
-- `embeddingModelId` の変更等は既存の Index に対し破壊的変更になる可能性があるため、Index の設定が変更されても反映されないようになっています。
-- `ragKnowledgeBaseStandbyReplicas` は OpenSearch Service の仕様により、作成後変更ができません。
+#### Advanced Parsing を有効化
 
-変更する場合は、以下の手順に従い既存の Index を削除してから再生成してください。
+[Advanced Parsing 機能](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing) を有効化できます。Advanced Parsing は、ファイル内の表やグラフなどの非構造化データから、情報を分析および抽出する機能です。ファイル内のテキストに加えて、表やグラフなどから抽出したデータを付け加えることで、RAG の精度を上げやすくするメリットがあります。
 
-1. `cdk.json` に変更を加える (`embeddingModelId` または `ragKnowledgeBaseStandbyReplicas` の変更)
+- `ragKnowledgeBaseAdvancedParsing` : `true` で Advanced Parsing を有効化
+- `ragKnowledgeBaseAdvancedParsingModelId` : 情報を抽出するときに利用するモデル ID を指定
+  - サポートしているモデル (2024/08 現在)
+    - `anthropic.claude-3-sonnet-20240229-v1:0`
+    - `anthropic.claude-3-haiku-20240307-v1:0`
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseAdvancedParsing": true,
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+  }
+}
+```
+
+#### チャンク戦略を変更
+
+[rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts) に chunkingConfiguration を指定する箇所があります。
+コメントアウトを外して、[CDK ドキュメント](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html)や [CloudFormation ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html)を参考に任意のチャンク戦略へ変更が可能です。
+
+例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
+
+```typescript
+// セマンティックチャンク
+chunkingConfiguration: {
+  chunkingStrategy: 'SEMANTIC',
+  semanticChunkingConfiguration: {
+    maxTokens: 300,
+    bufferSize: 0,
+    breakpointPercentileThreshold: 95,
+  },
+},
+```
+
+その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
+
+
+
+#### Knowledge Base や OpenSearch Service を再作成して変更を加える
+
+[Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下の `cdk.json` パラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
+
+- `embeddingModelId`
+- `ragKnowledgeBaseStandbyReplicas`
+- `ragKnowledgeBaseAdvancedParsing`
+- `ragKnowledgeBaseAdvancedParsingModelId`
+
+変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
+
+1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
-1. 右上の Delete をクリック ( **削除した時点で一時的に RAG チャットが利用不可になります** )
-1. 削除完了後、再度 `npm run cdk:deploy` でデプロイ
+1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除  
+ **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
+1. `cdk.json` やチャンク戦略に変更を加える
+1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
 
-RagKnowledgeBaseStack の削除に伴い、RAG チャット用の S3 Bucket も削除されます。
-手動でアップロードしたデータが存在する場合は、再度アップロードしてください。
+RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
+S3 バケット内にアップロードした RAG 用のファイルが存在する場合は、退避したあとに再度アップロードしてください。
 また、前述した手順に従い Data source を再度 Sync してください。
 
 #### OpenSearch Service の Index をマネージメントコンソールで確認する方法
@@ -225,17 +281,20 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 
 また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
 
-#### Knowledge base エージェントのデプロイ
+> [!NOTE]
+> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
-Knowledge base for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
+#### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
-まず、[Knowledge base の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge base for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
 
-続いて、 [Agent の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
+まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+
+続いて、 [エージェントの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
 
 ```
 Agent プロンプト例: あなたは指示に応えるアシスタントです。 指示に応じて情報を検索し、その内容から適切に回答してください。情報に記載のないものについては回答しないでください。複数回検索することが可能です。
-Knowledge base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
+Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
 作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で context 追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
@@ -248,7 +307,7 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "agentRegion": "us-west-2",
     "agents": [
       {
-        "displayName": "Knowledge base",
+        "displayName": "Knowledge Base",
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }
@@ -268,25 +327,42 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
-"anthropic.claude-3-haiku-20240307-v1:0"
+"anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"us.anthropic.claude-3-opus-20240229-v1:0",
+"us.anthropic.claude-3-sonnet-20240229-v1:0",
+"us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"eu.anthropic.claude-3-sonnet-20240229-v1:0",
+"eu.anthropic.claude-3-haiku-20240307-v1:0",
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
+詳細は[Amazon Bedrock のモデルを変更する](#Amazon-Bedrock-のモデルを変更する)を参照してください。
 
 ```json
   "modelIds": [
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
+    "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0"
+    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "us.anthropic.claude-3-opus-20240229-v1:0",
+    "us.anthropic.claude-3-sonnet-20240229-v1:0",
+    "us.anthropic.claude-3-haiku-20240307-v1:0",
+    "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "eu.anthropic.claude-3-sonnet-20240229-v1:0",
+    "eu.anthropic.claude-3-haiku-20240307-v1:0",
   ]
 ```
-
-> 2024/05 時点での情報: 上記の通り Claude 3 を利用する必要があるため、modelRegion が ap-northeast-1 の場合は映像分析ユースケースを利用できません。Claude 3 が利用可能なリージョン (us-east-1 や us-west-2 など) をご利用ください。
 
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
+
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、`cdk.json` で設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
+
+(例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
 このソリューションが対応しているテキスト生成モデルは以下です。
 
@@ -295,6 +371,13 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"us.anthropic.claude-3-opus-20240229-v1:0",
+"us.anthropic.claude-3-sonnet-20240229-v1:0",
+"us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
+"eu.anthropic.claude-3-sonnet-20240229-v1:0",
+"eu.anthropic.claude-3-haiku-20240307-v1:0",
 "amazon.titan-text-premier-v1:0",
 "meta.llama3-1-405b-instruct-v1:0",
 "meta.llama3-1-70b-instruct-v1:0",
@@ -369,6 +452,26 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
     "stability.stable-diffusion-xl-v1"
   ],
 ```
+### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
+```bash
+  "modelRegion": "us-west-2",
+  "modelIds": [
+    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "us.anthropic.claude-3-opus-20240229-v1:0",
+    "us.anthropic.claude-3-sonnet-20240229-v1:0",
+    "us.anthropic.claude-3-haiku-20240307-v1:0",
+    "meta.llama3-1-70b-instruct-v1:0",
+    "meta.llama3-1-8b-instruct-v1:0",
+    "cohere.command-r-plus-v1:0",
+    "cohere.command-r-v1:0",
+    "mistral.mistral-large-2407-v1:0"
+  ],
+  "imageGenerationModelIds": [
+    "amazon.titan-image-generator-v2:0",
+    "amazon.titan-image-generator-v1",
+    "stability.stable-diffusion-xl-v1"
+  ],
+```
 
 ### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
 
@@ -385,31 +488,55 @@ Knowledge base プロンプト例: キーワードで検索し情報を取得し
 
 ## Amazon SageMaker のカスタムモデルを利用したい場合
 
-Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。Text Generation Inference (TGI) の Huggingface Container を使用した SageMaker Endpoint に対応しています。モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているのが理想的です。現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。
+Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。[Text Generation Inference (TGI) の Hugging Face LLM 推論コンテナ](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/) を使用した SageMaker Endpoint に対応しています。モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているものが理想的です。現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。
 
-**利用可能なモデルの例** (これらのモデル以外でも Text Generation Inference にデプロイしたモデルは利用可能です。)
- - [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
- - [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
- - [elyza/ELYZA-japanese-Llama-2-7b-instruct](https://github.com/aws-samples/aws-ml-jp/blob/f57da0343d696d740bb980dc16ebf28b1221f90e/tasks/generative-ai/text-to-text/fine-tuning/instruction-tuning/Transformers/Elyza_Inference_TGI_ja.ipynb)
+TGI コンテナを使用したモデルを SageMaker エンドポイントにデプロイする方法は現在2通りあります。
 
-事前にデプロイ済みの SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+**SageMaker JumpStart で AWS が事前に用意したモデルをデプロイ**
 
-endpointNames は SageMaker エンドポイント名のリストです。（例：`elyza-llama-2,rinna`）
-バックエンドでプロンプトを構築する際のテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/promptTemplates.ts` を参照してください。
+SageMaker JumpStart では OSS の大規模言語モデルをワンクリックでデプロイできるようにパッケージングして提供しています。SageMaker Studio の JumpStart 画面からモデルを開き "デプロイ" ボタンをクリックしデプロイすることが可能です。提供している日本語モデルとしては例として以下のようなモデルを提供しています。
+
+- [SageMaker JumpStart Elyza Japanese Llama 2 7B Instructt](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
+- [SageMaker JumpStart Elyza Japanese Llama 2 13B Instructt](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
+- [SageMaker JumpStart CyberAgentLM2 7B Chat](https://aws.amazon.com/jp/blogs/news/cyberagentlm2-on-sagemaker-jumpstart/)
+- [SageMaker JumpStart Stable LM Instruct Alpha 7B v2](https://aws.amazon.com/jp/blogs/news/japanese-stable-lm-instruct-alpha-7b-v2-from-stability-ai-is-now-available-in-amazon-sagemaker-jumpstart/)
+- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+
+**SageMaker SDK を使用して数行のコードでデプロイ**
+
+[AWS と Hugging Face の提携](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/)により、SageMaker SDK で Hugging Face に公開されているモデルの ID を指定するだけでモデルのデプロイが可能です。
+
+公開されている Hugging Face のモデルページから *Deploy* > *Amazon SageMaker* を選択するとモデルをデプロイするためのコードが表示されるため、こちらをコピーして実行すればモデルをデプロイすることが可能です。（モデルによりインスタンスサイズや `SM_NUM_GPUS` などのパラメータを変更する必要がある場合があります。デプロイに失敗した際は CloudWatch Logs からログを確認することが可能です）
+
+> [!NOTE]
+> デプロイする際、一箇所だけ修正点があります。エンドポイント名が GenU アプリケーションに表示されるほか、モデルのプロンプトテンプレート（次セクションにて説明）をエンドポイント名から判断しているためモデルを区別できるエンドポイント名を指定する必要があります。
+そのため、デプロイする際に `huggingface_model.deploy()` の引数に `endpoint_name="<モデルを区別できるエンドポイント名>"` を追加してください。
+
+![Hugging Face モデルページにて Deploy から Amazon SageMaker を選択](./assets/DEPLOY_OPTION/HF_Deploy.png)
+![Hugging Face モデルページのデプロイスクリプトのガイド](./assets/DEPLOY_OPTION/HF_Deploy2.png)
+
+### デプロイしたモデルを GenU から呼び出す設定
+
+デプロイした SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+
+endpointNames は SageMaker エンドポイント名のリストです。（例：`["elyza-llama-2", "rinna"]`）
+
+バックエンドでプロンプトを構築する際のプロンプトテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/models.ts` を参照してください。必要に応じてプロンプトテンプレートを追加してご利用ください。
 
 ```bash
   "modelRegion": "<SageMaker Endpoint Region>",
   "endpointNames": ["<SageMaker Endpoint Name>"],
 ```
 
-### Rinna 3.6B と Bilingual Rinna 4B を利用する例
+**Rinna 3.6B と Bilingual Rinna 4B を利用する例**
 
 ```bash
   "modelRegion": "us-west-2",
   "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
 ```
 
-### ELYZA-japanese-Llama-2-7b-instruct を利用する例
+**ELYZA-japanese-Llama-2-7b-instruct を利用する例**
 
 ```bash
   "modelRegion": "us-west-2",
@@ -511,6 +638,19 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 
 
+### ガードレール
+
+Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `packages/cdk/cdk.json` の `guardrailEnabled` キーを `true` に変更、デプロイしなおします。
+```json
+  "context": {
+    "guardrailEnabled" : true,
+  }
+```
+デフォルトで適用されるガードレールは機微情報フィルターで日本語での会話の中で効果があったものを適用しています。他にも単語フィルターのカスタム、機微情報フィルターの正規表現は機能することを確認しており、必要に応じて、`packages/cdk/lib/construct/guardrail.ts` を修正してください。詳細は[Guardrails for Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)と[CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html)をご参照ください。
+
+> [!NOTE]
+> ガードレールの設定を有効後に、再度無効化する場合は、`guardrailEnabled: false` にして再デプロイすれば生成 AI を呼び出す際にガードレールは無効化されますが、ガードレール自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GuardrailStack` というスタックを削除することで完全に消去ができます。ガードレールが残ること自体にコストは発生しませんが、使用しないリソースは削除するのが望ましいです。
+
 ## コスト関連設定
 
 ### Kendraのインデックスを自動で作成・削除するスケジュールを設定する
@@ -579,6 +719,9 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。Select the logging destinations には CloudWatch Logs only を選択してください。(S3 にも出力したい場合、Both S3 and CloudWatch Logs を選択しても構いません。) また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。なお、Model invocation logging の設定は、context で `modelRegion` として指定しているリージョンで行うことに留意してください。
 
 設定完了後、`npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.DashboardUrl` を開いてください。
+
+> [!NOTE]
+> モニタリング用のダッシュボードを有効後に、再度無効化する場合は、`dashboard: false` にして再デプロイすればモニタリング用ダッシュボードは無効化されますが、`GenerativeAiUseCasesDashboardStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GenerativeAiUseCasesDashboardStack` というスタックを削除することで完全に消去ができます。
 
 ## ファイルアップロード機能の有効化
 

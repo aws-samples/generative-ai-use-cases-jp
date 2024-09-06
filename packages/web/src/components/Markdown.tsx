@@ -66,12 +66,10 @@ const ImageRenderer = (props: any) => {
   return <img id={props.id} src={src} />;
 };
 
-const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
+const Markdown = React.memo(({ className, prefix, children }: Props) => {
   return (
     <ReactMarkdown
-      className={`${
-        className ?? ''
-      } prose prose-code:w-1/5 max-w-full break-all`}
+      className={`${className ?? ''} prose max-w-full`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
@@ -114,6 +112,6 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
       }}
     />
   );
-};
+});
 
 export default Markdown;

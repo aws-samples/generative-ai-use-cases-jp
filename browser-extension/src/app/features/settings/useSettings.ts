@@ -9,7 +9,7 @@ const useSettings = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [hasConfiguredSettings, setHasConfiguredSettings] = useState(false);
 
-  const setSetting = useCallback((key: keyof Settings, value: string) => {
+  const setSetting = useCallback((key: keyof Settings, value: string | boolean) => {
     setSettings((prev) =>
       produce(prev, (draft) => {
         if (!draft) {
@@ -20,9 +20,25 @@ const useSettings = () => {
             region: '',
             userPoolClientId: '',
             apiEndpoint: '',
+            enabledSamlAuth: false,
+            enabledSelfSignUp: false,
+            cognitoDomain: '',
+            federatedIdentityProviderName: '',
           };
         }
-        draft[key] = value;
+        if (key === 'enabledSamlAuth' || key === 'enabledSelfSignUp') {
+          if (typeof value === 'boolean') {
+            draft[key] = value;
+          } else {
+            throw new Error(`${key}は、boolean型で入力してください`);
+          }
+        } else {
+          if (typeof value === 'string') {
+            draft[key] = value;
+          } else {
+            throw new Error(`${key}は、string型で入力してください`);
+          }
+        }
       }),
     );
   }, []);
@@ -38,6 +54,17 @@ const useSettings = () => {
       const userPoolId = value[SETTINGS_KEY]?.userPoolId ?? import.meta.env.VITE_APP_USER_POOL_ID;
       const region = value[SETTINGS_KEY]?.region ?? import.meta.env.VITE_APP_REGION;
       const apiEndpoint = value[SETTINGS_KEY]?.apiEndpoint ?? import.meta.env.VITE_APP_API_ENDPOINT;
+      const enabledSamlAuth =
+        value[SETTINGS_KEY]?.enabledSamlAuth ??
+        import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
+      const enabledSelfSignUp =
+        value[SETTINGS_KEY]?.enabledSelfSignUp ??
+        import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
+      const cognitoDomain =
+        value[SETTINGS_KEY]?.cognitoDomain ?? import.meta.env.VITE_APP_SAML_COGNITO_DOMAIN_NAME;
+      const federatedIdentityProviderName =
+        value[SETTINGS_KEY]?.federatedIdentityProviderName ??
+        import.meta.env.VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
 
       setSettings({
         apiEndpoint: apiEndpoint ?? '',
@@ -46,19 +73,32 @@ const useSettings = () => {
         region: region ?? '',
         userPoolClientId: userPoolClientId ?? '',
         userPoolId: userPoolId ?? '',
+        enabledSamlAuth: enabledSamlAuth ?? false,
+        enabledSelfSignUp: enabledSelfSignUp ?? false,
+        cognitoDomain: cognitoDomain ?? '',
+        federatedIdentityProviderName: federatedIdentityProviderName ?? '',
       });
 
-      if (
-        !!identityPoolId &&
-        !!lambdaArn &&
-        !!userPoolClientId &&
-        !!userPoolId &&
-        !!region &&
-        !!apiEndpoint
-      ) {
-        setHasConfiguredSettings(true);
+      // SAML認証の有無によって必須項目が異なる
+      if (enabledSamlAuth) {
+        if (!!cognitoDomain && !!federatedIdentityProviderName) {
+          setHasConfiguredSettings(true);
+        } else {
+          setHasConfiguredSettings(false);
+        }
       } else {
-        setHasConfiguredSettings(false);
+        if (
+          !!identityPoolId &&
+          !!lambdaArn &&
+          !!userPoolClientId &&
+          !!userPoolId &&
+          !!region &&
+          !!apiEndpoint
+        ) {
+          setHasConfiguredSettings(true);
+        } else {
+          setHasConfiguredSettings(false);
+        }
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

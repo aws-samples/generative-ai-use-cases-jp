@@ -17,6 +17,7 @@ import { MediaFormat } from '@aws-sdk/client-transcribe';
 
 export type StreamingChunk = {
   text: string;
+  trace?: string;
   stopReason?: string;
 };
 
@@ -34,6 +35,7 @@ export type CreateMessagesResponse = {
 
 export type ListChatsResponse = {
   chats: Chat[];
+  lastEvaluatedKey?: string;
 };
 
 export type FindChatByIdResponse = {
@@ -130,15 +132,23 @@ export type DeleteFileResponse = null;
 
 export type StartTranscriptionRequest = {
   audioUrl: string;
+  speakerLabel: boolean;
+  maxSpeakers: number;
 };
 
 export type StartTranscriptionResponse = {
   jobName: string;
 };
 
+export type Transcript = {
+  speakerLabel?: string;
+  transcript: string;
+};
+
 export type GetTranscriptionResponse = {
   status: string;
-  transcript?: string;
+  languageCode: string;
+  transcripts?: Transcript[];
 };
 
 export type UploadAudioRequest = {

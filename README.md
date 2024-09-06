@@ -138,19 +138,21 @@ npm run cdk:deploy
   - [RAG チャット (Amazon Kendra) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-amazon-kendra-ユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
-    - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
-    - [OpenSearch Service の Collection/Index に変更を加える方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-collectionindex-に変更を加える方法)
+    - [Advanced Parsing を有効化](/docs/DEPLOY_OPTION.md#Advanced-Parsing-を有効化)
+    - [チャンク戦略を変更](/docs/DEPLOY_OPTION.md#チャンク戦略を変更)
+    - [Knowledge Base や OpenSearch Service を変更](/docs/DEPLOY_OPTION.md#Knowledge-Base-や-OpenSearch-Service-を再作成して変更を加える)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
     - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
-    - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
+    - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
+  - [us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-west-2-オレゴン-の-amazon-bedrock-のモデルを利用する例)
+  - [cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合](/docs/DEPLOY_OPTION.md#cross-region-inference-が対応しているモデルで-us北部バージニアもしくはオレゴン-の-amazon-bedrock-のモデルを利用する場合)
   - [ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-のモデルを利用する例)
 - [Amazon SageMaker のカスタムモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-sagemaker-のカスタムモデルを利用したい場合)
-  - [Rinna 3.6B と Bilingual Rinna 4B を利用する例](/docs/DEPLOY_OPTION.md#rinna-36b-と-bilingual-rinna-4b-を利用する例)
-  - [ELYZA-japanese-Llama-2-7b-instruct を利用する例](/docs/DEPLOY_OPTION.md#elyza-japanese-llama-2-7b-instruct-を利用する例)
+  - [デプロイしたモデルを GenU から呼び出す設定](/docs/DEPLOY_OPTION.md#デプロイしたモデルを-genu-から呼び出す設定)
 - [セキュリティ関連設定](/docs/DEPLOY_OPTION.md#セキュリティ関連設定)
   - [セルフサインアップを無効化する](/docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
   - [サインアップできるメールアドレスのドメインを制限する](/docs/DEPLOY_OPTION.md#サインアップできるメールアドレスのドメインを制限する)
@@ -158,6 +160,7 @@ npm run cdk:deploy
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
   - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
+  - [ガードレール](/docs/DEPLOY_OPTION.md#ガードレール)
 - [コスト関連設定](/docs/DEPLOY_OPTION.md#コスト関連設定)
   - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](/docs/DEPLOY_OPTION.md#Kendraを自動でオン・オフするスケジュールを設定する)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
@@ -200,7 +203,12 @@ GenUを活用した介護現場の記録・報告業務の効率化。介護利�
 ![jdsc.png](/imgs/株式会社JDSC_事例.png)
 GenU をリファレンスにし、Bedrock の生成AI の出力を実際にアプリケーションで確認しつつ、開発できたことが成功要因でした。海事産業特有の専門的な問合せについて、90%以上の性能改善ができたのは、Haiku, Sonnet, Opus の適宜の利用と、AWSの各種サービス活用によります。特に性能向上の観点で新たにSonnet 3.5 への適用、 Kendra から RDS for PostgreSQL の pgvector への切替など、確固たるGenUのベースと自社ノウハウを両立させられたのも良かったです。
 
-活用頂いた事例を掲載頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
+### [アイレット株式会社](https://www.iret.co.jp/)
+[株式会社バンダイナムコアミューズメント様のクラウドを活用した導入事例](https://cloudpack.jp/casestudy/302.html?_gl=1*17hkazh*_gcl_au*ODA5MDk3NzI0LjE3MTM0MTQ2MDU)
+
+株式会社バンダイナムコアミューズメントの生成 AI 活用に向けて社内のナレッジを蓄積・体系化すべく、AWS が提供している Generative AI Use Cases JP を活用したユースケースサイトを開発。アイレット株式会社が本プロジェクトの設計・構築・開発を支援。
+
+活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
 
 ## 参照

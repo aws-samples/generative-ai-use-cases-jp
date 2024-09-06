@@ -21,6 +21,7 @@ export default defineConfig({
     outDir: resolve(__dirname, 'dist'),
     rollupOptions: {
       input: {
+        index: resolve(__dirname, 'src/index.html'),
         chat: resolve(__dirname, 'src/pages/chat/index.html'),
       },
       output: {

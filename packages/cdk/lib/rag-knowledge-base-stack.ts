@@ -21,6 +21,57 @@ const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
   'cohere.embed-english-v3': '1024',
 };
 
+// parsingConfiguration で PDF ファイルの中に埋め込まれている画像やグラフや表を読み取る機能がある。
+// 読み取る際のプロンプトは任意のものが定義できる。以下に const として定義する。利用環境によってプロンプトを変更することで、より高い精度を期待できる。
+// https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing
+const PARSING_PROMPT = `ドキュメントに含まれる画像やグラフや表などの Image コンテンツからテキストを書き写して、コードブロックではないMarkdown構文で出力してください。以下の手順に従ってください：
+
+1. 提供されたページを注意深く調べてください。
+
+2. ページに存在するすべての要素を特定してください。これには見出し、本文、脚注、表、視覚化、キャプション、ページ番号などが含まれます。
+
+3. Markdown構文のフォーマットを使用して出力してください : 
+- 見出し：主見出しには#、セクションには##、サブセクションには###など
+- リスト：箇条書きには* または -、番号付きリストには1. 2. 3.
+- 繰り返しは避けてください
+
+4. 要素が Visualization の場合：
+- 自然言語で詳細な説明を提供してください
+- 説明を提供した後、Visualization 内のテキストは転写しないでください
+
+5. 要素が表の場合：
+- Markdownの表を作成し、すべての行が同じ列数を持つようにしてください
+- セルの配置をできるだけ忠実に維持してください
+- 表を複数の表に分割しないでください
+- 結合されたセルが複数の行や列にまたがる場合、テキストを左上のセルに配置し、他のセルには ' ' を出力してください
+- 列の区切りには | を使用し、ヘッダー行の区切りには |-|-| を使用してください
+- セルに複数の項目がある場合、別々の行にリストしてください
+- 表にサブヘッダーがある場合、サブヘッダーをヘッダーから別の行で分離してください
+
+6. 要素が段落の場合：
+- 各テキスト要素を表示されているとおりに正確に転写してください
+
+7. 要素がヘッダー、フッター、脚注、ページ番号の場合：
+- 各テキスト要素を表示されているとおりに正確に転写してください
+
+出力例：
+
+Y軸に「売上高（$百万）」、X軸に「年」とラベル付けされた年間売上高を示す棒グラフ。グラフには2018年（$12M）、2019年（$18M）、2020年（$8M）、2021年（$22M）の棒がある。
+図3：このグラフは年間売上高を百万ドル単位で示しています。2020年はCOVID-19パンデミックの影響で大幅に減少しました。
+
+年次報告書
+財務ハイライト
+収益：$40M
+利益：$12M
+EPS：$1.25
+| | 12月31日終了年度 | |
+
+2021	2022
+キャッシュフロー：		
+営業活動	$ 46,327	$ 46,752
+投資活動	(58,154)	(37,601)
+財務活動	6,291	9,718`;
+
 const EMBEDDING_MODELS = Object.keys(MODEL_VECTOR_MAPPING);
 
 interface OpenSearchServerlessIndexProps {
@@ -112,6 +163,22 @@ export class RagKnowledgeBaseStack extends Stack {
     const standbyReplicas = this.node.tryGetContext(
       'ragKnowledgeBaseStandbyReplicas'
     );
+
+    const ragKnowledgeBaseAdvancedParsing = this.node.tryGetContext(
+      'ragKnowledgeBaseAdvancedParsing'
+    )!;
+
+    const ragKnowledgeBaseAdvancedParsingModelId: string | null | undefined =
+      this.node.tryGetContext('ragKnowledgeBaseAdvancedParsingModelId')!;
+
+    if (
+      ragKnowledgeBaseAdvancedParsing &&
+      typeof ragKnowledgeBaseAdvancedParsingModelId !== 'string'
+    ) {
+      throw new Error(
+        'Knowledge Base RAG の Advanced Parsing が有効ですが、ragKnowledgeBaseAdvancedParsingModelId が指定されていないか、文字列ではありません'
+      );
+    }
 
     const collection = new oss.CfnCollection(this, 'Collection', {
       name: collectionName,
@@ -229,9 +296,7 @@ export class RagKnowledgeBaseStack extends Stack {
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        resources: [
-          `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
-        ],
+        resources: ['*'],
         actions: ['bedrock:InvokeModel'],
       })
     );
@@ -290,6 +355,66 @@ export class RagKnowledgeBaseStack extends Stack {
           inclusionPrefixes: ['docs/'],
         },
         type: 'S3',
+      },
+      vectorIngestionConfiguration: {
+        ...(ragKnowledgeBaseAdvancedParsing
+          ? {
+              // Advanced Parsing を有効化する場合のみ、parsingConfiguration を構成する
+              parsingConfiguration: {
+                parsingStrategy: 'BEDROCK_FOUNDATION_MODEL',
+                bedrockFoundationModelConfiguration: {
+                  modelArn: `arn:aws:bedrock:${this.region}::foundation-model/${ragKnowledgeBaseAdvancedParsingModelId}`,
+                  parsingPrompt: {
+                    parsingPromptText: PARSING_PROMPT,
+                  },
+                },
+              },
+            }
+          : {}),
+        // チャンク戦略を変更したい場合は、以下のコメントアウトを外して、各種パラメータを調整することで、環境に合わせた環境構築が可能です。
+        // 以下の 4 種類のチャンク戦略が選択可能です。
+        // - デフォルト (何も指定しない)
+        // - セマンティックチャンク
+        // - 階層チャンク
+        // - 標準チャンク
+        // 詳細は以下の Document を参照ください。
+        // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html
+        // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html
+        //
+        // セマンティックチャンク
+        // chunkingConfiguration: {
+        //   chunkingStrategy: 'SEMANTIC',
+        //   semanticChunkingConfiguration: {
+        //     maxTokens: 300,
+        //     bufferSize: 0,
+        //     breakpointPercentileThreshold: 95,
+        //   },
+        // },
+        //
+        // 階層チャンク
+        // chunkingConfiguration: {
+        //   chunkingStrategy: 'HIERARCHICAL',
+        //   hierarchicalChunkingConfiguration: {
+        //     levelConfigurations: [
+        //       {
+        //         maxTokens: 1500, // 親チャンクの Max Token サイズ
+        //       },
+        //       {
+        //         maxTokens: 300, // 子チャンクの Max Token サイズ
+        //       },
+        //     ],
+        //     overlapTokens: 60,
+        //   },
+        // },
+        //
+        // 標準チャンク
+        // chunkingConfiguration: {
+        //   chunkingStrategy: 'FIXED_SIZE',
+        //   fixedSizeChunkingConfiguration: {
+        //     maxTokens: 300,
+        //     overlapPercentage: 10,
+        //   },
+        // },
       },
       knowledgeBaseId: knowledgeBase.ref,
       name: 's3-data-source',

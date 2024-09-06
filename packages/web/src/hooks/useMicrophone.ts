@@ -1,14 +1,17 @@
 import {
+  Item,
   StartStreamTranscriptionCommand,
   TranscribeStreamingClient,
+  LanguageCode,
 } from '@aws-sdk/client-transcribe-streaming';
 import MicrophoneStream from 'microphone-stream';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import update from 'immutability-helper';
 import { Buffer } from 'buffer';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { Transcript } from 'generative-ai-use-cases-jp';
 
 const pcmEncodeChunk = (chunk: Buffer) => {
   const input = MicrophoneStream.toRaw(chunk);
@@ -31,14 +34,44 @@ const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 const useMicrophone = () => {
   const [micStream, setMicStream] = useState<MicrophoneStream | undefined>();
   const [recording, setRecording] = useState(false);
-  const [transcriptMic, setTranscripts] = useState<
+  const [rawTranscripts, setRawTranscripts] = useState<
     {
       isPartial: boolean;
-      transcript: string;
+      transcripts: Transcript[];
     }[]
   >([]);
+  const [language, setLanguage] = useState<string>('ja-JP');
   const [transcribeClient, setTranscribeClient] =
     useState<TranscribeStreamingClient>();
+
+  const transcriptMic = useMemo(() => {
+    const transcripts: Transcript[] = rawTranscripts.flatMap(
+      (t) => t.transcripts
+    );
+    // 話者が連続する場合はマージ
+    const mergedTranscripts = transcripts.reduce((prev, item) => {
+      if (
+        prev.length === 0 ||
+        item.speakerLabel !== prev[prev.length - 1].speakerLabel
+      ) {
+        prev.push({
+          speakerLabel: item.speakerLabel,
+          transcript: item.transcript,
+        });
+      } else {
+        prev[prev.length - 1].transcript += ' ' + item.transcript;
+      }
+      return prev;
+    }, [] as Transcript[]);
+    // 日本語の場合はスペースを除去
+    if (language === 'ja-JP') {
+      return mergedTranscripts.map((item) => ({
+        ...item,
+        transcript: item.transcript.replace(/ /g, ''),
+      }));
+    }
+    return mergedTranscripts;
+  }, [rawTranscripts, language]);
 
   useEffect(() => {
     // break if already set
@@ -65,8 +98,17 @@ const useMicrophone = () => {
     });
   }, [transcribeClient]);
 
-  const startStream = async (mic: MicrophoneStream) => {
+  const startStream = async (
+    mic: MicrophoneStream,
+    languageCode?: LanguageCode,
+    speakerLabel: boolean = false
+  ) => {
     if (!transcribeClient) return;
+
+    // Update Language
+    if (languageCode) {
+      setLanguage(languageCode);
+    }
 
     const audioStream = async function* () {
       for await (const chunk of mic as unknown as Buffer[]) {
@@ -78,13 +120,15 @@ const useMicrophone = () => {
       }
     };
 
+    // Best Practice: https://docs.aws.amazon.com/transcribe/latest/dg/streaming.html
     const command = new StartStreamTranscriptionCommand({
-      // LanguageCode: languageCode,
-      IdentifyLanguage: true,
-      LanguageOptions: 'en-US,ja-JP',
+      LanguageCode: languageCode,
+      IdentifyLanguage: languageCode ? false : true,
+      LanguageOptions: languageCode ? undefined : 'en-US,ja-JP',
       MediaEncoding: 'pcm',
       MediaSampleRateHertz: 48000,
       AudioStream: audioStream(),
+      ShowSpeakerLabel: speakerLabel,
     });
 
     try {
@@ -100,23 +144,45 @@ const useMicrophone = () => {
             // Get multiple possible results, but this code only processes a single result
             const result = event.TranscriptEvent.Transcript?.Results[0];
 
-            setTranscripts((prev) => {
-              // transcript from array to string
-              const transcript = (
-                result.Alternatives?.map(
-                  (alternative) => alternative.Transcript ?? ''
-                ) ?? []
-              ).join('');
+            // Update Language
+            if (result.LanguageCode) {
+              setLanguage(result.LanguageCode);
+            }
 
-              const index = prev.length - 1;
+            // Process Multiple Speaker
+            const transcriptItems =
+              result.Alternatives?.flatMap(
+                (alternative) => alternative.Items ?? []
+              ) ?? [];
+            // Merge consecutive transcript with same Speaker
+            const mergedTranscripts = transcriptItems.reduce((acc, curr) => {
+              if (acc.length > 0 && curr.Type === 'punctuation') {
+                acc[acc.length - 1].Content += curr.Content || '';
+              } else if (
+                acc.length > 0 &&
+                acc[acc.length - 1].Speaker === curr.Speaker
+              ) {
+                acc[acc.length - 1].Content += ' ' + (curr.Content || '');
+              } else {
+                acc.push(curr);
+              }
+              return acc;
+            }, [] as Item[]);
+            const transcripts: Transcript[] = mergedTranscripts?.map(
+              (item) => ({
+                speakerLabel: item.Speaker ? 'spk_' + item.Speaker : undefined,
+                transcript: item.Content || '',
+              })
+            );
 
+            setRawTranscripts((prev) => {
               if (prev.length === 0 || !prev[prev.length - 1].isPartial) {
                 // segment is complete
                 const tmp = update(prev, {
                   $push: [
                     {
                       isPartial: result.IsPartial ?? false,
-                      transcript,
+                      transcripts,
                     },
                   ],
                 });
@@ -126,11 +192,11 @@ const useMicrophone = () => {
                 const tmp = update(prev, {
                   $splice: [
                     [
-                      index,
+                      prev.length - 1,
                       1,
                       {
                         isPartial: result.IsPartial ?? false,
-                        transcript,
+                        transcripts,
                       },
                     ],
                   ],
@@ -150,7 +216,10 @@ const useMicrophone = () => {
     }
   };
 
-  const startTranscription = async () => {
+  const startTranscription = async (
+    languageCode?: LanguageCode,
+    speakerLabel?: boolean
+  ) => {
     const mic = new MicrophoneStream();
     try {
       setMicStream(mic);
@@ -162,7 +231,7 @@ const useMicrophone = () => {
       );
 
       setRecording(true);
-      await startStream(mic);
+      await startStream(mic, languageCode, speakerLabel);
     } catch (e) {
       console.log(e);
     } finally {
@@ -181,7 +250,7 @@ const useMicrophone = () => {
   };
 
   const clearTranscripts = () => {
-    setTranscripts([]);
+    setRawTranscripts([]);
   };
 
   return {

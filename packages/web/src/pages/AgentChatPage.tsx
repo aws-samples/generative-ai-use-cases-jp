@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
-import useConversation from '../hooks/useConversation';
+import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
@@ -76,8 +76,8 @@ const AgentChatPage: React.FC = () => {
     postChat,
     updateSystemContextByModel,
   } = useChat(pathname, chatId);
-  const { scrollToBottom, scrollToTop } = useScroll();
-  const { getConversationTitle } = useConversation();
+  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { getChatTitle } = useChatList();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -94,11 +94,11 @@ const AgentChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'Agent チャット';
+      return getChatTitle(chatId) || 'Agent チャット';
     } else {
       return 'Agent チャット';
     }
-  }, [chatId, getConversationTitle]);
+  }, [chatId, getChatTitle]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -117,11 +117,12 @@ const AgentChatPage: React.FC = () => {
   }, [setContent, modelId, availableModels, search]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(content, false, undefined, undefined, sessionId, uploadedFiles);
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [content, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -129,15 +130,6 @@ const AgentChatPage: React.FC = () => {
     setSessionId(uuidv4());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clear]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const showingMessages = useMemo(() => {
     return messages;
@@ -207,20 +199,23 @@ const AgentChatPage: React.FC = () => {
           </div>
         )}
 
-        {!isEmpty &&
-          showingMessages.map((chat, idx) => (
-            <div key={idx + 1}>
-              {idx === 0 && (
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
+                <ChatMessage
+                  idx={idx}
+                  chatContent={chat}
+                  loading={loading && idx === showingMessages.length - 1}
+                />
                 <div className="w-full border-b border-gray-300"></div>
-              )}
-              <ChatMessage
-                idx={idx}
-                chatContent={chat}
-                loading={loading && idx === showingMessages.length - 1}
-              />
-              <div className="w-full border-b border-gray-300"></div>
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
+        <div ref={scrolledAnchor} />
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           <InputChatContent

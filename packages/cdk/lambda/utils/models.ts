@@ -9,6 +9,8 @@ import {
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
+  GuardrailConverseConfigParams,
+  GuardrailConverseStreamConfigParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -80,7 +82,10 @@ const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
 };
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
-  maxTokens: 3072,
+  // Doc 上は 3072 まで受け付けるが、Converse API だと 3000 までしか受け付けなかったため、3000 を設定する。
+  // 3072 が受け付けられるように修正されたら戻す。
+  // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-text.html
+  maxTokens: 3000,
   temperature: 0.7,
   topP: 1.0,
 };
@@ -113,6 +118,38 @@ const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   '/rag': {
     temperature: 0.0,
   },
+};
+
+// guardrail 設定
+const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
+  if (
+    process.env.GUARDRAIL_IDENTIFIER !== undefined &&
+    process.env.GUARDRAIL_VERSION !== undefined
+  ) {
+    return {
+      guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
+      guardrailVersion: process.env.GUARDRAIL_VERSION,
+      // 出力が重くなる&現状トレースを確認する手段がアプリ側に無いので disabled をハードコーディング
+      trace: 'disabled',
+    };
+  }
+  return undefined;
+};
+
+const createGuardrailStreamConfig = ():
+  | GuardrailConverseStreamConfigParams
+  | undefined => {
+  const baseConfig = createGuardrailConfig();
+  if (baseConfig) {
+    return {
+      ...baseConfig,
+      // 非同期だとマズい出力が出る可能性があるが、まずい入力をしない限り出力が出たことがない（＝入力時点でストップ）ので、
+      // 非同期で体験を良くすることとする
+      // https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-streaming.html
+      streamProcessingMode: 'async',
+    };
+  }
+  return undefined;
 };
 
 // ID変換ルール
@@ -190,11 +227,14 @@ const createConverseCommandInput = (
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
 
+  const guardrailConfig = createGuardrailConfig();
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     system: systemContext,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -226,10 +266,13 @@ const createConverseCommandInputWithoutSystemContext = (
     ? { ...defaultConverseInferenceParams, ...usecaseParams }
     : defaultConverseInferenceParams;
 
+  const guardrailConfig = createGuardrailConfig();
+
   const converseCommandInput: ConverseCommandInput = {
     modelId: modelId,
     messages: conversation,
     inferenceConfig: inferenceConfig,
+    guardrailConfig: guardrailConfig,
   };
 
   return converseCommandInput;
@@ -250,9 +293,10 @@ const createConverseStreamCommandInput = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 
@@ -274,9 +318,10 @@ const createConverseStreamCommandInputWithoutSystemContext = (
     defaultParams,
     usecaseParams
   );
+  const guardrailStreamConfig = createGuardrailStreamConfig();
   return {
     ...converseCommandInput,
-    // 将来的に、ConverseStreamCommandInput 用に追加したいパラメータがある場合、ここに入力する
+    guardrailStreamConfig,
   } as ConverseStreamCommandInput;
 };
 
@@ -498,7 +543,31 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'us.anthropic.claude-3-5-sonnet-20240620-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'eu.anthropic.claude-3-5-sonnet-20240620-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-opus-20240229-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.anthropic.claude-3-opus-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
@@ -514,7 +583,39 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'us.anthropic.claude-3-sonnet-20240229-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'eu.anthropic.claude-3-sonnet-20240229-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-haiku-20240307-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.anthropic.claude-3-haiku-20240307-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'eu.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,

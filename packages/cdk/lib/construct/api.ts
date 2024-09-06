@@ -27,6 +27,8 @@ export interface BackendApiProps {
   idPool: IdentityPool;
   table: Table;
   agents?: Agent[];
+  guardrailIdentify?: string;
+  guardrailVersion?: string;
 }
 
 export class Api extends Construct {
@@ -72,6 +74,13 @@ export class Api extends Construct {
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
+      'us.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'us.anthropic.claude-3-opus-20240229-v1:0',
+      'us.anthropic.claude-3-sonnet-20240229-v1:0',
+      'us.anthropic.claude-3-haiku-20240307-v1:0',
+      'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'eu.anthropic.claude-3-sonnet-20240229-v1:0',
+      'eu.anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
@@ -101,6 +110,13 @@ export class Api extends Construct {
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
       'anthropic.claude-3-haiku-20240307-v1:0',
+      'us.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'us.anthropic.claude-3-opus-20240229-v1:0',
+      'us.anthropic.claude-3-sonnet-20240229-v1:0',
+      'us.anthropic.claude-3-haiku-20240307-v1:0',
+      'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'eu.anthropic.claude-3-sonnet-20240229-v1:0',
+      'eu.anthropic.claude-3-haiku-20240307-v1:0',
     ];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
@@ -151,6 +167,12 @@ export class Api extends Construct {
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        ...(props.guardrailIdentify
+          ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
+          : {}),
+        ...(props.guardrailVersion
+          ? { GUARDRAIL_VERSION: props.guardrailVersion }
+          : {}),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -169,6 +191,12 @@ export class Api extends Construct {
         AGENT_MAP: JSON.stringify(agentMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
         BUCKET_NAME: fileBucket.bucketName,
+        ...(props.guardrailIdentify
+          ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
+          : {}),
+        ...(props.guardrailVersion
+          ? { GUARDRAIL_VERSION: props.guardrailVersion }
+          : {}),
       },
       bundling: {
         nodeModules: [
@@ -196,6 +224,12 @@ export class Api extends Construct {
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        ...(props.guardrailIdentify
+          ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
+          : {}),
+        ...(props.guardrailVersion
+          ? { GUARDRAIL_VERSION: props.guardrailVersion }
+          : {}),
       },
     });
     table.grantWriteData(predictTitleFunction);
