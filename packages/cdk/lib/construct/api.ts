@@ -183,6 +183,7 @@ export class Api extends Construct {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
+      memorySize: 256,
       environment: {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
