@@ -12,6 +12,7 @@ import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import useFileApi from '../hooks/useFileApi';
 import FileCard from './FileCard';
+import FeedbackForm from './FeedbackForm';
 
 type Props = BaseProps & {
   idx?: number;
@@ -28,6 +29,8 @@ const ChatMessage: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [showThankYouMessage, setShowThankYouMessage] = useState(false);
   const { getFileDownloadSignedUrl } = useFileApi();
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
@@ -66,11 +69,37 @@ const ChatMessage: React.FC<Props> = (props) => {
       setIsSendingFeedback(true);
       if (feedback !== chatContent?.feedback) {
         await sendFeedback(props.chatContent!.createdDate!, feedback);
+        if (feedback !== 'bad') {
+          setShowFeedbackForm(false);
+        }  
       } else {
         await sendFeedback(props.chatContent!.createdDate!, 'none');
+        setShowFeedbackForm(false);
       }
       setIsSendingFeedback(false);
     }
+  };
+
+  // badボタン押した際、ユーザーからの詳細フィードバック前にDBに送る。
+  const handleFeedbackClick = (feedback: string) => {
+    onSendFeedback(feedback);
+    if (feedback === 'bad' && chatContent?.feedback !== 'bad') {
+      setShowFeedbackForm(true);
+    }
+  };
+
+  const handleFeedbackFormSubmit = async (selectedReason: string[], feedbackText: string) => {
+    // TODO: api call
+    console.log(selectedReason, feedbackText);
+    setShowFeedbackForm(false);
+    setShowThankYouMessage(true);
+    setTimeout(() => {
+      setShowThankYouMessage(false);
+    }, 3000);  
+  };
+
+  const handleFeedbackFormCancel = () => {
+    setShowFeedbackForm(false);
   };
 
   return (
@@ -83,7 +112,7 @@ const ChatMessage: React.FC<Props> = (props) => {
       <div
         className={`${
           props.className ?? ''
-        } flex w-full flex-col justify-between p-3 md:w-11/12 lg:w-5/6 xl:w-4/6 2xl:flex-row`}>
+        } flex w-full flex-col justify-between p-3 md:w-11/12 lg:w-5/6 xl:w-4/6`}>
         <div className="flex w-full">
           {chatContent?.role === 'user' && (
             <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
@@ -199,7 +228,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                       message={chatContent}
                       disabled={disabled}
                       onClick={() => {
-                        onSendFeedback('good');
+                        handleFeedbackClick('good');
                       }}
                     />
                     <ButtonFeedback
@@ -207,12 +236,25 @@ const ChatMessage: React.FC<Props> = (props) => {
                       feedback="bad"
                       message={chatContent}
                       disabled={disabled}
-                      onClick={() => onSendFeedback('bad')}
+                      onClick={() => handleFeedbackClick('bad')}
                     />
                   </>
                 )}
               </>
             )}
+        </div>
+        <div>
+          {showFeedbackForm && (
+            <FeedbackForm
+              onSubmit={handleFeedbackFormSubmit}
+              onCancel={handleFeedbackFormCancel}
+            />
+          )}
+          {showThankYouMessage && (
+            <div className="mt-2 p-2 bg-green-100 text-center text-green-700 rounded-md">
+              フィードバックを受け付けました。ありがとうございます。
+            </div>
+          )}
         </div>
       </div>
     </div>
