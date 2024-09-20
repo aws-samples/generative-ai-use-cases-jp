@@ -273,7 +273,11 @@ export const updateFeedback = async (
   const chatId = `chat#${_chatId}`;
   const {createdDate, feedback, reasons, detailedFeedback} = feedbackData;
   let updateExpression = 'set feedback = :feedback';
-  const expressionAttributeValues: any = {
+  const expressionAttributeValues: {
+    ':feedback': string;
+    ':reasons'?: string[];
+    ':detailedFeedback'?: string;
+  } = {
     ':feedback': feedback
   };
 
