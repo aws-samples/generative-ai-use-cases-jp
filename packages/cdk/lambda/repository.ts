@@ -5,6 +5,7 @@ import {
   ShareId,
   UserIdAndChatId,
   SystemContext,
+  UpdateFeedbackRequest,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -267,10 +268,26 @@ export const setChatTitle = async (
 
 export const updateFeedback = async (
   _chatId: string,
-  createdDate: string,
-  feedback: string
+  feedbackData: UpdateFeedbackRequest
 ): Promise<RecordedMessage> => {
   const chatId = `chat#${_chatId}`;
+  const {createdDate, feedback, reasons, detailedFeedback} = feedbackData;
+  let updateExpression = 'set feedback = :feedback';
+  const expressionAttributeValues: any = {
+    ':feedback': feedback
+  };
+
+  if (reasons && reasons.length > 0) {
+    updateExpression += ', reasons = :reasons';
+    expressionAttributeValues[':reasons'] = reasons;
+  }
+
+  if (detailedFeedback) {
+    updateExpression += ', detailedFeedback = :detailedFeedback';
+    expressionAttributeValues[':detailedFeedback'] = detailedFeedback;
+  }
+
+  
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
@@ -278,10 +295,8 @@ export const updateFeedback = async (
         id: chatId,
         createdDate,
       },
-      UpdateExpression: 'set feedback = :feedback',
-      ExpressionAttributeValues: {
-        ':feedback': feedback,
-      },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: 'ALL_NEW',
     })
   );

@@ -11,6 +11,7 @@ import {
   UploadedFileType,
   ExtraData,
   Model,
+  UpdateFeedbackRequest,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -69,11 +70,7 @@ const useChatState = create<{
     sessionId: string | undefined,
     extraData: UploadedFileType[] | undefined
   ) => void;
-  sendFeedback: (
-    id: string,
-    createdDate: string,
-    feedback: string
-  ) => Promise<void>;
+  sendFeedback: (id: string, feedbackData: UpdateFeedbackRequest) => Promise<void>;
   getStopReason: (id: string) => string;
 }>((set, get) => {
   const {
@@ -633,14 +630,11 @@ const useChatState = create<{
     },
 
     continueGeneration: generateMessage,
-    sendFeedback: async (id: string, createdDate: string, feedback: string) => {
+    sendFeedback: async (id: string, feedbackData: UpdateFeedbackRequest) => {
       const chat = get().chats[id].chat;
 
       if (chat) {
-        const { message } = await updateFeedback(chat.chatId, {
-          createdDate,
-          feedback,
-        });
+        const { message } = await updateFeedback(chat.chatId, feedbackData);
         replaceMessages(id, [message]);
       }
     },
@@ -783,8 +777,8 @@ const useChat = (id: string, chatId?: string) => {
         extraData
       );
     },
-    sendFeedback: async (createdDate: string, feedback: string) => {
-      await sendFeedback(id, createdDate, feedback);
+    sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {
+      await sendFeedback(id, feedbackData);    
     },
     getStopReason: () => {
       return getStopReason(id);

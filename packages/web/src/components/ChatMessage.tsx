@@ -6,7 +6,7 @@ import ButtonFeedback from './ButtonFeedback';
 import ZoomUpImage from './ZoomUpImage';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
-import { ShownMessage } from 'generative-ai-use-cases-jp';
+import { ShownMessage, UpdateFeedbackRequest } from 'generative-ai-use-cases-jp';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
@@ -64,33 +64,43 @@ const ChatMessage: React.FC<Props> = (props) => {
     return isSendingFeedback || !props.chatContent?.id;
   }, [isSendingFeedback, props]);
 
-  const onSendFeedback = async (feedback: string) => {
+  const onSendFeedback = async (feedbackData: UpdateFeedbackRequest) => {
     if (!disabled) {
       setIsSendingFeedback(true);
-      if (feedback !== chatContent?.feedback) {
-        await sendFeedback(props.chatContent!.createdDate!, feedback);
-        if (feedback !== 'bad') {
+      if (feedbackData.feedback !== chatContent?.feedback) {
+        if (feedbackData.feedback !== 'bad') {
           setShowFeedbackForm(false);
-        }  
+        }
+        await sendFeedback(feedbackData);
       } else {
-        await sendFeedback(props.chatContent!.createdDate!, 'none');
+        await sendFeedback({
+          createdDate: props.chatContent!.createdDate!, 
+          feedback: 'none'
+        });
         setShowFeedbackForm(false);
       }
       setIsSendingFeedback(false);
     }
   };
 
-  // badボタン押した際、ユーザーからの詳細フィードバック前にDBに送る。
   const handleFeedbackClick = (feedback: string) => {
-    onSendFeedback(feedback);
+    // ボタン押した際、ユーザーからの詳細フィードバック前にDBに送る。
+    onSendFeedback({
+      createdDate: props.chatContent!.createdDate!,
+      feedback: feedback
+    });
     if (feedback === 'bad' && chatContent?.feedback !== 'bad') {
       setShowFeedbackForm(true);
     }
   };
 
-  const handleFeedbackFormSubmit = async (selectedReason: string[], feedbackText: string) => {
-    // TODO: api call
-    console.log(selectedReason, feedbackText);
+  const handleFeedbackFormSubmit = async (reasons: string[], detailedFeedback: string) => {
+    await sendFeedback({
+      createdDate: props.chatContent!.createdDate!,
+      feedback: 'bad',
+      reasons: reasons,
+      detailedFeedback: detailedFeedback
+    });  
     setShowFeedbackForm(false);
     setShowThankYouMessage(true);
     setTimeout(() => {

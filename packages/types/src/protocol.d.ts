@@ -61,6 +61,8 @@ export type UpdateSystemContextTitleResponse = {
 export type UpdateFeedbackRequest = {
   createdDate: string;
   feedback: string;
+  reasons?: string[];
+  detailedFeedback?: string;
 };
 
 export type UpdateFeedbackResponse = {
