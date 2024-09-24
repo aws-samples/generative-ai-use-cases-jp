@@ -9,7 +9,7 @@ export const handler = async (
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateFeedbackRequest = JSON.parse(event.body!);
 
-    const message = await updateFeedback(chatId, req.createdDate, req.feedback);
+    const message = await updateFeedback(chatId, req);
 
     return {
       statusCode: 200,
