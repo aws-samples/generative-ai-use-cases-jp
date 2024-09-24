@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Button from './Button';
 
 type Props = {
   onSubmit: (reasons: string[], feedback: string) => void;
@@ -10,7 +11,7 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [feedback, setFeedback] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  const reasons = ['不正確', '時期遅れ', '有害または攻撃的', 'その他'];
+  const reasons = ['不正確', '情報が古い', '有害または攻撃的', 'その他'];
 
   const handleReasonChange = (reason: string) => {
     setSelectedReasons(prev => 
@@ -56,18 +57,8 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         rows={3}
       />
       <div className="flex justify-end gap-2">
-        <button
-          className="px-4 py-2 text-sm text-gray-600 rounded-md hover:bg-gray-100"
-          onClick={onCancel}
-        >
-          キャンセル
-        </button>
-        <button
-          className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          onClick={handleSubmit}
-        >
-          送信
-        </button>
+        <Button onClick={onCancel} outlined={true}>キャンセル</Button>
+        <Button onClick={handleSubmit} outlined={false}>送信</Button>
       </div>
     </div>
   );
