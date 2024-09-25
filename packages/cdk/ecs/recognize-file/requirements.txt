@@ -1,4 +1,0 @@
-boto3
-fastapi
-unstructured[csv,doc,docx,md,pdf,ppt,pptx,tsv,xlsx]
-uvicorn

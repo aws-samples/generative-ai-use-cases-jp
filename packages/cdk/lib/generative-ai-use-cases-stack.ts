@@ -9,7 +9,6 @@ import {
   RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
-  RecognizeFile,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -28,7 +27,6 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
   allowedCountryCodes: string[] | null;
-  vpcId?: string;
   cert?: ICertificate;
   hostName?: string;
   domainName?: string;
@@ -69,9 +67,6 @@ export class GenerativeAiUseCasesStack extends Stack {
     const samlCognitoFederatedIdentityProviderName: string =
       this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
-    const recognizeFileEnabled: boolean = this.node.tryGetContext(
-      'recognizeFileEnabled'
-    )!;
     const guardrailEnabled: boolean =
       this.node.tryGetContext('guardrailEnabled') || false;
 
@@ -89,10 +84,6 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     if (typeof samlAuthEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
-    }
-
-    if (typeof recognizeFileEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
     }
 
     if (typeof guardrailEnabled !== 'boolean') {
@@ -160,7 +151,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoDomainName,
       samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
-      recognizeFileEnabled,
       cert: props.cert,
       hostName: props.hostName,
       domainName: props.domainName,
@@ -198,15 +188,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPool: auth.idPool,
       api: api.api,
     });
-
-    if (recognizeFileEnabled) {
-      new RecognizeFile(this, 'RecognizeFile', {
-        userPool: auth.userPool,
-        api: api.api,
-        fileBucket: api.fileBucket,
-        vpcId: props.vpcId,
-      });
-    }
 
     new CfnOutput(this, 'Region', {
       value: this.region,
@@ -288,10 +269,6 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'AgentNames', {
       value: JSON.stringify(api.agentNames),
-    });
-
-    new CfnOutput(this, 'RecognizeFileEnabled', {
-      value: recognizeFileEnabled.toString(),
     });
 
     this.userPool = auth.userPool;

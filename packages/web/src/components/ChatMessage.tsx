@@ -6,7 +6,10 @@ import ButtonFeedback from './ButtonFeedback';
 import ZoomUpImage from './ZoomUpImage';
 import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
-import { ShownMessage, UpdateFeedbackRequest } from 'generative-ai-use-cases-jp';
+import {
+  ShownMessage,
+  UpdateFeedbackRequest,
+} from 'generative-ai-use-cases-jp';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
@@ -74,8 +77,8 @@ const ChatMessage: React.FC<Props> = (props) => {
         await sendFeedback(feedbackData);
       } else {
         await sendFeedback({
-          createdDate: props.chatContent!.createdDate!, 
-          feedback: 'none'
+          createdDate: props.chatContent!.createdDate!,
+          feedback: 'none',
         });
         setShowFeedbackForm(false);
       }
@@ -87,25 +90,28 @@ const ChatMessage: React.FC<Props> = (props) => {
     // ボタン押した際、ユーザーからの詳細フィードバック前にDBに送る。
     onSendFeedback({
       createdDate: props.chatContent!.createdDate!,
-      feedback: feedback
+      feedback: feedback,
     });
     if (feedback === 'bad' && chatContent?.feedback !== 'bad') {
       setShowFeedbackForm(true);
     }
   };
 
-  const handleFeedbackFormSubmit = async (reasons: string[], detailedFeedback: string) => {
+  const handleFeedbackFormSubmit = async (
+    reasons: string[],
+    detailedFeedback: string
+  ) => {
     await sendFeedback({
       createdDate: props.chatContent!.createdDate!,
       feedback: 'bad',
       reasons: reasons,
-      detailedFeedback: detailedFeedback
-    });  
+      detailedFeedback: detailedFeedback,
+    });
     setShowFeedbackForm(false);
     setShowThankYouMessage(true);
     setTimeout(() => {
       setShowThankYouMessage(false);
-    }, 3000);  
+    }, 3000);
   };
 
   const handleFeedbackFormCancel = () => {
@@ -261,7 +267,7 @@ const ChatMessage: React.FC<Props> = (props) => {
             />
           )}
           {showThankYouMessage && (
-            <div className="mt-2 p-2 bg-green-100 text-center text-green-700 rounded-md">
+            <div className="mt-2 rounded-md bg-green-100 p-2 text-center text-green-700">
               フィードバックを受け付けました。ありがとうございます。
             </div>
           )}

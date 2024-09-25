@@ -723,34 +723,6 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 > [!NOTE]
 > モニタリング用のダッシュボードを有効後に、再度無効化する場合は、`dashboard: false` にして再デプロイすればモニタリング用ダッシュボードは無効化されますが、`GenerativeAiUseCasesDashboardStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GenerativeAiUseCasesDashboardStack` というスタックを削除することで完全に消去ができます。
 
-## ファイルアップロード機能の有効化
-
-PDF や Excel などのファイルをアップロードしてテキストを抽出する、ファイルアップロード機能を利用することができます。対応しているファイルは、csv, doc, docx, md, pdf, ppt, pptx, tsv, xlsx です。
-
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```json
-{
-  "context": {
-    "recognizeFileEnabled": true,
-    "vpcId": null
-  }
-}
-```
-
-ファイルアップロード機能は ECS (Fargate) 上で実行されます。`vpcId`を指定しない場合は、VPC が新たに作成されます。また、Fargate 上で動くコンテナのビルドを行うために、デプロイ用のマシンでは Docker がインストールされている必要があり、Docker デーモンが起動している必要があります。
-
-既存の VPC を使用する場合は、`vpcId` を指定してください。
-
-
-```json
-{
-  "context": {
-    "recognizeFileEnabled": true,
-    "vpcId": "vpc-xxxxxxxxxxxxxxxxx"
-  }
-}
-```
-
 ## カスタムドメインの使用
 
 Web サイトの URL としてカスタムドメインを使用することができます。同一 AWS アカウントの Route53 にパブリックホストゾーンが作成済みであることが必要です。パブリックホストゾーンについてはこちらをご参照ください: [パブリックホストゾーンの使用 - Amazon Route 53](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)

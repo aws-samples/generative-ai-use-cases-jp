@@ -187,11 +187,3 @@ export type GetFileUploadSignedUrlResponse = string;
 export type UploadFileRequest = {
   file: File;
 };
-
-export type RecognizeFileRequest = {
-  fileUrl: string;
-};
-
-export type RecognizeFileResponse = {
-  text: string;
-};
