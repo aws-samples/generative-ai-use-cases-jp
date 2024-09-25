@@ -95,6 +95,10 @@ export class Api extends Construct {
       'meta.llama3-1-8b-instruct-v1:0',
       'meta.llama3-1-70b-instruct-v1:0',
       'meta.llama3-1-405b-instruct-v1:0',
+      'us.meta.llama3-2-1b-instruct-v1:0',
+      'us.meta.llama3-2-3b-instruct-v1:0',
+      'us.meta.llama3-2-11b-instruct-v1:0',
+      'us.meta.llama3-2-90b-instruct-v1:0',
       'meta.llama2-13b-chat-v1',
       'meta.llama2-70b-chat-v1',
       'mistral.mistral-7b-instruct-v0:2',
@@ -117,6 +121,8 @@ export class Api extends Construct {
       'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
       'eu.anthropic.claude-3-sonnet-20240229-v1:0',
       'eu.anthropic.claude-3-haiku-20240307-v1:0',
+      'us.meta.llama3-2-11b-instruct-v1:0',
+      'us.meta.llama3-2-90b-instruct-v1:0',
     ];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
