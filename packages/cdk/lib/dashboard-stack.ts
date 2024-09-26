@@ -27,7 +27,7 @@ export class DashboardStack extends Stack {
       'stability.stable-diffusion-xl-v1',
       'stability.sd3-large-v1:0',
       'stability.stable-image-core-v1:0',
-      'stability.stable-image-ultra-v1:0'
+      'stability.stable-image-ultra-v1:0',
     ];
 
     // Bedrock のログの出力先として設定する LogGroup

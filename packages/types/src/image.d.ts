@@ -45,15 +45,15 @@ export type StableDiffusionParams = {
 };
 
 export type StabilityAI2024ModelParams = {
-  prompt: string,
-  negative_prompt?: string,
-  aspect_ratio?: string,
+  prompt: string;
+  negative_prompt?: string;
+  aspect_ratio?: string;
   seed?: number;
   // Image to Image
   image?: string;
   mode?: string;
   strength?: number;
-}
+};
 
 // Titan Image
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
@@ -106,4 +106,4 @@ export type StabilityAI2024ModelResponse = {
   seeds: string[];
   finish_reasons: (string | null)[];
   images: string[];
-}
+};

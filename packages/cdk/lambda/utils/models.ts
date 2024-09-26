@@ -384,7 +384,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
 const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
   let positivePrompt: string = '';
   let negativePrompt: string | undefined;
-  params.textPrompt.forEach(prompt => {
+  params.textPrompt.forEach((prompt) => {
     if (prompt.weight >= 0) {
       positivePrompt = prompt.text;
     } else {
@@ -407,7 +407,7 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
     body = {
       ...body,
       image: params.initImage,
-      mode: "image-to-image",
+      mode: 'image-to-image',
       strength: params.imageStrength,
     };
   }
@@ -507,8 +507,10 @@ const extractOutputImageStabilityAI2024Model = (
   if ('finish_reasons' in response) {
     // StabilityAI2024ModelResponse の場合
     if (response.finish_reasons[0] !== null) {
-      if (response.finish_reasons[0] == "Filter reason: prompt") {
-        throw new Error(response.finish_reasons[0] + ": 日本語での検索には対応していません");  
+      if (response.finish_reasons[0] == 'Filter reason: prompt') {
+        throw new Error(
+          response.finish_reasons[0] + ': 日本語での検索には対応していません'
+        );
       }
       throw new Error(response.finish_reasons[0]);
     }
@@ -803,7 +805,9 @@ export const BEDROCK_TEXT_GEN_MODELS: {
 export const BEDROCK_IMAGE_GEN_MODELS: {
   [key: string]: {
     createBodyImage: (params: GenerateImageParams) => string;
-    extractOutputImage: (response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse) => string;
+    extractOutputImage: (
+      response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
+    ) => string;
   };
 } = {
   'stability.stable-diffusion-xl-v1': {
