@@ -60,7 +60,12 @@ export class Api extends Construct {
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v1'];
+    ) || [
+      'stability.stable-diffusion-xl-v1',
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0"
+    ];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
     const agents: Agent[] = [
@@ -88,6 +93,9 @@ export class Api extends Construct {
       // 'amazon.titan-text-express-v1',
       'amazon.titan-text-premier-v1:0',
       'stability.stable-diffusion-xl-v1',
+      'stability.sd3-large-v1:0',
+      'stability.stable-image-core-v1:0',
+      'stability.stable-image-ultra-v1:0',
       'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',

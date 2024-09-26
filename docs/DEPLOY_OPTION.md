@@ -404,7 +404,10 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 ```
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"stability.stable-diffusion-xl-v1"
+"stability.stable-diffusion-xl-v1",
+"stability.sd3-large-v1:0",
+"stability.stable-image-core-v1:0",
+"stability.stable-image-ultra-v1:0"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -449,7 +452,10 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1"
+    "stability.stable-diffusion-xl-v1",
+    "stability.sd3-large-v1:0",
+    "stability.stable-image-core-v1:0",
+    "stability.stable-image-ultra-v1:0"
   ],
 ```
 ### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
@@ -469,7 +475,10 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1"
+    "stability.stable-diffusion-xl-v1",
+    "stability.sd3-large-v1:0",
+    "stability.stable-image-core-v1:0",
+    "stability.stable-image-ultra-v1:0"
   ],
 ```
 

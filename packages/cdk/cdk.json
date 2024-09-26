@@ -33,12 +33,15 @@
     "samlAuthEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
-    "modelRegion": "us-east-1",
+    "modelRegion": "us-west-2",
     "modelIds": [
       "anthropic.claude-3-sonnet-20240229-v1:0"
     ],
     "imageGenerationModelIds": [
-      "stability.stable-diffusion-xl-v1"
+      "stability.stable-diffusion-xl-v1",
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0"
     ],
     "endpointNames": [],
     "agentEnabled": false,
