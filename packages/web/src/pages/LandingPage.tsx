@@ -15,6 +15,7 @@ import {
   PiPen,
   PiRobot,
   PiVideoCamera,
+  PiFlowArrow,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -40,6 +41,15 @@ const ragKnowledgeBaseEnabled: boolean =
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const getPromptFlows = () => {
+  try {
+    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+  } catch (e) {
+    return [];
+  }
+};
+const promptFlows = getPromptFlows();
+const promptFlowChatEnabled: boolean = promptFlows.length > 0;
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -251,6 +261,10 @@ const LandingPage: React.FC = () => {
     ]);
   };
 
+  const demoPromptFlowChat = () => {
+    navigate(`/prompt-flow-chat`);
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -300,6 +314,14 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoAgent}
             icon={<PiRobot />}
             description="Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
+          />
+        )}
+        {promptFlowChatEnabled && (
+          <CardDemo
+            label="Prompt Flow チャット"
+            onClickDemo={demoPromptFlowChat}
+            icon={<PiFlowArrow />}
+            description="Prompt Flow を使用して、複数のステップを持つ対話型チャットフローを作成します。ユーザーの入力に基づいて、動的に次のステップを決定し、より複雑な対話シナリオを実現します。"
           />
         )}
         <CardDemo

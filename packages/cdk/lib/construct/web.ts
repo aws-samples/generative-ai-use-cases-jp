@@ -10,6 +10,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { PromptFlow } from 'generative-ai-use-cases-jp';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -20,6 +21,8 @@ export interface WebProps {
   ragEnabled: boolean;
   ragKnowledgeBaseEnabled: boolean;
   agentEnabled: boolean;
+  promptFlows?: PromptFlow[];
+  promptFlowStreamFunctionArn: string;
   selfSignUpEnabled: boolean;
   webAclId?: string;
   modelRegion: string;
@@ -167,6 +170,9 @@ export class Web extends Construct {
         VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
           props.ragKnowledgeBaseEnabled.toString(),
         VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
+        VITE_APP_PROMPT_FLOWS: JSON.stringify(props.promptFlows || []),
+        VITE_APP_PROMPT_FLOW_STREAM_FUNCTION_ARN:
+          props.promptFlowStreamFunctionArn,
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
         VITE_APP_MODEL_REGION: props.modelRegion,
         VITE_APP_MODEL_IDS: JSON.stringify(props.modelIds),

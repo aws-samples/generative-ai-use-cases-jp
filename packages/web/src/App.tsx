@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiUploadSimple,
   PiVideoCamera,
+  PiFlowArrow,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -38,6 +39,15 @@ const recognizeFileEnabled: boolean =
   import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const getPromptFlows = () => {
+  try {
+    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+  } catch (e) {
+    return [];
+  }
+};
+const promptFlows = getPromptFlows();
+const promptFlowChatEnabled: boolean = promptFlows.length > 0;
 
 const items: ItemProps[] = [
   {
@@ -58,6 +68,14 @@ const items: ItemProps[] = [
     icon: <PiChatsCircle />,
     display: 'usecase' as const,
   },
+  promptFlowChatEnabled
+    ? {
+        label: 'Prompt Flow チャット',
+        to: '/prompt-flow-chat',
+        icon: <PiFlowArrow />,
+        display: 'usecase' as const,
+      }
+    : null,
   ragEnabled
     ? {
         label: 'RAG チャット',

@@ -46,6 +46,8 @@
     "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [],
+    "promptFlowsRegion": "us-east-1",
+    "promptFlows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
