@@ -60,12 +60,7 @@ export class Api extends Construct {
     ];
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
-    ) || [
-      'stability.stable-diffusion-xl-v1',
-      'stability.sd3-large-v1:0',
-      'stability.stable-image-core-v1:0',
-      'stability.stable-image-ultra-v1:0',
-    ];
+    ) || ['stability.stable-diffusion-xl-v1'];
     const endpointNames: string[] =
       this.node.tryGetContext('endpointNames') || [];
     const agents: Agent[] = [

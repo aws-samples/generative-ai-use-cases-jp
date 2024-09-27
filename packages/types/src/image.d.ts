@@ -49,6 +49,7 @@ export type StabilityAI2024ModelParams = {
   negative_prompt?: string;
   aspect_ratio?: string;
   seed?: number;
+  output_format?: string;
   // Image to Image
   image?: string;
   mode?: string;

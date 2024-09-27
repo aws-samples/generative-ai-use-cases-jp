@@ -397,7 +397,13 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
   let body: StabilityAI2024ModelParams = {
     prompt: positivePrompt,
     seed: params.seed,
+    output_format: 'png',
   };
+
+  // image-to-image modeの際、aspect比を使用できない
+  if (params.width <= 21 && !params.initImage) {
+    body.aspect_ratio = `${params.width}:${params.height}`;
+  }
   if (negativePrompt) {
     body.negative_prompt = negativePrompt;
   }
@@ -509,7 +515,8 @@ const extractOutputImageStabilityAI2024Model = (
     if (response.finish_reasons[0] !== null) {
       if (response.finish_reasons[0] == 'Filter reason: prompt') {
         throw new Error(
-          response.finish_reasons[0] + ': 日本語での検索には対応していません'
+          response.finish_reasons[0] +
+            ': 日本語のプロンプトには対応していません'
         );
       }
       throw new Error(response.finish_reasons[0]);

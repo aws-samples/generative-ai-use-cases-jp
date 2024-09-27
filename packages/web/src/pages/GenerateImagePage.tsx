@@ -41,16 +41,6 @@ const modeOptions = [
   label: s as GenerationMode,
 }));
 
-const resolutionPresets = [
-  '512 x 512',
-  '1024 x 1024',
-  '1280 x 768',
-  '768 x 1280',
-].map((s) => ({
-  value: s,
-  label: s,
-}));
-
 type StateType = {
   imageGenModelId: string;
   setImageGenModelId: (c: string) => void;
@@ -60,6 +50,7 @@ type StateType = {
   setNegativePrompt: (s: string) => void;
   resolution: string;
   setResolution: (s: string) => void;
+  resolutionPresets: { value: string; label: string }[];
   stylePreset: string;
   setStylePreset: (s: string) => void;
   seed: number[];
@@ -94,11 +85,34 @@ type StateType = {
 };
 
 const useGenerateImagePageState = create<StateType>((set, get) => {
+  const getResolutionPresets = (imageGenModelId: string) => {
+    if (
+      [
+        'stability.sd3-large-v1:0',
+        'stability.stable-image-core-v1:0',
+        'stability.stable-image-ultra-v1:0',
+      ].includes(imageGenModelId)
+    ) {
+      return [
+        { value: '1 x 1', label: '1024 x 1024' },
+        { value: '5 x 4', label: '1088 x 896' },
+        { value: '3 x 2', label: '1216 x 832' },
+        { value: '16 x 9', label: '1344 x 768' },
+        { value: '21 x 9', label: '1536 x 640' },
+      ];
+    } else {
+      return ['512 x 512', '1024 x 1024', '1280 x 768', '768 x 1280'].map(
+        (s) => ({ value: s, label: s })
+      );
+    }
+  };
+
   const INIT_STATE = {
     imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
-    resolution: resolutionPresets[0].value,
+    resolution: '',
+    resolutionPresets: getResolutionPresets(''),
     stylePreset: '',
     seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
     step: 50,
@@ -127,8 +141,12 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
   return {
     ...INIT_STATE,
     setImageGenModelId: (s: string) => {
+      const newResolutionPresets = getResolutionPresets(s);
+      const newResolution = newResolutionPresets[0].value;
       set(() => ({
         imageGenModelId: s,
+        resolutionPresets: newResolutionPresets,
+        resolution: newResolution,
       }));
     },
     setPrompt: (s) => {
@@ -273,6 +291,7 @@ const GenerateImagePage: React.FC = () => {
     setNegativePrompt,
     resolution,
     setResolution,
+    resolutionPresets,
     stylePreset,
     setStylePreset,
     seed,
