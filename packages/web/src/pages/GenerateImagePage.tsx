@@ -26,7 +26,6 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-
 const STABILITY_AI_MODEL = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
   SD3_LARGE: 'stability.sd3-large-v1:0',
@@ -39,7 +38,7 @@ const GENERATION_MODES = {
   INPAINTING: 'INPAINTING',
   OUTPAINTING: 'OUTPAINTING',
 } as const;
-type GenerationMode = typeof GENERATION_MODES[keyof typeof GENERATION_MODES];
+type GenerationMode = (typeof GENERATION_MODES)[keyof typeof GENERATION_MODES];
 const modeOptions = Object.values(GENERATION_MODES).map((mode) => ({
   value: mode,
   label: mode,
@@ -50,13 +49,17 @@ const getModeOptions = (imageGenModelId: string) => {
     return modeOptions;
   } else if (imageGenModelId === STABILITY_AI_MODEL.SD3_LARGE) {
     return modeOptions.filter(
-      (mode) => mode.value === GENERATION_MODES.TEXT_IMAGE  || mode.value === GENERATION_MODES.IMAGE_VARIATION
+      (mode) =>
+        mode.value === GENERATION_MODES.TEXT_IMAGE ||
+        mode.value === GENERATION_MODES.IMAGE_VARIATION
     );
   } else if (
     imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_CORE ||
     imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_ULTRA
   ) {
-    return modeOptions.filter((mode) => mode.value === GENERATION_MODES.TEXT_IMAGE);
+    return modeOptions.filter(
+      (mode) => mode.value === GENERATION_MODES.TEXT_IMAGE
+    );
   }
 
   return modeOptions;
@@ -375,7 +378,10 @@ const GenerateImagePage: React.FC = () => {
   }, [resolution]);
 
   const maskMode = useMemo(() => {
-    return generationMode === 'INPAINTING' || generationMode === 'OUTPAINTING';
+    return (
+      generationMode === GENERATION_MODES.INPAINTING ||
+      generationMode === GENERATION_MODES.OUTPAINTING
+    );
   }, [generationMode]);
   const maskPromptSupported = useMemo(() => {
     // TODO: Remove Hard Coding
@@ -390,11 +396,13 @@ const GenerateImagePage: React.FC = () => {
     [imageGenModelId]
   );
   useEffect(() => {
-    const availableModes = getModeOptions(imageGenModelId).map(option => option.value);
+    const availableModes = getModeOptions(imageGenModelId).map(
+      (option) => option.value
+    );
     if (!availableModes.includes(generationMode)) {
       setGenerationMode(modeOptions[0].value as GenerationMode);
     }
-  }, [imageGenModelId, generationMode, setGenerationMode]);
+  }, [imageGenModelId, generationMode, modeOptions, setGenerationMode]);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -470,15 +478,15 @@ const GenerateImagePage: React.FC = () => {
           stylePreset: _stylePreset ?? stylePreset,
         };
 
-        if (generationMode === 'IMAGE_VARIATION') {
+        if (generationMode === GENERATION_MODES.IMAGE_VARIATION) {
           params = {
             ...params,
             initImage: initImage.imageBase64,
             imageStrength,
           };
         } else if (
-          generationMode === 'INPAINTING' ||
-          generationMode === 'OUTPAINTING'
+          generationMode === GENERATION_MODES.INPAINTING ||
+          generationMode === GENERATION_MODES.OUTPAINTING
         ) {
           params = {
             ...params,
@@ -544,6 +552,13 @@ const GenerateImagePage: React.FC = () => {
     ]
   );
 
+  const isImageVariationSupported = useMemo(() => {
+    const availableModes = getModeOptions(imageGenModelId).map(
+      (option) => option.value
+    );
+    return availableModes.includes(GENERATION_MODES.IMAGE_VARIATION);
+  }, [imageGenModelId]);
+
   const onClickRandomSeed = useCallback(() => {
     setSeed(generateRandomSeed(), selectedImageIndex);
   }, [generateRandomSeed, selectedImageIndex, setSeed]);
@@ -576,8 +591,8 @@ const GenerateImagePage: React.FC = () => {
 
   const generateImageVariant = useCallback(() => {
     if (image[selectedImageIndex].base64) {
-      if (generationMode === 'TEXT_IMAGE') {
-        setGenerationMode('IMAGE_VARIATION');
+      if (generationMode === GENERATION_MODES.TEXT_IMAGE) {
+        setGenerationMode(GENERATION_MODES.IMAGE_VARIATION);
       }
       const img = `data:image/png;base64,${image[selectedImageIndex].base64}`;
       setInitImage({
@@ -705,7 +720,9 @@ const GenerateImagePage: React.FC = () => {
               title="Generate Variant"
               outlined
               className="mt-3 size-10"
-              disabled={!image[selectedImageIndex].base64}
+              disabled={
+                !image[selectedImageIndex].base64 || !isImageVariationSupported
+              }
               onClick={generateImageVariant}>
               <PiNotePencil></PiNotePencil>
             </Button>
@@ -799,7 +816,7 @@ const GenerateImagePage: React.FC = () => {
                   fullWidth
                 />
                 <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
-                  {generationMode !== 'TEXT_IMAGE' && (
+                  {generationMode !== GENERATION_MODES.TEXT_IMAGE && (
                     <div className="flex flex-col items-center">
                       <div className="mb-1 flex items-center text-sm font-bold">
                         初期画像
@@ -895,7 +912,7 @@ const GenerateImagePage: React.FC = () => {
                   help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
                 />
 
-                {generationMode === 'IMAGE_VARIATION' && (
+                {generationMode === GENERATION_MODES.IMAGE_VARIATION && (
                   <RangeSlider
                     className="w-full"
                     label="ImageStrength"
@@ -921,9 +938,10 @@ const GenerateImagePage: React.FC = () => {
               loading={generating || loadingChat}
               disabled={
                 prompt.length === 0 ||
-                (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
-                ((generationMode === 'INPAINTING' ||
-                  generationMode === 'OUTPAINTING') &&
+                (generationMode !== GENERATION_MODES.TEXT_IMAGE &&
+                  !initImage.imageBase64) ||
+                ((generationMode === GENERATION_MODES.INPAINTING ||
+                  generationMode === GENERATION_MODES.OUTPAINTING) &&
                   !maskImage.imageBase64 &&
                   !maskPrompt)
               }>
