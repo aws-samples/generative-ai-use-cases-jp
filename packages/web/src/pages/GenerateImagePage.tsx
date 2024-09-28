@@ -452,11 +452,17 @@ const GenerateImagePage: React.FC = () => {
           };
         }
 
-        if (['stability.sd3-large-v1:0', 'stability.stable-image-core-v1:0', 'stability.stable-image-ultra-v1:0'].includes(imageGenModelId)) {
+        if (
+          [
+            'stability.sd3-large-v1:0',
+            'stability.stable-image-core-v1:0',
+            'stability.stable-image-ultra-v1:0',
+          ].includes(imageGenModelId)
+        ) {
           params = {
             ...params,
             aspectRatio: resolution.value,
-          }
+          };
         }
 
         return generate(
@@ -497,6 +503,7 @@ const GenerateImagePage: React.FC = () => {
       setSeed,
       step,
       stylePreset,
+      resolution.value,
     ]
   );
 
@@ -698,7 +705,9 @@ const GenerateImagePage: React.FC = () => {
               label="サイズ"
               value={resolution.value}
               onChange={(value: string) => {
-                const selectedResolution = resolutionPresets.find((option: StateType["resolution"]) => option.value === value);
+                const selectedResolution = resolutionPresets.find(
+                  (option: StateType['resolution']) => option.value === value
+                );
                 if (selectedResolution) {
                   setResolution(selectedResolution);
                 }

@@ -405,13 +405,13 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
     body = {
       ...body,
       aspect_ratio: params.aspectRatio,
-    }
+    };
   }
   if (negativePrompt) {
     body = {
       ...body,
       negative_prompt: negativePrompt,
-    }
+    };
   }
 
   // Image to Image
