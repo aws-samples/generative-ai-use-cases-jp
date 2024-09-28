@@ -40,6 +40,22 @@ const modeOptions = [
   value: s as GenerationMode,
   label: s as GenerationMode,
 }));
+const getModeOptions = (imageGenModelId: string) => {
+  if (imageGenModelId === 'stability.stable-diffusion-xl-v1') {
+    return modeOptions;
+  } else if (imageGenModelId === 'stability.sd3-large-v1:0') {
+    return modeOptions.filter(
+      (mode) => mode.value === 'TEXT_IMAGE' || mode.value === 'IMAGE_VARIATION'
+    );
+  } else if (
+    imageGenModelId === 'stability.stable-image-core-v1:0' ||
+    imageGenModelId === 'stability.stable-image-ultra-v1:0'
+  ) {
+    return modeOptions.filter((mode) => mode.value === 'TEXT_IMAGE');
+  }
+
+  return modeOptions;
+};
 
 type StateType = {
   imageGenModelId: string;
@@ -146,10 +162,15 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     setImageGenModelId: (s: string) => {
       const newResolutionPresets = getResolutionPresets(s);
       const newResolution = newResolutionPresets[0];
+      const currentMode = get().generationMode;
+      const availableModes = getModeOptions(s).map((option) => option.value);
       set(() => ({
         imageGenModelId: s,
         resolutionPresets: newResolutionPresets,
         resolution: newResolution,
+        generationMode: availableModes.includes(currentMode)
+          ? currentMode
+          : availableModes[0],
       }));
     },
     setPrompt: (s) => {
@@ -358,6 +379,17 @@ const GenerateImagePage: React.FC = () => {
       imageGenModelId === 'amazon.titan-image-generator-v2:0'
     );
   }, [imageGenModelId]);
+
+  const modeOptions = useMemo(
+    () => getModeOptions(imageGenModelId),
+    [imageGenModelId]
+  );
+  useEffect(() => {
+    const availableModes = getModeOptions(imageGenModelId).map(option => option.value);
+    if (!availableModes.includes(generationMode)) {
+      setGenerationMode(modeOptions[0].value as GenerationMode);
+    }
+  }, [imageGenModelId, generationMode, setGenerationMode]);
 
   useEffect(() => {
     updateSystemContextByModel();
