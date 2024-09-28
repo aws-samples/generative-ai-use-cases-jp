@@ -11,6 +11,7 @@ export type GenerateImageParams = {
   imageStrength?: number;
   height: number;
   width: number;
+  aspectRatio?: string;
   // Image to Image
   initImage?: string;
   // Inpaint / Outpaint

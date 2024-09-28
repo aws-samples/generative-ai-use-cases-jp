@@ -401,11 +401,17 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
   };
 
   // image-to-image modeの際、aspect比を使用できない
-  if (params.width <= 21 && !params.initImage) {
-    body.aspect_ratio = `${params.width}:${params.height}`;
+  if (params.aspectRatio && !params.initImage) {
+    body = {
+      ...body,
+      aspect_ratio: params.aspectRatio,
+    }
   }
   if (negativePrompt) {
-    body.negative_prompt = negativePrompt;
+    body = {
+      ...body,
+      negative_prompt: negativePrompt,
+    }
   }
 
   // Image to Image

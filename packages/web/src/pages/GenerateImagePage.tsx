@@ -48,8 +48,8 @@ type StateType = {
   setPrompt: (s: string) => void;
   negativePrompt: string;
   setNegativePrompt: (s: string) => void;
-  resolution: string;
-  setResolution: (s: string) => void;
+  resolution: { value: string; label: string };
+  setResolution: (s: { value: string; label: string }) => void;
   resolutionPresets: { value: string; label: string }[];
   stylePreset: string;
   setStylePreset: (s: string) => void;
@@ -94,11 +94,11 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
       ].includes(imageGenModelId)
     ) {
       return [
-        { value: '1 x 1', label: '1024 x 1024' },
-        { value: '5 x 4', label: '1088 x 896' },
-        { value: '3 x 2', label: '1216 x 832' },
-        { value: '16 x 9', label: '1344 x 768' },
-        { value: '21 x 9', label: '1536 x 640' },
+        { value: '1:1', label: '1024 x 1024' },
+        { value: '5:4', label: '1088 x 896' },
+        { value: '3:2', label: '1216 x 832' },
+        { value: '16:9', label: '1344 x 768' },
+        { value: '21:9', label: '1536 x 640' },
       ];
     } else {
       return ['512 x 512', '1024 x 1024', '1280 x 768', '768 x 1280'].map(
@@ -111,7 +111,10 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
-    resolution: '',
+    resolution: {
+      value: '',
+      label: '',
+    },
     resolutionPresets: getResolutionPresets(''),
     stylePreset: '',
     seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
@@ -142,7 +145,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     ...INIT_STATE,
     setImageGenModelId: (s: string) => {
       const newResolutionPresets = getResolutionPresets(s);
-      const newResolution = newResolutionPresets[0].value;
+      const newResolution = newResolutionPresets[0];
       set(() => ({
         imageGenModelId: s,
         resolutionPresets: newResolutionPresets,
@@ -342,7 +345,7 @@ const GenerateImagePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [width, height] = useMemo(() => {
-    return resolution.split('x').map((v) => Number(v));
+    return resolution.label.split('x').map((v) => Number(v));
   }, [resolution]);
 
   const maskMode = useMemo(() => {
@@ -447,6 +450,13 @@ const GenerateImagePage: React.FC = () => {
             maskImage: maskImage.imageBase64,
             maskMode: generationMode,
           };
+        }
+
+        if (['stability.sd3-large-v1:0', 'stability.stable-image-core-v1:0', 'stability.stable-image-ultra-v1:0'].includes(imageGenModelId)) {
+          params = {
+            ...params,
+            aspectRatio: resolution.value,
+          }
         }
 
         return generate(
@@ -686,9 +696,15 @@ const GenerateImagePage: React.FC = () => {
             />
             <Select
               label="サイズ"
-              value={resolution}
-              onChange={setResolution}
+              value={resolution.value}
+              onChange={(value: string) => {
+                const selectedResolution = resolutionPresets.find((option: StateType["resolution"]) => option.value === value);
+                if (selectedResolution) {
+                  setResolution(selectedResolution);
+                }
+              }}
               options={resolutionPresets}
+              fullWidth
             />
           </div>
 
