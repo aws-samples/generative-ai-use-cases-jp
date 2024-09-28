@@ -26,32 +26,37 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-type GenerationMode =
-  | 'TEXT_IMAGE'
-  | 'IMAGE_VARIATION'
-  | 'INPAINTING'
-  | 'OUTPAINTING';
-const modeOptions = [
-  'TEXT_IMAGE',
-  'IMAGE_VARIATION',
-  'INPAINTING',
-  'OUTPAINTING',
-].map((s) => ({
-  value: s as GenerationMode,
-  label: s as GenerationMode,
+
+const STABILITY_AI_MODEL = {
+  STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
+  SD3_LARGE: 'stability.sd3-large-v1:0',
+  STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
+  STABLE_IMAGE_ULTRA: 'stability.stable-image-ultra-v1:0',
+};
+const GENERATION_MODES = {
+  TEXT_IMAGE: 'TEXT_IMAGE',
+  IMAGE_VARIATION: 'IMAGE_VARIATION',
+  INPAINTING: 'INPAINTING',
+  OUTPAINTING: 'OUTPAINTING',
+} as const;
+type GenerationMode = typeof GENERATION_MODES[keyof typeof GENERATION_MODES];
+const modeOptions = Object.values(GENERATION_MODES).map((mode) => ({
+  value: mode,
+  label: mode,
 }));
+
 const getModeOptions = (imageGenModelId: string) => {
-  if (imageGenModelId === 'stability.stable-diffusion-xl-v1') {
+  if (imageGenModelId === STABILITY_AI_MODEL.STABLE_DIFFUSION_XL) {
     return modeOptions;
-  } else if (imageGenModelId === 'stability.sd3-large-v1:0') {
+  } else if (imageGenModelId === STABILITY_AI_MODEL.SD3_LARGE) {
     return modeOptions.filter(
-      (mode) => mode.value === 'TEXT_IMAGE' || mode.value === 'IMAGE_VARIATION'
+      (mode) => mode.value === GENERATION_MODES.TEXT_IMAGE  || mode.value === GENERATION_MODES.IMAGE_VARIATION
     );
   } else if (
-    imageGenModelId === 'stability.stable-image-core-v1:0' ||
-    imageGenModelId === 'stability.stable-image-ultra-v1:0'
+    imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_CORE ||
+    imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_ULTRA
   ) {
-    return modeOptions.filter((mode) => mode.value === 'TEXT_IMAGE');
+    return modeOptions.filter((mode) => mode.value === GENERATION_MODES.TEXT_IMAGE);
   }
 
   return modeOptions;
