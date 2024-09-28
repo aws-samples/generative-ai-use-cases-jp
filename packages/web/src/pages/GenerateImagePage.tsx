@@ -26,7 +26,7 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-const STABILITY_AI_MODEL = {
+const STABILITY_AI_MODELS = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
   SD3_LARGE: 'stability.sd3-large-v1:0',
   STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
@@ -45,17 +45,17 @@ const modeOptions = Object.values(GENERATION_MODES).map((mode) => ({
 }));
 
 const getModeOptions = (imageGenModelId: string) => {
-  if (imageGenModelId === STABILITY_AI_MODEL.STABLE_DIFFUSION_XL) {
+  if (imageGenModelId === STABILITY_AI_MODELS.STABLE_DIFFUSION_XL) {
     return modeOptions;
-  } else if (imageGenModelId === STABILITY_AI_MODEL.SD3_LARGE) {
+  } else if (imageGenModelId === STABILITY_AI_MODELS.SD3_LARGE) {
     return modeOptions.filter(
       (mode) =>
         mode.value === GENERATION_MODES.TEXT_IMAGE ||
         mode.value === GENERATION_MODES.IMAGE_VARIATION
     );
   } else if (
-    imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_CORE ||
-    imageGenModelId === STABILITY_AI_MODEL.STABLE_IMAGE_ULTRA
+    imageGenModelId === STABILITY_AI_MODELS.STABLE_IMAGE_CORE ||
+    imageGenModelId === STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA
   ) {
     return modeOptions.filter(
       (mode) => mode.value === GENERATION_MODES.TEXT_IMAGE
