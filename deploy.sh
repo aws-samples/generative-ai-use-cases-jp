@@ -49,18 +49,8 @@ if [[ -n "$cdk_context_path" ]]; then
     cp -f $cdk_context_path packages/cdk/cdk.json
 fi
 
-# デフォルト region の bootstrap
+# CDK の bootstrap
 npx -w packages/cdk cdk bootstrap
-
-# CloudFront の WAF 用に us-east-1 も bootstrap しておく
-AWS_REGION=us-east-1 npx -w packages/cdk cdk bootstrap
-
-# modelRegion の bootstrap
-AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.modelRegion"` npx -w packages/cdk cdk bootstrap
-
-# agentRegion の bootstrap
-# 削除予定あり https://github.com/aws-samples/generative-ai-use-cases-jp/issues/649
-AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.agentRegion"` npx -w packages/cdk cdk bootstrap
 
 # デプロイの実行
 npm run cdk:deploy

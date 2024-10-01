@@ -40,6 +40,7 @@ cdk.json が別のパスにある場合は、適宜引数の値を変更して�
 ./deploy.sh
 ```
 
+デプロイ途中に確認プロンプトが表示されるので、`y` と入力して Enter して進めてください。
 デプロイ完了時に CloudFront の URL が表示されます。その URL をブラウザで開くことで GenU にアクセスできます。
 
 なお、これらの手順を実行する場合も [Amazon Bedrock の Model access](https://console.aws.amazon.com/bedrock/home#/modelaccess) から利用するモデルの有効化が必要です。
