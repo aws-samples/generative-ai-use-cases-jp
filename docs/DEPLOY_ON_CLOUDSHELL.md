@@ -30,7 +30,7 @@ chmod +x deploy.sh
 cdk.json が別のパスにある場合は、適宜引数の値を変更してください。
 
 ```bash
-./deploy.sh --cdk-context ./cdk.json
+./deploy.sh --cdk-context ~/cdk.json
 ```
 
 なお、cdk.json のカスタマイズが必要ない場合は `--cdk-context` の指定は不要です。

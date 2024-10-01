@@ -32,12 +32,18 @@ done
 
 pushd /tmp
 
+# /tmp に存在するリポジトリを念の為削除
+rm -rf generative-ai-use-cases-jp
+
+# GenU を clone
 git clone https://github.com/aws-samples/generative-ai-use-cases-jp
 
 pushd generative-ai-use-cases-jp
 
+# npm パッケージのインストール
 npm ci
 
+# cdk.json が指定されている場合は上書きする
 if [[ -n "$cdk_context_path" ]]; then
     echo "Overwrite the cdk.json by $cdk_context_path"
     cp -f $cdk_context_path packages/cdk/cdk.json
@@ -56,8 +62,10 @@ AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.modelRegion"` npx -w pac
 # 削除予定あり https://github.com/aws-samples/generative-ai-use-cases-jp/issues/649
 AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.agentRegion"` npx -w packages/cdk cdk bootstrap
 
+# デプロイの実行
 npm run cdk:deploy
 
+# デプロイした CloudFront の url を取得
 weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
 
 echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
