@@ -1,0 +1,65 @@
+#!/bin/bash
+
+set -e
+
+echo "--------------------------"
+echo "  _____            _    _ "
+echo " / ____|          | |  | |"
+echo "| |  __  ___ _ __ | |  | |"
+echo "| | |_ |/ _ \ '_ \| |  | |"
+echo "| |__| |  __/ | | | |__| |"
+echo " \_____|\___|_| |_|\____/ "
+echo "--------------------------"
+
+# コマンド引数の処理
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -c|--cdk-context)
+            cdk_context_path="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "-c, --cdk-context ... Path to the cdk.json file"
+            echo "-h, --help        ... Show this message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
+
+pushd /tmp
+
+git clone https://github.com/aws-samples/generative-ai-use-cases-jp
+
+pushd generative-ai-use-cases-jp
+
+npm ci
+
+if [[ -n "$cdk_context_path" ]]; then
+    echo "Overwrite the cdk.json by $cdk_context_path"
+    cp -f $cdk_context_path packages/cdk/cdk.json
+fi
+
+# デフォルト region の bootstrap
+npx -w packages/cdk cdk bootstrap
+
+# CloudFront の WAF 用に us-east-1 も bootstrap しておく
+AWS_REGION=us-east-1 npx -w packages/cdk cdk bootstrap
+
+# modelRegion の bootstrap
+AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.modelRegion"` npx -w packages/cdk cdk bootstrap
+
+# agentRegion の bootstrap
+# 削除予定あり https://github.com/aws-samples/generative-ai-use-cases-jp/issues/649
+AWS_REGION=`cat packages/cdk/cdk.json | jq -r ".context.agentRegion"` npx -w packages/cdk cdk bootstrap
+
+npm run cdk:deploy
+
+weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
+
+echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
+echo "Welcome to GenU: $weburl"
+echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
