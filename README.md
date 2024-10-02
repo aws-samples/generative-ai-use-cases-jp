@@ -111,6 +111,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
+- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](/docs/DEPLOY_ON_CLOUDSHELL.md)
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
@@ -171,7 +172,6 @@ npm run cdk:deploy
  - [アップデート方法](/docs/UPDATE.md)
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
  - [リソースの削除方法](/docs/DESTROY.md)
- - [AWS 上で完結するデプロイ方法 (手元に環境を用意することが難しい場合)](/docs/DEPLOY_ON_AWS.md)
  - [ネイティブアプリのように利用する方法](/docs/PWA.md)
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 
