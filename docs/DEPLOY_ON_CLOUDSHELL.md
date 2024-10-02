@@ -19,7 +19,7 @@ CloudShell 上で以下のコマンドを実行し、`deploy.sh` というスク
 また、ダウンロード後に deploy.sh に実行権限を付与しています。
 
 ```bash
-wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/refs/heads/main/deploy.sh
+wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/refs/heads/main/deploy.sh -O deploy.sh
 chmod +x deploy.sh
 ```
 
