@@ -40,7 +40,7 @@ export class CommonWebAcl extends Construct {
       },
     });
 
-    const generateIpSetAndGeMatchRule = (
+    const generateIpSetAndGeoMatchRule = (
       priority: number,
       name: string,
       ipSetArn: string,
@@ -86,7 +86,7 @@ export class CommonWebAcl extends Construct {
       if (hasAllowedCountryCodes) {
         // Geo制限を行う場合は、IP制限とのAND条件にする
         rules.push(
-          generateIpSetAndGeMatchRule(
+          generateIpSetAndGeoMatchRule(
             1,
             `IpV4SetAndGeoMatchRule${id}`,
             wafIPv4Set.attrArn,
@@ -109,7 +109,7 @@ export class CommonWebAcl extends Construct {
       if (hasAllowedCountryCodes) {
         // Geo制限を行う場合は、IP制限とのAND条件にする
         rules.push(
-          generateIpSetAndGeMatchRule(
+          generateIpSetAndGeoMatchRule(
             2,
             `IpV6SetAndGeoMatchRule${id}`,
             wafIPv6Set.attrArn,
