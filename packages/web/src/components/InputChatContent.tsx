@@ -87,6 +87,13 @@ const InputChatContent: React.FC<Props> = (props) => {
     return props.content === '' || props.disabled || uploading;
   }, [props.content, props.disabled, uploading]);
 
+  console.log({
+    isEmpty,
+    loading,
+    disabledSend,
+    props: props,
+  });
+
   return (
     <div
       className={`${

@@ -74,8 +74,8 @@ const usePromptFlowChat = () => {
 
       try {
         const stream = invokePromptFlowStream({
-          flowIdentifier: flow.flowIdentifier,
-          flowAliasIdentifier: flow.flowAliasIdentifier,
+          flowIdentifier: flow.flowId,
+          flowAliasIdentifier: flow.aliasId,
           document: parse(content),
         });
 

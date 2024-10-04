@@ -1,4 +1,3 @@
-import { FlowInputContent } from '@aws-sdk/client-bedrock-agent-runtime';
 import {
   GenerateImageParams,
   Model,

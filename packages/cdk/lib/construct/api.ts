@@ -54,8 +54,6 @@ export class Api extends Construct {
     const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
     // region for bedrock agent
     const agentRegion = this.node.tryGetContext('agentRegion') || 'us-east-1';
-    const promptFlowsRegion =
-      this.node.tryGetContext('promptFlowsRegion') || 'us-east-1';
 
     // Model IDs
     const modelIds: string[] = this.node.tryGetContext('modelIds') || [
@@ -230,7 +228,7 @@ export class Api extends Construct {
           ],
         },
         environment: {
-          PROMPT_FLOWS_REGION: promptFlowsRegion,
+          AGENT_REGION: agentRegion,
         },
       }
     );

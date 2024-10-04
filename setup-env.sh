@@ -3,7 +3,7 @@
 set -eu
 
 STACK_NAME='GenerativeAiUseCasesStack'
-TEMP_FILE="/tmp/generative_ai_use_cases_cloudformation_output.json"
+TEMP_FILE="./generative_ai_use_cases_cloudformation_output.json"
 
 function extract_value {
     jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"$1\") | .OutputValue" "$TEMP_FILE"

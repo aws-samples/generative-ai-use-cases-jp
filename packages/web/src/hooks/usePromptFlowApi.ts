@@ -5,6 +5,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
+import { PromptFlowRequest } from 'generative-ai-use-cases-jp';
 
 export type DocumentType =
   | null
@@ -15,11 +16,6 @@ export type DocumentType =
   | {
       [prop: string]: DocumentType;
     };
-export type PromptFlowRequest = {
-  document: DocumentType;
-  flowIdentifier: string;
-  flowAliasIdentifier: string;
-};
 
 export type PromptFlowResponse = {
   content: string;

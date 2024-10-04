@@ -1,15 +1,12 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import React, { useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import usePromptFlowChat from '../hooks/usePromptFlowChat';
-import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import useScroll from '../hooks/useScroll';
 import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
-import { PromptFlowChatPageQueryParams } from '../@types/navigate';
-import queryString from 'query-string';
 
 type StateType = {
   content: string;
@@ -29,7 +26,6 @@ const usePromptFlowChatPageState = create<StateType>((set) => {
 
 const PromptFlowChatPage: React.FC = () => {
   const { content, setContent } = usePromptFlowChatPageState();
-  const { search } = useLocation();
   const { chatId } = useParams();
 
   const {
@@ -44,23 +40,10 @@ const PromptFlowChatPage: React.FC = () => {
   } = usePromptFlowChat();
 
   const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
-  const { getChatTitle } = useChatList();
-
-  const title = useMemo(() => {
-    if (chatId) {
-      return getChatTitle(chatId) || 'Prompt Flow チャット';
-    } else {
-      return 'Prompt Flow チャット';
-    }
-  }, [chatId, getChatTitle]);
 
   useEffect(() => {
-    if (search !== '') {
-      const params = queryString.parse(search) as PromptFlowChatPageQueryParams;
-      setContent(params.content ?? '');
-    }
     setFlow(availableFlows[0]);
-  }, [search, setContent, availableFlows, setFlow]);
+  }, [availableFlows, setFlow]);
 
   const onSend = useCallback(() => {
     setFollowing(true);
@@ -78,17 +61,17 @@ const PromptFlowChatPage: React.FC = () => {
   return (
     <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        {title}
+        Prompt Flow チャット
       </div>
 
       <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
         <Select
-          value={flow?.flowIdentifier || ''}
+          value={flow?.flowId || ''}
           onChange={(id: string) =>
-            setFlow(availableFlows.find((f) => f.flowIdentifier === id)!)
+            setFlow(availableFlows.find((f) => f.flowId === id)!)
           }
           options={availableFlows.map((flow) => ({
-            value: flow.flowIdentifier,
+            value: flow.flowId,
             label: flow.flowName,
           }))}
         />
@@ -123,7 +106,7 @@ const PromptFlowChatPage: React.FC = () => {
         <InputChatContent
           content={content}
           description={flow?.description}
-          disabled={loading || !flow}
+          disabled={loading}
           onChangeContent={setContent}
           resetDisabled={!!chatId}
           onSend={onSend}

@@ -322,29 +322,28 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 
 プロジェクトのルートディレクトリにある `cdk.json` ファイルを開き、`context` セクション内に `promptFlows` 配列を追加または編集します。
 
-[Prompt Flows の AWS コンソール画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-west-2#/prompt-flows) から手動で Prompt Flows を作成します。その後、Alias を作成し、作成済みの Prompt Flow の `flowIdentifier` と `flowAliasIdentifier`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Prompt Flow チャットのテキストボックスに記載されます。以下はその例です。
+[Prompt Flows の AWS コンソール画面](https://us-east-1.console.aws.amazon.com/bedrock/home#/prompt-flows) から手動で Prompt Flows を作成します。その後、Alias を作成し、作成済みの Prompt Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Prompt Flow チャットのテキストボックスに記載されます。以下はその例です。
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
 {
   "context": {
-    "promptFlowsRegion": "us-east-1",
     "promptFlows": [
       {
-        "flowIdentifier": "XXXXXXXXXX",
-        "flowAliasIdentifier": "YYYYYYYYYY",
+        "flowId": "XXXXXXXXXX",
+        "aliasId": "YYYYYYYYYY",
         "flowName": "WhatIsItFlow",
         "description": "任意のキーワードをウェブ検索して、説明を返すフローです。文字を入力してください"
       },
       {
-        "flowIdentifier": "ZZZZZZZZZZ",
-        "flowAliasIdentifier": "OOOOOOOOOO",
+        "flowId": "ZZZZZZZZZZ",
+        "aliasId": "OOOOOOOOOO",
         "flowName": "RecipeFlow",
         "description": "与えられたJSONをもとに、レシピを作成します。\n{\"dish\": \"カレーライス\", \"people\": 3} のように入力してください。"
       },
       {
-        "flowIdentifier": "PPPPPPPPPP",
-        "flowAliasIdentifier": "QQQQQQQQQQQ",
+        "flowId": "PPPPPPPPPP",
+        "aliasId": "QQQQQQQQQQQ",
         "flowName": "TravelPlanFlow",
         "description": "与えられた配列をもとに、旅行計画を作成します。\n[{\"place\": \"東京\", \"day\": 3}, {\"place\": \"大阪\", \"day\": 2}] のように入力してください。"
       }
