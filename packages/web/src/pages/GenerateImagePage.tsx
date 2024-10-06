@@ -26,6 +26,10 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
+const TITAN_MODELS = {
+  V1: 'amazon.titan-image-generator-v1',
+  V2: 'amazon.titan-image-generator-v2:0',
+};
 const STABILITY_AI_MODELS = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
   SD3_LARGE: 'stability.sd3-large-v1:0',
@@ -47,6 +51,12 @@ type ModelInfo = {
   supportedModes: GenerationMode[];
   resolutionPresets: { value: string; label: string }[];
 };
+const defaultModelPresets = [
+  { value: '512 x 512', label: '512 x 512' },
+  { value: '1024 x 1024', label: '1024 x 1024' },
+  { value: '1280 x 768', label: '1280 x 768' },
+  { value: '768 x 1280', label: '768 x 1280' },
+];
 const stabilityAi2024ModelPresets = [
   { value: '1:1', label: '1024 x 1024' },
   { value: '5:4', label: '1088 x 896' },
@@ -62,12 +72,7 @@ const modelInfo: Record<string, ModelInfo> = {
       GENERATION_MODES.INPAINTING,
       GENERATION_MODES.OUTPAINTING,
     ],
-    resolutionPresets: [
-      { value: '512 x 512', label: '512 x 512' },
-      { value: '1024 x 1024', label: '1024 x 1024' },
-      { value: '1280 x 768', label: '1280 x 768' },
-      { value: '768 x 1280', label: '768 x 1280' },
-    ],
+    resolutionPresets: defaultModelPresets,
   },
   [STABILITY_AI_MODELS.SD3_LARGE]: {
     supportedModes: [
@@ -83,6 +88,24 @@ const modelInfo: Record<string, ModelInfo> = {
   [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
     resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [TITAN_MODELS.V1]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
+  },
+  [TITAN_MODELS.V2]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
   },
 };
 
@@ -408,8 +431,7 @@ const GenerateImagePage: React.FC = () => {
   const maskPromptSupported = useMemo(() => {
     // TODO: Remove Hard Coding
     return (
-      imageGenModelId === 'amazon.titan-image-generator-v1' ||
-      imageGenModelId === 'amazon.titan-image-generator-v2:0'
+      imageGenModelId === TITAN_MODELS.V1 || imageGenModelId === TITAN_MODELS.V2
     );
   }, [imageGenModelId]);
 
