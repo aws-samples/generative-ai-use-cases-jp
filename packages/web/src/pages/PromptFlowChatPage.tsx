@@ -42,7 +42,6 @@ const PromptFlowChatPage: React.FC = () => {
   const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
 
   useEffect(() => {
-    console.log(availableFlows);
     setFlow(availableFlows[0]);
   }, [availableFlows, setFlow]);
 
