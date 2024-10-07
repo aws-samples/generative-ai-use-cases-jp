@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-bedrock-agent-runtime';
 
 const client = new BedrockAgentRuntimeClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 
 type InvokeFlowGeneratorProps = {

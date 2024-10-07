@@ -68,14 +68,6 @@ const items: ItemProps[] = [
     icon: <PiChatsCircle />,
     display: 'usecase' as const,
   },
-  promptFlowChatEnabled
-    ? {
-        label: 'Prompt Flow チャット',
-        to: '/prompt-flow-chat',
-        icon: <PiFlowArrow />,
-        display: 'usecase' as const,
-      }
-    : null,
   ragEnabled
     ? {
         label: 'RAG チャット',
@@ -99,6 +91,14 @@ const items: ItemProps[] = [
         label: 'Agent チャット',
         to: '/agent',
         icon: <PiRobot />,
+        display: 'usecase' as const,
+      }
+    : null,
+  promptFlowChatEnabled
+    ? {
+        label: 'Prompt Flow チャット',
+        to: '/prompt-flow-chat',
+        icon: <PiFlowArrow />,
         display: 'usecase' as const,
       }
     : null,

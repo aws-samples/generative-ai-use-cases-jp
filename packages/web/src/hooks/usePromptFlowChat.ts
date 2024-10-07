@@ -23,7 +23,7 @@ const usePromptFlowStore = create<PromptFlowState>((set) => ({
   error: null,
   flow: null,
   setMessages: (messages: ShownMessage[]) =>
-    set((_state) => ({
+    set(() => ({
       messages: messages,
     })),
   setLoading: (loading) => set({ loading }),
@@ -99,7 +99,7 @@ const usePromptFlowChat = () => {
         setLoading(false);
       }
     },
-    [setLoading, setError, invokePromptFlowStream, messages, setMessages]
+    [setLoading, setError, invokePromptFlowStream, messages, setMessages, flow]
   );
 
   return {

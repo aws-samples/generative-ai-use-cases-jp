@@ -66,8 +66,3 @@ export type WebContentPageQueryParams = BaseQueryParams & {
 export type VideoAnalyzerPageQueryParams = BaseQueryParams & {
   content: string;
 };
-
-export type PromptFlowChatPageQueryParams = {
-  content?: string;
-  flowId?: string;
-};

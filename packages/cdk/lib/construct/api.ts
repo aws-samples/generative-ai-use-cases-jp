@@ -228,7 +228,7 @@ export class Api extends Construct {
           ],
         },
         environment: {
-          AGENT_REGION: agentRegion,
+          MODEL_REGION: modelRegion,
         },
       }
     );

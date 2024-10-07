@@ -247,7 +247,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'PromptFlows', {
-      value: JSON.stringify(promptFlows),
+      value: Buffer.from(JSON.stringify(promptFlows)).toString('base64'),
     });
 
     new CfnOutput(this, 'RagEnabled', {
