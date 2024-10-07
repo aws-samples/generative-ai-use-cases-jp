@@ -34,6 +34,7 @@ export interface BackendApiProps {
 export class Api extends Construct {
   readonly api: RestApi;
   readonly predictStreamFunction: NodejsFunction;
+  readonly invokePromptFlowFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
   readonly multiModalModelIds: string[];
@@ -218,6 +219,27 @@ export class Api extends Construct {
     fileBucket.grantWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
+    // Prompt Flow Lambda Function の追加
+    const invokePromptFlowFunction = new NodejsFunction(
+      this,
+      'InvokePromptFlow',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/invokeFlow.ts',
+        timeout: Duration.minutes(15),
+        bundling: {
+          nodeModules: [
+            '@aws-sdk/client-bedrock-runtime',
+            '@aws-sdk/client-bedrock-agent-runtime',
+          ],
+        },
+        environment: {
+          MODEL_REGION: modelRegion,
+        },
+      }
+    );
+    invokePromptFlowFunction.grantInvoke(idPool.authenticatedRole);
+
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
       runtime: Runtime.NODEJS_18_X,
       entry: './lambda/predictTitle.ts',
@@ -273,6 +295,7 @@ export class Api extends Construct {
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      invokePromptFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
 
     // Bedrock は常に権限付与
@@ -290,6 +313,7 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      invokePromptFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
       // crossAccountBedrockRoleArn が指定されている場合のポリシー
       const logsPolicy = new PolicyStatement({
@@ -310,6 +334,7 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      invokePromptFlowFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
@@ -758,6 +783,7 @@ export class Api extends Construct {
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
+    this.invokePromptFlowFunction = invokePromptFlowFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
     this.multiModalModelIds = multiModalModelIds;

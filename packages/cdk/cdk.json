@@ -46,6 +46,7 @@
     "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [],
+    "promptFlows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,

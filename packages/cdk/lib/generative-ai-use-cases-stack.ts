@@ -14,7 +14,7 @@ import {
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Agent } from 'generative-ai-use-cases-jp';
+import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -34,6 +34,7 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   domainName?: string;
   hostedZoneId?: string;
   agents?: Agent[];
+  promptFlows?: PromptFlow[];
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
   guardrailIdentifier?: string;
@@ -69,6 +70,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const samlCognitoFederatedIdentityProviderName: string =
       this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
+    const promptFlows = this.node.tryGetContext('promptFlows') || [];
     const recognizeFileEnabled: boolean = this.node.tryGetContext(
       'recognizeFileEnabled'
     )!;
@@ -149,6 +151,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       ragEnabled,
       ragKnowledgeBaseEnabled,
       agentEnabled,
+      promptFlows,
+      promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
@@ -236,6 +240,14 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'PredictStreamFunctionArn', {
       value: api.predictStreamFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'InvokePromptFlowFunctionArn', {
+      value: api.invokePromptFlowFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'PromptFlows', {
+      value: Buffer.from(JSON.stringify(promptFlows)).toString('base64'),
     });
 
     new CfnOutput(this, 'RagEnabled', {

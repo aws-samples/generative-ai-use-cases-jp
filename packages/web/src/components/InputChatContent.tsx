@@ -19,6 +19,7 @@ type Props = {
   content: string;
   disabled?: boolean;
   placeholder?: string;
+  description?: string;
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
@@ -91,6 +92,11 @@ const InputChatContent: React.FC<Props> = (props) => {
       className={`${
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
       }`}>
+      {props.description && (
+        <p className="m-2 whitespace-pre-wrap text-xs text-gray-500">
+          {props.description}
+        </p>
+      )}
       <div
         className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom ? '' : 'mb-7'

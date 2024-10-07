@@ -26,6 +26,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FileUploadPage from './pages/FileUploadPage.tsx';
+import PromptFlowChatPage from './pages/PromptFlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 
@@ -88,6 +89,10 @@ const routes: RouteObject[] = [
   {
     path: '/transcribe',
     element: <TranscribePage />,
+  },
+  {
+    path: '/prompt-flow-chat',
+    element: <PromptFlowChatPage />,
   },
   multiModalEnabled
     ? {
