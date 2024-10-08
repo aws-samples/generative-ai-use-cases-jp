@@ -161,6 +161,7 @@ export class Rag extends Construct {
       new s3Deploy.BucketDeployment(this, 'DeployDocs', {
         sources: [s3Deploy.Source.asset('./rag-docs')],
         destinationBucket: dataSourceBucket,
+        exclude: ['AccessLogs/*'],
       });
 
       let index: kendra.CfnIndex;
