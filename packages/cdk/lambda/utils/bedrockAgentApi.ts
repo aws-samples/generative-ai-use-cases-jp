@@ -6,6 +6,7 @@ import {
   ServiceQuotaExceededException,
   ThrottlingException,
 } from '@aws-sdk/client-bedrock-agent-runtime';
+
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -36,7 +37,7 @@ const convertS3UriToUrl = (s3Uri: string): string => {
   return '';
 };
 
-const bedrockAgentApi: Partial<ApiInterface> = {
+const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
     try {
       const command = new InvokeAgentCommand({

@@ -145,7 +145,7 @@ const extractOutputImage = (
   return modelConfig.extractOutputImage(response);
 };
 
-const bedrockApi: ApiInterface = {
+const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
   invoke: async (model, messages, id) => {
     const client = await initBedrockClient();
 
