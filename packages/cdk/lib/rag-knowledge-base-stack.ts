@@ -426,6 +426,7 @@ export class RagKnowledgeBaseStack extends Stack {
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
       sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
+      exclude: ['AccessLogs/*'],
     });
 
     this.knowledgeBaseId = knowledgeBase.ref;
