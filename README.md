@@ -40,6 +40,14 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
+   <summary>Prompt Flow チャット</summary>
+
+  Amazon Bedrock Prompt Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Prompt Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
+
+  <img src="/imgs/usecase_prompt_flow_chat.gif"/>
+</details>
+
+<details>
    <summary>文章生成</summary>
 
    あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
