@@ -9,6 +9,7 @@ import ButtonCopy from '../ButtonCopy';
 import useTyping from '../../hooks/useTyping';
 import { create } from 'zustand';
 import Textarea from '../Textarea';
+import { produce } from 'immer';
 
 type Props = {
   modelId?: string;
@@ -19,12 +20,15 @@ type Props = {
 type StateType = {
   text: string;
   setText: (s: string) => void;
-  clear: () => void;
+  values: string[];
+  setValues: (index: number, value: string) => void;
+  clear: (valueLength: number) => void;
 };
 
-const useUseCaseBuilderViewState = create<StateType>((set) => {
+const useUseCaseBuilderViewState = create<StateType>((set, get) => {
   const INIT_STATE = {
     text: '',
+    values: [],
   };
   return {
     ...INIT_STATE,
@@ -33,8 +37,18 @@ const useUseCaseBuilderViewState = create<StateType>((set) => {
         text: s,
       }));
     },
-    clear: () => {
-      set(INIT_STATE);
+    setValues: (index, value) => {
+      set(() => ({
+        values: produce(get().values, (draft) => {
+          draft[index] = value;
+        }),
+      }));
+    },
+    clear: (valueLength: number) => {
+      set({
+        ...INIT_STATE,
+        values: new Array(valueLength).fill(''),
+      });
     },
   };
 });
@@ -42,7 +56,8 @@ const useUseCaseBuilderViewState = create<StateType>((set) => {
 const UseCaseBuilderView: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
 
-  const { text, setText, clear } = useUseCaseBuilderViewState();
+  const { text, setText, values, setValues, clear } =
+    useUseCaseBuilderViewState();
   const {
     getModelId,
     setModelId,
@@ -54,6 +69,27 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const modelId = getModelId();
   const { modelIds: availableModels } = MODELS;
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
+
+  const placeholders = useMemo(() => {
+    return props.promptTemplate.match(/\{\{(.+)\}\}/g) ?? [];
+  }, [props.promptTemplate]);
+
+  const items = useMemo(() => {
+    return (
+      placeholders.map((match) => {
+        const [inputType, label] = match.replace(/^\{\{|\}\}$/g, '').split(':');
+        return {
+          inputType,
+          label,
+        };
+      }) ?? []
+    );
+  }, [placeholders]);
+
+  useEffect(() => {
+    clear(placeholders.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placeholders]);
 
   useEffect(() => {
     setModelId(
@@ -81,27 +117,24 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
-    postChat(props.promptTemplate, true);
-  }, [loading, postChat, props.promptTemplate]);
+
+    let prompt = props.promptTemplate;
+    placeholders.forEach((p, idx) => {
+      prompt = prompt.replace(p, values[idx]);
+    });
+    postChat(
+      prompt +
+        '出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。',
+      true
+    );
+  }, [loading, placeholders, postChat, props.promptTemplate, values]);
 
   // リセット
   const onClickClear = useCallback(() => {
-    clear();
+    clear(placeholders.length);
     clearChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const placeholders = useMemo(() => {
-    return (
-      props.promptTemplate.match(/\{\{(.+)\}\}/g)?.map((match) => {
-        const [inputType, label] = match.split(':');
-        return {
-          inputType,
-          label,
-        };
-      }) ?? []
-    );
-  }, [props.promptTemplate]);
 
   return (
     <div>
@@ -119,9 +152,15 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       </div>
 
       <div className="flex flex-col">
-        {placeholders.map((p, idx) => (
+        {items.map((item, idx) => (
           <div key={idx}>
-            <Textarea label={p.label} />
+            <Textarea
+              label={item.label}
+              value={values[idx]}
+              onChange={(v) => {
+                setValues(idx, v);
+              }}
+            />
           </div>
         ))}
       </div>

@@ -17,7 +17,7 @@ type StateType = {
 const useUseCaseBuilderEditPageState = create<StateType>((set) => {
   const INIT_STATE = {
     title: '',
-    promptTemplate: `日本語翻訳してください。
+    promptTemplate: `英語翻訳してください。
 <本文>
 {{text:本文}}
 </本文>
