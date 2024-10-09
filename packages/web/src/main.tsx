@@ -29,6 +29,9 @@ import FileUploadPage from './pages/FileUploadPage.tsx';
 import PromptFlowChatPage from './pages/PromptFlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
+import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
+import App from './App.tsx';
+import UseCaseBuilderRoot from './UseCaseBuilderRoot.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -136,11 +139,44 @@ const routes: RouteObject[] = [
   },
 ].flatMap((r) => (r !== null ? [r] : []));
 
+const USE_CASE_BUILDER_INDEX = '/use-case-builder';
+const useCaseBuilderRoutes: RouteObject[] = [
+  {
+    path: USE_CASE_BUILDER_INDEX,
+    element: <UseCaseBuilderEditPage />,
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
+].flatMap((r) => (r !== null ? [r] : []));
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: samlAuthEnabled ? <AuthWithSAML /> : <AuthWithUserpool />,
+    element: samlAuthEnabled ? (
+      <AuthWithSAML>
+        <App />
+      </AuthWithSAML>
+    ) : (
+      <AuthWithUserpool>
+        <App />
+      </AuthWithUserpool>
+    ),
     children: routes,
+  },
+  {
+    path: USE_CASE_BUILDER_INDEX,
+    element: samlAuthEnabled ? (
+      <AuthWithSAML>
+        <UseCaseBuilderRoot />
+      </AuthWithSAML>
+    ) : (
+      <AuthWithUserpool>
+        <UseCaseBuilderRoot />
+      </AuthWithUserpool>
+    ),
+    children: useCaseBuilderRoutes,
   },
 ]);
 

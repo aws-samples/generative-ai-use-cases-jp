@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import useDrawer from '../hooks/useDrawer';
 import useVersion from '../hooks/useVersion';
@@ -10,11 +10,13 @@ import {
   PiGear,
   PiBookOpen,
   PiMagnifyingGlass,
+  PiArrowsClockwise,
 } from 'react-icons/pi';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import Button from './Button';
 
 export type ItemProps = BaseProps & {
   label: string;
@@ -99,6 +101,7 @@ type Props = BaseProps & {
 
 const Drawer: React.FC<Props> = (props) => {
   const { getHasUpdate } = useVersion();
+  const navigate = useNavigate();
 
   // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
   const { data } = useSWR('user', () => {
@@ -209,7 +212,16 @@ const Drawer: React.FC<Props> = (props) => {
             />
           </div>
         </ExpandableMenu>
-        <div className="flex items-center justify-between border-t border-gray-400 px-3 py-2">
+        <div className="flex items-center justify-center border-t border-gray-400 px-3 py-2">
+          <Button
+            onClick={() => {
+              navigate('/use-case-builder');
+            }}>
+            <PiArrowsClockwise className="mr-2" />
+            ユースケースビルダー
+          </Button>
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t border-gray-400 px-3 py-2">
           <Link
             to="/setting"
             className="mr-2 overflow-x-hidden hover:brightness-75">
