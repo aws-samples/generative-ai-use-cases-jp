@@ -271,14 +271,14 @@ export const updateFeedback = async (
   feedbackData: UpdateFeedbackRequest
 ): Promise<RecordedMessage> => {
   const chatId = `chat#${_chatId}`;
-  const {createdDate, feedback, reasons, detailedFeedback} = feedbackData;
+  const { createdDate, feedback, reasons, detailedFeedback } = feedbackData;
   let updateExpression = 'set feedback = :feedback';
   const expressionAttributeValues: {
     ':feedback': string;
     ':reasons'?: string[];
     ':detailedFeedback'?: string;
   } = {
-    ':feedback': feedback
+    ':feedback': feedback,
   };
 
   if (reasons && reasons.length > 0) {
@@ -291,7 +291,6 @@ export const updateFeedback = async (
     expressionAttributeValues[':detailedFeedback'] = detailedFeedback;
   }
 
-  
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
