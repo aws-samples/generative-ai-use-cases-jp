@@ -40,6 +40,14 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
+   <summary>Prompt Flow チャット</summary>
+
+  Amazon Bedrock Prompt Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Prompt Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
+
+  <img src="/imgs/usecase_prompt_flow_chat.gif"/>
+</details>
+
+<details>
    <summary>文章生成</summary>
 
    あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
@@ -111,6 +119,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
+- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](/docs/DEPLOY_ON_CLOUDSHELL.md)
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
@@ -145,6 +154,7 @@ npm run cdk:deploy
     - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
+  - [PromptFlow チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
@@ -164,14 +174,12 @@ npm run cdk:deploy
 - [コスト関連設定](/docs/DEPLOY_OPTION.md#コスト関連設定)
   - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](/docs/DEPLOY_OPTION.md#Kendraを自動でオン・オフするスケジュールを設定する)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
-- [ファイルアップロード機能の有効化](/docs/DEPLOY_OPTION.md#ファイルアップロード機能の有効化)
 - [別 AWS アカウントの Bedrock を利用したい場合](/docs/DEPLOY_OPTION.md#別-AWS-アカウントの-Bedrock-を利用したい場合)
 
 ## その他
  - [アップデート方法](/docs/UPDATE.md)
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
  - [リソースの削除方法](/docs/DESTROY.md)
- - [AWS 上で完結するデプロイ方法 (手元に環境を用意することが難しい場合)](/docs/DEPLOY_ON_AWS.md)
  - [ネイティブアプリのように利用する方法](/docs/PWA.md)
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 

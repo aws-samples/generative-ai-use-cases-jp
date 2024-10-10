@@ -16,8 +16,8 @@ import {
   PiGlobe,
   PiX,
   PiRobot,
-  PiUploadSimple,
   PiVideoCamera,
+  PiFlowArrow,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -34,10 +34,17 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const recognizeFileEnabled: boolean =
-  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const getPromptFlows = () => {
+  try {
+    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+  } catch (e) {
+    return [];
+  }
+};
+const promptFlows = getPromptFlows();
+const promptFlowChatEnabled: boolean = promptFlows.length > 0;
 
 const items: ItemProps[] = [
   {
@@ -81,6 +88,14 @@ const items: ItemProps[] = [
         label: 'Agent チャット',
         to: '/agent',
         icon: <PiRobot />,
+        display: 'usecase' as const,
+      }
+    : null,
+  promptFlowChatEnabled
+    ? {
+        label: 'Prompt Flow チャット',
+        to: '/prompt-flow-chat',
+        icon: <PiFlowArrow />,
         display: 'usecase' as const,
       }
     : null,
@@ -134,15 +149,6 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
-  recognizeFileEnabled
-    ? {
-        label: 'ファイルアップロード',
-        to: '/file',
-        icon: <PiUploadSimple />,
-        display: 'tool' as const,
-        sub: 'Deprecated',
-      }
-    : null,
   ragEnabled
     ? {
         label: 'Kendra 検索',

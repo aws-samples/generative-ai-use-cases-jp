@@ -1,4 +1,9 @@
-# AWS 上で完結するデプロイ方法 (手元に環境を用意することが難しい場合)
+# (DEPRECATED) AWS 上で完結するデプロイ方法 (手元に環境を用意することが難しい場合)
+
+> [!Caution]
+> この手順は AWS Cloud9 が新規のお客様向けアクセスを閉じたことを受け、非推奨手順となりました。
+> AWS 上で完結するデプロイ方法については [CloudShell を利用したデプロイ方法](/docs/DEPLOY_ON_CLOUDSHELL.md) をご参照ください。
+> また、AWS Cloud9 からの移行については [こちら](https://aws.amazon.com/jp/blogs/news/how-to-migrate-from-aws-cloud9-to-aws-ide-toolkits-or-aws-cloudshell/) のブログをご参照ください。
 
 AWS CloudShell と AWS Cloud9 を利用することで、手元の環境に依存しないデプロイが可能です。(デプロイが AWS 上で完結します。)
 
