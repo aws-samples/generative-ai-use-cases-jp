@@ -28,6 +28,9 @@ import AgentChatPage from './pages/AgentChatPage.tsx';
 import PromptFlowChatPage from './pages/PromptFlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
+import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
+import App from './App.tsx';
+import UseCaseBuilderRoot from './UseCaseBuilderRoot.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -127,11 +130,48 @@ const routes: RouteObject[] = [
   },
 ].flatMap((r) => (r !== null ? [r] : []));
 
+export const ROUTE_INDEX_USE_CASE_BUILDER = '/use-case-builder';
+const useCaseBuilderRoutes: RouteObject[] = [
+  {
+    path: ROUTE_INDEX_USE_CASE_BUILDER,
+    element: <UseCaseBuilderEditPage />,
+  },
+  {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/chat/:chatId`,
+    element: <ChatPage />,
+  },
+  {
+    path: '*',
+    element: <NotFound />,
+  },
+].flatMap((r) => (r !== null ? [r] : []));
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: samlAuthEnabled ? <AuthWithSAML /> : <AuthWithUserpool />,
+    element: samlAuthEnabled ? (
+      <AuthWithSAML>
+        <App />
+      </AuthWithSAML>
+    ) : (
+      <AuthWithUserpool>
+        <App />
+      </AuthWithUserpool>
+    ),
     children: routes,
+  },
+  {
+    path: ROUTE_INDEX_USE_CASE_BUILDER,
+    element: samlAuthEnabled ? (
+      <AuthWithSAML>
+        <UseCaseBuilderRoot />
+      </AuthWithSAML>
+    ) : (
+      <AuthWithUserpool>
+        <UseCaseBuilderRoot />
+      </AuthWithUserpool>
+    ),
+    children: useCaseBuilderRoutes,
   },
 ]);
 
