@@ -4,9 +4,11 @@ import useChatList from '../hooks/useChatList';
 import { useNavigate, useParams } from 'react-router-dom';
 import ChatListItem from './ChatListItem';
 import { decomposeId } from '../utils/ChatUtils';
+import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 type Props = BaseProps & {
   searchWords: string[];
+  isUseCaseBuilder?: boolean;
 };
 
 const ChatList: React.FC<Props> = (props) => {
@@ -17,12 +19,14 @@ const ChatList: React.FC<Props> = (props) => {
 
   const onDelete = useCallback(
     (_chatId: string) => {
-      navigate('/chat');
+      navigate(props.isUseCaseBuilder ? ROUTE_INDEX_USE_CASE_BUILDER : '/chat');
       return deleteChat(_chatId).catch(() => {
-        navigate(`/chat/${_chatId}`);
+        navigate(
+          `${props.isUseCaseBuilder ? ROUTE_INDEX_USE_CASE_BUILDER : ''}/chat/${_chatId}`
+        );
       });
     },
-    [deleteChat, navigate]
+    [deleteChat, navigate, props.isUseCaseBuilder]
   );
 
   const onUpdateTitle = useCallback(
@@ -62,6 +66,7 @@ const ChatList: React.FC<Props> = (props) => {
               onDelete={onDelete}
               onUpdateTitle={onUpdateTitle}
               highlightWords={props.searchWords}
+              isUseCaseBuilder={props.isUseCaseBuilder}
             />
           );
         })}

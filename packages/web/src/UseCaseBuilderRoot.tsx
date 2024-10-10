@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { PiList, PiHouse, PiGear, PiX, PiHammer } from 'react-icons/pi';
+import { PiList, PiX, PiHammer } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
-import Drawer, { ItemProps } from './components/Drawer';
+import { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
@@ -10,23 +10,11 @@ import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import useObserveScreen from './hooks/useObserveScreen';
+import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDrawer';
 
 const items: ItemProps[] = [
   {
-    label: 'ホーム',
-    to: '/',
-    icon: <PiHouse />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '設定情報',
-    to: '/setting',
-    icon: <PiGear />,
-    display: 'none' as const,
-  },
-
-  {
-    label: 'アプリビルダー',
+    label: 'コンソール',
     to: '/use-case-builder',
     icon: <PiHammer />,
     display: 'usecase' as const,
@@ -85,7 +73,7 @@ const UseCaseBuilderRoot: React.FC = () => {
           className={`fixed -left-64 top-0 z-50 transition-all lg:left-0 lg:z-0 ${
             isOpenDrawer ? 'left-0' : '-left-64'
           }`}>
-          <Drawer items={items} />
+          <UseCaseBuilderDrawer items={items} />
         </div>
 
         <div

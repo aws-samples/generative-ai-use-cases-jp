@@ -156,6 +156,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           <div key={idx}>
             <Textarea
               label={item.label}
+              rows={2}
               value={values[idx]}
               onChange={(v) => {
                 setValues(idx, v);

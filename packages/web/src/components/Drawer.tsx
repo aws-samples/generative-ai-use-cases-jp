@@ -1,13 +1,9 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import useSWR from 'swr';
+import { Link, useNavigate } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
-import useVersion from '../hooks/useVersion';
-import IconWithDot from './IconWithDot';
 import {
   PiGithubLogo,
-  PiGear,
   PiBookOpen,
   PiMagnifyingGlass,
   PiArrowsClockwise,
@@ -15,49 +11,12 @@ import {
 import BedrockIcon from '../assets/bedrock.svg?react';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
-import { fetchAuthSession } from 'aws-amplify/auth';
 import Button from './Button';
+import DrawerItem, { DrawerItemProps } from './DrawerItem';
+import DrawerBase from './DrawerBase';
 
-export type ItemProps = BaseProps & {
-  label: string;
-  to: string;
-  icon: JSX.Element;
+export type ItemProps = DrawerItemProps & {
   display: 'usecase' | 'tool' | 'none';
-  sub?: string;
-};
-
-const Item: React.FC<ItemProps> = (props) => {
-  const location = useLocation();
-  const { switchOpen } = useDrawer();
-
-  // 狭い画面の場合は、クリックしたらDrawerを閉じる
-  const onClick = useCallback(() => {
-    if (
-      document
-        .getElementById('smallDrawerFiller')
-        ?.classList.contains('visible')
-    ) {
-      switchOpen();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <Link
-      className={`hover:bg-aws-sky mt-0.5 flex h-8 items-center rounded p-2 ${
-        location.pathname === props.to && 'bg-aws-sky'
-      } ${props.className}`}
-      to={props.to}
-      onClick={onClick}>
-      <span className="mr-2">{props.icon}</span>
-      <div className="flex w-full items-center justify-between">
-        <span>{props.label}</span>
-        {props.sub && (
-          <span className="text-xs text-gray-300">{props.sub}</span>
-        )}
-      </div>
-    </Link>
-  );
 };
 
 type RefLinkProps = BaseProps & {
@@ -100,19 +59,7 @@ type Props = BaseProps & {
 };
 
 const Drawer: React.FC<Props> = (props) => {
-  const { getHasUpdate } = useVersion();
   const navigate = useNavigate();
-
-  // 第一引数は不要だが、ないとリクエストされないため 'user' 文字列を入れる
-  const { data } = useSWR('user', () => {
-    return fetchAuthSession();
-  });
-
-  const email = useMemo<string>(() => {
-    return (data?.tokens?.idToken?.payload.email ?? '') as string;
-  }, [data]);
-
-  const hasUpdate = getHasUpdate();
 
   const usecases = useMemo(() => {
     return props.items.filter((i) => i.display === 'usecase');
@@ -132,19 +79,17 @@ const Drawer: React.FC<Props> = (props) => {
 
   return (
     <>
-      <nav
-        className={`bg-aws-squid-ink flex h-screen w-64 flex-col justify-between text-sm text-white  print:hidden`}>
+      <DrawerBase>
         <div className="text-aws-smile mx-3 my-2 text-xs">
           ユースケース <span className="text-gray-400">(生成 AI)</span>
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {usecases.map((item, idx) => (
-            <Item
+            <DrawerItem
               key={idx}
               label={item.label}
               icon={item.icon}
               to={item.to}
-              display={item.display}
               sub={item.sub}
             />
           ))}
@@ -158,12 +103,11 @@ const Drawer: React.FC<Props> = (props) => {
               className="mx-3 my-2 text-xs">
               <div className="mb-2 ml-2 mr-1">
                 {tools.map((item, idx) => (
-                  <Item
+                  <DrawerItem
                     key={idx}
                     label={item.label}
                     icon={item.icon}
                     to={item.to}
-                    display={item.display}
                     sub={item.sub}
                   />
                 ))}
@@ -218,22 +162,10 @@ const Drawer: React.FC<Props> = (props) => {
               navigate('/use-case-builder');
             }}>
             <PiArrowsClockwise className="mr-2" />
-            ユースケースビルダー
+            ユースケースビルダーへ
           </Button>
         </div>
-        <div className="flex items-center justify-between gap-2 border-t border-gray-400 px-3 py-2">
-          <Link
-            to="/setting"
-            className="mr-2 overflow-x-hidden hover:brightness-75">
-            <span className="text-sm">{email}</span>
-          </Link>
-          <Link to="/setting">
-            <IconWithDot showDot={hasUpdate}>
-              <PiGear className="text-lg" />
-            </IconWithDot>
-          </Link>
-        </div>
-      </nav>
+      </DrawerBase>
     </>
   );
 };

@@ -139,11 +139,15 @@ const routes: RouteObject[] = [
   },
 ].flatMap((r) => (r !== null ? [r] : []));
 
-const USE_CASE_BUILDER_INDEX = '/use-case-builder';
+export const ROUTE_INDEX_USE_CASE_BUILDER = '/use-case-builder';
 const useCaseBuilderRoutes: RouteObject[] = [
   {
-    path: USE_CASE_BUILDER_INDEX,
+    path: ROUTE_INDEX_USE_CASE_BUILDER,
     element: <UseCaseBuilderEditPage />,
+  },
+  {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/chat/:chatId`,
+    element: <ChatPage />,
   },
   {
     path: '*',
@@ -166,7 +170,7 @@ const router = createBrowserRouter([
     children: routes,
   },
   {
-    path: USE_CASE_BUILDER_INDEX,
+    path: ROUTE_INDEX_USE_CASE_BUILDER,
     element: samlAuthEnabled ? (
       <AuthWithSAML>
         <UseCaseBuilderRoot />
