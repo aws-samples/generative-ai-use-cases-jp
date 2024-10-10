@@ -399,6 +399,9 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
     seed: params.seed,
     output_format: 'png',
   };
+  if (params.stylePreset) {
+    body.prompt = body.prompt + ', ' + params.stylePreset;
+  }
 
   // image-to-image modeの際、aspect比を使用できない
   if (params.aspectRatio && !params.initImage) {
