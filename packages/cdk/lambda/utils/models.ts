@@ -5,6 +5,7 @@ import {
   PromptTemplate,
   StableDiffusionParams,
   TitanImageParams,
+  TitanImageV2Params,
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
@@ -371,7 +372,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
       init_image: params.initImage,
       mask_image: params.maskImage,
       mask_source:
-        params.maskMode === 'INPAINTING'
+        params.taskType === 'INPAINTING'
           ? 'MASK_IMAGE_BLACK'
           : 'MASK_IMAGE_WHITE',
     };
@@ -390,7 +391,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     seed: params.seed % 214783648, // max for titan image
   };
   let body: Partial<TitanImageParams> = {};
-  if (params.initImage && params.maskMode === undefined) {
+  if (params.initImage && params.taskType === 'IMAGE_VARIATION') {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -404,7 +405,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'INPAINTING') {
+  } else if (params.initImage && params.taskType === 'INPAINTING') {
     body = {
       taskType: 'INPAINTING',
       inPaintingParams: {
@@ -419,7 +420,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'OUTPAINTING') {
+  } else if (params.initImage && params.taskType === 'OUTPAINTING') {
     body = {
       taskType: 'OUTPAINTING',
       outPaintingParams: {
@@ -435,7 +436,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else {
+  } else if (params.taskType === 'TEXT_IMAGE') {
     body = {
       taskType: 'TEXT_IMAGE',
       textToImageParams: {
@@ -447,7 +448,51 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
+  } else {
+    body = {
+      imageGenerationConfig: imageGenerationConfig,
+    };
   }
+  return JSON.stringify(body);
+};
+
+const createBodyImageTitanImageV2 = (params: GenerateImageParams) => {
+  // 既存の関数を呼び出して基本的なボディを取得
+  const baseBody = JSON.parse(createBodyImageTitanImage(params));
+
+  let body: Partial<TitanImageV2Params> = {
+    ...baseBody,
+  };
+
+  // 新しいタスクタイプの処理
+  if (params.taskType === 'COLOR_GUIDED_GENERATION') {
+    body = {
+      taskType: 'COLOR_GUIDED_GENERATION',
+      colorGuidedGenerationParams: {
+        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        referenceImage: params.initImage,
+        colors: params.colors!,
+      },
+      imageGenerationConfig: body.imageGenerationConfig,
+    };
+  } else if (params.taskType === 'BACKGROUND_REMOVAL') {
+    body = {
+      taskType: 'BACKGROUND_REMOVAL',
+      backgroundRemovalParams: {
+        image: params.initImage!,
+      },
+    };
+  } else if (body.textToImageParams) {
+    // TEXT_IMAGE タスクタイプの拡張(Image Conditioning)
+    body.textToImageParams = {
+      ...body.textToImageParams,
+      conditionImage: params.initImage,
+      controlMode: params.controlMode,
+      controlStrength: params.controlStrength,
+    };
+  }
+
   return JSON.stringify(body);
 };
 
@@ -785,7 +830,7 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     extractOutputImage: extractOutputImageTitanImage,
   },
   'amazon.titan-image-generator-v2:0': {
-    createBodyImage: createBodyImageTitanImage,
+    createBodyImage: createBodyImageTitanImageV2,
     extractOutputImage: extractOutputImageTitanImage,
   },
 };

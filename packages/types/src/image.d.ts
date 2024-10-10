@@ -1,5 +1,20 @@
+export type ControlMode = 'CANNY_EDGE' | 'SEGMENTATION';
+export type BaseGenerationMode =
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING';
+export type TitanImageV2GenerationMode =
+  | 'IMAGE_CONDITIONING'
+  | 'COLOR_GUIDED_GENERATION'
+  | 'BACKGROUND_REMOVAL';
+export type GenerationMode = BaseGenerationMode | TitanImageV2GenerationMode;
 // 標準化したパラメータ
 export type GenerateImageParams = {
+  taskType?:
+    | BaseGenerationMode
+    | 'COLOR_GUIDED_GENERATION'
+    | 'BACKGROUND_REMOVAL';
   textPrompt: {
     text: string;
     weight: number;
@@ -16,7 +31,11 @@ export type GenerateImageParams = {
   // Inpaint / Outpaint
   maskImage?: string;
   maskPrompt?: string;
-  maskMode?: 'INPAINTING' | 'OUTPAINTING';
+  // Color Guided Generation
+  colors?: string[];
+  // Image Conditioning
+  controlStrength?: number;
+  controlMode?: ControlMode;
 };
 
 // Stable Diffusion
@@ -47,7 +66,7 @@ export type StableDiffusionParams = {
 // Titan Image
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
 export type TitanImageParams = {
-  taskType: 'TEXT_IMAGE' | 'INPAINTING' | 'OUTPAINTING' | 'IMAGE_VARIATION';
+  taskType: BaseGenerationMode;
   textToImageParams?: {
     text: string;
     negativeText?: string;
@@ -80,6 +99,27 @@ export type TitanImageParams = {
     width: number;
     cfgScale: number;
     seed?: number;
+  };
+};
+
+export type TitanImageV2Params = Omit<TitanImageParams, 'taskType'> & {
+  taskType:
+    | BaseGenerationMode
+    | 'COLOR_GUIDED_GENERATION'
+    | 'BACKGROUND_REMOVAL';
+  textToImageParams?: TitanImageParams['textToImageParams'] & {
+    conditionImage?: string; // base64 encoded image
+    controlMode?: ControlMode;
+    controlStrength?: number;
+  };
+  colorGuidedGenerationParams?: {
+    text: string;
+    negativeText?: string;
+    referenceImage?: string; // base64 encoded image
+    colors: string[]; // list of color hex codes
+  };
+  backgroundRemovalParams?: {
+    image: string; // base64 encoded image
   };
 };
 
