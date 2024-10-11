@@ -5,6 +5,7 @@ import Textarea from '../../components/Textarea';
 import { create } from 'zustand';
 import RowItem from '../../components/RowItem';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
+import InputText from '../../components/InputText';
 
 type StateType = {
   title: string;
@@ -56,20 +57,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
   return (
     <div className="grid h-screen grid-cols-12 gap-4 p-4">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:h-min print:visible print:h-min">
-        アプリビルダー編集
+        ユースケース編集
       </div>
       <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
         <Card label="アプリの定義">
           <RowItem>
-            <span className="text-sm">タイトル</span>
-            <input
-              type="text"
-              className="w-full rounded border border-black/30 p-1.5 outline-none"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-            />
+            <InputText label="タイトル" value={title} onChange={setTitle} />
           </RowItem>
           <RowItem>
             <Textarea

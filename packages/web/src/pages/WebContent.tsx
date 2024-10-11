@@ -17,6 +17,7 @@ import { WebContentPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
+import InputText from '../components/InputText';
 
 type StateType = {
   url: string;
@@ -240,13 +241,11 @@ const WebContent: React.FC = () => {
           </div>
 
           <RowItem>
-            <input
-              type="text"
-              className="w-full rounded border border-black/30 p-1.5 outline-none"
+            <InputText
               placeholder="URL を入力してください"
               value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
+              onChange={(value) => {
+                setUrl(value);
               }}
             />
           </RowItem>

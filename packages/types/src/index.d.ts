@@ -8,3 +8,5 @@ export * from './image';
 export * from './text';
 export * from './utils';
 export * from './systemContext';
+export * from './useCaseBuilder';
+export * from './protocolUseCaseBuilder';

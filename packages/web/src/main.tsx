@@ -32,6 +32,8 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
 import App from './App.tsx';
 import UseCaseBuilderRoot from './UseCaseBuilderRoot.tsx';
+import UseCaseBuilderConsolePage from './pages/useCaseBuilder/UseCaseBuilderConsolePage.tsx';
+import UseCaseBuilderExecutePage from './pages/useCaseBuilder/UseCaseBuilderExecutePage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -143,11 +145,23 @@ export const ROUTE_INDEX_USE_CASE_BUILDER = '/use-case-builder';
 const useCaseBuilderRoutes: RouteObject[] = [
   {
     path: ROUTE_INDEX_USE_CASE_BUILDER,
+    element: <UseCaseBuilderConsolePage />,
+  },
+  {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/new`,
+    element: <UseCaseBuilderEditPage />,
+  },
+  {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/edit/:useCaseId`,
     element: <UseCaseBuilderEditPage />,
   },
   {
     path: `${ROUTE_INDEX_USE_CASE_BUILDER}/chat/:chatId`,
     element: <ChatPage />,
+  },
+  {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/:useCaseId`,
+    element: <UseCaseBuilderExecutePage />,
   },
   {
     path: '*',

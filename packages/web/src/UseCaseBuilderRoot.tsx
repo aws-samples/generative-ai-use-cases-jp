@@ -14,7 +14,7 @@ import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDraw
 
 const items: ItemProps[] = [
   {
-    label: 'コンソール',
+    label: 'ビルダーコンソール',
     to: '/use-case-builder',
     icon: <PiHammer />,
     display: 'usecase' as const,
