@@ -24,7 +24,7 @@ export const handler = async (
     }
 
     const hasShared = useCase.hasShared;
-    const newHasShared: HasShared = await toggleShared(
+    const newHasSharedRes: HasShared = await toggleShared(
       userId,
       useCaseId,
       hasShared
@@ -36,7 +36,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ newHasShared }),
+      body: JSON.stringify(newHasSharedRes),
     };
   } catch (error) {
     console.log(error);

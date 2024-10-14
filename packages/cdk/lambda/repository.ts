@@ -726,9 +726,7 @@ export const toggleFavorite = async (
         },
       })
     );
-    return {
-      isFavorite: false,
-    };
+    return { isFavorite: false };
   } else {
     await dynamoDbDocument.send(
       new PutCommand({

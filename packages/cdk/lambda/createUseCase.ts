@@ -11,7 +11,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const title = req.title;
     const promptTemplate = req.promptTemplate;
-    const useCaseId = await createUseCase(userId, title, promptTemplate);
+    const useCaseIdRes = await createUseCase(userId, title, promptTemplate);
 
     return {
       statusCode: 200,
@@ -19,9 +19,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({
-        useCaseId,
-      }),
+      body: JSON.stringify(useCaseIdRes),
     };
   } catch (error) {
     console.log(error);

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ToggleFavoriteRequest } from 'generative-ai-use-cases-jp';
+import { IsFavorite, ToggleFavoriteRequest } from 'generative-ai-use-cases-jp';
 import { toggleFavorite } from './repository';
 
 export const handler = async (
@@ -12,7 +12,11 @@ export const handler = async (
     const req: ToggleFavoriteRequest = JSON.parse(event.body!);
     const ownerUserId = req.ownerUserId;
 
-    await toggleFavorite(userId, useCaseId, ownerUserId);
+    const isFavoriteRes: IsFavorite = await toggleFavorite(
+      userId,
+      useCaseId,
+      ownerUserId
+    );
 
     return {
       statusCode: 200,
@@ -20,7 +24,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: '',
+      body: JSON.stringify(isFavoriteRes),
     };
   } catch (error) {
     console.log(error);
