@@ -26,6 +26,7 @@ export interface BackendApiProps {
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
+  useCaseBuilderTable: Table;
   agents?: Agent[];
   guardrailIdentify?: string;
   guardrailVersion?: string;
@@ -48,7 +49,7 @@ export class Api extends Construct {
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
 
-    const { userPool, table, idPool } = props;
+    const { userPool, table, useCaseBuilderTable, idPool } = props;
 
     // region for bedrock / sagemaker
     const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
@@ -554,6 +555,90 @@ export class Api extends Construct {
     });
     fileBucket.grantDelete(deleteFileFunction);
 
+    const listUseCasesFunction = new NodejsFunction(this, 'ListUseCases', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/listUseCases.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadData(listUseCasesFunction);
+
+    const listFavoriteUseCasesFunction = new NodejsFunction(
+      this,
+      'ListFavoriteUseCases',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/listFavoriteUseCases.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        },
+      }
+    );
+    table.grantReadData(listFavoriteUseCasesFunction);
+
+    const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/getUseCase.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadData(getUseCaseFunction);
+
+    const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/createUseCase.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantWriteData(createUseCaseFunction);
+
+    const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/updateUseCase.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadWriteData(updateUseCaseFunction);
+
+    const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/deleteUseCase.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadWriteData(deleteUseCaseFunction);
+
+    const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/toggleFavorite.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadWriteData(toggleFavoriteFunction);
+
+    const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/toggleShared.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+      },
+    });
+    table.grantReadWriteData(toggleSharedFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -780,6 +865,70 @@ export class Api extends Construct {
         new LambdaIntegration(deleteFileFunction),
         commonAuthorizerProps
       );
+
+    const useCasesResource = api.root.addResource('usecases');
+
+    // GET: /usecases
+    useCasesResource.addMethod(
+      'GET',
+      new LambdaIntegration(listUseCasesFunction),
+      commonAuthorizerProps
+    );
+
+    // POST: /usecases
+    useCasesResource.addMethod(
+      'POST',
+      new LambdaIntegration(createUseCaseFunction),
+      commonAuthorizerProps
+    );
+
+    const useCaseResource = useCasesResource.addResource('{useCaseId}');
+
+    // GET: /usecases/{useCaseId}
+    useCaseResource.addMethod(
+      'GET',
+      new LambdaIntegration(getUseCaseFunction),
+      commonAuthorizerProps
+    );
+
+    // PUT: /usecases/{useCaseId}
+    useCaseResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateUseCaseFunction),
+      commonAuthorizerProps
+    );
+
+    // DELETE: /usecases/{useCaseId}
+    useCaseResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteUseCaseFunction),
+      commonAuthorizerProps
+    );
+
+    const favoriteResource = useCaseResource.addResource('favorite');
+
+    // GET: /usecases/favorite
+    favoriteResource.addMethod(
+      'GET',
+      new LambdaIntegration(listFavoriteUseCasesFunction),
+      commonAuthorizerProps
+    );
+
+    // PUT: /usecases/{useCaseId}/favorite
+    favoriteResource.addMethod(
+      'PUT',
+      new LambdaIntegration(toggleFavoriteFunction),
+      commonAuthorizerProps
+    );
+
+    const sharedResource = useCaseResource.addResource('shared');
+
+    // PUT: /usecases/{useCaseId}/shared
+    sharedResource.addMethod(
+      'PUT',
+      new LambdaIntegration(toggleSharedFunction),
+      commonAuthorizerProps
+    );
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

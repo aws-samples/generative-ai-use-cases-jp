@@ -4,7 +4,7 @@ import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 export class Database extends Construct {
   public readonly table: ddb.Table;
   public readonly feedbackIndexName: string;
-
+  public readonly useCaseBuilderTable: ddb.Table;
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
@@ -29,7 +29,20 @@ export class Database extends Construct {
       },
     });
 
+    const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
+      partitionKey: {
+        name: 'userId',
+        type: ddb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'usecaseId',
+        type: ddb.AttributeType.STRING,
+      },
+      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+    });
+
     this.table = table;
     this.feedbackIndexName = feedbackIndexName;
+    this.useCaseBuilderTable = useCaseBuilderTable;
   }
 }

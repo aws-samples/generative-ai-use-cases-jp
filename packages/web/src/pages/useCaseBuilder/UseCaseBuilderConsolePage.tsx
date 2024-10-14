@@ -32,8 +32,9 @@ const UseCaseBuilderConsolePage: React.FC = () => {
 
   const useCases: CustomUseCaseMeta[] = useMemo(() => {
     return new Array(20).fill('').map((_, idx) => ({
+      ownerUserId: 'XXXXX',
       hasShared: idx % 2 === 1,
-      isFavotite: idx % 2 === 1,
+      isFavorite: idx % 2 === 1,
       title: `タイトル${idx}`,
       useCaseId: idx + '',
       isMyUseCase: true,
@@ -149,9 +150,9 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                           className="flex justify-between border-b last:border-b-0 hover:bg-gray-100">
                           <div className="flex grow items-center">
                             <ButtonIcon
-                              className={`p-2 ${useCase.isFavotite ? 'text-aws-smile' : ''}`}
+                              className={`p-2 ${useCase.isFavorite ? 'text-aws-smile' : ''}`}
                               onClick={() => {}}>
-                              {useCase.isFavotite ? <PiStarFill /> : <PiStar />}
+                              {useCase.isFavorite ? <PiStarFill /> : <PiStar />}
                             </ButtonIcon>
                             <div
                               className="flex h-full grow cursor-pointer  items-center text-sm font-bold"
