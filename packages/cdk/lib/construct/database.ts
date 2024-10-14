@@ -35,7 +35,7 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       sortKey: {
-        name: 'usecaseId',
+        name: 'useCaseId',
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
