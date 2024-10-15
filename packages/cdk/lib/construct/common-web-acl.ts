@@ -104,7 +104,7 @@ export class CommonWebAcl extends Construct {
       const wafIPv6Set = new CfnIPSet(this, `IPv6Set${id}`, {
         ipAddressVersion: 'IPV6',
         scope: props.scope,
-        addresses: props.allowedIpV4AddressRanges ?? [],
+        addresses: props.allowedIpV6AddressRanges ?? [],
       });
       if (hasAllowedCountryCodes) {
         // Geo制限を行う場合は、IP制限とのAND条件にする
