@@ -13,7 +13,7 @@ import {
   HasShared,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
 import {
   BatchGetCommand,
   BatchWriteCommand,
@@ -530,8 +530,8 @@ export const deleteShareId = async (_shareId: string): Promise<void> => {
 export const listUseCases = async (
   _userId: string
 ): Promise<CustomUseCaseMeta[]> => {
-  const useCaseId = `user#useCase#${_userId}`;
-  const favoriteId = `user#favorite#${_userId}`;
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const favoriteUserId = `user#favorite#${_userId}`;
 
   const [useCaseRes, favoriteRes] = await Promise.all([
     dynamoDbDocument.send(
@@ -542,7 +542,7 @@ export const listUseCases = async (
           '#id': 'id',
         },
         ExpressionAttributeValues: {
-          ':id': useCaseId,
+          ':id': useCaseUserId,
         },
       })
     ),
@@ -555,12 +555,12 @@ export const listUseCases = async (
           '#id': 'id',
         },
         ExpressionAttributeValues: {
-          ':id': favoriteId,
+          ':id': favoriteUserId,
         },
       })
     ),
   ]);
-  
+
   const favoriteSet = new Set(
     (favoriteRes.Items || []).map((item) => item.useCaseId)
   );
@@ -576,45 +576,57 @@ export const listUseCases = async (
 export const listFavoriteUseCases = async (
   _userId: string
 ): Promise<CustomUseCaseMeta[]> => {
-  const userId = `user#${_userId}`;
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const favoriteUserId = `user#favorite#${_userId}`;
+
   const favoriteRes = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: USECASE_TABLE_NAME,
-      KeyConditionExpression:
-        'userId = :userId AND begins_with(useCaseId, :favoritePrefix)',
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
       ExpressionAttributeValues: {
-        ':userId': userId,
-        ':favoritePrefix': 'favorite#',
+        ':id': favoriteUserId,
       },
     })
   );
 
-  const useCaseIds =
-    favoriteRes.Items?.map((item) => item.useCaseId.replace('favorite#', '')) ||
-    [];
-  const useCaseRes = await dynamoDbDocument.send(
-    new BatchGetCommand({
-      RequestItems: {
-        [USECASE_TABLE_NAME]: {
-          Keys: useCaseIds.map((useCaseId) => ({
-            userId: `user#${favoriteRes.Items?.find((item) => item.useCaseId.replace('favorite#', '') === useCaseId)?.ownerUserId}`,
-            useCaseId: `usecase#${useCaseId}`,
-          })),
+  if (!favoriteRes.Items || favoriteRes.Items.length === 0) {
+    return [];
+  }
+
+  const favoriteUseCaseIds = favoriteRes.Items.map((item) => item.useCaseId);
+
+  const useCasePromises = favoriteUseCaseIds.map(async (favoriteUseCaseId) => {
+    const result = await dynamoDbDocument.send(
+      new QueryCommand({
+        TableName: USECASE_TABLE_NAME,
+        KeyConditionExpression:
+          'begins_with(#id, :userPrefix) AND useCaseId = :useCaseId',
+        ExpressionAttributeNames: {
+          '#id': 'id',
         },
-      },
-    })
-  );
+        ExpressionAttributeValues: {
+          ':userPrefix': 'user#useCase#',
+          ':useCaseId': favoriteUseCaseId,
+        },
+      })
+    );
+    return result.Items?.[0];
+  });
 
-  return (useCaseRes.Responses?.[USECASE_TABLE_NAME] || []).map(
-    (item, index) => ({
-      ownerUserId: item.userId.replace('user#', ''),
-      useCaseId: item.useCaseId.replace('usecase#', ''),
+  const useCases = await Promise.all(useCasePromises);
+
+  return useCases
+    .filter((item): item is NonNullable<typeof item> => item != null)
+    .map((item) => ({
+      useCaseId: item.useCaseId,
       title: item.title,
       isFavorite: true,
       hasShared: item.hasShared,
-      isMyUseCase: favoriteRes.Items?.[index].ownerUserId === _userId,
-    })
-  );
+      isMyUseCase: item.id === useCaseUserId,
+    }));
 };
 
 export const getUseCase = async (
