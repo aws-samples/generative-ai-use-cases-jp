@@ -530,44 +530,45 @@ export const deleteShareId = async (_shareId: string): Promise<void> => {
 export const listUseCases = async (
   _userId: string
 ): Promise<CustomUseCaseMeta[]> => {
-  const userId = `user#${_userId}`;
-  const useCaseRes = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
-      KeyConditionExpression:
-        'userId = :userId AND begins_with(useCaseId, :usecasePrefix)',
-      ExpressionAttributeValues: {
-        ':userId': userId,
-        ':usecasePrefix': 'usecase#',
-      },
-    })
-  );
+  const useCaseId = `user#useCase#${_userId}`;
+  const favoriteId = `user#favorite#${_userId}`;
 
-  const favoriteRes = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
-      KeyConditionExpression:
-        'userId = :userId AND begins_with(useCaseId, :favoritePrefix)',
-      ExpressionAttributeValues: {
-        ':userId': userId,
-        ':favoritePrefix': 'favorite#',
-      },
-    })
-  );
+  const [useCaseRes, favoriteRes] = await Promise.all([
+    dynamoDbDocument.send(
+      new QueryCommand({
+        TableName: USECASE_TABLE_NAME,
+        KeyConditionExpression: '#id = :id',
+        ExpressionAttributeNames: {
+          '#id': 'id',
+        },
+        ExpressionAttributeValues: {
+          ':id': useCaseId,
+        },
+      })
+    ),
 
+    dynamoDbDocument.send(
+      new QueryCommand({
+        TableName: USECASE_TABLE_NAME,
+        KeyConditionExpression: '#id = :id',
+        ExpressionAttributeNames: {
+          '#id': 'id',
+        },
+        ExpressionAttributeValues: {
+          ':id': favoriteId,
+        },
+      })
+    ),
+  ]);
+  
   const favoriteSet = new Set(
-    (favoriteRes.Items || []).map(
-      (item) => `${item.userId}${item.useCaseId.replace('favorite#', '')}`
-    )
+    (favoriteRes.Items || []).map((item) => item.useCaseId)
   );
 
   return (useCaseRes.Items || []).map((item) => ({
-    ownerUserId: item.userId.replace('user#', ''),
-    useCaseId: item.useCaseId.replace('usecase#', ''),
+    useCaseId: item.useCaseId,
     title: item.title,
-    isFavorite: favoriteSet.has(
-      `${item.userId}${item.useCaseId.replace('usecase#', '')}`
-    ),
+    isFavorite: favoriteSet.has(item.useCaseId),
     hasShared: item.hasShared,
   }));
 };

@@ -1,5 +1,4 @@
 export type CustomUseCaseMeta = {
-  ownerUserId: string;
   useCaseId: string;
   title: string;
   isFavorite: boolean;

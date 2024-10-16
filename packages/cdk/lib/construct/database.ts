@@ -31,7 +31,7 @@ export class Database extends Construct {
 
     const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
       partitionKey: {
-        name: 'userId',
+        name: 'id',
         type: ddb.AttributeType.STRING,
       },
       sortKey: {
