@@ -13,9 +13,8 @@ import {
   HasShared,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
-import { DynamoDBClient, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
-  BatchGetCommand,
   BatchWriteCommand,
   DeleteCommand,
   DynamoDBDocumentClient,

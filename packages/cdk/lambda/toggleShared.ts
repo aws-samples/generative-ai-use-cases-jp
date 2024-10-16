@@ -23,10 +23,7 @@ export const handler = async (
       };
     }
 
-    const newHasSharedRes: HasShared = await toggleShared(
-      userId,
-      useCase,
-    );
+    const newHasSharedRes: HasShared = await toggleShared(userId, useCase);
 
     return {
       statusCode: 200,
