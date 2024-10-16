@@ -679,13 +679,13 @@ export const updateUseCase = async (
   title: string,
   promptTemplate: string
 ): Promise<void> => {
-  const userId = `user#${_userId}`;
+  const userId = `user#useCase#${_userId}`;
   await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        userId: userId,
-        useCaseId: `usecase#${useCaseId}`,
+        id: userId,
+        useCaseId: useCaseId,
       },
       UpdateExpression: 'set title = :title, promptTemplate = :promptTemplate',
       ExpressionAttributeValues: {
