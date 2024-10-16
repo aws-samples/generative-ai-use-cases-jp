@@ -638,7 +638,7 @@ export const getUseCase = async (
     new GetCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        userId: userId,
+        id: userId,
         useCaseId: useCaseId,
       },
     })
@@ -653,10 +653,10 @@ export const createUseCase = async (
   title: string,
   promptTemplate: string
 ): Promise<UseCaseId> => {
-  const userId = `user#${_userId}`;
-  const useCaseId = `usecase#${crypto.randomUUID()}`;
+  const userId = `user#useCase#${_userId}`;
+  const useCaseId = crypto.randomUUID();
   const item = {
-    userId: userId,
+    id: userId,
     useCaseId: useCaseId,
     title: title,
     promptTemplate: promptTemplate,
@@ -670,7 +670,7 @@ export const createUseCase = async (
     })
   );
 
-  return { useCaseId: useCaseId.replace('usecase#', '') };
+  return { useCaseId: useCaseId };
 };
 
 export const updateUseCase = async (
