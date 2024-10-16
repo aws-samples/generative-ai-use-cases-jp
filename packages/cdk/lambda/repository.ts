@@ -633,13 +633,13 @@ export const getUseCase = async (
   _userId: string,
   useCaseId: string
 ): Promise<CustomUseCase | null> => {
-  const userId = `user#${_userId}`;
+  const userId = `user#useCase#${_userId}`;
   const res = await dynamoDbDocument.send(
     new GetCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
         userId: userId,
-        useCaseId: `usecase#${useCaseId}`,
+        useCaseId: useCaseId,
       },
     })
   );
