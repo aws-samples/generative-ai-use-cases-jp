@@ -755,17 +755,16 @@ export const toggleFavorite = async (
 
 export const toggleShared = async (
   _userId: string,
-  useCaseId: string,
-  hasShared: boolean
+  useCase: CustomUseCase
 ): Promise<HasShared> => {
-  const userId = `user#${_userId}`;
-  const newSharedState = !hasShared;
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const newSharedState = !useCase.hasShared;
   await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        userId: userId,
-        useCaseId: `usecase#${useCaseId}`,
+        id: useCaseUserId,
+        useCaseId: useCase.useCaseId,
       },
       UpdateExpression: 'set hasShared = :hasShared',
       ExpressionAttributeValues: {

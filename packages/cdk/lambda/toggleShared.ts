@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getUseCase, toggleShared } from './repository';
-import { HasShared } from 'generative-ai-use-cases-jp';
+import { CustomUseCase, HasShared } from 'generative-ai-use-cases-jp';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -10,7 +10,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const useCase = await getUseCase(userId, `usecase#${useCaseId}`);
+    const useCase: CustomUseCase | null = await getUseCase(userId, useCaseId);
 
     if (!useCase) {
       return {
@@ -23,11 +23,9 @@ export const handler = async (
       };
     }
 
-    const hasShared = useCase.hasShared;
     const newHasSharedRes: HasShared = await toggleShared(
       userId,
-      useCaseId,
-      hasShared
+      useCase,
     );
 
     return {
