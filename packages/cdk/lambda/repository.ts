@@ -705,8 +705,8 @@ export const deleteUseCase = async (
     new DeleteCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        userId: userId,
-        useCaseId: `usecase#${useCaseId}`,
+        id: userId,
+        useCaseId: useCaseId,
       },
     })
   );
