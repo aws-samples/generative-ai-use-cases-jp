@@ -31,7 +31,3 @@ export type UpdateUseCaseRequest = {
   title: string;
   promptTemplate: string;
 };
-
-export type ToggleFavoriteRequest = {
-  ownerUserId: string;
-};

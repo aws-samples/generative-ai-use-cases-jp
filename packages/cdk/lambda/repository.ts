@@ -714,28 +714,27 @@ export const deleteUseCase = async (
 
 export const toggleFavorite = async (
   _userId: string,
-  useCaseId: string,
-  ownerUserId: string
+  useCaseId: string
 ): Promise<IsFavorite> => {
-  const userId = `user#${_userId}`;
-  const favoriteUseCaseId = `favorite#${useCaseId}`;
-  const exsistingFavorite = await dynamoDbDocument.send(
+  const favoriteUserId = `user#favorite#${_userId}`;
+
+  const existingFavorite = await dynamoDbDocument.send(
     new GetCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        userId: userId,
-        useCaseId: favoriteUseCaseId,
+        id: favoriteUserId,
+        useCaseId: useCaseId,
       },
     })
   );
 
-  if (exsistingFavorite.Item) {
+  if (existingFavorite.Item) {
     await dynamoDbDocument.send(
       new DeleteCommand({
         TableName: USECASE_TABLE_NAME,
         Key: {
-          userId: userId,
-          useCaseId: favoriteUseCaseId,
+          id: favoriteUserId,
+          useCaseId: useCaseId,
         },
       })
     );
@@ -745,9 +744,8 @@ export const toggleFavorite = async (
       new PutCommand({
         TableName: USECASE_TABLE_NAME,
         Item: {
-          userId: userId,
-          useCaseId: favoriteUseCaseId,
-          ownerUserId: `user#${ownerUserId}`,
+          id: favoriteUserId,
+          useCaseId: useCaseId,
         },
       })
     );

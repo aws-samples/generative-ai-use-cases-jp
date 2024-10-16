@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { IsFavorite, ToggleFavoriteRequest } from 'generative-ai-use-cases-jp';
+import { IsFavorite } from 'generative-ai-use-cases-jp';
 import { toggleFavorite } from './repository';
 
 export const handler = async (
@@ -9,14 +9,8 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
-    const req: ToggleFavoriteRequest = JSON.parse(event.body!);
-    const ownerUserId = req.ownerUserId;
 
-    const isFavoriteRes: IsFavorite = await toggleFavorite(
-      userId,
-      useCaseId,
-      ownerUserId
-    );
+    const isFavoriteRes: IsFavorite = await toggleFavorite(userId, useCaseId);
 
     return {
       statusCode: 200,
