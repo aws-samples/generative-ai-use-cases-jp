@@ -700,7 +700,7 @@ export const deleteUseCase = async (
   _userId: string,
   useCaseId: string
 ): Promise<void> => {
-  const userId = `user#${_userId}`;
+  const userId = `user#useCase#${_userId}`;
   await dynamoDbDocument.send(
     new DeleteCommand({
       TableName: USECASE_TABLE_NAME,
