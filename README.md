@@ -1,6 +1,8 @@
 # AWS Summit Japan 2024 展示
 
-このブランチは、AWS Summit Japan 2024 (以降、Summit)で展示したデモのコードです。デモの内容やそのコードを参考にしていただくことを目的に公開しています。
+このブランチは、AWS Summit Japan 2024 (以降、Summit)および、AWS AI Day で展示したデモのコードです。デモの内容やそのコードを参考にしていただくことを目的に公開しています。
+
+AWS AI Dayでの展示内容は、基本的に Summit と同様ですが、Summit 以降に実装された main ブランチの機能も取り込み済みです。
 
 ## bedrock-claude-chat
 
@@ -11,7 +13,11 @@ Summit 展示で体験していただいたデモ用ボットの定義は、[こ
 ## generative-ai-use-cases-jp (略称：GenU)
 
 > [!CAUTION]
-**`main` ブランチからの差分取り込みは一切しておらず、今後も更新を一切行いません（セキュリティ対応含む）。このブランチをベースに開発することは、セキュリティの観点から推奨しておりません。[こちらの `main` ブランチの最新のコード](https://github.com/aws-samples/generative-ai-use-cases-jp)をベースに開発を行うようにしてください。**
+**`main` ブランチからの差分取り込みをしておらず、今後も原則的に更新を行いません（セキュリティ対応含む）。このブランチをベースに開発することは、セキュリティの観点から推奨しておりません。[こちらの `main` ブランチの最新のコード](https://github.com/aws-samples/generative-ai-use-cases-jp)をベースに開発を行うようにしてください。**  
+
+**更新履歴**
+- 2024/6/20: Summit 展示のため、当ブランチを作成しました。
+- 2024/10/17: AWS AI Day 展示のため、main ブランチを当ブランチへマージしました（セキュリティ対策込み）。
 
 > [!WARNING]
 このままデプロイすると、Amazon Kendra がデプロイされて、利用料金が高額（月額 810 USD）になるためご注意ください。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `ragEnabled` を `false` にすることで無効化できます。
