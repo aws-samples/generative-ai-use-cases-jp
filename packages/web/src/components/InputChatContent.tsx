@@ -6,6 +6,7 @@ import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
 import {
+  PiArrowFatLineRight,
   PiArrowsCounterClockwise,
   PiPaperclip,
   PiSpinnerGap,
@@ -43,7 +44,12 @@ type Props = {
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
-  const { loading: chatLoading, isEmpty } = useChat(pathname);
+  const {
+    loading: chatLoading,
+    isEmpty,
+    continueGeneration,
+    getStopReason,
+  } = useChat(pathname);
   const {
     uploadedFiles,
     uploadFiles,
@@ -51,6 +57,8 @@ const InputChatContent: React.FC<Props> = (props) => {
     uploading,
     errorMessages,
   } = useFiles();
+
+  const stopReason = getStopReason();
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -180,16 +188,28 @@ const InputChatContent: React.FC<Props> = (props) => {
           icon={props.sendIcon}
         />
 
-        {!isEmpty && !props.resetDisabled && !props.hideReset && (
-          <Button
-            className="absolute -top-14 right-0 p-2 text-sm"
-            outlined
-            disabled={loading}
-            onClick={props.onReset}>
-            <PiArrowsCounterClockwise className="mr-2" />
-            最初からやり直す
-          </Button>
-        )}
+        <div className="absolute -top-14 right-0 flex gap-2 p-2 text-sm">
+          {stopReason === 'max_tokens' && (
+            <Button
+              className="p-2 text-sm"
+              outlined
+              onClick={continueGeneration}>
+              <PiArrowFatLineRight className="mr-2" />
+              続きを出力
+            </Button>
+          )}
+
+          {!isEmpty && !props.resetDisabled && !props.hideReset && (
+            <Button
+              className="text-sm"
+              outlined
+              disabled={loading}
+              onClick={props.onReset}>
+              <PiArrowsCounterClockwise className="mr-2" />
+              最初からやり直す
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
