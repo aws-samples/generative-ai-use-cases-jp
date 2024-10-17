@@ -26,30 +26,111 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-type GenerationMode =
-  | 'TEXT_IMAGE'
-  | 'IMAGE_VARIATION'
-  | 'INPAINTING'
-  | 'OUTPAINTING';
-const modeOptions = [
-  'TEXT_IMAGE',
-  'IMAGE_VARIATION',
-  'INPAINTING',
-  'OUTPAINTING',
-].map((s) => ({
-  value: s as GenerationMode,
-  label: s as GenerationMode,
+const TITAN_MODELS = {
+  V1: 'amazon.titan-image-generator-v1',
+  V2: 'amazon.titan-image-generator-v2:0',
+};
+const STABILITY_AI_MODELS = {
+  STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
+  SD3_LARGE: 'stability.sd3-large-v1:0',
+  STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
+  STABLE_IMAGE_ULTRA: 'stability.stable-image-ultra-v1:0',
+};
+const GENERATION_MODES = {
+  TEXT_IMAGE: 'TEXT_IMAGE',
+  IMAGE_VARIATION: 'IMAGE_VARIATION',
+  INPAINTING: 'INPAINTING',
+  OUTPAINTING: 'OUTPAINTING',
+} as const;
+type GenerationMode = (typeof GENERATION_MODES)[keyof typeof GENERATION_MODES];
+const modeOptions = Object.values(GENERATION_MODES).map((mode) => ({
+  value: mode,
+  label: mode,
 }));
+type ModelInfo = {
+  supportedModes: GenerationMode[];
+  resolutionPresets: { value: string; label: string }[];
+};
+const defaultModelPresets = [
+  { value: '512 x 512', label: '512 x 512' },
+  { value: '1024 x 1024', label: '1024 x 1024' },
+  { value: '1280 x 768', label: '1280 x 768' },
+  { value: '768 x 1280', label: '768 x 1280' },
+];
+const stabilityAi2024ModelPresets = [
+  { value: '1:1', label: '1024 x 1024' },
+  { value: '5:4', label: '1088 x 896' },
+  { value: '3:2', label: '1216 x 832' },
+  { value: '16:9', label: '1344 x 768' },
+  { value: '21:9', label: '1536 x 640' },
+];
+const modelInfo: Record<string, ModelInfo> = {
+  [STABILITY_AI_MODELS.STABLE_DIFFUSION_XL]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
+  },
+  [STABILITY_AI_MODELS.SD3_LARGE]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+    ],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.STABLE_IMAGE_CORE]: {
+    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA]: {
+    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [TITAN_MODELS.V1]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
+  },
+  [TITAN_MODELS.V2]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
+  },
+};
 
-const resolutionPresets = [
-  '512 x 512',
-  '1024 x 1024',
-  '1280 x 768',
-  '768 x 1280',
-].map((s) => ({
-  value: s,
-  label: s,
-}));
+const getModeOptions = (imageGenModelId: string) => {
+  if (imageGenModelId in modelInfo) {
+    return modelInfo[imageGenModelId].supportedModes.map((mode) => ({
+      value: mode,
+      label: mode,
+    }));
+  } else {
+    return [
+      {
+        value: GENERATION_MODES.TEXT_IMAGE,
+        label: GENERATION_MODES.TEXT_IMAGE,
+      },
+    ];
+  }
+};
+const getResolutionPresets = (imageGenModelId: string) => {
+  if (imageGenModelId in modelInfo) {
+    return modelInfo[imageGenModelId].resolutionPresets;
+  } else {
+    return stabilityAi2024ModelPresets;
+  }
+};
 
 type StateType = {
   imageGenModelId: string;
@@ -58,8 +139,9 @@ type StateType = {
   setPrompt: (s: string) => void;
   negativePrompt: string;
   setNegativePrompt: (s: string) => void;
-  resolution: string;
-  setResolution: (s: string) => void;
+  resolution: { value: string; label: string };
+  setResolution: (s: { value: string; label: string }) => void;
+  resolutionPresets: { value: string; label: string }[];
   stylePreset: string;
   setStylePreset: (s: string) => void;
   seed: number[];
@@ -98,7 +180,11 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
     imageGenModelId: '',
     prompt: '',
     negativePrompt: '',
-    resolution: resolutionPresets[0].value,
+    resolution: {
+      value: '',
+      label: '',
+    },
+    resolutionPresets: getResolutionPresets(''),
     stylePreset: '',
     seed: [0, ...new Array(MAX_SAMPLE - 1).fill(-1)],
     step: 50,
@@ -127,8 +213,17 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
   return {
     ...INIT_STATE,
     setImageGenModelId: (s: string) => {
+      const newResolutionPresets = getResolutionPresets(s);
+      const newResolution = newResolutionPresets[0];
+      const currentMode = get().generationMode;
+      const availableModes = getModeOptions(s).map((option) => option.value);
       set(() => ({
         imageGenModelId: s,
+        resolutionPresets: newResolutionPresets,
+        resolution: newResolution,
+        generationMode: availableModes.includes(currentMode)
+          ? currentMode
+          : availableModes[0],
       }));
     },
     setPrompt: (s) => {
@@ -273,6 +368,7 @@ const GenerateImagePage: React.FC = () => {
     setNegativePrompt,
     resolution,
     setResolution,
+    resolutionPresets,
     stylePreset,
     setStylePreset,
     seed,
@@ -323,16 +419,34 @@ const GenerateImagePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
   const [width, height] = useMemo(() => {
-    return resolution.split('x').map((v) => Number(v));
+    return resolution.label.split('x').map((v) => Number(v));
   }, [resolution]);
 
   const maskMode = useMemo(() => {
-    return generationMode === 'INPAINTING' || generationMode === 'OUTPAINTING';
+    return (
+      generationMode === GENERATION_MODES.INPAINTING ||
+      generationMode === GENERATION_MODES.OUTPAINTING
+    );
   }, [generationMode]);
   const maskPromptSupported = useMemo(() => {
     // TODO: Remove Hard Coding
-    return imageGenModelId === 'amazon.titan-image-generator-v1';
+    return (
+      imageGenModelId === TITAN_MODELS.V1 || imageGenModelId === TITAN_MODELS.V2
+    );
   }, [imageGenModelId]);
+
+  const modeOptions = useMemo(
+    () => getModeOptions(imageGenModelId),
+    [imageGenModelId]
+  );
+  useEffect(() => {
+    const availableModes = getModeOptions(imageGenModelId).map(
+      (option) => option.value
+    );
+    if (!availableModes.includes(generationMode)) {
+      setGenerationMode(availableModes[0]);
+    }
+  }, [imageGenModelId, generationMode, setGenerationMode]);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -381,6 +495,13 @@ const GenerateImagePage: React.FC = () => {
       clearImage();
       setGenerating(true);
 
+      const modelConfig = modelInfo[imageGenModelId];
+      if (!modelConfig) {
+        console.error(`Unknown model: ${imageGenModelId}`);
+        setGenerating(false);
+        return;
+      }
+
       const promises = new Array(imageSample).fill('').map((_, idx) => {
         let _seed = seed[idx];
         if (_seed < 0) {
@@ -408,15 +529,15 @@ const GenerateImagePage: React.FC = () => {
           stylePreset: _stylePreset ?? stylePreset,
         };
 
-        if (generationMode === 'IMAGE_VARIATION') {
+        if (generationMode === GENERATION_MODES.IMAGE_VARIATION) {
           params = {
             ...params,
             initImage: initImage.imageBase64,
             imageStrength,
           };
         } else if (
-          generationMode === 'INPAINTING' ||
-          generationMode === 'OUTPAINTING'
+          generationMode === GENERATION_MODES.INPAINTING ||
+          generationMode === GENERATION_MODES.OUTPAINTING
         ) {
           params = {
             ...params,
@@ -424,6 +545,14 @@ const GenerateImagePage: React.FC = () => {
             maskPrompt: maskImage.imageBase64 ? undefined : maskPrompt,
             maskImage: maskImage.imageBase64,
             maskMode: generationMode,
+          };
+        }
+
+        // 解像度の設定
+        if (modelConfig.resolutionPresets[0].value.includes(':')) {
+          params = {
+            ...params,
+            aspectRatio: resolution.value,
           };
         }
 
@@ -465,8 +594,16 @@ const GenerateImagePage: React.FC = () => {
       setSeed,
       step,
       stylePreset,
+      resolution.value,
     ]
   );
+
+  const isImageVariationSupported = useMemo(() => {
+    const availableModes = getModeOptions(imageGenModelId).map(
+      (option) => option.value
+    );
+    return availableModes.includes(GENERATION_MODES.IMAGE_VARIATION);
+  }, [imageGenModelId]);
 
   const onClickRandomSeed = useCallback(() => {
     setSeed(generateRandomSeed(), selectedImageIndex);
@@ -500,8 +637,8 @@ const GenerateImagePage: React.FC = () => {
 
   const generateImageVariant = useCallback(() => {
     if (image[selectedImageIndex].base64) {
-      if (generationMode === 'TEXT_IMAGE') {
-        setGenerationMode('IMAGE_VARIATION');
+      if (generationMode === GENERATION_MODES.TEXT_IMAGE) {
+        setGenerationMode(GENERATION_MODES.IMAGE_VARIATION);
       }
       const img = `data:image/png;base64,${image[selectedImageIndex].base64}`;
       setInitImage({
@@ -629,7 +766,9 @@ const GenerateImagePage: React.FC = () => {
               title="Generate Variant"
               outlined
               className="mt-3 size-10"
-              disabled={!image[selectedImageIndex].base64}
+              disabled={
+                !image[selectedImageIndex].base64 || !isImageVariationSupported
+              }
               onClick={generateImageVariant}>
               <PiNotePencil></PiNotePencil>
             </Button>
@@ -664,9 +803,17 @@ const GenerateImagePage: React.FC = () => {
             />
             <Select
               label="サイズ"
-              value={resolution}
-              onChange={setResolution}
+              value={resolution.value}
+              onChange={(value: string) => {
+                const selectedResolution = resolutionPresets.find(
+                  (option: StateType['resolution']) => option.value === value
+                );
+                if (selectedResolution) {
+                  setResolution(selectedResolution);
+                }
+              }}
               options={resolutionPresets}
+              fullWidth
             />
           </div>
 
@@ -715,7 +862,7 @@ const GenerateImagePage: React.FC = () => {
                   fullWidth
                 />
                 <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
-                  {generationMode !== 'TEXT_IMAGE' && (
+                  {generationMode !== GENERATION_MODES.TEXT_IMAGE && (
                     <div className="flex flex-col items-center">
                       <div className="mb-1 flex items-center text-sm font-bold">
                         初期画像
@@ -811,7 +958,7 @@ const GenerateImagePage: React.FC = () => {
                   help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
                 />
 
-                {generationMode === 'IMAGE_VARIATION' && (
+                {generationMode === GENERATION_MODES.IMAGE_VARIATION && (
                   <RangeSlider
                     className="w-full"
                     label="ImageStrength"
@@ -837,9 +984,10 @@ const GenerateImagePage: React.FC = () => {
               loading={generating || loadingChat}
               disabled={
                 prompt.length === 0 ||
-                (generationMode !== 'TEXT_IMAGE' && !initImage.imageBase64) ||
-                ((generationMode === 'INPAINTING' ||
-                  generationMode === 'OUTPAINTING') &&
+                (generationMode !== GENERATION_MODES.TEXT_IMAGE &&
+                  !initImage.imageBase64) ||
+                ((generationMode === GENERATION_MODES.INPAINTING ||
+                  generationMode === GENERATION_MODES.OUTPAINTING) &&
                   !maskImage.imageBase64 &&
                   !maskPrompt)
               }>

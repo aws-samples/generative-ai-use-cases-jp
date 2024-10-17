@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import useRagApi from './useRagApi';
+import useFileApi from './useFileApi';
 
 const useRagFile = () => {
-  const { getDocDownloadSignedUrl } = useRagApi();
+  const { getFileDownloadSignedUrl } = useFileApi();
   const [downloading, setDownloading] = useState(false);
 
   return {
@@ -17,35 +17,9 @@ const useRagFile = () => {
       setDownloading(true);
 
       try {
-        // S3 データソースの設定項目である S3 field mapping の s3_document_id のチェック有無で、
-        // Document_URI が異なるためそれぞれの URI に対応できるようにする
-        let result =
-          /^https:\/\/s3.[\w\\-]+.amazonaws.com\/(?<bucketName>.+?)\/(?<prefix>.+)$/.exec(
-            url
-          );
-        if (!result) {
-          result =
-            /^https:\/\/(?<bucketName>.+?).s3(|(\.|-)[\w\\-]+).amazonaws.com\/(?<prefix>.+)$/.exec(
-              url
-            );
-        }
-        const groups = result?.groups as {
-          bucketName: string;
-          prefix: string;
-        };
+        const signedUrl = await getFileDownloadSignedUrl(url);
 
-        const [filePrefix, anchorLink] = groups.prefix.split('#');
-        const signedUrl = await getDocDownloadSignedUrl(
-          groups.bucketName,
-          // 日本語ファイル名の場合は URI エンコードされたファイル名が URL に設定されているため、
-          // デコードしてから署名付き URL を取得する（二重で URI エンコードされるのを防止する）
-          decodeURIComponent(filePrefix)
-        );
-        window.open(
-          `${signedUrl}${anchorLink ? `#${anchorLink}` : ''}`,
-          '_blank',
-          'noopener,noreferrer'
-        );
+        window.open(signedUrl, '_blank', 'noopener,noreferrer');
       } catch (e) {
         console.error(e);
       } finally {

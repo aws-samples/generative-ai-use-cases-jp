@@ -6,17 +6,16 @@ import {
   Web,
   Database,
   Rag,
+  RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
-  File,
-  RecognizeFile,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Agent } from 'generative-ai-use-cases-jp';
 import { Interpreter } from './construct/summit/interpreter';
 import { Ehon } from './construct/summit/ehon';
+import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -30,12 +29,16 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
   allowedCountryCodes: string[] | null;
-  vpcId?: string;
   cert?: ICertificate;
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
   agents?: Agent[];
+  promptFlows?: PromptFlow[];
+  knowledgeBaseId?: string;
+  knowledgeBaseDataSourceBucketName?: string;
+  guardrailIdentifier?: string;
+  guardrailVersion?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -52,6 +55,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
+    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext(
+      'ragKnowledgeBaseEnabled'
+    )!;
     const selfSignUpEnabled: boolean =
       this.node.tryGetContext('selfSignUpEnabled')!;
     const allowedSignUpEmailDomains: string[] | null | undefined =
@@ -64,12 +70,17 @@ export class GenerativeAiUseCasesStack extends Stack {
     const samlCognitoFederatedIdentityProviderName: string =
       this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
-    const recognizeFileEnabled: boolean = this.node.tryGetContext(
-      'recognizeFileEnabled'
-    )!;
+    const promptFlows = this.node.tryGetContext('promptFlows') || [];
+
+    const guardrailEnabled: boolean =
+      this.node.tryGetContext('guardrailEnabled') || false;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
+    }
+
+    if (typeof ragKnowledgeBaseEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('ragKnowledgeBaseEnabled'));
     }
 
     if (typeof selfSignUpEnabled !== 'boolean') {
@@ -80,8 +91,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
     }
 
-    if (typeof recognizeFileEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
+    if (typeof guardrailEnabled !== 'boolean') {
+      throw new Error(
+        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
+      );
     }
 
     const auth = new Auth(this, 'Auth', {
@@ -92,11 +105,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
+
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
+      guardrailIdentify: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
     });
 
     if (
@@ -139,7 +155,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPoolId: auth.idPool.identityPoolId,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled,
+      ragKnowledgeBaseEnabled,
       agentEnabled,
+      promptFlows,
+      promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
@@ -151,7 +170,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoDomainName,
       samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
-      recognizeFileEnabled,
       cert: props.cert,
       hostName: props.hostName,
       domainName: props.domainName,
@@ -162,10 +180,29 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     if (ragEnabled) {
-      new Rag(this, 'Rag', {
+      const rag = new Rag(this, 'Rag', {
         userPool: auth.userPool,
         api: api.api,
       });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
+      // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
+      if (rag.dataSourceBucketName) {
+        api.allowDownloadFile(rag.dataSourceBucketName);
+      }
+    }
+
+    if (ragKnowledgeBaseEnabled) {
+      new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+        knowledgeBaseId: props.knowledgeBaseId!,
+        dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
+        userPool: auth.userPool,
+        api: api.api,
+      });
+
+      // File API から data source の Bucket のファイルをダウンロードできるようにする
+      api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
     }
 
     new Transcribe(this, 'Transcribe', {
@@ -173,20 +210,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPool: auth.idPool,
       api: api.api,
     });
-
-    const file = new File(this, 'File', {
-      userPool: auth.userPool,
-      api: api.api,
-    });
-
-    if (recognizeFileEnabled) {
-      new RecognizeFile(this, 'RecognizeFile', {
-        userPool: auth.userPool,
-        api: api.api,
-        fileBucket: file.fileBucket,
-        vpcId: props.vpcId,
-      });
-    }
 
     new CfnOutput(this, 'Region', {
       value: this.region,
@@ -218,8 +241,20 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: api.predictStreamFunction.functionArn,
     });
 
+    new CfnOutput(this, 'InvokePromptFlowFunctionArn', {
+      value: api.invokePromptFlowFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'PromptFlows', {
+      value: Buffer.from(JSON.stringify(promptFlows)).toString('base64'),
+    });
+
     new CfnOutput(this, 'RagEnabled', {
       value: ragEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
+      value: ragKnowledgeBaseEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentEnabled', {
@@ -264,10 +299,6 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'AgentNames', {
       value: JSON.stringify(api.agentNames),
-    });
-
-    new CfnOutput(this, 'RecognizeFileEnabled', {
-      value: recognizeFileEnabled.toString(),
     });
 
     // Summit

@@ -79,7 +79,6 @@ const GenerateDiagramPage: React.FC = () => {
     updateSystemContext,
     updateSystemContextByModel,
     getCurrentSystemContext,
-    continueGenerate,
   } = useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const availableMultiModalModels = useMemo(() => {
@@ -124,11 +123,6 @@ const GenerateDiagramPage: React.FC = () => {
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, uploadedFiles, fileUpload]);
-
-  // Summit用
-  const onContinueGenerate = useCallback(() => {
-    continueGenerate(false, undefined, undefined, undefined);
-  }, [continueGenerate]);
 
   const onReset = useCallback(() => {
     clear();
@@ -325,9 +319,6 @@ const GenerateDiagramPage: React.FC = () => {
             resetDisabled={!!chatId}
             onSend={() => {
               onSend();
-            }}
-            onContinueGenerate={() => {
-              onContinueGenerate();
             }}
             onReset={onReset}
             fileUpload={fileUpload}

@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { parse } from 'node-html-parser';
+import sanitizeHtml from 'sanitize-html';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -20,7 +21,12 @@ export const handler = async (
 
     const res = await fetch(url);
     const html = await res.text();
-    const root = parse(html, {
+    // 不正なタグなどを補完
+    const cleanHtml = sanitizeHtml(html, {
+      // body と html がデフォルトで消えるため、それを防止するオプション
+      allowedTags: [...sanitizeHtml.defaults.allowedTags, 'body', 'html'],
+    });
+    const root = parse(cleanHtml, {
       comment: false,
       blockTextElements: {
         script: false,

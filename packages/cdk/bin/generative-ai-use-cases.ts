@@ -6,6 +6,8 @@ import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack'
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
 import { SearchAgentStack } from '../lib/search-agent-stack';
+import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
+import { GuardrailStack } from '../lib/guardrail-stack';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -96,13 +98,21 @@ const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
   'anonymousUsageTracking'
 );
 
-const vpcId = app.node.tryGetContext('vpcId');
-if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string') {
-  throw new Error('vpcId must be string or undefined');
-}
-if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
-  throw new Error('vpcId must start with "vpc-"');
-}
+const modelRegion: string = app.node.tryGetContext('modelRegion')!;
+
+// RAG Knowledge Base
+
+const ragKnowledgeBaseEnabled =
+  app.node.tryGetContext('ragKnowledgeBaseEnabled') || false;
+const ragKnowledgeBaseStack = ragKnowledgeBaseEnabled
+  ? new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: modelRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
 
 // Agent
 
@@ -114,6 +124,18 @@ const searchAgentStack = searchAgentEnabled
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: agentRegion,
+      },
+      crossRegionReferences: true,
+    })
+  : null;
+
+const guardrailEnabled: boolean =
+  app.node.tryGetContext('guardrailEnabled') || false;
+const guardrail = guardrailEnabled
+  ? new GuardrailStack(app, 'GuardrailStack', {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: modelRegion,
       },
       crossRegionReferences: true,
     })
@@ -134,7 +156,6 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
-    vpcId,
     description: anonymousUsageTracking
       ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
       : undefined,
@@ -143,6 +164,11 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     domainName,
     hostedZoneId,
     agents: searchAgentStack?.agents,
+    knowledgeBaseId: ragKnowledgeBaseStack?.knowledgeBaseId,
+    knowledgeBaseDataSourceBucketName:
+      ragKnowledgeBaseStack?.dataSourceBucketName,
+    guardrailIdentifier: guardrail?.guardrailIdentifier,
+    guardrailVersion: 'DRAFT',
   }
 );
 
@@ -150,7 +176,6 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
   new DeletionPolicySetter(cdk.RemovalPolicy.DESTROY)
 );
 
-const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;
 
 if (dashboard) {

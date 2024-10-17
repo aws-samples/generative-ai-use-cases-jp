@@ -6,6 +6,7 @@ import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { findModelByModelId } from './useModel';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem, DocumentAttribute } from '@aws-sdk/client-kendra';
+import { cleanEncode } from '../utils/URLUtils';
 
 // 同一のドキュメントとみなす Key 値
 const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
@@ -67,6 +68,9 @@ const useRag = (id: string) => {
         console.error(`model not found for ${modelId}`);
         return;
       }
+      const prevQueries = messages
+        .filter((m) => m.role === 'user')
+        .map((m) => m.content);
 
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
@@ -80,7 +84,7 @@ const useRag = (id: string) => {
             role: 'user',
             content: prompter.ragPrompt({
               promptType: 'RETRIEVE',
-              retrieveQueries: [content],
+              retrieveQueries: [...prevQueries, content],
             }),
           },
         ],
@@ -88,8 +92,21 @@ const useRag = (id: string) => {
       });
 
       // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
-      const retrievedItems = await retrieve(query);
-      const items = arrangeItems(retrievedItems.data.ResultItems ?? []);
+      let items: RetrieveResultItem[] = [];
+      try {
+        const retrievedItems = await retrieve(query);
+        items = arrangeItems(retrievedItems.data.ResultItems ?? []);
+      } catch (error) {
+        popMessage();
+        pushMessage(
+          'assistant',
+          `Kendra から参照ドキュメントを取得できませんでした。次の対応を検討してください。
+- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
+- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
+        );
+        setLoading(false);
+        return;
+      }
 
       if (items.length == 0) {
         popMessage();
@@ -137,7 +154,8 @@ const useRag = (id: string) => {
                     _excerpt_page_number
                       ? `(${_excerpt_page_number} ページ)`
                       : ''
-                  }](${item.DocumentURI}${
+                  }](
+                  ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${
                     _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
                   })`
                 : '';

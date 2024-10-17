@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { BaseProps } from '../@types/common';
-import { PiInfo, PiXCircle, PiX } from 'react-icons/pi';
+import { PiInfo, PiXCircle, PiX, PiWarning } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 
 // MEMO: 現在は Error しか実装していない
 type Props = BaseProps & {
   title?: string;
-  severity: 'info' | 'error';
+  severity: 'info' | 'error' | 'warning';
   children: React.ReactNode;
   onDissmiss?: () => void;
 };
@@ -18,6 +18,12 @@ const Alert: React.FC<Props> = (props) => {
         border: 'border-red-500',
         bg: 'bg-red-50',
         icon: 'text-red-500',
+      };
+    } else if (props.severity === 'warning') {
+      return {
+        border: 'border-yellow-500',
+        bg: 'bg-yellow-50',
+        icon: 'text-yellow-500',
       };
     }
     return {
@@ -38,6 +44,9 @@ const Alert: React.FC<Props> = (props) => {
         )}
         {props.severity === 'info' && (
           <PiInfo className={`m-3 text-4xl ${colors.icon}`} />
+        )}
+        {props.severity === 'warning' && (
+          <PiWarning className={`m-3 text-4xl ${colors.icon}`} />
         )}
       </div>
       <div className="my-3 mr-3 w-full text-sm">

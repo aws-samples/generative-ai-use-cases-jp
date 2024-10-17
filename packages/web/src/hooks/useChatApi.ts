@@ -25,10 +25,10 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { Auth } from 'aws-amplify';
 import useHttp from '../hooks/useHttp';
 import { decomposeId } from '../utils/ChatUtils';
 import { AxiosResponse } from 'axios';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const useChatApi = () => {
   const http = useHttp();
@@ -50,7 +50,17 @@ const useChatApi = () => {
       return http.delete<void>(`chats/${chatId}`);
     },
     listChats: () => {
-      return http.get<ListChatsResponse>('chats');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListChatsResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return 'chats';
+        return `chats?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListChatsResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     findChatById: (chatId?: string) => {
       return http.get<FindChatByIdResponse>(chatId ? `chats/${chatId}` : null);
@@ -85,6 +95,11 @@ const useChatApi = () => {
     },
     // Streaming Response
     predictStream: async function* (req: PredictRequest) {
+      const token = (await fetchAuthSession()).tokens?.idToken?.toString();
+      if (!token) {
+        throw new Error('認証されていません。');
+      }
+
       const region = import.meta.env.VITE_APP_REGION;
       const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
       const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
@@ -96,9 +111,7 @@ const useChatApi = () => {
           client: cognito,
           identityPoolId: idPoolId,
           logins: {
-            [providerName]: (await Auth.currentSession())
-              .getIdToken()
-              .getJwtToken(),
+            [providerName]: token,
           },
         }),
       });

@@ -20,25 +20,27 @@ import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
 import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
+import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
-import FileUploadPage from './pages/FileUploadPage.tsx';
 import GenerateSlidePage from './pages/summit/GenerateSlidePage.tsx';
-import { MODELS } from './hooks/useModel';
 import GenerateSqlPage from './pages/summit/GenerateSqlPage.tsx';
 import GenerateUIPage from './pages/summit/GenerateUIPage.tsx';
 import InterpreterPage from './pages/summit/InterpreterPage.tsx';
 import GenerateDiagramPage from './pages/summit/GenerateDiagramPage.tsx';
 import EhonPage from './pages/summit/EhonPage.tsx';
+import PromptFlowChatPage from './pages/PromptFlowChatPage';
+import { MODELS } from './hooks/useModel';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
+const ragKnowledgeBaseEnabled: boolean =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const recognizeFileEnabled: boolean =
-  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
 
@@ -91,22 +93,26 @@ const routes: RouteObject[] = [
     path: '/transcribe',
     element: <TranscribePage />,
   },
+  {
+    path: '/prompt-flow-chat',
+    element: <PromptFlowChatPage />,
+  },
   multiModalEnabled
     ? {
         path: '/video',
         element: <VideoAnalyzerPage />,
       }
     : null,
-  recognizeFileEnabled
-    ? {
-        path: '/file',
-        element: <FileUploadPage />,
-      }
-    : null,
   ragEnabled
     ? {
         path: '/rag',
         element: <RagPage />,
+      }
+    : null,
+  ragKnowledgeBaseEnabled
+    ? {
+        path: '/rag-knowledge-base',
+        element: <RagKnowledgeBasePage />,
       }
     : null,
   ragEnabled
@@ -129,7 +135,7 @@ const routes: RouteObject[] = [
   {
     path: '/ehon',
     element: <EhonPage />,
-  },  
+  },
   multiModalEnabled
     ? {
         path: '/genui',
@@ -164,6 +170,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Authenticator.Provider>
+      <RouterProvider router={router} />
+    </Authenticator.Provider>
   </React.StrictMode>
 );

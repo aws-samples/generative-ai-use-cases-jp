@@ -1,6 +1,4 @@
 import {
-  GetDocDownloadSignedUrlRequest,
-  GetDocDownloadSignedUrlResponse,
   QueryKendraRequest,
   QueryKendraResponse,
   RetrieveKendraRequest,
@@ -23,19 +21,6 @@ const useRagApi = () => {
           query,
         }
       );
-    },
-    getDocDownloadSignedUrl: async (bucketName: string, filePrefix: string) => {
-      const params: GetDocDownloadSignedUrlRequest = {
-        bucketName,
-        filePrefix,
-      };
-      const { data: url } = await http.api.get<GetDocDownloadSignedUrlResponse>(
-        '/rag/doc/download-url',
-        {
-          params,
-        }
-      );
-      return url;
     },
   };
 };

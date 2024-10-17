@@ -16,12 +16,7 @@ export class CommonWebAcl extends Construct {
 
     const rules: CfnWebACLProps['rules'] = [];
 
-    const generateIpSetRule = (
-      priority: number,
-      name: string,
-      ipSetArn: string
-    ) => ({
-      priority,
+    const commonRulePropreties = (name: string) => ({
       name,
       action: { allow: {} },
       visibilityConfig: {
@@ -29,6 +24,15 @@ export class CommonWebAcl extends Construct {
         cloudWatchMetricsEnabled: true,
         metricName: name,
       },
+    });
+
+    const generateIpSetRule = (
+      priority: number,
+      name: string,
+      ipSetArn: string
+    ): CfnWebACL.RuleProperty => ({
+      priority,
+      ...commonRulePropreties(name),
       statement: {
         ipSetReferenceStatement: {
           arn: ipSetArn,
@@ -36,37 +40,98 @@ export class CommonWebAcl extends Construct {
       },
     });
 
-    if (props.allowedIpV4AddressRanges) {
+    const generateIpSetAndGeoMatchRule = (
+      priority: number,
+      name: string,
+      ipSetArn: string,
+      allowedCountryCodes: string[]
+    ): CfnWebACL.RuleProperty => ({
+      priority,
+      ...commonRulePropreties(name),
+      statement: {
+        // ルール間の条件はOR判定になるので、同一ルール内でAND条件で指定する
+        andStatement: {
+          statements: [
+            {
+              ipSetReferenceStatement: {
+                arn: ipSetArn,
+              },
+            },
+            {
+              geoMatchStatement: {
+                countryCodes: allowedCountryCodes,
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    const hasAllowedIpV4 =
+      props.allowedIpV4AddressRanges &&
+      props.allowedIpV4AddressRanges.length > 0;
+    const hasAllowedIpV6 =
+      props.allowedIpV6AddressRanges &&
+      props.allowedIpV6AddressRanges.length > 0;
+    const hasAllowedCountryCodes =
+      props.allowedCountryCodes && props.allowedCountryCodes.length > 0;
+
+    // IP v4 と v6 それぞれでルールを定義する
+    if (hasAllowedIpV4) {
       const wafIPv4Set = new CfnIPSet(this, `IPv4Set${id}`, {
         ipAddressVersion: 'IPV4',
         scope: props.scope,
-        addresses: props.allowedIpV4AddressRanges,
+        addresses: props.allowedIpV4AddressRanges ?? [],
       });
-      rules.push(generateIpSetRule(1, `IpV4SetRule${id}`, wafIPv4Set.attrArn));
+      if (hasAllowedCountryCodes) {
+        // Geo制限を行う場合は、IP制限とのAND条件にする
+        rules.push(
+          generateIpSetAndGeoMatchRule(
+            1,
+            `IpV4SetAndGeoMatchRule${id}`,
+            wafIPv4Set.attrArn,
+            props.allowedCountryCodes ?? []
+          )
+        );
+      } else {
+        rules.push(
+          generateIpSetRule(1, `IpV4SetRule${id}`, wafIPv4Set.attrArn)
+        );
+      }
     }
 
-    if (props.allowedIpV6AddressRanges) {
+    if (hasAllowedIpV6) {
       const wafIPv6Set = new CfnIPSet(this, `IPv6Set${id}`, {
         ipAddressVersion: 'IPV6',
         scope: props.scope,
-        addresses: props.allowedIpV6AddressRanges,
+        addresses: props.allowedIpV6AddressRanges ?? [],
       });
-      rules.push(generateIpSetRule(2, `IpV6SetRule${id}`, wafIPv6Set.attrArn));
+      if (hasAllowedCountryCodes) {
+        // Geo制限を行う場合は、IP制限とのAND条件にする
+        rules.push(
+          generateIpSetAndGeoMatchRule(
+            2,
+            `IpV6SetAndGeoMatchRule${id}`,
+            wafIPv6Set.attrArn,
+            props.allowedCountryCodes ?? []
+          )
+        );
+      } else {
+        rules.push(
+          generateIpSetRule(2, `IpV6SetRule${id}`, wafIPv6Set.attrArn)
+        );
+      }
     }
 
-    if (props.allowedCountryCodes) {
+    // IP制限なしのGe制限のみの場合は、Geo制限のルールを定義
+    if (!hasAllowedIpV4 && !hasAllowedIpV6 && hasAllowedCountryCodes) {
+      const name = `GeoMatchRule${id}`;
       rules.push({
         priority: 3,
-        name: `GeoMatchSetRule${id}`,
-        action: { allow: {} },
-        visibilityConfig: {
-          cloudWatchMetricsEnabled: true,
-          metricName: 'FrontendWebAcl',
-          sampledRequestsEnabled: true,
-        },
+        ...commonRulePropreties(name),
         statement: {
           geoMatchStatement: {
-            countryCodes: props.allowedCountryCodes,
+            countryCodes: props.allowedCountryCodes ?? [],
           },
         },
       });

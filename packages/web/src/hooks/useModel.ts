@@ -29,6 +29,16 @@ const agentNames: string[] = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
 
+const getPromptFlows = () => {
+  try {
+    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+  } catch (e) {
+    return [];
+  }
+};
+
+const promptFlows = getPromptFlows();
+
 // モデルオブジェクトの定義
 const textModels = [
   ...bedrockModelIds.map(
@@ -64,4 +74,5 @@ export const MODELS = {
   textModels: textModels,
   imageGenModels: imageGenModels,
   agentModels: agentModels,
+  promptFlows,
 };

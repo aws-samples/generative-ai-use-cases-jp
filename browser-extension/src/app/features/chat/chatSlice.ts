@@ -34,6 +34,13 @@ export const chatSlice = createSlice({
       setInitialStateIfNeeded(state, action.payload.tabId);
       state[action.payload.tabId].messages = action.payload.messages;
     },
+    updateMessageContent: (
+      state,
+      action: PayloadAction<TabId & { index: number; content: string }>,
+    ) => {
+      setInitialStateIfNeeded(state, action.payload.tabId);
+      state[action.payload.tabId].messages[action.payload.index].content = action.payload.content;
+    },
     clearMessages: (state, action: PayloadAction<TabId>) => {
       setInitialStateIfNeeded(state, action.payload.tabId);
       state[action.payload.tabId].messages = [];
@@ -41,7 +48,7 @@ export const chatSlice = createSlice({
   },
 });
 
-export const { setMessages, clearMessages } = chatSlice.actions;
+export const { setMessages, updateMessageContent, clearMessages } = chatSlice.actions;
 
 export const chatMessages = (state: RootState, tabId: number) => {
   setInitialStateIfNeeded(state.chat, tabId);
@@ -84,11 +91,10 @@ export const overwriteLatestMessage =
       return;
     }
     dispatch(
-      setMessages({
+      updateMessageContent({
         tabId,
-        messages: produce(currentMessages, (draft) => {
-          draft[draft.length - 1].content = content.replace(/<([^>]+)>([\s\S]*?)<\/\1>/, '$2');
-        }),
+        index: currentMessages.length - 1,
+        content: content.replace(/<([^>]+)>([\s\S]*?)<\/\1>/, '$2'),
       }),
     );
   };

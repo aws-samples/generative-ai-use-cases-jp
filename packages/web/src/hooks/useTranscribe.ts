@@ -6,7 +6,7 @@ const useTranscribeState = create<{
   loading: boolean;
   file: File | null;
   setFile: (file: File) => void;
-  transcribe: () => Promise<void>;
+  transcribe: (speakerLabel?: boolean, maxSpakers?: number) => Promise<void>;
   jobName: string | null;
   status: string;
   setStatus: (status: string) => void;
@@ -35,7 +35,7 @@ const useTranscribeState = create<{
     }));
   };
 
-  const transcribe = async () => {
+  const transcribe = async (speakerLabel = false, maxSpeakers = 1) => {
     set(() => ({
       loading: true,
     }));
@@ -55,6 +55,8 @@ const useTranscribeState = create<{
     // 音声認識
     const startTranscriptionRes = await api.startTranscription({
       audioUrl: audioUrl,
+      speakerLabel: speakerLabel,
+      maxSpeakers: maxSpeakers,
     });
 
     set(() => ({

@@ -10,9 +10,18 @@ import {
   QueryCommandOutput,
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
+import {
+  FlowInputContent,
+  RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase,
+} from '@aws-sdk/client-bedrock-agent-runtime';
 import { GenerateImageParams } from './image';
 import { ShareId, UserIdAndChatId } from './share';
-import { MediaFormat } from '@aws-sdk/client-transcribe';
+
+export type StreamingChunk = {
+  text: string;
+  trace?: string;
+  stopReason?: string;
+};
 
 export type CreateChatResponse = {
   chat: Chat;
@@ -28,6 +37,7 @@ export type CreateMessagesResponse = {
 
 export type ListChatsResponse = {
   chats: Chat[];
+  lastEvaluatedKey?: string;
 };
 
 export type FindChatByIdResponse = {
@@ -53,6 +63,8 @@ export type UpdateSystemContextTitleResponse = {
 export type UpdateFeedbackRequest = {
   createdDate: string;
   feedback: string;
+  reasons?: string[];
+  detailedFeedback?: string;
 };
 
 export type UpdateFeedbackResponse = {
@@ -75,6 +87,12 @@ export type PredictRequest = {
 
 export type PredictResponse = string;
 
+export type PromptFlowRequest = {
+  flowIdentifier: string;
+  flowAliasIdentifier: string;
+  document: FlowInputContent.DocumentMember['document'];
+};
+
 export type PredictTitleRequest = {
   model: Model;
   chat: Chat;
@@ -96,25 +114,26 @@ export type RetrieveKendraRequest = {
 
 export type RetrieveKendraResponse = RetrieveCommandOutput;
 
-export type GetDocDownloadSignedUrlRequest = {
+export type RetrieveKnowledgeBaseRequest = {
+  query: string;
+};
+
+export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
+
+export type GetFileDownloadSignedUrlRequest = {
   bucketName: string;
   filePrefix: string;
+  region?: string;
   contentType?: string;
 };
 
-export type GetDocDownloadSignedUrlResponse = string;
+export type GetFileDownloadSignedUrlResponse = string;
 
 export type GenerateImageRequest = {
   model?: Model;
   params: GenerateImageParams;
 };
 export type GenerateImageResponse = string;
-
-export type GetMediaUploadSignedUrlRequest = {
-  mediaFormat: MediaFormat;
-};
-
-export type GetMediaUploadSignedUrlResponse = string;
 
 export type DeleteFileRequest = {
   fileName: string;
@@ -123,15 +142,23 @@ export type DeleteFileResponse = null;
 
 export type StartTranscriptionRequest = {
   audioUrl: string;
+  speakerLabel: boolean;
+  maxSpeakers: number;
 };
 
 export type StartTranscriptionResponse = {
   jobName: string;
 };
 
+export type Transcript = {
+  speakerLabel?: string;
+  transcript: string;
+};
+
 export type GetTranscriptionResponse = {
   status: string;
-  transcript?: string;
+  languageCode: string;
+  transcripts?: Transcript[];
 };
 
 export type UploadAudioRequest = {
@@ -159,6 +186,7 @@ export type GetSharedChatResponse = {
 };
 
 export type GetFileUploadSignedUrlRequest = {
+  filename?: string;
   mediaFormat: string;
 };
 
@@ -166,12 +194,4 @@ export type GetFileUploadSignedUrlResponse = string;
 
 export type UploadFileRequest = {
   file: File;
-};
-
-export type RecognizeFileRequest = {
-  fileUrl: string;
-};
-
-export type RecognizeFileResponse = {
-  text: string;
 };
