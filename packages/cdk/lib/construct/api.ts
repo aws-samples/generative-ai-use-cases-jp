@@ -563,7 +563,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadData(listUseCasesFunction);
+    useCaseBuilderTable.grantReadData(listUseCasesFunction);
 
     const listFavoriteUseCasesFunction = new NodejsFunction(
       this,
@@ -577,7 +577,7 @@ export class Api extends Construct {
         },
       }
     );
-    table.grantReadData(listFavoriteUseCasesFunction);
+    useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       runtime: Runtime.NODEJS_18_X,
@@ -587,7 +587,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadData(getUseCaseFunction);
+    useCaseBuilderTable.grantReadData(getUseCaseFunction);
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
       runtime: Runtime.NODEJS_18_X,
@@ -597,7 +597,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantWriteData(createUseCaseFunction);
+    useCaseBuilderTable.grantWriteData(createUseCaseFunction);
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
       runtime: Runtime.NODEJS_18_X,
@@ -607,7 +607,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadWriteData(updateUseCaseFunction);
+    useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
       runtime: Runtime.NODEJS_18_X,
@@ -617,7 +617,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadWriteData(deleteUseCaseFunction);
+    useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
       runtime: Runtime.NODEJS_18_X,
@@ -627,7 +627,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadWriteData(toggleFavoriteFunction);
+    useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       runtime: Runtime.NODEJS_18_X,
@@ -637,7 +637,7 @@ export class Api extends Construct {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
     });
-    table.grantReadWriteData(toggleSharedFunction);
+    useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
