@@ -6,7 +6,6 @@ import {
   UserIdAndChatId,
   SystemContext,
   UpdateFeedbackRequest,
-  CustomUseCase,
   CustomUseCaseMeta,
   UseCaseId,
   IsFavorite,
@@ -599,20 +598,15 @@ export const listFavoriteUseCases = async (
 
   const useCasePromises = favoriteUseCaseIds.map(async (favoriteUseCaseId) => {
     const result = await dynamoDbDocument.send(
-      new QueryCommand({
+      new GetCommand({
         TableName: USECASE_TABLE_NAME,
-        KeyConditionExpression:
-          'begins_with(#id, :userPrefix) AND useCaseId = :useCaseId',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
-        ExpressionAttributeValues: {
-          ':userPrefix': 'user#useCase#',
-          ':useCaseId': favoriteUseCaseId,
+        Key: {
+          id: useCaseUserId,
+          useCaseId: favoriteUseCaseId,
         },
       })
     );
-    return result.Items?.[0];
+    return result.Item;
   });
 
   const useCases = await Promise.all(useCasePromises);
@@ -631,7 +625,7 @@ export const listFavoriteUseCases = async (
 export const getUseCase = async (
   _userId: string,
   useCaseId: string
-): Promise<CustomUseCase | null> => {
+): Promise<CustomUseCaseMeta | null> => {
   const userId = `user#useCase#${_userId}`;
   const res = await dynamoDbDocument.send(
     new GetCommand({
@@ -643,8 +637,14 @@ export const getUseCase = async (
     })
   );
   if (!res.Item) return null;
-
-  return res.Item as CustomUseCase;
+  const item = res.Item;
+  return {
+    useCaseId: item.useCaseId,
+    title: item.title,
+    isFavorite: false,
+    hasShared: item.hasShared,
+    isMyUseCase: true,
+  };
 };
 
 export const createUseCase = async (
@@ -699,16 +699,41 @@ export const deleteUseCase = async (
   _userId: string,
   useCaseId: string
 ): Promise<void> => {
-  const userId = `user#useCase#${_userId}`;
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const favoriteUserId = `user#favorite#${_userId}`;
+
+  // ユースケース削除
   await dynamoDbDocument.send(
     new DeleteCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        id: userId,
+        id: useCaseUserId,
         useCaseId: useCaseId,
       },
     })
   );
+
+  // お気に入り登録があれば削除
+  const result = await dynamoDbDocument.send(
+    new GetCommand({
+      TableName: USECASE_TABLE_NAME,
+      Key: {
+        id: favoriteUserId,
+        useCaseId: useCaseId,
+      },
+    })
+  );
+  if (result.Item) {
+    await dynamoDbDocument.send(
+      new DeleteCommand({
+        TableName: USECASE_TABLE_NAME,
+        Key: {
+          id: favoriteUserId,
+          useCaseId: useCaseId,
+        },
+      })
+    );
+  }
 };
 
 export const toggleFavorite = async (
@@ -754,7 +779,7 @@ export const toggleFavorite = async (
 
 export const toggleShared = async (
   _userId: string,
-  useCase: CustomUseCase
+  useCase: CustomUseCaseMeta
 ): Promise<HasShared> => {
   const useCaseUserId = `user#useCase#${_userId}`;
   const newSharedState = !useCase.hasShared;

@@ -882,6 +882,15 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
+    const favoriteUseCaseResource = useCasesResource.addResource('favorite');
+
+    // GET: /usecases/favorite
+    favoriteUseCaseResource.addMethod(
+      'GET',
+      new LambdaIntegration(listFavoriteUseCasesFunction),
+      commonAuthorizerProps
+    );
+
     const useCaseResource = useCasesResource.addResource('{useCaseId}');
 
     // GET: /usecases/{useCaseId}
@@ -906,13 +915,6 @@ export class Api extends Construct {
     );
 
     const favoriteResource = useCaseResource.addResource('favorite');
-
-    // GET: /usecases/favorite
-    favoriteResource.addMethod(
-      'GET',
-      new LambdaIntegration(listFavoriteUseCasesFunction),
-      commonAuthorizerProps
-    );
 
     // PUT: /usecases/{useCaseId}/favorite
     favoriteResource.addMethod(

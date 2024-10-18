@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getUseCase, toggleShared } from './repository';
-import { CustomUseCase, HasShared } from 'generative-ai-use-cases-jp';
+import { CustomUseCaseMeta, HasShared } from 'generative-ai-use-cases-jp';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -10,7 +10,10 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const useCase: CustomUseCase | null = await getUseCase(userId, useCaseId);
+    const useCase: CustomUseCaseMeta | null = await getUseCase(
+      userId,
+      useCaseId
+    );
 
     if (!useCase) {
       return {
@@ -19,7 +22,9 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Use Case not found' }),
+        body: JSON.stringify({
+          message: 'Use Case not found / not created by this user',
+        }),
       };
     }
 
