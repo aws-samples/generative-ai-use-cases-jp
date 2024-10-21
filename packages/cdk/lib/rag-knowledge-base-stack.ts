@@ -382,14 +382,14 @@ export class RagKnowledgeBaseStack extends Stack {
         // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html
         //
         // セマンティックチャンク
-        // chunkingConfiguration: {
-        //   chunkingStrategy: 'SEMANTIC',
-        //   semanticChunkingConfiguration: {
-        //     maxTokens: 300,
-        //     bufferSize: 0,
-        //     breakpointPercentileThreshold: 95,
-        //   },
-        // },
+        chunkingConfiguration: {
+          chunkingStrategy: 'SEMANTIC',
+          semanticChunkingConfiguration: {
+            maxTokens: 300,
+            bufferSize: 0,
+            breakpointPercentileThreshold: 95,
+          },
+        },
         //
         // 階層チャンク
         // chunkingConfiguration: {
