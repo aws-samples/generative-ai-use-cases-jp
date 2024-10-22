@@ -268,124 +268,123 @@ const LandingPage: React.FC = () => {
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
-        <AwsIcon className="mr-5 size-20" />
-        ではじめる生成 AI
+        Generative AI on
+        <AwsIcon className="ml-5 size-20" />
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
-        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
-          試す
+        By clicking
+        <Button className="mx-0 mb-2 lg:mx-2 lg:mb-0" onClick={() => {}}>
+          Try
         </Button>
-        をクリックすることで、各ユースケースを体験できます。
+        you can experience each use case.
       </div>
 
-      <h1 className="mb-6 flex justify-center text-2xl font-bold">
-        ユースケース一覧
-      </h1>
+      <h1 className="mb-6 flex justify-center text-2xl font-bold">Use Cases</h1>
 
       <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
-          label="チャット"
+          label="Chat"
           onClickDemo={demoChat}
           icon={<PiChatsCircle />}
-          description="LLM とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。"
+          description="You can interact with large language models (LLMs) in a chat format. Thanks to platforms that allow direct interaction with LLMs, we can quickly respond to specific use cases and new use cases. It is also an effective environment for verifying prompt engineering."
         />
         {ragEnabled && (
           <CardDemo
-            label="RAG チャット"
+            label="RAG Chat"
             sub="Amazon Kendra"
             onClickDemo={demoRag}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon Kendra から取得した参考ドキュメントをベースに LLM が回答を生成してくれるため、「社内情報に対応した LLM チャット」を簡単に実現することが可能です。"
+            description="RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. Since LLM generates responses based on reference documents obtained from Amazon Kendra, it is possible to easily realize LLM chat that corresponds to internal information."
           />
         )}
         {ragKnowledgeBaseEnabled && (
           <CardDemo
-            label="RAG チャット"
+            label="RAG Chat"
             sub="Knowledge Base"
             onClickDemo={demoRagKnowledgeBase}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
+            description="RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. Since LLM generates responses based on reference documents obtained from Knowledge Base, it is possible to easily realize LLM chat that corresponds to internal information."
           />
         )}
         {agentEnabled && (
           <CardDemo
-            label="Agent チャット"
+            label="Agent Chat"
             onClickDemo={demoAgent}
             icon={<PiRobot />}
-            description="Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
+            description="Agent is a method that enables LLMs to perform various tasks by integrating with APIs. In this solution, we implement an Agent that investigates necessary information using a search engine and provides answers as a sample implementation."
           />
         )}
         {promptFlowChatEnabled && (
           <CardDemo
-            label="Prompt Flow チャット"
+            label="Prompt Flow Chat"
             onClickDemo={demoPromptFlowChat}
             icon={<PiFlowArrow />}
-            description="Prompt Flow を使用して、複数のステップを持つ対話型チャットフローを作成します。ユーザーの入力に基づいて、動的に次のステップを決定し、より複雑な対話シナリオを実現します。"
+            description="With Amazon Bedrock Prompt Flows, you can create workflows by connecting prompts, base models, and other AWS services. The Prompt Flow Chat use case provides a chat interface for selecting and running pre-created Flows."
           />
         )}
         <CardDemo
-          label="文章生成"
+          label="Text Generation"
           onClickDemo={demoGenerate}
           icon={<PiPencil />}
-          description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
+          description="Generating text in various contexts is one of the tasks that LLMs excel at. It can handle articles, reports, emails, and more in any context."
         />
         <CardDemo
-          label="要約"
+          label="Summarization"
           onClickDemo={demoSummarize}
           icon={<PiNote />}
-          description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+          description="LLMs are skilled at summarizing large amounts of text. Not only can they summarize, but they can also extract necessary information through a conversational format by providing the text as context. For example, you can load a contract and retrieve information such as What are the conditions for XXX? or What is the amount for YYY?"
         />
         <CardDemo
-          label="校正"
+          label="Proofreading"
           onClickDemo={demoEditorial}
           icon={<PiPenNib />}
-          description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
+          description="LLMs can not only check for spelling and grammatical errors but also suggest improvements from a more objective perspective, considering the flow and content of the text. By having an LLM objectively check for points you may have missed before presenting your work, you can expect to improve the quality."
         />
         <CardDemo
-          label="翻訳"
+          label="Translation"
           onClickDemo={demoTranslate}
           icon={<PiTranslate />}
-          description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+          description="LLMs trained on multiple languages are capable of translation. Furthermore, they can reflect various specified contextual information, such as casualness or target audience, into the translation."
         />
         <CardDemo
-          label="Web コンテンツ抽出"
+          label="Web Content Extraction"
           onClickDemo={demoWebContent}
           icon={<PiGlobe />}
-          description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
+          description="Extracts web content such as blogs and documents. LLMs remove unnecessary information and format the extracted content into coherent sentences. The extracted content can be used in other use cases such as summarization and translation."
         />
         <CardDemo
-          label="画像生成"
+          label="Image Generation"
           onClickDemo={demoGenerateImage}
           icon={<PiImages />}
-          description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+          description="Image generation AI can create new images based on text or images. It allows you to instantly visualize ideas, which can be expected to improve efficiency in tasks like design work. In this feature, you can have an LLM assist in creating prompts."
         />
         {multiModalEnabled && (
           <CardDemo
-            label="映像分析"
+            label="Video Analysis"
             onClickDemo={demoVideoAnalyzer}
             icon={<PiVideoCamera />}
-            description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
+            description="With multimodal models, it has become possible to input not only text but also images. In this feature, we provide image frames and text from a video as input for an LLM to analyze."
           />
         )}
       </div>
 
       <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
-        ユースケース連携
+        Use Case Integration
       </h1>
 
       <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
-          label="ブログ記事作成"
+          label="Blog Post Creation"
           onClickDemo={demoBlog}
           icon={<PiPen />}
-          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
+          description="It combines multiple use cases to generate blog posts. By automatically generating article summaries and thumbnail images, it also makes it easy to set up OGP. As an example, it generates a blog post introducing AI generation based on information from the AWS official website."
         />
         <CardDemo
-          label="議事録作成"
+          label="Minutes generation"
           onClickDemo={demoMeetingReport}
           icon={<PiNotebook />}
-          description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
+          description="It combines multiple use cases to automatically generate minutes from meeting recording data. It is possible to transcribe recording data, format transcription results, and create minutes without human cost."
         />
       </div>
     </div>

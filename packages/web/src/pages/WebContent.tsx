@@ -204,7 +204,7 @@ const WebContent: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        Web コンテンツ抽出
+        Web Content Extraction
       </div>
 
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
@@ -216,14 +216,13 @@ const WebContent: React.FC = () => {
             onDissmiss={() => {
               setShowError(false);
             }}>
-            指定した URL
-            にアクセスした際にエラーが発生しました。スクレイピングが禁止されているか
-            URL
-            が間違っている可能性があります。一時的な問題と思われる場合は、再実行してください。
+            An error occurred when accessing the specified URL. Web scraping may
+            be prohibited or the URL may be incorrect. If this appears to be a
+            temporary issue, please try running again.
           </Alert>
         )}
 
-        <Card label="コンテンツを抽出したい Web サイト">
+        <Card label="">
           <div className="mb-2 flex w-full">
             <Select
               value={modelId}
@@ -235,15 +234,16 @@ const WebContent: React.FC = () => {
           </div>
 
           <div className="text-xs text-black/50">
-            ブログ、記事、ドキュメント等、テキストがメインコンテンツである Web
-            サイトを指定してください。そうでない場合、正常に出力されないことがあります。
+            Please specify websites where text is the main content, such as
+            blogs, articles, and documents. Otherwise, the output may not be
+            displayed correctly.
           </div>
 
           <RowItem>
             <input
               type="text"
               className="w-full rounded border border-black/30 p-1.5 outline-none"
-              placeholder="URL を入力してください"
+              placeholder="Please enter the URL"
               value={url}
               onChange={(e) => {
                 setUrl(e.target.value);
@@ -251,9 +251,9 @@ const WebContent: React.FC = () => {
             />
           </RowItem>
 
-          <ExpandableField label="追加コンテキスト" optional>
+          <ExpandableField label="Additional context" optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（例: 要約して）"
+              placeholder="You can enter additional points to consider"
               value={context}
               onChange={setContext}
             />
@@ -261,15 +261,15 @@ const WebContent: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             {stopReason === 'max_tokens' && (
-              <Button onClick={continueGeneration}>続きを出力</Button>
+              <Button onClick={continueGeneration}>Continue to output</Button>
             )}
 
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              Clear
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              Generate
             </Button>
           </div>
 
@@ -277,7 +277,7 @@ const WebContent: React.FC = () => {
             <Markdown>{typingTextOutput}</Markdown>
             {!loading && !fetching && content === '' && (
               <div className="text-gray-500">
-                抽出された文章がここに表示されます
+                The extracted text will be displayed here.
               </div>
             )}
             {(loading || fetching) && (
@@ -291,14 +291,15 @@ const WebContent: React.FC = () => {
           </div>
 
           <ExpandableField
-            label={`抽出前のテキスト (${
-              fetching ? '読み込み中...' : text === '' ? '未取得' : '取得済'
+            label={`Text before extraction (${
+              fetching ? 'Loading...' : text === '' ? 'Not fetched' : 'Fetched'
             })`}
             className="mt-2">
             <div className="rounded border border-black/30 p-1.5">
               {text === '' && (
                 <div className="text-gray-500">
-                  未取得です。URL を入力して実行ボタンを押してください。
+                  It is not fetched. Please enter the URL and click the Generate
+                  button.
                 </div>
               )}
               {text}

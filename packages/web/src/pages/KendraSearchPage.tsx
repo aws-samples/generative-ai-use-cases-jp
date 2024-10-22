@@ -34,19 +34,17 @@ const KendraSearchPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center">
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        Kendra 検索
+        Kendra Search
       </div>
       <div className="text-sm text-gray-600">
         <div>
-          この機能は、Amazon Kendra の標準機能である Query API
-          で検索を行います。
-          <span className="font-bold">
-            生成 AI は利用していません。RAG は
-            <Link className="text-aws-smile" to="/rag">
-              RAG チャット
-            </Link>
-            で実行できます。
-          </span>
+          This feature performs searches using the Query API, which is a
+          standard feature of Amazon Kendra. Generative AI is not used. RAG can
+          be executed in{' '}
+          <Link className="text-aws-smile" to="/rag">
+            RAG Chat
+          </Link>
+          .
         </div>
       </div>
       <div className="relative mb-16 mt-6 flex w-2/3 justify-center">
@@ -54,7 +52,7 @@ const KendraSearchPage: React.FC = () => {
         <input
           ref={queryRef}
           className="absolute w-full rounded-full border-gray-400 pl-9"
-          placeholder="検索ワードを入力してください"
+          placeholder="Please enter a search word"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

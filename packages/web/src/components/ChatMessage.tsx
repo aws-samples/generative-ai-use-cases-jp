@@ -151,7 +151,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               <details className="mb-2 cursor-pointer rounded border p-2">
                 <summary className="text-sm">
                   <div className="inline-flex gap-1">
-                    トレース
+                    Trace
                     {props.loading && !chatContent?.content && (
                       <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     )}
@@ -268,7 +268,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
           {showThankYouMessage && (
             <div className="mt-2 rounded-md bg-green-100 p-2 text-center text-green-700">
-              フィードバックを受け付けました。ありがとうございます。
+              Thank you for your feedback.
             </div>
           )}
         </div>

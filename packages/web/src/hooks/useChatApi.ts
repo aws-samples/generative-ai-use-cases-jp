@@ -97,7 +97,7 @@ const useChatApi = () => {
     predictStream: async function* (req: PredictRequest) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
-        throw new Error('認証されていません。');
+        throw new Error('Not authorized');
       }
 
       const region = import.meta.env.VITE_APP_REGION;

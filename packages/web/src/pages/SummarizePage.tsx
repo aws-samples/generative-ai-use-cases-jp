@@ -148,10 +148,10 @@ const SummarizePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        要約
+        Summarization
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="要約したい文章">
+        <Card label="">
           <div className="mb-2 flex w-full">
             <Select
               value={modelId}
@@ -163,15 +163,15 @@ const SummarizePage: React.FC = () => {
           </div>
 
           <Textarea
-            placeholder="入力してください"
+            placeholder="Text to be summarized"
             value={sentence}
             onChange={setSentence}
             maxHeight={-1}
           />
 
-          <ExpandableField label="追加コンテキスト" optional>
+          <ExpandableField label="Additional context" optional>
             <Textarea
-              placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+              placeholder="You can enter additional points to consider"
               value={additionalContext}
               onChange={setAdditionalContext}
             />
@@ -179,11 +179,11 @@ const SummarizePage: React.FC = () => {
 
           <div className="flex justify-end gap-3">
             <Button outlined onClick={onClickClear} disabled={disabledExec}>
-              クリア
+              Clear
             </Button>
 
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              Generate
             </Button>
           </div>
 
@@ -191,7 +191,7 @@ const SummarizePage: React.FC = () => {
             <Markdown>{typingTextOutput}</Markdown>
             {!loading && summarizedSentence === '' && (
               <div className="text-gray-500">
-                要約された文章がここに表示されます
+                Summarized sentence will be displayed here.
               </div>
             )}
             {loading && (

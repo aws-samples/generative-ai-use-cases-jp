@@ -192,11 +192,11 @@ const PromptList: React.FC<Props> = (props) => {
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
           <div className="my-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
-            保存したシステムコンテキスト
+            Saved system prompts
           </div>
           <ul className="pl-6">
             {props.systemContextList.length == 0 && (
-              <li className="text-gray-400">ありません</li>
+              <li className="text-gray-400">No saved prompts</li>
             )}
             {props.systemContextList.length > 0 &&
               props.systemContextList.map((item, i) => {
@@ -213,7 +213,7 @@ const PromptList: React.FC<Props> = (props) => {
 
           <div className="mb-2 mt-4 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
-            プロンプト例
+            Prompt examples
           </div>
 
           {prompter.promptList().map((category, i) => {

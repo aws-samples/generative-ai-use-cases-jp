@@ -55,7 +55,7 @@ const useFilesState = create<{
         // ファイルの拡張子が間違っている場合はフィルタリング
         if (isMimeSpoofedResults[idx]) {
           errorMessages.push(
-            `${file.name} はファイルタイプと拡張子が合致しないファイルです。`
+            `${file.name} is a file whose file type and extension do not match.`
           );
         }
         return !isMimeSpoofedResults[idx];
@@ -66,7 +66,7 @@ const useFilesState = create<{
         const isFileAllowed = fileLimit?.accept.includes(mediaFormat);
         if (!isFileAllowed) {
           errorMessages.push(
-            `${file.name} は許可されていない拡張子です。利用できる拡張子は ${fileLimit?.accept.join(', ')} です`
+            `${file.name} has an unsupported file extension. Allowed file extensions are ${fileLimit?.accept.join(', ')}`
           );
         }
         return isFileAllowed;
@@ -80,7 +80,7 @@ const useFilesState = create<{
         const isFileAllowed = file.size <= maxSizeMB * 1e6;
         if (!isFileAllowed) {
           errorMessages.push(
-            `${file.name} は最大ファイルサイズ ${maxSizeMB} MB を超えています。`
+            `${file.name} exceeds the maximum file size of ${maxSizeMB} MB.`
           );
         }
         return isFileAllowed;
@@ -93,7 +93,7 @@ const useFilesState = create<{
           isFileAllowed = imageFileCount <= (fileLimit?.maxImageFileCount || 0);
           if (!isFileAllowed) {
             errorMessages.push(
-              `画像ファイルは ${fileLimit?.maxImageFileCount} 個以下にしてください`
+              `Please limit the number of image files to ${fileLimit?.maxImageFileCount} or fewer.`
             );
           }
         } else {
@@ -101,7 +101,7 @@ const useFilesState = create<{
           isFileAllowed = fileCount <= (fileLimit?.maxFileCount || 0);
           if (!isFileAllowed) {
             errorMessages.push(
-              `ファイルは ${fileLimit?.maxFileCount} 個以下にしてください`
+              `Please limit the number of files to ${fileLimit?.maxFileCount} or fewer.`
             );
           }
         }

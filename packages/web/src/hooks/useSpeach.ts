@@ -7,13 +7,13 @@ import { Polly, SynthesizeSpeechCommand, VoiceId } from '@aws-sdk/client-polly';
 // Engine=neural のものが指定可能
 // https://docs.aws.amazon.com/ja_jp/polly/latest/dg/available-voices.html
 const LanguageVoiceMapping: Record<string, VoiceId> = {
-  英語: 'Joanna',
-  日本語: 'Kazuha',
-  中国語: 'Zhiyu',
-  韓国語: 'Seoyeon',
-  フランス語: 'Lea',
-  スペイン語: 'Lucia',
-  ドイツ語: 'Vicki',
+  English: 'Joanna',
+  Japanese: 'Kazuha',
+  Chinese: 'Zhiyu',
+  Korean: 'Seoyeon',
+  French: 'Lea',
+  Spanish: 'Lucia',
+  German: 'Vicki',
 };
 
 const useSpeach = (language: string) => {
@@ -38,7 +38,7 @@ const useSpeach = (language: string) => {
 
       if (!token) {
         setLoading(false);
-        throw new Error('認証されていません。');
+        throw new Error('Not authorized');
       }
 
       const region = import.meta.env.VITE_APP_REGION;

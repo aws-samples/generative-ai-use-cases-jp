@@ -11,7 +11,12 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [feedback, setFeedback] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  const reasons = ['不正確', '情報が古い', '有害または攻撃的', 'その他'];
+  const reasons = [
+    'Inaccurate',
+    'Outdated information',
+    'Harmful or offensive',
+    'Other',
+  ];
 
   const handleReasonChange = (reason: string) => {
     setSelectedReasons((prev) =>
@@ -24,7 +29,7 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
 
   const handleSubmit = () => {
     if (selectedReasons.length === 0) {
-      setError('理由を選択してください。');
+      setError('Select reasons');
       return;
     }
     onSubmit(selectedReasons, feedback);
@@ -33,7 +38,7 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   return (
     <div className="mt-2 rounded-lg border bg-white p-4 shadow-sm">
       <h3 className="mb-3 text-base font-medium">
-        この回答を評価した理由をお聞かせください。
+        Please tell me the reason why you evaluated this answer.
       </h3>
       <div className="mb-3 flex flex-wrap gap-2">
         {reasons.map((reason) => (
@@ -52,17 +57,17 @@ const FeedbackForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
       {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
       <textarea
         className="mb-1 w-full rounded-md border p-2 text-sm"
-        placeholder="他にフィードバックがありましたら、入力してください。(optional)"
+        placeholder="If you have any other feedback, please enter it. (optional)"
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         rows={3}
       />
       <div className="flex justify-end gap-2">
         <Button onClick={onCancel} outlined={true}>
-          キャンセル
+          Cancel
         </Button>
         <Button onClick={handleSubmit} outlined={false}>
-          送信
+          Send
         </Button>
       </div>
     </div>

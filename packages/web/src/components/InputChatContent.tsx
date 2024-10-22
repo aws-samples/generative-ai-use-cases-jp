@@ -140,7 +140,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           )}
           <Textarea
             className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-24' : 'pr-14'}`}
-            placeholder={props.placeholder ?? '入力してください'}
+            placeholder={props.placeholder ?? 'Send a prompt to the use case'}
             noBorder
             notItem
             value={props.content}
@@ -186,7 +186,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             disabled={loading}
             onClick={props.onReset}>
             <PiArrowsCounterClockwise className="mr-2" />
-            最初からやり直す
+            Clear the conversation
           </Button>
         )}
       </div>

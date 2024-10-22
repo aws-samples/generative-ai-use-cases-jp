@@ -48,26 +48,26 @@ const promptFlowChatEnabled: boolean = promptFlows.length > 0;
 
 const items: ItemProps[] = [
   {
-    label: 'ホーム',
+    label: 'Home',
     to: '/',
     icon: <PiHouse />,
     display: 'usecase' as const,
   },
   {
-    label: '設定情報',
+    label: 'Setting',
     to: '/setting',
     icon: <PiGear />,
     display: 'none' as const,
   },
   {
-    label: 'チャット',
+    label: 'Chat',
     to: '/chat',
     icon: <PiChatsCircle />,
     display: 'usecase' as const,
   },
   ragEnabled
     ? {
-        label: 'RAG チャット',
+        label: 'RAG Chat',
         to: '/rag',
         icon: <PiChatCircleText />,
         display: 'usecase' as const,
@@ -76,7 +76,7 @@ const items: ItemProps[] = [
     : null,
   ragKnowledgeBaseEnabled
     ? {
-        label: 'RAG チャット',
+        label: 'RAG Chat',
         to: '/rag-knowledge-base',
         icon: <PiChatCircleText />,
         display: 'usecase' as const,
@@ -85,7 +85,7 @@ const items: ItemProps[] = [
     : null,
   agentEnabled
     ? {
-        label: 'Agent チャット',
+        label: 'Agent Chat',
         to: '/agent',
         icon: <PiRobot />,
         display: 'usecase' as const,
@@ -93,65 +93,65 @@ const items: ItemProps[] = [
     : null,
   promptFlowChatEnabled
     ? {
-        label: 'Prompt Flow チャット',
+        label: 'Prompt Flow Chat',
         to: '/prompt-flow-chat',
         icon: <PiFlowArrow />,
         display: 'usecase' as const,
       }
     : null,
   {
-    label: '文章生成',
+    label: 'Text Generation',
     to: '/generate',
     icon: <PiPencil />,
     display: 'usecase' as const,
   },
   {
-    label: '要約',
+    label: 'Summarization',
     to: '/summarize',
     icon: <PiNote />,
     display: 'usecase' as const,
   },
   {
-    label: '校正',
+    label: 'Proofreading',
     to: '/editorial',
     icon: <PiPenNib />,
     display: 'usecase' as const,
   },
   {
-    label: '翻訳',
+    label: 'Translation',
     to: '/translate',
     icon: <PiTranslate />,
     display: 'usecase' as const,
   },
   {
-    label: 'Web コンテンツ抽出',
+    label: 'Web Content Extraction',
     to: '/web-content',
     icon: <PiGlobe />,
     display: 'usecase' as const,
   },
   {
-    label: '画像生成',
+    label: 'Image Generation',
     to: '/image',
     icon: <PiImages />,
     display: 'usecase' as const,
   },
   multiModalEnabled
     ? {
-        label: '映像分析',
+        label: 'Video Analysis',
         to: '/video',
         icon: <PiVideoCamera />,
         display: 'usecase' as const,
       }
     : null,
   {
-    label: '音声認識',
+    label: 'Voice Recognition',
     to: '/transcribe',
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
   ragEnabled
     ? {
-        label: 'Kendra 検索',
+        label: 'Kendra Search',
         to: '/kendra',
         icon: <PiMagnifyingGlass />,
         display: 'tool' as const,

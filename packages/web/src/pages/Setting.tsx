@@ -44,80 +44,84 @@ const Setting = () => {
   return (
     <div>
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        設定情報
+        Settings information
       </div>
 
       {hasUpdate && (
         <div className="mt-5 flex w-full justify-center">
           <Alert severity="info" className="flex w-fit items-center">
-            GitHub にアップデートがあります。最新の機能を利用したい場合は
+            There is an update on GitHub. If you want to use the latest
+            features, please pull the main branch from{' '}
             <Link
               className="text-aws-smile"
               to="https://github.com/aws-samples/generative-ai-use-cases-jp"
               target="_blank">
               generative-ai-use-cases-jp
-            </Link>
-            の main ブランチを pull して再度デプロイしてください。
+            </Link>{' '}
+            and redeploy.
           </Alert>
         </div>
       )}
 
-      <div className="my-3 flex justify-center font-semibold">全般</div>
+      <div className="my-3 flex justify-center font-semibold">General</div>
 
       <div className="flex w-full flex-col items-center text-sm">
         <SettingItem
-          name="バージョン"
-          value={localVersion || '取得できませんでした'}
-          helpMessage="generative-ai-use-cases-jp の package.json の version を参照しています"
+          name="Version"
+          value={localVersion || 'Cannot get the version'}
+          helpMessage="Referring to the version in the package.json of generative-ai-use-cases-jp"
         />
         <SettingItem
-          name="RAG (Amazon Kendra) 有効"
+          name="RAG (Amazon Kendra) enabled"
           value={ragEnabled.toString()}
         />
         <SettingItem
-          name="RAG (Knowledge Base) 有効"
+          name="RAG (Knowledge Base) enabled"
           value={ragKnowledgeBaseEnabled.toString()}
         />
-        <SettingItem name="Agent 有効" value={agentEnabled.toString()} />
+        <SettingItem name="Agent enabled" value={agentEnabled.toString()} />
       </div>
 
-      <div className="my-3 flex justify-center font-semibold">生成 AI</div>
+      <div className="my-3 flex justify-center font-semibold">
+        Generative AI
+      </div>
 
       <div className="flex w-full flex-col items-center text-sm">
-        <SettingItem name="LLM モデル名" value={modelIds.join(', ')} />
+        <SettingItem name="LLM models" value={modelIds.join(', ')} />
         <SettingItem
-          name="画像生成 モデル名"
+          name="Image generation models"
           value={imageGenModelIds.join(', ')}
         />
-        <SettingItem name="Agent 名" value={agentNames.join(', ')} />
+        <SettingItem name="Agent names" value={agentNames.join(', ')} />
         <SettingItem
-          name="LLM & 画像生成 モデルリージョン"
+          name="Model region for LLM & image generation"
           value={modelRegion}
         />
         <div className="mt-5 w-2/3 text-xs lg:w-1/2">
-          設定の変更はこの画面ではなく
+          The settings cannot be changed on this screen, but rather through{' '}
           <Link
             className="text-aws-smile"
-            to="https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/home.html"
+            to="https://docs.aws.amazon.com/en_us/cdk/v2/guide/home.html"
             target="_blank">
             AWS CDK
           </Link>
-          で行います。 また、ユースケース実行時にエラーになる場合は、必ず
-          <span className="font-bold">{modelRegion}</span> にて指定したモデル
-          を有効化しているか確認してください。それぞれのやり方については
+          . If you encounter an error while running a use case, make sure to
+          enable the model specified in{' '}
+          <span className="font-bold">{modelRegion}</span>. For more information
+          on how to do this, please refer to{' '}
           <Link
             className="text-aws-smile"
             to="https://github.com/aws-samples/generative-ai-use-cases-jp"
             target="_blank">
             generative-ai-use-cases-jp
           </Link>
-          をご参照ください。
+          .
         </div>
       </div>
 
       <div className="mb-3 mt-8 flex items-center justify-center font-semibold">
         <PiGithubLogoFill className="mr-2 text-lg" />
-        最近のアップデート
+        Recent updates
       </div>
 
       <div className="flex flex-col items-center text-sm">
@@ -144,14 +148,14 @@ const Setting = () => {
             className="flex items-center hover:underline"
             target="_blank">
             <PiArrowSquareOut className="mr-1 text-base" />
-            全てのアップデートを見る
+            View all updates
           </a>
         </div>
       </div>
 
       <div className="my-10 flex w-full justify-center">
         <Button onClick={signOut} className="text-lg">
-          サインアウト
+          Sign out
         </Button>
       </div>
     </div>

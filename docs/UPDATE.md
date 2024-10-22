@@ -1,86 +1,85 @@
-# アップデート方法
+# How to Update
 
-GenU は頻繁にアップデートされています。
-機能追加・改善に加え、セキュリティ文脈のアップデートが入ることもありますので、定期的にリポジトリの main ブランチを pull して再デプロイすることをお勧めします。
+GenU is frequently updated. In addition to new features and improvements, there may be security-related updates, so we recommend regularly pulling the main branch from the repository and redeploying.
 
-[AWS CloudShell を利用したデプロイ方法](/docs/DEPLOY_ON_CLOUDSHELL.md) を利用している場合、常に最新の main ブランチをデプロイするため、再度 `deploy.sh` を実行するとアップデートされます。(以下の手順は不要です。)
+If you are using the [deployment method with AWS CloudShell](/docs/DEPLOY_ON_CLOUDSHELL.md), you will always deploy the latest main branch, so you can update by simply running `deploy.sh` again (the following steps are not necessary).
 
-## main ブランチを pull する
+## Pull the main branch
 
-すでにリポジトリを clone 済みで、初回デプロイが完了していることを想定しています。
-main ブランチの内容を pull するには以下のコマンドを実行します。
+We assume that you have already cloned the repository and completed the initial deployment.
+To pull the contents of the main branch, run the following command:
 
 ```bash
 git pull
 ```
 
-別のリポジトリでカスタマイズしている場合は、remote が別名で登録されている可能性があります。
-remote は以下のコマンドで調べることが可能です。
+If you have customized another repository, the remote may be registered under a different name.
+You can check the remote with the following command:
 
 ```bash
 git remote -v
 ```
 
-以下の出力例の場合、aws-samples という Organization で管理されているリポジトリ (本家のリポジトリ) が aws という名前で登録されています。
+In the following example output, the repository managed by the aws-samples Organization (the main repository) is registered under the name aws.
 
 ```
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (fetch)
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (push)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (fetch)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (push)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (fetch)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (push)
+aws     https://github.com/aws-samples/generative-ai-use-cases (fetch)
+aws     https://github.com/aws-samples/generative-ai-use-cases (push)
 ```
 
-この場合は、aws を明示的に指定して pull を実施します。
+In this case, explicitly specify aws to perform the pull:
 
 ```bash
 git pull aws
 ```
 
-`git remote -v` の結果、aws-samples で管理されているリポジトリがない場合は、以下のコマンドで追加します。
+If the result of `git remote -v` does not show a repository managed by aws-samples, add it with the following command:
 
 ```bash
-git remote add aws https://github.com/aws-samples/generative-ai-use-cases-jp
+git remote add aws https://github.com/aws-samples/generative-ai-use-cases
 ```
 
-aws という名前で登録されたので、`git pull aws` を実行して pull を実施します。
+Since it is registered under the name aws, run `git pull aws` to perform the pull.
 
-## 取り込む前に変更が見たい場合
+## If you want to check the changes before merging
 
-`git pull` コマンドは `git fetch` (変更を取得) と `git merge` (変更を取り込む) を同時に行います。
-変更点を確認してから取り込みたい場合は、`fetch` と `merge` を別々に実行してください。
-以下のコマンドでは、[aws-samples/generative-ai-use-cases-jp](https://github.com/aws-samples/generative-ai-use-cases-jp) が origin という名前で remote に登録されているとして記述します。
-remote 名を調べる場合は、前述した `git remote -v` コマンドを実行してください。
+The `git pull` command performs `git fetch` (retrieve changes) and `git merge` (merge changes) simultaneously.
+If you want to check the changes before merging, run `fetch` and `merge` separately.
+In the following commands, we assume that [aws-samples/generative-ai-use-cases](https://github.com/aws-samples/generative-ai-use-cases) is registered as a remote under the name origin.
+To check the remote name, run the `git remote -v` command mentioned earlier.
 
-まずは以下のコマンドで変更を取得します。
+First, retrieve the changes with the following command:
 
 ```bash
 git fetch origin
 ```
 
-続いて、手元のコードと origin/main の違いを確認します。
+Then, check the differences between your local code and origin/main:
 
 ```bash
 git diff origin/main
 ```
 
-問題なければ、マージを実行します。
+If there are no issues, perform the merge:
 
 ```bash
 git merge origin/main
 ```
 
-## コンフリクトが発生した場合
+## If conflicts occur
 
-`git pull` 時にコンフリクトが発生した場合、カスタマイズしたコードと、本家の変更が同時に同じファイルに対して行われてしまっています。
-コンフリクトが入ったコードは手動で修正する必要があります。
+If conflicts occur during `git pull`, your customized code and the changes from the main repository have been made to the same file simultaneously.
+You will need to manually fix the code with conflicts.
 
-特に [cdk.json](/packages/cdk/cdk.json) のコンフリクトには注意が必要です。
-**手元で設定した項目が消えていないか、`git pull` 後に必ず確認してください。**
+Pay special attention to conflicts in [cdk.json](/packages/cdk/cdk.json).
+**After `git pull`, make sure to check that the settings you made locally have not been removed.**
 
-## 再デプロイする
+## Redeploy
 
-基本的には [README.md](/README.md) の手順に従いますが、Bootstrap は必要ありません。
-パッケージがアップデートされている可能性があるため、`npm ci` コマンドは実行してください。
+Basically, follow the steps in [README.md](/README.md), but bootstrapping is not necessary.
+Since the packages may have been updated, run the `npm ci` command.
 
 ```bash
 npm ci

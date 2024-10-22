@@ -1,44 +1,42 @@
-# ネイティブアプリのように利用する方法
+# How to Use GenU Like a Native App
 
-GenU は、PWA（Progressive Web Application）という技術を使ってネイティブアプリのようにインストールして利用することが可能です（もちろん、インストールせずにブラウザから直接利用することも可能です）。
+GenU can be installed and used like a native app using Progressive Web Application (PWA) technology (of course, you can also use it directly from a browser without installing it).
 
-PWA はブラウザの機能を利用して動作するので、ブラウザからインストールを行います。代表的な 2 つのブラウザについて、利用方法を解説します。
+Since PWAs work by utilizing browser functionality, the installation is done from the browser. Here's how to use it on two popular browsers.
 
-## インストール方法
+## Installation Method
 
-### Google Chrome の場合
+### For Google Chrome
 
-まずは、デプロイした Web の URL にアクセスしてください。アクセスすると、下記の画面のようにインストールボタンが表示されるので、クリックしてインストールをしてください。
-![Chrome からインストール](/imgs/pwa/chrome_install.png)
-![インストール確認](/imgs/pwa/chrome_install_confirm.png)
+First, access the deployed Web URL. When you access it, an install button will be displayed as shown in the image below, so click it to install.
+![Install from Chrome](/imgs/pwa/chrome_install.png)
+![Install Confirmation](/imgs/pwa/chrome_install_confirm.png)
 
-インストールが完了すると、以下のようにブラウザから独立して GenU を実行することが可能になります。
-![インストール完了](/imgs/pwa/chrome_installed.png)
+Once the installation is complete, you can run GenU independently from the browser, as shown below.
+![Installation Complete](/imgs/pwa/chrome_installed.png)
 
+### For Microsoft Edge
 
-### Microsoft Edge の場合
+First, access the deployed Web URL. When you access it, an install button will be displayed as shown in the image below, so click it to install.
+![Install from Edge](/imgs/pwa/edge_install.png)
+![Install Confirmation](/imgs/pwa/edge_install_confirm.png)
 
-まずは、デプロイした Web の URL にアクセスしてください。アクセスすると、下記の画面のようにインストールボタンが表示されるので、クリックしてインストールをしてください。
-![Edge からインストール](/imgs/pwa/edge_install.png)
-![インストール確認](/imgs/pwa/edge_install_confirm.png)
+Once the installation is complete, you can run GenU independently from the browser, as shown below.
+![Installation Complete](/imgs/pwa/edge_installed.png)
 
-インストールが完了すると、以下のようにブラウザから独立して GenU を実行することが可能になります。
-![インストール完了](/imgs/pwa/edge_installed.png)
+## Uninstallation Method
 
-## アンインストール方法
+Even if you uninstall the PWA, you can continue to use it by accessing it from the browser like a regular web app.
 
-PWA をアンインストールしても、通常の Web アプリのようにブラウザからアクセスして引き続き利用することが可能です。
+### For Google Chrome
 
-### Google Chrome の場合
+First, open the installed PWA. From the application menu in the top right corner, click "Uninstall Generative AI Use Cases JP" to uninstall.
+![Uninstall from Chrome](/imgs/pwa/chrome_uninstall.png)
+![Uninstall Confirmation](/imgs/pwa/chrome_uninstall_confirm.png)
 
-まず、インストールした PWA を開いてください。右上のアプリケーションメニューから「Generative AI Use Cases JP」をアンインストールをクリックして、アンインストールしてください。
-![Chrome からアンインストール](/imgs/pwa/chrome_uninstall.png)
-![アンインストール確認](/imgs/pwa/chrome_uninstall_confirm.png)
+### For Microsoft Edge
 
-### Microsoft Edge の場合
+First, open the installed PWA. From the application menu in the top right corner, click "App settings" to open the settings screen. On the settings screen, click "Uninstall" to uninstall.
 
-
-まず、インストールした PWA を開いてください。右上のアプリケーションメニューから「アプリの設定」クリックして、設定画面を開いてください。設定画面内の「アンインストール」をクリックして、アンインストールをしてください。
-
-![Edge からアンインストール](/imgs/pwa/edge_uninstall.png)
-![アンインストール確認](/imgs/pwa/edge_uninstall_confirm.png)
+![Uninstall from Edge](/imgs/pwa/edge_uninstall.png)
+![Uninstall Confirmation](/imgs/pwa/edge_uninstall_confirm.png)

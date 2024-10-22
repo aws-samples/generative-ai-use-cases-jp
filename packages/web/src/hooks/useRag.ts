@@ -75,7 +75,7 @@ const useRag = (id: string) => {
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
       pushMessage('user', content);
-      pushMessage('assistant', 'Kendra から参照ドキュメントを取得中...');
+      pushMessage('assistant', 'Retrieving reference documents from Kendra...');
 
       const query = await predict({
         model: model,
@@ -100,9 +100,9 @@ const useRag = (id: string) => {
         popMessage();
         pushMessage(
           'assistant',
-          `Kendra から参照ドキュメントを取得できませんでした。次の対応を検討してください。
-- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
-- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
+          `Failed to retrieve reference documents from Kendra. Please consider the following:
+- Check the scheduled time for creating the Amazon Kendra index, and whether enough time has elapsed since then for the index creation
+- Ensure that the scheduled time for deleting the Amazon Kendra index has not passed`
         );
         setLoading(false);
         return;
@@ -112,10 +112,10 @@ const useRag = (id: string) => {
         popMessage();
         pushMessage(
           'assistant',
-          `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Amazon Kendra の data source に対象のドキュメントが追加されているか確認する
-- Amazon Kendra の data source が sync されているか確認する
-- 入力の表現を変更する`
+          `No reference documents were found. Please consider the following steps:
+- Check if the target documents are added to the Amazon Kendra data source
+- Check if the Amazon Kendra data source is synchronized
+- Modify the input expression`
         );
         setLoading(false);
         return;

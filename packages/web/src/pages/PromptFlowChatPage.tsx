@@ -61,7 +61,7 @@ const PromptFlowChatPage: React.FC = () => {
   return (
     <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        Prompt Flow チャット
+        Prompt Flow Chat
       </div>
 
       <div className="mt-2 flex w-full items-end justify-center lg:mt-0">

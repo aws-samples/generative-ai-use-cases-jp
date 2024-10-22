@@ -1,23 +1,23 @@
-# リソースの削除方法
+# How to Delete Resources
 
-以下のコマンドを実行してください。**Cognito UserPool, DynamoDB Table など全てのデータが削除されます。**
+Run the following command. **All data, including Cognito User Pool, DynamoDB Table, will be deleted.**
 
 ```bash
 npm run cdk:destroy
 ```
 
-## エラーになった場合
+## If an Error Occurs
 
-以下のようなエラーが発生することがあります。
+You may encounter the following error:
 
 > **The bucket you tried to delete is not empty. You must delete all versions in the bucket.**
 
-S3 Bucket は削除する時に中身を空にする必要があります。AWS CDK のオプションで `autoDeleteObjects: true` を指定することで、削除の前に中身を自動で空にできるのですが、空にしてから実際に削除するまでの間に新たなファイルが追加されることで、上記エラーが発生します。
+When deleting an S3 bucket, you need to empty its contents. Although you can specify the `autoDeleteObjects: true` option in AWS CDK to automatically empty the contents before deletion, the above error may occur if new files are added between the time the contents are emptied and the actual deletion.
 
-このエラーが発生した場合は、以下の手順に従って手動で Stack を削除してください。
+If this error occurs, follow these steps to manually delete the stack:
 
-1. [AWS CloudFormation](https://console.aws.amazon.com/cloudformation/home) を開き、GenerativeAiUseCasesStack を選択。
-1. Delete を押下。この際に削除に失敗した S3 Bucket の削除をスキップするか聞かれるため、チェックを入れて削除を実行。
-1. 削除をスキップした S3 Bucket を除いたリソースの削除が完了する。
-1. [Amazon S3](https://s3.console.aws.amazon.com/s3/home) を開き、スキップした S3 Bucket を探す。("generative" 等で検索してください。)
-1. Empty (Bucket を空にする) => Delete (Bucket を削除する) を実行
+1. Open [AWS CloudFormation](https://console.aws.amazon.com/cloudformation/home) and select the GenerativeAiUseCasesStack.
+2. Click Delete. You will be asked whether to skip the deletion of the S3 bucket that failed to delete. Check the box and proceed with the deletion.
+3. The deletion of resources other than the skipped S3 bucket will be completed.
+4. Open [Amazon S3](https://s3.console.aws.amazon.com/s3/home) and find the skipped S3 bucket (search for "generative" or similar).
+5. Execute Empty (to empty the bucket) => Delete (to delete the bucket).

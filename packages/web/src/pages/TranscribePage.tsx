@@ -161,16 +161,16 @@ const TranscribePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        音声認識
+        Voice Recognition
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card>
           <div className="mb-2 flex justify-center text-sm text-gray-500">
-            マイク入力 or ファイルアップロードから選択してください
+            Please select from microphone input or file upload
           </div>
           <div className="mb-4 flex flex-col justify-center sm:flex-row">
             <div className="basis-1/2 p-2 xl:basis-2/5">
-              <label className="mb-2 block font-bold">マイク入力</label>
+              <label className="mb-2 block font-bold">Microphone</label>
               <div className="flex justify-center">
                 {recording ? (
                   <Button
@@ -178,7 +178,7 @@ const TranscribePage: React.FC = () => {
                     onClick={stopTranscription}
                     disabled={disabledMicExec}>
                     <PiStopCircleBold className="mr-2 h-5 w-5" />
-                    録音を停止する
+                    Stop recording
                   </Button>
                 ) : (
                   <Button
@@ -191,14 +191,14 @@ const TranscribePage: React.FC = () => {
                     }}
                     outlined={true}>
                     <PiMicrophoneBold className="mr-2 h-5 w-5" />
-                    録音を開始する
+                    Start recording
                   </Button>
                 )}
               </div>
             </div>
             <div className="basis-1/2 p-2 xl:basis-2/5">
               <label className="mb-2 block font-bold" htmlFor="file_input">
-                ファイルアップロード
+                File upload
               </label>
               <input
                 className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
@@ -213,17 +213,17 @@ const TranscribePage: React.FC = () => {
               <p
                 className="ml-0.5 mt-1 text-xs text-gray-500"
                 id="file_input_help">
-                mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
+                mp3, mp4, wav, flac, ogg, amr, webm, m4a files are available
               </p>
             </div>
           </div>
           <ExpandableField
-            label="詳細なパラメータ"
+            label="Advanced parameters"
             className="p-2"
             notItem={true}>
             <div className="grid grid-cols-2 gap-2 pt-2">
               <Switch
-                label="話者認識"
+                label="Speaker recognition"
                 checked={speakerLabel}
                 onSwitch={setSpeakerLabel}
               />
@@ -235,14 +235,14 @@ const TranscribePage: React.FC = () => {
                   max={10}
                   value={maxSpeakers}
                   onChange={setMaxSpeakers}
-                  help="認識する話者の最大数"
+                  help="Maximum number of speakers recognized"
                 />
               )}
             </div>
             {speakerLabel && (
               <div className="">
                 <Textarea
-                  placeholder="話し手の名前（カンマ区切り）"
+                  placeholder="Names of speakers (comma-separated)"
                   value={speakers}
                   onChange={setSpeakers}
                 />
@@ -251,10 +251,10 @@ const TranscribePage: React.FC = () => {
           </ExpandableField>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disableClearExec} onClick={onClickClear}>
-              クリア
+              Clear
             </Button>
             <Button disabled={disabledExec} onClick={onClickExec}>
-              実行
+              Execute
             </Button>
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
@@ -276,7 +276,7 @@ const TranscribePage: React.FC = () => {
             )}
             {!loading && formattedOutput == '' && (
               <div className="text-gray-500">
-                音声認識結果がここに表示されます
+                The voice recognition results will be displayed here
               </div>
             )}
             {loading && (

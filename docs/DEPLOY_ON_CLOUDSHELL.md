@@ -1,47 +1,47 @@
-# AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)
+# Deploying on AWS CloudShell (When it's difficult to set up your local environment)
 
-## cdk.json の編集
+## Editing cdk.json
 
-GenU では cdk.json の context 以下をカスタマイズすることで、デプロイオプションを指定できます。
-利用可能なデプロイオプションについては [デプロイオプション](/docs/DEPLOY_OPTION.md) をご参照ください。
-一旦、[デフォルトの cdk.json](/packages/cdk/cdk.json) で構わないという場合は、こちらの手順をスキップしていただいて構いません。
+With GenU, you can customize the deployment options by modifying the context section in cdk.json.
+For available deployment options, please refer to [Deployment Options](/docs/DEPLOY_OPTION.md).
+If you don't need to specify any deployment options, you can skip this step and use the [default cdk.json](/packages/cdk/cdk.json).
 
-デプロイオプションを指定する場合は、[デフォルトの cdk.json](/packages/cdk/cdk.json) をダウンロード (GitHub ページ右上のダウンロードボタンからファイルをダウンロードできます) し、context 以下を変更してファイルを保存してください。
+If you want to specify deployment options, download the [default cdk.json](/packages/cdk/cdk.json) (you can download the file by clicking the download button at the top right of the GitHub page), modify the context section, and save the file.
 
-## CloudShell の起動
+## Launching CloudShell
 
-[CloudShell](https://console.aws.amazon.com/cloudshell/home) を起動します。
-前述した手順で cdk.json をカスタマイズした場合は、右上 Actions の Upload file からカスタマイズした cdk.json をアップロードしてください。
+Launch [CloudShell](https://console.aws.amazon.com/cloudshell/home).
+If you customized cdk.json in the previous step, upload the customized cdk.json file by clicking Upload file in the Actions menu at the top right.
 
-## deploy.sh のダウンロードと実行権限の付与
+## Downloading deploy.sh and Granting Execution Permission
 
-CloudShell 上で以下のコマンドを実行し、`deploy.sh` というスクリプトをダウンロードします。
-また、ダウンロード後に deploy.sh に実行権限を付与しています。
+In CloudShell, run the following command to download a script named `deploy.sh`.
+After downloading, it grants execution permission to deploy.sh.
 
 ```bash
 wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/refs/heads/main/deploy.sh -O deploy.sh
 chmod +x deploy.sh
 ```
 
-## deploy.sh の実行
+## Running deploy.sh
 
-以下のコマンドで `deploy.sh` を実行します。
-なお、`--cdk-context` オプションでカスタマイズした cdk.json へのパスを指定しています。(特に何もせず前述した手順で Upload files した場合はこのパスになります。)
-cdk.json が別のパスにある場合は、適宜引数の値を変更してください。
+Run `deploy.sh` with the following command.
+Note that the `--cdk-context` option specifies the path to the customized cdk.json (this is the path if you simply uploaded the file in the previous step).
+If your cdk.json is located in a different path, modify the argument value accordingly.
 
 ```bash
 ./deploy.sh --cdk-context ~/cdk.json
 ```
 
-なお、cdk.json のカスタマイズが必要ない場合は `--cdk-context` の指定は不要です。
-その場合、[デフォルトの cdk.json](/packages/cdk/cdk.json) の設定でデプロイされます。
+If you don't need to customize cdk.json, you don't need to specify `--cdk-context`.
+In that case, the deployment will use the settings in the [default cdk.json](/packages/cdk/cdk.json).
 
 ```bash
 ./deploy.sh
 ```
 
-デプロイ途中に確認プロンプトが表示されるので、`y` と入力して Enter して進めてください。
-デプロイ完了時に CloudFront の URL が表示されます。その URL をブラウザで開くことで GenU にアクセスできます。
+During the deployment, a confirmation prompt will be displayed. Enter `y` and press Enter to proceed.
+Upon completion, the CloudFront URL will be displayed. You can access GenU by opening that URL in your browser.
 
-なお、これらの手順を実行する場合も [Amazon Bedrock の Model access](https://console.aws.amazon.com/bedrock/home#/modelaccess) から利用するモデルの有効化が必要です。
-デフォルトの cdk.json を使っている場合は、[デフォルトの cdk.json](/packages/cdk/cdk.json) の modelRegion において modelIds と imageGenerationModelIds で指定されたモデルが有効化されているかを確認してください。
+Note that even when running these steps, you need to enable the models you want to use from the [Amazon Bedrock Model access](https://console.aws.amazon.com/bedrock/home#/modelaccess).
+If you're using the default cdk.json, make sure that the models specified in modelIds and imageGenerationModelIds under modelRegion in the [default cdk.json](/packages/cdk/cdk.json) are enabled.

@@ -1,26 +1,26 @@
-# デプロイオプション
+# Deployment Options
 
-## 設定方法
+## How to Configure
 
-GenU は、AWS CDK の context で設定を変更します。
+GenU changes settings via the context in AWS CDK.
 
-**CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
+**While you can also specify the context with '-c', it is recommended to change the settings in cdk.json for this asset, as doing so will not modify the codebase or trigger a frontend build.**
 
-### cdk.json の値を変更する方法
+### How to Change Values in cdk.json
 
-[packages/cdk/cdk.json](/packages/cdk/cdk.json) の context 以下の値を変更することで設定します。例えば、`"ragEnabled": true` と設定することで RAG チャットのユースケースを有効化できます。context の値を設定した後、以下のコマンドで再度デプロイすることで設定が反映されます。
+Change the values under the context in [packages/cdk/cdk.json](/packages/cdk/cdk.json). For example, setting `"ragEnabled": true` will enable the RAG chat use case. After setting the context values, redeploy with the following command to apply the changes:
 
 ```bash
 npm run cdk:deploy
 ```
 
-## ユースケースの設定
+## Use Case Configuration
 
-### RAG チャット (Amazon Kendra) ユースケースの有効化
+### Enabling the RAG Chat (Amazon Kendra) Use Case
 
-context の `ragEnabled` に `true` を指定します。(デフォルトは `false`)
+Set `ragEnabled` to `true` in the context (default is `false`).
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -29,25 +29,25 @@ context の `ragEnabled` に `true` を指定します。(デフォルトは `fa
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
+After making the change, redeploy with `npm run cdk:deploy` to apply it. The data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for the Kendra data source.
 
-続いて、Kendra の Data source の Sync を以下の手順で行ってください。
+Next, sync the Kendra Data source by following these steps:
 
-1. [Amazon Kendra のコンソール画面](https://console.aws.amazon.com/kendra/home) を開く
-1. generative-ai-use-cases-index をクリック
-1. Data sources をクリック
-1. 「s3-data-source」をクリック
-1. Sync now をクリック
+1. Open the [Amazon Kendra console](https://console.aws.amazon.com/kendra/home)
+2. Click on generative-ai-use-cases-index
+3. Click on Data sources
+4. Click on "s3-data-source"
+5. Click Sync now
 
-Sync run history の Status / Summary に Completed が表示されれば完了です。S3 に保存されているファイルが同期されて、Kendra から検索できるようになります。
+If the Status / Summary in the Sync run history shows Completed, the process is finished. The files stored in S3 have been synchronized and can now be searched using Kendra.
 
-#### 既存の Amazon Kendra Index を利用したい場合
+#### Using an Existing Amazon Kendra Index
 
-既存の Kendra Index を利用する場合も、上記のように `ragEnabled` は `true` である必要がある点に注意してください。
+If you want to use an existing Kendra Index, note that `ragEnabled` still needs to be set to `true`.
 
-context の `kendraIndexArn` に Index の ARN を指定します。もし、既存の Kendra Index で S3 データソースを利用している場合は、`kendraDataSourceBucketName` にバケット名を指定します。
+Specify the Index ARN in the `kendraIndexArn` context. If you are using an S3 data source with the existing Kendra Index, also specify the bucket name in `kendraDataSourceBucketName`.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -57,25 +57,25 @@ context の `kendraIndexArn` に Index の ARN を指定します。もし、既
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。
+After making the changes, redeploy with `npm run cdk:deploy` to apply them.
 
-`<Kendra Index ARN>` は以下のような形式です
+The `<Kendra Index ARN>` should be in the following format:
 
 ```
 arn:aws:kendra:<Region>:<AWS Account ID>:index/<Index ID>
 ```
 
-具体的には以下のような文字列です。
+For example:
 
 ```
 arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-111111111111
 ```
 
-### RAG チャット (Knowledge Base) ユースケースの有効化
+### Enabling the RAG Chat (Knowledge Base) Use Case
 
-context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+Set `ragKnowledgeBaseEnabled` to `true` in the context (default is `false`).
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -88,11 +88,11 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 }
 ```
 
-`ragKnowledgeBaseStandbyReplicas` は自動作成される OpenSearch Serverless の冗長化に関する値です。
-- `false` : 開発およびテスト目的に適した指定。シングル AZ で稼働し、OCU のコストを半分にできる。
-- `true` : 本番環境に適した設定。複数の AZ で稼働し、高可用性な構成が実現できる。
+`ragKnowledgeBaseStandbyReplicas` is a value related to the redundancy of the automatically created OpenSearch Serverless.
+- `false`: Suitable for development and testing purposes. It operates in a single AZ and halves the OCU cost.
+- `true`: Suitable for production environments. It operates across multiple AZs, providing high availability.
 
-`embeddingModelId` は embedding に利用するモデルです。現状、以下モデルをサポートしています。
+`embeddingModelId` is the model used for embedding. Currently, the following models are supported:
 
 ```
 "amazon.titan-embed-text-v1"
@@ -101,38 +101,38 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 "cohere.embed-english-v3"
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
+After making the changes, redeploy with `npm run cdk:deploy` to apply them. The Knowledge Base will be deployed in the region specified by `modelRegion` in `cdk.json`. Please note the following:
 
-- `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
-- `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
+- The `embeddingModelId` model must be enabled in Bedrock in the `modelRegion` region.
+- AWS CDK Bootstrap must be completed in the `modelRegion` region before running `npm run cdk:deploy`.
 
 ```bash
-# 以下はBootstrap するコマンドの例 (modelRegion が us-east-1 だとした場合)
+# Example command to Bootstrap (assuming modelRegion is us-east-1)
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
-デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+During deployment, the data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for the Knowledge Base data source. After deployment, sync the Knowledge Base Data source by following these steps:
 
-1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
-1. generative-ai-use-cases-jp をクリック
-1. s3-data-source を選択肢、Sync をクリック
+1. Open the [Knowledge Base console](https://console.aws.amazon.com/bedrock/home#/knowledge-bases)
+2. Click on generative-ai-use-cases-jp
+3. Select s3-data-source, then click Sync
 
-Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
+Once the Status becomes Available, the process is complete. The files stored in S3 have been ingested, and you can now search the Knowledge Base.
 
 > [!NOTE]
-> RAG チャット (Knowledge Base) の設定を有効後に、再度無効化する場合は、`ragKnowledgeBaseEnabled: false` にして再デプロイすれば RAG チャット (Knowledge Base) は無効化されますが、`RagKnowledgeBaseStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `RagKnowledgeBaseStack` というスタックを削除することで完全に消去ができます。
+> If you want to disable the RAG Chat (Knowledge Base) setting after enabling it, setting `ragKnowledgeBaseEnabled: false` and redeploying will disable the RAG Chat (Knowledge Base), but the `RagKnowledgeBaseStack` itself will remain. Open the management console, navigate to CloudFormation in the modelRegion, and delete the `RagKnowledgeBaseStack` to completely remove it.
 
-#### Advanced Parsing を有効化
+#### Enabling Advanced Parsing
 
-[Advanced Parsing 機能](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing) を有効化できます。Advanced Parsing は、ファイル内の表やグラフなどの非構造化データから、情報を分析および抽出する機能です。ファイル内のテキストに加えて、表やグラフなどから抽出したデータを付け加えることで、RAG の精度を上げやすくするメリットがあります。
+You can enable the [Advanced Parsing feature](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing). Advanced Parsing analyzes and extracts information from unstructured data such as tables and graphs within files. By adding the extracted data from tables and graphs to the text content, you can potentially improve the accuracy of RAG.
 
-- `ragKnowledgeBaseAdvancedParsing` : `true` で Advanced Parsing を有効化
-- `ragKnowledgeBaseAdvancedParsingModelId` : 情報を抽出するときに利用するモデル ID を指定
-  - サポートしているモデル (2024/08 現在)
+- `ragKnowledgeBaseAdvancedParsing`: Set to `true` to enable Advanced Parsing
+- `ragKnowledgeBaseAdvancedParsingModelId`: Specify the model ID to be used for extracting information
+  - Supported models (as of 2024/08)
     - `anthropic.claude-3-sonnet-20240229-v1:0`
     - `anthropic.claude-3-haiku-20240307-v1:0`
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -145,15 +145,14 @@ Status が Available になれば完了です。S3 に保存されているフ�
 }
 ```
 
-#### チャンク戦略を変更
+#### Changing the Chunking Strategy
 
-[rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts) に chunkingConfiguration を指定する箇所があります。
-コメントアウトを外して、[CDK ドキュメント](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html)や [CloudFormation ドキュメント](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html)を参考に任意のチャンク戦略へ変更が可能です。
+In [rag-knowledge-base-stack.ts](/packages/cdk/lib/rag-knowledge-base-stack.ts), there is a section where you can specify the `chunkingConfiguration`. By uncommenting it, you can change the chunking strategy based on the [CDK documentation](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html) and the [CloudFormation documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html).
 
-例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
+For example, to change to semantic chunking, uncomment the code and specify as follows:
 
 ```typescript
-// セマンティックチャンク
+// Semantic chunking
 chunkingConfiguration: {
   chunkingStrategy: 'SEMANTIC',
   semanticChunkingConfiguration: {
@@ -164,63 +163,61 @@ chunkingConfiguration: {
 },
 ```
 
-その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
+After that, refer to the [Recreating the Knowledge Base or OpenSearch Service to Apply Changes](#recreating-the-knowledge-base-or-opensearch-service-to-apply-changes) section to apply the changes.
 
+#### Recreating the Knowledge Base or OpenSearch Service to Apply Changes
 
-
-#### Knowledge Base や OpenSearch Service を再作成して変更を加える
-
-[Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下の `cdk.json` パラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
+If you make changes to the following `cdk.json` parameters related to the [chunking strategy](./DEPLOY_OPTION.md#changing-the-chunking-strategy) or OpenSearch Service, running `npm run cdk:deploy` will not apply the changes:
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
 - `ragKnowledgeBaseAdvancedParsing`
 - `ragKnowledgeBaseAdvancedParsingModelId`
 
-変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
+To apply the changes, follow these steps to delete and recreate the existing Knowledge Base-related resources:
 
-1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
-1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
-1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除  
- **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
-1. `cdk.json` やチャンク戦略に変更を加える
-1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
+1. Set `ragKnowledgeBaseEnabled` to `false` in `cdk.json` and deploy
+2. Open [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (pay attention to the region), click on the RagKnowledgeBaseStack
+3. Click Delete in the top-right corner to delete the RagKnowledgeBaseStack
+   **This will delete the S3 bucket and RAG files, temporarily disabling the RAG chat**
+4. Make the necessary changes to `cdk.json` or the chunking strategy
+5. After the RagKnowledgeBaseStack deletion is complete, redeploy with `npm run cdk:deploy`
 
-RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
-S3 バケット内にアップロードした RAG 用のファイルが存在する場合は、退避したあとに再度アップロードしてください。
-また、前述した手順に従い Data source を再度 Sync してください。
+Deleting the RagKnowledgeBaseStack will also **delete the S3 bucket and RAG files used for the RAG chat**.
+If you had uploaded RAG files to the S3 bucket, make sure to back them up and upload them again after the deployment.
+Also, follow the steps mentioned earlier to sync the Data source.
 
-#### OpenSearch Service の Index をマネージメントコンソールで確認する方法
+#### Viewing the OpenSearch Service Index in the Management Console
 
-デフォルトでは、マネージメントコンソールから OpenSearch Service の Indexes タブを開くと `User does not have permissions for the requested resource` というエラーが表示されます。
-これは、Data access policy でマネージメントコンソールにログインしている IAM ユーザーを許可していないためです。
-以下の手順に従い、必要な権限を手動で追加してください。
+By default, when you try to open the Indexes tab in the OpenSearch Service management console, you will encounter the error "User does not have permissions for the requested resource". This is because the Data access policy does not grant permissions to the IAM user you are logged in with.
 
-1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases-jp をクリック
-1. ページ下部 Data access の Associated policy である generative-ai-use-cases-jp をクリック
-1. 右上の Edit をクリック
-1. ページ中部の Select principals の Add principals をクリックし、IAM User/Role 等 (マネージメントコンソールにログインしている権限) を追加
-1. Save
+To grant the necessary permissions, follow these steps:
 
-保存後、少し時間をおいて再度アクセスしてください。
+1. Open [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (pay attention to the region) and click on generative-ai-use-cases-jp
+2. Click on the Associated policy under Data access, which should be named generative-ai-use-cases-jp
+3. Click Edit in the top-right corner
+4. In the middle of the page, click Add principals under Select principals and add the IAM User/Role (the permissions you are logged in with)
+5. Save
 
-### Agent チャットユースケースの有効化
+After saving, wait a moment and try accessing the console again.
 
-Agent チャットユースケースでは、以下のご利用が可能です。
-- Code Interpreter を利用したデータの可視化、コード実行、データ分析
-- Agents for Amazon Bedrock を利用したアクションを実行させたり
-- Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
+### Enabling the Agent Chat Use Case
 
-#### Code Interpreter エージェントのデプロイ
+The Agent Chat use case allows you to:
+- Visualize data, execute code, and analyze data using the Code Interpreter
+- Execute actions using Agents for Amazon Bedrock
+- Reference the vector database of Knowledge Bases for Amazon Bedrock
 
-Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。  
-[詳細な手順はこちら](AGENTS_CODE_INTERPRETER.md)を参照してください。この章では、変更手順の概要を記載します。  
+#### Deploying the Code Interpreter Agent
 
-AWSマネジメントコンソール画面で、Code Interpreter 機能を有効にした Agent を作成します。  
+The Code Interpreter allows you to visualize data, execute code, and analyze data.
+For detailed steps, please refer to [this guide](AGENTS_CODE_INTERPRETER.md). This section provides an overview of the process.
 
-作成された Agent で Alias を作成し、`agentId` と `aliasId` をコピーし、`cdk.json` に以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+Create an Agent with the Code Interpreter functionality enabled in the AWS Management Console.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+Create an Alias for the Agent, copy the `agentId` and `aliasId`, and add them to `cdk.json` in the following format. Set the `displayName` to the name you want to display in the GenU UI. Also, set `agentEnabled` to `true` in the context and specify the region where you created the Agent in `agentRegion`. Then, redeploy with `npm run cdk:deploy` to apply the changes.
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -237,34 +234,34 @@ AWSマネジメントコンソール画面で、Code Interpreter 機能を有効
 }
 ```
 
-#### 検索エージェントのデプロイ
+#### Deploying the Search Agent
 
-API と連携し最新情報を参照して回答する Agent を作成します。Agent のカスタマイズを行い他のアクションを追加できるほか、複数の Agent を作成し切り替えることが可能です。
+You can create an Agent that integrates with APIs to reference the latest information and provide answers. You can customize the Agent and add additional actions, or create multiple Agents and switch between them.
 
-デフォルトで使用できる検索エージェントでは、無料利用枠の大きさ・リクエスト数の制限・コストの観点から [Brave Search API の Data for AI](https://brave.com/search/api/) を使用していますが、他の API にカスタマイズすることも可能です。API キーの取得はフリープランでもクレジットカードの登録が必要になります。
+The default search agent uses the [Brave Search API's Data for AI](https://brave.com/search/api/) due to the limitations of the free tier's size, request limits, and cost considerations. However, you can customize it to use other APIs. Obtaining an API key may require registering a credit card, even for the free plan.
 
 > [!NOTE]
-> Agent チャットユースケースを有効化すると Agent チャットユースケースでのみ外部 API にデータを送信します。（デフォルトでは Brave Search API）他のユースケースは引き続き AWS 内のみに閉じて利用することが可能です。社内ポリシー、API の利用規約などを確認してから有効化してください。
+> Enabling the Agent Chat use case will only send data to external APIs (by default, the Brave Search API) from the Agent Chat use case. Other use cases will continue to operate within AWS. Please check your internal policies and API terms of use before enabling this feature.
 
-context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定し、`searchApiKey` に検索エンジンの API キーを指定します。
+Set `agentEnabled` and `searchAgentEnabled` to `true` in the context (default is `false`). Specify the region where Agents for Bedrock is available in `agentRegion` ([refer to the documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html)), and provide the search engine's API key in `searchApiKey`.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
     "agentEnabled": true,
     "agentRegion": "us-west-2",
     "searchAgentEnabled": true,
-    "searchApiKey": "<検索エンジンの API キー>",
+    "searchApiKey": "<Search Engine API Key>",
   }
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、デフォルトの検索エンジン Agent がデプロイされます。
+After making the changes, redeploy with `npm run cdk:deploy` to apply them. This will deploy the default search engine Agent.
 
-デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。
+If you want to register an Agent that you created manually, in addition to the default Agent, add it to the `agents` array as follows:
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -279,27 +276,27 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 }
 ```
 
-また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
+You can also modify `packages/cdk/lib/construct/agent.ts` to define a new Agent.
 
 > [!NOTE]
-> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+> If you want to disable the search agent setting after enabling it, setting `searchAgentEnabled: false` and redeploying will disable the search agent, but the `WebSearchAgentStack` itself will remain. Open the management console, navigate to CloudFormation in the agentRegion, and delete the `WebSearchAgentStack` to completely remove it.
 
-#### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
+#### Deploying Agents for Amazon Bedrock Knowledge Bases
 
-Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
+You can also manually create and register agents that integrate with Amazon Bedrock Knowledge Bases.
 
-まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+First, create a knowledge base by referring to the [Amazon Bedrock Knowledge Bases documentation](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/knowledge-base-create.html) from the [AWS Console for Knowledge Bases](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases). Create the knowledge base in the same region as the `agentRegion` mentioned later.
 
-続いて、 [エージェントの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。モデルはレスポンスが早いため `anthropic.claude-instant-v1` を推奨します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
+Next, manually create an Agent from the [AWS Console for Agents](https://console.aws.amazon.com/bedrock/home?#/agents). Keep the settings mostly default, and refer to the following example for the Agent prompt. The `anthropic.claude-instant-v1` model is recommended for faster responses. You don't need to set up an action group, so proceed without it. Register the knowledge base you created in the previous step, and refer to the following example for the prompt.
 
 ```
-Agent プロンプト例: あなたは指示に応えるアシスタントです。 指示に応じて情報を検索し、その内容から適切に回答してください。情報に記載のないものについては回答しないでください。複数回検索することが可能です。
-Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
+Agent Prompt Example: You are an assistant that responds to instructions. Search for information based on the instructions and provide appropriate answers based on the content. Do not answer anything not mentioned in the information.
+Knowledge Base Prompt Example: Search for information using keywords. You can use this for tasks like investigating, researching, explaining about X, or summarizing. Infer the search keywords from the conversation. The search results may include irrelevant content, so refer only to the most relevant information when answering. You can run this multiple times.
 ```
 
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で context 追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+Create an Alias from the created Agent, copy the `agentId` and `aliasId`, and add the context in the following format. Set `displayName` to the name you want to display in the UI. Also, set the `agentEnabled` context to True, and specify the region where you created the Agent for `agentRegion`. Redeploy using `npm run cdk:deploy` to apply the changes.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -316,15 +313,15 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 }
 ```
 
-### PromptFlow チャットユースケースの有効化
+### Enabling the PromptFlow Chat Use Case
 
-PromptFlow チャットユースケースでは、作成済みの Prompt Flow を呼び出すことができます。
+With the PromptFlow chat use case, you can invoke pre-created Prompt Flows.
 
-プロジェクトのルートディレクトリにある `cdk.json` ファイルを開き、`context` セクション内に `promptFlows` 配列を追加または編集します。
+Open the `cdk.json` file in the project root directory and add or edit the `promptFlows` array in the `context` section.
 
-[Prompt Flows の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home#/prompt-flows) から手動で Prompt Flows を作成します。その後、Alias を作成し、作成済みの Prompt Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Prompt Flow チャットのテキストボックスに記載されます。以下はその例です。
+Manually create Prompt Flows from the [Prompt Flows AWS console](https://console.aws.amazon.com/bedrock/home#/prompt-flows). Then, create an Alias and add the `flowId`, `aliasId`, and `flowName` of the created Prompt Flow. Specify a descriptive sentence in `description` to prompt the user's input. This description will be displayed in the text box of the Prompt Flow chat.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```json
 {
   "context": {
@@ -333,33 +330,31 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
         "flowId": "XXXXXXXXXX",
         "aliasId": "YYYYYYYYYY",
         "flowName": "WhatIsItFlow",
-        "description": "任意のキーワードをウェブ検索して、説明を返すフローです。文字を入力してください"
+        "description": "This flow searches the web for any keyword and returns an explanation. Please enter a keyword."
       },
       {
         "flowId": "ZZZZZZZZZZ",
         "aliasId": "OOOOOOOOOO",
         "flowName": "RecipeFlow",
-        "description": "与えられたJSONをもとに、レシピを作成します。\n{\"dish\": \"カレーライス\", \"people\": 3} のように入力してください。"
+        "description": "This flow creates a recipe based on the given JSON input. Enter something like {\"dish\": \"curry rice\", \"people\": 3}."
       },
       {
         "flowId": "PPPPPPPPPP",
         "aliasId": "QQQQQQQQQQQ",
         "flowName": "TravelPlanFlow",
-        "description": "与えられた配列をもとに、旅行計画を作成します。\n[{\"place\": \"東京\", \"day\": 3}, {\"place\": \"大阪\", \"day\": 2}] のように入力してください。"
+        "description": "This flow creates a travel plan based on the given array input. Enter something like [{\"place\": \"Tokyo\", \"day\": 3}, {\"place\": \"Osaka\", \"day\": 2}]."
       }
     ]
   }
 }
 ```
 
+### Enabling the Video Analysis Use Case
 
+The video analysis use case allows you to analyze the content of video frames and text using an LLM.
+There is no direct option to enable the image analysis use case, but multimodal models need to be enabled in `cdk.json`.
 
-### 映像分析ユースケースの有効化
-
-映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
-映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
-
-2024/06 現在、マルチモーダルのモデルは以下です。
+As of 2024/06, the following are multimodal models:
 
 ```
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -377,8 +372,8 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "us.meta.llama3-2-11b-instruct-v1:0",
 ```
 
-これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
-詳細は[Amazon Bedrock のモデルを変更する](#Amazon-Bedrock-のモデルを変更する)を参照してください。
+Any of these must be defined in the `modelIds` in `cdk.json`.
+For more details, refer to [Changing Amazon Bedrock Models](#changing-amazon-bedrock-models).
 
 ```json
   "modelIds": [
@@ -398,15 +393,15 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   ]
 ```
 
-## Amazon Bedrock のモデルを変更する
+## Changing Amazon Bedrock Models
 
-`cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
+Specify the models and model region in `modelRegion`, `modelIds`, and `imageGenerationModelIds` in `cdk.json`. `modelIds` and `imageGenerationModelIds` are lists of models you want to use from the models available in the specified region. The AWS documentation lists the [available models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) and the [models supported by region](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html).
 
-また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、`cdk.json` で設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
+This solution also supports [cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html) models. Cross-region inference models are represented as `{us|eu}.{model-provider}.{model-name}`, and the `{us|eu}` part must match the `modelRegion` specified in `cdk.json`.
 
-(例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
+(Example) If `modelRegion` is `us-east-1`, `us.anthropic.claude-3-5-sonnet-20240620-v1:0` is OK, but `eu.anthropic.claude-3-5-sonnet-20240620-v1:0` is not.
 
-このソリューションが対応しているテキスト生成モデルは以下です。
+The text generation models supported by this solution are as follows:
 
 ```
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -444,8 +439,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "mistral.mistral-7b-instruct-v0:2"
 ```
 
-
-このソリューションが対応している画像生成モデルは以下です。
+The image generation models supported by this solution are as follows:
 
 ```
 "amazon.titan-image-generator-v2:0",
@@ -456,9 +450,9 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "stability.stable-image-ultra-v1:0"
 ```
 
-**指定したリージョンで指定したモデルが有効化されているかご確認ください。**
+**Please ensure that the specified models are enabled in Bedrock in the region specified by `modelRegion`.**
 
-### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
+### Example of using Amazon Bedrock models in us-east-1 (Virginia)
 
 ```bash
   "modelRegion": "us-east-1",
@@ -480,7 +474,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   ],
 ```
 
-### us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例
+### Example of using Amazon Bedrock models in us-west-2 (Oregon)
 
 ```bash
   "modelRegion": "us-west-2",
@@ -504,7 +498,8 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
     "stability.stable-image-ultra-v1:0"
   ],
 ```
-### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
+
+### Example of using cross-region inference models in us (Northern Virginia or Oregon) for Amazon Bedrock
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
@@ -530,7 +525,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   ],
 ```
 
-### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
+### Example of using Amazon Bedrock models in ap-northeast-1 (Tokyo)
 
 ```bash
   "modelRegion": "ap-northeast-1",
@@ -541,17 +536,17 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   "imageGenerationModelIds": [],
 ```
 
-**注：UI 上は表示されますが、Stable Diffusion および Titan Image が未対応なため、画像生成は現状 ap-northeast-1 では利用できません。**
+**Note: While the UI will display Stable Diffusion and Titan Image, image generation is currently not available in ap-northeast-1 as they are not supported.**
 
-## Amazon SageMaker のカスタムモデルを利用したい場合
+## Using Custom Models on Amazon SageMaker
 
-Amazon SageMaker エンドポイントにデプロイされた大規模言語モデルを利用することが可能です。[Text Generation Inference (TGI) の Hugging Face LLM 推論コンテナ](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/) を使用した SageMaker Endpoint に対応しています。モデルはユーザーとアシスタントが交互に発言するチャット形式のプロンプトをサポートしているものが理想的です。現在、画像生成ユースケースは Amazon SageMaker エンドポイントに対応していないので、ご注意ください。
+You can use large language models deployed on Amazon SageMaker endpoints. This solution supports [Text Generation Inference (TGI) Hugging Face LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/) deployed on SageMaker Endpoints. Ideally, the models should support chat-style prompts where the user and assistant take turns speaking. Please note that the image generation use case is currently not supported for Amazon SageMaker endpoints.
 
-TGI コンテナを使用したモデルを SageMaker エンドポイントにデプロイする方法は現在2通りあります。
+There are currently two ways to deploy models using TGI containers on SageMaker Endpoints:
 
-**SageMaker JumpStart で AWS が事前に用意したモデルをデプロイ**
+**Deploy pre-packaged models from SageMaker JumpStart**
 
-SageMaker JumpStart では OSS の大規模言語モデルをワンクリックでデプロイできるようにパッケージングして提供しています。SageMaker Studio の JumpStart 画面からモデルを開き "デプロイ" ボタンをクリックしデプロイすることが可能です。提供している日本語モデルとしては例として以下のようなモデルを提供しています。
+SageMaker JumpStart offers pre-packaged open-source large language models that can be deployed with a single click. You can open the model from the JumpStart screen in SageMaker Studio and click "Deploy". Some examples of Japanese models offered include:
 
 - [SageMaker JumpStart Elyza Japanese Llama 2 7B Instructt](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
 - [SageMaker JumpStart Elyza Japanese Llama 2 13B Instructt](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
@@ -560,53 +555,53 @@ SageMaker JumpStart では OSS の大規模言語モデルをワンクリック�
 - [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
 - [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
 
-**SageMaker SDK を使用して数行のコードでデプロイ**
+**Deploy with a few lines of code using the SageMaker SDK**
 
-[AWS と Hugging Face の提携](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/)により、SageMaker SDK で Hugging Face に公開されているモデルの ID を指定するだけでモデルのデプロイが可能です。
+Thanks to the [collaboration between AWS and Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models published on Hugging Face by simply specifying the model ID using the SageMaker SDK.
 
-公開されている Hugging Face のモデルページから *Deploy* > *Amazon SageMaker* を選択するとモデルをデプロイするためのコードが表示されるため、こちらをコピーして実行すればモデルをデプロイすることが可能です。（モデルによりインスタンスサイズや `SM_NUM_GPUS` などのパラメータを変更する必要がある場合があります。デプロイに失敗した際は CloudWatch Logs からログを確認することが可能です）
+From the published Hugging Face model page, select *Deploy* > *Amazon SageMaker* to display the code for deploying the model. Copy and run this code to deploy the model. (Depending on the model, you may need to change parameters such as the instance size or `SM_NUM_GPUS`. If the deployment fails, you can check the logs in CloudWatch Logs.)
 
 > [!NOTE]
-> デプロイする際、一箇所だけ修正点があります。エンドポイント名が GenU アプリケーションに表示されるほか、モデルのプロンプトテンプレート（次セクションにて説明）をエンドポイント名から判断しているためモデルを区別できるエンドポイント名を指定する必要があります。
-そのため、デプロイする際に `huggingface_model.deploy()` の引数に `endpoint_name="<モデルを区別できるエンドポイント名>"` を追加してください。
+> When deploying, there is one modification needed. Since the endpoint name will be displayed in the GenU application and the model's prompt template (explained in the next section) is determined from the endpoint name, you need to specify an endpoint name that can distinguish the model.
+> Therefore, when deploying, add `endpoint_name="<endpoint_name_to_distinguish_model>"` as an argument to `huggingface_model.deploy()`.
 
-![Hugging Face モデルページにて Deploy から Amazon SageMaker を選択](./assets/DEPLOY_OPTION/HF_Deploy.png)
-![Hugging Face モデルページのデプロイスクリプトのガイド](./assets/DEPLOY_OPTION/HF_Deploy2.png)
+![Select Deploy > Amazon SageMaker from the Hugging Face model page](./assets/DEPLOY_OPTION/HF_Deploy.png)
+![Deployment script guide on the Hugging Face model page](./assets/DEPLOY_OPTION/HF_Deploy2.png)
 
-### デプロイしたモデルを GenU から呼び出す設定
+### Configuring the Deployed Model for Use in GenU
 
-デプロイした SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+To use the deployed SageMaker endpoint in the target solution during deployment, you can specify it in `cdk.json` as follows:
 
-endpointNames は SageMaker エンドポイント名のリストです。（例：`["elyza-llama-2", "rinna"]`）
+`endpointNames` is a list of SageMaker endpoint names (e.g., `["elyza-llama-2", "rinna"]`).
 
-バックエンドでプロンプトを構築する際のプロンプトテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/models.ts` を参照してください。必要に応じてプロンプトテンプレートを追加してご利用ください。
+For convenience, the endpoint name should include the prompt type (e.g., `llama-2`, `rinna`, etc.) to specify the prompt template for building the prompt on the backend. For more details, refer to `packages/cdk/lambda/utils/models.ts`. You can add additional prompt templates as needed.
 
 ```bash
   "modelRegion": "<SageMaker Endpoint Region>",
   "endpointNames": ["<SageMaker Endpoint Name>"],
 ```
 
-**Rinna 3.6B と Bilingual Rinna 4B を利用する例**
+**Example using Rinna 3.6B and Bilingual Rinna 4B**
 
 ```bash
   "modelRegion": "us-west-2",
   "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
 ```
 
-**ELYZA-japanese-Llama-2-7b-instruct を利用する例**
+**Example using ELYZA-japanese-Llama-2-7b-instruct**
 
 ```bash
   "modelRegion": "us-west-2",
   "endpointNames": ["elyza-japanese-llama-2-7b-inference"],
 ```
 
-## セキュリティ関連設定
+## Security-Related Settings
 
-### セルフサインアップを無効化する
+### Disabling Self Sign-Up
 
-context の `selfSignUpEnabled` に `false` を指定します。(デフォルトは `true`)
+To disable self sign-up, set `selfSignUpEnabled` to `false` in the context (default is `true`).
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -615,119 +610,119 @@ context の `selfSignUpEnabled` に `false` を指定します。(デフォル�
 }
 ```
 
-### サインアップできるメールアドレスのドメインを制限する
-context の allowedSignUpEmailDomains に 許可するドメインのリストを指定します（デフォルトは`null`）。
+### Restricting Sign-Up Email Domains
+You can specify a list of allowed email domains for sign-up by setting `allowedSignUpEmailDomains` in the context (default is `null`).
 
-値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
+The value should be a list of strings, without including the "@" symbol. Users with email addresses matching any of the allowed domains will be able to sign up. Setting it to `null` will allow all domains, while setting it to `[]` will prohibit sign-ups from any domain.
 
-設定すると、許可ドメインでないユーザは、Webのサインアップ画面で「アカウントを作る」を実行したときにエラーになり、GenU へのサインアップができなくなります。また、AWSマネジメントコンソールで、Cognitoのサービス画面から「ユーザを作成」を実行したときにエラーになります。
+When set, users with email addresses not in the allowed domains will receive an error when trying to "Create Account" on the Web sign-up page or when trying to "Create User" from the Cognito service page in the AWS Management Console.
 
-既にCognitoに作成されているユーザには影響ありません。新規にサインアップ・作成しようとしているユーザのみに適用されます。
+This setting does not affect existing users in Cognito. It only applies to new sign-ups or user creations.
 
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+Examples:
 
-設定例
-
-- `amazon.com` のドメインのメールアドレスであればサインアップできるように設定する例
-
-```json
-{
-  "context": {
-    "allowedSignUpEmailDomains": ["amazon.com"], // null から、許可ドメインを指定することで有効化
-  }
-}
-```
-
-- `amazon.com` か `amazon.jp` のどちらかのドメインのメールアドレスであればサインアップできるように設定する例
+- Allow sign-ups from `amazon.com` domain
 
 ```json
 {
   "context": {
-    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // null から、許可ドメインを指定することで有効化
+    "allowedSignUpEmailDomains": ["amazon.com"], // Change from null to enable
   }
 }
 ```
 
-### AWS WAF による制限を有効化する
+- Allow sign-ups from `amazon.com` or `amazon.jp` domains
 
-#### IP アドレスによる制限
+```json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // Change from null to enable
+  }
+}
+```
 
-Web アプリへのアクセスを IP アドレスで制限したい場合、AWS WAF による IP アドレス制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
+### Enabling AWS WAF Restrictions
+
+#### IP Address Restrictions
+
+To restrict access to the web application by IP address, you can enable IP address restrictions using AWS WAF. In [packages/cdk/cdk.json](/packages/cdk/cdk.json), `allowedIpV4AddressRanges` allows you to specify an array of allowed IPv4 CIDR ranges, and `allowedIpV6AddressRanges` allows you to specify an array of allowed IPv6 CIDR ranges.
 
 ```json
   "context": {
-    "allowedIpV4AddressRanges": ["192.168.0.0/24"], // null から、許可 CIDR リストを指定することで有効化
-    "allowedIpV6AddressRanges": ["2001:0db8::/32"], // null から、許可 CIDR リストを指定することで有効化
+    "allowedIpV4AddressRanges": ["192.168.0.0/24"], // Change from null to enable
+    "allowedIpV6AddressRanges": ["2001:0db8::/32"], // Change from null to enable
 ```
 
+#### Geo Restrictions
 
-#### 地理的制限
+To restrict access to the web application based on the country of origin, you can enable geo restrictions using AWS WAF. In [packages/cdk/cdk.json](/packages/cdk/cdk.json), `allowedCountryCodes` allows you to specify an array of allowed country codes.
+For the country codes to specify, refer to [ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2).
 
-Web アプリへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
-指定する国の Country Code は[ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2)をご参照ください。
-
-「IP アドレスによる制限」も同時に設定している場合は、「送信元の IP アドレスが許可された IP アドレスに含まれている**かつ**、許可された国からのアクセス」のみ許可されます。
+If you have set both "IP Address Restrictions" and "Geo Restrictions," only access from allowed IP addresses **and** allowed countries will be permitted.
 
 ```json
   "context": {
-    "allowedCountryCodes": ["JP"], // null から、許可国リストを指定することで有効化
+    "allowedCountryCodes": ["JP"], // Change from null to enable
 ```
 
-`allowedIpV4AddressRanges` あるいは `allowedIpV6AddressRanges` あるいは `allowedCountryCodes` のいずれかを指定して再度 `npm run cdk:deploy` を実行すると、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）。us-east-1 で CDK を利用したことがない場合は、以下のコマンドを実行して、デプロイ前に Bootstrap を行ってください。
+If you specify `allowedIpV4AddressRanges`, `allowedIpV6AddressRanges`, or `allowedCountryCodes`, and run `npm run cdk:deploy`, a stack for WAF will be deployed in us-east-1 (AWS WAF V2 currently only supports us-east-1 when used with CloudFront). If you have not used CDK in us-east-1 before, run the following command to perform Bootstrap before deployment:
 
 ```bash
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
-### SAML 認証
+### SAML Authentication
 
-Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの IdP が提供する SAML 認証機能と連携ができます。次に詳細な連携手順があります。こちらもご活用ください。  
-- [Google Workspace と SAML 連携](SAML_WITH_GOOGLE_WORKSPACE.md)
-- [Microsoft Entra ID と SAML 連携](SAML_WITH_ENTRA_ID.md)
+You can integrate with the SAML authentication functionality provided by Identity Providers (IdPs) such as Google Workspace or Microsoft Entra ID (formerly Azure Active Directory). Please refer to the following detailed integration procedures:
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+- [SAML Integration with Google Workspace](SAML_WITH_GOOGLE_WORKSPACE.md)
+- [SAML Integration with Microsoft Entra ID](SAML_WITH_ENTRA_ID.md)
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
 ```json
   "samlAuthEnabled": true,
   "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
   "samlCognitoFederatedIdentityProviderName": "EntraID",
 ```
-- samlAuthEnabled : `true` にすることで、SAML 専用の認証画面に切り替わります。Cognito user pools を利用した従来の認証機能は利用できなくなります。
-- samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
-- samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
+- `samlAuthEnabled`: Setting this to `true` will switch to a SAML-only authentication screen, and the traditional authentication functionality using Cognito user pools will no longer be available.
+- `samlCognitoDomainName`: Specify the Cognito Domain name set in the App integration section of Cognito.
+- `samlCognitoFederatedIdentityProviderName`: Specify the name of the Identity Provider set in the Sign-in experience section of Cognito.
 
+### Guardrails
 
-### ガードレール
+When using the Converse API (i.e., generating text output from a generative AI model), you can apply guardrails. To configure this, change the `guardrailEnabled` key in `packages/cdk/cdk.json` to `true` and redeploy.
 
-Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `packages/cdk/cdk.json` の `guardrailEnabled` キーを `true` に変更、デプロイしなおします。
 ```json
   "context": {
     "guardrailEnabled" : true,
   }
 ```
-デフォルトで適用されるガードレールは機微情報フィルターで日本語での会話の中で効果があったものを適用しています。他にも単語フィルターのカスタム、機微情報フィルターの正規表現は機能することを確認しており、必要に応じて、`packages/cdk/lib/construct/guardrail.ts` を修正してください。詳細は[Guardrails for Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)と[CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html)をご参照ください。
+
+By default, a sensitive information filter that has been effective in Japanese conversations is applied. We have also confirmed that custom word filters and regular expressions for sensitive information filters work, so please modify `packages/cdk/lib/construct/guardrail.ts` as needed. For more details, refer to [Guardrails for Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html) and [CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html).
 
 > [!NOTE]
-> ガードレールの設定を有効後に、再度無効化する場合は、`guardrailEnabled: false` にして再デプロイすれば生成 AI を呼び出す際にガードレールは無効化されますが、ガードレール自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GuardrailStack` というスタックを削除することで完全に消去ができます。ガードレールが残ること自体にコストは発生しませんが、使用しないリソースは削除するのが望ましいです。
+> If you want to disable the guardrail setting after enabling it, setting `guardrailEnabled: false` and redeploying will disable the guardrail when calling the generative AI, but the guardrail itself will remain. Open the management console, navigate to CloudFormation in the `modelRegion`, and delete the `GuardrailStack` to completely remove it. While keeping the guardrail does not incur any costs, it is recommended to remove unused resources.
 
-## コスト関連設定
+## Cost-Related Settings
 
-### Kendraのインデックスを自動で作成・削除するスケジュールを設定する
+### Scheduling Automatic Creation and Deletion of the Kendra Index
 
-GenerativeAiUseCasesDashboardStackで作成するKendraのインデックスを、決められたスケジュールで自動で作成・削除するための設定を行います。これによって、Kendraのインデックスを稼働時間に対して発生する利用料を抑えることができます。Kendraインデックスを作成した後は、本リポジトリでデフォルトで作成されるS3データソースに対して、同期を自動で実行します。
+You can configure a schedule to automatically create and delete the Kendra index created by the `GenerativeAiUseCasesDashboardStack`. This can help reduce the usage costs associated with the Kendra index, which are incurred based on the uptime. After creating the Kendra index, it will automatically sync with the default S3 data source created by this repository.
 
-この機能は、「contextの `ragEnabled` が `true` 」かつ「contextの `kendraIndexArn` が `null` 」の場合にのみ有効で、それ以外の場合は機能しません。（つまり、外部で作成したKendraのインデックスに対しては機能しません）
+This feature is only effective when `ragEnabled` in the context is `true` and `kendraIndexArn` in the context is `null` (i.e., it does not work with an externally created Kendra index).
 
-以下の例のように設定してください。
-* `kendraIndexScheduleEnabled`を`true`に設定することで、スケジュール設定を有効になり、`false`にした場合、その状態でデプロイした以降は、スケジュール設定が無効になります。
-* `kendraIndexScheduleCreateCron`と`kendraIndexScheduleDeleteCron`には、作成開始時刻と削除開始時刻をCron形式で指定します。
-  + Cron形式の詳細は[こちら](https://docs.aws.amazon.com/ja_jp/AmazonCloudWatch/latest/events/ScheduledEvents.html)を参照してください。ただし、EventBridgeの仕様に合わせるため、UTC時間で指定してください。現状では、minute・hour・month・weekDayのみ指定可能です。これら項目は必ず指定する必要があり、それ以外の項目は指定しても無視されます。
-  + `null`を設定した場合は、作成・削除が実行されません。片方を`null`のままにする（どちらかのみを設定する）ことも、両者を`null`にする（何も実行しない）ことも可能です。
+Configure the settings as shown in the following example:
+* Setting `kendraIndexScheduleEnabled` to `true` enables the scheduling, and setting it to `false` disables the scheduling after the next deployment.
+* `kendraIndexScheduleCreateCron` and `kendraIndexScheduleDeleteCron` specify the start times for creation and deletion in Cron format, respectively.
+  + For details on Cron format, refer to [this documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html). However, please specify the times in UTC to match the EventBridge specification. Currently, only `minute`, `hour`, `month`, and `weekDay` can be specified, and these fields are required. Other fields will be ignored if specified.
+  + Setting either of these to `null` will skip the corresponding creation or deletion operation. You can set one to `null` (enabling only one operation) or set both to `null` (disabling both operations).
 
-下記の例は、日本時間の月～金08:00にインデックスの作成を開始し、日本時間の月～金の20:00にインデックスの削除を開始する場合の設定です。
+The following example sets the index creation to start at 8:00 AM Japan time on weekdays (Monday to Friday) and the index deletion to start at 8:00 PM Japan time on weekdays (Monday to Friday).
 
- **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集** 
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
 ```json
 {
@@ -739,33 +734,33 @@ GenerativeAiUseCasesDashboardStackで作成するKendraのインデックスを�
 }
 ```
 
-Kendraのインデックスが削除されても、RAG機能はオンのままです。Webアプリケーション（GenU）ではRAG関連のメニューは表示されたままです。RAGチャットを実行すると、インデックスが存在しないためエラーが発生し、エラーメッセージに「インデックス作成・削除のスケジュールを確認してください」という旨のテキストが表示されます。
+The RAG functionality will remain enabled even when the Kendra index is deleted. The RAG-related menus will still be displayed in the Web application (GenU). If you try to use the RAG chat when the index is deleted, an error will occur, and an error message will be displayed indicating that you should check the index creation/deletion schedule.
 
-スケジュールとしてEventBridgeルールを使用し、処理の制御としてStep Functionsを使用します。EventBridgeのルールを手動で無効化することでスケジュールを停止できます。また、Step Functionsのステートマシンを手動で実行することで、インデックスの作成・削除を行うことができます。
+EventBridge rules are used for scheduling, and Step Functions are used for process control. You can stop the schedule by manually disabling the EventBridge rule. Additionally, you can manually execute the Step Functions state machine to create or delete the index.
 
 > [!NOTE]
-> - インデックス再作成後、追加されるデータソースは、デフォルトで作成されるS3データソースのみです。
->   - インデックス作成後に他のデータソースを追加していた場合、インデックス削除時にデータソースも削除され、インデックスを再作成してもそれらのデータソースは作成されず、再度追加する必要があります。
->   - 本リポジトリのCDK内でデータソースを追加した場合、データソースの作成はされますが、同期はされません。CDKで追加したデータソースの同期を行うためには、手動でデータソースの同期を行うか、Step Functionsのステートマシンのターゲットとして追加するように[コード](../packages/cdk/lib/construct/rag.ts)を修正する必要があります。
-> - Kendraのインデックス作成を開始してから、利用可能な状態になるまでには時間がかかります。具体的には、インデックスの作成と、データソースの同期に時間がかかります。そのため、 **RAGチャットの利用を開始したい時刻が決まっている場合、設定する起動時刻はそれよりも前に設定してください** 。リソースの空き状況・データソースの種類・データソース内のドキュメントのサイズ・数によって変動しますので、厳密な稼働時間を設定したい場合は、実際の所要時間を確認して設定するようにしてください。
->   - おおよその目安として、インデックスの作成には30分程度、S3データソースに数百件のテキストファイルを配置した場合、データソースの同期には10分程度かかります（あくまで目安です）。（この値に合わせるなら、40分前に設定する、ということになります。）
->   - 特に外部サービスをデータソースとして利用する場合は、所要時間が大きく変動することが予想されるため、注意してください。また、APIのコール制限などにも注意してください。
-> - 上記の設定時間外にインデックスが停止されていることを保証するものではなく、あくまでスケジュールで起動・停止を実行するものです。デプロイやスケジュールのタイミングにご注意ください
->   - 例えば、20時に削除する設定を、21時にデプロイしても、その時点では削除されず、翌日の21時にならないと削除が開始されません。
->   - スタックを作成するとき（GenerativeAiUseCasesStackがない状態で、cdk:deployを実行したとき）は、`ragEnabled`が`true`の場合、Kendraインデックスが作成されます。スケジュールの時刻が設定されていても、作成されます。次の削除スケジュール時刻まで、インデックスは作成されたままです。
-> - 現状では、起動・停止のエラーを通知する機能はありません。
-> - インデックスを再作成するたびに、IndexIdやDataSourceIdが変わります。他のサービスなどから参照している場合は、その変更に対応する必要があります。
+> - After recreating the index, the only data source that will be added is the default S3 data source created by this repository.
+>   - If you had added other data sources to the existing Kendra Index, those data sources will be deleted when the index is deleted, and they will not be recreated when the index is recreated. You will need to add them again.
+>   - If you added data sources in the CDK, they will be created, but they will not be synced. To sync data sources added in the CDK, you need to either manually sync the data sources or modify the [code](../packages/cdk/lib/construct/rag.ts) to add them as targets in the Step Functions state machine.
+> - It takes time for the Kendra index to become available after starting the index creation. Specifically, time is required for index creation and data source synchronization. Therefore, **if you have a specific time when you want to start using the RAG chat, set the start time earlier than that**. The actual time required may vary depending on resource availability, the type of data source, the size and number of documents in the data source, so if you need to set a precise uptime, please confirm the actual time required and set it accordingly.
+>   - As a rough guideline, index creation takes around 30 minutes, and data source synchronization takes around 10 minutes for a few hundred text files in an S3 data source (these are just estimates).
+>   - Be especially careful if you are using external services as data sources, as the required time may vary significantly. Also, be aware of API call limits.
+> - The above settings do not guarantee that the index will be stopped outside the scheduled times. It only executes the start and stop operations according to the schedule. Be mindful of the deployment timing and schedule timing.
+>   - For example, if you deploy at 9:00 PM with a setting to delete at 8:00 PM, the deletion will not occur at that time, and the index will remain until the next scheduled deletion time.
+>   - When creating the stack (when you run `cdk:deploy` in a state where the `GenerativeAiUseCasesStack` does not exist), if `ragEnabled` is `true`, the Kendra index will be created. Even if the schedule time is set, the index will be created. The index will remain created until the next scheduled deletion time.
+> - Currently, there is no functionality to notify errors during startup or shutdown.
+> - The IndexId and DataSourceId will change each time the index is recreated. If other services are referencing them, you will need to handle the changes.
 
-## モニタリング用のダッシュボードの有効化
+## Enabling Monitoring Dashboard
 
-入力/出力 Token 数や直近のプロンプト集などが集約されたダッシュボードを作成します。
-**ダッシュボードは GenU に組み込まれたものではなく、Amazon CloudWatch のダッシュボードです。**
-Amazon CloudWatch のダッシュボードは、[マネージメントコンソール](https://console.aws.amazon.com/cloudwatch/home#dashboards)から閲覧できます。
-ダッシュボードを閲覧するには、マネージメントコンソールにログイン可能かつダッシュボードが閲覧可能な権限を持った IAM ユーザーの作成が必要です。
+A dashboard that aggregates input/output token counts, recent prompt collections, and more will be created.
+**The dashboard is not embedded in GenU but is an Amazon CloudWatch dashboard.**
+The Amazon CloudWatch dashboard can be viewed from the [management console](https://console.aws.amazon.com/cloudwatch/home#dashboards).
+To view the dashboard, you need to create an IAM user who can log in to the management console and has permission to view the dashboard.
 
-context の `dashboard` に `true` を設定します。(デフォルトは `false`)
+Set `dashboard` to `true` in the context (default is `false`).
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 ```
 {
   "context": {
@@ -774,28 +769,28 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 }
 ```
 
-変更後に `npm run cdk:deploy`　で再度デプロイして反映させます。context の `modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
+After making the change, redeploy with `npm run cdk:deploy`. A stack named `GenerativeAiUseCasesDashboardStack` will be deployed in the region specified by `modelRegion` in the context. You will use the output values in the following steps.
 
-続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。Select the logging destinations には CloudWatch Logs only を選択してください。(S3 にも出力したい場合、Both S3 and CloudWatch Logs を選択しても構いません。) また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。なお、Model invocation logging の設定は、context で `modelRegion` として指定しているリージョンで行うことに留意してください。
+Next, configure the output of Amazon Bedrock logs. Open [Amazon Bedrock Settings](https://console.aws.amazon.com/bedrock/home#settings) and enable Model invocation logging. For Select the logging destinations, choose CloudWatch Logs only (if you also want to output to S3, you can choose Both S3 and CloudWatch Logs). For Log group name, specify the `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` output during `npm run cdk:deploy` (e.g., `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`). For Service role, create a new one with any name. Note that you need to configure Model invocation logging in the region specified by `modelRegion` in the context.
 
-設定完了後、`npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.DashboardUrl` を開いてください。
+After completing the setup, open the `GenerativeAiUseCasesDashboardStack.DashboardUrl` output during `npm run cdk:deploy`.
 
 > [!NOTE]
-> モニタリング用のダッシュボードを有効後に、再度無効化する場合は、`dashboard: false` にして再デプロイすればモニタリング用ダッシュボードは無効化されますが、`GenerativeAiUseCasesDashboardStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GenerativeAiUseCasesDashboardStack` というスタックを削除することで完全に消去ができます。
+> If you want to disable the monitoring dashboard after enabling it, setting `dashboard: false` and redeploying will disable the monitoring dashboard, but the `GenerativeAiUseCasesDashboardStack` itself will remain. Open the management console, navigate to CloudFormation in the `modelRegion`, and delete the `GenerativeAiUseCasesDashboardStack` stack to completely remove it.
 
-## カスタムドメインの使用
+## Using a Custom Domain
 
-Web サイトの URL としてカスタムドメインを使用することができます。同一 AWS アカウントの Route53 にパブリックホストゾーンが作成済みであることが必要です。パブリックホストゾーンについてはこちらをご参照ください: [パブリックホストゾーンの使用 - Amazon Route 53](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)
+You can use a custom domain as the URL for the website. You need to have a public hosted zone already created in Route53 within the same AWS account. For more information on public hosted zones, please refer to [Using Public Hosted Zones - Amazon Route 53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html).
 
-同一 AWS アカウントにパブリックホストゾーンを持っていない場合は、AWS ACM による SSL 証明書の検証時に手動で DNS レコードを追加する方法や、Eメール検証を行う方法もあります。これらの方法を利用する場合は、CDK のドキュメントを参照してカスタマイズしてください: [aws-cdk-lib.aws_certificatemanager module · AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html)
+If you don't have a public hosted zone within the same AWS account, there are alternative methods such as manually adding DNS records during SSL certificate verification by AWS ACM or using email verification. If you want to use these methods, please refer to the CDK documentation and customize accordingly: [aws-cdk-lib.aws_certificatemanager module · AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html).
 
-cdk.json には以下の値を設定します。
+Set the following values in cdk.json:
 
-- `hostName` ... Web サイトのホスト名です。A レコードは CDK によって作成されます。事前に作成する必要はありません
-- `domainName` ... 事前に作成したパブリックホストゾーンのドメイン名です
-- `hostedZoneId` ... 事前に作成したパブリックホストゾーンのIDです
+- `hostName` ... This is the hostname of the website. The A record will be created by CDK, and you don't need to create it in advance.
+- `domainName` ... This is the domain name of the pre-created public hosted zone.
+- `hostedZoneId` ... This is the ID of the pre-created public hosted zone.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
 ```json
 {
@@ -807,20 +802,20 @@ cdk.json には以下の値を設定します。
 }
 ```
 
-## 別 AWS アカウントの Bedrock を利用したい場合
+## Using a Different AWS Account's Bedrock
 
-別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
+You can use Bedrock from a different AWS account. The prerequisite is that the initial deployment of GenU has been completed.
 
-別 AWS アカウントの Bedrock を利用するためには、別 AWS アカウントに IAM ロールを 1 つ作成する必要があります。作成する IAM ロール名は任意ですが、GenU デプロイ時に作成された以下の名前で始まる IAM ロール名を、別アカウントで作成した IAM ロールの Principal に指定します。
+To use Bedrock from a different AWS account, you need to create one IAM role in the other AWS account. The name of the IAM role you create is arbitrary, but you need to specify the IAM role name starting with the following names created during the GenU deployment as the Principal of the IAM role you created in the other account.
 
 - `GenerativeAiUseCasesStack-APIPredictTitleService`
 - `GenerativeAiUseCasesStack-APIPredictService`
 - `GenerativeAiUseCasesStack-APIPredictStreamService`
 - `GenerativeAiUseCasesStack-APIGenerateImageService`
 
-Principal の指定方法について詳細を確認したい場合はこちらを参照ください: [AWS JSON ポリシーの要素: Principal](https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/reference_policies_elements_principal.html)
+If you want to check the details on how to specify the Principal, refer to [AWS JSON Policy Elements: Principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html).
 
-Principal 設定例 (別アカウントにて設定)
+Example Principal setting (to be set in the other account)
 
 ```json
 {
@@ -843,21 +838,21 @@ Principal 設定例 (別アカウントにて設定)
 }
 ```
 
-cdk.json には以下の値を設定します。
+Set the following value in cdk.json:
 
-- `crossAccountBedrockRoleArn` ... 別アカウントで事前に作成した IAM ロールの ARN です
+- `crossAccountBedrockRoleArn` ... This is the ARN of the IAM role you pre-created in the other account.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
 ```json
 {
   "context": {
-    "crossAccountBedrockRoleArn": "arn:aws:iam::アカウントID:role/事前に作成したロール名"
+    "crossAccountBedrockRoleArn": "arn:aws:iam::<account_id>:role/<pre-created_role_name>"
   }
 }
 ```
 
-cdk.json 設定例
+Example cdk.json setting
 
 ```json
 {
@@ -867,4 +862,4 @@ cdk.json 設定例
 }
 ```
 
-設定変更後に `npm run cdk:deploy` を実行して変更内容を反映させます。
+After making the configuration changes, run `npm run cdk:deploy` to apply the changes.

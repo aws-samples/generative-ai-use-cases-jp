@@ -220,7 +220,7 @@ const VideoAnalyzerPage: React.FC = () => {
         setMediaStream(stream);
       }
     } catch (e) {
-      console.error('ウェブカメラにアクセスできませんでした:', e);
+      console.error('Could not access webcam:', e);
     }
   }, [setRecording, videoElement, deviceId]);
 
@@ -250,10 +250,10 @@ const VideoAnalyzerPage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        映像分析
+        Video Analysis
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="映像をニアリアルタイムに分析する">
+        <Card label="Analyze video in near real-time">
           <div className="flex flex-col gap-x-4 xl:flex-row">
             <div className="w-fit">
               <div className="flex w-full items-end">
@@ -262,7 +262,7 @@ const VideoAnalyzerPage: React.FC = () => {
                   options={devices}
                   clearable={false}
                   onChange={setDeviceId}
-                  label="カメラ"
+                  label="Camera"
                 />
 
                 {recording ? (
@@ -270,7 +270,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     <Button
                       onClick={stopRecording}
                       className="mb-3 ml-3 h-fit w-16">
-                      停止
+                      Stop
                     </Button>
                   </>
                 ) : (
@@ -278,7 +278,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     <Button
                       onClick={startRecording}
                       className="mb-3 ml-3 h-fit w-16">
-                      開始
+                      Start
                     </Button>
                   </>
                 )}
@@ -296,7 +296,7 @@ const VideoAnalyzerPage: React.FC = () => {
                 options={availableMultiModalModels.map((m) => {
                   return { value: m, label: m };
                 })}
-                label="モデル"
+                label="Model"
               />
 
               <div className="relative h-48 overflow-y-scroll rounded border border-black/30 p-1.5 xl:h-96">
@@ -310,7 +310,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     outlined
                     onClick={onClickClear}
                     disabled={loading || sending || content.length === 0}>
-                    クリア
+                    Clear
                   </Button>
                 </div>
               </div>

@@ -57,7 +57,7 @@ const useRagKnowledgeBase = (id: string) => {
       pushMessage('user', content);
       pushMessage(
         'assistant',
-        'Knowledge Base から参考ドキュメントを取得中...'
+        'Retrieving reference documents from Knowledge Base...'
       );
 
       let retrievedItems = null;
@@ -69,8 +69,8 @@ const useRagKnowledgeBase = (id: string) => {
         popMessage();
         pushMessage(
           'assistant',
-          `Retrieve 時にエラーになりました。次の対応を検討してください。
-- cdk.json で指定した embeddingModelId のモデルが Amazon Bedrock (${modelRegion}) で有効になっているか確認`
+          `An error occurred during retrieval. Please consider the following:
+- Verify that the embeddingModelId specified in cdk.json is valid in Amazon Bedrock (${modelRegion})`
         );
         setLoading(false);
         return;
@@ -84,10 +84,10 @@ const useRagKnowledgeBase = (id: string) => {
         popMessage();
         pushMessage(
           'assistant',
-          `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Knowledge Base のデータソースに対象のドキュメントが追加されているか確認する
-- Knowledge Base のデータソースが同期されているか確認する
-- 入力の表現を変更する`
+          `No reference documents were found. Please consider the following actions:
+- Check if the target document has been added to the Knowledge Base data source
+- Check if the Knowledge Base data source is synchronized
+- Change the input expression`
         );
         setLoading(false);
         return;

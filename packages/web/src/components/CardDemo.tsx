@@ -22,7 +22,7 @@ const CardDemo: React.FC<Props> = (props) => {
         <div className="text-sm">{props.description}</div>
       </div>
       <div className="flex items-end justify-end">
-        <Button onClick={props.onClickDemo}>試す</Button>
+        <Button onClick={props.onClickDemo}>Try</Button>
       </div>
     </Card>
   );

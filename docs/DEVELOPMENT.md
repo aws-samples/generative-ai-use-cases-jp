@@ -1,38 +1,38 @@
-## ローカル環境構築手順
+## Local Environment Setup
 
-開発者用にローカル環境を構築する手順を説明します。なお、ローカル環境を構築する場合も、[AWS へのデプロイ](/README.md#デプロイ)は完了している必要があります。
+This section explains the steps to set up a local development environment. Note that you need to complete the [deployment to AWS](/README.md#deployment) before setting up the local environment.
 
-### Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS 等)
+### For Unix-based Command Users (Cloud9, Linux, MacOS, etc.)
 
-以下のコマンドを実行することで、必要な環境変数を CloudFormation の Output から動的に取得し、サーバーを起動します。
-なお、内部で `aws` コマンドと `jq` コマンドを利用しているので、未インストールの場合はインストールしてから実行してください。
+Run the following command to dynamically retrieve the necessary environment variables from the CloudFormation Outputs and start the server.
+Note that this command internally uses the `aws` and `jq` commands, so install them if they are not already installed.
 
 ```bash
 npm run web:devw
 ```
 
 > [!TIP]
-> AWSへの認証には[デフォルトのプロファイル](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles)が利用されます。  
-> 別のプロファイルやアクセスキーを認証に使いたい場合はあらかじめ環境変数をセットしておくか、[setup-env.sh](/setup-env.sh)に追加しておくことができます。
+> The [default profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) is used for AWS authentication.
+> If you want to use a different profile or access key for authentication, you can set the environment variables in advance or add them to [setup-env.sh](/setup-env.sh).
 > ```bash
 > export AWS_PROFILE=''
 > export AWS_DEFAULT_REGION=''
 > ```
 
-### その他のユーザー (Windows 等)
+### For Other Users (Windows, etc.)
 
-デプロイ完了時に表示される Outputs から API の Endpoint (Output key = APIApiEndpoint...)、Cognito User Pool ID (Output key = AuthUserPoolId...)、Cognito User Pool Client ID (Output Key = AuthUserPoolClientId...) 、Cognito Identity Pool ID (Output Key = AuthIdPoolId...)、レスポンスストリーミングの Lambda 関数の ARN (Output Key = APIPredictStreamFunctionArn...) を取得します。
-デプロイ時の出力が消えている場合、[CloudFormation](https://console.aws.amazon.com/cloudformation/home) の GenerativeAiUseCasesStack をクリックして Outputs タブから確認できます。
+After deployment, retrieve the API Endpoint (Output key = APIApiEndpoint...), Cognito User Pool ID (Output key = AuthUserPoolId...), Cognito User Pool Client ID (Output Key = AuthUserPoolClientId...), Cognito Identity Pool ID (Output Key = AuthIdPoolId...), and the ARN of the Lambda function for response streaming (Output Key = APIPredictStreamFunctionArn...) from the Outputs.
+If the deployment output is no longer available, you can find it in the Outputs tab of the GenerativeAiUseCasesStack in [CloudFormation](https://console.aws.amazon.com/cloudformation/home).
 
-それらの値を環境変数に設定する必要がありますが、環境変数の設定は以下のいずれかの方法で行うことができます。
+You need to set these values as environment variables, which can be done using one of the following methods.
 
-#### シェル変数を export する方法
+#### Setting Shell Variables with export
 
-以下のコマンドでシェル変数に値を設定し `export` とすることで、環境変数として利用できます。Windows 利用者でかつ PowerShell を利用している方は、コマンドが異なりますので[こちら](https://learn.microsoft.com/ja-jp/powershell/module/microsoft.powershell.core/about/about_environment_variables)を参照の上、設定を行なってください。
+You can set the values as shell variables and use `export` to make them available as environment variables. For Windows users using PowerShell, the command may be different, so please refer to [this guide](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables) and set the variables accordingly.
 
 ```bash
 export VITE_APP_API_ENDPOINT=<API Endpoint>
-export VITE_APP_REGION=<デプロイしたリージョン>
+export VITE_APP_REGION=<Deployed Region>
 export VITE_APP_USER_POOL_ID=<Cognito User Pool ID>
 export VITE_APP_USER_POOL_CLIENT_ID=<Cognito User Pool Client ID>
 export VITE_APP_IDENTITY_POOL_ID=<Cognito Identity Pool ID>
@@ -40,18 +40,18 @@ export VITE_APP_PREDICT_STREAM_FUNCTION_ARN=<Function ARN>
 export VITE_APP_RAG_ENABLED=<RAG Flag>
 export VITE_APP_AGENT_ENABLED=<Bedrock Agent Flag>
 export VITE_APP_SELF_SIGN_UP_ENABLED=<Self Signup Flag>
-export VITE_APP_MODEL_REGION=<Bedrock/SageMakerモデルのリージョン>
-export VITE_APP_MODEL_IDS=<Bedrock モデルの JSON Array>
-export VITE_APP_MULTI_MODAL_MODEL_IDS=<Bedrock モデルの JSON Array>
-export VITE_APP_IMAGE_MODEL_IDS=<Bedrock 画像生成モデルの JSON Array>
-export VITE_APP_ENDPOINT_NAMES=<SageMaker モデルの JSON Array>
-export VITE_APP_SAMLAUTH_ENABLED=<SAML 認証 Flag>
+export VITE_APP_MODEL_REGION=<Bedrock/SageMaker Model Region>
+export VITE_APP_MODEL_IDS=<Bedrock Model JSON Array>
+export VITE_APP_MULTI_MODAL_MODEL_IDS=<Bedrock Model JSON Array>
+export VITE_APP_IMAGE_MODEL_IDS=<Bedrock Image Generation Model JSON Array>
+export VITE_APP_ENDPOINT_NAMES=<SageMaker Model JSON Array>
+export VITE_APP_SAMLAUTH_ENABLED=<SAML Authentication Flag>
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=<SAML Cognito Domain>
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Provider Name>
-export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array>
+export VITE_APP_AGENT_NAMES=<Bedrock Agent Names JSON Array>
 ```
 
-具体例は以下です。
+Here's a concrete example:
 
 ```bash
 export VITE_APP_API_ENDPOINT=https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/api/
@@ -74,29 +74,29 @@ export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
 export VITE_APP_AGENT_NAMES=["SearchEngine"]
 ```
 
-#### `.env` ファイルを利用する方法
+#### Using .env Files
 
-フロントエンドは Vite を利用してビルドを行っていますが、Vite は `.env` ファイルを利用して環境変数を設定できます（[参考](https://ja.vitejs.dev/guide/env-and-mode#env-files)）。`/packages/web/.env` ファイルを作成し、上記の「シェル変数を export する方法」と同様の項目を設定してください。なお、`export` の記載は不要なので、ご注意ください。
+The frontend is built using Vite, which allows you to set environment variables using `.env` files ([reference](https://vitejs.dev/guide/env-and-mode#env-files)). Create a `/packages/web/.env` file and set the same variables as in the "Setting Shell Variables with export" method above. Note that you don't need to include `export` in the `.env` file.
 
 ```bash
 VITE_APP_API_ENDPOINT=https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com/api/
 VITE_APP_REGION=ap-northeast-1
-### 以降省略 ###
+### Omitted below ###
 ```
 
-#### ローカルサーバの起動
+#### Starting the Local Server
 
-環境変数の設定ができたら、以下のコマンドを実行します。
+After setting the environment variables, run the following command:
 
 ```bash
 npm run web:dev
 ```
 
-正常に実行されれば http://localhost:5173 で起動しますので、ブラウザからアクセスしてみてください。
+If everything is set up correctly, the server will start at http://localhost:5173, and you can access it from your browser.
 
-## Pull Request を出す場合
+## Submitting a Pull Request
 
-バグ修正や機能改善などの Pull Request は歓迎しております。コミットする前に、lint ツールを実行してください。
+Bug fixes and feature improvements are welcome as Pull Requests. Before committing, please run the lint tool:
 
 ```bash
 npm run lint

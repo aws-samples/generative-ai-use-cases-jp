@@ -70,7 +70,7 @@ const RagKnowledgeBasePage: React.FC = () => {
     <>
       <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-          RAG チャット
+          RAG Chat
         </div>
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
@@ -94,13 +94,13 @@ const RagKnowledgeBasePage: React.FC = () => {
             className={`absolute inset-x-0 top-28 m-auto flex justify-center`}>
             <Alert severity="info">
               <div>
-                RAG (Retrieval Augmented Generation)
-                手法のチャットを行うことができます。
+                You can chat using the RAG (Retrieval Augmented Generation)
+                method.
               </div>
               <div>
-                メッセージが入力されると Knowledge Base
-                でドキュメントを検索し、検索したドキュメントをもとに LLM
-                が回答を生成します。
+                When a message is entered, the Knowledge Base searches for
+                documents, and the LLM generates a response based on the
+                retrieved documents.
               </div>
             </Alert>
           </div>
