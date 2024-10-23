@@ -22,12 +22,15 @@ import Tabs from '../../components/Tabs';
 import RowItem from '../../components/RowItem';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
+import Skeleton from '../../components/Skeleton';
 
 const UseCaseBuilderConsolePage: React.FC = () => {
   const navigate = useNavigate();
   const {
     myUseCases,
+    isLoadingMyUseCases,
     favoriteUseCases,
+    isLoadingFavoriteUseCases,
     deleteUseCase,
     toggleFavorite,
     toggleShared,
@@ -128,6 +131,18 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                     </div>
                   </RowItem>
                   <div className="h-[calc(100%-2rem)] overflow-y-scroll rounded border">
+                    {isLoadingMyUseCases && (
+                      <div className="flex flex-col gap-2 p-2">
+                        {new Array(10).fill('').map((_, idx) => (
+                          <Skeleton key={idx} />
+                        ))}
+                      </div>
+                    )}
+                    {!isLoadingMyUseCases && myUseCases.length === 0 && (
+                      <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                        マイユースケースがありません。
+                      </div>
+                    )}
                     {myUseCases.map((useCase, idx) => {
                       return (
                         <div
@@ -204,6 +219,19 @@ const UseCaseBuilderConsolePage: React.FC = () => {
               content: (
                 <Card label="お気に入り一覧" className="h-[calc(100vh-10rem)]">
                   <div className="h-[calc(100%-2rem)] overflow-y-scroll rounded border">
+                    {isLoadingFavoriteUseCases && (
+                      <div className="flex flex-col gap-2 p-2">
+                        {new Array(10).fill('').map((_, idx) => (
+                          <Skeleton key={idx} />
+                        ))}
+                      </div>
+                    )}
+                    {!isLoadingFavoriteUseCases &&
+                      favoriteUseCases.length === 0 && (
+                        <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                          お気に入り登録されていません。
+                        </div>
+                      )}
                     {favoriteUseCases.map((useCase) => {
                       return (
                         <div
