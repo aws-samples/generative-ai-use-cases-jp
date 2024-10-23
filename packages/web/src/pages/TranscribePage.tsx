@@ -161,7 +161,7 @@ const TranscribePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        Voice Recognition
+        Speech-to-Text
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card>
@@ -276,7 +276,7 @@ const TranscribePage: React.FC = () => {
             )}
             {!loading && formattedOutput == '' && (
               <div className="text-gray-500">
-                The voice recognition results will be displayed here
+                The speech-to-text results will be displayed here
               </div>
             )}
             {loading && (
