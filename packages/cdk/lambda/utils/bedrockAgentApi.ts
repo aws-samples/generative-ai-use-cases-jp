@@ -1,4 +1,9 @@
 import {
+  BedrockAgentClient,
+  GetAgentAliasCommand,
+  ListAgentActionGroupsCommand,
+} from '@aws-sdk/client-bedrock-agent';
+import {
   BedrockAgentRuntimeClient,
   DependencyFailedException,
   InvokeAgentCommand,
@@ -18,11 +23,20 @@ import {
 } from 'generative-ai-use-cases-jp';
 import { streamingChunk } from './streamingChunk';
 
-const agentMap: AgentMap = JSON.parse(process.env.AGENT_MAP || '{}');
-const client = new BedrockAgentRuntimeClient({
+const agentClient = new BedrockAgentClient({
+  region: process.env.AGENT_REGION,
+});
+const agentRuntimeClient = new BedrockAgentRuntimeClient({
   region: process.env.AGENT_REGION,
 });
 const s3Client = new S3Client({});
+
+// Agent の情報
+const agentMap: AgentMap = JSON.parse(process.env.AGENT_MAP || '{}');
+type AgentInfo = {
+  codeInterpreterEnabled: boolean;
+};
+const agentInfoMap: { [aliasId: string]: AgentInfo } = {};
 
 // s3://<BUCKET>/<PREFIX> から https://<BUCKET>.s3.amazonaws.com/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string): string => {
@@ -37,9 +51,48 @@ const convertS3UriToUrl = (s3Uri: string): string => {
   return '';
 };
 
+const getAgentInfo = async (agentId: string, agentAliasId: string) => {
+  // Get Agent Info if not cached
+  if (!agentInfoMap[agentAliasId]) {
+    // Get Agent Version
+    const agentAliasInfoRes = await agentClient.send(
+      new GetAgentAliasCommand({
+        agentId: agentId,
+        agentAliasId: agentAliasId,
+      })
+    );
+    const agentVersion =
+      agentAliasInfoRes.agentAlias?.routingConfiguration?.pop()?.agentVersion ??
+      '1';
+    // List Action Group
+    const actionGroups = await agentClient.send(
+      new ListAgentActionGroupsCommand({
+        agentId: agentId,
+        agentVersion: agentVersion,
+      })
+    );
+    // Cache Agent Info
+    agentInfoMap[agentAliasId] = {
+      codeInterpreterEnabled: !!actionGroups.actionGroupSummaries?.find(
+        (actionGroup) => actionGroup.actionGroupName === 'CodeInterpreterAction'
+      ),
+    };
+  }
+  return agentInfoMap[agentAliasId];
+};
+
 const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
     try {
+      // Get Agent
+      if (!agentMap[model.modelId]) {
+        throw new Error('Agent not found');
+      }
+      const agentId = agentMap[model.modelId].agentId;
+      const agentAliasId = agentMap[model.modelId].aliasId;
+      const agentInfo = await getAgentInfo(agentId, agentAliasId);
+
+      // Invoke Agent
       const command = new InvokeAgentCommand({
         sessionState: {
           files:
@@ -52,16 +105,18 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                   data: Buffer.from(file.source.data, 'base64'),
                 },
               },
-              useCase: 'CODE_INTERPRETER',
+              useCase: agentInfo.codeInterpreterEnabled
+                ? 'CODE_INTERPRETER'
+                : 'CHAT',
             })) || [],
         },
-        agentId: agentMap[model.modelId].agentId,
-        agentAliasId: agentMap[model.modelId].aliasId,
+        agentId: agentId,
+        agentAliasId: agentAliasId,
         sessionId: model.sessionId,
         enableTrace: true,
         inputText: messages[messages.length - 1].content,
       });
-      const res = await client.send(command);
+      const res = await agentRuntimeClient.send(command);
 
       if (!res.completion) {
         return;

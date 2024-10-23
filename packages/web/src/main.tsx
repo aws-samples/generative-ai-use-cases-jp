@@ -25,7 +25,6 @@ import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
-import FileUploadPage from './pages/FileUploadPage.tsx';
 import PromptFlowChatPage from './pages/PromptFlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
@@ -41,8 +40,6 @@ const ragKnowledgeBaseEnabled: boolean =
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const recognizeFileEnabled: boolean =
-  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
 
@@ -103,12 +100,6 @@ const routes: RouteObject[] = [
     ? {
         path: '/video',
         element: <VideoAnalyzerPage />,
-      }
-    : null,
-  recognizeFileEnabled
-    ? {
-        path: '/file',
-        element: <FileUploadPage />,
       }
     : null,
   ragEnabled

@@ -70,7 +70,10 @@ const useChatState = create<{
     sessionId: string | undefined,
     extraData: UploadedFileType[] | undefined
   ) => void;
-  sendFeedback: (id: string, feedbackData: UpdateFeedbackRequest) => Promise<void>;
+  sendFeedback: (
+    id: string,
+    feedbackData: UpdateFeedbackRequest
+  ) => Promise<void>;
   getStopReason: (id: string) => string;
 }>((set, get) => {
   const {
@@ -778,7 +781,7 @@ const useChat = (id: string, chatId?: string) => {
       );
     },
     sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {
-      await sendFeedback(id, feedbackData);    
+      await sendFeedback(id, feedbackData);
     },
     getStopReason: () => {
       return getStopReason(id);

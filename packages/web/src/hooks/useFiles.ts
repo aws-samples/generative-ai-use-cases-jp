@@ -41,7 +41,10 @@ const useFilesState = create<{
         // file.type は拡張子ベースで MIME を取得する一方、fileTypeFromStream はファイルヘッダの Signature を確認する
         const realMimeType = (await fileTypeFromStream(file.stream()))?.mime;
         // exception when file is doc or xls
-        const isDocOrXls = ['application/msword', 'application/vnd.ms-excel'].includes(file.type || '') && realMimeType === "application/x-cfb";
+        const isDocOrXls =
+          ['application/msword', 'application/vnd.ms-excel'].includes(
+            file.type || ''
+          ) && realMimeType === 'application/x-cfb';
         const isMimeSpoofed =
           file.type && realMimeType && file.type != realMimeType && !isDocOrXls;
         return isMimeSpoofed;

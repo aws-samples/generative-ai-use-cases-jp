@@ -362,6 +362,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 2024/06 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -382,6 +383,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -409,6 +411,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -450,7 +453,10 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 ```
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"stability.stable-diffusion-xl-v1"
+"stability.stable-diffusion-xl-v1",
+"stability.sd3-large-v1:0",
+"stability.stable-image-core-v1:0",
+"stability.stable-image-ultra-v1:0"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -482,6 +488,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -495,7 +502,10 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1"
+    "stability.stable-diffusion-xl-v1",
+    "stability.sd3-large-v1:0",
+    "stability.stable-image-core-v1:0",
+    "stability.stable-image-ultra-v1:0"
   ],
 ```
 ### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
@@ -517,7 +527,10 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1"
+    "stability.stable-diffusion-xl-v1",
+    "stability.sd3-large-v1:0",
+    "stability.stable-image-core-v1:0",
+    "stability.stable-image-ultra-v1:0"
   ],
 ```
 
@@ -773,34 +786,6 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 
 > [!NOTE]
 > モニタリング用のダッシュボードを有効後に、再度無効化する場合は、`dashboard: false` にして再デプロイすればモニタリング用ダッシュボードは無効化されますが、`GenerativeAiUseCasesDashboardStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GenerativeAiUseCasesDashboardStack` というスタックを削除することで完全に消去ができます。
-
-## ファイルアップロード機能の有効化
-
-PDF や Excel などのファイルをアップロードしてテキストを抽出する、ファイルアップロード機能を利用することができます。対応しているファイルは、csv, doc, docx, md, pdf, ppt, pptx, tsv, xlsx です。
-
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```json
-{
-  "context": {
-    "recognizeFileEnabled": true,
-    "vpcId": null
-  }
-}
-```
-
-ファイルアップロード機能は ECS (Fargate) 上で実行されます。`vpcId`を指定しない場合は、VPC が新たに作成されます。また、Fargate 上で動くコンテナのビルドを行うために、デプロイ用のマシンでは Docker がインストールされている必要があり、Docker デーモンが起動している必要があります。
-
-既存の VPC を使用する場合は、`vpcId` を指定してください。
-
-
-```json
-{
-  "context": {
-    "recognizeFileEnabled": true,
-    "vpcId": "vpc-xxxxxxxxxxxxxxxxx"
-  }
-}
-```
 
 ## カスタムドメインの使用
 

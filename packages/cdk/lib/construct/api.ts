@@ -72,6 +72,7 @@ export class Api extends Construct {
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
       'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -90,6 +91,9 @@ export class Api extends Construct {
       // 'amazon.titan-text-express-v1',
       'amazon.titan-text-premier-v1:0',
       'stability.stable-diffusion-xl-v1',
+      'stability.sd3-large-v1:0',
+      'stability.stable-image-core-v1:0',
+      'stability.stable-image-ultra-v1:0',
       'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
       'meta.llama3-8b-instruct-v1:0',
@@ -112,6 +116,7 @@ export class Api extends Construct {
       'cohere.command-r-plus-v1:0',
     ];
     const multiModalModelIds = [
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
       'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',

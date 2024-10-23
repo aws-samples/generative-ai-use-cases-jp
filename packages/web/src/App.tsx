@@ -16,7 +16,6 @@ import {
   PiGlobe,
   PiX,
   PiRobot,
-  PiUploadSimple,
   PiVideoCamera,
   PiFlowArrow,
 } from 'react-icons/pi';
@@ -35,8 +34,6 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const recognizeFileEnabled: boolean =
-  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
 const getPromptFlows = () => {
@@ -152,15 +149,6 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
-  recognizeFileEnabled
-    ? {
-        label: 'ファイルアップロード',
-        to: '/file',
-        icon: <PiUploadSimple />,
-        display: 'tool' as const,
-        sub: 'Deprecated',
-      }
-    : null,
   ragEnabled
     ? {
         label: 'Kendra 検索',

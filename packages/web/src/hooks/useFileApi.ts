@@ -1,8 +1,6 @@
 import {
   GetFileUploadSignedUrlRequest,
   GetFileUploadSignedUrlResponse,
-  RecognizeFileRequest,
-  RecognizeFileResponse,
   UploadFileRequest,
   GetFileDownloadSignedUrlRequest,
   GetFileDownloadSignedUrlResponse,
@@ -16,9 +14,6 @@ const useFileApi = () => {
   return {
     getSignedUrl: (req: GetFileUploadSignedUrlRequest) => {
       return http.post<GetFileUploadSignedUrlResponse>('file/url', req);
-    },
-    recognizeFile: (req: RecognizeFileRequest) => {
-      return http.post<RecognizeFileResponse>('file/recognize', req);
     },
     uploadFile: (url: string, req: UploadFileRequest) => {
       return axios({

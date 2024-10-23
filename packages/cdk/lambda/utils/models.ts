@@ -10,6 +10,8 @@ import {
   UsecaseConverseInferenceParams,
   GuardrailConverseConfigParams,
   GuardrailConverseStreamConfigParams,
+  StabilityAI2024ModelParams,
+  StabilityAI2024ModelResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -379,6 +381,54 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
   return JSON.stringify(body);
 };
 
+const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
+  let positivePrompt: string = '';
+  let negativePrompt: string | undefined;
+  params.textPrompt.forEach((prompt) => {
+    if (prompt.weight >= 0) {
+      positivePrompt = prompt.text;
+    } else {
+      negativePrompt = prompt.text;
+    }
+  });
+  if (!positivePrompt) {
+    throw new Error('Positive prompt is required');
+  }
+  let body: StabilityAI2024ModelParams = {
+    prompt: positivePrompt,
+    seed: params.seed,
+    output_format: 'png',
+  };
+  if (params.stylePreset) {
+    body.prompt = body.prompt + ', ' + params.stylePreset;
+  }
+
+  // image-to-image modeの際、aspect比を使用できない
+  if (params.aspectRatio && !params.initImage) {
+    body = {
+      ...body,
+      aspect_ratio: params.aspectRatio,
+    };
+  }
+  if (negativePrompt) {
+    body = {
+      ...body,
+      negative_prompt: negativePrompt,
+    };
+  }
+
+  // Image to Image
+  if (params.initImage) {
+    body = {
+      ...body,
+      image: params.initImage,
+      mode: 'image-to-image',
+      strength: params.imageStrength,
+    };
+  }
+  return JSON.stringify(body);
+};
+
 const createBodyImageTitanImage = (params: GenerateImageParams) => {
   // TODO: Support inpainting and outpainting too
   const imageGenerationConfig = {
@@ -452,20 +502,50 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
 };
 
 const extractOutputImageStableDiffusion = (
-  response: BedrockImageGenerationResponse
+  response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
 ) => {
-  if (response.result !== 'success') {
-    throw new Error('Failed to invoke model');
+  if ('result' in response) {
+    // BedrockImageGenerationResponse の場合
+    if (response.result !== 'success') {
+      throw new Error('Failed to invoke model');
+    }
+    return response.artifacts[0].base64;
+  } else {
+    // StabilityAI2024ModelResponse の場合
+    throw new Error('Unexpected response type for Stable Diffusion');
   }
-  return response.artifacts[0].base64;
+};
+
+const extractOutputImageStabilityAI2024Model = (
+  response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
+) => {
+  if ('finish_reasons' in response) {
+    // StabilityAI2024ModelResponse の場合
+    if (response.finish_reasons[0] !== null) {
+      if (response.finish_reasons[0] == 'Filter reason: prompt') {
+        throw new Error(
+          response.finish_reasons[0] +
+            ': 日本語のプロンプトには対応していません'
+        );
+      }
+      throw new Error(response.finish_reasons[0]);
+    }
+    return response.images[0];
+  } else {
+    // BedrockImageGenerationResponse の場合
+    throw new Error('Unexpected response type for Stability AI 2024 Model');
+  }
 };
 
 const extractOutputImageTitanImage = (
-  response: BedrockImageGenerationResponse
+  response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
 ) => {
-  return response.images[0];
+  if ('images' in response) {
+    return response.images[0];
+  } else {
+    throw new Error('Unexpected response type for Titan Image');
+  }
 };
-
 // テキスト生成に関する、各のModel のパラメーターや関数の定義
 
 export const BEDROCK_TEXT_GEN_MODELS: {
@@ -490,6 +570,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: (body: ConverseStreamOutput) => string;
   };
 } = {
+  'anthropic.claude-3-5-sonnet-20241022-v2:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -773,12 +861,26 @@ export const BEDROCK_TEXT_GEN_MODELS: {
 export const BEDROCK_IMAGE_GEN_MODELS: {
   [key: string]: {
     createBodyImage: (params: GenerateImageParams) => string;
-    extractOutputImage: (response: BedrockImageGenerationResponse) => string;
+    extractOutputImage: (
+      response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
+    ) => string;
   };
 } = {
   'stability.stable-diffusion-xl-v1': {
     createBodyImage: createBodyImageStableDiffusion,
     extractOutputImage: extractOutputImageStableDiffusion,
+  },
+  'stability.sd3-large-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
+  'stability.stable-image-core-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
+  'stability.stable-image-ultra-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
   'amazon.titan-image-generator-v1': {
     createBodyImage: createBodyImageTitanImage,

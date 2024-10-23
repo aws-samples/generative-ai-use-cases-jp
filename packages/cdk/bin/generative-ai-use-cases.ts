@@ -98,14 +98,6 @@ const anonymousUsageTracking: boolean = !!app.node.tryGetContext(
   'anonymousUsageTracking'
 );
 
-const vpcId = app.node.tryGetContext('vpcId');
-if (typeof vpcId != 'undefined' && vpcId != null && typeof vpcId != 'string') {
-  throw new Error('vpcId must be string or undefined');
-}
-if (typeof vpcId == 'string' && !vpcId.match(/^vpc-/)) {
-  throw new Error('vpcId must start with "vpc-"');
-}
-
 const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 
 // RAG Knowledge Base
@@ -164,7 +156,6 @@ const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     allowedIpV4AddressRanges,
     allowedIpV6AddressRanges,
     allowedCountryCodes,
-    vpcId,
     description: anonymousUsageTracking
       ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
       : undefined,
