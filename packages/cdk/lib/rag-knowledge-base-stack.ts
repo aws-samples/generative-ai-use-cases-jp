@@ -176,7 +176,7 @@ export class RagKnowledgeBaseStack extends Stack {
       typeof ragKnowledgeBaseAdvancedParsingModelId !== 'string'
     ) {
       throw new Error(
-        'The Knowledge Base RAG\'s Advanced Parsing is enabled, but the ragKnowledgeBaseAdvancedParsingModelId is not specified or is not a string.'
+        "The Knowledge Base RAG's Advanced Parsing is enabled, but the ragKnowledgeBaseAdvancedParsingModelId is not specified or is not a string."
       );
     }
 
