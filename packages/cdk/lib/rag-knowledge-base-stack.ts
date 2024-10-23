@@ -24,53 +24,53 @@ const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
 // parsingConfiguration で PDF ファイルの中に埋め込まれている画像やグラフや表を読み取る機能がある。
 // 読み取る際のプロンプトは任意のものが定義できる。以下に const として定義する。利用環境によってプロンプトを変更することで、より高い精度を期待できる。
 // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing
-const PARSING_PROMPT = `ドキュメントに含まれる画像やグラフや表などの Image コンテンツからテキストを書き写して、コードブロックではないMarkdown構文で出力してください。以下の手順に従ってください：
+const PARSING_PROMPT = `Please transcribe the text from image content such as images, graphs, and tables included in the document, and output it in Markdown syntax that is not a code block. Follow these steps:
 
-1. 提供されたページを注意深く調べてください。
+1. Please examine the provided pages carefully.
 
-2. ページに存在するすべての要素を特定してください。これには見出し、本文、脚注、表、視覚化、キャプション、ページ番号などが含まれます。
+2. Please identify all elements present on the page. This includes headings, body text, footnotes, tables, visualizations, captions, page numbers, etc.
 
-3. Markdown構文のフォーマットを使用して出力してください : 
-- 見出し：主見出しには#、セクションには##、サブセクションには###など
-- リスト：箇条書きには* または -、番号付きリストには1. 2. 3.
-- 繰り返しは避けてください
+3. Please use Markdown syntax for the output:
+- Headings: #for main headings, ## for sections, ### for subsections, etc.
+- Lists: * or - for bulleted lists, 1. 2. 3. for numbered lists
+- Avoid repetition
 
-4. 要素が Visualization の場合：
-- 自然言語で詳細な説明を提供してください
-- 説明を提供した後、Visualization 内のテキストは転写しないでください
+4. If the element is "Visualization":
+- Please provide a detailed explanation in natural language
+- After providing the explanation, do not transcribe any text within the Visualization
 
-5. 要素が表の場合：
-- Markdownの表を作成し、すべての行が同じ列数を持つようにしてください
-- セルの配置をできるだけ忠実に維持してください
-- 表を複数の表に分割しないでください
-- 結合されたセルが複数の行や列にまたがる場合、テキストを左上のセルに配置し、他のセルには ' ' を出力してください
-- 列の区切りには | を使用し、ヘッダー行の区切りには |-|-| を使用してください
-- セルに複数の項目がある場合、別々の行にリストしてください
-- 表にサブヘッダーがある場合、サブヘッダーをヘッダーから別の行で分離してください
+5. If the element is a table:
+- Create a Markdown table, ensuring all rows have the same number of columns
+- Maintain the cell placement as faithfully as possible
+- Do not split the table into multiple tables
+- If merged cells span multiple rows or columns, place the text in the top-left cell and output ' ' for the other cells
+- Use | as the column separator and |-|-| as the header row separator
+- If a cell has multiple items, list them on separate lines
+- If the table has sub-headers, separate the sub-headers from the headers on a different line
 
-6. 要素が段落の場合：
-- 各テキスト要素を表示されているとおりに正確に転写してください
+6. If the element is a paragraph:
+- Transcribe each text element accurately as it appears
 
-7. 要素がヘッダー、フッター、脚注、ページ番号の場合：
-- 各テキスト要素を表示されているとおりに正確に転写してください
+7. If the element is a header, footer, footnote, or page number:
+- Transcribe each text element accurately as it appears
 
-出力例：
+Output example:
 
-Y軸に「売上高（$百万）」、X軸に「年」とラベル付けされた年間売上高を示す棒グラフ。グラフには2018年（$12M）、2019年（$18M）、2020年（$8M）、2021年（$22M）の棒がある。
-図3：このグラフは年間売上高を百万ドル単位で示しています。2020年はCOVID-19パンデミックの影響で大幅に減少しました。
+A bar graph showing annual revenue with the Y-axis labeled "Revenue ($M)" and the X-axis labeled "Year". The graph has bars for 2018 ($12M), 2019 ($18M), 2020 ($8M), and 2021 ($22M).
+Figure 3: This graph shows annual revenue in millions of dollars. Revenue declined significantly in 2020 due to the impact of the COVID-19 pandemic.
 
-年次報告書
-財務ハイライト
-収益：$40M
-利益：$12M
-EPS：$1.25
-| | 12月31日終了年度 | |
+Annual Report
+Financial Highlights
+Revenue: $40M
+Profit: $12M
+EPS: $1.25
+| | Year Ended December 31, | |
 
-2021	2022
-キャッシュフロー：		
-営業活動	$ 46,327	$ 46,752
-投資活動	(58,154)	(37,601)
-財務活動	6,291	9,718`;
+2021    2022
+Cash Flows:
+Operating    $ 46,327    $ 46,752
+Investing    (58,154)    (37,601)
+Financing    6,291   9,718`;
 
 const EMBEDDING_MODELS = Object.keys(MODEL_VECTOR_MAPPING);
 
@@ -138,13 +138,13 @@ export class RagKnowledgeBaseStack extends Stack {
 
     if (typeof embeddingModelId !== 'string') {
       throw new Error(
-        'Knowledge Base RAG が有効になっていますが、embeddingModelId が指定されていません'
+        'The Knowledge Base RAG is enabled, but the embeddingModelId is not specified.'
       );
     }
 
     if (!EMBEDDING_MODELS.includes(embeddingModelId)) {
       throw new Error(
-        `embeddingModelId が無効な値です (有効な embeddingModelId ${EMBEDDING_MODELS})`
+        `embeddingModelId is an invalid value (valid embeddingModelId ${EMBEDDING_MODELS})`
       );
     }
 
@@ -176,7 +176,7 @@ export class RagKnowledgeBaseStack extends Stack {
       typeof ragKnowledgeBaseAdvancedParsingModelId !== 'string'
     ) {
       throw new Error(
-        'Knowledge Base RAG の Advanced Parsing が有効ですが、ragKnowledgeBaseAdvancedParsingModelId が指定されていないか、文字列ではありません'
+        'The Knowledge Base RAG\'s Advanced Parsing is enabled, but the ragKnowledgeBaseAdvancedParsingModelId is not specified or is not a string.'
       );
     }
 
@@ -371,17 +371,17 @@ export class RagKnowledgeBaseStack extends Stack {
               },
             }
           : {}),
-        // チャンク戦略を変更したい場合は、以下のコメントアウトを外して、各種パラメータを調整することで、環境に合わせた環境構築が可能です。
-        // 以下の 4 種類のチャンク戦略が選択可能です。
-        // - デフォルト (何も指定しない)
-        // - セマンティックチャンク
-        // - 階層チャンク
-        // - 標準チャンク
-        // 詳細は以下の Document を参照ください。
+        // If you want to change the chunking strategy, uncomment the following and adjust the various parameters to configure the environment to suit your needs.
+        // You can choose from the following four chunking strategies:
+        // - Default (no specification)
+        // - Semantic chunking
+        // - Hierarchical chunking
+        // - Standard chunking
+        // For details, please refer to the following document.
         // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html
         // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html
         //
-        // セマンティックチャンク
+        // Semantic chunking
         // chunkingConfiguration: {
         //   chunkingStrategy: 'SEMANTIC',
         //   semanticChunkingConfiguration: {
@@ -391,23 +391,23 @@ export class RagKnowledgeBaseStack extends Stack {
         //   },
         // },
         //
-        // 階層チャンク
+        // Hierarchical chunking
         // chunkingConfiguration: {
         //   chunkingStrategy: 'HIERARCHICAL',
         //   hierarchicalChunkingConfiguration: {
         //     levelConfigurations: [
         //       {
-        //         maxTokens: 1500, // 親チャンクの Max Token サイズ
+        //         maxTokens: 1500, // Max token size of parent chunk
         //       },
         //       {
-        //         maxTokens: 300, // 子チャンクの Max Token サイズ
+        //         maxTokens: 300, // Max token size of child chunk
         //       },
         //     ],
         //     overlapTokens: 60,
         //   },
         // },
         //
-        // 標準チャンク
+        // Standard chunking
         // chunkingConfiguration: {
         //   chunkingStrategy: 'FIXED_SIZE',
         //   fixedSizeChunkingConfiguration: {

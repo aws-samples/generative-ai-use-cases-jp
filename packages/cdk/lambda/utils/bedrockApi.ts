@@ -38,7 +38,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
         sessionToken: response.Credentials?.SessionToken,
       };
     } else {
-      throw new Error('認証情報を取得できませんでした。');
+      throw new Error('Failed to obtain authentication credentials.');
     }
   } catch (error) {
     console.error('Error assuming role: ', error);
@@ -64,7 +64,7 @@ const initBedrockClient = async () => {
       !tempCredentials.secretAccessKey ||
       !tempCredentials.sessionToken
     ) {
-      throw new Error('STSからの認証情報が不完全です。');
+      throw new Error('The authentication information from STS is incomplete.');
     }
 
     return new BedrockRuntimeClient({
@@ -205,17 +205,17 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
         e instanceof ServiceQuotaExceededException
       ) {
         yield streamingChunk({
-          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          text: 'Due to high traffic, please try again later.',
         });
       } else if (e instanceof AccessDeniedException) {
         const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
-          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          text: `The model you selected does not seem to be enabled. Please enable the model you want to use on the Model Access page of the Bedrock Console (${modelAccessURL}).`,
         });
       } else {
         console.error(e);
         yield streamingChunk({
-          text: 'エラーが発生しました。時間をおいて試してみてください。',
+          text: 'An error occurred. Please try again later.',
         });
       }
     }

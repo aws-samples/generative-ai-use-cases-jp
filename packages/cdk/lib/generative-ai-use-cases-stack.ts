@@ -16,10 +16,10 @@ import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
 
 const errorMessageForBooleanContext = (key: string) => {
-  return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
- - cdk.json の変更ではなく、-c オプションで設定しようとしている
- - cdk.json に boolean ではない値を設定している (例: "true" ダブルクォートは不要)
- - cdk.json に項目がない (未設定)`;
+  return `An error occurred while setting ${key}. Possible causes are:
+ - Trying to set it with the -c option instead of modifying cdk.json
+ - Setting a non-boolean value in cdk.json (e.g. "true" - double quotes are unnecessary)
+ - The item is not present (not set) in cdk.json`;
 };
 
 interface GenerativeAiUseCasesStackProps extends StackProps {

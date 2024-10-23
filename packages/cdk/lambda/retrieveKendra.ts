@@ -25,19 +25,7 @@ exports.handler = async (
     };
   }
 
-  // デフォルト言語が英語なので、言語設定は必ず行う
-  const attributeFilter: AttributeFilter = {
-    AndAllFilters: [
-      {
-        EqualsTo: {
-          Key: '_language_code',
-          Value: {
-            StringValue: 'ja',
-          },
-        },
-      },
-    ],
-  };
+  const attributeFilter: AttributeFilter = {};
 
   const kendra = new KendraClient({});
   const retrieveCommand = new RetrieveCommand({

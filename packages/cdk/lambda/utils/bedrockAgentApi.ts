@@ -300,17 +300,17 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
         e instanceof ServiceQuotaExceededException
       ) {
         yield streamingChunk({
-          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          text: 'Due to high traffic, please try again later.',
         });
       } else if (e instanceof DependencyFailedException) {
         const modelAccessURL = `https://${process.env.AGENT_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.AGENT_REGION}#/modelaccess`;
         yield streamingChunk({
-          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          text: `The model you selected does not seem to be enabled. Please enable the model you want to use on the Model Access page of the Bedrock Console (${modelAccessURL}).`,
         });
       } else {
         console.error(e);
         yield streamingChunk({
-          text: 'エラーが発生しました。時間をおいて試してみてください。',
+          text: 'An error occurred. Please try again later.',
         });
       }
     }
