@@ -362,6 +362,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 2024/06 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -382,6 +383,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -409,6 +411,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -485,6 +488,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
