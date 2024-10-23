@@ -3,7 +3,7 @@ import Card from '../../components/Card';
 import { CustomUseCaseMeta } from 'generative-ai-use-cases-jp';
 import ButtonIcon from '../../components/ButtonIcon';
 import {
-  PiLink,
+  PiLinkBold,
   PiLockKey,
   PiPencilLine,
   PiPlus,
@@ -20,9 +20,18 @@ import InputText from '../../components/InputText';
 import ButtonCopy from '../../components/ButtonCopy';
 import Tabs from '../../components/Tabs';
 import RowItem from '../../components/RowItem';
+import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
+import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
 
 const UseCaseBuilderConsolePage: React.FC = () => {
   const navigate = useNavigate();
+  const {
+    myUseCases,
+    favoriteUseCases,
+    deleteUseCase,
+    toggleFavorite,
+    toggleShared,
+  } = useMyUseCases();
 
   const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
   const [deleteTargetIndex, setDeleteTargetIndex] = useState(-1);
@@ -30,55 +39,29 @@ const UseCaseBuilderConsolePage: React.FC = () => {
   const [isOpenShareUseCase, setIsOpenShareUseCase] = useState(false);
   const [shareTargetIndex, setShareTargetIndex] = useState(-1);
 
-  const useCases: CustomUseCaseMeta[] = useMemo(() => {
-    return new Array(20).fill('').map((_, idx) => ({
-      ownerUserId: 'XXXXX',
-      hasShared: idx % 2 === 1,
-      isFavorite: idx % 2 === 1,
-      title: `タイトル${idx}`,
-      useCaseId: idx + '',
-      isMyUseCase: true,
-    }));
-  }, []);
-
   const deleteTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
-    return useCases[deleteTargetIndex] ?? null;
-  }, [deleteTargetIndex, useCases]);
+    return myUseCases[deleteTargetIndex] ?? null;
+  }, [deleteTargetIndex, myUseCases]);
 
   const shareTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
-    return useCases[shareTargetIndex] ?? null;
-  }, [shareTargetIndex, useCases]);
+    return myUseCases[shareTargetIndex] ?? null;
+  }, [shareTargetIndex, myUseCases]);
 
   return (
     <>
-      <ModalDialog
+      <ModalDialogDeleteUseCase
         isOpen={isOpenConfirmDelete}
-        title="マイユースケースの削除"
+        targetLabel={deleteTargetUseCase?.title ?? ''}
         onClose={() => {
           setIsOpenConfirmDelete(false);
-        }}>
-        <div className="flex flex-col gap-2">
-          <div>
-            <strong>{deleteTargetUseCase?.title}</strong>を削除しますか？
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              outlined
-              onClick={() => {
-                setIsOpenConfirmDelete(false);
-              }}>
-              キャンセル
-            </Button>
-            <Button
-              className="bg-red-600"
-              onClick={() => {
-                setIsOpenConfirmDelete(false);
-              }}>
-              削除
-            </Button>
-          </div>
-        </div>
-      </ModalDialog>
+        }}
+        onDelete={() => {
+          if (deleteTargetUseCase) {
+            setIsOpenConfirmDelete(false);
+            deleteUseCase(deleteTargetUseCase.useCaseId);
+          }
+        }}
+      />
       <ModalDialog
         isOpen={isOpenShareUseCase}
         title="共有"
@@ -90,7 +73,9 @@ const UseCaseBuilderConsolePage: React.FC = () => {
             <Switch
               checked={shareTargetUseCase?.hasShared ?? false}
               label=""
-              onSwitch={() => {}}
+              onSwitch={() => {
+                toggleShared(shareTargetUseCase?.useCaseId ?? '');
+              }}
             />
             {shareTargetUseCase?.hasShared
               ? 'このユースケースは共有されています。共有URLにアクセスすることで、他のユーザーも利用できます。'
@@ -143,15 +128,17 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                     </div>
                   </RowItem>
                   <div className="h-[calc(100%-2rem)] overflow-y-scroll rounded border">
-                    {useCases.map((useCase, idx) => {
+                    {myUseCases.map((useCase, idx) => {
                       return (
                         <div
                           key={useCase.useCaseId}
-                          className="flex justify-between border-b last:border-b-0 hover:bg-gray-100">
+                          className="flex justify-between border-b hover:bg-gray-100">
                           <div className="flex grow items-center">
                             <ButtonIcon
                               className={`p-2 ${useCase.isFavorite ? 'text-aws-smile' : ''}`}
-                              onClick={() => {}}>
+                              onClick={() => {
+                                toggleFavorite(useCase.useCaseId);
+                              }}>
                               {useCase.isFavorite ? <PiStarFill /> : <PiStar />}
                             </ButtonIcon>
                             <div
@@ -177,14 +164,14 @@ const UseCaseBuilderConsolePage: React.FC = () => {
 
                             <Button
                               outlined
-                              className="text-xs"
+                              className={`text-xs ${useCase.hasShared ? 'font-bold' : ''}`}
                               onClick={() => {
                                 setShareTargetIndex(idx);
                                 setIsOpenShareUseCase(true);
                               }}>
                               {useCase.hasShared ? (
                                 <>
-                                  <PiLink className="mr-2" />
+                                  <PiLinkBold className="mr-2" />
                                   共有中
                                 </>
                               ) : (
@@ -217,11 +204,11 @@ const UseCaseBuilderConsolePage: React.FC = () => {
               content: (
                 <Card label="お気に入り一覧" className="h-[calc(100vh-10rem)]">
                   <div className="h-[calc(100%-2rem)] overflow-y-scroll rounded border">
-                    {useCases.map((useCase) => {
+                    {favoriteUseCases.map((useCase) => {
                       return (
                         <div
                           key={useCase.useCaseId}
-                          className="flex justify-between border-b last:border-b-0 hover:bg-gray-100">
+                          className="flex justify-between border-b hover:bg-gray-100">
                           <div className="flex grow items-center pl-2">
                             <div
                               className="flex h-full grow cursor-pointer  items-center text-sm font-bold"
@@ -249,7 +236,9 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                             <Button
                               outlined
                               className="text-xs"
-                              onClick={() => {}}>
+                              onClick={() => {
+                                toggleFavorite(useCase.useCaseId);
+                              }}>
                               お気に入りを解除
                             </Button>
                           </div>

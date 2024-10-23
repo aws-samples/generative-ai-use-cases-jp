@@ -14,12 +14,20 @@ export const handler = async (
     if (!useCase) {
       return {
         statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
         body: JSON.stringify({ message: 'Use case not found' }),
       };
     }
 
     return {
       statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
       body: JSON.stringify(useCase),
     };
   } catch (error) {

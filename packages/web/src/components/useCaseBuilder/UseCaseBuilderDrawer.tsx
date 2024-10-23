@@ -7,6 +7,8 @@ import DrawerBase from '../DrawerBase';
 import ExpandableMenu from '../ExpandableMenu';
 import ChatList from '../ChatList';
 import Button from '../Button';
+import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
+import CustomUseCaseDrawerItems from './CustomUseCaseDrawerItems';
 
 type Props = BaseProps & {
   items: DrawerItemProps[];
@@ -15,7 +17,9 @@ type Props = BaseProps & {
 const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
   const navigate = useNavigate();
 
-  const usecases = useMemo(() => {
+  const { myUseCases, favoriteUseCases } = useMyUseCases();
+
+  const items = useMemo(() => {
     return props.items;
   }, [props.items]);
 
@@ -34,9 +38,10 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
           <div className="text-aws-smile mx-3 my-2 text-xs">
             ユースケース管理
           </div>
-          {usecases.map((item, idx) => (
+          {items.map((item, idx) => (
             <DrawerItem
               key={idx}
+              className="mx-2"
               label={item.label}
               icon={item.icon}
               to={item.to}
@@ -48,13 +53,13 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
             title="マイユースケース"
             className="mx-3 my-2 text-xs">
             <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-1/3 overflow-y-auto">
-              {/* <ChatList className="mr-1" searchWords={searchWords} /> */}
+              <CustomUseCaseDrawerItems useCases={myUseCases} />
             </div>
           </ExpandableMenu>
           <div className="border-b" />
           <ExpandableMenu title="お気に入り" className="mx-3 my-2 text-xs">
             <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-              {/* <ChatList className="mr-1" searchWords={searchWords} /> */}
+              <CustomUseCaseDrawerItems useCases={favoriteUseCases} />
             </div>
           </ExpandableMenu>
         </div>

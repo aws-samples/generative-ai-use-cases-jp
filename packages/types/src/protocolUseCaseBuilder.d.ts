@@ -1,18 +1,27 @@
-import {
-  Model,
-  RecordedMessage,
-  ToBeRecordedMessage,
-  UnrecordedMessage,
-} from './message';
-import { Chat } from './chat';
-import { SystemContext } from './systemContext';
-import {
-  QueryCommandOutput,
-  RetrieveCommandOutput,
-} from '@aws-sdk/client-kendra';
-import {
-  FlowInputContent,
-  RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase,
-} from '@aws-sdk/client-bedrock-agent-runtime';
-import { GenerateImageParams } from './image';
-import { ShareId, UserIdAndChatId } from './share';
+import { CustomUseCase, CustomUseCaseMeta } from './useCaseBuilder';
+
+export type ListUseCasesRespose = CustomUseCaseMeta[];
+export type ListFavoriteUseCasesResponse = CustomUseCaseMeta[];
+
+export type GetUseCaseResponse = CustomUseCase;
+
+export type CreateUseCaseRequest = {
+  title: string;
+  promptTemplate: string;
+};
+export type CreateUseCaseRespose = {
+  useCaseId: string;
+};
+
+export type UpdateUseCaseRequest = {
+  title: string;
+  promptTemplate: string;
+};
+
+export type ToggleFavoriteResponse = {
+  isFavorite: boolean;
+};
+
+export type ToggleShareResponse = {
+  isShared: boolean;
+};
