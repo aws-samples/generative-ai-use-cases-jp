@@ -357,6 +357,7 @@ There is no direct option to enable the image analysis use case, but multimodal 
 As of 2024/06, the following are multimodal models:
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -377,6 +378,7 @@ For more details, refer to [Changing Amazon Bedrock Models](#changing-amazon-bed
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -404,6 +406,7 @@ This solution also supports [cross-region inference](https://docs.aws.amazon.com
 The text generation models supported by this solution are as follows:
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -479,6 +482,7 @@ The image generation models supported by this solution are as follows:
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",

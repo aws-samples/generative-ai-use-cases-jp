@@ -71,6 +71,7 @@ export class Api extends Construct {
 
     // Validate Model Names
     const supportedModelIds = [
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
       'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -114,6 +115,7 @@ export class Api extends Construct {
       'cohere.command-r-plus-v1:0',
     ];
     const multiModalModelIds = [
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
       'anthropic.claude-3-5-sonnet-20240620-v1:0',
       'anthropic.claude-3-opus-20240229-v1:0',
       'anthropic.claude-3-sonnet-20240229-v1:0',
