@@ -2,27 +2,19 @@ import React, { useMemo, useState } from 'react';
 import Card from '../../components/Card';
 import { CustomUseCaseMeta } from 'generative-ai-use-cases-jp';
 import ButtonIcon from '../../components/ButtonIcon';
-import {
-  PiLinkBold,
-  PiLockKey,
-  PiPencilLine,
-  PiPlus,
-  PiStar,
-  PiStarFill,
-  PiTrash,
-} from 'react-icons/pi';
+import { PiPencilLine, PiPlus, PiTrash } from 'react-icons/pi';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
-import ModalDialog from '../../components/ModalDialog';
-import Switch from '../../components/Switch';
-import InputText from '../../components/InputText';
-import ButtonCopy from '../../components/ButtonCopy';
 import Tabs from '../../components/Tabs';
 import RowItem from '../../components/RowItem';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
 import Skeleton from '../../components/Skeleton';
+import ModalDialogShareUseCase from '../../components/useCaseBuilder/ModalDialogShareUseCase';
+import ButtonFavorite from '../../components/useCaseBuilder/ButtonFavorite';
+import ButtonShare from '../../components/useCaseBuilder/ButtonShare';
+import ButtonUseCaseEdit from '../../components/useCaseBuilder/ButtonUseCaseEdit';
 
 const UseCaseBuilderConsolePage: React.FC = () => {
   const navigate = useNavigate();
@@ -65,48 +57,18 @@ const UseCaseBuilderConsolePage: React.FC = () => {
           }
         }}
       />
-      <ModalDialog
+      <ModalDialogShareUseCase
         isOpen={isOpenShareUseCase}
-        title="共有"
+        hasShared={shareTargetUseCase?.hasShared ?? false}
+        useCaseId={shareTargetUseCase?.useCaseId ?? ''}
+        onToggleShared={() => {
+          toggleShared(shareTargetUseCase?.useCaseId ?? '');
+        }}
         onClose={() => {
           setIsOpenShareUseCase(false);
-        }}>
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <Switch
-              checked={shareTargetUseCase?.hasShared ?? false}
-              label=""
-              onSwitch={() => {
-                toggleShared(shareTargetUseCase?.useCaseId ?? '');
-              }}
-            />
-            {shareTargetUseCase?.hasShared
-              ? 'このユースケースは共有されています。共有URLにアクセスすることで、他のユーザーも利用できます。'
-              : '共有を有効化すると、あなた以外もユースケースを利用できるようになります。'}
-          </div>
-          {shareTargetUseCase?.hasShared && (
-            <div className="flex grow ">
-              <InputText
-                className="grow"
-                label="共有URL"
-                value={`${window.location}/execute/${shareTargetUseCase.useCaseId}`}
-              />
-              <ButtonCopy
-                className="ml-2 mt-4"
-                text={`${window.location}/execute/${shareTargetUseCase.useCaseId}`}
-              />
-            </div>
-          )}
-          <div className="flex justify-end gap-2">
-            <Button
-              onClick={() => {
-                setIsOpenShareUseCase(false);
-              }}>
-              OK
-            </Button>
-          </div>
-        </div>
-      </ModalDialog>
+        }}
+      />
+
       <div className="flex h-screen flex-col gap-4 p-4">
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:h-min print:visible print:h-min">
           ユースケースビルダーコンソール
@@ -149,13 +111,12 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                           key={useCase.useCaseId}
                           className="flex justify-between border-b hover:bg-gray-100">
                           <div className="flex grow items-center">
-                            <ButtonIcon
-                              className={`p-2 ${useCase.isFavorite ? 'text-aws-smile' : ''}`}
+                            <ButtonFavorite
+                              isFavorite={useCase.isFavorite}
                               onClick={() => {
                                 toggleFavorite(useCase.useCaseId);
-                              }}>
-                              {useCase.isFavorite ? <PiStarFill /> : <PiStar />}
-                            </ButtonIcon>
+                              }}
+                            />
                             <div
                               className="flex h-full grow cursor-pointer  items-center text-sm font-bold"
                               onClick={() => {
@@ -167,35 +128,14 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 p-2">
-                            <ButtonIcon
-                              className=""
-                              onClick={() => {
-                                navigate(
-                                  `${ROUTE_INDEX_USE_CASE_BUILDER}/edit/${useCase.useCaseId}`
-                                );
-                              }}>
-                              <PiPencilLine />
-                            </ButtonIcon>
-
-                            <Button
-                              outlined
-                              className={`text-xs ${useCase.hasShared ? 'font-bold' : ''}`}
+                            <ButtonUseCaseEdit useCaseId={useCase.useCaseId} />
+                            <ButtonShare
+                              hasShared={useCase.hasShared}
                               onClick={() => {
                                 setShareTargetIndex(idx);
                                 setIsOpenShareUseCase(true);
-                              }}>
-                              {useCase.hasShared ? (
-                                <>
-                                  <PiLinkBold className="mr-2" />
-                                  共有中
-                                </>
-                              ) : (
-                                <>
-                                  <PiLockKey className="mr-2" />
-                                  非公開
-                                </>
-                              )}
-                            </Button>
+                              }}
+                            />
 
                             <ButtonIcon
                               className="text-red-600"

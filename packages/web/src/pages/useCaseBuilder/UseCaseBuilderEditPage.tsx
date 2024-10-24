@@ -26,12 +26,12 @@ type StateType = {
 
 const useUseCaseBuilderEditPageState = create<StateType>((set) => {
   const INIT_STATE = {
-    useCaseId: null,
     title: '',
     promptTemplate: '',
   };
   return {
     ...INIT_STATE,
+    useCaseId: null,
     setUseCaseId: (s) => {
       set(() => ({
         useCaseId: s,
@@ -210,7 +210,11 @@ const UseCaseBuilderEditPage: React.FC = () => {
         </div>
         <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
           <Card label="プレビュー">
-            <AppBuilderView title={title} promptTemplate={promptTemplate} />
+            <AppBuilderView
+              title={title}
+              promptTemplate={promptTemplate}
+              previewMode
+            />
           </Card>
         </div>
       </div>
