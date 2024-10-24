@@ -59,12 +59,12 @@ const bedrockFlowApi = {
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
-        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+        yield 'Due to high traffic, please try again later.';
       } else if (e instanceof ValidationException) {
-        yield `形式エラーです。\n ${e}`;
+        yield `Format error\n ${e}`;
       } else {
         console.error(e);
-        yield 'エラーが発生しました。時間をおいて試してみてください。';
+        yield 'An error occurred. Please try again later.';
       }
     }
   },

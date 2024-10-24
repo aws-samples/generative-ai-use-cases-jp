@@ -109,7 +109,7 @@ export class Agent extends Construct {
       description: 'Search Agent',
       foundationModel: 'anthropic.claude-3-haiku-20240307-v1:0',
       instruction:
-        'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
+        'You are an assistant who responds to instructions. If you have enough information to respond to the instructions, do so immediately. If not, search for the necessary information and then respond. You can search multiple times.',
     });
 
     const searchAgentAlias = new CfnAgentAlias(this, 'SearchAgentAlias', {

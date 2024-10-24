@@ -57,8 +57,8 @@ const LandingPage: React.FC = () => {
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
-      content: `フィボナッチ数を返す Python の関数を書いてください。また、実装を解説してください。
-引数が項で、処理は再帰で書くようにしてください。出力はマークダウンにしてください。`,
+      content: `Please write a Python function that returns the Fibonacci numbers. Also, explain the implementation.
+The argument should be the term, and the logic should be done recursively. Output should be in Markdown format.`,
       systemContext: '',
     };
     navigate(`/chat?${queryString.stringify(params)}`);
@@ -66,39 +66,38 @@ const LandingPage: React.FC = () => {
 
   const demoRag = () => {
     const params: RagPageQueryParams = {
-      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+      content: `Please explain Claude's parameters and how to configure them.`,
     };
     navigate(`/rag?${queryString.stringify(params)}`);
   };
 
   const demoRagKnowledgeBase = () => {
     const params: RagPageQueryParams = {
-      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+      content: `Please explain Claude's parameters and how to configure them.`,
     };
     navigate(`/rag-knowledge-base?${queryString.stringify(params)}`);
   };
 
   const demoAgent = () => {
     const params: AgentPageQueryParams = {
-      content: `generative-ai-use-cases-jp とはなんですか？`,
+      content: `What is the generative-ai-use-cases-jp?`,
     };
     navigate(`/agent?${queryString.stringify(params)}`);
   };
 
   const demoGenerate = () => {
     const params: GenerateTextPageQueryParams = {
-      information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
+      information: `Amazon Bedrock is a fully managed service that allows you to use high-performance foundation models (FMs) from leading AI companies like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon through a single API. It also provides a comprehensive set of capabilities needed to build generative AI applications, simplifying development while maintaining privacy and security. With Amazon Bedrock's extensive features, you can easily try out various top FMs, customize them privately using techniques like fine-tuning and retrieval-augmented generation (RAG) with your data, and create managed agents to handle complex business tasks, from booking travel or processing insurance claims to creating advertising campaigns or managing inventory, all without writing any code. As a serverless offering, Amazon Bedrock eliminates the need to manage infrastructure. You can also securely integrate and deploy generative AI capabilities into your applications using familiar AWS services.`,
       context:
-        'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+        'presentation, outline chapters in Markdown format, concise explanation',
     };
     navigate(`/generate?${queryString.stringify(params)}`);
   };
 
   const demoSummarize = () => {
     const params: SummarizePageQueryParams = {
-      sentence:
-        'Amazon Bedrock は、Amazon や主要な AI スタートアップ企業が提供する基盤モデル (FM) を API を通じて利用できるようにする完全マネージド型サービスです。そのため、さまざまな FM から選択して、ユースケースに最も適したモデルを見つけることができます。Amazon Bedrock のサーバーレスエクスペリエンスにより、すぐに FM を開始したり、FM を簡単に試したり、独自のデータを使用して FM をプライベートにカスタマイズしたり、AWS のツールや機能を使用して FM をアプリケーションにシームレスに統合してデプロイしたりできます。Amazon Bedrock のエージェントは、開発者が独自の知識源に基づいて最新の回答を提供し、幅広いユースケースのタスクを完了できるジェネレーティブ AI アプリケーションを開発者が簡単に作成できるようにする完全マネージド機能です。Bedrock のサーバーレスエクスペリエンスにより、インフラストラクチャを管理することなく、すぐに使用を開始し、独自のデータを使用して FM をプライベートにカスタマイズし、使い慣れた AWS ツールや機能を使用してそれらをアプリケーションに簡単に統合してデプロイできます (さまざまなモデルをテストするための実験や FM を大規模に管理するためのパイプラインなどの Amazon SageMaker の ML 機能との統合を含みます)。',
-      additionalContext: '',
+      sentence: `Amazon Bedrock is a fully managed service that allows you to use high-performance foundation models (FMs) from leading AI companies like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon through a single API. It also provides a comprehensive set of capabilities needed to build generative AI applications, simplifying development while maintaining privacy and security. With Amazon Bedrock's extensive features, you can easily try out various top FMs, customize them privately using techniques like fine-tuning and retrieval-augmented generation (RAG) with your data, and create managed agents to handle complex business tasks, from booking travel or processing insurance claims to creating advertising campaigns or managing inventory, all without writing any code. As a serverless offering, Amazon Bedrock eliminates the need to manage infrastructure. You can also securely integrate and deploy generative AI capabilities into your applications using familiar AWS services.`,
+      additionalContext: 'in bullet points',
     };
     navigate(`/summarize?${queryString.stringify(params)}`);
   };
@@ -106,7 +105,7 @@ const LandingPage: React.FC = () => {
   const demoEditorial = () => {
     const params: EditorialPageQueryParams = {
       sentence:
-        'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
+        'Helo. I am a perfect AI assistant to help with proofread. Plese enter the text of your choise.',
     };
     navigate(`/editorial?${queryString.stringify(params)}`);
   };
@@ -114,16 +113,16 @@ const LandingPage: React.FC = () => {
   const demoTranslate = () => {
     const params: TranslatePageQueryParams = {
       sentence:
-        'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+        'Hello, I am an AI assistant designed to help with translations. Please enter the text you want translated.',
       additionalContext: '',
-      language: '英語',
+      language: 'Japanese',
     };
     navigate(`/translate?${queryString.stringify(params)}`);
   };
 
   const demoWebContent = () => {
     const params: WebContentPageQueryParams = {
-      url: 'https://aws.amazon.com/jp/bedrock/',
+      url: 'https://aws.amazon.com/bedrock/',
       context: '',
     };
     navigate(`/web-content?${queryString.stringify(params)}`);
@@ -131,8 +130,8 @@ const LandingPage: React.FC = () => {
 
   const demoGenerateImage = () => {
     const params: GenerateImagePageQueryParams = {
-      content: `スマホ広告のデザイン案を出力してください。
-可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街`,
+      content: `Based on the following keywords, generate design proposals for a smartphone advertisement. Make sure the smartphone is clearly visible.
+Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, city background`,
     };
     navigate(`/image?${queryString.stringify(params)}`);
   };
@@ -140,44 +139,43 @@ const LandingPage: React.FC = () => {
   const demoVideoAnalyzer = () => {
     const params: VideoAnalyzerPageQueryParams = {
       content:
-        '映っているものを説明してください。もし映っているものに文字が書かれている場合はそれも読んでください。',
+        'Describe what is shown in the image. If there is any text written on the things shown, read that as well.',
     };
     navigate(`/video?${queryString.stringify(params)}`);
   };
 
   const demoBlog = () => {
     setIsShow(true);
-    init('ブログ記事作成', [
+    init('Authoring a Blog Post', [
       {
-        title: '参考情報の取得',
-        description: `URL を指定して、記事の参考となる情報を自動取得します。
-追加コンテキストを設定することで、自分の欲しい情報のみを抽出可能です。`,
+        title: 'Retrieve Information',
+        description: `Please specify a URL to retrieve information related to the article. By setting additional context, you can extract only the information you need.`,
         path: 'web-content',
         params: {
           url: {
-            value: 'https://aws.amazon.com/jp/what-is/generative-ai/',
+            value: 'https://aws.amazon.com/what-is/generative-ai/',
           },
           context: {
             value:
-              '生成AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
+              'Extract only the parts explaining an overview and mechanisms of generative AI, and the parts describing AWS',
           },
         } as InterUseCaseParams<WebContentPageQueryParams>,
       },
       {
-        title: '記事の生成',
+        title: 'Generate the Article',
         description:
-          '参考情報を元にブログの記事を自動生成します。コンテキストを詳細に設定することで、自分の意図した内容で記事が生成されやすくなります。',
+          'This step generates blog posts based on the reference information. By setting the context in detail, the generated articles will more closely align with your intended content.',
         path: 'generate',
         params: {
           context: {
-            value: `生成AIの仕組みの解説とAWSで生成AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
+            value: `Generate a blog post explaining the mechanisms of generative AI and the benefits of using generative AI with AWS. When generating the article, be sure to follow the rules enclosed within <rules></rules>.
 <rules>
-- マークダウン形式で章立てして書いてください。
-- 生成AIおよび、AWS初心者をターゲットにした記事にしてください。
-- IT初心者が分からないような用語は使わないか、分かりやすい言葉に置き換えてください。
-- 生成AIで何ができるのかがわかる記事にしてください。
-- 文章量が少ないと読者が満足しないので、一般的な情報は補完しながら文量を多くしてください。
-- 読者の興味を惹きつけるような文章にしてください。
+- Write the article in an outlined format using Markdown.
+- Target the article towards beginners in generative AI and AWS.
+- Avoid using jargon that IT beginners may not understand, or replace it with more understandable language.
+- Make sure the article explains what can be done with generative AI.
+- If the amount of text is too little and may not satisfy readers, supplement it with additional general information to increase the word count.
+- Write in a way that captures the reader's interest.
 </rules>`,
           },
           information: {
@@ -186,9 +184,9 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<GenerateTextPageQueryParams>,
       },
       {
-        title: '記事の要約',
+        title: 'Summarize the Article',
         description:
-          'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、記事を要約します。OGP を適切に設定することで、記事がシェアされた際に記事の概要を正しく伝えることができます。',
+          'This step summarizes the article for the OGP preview that is displayed when sharing a link to the article. Setting the OGP properly allows the summary of the article to be accurately conveyed when the article is shared.',
         path: 'summarize',
         params: {
           sentence: {
@@ -197,14 +195,12 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<SummarizePageQueryParams>,
       },
       {
-        title: '記事のサムネイル生成',
-        description:
-          'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、サムネイルを生成します。OGP にキャッチーなサムネイルを設定することで、読者の関心を惹くことができるかもしれません。',
+        title: 'Generate Thumbnails',
+        description: `This step generates a thumbnail image for the OGP preview that is displayed when sharing a link to the article. Setting an eye-catching thumbnail for the OGP could potentially grab the reader's interest`,
         path: 'image',
         params: {
           content: {
-            value: `ブログ記事のOGP用にサムネイル画像を生成してください。クラウドやAIの記事であることが一目でわかる画像にしてください。
-ブログ記事の概要は<article></article>に設定されています。
+            value: `Generate a thumbnail image for the blog article's Open Graph Protocol (OGP) preview. Make it an image that clearly conveys that the article is about cloud or AI. The summary of the blog article is set within <article></article>.
 <article>
 {summarizedSentence}
 </article>`,
@@ -216,26 +212,25 @@ const LandingPage: React.FC = () => {
 
   const demoMeetingReport = () => {
     setIsShow(true);
-    init('議事録作成', [
+    init('Generating Minutes', [
       {
-        title: '文字起こし',
-        description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
-音声認識が完了したら、「整形」ボタンを押してください（音声認識結果は自動でコピーされます）。`,
+        title: 'Transcribe the Recording',
+        description: `Using the 'Speech-to-Text' feature, this step transcribes the conversation content from an audio recording. Please provide any audio file to run this on.
+Once the speech-to-text is complete, press the 'Format text' button (the speech-to-text result will be automatically copied).`,
         path: 'transcribe',
       },
       {
-        title: '整形',
-        description:
-          '「文章生成」の機能を使って、文字起こしファイルを整形します。フィラーワードの除去や音声認識が正しくできていない部分などを補正し、人間が理解しやすいようにします。',
+        title: 'Format text',
+        description: `Using the "Text Generation" feature, this step refines the transcription. It'll remove filler words and correct parts where speech recognition wasn't accurate, making it easier for people to understand.`,
         path: 'generate',
         params: {
           context: {
-            value: `録音データの文字起こし結果が入力されているので、<rules></rules>の通りに整形してください。
+            value: `The transcription results from the recorded data will be input. Format them according to the <rules></rules> provided.
 <rules>
-- フィラーワードを除去してください。
-- 文字起こしの誤認識と思われる内容は正しい内容に書き換えてください。
-- 接続詞などが省略されている場合は、読みやすいように補完してください。
-- 質疑応答も省略せず、記載してください。
+- Remove filler words.
+- If there appears to be a misrecognition in the transcription, rewrite it with the correct content.
+- If conjunctions or other words are omitted, supplement them to make it more readable.
+- Include QA portions without omitting them.
 </rules>`,
           },
           information: {
@@ -244,14 +239,12 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<GenerateTextPageQueryParams>,
       },
       {
-        title: '議事録作成',
-        description:
-          '「文章生成」の機能を使って、議事録を生成します。コンテキストを詳細に指定することで、議事録のフォーマットや記載の粒度を指示できます。',
+        title: 'Generate Minutes',
+        description: `Using the 'Text Generation' feature, this step generates the minutes of the meeting. By specifying the context in detail, you can instruct the format of the minutes and the level of detail to be included.`,
         path: 'generate',
         params: {
           context: {
-            value: `会議の発言内容を元にマークダウン形式の議事録を作成してください。
-会議で話したテーマごとに章立てし、議論した内容、決定事項、宿題事項をまとめてください。`,
+            value: `Based on the transcription of the meeting, generate minutes in Markdown format. Create separate sections for each topic discussed, and summarize the discussions, decisions made, and action items assigned under each section.`,
           },
           information: {
             value: '{text}',
@@ -268,124 +261,123 @@ const LandingPage: React.FC = () => {
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
-        <AwsIcon className="mr-5 size-20" />
-        ではじめる生成 AI
+        Generative AI on
+        <AwsIcon className="ml-5 size-20" />
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
-        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
-          試す
+        By clicking
+        <Button className="mx-0 mb-2 lg:mx-2 lg:mb-0" onClick={() => {}}>
+          Try
         </Button>
-        をクリックすることで、各ユースケースを体験できます。
+        you can experience each use case.
       </div>
 
-      <h1 className="mb-6 flex justify-center text-2xl font-bold">
-        ユースケース一覧
-      </h1>
+      <h1 className="mb-6 flex justify-center text-2xl font-bold">Use Cases</h1>
 
       <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
-          label="チャット"
+          label="Chat"
           onClickDemo={demoChat}
           icon={<PiChatsCircle />}
-          description="LLM とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。"
+          description="You can interact with large language models (LLMs) in a chat format. Thanks to platforms that allow direct interaction with LLMs, we can quickly respond to specific use cases and new use cases. It is also an effective environment for verifying prompt engineering."
         />
         {ragEnabled && (
           <CardDemo
-            label="RAG チャット"
+            label="RAG Chat"
             sub="Amazon Kendra"
             onClickDemo={demoRag}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon Kendra から取得した参考ドキュメントをベースに LLM が回答を生成してくれるため、「社内情報に対応した LLM チャット」を簡単に実現することが可能です。"
+            description="RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. Since LLM generates responses based on reference documents obtained from Amazon Kendra, it is possible to easily realize LLM chat that corresponds to internal information."
           />
         )}
         {ragKnowledgeBaseEnabled && (
           <CardDemo
-            label="RAG チャット"
+            label="RAG Chat"
             sub="Knowledge Base"
             onClickDemo={demoRagKnowledgeBase}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
+            description="RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. Since LLM generates responses based on reference documents obtained from Knowledge Base, it is possible to easily realize LLM chat that corresponds to internal information."
           />
         )}
         {agentEnabled && (
           <CardDemo
-            label="Agent チャット"
+            label="Agent Chat"
             onClickDemo={demoAgent}
             icon={<PiRobot />}
-            description="Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
+            description="Agent is a method that enables LLMs to perform various tasks by integrating with APIs. In this solution, we implement an Agent that investigates necessary information using a search engine and provides answers as a sample implementation."
           />
         )}
         {promptFlowChatEnabled && (
           <CardDemo
-            label="Prompt Flow チャット"
+            label="Prompt Flow Chat"
             onClickDemo={demoPromptFlowChat}
             icon={<PiFlowArrow />}
-            description="Prompt Flow を使用して、複数のステップを持つ対話型チャットフローを作成します。ユーザーの入力に基づいて、動的に次のステップを決定し、より複雑な対話シナリオを実現します。"
+            description="With Amazon Bedrock Prompt Flows, you can create workflows by connecting prompts, base models, and other AWS services. The Prompt Flow Chat use case provides a chat interface for selecting and running pre-created Flows."
           />
         )}
         <CardDemo
-          label="文章生成"
+          label="Text Generation"
           onClickDemo={demoGenerate}
           icon={<PiPencil />}
-          description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
+          description="Generating text in various contexts is one of the tasks that LLMs excel at. It can handle articles, reports, emails, and more in any context."
         />
         <CardDemo
-          label="要約"
+          label="Summarization"
           onClickDemo={demoSummarize}
           icon={<PiNote />}
-          description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+          description="LLMs are skilled at summarizing large amounts of text. Not only can they summarize, but they can also extract necessary information through a conversational format by providing the text as context. For example, you can load a contract and retrieve information such as What are the conditions for XXX? or What is the amount for YYY?"
         />
         <CardDemo
-          label="校正"
+          label="Proofreading"
           onClickDemo={demoEditorial}
           icon={<PiPenNib />}
-          description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
+          description="LLMs can not only check for spelling and grammatical errors but also suggest improvements from a more objective perspective, considering the flow and content of the text. By having an LLM objectively check for points you may have missed before presenting your work, you can expect to improve the quality."
         />
         <CardDemo
-          label="翻訳"
+          label="Translation"
           onClickDemo={demoTranslate}
           icon={<PiTranslate />}
-          description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+          description="LLMs trained on multiple languages are capable of translation. Furthermore, they can reflect various specified contextual information, such as casualness or target audience, into the translation."
         />
         <CardDemo
-          label="Web コンテンツ抽出"
+          label="Web Content Extraction"
           onClickDemo={demoWebContent}
           icon={<PiGlobe />}
-          description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
+          description="Extracts web content such as blogs and documents. LLMs remove unnecessary information and format the extracted content into coherent sentences. The extracted content can be used in other use cases such as summarization and translation."
         />
         <CardDemo
-          label="画像生成"
+          label="Image Generation"
           onClickDemo={demoGenerateImage}
           icon={<PiImages />}
-          description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+          description="Image generation AI can create new images based on text or images. It allows you to instantly visualize ideas, which can be expected to improve efficiency in tasks like design work. In this feature, you can have an LLM assist in creating prompts."
         />
         {multiModalEnabled && (
           <CardDemo
-            label="映像分析"
+            label="Video Analysis"
             onClickDemo={demoVideoAnalyzer}
             icon={<PiVideoCamera />}
-            description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
+            description="With multimodal models, it has become possible to input not only text but also images. In this feature, we provide image frames and text from a video as input for an LLM to analyze."
           />
         )}
       </div>
 
       <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
-        ユースケース連携
+        Use Case Integration
       </h1>
 
       <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
         <CardDemo
-          label="ブログ記事作成"
+          label="Authoring a Blog Post"
           onClickDemo={demoBlog}
           icon={<PiPen />}
-          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
+          description="It combines multiple use cases to generate blog posts. By automatically generating article summaries and thumbnail images, it also makes it easy to set up OGP. As an example, it generates a blog post introducing AI generation based on information from the AWS official website."
         />
         <CardDemo
-          label="議事録作成"
+          label="Generating Minutes"
           onClickDemo={demoMeetingReport}
           icon={<PiNotebook />}
-          description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
+          description="It combines multiple use cases to automatically generate minutes from meeting recording data. It is possible to transcribe recording data, format transcription results, and create minutes without human cost."
         />
       </div>
     </div>

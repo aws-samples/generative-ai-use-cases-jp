@@ -80,7 +80,7 @@ const Texteditor: React.FC<Props> = (props) => {
               )
           )}
         {!props.loading && props.comments && props.comments.length === 0 && (
-          <div className="mb-2 ml-2 w-80">指摘事項はありません</div>
+          <div className="mb-2 ml-2 w-80">There are no comments.</div>
         )}
         {props.loading && (
           <div className="mb-2 ml-2 flex w-80 justify-center">

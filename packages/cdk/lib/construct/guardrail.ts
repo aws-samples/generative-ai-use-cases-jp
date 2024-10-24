@@ -8,9 +8,9 @@ export class Guardrail extends Construct {
     super(scope, id);
     const cfnGuardrail = new bedrock.CfnGuardrail(this, `guardrail`, {
       blockedInputMessaging:
-        '禁止された入力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
+        'Detected a prohibited input. Please restart the conversation or contact an administrator.',
       blockedOutputsMessaging:
-        'システムが禁じている内容の出力を検出しました。会話を最初からやり直すか、管理者にお問い合わせください。',
+        'Detected output containing content that is prohibited by the system. Please restart the conversation or contact an administrator.',
       name: `Guardrail${id}`,
       sensitiveInformationPolicyConfig: {
         // NAME, DRIVER_ID は日本のものが機能しないので設定しない
