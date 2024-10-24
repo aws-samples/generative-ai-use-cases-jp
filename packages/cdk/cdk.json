@@ -57,6 +57,7 @@
     "anonymousUsageTracking": true,
     "guardrailEnabled" : false,
     "crossAccountBedrockRoleArn": "",
+    "useCaseBuilderEnabled": false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [

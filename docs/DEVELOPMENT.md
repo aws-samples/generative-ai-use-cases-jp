@@ -49,6 +49,7 @@ export VITE_APP_SAMLAUTH_ENABLED=<SAML 認証 Flag>
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=<SAML Cognito Domain>
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Provider Name>
 export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array>
+export VITE_APP_USE_CASE_BUILDER_ENABLED=<UseCase Builder Flag>
 ```
 
 具体例は以下です。
@@ -72,6 +73,7 @@ export VITE_APP_SAMLAUTH_ENABLED=true
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=your-preferred-name.auth.ap-northeast-1.amazoncognito.com
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
 export VITE_APP_AGENT_NAMES=["SearchEngine"]
+export VITE_APP_USE_CASE_BUILDER_ENABLED=true
 ```
 
 #### `.env` ファイルを利用する方法
