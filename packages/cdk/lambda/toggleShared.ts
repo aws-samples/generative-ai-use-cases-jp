@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getUseCase, toggleShared } from './repository';
+import { getUseCase, toggleShared } from './useCaseBuilderRepository';
 import { CustomUseCaseMeta, HasShared } from 'generative-ai-use-cases-jp';
 
 export const handler = async (

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { listUseCases } from './repository';
+import { listUseCases } from './useCaseBuilderRepository';
 
 export const handler = async (
   event: APIGatewayProxyEvent

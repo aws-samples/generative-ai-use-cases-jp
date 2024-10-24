@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { IsFavorite } from 'generative-ai-use-cases-jp';
-import { toggleFavorite } from './repository';
+import { toggleFavorite } from './useCaseBuilderRepository';
 
 export const handler = async (
   event: APIGatewayProxyEvent

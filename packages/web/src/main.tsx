@@ -42,6 +42,8 @@ const samlAuthEnabled: boolean =
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const useCaseBuilderEnabled: boolean =
+  import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 
 const routes: RouteObject[] = [
   {
@@ -174,19 +176,23 @@ const router = createBrowserRouter([
     ),
     children: routes,
   },
-  {
-    path: ROUTE_INDEX_USE_CASE_BUILDER,
-    element: samlAuthEnabled ? (
-      <AuthWithSAML>
-        <UseCaseBuilderRoot />
-      </AuthWithSAML>
-    ) : (
-      <AuthWithUserpool>
-        <UseCaseBuilderRoot />
-      </AuthWithUserpool>
-    ),
-    children: useCaseBuilderRoutes,
-  },
+  ...(useCaseBuilderEnabled
+    ? [
+        {
+          path: ROUTE_INDEX_USE_CASE_BUILDER,
+          element: samlAuthEnabled ? (
+            <AuthWithSAML>
+              <UseCaseBuilderRoot />
+            </AuthWithSAML>
+          ) : (
+            <AuthWithUserpool>
+              <UseCaseBuilderRoot />
+            </AuthWithUserpool>
+          ),
+          children: useCaseBuilderRoutes,
+        },
+      ]
+    : []),
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

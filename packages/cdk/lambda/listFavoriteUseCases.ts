@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { listFavoriteUseCases } from './repository';
+import { listFavoriteUseCases } from './useCaseBuilderRepository';
 
 export const handler = async (
   event: APIGatewayProxyEvent

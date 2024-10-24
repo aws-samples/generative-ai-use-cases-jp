@@ -77,6 +77,9 @@ const Drawer: React.FC<Props> = (props) => {
       .filter((q) => q !== '');
   }, [searchQuery]);
 
+  const useCaseBuilderEnabled: boolean =
+    import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
+
   return (
     <>
       <DrawerBase>
@@ -156,15 +159,18 @@ const Drawer: React.FC<Props> = (props) => {
             />
           </div>
         </ExpandableMenu>
-        <div className="flex items-center justify-center border-t border-gray-400 px-3 py-2">
-          <Button
-            onClick={() => {
-              navigate('/use-case-builder');
-            }}>
-            <PiArrowsClockwise className="mr-2" />
-            ユースケースビルダーへ
-          </Button>
-        </div>
+
+        {useCaseBuilderEnabled && (
+          <div className="flex items-center justify-center border-t border-gray-400 px-3 py-2">
+            <Button
+              onClick={() => {
+                navigate('/use-case-builder');
+              }}>
+              <PiArrowsClockwise className="mr-2" />
+              ユースケースビルダーへ
+            </Button>
+          </div>
+        )}
       </DrawerBase>
     </>
   );
