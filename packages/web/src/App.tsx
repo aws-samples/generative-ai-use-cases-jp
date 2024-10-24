@@ -144,7 +144,7 @@ const items: ItemProps[] = [
       }
     : null,
   {
-    label: 'Voice Recognition',
+    label: 'Speech-to-Text',
     to: '/transcribe',
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
