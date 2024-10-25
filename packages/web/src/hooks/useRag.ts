@@ -151,9 +151,7 @@ const useRag = (id: string) => {
               )?.Value?.LongValue;
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}${
-                    _excerpt_page_number
-                      ? `(${_excerpt_page_number} ページ)`
-                      : ''
+                    _excerpt_page_number ? `(p. ${_excerpt_page_number})` : ''
                   }](
                   ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${
                     _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
