@@ -57,8 +57,8 @@ const LandingPage: React.FC = () => {
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
-      content: `Please write a Python function that returns the Fibonacci numbers. Also, explain the implementation.
-The argument should be the term, and the logic should be done recursively. Output should be in Markdown format.`,
+      content: `Please write a Python function that returns the Fibonacci numbers. Also, please explain the implementation.
+The argument should be the term, and the logic should be done recursively. Please output them in Markdown format.`,
       systemContext: '',
     };
     navigate(`/chat?${queryString.stringify(params)}`);
@@ -130,7 +130,7 @@ The argument should be the term, and the logic should be done recursively. Outpu
 
   const demoGenerateImage = () => {
     const params: GenerateImagePageQueryParams = {
-      content: `Based on the following keywords, generate design proposals for a smartphone advertisement. Make sure the smartphone is clearly visible.
+      content: `Based on the following keywords, please generate design proposals for a smartphone advertisement. Please make sure the smartphone is clearly visible.
 Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, city background`,
     };
     navigate(`/image?${queryString.stringify(params)}`);
@@ -139,7 +139,7 @@ Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, c
   const demoVideoAnalyzer = () => {
     const params: VideoAnalyzerPageQueryParams = {
       content:
-        'Describe what is shown in the image. If there is any text written on the things shown, read that as well.',
+        'Please describe what is shown in the image. If there is any text written on the things shown, please read that as well.',
     };
     navigate(`/video?${queryString.stringify(params)}`);
   };
@@ -157,7 +157,7 @@ Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, c
           },
           context: {
             value:
-              'Extract only the parts explaining an overview and mechanisms of generative AI, and the parts describing AWS',
+              'Please extract only the parts explaining an overview and mechanisms of generative AI, and the parts describing AWS',
           },
         } as InterUseCaseParams<WebContentPageQueryParams>,
       },
@@ -168,7 +168,7 @@ Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, c
         path: 'generate',
         params: {
           context: {
-            value: `Generate a blog post explaining the mechanisms of generative AI and the benefits of using generative AI with AWS. When generating the article, be sure to follow the rules enclosed within <rules></rules>.
+            value: `Please generate a blog post explaining the mechanisms of generative AI and the benefits of using generative AI with AWS. When generating the article, be sure to follow the rules enclosed within <rules></rules>.
 <rules>
 - Write the article in an outlined format using Markdown.
 - Target the article towards beginners in generative AI and AWS.
@@ -200,7 +200,7 @@ Cute, stylish, user-friendly, approachable, youth-oriented, trendy smartphone, c
         path: 'image',
         params: {
           content: {
-            value: `Generate a thumbnail image for the blog article's Open Graph Protocol (OGP) preview. Make it an image that clearly conveys that the article is about cloud or AI. The summary of the blog article is set within <article></article>.
+            value: `Please generate a thumbnail image for the blog article's Open Graph Protocol (OGP) preview. Please make it an image that clearly conveys that the article is about cloud or AI. The summary of the blog article is set within <article></article>.
 <article>
 {summarizedSentence}
 </article>`,
@@ -225,7 +225,7 @@ Once the speech-to-text is complete, press the 'Format text' button (the speech-
         path: 'generate',
         params: {
           context: {
-            value: `The transcription results from the recorded data will be input. Format them according to the <rules></rules> provided.
+            value: `The transcription results from the recorded data will be input. Please format them according to the <rules></rules> provided.
 <rules>
 - Remove filler words.
 - If there appears to be a misrecognition in the transcription, rewrite it with the correct content.
@@ -244,7 +244,7 @@ Once the speech-to-text is complete, press the 'Format text' button (the speech-
         path: 'generate',
         params: {
           context: {
-            value: `Based on the transcription of the meeting, generate minutes in Markdown format. Create separate sections for each topic discussed, and summarize the discussions, decisions made, and action items assigned under each section.`,
+            value: `Based on the transcription of the meeting, please generate minutes in Markdown format. Please create separate sections for each topic discussed, and summarize the discussions, decisions made, and action items assigned under each section.`,
           },
           information: {
             value: '{text}',
