@@ -1,9 +1,5 @@
 import * as lambda from 'aws-lambda';
-import {
-  AttributeFilter,
-  KendraClient,
-  QueryCommand,
-} from '@aws-sdk/client-kendra';
+import { KendraClient, QueryCommand } from '@aws-sdk/client-kendra';
 import { QueryKendraRequest } from 'generative-ai-use-cases-jp';
 
 const INDEX_ID = process.env.INDEX_ID;
@@ -25,13 +21,10 @@ exports.handler = async (
     };
   }
 
-  const attributeFilter: AttributeFilter = {};
-
   const kendra = new KendraClient({});
   const queryCommand = new QueryCommand({
     IndexId: INDEX_ID,
     QueryText: query,
-    AttributeFilter: attributeFilter,
   });
 
   const queryRes = await kendra.send(queryCommand);
