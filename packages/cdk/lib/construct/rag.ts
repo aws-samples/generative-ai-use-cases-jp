@@ -176,7 +176,7 @@ export class Rag extends Construct {
         sources: [s3Deploy.Source.asset('./rag-docs')],
         destinationBucket: dataSourceBucket,
         // 以前の設定で同 Bucket にアクセスログが残っている可能性があるため、この設定は残す
-        exclude: ['AccessLogs/*'],
+        exclude: ['AccessLogs/*', 'logs*'],
       });
 
       let index: kendra.CfnIndex;
