@@ -6,13 +6,14 @@ import { create } from 'zustand';
 import RowItem from '../../components/RowItem';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
 import InputText from '../../components/InputText';
-import { PiTrash } from 'react-icons/pi';
+import { PiQuestion, PiTrash } from 'react-icons/pi';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import { useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
+import UseCaseBuilderHelp from '../../components/useCaseBuilder/UseCaseBuilderHelp';
 
 type StateType = {
   useCaseId: string | null;
@@ -73,6 +74,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [isPosting, setIsPosting] = useState(false);
+
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     // 初期表示時にIDを設定する
@@ -163,9 +166,28 @@ const UseCaseBuilderEditPage: React.FC = () => {
         </LoadingOverlay>
       )}
 
+      <UseCaseBuilderHelp
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+      />
+
       <div className="grid h-screen grid-cols-12 gap-4 p-4">
-        <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:h-min print:visible print:h-min">
-          {isUpdate ? 'ユースケース編集' : 'ユースケース新規作成'}
+        <div className="invisible relative col-span-12 my-0 flex h-0 items-center justify-center lg:visible lg:h-min print:visible print:h-min">
+          <div className=" text-xl font-semibold">
+            {isUpdate ? 'ユースケース編集' : 'ユースケース新規作成'}
+          </div>
+
+          <Button
+            outlined
+            className="absolute right-0 text-sm"
+            onClick={() => {
+              setIsOpen(true);
+            }}>
+            <PiQuestion className="mr-1" />
+            ヘルプ
+          </Button>
         </div>
         <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
           <Card label="アプリの定義">
