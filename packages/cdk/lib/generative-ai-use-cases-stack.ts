@@ -202,6 +202,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         userPool: auth.userPool,
         api: api.api,
         useCaseBuilderTable: database.useCaseBuilderTable,
+        useCaseIdIndexName: database.useCaseIdIndexName,
       });
     }
 

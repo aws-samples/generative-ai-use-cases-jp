@@ -15,12 +15,13 @@ export interface UseCaseBuilderProps {
   userPool: UserPool;
   api: RestApi;
   useCaseBuilderTable: Table;
+  useCaseIdIndexName: string;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api, useCaseBuilderTable } = props;
+    const { userPool, api, useCaseBuilderTable, useCaseIdIndexName } = props;
 
     // UseCaseBuilder 関連の API を追加する
     const listUseCasesFunction = new NodejsFunction(this, 'ListUseCases', {
@@ -107,6 +108,35 @@ export class UseCaseBuilder extends Construct {
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
+    const getRecentlyUsedUseCasesFunction = new NodejsFunction(
+      this,
+      'GetRecentlyUsedUseCases',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/getRecentlyUsedUseCases.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+          USECASE_ID_INDEX_NAME: useCaseIdIndexName
+        },
+      }
+    );
+    useCaseBuilderTable.grantReadData(getRecentlyUsedUseCasesFunction);
+
+    const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
+      this,
+      'UpdateRecentlyUsedUseCase',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/updateRecentlyUsedUseCase.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        },
+      }
+    );
+    useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -179,6 +209,25 @@ export class UseCaseBuilder extends Construct {
     sharedResource.addMethod(
       'PUT',
       new LambdaIntegration(toggleSharedFunction),
+      commonAuthorizerProps
+    );
+
+    const recentUseCasesResource = useCasesResource.addResource('recent');
+
+    // GET: /usecases/recent
+    recentUseCasesResource.addMethod(
+      'GET',
+      new LambdaIntegration(getRecentlyUsedUseCasesFunction),
+      commonAuthorizerProps
+    );
+
+    const recentUseCaseResource =
+      recentUseCasesResource.addResource('{useCaseId}');
+
+    // PUT: /usecases/recent/{useCaseId}
+    recentUseCaseResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateRecentlyUsedUseCaseFunction),
       commonAuthorizerProps
     );
   }

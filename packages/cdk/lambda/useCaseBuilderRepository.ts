@@ -17,6 +17,7 @@ import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 const USECASE_TABLE_NAME: string = process.env.USECASE_TABLE_NAME!;
+const USECASE_ID_INDEX_NAME: string = process.env.USECASE_ID_INDEX_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
@@ -306,4 +307,130 @@ export const toggleShared = async (
     })
   );
   return { hasShared: newSharedState };
+};
+
+export const getRecentlyUsedUseCases = async (
+  _userId: string
+): Promise<CustomUseCaseMeta[]> => {
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const favoriteUserId = `user#favorite#${_userId}`;
+  const recentlyUsedUserId = `user#recentlyUsed#${_userId}`;
+
+  const recentlyUsedRes = await dynamoDbDocument.send(
+    new GetCommand({
+      TableName: USECASE_TABLE_NAME,
+      Key: {
+        id: recentlyUsedUserId,
+        useCaseId: 'recently',
+      },
+    })
+  );
+
+  if (
+    !recentlyUsedRes.Item?.recentUseCaseIds ||
+    recentlyUsedRes.Item.recentUseCaseIds.length === 0
+  ) {
+    return [];
+  }
+
+  const recentUseCaseIds = recentlyUsedRes.Item.recentUseCaseIds;
+
+  const favoriteRes = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: USECASE_TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': favoriteUserId,
+      },
+    })
+  );
+
+  const favoriteSet = new Set(
+    (favoriteRes.Items || []).map((item) => item.useCaseId)
+  );
+
+  const useCasesMeta: CustomUseCaseMeta[] = [];
+  for (const useCaseId of recentUseCaseIds) {
+    if (useCasesMeta.length >= 15) break;
+
+    const useCaseRes = await dynamoDbDocument.send(
+      new QueryCommand({
+        TableName: USECASE_TABLE_NAME,
+        IndexName: USECASE_ID_INDEX_NAME,
+        KeyConditionExpression: 'useCaseId = :useCaseId',
+        ExpressionAttributeValues: {
+          ':useCaseId': useCaseId,
+        },
+      })
+    );
+
+    if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
+
+    const useCase = useCaseRes.Items[0];
+    useCasesMeta.push({
+      useCaseId: useCase.useCaseId,
+      title: useCase.title,
+      isFavorite: favoriteSet.has(useCase.useCaseId),
+      hasShared: useCase.hasShared,
+      isMyUseCase: useCase.id === useCaseUserId,
+    });
+  }
+
+  return useCasesMeta;
+};
+
+export const updateRecentlyUsedUseCase = async (
+  _userId: string,
+  useCaseId: string
+): Promise<void> => {
+  const recentlyUsedUserId = `user#recentlyUsed#${_userId}`;
+
+  const currentRes = await dynamoDbDocument.send(
+    new GetCommand({
+      TableName: USECASE_TABLE_NAME,
+      Key: {
+        id: recentlyUsedUserId,
+        useCaseId: 'recently',
+      },
+    })
+  );
+
+  let currentUseCaseIds = currentRes.Item?.recentUseCaseIds || [];
+  currentUseCaseIds = currentUseCaseIds.filter(
+    (id: string) => id !== useCaseId
+  );
+  currentUseCaseIds.unshift(useCaseId);
+  currentUseCaseIds = currentUseCaseIds.slice(0, 15);
+
+  if (!currentRes.Item) {
+    // 新規作成
+    await dynamoDbDocument.send(
+      new PutCommand({
+        TableName: USECASE_TABLE_NAME,
+        Item: {
+          id: recentlyUsedUserId,
+          useCaseId: 'recently',
+          recentUseCaseIds: currentUseCaseIds,
+        },
+      })
+    );
+  } else {
+    // 更新
+    await dynamoDbDocument.send(
+        new UpdateCommand({
+          TableName: USECASE_TABLE_NAME,
+          Key: {
+            id: recentlyUsedUserId,
+            useCaseId: 'recently',
+          },
+          UpdateExpression: 'SET recentUseCaseIds = :recentUseCaseIds',
+          ExpressionAttributeValues: {
+            ':recentUseCaseIds': currentUseCaseIds,
+          },
+        })
+      );
+  }
 };
