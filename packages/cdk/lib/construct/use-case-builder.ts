@@ -117,7 +117,7 @@ export class UseCaseBuilder extends Construct {
         timeout: Duration.minutes(15),
         environment: {
           USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-          USECASE_ID_INDEX_NAME: useCaseIdIndexName
+          USECASE_ID_INDEX_NAME: useCaseIdIndexName,
         },
       }
     );

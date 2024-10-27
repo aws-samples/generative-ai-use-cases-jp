@@ -420,17 +420,17 @@ export const updateRecentlyUsedUseCase = async (
   } else {
     // 更新
     await dynamoDbDocument.send(
-        new UpdateCommand({
-          TableName: USECASE_TABLE_NAME,
-          Key: {
-            id: recentlyUsedUserId,
-            useCaseId: 'recently',
-          },
-          UpdateExpression: 'SET recentUseCaseIds = :recentUseCaseIds',
-          ExpressionAttributeValues: {
-            ':recentUseCaseIds': currentUseCaseIds,
-          },
-        })
-      );
+      new UpdateCommand({
+        TableName: USECASE_TABLE_NAME,
+        Key: {
+          id: recentlyUsedUserId,
+          useCaseId: 'recently',
+        },
+        UpdateExpression: 'SET recentUseCaseIds = :recentUseCaseIds',
+        ExpressionAttributeValues: {
+          ':recentUseCaseIds': currentUseCaseIds,
+        },
+      })
+    );
   }
 };
