@@ -49,6 +49,10 @@ export class Database extends Construct {
         name: 'useCaseId',
         type: ddb.AttributeType.STRING,
       },
+      sortKey: {
+        name: 'id',
+        type: ddb.AttributeType.STRING,
+      },
       projectionType: ddb.ProjectionType.ALL,
     });
 
