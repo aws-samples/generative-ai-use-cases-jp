@@ -1,18 +1,34 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Card from '../../components/Card';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import ModalDialogShareUseCase from '../../components/useCaseBuilder/ModalDialogShareUseCase';
 import { produce } from 'immer';
+import ModalDialog from '../../components/ModalDialog';
+import Button from '../../components/Button';
+import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 
 const UseCaseBuilderExecutePage: React.FC = () => {
+  const navigate = useNavigate();
   const { useCaseId } = useParams();
   const [isOpenShareDialog, setIsOpenShareDialog] = useState(false);
+  const [isOpenErrorDialog, setIsOpenErrorDialog] = useState(false);
 
-  const { useCase, mutate, isLoading } = useUseCase(useCaseId);
+  const {
+    useCase,
+    mutate,
+    isLoading,
+    error: errorGetUseCase,
+  } = useUseCase(useCaseId);
   const { toggleFavorite, toggleShared } = useMyUseCases();
+
+  useEffect(() => {
+    if (errorGetUseCase?.response?.status === 404) {
+      setIsOpenErrorDialog(true);
+    }
+  }, [errorGetUseCase?.response?.status]);
 
   const onClickToggleFavorite = useCallback(() => {
     if (useCase) {
@@ -48,20 +64,38 @@ const UseCaseBuilderExecutePage: React.FC = () => {
 
   return (
     <>
+      <ModalDialogShareUseCase
+        isOpen={isOpenShareDialog}
+        useCaseId={useCaseId ?? ''}
+        hasShared={useCase?.hasShared ?? false}
+        onToggleShared={() => {
+          onClickToggleShared();
+        }}
+        onClose={() => {
+          setIsOpenShareDialog(false);
+        }}
+      />
+      <ModalDialog
+        isOpen={isOpenErrorDialog}
+        title="アクセスエラー"
+        onClose={() => {}}>
+        <div className="flex flex-col gap-2">
+          <div>
+            このユースケースは存在しないか、共有されていないユースケースです。
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              onClick={() => {
+                navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}`);
+              }}>
+              コンソールに戻る
+            </Button>
+          </div>
+        </div>
+      </ModalDialog>
       <div className="grid h-screen grid-cols-12 gap-4 p-4">
         <div className="col-span-12">
           <Card>
-            <ModalDialogShareUseCase
-              isOpen={isOpenShareDialog}
-              useCaseId={useCaseId ?? ''}
-              hasShared={useCase?.hasShared ?? false}
-              onToggleShared={() => {
-                onClickToggleShared();
-              }}
-              onClose={() => {
-                setIsOpenShareDialog(false);
-              }}
-            />
             <AppBuilderView
               title={useCase?.title ?? '読み込み中...'}
               promptTemplate={useCase?.promptTemplate ?? ''}

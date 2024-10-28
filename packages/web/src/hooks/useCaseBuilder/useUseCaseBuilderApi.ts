@@ -9,6 +9,7 @@ import {
   UpdateUseCaseRequest,
 } from 'generative-ai-use-cases-jp';
 import useHttp from '../useHttp';
+import { AxiosError } from 'axios';
 
 const useUseCaseBuilderApi = () => {
   const http = useHttp();
@@ -21,7 +22,7 @@ const useUseCaseBuilderApi = () => {
       return http.get<ListFavoriteUseCasesResponse>('/usecases/favorite');
     },
     getUseCase: (useCaseId?: string) => {
-      return http.get<GetUseCaseResponse>(
+      return http.get<GetUseCaseResponse, AxiosError>(
         useCaseId ? `/usecases/${useCaseId}` : null
       );
     },

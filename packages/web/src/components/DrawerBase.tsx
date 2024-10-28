@@ -29,18 +29,20 @@ const DrawerBase: React.FC<Props> = (props) => {
     <>
       <nav
         className={`bg-aws-squid-ink flex h-screen w-64 flex-col justify-between text-sm text-white  print:hidden`}>
-        {props.children}
-        <div className="flex items-center justify-between gap-2 border-t border-gray-400 px-3 py-2">
-          <Link
-            to="/setting"
-            className="mr-2 overflow-x-hidden hover:brightness-75">
-            <span className="text-sm">{email}</span>
-          </Link>
-          <Link to="/setting">
-            <IconWithDot showDot={hasUpdate}>
-              <PiGear className="text-lg" />
-            </IconWithDot>
-          </Link>
+        <div className="flex h-full flex-col">
+          {props.children}
+          <div className="flex flex-none items-center justify-between gap-2 border-t border-gray-400 px-3 py-2">
+            <Link
+              to="/setting"
+              className="mr-2 overflow-x-hidden hover:brightness-75">
+              <span className="text-sm">{email}</span>
+            </Link>
+            <Link to="/setting">
+              <IconWithDot showDot={hasUpdate}>
+                <PiGear className="text-lg" />
+              </IconWithDot>
+            </Link>
+          </div>
         </div>
       </nav>
     </>

@@ -5,6 +5,7 @@ import { BaseProps } from '../../@types/common';
 import Switch from '../Switch';
 import InputText from '../InputText';
 import ButtonCopy from '../ButtonCopy';
+import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 
 type Props = BaseProps & {
   isOpen: boolean;
@@ -40,11 +41,11 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
             <InputText
               className="grow"
               label="共有URL"
-              value={`${window.location}/execute/${props.useCaseId}`}
+              value={`${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`}
             />
             <ButtonCopy
               className="ml-2 mt-4"
-              text={`${window.location}/execute/${props.useCaseId}`}
+              text={`${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`}
             />
           </div>
         )}
