@@ -108,12 +108,12 @@ export class UseCaseBuilder extends Construct {
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
-    const getRecentlyUsedUseCasesFunction = new NodejsFunction(
+    const listRecentlyUsedUseCasesFunction = new NodejsFunction(
       this,
-      'GetRecentlyUsedUseCases',
+      'ListRecentlyUsedUseCases',
       {
         runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/getRecentlyUsedUseCases.ts',
+        entry: './lambda/listRecentlyUsedUseCases.ts',
         timeout: Duration.minutes(15),
         environment: {
           USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
@@ -121,7 +121,7 @@ export class UseCaseBuilder extends Construct {
         },
       }
     );
-    useCaseBuilderTable.grantReadData(getRecentlyUsedUseCasesFunction);
+    useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
 
     const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
       this,
@@ -217,7 +217,7 @@ export class UseCaseBuilder extends Construct {
     // GET: /usecases/recent
     recentUseCasesResource.addMethod(
       'GET',
-      new LambdaIntegration(getRecentlyUsedUseCasesFunction),
+      new LambdaIntegration(listRecentlyUsedUseCasesFunction),
       commonAuthorizerProps
     );
 

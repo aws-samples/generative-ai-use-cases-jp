@@ -64,6 +64,7 @@ export const listUseCases = async (
     title: item.title,
     isFavorite: favoriteSet.has(item.useCaseId),
     hasShared: item.hasShared,
+    isMyUseCase: true,
   }));
 };
 
@@ -91,24 +92,59 @@ export const listFavoriteUseCases = async (
   }
 
   const favoriteUseCaseIds = favoriteRes.Items.map((item) => item.useCaseId);
+  console.log('favoriteUseCaseIds', favoriteUseCaseIds);
 
-  const useCasePromises = favoriteUseCaseIds.map(async (favoriteUseCaseId) => {
-    const result = await dynamoDbDocument.send(
-      new GetCommand({
+  // const useCasePromises = favoriteUseCaseIds.map(async (favoriteUseCaseId) => {
+  //   const result = await dynamoDbDocument.send(
+  //     new QueryCommand({
+  //       TableName: USECASE_TABLE_NAME,
+  //       IndexName: USECASE_ID_INDEX_NAME,
+  //       KeyConditionExpression: 'useCaseId = :useCaseId',
+  //       ExpressionAttributeValues: {
+  //         ':useCaseId': favoriteUseCaseId,
+  //       },
+  //     })
+  //   );
+  //   const useCaseItem = result.Items?.find((item) => item.id.startsWith('user#useCase#'));
+  //   if (!useCaseItem) {
+  //     console.log(`No useCase found for useCaseId: ${favoriteUseCaseId}`);
+  //     return null;
+  //   }
+  //   return useCaseItem;
+  // });
+  const useCases = []
+  for (const favoriteUseCaseId of favoriteUseCaseIds) {
+    const useCaseRes = await dynamoDbDocument.send(
+      new QueryCommand({
         TableName: USECASE_TABLE_NAME,
-        Key: {
-          id: useCaseUserId,
-          useCaseId: favoriteUseCaseId,
+        IndexName: USECASE_ID_INDEX_NAME,
+        KeyConditionExpression: 'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
+        ExpressionAttributeNames: {
+          '#id': 'id'
+        },
+        ExpressionAttributeValues: {
+          ':useCaseId': favoriteUseCaseId,
+          ':prefixId': 'user#useCase#'
         },
       })
     );
-    return result.Item;
-  });
+    if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
+    console.log('useCaseRes', useCaseRes);
+    const useCaseItem = useCaseRes.Items[0]
+    if (!useCaseItem) continue;
+    console.log('useCaseItem', useCaseItem);
+    useCases.push(useCaseItem);
+  }
 
-  const useCases = await Promise.all(useCasePromises);
+  
+  console.log('useCases', useCases);
 
   return useCases
-    .filter((item): item is NonNullable<typeof item> => item != null)
+    .filter((useCase): useCase is NonNullable<typeof useCase> => {
+      console.log('useCase', useCase);
+      if (!useCase) return false;
+      return useCase.id === useCaseUserId || useCase.hasShared;
+    })
     .map((item) => ({
       useCaseId: item.useCaseId,
       title: item.title,
@@ -124,16 +160,28 @@ export const getUseCase = async (
 ): Promise<CustomUseCase | null> => {
   const useCaseUserId = `user#useCase#${_userId}`;
   const favoriteUserId = `user#favorite#${_userId}`;
+
   const useCaseRes = await dynamoDbDocument.send(
-    new GetCommand({
+    new QueryCommand({
       TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: useCaseUserId,
-        useCaseId: useCaseId,
+      IndexName: USECASE_ID_INDEX_NAME,
+      KeyConditionExpression: 'useCaseId = :useCaseId',
+      FilterExpression: 'begins_with(#id, :prefixId)', 
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':useCaseId': useCaseId,
+        ':prefixId': 'user#useCase#'
       },
     })
   );
-  if (!useCaseRes.Item) return null;
+
+  const useCase = useCaseRes.Items?.[0]
+
+  if (!useCase || (useCase.id !== useCaseUserId && !useCase.hasShared)) {
+    return null;
+  }
 
   const favoriteRes = await dynamoDbDocument.send(
     new GetCommand({
@@ -145,15 +193,13 @@ export const getUseCase = async (
     })
   );
 
-  const item = useCaseRes.Item;
-
   return {
-    useCaseId: item.useCaseId,
-    title: item.title,
+    useCaseId: useCase.useCaseId,
+    title: useCase.title,
     isFavorite: Boolean(favoriteRes.Item),
-    promptTemplate: item.promptTemplate,
-    hasShared: item.hasShared,
-    isMyUseCase: true,
+    promptTemplate: useCase.promptTemplate,
+    hasShared: useCase.hasShared,
+    isMyUseCase: useCase.id === useCaseUserId,
   };
 };
 
@@ -309,7 +355,7 @@ export const toggleShared = async (
   return { hasShared: newSharedState };
 };
 
-export const getRecentlyUsedUseCases = async (
+export const listRecentlyUsedUseCases = async (
   _userId: string
 ): Promise<CustomUseCaseMeta[]> => {
   const useCaseUserId = `user#useCase#${_userId}`;

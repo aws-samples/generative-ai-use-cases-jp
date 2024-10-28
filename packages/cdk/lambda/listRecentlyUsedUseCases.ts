@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getRecentlyUsedUseCases } from './useCaseBuilderRepository';
+import { listRecentlyUsedUseCases } from './useCaseBuilderRepository';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,7 +8,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
 
-    const recentlyUsedUseCases = await getRecentlyUsedUseCases(userId);
+    const recentlyUsedUseCases = await listRecentlyUsedUseCases(userId);
 
     return {
       statusCode: 200,
