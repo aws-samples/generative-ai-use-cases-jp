@@ -3,6 +3,7 @@ import {
   CreateUseCaseRespose,
   GetUseCaseResponse,
   ListFavoriteUseCasesResponse,
+  ListRecentlyUsedUseCasesResponse,
   ListUseCasesRespose,
   ToggleFavoriteResponse,
   ToggleShareResponse,
@@ -21,6 +22,9 @@ const useUseCaseBuilderApi = () => {
     listFavoriteUseCases: () => {
       return http.get<ListFavoriteUseCasesResponse>('/usecases/favorite');
     },
+    listResentlyUsedUseCases: () => {
+      return http.get<ListRecentlyUsedUseCasesResponse>('/usecases/recent');
+    },
     getUseCase: (useCaseId?: string) => {
       return http.get<GetUseCaseResponse, AxiosError>(
         useCaseId ? `/usecases/${useCaseId}` : null
@@ -38,6 +42,9 @@ const useUseCaseBuilderApi = () => {
         `/usecases/${useCaseId}`,
         params
       );
+    },
+    updateRecentUseUseCase: (useCaseId: string) => {
+      return http.put<null>(`/usecases/recent/${useCaseId}`, {});
     },
     deleteUseCase: (useCaseId: string) => {
       return http.delete(`/usecases/${useCaseId}`);

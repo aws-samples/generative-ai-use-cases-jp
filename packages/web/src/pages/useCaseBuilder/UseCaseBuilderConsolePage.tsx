@@ -23,24 +23,30 @@ const UseCaseBuilderConsolePage: React.FC = () => {
     isLoadingMyUseCases,
     favoriteUseCases,
     isLoadingFavoriteUseCases,
+    recentlyUsedUseCases,
+    isLoadingRecentlyUsedUseCases,
     deleteUseCase,
     toggleFavorite,
     toggleShared,
   } = useMyUseCases();
 
   const [isOpenConfirmDelete, setIsOpenConfirmDelete] = useState(false);
-  const [deleteTargetIndex, setDeleteTargetIndex] = useState(-1);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const [isOpenShareUseCase, setIsOpenShareUseCase] = useState(false);
-  const [shareTargetIndex, setShareTargetIndex] = useState(-1);
+  const [shareTargetId, setShareTargetId] = useState<string | null>(null);
 
   const deleteTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
-    return myUseCases[deleteTargetIndex] ?? null;
-  }, [deleteTargetIndex, myUseCases]);
+    return deleteTargetId
+      ? (myUseCases.find((uc) => uc.useCaseId === deleteTargetId) ?? null)
+      : null;
+  }, [deleteTargetId, myUseCases]);
 
   const shareTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
-    return myUseCases[shareTargetIndex] ?? null;
-  }, [shareTargetIndex, myUseCases]);
+    return shareTargetId
+      ? (myUseCases.find((uc) => uc.useCaseId === shareTargetId) ?? null)
+      : null;
+  }, [shareTargetId, myUseCases]);
 
   return (
     <>
@@ -105,7 +111,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                         マイユースケースがありません。
                       </div>
                     )}
-                    {myUseCases.map((useCase, idx) => {
+                    {myUseCases.map((useCase) => {
                       return (
                         <div
                           key={useCase.useCaseId}
@@ -132,7 +138,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                             <ButtonShare
                               hasShared={useCase.hasShared}
                               onClick={() => {
-                                setShareTargetIndex(idx);
+                                setShareTargetId(useCase.useCaseId);
                                 setIsOpenShareUseCase(true);
                               }}
                             />
@@ -140,7 +146,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                             <ButtonIcon
                               className="text-red-600"
                               onClick={() => {
-                                setDeleteTargetIndex(idx);
+                                setDeleteTargetId(useCase.useCaseId);
                                 setIsOpenConfirmDelete(true);
                               }}>
                               <PiTrash />
@@ -210,6 +216,73 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                               お気に入りを解除
                             </Button>
                           </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              ),
+            },
+            {
+              id: 'resentlyUsed',
+              label: '最近利用したユースケース',
+              content: (
+                <Card className="h-[calc(100vh-10rem)]">
+                  <RowItem className="flex items-center justify-between">
+                    <div className="font-semibold">
+                      最近利用したユースケース
+                    </div>
+                  </RowItem>
+                  <div className="h-[calc(100%-2rem)] overflow-y-scroll rounded border">
+                    {isLoadingRecentlyUsedUseCases && (
+                      <div className="flex flex-col gap-2 p-2">
+                        {new Array(10).fill('').map((_, idx) => (
+                          <Skeleton key={idx} />
+                        ))}
+                      </div>
+                    )}
+                    {!isLoadingRecentlyUsedUseCases &&
+                      recentlyUsedUseCases.length === 0 && (
+                        <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                          最近利用したユースケースがありません。
+                        </div>
+                      )}
+                    {recentlyUsedUseCases.map((useCase) => {
+                      return (
+                        <div
+                          key={useCase.useCaseId}
+                          className="flex justify-between border-b hover:bg-gray-100">
+                          <div className="flex grow items-center">
+                            <ButtonFavorite
+                              isFavorite={useCase.isFavorite}
+                              onClick={() => {
+                                toggleFavorite(useCase.useCaseId);
+                              }}
+                            />
+                            <div
+                              className="flex h-full grow cursor-pointer  items-center text-sm font-bold"
+                              onClick={() => {
+                                navigate(
+                                  `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCase.useCaseId}`
+                                );
+                              }}>
+                              {useCase.title}
+                            </div>
+                          </div>
+                          {useCase.isMyUseCase && (
+                            <div className="flex items-center gap-2 p-2">
+                              <ButtonUseCaseEdit
+                                useCaseId={useCase.useCaseId}
+                              />
+                              <ButtonShare
+                                hasShared={useCase.hasShared}
+                                onClick={() => {
+                                  setShareTargetId(useCase.useCaseId);
+                                  setIsOpenShareUseCase(true);
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
                       );
                     })}

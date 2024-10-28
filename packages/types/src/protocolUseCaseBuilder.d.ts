@@ -2,6 +2,7 @@ import { CustomUseCase, CustomUseCaseMeta } from './useCaseBuilder';
 
 export type ListUseCasesRespose = CustomUseCaseMeta[];
 export type ListFavoriteUseCasesResponse = CustomUseCaseMeta[];
+export type ListRecentlyUsedUseCasesResponse = CustomUseCaseMeta[];
 
 export type GetUseCaseResponse = CustomUseCase;
 

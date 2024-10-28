@@ -14,6 +14,7 @@ import ButtonFavorite from './ButtonFavorite';
 import ButtonShare from './ButtonShare';
 import ButtonUseCaseEdit from './ButtonUseCaseEdit';
 import Skeleton from '../Skeleton';
+import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 
 type Props = {
   modelId?: string;
@@ -87,6 +88,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const modelId = getModelId();
   const { modelIds: availableModels } = MODELS;
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
+  const { updateRecentUseUseCase } = useMyUseCases();
 
   const placeholders = useMemo(() => {
     return props.promptTemplate.match(/\{\{(.+)\}\}/g) ?? [];
@@ -140,12 +142,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     placeholders.forEach((p, idx) => {
       prompt = prompt.replace(p, values[idx]);
     });
-    postChat(
-      prompt +
-        '出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。',
-      true
-    );
-  }, [loading, placeholders, postChat, props.promptTemplate, values]);
+    postChat(prompt, true);
+    if (!props.previewMode) {
+      updateRecentUseUseCase(props.useCaseId);
+    }
+  }, [loading, placeholders, postChat, props, updateRecentUseUseCase, values]);
 
   // リセット
   const onClickClear = useCallback(() => {
