@@ -6,7 +6,10 @@ import {
 } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import {
+  NodejsFunction,
+  NodejsFunctionProps,
+} from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
@@ -23,14 +26,18 @@ export class UseCaseBuilder extends Construct {
 
     const { userPool, api, useCaseBuilderTable, useCaseIdIndexName } = props;
 
-    // UseCaseBuilder 関連の API を追加する
-    const listUseCasesFunction = new NodejsFunction(this, 'ListUseCases', {
+    const commonProperty: NodejsFunctionProps = {
       runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/listUseCases.ts',
       timeout: Duration.minutes(15),
       environment: {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
       },
+    };
+
+    // UseCaseBuilder 関連の API を追加する
+    const listUseCasesFunction = new NodejsFunction(this, 'ListUseCases', {
+      ...commonProperty,
+      entry: './lambda/listUseCases.ts',
     });
     useCaseBuilderTable.grantReadData(listUseCasesFunction);
 
@@ -38,72 +45,56 @@ export class UseCaseBuilder extends Construct {
       this,
       'ListFavoriteUseCases',
       {
-        runtime: Runtime.NODEJS_18_X,
+        ...commonProperty,
         entry: './lambda/listFavoriteUseCases.ts',
-        timeout: Duration.minutes(15),
         environment: {
-          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+          ...commonProperty.environment,
+          USECASE_ID_INDEX_NAME: useCaseIdIndexName,
         },
       }
     );
     useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/getUseCase.ts',
-      timeout: Duration.minutes(15),
       environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        ...commonProperty.environment,
+        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
       },
     });
     useCaseBuilderTable.grantReadData(getUseCaseFunction);
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/createUseCase.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-      },
     });
     useCaseBuilderTable.grantWriteData(createUseCaseFunction);
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/updateUseCase.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-      },
     });
     useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/deleteUseCase.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-      },
     });
     useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/toggleFavorite.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-      },
     });
     useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
-      runtime: Runtime.NODEJS_18_X,
+      ...commonProperty,
       entry: './lambda/toggleShared.ts',
-      timeout: Duration.minutes(15),
       environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        ...commonProperty.environment,
+        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
       },
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
@@ -112,11 +103,10 @@ export class UseCaseBuilder extends Construct {
       this,
       'ListRecentlyUsedUseCases',
       {
-        runtime: Runtime.NODEJS_18_X,
+        ...commonProperty,
         entry: './lambda/listRecentlyUsedUseCases.ts',
-        timeout: Duration.minutes(15),
         environment: {
-          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+          ...commonProperty.environment,
           USECASE_ID_INDEX_NAME: useCaseIdIndexName,
         },
       }
@@ -127,12 +117,8 @@ export class UseCaseBuilder extends Construct {
       this,
       'UpdateRecentlyUsedUseCase',
       {
-        runtime: Runtime.NODEJS_18_X,
+        ...commonProperty,
         entry: './lambda/updateRecentlyUsedUseCase.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-        },
       }
     );
     useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);

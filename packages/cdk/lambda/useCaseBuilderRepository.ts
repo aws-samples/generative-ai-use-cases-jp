@@ -92,56 +92,32 @@ export const listFavoriteUseCases = async (
   }
 
   const favoriteUseCaseIds = favoriteRes.Items.map((item) => item.useCaseId);
-  console.log('favoriteUseCaseIds', favoriteUseCaseIds);
 
-  // const useCasePromises = favoriteUseCaseIds.map(async (favoriteUseCaseId) => {
-  //   const result = await dynamoDbDocument.send(
-  //     new QueryCommand({
-  //       TableName: USECASE_TABLE_NAME,
-  //       IndexName: USECASE_ID_INDEX_NAME,
-  //       KeyConditionExpression: 'useCaseId = :useCaseId',
-  //       ExpressionAttributeValues: {
-  //         ':useCaseId': favoriteUseCaseId,
-  //       },
-  //     })
-  //   );
-  //   const useCaseItem = result.Items?.find((item) => item.id.startsWith('user#useCase#'));
-  //   if (!useCaseItem) {
-  //     console.log(`No useCase found for useCaseId: ${favoriteUseCaseId}`);
-  //     return null;
-  //   }
-  //   return useCaseItem;
-  // });
-  const useCases = []
+  const useCases = [];
   for (const favoriteUseCaseId of favoriteUseCaseIds) {
     const useCaseRes = await dynamoDbDocument.send(
       new QueryCommand({
         TableName: USECASE_TABLE_NAME,
         IndexName: USECASE_ID_INDEX_NAME,
-        KeyConditionExpression: 'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
+        KeyConditionExpression:
+          'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
         ExpressionAttributeNames: {
-          '#id': 'id'
+          '#id': 'id',
         },
         ExpressionAttributeValues: {
           ':useCaseId': favoriteUseCaseId,
-          ':prefixId': 'user#useCase#'
+          ':prefixId': 'user#useCase#',
         },
       })
     );
     if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
-    console.log('useCaseRes', useCaseRes);
-    const useCaseItem = useCaseRes.Items[0]
+    const useCaseItem = useCaseRes.Items[0];
     if (!useCaseItem) continue;
-    console.log('useCaseItem', useCaseItem);
     useCases.push(useCaseItem);
   }
 
-  
-  console.log('useCases', useCases);
-
   return useCases
     .filter((useCase): useCase is NonNullable<typeof useCase> => {
-      console.log('useCase', useCase);
       if (!useCase) return false;
       return useCase.id === useCaseUserId || useCase.hasShared;
     })
@@ -160,24 +136,23 @@ export const getUseCase = async (
 ): Promise<CustomUseCase | null> => {
   const useCaseUserId = `user#useCase#${_userId}`;
   const favoriteUserId = `user#favorite#${_userId}`;
-
   const useCaseRes = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: USECASE_TABLE_NAME,
       IndexName: USECASE_ID_INDEX_NAME,
-      KeyConditionExpression: 'useCaseId = :useCaseId',
-      FilterExpression: 'begins_with(#id, :prefixId)', 
+      KeyConditionExpression:
+        'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
       ExpressionAttributeNames: {
         '#id': 'id',
       },
       ExpressionAttributeValues: {
         ':useCaseId': useCaseId,
-        ':prefixId': 'user#useCase#'
+        ':prefixId': 'user#useCase#',
       },
     })
   );
 
-  const useCase = useCaseRes.Items?.[0]
+  const useCase = useCaseRes.Items?.[0];
 
   if (!useCase || (useCase.id !== useCaseUserId && !useCase.hasShared)) {
     return null;
@@ -401,14 +376,18 @@ export const listRecentlyUsedUseCases = async (
   const useCasesMeta: CustomUseCaseMeta[] = [];
   for (const useCaseId of recentUseCaseIds) {
     if (useCasesMeta.length >= 15) break;
-
     const useCaseRes = await dynamoDbDocument.send(
       new QueryCommand({
         TableName: USECASE_TABLE_NAME,
         IndexName: USECASE_ID_INDEX_NAME,
-        KeyConditionExpression: 'useCaseId = :useCaseId',
+        KeyConditionExpression:
+          'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
+        ExpressionAttributeNames: {
+          '#id': 'id',
+        },
         ExpressionAttributeValues: {
           ':useCaseId': useCaseId,
+          ':prefixId': 'user#useCase#',
         },
       })
     );
