@@ -34,10 +34,12 @@ export class UseCaseBuilder extends Construct {
       },
     };
 
+    const commonPath = './lambda/useCaseBuilder';
+
     // UseCaseBuilder 関連の API を追加する
     const listUseCasesFunction = new NodejsFunction(this, 'ListUseCases', {
       ...commonProperty,
-      entry: './lambda/listUseCases.ts',
+      entry: `${commonPath}/listUseCases.ts`,
     });
     useCaseBuilderTable.grantReadData(listUseCasesFunction);
 
@@ -46,7 +48,7 @@ export class UseCaseBuilder extends Construct {
       'ListFavoriteUseCases',
       {
         ...commonProperty,
-        entry: './lambda/listFavoriteUseCases.ts',
+        entry: `${commonPath}/listFavoriteUseCases.ts`,
         environment: {
           ...commonProperty.environment,
           USECASE_ID_INDEX_NAME: useCaseIdIndexName,
@@ -57,7 +59,7 @@ export class UseCaseBuilder extends Construct {
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       ...commonProperty,
-      entry: './lambda/getUseCase.ts',
+      entry: `${commonPath}/getUseCase.ts`,
       environment: {
         ...commonProperty.environment,
         USECASE_ID_INDEX_NAME: useCaseIdIndexName,
@@ -67,31 +69,31 @@ export class UseCaseBuilder extends Construct {
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
       ...commonProperty,
-      entry: './lambda/createUseCase.ts',
+      entry: `${commonPath}/createUseCase.ts`,
     });
     useCaseBuilderTable.grantWriteData(createUseCaseFunction);
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
       ...commonProperty,
-      entry: './lambda/updateUseCase.ts',
+      entry: `${commonPath}/updateUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
       ...commonProperty,
-      entry: './lambda/deleteUseCase.ts',
+      entry: `${commonPath}/deleteUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
       ...commonProperty,
-      entry: './lambda/toggleFavorite.ts',
+      entry: `${commonPath}/toggleFavorite.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       ...commonProperty,
-      entry: './lambda/toggleShared.ts',
+      entry: `${commonPath}/toggleShared.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
@@ -100,7 +102,7 @@ export class UseCaseBuilder extends Construct {
       'ListRecentlyUsedUseCases',
       {
         ...commonProperty,
-        entry: './lambda/listRecentlyUsedUseCases.ts',
+        entry: `${commonPath}/listRecentlyUsedUseCases.ts`,
         environment: {
           ...commonProperty.environment,
           USECASE_ID_INDEX_NAME: useCaseIdIndexName,
@@ -114,7 +116,7 @@ export class UseCaseBuilder extends Construct {
       'UpdateRecentlyUsedUseCase',
       {
         ...commonProperty,
-        entry: './lambda/updateRecentlyUsedUseCase.ts',
+        entry: `${commonPath}/updateRecentlyUsedUseCase.ts`,
       }
     );
     useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
