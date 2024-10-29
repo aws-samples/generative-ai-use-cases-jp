@@ -130,6 +130,7 @@ export const listFavoriteUseCases = async (
     }));
 };
 
+// 自分が作成しただけでなく、共有されたユースケースも取得
 export const getUseCase = async (
   _userId: string,
   useCaseId: string
@@ -306,6 +307,45 @@ export const toggleFavorite = async (
     );
     return { isFavorite: true };
   }
+};
+
+export const getOwnedUseCase = async (
+  _userId: string,
+  useCaseId: string
+): Promise<CustomUseCase | null> => {
+  const useCaseUserId = `user#useCase#${_userId}`;
+  const favoriteUserId = `user#favorite#${_userId}`;
+
+  const useCaseRes = await dynamoDbDocument.send(
+    new GetCommand({
+      TableName: USECASE_TABLE_NAME,
+      Key: {
+        id: useCaseUserId,
+        useCaseId: useCaseId,
+      },
+    })
+  );
+  if (!useCaseRes.Item) return null;
+
+  const favoriteRes = await dynamoDbDocument.send(
+    new GetCommand({
+      TableName: USECASE_TABLE_NAME,
+      Key: {
+        id: favoriteUserId,
+        useCaseId: useCaseId,
+      },
+    })
+  );
+  const item = useCaseRes.Item;
+
+  return {
+    useCaseId: item.useCaseId,
+    title: item.title,
+    isFavorite: Boolean(favoriteRes.Item),
+    promptTemplate: item.promptTemplate,
+    hasShared: item.hasShared,
+    isMyUseCase: true,
+  };
 };
 
 export const toggleShared = async (

@@ -92,10 +92,6 @@ export class UseCaseBuilder extends Construct {
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       ...commonProperty,
       entry: './lambda/toggleShared.ts',
-      environment: {
-        ...commonProperty.environment,
-        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
-      },
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
