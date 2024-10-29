@@ -435,6 +435,7 @@ export const listRecentlyUsedUseCases = async (
     if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
 
     const useCase = useCaseRes.Items[0];
+    if (useCase.id !== useCaseUserId && !useCase.hasShared) continue;
     useCasesMeta.push({
       useCaseId: useCase.useCaseId,
       title: useCase.title,
