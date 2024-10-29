@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, StackProps, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -283,12 +283,22 @@ export class RagKnowledgeBaseStack extends Stack {
     collection.node.addDependency(networkPolicy);
     collection.node.addDependency(encryptionPolicy);
 
+    const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      enforceSSL: true,
+    });
+
     const dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
       autoDeleteObjects: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      serverAccessLogsBucket: accessLogsBucket,
       serverAccessLogsPrefix: 'AccessLogs/',
       enforceSSL: true,
     });
@@ -426,7 +436,8 @@ export class RagKnowledgeBaseStack extends Stack {
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
       sources: [s3Deploy.Source.asset('./rag-docs')],
       destinationBucket: dataSourceBucket,
-      exclude: ['AccessLogs/*'],
+      // 以前の設定で同 Bucket にアクセスログが残っている可能性があるため、この設定は残す
+      exclude: ['AccessLogs/*', 'logs*'],
     });
 
     this.knowledgeBaseId = knowledgeBase.ref;

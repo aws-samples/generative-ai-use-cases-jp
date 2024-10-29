@@ -29,7 +29,7 @@ context の `ragEnabled` に `true` を指定します。(デフォルトは `fa
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。また、`/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Kendra データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。)
 
 続いて、Kendra の Data source の Sync を以下の手順で行ってください。
 
@@ -111,7 +111,7 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 npx -w packages/cdk cdk bootstrap --region us-east-1
 ```
 
-デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
+デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。) デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
 1. generative-ai-use-cases-jp をクリック
@@ -362,6 +362,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 2024/06 現在、マルチモーダルのモデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -382,6 +383,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 
 ```json
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -409,6 +411,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -485,6 +488,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 ```bash
   "modelRegion": "us-west-2",
   "modelIds": [
+    "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-opus-20240229-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",

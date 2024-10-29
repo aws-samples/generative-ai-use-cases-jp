@@ -146,6 +146,19 @@ export class Rag extends Construct {
         iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess')
       );
 
+      const accessLogsBucket = new s3.Bucket(
+        this,
+        'DataSourceAccessLogsBucket',
+        {
+          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+          encryption: s3.BucketEncryption.S3_MANAGED,
+          autoDeleteObjects: true,
+          removalPolicy: RemovalPolicy.DESTROY,
+          objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+          enforceSSL: true,
+        }
+      );
+
       // .pdf や .txt などのドキュメントを格納する S3 Bucket
       dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -153,6 +166,7 @@ export class Rag extends Construct {
         autoDeleteObjects: true,
         removalPolicy: RemovalPolicy.DESTROY,
         objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        serverAccessLogsBucket: accessLogsBucket,
         serverAccessLogsPrefix: 'AccessLogs/',
         enforceSSL: true,
       });
@@ -161,7 +175,8 @@ export class Rag extends Construct {
       new s3Deploy.BucketDeployment(this, 'DeployDocs', {
         sources: [s3Deploy.Source.asset('./rag-docs')],
         destinationBucket: dataSourceBucket,
-        exclude: ['AccessLogs/*'],
+        // 以前の設定で同 Bucket にアクセスログが残っている可能性があるため、この設定は残す
+        exclude: ['AccessLogs/*', 'logs*'],
       });
 
       let index: kendra.CfnIndex;
