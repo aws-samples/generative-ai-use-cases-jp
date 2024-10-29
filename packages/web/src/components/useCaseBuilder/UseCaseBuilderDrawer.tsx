@@ -86,7 +86,11 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
           <PiMagnifyingGlass className="bg-aws-squid-ink absolute left-1.5 top-1 size-7 rounded-l-full border border-white p-1.5" />
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-          <ChatList className="mr-1" searchWords={searchWords} />
+          <ChatList
+            className="mr-1"
+            searchWords={searchWords}
+            isUseCaseBuilder
+          />
         </div>
       </ExpandableMenu>
       <div className="flex-1"></div>

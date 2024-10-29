@@ -97,12 +97,13 @@ const UseCaseBuilderExecutePage: React.FC = () => {
         <div className="col-span-12">
           <Card>
             <AppBuilderView
-              title={useCase?.title ?? '読み込み中...'}
+              title={useCase?.title ?? ''}
               promptTemplate={useCase?.promptTemplate ?? ''}
               hasShared={useCase?.hasShared ?? false}
               isFavorite={useCase?.isFavorite ?? false}
               useCaseId={useCaseId ?? ''}
               isLoading={isLoading}
+              canEdit={useCase?.isMyUseCase}
               onToggleFavorite={() => {
                 onClickToggleFavorite();
               }}

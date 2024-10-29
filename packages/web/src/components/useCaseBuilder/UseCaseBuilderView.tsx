@@ -118,7 +118,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         : availableModels[0]
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableModels, props.modelId]);
+  }, [availableModels, props.modelId, pathname]);
 
   useEffect(() => {
     setTypingTextInput(text);
@@ -158,7 +158,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   return (
     <div className="relative">
       <div className="col-span-12 mb-8 flex h-0 items-center justify-center text-xl font-semibold">
-        {props.title}
+        {props.isLoading ? '読み込み中...' : props.title}
       </div>
       {!props.previewMode && (
         <div className="absolute -top-2 right-0">
@@ -168,12 +168,17 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
               disabled={props.isLoading}
               onClick={props.onToggleFavorite}
             />
-            <ButtonShare
-              hasShared={props.hasShared}
-              disabled={props.isLoading}
-              onClick={props.onToggleShared}
-            />
-            {props.canEdit && <ButtonUseCaseEdit useCaseId={props.useCaseId} />}
+
+            {props.canEdit && (
+              <>
+                <ButtonShare
+                  hasShared={props.hasShared}
+                  disabled={props.isLoading}
+                  onClick={props.onToggleShared}
+                />
+                <ButtonUseCaseEdit useCaseId={props.useCaseId} />
+              </>
+            )}
           </div>
         </div>
       )}
