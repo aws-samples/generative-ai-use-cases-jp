@@ -17,13 +17,13 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
     "kendraIndexScheduleEnabled": false,
     "kendraIndexScheduleCreateCron": null,
     "kendraIndexScheduleDeleteCron": null,
-    "ragKnowledgeBaseEnabled": false,
+    "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -35,9 +35,12 @@
     "samlCognitoFederatedIdentityProviderName": "",
     "modelRegion": "us-east-1",
     "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0"
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0"
     ],
     "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
       "stability.stable-diffusion-xl-v1"
     ],
     "endpointNames": [],
