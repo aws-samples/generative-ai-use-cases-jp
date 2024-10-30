@@ -47,7 +47,7 @@
     "agentEnabled": true,
     "agentRegion": "us-west-2",
     "searchAgentEnabled": true,
-    "searchApiKey": "AIzaSyC8eVajZeucu0qHLEVy1ZLmr4Eeqb-P5NY",
+    "searchApiKey": "",
     "agents": [],
     "promptFlows": [],
     "allowedIpV4AddressRanges": null,
