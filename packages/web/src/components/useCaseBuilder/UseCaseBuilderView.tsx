@@ -158,7 +158,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   return (
     <div className="relative">
       <div className="col-span-12 mb-8 flex h-0 items-center justify-center text-xl font-semibold">
-        {props.isLoading ? '読み込み中...' : props.title}
+        {props.isLoading
+          ? '読み込み中...'
+          : props.title
+            ? props.title
+            : '[タイトル未入力]'}
       </div>
       {!props.previewMode && (
         <div className="absolute -top-2 right-0">

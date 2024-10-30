@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ModalDialog from '../ModalDialog';
 import Button from '../Button';
 import { BaseProps } from '../../@types/common';
@@ -16,6 +16,10 @@ type Props = BaseProps & {
 };
 
 const ModalDialogShareUseCase: React.FC<Props> = (props) => {
+  const shareUrl = useMemo(() => {
+    return `${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`;
+  }, [props.useCaseId]);
+
   return (
     <ModalDialog
       isOpen={props.isOpen}
@@ -24,31 +28,40 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
         props.onClose();
       }}>
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
+        <div className="flex items-start gap-2">
           <Switch
             checked={props.hasShared}
-            label=""
+            className="text-xl"
+            label={
+              props.hasShared
+                ? 'このユースケースは共有されているため、誰でも利用できます。'
+                : 'このユースケースは共有されていないため、あなたしか利用できません。'
+            }
             onSwitch={() => {
               props.onToggleShared();
             }}
           />
-          {props.hasShared
-            ? 'このユースケースは共有されています。共有URLにアクセスすることで、他のユーザーも利用できます。'
-            : '共有を有効化すると、あなた以外もユースケースを利用できるようになります。'}
         </div>
-        {props.hasShared && (
+
+        <div className="flex flex-col">
           <div className="flex grow ">
             <InputText
               className="grow"
               label="共有URL"
-              value={`${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`}
+              value={props.hasShared ? shareUrl : ''}
             />
             <ButtonCopy
               className="ml-2 mt-4"
-              text={`${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`}
+              disabled={!props.hasShared}
+              text={shareUrl}
             />
           </div>
-        )}
+          <div className="text-sm">
+            {props.hasShared
+              ? '共有URLにアクセスすることで、他のユーザーも利用できます。'
+              : '共有URLが発行されていません。'}
+          </div>
+        </div>
         <div className="flex justify-end gap-2">
           <Button
             onClick={() => {

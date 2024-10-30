@@ -94,7 +94,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                           navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`);
                         }}>
                         <PiPlus className="mr-2" />
-                        ユースケース追加
+                        ユースケース新規作成
                       </Button>
                     </div>
                   </RowItem>
