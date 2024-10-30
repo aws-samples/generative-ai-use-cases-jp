@@ -31,7 +31,8 @@ export VITE_APP_SAMLAUTH_ENABLED=`extract_value "$stack_output" SamlAuthEnabled`
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=`extract_value "$stack_output" SamlCognitoDomainName`
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=`extract_value "$stack_output" SamlCognitoFederatedIdentityProviderName`
 export VITE_APP_AGENT_NAMES=`extract_value "$stack_output" AgentNames`
-export VITE_APP_RECOGNIZE_FILE_ENABLED=`extract_value "$stack_output" RecognizeFileEnabled`
+export VITE_APP_USE_CASE_BUILDER_ENABLED=`extract_value "$stack_output" UseCaseBuilderEnabled`
+
 # Summit
 export VITE_APP_CREATE_FUNCTION_ROLE_ARN=`extract_value "$stack_output" CreateFunctionRoleArn`
 export VITE_APP_EHON_API_ENDPOINT=`extract_value "$stack_output" EhonAPIEndpoint`

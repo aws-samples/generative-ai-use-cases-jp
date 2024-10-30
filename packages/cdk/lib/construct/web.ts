@@ -38,6 +38,7 @@ export interface WebProps {
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
+  useCaseBuilderEnabled: boolean;
   // Summit用
   createFunctionRoleArn: string;
   ehonStateMachineArn: string;
@@ -194,6 +195,8 @@ export class Web extends Construct {
         VITE_APP_EHON_API_ENDPOINT: props.ehonAPIEndpoint,
         VITE_APP_EHON_STATE_MACHINE_ARN: props.ehonStateMachineArn,
         NODE_OPTIONS: '--max-old-space-size=2048',
+        VITE_APP_USE_CASE_BUILDER_ENABLED:
+          props.useCaseBuilderEnabled.toString(),
       },
     });
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import App from '../App.tsx';
 import { Button, Text, Loader, useAuthenticator } from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
@@ -10,7 +9,11 @@ const samlCognitoDomainName: string = import.meta.env
 const samlCognitoFederatedIdentityProviderName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
 
-const AuthWithSAML: React.FC = () => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const AuthWithSAML: React.FC<Props> = (props) => {
   const { authStatus } = useAuthenticator((context) => [context.authStatus]);
 
   const [authenticated, setAuthenticated] = useState(false);
@@ -78,7 +81,7 @@ const AuthWithSAML: React.FC = () => {
           </Button>
         </div>
       ) : (
-        <App />
+        <>{props.children}</>
       )}
     </>
   );
