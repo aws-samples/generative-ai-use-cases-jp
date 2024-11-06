@@ -33,19 +33,28 @@
     "samlAuthEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
-    "modelRegion": "us-east-1",
+    "modelRegion": "us-west-2",
     "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0"
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0", 
+      "anthropic.claude-3-sonnet-20240229-v1:0", 
+      "anthropic.claude-3-haiku-20240307-v1:0"
     ],
     "imageGenerationModelIds": [
       "stability.stable-diffusion-xl-v1"
     ],
     "endpointNames": [],
-    "agentEnabled": false,
-    "agentRegion": "us-east-1",
-    "searchAgentEnabled": false,
-    "searchApiKey": "",
-    "agents": [],
+    "agentEnabled": true,
+    "agentRegion": "us-west-2",
+    "searchAgentEnabled": true,
+    "searchApiKey": "BSAmZYZAyNww6rVxV9e7xKXyc-DYAFm",
+    "agents": [
+      {
+        "displayName": "Code Interpreter",
+        "agentId": "IQNVCT4DQK",
+        "aliasId": "YMT6FH2G6F"
+      }
+    ],
     "promptFlows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

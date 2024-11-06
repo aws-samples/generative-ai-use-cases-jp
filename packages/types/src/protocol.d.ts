@@ -116,6 +116,7 @@ export type RetrieveKendraResponse = RetrieveCommandOutput;
 
 export type RetrieveKnowledgeBaseRequest = {
   query: string;
+  s3datasource?: string;
 };
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;

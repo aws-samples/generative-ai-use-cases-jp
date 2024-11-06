@@ -12,10 +12,14 @@ import BedrockIcon from '../assets/bedrock.svg?react';
 import { RagPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
+// 追加
+import { useKnowledgeBasePrefixes } from '../hooks/useKnowledgeBasePrefixes';
 
 type StateType = {
   content: string;
   setContent: (c: string) => void;
+  selectedPrefix: string; // 追加
+  setSelectedPrefix: (p: string) => void; // 追加
 };
 
 const useRagKnowledgeBasePageState = create<StateType>((set) => {
@@ -26,11 +30,19 @@ const useRagKnowledgeBasePageState = create<StateType>((set) => {
         content: s,
       }));
     },
+    selectedPrefix: '', // 追加
+    setSelectedPrefix: (p: string) => {
+      // 追加
+      set(() => ({
+        selectedPrefix: p,
+      }));
+    },
   };
 });
 
 const RagKnowledgeBasePage: React.FC = () => {
-  const { content, setContent } = useRagKnowledgeBasePageState();
+  const { content, setContent, selectedPrefix, setSelectedPrefix } =
+    useRagKnowledgeBasePageState(); // 状態を追加
   const { pathname, search } = useLocation();
   const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } =
@@ -38,6 +50,8 @@ const RagKnowledgeBasePage: React.FC = () => {
   const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
+  // プレフィックス一覧を取得するhookを追加
+  const { prefixes, loading: prefixesLoading } = useKnowledgeBasePrefixes();
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -57,9 +71,9 @@ const RagKnowledgeBasePage: React.FC = () => {
 
   const onSend = useCallback(() => {
     setFollowing(true);
-    postMessage(content);
+    postMessage(content, selectedPrefix); // selectedPrefixを追加
     setContent('');
-  }, [content, postMessage, setContent, setFollowing]);
+  }, [content, selectedPrefix, postMessage, setContent, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -74,15 +88,46 @@ const RagKnowledgeBasePage: React.FC = () => {
         </div>
 
         <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
-          <Select
-            value={modelId}
-            onChange={setModelId}
-            options={availableModels.map((m) => {
-              return { value: m, label: m };
-            })}
-          />
+          {/* モデル選択とフォルダ選択を包むコンテナ */}
+          <div className="mb-8 flex w-full max-w-3xl flex-col items-center px-4 sm:mb-0 sm:flex-row sm:gap-4">
+            {/* モデル選択のSelect */}
+            <div className="mb-2 w-72 sm:mb-0 sm:w-64 lg:w-80">
+              <Select
+                value={modelId}
+                onChange={setModelId}
+                options={availableModels.map((m) => ({
+                  value: m,
+                  label: m,
+                }))}
+                label={'モデルを選択'}
+                fullWidth
+              />
+            </div>
+
+            {/* フォルダ選択のSelect */}
+            <div className="w-72 sm:w-64 lg:w-80">
+              <Select
+                value={selectedPrefix}
+                onChange={(value) => {
+                  if (!prefixesLoading) {
+                    setSelectedPrefix(value);
+                  }
+                }}
+                options={[
+                  { value: '', label: 'すべて' },
+                  ...prefixes.map((prefix) => ({
+                    value: prefix,
+                    label: prefix.replace('department/', ''),
+                  })),
+                ]}
+                label={prefixesLoading ? '読み込み中...' : 'フォルダを選択'}
+                fullWidth
+              />
+            </div>
+          </div>
         </div>
 
+        {/* Alertの表示位置を調整 */}
         {isEmpty && (
           <div className="relative flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
             <BedrockIcon className="fill-gray-400" />
@@ -91,7 +136,9 @@ const RagKnowledgeBasePage: React.FC = () => {
 
         {isEmpty && (
           <div
-            className={`absolute inset-x-0 top-28 m-auto flex justify-center`}>
+            className={`absolute inset-x-0 top-36 m-auto flex justify-center sm:top-28`}>
+            {' '}
+            {/* top-28をtop-36に変更 */}
             <Alert severity="info">
               <div>
                 RAG (Retrieval Augmented Generation)

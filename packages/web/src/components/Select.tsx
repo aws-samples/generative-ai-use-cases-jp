@@ -18,6 +18,10 @@ type Props = RowItemProps & {
 
 const Select: React.FC<Props> = (props) => {
   const selectedLabel = useMemo(() => {
+    if (props.value === '') {
+      return props.options.find((o) => o.value === '')?.label || '';
+    }
+    return props.options.find((o) => o.value === props.value)?.label || '';
     return props.value === ''
       ? ''
       : props.options.filter((o) => o.value === props.value)[0].label;

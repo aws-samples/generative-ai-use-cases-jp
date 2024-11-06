@@ -32,6 +32,7 @@ export class RagKnowledgeBase extends Construct {
       timeout: cdk.Duration.minutes(15),
       environment: {
         KNOWLEDGE_BASE_ID: props.knowledgeBaseId,
+        DATA_SOURCE_BUCKET_NAME: props.dataSourceBucketName,
         MODEL_REGION: modelRegion,
       },
     });
@@ -61,6 +62,42 @@ export class RagKnowledgeBase extends Construct {
     retrieveResource.addMethod(
       'POST',
       new LambdaIntegration(retrieveFunction),
+      commonAuthorizerProps
+    );
+
+    // 新しいLambda関数の追加 s3の中身で区切ってknowledgebase検索できるようにプレフィックス一覧を取得する関数
+    const listPrefixesFunction = new NodejsFunction(this, 'ListPrefixes', {
+      runtime: Runtime.NODEJS_20_X,
+      entry: './lambda/listKnowledgeBasePrefixes.ts',
+      timeout: cdk.Duration.minutes(1),
+      environment: {
+        DATA_SOURCE_BUCKET_NAME: props.dataSourceBucketName,
+        MODEL_REGION: modelRegion,
+      },
+    });
+
+    // S3アクセス権限の追加
+    listPrefixesFunction.role?.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        resources: [
+          `arn:aws:s3:::${props.dataSourceBucketName}`,
+          `arn:aws:s3:::${props.dataSourceBucketName}/*`,
+        ],
+        actions: [
+          's3:ListBucket',
+          's3:GetBucketLocation',
+          's3:ListBucketVersions',
+          's3:GetObject',
+        ],
+      })
+    );
+
+    // 新しいAPIエンドポイントの追加
+    const prefixesResource = ragResource.addResource('prefixes');
+    prefixesResource.addMethod(
+      'GET',
+      new LambdaIntegration(listPrefixesFunction),
       commonAuthorizerProps
     );
   }

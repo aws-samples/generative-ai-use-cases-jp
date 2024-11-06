@@ -49,7 +49,7 @@ const useRagKnowledgeBase = (id: string) => {
     messages,
     postChat,
     clear,
-    postMessage: async (content: string) => {
+    postMessage: async (content: string, s3datasource?: string) => {
       setLoading(true);
 
       const modelRegion = import.meta.env.VITE_APP_MODEL_REGION!;
@@ -63,7 +63,7 @@ const useRagKnowledgeBase = (id: string) => {
       let retrievedItems = null;
 
       try {
-        retrievedItems = await retrieve(content);
+        retrievedItems = await retrieve(content, s3datasource);
       } catch (e) {
         console.error(e);
         popMessage();
