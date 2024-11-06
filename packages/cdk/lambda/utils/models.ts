@@ -626,6 +626,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'apac.anthropic.claude-3-5-sonnet-20240620-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-opus-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -666,6 +674,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'apac.anthropic.claude-3-sonnet-20240229-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -683,6 +699,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'eu.anthropic.claude-3-haiku-20240307-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'apac.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
