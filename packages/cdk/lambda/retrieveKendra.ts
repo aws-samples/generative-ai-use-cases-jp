@@ -1,9 +1,5 @@
 import * as lambda from 'aws-lambda';
-import {
-  AttributeFilter,
-  KendraClient,
-  RetrieveCommand,
-} from '@aws-sdk/client-kendra';
+import { KendraClient, RetrieveCommand } from '@aws-sdk/client-kendra';
 import { RetrieveKendraRequest } from 'generative-ai-use-cases-jp';
 
 const INDEX_ID = process.env.INDEX_ID;
@@ -25,25 +21,10 @@ exports.handler = async (
     };
   }
 
-  // デフォルト言語が英語なので、言語設定は必ず行う
-  const attributeFilter: AttributeFilter = {
-    AndAllFilters: [
-      {
-        EqualsTo: {
-          Key: '_language_code',
-          Value: {
-            StringValue: 'ja',
-          },
-        },
-      },
-    ],
-  };
-
   const kendra = new KendraClient({});
   const retrieveCommand = new RetrieveCommand({
     IndexId: INDEX_ID,
     QueryText: query,
-    AttributeFilter: attributeFilter,
   });
 
   const retrieveRes = await kendra.send(retrieveCommand);

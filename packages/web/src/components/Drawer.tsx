@@ -132,7 +132,7 @@ const Drawer: React.FC<Props> = (props) => {
       <nav
         className={`bg-aws-squid-ink flex h-screen w-64 flex-col justify-between text-sm text-white  print:hidden`}>
         <div className="text-aws-smile mx-3 my-2 text-xs">
-          ユースケース <span className="text-gray-400">(生成 AI)</span>
+          Use cases <span className="text-gray-400">(GenAI)</span>
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
           {usecases.map((item, idx) => (
@@ -150,8 +150,8 @@ const Drawer: React.FC<Props> = (props) => {
         {tools.length > 0 && (
           <>
             <ExpandableMenu
-              title="ツール"
-              subTitle="(AI サービス)"
+              title="Tools"
+              subTitle="(AI Services)"
               className="mx-3 my-2 text-xs">
               <div className="mb-2 ml-2 mr-1">
                 {tools.map((item, idx) => (
@@ -169,13 +169,15 @@ const Drawer: React.FC<Props> = (props) => {
             <div className="border-b" />
           </>
         )}
-        <ExpandableMenu title="会話履歴" className="mx-3 my-2 text-xs">
+        <ExpandableMenu
+          title="Conversation History"
+          className="mx-3 my-2 text-xs">
           <div className="relative mb-2 ml-2 mr-1 w-full pl-1.5 pr-7 pt-1">
             <input
               className="bg-aws-squid-ink h-7 w-full rounded-full border border-white pl-8 text-sm text-white focus:border-white focus:ring-0"
               type="text"
               value={searchQuery}
-              placeholder="件名で検索"
+              placeholder="Search by Title"
               onChange={(event) => {
                 setSearchQuery(event.target.value ?? '');
               }}
@@ -188,7 +190,7 @@ const Drawer: React.FC<Props> = (props) => {
         </ExpandableMenu>
         <div className="border-b" />
         <ExpandableMenu
-          title="リンク"
+          title="Links"
           defaultOpened={false}
           className="mx-3 my-2 text-xs">
           <div className="mb-2 ml-2">

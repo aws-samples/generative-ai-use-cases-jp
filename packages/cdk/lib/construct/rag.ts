@@ -279,7 +279,6 @@ export class Rag extends Construct {
         type: 'S3',
         name: 's3-data-source',
         roleArn: s3DataSourceRole.roleArn,
-        languageCode: 'ja',
         dataSourceConfiguration: {
           s3Configuration: {
             bucketName: dataSourceBucket.bucketName,

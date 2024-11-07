@@ -133,8 +133,8 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   return (
     <div className="relative size-full">
       <Card
-        label="チャット形式で画像生成"
-        help="チャット形式でプロンプトの生成と設定、画像生成を自動で行います。"
+        label="Image generation in chat format"
+        help="It automatically generates and configures prompts in chat format and generates images."
         className={`${props.className ?? ''} h-full pb-32`}>
         <div className="mb-2 flex w-full">
           <Select
@@ -152,27 +152,34 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
             <div className="rounded border border-gray-400 bg-gray-100/50 p-2 text-gray-600">
               <div className="flex items-center font-bold">
                 <PiLightbulbFilamentBold className="mr-2" />
-                ヒント
+                Hints
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                具体的かつ詳細な指示を出すようにしましょう。
-                形容詞や副詞を使って、正確に表現することが重要です。
+                Let's make sure to give specific and detailed instructions. It's
+                important to express accurately using adjectives and adverbs.
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                「犬が遊んでいる」ではなく、「柴犬が草原で楽しそうに走り回っている」のように具体的に指示をしましょう。
+                Instead of saying "The dog is playing," let's give more specific
+                instructions like "The Shiba Inu is happily running around in
+                the meadow."
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                文章で書くことが難しい場合は、文章で書く必要はありません。「元気、ボール遊び、ジャンプしている」のように、特徴を羅列して指示をしましょう。
+                If it's difficult to write in sentences, you don't need to write
+                in sentences. Let's give instructions by listing features, such
+                as "energetic, playing with a ball, jumping."
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                除外して欲しい要素も指示することができます。「人間は出力しない」など。
+                You can also specify elements you want to exclude. For example,
+                "humans do not output" and so on.
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                LLM
-                が会話の流れを考慮してくれるので、「やっぱり犬じゃなくて猫にして」などの会話形式の指示もできます。
+                LLMs can consider the flow of conversation, so conversational
+                instructions like "Actually, let's make it a cat instead of a
+                dog" are possible.
               </div>
               <div className="m-1 rounded border p-2 text-sm">
-                プロンプトで意図した画像が生成できない場合は、初期画像の設定やパラメータの変更を試してみましょう。
+                If the intended image cannot be generated with the prompt, try
+                changing the initial image settings or parameters.
               </div>
             </div>
           )}
@@ -194,14 +201,14 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 <div>
                   <div className="flex items-center gap-2 font-bold text-red-500">
                     <PiWarningFill />
-                    エラー
+                    Error
                   </div>
                   <div className="text-gray-600">
-                    プロンプト生成中にエラーが発生しました。
+                    An error occurred while generating the prompt.
                   </div>
                   <div className="mt-3 flex w-full justify-center">
                     <Button outlined onClick={onRetrySend}>
-                      再実行
+                      Re-generate
                     </Button>
                   </div>
                 </div>
@@ -211,7 +218,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                 !c.content.error && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                    プロンプト生成中
+                    Generating prompts...
                   </div>
                 )}
               {c.role === 'assistant' && c.content.prompt !== null && (
@@ -222,11 +229,11 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                     <>
                       <div className="flex items-center gap-2 text-gray-600">
                         <div className="size-5 rounded-full border-4 border-gray-600"></div>
-                        プロンプト生成完了
+                        Prompt generation complete
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
-                        画像生成中
+                        Generating images...
                       </div>
                     </>
                   ) : (
@@ -235,7 +242,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                         <div key={idx}>{m}</div>
                       ))}
                       <div className="mt-3">
-                        <div className="font-bold">おすすめの StylePreset</div>
+                        <div className="font-bold">Recommended StylePreset</div>
                         <div className="mt-1 grid grid-cols-2 gap-1 xl:flex xl:gap-3">
                           {c.content.recommendedStylePreset.flatMap(
                             (preset, idx) => (
@@ -261,7 +268,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
                                 ''
                               );
                             }}>
-                            未設定
+                            Unset
                           </Button>
                         </div>
                       </div>
@@ -274,7 +281,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
         </div>
         <div className="absolute bottom-0 z-0 -ml-2 flex w-full items-end justify-center pr-6">
           <InputChatContent
-            placeholder="出力したい画像の概要を入力"
+            placeholder="Enter a description of the image you want to output"
             fullWidth
             hideReset
             content={props.content}

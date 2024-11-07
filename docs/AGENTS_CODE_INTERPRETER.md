@@ -1,113 +1,113 @@
-# Code Interpreter Agent の作成
-Agents for Amazon Bedrock では、Code Interpreter を利用したデータの可視化、データの分析、コードの実行などが可能です。  
-例えば、以下のようにチャット欄に csv データを添付して、データの可視化を指示できます。
+# Creating a Code Interpreter Agent
+With Agents for Amazon Bedrock, you can visualize data, analyze data, and execute code using the Code Interpreter.
+For example, you can attach CSV data in the chat box and instruct the agent to visualize the data, as shown below.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804125219685.png)
 
-Code Interpreter 機能を持つ Agent の作成方法を紹介します。詳細なパラメーターは各環境に合わせて変更してください。
+This guide will introduce how to create an Agent with the Code Interpreter functionality. Please modify the detailed parameters according to your environment.
 
-# Agents for Amazon Bedrock の作成
-現在、Code Interpreter 機能を持つ Agent を手動で作成する必要があります。これは、CDK や CloudFormation で Code Interpreter 機能を持つ Agent を作成できないためです。  
-この手順は、今後のアップデートによって自動化される可能性がある点をご留意ください。  
+# Creating Agents for Amazon Bedrock
+Currently, you need to manually create an Agent with the Code Interpreter functionality. This is because you cannot create an Agent with the Code Interpreter functionality using CDK or CloudFormation.
+Please note that this process may be automated in future updates.
 
-それでは、Code Interpreter 機能を持つ Agent を手動で作成する手順を紹介します。  
-まず、[AWS マネジメントコンソールで Agent の作成画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/agents)を開きます。  
-作成先のリージョンは、GenU で利用する Bedrock のリージョンに合わせて変更してください。バージニア北部か、オレゴンがよくある選択肢になると思います。  
-リージョンを選択したあとに、Create Agent を選択します。
+Here are the steps to manually create an Agent with the Code Interpreter functionality.
+First, open the [AWS Management Console Agent creation screen](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/agents).
+Change the region to match the region where you are using Bedrock with GenU. Common choices are US East (Northern Virginia) or US West (Oregon).
+After selecting the region, choose Create Agent.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804101102518.png)<br><br><br>
 
-Agent の名前は任意のものでよいですが、この手順上では `GenU-Code-Interpreter` と指定して Create を押します。  
+The Agent name can be anything, but in this guide, we'll specify `GenU-Code-Interpreter` and press Create.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804101326104.png)<br><br><br>
 
-Agent の設定をしていきます。
+Configure the Agent settings.
 
-- Select model : Claude 3 Sonnet を選択します。適宜、好みのモデル選択します。
-- Instructions for Agent : 後述のプロンプトを指定します。
+- Select model: Choose Claude 3 Sonnet. You can choose your preferred model.
+- Instructions for Agent: Specify the prompt described below.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804102335495.png)<br><br><br>
 
-プロンプトですが、[AWS Developers の YouTube 動画](https://www.youtube.com/watch?v=zC_qLlm2se0)で紹介されていた[プロンプト](https://github.com/build-on-aws/agents-for-amazon-bedrock-sample-feature-notebooks/blob/main/notebooks/preview-agent-code-interpreter.ipynb)を参考に日本語で指定します。Agent 側が何ができるのかを明示しながら、対話スタイルを指示しているのが印象的です。環境に合わせて任意のプロンプトに書き換えることも可能です。
+For the prompt, we'll refer to the [prompt](https://github.com/build-on-aws/agents-for-amazon-bedrock-sample-feature-notebooks/blob/main/notebooks/preview-agent-code-interpreter.ipynb) introduced in the [AWS Developers YouTube video](https://www.youtube.com/watch?v=zC_qLlm2se0) and specify it in Japanese. It's impressive how it explicitly states what the Agent can do while instructing the conversational style. You can also modify the prompt according to your environment.
 
 ```
-あなたは、コード実行、チャート生成、複雑なデータ分析の機能を持つ高度な AI エージェントです。あなたの主な機能は、これらの機能を活用して問題を解決し、ユーザーの要求を満たすことです。あなたの主な特性と指示は次のとおりです。
+You are an advanced AI agent with code execution, chart generation, and complex data analysis capabilities. Your primary function is to leverage these capabilities to solve problems and meet user demands. Your main characteristics and instructions are as follows:
 
-コード実行:
-- リアルタイムで Python 環境にアクセスし、コードを記述および実行できます。
-- 計算やデータ操作を求められた場合は、常に正確性を確保するためにこのコード実行機能を使用してください。
-- コードを実行した後、正確な出力を報告し、結果を説明してください。
+Code Execution:
+- You can access a Python environment in real-time, write and execute code.
+- Whenever you are asked to perform calculations or data manipulations, always use this code execution capability to ensure accuracy.
+- After executing the code, report the accurate output and explain the results.
 
-データ分析:
-- 統計分析、データ可視化、機械学習アプリケーションなど、複雑なデータ分析タスクに優れています。
-- 問題を理解し、データを準備し、分析を実行し、結果を解釈するなど、体系的にデータ分析タスクに取り組んでください。
+Data Analysis:
+- You excel at complex data analysis tasks such as statistical analysis, data visualization, and machine learning applications.
+- Approach data analysis tasks systematically by understanding the problem, preparing the data, performing the analysis, and interpreting the results.
 
-問題解決アプローチ:
-- 問題や要求が提示された場合は、それを段階に分けてください。
-- 考え方のプロセスと取っている手順を明確に伝えてください。
-- タスクが複数の手順やツールを必要とする場合は、開始前にアプローチを概説してください。
+Problem-Solving Approach:
+- When presented with a problem or request, break it down into steps.
+- Clearly communicate your thought process and the steps you are taking.
+- If a task requires multiple steps or tools, outline your approach before starting.
 
-透明性と正確性:
-- 自分が何をしているかを常に明確にしてください。コードを実行する場合は、そのことを伝えてください。画像を生成する場合は、その旨を説明してください。
-- 何かを確信できない場合や、タスクが自分の能力を超えている場合は、はっきりとそのことを伝えてください。
-- 仮説的な結果を実際の結果として提示しないでください。コード実行や画像生成から得られた実際の結果のみを報告してください。
+Transparency and Accuracy:
+- Always be clear about what you are doing. If you are executing code, communicate that. If you are generating images, explain that.
+- If you are unsure about something or if a task is beyond your capabilities, clearly communicate that.
+- Do not present hypothetical results as actual results. Only report actual results obtained from code execution or image generation.
 
-対話スタイル:
-- 単純な質問には簡潔に、複雑なタスクには詳細な説明を提供してください。
-- 適切に専門用語を使いますが、分かりやすい説明を求められた場合は、簡単な言葉で説明する準備をしてください。
-- 役立つ関連情報や代替アプローチを積極的に提案してください。
+Conversational Style:
+- Provide concise responses for simple questions, and detailed explanations for complex tasks.
+- Use appropriate technical terms, but be prepared to explain in simpler terms if asked for a more understandable explanation.
+- Proactively suggest helpful related information or alternative approaches.
 
-継続的改善:
-- タスクを完了した後、ユーザーに説明が必要かどうか、フォローアップの質問があるかどうかを尋ねてください。
-- フィードバックに耳を傾け、それに応じてアプローチを調整してください。
+Continuous Improvement:
+- After completing a task, ask the user if further explanation or follow-up questions are needed.
+- Listen to feedback and adjust your approach accordingly.
 
-あなたの目標は、コード実行、画像生成、データ分析の独自の機能を活用して、正確で役立つ洞察に富む支援を提供することです。ユーザーの要求に対して、最も実用的で効果的な解決策を提供するよう常に努めてください。
+Your goal is to provide accurate and insightful support by leveraging your unique capabilities in code execution, image generation, and data analysis. Always strive to provide the most practical and effective solutions to meet user demands.
 ```
 
 <br><br><br>
 
-以下のパラメータを指定します。
-- Code Interpreter : 利用したいので Enable にします
-- User Input : ユーザーの指示が不明瞭のときに、Agent 側から意図を明確にするための質問を許可するものです。この手順では Disable にします。
+Specify the following parameters:
+- Code Interpreter: Enable it since you want to use it.
+- User Input: This allows the Agent to ask clarifying questions when the user's instructions are unclear. In this guide, we'll disable it.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804113300409.png)<br><br><br>
 
-残りの設定はデフォルトのままにしておきます。
+Leave the remaining settings as default.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804103208797.png)<br><br><br>
 
-Save and exit を押します。
+Press Save and exit.
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804103229683.png)<br><br><br>
 
-Prepare を押します。
+Press Prepare.
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804103714354.png)<br><br><br>
 
-Create Alias を押します。
+Press Create Alias.
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804103540739.png)<br><br><br>
 
-適当に名前を付与します。
+Give it an appropriate name.
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804113704597.png)<br><br><br>
 
-Agent の ID を控えます
-> 例 : KYBC1UF5SE
+Note down the Agent ID.
+> Example: KYBC1UF5SE
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804113937216.png)<br><br><br>
 
-Alias の ID も控えます。
-> 例 : MZ9UDFUU7E
+Also, note down the Alias ID.
+> Example: MZ9UDFUU7E
 
 ![image](assets/AGENTS_CODE_INTERPRETER/image-20240804114236593.png)<br><br><br>
 
-# cdk.json を編集して デプロイ
-これで設定が完了したため、cdk.json の値を変更します。
+# Edit cdk.json and Deploy
+Now that the setup is complete, change the values in cdk.json.
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-- agentEnabled: true に指定する
-- agentRegion : Agent を作成したリージョンを指定する。us-west-2 (オレゴン)、us-east-1 (バージニア北部)
-- displayName : GenU の Web 画面上に表示する名前。任意のものを指定可能
-- agentId : 控えた Agent の ID を指定
-- aliasId : 控えた Alias の ID を指定
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+- Set agentEnabled: true
+- Set agentRegion: Specify the region where you created the Agent, e.g., us-west-2 (Oregon), us-east-1 (Northern Virginia)
+- displayName: Specify the name to be displayed on the GenU Web interface. You can choose any name.
+- agentId: Specify the noted Agent ID
+- aliasId: Specify the noted Alias ID
 ```
 {
   "context": {
@@ -124,7 +124,7 @@ Alias の ID も控えます。
 }
 ```
 
-その後、デプロイを行うと反映されます
+After that, deploy to apply the changes.
 
 ```
 npm run cdk:deploy

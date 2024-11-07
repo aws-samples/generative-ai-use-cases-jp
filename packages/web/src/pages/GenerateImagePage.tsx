@@ -667,9 +667,9 @@ const GenerateImagePage: React.FC = () => {
     <div className="grid h-screen grid-cols-12 gap-4 p-4">
       <ModalDialog
         isOpen={isOpenSketch}
-        title="初期画像の設定"
+        title="Initial image setting"
         className="w-[530px]"
-        help="画像生成の初期状態として使われます。指定した画像に近い画像が生成されます。"
+        help="It is used as the initial state for image generation. An image similar to the specified image will be generated."
         onClose={() => {
           setIsOpenSketch(false);
         }}>
@@ -685,9 +685,9 @@ const GenerateImagePage: React.FC = () => {
       </ModalDialog>
       <ModalDialog
         isOpen={isOpenMask}
-        title="マスク画像の設定"
+        title="Mask image setting"
         className="w-[530px]"
-        help="画像生成のマスクとして使われます。マスクした範囲（Inpaint）もしくは外側（Outpaint）が生成されます。"
+        help="It is used as a mask for image generation. The masked area (Inpaint) or the outside (Outpaint) is generated."
         onClose={() => {
           setIsOpenMask(false);
         }}>
@@ -775,8 +775,8 @@ const GenerateImagePage: React.FC = () => {
           </div>
 
           <Textarea
-            label="プロンプト"
-            help="生成したい画像の説明を記載してください。文章ではなく、単語の羅列で記載します。"
+            label="Prompt"
+            help="Please describe the image you want to generate. List words, not sentences."
             value={prompt}
             onChange={setPrompt}
             maxHeight={60}
@@ -784,8 +784,8 @@ const GenerateImagePage: React.FC = () => {
           />
 
           <Textarea
-            label="ネガティブプロンプト"
-            help="生成したくない要素、排除したい要素を記載してください。文章ではなく、単語の羅列で記載します。"
+            label="Negative prompt"
+            help="Please list any elements you do not want to generate or exclude. List them as individual words, not sentences."
             value={negativePrompt}
             onChange={setNegativePrompt}
             maxHeight={60}
@@ -794,7 +794,7 @@ const GenerateImagePage: React.FC = () => {
 
           <div className="grid w-full grid-cols-2 gap-2">
             <Select
-              label="モデル"
+              label="Model"
               value={imageGenModelId}
               onChange={setImageGenModelId}
               options={imageGenModelIds.map((m) => {
@@ -802,7 +802,7 @@ const GenerateImagePage: React.FC = () => {
               })}
             />
             <Select
-              label="サイズ"
+              label="Size"
               value={resolution.value}
               onChange={(value: string) => {
                 const selectedResolution = resolutionPresets.find(
@@ -828,7 +828,7 @@ const GenerateImagePage: React.FC = () => {
                 onChange={(n) => {
                   setSeed(n, selectedImageIndex);
                 }}
-                help="乱数のシード値です。同じシード値を指定すると同じ画像が生成されます。"
+                help="This is the seed value for random numbers. Specifying the same seed value will generate the same image."
               />
               <ButtonIcon
                 className="absolute -top-0.5 right-[8.2rem]"
@@ -839,17 +839,17 @@ const GenerateImagePage: React.FC = () => {
 
             <RangeSlider
               className="col-span-2 lg:col-span-1"
-              label="画像生成数"
+              label="Number of images generated"
               min={1}
               max={7}
               value={imageSample}
               onChange={setImageSample}
-              help="Seed をランダム設定しながら画像を指定の数だけ同時に生成します。"
+              help="Generates the specified number of images simultaneously while randomly setting the seed."
             />
           </div>
 
           <ExpandableField
-            label="詳細なパラメータ"
+            label="Advanced parameters"
             overrideExpanded={detailExpanded}
             setOverrideExpanded={setDetailExpanded}>
             <div className="grid grid-cols-2 gap-2 pt-4">
@@ -865,11 +865,11 @@ const GenerateImagePage: React.FC = () => {
                   {generationMode !== GENERATION_MODES.TEXT_IMAGE && (
                     <div className="flex flex-col items-center">
                       <div className="mb-1 flex items-center text-sm font-bold">
-                        初期画像
+                        Initial image
                         <Help
                           className="ml-1"
                           position="center"
-                          message="画像生成の初期状態となる画像を設定できます。初期画像を設定することで、初期画像に近い画像を生成するように誘導できます。"
+                          message="It is used as the initial state for image generation. An image similar to the specified image will be generated."
                         />
                       </div>
                       <Base64Image
@@ -882,18 +882,18 @@ const GenerateImagePage: React.FC = () => {
                           setIsOpenSketch(true);
                         }}>
                         <PiFileArrowUp className="mr-2" />
-                        設定
+                        Set
                       </Button>
                     </div>
                   )}
                   {maskMode && (
                     <div className="flex flex-col items-center">
                       <div className="mb-1 flex items-center text-sm font-bold">
-                        マスク画像
+                        Mask image
                         <Help
                           className="ml-1"
                           position="center"
-                          message="画像のマスクを設定できます。マスク画像を設定することで、マスクされた領域（Inpaint）もしくは外側の領域（Outpaint)を生成できます。マスクプロンプトと併用はできません。"
+                          message="It is used as a mask for image generation. The masked area (Inpaint) or the outside (Outpaint) is generated."
                         />
                       </div>
                       <Base64Image
@@ -907,15 +907,15 @@ const GenerateImagePage: React.FC = () => {
                           setIsOpenMask(true);
                         }}>
                         <PiFileArrowUp className="mr-2" />
-                        設定
+                        Set
                       </Button>
                     </div>
                   )}
                 </div>
                 {maskMode && maskPromptSupported && (
                   <Textarea
-                    label="マスクプロンプト"
-                    help="マスクしたい/排除したい要素（Inpaint）、マスクしたくない/残したい要素（Outpaint）を記載してください。文章ではなく、単語の羅列で記載します。マスク画像と併用はできません。"
+                    label="Mask prompt"
+                    help="Please list the elements you want to inpaint (mask/exclude) and the elements you want to outpaint (keep/retain). List them as individual words, not sentences. Cannot be used in conjunction with mask images."
                     value={maskPrompt}
                     onChange={setMaskPrompt}
                     maxHeight={60}
@@ -945,7 +945,7 @@ const GenerateImagePage: React.FC = () => {
                   max={30}
                   value={cfgScale}
                   onChange={setCfgScale}
-                  help="この値が高いほどプロンプトに対して忠実な画像を生成します。"
+                  help="The higher this value, the more faithful the image generated will be to the prompt."
                 />
 
                 <RangeSlider
@@ -955,7 +955,7 @@ const GenerateImagePage: React.FC = () => {
                   max={50}
                   value={step}
                   onChange={setStep}
-                  help="画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。"
+                  help="This is the number of iterations for image generation. The more steps, the more refined the image will be, but it will take longer to generate."
                 />
 
                 {generationMode === GENERATION_MODES.IMAGE_VARIATION && (
@@ -967,7 +967,7 @@ const GenerateImagePage: React.FC = () => {
                     step={0.01}
                     value={imageStrength}
                     onChange={setImageStrength}
-                    help="1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。"
+                    help="The closer to 1, the more similar the generated image will be to the initial image, and the closer to 0, the more different the generated image will be from the initial image."
                   />
                 )}
               </div>
@@ -991,7 +991,7 @@ const GenerateImagePage: React.FC = () => {
                   !maskImage.imageBase64 &&
                   !maskPrompt)
               }>
-              生成
+              Generate
             </Button>
 
             <Button
@@ -1001,7 +1001,7 @@ const GenerateImagePage: React.FC = () => {
                 clearAll();
               }}
               disabled={generating || loadingChat}>
-              クリア
+              Clear
             </Button>
           </div>
         </Card>

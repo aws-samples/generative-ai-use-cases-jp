@@ -72,7 +72,7 @@ const ChatList: React.FC<Props> = (props) => {
               onClick={() => {
                 loadMore();
               }}>
-              さらに読み込む
+              Load more
             </button>
           </div>
         )}
