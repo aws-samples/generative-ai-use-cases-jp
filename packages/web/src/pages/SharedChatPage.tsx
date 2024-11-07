@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import useChatApi from '../hooks/useChatApi';
 import ChatMessage from '../components/ChatMessage';
 import BedrockIcon from '../assets/bedrock.svg?react';
+import ScrollTopBottom from '../components/ScrollTopBottom';
 
 const SharedChatPage: React.FC = () => {
   const { shareId } = useParams();
@@ -85,6 +86,10 @@ const SharedChatPage: React.FC = () => {
                 <div className="w-full border-b border-gray-300"></div>
               </div>
             ))}
+
+            <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+              <ScrollTopBottom />
+            </div>
           </>
         )}
 

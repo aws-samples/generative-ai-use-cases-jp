@@ -14,7 +14,8 @@ import Textarea from '../components/Textarea';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import useFollow from '../hooks/useFollow';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
@@ -129,7 +130,7 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
@@ -430,7 +431,10 @@ const ChatPage: React.FC = () => {
               </div>
             ))}
         </div>
-        <div ref={scrolledAnchor} />
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (
