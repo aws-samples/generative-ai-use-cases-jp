@@ -5,7 +5,8 @@ import useChat from '../hooks/useChat';
 import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import useFollow from '../hooks/useFollow';
 import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import { AgentPageQueryParams } from '../@types/navigate';
@@ -76,7 +77,7 @@ const AgentChatPage: React.FC = () => {
     postChat,
     updateSystemContextByModel,
   } = useChat(pathname, chatId);
-  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
@@ -215,7 +216,10 @@ const AgentChatPage: React.FC = () => {
               </div>
             ))}
         </div>
-        <div ref={scrolledAnchor} />
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           <InputChatContent
