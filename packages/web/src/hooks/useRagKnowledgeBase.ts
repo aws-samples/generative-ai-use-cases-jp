@@ -5,6 +5,7 @@ import { getPrompter } from '../prompts';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { cleanEncode } from '../utils/URLUtils';
+import { arrangeItems } from './useRag';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
@@ -117,11 +118,12 @@ const useRagKnowledgeBase = (id: string) => {
               : [],
           };
         });
+      const items = arrangeItems(retrievedItemsKendraFormat);
 
       updateSystemContext(
         prompter.ragPrompt({
           promptType: 'SYSTEM_CONTEXT',
-          referenceItems: retrievedItemsKendraFormat,
+          referenceItems: items,
         })
       );
 
@@ -139,7 +141,7 @@ const useRagKnowledgeBase = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = retrievedItemsKendraFormat
+          const footnote = items
             .map((item, idx) => {
               // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
               const _excerpt_page_number = item.DocumentAttributes?.find(

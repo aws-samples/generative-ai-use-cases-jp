@@ -18,7 +18,9 @@ const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
   return `${uri}_${pageNumber}`;
 };
 
-const arrangeItems = (items: RetrieveResultItem[]): RetrieveResultItem[] => {
+export const arrangeItems = (
+  items: RetrieveResultItem[]
+): RetrieveResultItem[] => {
   const res: Record<string, RetrieveResultItem> = {};
 
   for (const item of items) {
