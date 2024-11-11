@@ -32,41 +32,5 @@ export default {
     require('@tailwindcss/typography'),
     require('tailwind-scrollbar'),
     require('@tailwindcss/forms'),
-    function ({ addUtilities, theme, e }) {
-      const colorUtility = {
-        '.text-color-auto': {
-          color: 'var(--auto-text-color)',
-        },
-      };
-
-      addUtilities(colorUtility);
-
-      const backgroundColorUtilities = Object.entries(
-        theme('backgroundColor')
-      ).reduce((acc, [key, value]) => {
-        if (key === 'DEFAULT') return acc;
-
-        // 色の値が文字列で、'inherit'や'transparent'などの特殊なキーワードでない場合のみ処理
-        if (
-          typeof value === 'string' &&
-          !['inherit', 'transparent', 'currentColor'].includes(value)
-        ) {
-          try {
-            const color = Color(value);
-            const textColor = color.isLight() ? '#000' : '#fff';
-
-            acc[`.${e(`bg-${key}`)}`] = {
-              '--auto-text-color': textColor,
-            };
-          } catch (error) {
-            console.warn(`Unable to parse color: ${value}`);
-          }
-        }
-
-        return acc;
-      }, {});
-
-      addUtilities(backgroundColorUtilities, ['responsive', 'hover']);
-    },
   ],
 };

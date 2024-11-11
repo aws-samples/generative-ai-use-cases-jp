@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Card from '../../components/Card';
 import { CustomUseCaseMeta } from 'generative-ai-use-cases-jp';
 import ButtonIcon from '../../components/ButtonIcon';
@@ -15,15 +15,12 @@ import ModalDialogShareUseCase from '../../components/useCaseBuilder/ModalDialog
 import ButtonFavorite from '../../components/useCaseBuilder/ButtonFavorite';
 import ButtonShare from '../../components/useCaseBuilder/ButtonShare';
 import ButtonUseCaseEdit from '../../components/useCaseBuilder/ButtonUseCaseEdit';
-import { useCaseBuilderSamplePrompts } from '../../prompts/useCaseBuilderSamples';
+import {
+  SamplePromptType,
+  useCaseBuilderSamplePrompts,
+} from '../../prompts/useCaseBuilderSamples';
 
-type CardSampleProps = {
-  title: string;
-  description: string;
-  icon: ReactNode;
-  category: string;
-  promptTemplate: string;
-};
+type CardSampleProps = SamplePromptType;
 
 const CardSample: React.FC<CardSampleProps> = (props) => {
   const navigate = useNavigate();
@@ -34,16 +31,50 @@ const CardSample: React.FC<CardSampleProps> = (props) => {
         title: props.title,
         promptTemplate: props.promptTemplate,
         description: props.description,
+        inputExamples: props.inputExamples,
       },
     });
-  }, [navigate, props.description, props.promptTemplate, props.title]);
+  }, [
+    navigate,
+    props.description,
+    props.inputExamples,
+    props.promptTemplate,
+    props.title,
+  ]);
+
+  const color = useMemo(() => {
+    if (!props.color) {
+      return 'bg-blue-600 text-white';
+    }
+
+    switch (props.color) {
+      case 'blue':
+        return 'bg-blue-600 text-white';
+      case 'red':
+        return 'bg-red-500 text-white';
+      case 'cyan':
+        return 'bg-cyan-600 text-white';
+      case 'green':
+        return 'bg-green-500 text-white';
+      case 'gray':
+        return 'bg-gray-500 text-white';
+      case 'orange':
+        return 'bg-orange-500 text-white';
+      case 'pink':
+        return 'bg-pink-500 text-white';
+      case 'purple':
+        return 'bg-purple-500 text-white';
+      case 'yellow':
+        return 'bg-yellow-500 text-white';
+    }
+  }, [props.color]);
 
   return (
     <div
       className="flex cursor-pointer rounded-lg border-2 p-3 hover:bg-gray-100"
       onClick={onClick}>
       <div className="flex items-center">
-        <div className="bg-aws-sky  text-color-auto rounded-xl border p-2 text-3xl  shadow-md">
+        <div className={`${color} rounded-xl border p-2 text-3xl  shadow-md`}>
           {props.icon}
         </div>
         <div className="ml-2 flex flex-col">
@@ -138,6 +169,8 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                           category={sample.category}
                           description={sample.description}
                           promptTemplate={sample.promptTemplate}
+                          inputExamples={sample.inputExamples}
+                          color={sample.color}
                         />
                       );
                     })}

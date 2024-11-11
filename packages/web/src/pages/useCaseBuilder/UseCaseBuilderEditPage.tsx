@@ -22,12 +22,12 @@ import {
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
 
-// 途中でプレースホルダーの項目名（exampleの項目名）が書き換わることがあるため、配列でexamplesを管理
-// DBに登録するタイミングでObjectに変換する
-type TemporayInputExample = {
-  title: string;
-  examples: string[];
-};
+// // 途中でプレースホルダーの項目名（exampleの項目名）が書き換わることがあるため、配列でexamplesを管理
+// // DBに登録するタイミングでObjectに変換する
+// type TemporayInputExample = {
+//   title: string;
+//   examples: string[];
+// };
 
 type StateType = {
   useCaseId: string | null;
@@ -38,10 +38,11 @@ type StateType = {
   setDescription: (s: string) => void;
   promptTemplate: string;
   setPromptTemplate: (s: string) => void;
-  inputExamples: TemporayInputExample[];
-  pushInputExample: (inputExample: TemporayInputExample) => void;
+  inputExamples: UseCaseInputExample[];
+  pushInputExample: (inputExample: UseCaseInputExample) => void;
   removeInputExample: (index: number) => void;
-  setInputExample: (index: number, inputExample: TemporayInputExample) => void;
+  setInputExample: (index: number, inputExample: UseCaseInputExample) => void;
+  setInputExamples: (inputExamples: UseCaseInputExample[]) => void;
   clear: () => void;
 };
 
@@ -96,29 +97,46 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
         }),
       }));
     },
+    setInputExamples: (inputExamples) => {
+      set(() => ({
+        inputExamples: inputExamples,
+      }));
+    },
     clear: () => {
       set(INIT_STATE);
     },
   };
 });
 
-// "入力例"の変数をDB格納用の形式に変換する
-const convertInputExamples = (
-  itemLables: string[],
-  tmp: TemporayInputExample[]
-): UseCaseInputExample[] => {
-  return tmp.map((t) => {
-    const examples: Record<string, string> = {};
-    itemLables.forEach((label, idx) => {
-      examples[label] = t.examples[idx];
-    });
+// const flattenInputExamples = (
+//   itemLables: string[],
+//   tmp: UseCaseInputExample[]
+// ): TemporayInputExample[] => {
+//   return tmp.map((t) => {
+//     return {
+//       title: t.title,
+//       examples: itemLables.map((label) => t.examples[label]),
+//     };
+//   });
+// };
 
-    return {
-      title: t.title,
-      examples,
-    };
-  });
-};
+// // "入力例"の変数をDB格納用の形式に変換する
+// const convertInputExamples = (
+//   itemLables: string[],
+//   tmp: TemporayInputExample[]
+// ): UseCaseInputExample[] => {
+//   return tmp.map((t) => {
+//     const examples: Record<string, string> = {};
+//     itemLables.forEach((label, idx) => {
+//       examples[label] = t.examples[idx];
+//     });
+
+//     return {
+//       title: t.title,
+//       examples,
+//     };
+//   });
+// };
 
 const UseCaseBuilderEditPage: React.FC = () => {
   const navigate = useNavigate();
@@ -137,6 +155,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     inputExamples,
     pushInputExample,
     setInputExample,
+    setInputExamples,
     removeInputExample,
     clear,
   } = useUseCaseBuilderEditPageState();
@@ -162,10 +181,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setTitle(useCase?.title ?? '');
       setPromptTemplate(useCase?.promptTemplate ?? '');
       setDescription(useCase?.description ?? '');
+      setInputExamples(useCase?.inputExamples ?? []);
     } else if (state) {
+      console.log(state.inputExamples);
       setTitle(state.title ?? '');
       setPromptTemplate(state.promptTemplate ?? '');
       setDescription(state.description ?? '');
+      setInputExamples(state.inputExamples ?? []);
     } else {
       clear();
     }
@@ -182,13 +204,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
     return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
 
-  // 登録用のフォーマットに変換
-  const convertedInputExamples = useMemo(() => {
-    return convertInputExamples(
-      items.map((item) => item.label),
-      inputExamples
-    );
-  }, [inputExamples, items]);
+  // // 登録用のフォーマットに変換
+  // const convertedInputExamples = useMemo(() => {
+  //   return convertInputExamples(
+  //     items.map((item) => item.label),
+  //     inputExamples
+  //   );
+  // }, [inputExamples, items]);
 
   const isUpdate = useMemo(() => {
     return !!useCaseId;
@@ -207,7 +229,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         title,
         promptTemplate,
         description: description === '' ? undefined : description,
-        inputExamples: convertedInputExamples,
+        inputExamples,
       }).finally(() => {
         setIsPosting(false);
       });
@@ -216,7 +238,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         title,
         promptTemplate,
         description: description === '' ? undefined : description,
-        inputExamples: convertedInputExamples,
+        inputExamples,
       })
         .then((res) => {
           setUseCaseId(res.useCaseId);
@@ -226,9 +248,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
         });
     }
   }, [
-    convertedInputExamples,
     createUseCase,
     description,
+    inputExamples,
     isUpdate,
     promptTemplate,
     setUseCaseId,
@@ -323,7 +345,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 }}
               />
             </RowItem>
-            {JSON.stringify(inputExamples)}
             <RowItem>
               <ExpandableField label="入力例">
                 <div className="flex flex-col gap-2">
@@ -349,14 +370,18 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                 key={itemIndex}
                                 label={item.label}
                                 rows={2}
-                                value={inputExample.examples[itemIndex]}
+                                value={
+                                  inputExample.examples
+                                    ? inputExample.examples[item.label]
+                                    : ''
+                                }
                                 onChange={(v) => {
                                   setInputExample(idx, {
                                     title: inputExample.title,
                                     examples: produce(
                                       inputExample.examples,
                                       (draft) => {
-                                        draft[itemIndex] = v;
+                                        draft[item.label] = v;
                                       }
                                     ),
                                   });
@@ -382,9 +407,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   <Button
                     outlined
                     onClick={() => {
+                      const examples: Record<string, string> = {};
+                      items.forEach((item) => {
+                        examples[item.label] = '';
+                      });
                       pushInputExample({
                         title: '',
-                        examples: new Array(items.length).fill(''),
+                        examples,
                       });
                     }}>
                     <PiPlus className="pr-2 text-xl" />
@@ -424,7 +453,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
               title={title}
               promptTemplate={promptTemplate}
               description={description}
-              inputExamples={convertedInputExamples}
+              inputExamples={inputExamples}
               previewMode
             />
           </Card>

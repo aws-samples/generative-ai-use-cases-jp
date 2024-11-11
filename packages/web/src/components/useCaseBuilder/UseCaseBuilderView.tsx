@@ -250,7 +250,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                       onClick={() => {
                         fillInputFromExample(inputExample.examples);
                       }}>
-                      {inputExample.title}
+                      {inputExample.title ? inputExample.title : '[未入力]'}
                     </div>
                   );
                 })}
