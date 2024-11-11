@@ -2,6 +2,7 @@ import { CustomUseCaseMeta } from 'generative-ai-use-cases-jp';
 import React, { useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
+import { PiStarFill } from 'react-icons/pi';
 
 type Props = {
   useCases: CustomUseCaseMeta[];
@@ -25,10 +26,13 @@ const CustomUseCaseDrawerItems: React.FC<Props> = (props) => {
         return (
           <div
             key={usecase.useCaseId}
-            className={`${location.pathname.startsWith(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/`) && useCaseId === usecase.useCaseId ? 'bg-aws-sky' : ''} hover:bg-aws-sky cursor-pointer rounded px-2 py-1`}
+            className={`${location.pathname.startsWith(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/`) && useCaseId === usecase.useCaseId ? 'bg-aws-sky' : ''} hover:bg-aws-sky my-1 flex cursor-pointer items-center gap-2 rounded p-1`}
             onClick={() => {
               onClick(usecase.useCaseId);
             }}>
+            <PiStarFill
+              className={`${usecase.isFavorite ? 'text-aws-smile' : 'text-transparent'}`}
+            />
             {usecase.title}
           </div>
         );

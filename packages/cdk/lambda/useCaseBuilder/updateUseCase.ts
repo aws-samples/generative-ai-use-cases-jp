@@ -10,10 +10,13 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
     const req: UpdateUseCaseRequest = JSON.parse(event.body!);
-    const title = req.title;
-    const promptTemplate = req.promptTemplate;
 
-    await updateUseCase(userId, useCaseId, title, promptTemplate);
+    await updateUseCase(userId, useCaseId, {
+      title: req.title,
+      promptTemplate: req.promptTemplate,
+      description: req.description,
+      inputExamples: req.inputExamples,
+    });
 
     return {
       statusCode: 200,

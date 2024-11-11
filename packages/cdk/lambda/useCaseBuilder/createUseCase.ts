@@ -9,9 +9,13 @@ export const handler = async (
     const req: CreateUseCaseRequest = JSON.parse(event.body!);
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const title = req.title;
-    const promptTemplate = req.promptTemplate;
-    const useCaseIdRes = await createUseCase(userId, title, promptTemplate);
+    const useCaseIdRes = await createUseCase({
+      userId,
+      title: req.title,
+      promptTemplate: req.promptTemplate,
+      description: req.description,
+      inputExamples: req.inputExamples,
+    });
 
     return {
       statusCode: 200,

@@ -15,8 +15,17 @@ type Props = BaseProps & {
 const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
   const navigate = useNavigate();
 
-  const { myUseCases, favoriteUseCases, recentlyUsedUseCases } =
-    useMyUseCases();
+  const { favoriteUseCases, recentlyUsedUseCases } = useMyUseCases();
+
+  const useCases = useMemo(() => {
+    const filteredRecentlyUsed = recentlyUsedUseCases.filter(
+      (uc) =>
+        favoriteUseCases.findIndex((fuc) => fuc.useCaseId === uc.useCaseId) ===
+        -1
+    );
+
+    return [...favoriteUseCases, ...filteredRecentlyUsed];
+  }, [favoriteUseCases, recentlyUsedUseCases]);
 
   const items = useMemo(() => {
     return props.items;
@@ -55,27 +64,12 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
         <div className="mt-2 border-b" />
       </div>
 
-      <ExpandableMenu title="マイユースケース" className="mx-3 my-2 text-xs">
+      <ExpandableMenu title="ユースケース" className="mx-3 my-2 text-xs">
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-          <CustomUseCaseDrawerItems useCases={myUseCases} />
+          <CustomUseCaseDrawerItems useCases={useCases} />
         </div>
       </ExpandableMenu>
       <div className="border-b" />
-
-      <ExpandableMenu title="お気に入り" className="mx-3 my-2 text-xs">
-        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-          <CustomUseCaseDrawerItems useCases={favoriteUseCases} />
-        </div>
-      </ExpandableMenu>
-      <div className="border-b" />
-
-      <ExpandableMenu
-        title="最近利用したユースケース"
-        className="mx-3 my-2 text-xs">
-        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
-          <CustomUseCaseDrawerItems useCases={recentlyUsedUseCases} />
-        </div>
-      </ExpandableMenu>
 
       <div className="flex-1"></div>
     </DrawerBase>

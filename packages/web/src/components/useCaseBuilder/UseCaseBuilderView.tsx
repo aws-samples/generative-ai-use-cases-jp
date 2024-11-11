@@ -15,11 +15,18 @@ import ButtonShare from './ButtonShare';
 import ButtonUseCaseEdit from './ButtonUseCaseEdit';
 import Skeleton from '../Skeleton';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
+import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
+import {
+  extractPlaceholdersFromPromptTemplate,
+  getItemsFromPlaceholders,
+} from '../../utils/UseCaseBuilderUtils';
 
 type Props = {
   modelId?: string;
   title: string;
   promptTemplate: string;
+  description?: string;
+  inputExamples?: UseCaseInputExample[];
   isLoading?: boolean;
 } & (
   | {
@@ -40,7 +47,7 @@ type StateType = {
   text: string;
   setText: (s: string) => void;
   values: string[];
-  setValues: (index: number, value: string) => void;
+  setValue: (index: number, value: string) => void;
   clear: (valueLength: number) => void;
 };
 
@@ -56,7 +63,7 @@ const useUseCaseBuilderViewState = create<StateType>((set, get) => {
         text: s,
       }));
     },
-    setValues: (index, value) => {
+    setValue: (index, value) => {
       set(() => ({
         values: produce(get().values, (draft) => {
           draft[index] = value;
@@ -75,7 +82,7 @@ const useUseCaseBuilderViewState = create<StateType>((set, get) => {
 const UseCaseBuilderView: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
 
-  const { text, setText, values, setValues, clear } =
+  const { text, setText, values, setValue, clear } =
     useUseCaseBuilderViewState();
   const {
     getModelId,
@@ -91,19 +98,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const { updateRecentUseUseCase } = useMyUseCases();
 
   const placeholders = useMemo(() => {
-    return props.promptTemplate.match(/\{\{(.+)\}\}/g) ?? [];
+    return extractPlaceholdersFromPromptTemplate(props.promptTemplate);
   }, [props.promptTemplate]);
 
   const items = useMemo(() => {
-    return (
-      placeholders.map((match) => {
-        const [inputType, label] = match.replace(/^\{\{|\}\}$/g, '').split(':');
-        return {
-          inputType,
-          label,
-        };
-      }) ?? []
-    );
+    return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
 
   useEffect(() => {
@@ -155,9 +154,21 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const fillInputFromExample = useCallback(
+    (inputs: Record<string, string>) => {
+      Object.entries(inputs).forEach(([key, value]) => {
+        const index = items.findIndex((item) => item.label === key);
+        if (index > -1) {
+          setValue(index, value);
+        }
+      });
+    },
+    [items, setValue]
+  );
+
   return (
     <div className="relative">
-      <div className="col-span-12 mb-8 flex h-0 items-center justify-center text-xl font-semibold">
+      <div className="col-span-12 mb-4 flex h-0 items-center justify-center text-xl font-semibold">
         {props.isLoading
           ? '読み込み中...'
           : props.title
@@ -187,6 +198,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         </div>
       )}
 
+      <div className="pb-4 text-sm text-gray-600">
+        {props.description ?? ''}
+      </div>
+
       <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
         <Select
           value={modelId}
@@ -213,7 +228,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                   rows={2}
                   value={values[idx]}
                   onChange={(v) => {
-                    setValues(idx, v);
+                    setValue(idx, v);
                   }}
                 />
               </div>
@@ -221,14 +236,37 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           </div>
         </>
       )}
-      <div className="flex justify-end gap-3">
-        <Button outlined onClick={onClickClear} disabled={props.isLoading}>
-          クリア
-        </Button>
+      <div className="flex flex-1 items-end justify-between">
+        <div>
+          {props.inputExamples && props.inputExamples.length > 0 && (
+            <>
+              <div className="mb-1 text-sm font-bold text-gray-600">入力例</div>
+              <div className="flex flex-wrap gap-2">
+                {props.inputExamples.map((inputExample, idx) => {
+                  return (
+                    <div
+                      key={idx}
+                      className="cursor-pointer rounded-full border px-4 py-1 text-sm text-gray-600 hover:bg-gray-100"
+                      onClick={() => {
+                        fillInputFromExample(inputExample.examples);
+                      }}>
+                      {inputExample.title}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="flex shrink-0 gap-3 ">
+          <Button outlined onClick={onClickClear} disabled={props.isLoading}>
+            クリア
+          </Button>
 
-        <Button onClick={onClickExec} disabled={props.isLoading}>
-          実行
-        </Button>
+          <Button onClick={onClickExec} disabled={props.isLoading}>
+            実行
+          </Button>
+        </div>
       </div>
 
       <div className="mt-5 rounded border border-black/30 p-1.5">

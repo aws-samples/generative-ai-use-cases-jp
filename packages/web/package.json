@@ -23,6 +23,7 @@
     "aws-amplify": "^6.3.8",
     "axios": "^1.6.8",
     "buffer": "^6.0.3",
+    "color": "^4.2.3",
     "copy-to-clipboard": "^3.3.3",
     "file-type": "^19.2.0",
     "immer": "^10.0.4",
