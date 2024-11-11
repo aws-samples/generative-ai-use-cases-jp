@@ -1,5 +1,6 @@
 import { produce } from 'immer';
 import useUseCaseBuilderApi from './useUseCaseBuilderApi';
+import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
 
 const useMyUseCases = () => {
   const {
@@ -44,7 +45,12 @@ const useMyUseCases = () => {
     recentlyUsedUseCases: recentlyUsedUseCases ?? [],
     isLoadingRecentlyUsedUseCases,
 
-    createUseCase: (params: { title: string; promptTemplate: string }) => {
+    createUseCase: (params: {
+      title: string;
+      promptTemplate: string;
+      description?: string;
+      inputExamples?: UseCaseInputExample[];
+    }) => {
       return createUseCase(params).finally(() => {
         mutateMyUseCases();
       });
@@ -53,6 +59,8 @@ const useMyUseCases = () => {
       useCaseId: string;
       title: string;
       promptTemplate: string;
+      description?: string;
+      inputExamples?: UseCaseInputExample[];
     }) => {
       // 一覧の更新
       const index = findIndex(params.useCaseId);
@@ -70,6 +78,8 @@ const useMyUseCases = () => {
       return updateUseCase(params.useCaseId, {
         title: params.title,
         promptTemplate: params.promptTemplate,
+        description: params.description,
+        inputExamples: params.inputExamples,
       }).finally(() => {
         mutateMyUseCases();
         mutateFavoriteUseCases();

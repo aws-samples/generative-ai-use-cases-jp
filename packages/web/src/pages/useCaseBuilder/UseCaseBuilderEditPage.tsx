@@ -6,29 +6,52 @@ import { create } from 'zustand';
 import RowItem from '../../components/RowItem';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
 import InputText from '../../components/InputText';
-import { PiQuestion, PiTrash } from 'react-icons/pi';
+import { PiPlus, PiQuestion, PiTrash } from 'react-icons/pi';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
 import UseCaseBuilderHelp from '../../components/useCaseBuilder/UseCaseBuilderHelp';
+import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
+import { produce } from 'immer';
+import ExpandableField from '../../components/ExpandableField';
+import {
+  extractPlaceholdersFromPromptTemplate,
+  getItemsFromPlaceholders,
+} from '../../utils/UseCaseBuilderUtils';
+
+// // 途中でプレースホルダーの項目名（exampleの項目名）が書き換わることがあるため、配列でexamplesを管理
+// // DBに登録するタイミングでObjectに変換する
+// type TemporayInputExample = {
+//   title: string;
+//   examples: string[];
+// };
 
 type StateType = {
   useCaseId: string | null;
   setUseCaseId: (s: string | null) => void;
   title: string;
   setTitle: (s: string) => void;
+  description: string;
+  setDescription: (s: string) => void;
   promptTemplate: string;
   setPromptTemplate: (s: string) => void;
+  inputExamples: UseCaseInputExample[];
+  pushInputExample: (inputExample: UseCaseInputExample) => void;
+  removeInputExample: (index: number) => void;
+  setInputExample: (index: number, inputExample: UseCaseInputExample) => void;
+  setInputExamples: (inputExamples: UseCaseInputExample[]) => void;
   clear: () => void;
 };
 
-const useUseCaseBuilderEditPageState = create<StateType>((set) => {
+const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
   const INIT_STATE = {
     title: '',
+    description: '',
     promptTemplate: '',
+    inputExamples: [],
   };
   return {
     ...INIT_STATE,
@@ -43,9 +66,40 @@ const useUseCaseBuilderEditPageState = create<StateType>((set) => {
         title: s,
       }));
     },
+    setDescription: (s) => {
+      set(() => ({
+        description: s,
+      }));
+    },
     setPromptTemplate: (s) => {
       set(() => ({
         promptTemplate: s,
+      }));
+    },
+    pushInputExample: (inputExample) => {
+      set(() => ({
+        inputExamples: produce(get().inputExamples, (draft) => {
+          draft.push(inputExample);
+        }),
+      }));
+    },
+    removeInputExample: (index) => {
+      set(() => ({
+        inputExamples: produce(get().inputExamples, (draft) => {
+          draft.splice(index, 1);
+        }),
+      }));
+    },
+    setInputExample: (index, inputExample) => {
+      set(() => ({
+        inputExamples: produce(get().inputExamples, (draft) => {
+          draft[index] = inputExample;
+        }),
+      }));
+    },
+    setInputExamples: (inputExamples) => {
+      set(() => ({
+        inputExamples: inputExamples,
       }));
     },
     clear: () => {
@@ -54,16 +108,55 @@ const useUseCaseBuilderEditPageState = create<StateType>((set) => {
   };
 });
 
+// const flattenInputExamples = (
+//   itemLables: string[],
+//   tmp: UseCaseInputExample[]
+// ): TemporayInputExample[] => {
+//   return tmp.map((t) => {
+//     return {
+//       title: t.title,
+//       examples: itemLables.map((label) => t.examples[label]),
+//     };
+//   });
+// };
+
+// // "入力例"の変数をDB格納用の形式に変換する
+// const convertInputExamples = (
+//   itemLables: string[],
+//   tmp: TemporayInputExample[]
+// ): UseCaseInputExample[] => {
+//   return tmp.map((t) => {
+//     const examples: Record<string, string> = {};
+//     itemLables.forEach((label, idx) => {
+//       examples[label] = t.examples[idx];
+//     });
+
+//     return {
+//       title: t.title,
+//       examples,
+//     };
+//   });
+// };
+
 const UseCaseBuilderEditPage: React.FC = () => {
   const navigate = useNavigate();
   const { useCaseId: useCaseIdPathParam } = useParams();
+  const { state } = useLocation();
+
   const {
     title,
     setTitle,
     promptTemplate,
     setPromptTemplate,
+    description,
+    setDescription,
     useCaseId,
     setUseCaseId,
+    inputExamples,
+    pushInputExample,
+    setInputExample,
+    setInputExamples,
+    removeInputExample,
     clear,
   } = useUseCaseBuilderEditPageState();
 
@@ -84,10 +177,40 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setTitle(useCase?.title ?? '');
-    setPromptTemplate(useCase?.promptTemplate ?? '');
+    if (useCaseIdPathParam) {
+      setTitle(useCase?.title ?? '');
+      setPromptTemplate(useCase?.promptTemplate ?? '');
+      setDescription(useCase?.description ?? '');
+      setInputExamples(useCase?.inputExamples ?? []);
+    } else if (state) {
+      console.log(state.inputExamples);
+      setTitle(state.title ?? '');
+      setPromptTemplate(state.promptTemplate ?? '');
+      setDescription(state.description ?? '');
+      setInputExamples(state.inputExamples ?? []);
+    } else {
+      clear();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useCase]);
+
+  // プロンプトテンプレート中にあるプレースホルダ
+  const placeholders = useMemo(() => {
+    return extractPlaceholdersFromPromptTemplate(promptTemplate);
+  }, [promptTemplate]);
+
+  // プレースホルダをObjectに変換
+  const items = useMemo(() => {
+    return getItemsFromPlaceholders(placeholders);
+  }, [placeholders]);
+
+  // // 登録用のフォーマットに変換
+  // const convertedInputExamples = useMemo(() => {
+  //   return convertInputExamples(
+  //     items.map((item) => item.label),
+  //     inputExamples
+  //   );
+  // }, [inputExamples, items]);
 
   const isUpdate = useMemo(() => {
     return !!useCaseId;
@@ -105,6 +228,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
         useCaseId: useCaseId!,
         title,
         promptTemplate,
+        description: description === '' ? undefined : description,
+        inputExamples,
       }).finally(() => {
         setIsPosting(false);
       });
@@ -112,6 +237,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
       createUseCase({
         title,
         promptTemplate,
+        description: description === '' ? undefined : description,
+        inputExamples,
       })
         .then((res) => {
           setUseCaseId(res.useCaseId);
@@ -122,6 +249,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
     }
   }, [
     createUseCase,
+    description,
+    inputExamples,
     isUpdate,
     promptTemplate,
     setUseCaseId,
@@ -179,7 +308,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
             {isUpdate ? 'ユースケース編集' : 'ユースケース新規作成'}
           </div>
         </div>
-        <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
+
+        <div className="col-span-12 lg:col-span-6">
           <Card label="アプリの定義" className="relative">
             <Button
               outlined
@@ -193,6 +323,17 @@ const UseCaseBuilderEditPage: React.FC = () => {
             <RowItem>
               <InputText label="タイトル" value={title} onChange={setTitle} />
             </RowItem>
+
+            <RowItem>
+              <Textarea
+                label="概要"
+                rows={1}
+                value={description}
+                onChange={(v) => {
+                  setDescription(v);
+                }}
+              />
+            </RowItem>
             <RowItem>
               <Textarea
                 label="プロンプトテンプレート"
@@ -203,6 +344,83 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setPromptTemplate(v);
                 }}
               />
+            </RowItem>
+            <RowItem>
+              <ExpandableField label="入力例">
+                <div className="flex flex-col gap-2">
+                  {inputExamples.map((inputExample, idx) => {
+                    return (
+                      <div key={idx} className="rounded border px-4 pt-2">
+                        <div className="flex flex-col">
+                          <InputText
+                            className="mb-2"
+                            label="タイトル"
+                            value={inputExample.title}
+                            onChange={(v) => {
+                              setInputExample(idx, {
+                                ...inputExample,
+                                title: v,
+                              });
+                            }}
+                          />
+
+                          {items.map((item, itemIndex) => {
+                            return (
+                              <Textarea
+                                key={itemIndex}
+                                label={item.label}
+                                rows={2}
+                                value={
+                                  inputExample.examples
+                                    ? inputExample.examples[item.label]
+                                    : ''
+                                }
+                                onChange={(v) => {
+                                  setInputExample(idx, {
+                                    title: inputExample.title,
+                                    examples: produce(
+                                      inputExample.examples,
+                                      (draft) => {
+                                        draft[item.label] = v;
+                                      }
+                                    ),
+                                  });
+                                }}
+                              />
+                            );
+                          })}
+
+                          <div className="mb-2 flex justify-end">
+                            <Button
+                              className="bg-red-600"
+                              onClick={() => {
+                                removeInputExample(idx);
+                              }}>
+                              <PiTrash className="mr-2" />
+                              削除
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <Button
+                    outlined
+                    onClick={() => {
+                      const examples: Record<string, string> = {};
+                      items.forEach((item) => {
+                        examples[item.label] = '';
+                      });
+                      pushInputExample({
+                        title: '',
+                        examples,
+                      });
+                    }}>
+                    <PiPlus className="pr-2 text-xl" />
+                    入力例を追加
+                  </Button>
+                </div>
+              </ExpandableField>
             </RowItem>
             <div className="flex justify-between">
               {isUpdate ? (
@@ -229,11 +447,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
             </div>
           </Card>
         </div>
-        <div className="col-span-12 h-[calc(100vh-2rem)] lg:col-span-6">
+        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
           <Card label="プレビュー">
             <AppBuilderView
               title={title}
               promptTemplate={promptTemplate}
+              description={description}
+              inputExamples={inputExamples}
               previewMode
             />
           </Card>

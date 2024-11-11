@@ -99,6 +99,8 @@ const UseCaseBuilderExecutePage: React.FC = () => {
             <AppBuilderView
               title={useCase?.title ?? ''}
               promptTemplate={useCase?.promptTemplate ?? ''}
+              description={useCase?.description}
+              inputExamples={useCase?.inputExamples}
               hasShared={useCase?.hasShared ?? false}
               isFavorite={useCase?.isFavorite ?? false}
               useCaseId={useCaseId ?? ''}

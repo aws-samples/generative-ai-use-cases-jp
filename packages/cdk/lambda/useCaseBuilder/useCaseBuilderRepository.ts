@@ -4,6 +4,8 @@ import {
   IsFavorite,
   HasShared,
   CustomUseCase,
+  TableUseCase,
+  UseCaseInputExample,
 } from 'generative-ai-use-cases-jp';
 import {
   DeleteCommand,
@@ -59,9 +61,10 @@ export const listUseCases = async (
     (favoriteRes.Items || []).map((item) => item.useCaseId)
   );
 
-  return (useCaseRes.Items || []).map((item) => ({
+  return ((useCaseRes.Items as TableUseCase[]) || []).map((item) => ({
     useCaseId: item.useCaseId,
     title: item.title,
+    description: item.description,
     isFavorite: favoriteSet.has(item.useCaseId),
     hasShared: item.hasShared,
     isMyUseCase: true,
@@ -93,7 +96,7 @@ export const listFavoriteUseCases = async (
 
   const favoriteUseCaseIds = favoriteRes.Items.map((item) => item.useCaseId);
 
-  const useCases = [];
+  const useCases: TableUseCase[] = [];
   for (const favoriteUseCaseId of favoriteUseCaseIds) {
     const useCaseRes = await dynamoDbDocument.send(
       new QueryCommand({
@@ -113,7 +116,7 @@ export const listFavoriteUseCases = async (
     if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
     const useCaseItem = useCaseRes.Items[0];
     if (!useCaseItem) continue;
-    useCases.push(useCaseItem);
+    useCases.push(useCaseItem as TableUseCase);
   }
 
   return useCases
@@ -124,6 +127,7 @@ export const listFavoriteUseCases = async (
     .map((item) => ({
       useCaseId: item.useCaseId,
       title: item.title,
+      description: item.description,
       isFavorite: true,
       hasShared: item.hasShared,
       isMyUseCase: item.id === useCaseUserId,
@@ -153,7 +157,7 @@ export const getUseCase = async (
     })
   );
 
-  const useCase = useCaseRes.Items?.[0];
+  const useCase = useCaseRes.Items?.[0] as TableUseCase | undefined;
 
   if (!useCase || (useCase.id !== useCaseUserId && !useCase.hasShared)) {
     return null;
@@ -172,6 +176,8 @@ export const getUseCase = async (
   return {
     useCaseId: useCase.useCaseId,
     title: useCase.title,
+    description: useCase.description,
+    inputExamples: useCase.inputExamples,
     isFavorite: Boolean(favoriteRes.Item),
     promptTemplate: useCase.promptTemplate,
     hasShared: useCase.hasShared,
@@ -179,18 +185,22 @@ export const getUseCase = async (
   };
 };
 
-export const createUseCase = async (
-  _userId: string,
-  title: string,
-  promptTemplate: string
-): Promise<UseCaseId> => {
-  const userId = `user#useCase#${_userId}`;
+export const createUseCase = async (params: {
+  userId: string;
+  title: string;
+  promptTemplate: string;
+  description?: string;
+  inputExamples?: UseCaseInputExample[];
+}): Promise<UseCaseId> => {
+  const userId = `user#useCase#${params.userId}`;
   const useCaseId = crypto.randomUUID();
-  const item = {
+  const item: TableUseCase = {
     id: userId,
     useCaseId: useCaseId,
-    title: title,
-    promptTemplate: promptTemplate,
+    title: params.title,
+    description: params.description,
+    promptTemplate: params.promptTemplate,
+    inputExamples: params.inputExamples,
     hasShared: false,
   };
 
@@ -207,8 +217,12 @@ export const createUseCase = async (
 export const updateUseCase = async (
   _userId: string,
   useCaseId: string,
-  title: string,
-  promptTemplate: string
+  params: {
+    title: string;
+    promptTemplate: string;
+    description?: string;
+    inputExamples?: UseCaseInputExample[];
+  }
 ): Promise<void> => {
   const userId = `user#useCase#${_userId}`;
   await dynamoDbDocument.send(
@@ -218,10 +232,13 @@ export const updateUseCase = async (
         id: userId,
         useCaseId: useCaseId,
       },
-      UpdateExpression: 'set title = :title, promptTemplate = :promptTemplate',
+      UpdateExpression:
+        'set title = :title, promptTemplate = :promptTemplate, description = :description, inputExamples = :inputExamples',
       ExpressionAttributeValues: {
-        ':title': title,
-        ':promptTemplate': promptTemplate,
+        ':title': params.title,
+        ':promptTemplate': params.promptTemplate,
+        ':description': params.description ?? '',
+        ':inputExamples': params.inputExamples ?? [],
       },
     })
   );
@@ -434,11 +451,12 @@ export const listRecentlyUsedUseCases = async (
 
     if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
 
-    const useCase = useCaseRes.Items[0];
+    const useCase = useCaseRes.Items[0] as TableUseCase;
     if (useCase.id !== useCaseUserId && !useCase.hasShared) continue;
     useCasesMeta.push({
       useCaseId: useCase.useCaseId,
       title: useCase.title,
+      description: useCase.description,
       isFavorite: favoriteSet.has(useCase.useCaseId),
       hasShared: useCase.hasShared,
       isMyUseCase: useCase.id === useCaseUserId,

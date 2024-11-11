@@ -2,18 +2,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link, useNavigate } from 'react-router-dom';
 import useDrawer from '../hooks/useDrawer';
-import {
-  PiGithubLogo,
-  PiBookOpen,
-  PiMagnifyingGlass,
-  PiArrowsClockwise,
-} from 'react-icons/pi';
+import { PiGithubLogo, PiBookOpen, PiMagnifyingGlass } from 'react-icons/pi';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
-import Button from './Button';
 import DrawerItem, { DrawerItemProps } from './DrawerItem';
 import DrawerBase from './DrawerBase';
+import DrawerTabs from './DrawerTabs';
 
 export type ItemProps = DrawerItemProps & {
   display: 'usecase' | 'tool' | 'summit' | 'none';
@@ -84,9 +79,25 @@ const Drawer: React.FC<Props> = (props) => {
   const useCaseBuilderEnabled: boolean =
     import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 
+  const tabItems = useMemo(() => {
+    return [
+      {
+        label: 'GenU',
+        isActive: true,
+      },
+      {
+        label: 'ユースケースビルダー',
+        onClick: () => {
+          navigate('/use-case-builder');
+        },
+      },
+    ];
+  }, [navigate]);
+
   return (
     <>
       <DrawerBase>
+        {useCaseBuilderEnabled && <DrawerTabs items={tabItems} />}
         <div className="text-aws-smile mx-3 my-2 text-xs">
           ユースケース <span className="text-gray-400">(生成 AI)</span>
         </div>
@@ -178,18 +189,6 @@ const Drawer: React.FC<Props> = (props) => {
             />
           </div>
         </ExpandableMenu>
-
-        {useCaseBuilderEnabled && (
-          <div className="flex items-center justify-center border-t border-gray-400 px-3 py-2">
-            <Button
-              onClick={() => {
-                navigate('/use-case-builder');
-              }}>
-              <PiArrowsClockwise className="mr-2" />
-              ユースケースビルダーへ
-            </Button>
-          </div>
-        )}
       </DrawerBase>
     </>
   );
