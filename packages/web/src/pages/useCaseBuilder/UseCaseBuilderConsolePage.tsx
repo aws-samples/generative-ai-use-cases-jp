@@ -155,30 +155,6 @@ const UseCaseBuilderConsolePage: React.FC = () => {
         <Tabs
           tabs={[
             {
-              id: 'samples',
-              label: 'サンプル集',
-              content: (
-                <div className="h-[calc(100vh-10rem)] overflow-y-scroll rounded border p-2">
-                  <div className="grid grid-cols-3 gap-3">
-                    {useCaseBuilderSamplePrompts.map((sample, idx) => {
-                      return (
-                        <CardSample
-                          key={idx}
-                          title={sample.title}
-                          icon={sample.icon}
-                          category={sample.category}
-                          description={sample.description}
-                          promptTemplate={sample.promptTemplate}
-                          inputExamples={sample.inputExamples}
-                          color={sample.color}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              ),
-            },
-            {
               id: 'myUseCases',
               label: 'マイユースケース',
               content: (
@@ -321,6 +297,30 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                     })}
                   </div>
                 </Card>
+              ),
+            },
+            {
+              id: 'samples',
+              label: 'サンプル集',
+              content: (
+                <div className="h-[calc(100vh-10rem)] overflow-y-scroll rounded border p-2">
+                  <div className="grid grid-cols-3 gap-3">
+                    {useCaseBuilderSamplePrompts.map((sample, idx) => {
+                      return (
+                        <CardSample
+                          key={idx}
+                          title={sample.title}
+                          icon={sample.icon}
+                          category={sample.category}
+                          description={sample.description}
+                          promptTemplate={sample.promptTemplate}
+                          inputExamples={sample.inputExamples}
+                          color={sample.color}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
               ),
             },
           ]}
