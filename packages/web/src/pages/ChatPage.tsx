@@ -10,7 +10,7 @@ import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
-import Textarea from '../components/Textarea';
+import ModalSystemContext from '../components/ModalSystemContext';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
@@ -426,6 +426,8 @@ const ChatPage: React.FC = () => {
                 <ChatMessage
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>
@@ -503,51 +505,15 @@ const ChatPage: React.FC = () => {
         />
       )}
 
-      <ModalDialog
-        title="システムコンテキストの作成"
-        isOpen={showSystemContextModal}
-        onClose={() => {
-          setShowSystemContextModal(false);
-        }}>
-        <div className="py-2.5">タイトル</div>
-
-        <Textarea
-          placeholder="入力してください"
-          value={saveSystemContextTitle}
-          onChange={setSaveSystemContextTitle}
-          maxHeight={-1}
-          className="text-aws-font-color"
-        />
-
-        <div className="py-2.5">システムコンテキスト</div>
-        <Textarea
-          placeholder={saveSystemContext ?? '入力してください'}
-          value={saveSystemContext}
-          onChange={setSaveSystemContext}
-          maxHeight={500}
-          className="text-aws-font-color"
-        />
-
-        <div className="mt-4 flex justify-end gap-2">
-          <Button
-            outlined
-            onClick={() => setShowSystemContextModal(false)}
-            className="p-2">
-            キャンセル
-          </Button>
-          <Button
-            onClick={() => {
-              setShowSystemContextModal(false);
-              onCreateSystemContext();
-            }}
-            className="bg-red-500 p-2 text-white"
-            disabled={
-              saveSystemContext === '' || saveSystemContextTitle === ''
-            }>
-            作成
-          </Button>
-        </div>
-      </ModalDialog>
+      <ModalSystemContext
+        showSystemContextModal={showSystemContextModal}
+        saveSystemContext={saveSystemContext}
+        saveSystemContextTitle={saveSystemContextTitle}
+        setShowSystemContextModal={setShowSystemContextModal}
+        setSaveSystemContext={setSaveSystemContext}
+        setSaveSystemContextTitle={setSaveSystemContextTitle}
+        onCreateSystemContext={onCreateSystemContext}
+      />
 
       <ModalDialog
         isOpen={showShareIdModal}
