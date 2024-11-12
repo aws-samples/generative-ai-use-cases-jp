@@ -176,7 +176,7 @@ const createConverseCommandInput = (
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
-  // system role で渡された文字列を、システムコンテキストに設定
+  // system role で渡された文字列を、システムプロンプトに設定
   const system = messages.find((message) => message.role === 'system');
   const systemContext = system ? [{ text: system.content }] : [];
 
@@ -241,7 +241,7 @@ const createConverseCommandInput = (
   return converseCommandInput;
 };
 
-// システムコンテキストに対応していないモデル用の関数
+// システムプロンプトに対応していないモデル用の関数
 // - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
@@ -301,7 +301,7 @@ const createConverseStreamCommandInput = (
   } as ConverseStreamCommandInput;
 };
 
-// システムコンテキストに対応していないモデル用の関数
+// システムプロンプトに対応していないモデル用の関数
 // - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features

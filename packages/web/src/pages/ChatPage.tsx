@@ -140,7 +140,7 @@ const ChatPage: React.FC = () => {
   }, [modelId]);
 
   useEffect(() => {
-    // 会話履歴のページではモデルを変更してもシステムコンテキストを変更しない
+    // 会話履歴のページではモデルを変更してもシステムプロンプトを変更しない
     if (!chatId) {
       updateSystemContextByModel();
     }
@@ -411,7 +411,7 @@ const ChatPage: React.FC = () => {
             <Switch
               checked={showSystemContext}
               onSwitch={setShowSystemContext}
-              label="システムコンテキストの表示"
+              label="システムプロンプトの表示"
             />
           </div>
         )}
@@ -441,7 +441,7 @@ const ChatPage: React.FC = () => {
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (
             <ExpandableField
-              label="システムコンテキスト"
+              label="システムプロンプト"
               className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
               <>
                 <div className="absolute -top-2 right-0 mb-2 flex justify-end">
