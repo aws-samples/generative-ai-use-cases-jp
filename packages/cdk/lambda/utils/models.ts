@@ -44,7 +44,7 @@ export const defaultImageGenerationModel: Model = {
 
 // Prompt Templates
 
-const LLAMA2_PROMPT: PromptTemplate = {
+const LLAMA_PROMPT: PromptTemplate = {
   prefix: '<s>[INST] ',
   suffix: ' [/INST]',
   join: '',
@@ -925,8 +925,8 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
 };
 
 export const getSageMakerModelTemplate = (model: string): PromptTemplate => {
-  if (model.includes('llama-2')) {
-    return LLAMA2_PROMPT;
+  if (model.includes('llama')) {
+    return LLAMA_PROMPT;
   } else if (model.includes('bilingual-rinna')) {
     return BILINGUAL_RINNA_PROMPT;
   } else if (model.includes('rinna')) {
