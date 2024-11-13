@@ -453,8 +453,6 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
-"meta.llama2-70b-chat-v1",
-"meta.llama2-13b-chat-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2"
 ```
