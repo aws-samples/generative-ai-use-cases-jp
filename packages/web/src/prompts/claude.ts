@@ -225,94 +225,92 @@ Based on the <conversation></conversation> you read, please create a title withi
   promptList(): PromptList {
     return [
       {
-        title: 'コンテンツ生成',
+        title: 'Content Generation',
         items: [
           {
-            title: 'テキストの書き換え',
-            systemContext: `以下はユーザーと AI の会話です。
-ユーザーは <text></text> の xml タグに囲われたテキストと、<instruction></instruction> の xml タグに囲われた指示を与えるので、AI は テキストの内容を指示どおりに書き替えてください。
-ただし、AI の出力は <output>からはじめ、書き換えた内容だけを出力した後、</output> タグで出力を終えてください。`,
-            prompt: `<instruction>より詳細に説明を追加する</instruction>
+            title: 'Text Rewriting',
+            systemContext: `The following is a conversation between a user and AI.
+The user will provide text enclosed in <text> tags and instructions enclosed in <instruction> tags. The AI should rewrite the text according to the instructions.
+However, the AI's output should begin with <output>, contain only the rewritten content, and end with </output> tags.`,
+            prompt: `<instruction>Add more detailed explanation</instruction>
 <text>
-1758年、スウェーデンの植物学者であり動物学者でもあったカール・リンネは、その著書『自然科学体系（Systema Naturae）』において、2単語による種の命名法（二命名法）を発表した。カニスはラテン語で "犬 "を意味し、彼はこの属の下に家犬、オオカミ、イヌジャッカルを挙げた。
+In 1758, Carl Linnaeus, a Swedish botanist and zoologist, published the binomial nomenclature for species in his work "Systema Naturae." Canis means "dog" in Latin, and under this genus, he listed domestic dogs, wolves, and golden jackals.
 </text>`,
           },
           {
-            title: '箇条書きに説明をつける',
-            systemContext: `以下はユーザーと AI の会話です。
-ユーザーは <content></content> の xml タグに囲まれたコンテンツ と、コンテンツの特徴の要点を記した箇条書きを <list></list> の xml タグ内に与えます。
-AI それぞれの箇条書きの要点の説明に対して、一字一句間違えずそのままコピーした後、詳しい説明を記述してください。
-ただし、AI の出力は <output> からはじめ、それぞれの箇条書きの説明をアスタリスクから始めた後改行を入れて対応する詳しい説明を記述し、</output> タグで出力を終えてください。`,
+            title: 'Add explanations to the bullet points',
+            systemContext: `The following is a conversation between a user and AI.
+The user provides content enclosed in <content> tags and bullet points describing the characteristics of the content within <list> tags.
+However, the AI should start with the <output> tag, copy each user's bullet points word for word, add two spaces and a line break, then must add an AI's explanation, and repeat adding two spaces and a line break, and finally end with the </output> tag.`,
             prompt: `<content>TypeScript</content>
 <list>
-* 静的型付けができる
-* JavaScriptとの互換性が高い
-* 大規模な開発に適している
-* コンパイル時に型チェックが行われる
-* オプションで型アノテーションができる
-* インターフェース、ジェネリック、列挙型などの機能がある
-* 最新のECMAScript機能をサポートしている
-* コンパイル結果が純粋なJavaScriptコードになる
-* VSCodeなどのエディタの補完機能との相性が良い
+* Supports static typing
+* Has high compatibility with JavaScript
+* Suitable for large-scale development
+* Type checking is performed at compile-time
+* Optional type annotations are available
+* Provides features like interfaces, generics, and enumerations
+* Supports the latest ECMAScript features
+* Compiles to pure JavaScript code
+* Works well with editor features like auto-completion in tools like VSCode
 </list>
 `,
           },
           {
-            title: '返信メールの作成',
-            systemContext: `以下はメールの受信者であるユーザーと、受信したメールの返信代筆スペシャリスト AI のやりとりです。
-ユーザーは <mail></mail> の xml タグで囲まれたメール本文と、<intention></intention> の xml タグで囲まれた返信したい内容の要点を AI に与えます。
-AI はユーザーの代わりに返信メールを出力してください。
-ただし、AI は返信メールを作成する際、必ず <steps></steps> の xml タグで囲まれた手順を遵守してください。
+            title: 'Creating a reply email',
+            systemContext: `The following is a conversation between a user who received an email and an AI specialist who helps draft email replies.
+The user provides the email body received in the <mail> tag and the key points of the reply in the <intention> tag to the AI.
+The AI should output a reply email on behalf of the user.
+However, when creating the reply email, the AI must follow the steps enclosed in the <steps></steps> XML tags.
 <steps>
-1. 文面の冒頭には必ず返信メールの宛先の名前を様付けで書くこと。
-2. 次に挨拶を入れること
-3. 次にユーザーの返信したい <intention></intention> の内容を文面に合うように丁寧な口調に変えて入れること。
-4. 次に宛先との関係を維持できるような優しい文言を入れること
-5. 文面の末尾にユーザーの名前を敬称なしで入れること。
+1. Always write the recipient's name after "Dear" at the beginning of the message.
+2. Include a greeting next.
+3. Then incorporate the content of the user's desired <intention> reply by converting it into polite language that fits the message.
+4. Include kind words that can maintain the relationship with the recipient.
+5. End the message with "Best regards," followed by the sender's name.
 </steps>
-その他全体を通して <rules></rules> のルールを遵守してください。
+Throughout the entire process, please comply with the rules in the <rules> tag.
 <rules>
-* 全体を通して丁寧で親しみやすく礼儀正しいこと。親しみやすいことは今後の関係を継続する上で重要です。
-* 返信メールは 1 通だけ作成すること。
-* 出力は <output>{返信内容}</output> の形式で <output> タグで囲うこと
-* 上記の{返信内容}には、相手が読むべき返信メールのみを格納すること
+* Be polite, friendly, and courteous throughout. Being approachable is important for maintaining future relationships.
+* Create only one reply email.
+* Output should be in the format {reply content} enclosed in  tags
+* The above {reply content} should only contain the reply email that the recipient should read
 </rules>
+Also, regarding how to include the recipient's name and user's name in the email text, please follow the rules as shown in the examples provided in the <example> tag.
+<example>If the beginning and end of the email given by the user is "<mail>Mr. Wada {email content} Goto</mail>", then the beginning and end of the reply email output by AI should be "<output>Dear Mr. Goto {reply content} Wada</output>".</example>
+<example>If the beginning and end of the email given by the user is "<mail>Sugiyama-san {email content} Okamoto</mail>", then the beginning and end of the reply email output by AI should be "<output>Dear Okamoto-san {reply content} Sugiyama</output>".</example>
+<example>If the beginning and end of the email given by the user is "<mail>Ms.Jane {email content} Jack</mail>", then the beginning and end of the reply email output by AI should be "<output>Dear Mr.Jack {reply content} Jane</output>".</example>
+In any case, please reverse the names that appeared at the beginning and end of the received email by using them at the end and beginning of the reply email, respectively.
 
-また，作成する返信メールの宛先の名前とユーザーの名前について、宛先とユーザーのメールへの文面の入れ方について、<example></example>に例を 3 つ上げますのでこの規則に則ってください。
-<example>ユーザーが与えたメールの冒頭と末尾が <mail>和田さん {メール本文} 後藤</mail>であれば、AI が出力する返信メールの冒頭と末尾は、<output> 後藤様 {返信内容} 和田</output> となるはずです。</example>
-<example>ユーザーが与えたメールの冒頭と末尾が <mail>すぎやま様 {メール本文} 岡本</mail>であれば、AI が出力する返信メールの冒頭と末尾は、<output> 岡本様 {返信内容} 杉山</output> となるはずです。</example>
-<example>ユーザーが与えたメールの冒頭と末尾が <mail>Jane 様 {メール本文} Jack</mail>であれば、AI が出力する返信メールの冒頭と末尾は、<output> Jack 様 {返信内容} Jane</output> となるはずです。</example>
-いずれにしても受領したメールの冒頭と末尾にあった名前を、返信メールでは末尾と冒頭でひっくり返して使ってください。
+Always start AI output with <output>, output only the reply email, and end by closing with the </output> tag. Do not output anything like <steps> or <rule>.`,
+            prompt: `<mail>Suzuki-san
 
-AI の出力は必ず <output> から始め、返信メールだけを出力した後、</output> タグで閉じて終えてください。<steps> や <rule> などを出力してはいけません。`,
-            prompt: `<mail>鈴木様
+Regarding the 1kg of Kilimanjaro coffee beans that you have listed, it is currently priced at $100. Would it be possible to reduce the price to $10?
 
-出品されていらっしゃる、キリマンジャロのコーヒー豆 5kg について、1 万円で出品されていますが、1000 円に値下げしていただくことは可能でしょうか。
-
-山田</mail>
-<intention>嫌だ</intention>`,
+Awaji</mail>
+<intention>No.</intention>`,
           },
         ],
       },
       {
-        title: '選択肢を与えて分類する',
+        title: 'classification',
         items: [
           {
-            title: '選択肢を与えて分類する',
-            systemContext: `以下はユーザーと AI の会話です。
-AI は電子メールをタイプ別に分類しているカスタマーサービス担当者です。
-ユーザーより <mail></mail> の xml タグに囲われた文章が与えられます。以下の<category></category> の xml タグに囲われたカテゴリーに分類してください。
+            title: 'Classify by giving options',
+            systemContext: `The following is a conversation between a user and an AI.
+The AI is a customer service representative who categorizes emails by type.
+When text enclosed in <mail> tags is provided by the user, please categorize it into one of the following categories enclosed in <category> tags.
 <category>
-(A) 販売前の質問
-(B) 故障または不良品
-(C) 請求に関する質問
-(D) その他(説明してください)
+(A) Pre-sales questions
+(B) Malfunction or defective products
+(C) Billing inquiries
+(D) Other (please explain)
 </category>
-ただし、AI の出力は <output>からはじめ、</output> タグで終え、タグ内には A,B,C,D のどれかだけを記述してください。
-ただし D の場合のみ説明を記述してください。A,B,C いずれかの場合は説明は不要です。例外はありません。`,
+The AI's output must begin with <output> and end with </output> tags, and only contain A, B, C, or D within the tags.
+However, only for category D, an explanation should be provided. For A, B, or C, no explanation is needed. There are no exceptions.`,
             prompt: `<mail>
-こんにちは。私の Mixmaster4000 は、操作すると奇妙なノイズを発生します。
-また、電子機器が燃えているような、少し煙のような、プラスチックのようなにおいがします。交換が必要です。
+Hello. My Mixmaster4000 makes strange noises when operated.
+Also, there's a slight smoky, plastic-like smell as if electronics are burning. It needs to be replaced.
 </mail>`,
           },
         ],
