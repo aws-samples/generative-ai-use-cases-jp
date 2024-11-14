@@ -191,30 +191,15 @@ npm run cdk:deploy
 
 ## お客様事例
 
-### [株式会社やさしい手](https://www.yasashiite.com/)
-
-![yasashiite_logo.png](/imgs/株式会社やさしい手_ロゴ.png)
-GenUを活用した介護現場の記録・報告業務の効率化。介護利用者の家族や医師、ケアマネージャーが読みやすい報告業務の自動化を実現。介護記録データから個別作業手順の生成や自動更新を行ったり、ケアマネージャーと利用者の会話音声から標準項目に沿ったケアプランの作成を行う。中堅・中小企業向け事業戦略に関する[説明会](https://japan.zdnet.com/article/35221718/)に登壇。
-
-### [株式会社サルソニード](https://salsonido.com/)
-
-![salsonido.png](/imgs/株式会社サルソニード_事例.png)
-マーケターの記事執筆支援に GenU を活用。専門知識を持ったうえで記事の執筆が必要であり、記事制作に時間・人・スキルの面で課題があった。GenU の RAG を利用し、情報をもとに記事を作成することで課題を克服。リライト業務にかける時間を 70% 削減した。
-
-### [株式会社タムラ製作所](https://www.tamura-ss.co.jp/jp/index.html)
-
-![tamura.png](/imgs/株式会社タムラ製作所_事例.png)
-製品の実験を行うにあたり、大量の製品書類があり必要な情報がどの文書に記載されているか特定が困難であるという課題があった。GenU の RAG を活用することで、文書の発見を容易にした。加えて、文字起こしや文書生成も活用し、議事録を簡単に作成できるようになったことで、情報の共有が活発化した。
-
-### [株式会社JDSC](https://jdsc.ai/)
-
-![jdsc.png](/imgs/株式会社JDSC_事例.png)
-GenU をリファレンスにし、Bedrock の生成AI の出力を実際にアプリケーションで確認しつつ、開発できたことが成功要因でした。海事産業特有の専門的な問合せについて、90%以上の性能改善ができたのは、Haiku, Sonnet, Opus の適宜の利用と、AWSの各種サービス活用によります。特に性能向上の観点で新たにSonnet 3.5 への適用、 Kendra から RDS for PostgreSQL の pgvector への切替など、確固たるGenUのベースと自社ノウハウを両立させられたのも良かったです。
-
-### [アイレット株式会社](https://www.iret.co.jp/)
-[株式会社バンダイナムコアミューズメント様のクラウドを活用した導入事例](https://cloudpack.jp/casestudy/302.html?_gl=1*17hkazh*_gcl_au*ODA5MDk3NzI0LjE3MTM0MTQ2MDU)
-
-株式会社バンダイナムコアミューズメントの生成 AI 活用に向けて社内のナレッジを蓄積・体系化すべく、AWS が提供している Generative AI Use Cases JP を活用したユースケースサイトを開発。アイレット株式会社が本プロジェクトの設計・構築・開発を支援。
+| Customer | Quote |
+|:--------|:---------|
+| <a href="https://www.yasashiite.com/" target="_blank"><img src="./imgs/cases/yasashiite_logo.png"></a> | **株式会社やさしい手** <br/> *GenU のおかげで、利用者への付加価値提供と従業員の業務効率向上が実現できました。従業員にとって「いままでの仕事」が楽しい仕事に変化していく「サクサクからワクワクへ」更に進化を続けます！* <br/> ・[事例の詳細を見る](./imgs/cases/yasashiite_case.png)|
+| <a href="https://salsonido.com/" target="_blank"><img src="./imgs/cases/salsonido_logo.png"></a>| **株式会社サルソニード** <br/> *ソリューションとして用意されている GenU を活用することで、生成 AI による業務プロセスの改善に素早く取り掛かることができました。* <br/> ・[事例の詳細を見る](./imgs/cases/salsonido_case.png) <br/> ・[適用サービス](https://kirei.ai/)|
+| <a href="https://www.tamura-ss.co.jp/jp/index.html" target="_blank"><img src="./imgs/cases/tamura-ss_logo.png"></a> | **株式会社タムラ製作所** <br/> *AWS が Github に公開しているアプリケーションサンプルは即テスト可能な機能が豊富で、そのまま利用することで自分たちにあった機能の選定が難なくでき、最終システムの開発時間を短縮することができました。*<br/> ・[事例の詳細を見る](./imgs/cases/tamura-ss_case.png)<br/> |
+| <a href="https://jdsc.ai/" target="_blank"><img src="./imgs/cases/jdsc_logo.png"></a> | **株式会社JDSC** <br/> *Amazon Bedrock ではセキュアにデータを用い LLM が活用できます。また、用途により最適なモデルを切り替えて利用できるので、コストを抑えながら速度・精度を高めることができました。* <br/> ・[事例の詳細を見る](./imgs/cases/jdsc_case.png) |
+| <a href="https://www.iret.co.jp/" target="_blank"><img src="./imgs/cases/iret_logo.png"></a>|  **アイレット株式会社** <br/> *株式会社バンダイナムコアミューズメントの生成 AI 活用に向けて社内のナレッジを蓄積・体系化すべく、AWS が提供している Generative AI Use Cases JP を活用したユースケースサイトを開発。アイレット株式会社が本プロジェクトの設計・構築・開発を支援。* <br/> ・[株式会社バンダイナムコアミューズメント様のクラウドを活用した導入事例](https://cloudpack.jp/casestudy/302.html?_gl=1*17hkazh*_gcl_au*ODA5MDk3NzI0LjE3MTM0MTQ2MDU) |
+| <a href="https://idealog.co.jp" target="_blank"><img src="./imgs/cases/idealog_logo.jpg"></a>|  **株式会社アイデアログ** <br/> *M従来の生成 AI ツールよりもさらに業務効率化ができていると感じます。入出力データをモデルの学習に使わない Amazon Bedrock を使っているので、セキュリティ面も安心です。* <br/> ・[事例の詳細を見る](./imgs/cases/idealog_case.png) <br/> ・[適用サービス](https://kaijosearch.com/)|
+| <a href="https://estyle.co.jp/" target="_blank"><img src="./imgs/cases/estyle_logo.png"></a>|  **株式会社エスタイル** <br/> *GenU を活用して短期間で生成 AI 環境を構築し、社内のナレッジシェアを促進することができました。* <br/> ・[事例の詳細を見る](./imgs/cases/estyle_case.png) |
 
 活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
