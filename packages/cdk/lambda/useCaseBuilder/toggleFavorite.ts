@@ -10,7 +10,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const isFavoriteRes: IsFavorite = await toggleFavorite(userId, useCaseId);
+    const isFavorite: IsFavorite = await toggleFavorite(userId, useCaseId);
 
     return {
       statusCode: 200,
@@ -18,7 +18,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(isFavoriteRes),
+      body: JSON.stringify(isFavorite),
     };
   } catch (error) {
     console.log(error);

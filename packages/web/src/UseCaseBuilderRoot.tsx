@@ -9,7 +9,6 @@ import useDrawer from './hooks/useDrawer';
 import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
-import useObserveScreen from './hooks/useObserveScreen';
 import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDrawer';
 
 const items: ItemProps[] = [
@@ -35,7 +34,6 @@ const UseCaseBuilderRoot: React.FC = () => {
   const { pathname } = useLocation();
   const { getChatTitle } = useChatList();
   const { isShow } = useInterUseCases();
-  const { handleScroll } = useObserveScreen();
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -48,9 +46,7 @@ const UseCaseBuilderRoot: React.FC = () => {
   }, [pathname, getChatTitle]);
 
   return (
-    <div
-      className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll"
-      onScroll={handleScroll}>
+    <div className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll">
       <main className="flex-1">
         <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
           <div className="flex w-10 items-center justify-start">

@@ -170,7 +170,7 @@ const useMyUseCases = () => {
       if (index > -1 && myUseCases) {
         mutateMyUseCases(
           produce(myUseCases, (draft) => {
-            draft[index].hasShared = !myUseCases[index].hasShared;
+            draft[index].isShared = !myUseCases[index].isShared;
           }),
           {
             revalidate: false,
@@ -184,8 +184,8 @@ const useMyUseCases = () => {
       if (indexRecentlyUsed > -1 && recentlyUsedUseCases) {
         mutateRecentlyUsedUseCases(
           produce(recentlyUsedUseCases, (draft) => {
-            draft[indexRecentlyUsed].hasShared =
-              !recentlyUsedUseCases[indexRecentlyUsed].hasShared;
+            draft[indexRecentlyUsed].isShared =
+              !recentlyUsedUseCases[indexRecentlyUsed].isShared;
           }),
           {
             revalidate: false,

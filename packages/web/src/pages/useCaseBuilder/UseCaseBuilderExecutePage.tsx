@@ -50,7 +50,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
     if (useCase) {
       mutate(
         produce(useCase, (draft) => {
-          draft.hasShared = !useCase.hasShared;
+          draft.isShared = !useCase.isShared;
         }),
         {
           revalidate: false,
@@ -67,7 +67,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
       <ModalDialogShareUseCase
         isOpen={isOpenShareDialog}
         useCaseId={useCaseId ?? ''}
-        hasShared={useCase?.hasShared ?? false}
+        isShared={useCase?.isShared ?? false}
         onToggleShared={() => {
           onClickToggleShared();
         }}
@@ -101,7 +101,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
               promptTemplate={useCase?.promptTemplate ?? ''}
               description={useCase?.description}
               inputExamples={useCase?.inputExamples}
-              hasShared={useCase?.hasShared ?? false}
+              isShared={useCase?.isShared ?? false}
               isFavorite={useCase?.isFavorite ?? false}
               useCaseId={useCaseId ?? ''}
               isLoading={isLoading}

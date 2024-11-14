@@ -4,7 +4,6 @@ import {
   CognitoUserPoolsAuthorizer,
   AuthorizationType,
 } from 'aws-cdk-lib/aws-apigateway';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import {
   NodejsFunction,
@@ -13,24 +12,50 @@ import {
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Duration } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 
 export interface UseCaseBuilderProps {
   userPool: UserPool;
   api: RestApi;
-  useCaseBuilderTable: Table;
-  useCaseIdIndexName: string;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api, useCaseBuilderTable, useCaseIdIndexName } = props;
+    const { userPool, api } = props;
+
+    const useCaseIdIndexName = 'UseCaseIdIndexName';
+    const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
+      partitionKey: {
+        name: 'id',
+        type: ddb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'dataType',
+        type: ddb.AttributeType.STRING,
+      },
+      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+    });
+
+    useCaseBuilderTable.addGlobalSecondaryIndex({
+      indexName: useCaseIdIndexName,
+      partitionKey: {
+        name: 'useCaseId',
+        type: ddb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'dataType',
+        type: ddb.AttributeType.STRING,
+      },
+      projectionType: ddb.ProjectionType.ALL,
+    });
 
     const commonProperty: NodejsFunctionProps = {
       runtime: Runtime.NODEJS_18_X,
       timeout: Duration.minutes(15),
       environment: {
         USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
       },
     };
 
@@ -60,10 +85,6 @@ export class UseCaseBuilder extends Construct {
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       ...commonProperty,
       entry: `${commonPath}/getUseCase.ts`,
-      environment: {
-        ...commonProperty.environment,
-        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
-      },
     });
     useCaseBuilderTable.grantReadData(getUseCaseFunction);
 
@@ -103,10 +124,6 @@ export class UseCaseBuilder extends Construct {
       {
         ...commonProperty,
         entry: `${commonPath}/listRecentlyUsedUseCases.ts`,
-        environment: {
-          ...commonProperty.environment,
-          USECASE_ID_INDEX_NAME: useCaseIdIndexName,
-        },
       }
     );
     useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
