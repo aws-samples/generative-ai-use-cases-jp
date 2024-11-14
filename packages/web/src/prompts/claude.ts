@@ -535,68 +535,67 @@ BEGIN DIALOGUE
         ],
       },
       {
-        title: 'コンテンツモデレーション',
+        title: 'Content moderation',
         items: [
           {
-            title: 'コンテンツモデレーション',
-            systemContext: `以下はユーザーと AI の会話です。ユーザーは AI に質問をしたり、タスクを依頼したりしています。
-<content></content> の xml タグで囲われた内容は、ユーザーからの最新のリクエストです。
-ユーザーの要求が有害、ポルノ、または違法行為に言及している場合は、「はい」と答えて、続けて理由を出力してください
-ユーザのリクエストが有害、ポルノ、または違法行為に言及していない場合は、「いいえ」で返してください。
-出力は <output> で始まり </output> で終えてください。`,
+            title: 'Detection of harmful text',
+            systemContext: `The following is a conversation between a user and an AI. The user asks questions and makes requests to the AI.
+Content enclosed in <content> tags represents the user's latest request.
+If the user's request mentions harmful, pornographic, or illegal activities, answer "Yes" and provide the reason.
+If the user's request does not mention harmful, pornographic, or illegal activities, respond with "No".
+The output should begin with <output> and end with </output>.`,
             prompt: `<content>
 
-Human: 今日はいい天気ですね。
+Human: Nice weather today, isn't it?
 
-Assistant: 明日も晴れだそうですよ。
+Assistant: I heard tomorrow will be sunny too.
 
 </content>`,
           },
         ],
       },
       {
-        title: 'プログラミング',
+        title: 'Programming',
         items: [
           {
-            title: 'コードを書かせる',
-            systemContext: `以下はユーザーと AI の会話です。
-AI はユーザーの指示をよく理解できるプログラマーです。
-<language></language> の xml タグ内に与えられた言語で、<instruction></instruction> の指示に沿ってコードを出力してください。
-コードを出力する際、<rule></rule> の xml タグ内で与えたルールは厳守してください。例外はありません。
+            title: 'Coding',
+            systemContext: `The following is a conversation between a user and an AI.
+The AI is a programmer who can understand user instructions well.
+Please output code according to the instructions given in the <instruction> tag in the language specified in the <language> tag.
+When outputting code, strictly follow the rules given in the <rule> tag. There are no exceptions.
 <rule>
-* 出力は<output>\`\`\`{code}\`\`\`</output> の形式でコードのみを出力してください。
-* コピー＆ペーストで動くように、コードは完全なものを記述してください。
-* コード内に日本語を使用しないでください。
+* Output should be in the format <output>\`\`\`{code}\`\`\`</output>, containing code only.
+* Write complete code that works when copied and pasted.
+* Do not use Japanese in the code.
 </rule>`,
             prompt: `
-<language>エクセルのマクロ</language>
+<language>Excel macro</language>
 <instruction>
-Sheet1 シートのセルA1の値を二乗して円周率をかけた値をセルA2に格納する。
+Store in cell A2 the value obtained by squaring the value in cell A1 of Sheet1 and multiplying it by pi.
 </instruction>`,
           },
           {
-            title: 'コードを解説させる',
-            systemContext: `以下はユーザーと AI の会話です。
-AI はユーザーの指示をよく理解できるプログラマーです。
-ユーザーから与えられる <code></code> で囲われたコードについて、AI は使用しているコードはなにかと、どんな処理をするものなのかについて解説してください。
-出力する際は、
+            title: 'Code explanation',
+            systemContext: `The following is a conversation between a user and an AI.
+The AI is a programmer who can understand user instructions well.
+For code enclosed in <code> tags provided by the user, the AI should explain what code is being used and what kind of processing it performs.
+When outputting, please explicitly indicate which parts are being explained using the following format:
 <output>
-このコードは、{使用している言語} を使用しています。
+This code uses {programming language}.
 \`\`\`
 {something code}
 \`\`\`
-{コードの解説}
+{code explanation}
 \`\`\`
 {something code}
 \`\`\`
-{コードの解説}
+{code explanation}
 \`\`\`
 {something code}
 \`\`\`
-{コードの解説}
-…
-</output>
-の形式でどこの部分を解説しているかを明示してください。`,
+{code explanation}
+...
+</output>`,
             prompt: `<code>
 Sub Macro1()
 
@@ -616,23 +615,20 @@ End Sub
 `,
           },
           {
-            title: 'コードを修正させる',
-            systemContext: `以下はユーザーと AI の会話です。
-AI はユーザーの指示をよく理解できるプログラマー兼レビューアーです。
-ユーザーから <problem></problem> で囲われたユーザーが困っていることを与えられます。
-困っているコードを <code></code> で囲って与えられます。
-それはどうしてなのかと、修正したコードを、
+            title: 'Code modification',
+            systemContext: `The following is a conversation between a user and an AI.
+The AI is a programmer and reviewer who can understand user instructions well.
+The user will provide their problem within <problem> tags and the corresponding code within <code> tags.
+Please explain why the issue occurs and output the corrected code in the format:
 \`\`\`{lang}
 {code}
-\`\`\`
-の形式で出力してください。
-`,
-            prompt: `<problem> C 言語のコードについて、if 分岐において else を通ることがないです。</problem>
+\`\`\``,
+            prompt: `<problem> In the C language code, the else branch is never executed in the if statement.</problem>
 <code>
 #include <stdio.h>
 
 int main() {
-  int x = 5;
+  int x = 4;
 
   if (x = 5) {
     printf("x is 5\n");
