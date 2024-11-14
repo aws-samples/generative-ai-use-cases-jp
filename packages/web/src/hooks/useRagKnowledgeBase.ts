@@ -5,6 +5,7 @@ import { getPrompter } from '../prompts';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { cleanEncode } from '../utils/URLUtils';
+import { arrangeItems } from './useRag';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
@@ -99,19 +100,30 @@ const useRagKnowledgeBase = (id: string) => {
         retrievedItems.data.retrievalResults!.map((r, idx) => {
           const sourceUri =
             r.metadata?.['x-amz-bedrock-kb-source-uri']?.toString() ?? '';
+          const pageNumber =
+            r.metadata?.['x-amz-bedrock-kb-document-page-number'];
 
           return {
             Content: r.content?.text ?? '',
             DocumentId: `${idx}`,
             DocumentTitle: sourceUri.split('/').pop(),
             DocumentURI: convertS3UriToUrl(sourceUri, modelRegion),
+            DocumentAttributes: pageNumber
+              ? [
+                  {
+                    Key: '_excerpt_page_number',
+                    Value: { LongValue: Number(pageNumber) },
+                  },
+                ]
+              : [],
           };
         });
+      const items = arrangeItems(retrievedItemsKendraFormat);
 
       updateSystemContext(
         prompter.ragPrompt({
           promptType: 'SYSTEM_CONTEXT',
-          referenceItems: retrievedItemsKendraFormat,
+          referenceItems: items,
         })
       );
 
@@ -129,13 +141,21 @@ const useRagKnowledgeBase = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = retrievedItemsKendraFormat
+          const footnote = items
             .map((item, idx) => {
-              const encodedURI = item.DocumentURI
-                ? cleanEncode(item.DocumentURI)
-                : '';
+              // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
+              const _excerpt_page_number = item.DocumentAttributes?.find(
+                (attr) => attr.Key === '_excerpt_page_number'
+              )?.Value?.LongValue;
               return message.includes(`[^${idx}]`)
-                ? `[^${idx}]: [${item.DocumentTitle}](${encodedURI})`
+                ? `[^${idx}]: [${item.DocumentTitle}${
+                    _excerpt_page_number
+                      ? `(${_excerpt_page_number} ページ)`
+                      : ''
+                  }](
+                  ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${
+                    _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
+                  })`
                 : '';
             })
             .filter((x) => x)

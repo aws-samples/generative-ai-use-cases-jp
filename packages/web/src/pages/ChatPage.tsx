@@ -10,11 +10,12 @@ import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
-import Textarea from '../components/Textarea';
+import ModalSystemContext from '../components/ModalSystemContext';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import useFollow from '../hooks/useFollow';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
@@ -129,7 +130,7 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
@@ -425,12 +426,17 @@ const ChatPage: React.FC = () => {
                 <ChatMessage
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>
             ))}
         </div>
-        <div ref={scrolledAnchor} />
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (
@@ -499,51 +505,15 @@ const ChatPage: React.FC = () => {
         />
       )}
 
-      <ModalDialog
-        title="システムコンテキストの作成"
-        isOpen={showSystemContextModal}
-        onClose={() => {
-          setShowSystemContextModal(false);
-        }}>
-        <div className="py-2.5">タイトル</div>
-
-        <Textarea
-          placeholder="入力してください"
-          value={saveSystemContextTitle}
-          onChange={setSaveSystemContextTitle}
-          maxHeight={-1}
-          className="text-aws-font-color"
-        />
-
-        <div className="py-2.5">システムコンテキスト</div>
-        <Textarea
-          placeholder={saveSystemContext ?? '入力してください'}
-          value={saveSystemContext}
-          onChange={setSaveSystemContext}
-          maxHeight={500}
-          className="text-aws-font-color"
-        />
-
-        <div className="mt-4 flex justify-end gap-2">
-          <Button
-            outlined
-            onClick={() => setShowSystemContextModal(false)}
-            className="p-2">
-            キャンセル
-          </Button>
-          <Button
-            onClick={() => {
-              setShowSystemContextModal(false);
-              onCreateSystemContext();
-            }}
-            className="bg-red-500 p-2 text-white"
-            disabled={
-              saveSystemContext === '' || saveSystemContextTitle === ''
-            }>
-            作成
-          </Button>
-        </div>
-      </ModalDialog>
+      <ModalSystemContext
+        showSystemContextModal={showSystemContextModal}
+        saveSystemContext={saveSystemContext}
+        saveSystemContextTitle={saveSystemContextTitle}
+        setShowSystemContextModal={setShowSystemContextModal}
+        setSaveSystemContext={setSaveSystemContext}
+        setSaveSystemContextTitle={setSaveSystemContextTitle}
+        onCreateSystemContext={onCreateSystemContext}
+      />
 
       <ModalDialog
         isOpen={showShareIdModal}

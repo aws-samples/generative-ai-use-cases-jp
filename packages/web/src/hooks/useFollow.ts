@@ -1,35 +1,27 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
-import useObserveScreen from './useObserveScreen';
+import { useRef, useEffect, useState } from 'react';
+import useScreen from './useScreen';
 
-const useScroll = () => {
-  const { isAtBottom } = useObserveScreen();
+const useFollow = () => {
+  const { isAtBottom, scrollToBottom } = useScreen();
 
   // スクロールされる要素が含まれる要素
   // サイズが動的に変更されることが想定される
   // チャットのページであればメッセージを wrap した要素
   const scrollableContainer = useRef<HTMLDivElement>(null);
 
-  // スクロール下部
-  const scrolledAnchor = useRef<HTMLDivElement>(null);
-
   // フォローするか否か
   // ページ最下部まで到達している場合はフォローする
   // そうでない場合 (手動で上にスクロールした場合) はフォローしないようにする
   const [following, setFollowing] = useState(true);
-
-  // フォロー中であれば最下部までスクロールする
-  const scrollToBottom = useCallback(() => {
-    if (scrolledAnchor.current && following) {
-      scrolledAnchor.current.scrollIntoView();
-    }
-  }, [scrolledAnchor, following]);
 
   // scrollableContainer のサイズ変更を監視
   useEffect(() => {
     if (scrollableContainer.current) {
       const observer = new ResizeObserver(() => {
         // 画面サイズ変更されたらフォローする
-        scrollToBottom();
+        if (following) {
+          scrollToBottom();
+        }
       });
 
       observer.observe(scrollableContainer.current);
@@ -48,10 +40,8 @@ const useScroll = () => {
 
   return {
     setFollowing,
-    scrollToBottom,
     scrollableContainer,
-    scrolledAnchor,
   };
 };
 
-export default useScroll;
+export default useFollow;

@@ -3,8 +3,9 @@ import { useLocation } from 'react-router-dom';
 import Markdown from './Markdown';
 import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
+import ButtonIcon from './ButtonIcon';
 import ZoomUpImage from './ZoomUpImage';
-import { PiUserFill, PiChalkboardTeacher } from 'react-icons/pi';
+import { PiUserFill, PiChalkboardTeacher, PiFloppyDisk } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import {
   ShownMessage,
@@ -22,6 +23,8 @@ type Props = BaseProps & {
   chatContent?: ShownMessage;
   loading?: boolean;
   hideFeedback?: boolean;
+  setSaveSystemContext?: (s: string) => void;
+  setShowSystemContextModal?: (value: boolean) => void;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -146,7 +149,7 @@ const ChatMessage: React.FC<Props> = (props) => {
             </div>
           )}
 
-          <div className="ml-5 w-full pr-14">
+          <div className="ml-5 w-full pr-8 lg:pr-14">
             {chatContent?.trace && (
               <details className="mb-2 cursor-pointer rounded border p-2">
                 <summary className="text-sm">
@@ -217,16 +220,23 @@ const ChatMessage: React.FC<Props> = (props) => {
             )}
 
             {chatContent?.role === 'assistant' && (
-              <div className="mb-1 mt-2 text-right text-xs text-gray-400 lg:mb-0">
+              <div className="mt-2 text-right text-xs text-gray-400 lg:mb-0">
                 {chatContent?.llmType}
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex items-start justify-end print:hidden">
-          {(chatContent?.role === 'user' || chatContent?.role === 'system') && (
-            <div className="lg:w-8"></div>
+        <div className="mt-1 flex items-start justify-end pr-8 lg:pr-14 print:hidden">
+          {chatContent?.role === 'system' && (
+            <ButtonIcon
+              className="text-gray-400"
+              onClick={() => {
+                props.setSaveSystemContext?.(chatContent?.content || '');
+                props.setShowSystemContextModal?.(true);
+              }}>
+              <PiFloppyDisk />
+            </ButtonIcon>
           )}
           {chatContent?.role === 'assistant' &&
             !props.loading &&
