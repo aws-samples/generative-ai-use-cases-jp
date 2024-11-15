@@ -29,7 +29,7 @@ const CustomUseCaseDrawerItems: React.FC<Props> = (props) => {
             onClick={() => {
               onClick(usecase.useCaseId);
             }}>
-            {usecase.title}
+            <span className="line-clamp-1">{usecase.title}</span>
           </div>
         );
       })}
