@@ -12,6 +12,7 @@ import ModalDialogShareUseCase from '../../components/useCaseBuilder/ModalDialog
 import ButtonFavorite from '../../components/useCaseBuilder/ButtonFavorite';
 import ButtonShare from '../../components/useCaseBuilder/ButtonShare';
 import ButtonUseCaseEdit from '../../components/useCaseBuilder/ButtonUseCaseEdit';
+import Card from '../../components/Card';
 
 const UseCaseBuilderMyUseCasePage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
       <ModalDialogDeleteUseCase
         isOpen={isOpenConfirmDelete}
         targetLabel={deleteTargetUseCase?.title ?? ''}
+        isShared={deleteTargetUseCase?.isShared}
         onClose={() => {
           setIsOpenConfirmDelete(false);
         }}
@@ -69,28 +71,24 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
       />
 
       <div className="flex flex-col gap-4 p-4">
-        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:h-min print:visible print:h-min">
-          マイユースケース
+        <div className="flex flex-row">
+          <div className="flex-1" />
+          <div className="hidden flex-row items-center justify-center text-xl font-semibold lg:flex print:flex">
+            マイユースケース
+          </div>
+          <div className="flex flex-1 justify-end">
+            <Button
+              className=""
+              onClick={() => {
+                navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`);
+              }}>
+              <PiNotePencil className="mr-2" />
+              新規作成
+            </Button>
+          </div>
         </div>
 
-        <div className="fixed right-2 top-2.5 lg:right-4 lg:top-3">
-          <Button
-            className="hidden lg:flex"
-            onClick={() => {
-              navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`);
-            }}>
-            <PiNotePencil className="lg:mr-2" />
-            新規作成
-          </Button>
-          <ButtonIcon
-            className="flex text-white lg:hidden"
-            onClick={() => {
-              navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`);
-            }}>
-            <PiNotePencil className="lg:mr-2" />
-          </ButtonIcon>
-        </div>
-        <div className="">
+        <Card>
           {isLoadingMyUseCases && (
             <div className="flex flex-col gap-2 p-2">
               {new Array(10).fill('').map((_, idx) => (
@@ -103,29 +101,29 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
               マイユースケースがありません。
             </div>
           )}
-          {myUseCases.map((useCase) => {
+          {myUseCases.map((useCase, idx) => {
             return (
               <div
                 key={useCase.useCaseId}
-                className="flex justify-between border-t px-2 last:border-b hover:bg-gray-100">
-                <div className="flex grow items-center">
-                  <ButtonFavorite
-                    isFavorite={useCase.isFavorite}
-                    onClick={() => {
-                      toggleFavorite(useCase.useCaseId);
-                    }}
-                  />
-                  <div
-                    className="flex h-full grow cursor-pointer items-center text-sm font-bold"
-                    onClick={() => {
-                      navigate(
-                        `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCase.useCaseId}`
-                      );
-                    }}>
+                className={`flex flex-row items-center gap-x-2 p-2 last:border-b hover:bg-gray-100 ${idx > 0 ? 'border-t' : ''}`}>
+                <ButtonFavorite
+                  isFavorite={useCase.isFavorite}
+                  onClick={() => {
+                    toggleFavorite(useCase.useCaseId);
+                  }}
+                />
+                <div
+                  className="flex flex-1 cursor-pointer items-center"
+                  onClick={() => {
+                    navigate(
+                      `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCase.useCaseId}`
+                    );
+                  }}>
+                  <span className="line-clamp-1 text-sm font-bold">
                     {useCase.title}
-                  </div>
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 p-2">
+                <div className="flex items-center gap-2">
                   <ButtonUseCaseEdit useCaseId={useCase.useCaseId} />
                   <ButtonShare
                     isShared={useCase.isShared}
@@ -147,7 +145,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </Card>
       </div>
     </>
   );

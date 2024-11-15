@@ -183,7 +183,11 @@ export const getUseCase = async (
     return null;
   }
 
-  if (useCaseInTable.id.split('#')[1] !== userId) {
+  const isMyUseCase = useCaseInTable.id.split('#')[1] === userId;
+  const isShared = useCaseInTable.isShared;
+
+  // 自分のユースケースではない & シェアされていないものは取得させない
+  if (!isMyUseCase && !isShared) {
     return null;
   }
 
@@ -196,7 +200,7 @@ export const getUseCase = async (
   const useCaseAsOutput: UseCaseAsOutput = {
     ...useCaseInTable,
     isFavorite: favoritesUseCaseIds.includes(useCaseId),
-    isMyUseCase: useCaseInTable.id.split('#')[1] === userId,
+    isMyUseCase,
   };
 
   return useCaseAsOutput;

@@ -21,6 +21,7 @@ import {
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
+import usePageTitle from '../../hooks/usePageTitle';
 
 type StateType = {
   useCaseId: string | null;
@@ -124,7 +125,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
   } = useUseCaseBuilderEditPageState();
 
   const { useCase, isLoading } = useUseCase(useCaseId ?? useCaseIdPathParam);
-  const { createUseCase, updateUseCase, deleteUseCase } = useMyUseCases();
+  const {
+    createUseCase,
+    updateUseCase,
+    deleteUseCase,
+    updateRecentUseUseCase,
+  } = useMyUseCases();
+  const { setPageTitle } = usePageTitle();
 
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -140,13 +147,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (useCaseIdPathParam) {
+    if (useCaseIdPathParam || useCaseId) {
       setTitle(useCase?.title ?? '');
       setPromptTemplate(useCase?.promptTemplate ?? '');
       setDescription(useCase?.description ?? '');
       setInputExamples(useCase?.inputExamples ?? []);
     } else if (state) {
-      console.log(state.inputExamples);
       setTitle(state.title ?? '');
       setPromptTemplate(state.promptTemplate ?? '');
       setDescription(state.description ?? '');
@@ -170,6 +176,11 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const isUpdate = useMemo(() => {
     return !!useCaseId;
   }, [useCaseId]);
+
+  // ページタイトルの設定
+  useEffect(() => {
+    setPageTitle(isUpdate ? 'ユースケース編集' : 'ユースケース新規作成');
+  }, [isUpdate, setPageTitle]);
 
   const canRegister = useMemo(() => {
     return title !== '' && promptTemplate !== '';
@@ -197,6 +208,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
       })
         .then((res) => {
           setUseCaseId(res.useCaseId);
+
+          // 新規登録したら利用履歴に表示する（Drawerに表示する目的）
+          updateRecentUseUseCase(res.useCaseId);
         })
         .finally(() => {
           setIsPosting(false);
@@ -210,6 +224,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     promptTemplate,
     setUseCaseId,
     title,
+    updateRecentUseUseCase,
     updateUseCase,
     useCaseId,
   ]);
