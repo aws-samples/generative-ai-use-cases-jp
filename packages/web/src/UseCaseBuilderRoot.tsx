@@ -1,49 +1,42 @@
 import React, { useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { PiList, PiX, PiHammer } from 'react-icons/pi';
-import { Outlet } from 'react-router-dom';
+import { PiList, PiX, PiSwatches, PiListDashes } from 'react-icons/pi';
+import { Outlet, useLocation } from 'react-router-dom';
 import { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
-import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDrawer';
-
-const items: ItemProps[] = [
-  {
-    label: 'ビルダーコンソール',
-    to: '/use-case-builder',
-    icon: <PiHammer />,
-    display: 'usecase' as const,
-  },
-].flatMap((i) => (i !== null ? [i] : []));
-
-// /chat/:chatId の形式から :chatId を返す
-// path が別の形式の場合は null を返す
-const extractChatId = (path: string): string | null => {
-  const pattern = /\/chat\/(.+)/;
-  const match = path.match(pattern);
-
-  return match ? match[1] : null;
-};
+import { ROUTE_INDEX_USE_CASE_BUILDER } from './main';
 
 const UseCaseBuilderRoot: React.FC = () => {
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
-  const { pathname } = useLocation();
-  const { getChatTitle } = useChatList();
   const { isShow } = useInterUseCases();
+  const { pathname } = useLocation();
+
+  const items = useMemo<ItemProps[]>(
+    () =>
+      [
+        {
+          label: 'サンプル集',
+          to: ROUTE_INDEX_USE_CASE_BUILDER,
+          icon: <PiSwatches />,
+          display: 'usecase' as const,
+        },
+        {
+          label: 'マイユースケース',
+          to: `${ROUTE_INDEX_USE_CASE_BUILDER}/my-use-case`,
+          icon: <PiListDashes />,
+          display: 'usecase' as const,
+        },
+      ].flatMap((i) => (i !== null ? [i] : [])),
+    []
+  );
 
   const label = useMemo(() => {
-    const chatId = extractChatId(pathname);
-
-    if (chatId) {
-      return getChatTitle(chatId) || '';
-    } else {
-      return items.find((i) => i.to === pathname)?.label || '';
-    }
-  }, [pathname, getChatTitle]);
+    return items.find((i) => i.to === pathname)?.label || '';
+  }, [items, pathname]);
 
   return (
     <div className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll">

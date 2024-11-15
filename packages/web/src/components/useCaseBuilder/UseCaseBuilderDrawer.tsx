@@ -32,7 +32,6 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
             navigate('/');
           }}
         />
-        <div className="text-aws-smile mx-3 my-1 text-xs">コンソール</div>
         {items.map((item, idx) => (
           <DrawerItem
             key={idx}

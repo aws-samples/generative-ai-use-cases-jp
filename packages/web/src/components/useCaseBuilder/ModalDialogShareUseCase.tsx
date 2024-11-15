@@ -3,7 +3,6 @@ import ModalDialog from '../ModalDialog';
 import Button from '../Button';
 import { BaseProps } from '../../@types/common';
 import Switch from '../Switch';
-import InputText from '../InputText';
 import ButtonCopy from '../ButtonCopy';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 
@@ -44,23 +43,19 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
         </div>
 
         <div className="flex flex-col">
-          <div className="flex grow ">
-            <InputText
-              className="grow"
-              label="共有URL"
-              value={props.isShared ? shareUrl : ''}
-            />
-            <ButtonCopy
-              className="ml-2 mt-4"
-              disabled={!props.isShared}
-              text={shareUrl}
-            />
-          </div>
-          <div className="text-sm">
-            {props.isShared
-              ? '共有URLにアクセスすることで、他のユーザーも利用できます。'
-              : '共有URLが発行されていません。'}
-          </div>
+          {props.isShared && (
+            <>
+              <div className="flex grow ">
+                <div className="bg-aws-squid-ink my-2 flex flex-row items-center justify-between rounded px-2 py-1 text-white">
+                  <div className="break-all text-sm">{shareUrl}</div>
+                  <ButtonCopy text={shareUrl} />
+                </div>
+              </div>
+              <div className="text-xs text-gray-400">
+                共有URLにアクセスすることで、他のユーザーも利用できます。
+              </div>
+            </>
+          )}
         </div>
         <div className="flex justify-end gap-2">
           <Button
