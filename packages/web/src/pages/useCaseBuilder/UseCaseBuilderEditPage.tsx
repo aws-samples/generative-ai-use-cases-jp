@@ -22,13 +22,6 @@ import {
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
 
-// // 途中でプレースホルダーの項目名（exampleの項目名）が書き換わることがあるため、配列でexamplesを管理
-// // DBに登録するタイミングでObjectに変換する
-// type TemporayInputExample = {
-//   title: string;
-//   examples: string[];
-// };
-
 type StateType = {
   useCaseId: string | null;
   setUseCaseId: (s: string | null) => void;
@@ -108,36 +101,6 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
   };
 });
 
-// const flattenInputExamples = (
-//   itemLables: string[],
-//   tmp: UseCaseInputExample[]
-// ): TemporayInputExample[] => {
-//   return tmp.map((t) => {
-//     return {
-//       title: t.title,
-//       examples: itemLables.map((label) => t.examples[label]),
-//     };
-//   });
-// };
-
-// // "入力例"の変数をDB格納用の形式に変換する
-// const convertInputExamples = (
-//   itemLables: string[],
-//   tmp: TemporayInputExample[]
-// ): UseCaseInputExample[] => {
-//   return tmp.map((t) => {
-//     const examples: Record<string, string> = {};
-//     itemLables.forEach((label, idx) => {
-//       examples[label] = t.examples[idx];
-//     });
-
-//     return {
-//       title: t.title,
-//       examples,
-//     };
-//   });
-// };
-
 const UseCaseBuilderEditPage: React.FC = () => {
   const navigate = useNavigate();
   const { useCaseId: useCaseIdPathParam } = useParams();
@@ -203,14 +166,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const items = useMemo(() => {
     return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
-
-  // // 登録用のフォーマットに変換
-  // const convertedInputExamples = useMemo(() => {
-  //   return convertInputExamples(
-  //     items.map((item) => item.label),
-  //     inputExamples
-  //   );
-  // }, [inputExamples, items]);
 
   const isUpdate = useMemo(() => {
     return !!useCaseId;
