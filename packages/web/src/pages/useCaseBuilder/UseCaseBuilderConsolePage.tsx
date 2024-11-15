@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Card from '../../components/Card';
-import { CustomUseCaseMeta } from 'generative-ai-use-cases-jp';
+import { UseCaseAsOutput } from 'generative-ai-use-cases-jp';
 import ButtonIcon from '../../components/ButtonIcon';
 import { PiPlus, PiTrash } from 'react-icons/pi';
 import Button from '../../components/Button';
@@ -109,13 +109,13 @@ const UseCaseBuilderConsolePage: React.FC = () => {
   const [isOpenShareUseCase, setIsOpenShareUseCase] = useState(false);
   const [shareTargetId, setShareTargetId] = useState<string | null>(null);
 
-  const deleteTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
+  const deleteTargetUseCase = useMemo<UseCaseAsOutput | null>(() => {
     return deleteTargetId
       ? (myUseCases.find((uc) => uc.useCaseId === deleteTargetId) ?? null)
       : null;
   }, [deleteTargetId, myUseCases]);
 
-  const shareTargetUseCase = useMemo<CustomUseCaseMeta | null>(() => {
+  const shareTargetUseCase = useMemo<UseCaseAsOutput | null>(() => {
     return shareTargetId
       ? (myUseCases.find((uc) => uc.useCaseId === shareTargetId) ?? null)
       : null;
@@ -138,7 +138,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
       />
       <ModalDialogShareUseCase
         isOpen={isOpenShareUseCase}
-        hasShared={shareTargetUseCase?.hasShared ?? false}
+        isShared={shareTargetUseCase?.isShared ?? false}
         useCaseId={shareTargetUseCase?.useCaseId ?? ''}
         onToggleShared={() => {
           toggleShared(shareTargetUseCase?.useCaseId ?? '');
@@ -209,7 +209,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                           <div className="flex items-center gap-2 p-2">
                             <ButtonUseCaseEdit useCaseId={useCase.useCaseId} />
                             <ButtonShare
-                              hasShared={useCase.hasShared}
+                              isShared={useCase.isShared}
                               onClick={() => {
                                 setShareTargetId(useCase.useCaseId);
                                 setIsOpenShareUseCase(true);
@@ -284,7 +284,7 @@ const UseCaseBuilderConsolePage: React.FC = () => {
                                 useCaseId={useCase.useCaseId}
                               />
                               <ButtonShare
-                                hasShared={useCase.hasShared}
+                                isShared={useCase.isShared}
                                 onClick={() => {
                                   setShareTargetId(useCase.useCaseId);
                                   setIsOpenShareUseCase(true);

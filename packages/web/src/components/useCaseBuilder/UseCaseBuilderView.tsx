@@ -33,7 +33,7 @@ type Props = {
       previewMode?: false;
       useCaseId: string;
       isFavorite: boolean;
-      hasShared: boolean;
+      isShared: boolean;
       canEdit?: boolean;
       onToggleFavorite: () => void;
       onToggleShared: () => void;
@@ -187,7 +187,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
             {props.canEdit && (
               <>
                 <ButtonShare
-                  hasShared={props.hasShared}
+                  isShared={props.isShared}
                   disabled={props.isLoading}
                   onClick={props.onToggleShared}
                 />

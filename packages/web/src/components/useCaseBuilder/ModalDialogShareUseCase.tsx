@@ -9,7 +9,7 @@ import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 
 type Props = BaseProps & {
   isOpen: boolean;
-  hasShared: boolean;
+  isShared: boolean;
   useCaseId: string;
   onToggleShared: () => void;
   onClose: () => void;
@@ -30,10 +30,10 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
       <div className="flex flex-col gap-2">
         <div className="flex items-start gap-2">
           <Switch
-            checked={props.hasShared}
+            checked={props.isShared}
             className="text-xl"
             label={
-              props.hasShared
+              props.isShared
                 ? 'このユースケースは共有されているため、誰でも利用できます。'
                 : 'このユースケースは共有されていないため、あなたしか利用できません。'
             }
@@ -48,16 +48,16 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
             <InputText
               className="grow"
               label="共有URL"
-              value={props.hasShared ? shareUrl : ''}
+              value={props.isShared ? shareUrl : ''}
             />
             <ButtonCopy
               className="ml-2 mt-4"
-              disabled={!props.hasShared}
+              disabled={!props.isShared}
               text={shareUrl}
             />
           </div>
           <div className="text-sm">
-            {props.hasShared
+            {props.isShared
               ? '共有URLにアクセスすることで、他のユーザーも利用できます。'
               : '共有URLが発行されていません。'}
           </div>

@@ -11,12 +11,7 @@ export const handler = async (
     const useCaseId = event.pathParameters!.useCaseId!;
     const req: UpdateUseCaseRequest = JSON.parse(event.body!);
 
-    await updateUseCase(userId, useCaseId, {
-      title: req.title,
-      promptTemplate: req.promptTemplate,
-      description: req.description,
-      inputExamples: req.inputExamples,
-    });
+    await updateUseCase(userId, useCaseId, req);
 
     return {
       statusCode: 200,

@@ -3,47 +3,42 @@ export type UseCaseInputExample = {
   examples: Record<string, string>;
 };
 
-export type TableUseCase = {
+// 全てのデータで共通の項目
+// Table: PartitionKey=id, SortKey=dataType
+// Index: PartitionKey=useCaseId, SortKey=dataType
+export type UseCaseCommon = {
   id: string;
+  dataType: string;
   useCaseId: string;
+};
+
+// ユースケースの内容 (ユースケース作成やアップデート時のリクエスト型)
+export type UseCaseContent = {
   title: string;
   description?: string;
   promptTemplate: string;
   inputExamples?: UseCaseInputExample[];
-  hasShared: boolean;
-};
-export type TableFavoriteUseCase = {
-  id: string;
-  useCaseId: string;
-};
-export type TableRecentlyUseedUseCases = {
-  id: string;
-  useCaseId: 'recently';
-  recentUseIds: string[];
 };
 
-export type CustomUseCaseMeta = {
-  useCaseId: string;
-  title: string;
-  description?: string;
+// Table に記録されている内容
+export type UseCaseInTable = UseCaseCommon &
+  UseCaseContent & {
+    isShared: boolean;
+  };
+
+// Frontend に返される内容
+// isFavorite, isMyUseCase は動的に付与
+export type UseCaseAsOutput = UseCaseInTable & {
   isFavorite: boolean;
-  hasShared: boolean;
-  isMyUseCase?: boolean;
+  isMyUseCase: boolean;
 };
 
-export type CustomUseCase = CustomUseCaseMeta & {
-  promptTemplate: string;
-  inputExamples?: UseCaseInputExample[];
-};
-
-export type UseCaseId = {
-  useCaseId: string;
-};
-
+// お気に入り Toggle のレスポンス用
 export type IsFavorite = {
   isFavorite: boolean;
 };
 
-export type HasShared = {
-  hasShared: boolean;
+// 共有 Toggle のレスポンス用
+export type IsShared = {
+  isShared: boolean;
 };
