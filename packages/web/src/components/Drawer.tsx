@@ -8,7 +8,8 @@ import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
 import DrawerItem, { DrawerItemProps } from './DrawerItem';
 import DrawerBase from './DrawerBase';
-import DrawerTabs from './DrawerTabs';
+import Switch from './Switch';
+import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 export type ItemProps = DrawerItemProps & {
   display: 'usecase' | 'tool' | 'none';
@@ -75,26 +76,20 @@ const Drawer: React.FC<Props> = (props) => {
   const useCaseBuilderEnabled: boolean =
     import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 
-  const tabItems = useMemo(() => {
-    return [
-      {
-        label: 'GenU',
-        isActive: true,
-      },
-      {
-        label: 'ユースケースビルダー',
-        onClick: () => {
-          navigate('/use-case-builder');
-        },
-      },
-    ];
-  }, [navigate]);
-
   return (
     <>
       <DrawerBase>
-        {useCaseBuilderEnabled && <DrawerTabs items={tabItems} />}
-        <div className="text-aws-smile mx-3 my-2 text-xs">
+        {useCaseBuilderEnabled && (
+          <Switch
+            className="mx-3 mt-2"
+            label="ユースケースビルダー"
+            checked={false}
+            onSwitch={() => {
+              navigate(ROUTE_INDEX_USE_CASE_BUILDER);
+            }}
+          />
+        )}
+        <div className="text-aws-smile mx-3 my-1 text-xs">
           ユースケース <span className="text-gray-400">(生成 AI)</span>
         </div>
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
