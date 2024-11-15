@@ -9,11 +9,13 @@ import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDrawer';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from './main';
+import usePageTitle from './hooks/usePageTitle';
 
 const UseCaseBuilderRoot: React.FC = () => {
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { isShow } = useInterUseCases();
   const { pathname } = useLocation();
+  const { pageTitle } = usePageTitle();
 
   const items = useMemo<ItemProps[]>(
     () =>
@@ -35,8 +37,12 @@ const UseCaseBuilderRoot: React.FC = () => {
   );
 
   const label = useMemo(() => {
-    return items.find((i) => i.to === pathname)?.label || '';
-  }, [items, pathname]);
+    const label_ = items.find((i) => i.to === pathname)?.label || '';
+    if (label_) {
+      return label_;
+    }
+    return pageTitle;
+  }, [items, pageTitle, pathname]);
 
   return (
     <div className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll">
@@ -52,7 +58,7 @@ const UseCaseBuilderRoot: React.FC = () => {
             </button>
           </div>
 
-          {label}
+          <div className="line-clamp-1">{label}</div>
 
           {/* label を真ん中にするためのダミーのブロック */}
           <div className="w-10" />

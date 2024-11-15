@@ -9,12 +9,14 @@ import { produce } from 'immer';
 import ModalDialog from '../../components/ModalDialog';
 import Button from '../../components/Button';
 import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const UseCaseBuilderExecutePage: React.FC = () => {
   const navigate = useNavigate();
   const { useCaseId } = useParams();
   const [isOpenShareDialog, setIsOpenShareDialog] = useState(false);
   const [isOpenErrorDialog, setIsOpenErrorDialog] = useState(false);
+  const { setPageTitle } = usePageTitle();
 
   const {
     useCase,
@@ -23,6 +25,11 @@ const UseCaseBuilderExecutePage: React.FC = () => {
     error: errorGetUseCase,
   } = useUseCase(useCaseId);
   const { toggleFavorite, toggleShared } = useMyUseCases();
+
+  // ページタイトルの設定
+  useEffect(() => {
+    setPageTitle(useCase?.title ?? '');
+  }, [setPageTitle, useCase?.title]);
 
   useEffect(() => {
     if (errorGetUseCase?.response?.status === 404) {

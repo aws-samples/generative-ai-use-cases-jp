@@ -47,6 +47,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
       <ModalDialogDeleteUseCase
         isOpen={isOpenConfirmDelete}
         targetLabel={deleteTargetUseCase?.title ?? ''}
+        isShared={deleteTargetUseCase?.isShared}
         onClose={() => {
           setIsOpenConfirmDelete(false);
         }}
@@ -72,7 +73,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-row">
           <div className="flex-1" />
-          <div className="invisible flex flex-row items-center justify-center text-xl font-semibold lg:visible print:visible">
+          <div className="hidden flex-row items-center justify-center text-xl font-semibold lg:flex print:flex">
             マイユースケース
           </div>
           <div className="flex flex-1 justify-end">
