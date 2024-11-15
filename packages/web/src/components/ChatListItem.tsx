@@ -14,7 +14,6 @@ import { Chat } from 'generative-ai-use-cases-jp';
 import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
 import HighlightWithinTextarea from 'react-highlight-within-textarea';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 type Props = BaseProps & {
   active: boolean;
@@ -24,7 +23,6 @@ type Props = BaseProps & {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateTitle: (chatId: string, title: string) => Promise<any>;
   highlightWords: string[];
-  isUseCaseBuilder?: boolean;
 };
 
 const ChatListItem: React.FC<Props> = (props) => {
@@ -107,7 +105,7 @@ const ChatListItem: React.FC<Props> = (props) => {
           props.active && 'bg-aws-sky'
         }
           ${props.className}`}
-        to={`${props.isUseCaseBuilder ? ROUTE_INDEX_USE_CASE_BUILDER : ''}/chat/${chatId}`}>
+        to={`/chat/${chatId}`}>
         <div
           className={`flex h-8 max-h-5 w-full justify-start overflow-hidden`}>
           <div className="mr-2 ">
