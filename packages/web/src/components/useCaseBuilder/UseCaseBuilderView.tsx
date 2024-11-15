@@ -170,7 +170,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     <div>
       <div className="mb-4 flex flex-col-reverse text-xl font-semibold md:flex-row">
         {!props.previewMode && <div className="flex-1" />}
-        <div className="flex flex-1 flex-row justify-center">
+        <div className="flex flex-row justify-center">
           {props.isLoading
             ? '読み込み中...'
             : props.title
@@ -178,7 +178,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
               : '[タイトル未入力]'}
         </div>
         {!props.previewMode && (
-          <div className="mb-2 flex flex-1 flex-row justify-end md:mb-0">
+          <div className="mb-2 flex min-w-48 flex-1 flex-row justify-end md:mb-0">
             <div className="flex items-center">
               <ButtonFavorite
                 isFavorite={props.isFavorite}
