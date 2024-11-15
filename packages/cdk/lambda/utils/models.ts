@@ -44,7 +44,7 @@ export const defaultImageGenerationModel: Model = {
 
 // Prompt Templates
 
-const LLAMA2_PROMPT: PromptTemplate = {
+const LLAMA_PROMPT: PromptTemplate = {
   prefix: '<s>[INST] ',
   suffix: ' [/INST]',
   join: '',
@@ -180,7 +180,7 @@ const createConverseCommandInput = (
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
-  // system role で渡された文字列を、システムコンテキストに設定
+  // system role で渡された文字列を、システムプロンプトに設定
   const system = messages.find((message) => message.role === 'system');
   const systemContext = system ? [{ text: system.content }] : [];
 
@@ -245,7 +245,7 @@ const createConverseCommandInput = (
   return converseCommandInput;
 };
 
-// システムコンテキストに対応していないモデル用の関数
+// システムプロンプトに対応していないモデル用の関数
 // - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
@@ -305,7 +305,7 @@ const createConverseStreamCommandInput = (
   } as ConverseStreamCommandInput;
 };
 
-// システムコンテキストに対応していないモデル用の関数
+// システムプロンプトに対応していないモデル用の関数
 // - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
@@ -582,6 +582,30 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'us.anthropic.claude-3-5-sonnet-20241022-v2:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'anthropic.claude-3-5-haiku-20241022-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.anthropic.claude-3-5-haiku-20241022-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -599,6 +623,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'eu.anthropic.claude-3-5-sonnet-20240620-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'apac.anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
@@ -646,6 +678,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'apac.anthropic.claude-3-sonnet-20240229-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -663,6 +703,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'eu.anthropic.claude-3-haiku-20240307-v1:0': {
+    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'apac.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
@@ -784,22 +832,6 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
-  'meta.llama2-13b-chat-v1': {
-    defaultParams: LLAMA_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
-  },
-  'meta.llama2-70b-chat-v1': {
-    defaultParams: LLAMA_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
-  },
   'mistral.mistral-7b-instruct-v0:2': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -897,8 +929,8 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
 };
 
 export const getSageMakerModelTemplate = (model: string): PromptTemplate => {
-  if (model.includes('llama-2')) {
-    return LLAMA2_PROMPT;
+  if (model.includes('llama')) {
+    return LLAMA_PROMPT;
   } else if (model.includes('bilingual-rinna')) {
     return BILINGUAL_RINNA_PROMPT;
   } else if (model.includes('rinna')) {

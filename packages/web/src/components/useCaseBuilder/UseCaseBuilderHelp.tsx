@@ -41,7 +41,7 @@ type Props = {
 const UseCaseBuilderHelp: React.FC<Props> = (props) => {
   return (
     <div
-      className={`${props.isOpen ? 'visible w-96' : 'invisible w-0'} fixed right-0 z-[9999999] h-screen overflow-y-auto border-l bg-white px-6 py-3 shadow transition-all`}>
+      className={`${props.isOpen ? 'right-0' : '-right-96'} fixed z-[9999999] h-screen w-96 overflow-y-auto border-l bg-white px-6 py-3 shadow transition-all`}>
       <div className="mb-6 flex justify-between p-1 text-xl font-bold">
         <div>ヘルプ</div>
         <ButtonIcon onClick={props.onClose}>

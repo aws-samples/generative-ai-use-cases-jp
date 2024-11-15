@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getOwnedUseCase, toggleShared } from './useCaseBuilderRepository';
-import { CustomUseCaseMeta, HasShared } from 'generative-ai-use-cases-jp';
+import { toggleShared } from './useCaseBuilderRepository';
+import { IsShared } from 'generative-ai-use-cases-jp';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -10,25 +10,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const useCase: CustomUseCaseMeta | null = await getOwnedUseCase(
-      userId,
-      useCaseId
-    );
-
-    if (!useCase) {
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          message: 'Use Case not found / not created by this user',
-        }),
-      };
-    }
-
-    const newHasSharedRes: HasShared = await toggleShared(userId, useCase);
+    const isShared: IsShared = await toggleShared(userId, useCaseId);
 
     return {
       statusCode: 200,
@@ -36,7 +18,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(newHasSharedRes),
+      body: JSON.stringify(isShared),
     };
   } catch (error) {
     console.log(error);

@@ -30,32 +30,32 @@ const useUseCaseBuilderApi = () => {
         useCaseId ? `/usecases/${useCaseId}` : null
       );
     },
-    createUseCase: (params: CreateUseCaseRequest) => {
+    createUseCase: async (params: CreateUseCaseRequest) => {
       return http
         .post<CreateUseCaseRespose, CreateUseCaseRequest>('/usecases', params)
         .then((res) => {
           return res.data;
         });
     },
-    updateUseCase: (useCaseId: string, params: UpdateUseCaseRequest) => {
+    updateUseCase: async (useCaseId: string, params: UpdateUseCaseRequest) => {
       return http.put<null, UpdateUseCaseRequest>(
         `/usecases/${useCaseId}`,
         params
       );
     },
-    updateRecentUseUseCase: (useCaseId: string) => {
+    updateRecentUseUseCase: async (useCaseId: string) => {
       return http.put<null>(`/usecases/recent/${useCaseId}`, {});
     },
-    deleteUseCase: (useCaseId: string) => {
+    deleteUseCase: async (useCaseId: string) => {
       return http.delete(`/usecases/${useCaseId}`);
     },
-    toggleFavorite: (useCaseId: string) => {
+    toggleFavorite: async (useCaseId: string) => {
       return http.put<ToggleFavoriteResponse>(
         `/usecases/${useCaseId}/favorite`,
         {}
       );
     },
-    toggleShared: (useCaseId: string) => {
+    toggleShared: async (useCaseId: string) => {
       return http.put<ToggleShareResponse>(`/usecases/${useCaseId}/shared`, {});
     },
   };

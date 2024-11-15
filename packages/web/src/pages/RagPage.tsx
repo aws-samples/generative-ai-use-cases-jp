@@ -7,7 +7,8 @@ import useRag from '../hooks/useRag';
 import { useLocation, Link } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import useFollow from '../hooks/useFollow';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import KendraIcon from '../assets/kendra.svg?react';
 import { PiPlus } from 'react-icons/pi';
@@ -36,7 +37,7 @@ const RagPage: React.FC = () => {
   const { pathname, search } = useLocation();
   const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } = useRag(pathname);
-  const { scrollableContainer, scrolledAnchor, setFollowing } = useScroll();
+  const { scrollableContainer, setFollowing } = useFollow();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
 
@@ -130,7 +131,10 @@ const RagPage: React.FC = () => {
             </div>
           ))}
         </div>
-        <div ref={scrolledAnchor} />
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full items-end justify-center lg:pr-64 print:hidden">
           <InputChatContent

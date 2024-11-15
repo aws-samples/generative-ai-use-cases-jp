@@ -68,7 +68,7 @@ export type ClaudeMessageParams = {
   top_p?: number;
 };
 
-// Llama2
+// Llama
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-meta.html
 export type LlamaParams = {
   prompt?: string;
@@ -166,7 +166,7 @@ export type BedrockResponse = {
   };
   // Titan
   outputText: string;
-  // Llama2
+  // Llama
   generation: string;
   // Mistral
   outputs: {

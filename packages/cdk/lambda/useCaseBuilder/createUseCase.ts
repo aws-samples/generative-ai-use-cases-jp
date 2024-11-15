@@ -9,13 +9,7 @@ export const handler = async (
     const req: CreateUseCaseRequest = JSON.parse(event.body!);
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const useCaseIdRes = await createUseCase({
-      userId,
-      title: req.title,
-      promptTemplate: req.promptTemplate,
-      description: req.description,
-      inputExamples: req.inputExamples,
-    });
+    const useCase = await createUseCase(userId, req);
 
     return {
       statusCode: 200,
@@ -23,7 +17,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(useCaseIdRes),
+      body: JSON.stringify(useCase),
     };
   } catch (error) {
     console.log(error);

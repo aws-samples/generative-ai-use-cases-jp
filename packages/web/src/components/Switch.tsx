@@ -9,7 +9,7 @@ type Props = BaseProps & {
 
 const Switch: React.FC<Props> = (props) => {
   return (
-    <div>
+    <div className={`${props.className ?? ''}`}>
       <label className="relative inline-flex cursor-pointer items-center hover:underline">
         <input
           type="checkbox"

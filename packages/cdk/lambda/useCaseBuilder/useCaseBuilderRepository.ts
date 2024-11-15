@@ -1,19 +1,19 @@
 import {
-  CustomUseCaseMeta,
-  UseCaseId,
   IsFavorite,
-  HasShared,
-  CustomUseCase,
-  TableUseCase,
-  UseCaseInputExample,
+  IsShared,
+  UseCaseCommon,
+  UseCaseInTable,
+  UseCaseAsOutput,
+  UseCaseContent,
 } from 'generative-ai-use-cases-jp';
 import {
   DeleteCommand,
   DynamoDBDocumentClient,
-  GetCommand,
   PutCommand,
   QueryCommand,
   UpdateCommand,
+  BatchWriteCommand,
+  TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -23,185 +23,140 @@ const USECASE_ID_INDEX_NAME: string = process.env.USECASE_ID_INDEX_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
-export const listUseCases = async (
-  _userId: string
-): Promise<CustomUseCaseMeta[]> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
-
-  const [useCaseRes, favoriteRes] = await Promise.all([
-    dynamoDbDocument.send(
-      new QueryCommand({
-        TableName: USECASE_TABLE_NAME,
-        KeyConditionExpression: '#id = :id',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
-        ExpressionAttributeValues: {
-          ':id': useCaseUserId,
-        },
-      })
-    ),
-
-    dynamoDbDocument.send(
-      new QueryCommand({
-        TableName: USECASE_TABLE_NAME,
-        KeyConditionExpression: '#id = :id',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
-        ExpressionAttributeValues: {
-          ':id': favoriteUserId,
-        },
-      })
-    ),
-  ]);
-
-  const favoriteSet = new Set(
-    (favoriteRes.Items || []).map((item) => item.useCaseId)
-  );
-
-  return ((useCaseRes.Items as TableUseCase[]) || []).map((item) => ({
-    useCaseId: item.useCaseId,
-    title: item.title,
-    description: item.description,
-    isFavorite: favoriteSet.has(item.useCaseId),
-    hasShared: item.hasShared,
-    isMyUseCase: true,
-  }));
-};
-
-export const listFavoriteUseCases = async (
-  _userId: string
-): Promise<CustomUseCaseMeta[]> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
-
-  const favoriteRes = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
-      KeyConditionExpression: '#id = :id',
-      ExpressionAttributeNames: {
-        '#id': 'id',
-      },
-      ExpressionAttributeValues: {
-        ':id': favoriteUserId,
-      },
-    })
-  );
-
-  if (!favoriteRes.Items || favoriteRes.Items.length === 0) {
-    return [];
-  }
-
-  const favoriteUseCaseIds = favoriteRes.Items.map((item) => item.useCaseId);
-
-  const useCases: TableUseCase[] = [];
-  for (const favoriteUseCaseId of favoriteUseCaseIds) {
-    const useCaseRes = await dynamoDbDocument.send(
-      new QueryCommand({
-        TableName: USECASE_TABLE_NAME,
-        IndexName: USECASE_ID_INDEX_NAME,
-        KeyConditionExpression:
-          'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
-        ExpressionAttributeValues: {
-          ':useCaseId': favoriteUseCaseId,
-          ':prefixId': 'user#useCase#',
-        },
-      })
-    );
-    if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
-    const useCaseItem = useCaseRes.Items[0];
-    if (!useCaseItem) continue;
-    useCases.push(useCaseItem as TableUseCase);
-  }
-
-  return useCases
-    .filter((useCase): useCase is NonNullable<typeof useCase> => {
-      if (!useCase) return false;
-      return useCase.id === useCaseUserId || useCase.hasShared;
-    })
-    .map((item) => ({
-      useCaseId: item.useCaseId,
-      title: item.title,
-      description: item.description,
-      isFavorite: true,
-      hasShared: item.hasShared,
-      isMyUseCase: item.id === useCaseUserId,
-    }));
-};
-
-// 自分が作成しただけでなく、共有されたユースケースも取得
-export const getUseCase = async (
-  _userId: string,
+// useCaseId のユースケースを取得
+const innerFindUseCaseByUseCaseId = async (
   useCaseId: string
-): Promise<CustomUseCase | null> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
-  const useCaseRes = await dynamoDbDocument.send(
+): Promise<UseCaseInTable | null> => {
+  const useCaseInTable = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: USECASE_TABLE_NAME,
       IndexName: USECASE_ID_INDEX_NAME,
       KeyConditionExpression:
-        'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
+        '#useCaseId = :useCaseId and begins_with(#dataType, :dataTypePrefix)',
       ExpressionAttributeNames: {
-        '#id': 'id',
+        '#useCaseId': 'useCaseId',
+        '#dataType': 'dataType',
       },
       ExpressionAttributeValues: {
         ':useCaseId': useCaseId,
-        ':prefixId': 'user#useCase#',
+        ':dataTypePrefix': 'useCase',
       },
     })
   );
 
-  const useCase = useCaseRes.Items?.[0] as TableUseCase | undefined;
-
-  if (!useCase || (useCase.id !== useCaseUserId && !useCase.hasShared)) {
+  if (useCaseInTable.Items && useCaseInTable.Items.length > 0) {
+    return useCaseInTable.Items[0] as UseCaseInTable;
+  } else {
     return null;
   }
+};
 
-  const favoriteRes = await dynamoDbDocument.send(
-    new GetCommand({
+// userId のユースケース一覧を取得
+const innerFindUseCasesByUserId = async (
+  userId: string
+): Promise<UseCaseInTable[]> => {
+  const useCasesInTable = await dynamoDbDocument.send(
+    new QueryCommand({
       TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: favoriteUserId,
-        useCaseId: useCaseId,
+      KeyConditionExpression:
+        '#id = :id and begins_with(#dataType, :dataTypePrefix)',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#dataType': 'dataType',
+      },
+      ExpressionAttributeValues: {
+        ':id': `useCase#${userId}`,
+        ':dataTypePrefix': 'useCase',
+      },
+      ScanIndexForward: false,
+    })
+  );
+
+  return (useCasesInTable.Items || []) as UseCaseInTable[];
+};
+
+// useCaseId の配列からユースケース一覧を取得
+const innerFindUseCasesByUseCaseIds = async (
+  useCaseIds: string[]
+): Promise<UseCaseInTable[]> => {
+  const useCasesInTable: UseCaseInTable[] = [];
+
+  for (const useCaseId of useCaseIds) {
+    const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+
+    if (useCaseInTable) {
+      useCasesInTable.push(useCaseInTable);
+    }
+  }
+
+  return useCasesInTable;
+};
+
+// userId の特定のデータタイプ (お気に入り・利用履歴) 一覧を取得
+const innerFindCommonsByUserIdAndDataType = async (
+  userId: string,
+  dataTypePrefix: string,
+  limit?: number
+): Promise<UseCaseCommon[]> => {
+  const commons = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: USECASE_TABLE_NAME,
+      KeyConditionExpression:
+        '#id = :id and begins_with(#dataType, :dataTypePrefix)',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#dataType': 'dataType',
+      },
+      ExpressionAttributeValues: {
+        ':id': `useCase#${userId}`,
+        ':dataTypePrefix': dataTypePrefix,
+      },
+      Limit: limit,
+      ScanIndexForward: false,
+    })
+  );
+
+  return (commons.Items || []) as UseCaseCommon[];
+};
+
+// useCaseId に関連する全てのデータ (本体・お気に入り・利用履歴) 一覧を取得
+const innerFindCommonsByUseCaseId = async (
+  useCaseId: string
+): Promise<UseCaseCommon[]> => {
+  const commons = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: USECASE_TABLE_NAME,
+      IndexName: USECASE_ID_INDEX_NAME,
+      KeyConditionExpression: '#useCaseId = :useCaseId',
+      ExpressionAttributeNames: {
+        '#useCaseId': 'useCaseId',
+      },
+      ExpressionAttributeValues: {
+        ':useCaseId': useCaseId,
       },
     })
   );
 
-  return {
-    useCaseId: useCase.useCaseId,
-    title: useCase.title,
-    description: useCase.description,
-    inputExamples: useCase.inputExamples,
-    isFavorite: Boolean(favoriteRes.Item),
-    promptTemplate: useCase.promptTemplate,
-    hasShared: useCase.hasShared,
-    isMyUseCase: useCase.id === useCaseUserId,
-  };
+  return (commons.Items || []) as UseCaseCommon[];
 };
 
-export const createUseCase = async (params: {
-  userId: string;
-  title: string;
-  promptTemplate: string;
-  description?: string;
-  inputExamples?: UseCaseInputExample[];
-}): Promise<UseCaseId> => {
-  const userId = `user#useCase#${params.userId}`;
+export const createUseCase = async (
+  userId: string,
+  content: UseCaseContent
+): Promise<UseCaseAsOutput> => {
+  const id = `useCase#${userId}`;
   const useCaseId = crypto.randomUUID();
-  const item: TableUseCase = {
-    id: userId,
-    useCaseId: useCaseId,
-    title: params.title,
-    description: params.description,
-    promptTemplate: params.promptTemplate,
-    inputExamples: params.inputExamples,
-    hasShared: false,
+  const dataType = `useCase#${Date.now()}`;
+
+  const item: UseCaseInTable = {
+    id,
+    dataType,
+    useCaseId,
+    title: content.title,
+    description: content.description,
+    promptTemplate: content.promptTemplate,
+    inputExamples: content.inputExamples,
+    isShared: false,
   };
 
   await dynamoDbDocument.send(
@@ -211,308 +166,327 @@ export const createUseCase = async (params: {
     })
   );
 
-  return { useCaseId: useCaseId };
+  return {
+    ...item,
+    isFavorite: false,
+    isMyUseCase: true,
+  };
+};
+
+export const getUseCase = async (
+  userId: string,
+  useCaseId: string
+): Promise<UseCaseAsOutput | null> => {
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+
+  if (!useCaseInTable) {
+    return null;
+  }
+
+  if (useCaseInTable.id.split('#')[1] !== userId) {
+    return null;
+  }
+
+  const favorites = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'favorite'
+  );
+  const favoritesUseCaseIds = favorites.map((f) => f.useCaseId);
+
+  const useCaseAsOutput: UseCaseAsOutput = {
+    ...useCaseInTable,
+    isFavorite: favoritesUseCaseIds.includes(useCaseId),
+    isMyUseCase: useCaseInTable.id.split('#')[1] === userId,
+  };
+
+  return useCaseAsOutput;
+};
+
+export const listUseCases = async (
+  userId: string
+): Promise<UseCaseAsOutput[]> => {
+  const useCasesInTable = await innerFindUseCasesByUserId(userId);
+
+  const favorites = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'favorite'
+  );
+  const favoritesUseCaseIds = favorites.map((f) => f.useCaseId);
+
+  const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
+    return {
+      ...u,
+      isFavorite: favoritesUseCaseIds.includes(u.useCaseId),
+      isMyUseCase: u.id.split('#')[1] === userId,
+    };
+  });
+
+  return useCasesAsOutput;
 };
 
 export const updateUseCase = async (
-  _userId: string,
+  userId: string,
   useCaseId: string,
-  params: {
-    title: string;
-    promptTemplate: string;
-    description?: string;
-    inputExamples?: UseCaseInputExample[];
-  }
+  content: UseCaseContent
 ): Promise<void> => {
-  const userId = `user#useCase#${_userId}`;
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+
+  if (!useCaseInTable) {
+    console.error(
+      `Use case doesn't exist for userId=${userId} and useCaseId=${useCaseId}`
+    );
+    return;
+  }
+
+  if (useCaseInTable.id.split('#')[1] !== userId) {
+    console.error(
+      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+    );
+    return;
+  }
+
   await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        id: userId,
-        useCaseId: useCaseId,
+        id: useCaseInTable.id,
+        dataType: useCaseInTable.dataType,
       },
       UpdateExpression:
         'set title = :title, promptTemplate = :promptTemplate, description = :description, inputExamples = :inputExamples',
       ExpressionAttributeValues: {
-        ':title': params.title,
-        ':promptTemplate': params.promptTemplate,
-        ':description': params.description ?? '',
-        ':inputExamples': params.inputExamples ?? [],
+        ':title': content.title,
+        ':promptTemplate': content.promptTemplate,
+        ':description': content.description ?? '',
+        ':inputExamples': content.inputExamples ?? [],
       },
     })
   );
 };
 
 export const deleteUseCase = async (
-  _userId: string,
+  userId: string,
   useCaseId: string
 ): Promise<void> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
 
-  // ユースケース削除
-  await dynamoDbDocument.send(
-    new DeleteCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: useCaseUserId,
-        useCaseId: useCaseId,
-      },
-    })
-  );
-
-  // お気に入り登録があれば削除
-  const result = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: favoriteUserId,
-        useCaseId: useCaseId,
-      },
-    })
-  );
-  if (result.Item) {
-    await dynamoDbDocument.send(
-      new DeleteCommand({
-        TableName: USECASE_TABLE_NAME,
-        Key: {
-          id: favoriteUserId,
-          useCaseId: useCaseId,
-        },
-      })
+  if (!useCaseInTable) {
+    console.error(
+      `Use case doesn't exist for userId=${userId} and useCaseId=${useCaseId}`
     );
+    return;
   }
+
+  if (useCaseInTable.id.split('#')[1] !== userId) {
+    console.error(
+      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+    );
+    return;
+  }
+
+  const commons = await innerFindCommonsByUseCaseId(useCaseId);
+  const requestItems = commons.map((common) => {
+    return {
+      DeleteRequest: {
+        Key: {
+          id: common.id,
+          dataType: common.dataType,
+        },
+      },
+    };
+  });
+
+  // 本体・お気に入り・利用履歴をまとめて削除
+  await dynamoDbDocument.send(
+    new BatchWriteCommand({
+      RequestItems: {
+        [USECASE_TABLE_NAME]: requestItems,
+      },
+    })
+  );
+};
+
+export const listFavoriteUseCases = async (
+  userId: string
+): Promise<UseCaseAsOutput[]> => {
+  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite');
+  const useCaseIds = commons.map((c) => c.useCaseId);
+  const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds);
+  const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
+    return {
+      ...u,
+      isFavorite: true,
+      isMyUseCase: u.id.split('#')[1] === userId,
+    };
+  });
+
+  // 自分のもの or シェアされているもののみ
+  const useCasesAsOutputFiltered = useCasesAsOutput.filter((u) => {
+    return u.isMyUseCase || u.isShared;
+  });
+
+  return useCasesAsOutputFiltered;
 };
 
 export const toggleFavorite = async (
-  _userId: string,
+  userId: string,
   useCaseId: string
 ): Promise<IsFavorite> => {
-  const favoriteUserId = `user#favorite#${_userId}`;
+  // 自分のお気に入り一覧を取得してすでに登録されているかを確認する
+  // MEMO: お気に入りの数が膨大になった場合リストから溢れる可能性あり
+  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite');
+  const useCaseIds = commons.map((c) => c.useCaseId);
+  const index = useCaseIds.indexOf(useCaseId);
 
-  const existingFavorite = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: favoriteUserId,
-        useCaseId: useCaseId,
-      },
-    })
-  );
+  if (index >= 0) {
+    // お気に入りを解除
+    const common = commons[index];
 
-  if (existingFavorite.Item) {
     await dynamoDbDocument.send(
       new DeleteCommand({
         TableName: USECASE_TABLE_NAME,
         Key: {
-          id: favoriteUserId,
-          useCaseId: useCaseId,
+          id: common.id,
+          dataType: common.dataType,
         },
       })
     );
+
     return { isFavorite: false };
   } else {
+    // お気に入りに登録
     await dynamoDbDocument.send(
       new PutCommand({
         TableName: USECASE_TABLE_NAME,
         Item: {
-          id: favoriteUserId,
+          id: `useCase#${userId}`,
+          dataType: `favorite#${Date.now()}`,
           useCaseId: useCaseId,
         },
       })
     );
+
     return { isFavorite: true };
   }
 };
 
-export const getOwnedUseCase = async (
-  _userId: string,
-  useCaseId: string
-): Promise<CustomUseCase | null> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
-
-  const useCaseRes = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: useCaseUserId,
-        useCaseId: useCaseId,
-      },
-    })
-  );
-  if (!useCaseRes.Item) return null;
-
-  const favoriteRes = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: favoriteUserId,
-        useCaseId: useCaseId,
-      },
-    })
-  );
-  const item = useCaseRes.Item;
-
-  return {
-    useCaseId: item.useCaseId,
-    title: item.title,
-    isFavorite: Boolean(favoriteRes.Item),
-    promptTemplate: item.promptTemplate,
-    hasShared: item.hasShared,
-    isMyUseCase: true,
-  };
-};
-
 export const toggleShared = async (
-  _userId: string,
-  useCase: CustomUseCaseMeta
-): Promise<HasShared> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const newSharedState = !useCase.hasShared;
+  userId: string,
+  useCaseId: string
+): Promise<IsShared> => {
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+
+  if (!useCaseInTable) {
+    console.error(
+      `Use case doesn't exist for userId=${userId} and useCaseId=${useCaseId}`
+    );
+    return { isShared: false };
+  }
+
+  if (useCaseInTable.id.split('#')[1] !== userId) {
+    console.error(
+      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+    );
+    return { isShared: false };
+  }
+
   await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: USECASE_TABLE_NAME,
       Key: {
-        id: useCaseUserId,
-        useCaseId: useCase.useCaseId,
+        id: useCaseInTable.id,
+        dataType: useCaseInTable.dataType,
       },
-      UpdateExpression: 'set hasShared = :hasShared',
+      UpdateExpression: 'set isShared = :isShared',
       ExpressionAttributeValues: {
-        ':hasShared': newSharedState,
+        ':isShared': !useCaseInTable.isShared,
       },
     })
   );
-  return { hasShared: newSharedState };
+
+  return { isShared: !useCaseInTable.isShared };
 };
 
 export const listRecentlyUsedUseCases = async (
-  _userId: string
-): Promise<CustomUseCaseMeta[]> => {
-  const useCaseUserId = `user#useCase#${_userId}`;
-  const favoriteUserId = `user#favorite#${_userId}`;
-  const recentlyUsedUserId = `user#recentlyUsed#${_userId}`;
-
-  const recentlyUsedRes = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: recentlyUsedUserId,
-        useCaseId: 'recently',
-      },
-    })
+  userId: string
+): Promise<UseCaseAsOutput[]> => {
+  const commons = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'recentlyUsed',
+    15
   );
+  const useCaseIds = commons.map((c) => c.useCaseId);
+  const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds);
 
-  if (
-    !recentlyUsedRes.Item?.recentUseCaseIds ||
-    recentlyUsedRes.Item.recentUseCaseIds.length === 0
-  ) {
-    return [];
-  }
-
-  const recentUseCaseIds = recentlyUsedRes.Item.recentUseCaseIds;
-
-  const favoriteRes = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
-      KeyConditionExpression: '#id = :id',
-      ExpressionAttributeNames: {
-        '#id': 'id',
-      },
-      ExpressionAttributeValues: {
-        ':id': favoriteUserId,
-      },
-    })
+  const favorites = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'favorite'
   );
+  const favoritesUseCaseIds = favorites.map((f) => f.useCaseId);
 
-  const favoriteSet = new Set(
-    (favoriteRes.Items || []).map((item) => item.useCaseId)
-  );
+  const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
+    return {
+      ...u,
+      isFavorite: favoritesUseCaseIds.includes(u.useCaseId),
+      isMyUseCase: u.id.split('#')[1] === userId,
+    };
+  });
 
-  const useCasesMeta: CustomUseCaseMeta[] = [];
-  for (const useCaseId of recentUseCaseIds) {
-    if (useCasesMeta.length >= 15) break;
-    const useCaseRes = await dynamoDbDocument.send(
-      new QueryCommand({
-        TableName: USECASE_TABLE_NAME,
-        IndexName: USECASE_ID_INDEX_NAME,
-        KeyConditionExpression:
-          'useCaseId = :useCaseId AND begins_with(#id, :prefixId)',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-        },
-        ExpressionAttributeValues: {
-          ':useCaseId': useCaseId,
-          ':prefixId': 'user#useCase#',
-        },
-      })
-    );
+  // 自分のもの or シェアされているもののみ
+  const useCasesAsOutputFiltered = useCasesAsOutput.filter((u) => {
+    return u.isMyUseCase || u.isShared;
+  });
 
-    if (!useCaseRes.Items || useCaseRes.Items.length === 0) continue;
-
-    const useCase = useCaseRes.Items[0] as TableUseCase;
-    if (useCase.id !== useCaseUserId && !useCase.hasShared) continue;
-    useCasesMeta.push({
-      useCaseId: useCase.useCaseId,
-      title: useCase.title,
-      description: useCase.description,
-      isFavorite: favoriteSet.has(useCase.useCaseId),
-      hasShared: useCase.hasShared,
-      isMyUseCase: useCase.id === useCaseUserId,
-    });
-  }
-
-  return useCasesMeta;
+  return useCasesAsOutputFiltered;
 };
 
 export const updateRecentlyUsedUseCase = async (
-  _userId: string,
+  userId: string,
   useCaseId: string
 ): Promise<void> => {
-  const recentlyUsedUserId = `user#recentlyUsed#${_userId}`;
-
-  const currentRes = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: USECASE_TABLE_NAME,
-      Key: {
-        id: recentlyUsedUserId,
-        useCaseId: 'recently',
-      },
-    })
+  const commons = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'recentlyUsed'
   );
+  const useCaseIds = commons.map((c) => c.useCaseId);
+  const index = useCaseIds.indexOf(useCaseId);
 
-  let currentUseCaseIds = currentRes.Item?.recentUseCaseIds || [];
-  currentUseCaseIds = currentUseCaseIds.filter(
-    (id: string) => id !== useCaseId
-  );
-  currentUseCaseIds.unshift(useCaseId);
-  currentUseCaseIds = currentUseCaseIds.slice(0, 15);
-
-  if (!currentRes.Item) {
-    // 新規作成
+  if (index >= 0) {
+    // 削除と追加を同時に
+    await dynamoDbDocument.send(
+      new TransactWriteCommand({
+        TransactItems: [
+          {
+            Delete: {
+              TableName: USECASE_TABLE_NAME,
+              Key: {
+                id: commons[index].id,
+                dataType: commons[index].dataType,
+              },
+            },
+          },
+          {
+            Put: {
+              TableName: USECASE_TABLE_NAME,
+              Item: {
+                id: `useCase#${userId}`,
+                dataType: `recentlyUsed#${Date.now()}`,
+                useCaseId,
+              },
+            },
+          },
+        ],
+      })
+    );
+  } else {
+    // 追加のみ
     await dynamoDbDocument.send(
       new PutCommand({
         TableName: USECASE_TABLE_NAME,
         Item: {
-          id: recentlyUsedUserId,
-          useCaseId: 'recently',
-          recentUseCaseIds: currentUseCaseIds,
-        },
-      })
-    );
-  } else {
-    // 更新
-    await dynamoDbDocument.send(
-      new UpdateCommand({
-        TableName: USECASE_TABLE_NAME,
-        Key: {
-          id: recentlyUsedUserId,
-          useCaseId: 'recently',
-        },
-        UpdateExpression: 'SET recentUseCaseIds = :recentUseCaseIds',
-        ExpressionAttributeValues: {
-          ':recentUseCaseIds': currentUseCaseIds,
+          id: `useCase#${userId}`,
+          dataType: `recentlyUsed#${Date.now()}`,
+          useCaseId,
         },
       })
     );

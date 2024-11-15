@@ -33,7 +33,7 @@ type Props = {
       previewMode?: false;
       useCaseId: string;
       isFavorite: boolean;
-      hasShared: boolean;
+      isShared: boolean;
       canEdit?: boolean;
       onToggleFavorite: () => void;
       onToggleShared: () => void;
@@ -167,36 +167,40 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   );
 
   return (
-    <div className="relative">
-      <div className="col-span-12 mb-4 flex h-0 items-center justify-center text-xl font-semibold">
-        {props.isLoading
-          ? '読み込み中...'
-          : props.title
-            ? props.title
-            : '[タイトル未入力]'}
-      </div>
-      {!props.previewMode && (
-        <div className="absolute -top-2 right-0">
-          <div className="flex items-center gap-2">
-            <ButtonFavorite
-              isFavorite={props.isFavorite}
-              disabled={props.isLoading}
-              onClick={props.onToggleFavorite}
-            />
-
-            {props.canEdit && (
-              <>
-                <ButtonShare
-                  hasShared={props.hasShared}
-                  disabled={props.isLoading}
-                  onClick={props.onToggleShared}
-                />
-                <ButtonUseCaseEdit useCaseId={props.useCaseId} />
-              </>
-            )}
-          </div>
+    <div>
+      <div className="mb-4 flex flex-col-reverse text-xl font-semibold md:flex-row">
+        {!props.previewMode && <div className="flex-1" />}
+        <div className="flex flex-1 flex-row justify-center">
+          {props.isLoading
+            ? '読み込み中...'
+            : props.title
+              ? props.title
+              : '[タイトル未入力]'}
         </div>
-      )}
+        {!props.previewMode && (
+          <div className="mb-2 flex flex-1 flex-row justify-end md:mb-0">
+            <div className="flex items-center">
+              <ButtonFavorite
+                isFavorite={props.isFavorite}
+                disabled={props.isLoading}
+                onClick={props.onToggleFavorite}
+              />
+
+              {props.canEdit && (
+                <>
+                  <ButtonUseCaseEdit useCaseId={props.useCaseId} />
+                  <ButtonShare
+                    className="ml-2"
+                    isShared={props.isShared}
+                    disabled={props.isLoading}
+                    onClick={props.onToggleShared}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="pb-4 text-sm text-gray-600">
         {props.description ?? ''}

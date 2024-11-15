@@ -140,7 +140,7 @@ const PromptSettings: React.FC<Props> = (props) => {
               setisSelectedPreset(false);
             }}
           >
-            登録済みのシステムコンテキスト
+            登録済みのシステムプロンプト
           </div>
           <div
             className={twMerge(
