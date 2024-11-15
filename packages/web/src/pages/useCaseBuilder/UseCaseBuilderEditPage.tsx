@@ -290,9 +290,15 @@ const UseCaseBuilderEditPage: React.FC = () => {
         }}
       />
       {(isLoading || isDeleting || isPosting) && (
-        <LoadingOverlay>
-          {isLoading ? '読み込み中...' : isDeleting ? '削除中...' : '登録中...'}
-        </LoadingOverlay>
+        <div className="absolute left-0 top-0">
+          <LoadingOverlay>
+            {isLoading
+              ? '読み込み中...'
+              : isDeleting
+                ? '削除中...'
+                : '登録中...'}
+          </LoadingOverlay>
+        </div>
       )}
 
       <UseCaseBuilderHelp

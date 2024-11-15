@@ -25,13 +25,15 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
     <DrawerBase>
       <div className="flex-none">
         <Switch
-          className="mx-3 mt-2"
-          label="ユースケースビルダー"
+          className="mx-3 mb-1 mt-3"
+          label="ビルダーモード"
           checked
           onSwitch={() => {
             navigate('/');
           }}
         />
+        <div className="border-b" />
+        <div className="text-aws-smile mx-3 my-1 text-xs">メインメニュー</div>
         {items.map((item, idx) => (
           <DrawerItem
             key={idx}
