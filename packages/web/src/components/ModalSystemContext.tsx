@@ -18,7 +18,7 @@ const ModalSystemContext: React.FC<Props> = (props) => {
   return (
     <>
       <ModalDialog
-        title="システムコンテキストの作成"
+        title="システムプロンプトの作成"
         isOpen={props.showSystemContextModal}
         onClose={() => {
           props.setShowSystemContextModal(false);
@@ -33,7 +33,7 @@ const ModalSystemContext: React.FC<Props> = (props) => {
           className="text-aws-font-color"
         />
 
-        <div className="py-2.5">システムコンテキスト</div>
+        <div className="py-2.5">システムプロンプト</div>
         <Textarea
           placeholder="入力してください"
           value={props.saveSystemContext}
