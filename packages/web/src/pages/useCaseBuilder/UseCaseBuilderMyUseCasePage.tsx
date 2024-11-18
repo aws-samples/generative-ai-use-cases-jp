@@ -97,7 +97,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
             </div>
           )}
           {!isLoadingMyUseCases && myUseCases.length === 0 && (
-            <div className="mt-32 flex h-full w-full items-center justify-center text-sm font-bold text-gray-400">
+            <div className="flex h-full w-full items-center justify-center py-16 text-sm font-bold text-gray-400">
               マイユースケースがありません。
             </div>
           )}
@@ -106,12 +106,6 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
               <div
                 key={useCase.useCaseId}
                 className={`flex flex-row items-center gap-x-2 p-2 last:border-b hover:bg-gray-100 ${idx > 0 ? 'border-t' : ''}`}>
-                <ButtonFavorite
-                  isFavorite={useCase.isFavorite}
-                  onClick={() => {
-                    toggleFavorite(useCase.useCaseId);
-                  }}
-                />
                 <div
                   className="flex flex-1 cursor-pointer items-center"
                   onClick={() => {
@@ -124,7 +118,20 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <ButtonFavorite
+                    isFavorite={useCase.isFavorite}
+                    onClick={() => {
+                      toggleFavorite(useCase.useCaseId);
+                    }}
+                  />
                   <ButtonUseCaseEdit useCaseId={useCase.useCaseId} />
+                  <ButtonIcon
+                    onClick={() => {
+                      setDeleteTargetId(useCase.useCaseId);
+                      setIsOpenConfirmDelete(true);
+                    }}>
+                    <PiTrash />
+                  </ButtonIcon>
                   <ButtonShare
                     isShared={useCase.isShared}
                     onClick={() => {
@@ -132,15 +139,6 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
                       setIsOpenShareUseCase(true);
                     }}
                   />
-
-                  <ButtonIcon
-                    className="text-red-600"
-                    onClick={() => {
-                      setDeleteTargetId(useCase.useCaseId);
-                      setIsOpenConfirmDelete(true);
-                    }}>
-                    <PiTrash />
-                  </ButtonIcon>
                 </div>
               </div>
             );

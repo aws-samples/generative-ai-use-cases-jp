@@ -33,7 +33,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
             className="text-xl"
             label={
               props.isShared
-                ? 'このユースケースは共有されているため、誰でも利用できます。'
+                ? 'このユースケースは、このアプリケーションにログインできる全ユーザーが利用できます。'
                 : 'このユースケースは共有されていないため、あなたしか利用できません。'
             }
             onSwitch={() => {
@@ -52,7 +52,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                共有URLにアクセスすることで、他のユーザーも利用できます。
+                この共有URLにアクセスすることで、他のユーザーもこのユースケースを利用できます。
               </div>
             </>
           )}

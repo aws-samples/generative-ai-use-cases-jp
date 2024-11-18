@@ -22,7 +22,7 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
   }, [props.items]);
 
   return (
-    <DrawerBase>
+    <DrawerBase builderMode>
       <div className="flex-none">
         <Switch
           className="mx-3 mb-1 mt-3"

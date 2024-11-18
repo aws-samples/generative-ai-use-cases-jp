@@ -183,7 +183,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, [isUpdate, setPageTitle]);
 
   const canRegister = useMemo(() => {
-    return title !== '' && promptTemplate !== '';
+    // タイトルとプロンプトテンプレートに何も入力されていない場合は、登録不可
+    // 全半角スペースのみ入力も登録不可
+    return (
+      // eslint-disable-next-line no-irregular-whitespace
+      title.replace(/[ 　]/g, '') !== '' &&
+      // eslint-disable-next-line no-irregular-whitespace
+      promptTemplate.replace(/[ 　]/g, '') !== ''
+    );
   }, [promptTemplate, title]);
 
   const onClickRegister = useCallback(() => {

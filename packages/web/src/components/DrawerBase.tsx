@@ -6,8 +6,10 @@ import useVersion from '../hooks/useVersion';
 import IconWithDot from './IconWithDot';
 import { PiGear } from 'react-icons/pi';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 type Props = BaseProps & {
+  builderMode?: boolean;
   children: ReactNode;
 };
 
@@ -25,6 +27,12 @@ const DrawerBase: React.FC<Props> = (props) => {
 
   const hasUpdate = getHasUpdate();
 
+  const settingUrl = useMemo(() => {
+    return props.builderMode
+      ? `${ROUTE_INDEX_USE_CASE_BUILDER}/setting`
+      : 'setting';
+  }, [props.builderMode]);
+
   return (
     <>
       <nav
@@ -33,11 +41,11 @@ const DrawerBase: React.FC<Props> = (props) => {
           {props.children}
           <div className="flex flex-none items-center justify-between gap-2 border-t border-gray-400 px-3 py-2">
             <Link
-              to="/setting"
+              to={settingUrl}
               className="mr-2 overflow-x-hidden hover:brightness-75">
               <span className="text-sm">{email}</span>
             </Link>
-            <Link to="/setting">
+            <Link to={settingUrl}>
               <IconWithDot showDot={hasUpdate}>
                 <PiGear className="text-lg" />
               </IconWithDot>
