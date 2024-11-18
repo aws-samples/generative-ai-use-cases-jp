@@ -97,7 +97,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
             </div>
           )}
           {!isLoadingMyUseCases && myUseCases.length === 0 && (
-            <div className="mt-32 flex h-full w-full items-center justify-center text-sm font-bold text-gray-400">
+            <div className="flex h-full w-full items-center justify-center py-16 text-sm font-bold text-gray-400">
               マイユースケースがありません。
             </div>
           )}
