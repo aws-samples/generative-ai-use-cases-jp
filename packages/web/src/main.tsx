@@ -158,6 +158,10 @@ const useCaseBuilderRoutes: RouteObject[] = [
     element: <UseCaseBuilderExecutePage />,
   },
   {
+    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/setting`,
+    element: <Setting />,
+  },
+  {
     path: '*',
     element: <NotFound />,
   },
