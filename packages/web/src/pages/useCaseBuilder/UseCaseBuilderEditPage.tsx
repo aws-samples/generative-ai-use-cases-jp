@@ -183,15 +183,18 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, [isUpdate, setPageTitle]);
 
   const canRegister = useMemo(() => {
-    // タイトルとプロンプトテンプレートに何も入力されていない場合は、登録不可
-    // 全半角スペースのみ入力も登録不可
+    // 以下の場合は登録不可
+    // - タイトルとプロンプトテンプレートに何も入力されていない
+    // - 全半角スペースしか入力されていない
+    // - プレースホルダが1件も入力されていない
     return (
       // eslint-disable-next-line no-irregular-whitespace
       title.replace(/[ 　]/g, '') !== '' &&
       // eslint-disable-next-line no-irregular-whitespace
-      promptTemplate.replace(/[ 　]/g, '') !== ''
+      promptTemplate.replace(/[ 　]/g, '') !== '' &&
+      placeholders.length > 0
     );
-  }, [promptTemplate, title]);
+  }, [placeholders.length, promptTemplate, title]);
 
   const onClickRegister = useCallback(() => {
     setIsPosting(true);
@@ -203,9 +206,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
         promptTemplate,
         description: description === '' ? undefined : description,
         inputExamples,
-      }).finally(() => {
-        setIsPosting(false);
-      });
+      })
+        .then(() => {
+          // 実行画面に遷移
+          navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCaseId}`);
+        })
+        .finally(() => {
+          setIsPosting(false);
+        });
     } else {
       createUseCase({
         title,
@@ -213,11 +221,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
         description: description === '' ? undefined : description,
         inputExamples,
       })
-        .then((res) => {
+        .then(async (res) => {
           setUseCaseId(res.useCaseId);
 
           // 新規登録したら利用履歴に表示する（Drawerに表示する目的）
-          updateRecentUseUseCase(res.useCaseId);
+          await updateRecentUseUseCase(res.useCaseId);
+
+          // 実行画面に遷移
+          navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${res.useCaseId}`);
         })
         .finally(() => {
           setIsPosting(false);
@@ -228,6 +239,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     description,
     inputExamples,
     isUpdate,
+    navigate,
     promptTemplate,
     setUseCaseId,
     title,
@@ -326,6 +338,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 onChange={(v) => {
                   setPromptTemplate(v);
                 }}
+                placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
+                hint="可変項目(例：{{text:見出し}})が未設定の場合は、登録できません。"
               />
             </RowItem>
             <RowItem>
@@ -348,6 +362,15 @@ const UseCaseBuilderEditPage: React.FC = () => {
                           />
 
                           {items.map((item, itemIndex) => {
+                            const foundIndex = items.findIndex(
+                              (item_) => item_.label === item.label
+                            );
+
+                            // ラベル名が重複している場合は、2件目以降は入力欄を表示しない
+                            if (foundIndex !== itemIndex) {
+                              return null;
+                            }
+
                             return (
                               <Textarea
                                 key={itemIndex}

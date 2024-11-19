@@ -151,16 +151,20 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const onClickClear = useCallback(() => {
     clear(placeholders.length);
     clearChat();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [clear, clearChat, placeholders.length]);
 
-  const fillInputFromExample = useCallback(
-    (inputs: Record<string, string>) => {
-      Object.entries(inputs).forEach(([key, value]) => {
-        const index = items.findIndex((item) => item.label === key);
-        if (index > -1) {
-          setValue(index, value);
-        }
+  const fillInputsFromExamples = useCallback(
+    (examples: Record<string, string>) => {
+      Object.entries(examples).forEach(([key, value]) => {
+        // 同名のラベルが存在する場合があるので、すべての入力欄に設定する
+        const indexes = items.map((item, idx) =>
+          item.label === key ? idx : -1
+        );
+        indexes.forEach((index) => {
+          if (index > -1) {
+            setValue(index, value);
+          }
+        });
       });
     },
     [items, setValue]
@@ -249,14 +253,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
               <div className="flex flex-wrap gap-2">
                 {props.inputExamples.map((inputExample, idx) => {
                   return (
-                    <div
+                    <button
                       key={idx}
                       className="cursor-pointer rounded-full border px-4 py-1 text-sm text-gray-600 hover:bg-gray-100"
                       onClick={() => {
-                        fillInputFromExample(inputExample.examples);
+                        fillInputsFromExamples(inputExample.examples);
                       }}>
                       {inputExample.title ? inputExample.title : '[未入力]'}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
