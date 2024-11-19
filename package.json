@@ -29,5 +29,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "htm": "^3.1.1"
+  }
 }
