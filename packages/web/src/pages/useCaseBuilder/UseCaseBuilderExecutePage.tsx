@@ -95,7 +95,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
               onClick={() => {
                 navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}`);
               }}>
-              コンソールに戻る
+              TOP画面に戻る
             </Button>
           </div>
         </div>
