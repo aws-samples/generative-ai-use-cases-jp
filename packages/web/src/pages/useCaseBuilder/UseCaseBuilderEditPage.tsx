@@ -362,6 +362,15 @@ const UseCaseBuilderEditPage: React.FC = () => {
                           />
 
                           {items.map((item, itemIndex) => {
+                            const foundIndex = items.findIndex(
+                              (item_) => item_.label === item.label
+                            );
+
+                            // ラベル名が重複している場合は、2件目以降は入力欄を表示しない
+                            if (foundIndex !== itemIndex) {
+                              return null;
+                            }
+
                             return (
                               <Textarea
                                 key={itemIndex}
