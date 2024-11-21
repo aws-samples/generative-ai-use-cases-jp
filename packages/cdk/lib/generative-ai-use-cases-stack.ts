@@ -14,6 +14,7 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
+import { UseCaseBuilder } from './construct/use-case-builder';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -72,6 +73,9 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     const guardrailEnabled: boolean =
       this.node.tryGetContext('guardrailEnabled') || false;
+    const useCaseBuilderEnabled: boolean = this.node.tryGetContext(
+      'useCaseBuilderEnabled'
+    )!;
 
     if (typeof ragEnabled !== 'boolean') {
       throw new Error(errorMessageForBooleanContext('ragEnabled'));
@@ -93,6 +97,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(
         errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
       );
+    }
+
+    if (typeof useCaseBuilderEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('useCaseBuilderEnabled'));
     }
 
     const auth = new Auth(this, 'Auth', {
@@ -160,6 +168,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostName: props.hostName,
       domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
+      useCaseBuilderEnabled,
     });
 
     if (ragEnabled) {
@@ -186,6 +195,13 @@ export class GenerativeAiUseCasesStack extends Stack {
 
       // File API から data source の Bucket のファイルをダウンロードできるようにする
       api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+    }
+
+    if (useCaseBuilderEnabled) {
+      new UseCaseBuilder(this, 'UseCaseBuilder', {
+        userPool: auth.userPool,
+        api: api.api,
+      });
     }
 
     new Transcribe(this, 'Transcribe', {
@@ -282,6 +298,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'AgentNames', {
       value: JSON.stringify(api.agentNames),
+    });
+
+    new CfnOutput(this, 'UseCaseBuilderEnabled', {
+      value: useCaseBuilderEnabled.toString(),
     });
 
     this.userPool = auth.userPool;
