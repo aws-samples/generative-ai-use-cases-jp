@@ -105,6 +105,11 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
   <img src="/imgs/usecase_video_analyzer.gif"/>
 </details>
 
+## ユースケースビルダー
+
+ユースケースビルダーは、プロンプトテンプレートを定義することで独自のユースケースを作成できる機能です。プロンプトテンプレートの定義だけで独自のユースケース画面が自動生成されるため、**コード変更・カスタマイズ作業が一切不要**です。作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。
+
+[こちらのデプロイ手順](./docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)を参考にユースケースビルダーを有効化してください。有効化すると「ビルダーモード」という切り替えスイッチが表示されます。スイッチを ON にすると、ユースケースビルダーの画面に切り替わります。
 
 ## アーキテクチャ
 
@@ -156,6 +161,7 @@ npm run cdk:deploy
     - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
   - [PromptFlow チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
+- [ユースケースビルダーの有効化](/docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
   - [us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-west-2-オレゴン-の-amazon-bedrock-のモデルを利用する例)
