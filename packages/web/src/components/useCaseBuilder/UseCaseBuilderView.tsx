@@ -17,6 +17,7 @@ import Skeleton from '../Skeleton';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
 import {
+  NOLABEL,
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
@@ -106,9 +107,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   }, [placeholders]);
 
   useEffect(() => {
-    clear(placeholders.length);
+    clear(items.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placeholders]);
+  }, [items.length]);
 
   useEffect(() => {
     setModelId(
@@ -133,38 +134,40 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  // 要約を実行
   const onClickExec = useCallback(() => {
     if (loading) return;
 
     let prompt = props.promptTemplate;
-    placeholders.forEach((p, idx) => {
-      prompt = prompt.replace(p, values[idx]);
+
+    items.forEach((item, idx) => {
+      let placeholder;
+
+      if (item.label !== NOLABEL) {
+        placeholder = `{{${item.inputType}:${item.label}}}`;
+      } else {
+        placeholder = `{{${item.inputType}}}`;
+      }
+      prompt = prompt.replace(new RegExp(placeholder, 'g'), values[idx]);
     });
     postChat(prompt, true);
     if (!props.previewMode) {
       updateRecentUseUseCase(props.useCaseId);
     }
-  }, [loading, placeholders, postChat, props, updateRecentUseUseCase, values]);
+  }, [loading, items, postChat, props, updateRecentUseUseCase, values]);
 
   // リセット
   const onClickClear = useCallback(() => {
-    clear(placeholders.length);
+    clear(items.length);
     clearChat();
-  }, [clear, clearChat, placeholders.length]);
+  }, [clear, clearChat, items.length]);
 
   const fillInputsFromExamples = useCallback(
     (examples: Record<string, string>) => {
       Object.entries(examples).forEach(([key, value]) => {
-        // 同名のラベルが存在する場合があるので、すべての入力欄に設定する
-        const indexes = items.map((item, idx) =>
-          item.label === key ? idx : -1
-        );
-        indexes.forEach((index) => {
-          if (index > -1) {
-            setValue(index, value);
-          }
-        });
+        const idx = items.findIndex((item) => item.label === key);
+        if (idx >= 0) {
+          setValue(idx, value);
+        }
       });
     },
     [items, setValue]
@@ -233,7 +236,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
             {items.map((item, idx) => (
               <div key={idx}>
                 <Textarea
-                  label={item.label}
+                  label={item.label !== NOLABEL ? item.label : undefined}
                   rows={2}
                   value={values[idx]}
                   onChange={(v) => {
