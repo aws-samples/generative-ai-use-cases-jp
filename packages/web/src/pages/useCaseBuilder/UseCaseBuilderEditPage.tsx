@@ -134,6 +134,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
   } = useMyUseCases();
   const { setPageTitle } = usePageTitle();
 
+  const [isDisabledUpdate, setIsDisabledUpdate] = useState(false);
+
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -148,11 +150,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // DBからデータを取得した場合
     if (useCaseIdPathParam || useCaseId) {
       setTitle(useCase?.title ?? '');
       setPromptTemplate(useCase?.promptTemplate ?? '');
       setDescription(useCase?.description ?? '');
       setInputExamples(useCase?.inputExamples ?? []);
+
+      // サンプル集から遷移した場合（RouterのStateから設定）
     } else if (state) {
       setTitle(state.title ?? '');
       setPromptTemplate(state.promptTemplate ?? '');
@@ -161,6 +166,10 @@ const UseCaseBuilderEditPage: React.FC = () => {
     } else {
       clear();
     }
+
+    // 初期表示時は、更新ボタンをdisabledにする
+    setIsDisabledUpdate(true);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useCase]);
 
@@ -207,9 +216,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
         promptTemplate,
         description: description === '' ? undefined : description,
         inputExamples,
-      }).finally(() => {
-        setIsPosting(false);
-      });
+      })
+        .then(() => {
+          // DB変更直後は更新ボタンをDisabledにする
+          setIsDisabledUpdate(true);
+        })
+        .finally(() => {
+          setIsPosting(false);
+        });
     } else {
       createUseCase({
         title,
@@ -281,7 +295,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
               ? '読み込み中...'
               : isDeleting
                 ? '削除中...'
-                : '作成中...'}
+                : isUpdate
+                  ? '更新中...'
+                  : '作成中...'}
           </LoadingOverlay>
         </div>
       )}
@@ -312,7 +328,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
               ヘルプ
             </Button>
             <RowItem>
-              <InputText label="タイトル" value={title} onChange={setTitle} />
+              <InputText
+                label="タイトル"
+                value={title}
+                onChange={(v) => {
+                  setTitle(v);
+                  setIsDisabledUpdate(false);
+                }}
+              />
             </RowItem>
 
             <RowItem>
@@ -322,6 +345,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 value={description}
                 onChange={(v) => {
                   setDescription(v);
+                  setIsDisabledUpdate(false);
                 }}
               />
             </RowItem>
@@ -333,6 +357,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 value={promptTemplate}
                 onChange={(v) => {
                   setPromptTemplate(v);
+                  setIsDisabledUpdate(false);
                 }}
                 placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
                 hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
@@ -354,6 +379,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                 ...inputExample,
                                 title: v,
                               });
+                              setIsDisabledUpdate(false);
                             }}
                           />
 
@@ -382,6 +408,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                       }
                                     ),
                                   });
+                                  setIsDisabledUpdate(false);
                                 }}
                               />
                             );
@@ -439,7 +466,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   </Button>
                 )}
 
-                <Button disabled={!canRegister} onClick={onClickRegister}>
+                <Button
+                  disabled={!canRegister || (isUpdate && isDisabledUpdate)}
+                  onClick={onClickRegister}>
                   {isUpdate ? '更新' : '作成'}
                 </Button>
               </div>
