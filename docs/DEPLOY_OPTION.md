@@ -406,6 +406,21 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   ]
 ```
 
+## ユースケースビルダーの有効化
+
+context の `useCaseBuilderEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```
+{
+  "context": {
+    "useCaseBuilderEnabled": true
+  }
+}
+```
+
+変更後に `npm run cdk:deploy` で再度デプロイすると、ユースケースビルダーが有効化されて画面上に「ビルダーモード」という項目が表示されるようになります。
+
 ## Amazon Bedrock のモデルを変更する
 
 `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
@@ -791,7 +806,7 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 }
 ```
 
-変更後に `npm run cdk:deploy`　で再度デプロイして反映させます。context の `modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。context の `modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
 
 続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。Select the logging destinations には CloudWatch Logs only を選択してください。(S3 にも出力したい場合、Both S3 and CloudWatch Logs を選択しても構いません。) また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。なお、Model invocation logging の設定は、context で `modelRegion` として指定しているリージョンで行うことに留意してください。
 

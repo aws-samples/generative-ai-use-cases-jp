@@ -22,6 +22,7 @@ Summit 展示で体験していただいたデモ用ボットの定義は、[こ
 
 上記の方針の通り原則的に更新を行いませんが、他のイベント展示等のために開発者の判断で適宜最新化することがあります。更新内容については、以下をご確認ください。
 
+- 2024/11/21: main ブランチを当ブランチへマージしました（セキュリティ対策込み）。ユースケースビルダーが利用できるようになりました。
 - 2024/10/29: main ブランチを当ブランチへマージしました（セキュリティ対策込み）。最新の基盤モデルが利用できるようになりました。
 - 2024/10/17: main ブランチを当ブランチへマージしました（セキュリティ対策込み）。
 - 2024/6/20: Summit 展示のため、当ブランチを作成しました。
@@ -167,6 +168,11 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
   <img src="/imgs/usecase_video_analyzer.gif"/>
 </details>
 
+## ユースケースビルダー
+
+ユースケースビルダーは、プロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる機能です。プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、**コード変更・カスタマイズ作業が一切不要**です。作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。
+
+[こちらのデプロイ手順](./docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)を参考にユースケースビルダーを有効化してください。有効化すると「ビルダーモード」という切り替えスイッチが表示されます。スイッチを ON にすると、ユースケースビルダーの画面に切り替わります。
 
 ## アーキテクチャ
 
@@ -218,6 +224,7 @@ npm run cdk:deploy
     - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
   - [PromptFlow チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
+- [ユースケースビルダーの有効化](/docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
   - [us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-west-2-オレゴン-の-amazon-bedrock-のモデルを利用する例)
@@ -262,6 +269,7 @@ npm run cdk:deploy
 | <a href="https://www.iret.co.jp/" target="_blank"><img src="./imgs/cases/iret_logo.png"></a>|  **アイレット株式会社** <br/> *株式会社バンダイナムコアミューズメントの生成 AI 活用に向けて社内のナレッジを蓄積・体系化すべく、AWS が提供している Generative AI Use Cases JP を活用したユースケースサイトを開発。アイレット株式会社が本プロジェクトの設計・構築・開発を支援。* <br/> ・[株式会社バンダイナムコアミューズメント様のクラウドを活用した導入事例](https://cloudpack.jp/casestudy/302.html?_gl=1*17hkazh*_gcl_au*ODA5MDk3NzI0LjE3MTM0MTQ2MDU) |
 | <a href="https://idealog.co.jp" target="_blank"><img src="./imgs/cases/idealog_logo.jpg"></a>|  **株式会社アイデアログ** <br/> *M従来の生成 AI ツールよりもさらに業務効率化ができていると感じます。入出力データをモデルの学習に使わない Amazon Bedrock を使っているので、セキュリティ面も安心です。* <br/> ・[事例の詳細を見る](./imgs/cases/idealog_case.png) <br/> ・[適用サービス](https://kaijosearch.com/)|
 | <a href="https://estyle.co.jp/" target="_blank"><img src="./imgs/cases/estyle_logo.png"></a>|  **株式会社エスタイル** <br/> *GenU を活用して短期間で生成 AI 環境を構築し、社内のナレッジシェアを促進することができました。* <br/> ・[事例の詳細を見る](./imgs/cases/estyle_case.png) |
+| <a href="https://meidensha.co.jp/" target="_blank"><img src="./imgs/cases/meidensha_logo.svg"></a>|  **株式会社明電舎** <br/> *Amazon Bedrock や Amazon Kendra など AWS のサービスを利用することで、生成 AI の利用環境を迅速かつセキュアに構築することができました。議事録の自動生成や社内情報の検索など、従業員の業務効率化に貢献しています。* <br/> ・[事例の詳細を見る](./imgs/cases/meidensha_case.png) |
 
 活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
