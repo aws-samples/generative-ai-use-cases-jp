@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
@@ -58,4 +59,10 @@ export default defineConfig({
       },
     }),
   ],
+  test: {
+    name: 'use-case-builder',
+    root: './tests/use-case-builder',
+    environment: 'node',
+    setupFiles: [],
+  },
 });
