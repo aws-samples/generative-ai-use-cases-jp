@@ -281,7 +281,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
               ? '読み込み中...'
               : isDeleting
                 ? '削除中...'
-                : '登録中...'}
+                : '作成中...'}
           </LoadingOverlay>
         </div>
       )}
@@ -335,7 +335,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setPromptTemplate(v);
                 }}
                 placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="可変項目(例：{{text:見出し}})が未設定の場合は、登録できません。"
+                hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
               />
             </RowItem>
             <RowItem>
