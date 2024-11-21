@@ -18,6 +18,7 @@ import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 import ExpandableField from '../../components/ExpandableField';
 import {
+  NOLABEL,
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
@@ -206,14 +207,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
         promptTemplate,
         description: description === '' ? undefined : description,
         inputExamples,
-      })
-        .then(() => {
-          // 実行画面に遷移
-          navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCaseId}`);
-        })
-        .finally(() => {
-          setIsPosting(false);
-        });
+      }).finally(() => {
+        setIsPosting(false);
+      });
     } else {
       createUseCase({
         title,
@@ -285,7 +281,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
               ? '読み込み中...'
               : isDeleting
                 ? '削除中...'
-                : '登録中...'}
+                : '作成中...'}
           </LoadingOverlay>
         </div>
       )}
@@ -339,7 +335,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setPromptTemplate(v);
                 }}
                 placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="可変項目(例：{{text:見出し}})が未設定の場合は、登録できません。"
+                hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
               />
             </RowItem>
             <RowItem>
@@ -362,19 +358,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
                           />
 
                           {items.map((item, itemIndex) => {
-                            const foundIndex = items.findIndex(
-                              (item_) => item_.label === item.label
-                            );
-
-                            // ラベル名が重複している場合は、2件目以降は入力欄を表示しない
-                            if (foundIndex !== itemIndex) {
-                              return null;
-                            }
-
                             return (
                               <Textarea
                                 key={itemIndex}
-                                label={item.label}
+                                label={
+                                  item.label !== NOLABEL
+                                    ? item.label
+                                    : undefined
+                                }
                                 rows={2}
                                 value={
                                   inputExample.examples
@@ -442,12 +433,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 <div></div>
               )}
               <div className="flex gap-3">
-                <Button outlined onClick={onClickClear}>
-                  クリア
-                </Button>
+                {!isUpdate && (
+                  <Button outlined onClick={onClickClear}>
+                    クリア
+                  </Button>
+                )}
 
                 <Button disabled={!canRegister} onClick={onClickRegister}>
-                  {isUpdate ? '更新' : '登録'}
+                  {isUpdate ? '更新' : '作成'}
                 </Button>
               </div>
             </div>
