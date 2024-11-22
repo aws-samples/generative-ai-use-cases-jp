@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiVideoCamera,
   PiFlowArrow,
+  PiMagicWand,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -29,6 +30,7 @@ import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
 import useScreen from './hooks/useScreen';
+import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -149,6 +151,14 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
+  optimizePromptEnabled
+    ? {
+        label: 'プロンプト最適化',
+        to: '/optimize',
+        icon: <PiMagicWand />,
+        display: 'tool' as const,
+      }
+    : null,
   ragEnabled
     ? {
         label: 'Kendra 検索',
