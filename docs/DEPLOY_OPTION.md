@@ -406,6 +406,15 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
   ]
 ```
 
+### プロンプト最適化ツールの有効化
+
+プロンプト最適化ツールは入力したプロンプトを指定したモデルに最適な形に変換します。
+プロンプト最適化ツールを直接有効化するオプションはありませんが、`cdk.json` の設定が以下の 2 点を満たす必要があります。
+- `modelRegion`: Amazon Bedrock の Prompt optimization がサポートされているリージョンであること
+- `modelIds`: Amazon Bedrock の Prompt optimization がサポートされているモデルが 1 つ以上指定されていること
+
+Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html) をご参照ください。
+
 ## ユースケースビルダーの有効化
 
 context の `useCaseBuilderEnabled` に `true` を指定します。(デフォルトは `false`)
@@ -842,7 +851,7 @@ cdk.json には以下の値を設定します。
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
 > [!NOTE]
-> 別 AWS アカウントの Bedrock を利用する場合は、Agent、Prompt Flow、プロンプト最適化ツールなど一部の機能が使えなくなります。
+> Agent 系のタスク (Agent, Prompt Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
 
 別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 

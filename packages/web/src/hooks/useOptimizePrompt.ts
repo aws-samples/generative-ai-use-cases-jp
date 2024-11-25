@@ -8,6 +8,8 @@ import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-id
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { OptimizePromptRequest } from 'generative-ai-use-cases-jp';
 
+// サポート状況は以下のページから
+// https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html
 export const SUPPORTED_REGIONS = [
   'us-east-1',
   'us-west-2',
