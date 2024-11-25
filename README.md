@@ -161,6 +161,7 @@ npm run cdk:deploy
     - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
   - [PromptFlow チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
+  - [プロンプト最適化ツールの有効化](/docs/DEPLOY_OPTION.md#プロンプト最適化ツールの有効化)
 - [ユースケースビルダーの有効化](/docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)

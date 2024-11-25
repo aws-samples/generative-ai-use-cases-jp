@@ -153,6 +153,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       agentEnabled,
       promptFlows,
       promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
+      optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
@@ -238,6 +239,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'PredictStreamFunctionArn', {
       value: api.predictStreamFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'OptimizePromptFunctionArn', {
+      value: api.optimizePromptFunction.functionArn,
     });
 
     new CfnOutput(this, 'InvokePromptFlowFunctionArn', {

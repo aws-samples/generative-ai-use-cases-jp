@@ -35,6 +35,7 @@ export class Api extends Construct {
   readonly api: RestApi;
   readonly predictStreamFunction: NodejsFunction;
   readonly invokePromptFlowFunction: NodejsFunction;
+  readonly optimizePromptFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
   readonly multiModalModelIds: string[];
@@ -291,6 +292,23 @@ export class Api extends Construct {
       },
     });
 
+    const optimizePromptFunction = new NodejsFunction(
+      this,
+      'OptimizePromptFunction',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/optimizePrompt.ts',
+        timeout: Duration.minutes(15),
+        bundling: {
+          nodeModules: ['@aws-sdk/client-bedrock-agent-runtime'],
+        },
+        environment: {
+          MODEL_REGION: modelRegion,
+        },
+      }
+    );
+    optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
+
     // SageMaker Endpoint がある場合は権限付与
     if (endpointNames.length > 0) {
       // SageMaker Policy
@@ -327,6 +345,7 @@ export class Api extends Construct {
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       invokePromptFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
       // crossAccountBedrockRoleArn が指定されている場合のポリシー
       const logsPolicy = new PolicyStatement({
@@ -347,7 +366,6 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      invokePromptFlowFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
@@ -797,6 +815,7 @@ export class Api extends Construct {
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
     this.invokePromptFlowFunction = invokePromptFlowFunction;
+    this.optimizePromptFunction = optimizePromptFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
     this.multiModalModelIds = multiModalModelIds;
