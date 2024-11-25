@@ -124,7 +124,7 @@ const OptimizePromptPage: React.FC = () => {
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
               <Textarea
-                placeholder="入力してください"
+                placeholder="現在利用中のプロンプトをそのまま入力してください。英語で出力されてしまう場合は「日本語で出力してください」という指示を追加してください。"
                 value={prompt}
                 onChange={setPrompt}
                 maxHeight={-1}
