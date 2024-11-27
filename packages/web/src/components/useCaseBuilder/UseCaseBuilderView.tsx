@@ -180,10 +180,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         <div
           className={`${props.previewMode ? '' : 'hidden lg:block'} flex flex-row justify-center`}>
           {props.isLoading
-            ? '読み込み中...'
+            ? 'Loading...'
             : props.title
               ? props.title
-              : '[タイトル未入力]'}
+              : '[Title not entered]'}
         </div>
         {!props.previewMode && (
           <div className="mb-2 flex min-w-48 flex-1 flex-row items-start justify-end md:mb-0">
@@ -252,7 +252,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         <div>
           {props.inputExamples && props.inputExamples.length > 0 && (
             <>
-              <div className="mb-1 text-sm font-bold text-gray-600">入力例</div>
+              <div className="mb-1 text-sm font-bold text-gray-600">Input examples</div>
               <div className="flex flex-wrap gap-2">
                 {props.inputExamples.map((inputExample, idx) => {
                   return (
@@ -262,7 +262,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                       onClick={() => {
                         fillInputsFromExamples(inputExample.examples);
                       }}>
-                      {inputExample.title ? inputExample.title : '[未入力]'}
+                      {inputExample.title ? inputExample.title : '[Not entered]'}
                     </button>
                   );
                 })}
@@ -272,11 +272,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         </div>
         <div className="flex shrink-0 gap-3 ">
           <Button outlined onClick={onClickClear} disabled={props.isLoading}>
-            クリア
+            Clear
           </Button>
 
           <Button onClick={onClickExec} disabled={props.isLoading}>
-            実行
+            Generate
           </Button>
         </div>
       </div>
@@ -284,7 +284,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       <div className="mt-5 rounded border border-black/30 p-1.5">
         <Markdown>{typingTextOutput}</Markdown>
         {!loading && text === '' && (
-          <div className="text-gray-500">実行結果がここに表示されます</div>
+          <div className="text-gray-500">The generation results will be displayed here</div>
         )}
         {loading && (
           <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>

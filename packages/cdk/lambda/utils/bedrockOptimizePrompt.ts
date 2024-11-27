@@ -52,14 +52,14 @@ const bedrockOptimizePrompt = {
       ) {
         // 以下全て OptimizePrompt のレスポンスに合わせて JSON.stringify する
         yield JSON.stringify(
-          'ただいまアクセスが集中しているため時間をおいて試してみてください。'
+          'Due to high traffic, please try again later.'
         );
       } else if (e instanceof ValidationException) {
-        yield JSON.stringify(`利用上限に達したか不正なリクエストです \n ${e}`);
+        yield JSON.stringify(`Usage limit reached or invalid request \n ${e}`);
       } else {
         console.error(e);
         yield JSON.stringify(
-          'エラーが発生しました。時間をおいて試してみてください。'
+          'An error occurred. Please try again later.'
         );
       }
     }

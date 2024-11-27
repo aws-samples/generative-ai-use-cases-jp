@@ -22,7 +22,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
   return (
     <ModalDialog
       isOpen={props.isOpen}
-      title="共有"
+      title="Share"
       onClose={() => {
         props.onClose();
       }}>
@@ -33,8 +33,8 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
             className="text-xl"
             label={
               props.isShared
-                ? 'このユースケースは、このアプリケーションにログインできる全ユーザーが利用できます。'
-                : 'このユースケースは共有されていないため、あなたしか利用できません。'
+                ? 'This use case is available to all users who can log in to this application.'
+                : 'Since this use case is not shared, only you can use it.'
             }
             onSwitch={() => {
               props.onToggleShared();
@@ -52,7 +52,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
                 </div>
               </div>
               <div className="text-xs text-gray-400">
-                この共有URLにアクセスすることで、他のユーザーもこのユースケースを利用できます。
+                Other users can also use this use case by accessing this shared URL.
               </div>
             </>
           )}

@@ -189,7 +189,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
   // ページタイトルの設定
   useEffect(() => {
-    setPageTitle(isUpdate ? 'ユースケース編集' : 'ユースケース新規作成');
+    setPageTitle(isUpdate ? 'Edit use case' : 'Create use case');
   }, [isUpdate, setPageTitle]);
 
   const canRegister = useMemo(() => {
@@ -292,12 +292,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
         <div className="absolute left-0 top-0">
           <LoadingOverlay>
             {isLoading
-              ? '読み込み中...'
+              ? 'Loading...'
               : isDeleting
-                ? '削除中...'
+                ? 'Deleting...'
                 : isUpdate
-                  ? '更新中...'
-                  : '作成中...'}
+                  ? 'Updating...'
+                  : 'Creating...'}
           </LoadingOverlay>
         </div>
       )}
@@ -312,12 +312,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
       <div className="grid h-screen grid-cols-12 gap-4 p-4">
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center lg:visible lg:h-min print:visible print:h-min">
           <div className=" text-xl font-semibold">
-            {isUpdate ? 'ユースケース編集' : 'ユースケース新規作成'}
+            {isUpdate ? 'Edit use case' : 'Create use case'}
           </div>
         </div>
 
         <div className="col-span-12 lg:col-span-6">
-          <Card label="アプリの定義" className="relative">
+          <Card label="Use case definition" className="relative">
             <Button
               outlined
               className="absolute right-5 top-5 text-sm"
@@ -325,11 +325,11 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 setIsOpen(!isOpen);
               }}>
               <PiQuestion className="mr-1" />
-              ヘルプ
+              Help
             </Button>
             <RowItem>
               <InputText
-                label="タイトル"
+                label="Title"
                 value={title}
                 onChange={(v) => {
                   setTitle(v);
@@ -340,7 +340,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
             <RowItem>
               <Textarea
-                label="概要"
+                label="Description"
                 rows={1}
                 value={description}
                 onChange={(v) => {
@@ -351,7 +351,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
             </RowItem>
             <RowItem>
               <Textarea
-                label="プロンプトテンプレート"
+                label="Prompt template"
                 rows={30}
                 maxHeight={500}
                 value={promptTemplate}
@@ -359,12 +359,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setPromptTemplate(v);
                   setIsDisabledUpdate(false);
                 }}
-                placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
+                placeholder="For instructions on how to write prompt templates, please refer to Help or Sample collection."
+                hint="Creation is not possible if variable items (e.g., {{text:heading}}) are not set."
               />
             </RowItem>
             <RowItem>
-              <ExpandableField label="入力例">
+              <ExpandableField label="Input examples">
                 <div className="flex flex-col gap-2">
                   {inputExamples.map((inputExample, idx) => {
                     return (
@@ -372,7 +372,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                         <div className="flex flex-col">
                           <InputText
                             className="mb-2"
-                            label="タイトル"
+                            label="Title"
                             value={inputExample.title}
                             onChange={(v) => {
                               setInputExample(idx, {
@@ -421,7 +421,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                 removeInputExample(idx);
                               }}>
                               <PiTrash className="mr-2" />
-                              削除
+                              Delete
                             </Button>
                           </div>
                         </div>
@@ -441,7 +441,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                       });
                     }}>
                     <PiPlus className="pr-2 text-xl" />
-                    入力例を追加
+                    Add input examples
                   </Button>
                 </div>
               </ExpandableField>
@@ -454,7 +454,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                     setIsOpenDeleteDialog(true);
                   }}>
                   <PiTrash className="mr-2" />
-                  削除
+                  Delete
                 </Button>
               ) : (
                 <div></div>
@@ -462,21 +462,21 @@ const UseCaseBuilderEditPage: React.FC = () => {
               <div className="flex gap-3">
                 {!isUpdate && (
                   <Button outlined onClick={onClickClear}>
-                    クリア
+                    Clear
                   </Button>
                 )}
 
                 <Button
                   disabled={!canRegister || (isUpdate && isDisabledUpdate)}
                   onClick={onClickRegister}>
-                  {isUpdate ? '更新' : '作成'}
+                  {isUpdate ? 'Update' : 'Create'}
                 </Button>
               </div>
             </div>
           </Card>
         </div>
         <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
-          <Card label="プレビュー">
+          <Card label="Preview">
             <AppBuilderView
               title={title}
               promptTemplate={promptTemplate}

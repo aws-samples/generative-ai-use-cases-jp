@@ -153,7 +153,7 @@ const items: ItemProps[] = [
   },
   optimizePromptEnabled
     ? {
-        label: 'プロンプト最適化',
+        label: 'Prompt Optimization',
         to: '/optimize',
         icon: <PiMagicWand />,
         display: 'tool' as const,

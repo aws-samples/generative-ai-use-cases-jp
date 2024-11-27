@@ -16,18 +16,18 @@ const ModalDialogDeleteUseCase: React.FC<Props> = (props) => {
   return (
     <ModalDialog
       isOpen={props.isOpen}
-      title="マイユースケースの削除"
+      title="Delete use case"
       onClose={() => {
         props.onClose();
       }}>
       <div className="flex flex-col gap-2">
         {props.isShared && (
           <Alert severity="warning" className="mb-2">
-            このユースケースは共有されています。削除すると、すべてのユーザーはこのユースケースを使えなくなります。
+            This use case is shared. If deleted, all users will no longer be able to use this use case.
           </Alert>
         )}
         <div>
-          <strong>{props.targetLabel}</strong>を削除しますか？
+          Are you sure to delete <strong>{props.targetLabel}</strong>?
         </div>
 
         <div className="flex justify-end gap-2">
@@ -36,14 +36,14 @@ const ModalDialogDeleteUseCase: React.FC<Props> = (props) => {
             onClick={() => {
               props.onClose();
             }}>
-            キャンセル
+            Cancel
           </Button>
           <Button
             className="bg-red-600"
             onClick={() => {
               props.onDelete();
             }}>
-            削除
+            Delete
           </Button>
         </div>
       </div>

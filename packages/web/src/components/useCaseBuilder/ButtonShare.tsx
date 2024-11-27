@@ -21,12 +21,12 @@ const ButtonShare: React.FC<Props> = (props) => {
       {props.isShared ? (
         <>
           <PiLinkBold className="mr-2" />
-          共有中
+          Shared
         </>
       ) : (
         <>
           <PiLockKey className="mr-2" />
-          非公開
+          Not shared
         </>
       )}
     </Button>

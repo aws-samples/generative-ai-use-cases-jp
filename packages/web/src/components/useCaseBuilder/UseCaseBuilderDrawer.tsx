@@ -26,14 +26,14 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
       <div className="flex-none">
         <Switch
           className="mx-3 mb-1 mt-3"
-          label="ビルダーモード"
+          label="Builder mode"
           checked
           onSwitch={() => {
             navigate('/');
           }}
         />
         <div className="border-b" />
-        <div className="text-aws-smile mx-3 my-1 text-xs">メインメニュー</div>
+        <div className="text-aws-smile mx-3 my-1 text-xs">Main menu</div>
         {items.map((item, idx) => (
           <DrawerItem
             key={idx}
@@ -47,14 +47,14 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
         <div className="mt-2 border-b" />
       </div>
 
-      <ExpandableMenu title="お気に入り" className="mx-3 my-2 text-xs">
+      <ExpandableMenu title="Favorites" className="mx-3 my-2 text-xs">
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 flex h-full flex-col gap-0.5 overflow-y-auto">
           <CustomUseCaseDrawerItems useCases={favoriteUseCases} />
         </div>
       </ExpandableMenu>
       <div className="border-b" />
 
-      <ExpandableMenu title="利用履歴" className="mx-3 my-2 text-xs">
+      <ExpandableMenu title="Usage history" className="mx-3 my-2 text-xs">
         <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 flex h-full flex-col overflow-y-auto">
           <CustomUseCaseDrawerItems useCases={recentlyUsedUseCases} />
         </div>

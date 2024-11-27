@@ -127,7 +127,7 @@ const Drawer: React.FC<Props> = (props) => {
           </>
         )}
         <ExpandableMenu
-          title="Conversation History"
+          title="Conversation history"
           className="mx-3 my-2 text-xs">
           <div className="relative mb-2 ml-2 mr-1 w-full pl-1.5 pr-7 pt-1">
             <input

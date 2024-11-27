@@ -150,7 +150,7 @@ const useRagKnowledgeBase = (id: string) => {
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}${
                     _excerpt_page_number
-                      ? `(${_excerpt_page_number} ページ)`
+                      ? `(p. ${_excerpt_page_number})`
                       : ''
                   }](
                   ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${

@@ -48,7 +48,7 @@ const useOptimizePrompt = () => {
     optimizePrompt: async function* (req: OptimizePromptRequest) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
-        throw new Error('認証されていません。');
+        throw new Error('Not authenticated');
       }
 
       const region = import.meta.env.VITE_APP_REGION;

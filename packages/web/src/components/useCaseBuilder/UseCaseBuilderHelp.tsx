@@ -43,7 +43,7 @@ const UseCaseBuilderHelp: React.FC<Props> = (props) => {
     <div
       className={`${props.isOpen ? 'right-0' : '-right-96'} fixed top-0 z-[9999999] h-screen w-96 overflow-y-auto border-l bg-white px-6 py-3 shadow transition-all`}>
       <div className="mb-6 flex justify-between p-1 text-xl font-bold">
-        <div>ヘルプ</div>
+        <div>Help</div>
         <ButtonIcon onClick={props.onClose}>
           <PiCaretRight />
         </ButtonIcon>
@@ -52,66 +52,61 @@ const UseCaseBuilderHelp: React.FC<Props> = (props) => {
       <div className="flex flex-col gap-4">
         <div>
           <div className="text-lg font-bold">
-            プロンプトテンプレートについて
+            About Prompt Template
           </div>
           <div className="mt-1 text-sm">
-            ユースケースごとに、プロンプトテンプレートを定義することができます。ユースケースを実行すると、ここで定義したプロンプトテンプレートをもとに、生成
-            AI が推論を行います。
-          </div>
-        </div>
-        <div>
-          <div className="text-lg font-bold">可変項目の設定</div>
-          <div className="mt-1 text-sm">
-            プロンプトテンプレートの中には、可変項目を設定することができます。この可変項目を設定すると、自動的に画面上に入力欄が配置されます。ユースケースを実行すると、プロンプトテンプレート内の可変項目が対応する画面の入力値で置換されます。
+            You can define prompt templates for each use case. When executing a use case, the generative AI performs inference based on the prompt template defined here.
           </div>
         </div>
         <div>
-          <div className="text-base font-bold">可変項目の設定方法</div>
+          <div className="text-lg font-bold">Variable Item Settings</div>
           <div className="mt-1 text-sm">
-            プロンプトテンプレート内に、
-            <span className="rounded bg-gray-200 px-2 py-0.5 font-light">
-              {'{{ text: 見出し }}'}
-            </span>
-            の形式で入力してください。「見出し」は画面上に表示される入力項目のラベルとなります。
+            Variable items can be set within prompt templates. When these variable items are set, input fields are automatically placed on the screen. When executing a use case, the variable items in the prompt template are replaced with the corresponding input values from the screen.
+          </div>
+        </div>
+        <div>
+          <div className="text-base font-bold">How to Configure Variable Items</div>
+          <div className="mt-1 text-sm">
+            Please input in the prompt template in the format <span className="rounded bg-gray-200 px-2 py-0.5 font-light">{'{{ text: heading }}'}</span>. "heading" will be the label for the input field displayed on the screen.
           </div>
         </div>
         <div>
           <div className="text-lg font-bold">
-            プロンプトテンプレートサンプル
+            Prompt Template Sample
           </div>
           <div className="mt-1 flex flex-col gap-2">
             <PromptSample
-              title="メール返信の例"
-              prompt={`あなたは、メール返信の担当者です。
-以下のルールを守って、返信用のメールを作成してください。
-<ルール>
-- 取引先へのメールです。敬語を使う必要がありますが、関係構築ができているので、かしこまりすぎた文章である必要はありません。
-- 返信対象メールの内容を理解し、返信内容に沿った返信用メールを作成してください。
-- 返信対象メールと返信内容から読み取れないことは、絶対にメール文に含めないでください。
-</ルール>
-<返信対象メール>
-{{text:返信対象のメール本文}}
-</返信対象メール>
-<返信内容>
-{{text:返信内容}}
-</返信内容>`}
+              title="Example of email reply"
+              prompt={`You are in charge of email responses.
+Please create a reply email following the rules below.
+<Rules>
+- This is an email to a business partner. While formal language is required, since a relationship has been established, the text doesn't need to be overly formal.
+- Please understand the content of the email being replied to and create a response email that aligns with the reply content.
+- Never include any information in the email that cannot be inferred from the original email and reply content.
+</Rules>
+<Email being replied to>
+{{text:Original email content}}
+</Email being replied to>
+<Reply content>
+{{text:Reply content}}
+</Reply content>`}
             />
             <PromptSample
-              title="CDK のコード出力"
-              prompt={`あなたはAWSの専門家で優秀な開発者でもあります。
-利用者から構築したいシステムの構成が示されます。
-あなたは、その内容をもとにAWS CDKのコードを生成してください。
-ただし、コード生成ルールは必ず守ってください。例外はありません。
+              title="CDK code output"
+              prompt={`You are an AWS expert and a skilled developer.
+Users will present the system configuration they want to build.
+Based on this information, please generate AWS CDK code.
+However, you must follow the code generation rules without exception.
 
-<コード生成ルール>
-- 利用者から指定されなかった場合、AWS CDKのTypeScriptでコードを作成してください。
-- 適度にコメントを入れて、わかりやすくしてください。
-- セキュリティ的に安全なコードを生成してください。
-</コード生成ルール>
+<Code Generation Rules>
+- If not specified by the user, please create code in AWS CDK TypeScript.
+- Add appropriate comments to make the code easy to understand.
+- Generate code that is secure from a security perspective.
+</Code Generation Rules>
 
-<構築したいシステムの構成>
-{{text:CDK で生成したい構成の概要}}
-</構築したいシステムの構成>`}
+<System Configuration to Build>
+{{text: Overview of the configuration you want to generate with CDK}}
+</System Configuration to Build>`}
             />
           </div>
         </div>

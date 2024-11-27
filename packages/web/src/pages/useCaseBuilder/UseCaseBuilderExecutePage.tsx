@@ -84,18 +84,18 @@ const UseCaseBuilderExecutePage: React.FC = () => {
       />
       <ModalDialog
         isOpen={isOpenErrorDialog}
-        title="アクセスエラー"
+        title="Access error"
         onClose={() => {}}>
         <div className="flex flex-col gap-2">
           <div>
-            このユースケースは存在しないか、共有されていないユースケースです。
+            This use case does not exist or is not a shared use case.
           </div>
           <div className="flex justify-end gap-2">
             <Button
               onClick={() => {
                 navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}`);
               }}>
-              TOP画面に戻る
+              Go back to top page
             </Button>
           </div>
         </div>
