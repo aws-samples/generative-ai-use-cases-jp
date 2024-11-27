@@ -415,20 +415,18 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 
 Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html) をご参照ください。
 
-## ユースケースビルダーの有効化
+## ユースケースビルダーの設定
 
-context の `useCaseBuilderEnabled` に `true` を指定します。(デフォルトは `false`)
+ユースケースビルダーはデフォルトで有効化されており、デプロイ後画面上に表示される「ビルダーモード」という項目から利用できます。ユースケースビルダーを無効化する場合は、context の `useCaseBuilderEnabled` に `false` を指定します。(デフォルトは `true`)
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
 {
   "context": {
-    "useCaseBuilderEnabled": true
+    "useCaseBuilderEnabled": false
   }
 }
 ```
-
-変更後に `npm run cdk:deploy` で再度デプロイすると、ユースケースビルダーが有効化されて画面上に「ビルダーモード」という項目が表示されるようになります。
 
 ## Amazon Bedrock のモデルを変更する
 
