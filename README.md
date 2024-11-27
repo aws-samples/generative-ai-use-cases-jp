@@ -103,6 +103,12 @@ Generative AI brings revolutionary possibilities for transforming businesses. Ge
   <img src="/imgs/usecase_video_analyzer.gif"/>
 </details>
 
+## Use Case Builder
+
+The Use Case Builder is a feature that allows you to create your own use cases by describing prompt templates in natural language. Since custom use case screens are automatically generated using only prompt templates, **no code changes or customization work is required**.
+Created use cases can not only be used personally but can also be shared with all users who can log into the application.
+
+Please refer to [these deployment instructions](./docs/DEPLOY_OPTION.md#enabling-the-use-case-builder) to enable the Use Case Builder. Once enabled, a "Builder Mode" toggle switch will appear. When you turn the switch ON, the screen will change to the Use Case Builder interface.
 
 ## Architecture
 
@@ -154,6 +160,8 @@ npm run cdk:deploy
     - [Deploying Agents for Amazon Bedrock Knowledge Bases](/docs/DEPLOY_OPTION.md#deploying-agents-for-amazon-bedrock-knowledge-bases)
   - [Enabling the PromptFlow Chat Use Case](/docs/DEPLOY_OPTION.md#enabling-the-promptflow-chat-use-case)
   - [Enabling the Video Analysis Use Case](/docs/DEPLOY_OPTION.md#enabling-the-video-analysis-use-case)
+  - [Enabling the Prompt Optimization Tool](/docs/DEPLOY_OPTION.md#enabling-the-prompt-optimization-tool)
+- [Enabling the Use Case Builder](/docs/DEPLOY_OPTION.md#enabling-the-use-case-builder)
 - [Changing Amazon Bedrock Models](/docs/DEPLOY_OPTION.md#changing-amazon-bedrock-models)
   - [Example of Using Amazon Bedrock Models in us-east-1 (Virginia)](/docs/DEPLOY_OPTION.md#example-of-using-amazon-bedrock-models-in-us-east-1-virginia)
   - [Example of Using Amazon Bedrock Models in us-west-2 (Oregon)](/docs/DEPLOY_OPTION.md#example-of-using-amazon-bedrock-models-in-us-west-2-oregon)

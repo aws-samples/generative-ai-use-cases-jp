@@ -35,6 +35,7 @@ export class Api extends Construct {
   readonly api: RestApi;
   readonly predictStreamFunction: NodejsFunction;
   readonly invokePromptFlowFunction: NodejsFunction;
+  readonly optimizePromptFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
   readonly multiModalModelIds: string[];
@@ -86,6 +87,9 @@ export class Api extends Construct {
       'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
       'eu.anthropic.claude-3-sonnet-20240229-v1:0',
       'eu.anthropic.claude-3-haiku-20240307-v1:0',
+      'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'apac.anthropic.claude-3-sonnet-20240229-v1:0',
+      'apac.anthropic.claude-3-haiku-20240307-v1:0',
       'anthropic.claude-v2:1',
       'anthropic.claude-v2',
       'anthropic.claude-instant-v1',
@@ -107,8 +111,6 @@ export class Api extends Construct {
       'us.meta.llama3-2-3b-instruct-v1:0',
       'us.meta.llama3-2-11b-instruct-v1:0',
       'us.meta.llama3-2-90b-instruct-v1:0',
-      'meta.llama2-13b-chat-v1',
-      'meta.llama2-70b-chat-v1',
       'mistral.mistral-7b-instruct-v0:2',
       'mistral.mixtral-8x7b-instruct-v0:1',
       'mistral.mistral-small-2402-v1:0',
@@ -131,6 +133,9 @@ export class Api extends Construct {
       'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
       'eu.anthropic.claude-3-sonnet-20240229-v1:0',
       'eu.anthropic.claude-3-haiku-20240307-v1:0',
+      'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'apac.anthropic.claude-3-sonnet-20240229-v1:0',
+      'apac.anthropic.claude-3-haiku-20240307-v1:0',
       'us.meta.llama3-2-11b-instruct-v1:0',
       'us.meta.llama3-2-90b-instruct-v1:0',
     ];
@@ -287,6 +292,23 @@ export class Api extends Construct {
       },
     });
 
+    const optimizePromptFunction = new NodejsFunction(
+      this,
+      'OptimizePromptFunction',
+      {
+        runtime: Runtime.NODEJS_18_X,
+        entry: './lambda/optimizePrompt.ts',
+        timeout: Duration.minutes(15),
+        bundling: {
+          nodeModules: ['@aws-sdk/client-bedrock-agent-runtime'],
+        },
+        environment: {
+          MODEL_REGION: modelRegion,
+        },
+      }
+    );
+    optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
+
     // SageMaker Endpoint がある場合は権限付与
     if (endpointNames.length > 0) {
       // SageMaker Policy
@@ -323,6 +345,7 @@ export class Api extends Construct {
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       invokePromptFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
       // crossAccountBedrockRoleArn が指定されている場合のポリシー
       const logsPolicy = new PolicyStatement({
@@ -343,7 +366,6 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      invokePromptFlowFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
@@ -793,6 +815,7 @@ export class Api extends Construct {
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
     this.invokePromptFlowFunction = invokePromptFlowFunction;
+    this.optimizePromptFunction = optimizePromptFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
     this.multiModalModelIds = multiModalModelIds;

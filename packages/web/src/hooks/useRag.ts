@@ -18,7 +18,9 @@ const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
   return `${uri}_${pageNumber}`;
 };
 
-const arrangeItems = (items: RetrieveResultItem[]): RetrieveResultItem[] => {
+export const arrangeItems = (
+  items: RetrieveResultItem[]
+): RetrieveResultItem[] => {
   const res: Record<string, RetrieveResultItem> = {};
 
   for (const item of items) {
@@ -91,7 +93,7 @@ const useRag = (id: string) => {
         id: id,
       });
 
-      // Kendra から 参考ドキュメントを Retrieve してシステムコンテキストとして設定する
+      // Kendra から 参考ドキュメントを Retrieve してシステムプロンプトとして設定する
       let items: RetrieveResultItem[] = [];
       try {
         const retrievedItems = await retrieve(query);

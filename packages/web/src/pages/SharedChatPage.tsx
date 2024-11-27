@@ -1,13 +1,20 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import useChatApi from '../hooks/useChatApi';
+import useSystemContextApi from '../hooks/useSystemContextApi';
 import ChatMessage from '../components/ChatMessage';
 import BedrockIcon from '../assets/bedrock.svg?react';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import ModalSystemContext from '../components/ModalSystemContext';
 
 const SharedChatPage: React.FC = () => {
   const { shareId } = useParams();
   const { getSharedChat } = useChatApi();
   const { data: chatAndMessages, isLoading, error } = getSharedChat(shareId!);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
+  const [saveSystemContext, setSaveSystemContext] = useState('');
+  const [saveSystemContextTitle, setSaveSystemContextTitle] = useState('');
+  const { createSystemContext } = useSystemContextApi();
 
   const title = useMemo(() => {
     if (chatAndMessages) {
@@ -39,6 +46,23 @@ const SharedChatPage: React.FC = () => {
     }
   }, [showSystemContext, rawMessages, messages]);
 
+  const onCreateSystemContext = useCallback(async () => {
+    try {
+      await createSystemContext(saveSystemContextTitle, saveSystemContext);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSystemContextModal(false);
+      setSaveSystemContextTitle('');
+    }
+  }, [
+    createSystemContext,
+    setShowSystemContextModal,
+    setSaveSystemContextTitle,
+    saveSystemContextTitle,
+    saveSystemContext,
+  ]);
+
   return (
     <>
       <div className="relative">
@@ -67,7 +91,7 @@ const SharedChatPage: React.FC = () => {
                 />
                 <div className="peer-checked:bg-aws-smile peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:start-[2px] after:top-[2px] after:size-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full"></div>
                 <span className="ml-1 text-xs font-medium">
-                  システムコンテキストの表示
+                  システムプロンプトの表示
                 </span>
               </label>
             </div>
@@ -81,10 +105,26 @@ const SharedChatPage: React.FC = () => {
                   chatContent={chat}
                   loading={isLoading && idx === showingMessages.length - 1}
                   hideFeedback={true}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>
             ))}
+
+            <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+              <ScrollTopBottom />
+            </div>
+
+            <ModalSystemContext
+              showSystemContextModal={showSystemContextModal}
+              saveSystemContext={saveSystemContext}
+              saveSystemContextTitle={saveSystemContextTitle}
+              setShowSystemContextModal={setShowSystemContextModal}
+              setSaveSystemContext={setSaveSystemContext}
+              setSaveSystemContextTitle={setSaveSystemContextTitle}
+              onCreateSystemContext={onCreateSystemContext}
+            />
           </>
         )}
 

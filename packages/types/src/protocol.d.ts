@@ -93,6 +93,11 @@ export type PromptFlowRequest = {
   document: FlowInputContent.DocumentMember['document'];
 };
 
+export type OptimizePromptRequest = {
+  prompt: string;
+  targetModelId: string;
+};
+
 export type PredictTitleRequest = {
   model: Model;
   chat: Chat;
