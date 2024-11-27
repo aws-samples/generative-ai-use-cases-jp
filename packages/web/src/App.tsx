@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   PiList,
@@ -18,6 +18,7 @@ import {
   PiRobot,
   PiVideoCamera,
   PiFlowArrow,
+  PiMagicWand,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -28,7 +29,8 @@ import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
-import useObserveScreen from './hooks/useObserveScreen';
+import useScreen from './hooks/useScreen';
+import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -149,6 +151,14 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
+  optimizePromptEnabled
+    ? {
+        label: 'Prompt Optimization',
+        to: '/optimize',
+        icon: <PiMagicWand />,
+        display: 'tool' as const,
+      }
+    : null,
   ragEnabled
     ? {
         label: 'Kendra Search',
@@ -173,7 +183,8 @@ const App: React.FC = () => {
   const { pathname } = useLocation();
   const { getChatTitle } = useChatList();
   const { isShow } = useInterUseCases();
-  const { handleScroll } = useObserveScreen();
+  const { screen, notifyScreen, scrollTopAnchorRef, scrollBottomAnchorRef } =
+    useScreen();
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -185,11 +196,20 @@ const App: React.FC = () => {
     }
   }, [pathname, getChatTitle]);
 
+  // 画面間遷移時にスクロールイベントが発火しない場合 (ページ最上部からページ最上部への移動など)
+  // 最上部/最下部の判定がされないので、pathname の変化に応じて再判定する
+  useEffect(() => {
+    if (screen.current) {
+      notifyScreen(screen.current);
+    }
+  }, [pathname, screen, notifyScreen]);
+
   return (
     <div
       className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll"
-      onScroll={handleScroll}>
+      ref={screen}>
       <main className="flex-1">
+        <div ref={scrollTopAnchorRef}></div>
         <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
           <div className="flex w-10 items-center justify-start">
             <button
@@ -231,6 +251,7 @@ const App: React.FC = () => {
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />
         </div>
+        <div ref={scrollBottomAnchorRef}></div>
       </main>
     </div>
   );

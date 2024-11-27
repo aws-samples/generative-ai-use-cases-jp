@@ -1,12 +1,15 @@
 import { Amplify } from 'aws-amplify';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
-import App from '../App.tsx';
 import { I18n } from 'aws-amplify/utils';
+import React from 'react';
 
 const selfSignUpEnabled: boolean =
   import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
 
-const AuthWithUserpool: React.FC = () => {
+type Props = {
+  children: React.ReactNode;
+};
+const AuthWithUserpool: React.FC<Props> = (props) => {
   Amplify.configure({
     Auth: {
       Cognito: {
@@ -30,7 +33,7 @@ const AuthWithUserpool: React.FC = () => {
           </div>
         ),
       }}>
-      <App />
+      {props.children}
     </Authenticator>
   );
 };

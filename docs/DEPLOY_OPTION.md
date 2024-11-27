@@ -369,6 +369,9 @@ As of 2024/06, the following are multimodal models:
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "eu.anthropic.claude-3-sonnet-20240229-v1:0",
 "eu.anthropic.claude-3-haiku-20240307-v1:0",
+"apac.anthropic.claude-3-haiku-20240307-v1:0",
+"apac.anthropic.claude-3-sonnet-20240229-v1:0",
+"apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
 ```
@@ -390,10 +393,37 @@ For more details, refer to [Changing Amazon Bedrock Models](#changing-amazon-bed
     "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
     "eu.anthropic.claude-3-sonnet-20240229-v1:0",
     "eu.anthropic.claude-3-haiku-20240307-v1:0",
+    "apac.anthropic.claude-3-haiku-20240307-v1:0",
+    "apac.anthropic.claude-3-sonnet-20240229-v1:0",
+    "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
     "us.meta.llama3-2-90b-instruct-v1:0",
     "us.meta.llama3-2-11b-instruct-v1:0",
   ]
 ```
+
+### Enabling the Prompt Optimization Tool
+
+The prompt optimization tool converts input prompts into an optimal format for the specified model.
+While there is no direct option to enable the prompt optimization tool, the `cdk.json` configuration must meet the following two requirements:
+- `modelRegion`: Must be a region where Amazon Bedrock's Prompt optimization is supported
+- `modelIds`: Must specify one or more models that support Amazon Bedrock's Prompt optimization
+
+Please refer to [this page](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html) for the prompt optimization support status.
+
+## Enabling the Use Case Builder
+
+Set `useCaseBuilderEnabled` to `true` in the context. (Default is `false`)
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+```
+{
+  "context": {
+    "useCaseBuilderEnabled": true
+  }
+}
+```
+
+After making the changes, run `npm run cdk:deploy` to redeploy, and the Use Case Builder will be enabled, displaying a "Builder Mode" item on the screen.
 
 ## Changing Amazon Bedrock Models
 
@@ -421,6 +451,9 @@ The text generation models supported by this solution are as follows:
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "eu.anthropic.claude-3-sonnet-20240229-v1:0",
 "eu.anthropic.claude-3-haiku-20240307-v1:0",
+"apac.anthropic.claude-3-haiku-20240307-v1:0",
+"apac.anthropic.claude-3-sonnet-20240229-v1:0",
+"apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "amazon.titan-text-premier-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
@@ -439,8 +472,6 @@ The text generation models supported by this solution are as follows:
 "anthropic.claude-v2:1",
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
-"meta.llama2-70b-chat-v1",
-"meta.llama2-13b-chat-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2"
 ```
@@ -813,6 +844,9 @@ Set the following values in cdk.json:
 ```
 
 ## Using a Different AWS Account's Bedrock
+
+> [!NOTE]
+> Agent 系のタスク (Agent, Prompt Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
 
 You can use Bedrock from a different AWS account. The prerequisite is that the initial deployment of GenU has been completed.
 

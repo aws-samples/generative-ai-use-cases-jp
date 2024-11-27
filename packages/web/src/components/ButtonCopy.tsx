@@ -8,6 +8,7 @@ import useInterUseCases from '../hooks/useInterUseCases';
 type Props = BaseProps & {
   text: string;
   interUseCasesKey?: string;
+  disabled?: boolean;
 };
 
 const ButtonCopy: React.FC<Props> = (props) => {
@@ -32,6 +33,7 @@ const ButtonCopy: React.FC<Props> = (props) => {
   return (
     <ButtonIcon
       className={`${props.className ?? ''}`}
+      disabled={props.disabled}
       onClick={() => {
         copyMessage(props.text);
       }}>

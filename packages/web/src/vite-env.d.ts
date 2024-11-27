@@ -23,6 +23,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_SAML_COGNITO_DOMAIN_NAME: string;
   readonly VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: string;
   readonly VITE_APP_AGENT_NAMES: string;
+  readonly VITE_APP_USE_CASE_BUILDER_ENABLED: string;
+  readonly VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN: string;
 }
 
 interface ImportMeta {
