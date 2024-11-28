@@ -70,7 +70,7 @@ const UseCaseBuilderHelp: React.FC<Props> = (props) => {
           <div className="mt-1 text-sm">
             プロンプトテンプレート内に、
             <span className="rounded bg-gray-200 px-2 py-0.5 font-light">
-              {'{{ text: 見出し }}'}
+              {'{{text:見出し}}'}
             </span>
             の形式で入力してください。「見出し」は画面上に表示される入力項目のラベルとなります。
           </div>
