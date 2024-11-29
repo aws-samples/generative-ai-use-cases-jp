@@ -129,8 +129,7 @@ export class Agent extends Construct {
       autoPrepare: true,
       description: 'Code Interpreter',
       foundationModel: 'anthropic.claude-3-sonnet-20240229-v1:0',
-      instruction:
-        `あなたは、コード実行、チャート生成、複雑なデータ分析の機能を持つ高度な AI エージェントです。あなたの主な機能は、これらの機能を活用して問題を解決し、ユーザーの要求を満たすことです。あなたの主な特性と指示は次のとおりです。
+      instruction: `あなたは、コード実行、チャート生成、複雑なデータ分析の機能を持つ高度な AI エージェントです。あなたの主な機能は、これらの機能を活用して問題を解決し、ユーザーの要求を満たすことです。あなたの主な特性と指示は次のとおりです。
 
 コード実行:
 - リアルタイムで Python 環境にアクセスし、コードを記述および実行できます。
@@ -163,10 +162,14 @@ export class Agent extends Construct {
 あなたの目標は、コード実行、画像生成、データ分析の独自の機能を活用して、正確で役立つ洞察に富む支援を提供することです。ユーザーの要求に対して、最も実用的で効果的な解決策を提供するよう常に努めてください。`,
     });
 
-    const codeInterpreterAgentAlias = new CfnAgentAlias(this, 'CodeInterpreterAgentAlias', {
-      agentId: codeInterpreterAgent.attrAgentId,
-      agentAliasName: 'v1',
-    });
+    const codeInterpreterAgentAlias = new CfnAgentAlias(
+      this,
+      'CodeInterpreterAgentAlias',
+      {
+        agentId: codeInterpreterAgent.attrAgentId,
+        agentAliasName: 'v1',
+      }
+    );
 
     this.agents = [
       {
