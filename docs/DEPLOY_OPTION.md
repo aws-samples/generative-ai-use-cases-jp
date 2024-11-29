@@ -213,12 +213,11 @@ Agent チャットユースケースでは、以下のご利用が可能です�
 
 #### Code Interpreter エージェントのデプロイ
 
-Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。  
-[詳細な手順はこちら](AGENTS_CODE_INTERPRETER.md)を参照してください。この章では、変更手順の概要を記載します。  
+Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。
 
-AWSマネジメントコンソール画面で、Code Interpreter 機能を有効にした Agent を作成します。  
+Code Interpreter エージェントは Agent を有効化するとデプロイされます。
 
-作成された Agent で Alias を作成し、`agentId` と `aliasId` をコピーし、`cdk.json` に以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+context の `agentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定します。
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```
@@ -226,13 +225,6 @@ AWSマネジメントコンソール画面で、Code Interpreter 機能を有効
   "context": {
     "agentEnabled": true,
     "agentRegion": "us-west-2",
-    "agents": [
-      {
-        "displayName": "Code Interpreter",
-        "agentId": "XXXXXXXXX",
-        "aliasId": "YYYYYYYY"
-      }
-    ],
   }
 }
 ```
