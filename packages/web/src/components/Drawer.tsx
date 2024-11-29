@@ -80,16 +80,18 @@ const Drawer: React.FC<Props> = (props) => {
     <>
       <DrawerBase>
         {useCaseBuilderEnabled && (
-          <Switch
-            className="mx-3 mb-1 mt-3"
-            label="ビルダーモード"
-            checked={false}
-            onSwitch={() => {
-              navigate(ROUTE_INDEX_USE_CASE_BUILDER);
-            }}
-          />
+          <>
+            <Switch
+              className="mx-3 mb-1 mt-3"
+              label="ビルダーモード"
+              checked={false}
+              onSwitch={() => {
+                navigate(ROUTE_INDEX_USE_CASE_BUILDER);
+              }}
+            />
+            <div className="border-b" />
+          </>
         )}
-        <div className="border-b" />
         <div className="text-aws-smile mx-3 my-1 text-xs">
           ユースケース <span className="text-gray-400">(生成 AI)</span>
         </div>
