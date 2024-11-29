@@ -107,15 +107,18 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
                 key={useCase.useCaseId}
                 className={`flex flex-row items-center gap-x-2 p-2 last:border-b hover:bg-gray-100 ${idx > 0 ? 'border-t' : ''}`}>
                 <div
-                  className="flex flex-1 cursor-pointer items-center"
+                  className="flex flex-1 cursor-pointer flex-col justify-start"
                   onClick={() => {
                     navigate(
                       `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCase.useCaseId}`
                     );
                   }}>
-                  <span className="line-clamp-1 text-sm font-bold">
+                  <div className="line-clamp-1 text-sm font-bold">
                     {useCase.title}
-                  </span>
+                  </div>
+                  <div className="line-clamp-1 text-xs font-light text-gray-400">
+                    {useCase.description}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <ButtonFavorite
