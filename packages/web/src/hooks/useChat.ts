@@ -371,17 +371,12 @@ const useChatState = create<{
     // 続きを出力でアシスタントのメッセージが trailing whitespace で終了している場合以下のエラーが出る
     // final assistant content cannot end with trailing whitespace
     // Assistant のメッセージは trimEnd() で末尾の空白を排除
-    // 排除された空白をカウント (trimedSpaces) し、改めて Assistant のメッセージに付与
-    let trimedSpaces = 0;
-
     if (isContinue) {
-      inputMessages = inputMessages.map((m, i) => {
+      inputMessages = inputMessages.map((m: UnrecordedMessage, i: number) => {
         if (i === inputMessages.length - 1) {
-          const trimedContent = m.content.trimEnd();
-          trimedSpaces = m.content.length - trimedContent.length;
           return {
             ...m,
-            content: trimedContent,
+            content: m.content.trimEnd(),
           };
         } else {
           return m;
@@ -407,9 +402,7 @@ const useChatState = create<{
     });
 
     // Assistant の発言を更新
-    // 続きを出力の際に trimEnd() された空白をデフォルトで付与
-    // trimedSpaces が 0 の場合は tmpChunk は空文字
-    let tmpChunk = ' '.repeat(trimedSpaces);
+    let tmpChunk = '';
 
     for await (const chunk of stream) {
       const chunks = chunk.split('\n');
