@@ -28,6 +28,7 @@ type Props = {
   promptTemplate: string;
   description?: string;
   inputExamples?: UseCaseInputExample[];
+  fixedModelId: string;
   isLoading?: boolean;
 } & (
   | {
@@ -93,7 +94,13 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     postChat,
     clear: clearChat,
   } = useChat(pathname);
-  const modelId = getModelId();
+  const modelId = useMemo(() => {
+    if (props.fixedModelId !== '') {
+      return props.fixedModelId;
+    } else {
+      return getModelId();
+    }
+  }, [getModelId, props.fixedModelId]);
   const { modelIds: availableModels } = MODELS;
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
   const { updateRecentUseUseCase } = useMyUseCases();
@@ -214,15 +221,18 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         <div className="pb-4 text-sm text-gray-600">{props.description}</div>
       )}
 
-      <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
-        <Select
-          value={modelId}
-          onChange={setModelId}
-          options={availableModels.map((m) => {
-            return { value: m, label: m };
-          })}
-        />
-      </div>
+      {!props.isLoading && props.fixedModelId === '' && (
+        <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
+          <Select
+            value={modelId}
+            onChange={setModelId}
+            options={availableModels.map((m) => {
+              return { value: m, label: m };
+            })}
+          />
+        </div>
+      )}
+
       {props.isLoading && (
         <div className="my-3 flex flex-col gap-3">
           <Skeleton className="h-28" />

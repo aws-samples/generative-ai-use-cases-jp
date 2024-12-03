@@ -23,6 +23,9 @@ import {
   getItemsFromPlaceholders,
 } from '../../utils/UseCaseBuilderUtils';
 import usePageTitle from '../../hooks/usePageTitle';
+import Select from '../../components/Select';
+import Switch from '../../components/Switch';
+import { MODELS } from '../../hooks/useModel';
 
 type StateType = {
   useCaseId: string | null;
@@ -38,6 +41,8 @@ type StateType = {
   removeInputExample: (index: number) => void;
   setInputExample: (index: number, inputExample: UseCaseInputExample) => void;
   setInputExamples: (inputExamples: UseCaseInputExample[]) => void;
+  fixedModelId: string;
+  setFixedModelId: (m: string) => void;
   clear: () => void;
 };
 
@@ -47,6 +52,7 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
     description: '',
     promptTemplate: '',
     inputExamples: [],
+    fixedModelId: '',
   };
   return {
     ...INIT_STATE,
@@ -97,6 +103,11 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
         inputExamples: inputExamples,
       }));
     },
+    setFixedModelId: (m: string) => {
+      set(() => ({
+        fixedModelId: m,
+      }));
+    },
     clear: () => {
       set(INIT_STATE);
     },
@@ -122,10 +133,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
     setInputExample,
     setInputExamples,
     removeInputExample,
+    fixedModelId,
+    setFixedModelId,
     clear,
   } = useUseCaseBuilderEditPageState();
 
   const { useCase, isLoading } = useUseCase(useCaseId ?? useCaseIdPathParam);
+
   const {
     createUseCase,
     updateUseCase,
@@ -135,13 +149,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const { setPageTitle } = usePageTitle();
 
   const [isDisabledUpdate, setIsDisabledUpdate] = useState(false);
-
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
   const [isPosting, setIsPosting] = useState(false);
-
   const [isOpen, setIsOpen] = useState(false);
+
+  const { modelIds: availableModels } = MODELS;
 
   useEffect(() => {
     // 初期表示時にIDを設定する
@@ -156,6 +169,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setPromptTemplate(useCase?.promptTemplate ?? '');
       setDescription(useCase?.description ?? '');
       setInputExamples(useCase?.inputExamples ?? []);
+      setFixedModelId(useCase?.fixedModelId ?? '');
 
       // サンプル集から遷移した場合（RouterのStateから設定）
     } else if (state) {
@@ -163,6 +177,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setPromptTemplate(state.promptTemplate ?? '');
       setDescription(state.description ?? '');
       setInputExamples(state.inputExamples ?? []);
+      setFixedModelId(state.fixedModelId ?? '');
     } else {
       clear();
     }
@@ -216,6 +231,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         promptTemplate,
         description: description === '' ? undefined : description,
         inputExamples,
+        fixedModelId,
       })
         .then(() => {
           // DB変更直後は更新ボタンをDisabledにする
@@ -230,6 +246,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         promptTemplate,
         description: description === '' ? undefined : description,
         inputExamples,
+        fixedModelId,
       })
         .then(async (res) => {
           setUseCaseId(res.useCaseId);
@@ -256,6 +273,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     updateRecentUseUseCase,
     updateUseCase,
     useCaseId,
+    fixedModelId,
   ]);
 
   const onClickDelete = useCallback(() => {
@@ -445,6 +463,54 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   </Button>
                 </div>
               </ExpandableField>
+              <ExpandableField label="モデルの選択">
+                <div className="rounded border px-4 py-2">
+                  <Switch
+                    checked={fixedModelId !== ''}
+                    className="text-xl"
+                    label={
+                      fixedModelId !== ''
+                        ? 'モデルが固定化されています。'
+                        : 'モデルは固定化されていません。'
+                    }
+                    onSwitch={() => {
+                      if (fixedModelId !== '') {
+                        setFixedModelId('');
+                      } else {
+                        setFixedModelId(availableModels[0]);
+                      }
+                      setIsDisabledUpdate(false);
+                    }}
+                  />
+
+                  {fixedModelId !== '' && (
+                    <Select
+                      value={fixedModelId}
+                      onChange={(m) => {
+                        setFixedModelId(m);
+                        setIsDisabledUpdate(false);
+                      }}
+                      options={availableModels.map((m) => {
+                        return { value: m, label: m };
+                      })}
+                    />
+                  )}
+
+                  <div className="text-xs text-gray-800">
+                    {fixedModelId !== '' ? (
+                      <>
+                        モデル選択の UI が表示されないため、ユーザーは生成 AI
+                        の存在を意識せずにユースケースを利用できます
+                      </>
+                    ) : (
+                      <>
+                        モデル選択の UI
+                        が表示され、ユーザーは自由にモデルを選択できます。
+                      </>
+                    )}
+                  </div>
+                </div>
+              </ExpandableField>
             </RowItem>
             <div className="flex justify-between">
               {isUpdate ? (
@@ -482,6 +548,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
               promptTemplate={promptTemplate}
               description={description}
               inputExamples={inputExamples}
+              fixedModelId={fixedModelId}
               previewMode
             />
           </Card>

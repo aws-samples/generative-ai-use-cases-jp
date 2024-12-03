@@ -156,6 +156,7 @@ export const createUseCase = async (
     description: content.description,
     promptTemplate: content.promptTemplate,
     inputExamples: content.inputExamples,
+    fixedModelId: content.fixedModelId,
     isShared: false,
   };
 
@@ -257,12 +258,13 @@ export const updateUseCase = async (
         dataType: useCaseInTable.dataType,
       },
       UpdateExpression:
-        'set title = :title, promptTemplate = :promptTemplate, description = :description, inputExamples = :inputExamples',
+        'set title = :title, promptTemplate = :promptTemplate, description = :description, inputExamples = :inputExamples, fixedModelId = :fixedModelId',
       ExpressionAttributeValues: {
         ':title': content.title,
         ':promptTemplate': content.promptTemplate,
         ':description': content.description ?? '',
         ':inputExamples': content.inputExamples ?? [],
+        ':fixedModelId': content.fixedModelId ?? '',
       },
     })
   );
