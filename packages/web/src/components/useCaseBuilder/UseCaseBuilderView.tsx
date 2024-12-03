@@ -221,7 +221,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         <div className="pb-4 text-sm text-gray-600">{props.description}</div>
       )}
 
-      {props.fixedModelId === '' && (
+      {!props.isLoading && props.fixedModelId === '' && (
         <div className="mb-2 flex w-full flex-col justify-between sm:flex-row">
           <Select
             value={modelId}
