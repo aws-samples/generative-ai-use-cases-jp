@@ -50,6 +50,7 @@ const useMyUseCases = () => {
       promptTemplate: string;
       description?: string;
       inputExamples?: UseCaseInputExample[];
+      fixedModelId?: string;
     }) => {
       return createUseCase(params).finally(() => {
         mutateMyUseCases();
@@ -61,6 +62,7 @@ const useMyUseCases = () => {
       promptTemplate: string;
       description?: string;
       inputExamples?: UseCaseInputExample[];
+      fixedModelId?: string;
     }) => {
       // 一覧の更新
       const index = findIndex(params.useCaseId);
@@ -80,6 +82,7 @@ const useMyUseCases = () => {
         promptTemplate: params.promptTemplate,
         description: params.description,
         inputExamples: params.inputExamples,
+        fixedModelId: params.fixedModelId,
       }).finally(() => {
         mutateMyUseCases();
         mutateFavoriteUseCases();

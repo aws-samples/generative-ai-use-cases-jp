@@ -105,7 +105,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
             return (
               <div
                 key={useCase.useCaseId}
-                className={`flex flex-row items-center gap-x-2 p-2 last:border-b hover:bg-gray-100 ${idx > 0 ? 'border-t' : ''}`}>
+                className={`flex flex-row items-center gap-x-2 p-2 hover:bg-gray-100 ${idx > 0 ? 'border-t' : ''}`}>
                 <div
                   className="flex flex-1 cursor-pointer flex-col justify-start"
                   onClick={() => {
