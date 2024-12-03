@@ -916,7 +916,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseStreamCommandInput: createConverseStreamCommandInput,
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
-  }
+  },
 };
 
 // 画像生成に関する、各のModel のパラメーターや関数の定義
