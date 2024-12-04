@@ -475,7 +475,7 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 "mistral.mistral-7b-instruct-v0:2",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
-"amazon.nova-micro-v1:0"
+"amazon.nova-micro-v1:0",
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
 "us.amazon.nova-micro-v1:0"
