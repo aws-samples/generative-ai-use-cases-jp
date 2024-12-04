@@ -569,7 +569,6 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
     "us.amazon.nova-pro-v1:0",
     "us.amazon.nova-lite-v1:0",
     "us.amazon.nova-micro-v1:0"
-
   ],
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
