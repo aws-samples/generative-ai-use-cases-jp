@@ -216,6 +216,15 @@ const createConverseCommandInput = (
               },
             },
           } as ContentBlock.DocumentMember);
+        } else if (extra.type === 'video' && extra.source.type === 'base64') {
+          contentBlocks.push({
+            video: {
+              format: extra.source.mediaType.split('/')[1],
+              source: {
+                bytes: Buffer.from(extra.source.data, 'base64'),
+              },
+            },
+          } as ContentBlock.VideoMember);
         }
       });
     }
