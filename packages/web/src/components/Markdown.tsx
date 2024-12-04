@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
 import { default as ReactMarkdown } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -8,6 +8,7 @@ import remarkBreaks from 'remark-breaks';
 import ButtonCopy from './ButtonCopy';
 import useRagFile from '../hooks/useRagFile';
 import { PiSpinnerGap } from 'react-icons/pi';
+import useFileApi from '../hooks/useFileApi';
 
 type Props = BaseProps & {
   children: string;
@@ -50,18 +51,31 @@ const LinkRenderer = (props: any) => {
     </>
   );
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ImageRenderer = (props: any) => {
+  const { isS3Url } = useRagFile();
+  const { getFileDownloadSignedUrl } = useFileApi();
+  const [src, setSrc] = useState(props.src);
 
-const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
+  useEffect(() => {
+    if (isS3Url(props.src)) {
+      getFileDownloadSignedUrl(props.src).then((url) => setSrc(url));
+    }
+  }, [getFileDownloadSignedUrl, isS3Url, props.src]);
+
+  return <img id={props.id} src={src} />;
+};
+
+const Markdown = React.memo(({ className, prefix, children }: Props) => {
   return (
     <ReactMarkdown
-      className={`${
-        className ?? ''
-      } prose prose-code:w-1/5 max-w-full break-all`}
+      className={`${className ?? ''} prose max-w-full`}
       children={children}
       remarkPlugins={[remarkGfm, remarkBreaks]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
       components={{
         a: LinkRenderer,
+        img: ImageRenderer,
         sup: ({ children }) => (
           <sup className="m-0.5 rounded-full bg-gray-200 px-1">{children}</sup>
         ),
@@ -98,6 +112,6 @@ const Markdown: React.FC<Props> = ({ className, prefix, children }) => {
       }}
     />
   );
-};
+});
 
 export default Markdown;

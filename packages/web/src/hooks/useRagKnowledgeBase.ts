@@ -4,13 +4,15 @@ import useRagKnowledgeBaseApi from './useRagKnowledgeBaseApi';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
+import { cleanEncode } from '../utils/URLUtils';
+import { arrangeItems } from './useRag';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
 
   if (!result) {
-    return '';
+    return s3Uri;
   }
 
   const groups = result?.groups as {
@@ -56,7 +58,7 @@ const useRagKnowledgeBase = (id: string) => {
       pushMessage('user', content);
       pushMessage(
         'assistant',
-        'Knowledge base から参考ドキュメントを取得中...'
+        'Knowledge Base から参考ドキュメントを取得中...'
       );
 
       let retrievedItems = null;
@@ -84,8 +86,8 @@ const useRagKnowledgeBase = (id: string) => {
         pushMessage(
           'assistant',
           `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Bedrock Knowledge bases の data source に対象のドキュメントが追加されているか確認する
-- Bedrock Knowledge bases の data source が sync されているか確認する
+- Knowledge Base のデータソースに対象のドキュメントが追加されているか確認する
+- Knowledge Base のデータソースが同期されているか確認する
 - 入力の表現を変更する`
         );
         setLoading(false);
@@ -96,23 +98,32 @@ const useRagKnowledgeBase = (id: string) => {
       // Knowledge Base のみを利用する場合は本来不要な処理
       const retrievedItemsKendraFormat: RetrieveResultItem[] =
         retrievedItems.data.retrievalResults!.map((r, idx) => {
-          const docFile = (r.location?.s3Location?.uri ?? '').split('/').pop();
+          const sourceUri =
+            r.metadata?.['x-amz-bedrock-kb-source-uri']?.toString() ?? '';
+          const pageNumber =
+            r.metadata?.['x-amz-bedrock-kb-document-page-number'];
 
           return {
             Content: r.content?.text ?? '',
             DocumentId: `${idx}`,
-            DocumentTitle: docFile,
-            DocumentURI: convertS3UriToUrl(
-              r.location?.s3Location?.uri ?? '',
-              modelRegion
-            ),
+            DocumentTitle: sourceUri.split('/').pop(),
+            DocumentURI: convertS3UriToUrl(sourceUri, modelRegion),
+            DocumentAttributes: pageNumber
+              ? [
+                  {
+                    Key: '_excerpt_page_number',
+                    Value: { LongValue: Number(pageNumber) },
+                  },
+                ]
+              : [],
           };
         });
+      const items = arrangeItems(retrievedItemsKendraFormat);
 
       updateSystemContext(
         prompter.ragPrompt({
           promptType: 'SYSTEM_CONTEXT',
-          referenceItems: retrievedItemsKendraFormat,
+          referenceItems: items,
         })
       );
 
@@ -130,10 +141,21 @@ const useRagKnowledgeBase = (id: string) => {
         },
         (message: string) => {
           // 後処理：Footnote の付与
-          const footnote = retrievedItemsKendraFormat
+          const footnote = items
             .map((item, idx) => {
+              // 参考にしたページ番号がある場合は、アンカーリンクとして設定する
+              const _excerpt_page_number = item.DocumentAttributes?.find(
+                (attr) => attr.Key === '_excerpt_page_number'
+              )?.Value?.LongValue;
               return message.includes(`[^${idx}]`)
-                ? `[^${idx}]: [${item.DocumentTitle}](${item.DocumentURI})`
+                ? `[^${idx}]: [${item.DocumentTitle}${
+                    _excerpt_page_number
+                      ? `(${_excerpt_page_number} ページ)`
+                      : ''
+                  }](
+                  ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${
+                    _excerpt_page_number ? `#page=${_excerpt_page_number}` : ''
+                  })`
                 : '';
             })
             .filter((x) => x)

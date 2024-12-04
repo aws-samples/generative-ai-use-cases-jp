@@ -7,7 +7,8 @@ import useRagKnowledgeBase from '../hooks/useRagKnowledgeBase';
 import { useLocation } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import useFollow from '../hooks/useFollow';
+import ScrollTopBottom from '../components/ScrollTopBottom';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import { RagPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
@@ -35,7 +36,7 @@ const RagKnowledgeBasePage: React.FC = () => {
   const { getModelId, setModelId } = useChat(pathname);
   const { postMessage, clear, loading, messages, isEmpty } =
     useRagKnowledgeBase(pathname);
-  const { scrollToBottom, scrollToTop } = useScroll();
+  const { scrollableContainer, setFollowing } = useFollow();
   const { modelIds: availableModels } = MODELS;
   const modelId = getModelId();
 
@@ -56,23 +57,15 @@ const RagKnowledgeBasePage: React.FC = () => {
   }, [availableModels, modelId, search, setContent]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postMessage(content);
     setContent('');
-  }, [content, postMessage, setContent]);
+  }, [content, postMessage, setContent, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
     setContent('');
   }, [clear, setContent]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   return (
     <>
@@ -114,16 +107,22 @@ const RagKnowledgeBasePage: React.FC = () => {
           </div>
         )}
 
-        {messages.map((chat, idx) => (
-          <div key={idx}>
-            <ChatMessage
-              idx={idx}
-              chatContent={chat}
-              loading={loading && idx === messages.length - 1}
-            />
-            <div className="w-full border-b border-gray-300"></div>
-          </div>
-        ))}
+        <div ref={scrollableContainer}>
+          {messages.map((chat, idx) => (
+            <div key={idx}>
+              <ChatMessage
+                idx={idx}
+                chatContent={chat}
+                loading={loading && idx === messages.length - 1}
+              />
+              <div className="w-full border-b border-gray-300"></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full items-end justify-center lg:pr-64 print:hidden">
           <InputChatContent

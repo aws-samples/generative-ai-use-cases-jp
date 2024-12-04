@@ -4,6 +4,10 @@ import {
   GetTranscriptionJobCommand,
 } from '@aws-sdk/client-transcribe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  GetTranscriptionResponse,
+  Transcript,
+} from 'generative-ai-use-cases-jp';
 
 function parseS3Url(s3Url: string) {
   const url = new URL(s3Url);
@@ -55,7 +59,45 @@ export const handler = async (
           Key: key,
         })
       );
-      const transcript = JSON.parse(await s3Result.Body!.transformToString());
+      const output = JSON.parse(await s3Result.Body!.transformToString());
+
+      // 文字起こしをフォーマット
+      const rawTranscripts: Transcript[] = output.results.audio_segments.map(
+        (item: { transcript: string; speaker_label?: string }) => ({
+          speakerLabel: item.speaker_label,
+          transcript: item.transcript,
+        })
+      );
+      // 話者が連続する場合はマージ
+      const transcripts = rawTranscripts
+        .reduce((prev, item) => {
+          if (
+            prev.length === 0 ||
+            item.speakerLabel !== prev[prev.length - 1].speakerLabel
+          ) {
+            prev.push({
+              speakerLabel: item.speakerLabel,
+              transcript: item.transcript,
+            });
+          } else {
+            prev[prev.length - 1].transcript += ' ' + item.transcript;
+          }
+          return prev;
+        }, [] as Transcript[])
+        .map((item) => ({
+          ...item,
+          // フレーズの間にスペースが入るため日本語の場合はスペースを除去
+          transcript:
+            output.results.language_code === 'ja-JP'
+              ? item.transcript.replace(/ /g, '')
+              : item.transcript,
+        }));
+
+      const response: GetTranscriptionResponse = {
+        status: res.TranscriptionJob?.TranscriptionJobStatus,
+        languageCode: output.results.language_code,
+        transcripts: transcripts,
+      };
 
       return {
         statusCode: 200,
@@ -63,12 +105,7 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({
-          status: res.TranscriptionJob?.TranscriptionJobStatus,
-          transcript: transcript.results.transcripts
-            .map((item: { transcript: string }) => item.transcript)
-            .join(''),
-        }),
+        body: JSON.stringify(response),
       };
     } else {
       return {

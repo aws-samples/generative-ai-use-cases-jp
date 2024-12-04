@@ -16,6 +16,13 @@ export type Agent = {
 
 export type AgentMap = Record<string, { agentId: string; aliasId: string }>;
 
+export type PromptFlow = {
+  flowId: string;
+  aliasId: string;
+  flowName: string;
+  description: string;
+};
+
 export type MessageAttributes = {
   messageId: string;
   usecase: string;
@@ -28,25 +35,37 @@ export type UnrecordedMessage = {
   // テキスト
   content: string;
   // 追加データ（画像など）
+  trace?: string;
   extraData?: ExtraData[];
   llmType?: string;
 };
 
 export type ExtraData = {
-  type: string;
+  type: string; // 'image' | 'file'
+  name: string;
   source: {
-    type: string;
-    mediaType: string;
+    type: string; // 'S3'
+    mediaType: string; // file type
     data: string;
   };
 };
 
 export type UploadedFileType = {
   file: File;
-  base64EncodedImage?: string;
+  name: string;
+  type: string; // 'image' | 'file'
+  base64EncodedData?: string;
   s3Url?: string;
   uploading: boolean;
   deleting?: boolean;
+};
+
+export type FileLimit = {
+  accept: string[];
+  maxFileCount: number;
+  maxFileSizeMB: number;
+  maxImageFileCount: number;
+  maxImageFileSizeMB: number;
 };
 
 export type RecordedMessage = PrimaryKey &
@@ -54,6 +73,7 @@ export type RecordedMessage = PrimaryKey &
   UnrecordedMessage;
 
 export type ToBeRecordedMessage = UnrecordedMessage & {
+  createdDate?: string;
   messageId: string;
   usecase: string;
 };

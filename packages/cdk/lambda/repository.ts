@@ -5,6 +5,7 @@ import {
   ShareId,
   UserIdAndChatId,
   SystemContext,
+  UpdateFeedbackRequest,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -102,7 +103,13 @@ export const findSystemContextById = async (
   }
 };
 
-export const listChats = async (_userId: string): Promise<Chat[]> => {
+export const listChats = async (
+  _userId: string,
+  _exclusiveStartKey?: string
+): Promise<{ chats: Chat[]; lastEvaluatedKey?: string }> => {
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
+    : undefined;
   const userId = `user#${_userId}`;
   const res = await dynamoDbDocument.send(
     new QueryCommand({
@@ -115,10 +122,17 @@ export const listChats = async (_userId: string): Promise<Chat[]> => {
         ':id': userId,
       },
       ScanIndexForward: false,
+      Limit: 100, // チャットのリストは 1 度に 100 件返す
+      ExclusiveStartKey: exclusiveStartKey,
     })
   );
 
-  return res.Items as Chat[];
+  return {
+    chats: res.Items as Chat[],
+    lastEvaluatedKey: res.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
+      : undefined,
+  };
 };
 
 export const listSystemContexts = async (
@@ -200,10 +214,11 @@ export const batchCreateMessages = async (
     (m: ToBeRecordedMessage, i: number) => {
       return {
         id: chatId,
-        createdDate: `${createdDate + i}#0`,
+        createdDate: m.createdDate ?? `${createdDate + i}#0`,
         messageId: m.messageId,
         role: m.role,
         content: m.content,
+        trace: m.trace,
         extraData: m.extraData,
         userId,
         feedback,
@@ -253,10 +268,29 @@ export const setChatTitle = async (
 
 export const updateFeedback = async (
   _chatId: string,
-  createdDate: string,
-  feedback: string
+  feedbackData: UpdateFeedbackRequest
 ): Promise<RecordedMessage> => {
   const chatId = `chat#${_chatId}`;
+  const { createdDate, feedback, reasons, detailedFeedback } = feedbackData;
+  let updateExpression = 'set feedback = :feedback';
+  const expressionAttributeValues: {
+    ':feedback': string;
+    ':reasons'?: string[];
+    ':detailedFeedback'?: string;
+  } = {
+    ':feedback': feedback,
+  };
+
+  if (reasons && reasons.length > 0) {
+    updateExpression += ', reasons = :reasons';
+    expressionAttributeValues[':reasons'] = reasons;
+  }
+
+  if (detailedFeedback) {
+    updateExpression += ', detailedFeedback = :detailedFeedback';
+    expressionAttributeValues[':detailedFeedback'] = detailedFeedback;
+  }
+
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
@@ -264,10 +298,8 @@ export const updateFeedback = async (
         id: chatId,
         createdDate,
       },
-      UpdateExpression: 'set feedback = :feedback',
-      ExpressionAttributeValues: {
-        ':feedback': feedback,
-      },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
       ReturnValues: 'ALL_NEW',
     })
   );

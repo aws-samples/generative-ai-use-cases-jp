@@ -1,19 +1,25 @@
 import {
   BedrockRuntimeClient,
   InvokeModelCommand,
-  InvokeModelWithResponseStreamCommand,
+  ConverseCommand,
+  ConverseCommandInput,
+  ConverseCommandOutput,
+  ConverseStreamCommand,
+  ConverseStreamCommandInput,
+  ConverseStreamOutput,
   ServiceQuotaExceededException,
   ThrottlingException,
+  AccessDeniedException,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   ApiInterface,
   BedrockImageGenerationResponse,
-  BedrockResponse,
   GenerateImageParams,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
-import { BEDROCK_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
+import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+import { streamingChunk } from './streamingChunk';
 
 // STSから一時的な認証情報を取得する関数
 const assumeRole = async (crossAccountBedrockRoleArn: string) => {
@@ -77,18 +83,50 @@ const initBedrockClient = async () => {
   }
 };
 
-const createBodyText = (
+const createConverseCommandInput = (
   model: string,
   messages: UnrecordedMessage[],
   id: string
-): string => {
-  const modelConfig = BEDROCK_MODELS[model];
-  return modelConfig.createBodyText(messages, id);
+): ConverseCommandInput => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.createConverseCommandInput(
+    messages,
+    id,
+    model,
+    modelConfig.defaultParams,
+    modelConfig.usecaseParams
+  );
 };
 
-const extractOutputText = (model: string, body: BedrockResponse): string => {
-  const modelConfig = BEDROCK_MODELS[model];
-  return modelConfig.extractOutputText(body);
+const createConverseStreamCommandInput = (
+  model: string,
+  messages: UnrecordedMessage[],
+  id: string
+): ConverseStreamCommandInput => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.createConverseStreamCommandInput(
+    messages,
+    id,
+    model,
+    modelConfig.defaultParams,
+    modelConfig.usecaseParams
+  );
+};
+
+const extractConverseOutputText = (
+  model: string,
+  output: ConverseCommandOutput
+): string => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.extractConverseOutputText(output);
+};
+
+const extractConverseStreamOutputText = (
+  model: string,
+  output: ConverseStreamOutput
+): string => {
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  return modelConfig.extractConverseStreamOutputText(output);
 };
 
 const createBodyImage = (
@@ -107,44 +145,57 @@ const extractOutputImage = (
   return modelConfig.extractOutputImage(response);
 };
 
-const bedrockApi: ApiInterface = {
+const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
   invoke: async (model, messages, id) => {
     const client = await initBedrockClient();
-    const command = new InvokeModelCommand({
-      modelId: model.modelId,
-      body: createBodyText(model.modelId, messages, id),
-      contentType: 'application/json',
-    });
-    const data = await client.send(command);
-    const body = JSON.parse(data.body.transformToString());
-    return extractOutputText(model.modelId, body);
+
+    const converseCommandInput = createConverseCommandInput(
+      model.modelId,
+      messages,
+      id
+    );
+    const command = new ConverseCommand(converseCommandInput);
+    const output = await client.send(command);
+
+    return extractConverseOutputText(model.modelId, output);
   },
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
-    try {
-      const command = new InvokeModelWithResponseStreamCommand({
-        modelId: model.modelId,
-        body: createBodyText(model.modelId, messages, id),
-        contentType: 'application/json',
-      });
-      const res = await client.send(command);
 
-      if (!res.body) {
+    try {
+      const converseStreamCommandInput = createConverseStreamCommandInput(
+        model.modelId,
+        messages,
+        id
+      );
+
+      const command = new ConverseStreamCommand(converseStreamCommandInput);
+
+      const responseStream = await client.send(command);
+
+      if (!responseStream.stream) {
         return;
       }
 
-      for await (const streamChunk of res.body) {
-        if (!streamChunk.chunk?.bytes) {
+      for await (const response of responseStream.stream) {
+        if (!response) {
           break;
         }
-        const body = JSON.parse(
-          new TextDecoder('utf-8').decode(streamChunk.chunk?.bytes)
+
+        const outputText = extractConverseStreamOutputText(
+          model.modelId,
+          response
         );
-        const outputText = extractOutputText(model.modelId, body);
+
         if (outputText) {
-          yield outputText;
+          yield streamingChunk({ text: outputText });
         }
-        if (body.stop_reason) {
+
+        if (response.messageStop) {
+          yield streamingChunk({
+            text: '',
+            stopReason: response.messageStop.stopReason,
+          });
           break;
         }
       }
@@ -153,14 +204,26 @@ const bedrockApi: ApiInterface = {
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
-        yield 'ただいまアクセスが集中しているため時間をおいて試してみてください。';
+        yield streamingChunk({
+          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+        });
+      } else if (e instanceof AccessDeniedException) {
+        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
+        yield streamingChunk({
+          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+        });
       } else {
-        yield 'エラーが発生しました。時間をおいて試してみてください。';
+        console.error(e);
+        yield streamingChunk({
+          text: 'エラーが発生しました。時間をおいて試してみてください。',
+        });
       }
     }
   },
   generateImage: async (model, params) => {
     const client = await initBedrockClient();
+
+    // Stable Diffusion や Titan Image Generator を利用した画像生成は Converse API に対応していないため、InvokeModelCommand を利用する
     const command = new InvokeModelCommand({
       modelId: model.modelId,
       body: createBodyImage(model.modelId, params),

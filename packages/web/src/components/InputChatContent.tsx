@@ -12,11 +12,14 @@ import {
 } from 'react-icons/pi';
 
 import useFiles from '../hooks/useFiles';
+import FileCard from './FileCard';
+import { FileLimit } from 'generative-ai-use-cases-jp';
 
 type Props = {
   content: string;
   disabled?: boolean;
   placeholder?: string;
+  description?: string;
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
@@ -26,6 +29,7 @@ type Props = {
   // ページ下部以外で使う時に margin bottom を無効化するためのオプション
   disableMarginBottom?: boolean;
   fileUpload?: boolean;
+  fileLimit?: FileLimit;
 } & (
   | {
       hideReset?: false;
@@ -39,14 +43,19 @@ type Props = {
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
   const { loading: chatLoading, isEmpty } = useChat(pathname);
-  const { uploadedFiles, uploadFiles, deleteUploadedFile, uploading } =
-    useFiles();
+  const {
+    uploadedFiles,
+    uploadFiles,
+    deleteUploadedFile,
+    uploading,
+    errorMessages,
+  } = useFiles();
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(files));
+      uploadFiles(Array.from(files), props?.fileLimit);
     }
   };
 
@@ -63,7 +72,7 @@ const InputChatContent: React.FC<Props> = (props) => {
       .map((file) => file.getAsFile() as File);
     if (files.length > 0) {
       // ファイルをアップロード
-      uploadFiles(Array.from(files));
+      uploadFiles(Array.from(files), props.fileLimit);
       // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
       pasteEvent.preventDefault();
     }
@@ -83,6 +92,11 @@ const InputChatContent: React.FC<Props> = (props) => {
       className={`${
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
       }`}>
+      {props.description && (
+        <p className="m-2 whitespace-pre-wrap text-xs text-gray-500">
+          {props.description}
+        </p>
+      )}
       <div
         className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom ? '' : 'mb-7'
@@ -90,21 +104,42 @@ const InputChatContent: React.FC<Props> = (props) => {
         <div className="flex w-full flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
-              {uploadedFiles.map((uploadedFile, idx) => (
-                <ZoomUpImage
-                  key={idx}
-                  src={uploadedFile.base64EncodedImage}
-                  loading={uploadedFile.uploading}
-                  size="s"
-                  onDelete={() => {
-                    deleteFile(uploadedFile.s3Url ?? '');
-                  }}
-                />
+              {uploadedFiles.map((uploadedFile, idx) =>
+                uploadedFile.type === 'image' ? (
+                  <ZoomUpImage
+                    key={idx}
+                    src={uploadedFile.base64EncodedData}
+                    loading={uploadedFile.uploading}
+                    size="s"
+                    onDelete={() => {
+                      deleteFile(uploadedFile.s3Url ?? '');
+                    }}
+                  />
+                ) : (
+                  <FileCard
+                    key={idx}
+                    filename={uploadedFile.name}
+                    loading={uploadedFile.uploading}
+                    size="s"
+                    onDelete={() => {
+                      deleteFile(uploadedFile.s3Url ?? '');
+                    }}
+                  />
+                )
+              )}
+            </div>
+          )}
+          {errorMessages.length > 0 && (
+            <div className="m-2 flex flex-wrap gap-2">
+              {errorMessages.map((errorMessage, idx) => (
+                <p key={idx} className="text-red-500">
+                  {errorMessage}
+                </p>
               ))}
             </div>
           )}
           <Textarea
-            className="scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent pr-14 "
+            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-24' : 'pr-14'}`}
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
@@ -115,27 +150,29 @@ const InputChatContent: React.FC<Props> = (props) => {
           />
         </div>
         {props.fileUpload && (
-          <label>
-            <input
-              hidden
-              onChange={onChangeFiles}
-              type="file"
-              accept=".jpg, .png, .gif, .webp"
-              multiple
-              value={[]}
-            />
-            <div
-              className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} my-2 flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-              {uploading ? (
-                <PiSpinnerGap className="animate-spin" />
-              ) : (
-                <PiPaperclip />
-              )}
-            </div>
-          </label>
+          <div className="absolute bottom-2 right-12">
+            <label>
+              <input
+                hidden
+                onChange={onChangeFiles}
+                type="file"
+                accept={props.fileLimit?.accept?.join(',')}
+                multiple
+                value={[]}
+              />
+              <div
+                className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+                {uploading ? (
+                  <PiSpinnerGap className="animate-spin" />
+                ) : (
+                  <PiPaperclip />
+                )}
+              </div>
+            </label>
+          </div>
         )}
         <ButtonSend
-          className="m-2 align-bottom"
+          className="absolute bottom-2  right-2"
           disabled={disabledSend}
           loading={loading || uploading}
           onClick={props.onSend}

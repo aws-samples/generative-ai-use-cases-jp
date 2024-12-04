@@ -10,6 +10,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_RAG_ENABLED: string;
   readonly VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED: string;
   readonly VITE_APP_AGENT_ENABLED: string;
+  readonly VITE_APP_PROMPT_FLOW_STREAM_FUNCTION_ARN: string;
+  readonly VITE_APP_PROMPT_FLOWS: string;
   readonly VITE_APP_SELF_SIGN_UP_ENABLED: string;
   readonly VITE_APP_VERSION: string;
   readonly VITE_APP_MODEL_REGION: string;
@@ -21,7 +23,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_SAML_COGNITO_DOMAIN_NAME: string;
   readonly VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: string;
   readonly VITE_APP_AGENT_NAMES: string;
-  readonly VITE_APP_RECOGNIZE_FILE_ENABLED: string;
+  readonly VITE_APP_USE_CASE_BUILDER_ENABLED: string;
+  readonly VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN: string;
 }
 
 interface ImportMeta {

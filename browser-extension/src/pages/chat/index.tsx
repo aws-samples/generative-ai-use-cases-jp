@@ -6,14 +6,17 @@ import { proxyStore } from '../../app/proxyStore';
 import ChatPage from './ChatPage';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { Authenticator } from '@aws-amplify/ui-react';
 
 proxyStore.ready().then(() => {
   createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
       <Provider store={proxyStore}>
-        <DndProvider backend={HTML5Backend}>
-          <ChatPage />
-        </DndProvider>
+        <Authenticator.Provider>
+          <DndProvider backend={HTML5Backend}>
+            <ChatPage />
+          </DndProvider>
+        </Authenticator.Provider>
       </Provider>
     </React.StrictMode>,
   );

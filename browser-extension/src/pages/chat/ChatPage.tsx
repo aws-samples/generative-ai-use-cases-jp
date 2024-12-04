@@ -1,9 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import '@aws-amplify/ui-react/styles.css';
 
-import { Amplify } from 'aws-amplify';
-import { I18n } from 'aws-amplify/utils';
-import { Authenticator, translations } from '@aws-amplify/ui-react';
 import Chat from '../../app/features/chat/Chat';
 import useSettings from '../../app/features/settings/useSettings';
 import Header from '../../app/features/common/components/Header';
@@ -12,11 +9,12 @@ import Browser from 'webextension-polyfill';
 import { MessagePayload } from '../../@types/extension-message';
 import PromptSettings from '../../app/features/prompt-settings/PromptSettings';
 import { PromptSetting } from '../../@types/settings';
+import RequiresAuth from '../../app/features/common/components/RequiresAuth';
 
 const ChatPage: React.FC = () => {
   const [isOpenSettings, setIsOpenSettings] = useState(false);
   const [isOpenPromptSettings, setIsOpenPromptSettings] = useState(false);
-  const { hasConfiguredSettings, settings } = useSettings();
+  const { hasConfiguredSettings } = useSettings();
 
   useEffect(() => {
     if (!hasConfiguredSettings) {
@@ -25,23 +23,6 @@ const ChatPage: React.FC = () => {
       setIsOpenSettings(false);
     }
   }, [hasConfiguredSettings]);
-
-  useEffect(() => {
-    if (settings) {
-      Amplify.configure({
-        Auth: {
-          Cognito: {
-            userPoolId: settings.userPoolId,
-            userPoolClientId: settings.userPoolClientId,
-            identityPoolId: settings.identityPoolId,
-          },
-        },
-      });
-    }
-  }, [settings]);
-
-  I18n.putVocabularies(translations);
-  I18n.setLanguage('ja');
 
   const [content, setContent] = useState('');
   const [promptSetting, setPromptSetting] = useState<PromptSetting>({
@@ -55,7 +36,6 @@ const ChatPage: React.FC = () => {
     if (message.type === 'CONTENT') {
       setContent(message.content);
     } else if (message.type === 'SYSTEM-CONTEXT') {
-      console.log(message);
       setPromptSetting(message.systemContext);
     }
   });
@@ -66,7 +46,6 @@ const ChatPage: React.FC = () => {
     if (message.type === 'CONTENT') {
       setContent(message.content);
     } else if (message.type === 'SYSTEM-CONTEXT') {
-      console.log(message);
       setPromptSetting(message.systemContext);
     }
   });
@@ -110,13 +89,9 @@ const ChatPage: React.FC = () => {
           />
         )}
         {!isOpenSettings && !isOpenPromptSettings && (
-          <Authenticator
-            components={{
-              Header: () => <div className="text-lg font-bold text-white">Bedrock</div>,
-            }}
-          >
+          <RequiresAuth>
             <Chat initContent={content} initPromptSetting={promptSetting} />
-          </Authenticator>
+          </RequiresAuth>
         )}
       </div>
     </div>

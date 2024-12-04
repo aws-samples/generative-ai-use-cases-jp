@@ -50,7 +50,17 @@ const useChatApi = () => {
       return http.delete<void>(`chats/${chatId}`);
     },
     listChats: () => {
-      return http.get<ListChatsResponse>('chats');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListChatsResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return 'chats';
+        return `chats?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListChatsResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     findChatById: (chatId?: string) => {
       return http.get<FindChatByIdResponse>(chatId ? `chats/${chatId}` : null);

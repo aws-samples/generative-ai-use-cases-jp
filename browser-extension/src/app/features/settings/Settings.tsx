@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import InputText from '../common/components/InputText';
 import useSettings from './useSettings';
 import Button from '../common/components/Button';
 import { PiCaretLeft } from 'react-icons/pi';
 import useAuth from '../common/hooks/useAuth';
+import Switch from '../common/components/Switch';
 
 type Props = {
   onBack: () => void;
@@ -11,7 +12,11 @@ type Props = {
 
 const Settings: React.FC<Props> = (props) => {
   const { settings, setSetting, save } = useSettings();
-  const { hasAuthrized, email, signOut } = useAuth();
+  const { hasAuthenticated, email, signOut } = useAuth();
+
+  const enabledSamlAuth = useMemo(() => {
+    return settings?.enabledSamlAuth ?? false;
+  }, [settings?.enabledSamlAuth]);
 
   return (
     <div className="p-2">
@@ -22,48 +27,77 @@ const Settings: React.FC<Props> = (props) => {
       </div>
 
       <div className="flex flex-col mt-3 gap-2">
-        <InputText
-          label="リージョン（Region）"
-          value={settings?.region ?? ''}
-          onChange={(val) => {
-            setSetting('region', val);
+        <Switch
+          label="SAML 認証を利用する"
+          checked={enabledSamlAuth}
+          onSwitch={(val) => {
+            setSetting('enabledSamlAuth', val);
           }}
         />
-        <InputText
-          label="ユーザプールID（UserPoolId）"
-          value={settings?.userPoolId ?? ''}
-          onChange={(val) => {
-            setSetting('userPoolId', val);
-          }}
-        />
-        <InputText
-          label="ユーザープールクライアントID（UserPoolClientId）"
-          value={settings?.userPoolClientId ?? ''}
-          onChange={(val) => {
-            setSetting('userPoolClientId', val);
-          }}
-        />
-        <InputText
-          label="アイデンティティプールID（IdPoolId）"
-          value={settings?.identityPoolId ?? ''}
-          onChange={(val) => {
-            setSetting('identityPoolId', val);
-          }}
-        />
-        <InputText
-          label="推論関数ARN（PredictStreamFunctionArn）"
-          value={settings?.lambdaArn ?? ''}
-          onChange={(val) => {
-            setSetting('lambdaArn', val);
-          }}
-        />
-        <InputText
-          label="APIエンドポイント(ApiEndpoint)"
-          value={settings?.apiEndpoint ?? ''}
-          onChange={(val) => {
-            setSetting('apiEndpoint', val);
-          }}
-        />
+        {enabledSamlAuth && (
+          <>
+            <InputText
+              label="Cognit ドメイン（SamlCognitoDomainName）"
+              value={settings?.cognitoDomain ?? ''}
+              onChange={(val) => {
+                setSetting('cognitoDomain', val);
+              }}
+            />
+            <InputText
+              label="フェデレーテッドアイデンティティプロバイダー（SamlCognitoFederatedIdentityProviderName）"
+              value={settings?.federatedIdentityProviderName ?? ''}
+              onChange={(val) => {
+                setSetting('federatedIdentityProviderName', val);
+              }}
+            />
+          </>
+        )}
+        {!enabledSamlAuth && (
+          <>
+            <InputText
+              label="リージョン（Region）"
+              value={settings?.region ?? ''}
+              onChange={(val) => {
+                setSetting('region', val);
+              }}
+            />
+            <InputText
+              label="ユーザプールID（UserPoolId）"
+              value={settings?.userPoolId ?? ''}
+              onChange={(val) => {
+                setSetting('userPoolId', val);
+              }}
+            />
+            <InputText
+              label="ユーザープールクライアントID（UserPoolClientId）"
+              value={settings?.userPoolClientId ?? ''}
+              onChange={(val) => {
+                setSetting('userPoolClientId', val);
+              }}
+            />
+            <InputText
+              label="アイデンティティプールID（IdPoolId）"
+              value={settings?.identityPoolId ?? ''}
+              onChange={(val) => {
+                setSetting('identityPoolId', val);
+              }}
+            />
+            <InputText
+              label="推論関数ARN（PredictStreamFunctionArn）"
+              value={settings?.lambdaArn ?? ''}
+              onChange={(val) => {
+                setSetting('lambdaArn', val);
+              }}
+            />
+            <InputText
+              label="APIエンドポイント(ApiEndpoint)"
+              value={settings?.apiEndpoint ?? ''}
+              onChange={(val) => {
+                setSetting('apiEndpoint', val);
+              }}
+            />
+          </>
+        )}
       </div>
       <div className="flex justify-between">
         <Button className="mt-3" outlined icon={<PiCaretLeft />} onClick={props.onBack}>
@@ -77,7 +111,7 @@ const Settings: React.FC<Props> = (props) => {
       <div className="mt-5">
         <div className="text-base font-semibold mb-1">ログイン情報</div>
         <div className="text-aws-font-color-gray">
-          {hasAuthrized ? (
+          {hasAuthenticated ? (
             <div>
               <div>ログイン者：{email}</div>
               <div className="flex justify-end">

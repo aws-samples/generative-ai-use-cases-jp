@@ -4,7 +4,6 @@ import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 export class Database extends Construct {
   public readonly table: ddb.Table;
   public readonly feedbackIndexName: string;
-
   constructor(scope: Construct, id: string) {
     super(scope, id);
 

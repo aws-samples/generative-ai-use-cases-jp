@@ -40,6 +40,14 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
+   <summary>Prompt Flow チャット</summary>
+
+  Amazon Bedrock Prompt Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Prompt Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
+
+  <img src="/imgs/usecase_prompt_flow_chat.gif"/>
+</details>
+
+<details>
    <summary>文章生成</summary>
 
    あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
@@ -97,10 +105,13 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
   <img src="/imgs/usecase_video_analyzer.gif"/>
 </details>
 
+## ユースケースビルダー
+
+ユースケースビルダーは、プロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる機能です。プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、**コード変更・カスタマイズ作業が一切不要**です。作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。ユースケースビルダーを無効化する場合は、[ユースケースビルダーの設定](./docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)を参照してください。
 
 ## アーキテクチャ
 
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Congito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
+この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
 
 ![arch.drawio.png](/imgs/arch.drawio.png)
 
@@ -111,6 +122,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
+- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](/docs/DEPLOY_ON_CLOUDSHELL.md)
 - [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
@@ -138,18 +150,24 @@ npm run cdk:deploy
   - [RAG チャット (Amazon Kendra) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-amazon-kendra-ユースケースの有効化)
     - [既存の Amazon Kendra Index を利用したい場合](/docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
   - [RAG チャット (Knowledge Base) ユースケースの有効化](/docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
-    - [embeddingModelId の変更等、OpenSearch Service の Index に変更を加える方法](/docs/DEPLOY_OPTION.md#embeddingmodelid-の変更等opensearch-service-の-index-に変更を加える方法)
-    - [OpenSearch Service の Index をマネージメントコンソールで確認する方法](/docs/DEPLOY_OPTION.md#opensearch-service-の-index-をマネージメントコンソールで確認する方法)
+    - [Advanced Parsing を有効化](/docs/DEPLOY_OPTION.md#Advanced-Parsing-を有効化)
+    - [チャンク戦略を変更](/docs/DEPLOY_OPTION.md#チャンク戦略を変更)
+    - [Knowledge Base や OpenSearch Service を変更](/docs/DEPLOY_OPTION.md#Knowledge-Base-や-OpenSearch-Service-を再作成して変更を加える)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
+    - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
-    - [Knowledge base エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-base-エージェントのデプロイ)
+    - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](/docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
+  - [PromptFlow チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](/docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
+  - [プロンプト最適化ツールの有効化](/docs/DEPLOY_OPTION.md#プロンプト最適化ツールの有効化)
+- [ユースケースビルダーの有効化](/docs/DEPLOY_OPTION.md#ユースケースビルダーの有効化)
 - [Amazon Bedrock のモデルを変更する](/docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
+  - [us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#us-west-2-オレゴン-の-amazon-bedrock-のモデルを利用する例)
+  - [cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合](/docs/DEPLOY_OPTION.md#cross-region-inference-が対応しているモデルで-us北部バージニアもしくはオレゴン-の-amazon-bedrock-のモデルを利用する場合)
   - [ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例](/docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-のモデルを利用する例)
 - [Amazon SageMaker のカスタムモデルを利用したい場合](/docs/DEPLOY_OPTION.md#amazon-sagemaker-のカスタムモデルを利用したい場合)
-  - [Rinna 3.6B と Bilingual Rinna 4B を利用する例](/docs/DEPLOY_OPTION.md#rinna-36b-と-bilingual-rinna-4b-を利用する例)
-  - [ELYZA-japanese-Llama-2-7b-instruct を利用する例](/docs/DEPLOY_OPTION.md#elyza-japanese-llama-2-7b-instruct-を利用する例)
+  - [デプロイしたモデルを GenU から呼び出す設定](/docs/DEPLOY_OPTION.md#デプロイしたモデルを-genu-から呼び出す設定)
 - [セキュリティ関連設定](/docs/DEPLOY_OPTION.md#セキュリティ関連設定)
   - [セルフサインアップを無効化する](/docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
   - [サインアップできるメールアドレスのドメインを制限する](/docs/DEPLOY_OPTION.md#サインアップできるメールアドレスのドメインを制限する)
@@ -157,15 +175,16 @@ npm run cdk:deploy
     - [IP 制限](/docs/DEPLOY_OPTION.md#IP-アドレスによる制限)
     - [地理的制限](/docs/DEPLOY_OPTION.md#地理的制限)
   - [SAML 認証](/docs/DEPLOY_OPTION.md#SAML-認証)
+  - [ガードレール](/docs/DEPLOY_OPTION.md#ガードレール)
+- [コスト関連設定](/docs/DEPLOY_OPTION.md#コスト関連設定)
+  - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](/docs/DEPLOY_OPTION.md#Kendraを自動でオン・オフするスケジュールを設定する)
 - [モニタリング用のダッシュボードの有効化](/docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
-- [ファイルアップロード機能の有効化](/docs/DEPLOY_OPTION.md#ファイルアップロード機能の有効化)
 - [別 AWS アカウントの Bedrock を利用したい場合](/docs/DEPLOY_OPTION.md#別-AWS-アカウントの-Bedrock-を利用したい場合)
 
 ## その他
  - [アップデート方法](/docs/UPDATE.md)
  - [ローカル開発環境構築手順](/docs/DEVELOPMENT.md)
  - [リソースの削除方法](/docs/DESTROY.md)
- - [AWS 上で完結するデプロイ方法 (手元に環境を用意することが難しい場合)](/docs/DEPLOY_ON_AWS.md)
  - [ネイティブアプリのように利用する方法](/docs/PWA.md)
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 
@@ -175,10 +194,27 @@ npm run cdk:deploy
 セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
 従量課金制となっており、実際の料金はご利用内容により変動いたします。
 
+## お客様事例
+
+| Customer | Quote |
+|:--------|:---------|
+| <a href="https://www.yasashiite.com/" target="_blank"><img src="./imgs/cases/yasashiite_logo.png"></a> | **株式会社やさしい手** <br/> *GenU のおかげで、利用者への付加価値提供と従業員の業務効率向上が実現できました。従業員にとって「いままでの仕事」が楽しい仕事に変化していく「サクサクからワクワクへ」更に進化を続けます！* <br/> ・[事例の詳細を見る](./imgs/cases/yasashiite_case.png)|
+| <a href="https://salsonido.com/" target="_blank"><img src="./imgs/cases/salsonido_logo.png"></a>| **株式会社サルソニード** <br/> *ソリューションとして用意されている GenU を活用することで、生成 AI による業務プロセスの改善に素早く取り掛かることができました。* <br/> ・[事例の詳細を見る](./imgs/cases/salsonido_case.png) <br/> ・[適用サービス](https://kirei.ai/)|
+| <a href="https://www.tamura-ss.co.jp/jp/index.html" target="_blank"><img src="./imgs/cases/tamura-ss_logo.png"></a> | **株式会社タムラ製作所** <br/> *AWS が Github に公開しているアプリケーションサンプルは即テスト可能な機能が豊富で、そのまま利用することで自分たちにあった機能の選定が難なくでき、最終システムの開発時間を短縮することができました。*<br/> ・[事例の詳細を見る](./imgs/cases/tamura-ss_case.png)<br/> |
+| <a href="https://jdsc.ai/" target="_blank"><img src="./imgs/cases/jdsc_logo.png"></a> | **株式会社JDSC** <br/> *Amazon Bedrock ではセキュアにデータを用い LLM が活用できます。また、用途により最適なモデルを切り替えて利用できるので、コストを抑えながら速度・精度を高めることができました。* <br/> ・[事例の詳細を見る](./imgs/cases/jdsc_case.png) |
+| <a href="https://www.iret.co.jp/" target="_blank"><img src="./imgs/cases/iret_logo.png"></a>|  **アイレット株式会社** <br/> *株式会社バンダイナムコアミューズメントの生成 AI 活用に向けて社内のナレッジを蓄積・体系化すべく、AWS が提供している Generative AI Use Cases JP を活用したユースケースサイトを開発。アイレット株式会社が本プロジェクトの設計・構築・開発を支援。* <br/> ・[株式会社バンダイナムコアミューズメント様のクラウドを活用した導入事例](https://cloudpack.jp/casestudy/302.html?_gl=1*17hkazh*_gcl_au*ODA5MDk3NzI0LjE3MTM0MTQ2MDU) |
+| <a href="https://idealog.co.jp" target="_blank"><img src="./imgs/cases/idealog_logo.jpg"></a>|  **株式会社アイデアログ** <br/> *M従来の生成 AI ツールよりもさらに業務効率化ができていると感じます。入出力データをモデルの学習に使わない Amazon Bedrock を使っているので、セキュリティ面も安心です。* <br/> ・[事例の詳細を見る](./imgs/cases/idealog_case.png) <br/> ・[適用サービス](https://kaijosearch.com/)|
+| <a href="https://estyle.co.jp/" target="_blank"><img src="./imgs/cases/estyle_logo.png"></a>|  **株式会社エスタイル** <br/> *GenU を活用して短期間で生成 AI 環境を構築し、社内のナレッジシェアを促進することができました。* <br/> ・[事例の詳細を見る](./imgs/cases/estyle_case.png) |
+| <a href="https://meidensha.co.jp/" target="_blank"><img src="./imgs/cases/meidensha_logo.svg"></a>|  **株式会社明電舎** <br/> *Amazon Bedrock や Amazon Kendra など AWS のサービスを利用することで、生成 AI の利用環境を迅速かつセキュアに構築することができました。議事録の自動生成や社内情報の検索など、従業員の業務効率化に貢献しています。* <br/> ・[事例の詳細を見る](./imgs/cases/meidensha_case.png) |
+
+活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
+
+
 ## 参照
  - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
  - [ブログ: 無茶振りは生成 AI に断ってもらおう ~ ブラウザに生成 AI を組み込んでみた ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
+ - [ブログ: RAG チャットで精度向上のためのデバッグ方法](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
  - [動画： 生成 AI ユースケースを考え倒すための Generative AI Use Cases JP (GenU) の魅力と使い方](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
 
 ## Security

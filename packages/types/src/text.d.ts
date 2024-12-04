@@ -1,3 +1,28 @@
+// ConverseAPI
+// https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html#API_runtime_Converse_RequestSyntax
+export type ConverseInferenceParams = {
+  maxTokens?: number;
+  stopSequences?: string[];
+  temperature?: number;
+  topP?: number;
+};
+
+export type UsecaseConverseInferenceParams = {
+  [key: string]: ConverseInferenceParams;
+};
+
+export type BaseGuardrailConfigParams = {
+  guardrailIdentifier: string;
+  guardrailVersion: string;
+  trace?: 'disabled' | 'enabled';
+};
+
+export type GuardrailConverseConfigParams = BaseGuardrailConfigParams;
+
+export type GuardrailConverseStreamConfigParams = BaseGuardrailConfigParams & {
+  streamProcessingMode?: 'sync' | 'async';
+};
+
 export type TitanParams = {
   inputText?: string;
   textGenerationConfig?: {
@@ -43,7 +68,7 @@ export type ClaudeMessageParams = {
   top_p?: number;
 };
 
-// Llama2
+// Llama
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-meta.html
 export type LlamaParams = {
   prompt?: string;
@@ -141,7 +166,7 @@ export type BedrockResponse = {
   };
   // Titan
   outputText: string;
-  // Llama2
+  // Llama
   generation: string;
   // Mistral
   outputs: {

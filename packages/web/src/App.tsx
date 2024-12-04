@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   PiList,
@@ -16,27 +16,37 @@ import {
   PiGlobe,
   PiX,
   PiRobot,
-  PiUploadSimple,
   PiVideoCamera,
+  PiFlowArrow,
+  PiMagicWand,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
 import '@aws-amplify/ui-react/styles.css';
 import useDrawer from './hooks/useDrawer';
-import useConversation from './hooks/useConversation';
+import useChatList from './hooks/useChatList';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
+import useScreen from './hooks/useScreen';
+import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const recognizeFileEnabled: boolean =
-  import.meta.env.VITE_APP_RECOGNIZE_FILE_ENABLED === 'true';
 const { multiModalModelIds } = MODELS;
 const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const getPromptFlows = () => {
+  try {
+    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+  } catch (e) {
+    return [];
+  }
+};
+const promptFlows = getPromptFlows();
+const promptFlowChatEnabled: boolean = promptFlows.length > 0;
 
 const items: ItemProps[] = [
   {
@@ -80,6 +90,14 @@ const items: ItemProps[] = [
         label: 'Agent チャット',
         to: '/agent',
         icon: <PiRobot />,
+        display: 'usecase' as const,
+      }
+    : null,
+  promptFlowChatEnabled
+    ? {
+        label: 'Prompt Flow チャット',
+        to: '/prompt-flow-chat',
+        icon: <PiFlowArrow />,
         display: 'usecase' as const,
       }
     : null,
@@ -133,11 +151,11 @@ const items: ItemProps[] = [
     icon: <PiSpeakerHighBold />,
     display: 'tool' as const,
   },
-  recognizeFileEnabled
+  optimizePromptEnabled
     ? {
-        label: 'ファイルアップロード',
-        to: '/file',
-        icon: <PiUploadSimple />,
+        label: 'プロンプト最適化',
+        to: '/optimize',
+        icon: <PiMagicWand />,
         display: 'tool' as const,
       }
     : null,
@@ -163,22 +181,35 @@ const extractChatId = (path: string): string | null => {
 const App: React.FC = () => {
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { pathname } = useLocation();
-  const { getConversationTitle } = useConversation();
+  const { getChatTitle } = useChatList();
   const { isShow } = useInterUseCases();
+  const { screen, notifyScreen, scrollTopAnchorRef, scrollBottomAnchorRef } =
+    useScreen();
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
 
     if (chatId) {
-      return getConversationTitle(chatId) || '';
+      return getChatTitle(chatId) || '';
     } else {
       return items.find((i) => i.to === pathname)?.label || '';
     }
-  }, [pathname, getConversationTitle]);
+  }, [pathname, getChatTitle]);
+
+  // 画面間遷移時にスクロールイベントが発火しない場合 (ページ最上部からページ最上部への移動など)
+  // 最上部/最下部の判定がされないので、pathname の変化に応じて再判定する
+  useEffect(() => {
+    if (screen.current) {
+      notifyScreen(screen.current);
+    }
+  }, [pathname, screen, notifyScreen]);
 
   return (
-    <div className="screen:w-screen screen:h-screen overflow-x-hidden">
+    <div
+      className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll"
+      ref={screen}>
       <main className="flex-1">
+        <div ref={scrollTopAnchorRef}></div>
         <header className="bg-aws-squid-ink visible flex h-12 w-full items-center justify-between text-lg text-white lg:invisible lg:h-0 print:hidden">
           <div className="flex w-10 items-center justify-start">
             <button
@@ -215,11 +246,12 @@ const App: React.FC = () => {
             <PiX />
           </ButtonIcon>
         </div>
-        <div className="text-aws-font-color lg:ml-64" id="main">
+        <div className="text-aws-font-color lg:ml-64">
           {/* ユースケース間連携時に表示 */}
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />
         </div>
+        <div ref={scrollBottomAnchorRef}></div>
       </main>
     </div>
   );

@@ -6,20 +6,48 @@ import ButtonCopy from '../components/ButtonCopy';
 import ButtonSendToUseCase from '../components/ButtonSendToUseCase';
 import useTranscribe from '../hooks/useTranscribe';
 import useMicrophone from '../hooks/useMicrophone';
-import Markdown from '../components/Markdown';
-import { PiMicrophone, PiMicrophoneSlash } from 'react-icons/pi';
+import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
+import Switch from '../components/Switch';
+import RangeSlider from '../components/RangeSlider';
+import ExpandableField from '../components/ExpandableField';
+import { Transcript } from 'generative-ai-use-cases-jp';
+import Textarea from '../components/Textarea';
 
 type StateType = {
-  content: string;
-  setContent: (c: string) => void;
+  content: Transcript[];
+  setContent: (c: Transcript[]) => void;
+  speakerLabel: boolean;
+  setSpeakerLabel: (b: boolean) => void;
+  maxSpeakers: number;
+  setMaxSpeakers: (n: number) => void;
+  speakers: string;
+  setSpeakers: (s: string) => void;
 };
 
 const useTranscribeState = create<StateType>((set) => {
   return {
-    content: '',
-    setContent: (s: string) => {
+    content: [],
+    speakerLabel: false,
+    maxSpeakers: 2,
+    speakers: '',
+    setContent: (s: Transcript[]) => {
       set(() => ({
         content: s,
+      }));
+    },
+    setSpeakerLabel: (b: boolean) => {
+      set(() => ({
+        speakerLabel: b,
+      }));
+    },
+    setMaxSpeakers: (n: number) => {
+      set(() => ({
+        maxSpeakers: n,
+      }));
+    },
+    setSpeakers: (s: string) => {
+      set(() => ({
+        speakers: s,
       }));
     },
   };
@@ -35,8 +63,33 @@ const TranscribePage: React.FC = () => {
     recording,
     clearTranscripts,
   } = useMicrophone();
-  const { content, setContent } = useTranscribeState();
+  const {
+    content,
+    setContent,
+    speakerLabel,
+    setSpeakerLabel,
+    maxSpeakers,
+    setMaxSpeakers,
+    speakers,
+    setSpeakers,
+  } = useTranscribeState();
   const ref = useRef<HTMLInputElement>(null);
+
+  const speakerMapping = useMemo(() => {
+    return Object.fromEntries(
+      speakers.split(',').map((speaker, idx) => [`spk_${idx}`, speaker.trim()])
+    );
+  }, [speakers]);
+
+  const formattedOutput: string = useMemo(() => {
+    return content
+      .map((item) =>
+        item.speakerLabel
+          ? `${speakerMapping[item.speakerLabel] || item.speakerLabel}: ${item.transcript}`
+          : item.transcript
+      )
+      .join('\n');
+  }, [content, speakerMapping]);
 
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -46,15 +99,14 @@ const TranscribePage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (transcriptData && transcriptData.transcript) {
-      setContent(transcriptData.transcript);
+    if (transcriptData && transcriptData.transcripts) {
+      setContent(transcriptData.transcripts);
     }
   }, [setContent, transcriptData]);
 
   useEffect(() => {
     if (transcriptMic && transcriptMic.length > 0) {
-      const _content: string = transcriptMic.map((t) => t.transcript).join(' ');
-      setContent(_content);
+      setContent(transcriptMic);
     }
   }, [setContent, transcriptMic]);
 
@@ -63,7 +115,7 @@ const TranscribePage: React.FC = () => {
   }, [file, loading, recording]);
 
   const disableClearExec = useMemo(() => {
-    return (!file && content == '') || loading || recording;
+    return (!file && content.length === 0) || loading || recording;
   }, [content, file, loading, recording]);
 
   const disabledMicExec = useMemo(() => {
@@ -72,17 +124,25 @@ const TranscribePage: React.FC = () => {
 
   const onClickExec = useCallback(() => {
     if (loading) return;
-    setContent('');
+    setContent([]);
     stopTranscription();
     clearTranscripts();
-    transcribe();
-  }, [loading, setContent, stopTranscription, clearTranscripts, transcribe]);
+    transcribe(speakerLabel, maxSpeakers);
+  }, [
+    loading,
+    speakerLabel,
+    maxSpeakers,
+    setContent,
+    stopTranscription,
+    clearTranscripts,
+    transcribe,
+  ]);
 
   const onClickClear = useCallback(() => {
     if (ref.current) {
       ref.current.value = '';
     }
-    setContent('');
+    setContent([]);
     stopTranscription();
     clear();
     clearTranscripts();
@@ -92,11 +152,11 @@ const TranscribePage: React.FC = () => {
     if (ref.current) {
       ref.current.value = '';
     }
-    setContent('');
+    setContent([]);
     clear();
     clearTranscripts();
-    startTranscription();
-  }, [clear, clearTranscripts, setContent, startTranscription]);
+    startTranscription(undefined, speakerLabel);
+  }, [speakerLabel, clear, clearTranscripts, setContent, startTranscription]);
 
   return (
     <div className="grid grid-cols-12">
@@ -104,20 +164,91 @@ const TranscribePage: React.FC = () => {
         音声認識
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="ファイルアップロード">
-          <input
-            className="file:bg-aws-squid-ink block w-full cursor-pointer rounded-lg border
-            border-gray-400 text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0
-            file:px-4 file:py-2 file:text-white focus:outline-none"
-            onChange={onChangeFile}
-            aria-describedby="file_input_help"
-            id="file_input"
-            type="file"
-            accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
-            ref={ref}></input>
-          <p className="ml-0.5 mt-1 text-sm text-gray-500" id="file_input_help">
-            mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
-          </p>
+        <Card>
+          <div className="mb-2 flex justify-center text-sm text-gray-500">
+            マイク入力 or ファイルアップロードから選択してください
+          </div>
+          <div className="mb-4 flex flex-col justify-center sm:flex-row">
+            <div className="basis-1/2 p-2 xl:basis-2/5">
+              <label className="mb-2 block font-bold">マイク入力</label>
+              <div className="flex justify-center">
+                {recording ? (
+                  <Button
+                    className="h-10 w-full"
+                    onClick={stopTranscription}
+                    disabled={disabledMicExec}>
+                    <PiStopCircleBold className="mr-2 h-5 w-5" />
+                    録音を停止する
+                  </Button>
+                ) : (
+                  <Button
+                    className="h-10 w-full"
+                    disabled={disabledMicExec}
+                    onClick={() => {
+                      if (!disabledMicExec) {
+                        onClickExecStartTranscription();
+                      }
+                    }}
+                    outlined={true}>
+                    <PiMicrophoneBold className="mr-2 h-5 w-5" />
+                    録音を開始する
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className="basis-1/2 p-2 xl:basis-2/5">
+              <label className="mb-2 block font-bold" htmlFor="file_input">
+                ファイルアップロード
+              </label>
+              <input
+                className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+                file:px-4 file:py-2.5 file:text-white focus:outline-none"
+                onChange={onChangeFile}
+                aria-describedby="file_input_help"
+                id="file_input"
+                type="file"
+                accept=".mp3, .mp4, .wav, .flac, .ogg, .amr, .webm, .m4a"
+                ref={ref}></input>
+              <p
+                className="ml-0.5 mt-1 text-xs text-gray-500"
+                id="file_input_help">
+                mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
+              </p>
+            </div>
+          </div>
+          <ExpandableField
+            label="詳細なパラメータ"
+            className="p-2"
+            notItem={true}>
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <Switch
+                label="話者認識"
+                checked={speakerLabel}
+                onSwitch={setSpeakerLabel}
+              />
+              {speakerLabel && (
+                <RangeSlider
+                  className=""
+                  label="Max Speakers"
+                  min={2}
+                  max={10}
+                  value={maxSpeakers}
+                  onChange={setMaxSpeakers}
+                  help="認識する話者の最大数"
+                />
+              )}
+            </div>
+            {speakerLabel && (
+              <div className="">
+                <Textarea
+                  placeholder="話し手の名前（カンマ区切り）"
+                  value={speakers}
+                  onChange={setSpeakers}
+                />
+              </div>
+            )}
+          </ExpandableField>
           <div className="flex justify-end gap-3">
             <Button outlined disabled={disableClearExec} onClick={onClickClear}>
               クリア
@@ -125,22 +256,25 @@ const TranscribePage: React.FC = () => {
             <Button disabled={disabledExec} onClick={onClickExec}>
               実行
             </Button>
-            {recording ? (
-              <Button disabled={disabledMicExec} onClick={stopTranscription}>
-                <PiMicrophone /> 音声認識中
-              </Button>
-            ) : (
-              <Button
-                outlined
-                disabled={disabledMicExec}
-                onClick={onClickExecStartTranscription}>
-                <PiMicrophoneSlash /> 音声認識停止中
-              </Button>
-            )}
           </div>
           <div className="mt-5 rounded border border-black/30 p-1.5">
-            {content != '' && <Markdown>{content}</Markdown>}
-            {!loading && content == '' && (
+            {content.length > 0 && (
+              <div>
+                {content.map((transcript, idx) => (
+                  <div key={idx} className="flex">
+                    {transcript.speakerLabel && (
+                      <div className="min-w-20">
+                        {speakerMapping[transcript.speakerLabel] ||
+                          transcript.speakerLabel}
+                        :
+                      </div>
+                    )}
+                    <div className="grow">{transcript.transcript}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!loading && formattedOutput == '' && (
               <div className="text-gray-500">
                 音声認識結果がここに表示されます
               </div>
@@ -150,12 +284,12 @@ const TranscribePage: React.FC = () => {
             )}
 
             <div className="flex w-full justify-end">
-              {content && content && (
+              {content && (
                 <>
                   <ButtonCopy
-                    text={content}
+                    text={formattedOutput}
                     interUseCasesKey="transcript"></ButtonCopy>
-                  <ButtonSendToUseCase text={content} />
+                  <ButtonSendToUseCase text={formattedOutput} />
                 </>
               )}
             </div>

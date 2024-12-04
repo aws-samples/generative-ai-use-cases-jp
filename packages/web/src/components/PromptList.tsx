@@ -192,7 +192,7 @@ const PromptList: React.FC<Props> = (props) => {
         <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
           <div className="my-2 flex items-center text-sm font-semibold">
             <PiBookOpenText className="mr-1.5 text-lg" />
-            保存したシステムコンテキスト
+            保存したシステムプロンプト
           </div>
           <ul className="pl-6">
             {props.systemContextList.length == 0 && (

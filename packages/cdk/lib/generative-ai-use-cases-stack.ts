@@ -9,13 +9,12 @@ import {
   RagKnowledgeBase,
   Transcribe,
   CommonWebAcl,
-  File,
-  RecognizeFile,
 } from './construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Agent } from 'generative-ai-use-cases-jp';
+import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
+import { UseCaseBuilder } from './construct/use-case-builder';
 
 const errorMessageForBooleanContext = (key: string) => {
   return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
@@ -29,14 +28,16 @@ interface GenerativeAiUseCasesStackProps extends StackProps {
   allowedIpV4AddressRanges: string[] | null;
   allowedIpV6AddressRanges: string[] | null;
   allowedCountryCodes: string[] | null;
-  vpcId?: string;
   cert?: ICertificate;
   hostName?: string;
   domainName?: string;
   hostedZoneId?: string;
   agents?: Agent[];
+  promptFlows?: PromptFlow[];
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
+  guardrailIdentifier?: string;
+  guardrailVersion?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -68,8 +69,12 @@ export class GenerativeAiUseCasesStack extends Stack {
     const samlCognitoFederatedIdentityProviderName: string =
       this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
     const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
-    const recognizeFileEnabled: boolean = this.node.tryGetContext(
-      'recognizeFileEnabled'
+    const promptFlows = this.node.tryGetContext('promptFlows') || [];
+
+    const guardrailEnabled: boolean =
+      this.node.tryGetContext('guardrailEnabled') || false;
+    const useCaseBuilderEnabled: boolean = this.node.tryGetContext(
+      'useCaseBuilderEnabled'
     )!;
 
     if (typeof ragEnabled !== 'boolean') {
@@ -88,8 +93,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
     }
 
-    if (typeof recognizeFileEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('recognizeFileEnabled'));
+    if (typeof guardrailEnabled !== 'boolean') {
+      throw new Error(
+        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
+      );
+    }
+
+    if (typeof useCaseBuilderEnabled !== 'boolean') {
+      throw new Error(errorMessageForBooleanContext('useCaseBuilderEnabled'));
     }
 
     const auth = new Auth(this, 'Auth', {
@@ -100,11 +111,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlAuthEnabled,
     });
     const database = new Database(this, 'Database');
+
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       table: database.table,
       agents: props.agents,
+      guardrailIdentify: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
     });
 
     if (
@@ -137,6 +151,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       ragEnabled,
       ragKnowledgeBaseEnabled,
       agentEnabled,
+      promptFlows,
+      promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
+      optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
@@ -148,16 +165,11 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoDomainName,
       samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
-      recognizeFileEnabled,
       cert: props.cert,
       hostName: props.hostName,
       domainName: props.domainName,
       hostedZoneId: props.hostedZoneId,
-    });
-
-    const file = new File(this, 'File', {
-      userPool: auth.userPool,
-      api: api.api,
+      useCaseBuilderEnabled,
     });
 
     if (ragEnabled) {
@@ -170,7 +182,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
       // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
       if (rag.dataSourceBucketName) {
-        file.allowDownloadFile(rag.dataSourceBucketName);
+        api.allowDownloadFile(rag.dataSourceBucketName);
       }
     }
 
@@ -183,7 +195,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
 
       // File API から data source の Bucket のファイルをダウンロードできるようにする
-      file.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+      api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+    }
+
+    if (useCaseBuilderEnabled) {
+      new UseCaseBuilder(this, 'UseCaseBuilder', {
+        userPool: auth.userPool,
+        api: api.api,
+      });
     }
 
     new Transcribe(this, 'Transcribe', {
@@ -191,15 +210,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPool: auth.idPool,
       api: api.api,
     });
-
-    if (recognizeFileEnabled) {
-      new RecognizeFile(this, 'RecognizeFile', {
-        userPool: auth.userPool,
-        api: api.api,
-        fileBucket: file.fileBucket,
-        vpcId: props.vpcId,
-      });
-    }
 
     new CfnOutput(this, 'Region', {
       value: this.region,
@@ -229,6 +239,18 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'PredictStreamFunctionArn', {
       value: api.predictStreamFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'OptimizePromptFunctionArn', {
+      value: api.optimizePromptFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'InvokePromptFlowFunctionArn', {
+      value: api.invokePromptFlowFunction.functionArn,
+    });
+
+    new CfnOutput(this, 'PromptFlows', {
+      value: Buffer.from(JSON.stringify(promptFlows)).toString('base64'),
     });
 
     new CfnOutput(this, 'RagEnabled', {
@@ -283,8 +305,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: JSON.stringify(api.agentNames),
     });
 
-    new CfnOutput(this, 'RecognizeFileEnabled', {
-      value: recognizeFileEnabled.toString(),
+    new CfnOutput(this, 'UseCaseBuilderEnabled', {
+      value: useCaseBuilderEnabled.toString(),
     });
 
     this.userPool = auth.userPool;

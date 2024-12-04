@@ -11,6 +11,7 @@ import usePredict from './usePredict';
 import { Message } from '../../../@types/chat';
 import Browser from 'webextension-polyfill';
 import { PromptSetting } from '../../../@types/settings';
+import { StreamingChunk } from '../../../@types/backend-api';
 
 const useChat = () => {
   // 複数のタブで起動する場合があるので、タブごとに状態を管理する
@@ -89,8 +90,14 @@ const useChat = () => {
         // Assistant の発言を更新
         let tmpChunk = '';
 
-        for await (const chunk of stream) {
-          tmpChunk += chunk;
+        for await (const chunks of stream) {
+          // チャンクデータは改行コード区切りで送信されてくるので、分割して処理する
+          for (const chunk_ of chunks.split('\n')) {
+            if (chunk_) {
+              const chunk: StreamingChunk = JSON.parse(chunk_);
+              tmpChunk += chunk.text;
+            }
+          }
 
           // chunk は 10 文字以上でまとめて処理する
           // バッファリングしないと以下のエラーが出る

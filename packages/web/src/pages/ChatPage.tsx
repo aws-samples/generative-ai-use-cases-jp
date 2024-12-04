@@ -4,17 +4,18 @@ import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
 import useSystemContextApi from '../hooks/useSystemContextApi';
-import useConversation from '../hooks/useConversation';
+import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
-import Textarea from '../components/Textarea';
+import ModalSystemContext from '../components/ModalSystemContext';
 import ExpandableField from '../components/ExpandableField';
 import Switch from '../components/Switch';
 import Select from '../components/Select';
-import useScroll from '../hooks/useScroll';
+import ScrollTopBottom from '../components/ScrollTopBottom';
+import useFollow from '../hooks/useFollow';
 import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
@@ -23,7 +24,30 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import { SystemContext } from 'generative-ai-use-cases-jp';
+import { FileLimit, SystemContext } from 'generative-ai-use-cases-jp';
+
+const fileLimit: FileLimit = {
+  accept: [
+    '.csv',
+    '.doc',
+    '.docx',
+    '.html',
+    '.md',
+    '.pdf',
+    '.txt',
+    '.xls',
+    '.xlsx',
+    '.gif',
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+  ],
+  maxFileCount: 5,
+  maxFileSizeMB: 4.5,
+  maxImageFileCount: 20,
+  maxImageFileSizeMB: 3.75,
+};
 
 type StateType = {
   content: string;
@@ -106,8 +130,8 @@ const ChatPage: React.FC = () => {
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
-  const { scrollToBottom, scrollToTop } = useScroll();
-  const { getConversationTitle } = useConversation();
+  const { scrollableContainer, setFollowing } = useFollow();
+  const { getChatTitle } = useChatList();
   const { modelIds: availableModels } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
@@ -116,7 +140,7 @@ const ChatPage: React.FC = () => {
   }, [modelId]);
 
   useEffect(() => {
-    // 会話履歴のページではモデルを変更してもシステムコンテキストを変更しない
+    // 会話履歴のページではモデルを変更してもシステムプロンプトを変更しない
     if (!chatId) {
       updateSystemContextByModel();
     }
@@ -125,11 +149,11 @@ const ChatPage: React.FC = () => {
 
   const title = useMemo(() => {
     if (chatId) {
-      return getConversationTitle(chatId) || 'チャット';
+      return getChatTitle(chatId) || 'チャット';
     } else {
       return 'チャット';
     }
-  }, [chatId, getConversationTitle]);
+  }, [chatId, getChatTitle]);
 
   const fileUpload = useMemo(() => {
     return MODELS.multiModalModelIds.includes(modelId);
@@ -159,6 +183,7 @@ const ChatPage: React.FC = () => {
   }, [search, setContent, availableModels, pathname]);
 
   const onSend = useCallback(() => {
+    setFollowing(true);
     postChat(
       prompter.chatPrompt({ content }),
       false,
@@ -170,7 +195,7 @@ const ChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, uploadedFiles, fileUpload]);
+  }, [content, uploadedFiles, fileUpload, setFollowing]);
 
   const onReset = useCallback(() => {
     clear();
@@ -238,15 +263,6 @@ const ChatPage: React.FC = () => {
       return null;
     }
   }, [share]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    } else {
-      scrollToTop();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
 
   const [showSystemContext, setShowSystemContext] = useState(false);
 
@@ -332,7 +348,7 @@ const ChatPage: React.FC = () => {
     setIsOver(false);
     if (event.dataTransfer.files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(event.dataTransfer.files));
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit);
     }
   };
 
@@ -395,29 +411,37 @@ const ChatPage: React.FC = () => {
             <Switch
               checked={showSystemContext}
               onSwitch={setShowSystemContext}
-              label="システムコンテキストの表示"
+              label="システムプロンプトの表示"
             />
           </div>
         )}
 
-        {!isEmpty &&
-          showingMessages.map((chat, idx) => (
-            <div key={showSystemContext ? idx : idx + 1}>
-              {idx === 0 && (
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={showSystemContext ? idx : idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
+                <ChatMessage
+                  chatContent={chat}
+                  loading={loading && idx === showingMessages.length - 1}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
+                />
                 <div className="w-full border-b border-gray-300"></div>
-              )}
-              <ChatMessage
-                chatContent={chat}
-                loading={loading && idx === showingMessages.length - 1}
-              />
-              <div className="w-full border-b border-gray-300"></div>
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
+
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
 
         <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {isEmpty && !loadingMessages && !chatId && (
             <ExpandableField
-              label="システムコンテキスト"
+              label="システムプロンプト"
               className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
               <>
                 <div className="absolute -top-2 right-0 mb-2 flex justify-end">
@@ -467,6 +491,7 @@ const ChatPage: React.FC = () => {
             }}
             onReset={onReset}
             fileUpload={fileUpload}
+            fileLimit={fileLimit}
           />
         </div>
       </div>
@@ -480,51 +505,15 @@ const ChatPage: React.FC = () => {
         />
       )}
 
-      <ModalDialog
-        title="システムコンテキストの作成"
-        isOpen={showSystemContextModal}
-        onClose={() => {
-          setShowSystemContextModal(false);
-        }}>
-        <div className="py-2.5">タイトル</div>
-
-        <Textarea
-          placeholder="入力してください"
-          value={saveSystemContextTitle}
-          onChange={setSaveSystemContextTitle}
-          maxHeight={-1}
-          className="text-aws-font-color"
-        />
-
-        <div className="py-2.5">システムコンテキスト</div>
-        <Textarea
-          placeholder={saveSystemContext ?? '入力してください'}
-          value={saveSystemContext}
-          onChange={setSaveSystemContext}
-          maxHeight={500}
-          className="text-aws-font-color"
-        />
-
-        <div className="mt-4 flex justify-end gap-2">
-          <Button
-            outlined
-            onClick={() => setShowSystemContextModal(false)}
-            className="p-2">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              setShowSystemContextModal(false);
-              onCreateSystemContext();
-            }}
-            className="bg-red-500 p-2 text-white"
-            disabled={
-              saveSystemContext === '' || saveSystemContextTitle === ''
-            }>
-            作成
-          </Button>
-        </div>
-      </ModalDialog>
+      <ModalSystemContext
+        showSystemContextModal={showSystemContextModal}
+        saveSystemContext={saveSystemContext}
+        saveSystemContextTitle={saveSystemContextTitle}
+        setShowSystemContextModal={setShowSystemContextModal}
+        setSaveSystemContext={setSaveSystemContext}
+        setSaveSystemContextTitle={setSaveSystemContextTitle}
+        onCreateSystemContext={onCreateSystemContext}
+      />
 
       <ModalDialog
         isOpen={showShareIdModal}
