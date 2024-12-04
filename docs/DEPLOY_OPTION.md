@@ -371,6 +371,8 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"amazon.nova-pro-v1:0",
+"amazon.nova-lite-v1:0"
 ```
 
 これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
@@ -395,6 +397,8 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
     "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
     "us.meta.llama3-2-90b-instruct-v1:0",
     "us.meta.llama3-2-11b-instruct-v1:0",
+    "amazon.nova-pro-v1:0",
+    "amazon.nova-lite-v1:0",
   ]
 ```
 
@@ -468,7 +472,10 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 "anthropic.claude-v2",
 "anthropic.claude-instant-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
-"mistral.mistral-7b-instruct-v0:2"
+"mistral.mistral-7b-instruct-v0:2",
+"amazon.nova-pro-v1:0",
+"amazon.nova-lite-v1:0",
+"amazon.nova-micro-v1:0"
 ```
 
 
@@ -493,6 +500,9 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-haiku-20240307-v1:0",
+    "amazon.nova-pro-v1:0",
+    "amazon.nova-lite-v1:0",
+    "amazon.nova-micro-v1:0",
     "amazon.titan-text-premier-v1:0",
     "meta.llama3-70b-instruct-v1:0",
     "meta.llama3-8b-instruct-v1:0",
