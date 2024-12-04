@@ -5,9 +5,6 @@
       "**"
     ],
     "exclude": [
-      "README.md",
-      "cdk*.json",
-      "**/*.d.ts",
       "**/*.js",
       "tsconfig.json",
       "package*.json",
@@ -17,19 +14,22 @@
     ]
   },
   "context": {
-    "ragEnabled": false,
+    "ragEnabled": true,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
-    "ragKnowledgeBaseEnabled": false,
-    "embeddingModelId": "amazon.titan-embed-text-v2:0",
-    "selfSignUpEnabled": true,
+    "selfSignUpEnabled": false,
     "allowedSignUpEmailDomains": null,
-    "samlAuthEnabled": false,
-    "samlCognitoDomainName": "",
-    "samlCognitoFederatedIdentityProviderName": "",
+    "samlAuthEnabled": true,
+    "samlCognitoDomainName": "soliton-onegate.auth.ap-northeast-1.amazoncognito.com",
+    "samlCognitoFederatedIdentityProviderName": "SolitonOneGate",
     "modelRegion": "us-east-1",
-    "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0"
+    "embeddingModelId":"anthropic.claude-3-opus-20240229-v1:0",
+    "modelIds":[
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "amazon.nova-convas-v1:0",
+      "amazon.nova-pro-v1:0",
+      "anthropic.claude-3-5-sonnet-20241022-v2:0"
     ],
     "imageGenerationModelIds": [
       "stability.stable-diffusion-xl-v1"
@@ -46,11 +46,12 @@
     "hostName": null,
     "domainName": null,
     "hostedZoneId": null,
-    "dashboard": false,
+    "dashboard": true,
     "anonymousUsageTracking": true,
     "recognizeFileEnabled": false,
     "vpcId": null,
     "crossAccountBedrockRoleArn": "",
+    "ragKnowledgeBaseEnabled":false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
