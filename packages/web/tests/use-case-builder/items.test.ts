@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   getItemsFromPlaceholders,
+  getTextFormItemsFromItems,
   NOLABEL,
 } from '../../src/utils/UseCaseBuilderUtils';
 
@@ -158,6 +159,38 @@ describe('複数のラベルを正しくパースできる', () => {
       },
       {
         inputType: 'retrieveKnowledgeBase',
+        label: 'xxx',
+      },
+    ]);
+  });
+
+  test('TEXT_FORM_TYPES だけを正しく抽出できる', () => {
+    expect(
+      getTextFormItemsFromItems([
+        {
+          inputType: 'text',
+          label: NOLABEL,
+        },
+        {
+          inputType: 'text',
+          label: 'xxx',
+        },
+        {
+          inputType: 'retrieveKendra',
+          label: NOLABEL,
+        },
+        {
+          inputType: 'retrieveKendra',
+          label: 'xxx',
+        },
+      ])
+    ).toEqual([
+      {
+        inputType: 'text',
+        label: NOLABEL,
+      },
+      {
+        inputType: 'text',
         label: 'xxx',
       },
     ]);
