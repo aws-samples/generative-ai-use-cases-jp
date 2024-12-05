@@ -2,11 +2,18 @@
 // 空文字だと DynamoDB に inputExample を挿入した際にエラーになる
 export const NOLABEL = 'NOLABEL';
 
-const SUPPORTED_TYPES: string[] = [
+export type BuilderItem = {
+  inputType: string;
+  label: string;
+};
+
+export const SUPPORTED_TYPES: string[] = [
   'text',
   'retrieveKendra',
   'retrieveKnowledgeBase',
 ];
+
+export const TEXT_FORM_TYPES: string[] = ['text'];
 
 export const extractPlaceholdersFromPromptTemplate = (
   promptTemplate: string
@@ -14,7 +21,9 @@ export const extractPlaceholdersFromPromptTemplate = (
   return promptTemplate.match(/\{\{[^}]*\}\}/g) ?? [];
 };
 
-export const getItemsFromPlaceholders = (placeholders: string[]) => {
+export const getItemsFromPlaceholders = (
+  placeholders: string[]
+): BuilderItem[] => {
   return (
     placeholders
       .map((match) => {
@@ -39,4 +48,10 @@ export const getItemsFromPlaceholders = (placeholders: string[]) => {
           ) === idx
       ) ?? []
   );
+};
+
+export const getTextFormItemsFromItems = (
+  items: BuilderItem[]
+): BuilderItem[] => {
+  return items.filter((i) => TEXT_FORM_TYPES.includes(i.inputType));
 };
