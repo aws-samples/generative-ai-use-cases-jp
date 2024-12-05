@@ -410,7 +410,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                     ? item.label
                                     : undefined
                                 }
-                                rows={2}
+                                rows={item.inputType === 'text' ? 2 : 1}
                                 value={
                                   inputExample.examples
                                     ? inputExample.examples[item.label]
