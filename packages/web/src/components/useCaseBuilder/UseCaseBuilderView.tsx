@@ -20,6 +20,7 @@ import {
   NOLABEL,
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
+  getTextFormItemsFromItems,
 } from '../../utils/UseCaseBuilderUtils';
 import useRagKnowledgeBaseApi from '../../hooks/useRagKnowledgeBaseApi';
 import useRagApi from '../../hooks/useRagApi';
@@ -113,7 +114,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const { updateRecentUseUseCase } = useMyUseCases();
   const { retrieve: retrieveKendra } = useRagApi();
   const { retrieve: retrieveKnowledgeBase } = useRagKnowledgeBaseApi();
-  const [warnMessages, setWarnMessages] = useState<string[]>([]);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   const placeholders = useMemo(() => {
     return extractPlaceholdersFromPromptTemplate(props.promptTemplate);
@@ -123,10 +124,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
 
+  const textFormItems = useMemo(() => {
+    return getTextFormItemsFromItems(items);
+  }, [items]);
+
   useEffect(() => {
-    clear(items.length);
+    clear(textFormItems.length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length]);
+  }, [textFormItems.length]);
 
   useEffect(() => {
     setModelId(
@@ -152,26 +157,50 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   }, [messages]);
 
   useEffect(() => {
-    const hasKendra =
-      items.filter((i) => i.inputType === 'retrieveKendra').length > 0;
-    const hasKnowledgeBase =
-      items.filter((i) => i.inputType === 'retrieveKnowledgeBase').length > 0;
-    const tmpWarnMessages = [];
+    const retrieveKendraItems = items.filter(
+      (i) => i.inputType === 'retrieveKendra'
+    );
+    const retrieveKnowledgeBaseItems = items.filter(
+      (i) => i.inputType === 'retrieveKnowledgeBase'
+    );
+    const hasKendra = retrieveKendraItems.length > 0;
+    const hasKnowledgeBase = retrieveKnowledgeBaseItems.length > 0;
+    const tmpErrorMessages = [];
 
     if (hasKendra && !ragEnabled) {
-      tmpWarnMessages.push(
+      tmpErrorMessages.push(
         'プロンプトテンプレート内で {{retrieveKendra}} が指定されていますが GenU で RAG チャット (Amazon Kendra) が有効になっていません。'
       );
     }
 
     if (hasKnowledgeBase && !ragKnowledgeBaseEnabled) {
-      tmpWarnMessages.push(
+      tmpErrorMessages.push(
         'プロンプトテンプレート内で {{retrieveKnowledgeBase}} が指定されていますが GenU で RAG チャット (Knowledge Base) が有効になっていません。'
       );
     }
 
-    setWarnMessages(tmpWarnMessages);
-  }, [setWarnMessages, items]);
+    for (const item of retrieveKendraItems) {
+      const textForm = textFormItems.find((i) => i.label === item.label);
+
+      if (!textForm) {
+        tmpErrorMessages.push(
+          `Amazon Kendra の検索クエリを入力するためのフォーム {{text${item.label === NOLABEL ? '' : ':' + item.label}}} をプロンプテンプレートに内に記述してください。`
+        );
+      }
+    }
+
+    for (const item of retrieveKnowledgeBaseItems) {
+      const textForm = textFormItems.find((i) => i.label === item.label);
+
+      if (!textForm) {
+        tmpErrorMessages.push(
+          `Knowledge Base の検索クエリを入力するためのフォーム {{text${item.label === NOLABEL ? '' : ':' + item.label}}} をプロンプテンプレートに内に記述してください。`
+        );
+      }
+    }
+
+    setErrorMessages(tmpErrorMessages);
+  }, [setErrorMessages, items, textFormItems]);
 
   const onClickExec = useCallback(async () => {
     if (loading) return;
@@ -181,28 +210,38 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
     let prompt = props.promptTemplate;
 
-    for (const [idx, item] of items.entries()) {
-      let placeholder;
+    for (const [idx, textFormItem] of textFormItems.entries()) {
+      const sameLabelItems = items.filter(
+        (i) => i.label === textFormItem.label
+      );
 
-      if (item.label !== NOLABEL) {
-        placeholder = `{{${item.inputType}:${item.label}}}`;
-      } else {
-        placeholder = `{{${item.inputType}}}`;
-      }
+      for (const item of sameLabelItems) {
+        let placeholder;
 
-      if (item.inputType === 'text') {
-        prompt = prompt.replace(new RegExp(placeholder, 'g'), values[idx]);
-      } else if (item.inputType === 'retrieveKendra') {
-        if (ragEnabled) {
-          const res = await retrieveKendra(values[idx]);
-          const resJson = JSON.stringify(res.data.ResultItems);
-          prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+        if (item.label !== NOLABEL) {
+          placeholder = `{{${item.inputType}:${item.label}}}`;
+        } else {
+          placeholder = `{{${item.inputType}}}`;
         }
-      } else if (item.inputType === 'retrieveKnowledgeBase') {
-        if (ragKnowledgeBaseEnabled) {
-          const res = await retrieveKnowledgeBase(values[idx]);
-          const resJson = JSON.stringify(res.data.retrievalResults);
-          prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+
+        if (item.inputType === 'text') {
+          prompt = prompt.replace(new RegExp(placeholder, 'g'), values[idx]);
+        } else if (item.inputType === 'retrieveKendra') {
+          if (ragEnabled && values[idx].length > 0) {
+            const res = await retrieveKendra(values[idx]);
+            const resJson = JSON.stringify(res.data.ResultItems);
+            prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+          } else {
+            prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
+          }
+        } else if (item.inputType === 'retrieveKnowledgeBase') {
+          if (ragKnowledgeBaseEnabled && values[idx].length > 0) {
+            const res = await retrieveKnowledgeBase(values[idx]);
+            const resJson = JSON.stringify(res.data.retrievalResults);
+            prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+          } else {
+            prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
+          }
         }
       }
     }
@@ -214,6 +253,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   }, [
     loading,
     items,
+    textFormItems,
     postChat,
     props,
     updateRecentUseUseCase,
@@ -229,6 +269,18 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     clear(items.length);
     clearChat();
   }, [clear, clearChat, items.length]);
+
+  const disabledExec = useMemo(() => {
+    if (props.isLoading || loading) {
+      return true;
+    }
+
+    if (errorMessages.length > 0) {
+      return true;
+    }
+
+    return false;
+  }, [props.isLoading, loading, errorMessages]);
 
   const fillInputsFromExamples = useCallback(
     (examples: Record<string, string>) => {
@@ -279,8 +331,8 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         )}
       </div>
 
-      {warnMessages.length > 0 &&
-        warnMessages.map((m, idx) => (
+      {errorMessages.length > 0 &&
+        errorMessages.map((m, idx) => (
           <div
             key={idx}
             className="text-aws-squid-ink mb-2 rounded bg-red-200 p-2 text-sm">
@@ -314,7 +366,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       {!props.isLoading && (
         <>
           <div className="flex flex-col ">
-            {items.map((item, idx) => (
+            {textFormItems.map((item, idx) => (
               <div key={idx}>
                 <Textarea
                   label={item.label !== NOLABEL ? item.label : undefined}
@@ -359,7 +411,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
             クリア
           </Button>
 
-          <Button onClick={onClickExec} disabled={props.isLoading || loading}>
+          <Button onClick={onClickExec} disabled={disabledExec}>
             実行
           </Button>
         </div>
