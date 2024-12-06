@@ -41,7 +41,7 @@ const Placeholder: React.FC<{ inputType: string; label?: string }> = (
   );
 };
 
-const UseCaseBuilderHelp: React.FC<{}> = () => {
+const UseCaseBuilderHelp = () => {
   return (
     <div className="flex flex-col gap-y-8 py-4">
       <div className="flex flex-col gap-y-4">
