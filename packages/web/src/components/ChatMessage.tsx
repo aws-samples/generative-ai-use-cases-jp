@@ -5,6 +5,7 @@ import ButtonCopy from './ButtonCopy';
 import ButtonFeedback from './ButtonFeedback';
 import ButtonIcon from './ButtonIcon';
 import ZoomUpImage from './ZoomUpImage';
+import ZoomUpVideo from './ZoomUpVideo';
 import { PiUserFill, PiChalkboardTeacher, PiFloppyDisk } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import {
@@ -186,6 +187,10 @@ const ChatMessage: React.FC<Props> = (props) => {
                         loading={!signedUrls[idx]}
                         size="m"
                       />
+                    );
+                  } else if (data.type === 'video') {
+                    return (
+                      <ZoomUpVideo key={idx} src={signedUrls[idx]} size="m" />
                     );
                   }
                 })}

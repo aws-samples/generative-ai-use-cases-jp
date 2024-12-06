@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import ButtonSend from './ButtonSend';
 import Textarea from './Textarea';
 import ZoomUpImage from './ZoomUpImage';
+import ZoomUpVideo from './ZoomUpVideo';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
@@ -10,7 +11,6 @@ import {
   PiPaperclip,
   PiSpinnerGap,
 } from 'react-icons/pi';
-
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
 import { FileLimit } from 'generative-ai-use-cases-jp';
@@ -104,29 +104,45 @@ const InputChatContent: React.FC<Props> = (props) => {
         <div className="flex w-full flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
-              {uploadedFiles.map((uploadedFile, idx) =>
-                uploadedFile.type === 'image' ? (
-                  <ZoomUpImage
-                    key={idx}
-                    src={uploadedFile.base64EncodedData}
-                    loading={uploadedFile.uploading}
-                    size="s"
-                    onDelete={() => {
-                      deleteFile(uploadedFile.s3Url ?? '');
-                    }}
-                  />
-                ) : (
-                  <FileCard
-                    key={idx}
-                    filename={uploadedFile.name}
-                    loading={uploadedFile.uploading}
-                    size="s"
-                    onDelete={() => {
-                      deleteFile(uploadedFile.s3Url ?? '');
-                    }}
-                  />
-                )
-              )}
+              {uploadedFiles.map((uploadedFile, idx) => {
+                if (uploadedFile.type === 'image') {
+                  return (
+                    <ZoomUpImage
+                      key={idx}
+                      src={uploadedFile.base64EncodedData}
+                      loading={uploadedFile.uploading}
+                      size="s"
+                      onDelete={() => {
+                        deleteFile(uploadedFile.s3Url ?? '');
+                      }}
+                    />
+                  );
+                } else if (uploadedFile.type === 'video') {
+                  return (
+                    <ZoomUpVideo
+                      key={idx}
+                      src={uploadedFile.base64EncodedData}
+                      loading={uploadedFile.uploading}
+                      size="s"
+                      onDelete={() => {
+                        deleteFile(uploadedFile.s3Url ?? '');
+                      }}
+                    />
+                  );
+                } else {
+                  return (
+                    <FileCard
+                      key={idx}
+                      filename={uploadedFile.name}
+                      loading={uploadedFile.uploading}
+                      size="s"
+                      onDelete={() => {
+                        deleteFile(uploadedFile.s3Url ?? '');
+                      }}
+                    />
+                  );
+                }
+              })}
             </div>
           )}
           {errorMessages.length > 0 && (
