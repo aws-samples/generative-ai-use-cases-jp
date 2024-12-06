@@ -1,4 +1,5 @@
-import { FeatureFlags, Model } from 'generative-ai-use-cases-jp';
+import { Model } from 'generative-ai-use-cases-jp';
+import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 
@@ -6,9 +7,6 @@ const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 const bedrockModelIds: string[] = JSON.parse(import.meta.env.VITE_APP_MODEL_IDS)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
-const modelFeatureFlags: Record<string, FeatureFlags> = JSON.parse(
-  import.meta.env.VITE_APP_MODEL_FEATURE_FLAGS
-);
 const visionModelIds: string[] = bedrockModelIds.filter(
   (modelId) => modelFeatureFlags[modelId].image
 );
