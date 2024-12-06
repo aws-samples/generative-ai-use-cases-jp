@@ -10,7 +10,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { PromptFlow } from 'generative-ai-use-cases-jp';
+import { FeatureFlags, PromptFlow } from 'generative-ai-use-cases-jp';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -28,7 +28,7 @@ export interface WebProps {
   webAclId?: string;
   modelRegion: string;
   modelIds: string[];
-  multiModalModelIds: string[];
+  modelFeatureFlags: Record<string, FeatureFlags>;
   imageGenerationModelIds: string[];
   endpointNames: string[];
   samlAuthEnabled: boolean;
@@ -178,10 +178,8 @@ export class Web extends Construct {
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
         VITE_APP_MODEL_REGION: props.modelRegion,
         VITE_APP_MODEL_IDS: JSON.stringify(props.modelIds),
-        VITE_APP_MULTI_MODAL_MODEL_IDS: JSON.stringify(
-          props.multiModalModelIds
-        ),
         VITE_APP_IMAGE_MODEL_IDS: JSON.stringify(props.imageGenerationModelIds),
+        VITE_APP_MODEL_FEATURE_FLAGS: JSON.stringify(props.modelFeatureFlags),
         VITE_APP_ENDPOINT_NAMES: JSON.stringify(props.endpointNames),
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
         VITE_APP_SAML_COGNITO_DOMAIN_NAME:

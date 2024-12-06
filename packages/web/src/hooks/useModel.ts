@@ -1,4 +1,4 @@
-import { Model } from 'generative-ai-use-cases-jp';
+import { FeatureFlags, Model } from 'generative-ai-use-cases-jp';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 
@@ -6,12 +6,13 @@ const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 const bedrockModelIds: string[] = JSON.parse(import.meta.env.VITE_APP_MODEL_IDS)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
-
-const multiModalModelIds: string[] = JSON.parse(
-  import.meta.env.VITE_APP_MULTI_MODAL_MODEL_IDS
-)
-  .map((name: string) => name.trim())
-  .filter((name: string) => name);
+const modelFeatureFlags: Record<string, FeatureFlags> = JSON.parse(
+  import.meta.env.VITE_APP_MODEL_FEATURE_FLAGS
+);
+const visionModelIds: string[] = bedrockModelIds.filter(
+  (modelId) => modelFeatureFlags[modelId].image
+);
+const visionEnabled: boolean = visionModelIds.length > 0;
 
 const endpointNames: string[] = JSON.parse(
   import.meta.env.VITE_APP_ENDPOINT_NAMES
@@ -68,7 +69,9 @@ export const findModelByModelId = (modelId: string) => {
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: [...bedrockModelIds, ...endpointNames],
-  multiModalModelIds: multiModalModelIds,
+  modelFeatureFlags: modelFeatureFlags,
+  visionModelIds: visionModelIds,
+  visionEnabled: visionEnabled,
   imageGenModelIds: imageGenModelIds,
   agentNames: agentNames,
   textModels: textModels,

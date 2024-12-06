@@ -8,7 +8,11 @@ export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 const useFilesState = create<{
-  uploadFiles: (files: File[], fileLimit?: FileLimit) => Promise<void>;
+  uploadFiles: (
+    files: File[],
+    fileLimit?: FileLimit,
+    accept?: string[]
+  ) => Promise<void>;
   uploadedFiles: UploadedFileType[];
   errorMessages: string[];
   deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
@@ -23,7 +27,11 @@ const useFilesState = create<{
     }));
   };
 
-  const uploadFiles = async (files: File[], fileLimit?: FileLimit) => {
+  const uploadFiles = async (
+    files: File[],
+    fileLimit?: FileLimit,
+    accept?: string[]
+  ) => {
     // 現在のファイル数を取得
     const currentUploadedFiles = get().uploadedFiles;
     let fileCount = currentUploadedFiles.filter(
@@ -66,10 +74,10 @@ const useFilesState = create<{
       .filter((file) => {
         // 許可されたファイルタイプをフィルタリング
         const mediaFormat = ('.' + file.name.split('.').pop()) as string;
-        const isFileAllowed = fileLimit?.accept.includes(mediaFormat);
+        const isFileAllowed = accept?.includes(mediaFormat);
         if (!isFileAllowed) {
           errorMessages.push(
-            `${file.name} は許可されていない拡張子です。利用できる拡張子は ${fileLimit?.accept.join(', ')} です`
+            `${file.name} は許可されていない拡張子です。利用できる拡張子は ${accept?.join(', ')} です`
           );
         }
         return isFileAllowed;

@@ -158,7 +158,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
       modelIds: api.modelIds,
-      multiModalModelIds: api.multiModalModelIds,
+      modelFeatureFlags: api.modelFeatureFlags,
       imageGenerationModelIds: api.imageGenerationModelIds,
       endpointNames: api.endpointNames,
       samlAuthEnabled,
@@ -277,12 +277,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: JSON.stringify(api.modelIds),
     });
 
-    new CfnOutput(this, 'MultiModalModelIds', {
-      value: JSON.stringify(api.multiModalModelIds),
-    });
-
     new CfnOutput(this, 'ImageGenerateModelIds', {
       value: JSON.stringify(api.imageGenerationModelIds),
+    });
+
+    new CfnOutput(this, 'ModelFeatureFlags', {
+      value: JSON.stringify(api.modelFeatureFlags),
     });
 
     new CfnOutput(this, 'EndpointNames', {

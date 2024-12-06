@@ -30,6 +30,7 @@ type Props = {
   disableMarginBottom?: boolean;
   fileUpload?: boolean;
   fileLimit?: FileLimit;
+  accept?: string[];
 } & (
   | {
       hideReset?: false;
@@ -172,7 +173,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                 hidden
                 onChange={onChangeFiles}
                 type="file"
-                accept={props.fileLimit?.accept?.join(',')}
+                accept={props.accept?.join(',')}
                 multiple
                 value={[]}
               />
