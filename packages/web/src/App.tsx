@@ -36,8 +36,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { multiModalModelIds } = MODELS;
-const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const { visionEnabled } = MODELS;
 const getPromptFlows = () => {
   try {
     return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
@@ -137,7 +136,7 @@ const items: ItemProps[] = [
     icon: <PiImages />,
     display: 'usecase' as const,
   },
-  multiModalEnabled
+  visionEnabled
     ? {
         label: '映像分析',
         to: '/video',

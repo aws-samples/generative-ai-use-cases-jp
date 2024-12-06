@@ -18,19 +18,23 @@ import useFiles from '../hooks/useFiles';
 import { FileLimit } from 'generative-ai-use-cases-jp';
 
 const fileLimit: FileLimit = {
-  accept: [
-    '.csv',
-    '.doc',
-    '.docx',
-    '.html',
-    '.md',
-    '.pdf',
-    '.txt',
-    '.xls',
-    '.xlsx',
-    '.yaml',
-    '.json',
-  ],
+  accept: {
+    doc: [
+      '.csv',
+      '.doc',
+      '.docx',
+      '.html',
+      '.md',
+      '.pdf',
+      '.txt',
+      '.xls',
+      '.xlsx',
+      '.yaml',
+      '.json',
+    ],
+    image: [],
+    video: [],
+  },
   maxFileCount: 5,
   maxFileSizeMB: 10,
   maxImageFileCount: 0,
@@ -235,6 +239,7 @@ const AgentChatPage: React.FC = () => {
             onReset={onReset}
             fileUpload={true}
             fileLimit={fileLimit}
+            accept={fileLimit.accept.doc}
           />
         </div>
       </div>

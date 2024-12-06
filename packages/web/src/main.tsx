@@ -43,8 +43,7 @@ const ragKnowledgeBaseEnabled: boolean =
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { multiModalModelIds } = MODELS;
-const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const { visionEnabled } = MODELS;
 const useCaseBuilderEnabled: boolean =
   import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 
@@ -107,7 +106,7 @@ const routes: RouteObject[] = [
     path: '/prompt-flow-chat',
     element: <PromptFlowChatPage />,
   },
-  multiModalEnabled
+  visionEnabled
     ? {
         path: '/video',
         element: <VideoAnalyzerPage />,

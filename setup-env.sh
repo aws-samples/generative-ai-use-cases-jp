@@ -24,7 +24,6 @@ export VITE_APP_AGENT_ENABLED=`extract_value "$stack_output" AgentEnabled`
 export VITE_APP_SELF_SIGN_UP_ENABLED=`extract_value "$stack_output" SelfSignUpEnabled`
 export VITE_APP_MODEL_REGION=`extract_value "$stack_output" ModelRegion`
 export VITE_APP_MODEL_IDS=`extract_value "$stack_output" ModelIds`
-export VITE_APP_MULTI_MODAL_MODEL_IDS=`extract_value "$stack_output" MultiModalModelIds`
 export VITE_APP_IMAGE_MODEL_IDS=`extract_value "$stack_output" ImageGenerateModelIds`
 export VITE_APP_ENDPOINT_NAMES=`extract_value "$stack_output" EndpointNames`
 export VITE_APP_SAMLAUTH_ENABLED=`extract_value "$stack_output" SamlAuthEnabled`

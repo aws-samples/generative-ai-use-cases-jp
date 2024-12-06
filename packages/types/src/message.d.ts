@@ -61,7 +61,11 @@ export type UploadedFileType = {
 };
 
 export type FileLimit = {
-  accept: string[];
+  accept: {
+    doc: string[];
+    image: string[];
+    video: string[];
+  };
   maxFileCount: number;
   maxFileSizeMB: number;
   maxImageFileCount: number;
