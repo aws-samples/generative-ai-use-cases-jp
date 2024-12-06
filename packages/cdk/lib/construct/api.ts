@@ -72,7 +72,7 @@ export class Api extends Construct {
 
     // Manage Model Feature
     // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference-supported-models-features.html
-    const MODEL_FEATURE = {
+    const MODEL_FEATURE: Record<string, FeatureFlags> = {
       TEXT_ONLY: { text: true, doc: false, image: false, video: false },
       TEXT_DOC: { text: true, doc: true, image: false, video: false },
       TEXT_DOC_IMAGE: { text: true, doc: true, image: true, video: false },
