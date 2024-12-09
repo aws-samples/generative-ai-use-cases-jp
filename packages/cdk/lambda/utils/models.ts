@@ -216,6 +216,15 @@ const createConverseCommandInput = (
               },
             },
           } as ContentBlock.DocumentMember);
+        } else if (extra.type === 'video' && extra.source.type === 'base64') {
+          contentBlocks.push({
+            video: {
+              format: extra.source.mediaType.split('/')[1],
+              source: {
+                bytes: Buffer.from(extra.source.data, 'base64'),
+              },
+            },
+          } as ContentBlock.VideoMember);
         }
       });
     }
@@ -910,6 +919,30 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'amazon.nova-micro-v1:0': {
+    defaultParams: NOVA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.amazon.nova-pro-v1:0': {
+    defaultParams: NOVA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.amazon.nova-lite-v1:0': {
+    defaultParams: NOVA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
+  'us.amazon.nova-micro-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,

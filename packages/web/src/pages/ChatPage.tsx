@@ -42,11 +42,17 @@ const fileLimit: FileLimit = {
     '.jpeg',
     '.png',
     '.webp',
+    '.mkv',
+    '.mov',
+    '.mp4',
+    '.webm',
   ],
   maxFileCount: 5,
   maxFileSizeMB: 4.5,
   maxImageFileCount: 20,
   maxImageFileSizeMB: 3.75,
+  maxVideoFileCount: 1,
+  maxVideoFileSizeMB: 25, // 25 MB for base64 input (TODO: up to 1 GB through S3)
 };
 
 type StateType = {

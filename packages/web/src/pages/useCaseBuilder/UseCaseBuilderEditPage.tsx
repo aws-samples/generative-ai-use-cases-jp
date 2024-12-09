@@ -6,7 +6,7 @@ import { create } from 'zustand';
 import RowItem from '../../components/RowItem';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
 import InputText from '../../components/InputText';
-import { PiPlus, PiQuestion, PiTrash } from 'react-icons/pi';
+import { PiPlus, PiQuestion, PiTrash, PiEye } from 'react-icons/pi';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
@@ -152,7 +152,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const [isOpenDeleteDialog, setIsOpenDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isPreview, setIsPreview] = useState(true);
 
   const { modelIds: availableModels } = MODELS;
 
@@ -320,13 +320,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
         </div>
       )}
 
-      <UseCaseBuilderHelp
-        isOpen={isOpen}
-        onClose={() => {
-          setIsOpen(false);
-        }}
-      />
-
       <div className="grid h-screen grid-cols-12 gap-4 p-4">
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center lg:visible lg:h-min print:visible print:h-min">
           <div className=" text-xl font-semibold">
@@ -336,15 +329,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
         <div className="col-span-12 lg:col-span-6">
           <Card label="アプリの定義" className="relative">
-            <Button
-              outlined
-              className="absolute right-5 top-5 text-sm"
-              onClick={() => {
-                setIsOpen(!isOpen);
-              }}>
-              <PiQuestion className="mr-1" />
-              ヘルプ
-            </Button>
             <RowItem>
               <InputText
                 label="タイトル"
@@ -378,7 +362,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setIsDisabledUpdate(false);
                 }}
                 placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
+                hint="Placeholder (例：{{text:ラベル}}) が未設定の場合は、作成できません。"
               />
             </RowItem>
             <RowItem>
@@ -410,7 +394,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                                     ? item.label
                                     : undefined
                                 }
-                                rows={2}
+                                rows={item.inputType === 'text' ? 2 : 1}
                                 value={
                                   inputExample.examples
                                     ? inputExample.examples[item.label]
@@ -542,15 +526,40 @@ const UseCaseBuilderEditPage: React.FC = () => {
           </Card>
         </div>
         <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
-          <Card label="プレビュー">
-            <AppBuilderView
-              title={title}
-              promptTemplate={promptTemplate}
-              description={description}
-              inputExamples={inputExamples}
-              fixedModelId={fixedModelId}
-              previewMode
-            />
+          <Card
+            label={`${isPreview ? 'プレビュー' : 'ヘルプ'}`}
+            className="relative">
+            <div className="absolute right-3 top-3 flex rounded border text-xs font-bold">
+              <div
+                className={`my-1 ml-1 flex cursor-pointer items-center rounded px-2 py-1 ${isPreview ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
+                onClick={() => {
+                  setIsPreview(true);
+                }}>
+                <PiEye className="mr-1 text-base" />
+                プレビュー
+              </div>
+              <div
+                className={`my-1 mr-1 flex cursor-pointer items-center rounded px-4 py-1.5 ${isPreview ? 'text-gray-600' : 'bg-gray-600 text-white'}`}
+                onClick={() => {
+                  setIsPreview(false);
+                }}>
+                <PiQuestion className="mr-1 text-base" />
+                ヘルプ
+              </div>
+            </div>
+
+            {isPreview ? (
+              <AppBuilderView
+                title={title}
+                promptTemplate={promptTemplate}
+                description={description}
+                inputExamples={inputExamples}
+                fixedModelId={fixedModelId}
+                previewMode
+              />
+            ) : (
+              <UseCaseBuilderHelp />
+            )}
           </Card>
         </div>
       </div>

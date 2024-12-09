@@ -121,6 +121,9 @@ export class Api extends Construct {
       'amazon.nova-pro-v1:0',
       'amazon.nova-lite-v1:0',
       'amazon.nova-micro-v1:0',
+      'us.amazon.nova-pro-v1:0',
+      'us.amazon.nova-lite-v1:0',
+      'us.amazon.nova-micro-v1:0',
     ];
     const multiModalModelIds = [
       'anthropic.claude-3-5-sonnet-20241022-v2:0',
@@ -143,6 +146,8 @@ export class Api extends Construct {
       'us.meta.llama3-2-90b-instruct-v1:0',
       'amazon.nova-pro-v1:0',
       'amazon.nova-lite-v1:0',
+      'us.amazon.nova-pro-v1:0',
+      'us.amazon.nova-lite-v1:0',
     ];
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {

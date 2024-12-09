@@ -32,6 +32,9 @@ const useFilesState = create<{
     let imageFileCount = currentUploadedFiles.filter(
       (file) => file.type === 'image'
     ).length;
+    let videoFileCount = currentUploadedFiles.filter(
+      (file) => file.type === 'video'
+    ).length;
 
     // アップロードされたファイルの検証
     const errorMessages: string[] = [];
@@ -73,10 +76,12 @@ const useFilesState = create<{
       })
       .filter((file) => {
         // ファイルサイズによるフィルタリング
-        const maxSizeMB =
-          (file.type.includes('image')
-            ? fileLimit?.maxImageFileSizeMB
-            : fileLimit?.maxFileSizeMB) || 0;
+        const getMaxFileSizeMB = (fileType: string) => {
+          if (fileType.includes('image')) return fileLimit?.maxImageFileSizeMB;
+          if (fileType.includes('video')) return fileLimit?.maxVideoFileSizeMB;
+          return fileLimit?.maxFileSizeMB;
+        };
+        const maxSizeMB = getMaxFileSizeMB(file.type) || 0;
         const isFileAllowed = file.size <= maxSizeMB * 1e6;
         if (!isFileAllowed) {
           errorMessages.push(
@@ -96,6 +101,14 @@ const useFilesState = create<{
               `画像ファイルは ${fileLimit?.maxImageFileCount} 個以下にしてください`
             );
           }
+        } else if (file.type.includes('video')) {
+          videoFileCount += 1;
+          isFileAllowed = videoFileCount <= (fileLimit?.maxVideoFileCount || 0);
+          if (!isFileAllowed) {
+            errorMessages.push(
+              `動画ファイルは ${fileLimit?.maxVideoFileCount} 個以下にしてください`
+            );
+          }
         } else {
           fileCount += 1;
           isFileAllowed = fileCount <= (fileLimit?.maxFileCount || 0);
@@ -107,12 +120,19 @@ const useFilesState = create<{
         }
         return isFileAllowed;
       })
-      .map((file) => ({
-        file,
-        name: file.name,
-        type: file.type.includes('image') ? 'image' : 'file',
-        uploading: true,
-      }));
+      .map((file) => {
+        const getFileType = (fileType: string) => {
+          if (fileType.includes('image')) return 'image';
+          if (fileType.includes('video')) return 'video';
+          return 'file';
+        };
+        return {
+          file,
+          name: file.name,
+          type: getFileType(file.type),
+          uploading: true,
+        };
+      });
 
     set(() => ({
       uploadedFiles: produce(get().uploadedFiles, (draft) => {

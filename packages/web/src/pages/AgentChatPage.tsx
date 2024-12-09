@@ -35,6 +35,8 @@ const fileLimit: FileLimit = {
   maxFileSizeMB: 10,
   maxImageFileCount: 0,
   maxImageFileSizeMB: 0,
+  maxVideoFileCount: 0,
+  maxVideoFileSizeMB: 0,
 };
 
 type StateType = {
