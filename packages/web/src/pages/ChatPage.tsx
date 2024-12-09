@@ -359,7 +359,7 @@ const ChatPage: React.FC = () => {
     setIsOver(false);
     if (event.dataTransfer.files) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(event.dataTransfer.files), fileLimit);
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
     }
   };
 

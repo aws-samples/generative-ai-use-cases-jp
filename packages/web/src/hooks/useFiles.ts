@@ -10,8 +10,8 @@ export const extractBaseURL = (url: string) => {
 const useFilesState = create<{
   uploadFiles: (
     files: File[],
-    fileLimit?: FileLimit,
-    accept?: string[]
+    fileLimit: FileLimit,
+    accept: string[]
   ) => Promise<void>;
   uploadedFiles: UploadedFileType[];
   errorMessages: string[];
@@ -29,8 +29,8 @@ const useFilesState = create<{
 
   const uploadFiles = async (
     files: File[],
-    fileLimit?: FileLimit,
-    accept?: string[]
+    fileLimit: FileLimit,
+    accept: string[]
   ) => {
     // 現在のファイル数を取得
     const currentUploadedFiles = get().uploadedFiles;

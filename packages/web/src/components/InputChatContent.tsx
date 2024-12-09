@@ -54,9 +54,9 @@ const InputChatContent: React.FC<Props> = (props) => {
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
+    if (files && props.fileLimit && props.accept) {
       // ファイルを反映しアップロード
-      uploadFiles(Array.from(files), props?.fileLimit);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept);
     }
   };
 
@@ -71,9 +71,9 @@ const InputChatContent: React.FC<Props> = (props) => {
     const files = Array.from(fileList)
       .filter((file) => file.kind === 'file')
       .map((file) => file.getAsFile() as File);
-    if (files.length > 0) {
+    if (files.length > 0 && props.fileLimit && props.accept) {
       // ファイルをアップロード
-      uploadFiles(Array.from(files), props.fileLimit);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept);
       // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
       pasteEvent.preventDefault();
     }
