@@ -70,9 +70,11 @@ const InputChatContent: React.FC<Props> = (props) => {
 
   const deleteFile = useCallback(
     (fileUrl: string) => {
-      deleteUploadedFile(fileUrl);
+      if (props.fileLimit && props.accept) {
+        deleteUploadedFile(fileUrl, props.fileLimit, props.accept);
+      }
     },
-    [deleteUploadedFile]
+    [deleteUploadedFile, props.fileLimit, props.accept]
   );
   const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
     const fileList = pasteEvent.clipboardData.items || [];
@@ -125,6 +127,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       key={idx}
                       src={uploadedFile.base64EncodedData}
                       loading={uploadedFile.uploading}
+                      deleting={uploadedFile.deleting}
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {
@@ -138,6 +141,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       key={idx}
                       src={uploadedFile.base64EncodedData}
                       loading={uploadedFile.uploading}
+                      deleting={uploadedFile.deleting}
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {
@@ -151,6 +155,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       key={idx}
                       filename={uploadedFile.name}
                       loading={uploadedFile.uploading}
+                      deleting={uploadedFile.deleting}
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {

@@ -178,6 +178,7 @@ const VideoAnalyzerPage: React.FC = () => {
           s3Url: baseUrl,
           base64EncodedData: imageBase64,
           uploading: false,
+          errorMessages: [],
         },
       ];
 

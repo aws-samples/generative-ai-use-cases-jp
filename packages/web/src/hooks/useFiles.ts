@@ -16,7 +16,11 @@ const useFilesState = create<{
   checkFiles: (fileLimit: FileLimit, accept: string[]) => Promise<void>;
   uploadedFiles: UploadedFileType[];
   errorMessages: string[];
-  deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
+  deleteUploadedFile: (
+    fileUrl: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
   const api = useFileApi();
@@ -79,6 +83,7 @@ const useFilesState = create<{
     const updatedFiles: UploadedFileType[] = uploadedFiles.map(
       (uploadedFile, idx) => {
         const errorMessages: string[] = [];
+
         // ファイルの拡張子が間違っている場合はフィルタリング
         if (isMimeSpoofedResults[idx]) {
           errorMessages.push(
@@ -168,11 +173,13 @@ const useFilesState = create<{
     const { uploadedFiles: newUploadedFiles, errorMessages } =
       await validateUploadedFiles(currentUploadedFiles, fileLimit, accept);
 
-    // Update Files
-    set({
-      uploadedFiles: newUploadedFiles,
-      errorMessages: errorMessages,
-    });
+    // Update Files using immer
+    set((state) =>
+      produce(state, (draft) => {
+        draft.uploadedFiles = newUploadedFiles;
+        draft.errorMessages = errorMessages;
+      })
+    );
   };
 
   // Handle File Uploads
@@ -239,12 +246,16 @@ const useFilesState = create<{
   };
 
   // Delete Uploaded File
-  const deleteUploadedFile = async (fileUrl: string) => {
+  const deleteUploadedFile = async (
+    fileUrl: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
     const baseUrl = extractBaseURL(fileUrl);
     const findTargetIndex = () =>
       get().uploadedFiles.findIndex((file) => file.s3Url === baseUrl);
-    let targetIndex = findTargetIndex();
 
+    let targetIndex = findTargetIndex();
     if (targetIndex > -1) {
       // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
       const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
@@ -253,22 +264,26 @@ const useFilesState = create<{
       const fileName = result?.groups?.fileName;
 
       if (fileName) {
-        set({
-          uploadedFiles: produce(get().uploadedFiles, (draft) => {
-            draft[targetIndex].deleting = true;
-          }),
-        });
+        // Set deleting state
+        set((state) =>
+          produce(state, (draft) => {
+            draft.uploadedFiles[targetIndex].deleting = true;
+          })
+        );
 
         await api.deleteUploadedFile(fileName);
 
         // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
         targetIndex = findTargetIndex();
+        set((state) =>
+          produce(state, (draft) => {
+            draft.uploadedFiles.splice(targetIndex, 1);
+          })
+        );
 
-        set({
-          uploadedFiles: produce(get().uploadedFiles, (draft) => {
-            draft.splice(targetIndex, 1);
-          }),
-        });
+        // Refresh error messages
+        await checkFiles(fileLimit, accept);
+
         return true;
       }
     }
@@ -299,7 +314,7 @@ const useFiles = () => {
     checkFiles,
     errorMessages,
     clear,
-    uploadedFiles: uploadedFiles.filter((file) => !file.deleting),
+    uploadedFiles: uploadedFiles,
     deleteUploadedFile,
     uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
   };

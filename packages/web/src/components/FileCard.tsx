@@ -7,6 +7,7 @@ type Props = BaseProps & {
   filename?: string;
   url?: string;
   loading?: boolean;
+  deleting?: boolean;
   size: 's' | 'm';
   error?: boolean;
   onDelete?: () => void;
@@ -29,7 +30,7 @@ const FileCard: React.FC<Props> = (props) => {
             props.filename
           )}
         </div>
-        {props.loading && (
+        {(props.loading || props.deleting) && (
           <div className="bg-aws-squid-ink/20 absolute top-0 flex h-full w-full items-center justify-center rounded">
             <PiSpinnerGap className="animate-spin text-4xl text-white" />
           </div>
