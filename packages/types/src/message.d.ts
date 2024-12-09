@@ -58,6 +58,7 @@ export type UploadedFileType = {
   s3Url?: string;
   uploading: boolean;
   deleting?: boolean;
+  errorMessages: string[];
 };
 
 export type FileLimit = {
