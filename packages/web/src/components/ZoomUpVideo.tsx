@@ -6,7 +6,9 @@ import { PiSpinnerGap, PiX } from 'react-icons/pi';
 type Props = BaseProps & {
   src?: string;
   loading?: boolean;
+  deleting?: boolean;
   size: 's' | 'm';
+  error?: boolean;
   onDelete?: () => void;
 };
 
@@ -17,14 +19,18 @@ const ZoomUpVideo: React.FC<Props> = (props) => {
     <div className={props.className}>
       <div className="group relative cursor-pointer">
         <video
-          className={`border-aws-squid-ink/50 bg-aws-squid-ink/20 rounded border object-cover object-center ${props.size === 's' ? 'size-24' : 'size-32'}`}
+          className={`${
+            props.error ? 'border-red-500' : 'border-aws-squid-ink/50'
+          } bg-aws-squid-ink/20 rounded border object-cover object-center ${
+            props.size === 's' ? 'size-24' : 'size-32'
+          }`}
           src={props.src}
           controls
           onClick={() => {
             setZoom(true);
           }}
         />
-        {props.loading && (
+        {(props.loading || props.deleting) && (
           <div className="bg-aws-squid-ink/20 absolute top-0 flex h-full w-full items-center justify-center rounded">
             <PiSpinnerGap className="animate-spin text-4xl text-white" />
           </div>

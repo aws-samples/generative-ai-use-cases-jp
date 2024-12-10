@@ -8,10 +8,19 @@ export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 const useFilesState = create<{
-  uploadFiles: (files: File[], fileLimit?: FileLimit) => Promise<void>;
+  uploadFiles: (
+    files: File[],
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => Promise<void>;
+  checkFiles: (fileLimit: FileLimit, accept: string[]) => Promise<void>;
   uploadedFiles: UploadedFileType[];
   errorMessages: string[];
-  deleteUploadedFile: (fileUrl: string) => Promise<boolean>;
+  deleteUploadedFile: (
+    fileUrl: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => Promise<boolean>;
   clear: () => void;
 }>((set, get) => {
   const api = useFileApi();
@@ -23,125 +32,183 @@ const useFilesState = create<{
     }));
   };
 
-  const uploadFiles = async (files: File[], fileLimit?: FileLimit) => {
-    // 現在のファイル数を取得
-    const currentUploadedFiles = get().uploadedFiles;
-    let fileCount = currentUploadedFiles.filter(
-      (file) => file.type === 'file'
-    ).length;
-    let imageFileCount = currentUploadedFiles.filter(
-      (file) => file.type === 'image'
-    ).length;
-    let videoFileCount = currentUploadedFiles.filter(
-      (file) => file.type === 'video'
-    ).length;
+  // Convert JS File Object to UploadedFileType to handle file upload status
+  const convertFile2UploadedFileType = (file: File): UploadedFileType => {
+    const getFileType = (fileType: string) => {
+      if (fileType.includes('image')) return 'image';
+      if (fileType.includes('video')) return 'video';
+      return 'file';
+    };
+    return {
+      file,
+      name: file.name,
+      type: getFileType(file.type),
+      uploading: true,
+      errorMessages: [],
+    } as UploadedFileType;
+  };
 
-    // アップロードされたファイルの検証
-    const errorMessages: string[] = [];
+  // Validated given uploadedFiles, return updated uploadedFiles (no side effect) and errorMessages
+  const validateUploadedFiles = async (
+    uploadedFiles: UploadedFileType[],
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
+    let fileCount = 0;
+    let imageFileCount = 0;
+    let videoFileCount = 0;
+
+    // filter は非同期関数が利用できないため先に評価を行う
     const isMimeSpoofedResults = await Promise.all(
-      files.map(async (file) => {
-        // filter は非同期関数が利用できないため先に評価を行う
+      uploadedFiles.map(async (uploadedFile) => {
         // file.type は拡張子ベースで MIME を取得する一方、fileTypeFromStream はファイルヘッダの Signature を確認する
-        const realMimeType = (await fileTypeFromStream(file.stream()))?.mime;
+        const realMimeType = (
+          await fileTypeFromStream(uploadedFile.file.stream())
+        )?.mime;
         // exception when file is doc or xls
         const isDocOrXls =
           ['application/msword', 'application/vnd.ms-excel'].includes(
-            file.type || ''
+            uploadedFile.file.type || ''
           ) && realMimeType === 'application/x-cfb';
         const isMimeSpoofed =
-          file.type && realMimeType && file.type != realMimeType && !isDocOrXls;
+          uploadedFile.file.type &&
+          realMimeType &&
+          uploadedFile.file.type != realMimeType &&
+          !isDocOrXls;
         return isMimeSpoofed;
       })
     );
-    const uploadedFiles: UploadedFileType[] = files
-      .filter((file, idx) => {
+
+    // アップロードされたファイルの検証
+    const updatedFiles: UploadedFileType[] = uploadedFiles.map(
+      (uploadedFile, idx) => {
+        const errorMessages: string[] = [];
+
         // ファイルの拡張子が間違っている場合はフィルタリング
         if (isMimeSpoofedResults[idx]) {
           errorMessages.push(
-            `${file.name} はファイルタイプと拡張子が合致しないファイルです。`
+            `${uploadedFile.file.name} はファイルタイプと拡張子が合致しないファイルです。`
           );
         }
-        return !isMimeSpoofedResults[idx];
-      })
-      .filter((file) => {
+
         // 許可されたファイルタイプをフィルタリング
-        const mediaFormat = ('.' + file.name.split('.').pop()) as string;
-        const isFileAllowed = fileLimit?.accept.includes(mediaFormat);
-        if (!isFileAllowed) {
+        const mediaFormat = ('.' +
+          uploadedFile.file.name.split('.').pop()) as string;
+        const isFileTypeAllowed = accept.includes(mediaFormat);
+        if (accept && accept.length === 0) {
+          errorMessages.push(`このモデルはファイルに対応していません。`);
+        } else if (!isFileTypeAllowed) {
           errorMessages.push(
-            `${file.name} は許可されていない拡張子です。利用できる拡張子は ${fileLimit?.accept.join(', ')} です`
+            `${uploadedFile.file.name} は許可されていない拡張子です。利用できる拡張子は ${accept.join(', ')} です`
           );
         }
-        return isFileAllowed;
-      })
-      .filter((file) => {
+
         // ファイルサイズによるフィルタリング
         const getMaxFileSizeMB = (fileType: string) => {
-          if (fileType.includes('image')) return fileLimit?.maxImageFileSizeMB;
-          if (fileType.includes('video')) return fileLimit?.maxVideoFileSizeMB;
-          return fileLimit?.maxFileSizeMB;
+          if (fileType.includes('image')) return fileLimit.maxImageFileSizeMB;
+          if (fileType.includes('video')) return fileLimit.maxVideoFileSizeMB;
+          return fileLimit.maxFileSizeMB;
         };
-        const maxSizeMB = getMaxFileSizeMB(file.type) || 0;
-        const isFileAllowed = file.size <= maxSizeMB * 1e6;
-        if (!isFileAllowed) {
+        const maxSizeMB = getMaxFileSizeMB(uploadedFile.file.type) || 0;
+        const isFileSizeAllowed = uploadedFile.file.size <= maxSizeMB * 1e6;
+        if (!isFileSizeAllowed) {
           errorMessages.push(
-            `${file.name} は最大ファイルサイズ ${maxSizeMB} MB を超えています。`
+            `${uploadedFile.file.name} は最大ファイルサイズ ${maxSizeMB} MB を超えています。`
           );
         }
-        return isFileAllowed;
-      })
-      .filter((file) => {
+
         // ファイル数によるフィルタリング
-        let isFileAllowed = false;
-        if (file.type.includes('image')) {
+        let isFileNumberAllowed = false;
+        if (uploadedFile.file.type.includes('image')) {
           imageFileCount += 1;
-          isFileAllowed = imageFileCount <= (fileLimit?.maxImageFileCount || 0);
-          if (!isFileAllowed) {
+          isFileNumberAllowed =
+            imageFileCount <= (fileLimit.maxImageFileCount || 0);
+          if (!isFileNumberAllowed) {
             errorMessages.push(
-              `画像ファイルは ${fileLimit?.maxImageFileCount} 個以下にしてください`
+              `画像ファイルは ${fileLimit.maxImageFileCount} 個以下にしてください`
             );
           }
-        } else if (file.type.includes('video')) {
+        } else if (uploadedFile.file.type.includes('video')) {
           videoFileCount += 1;
-          isFileAllowed = videoFileCount <= (fileLimit?.maxVideoFileCount || 0);
-          if (!isFileAllowed) {
+          isFileNumberAllowed =
+            videoFileCount <= (fileLimit.maxVideoFileCount || 0);
+          if (!isFileNumberAllowed) {
             errorMessages.push(
-              `動画ファイルは ${fileLimit?.maxVideoFileCount} 個以下にしてください`
+              `動画ファイルは ${fileLimit.maxVideoFileCount} 個以下にしてください`
             );
           }
         } else {
           fileCount += 1;
-          isFileAllowed = fileCount <= (fileLimit?.maxFileCount || 0);
-          if (!isFileAllowed) {
+          isFileNumberAllowed = fileCount <= (fileLimit.maxFileCount || 0);
+          if (!isFileNumberAllowed) {
             errorMessages.push(
-              `ファイルは ${fileLimit?.maxFileCount} 個以下にしてください`
+              `ファイルは ${fileLimit.maxFileCount} 個以下にしてください`
             );
           }
         }
-        return isFileAllowed;
-      })
-      .map((file) => {
-        const getFileType = (fileType: string) => {
-          if (fileType.includes('image')) return 'image';
-          if (fileType.includes('video')) return 'video';
-          return 'file';
-        };
-        return {
-          file,
-          name: file.name,
-          type: getFileType(file.type),
-          uploading: true,
-        };
-      });
 
+        return {
+          ...uploadedFile,
+          errorMessages: errorMessages,
+        } as UploadedFileType;
+      }
+    );
+
+    return {
+      uploadedFiles: updatedFiles,
+      errorMessages: [
+        ...new Set(
+          updatedFiles.flatMap((uploadedFile) => uploadedFile.errorMessages)
+        ),
+      ],
+    };
+  };
+
+  // Refresh error messages
+  const checkFiles = async (fileLimit: FileLimit, accept: string[]) => {
+    // Get current files
+    const currentUploadedFiles = get().uploadedFiles;
+
+    // Get updated error messages
+    const { uploadedFiles: newUploadedFiles, errorMessages } =
+      await validateUploadedFiles(currentUploadedFiles, fileLimit, accept);
+
+    // Update Files using immer
+    set((state) =>
+      produce(state, (draft) => {
+        draft.uploadedFiles = newUploadedFiles;
+        draft.errorMessages = errorMessages;
+      })
+    );
+  };
+
+  // Handle File Uploads
+  const uploadFiles = async (
+    files: File[],
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
+    // Get File
+    const currentUploadedFiles = get().uploadedFiles;
+    const newUploadedFiles: UploadedFileType[] = [
+      ...currentUploadedFiles,
+      ...files.map(convertFile2UploadedFileType),
+    ];
+
+    // Validate File
+    const { uploadedFiles: validatedFiles, errorMessages } =
+      await validateUploadedFiles(newUploadedFiles, fileLimit, accept);
+
+    // Update zustand to reflect current status to UI
     set(() => ({
-      uploadedFiles: produce(get().uploadedFiles, (draft) => {
-        draft.push(...uploadedFiles);
-      }),
-      errorMessages: [...new Set(errorMessages)],
+      uploadedFiles: validatedFiles,
+      errorMessages: errorMessages,
     }));
 
+    // Upload File
     get().uploadedFiles.forEach((uploadedFile, idx) => {
+      if (!uploadedFile.uploading) return;
+
       // 「画像アップロード => 署名付きURL取得 => 画像ダウンロード」だと、画像が画面に表示されるまでに時間がかかるため、
       // 選択した画像をローカルでBASE64エンコーディングし、そのまま画面に表示する（UX改善のため）
       const reader = new FileReader();
@@ -178,12 +245,17 @@ const useFilesState = create<{
     });
   };
 
-  const deleteUploadedFile = async (fileUrl: string) => {
+  // Delete Uploaded File
+  const deleteUploadedFile = async (
+    fileUrl: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
     const baseUrl = extractBaseURL(fileUrl);
     const findTargetIndex = () =>
       get().uploadedFiles.findIndex((file) => file.s3Url === baseUrl);
-    let targetIndex = findTargetIndex();
 
+    let targetIndex = findTargetIndex();
     if (targetIndex > -1) {
       // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
       const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
@@ -192,22 +264,26 @@ const useFilesState = create<{
       const fileName = result?.groups?.fileName;
 
       if (fileName) {
-        set({
-          uploadedFiles: produce(get().uploadedFiles, (draft) => {
-            draft[targetIndex].deleting = true;
-          }),
-        });
+        // Set deleting state
+        set((state) =>
+          produce(state, (draft) => {
+            draft.uploadedFiles[targetIndex].deleting = true;
+          })
+        );
 
         await api.deleteUploadedFile(fileName);
 
         // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
         targetIndex = findTargetIndex();
+        set((state) =>
+          produce(state, (draft) => {
+            draft.uploadedFiles.splice(targetIndex, 1);
+          })
+        );
 
-        set({
-          uploadedFiles: produce(get().uploadedFiles, (draft) => {
-            draft.splice(targetIndex, 1);
-          }),
-        });
+        // Refresh error messages
+        await checkFiles(fileLimit, accept);
+
         return true;
       }
     }
@@ -219,6 +295,7 @@ const useFilesState = create<{
     uploadedFiles: [],
     errorMessages: [],
     uploadFiles,
+    checkFiles,
     deleteUploadedFile,
   };
 });
@@ -226,6 +303,7 @@ const useFilesState = create<{
 const useFiles = () => {
   const {
     uploadFiles,
+    checkFiles,
     clear,
     uploadedFiles,
     deleteUploadedFile,
@@ -233,9 +311,10 @@ const useFiles = () => {
   } = useFilesState();
   return {
     uploadFiles,
+    checkFiles,
     errorMessages,
     clear,
-    uploadedFiles: uploadedFiles.filter((file) => !file.deleting),
+    uploadedFiles: uploadedFiles,
     deleteUploadedFile,
     uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
   };

@@ -1,0 +1,5 @@
+{
+    "name": "@generative-ai-use-cases-jp/common",
+    "private": true,
+    "main": "src/index.ts"
+}
