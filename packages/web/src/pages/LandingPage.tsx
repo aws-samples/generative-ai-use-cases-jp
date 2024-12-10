@@ -39,8 +39,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { multiModalModelIds } = MODELS;
-const multiModalEnabled: boolean = multiModalModelIds.length > 0;
+const { visionEnabled } = MODELS;
 const getPromptFlows = () => {
   try {
     return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
@@ -360,7 +359,7 @@ const LandingPage: React.FC = () => {
           icon={<PiImages />}
           description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
         />
-        {multiModalEnabled && (
+        {visionEnabled && (
           <CardDemo
             label="映像分析"
             onClickDemo={demoVideoAnalyzer}

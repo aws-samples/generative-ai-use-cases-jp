@@ -76,24 +76,19 @@ const VideoAnalyzerPage: React.FC = () => {
     clear: clearChat,
   } = useChat(pathname);
   const { setTypingTextInput, typingTextOutput } = useTyping(loading);
-  const { modelIds: availableModels } = MODELS;
-  const availableMultiModalModels = useMemo(() => {
-    return availableModels.filter((modelId) =>
-      MODELS.multiModalModelIds.includes(modelId)
-    );
-  }, [availableModels]);
+  const { visionModelIds } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
 
   useEffect(() => {
-    const _modelId = !modelId ? availableMultiModalModels[0] : modelId;
+    const _modelId = !modelId ? visionModelIds[0] : modelId;
     if (search !== '') {
       const params = queryString.parse(search) as VideoAnalyzerPageQueryParams;
       setContent(params.content);
       setModelId(
-        availableMultiModalModels.includes(params.modelId ?? '')
+        visionModelIds.includes(params.modelId ?? '')
           ? params.modelId!
           : _modelId
       );
@@ -101,7 +96,7 @@ const VideoAnalyzerPage: React.FC = () => {
       setModelId(_modelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setContent, modelId, availableMultiModalModels, search]);
+  }, [setContent, modelId, visionModelIds, search]);
 
   useEffect(() => {
     setTypingTextInput(analysis);
@@ -183,6 +178,7 @@ const VideoAnalyzerPage: React.FC = () => {
           s3Url: baseUrl,
           base64EncodedData: imageBase64,
           uploading: false,
+          errorMessages: [],
         },
       ];
 
@@ -293,7 +289,7 @@ const VideoAnalyzerPage: React.FC = () => {
               <Select
                 value={modelId}
                 onChange={setModelId}
-                options={availableMultiModalModels.map((m) => {
+                options={visionModelIds.map((m) => {
                   return { value: m, label: m };
                 })}
                 label="モデル"
