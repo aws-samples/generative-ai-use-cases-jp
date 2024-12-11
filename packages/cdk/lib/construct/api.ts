@@ -102,6 +102,7 @@ export class Api extends Construct {
       'stability.stable-image-ultra-v1:0',
       'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
+      'amazon.nova-canvas-v1:0',
       'meta.llama3-8b-instruct-v1:0',
       'meta.llama3-70b-instruct-v1:0',
       'meta.llama3-1-8b-instruct-v1:0',

@@ -59,7 +59,9 @@ export type StabilityAI2024ModelParams = {
 
 // Titan Image
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
-export type TitanImageParams = {
+// Amazon Nova
+// https://docs.aws.amazon.com/nova/latest/userguide/image-gen-access.html
+export type AmazonImageParams = {
   taskType: 'TEXT_IMAGE' | 'INPAINTING' | 'OUTPAINTING' | 'IMAGE_VARIATION';
   textToImageParams?: {
     text: string;
