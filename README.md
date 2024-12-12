@@ -189,10 +189,13 @@ npm run cdk:deploy
  - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
 
 ## 料金試算
-[GenU をご利用いただく際の、構成と料金試算例](https://aws.amazon.com/jp/cdp/ai-chatapp/)を公開しております。  
+GenU をご利用いただく際の、構成と料金試算例を公開しております。
 この料金試算例は、Amazon Kendra を活用した RAG チャット機能を有効化する前提となっています。
 セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
 従量課金制となっており、実際の料金はご利用内容により変動いたします。
+- [シンプル版 (RAG なし) 試算](https://aws.amazon.com/jp/cdp/ai-chatbot/)
+- [RAG (Amazon Kendra) あり試算](https://aws.amazon.com/jp/cdp/ai-chatapp/)
+- [RAG (Knowledge Base) あり試算](https://aws.amazon.com/jp/cdp/genai-chat-app/)
 
 ## お客様事例
 
