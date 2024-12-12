@@ -362,7 +362,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setIsDisabledUpdate(false);
                 }}
                 placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="可変項目(例：{{text:見出し}})が未設定の場合は、作成できません。"
+                hint="Placeholder (例：{{text:ラベル}}) が未設定の場合は、作成できません。"
               />
             </RowItem>
             <RowItem>

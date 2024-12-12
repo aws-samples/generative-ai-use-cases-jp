@@ -21,6 +21,7 @@ import {
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
 import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
+import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 export interface BackendApiProps {
   userPool: UserPool;
@@ -38,7 +39,6 @@ export class Api extends Construct {
   readonly optimizePromptFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
-  readonly multiModalModelIds: string[];
   readonly imageGenerationModelIds: string[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
@@ -71,85 +71,7 @@ export class Api extends Construct {
     ];
 
     // Validate Model Names
-    const supportedModelIds = [
-      'anthropic.claude-3-5-sonnet-20241022-v2:0',
-      'anthropic.claude-3-5-haiku-20241022-v1:0',
-      'anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'anthropic.claude-3-opus-20240229-v1:0',
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-      'anthropic.claude-3-haiku-20240307-v1:0',
-      'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-      'us.anthropic.claude-3-5-haiku-20241022-v1:0',
-      'us.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'us.anthropic.claude-3-opus-20240229-v1:0',
-      'us.anthropic.claude-3-sonnet-20240229-v1:0',
-      'us.anthropic.claude-3-haiku-20240307-v1:0',
-      'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'eu.anthropic.claude-3-sonnet-20240229-v1:0',
-      'eu.anthropic.claude-3-haiku-20240307-v1:0',
-      'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'apac.anthropic.claude-3-sonnet-20240229-v1:0',
-      'apac.anthropic.claude-3-haiku-20240307-v1:0',
-      'anthropic.claude-v2:1',
-      'anthropic.claude-v2',
-      'anthropic.claude-instant-v1',
-      // Titan Express は日本語文字化けのため未対応
-      // 'amazon.titan-text-express-v1',
-      'amazon.titan-text-premier-v1:0',
-      'stability.stable-diffusion-xl-v1',
-      'stability.sd3-large-v1:0',
-      'stability.stable-image-core-v1:0',
-      'stability.stable-image-ultra-v1:0',
-      'amazon.titan-image-generator-v2:0',
-      'amazon.titan-image-generator-v1',
-      'amazon.nova-canvas-v1:0',
-      'meta.llama3-8b-instruct-v1:0',
-      'meta.llama3-70b-instruct-v1:0',
-      'meta.llama3-1-8b-instruct-v1:0',
-      'meta.llama3-1-70b-instruct-v1:0',
-      'meta.llama3-1-405b-instruct-v1:0',
-      'us.meta.llama3-2-1b-instruct-v1:0',
-      'us.meta.llama3-2-3b-instruct-v1:0',
-      'us.meta.llama3-2-11b-instruct-v1:0',
-      'us.meta.llama3-2-90b-instruct-v1:0',
-      'mistral.mistral-7b-instruct-v0:2',
-      'mistral.mixtral-8x7b-instruct-v0:1',
-      'mistral.mistral-small-2402-v1:0',
-      'mistral.mistral-large-2402-v1:0',
-      'mistral.mistral-large-2407-v1:0',
-      'cohere.command-r-v1:0',
-      'cohere.command-r-plus-v1:0',
-      'amazon.nova-pro-v1:0',
-      'amazon.nova-lite-v1:0',
-      'amazon.nova-micro-v1:0',
-      'us.amazon.nova-pro-v1:0',
-      'us.amazon.nova-lite-v1:0',
-      'us.amazon.nova-micro-v1:0',
-    ];
-    const multiModalModelIds = [
-      'anthropic.claude-3-5-sonnet-20241022-v2:0',
-      'anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'anthropic.claude-3-opus-20240229-v1:0',
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-      'anthropic.claude-3-haiku-20240307-v1:0',
-      'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
-      'us.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'us.anthropic.claude-3-opus-20240229-v1:0',
-      'us.anthropic.claude-3-sonnet-20240229-v1:0',
-      'us.anthropic.claude-3-haiku-20240307-v1:0',
-      'eu.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'eu.anthropic.claude-3-sonnet-20240229-v1:0',
-      'eu.anthropic.claude-3-haiku-20240307-v1:0',
-      'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
-      'apac.anthropic.claude-3-sonnet-20240229-v1:0',
-      'apac.anthropic.claude-3-haiku-20240307-v1:0',
-      'us.meta.llama3-2-11b-instruct-v1:0',
-      'us.meta.llama3-2-90b-instruct-v1:0',
-      'amazon.nova-pro-v1:0',
-      'amazon.nova-lite-v1:0',
-      'us.amazon.nova-pro-v1:0',
-      'us.amazon.nova-lite-v1:0',
-    ];
+    const supportedModelIds = Object.keys(modelFeatureFlags);
     for (const modelId of modelIds) {
       if (!supportedModelIds.includes(modelId)) {
         throw new Error(`Unsupported Model Name: ${modelId}`);
@@ -829,7 +751,6 @@ export class Api extends Construct {
     this.optimizePromptFunction = optimizePromptFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
-    this.multiModalModelIds = multiModalModelIds;
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.endpointNames = endpointNames;
     this.agentNames = Object.keys(agentMap);
