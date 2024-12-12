@@ -26,9 +26,10 @@ import { GenerateImageParams } from 'generative-ai-use-cases-jp';
 
 const MAX_SAMPLE = 7;
 
-const TITAN_MODELS = {
-  V1: 'amazon.titan-image-generator-v1',
-  V2: 'amazon.titan-image-generator-v2:0',
+const AMAZON_MODELS = {
+  TITAN_V1: 'amazon.titan-image-generator-v1',
+  TITAN_V2: 'amazon.titan-image-generator-v2:0',
+  NOVA_CANVAS: 'amazon.nova-canvas-v1:0',
 };
 const STABILITY_AI_MODELS = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
@@ -89,7 +90,7 @@ const modelInfo: Record<string, ModelInfo> = {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
-  [TITAN_MODELS.V1]: {
+  [AMAZON_MODELS.TITAN_V1]: {
     supportedModes: [
       GENERATION_MODES.TEXT_IMAGE,
       GENERATION_MODES.IMAGE_VARIATION,
@@ -98,7 +99,16 @@ const modelInfo: Record<string, ModelInfo> = {
     ],
     resolutionPresets: defaultModelPresets,
   },
-  [TITAN_MODELS.V2]: {
+  [AMAZON_MODELS.TITAN_V2]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+      GENERATION_MODES.INPAINTING,
+      GENERATION_MODES.OUTPAINTING,
+    ],
+    resolutionPresets: defaultModelPresets,
+  },
+  [AMAZON_MODELS.NOVA_CANVAS]: {
     supportedModes: [
       GENERATION_MODES.TEXT_IMAGE,
       GENERATION_MODES.IMAGE_VARIATION,
@@ -431,7 +441,9 @@ const GenerateImagePage: React.FC = () => {
   const maskPromptSupported = useMemo(() => {
     // TODO: Remove Hard Coding
     return (
-      imageGenModelId === TITAN_MODELS.V1 || imageGenModelId === TITAN_MODELS.V2
+      imageGenModelId === AMAZON_MODELS.TITAN_V1 ||
+      imageGenModelId === AMAZON_MODELS.TITAN_V2 ||
+      imageGenModelId === AMAZON_MODELS.NOVA_CANVAS
     );
   }, [imageGenModelId]);
 

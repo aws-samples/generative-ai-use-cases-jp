@@ -516,6 +516,7 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
   "imageGenerationModelIds": [
     "amazon.titan-image-generator-v2:0",
     "amazon.titan-image-generator-v1",
+    "amazon.nova-canvas-v1:0",
     "stability.stable-diffusion-xl-v1"
   ],
 ```

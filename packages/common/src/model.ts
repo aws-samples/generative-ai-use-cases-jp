@@ -71,4 +71,5 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Amazon Image Gen
   'amazon.titan-image-generator-v2:0': MODEL_FEATURE.IMAGE_GEN,
   'amazon.titan-image-generator-v1': MODEL_FEATURE.IMAGE_GEN,
+  'amazon.nova-canvas-v1:0': MODEL_FEATURE.IMAGE_GEN,
 };
