@@ -21,6 +21,7 @@ import {
   NOLABEL,
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
+  getTextFormItemsFromItems,
 } from '../../utils/UseCaseBuilderUtils';
 import usePageTitle from '../../hooks/usePageTitle';
 import Select from '../../components/Select';
@@ -197,6 +198,10 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const items = useMemo(() => {
     return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
+
+  const textFormItems = useMemo(() => {
+    return getTextFormItemsFromItems(items);
+  }, [items]);
 
   const isUpdate = useMemo(() => {
     return !!useCaseId;
@@ -385,7 +390,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                             }}
                           />
 
-                          {items.map((item, itemIndex) => {
+                          {textFormItems.map((item, itemIndex) => {
                             return (
                               <Textarea
                                 key={itemIndex}

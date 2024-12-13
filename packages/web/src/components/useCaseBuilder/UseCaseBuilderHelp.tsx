@@ -72,8 +72,8 @@ const UseCaseBuilderHelp = () => {
 
         <div className="flex flex-col gap-y-10">
           <div className="flex flex-col gap-y-4">
-            <div className="text-base font-bold">
-              <Placeholder inputType="text" />
+            <div className="flex items-center text-base font-bold">
+              <Placeholder inputType="text" /> <ButtonCopy text={'{{text}}'} />
             </div>
             <div className="text-sm leading-relaxed">
               <Placeholder inputType="text" /> は最も基本的な placeholder です。
@@ -102,8 +102,42 @@ const UseCaseBuilderHelp = () => {
           </div>
 
           <div className="flex flex-col gap-y-4">
-            <div className="text-base font-bold">
-              <Placeholder inputType="retrieveKendra" />
+            <div className="flex items-center text-base font-bold">
+              <Placeholder inputType="form" /> <ButtonCopy text={'{{form}}'} />
+            </div>
+            <div className="text-sm leading-relaxed">
+              <Placeholder inputType="form" /> は入力フォームを定義するための
+              placeholder です。
+              <Placeholder inputType="form" /> あるいは{' '}
+              <Placeholder inputType="form" label="ラベル" />{' '}
+              のように記述します。
+              <Placeholder inputType="form" />{' '}
+              はテキスト入力を受け付けるフォームを作成しますが、
+              <span className="font-bold">
+                プロンプトテンプレートに入力を埋め込みません。
+              </span>
+              「RAG
+              等でデータソースに問い合わせしたいが、問い合わせ内容そのものはプロンプトに埋め込みたくない」というユースケースで使います。
+              <PromptSample
+                title="クイズの生成"
+                prompt={`あなたは、与えられた情報を元にクイズを生成する AI アシスタントです。
+
+{{form:クイズの元になる情報を検索}}
+
+以下の情報を読み込んで、4 択クイズを作成してください。
+正解も合わせて教えてください。
+
+<情報>
+{{retrieveKendra:クイズの元になる情報を検索}}
+</情報>`}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-y-4">
+            <div className="flex items-center text-base font-bold">
+              <Placeholder inputType="retrieveKendra" />{' '}
+              <ButtonCopy text={'{{retrieveKendra}}'} />
             </div>
             <div className="text-sm leading-relaxed">
               <Placeholder inputType="retrieveKendra" /> は Amazon Kendra から
@@ -152,8 +186,9 @@ const UseCaseBuilderHelp = () => {
           </div>
 
           <div className="flex flex-col gap-y-4">
-            <div className="text-base font-bold">
-              <Placeholder inputType="retrieveKnowledgeBase" />
+            <div className="flex items-center text-base font-bold">
+              <Placeholder inputType="retrieveKnowledgeBase" />{' '}
+              <ButtonCopy text={'{{retrieveKnowledgeBase}}'} />
             </div>
             <div className="text-sm leading-relaxed">
               <Placeholder inputType="retrieveKnowledgeBase" /> は Knowledge

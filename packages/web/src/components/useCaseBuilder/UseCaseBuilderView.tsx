@@ -21,6 +21,7 @@ import {
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
   getTextFormItemsFromItems,
+  getTextFormUniqueLabels,
 } from '../../utils/UseCaseBuilderUtils';
 import useRagKnowledgeBaseApi from '../../hooks/useRagKnowledgeBaseApi';
 import useRagApi from '../../hooks/useRagApi';
@@ -55,15 +56,15 @@ type Props = {
 type StateType = {
   text: string;
   setText: (s: string) => void;
-  values: string[];
-  setValue: (index: number, value: string) => void;
-  clear: (valueLength: number) => void;
+  values: { [key: string]: string };
+  setValue: (label: string, value: string) => void;
+  clear: (uniqueLabels: string[]) => void;
 };
 
 const useUseCaseBuilderViewState = create<StateType>((set, get) => {
   const INIT_STATE = {
     text: '',
-    values: [],
+    values: {},
   };
   return {
     ...INIT_STATE,
@@ -72,17 +73,20 @@ const useUseCaseBuilderViewState = create<StateType>((set, get) => {
         text: s,
       }));
     },
-    setValue: (index, value) => {
+    setValue: (label, value) => {
       set(() => ({
         values: produce(get().values, (draft) => {
-          draft[index] = value;
+          draft[label] = value;
         }),
       }));
     },
-    clear: (valueLength: number) => {
+    clear: (uniqueLabels: string[]) => {
       set({
         ...INIT_STATE,
-        values: new Array(valueLength).fill(''),
+        values: uniqueLabels.reduce(
+          (obj, label) => Object.assign(obj, { [label]: '' }),
+          {}
+        ),
       });
     },
   };
@@ -128,10 +132,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     return getTextFormItemsFromItems(items);
   }, [items]);
 
+  const textFormUniqueLabels = useMemo(() => {
+    return getTextFormUniqueLabels(textFormItems);
+  }, [textFormItems]);
+
   useEffect(() => {
-    clear(textFormItems.length);
+    clear(textFormUniqueLabels);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textFormItems.length]);
+  }, [textFormUniqueLabels]);
 
   useEffect(() => {
     setModelId(
@@ -210,7 +218,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
     let prompt = props.promptTemplate;
 
-    for (const [idx, textFormItem] of textFormItems.entries()) {
+    for (const textFormItem of textFormItems) {
       const sameLabelItems = items.filter(
         (i) => i.label === textFormItem.label
       );
@@ -225,18 +233,23 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         }
 
         if (item.inputType === 'text') {
-          prompt = prompt.replace(new RegExp(placeholder, 'g'), values[idx]);
+          prompt = prompt.replace(
+            new RegExp(placeholder, 'g'),
+            values[item.label]
+          );
+        } else if (item.inputType === 'form') {
+          prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
         } else if (item.inputType === 'retrieveKendra') {
-          if (ragEnabled && values[idx].length > 0) {
-            const res = await retrieveKendra(values[idx]);
+          if (ragEnabled && values[item.label].length > 0) {
+            const res = await retrieveKendra(values[item.label]);
             const resJson = JSON.stringify(res.data.ResultItems);
             prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
           } else {
             prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
           }
         } else if (item.inputType === 'retrieveKnowledgeBase') {
-          if (ragKnowledgeBaseEnabled && values[idx].length > 0) {
-            const res = await retrieveKnowledgeBase(values[idx]);
+          if (ragKnowledgeBaseEnabled && values[item.label].length > 0) {
+            const res = await retrieveKnowledgeBase(values[item.label]);
             const resJson = JSON.stringify(res.data.retrievalResults);
             prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
           } else {
@@ -266,9 +279,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   // リセット
   const onClickClear = useCallback(() => {
-    clear(items.length);
+    clear(textFormUniqueLabels);
     clearChat();
-  }, [clear, clearChat, items.length]);
+  }, [clear, clearChat, textFormUniqueLabels]);
 
   const disabledExec = useMemo(() => {
     if (props.isLoading || loading) {
@@ -285,13 +298,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const fillInputsFromExamples = useCallback(
     (examples: Record<string, string>) => {
       Object.entries(examples).forEach(([key, value]) => {
-        const idx = items.findIndex((item) => item.label === key);
-        if (idx >= 0) {
-          setValue(idx, value);
-        }
+        setValue(key, value);
       });
     },
-    [items, setValue]
+    [setValue]
   );
 
   return (
@@ -371,9 +381,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                 <Textarea
                   label={item.label !== NOLABEL ? item.label : undefined}
                   rows={item.inputType === 'text' ? 2 : 1}
-                  value={values[idx]}
+                  value={values[item.label]}
                   onChange={(v) => {
-                    setValue(idx, v);
+                    setValue(item.label, v);
                   }}
                 />
               </div>
