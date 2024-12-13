@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   getItemsFromPlaceholders,
   getTextFormItemsFromItems,
+  getTextFormUniqueLabels,
   NOLABEL,
 } from '../../src/utils/UseCaseBuilderUtils';
 
@@ -194,5 +195,36 @@ describe('複数のラベルを正しくパースできる', () => {
         label: 'xxx',
       },
     ]);
+  });
+
+  test('ユニークな label を抽出できる', () => {
+    expect(
+      getTextFormUniqueLabels([
+        {
+          inputType: 'text',
+          label: NOLABEL,
+        },
+        {
+          inputType: 'text',
+          label: 'xxx',
+        },
+        {
+          inputType: 'form',
+          label: NOLABEL,
+        },
+        {
+          inputType: 'form',
+          label: 'xxx',
+        },
+        {
+          inputType: 'retrieveKendra',
+          label: NOLABEL,
+        },
+        {
+          inputType: 'retrieveKendra',
+          label: 'xxx',
+        },
+      ])
+    ).toEqual([NOLABEL, 'xxx']);
   });
 });

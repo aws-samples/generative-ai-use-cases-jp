@@ -9,11 +9,12 @@ export type BuilderItem = {
 
 export const SUPPORTED_TYPES: string[] = [
   'text',
+  'form',
   'retrieveKendra',
   'retrieveKnowledgeBase',
 ];
 
-export const TEXT_FORM_TYPES: string[] = ['text'];
+export const TEXT_FORM_TYPES: string[] = ['text', 'form'];
 
 export const extractPlaceholdersFromPromptTemplate = (
   promptTemplate: string
@@ -54,4 +55,12 @@ export const getTextFormItemsFromItems = (
   items: BuilderItem[]
 ): BuilderItem[] => {
   return items.filter((i) => TEXT_FORM_TYPES.includes(i.inputType));
+};
+
+export const getTextFormUniqueLabels = (items: BuilderItem[]): string[] => {
+  return getTextFormItemsFromItems(items)
+    .filter((elem, idx, self) => {
+      return self.findIndex((e) => e.label === elem.label) === idx;
+    })
+    .map((item) => item.label);
 };
