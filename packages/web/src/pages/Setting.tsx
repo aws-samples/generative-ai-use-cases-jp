@@ -7,6 +7,8 @@ import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
 import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { useCallback } from 'react';
+import { useSWRConfig } from 'swr';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -33,6 +35,7 @@ const SettingItem = (props: {
 
 const Setting = () => {
   const { modelRegion, modelIds, imageGenModelIds, agentNames } = MODELS;
+  const { cache } = useSWRConfig();
   const { getLocalVersion, getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
   const { signOut } = useAuthenticator();
@@ -40,6 +43,14 @@ const Setting = () => {
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();
+
+  const onClickSignout = useCallback(() => {
+    // SWRのキャッシュを全て削除する
+    for (const key of cache.keys()) {
+      cache.delete(key);
+    }
+    signOut();
+  }, [cache, signOut]);
 
   return (
     <div>
@@ -150,7 +161,7 @@ const Setting = () => {
       </div>
 
       <div className="my-10 flex w-full justify-center">
-        <Button onClick={signOut} className="text-lg">
+        <Button onClick={onClickSignout} className="text-lg">
           サインアウト
         </Button>
       </div>
