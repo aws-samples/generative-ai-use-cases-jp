@@ -38,17 +38,27 @@ type AgentInfo = {
 };
 const agentInfoMap: { [aliasId: string]: AgentInfo } = {};
 
-// s3://<BUCKET>/<PREFIX> から https://<BUCKET>.s3.amazonaws.com/<PREFIX> に変換する
-const convertS3UriToUrl = (s3Uri: string): string => {
+// s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
+const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
   if (result) {
     const groups = result?.groups as {
       bucketName: string;
       prefix: string;
     };
-    return `https://${groups.bucketName}.s3.amazonaws.com/${groups.prefix}`;
+    return `https://s3.${region}.amazonaws.com/${groups.bucketName}/${groups.prefix}`;
   }
   return '';
+};
+
+// 文字列をURL-encodeする
+const encodeUrlString = (str: string): string => {
+  try {
+    return encodeURIComponent(str);
+  } catch (e) {
+    console.error('Failed to URL-encode string:', e);
+    return str;
+  }
 };
 
 const getAgentInfo = async (agentId: string, agentAliasId: string) => {
@@ -138,12 +148,25 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               // S3 URI を取得し URL に変換
               const s3Uri = ref?.location?.s3Location?.uri || '';
               if (!s3Uri) continue;
-              const url = convertS3UriToUrl(s3Uri);
+              const url = convertS3UriToUrl(
+                s3Uri,
+                process.env.AGENT_REGION || ''
+              );
+
+              // ページ番号を取得
+              const pageNumber =
+                ref?.metadata?.['x-amz-bedrock-kb-document-page-number'];
+
+              // ファイル名を取得してエンコード
+              const fileName = url.split('/').pop() || '';
+              const encodedFileName = encodeUrlString(fileName);
 
               // データソースがユニークであれば文末に Reference 追加
               if (sources[url] === undefined) {
                 sources[url] = Object.keys(sources).length;
-                body += `\n[^${sources[url]}]: ${url}`;
+                body += `\n[^${sources[url]}]: [${fileName}${
+                  pageNumber ? `(${pageNumber} ページ)` : ''
+                }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
               }
               const referenceId = sources[url];
 
@@ -186,7 +209,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               Body: file.bytes,
             });
             await s3Client.send(command);
-            const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+            const url = `https://s3.${process.env.AGENT_REGION}.amazonaws.com/${bucket}/${encodeUrlString(key)}`;
 
             // Yield file path
             if (file.type?.split('/')[0] === 'image') {
@@ -265,7 +288,9 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     .replace('</search_results>', '')
                 );
                 trace = searchResult
-                  .map((item) => `- [${item.title}](${item.url})`)
+                  .map(
+                    (item) => `- [${item.title}](${encodeUrlString(item.url)})`
+                  )
                   .join('\n');
               } else {
                 // それ以外は出力の冒頭1000文字を表示
@@ -282,9 +307,25 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     const location = Object.values(ref.location || {}).find(
                       (loc) => loc?.uri || loc?.url
                     );
-                    return location
-                      ? `- ${location.uri ? convertS3UriToUrl(location.uri) : location.url}`
-                      : [];
+                    if (location) {
+                      const url = location.uri
+                        ? convertS3UriToUrl(
+                            location.uri,
+                            process.env.AGENT_REGION || ''
+                          )
+                        : location.url;
+                      const fileName = url.split('/').pop() || '';
+                      const encodedFileName = encodeUrlString(fileName);
+                      const pageNumber =
+                        ref?.metadata?.[
+                          'x-amz-bedrock-kb-document-page-number'
+                        ];
+
+                      return `- [${fileName}${
+                        pageNumber ? `(${pageNumber} ページ)` : ''
+                      }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
+                    }
+                    return [];
                   }
                 );
               trace = Array.from(new Set(refs)).join('\n');
