@@ -163,7 +163,7 @@ export class Api extends Construct {
         ],
       },
     });
-    fileBucket.grantWrite(predictStreamFunction);
+    fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     // Prompt Flow Lambda Function の追加
