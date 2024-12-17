@@ -44,6 +44,8 @@ type StateType = {
   setInputExamples: (inputExamples: UseCaseInputExample[]) => void;
   fixedModelId: string;
   setFixedModelId: (m: string) => void;
+  fileUpload: boolean;
+  setFileUpload: (u: boolean) => void;
   clear: () => void;
 };
 
@@ -54,6 +56,7 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
     promptTemplate: '',
     inputExamples: [],
     fixedModelId: '',
+    fileUpload: false,
   };
   return {
     ...INIT_STATE,
@@ -109,6 +112,11 @@ const useUseCaseBuilderEditPageState = create<StateType>((set, get) => {
         fixedModelId: m,
       }));
     },
+    setFileUpload: (u: boolean) => {
+      set(() => ({
+        fileUpload: u,
+      }));
+    },
     clear: () => {
       set(INIT_STATE);
     },
@@ -136,6 +144,8 @@ const UseCaseBuilderEditPage: React.FC = () => {
     removeInputExample,
     fixedModelId,
     setFixedModelId,
+    fileUpload,
+    setFileUpload,
     clear,
   } = useUseCaseBuilderEditPageState();
 
@@ -171,6 +181,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setDescription(useCase?.description ?? '');
       setInputExamples(useCase?.inputExamples ?? []);
       setFixedModelId(useCase?.fixedModelId ?? '');
+      setFileUpload(!!useCase?.fileUpload);
 
       // サンプル集から遷移した場合（RouterのStateから設定）
     } else if (state) {
@@ -179,6 +190,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setDescription(state.description ?? '');
       setInputExamples(state.inputExamples ?? []);
       setFixedModelId(state.fixedModelId ?? '');
+      setFileUpload(!!state.fileUpload);
     } else {
       clear();
     }
@@ -222,9 +234,9 @@ const UseCaseBuilderEditPage: React.FC = () => {
       title.replace(/[ 　]/g, '') !== '' &&
       // eslint-disable-next-line no-irregular-whitespace
       promptTemplate.replace(/[ 　]/g, '') !== '' &&
-      placeholders.length > 0
+      (placeholders.length > 0 || fileUpload)
     );
-  }, [placeholders.length, promptTemplate, title]);
+  }, [placeholders.length, promptTemplate, title, fileUpload]);
 
   const onClickRegister = useCallback(() => {
     setIsPosting(true);
@@ -237,6 +249,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         description: description === '' ? undefined : description,
         inputExamples,
         fixedModelId,
+        fileUpload,
       })
         .then(() => {
           // DB変更直後は更新ボタンをDisabledにする
@@ -252,6 +265,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         description: description === '' ? undefined : description,
         inputExamples,
         fixedModelId,
+        fileUpload,
       })
         .then(async (res) => {
           setUseCaseId(res.useCaseId);
@@ -279,6 +293,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     updateUseCase,
     useCaseId,
     fixedModelId,
+    fileUpload,
   ]);
 
   const onClickDelete = useCallback(() => {
@@ -456,7 +471,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 <div className="rounded border px-4 py-2">
                   <Switch
                     checked={fixedModelId !== ''}
-                    className="text-xl"
                     label={
                       fixedModelId !== ''
                         ? 'モデルが固定化されています。'
@@ -497,6 +511,26 @@ const UseCaseBuilderEditPage: React.FC = () => {
                         が表示され、ユーザーは自由にモデルを選択できます。
                       </>
                     )}
+                  </div>
+                </div>
+              </ExpandableField>
+              <ExpandableField label="ファイル添付">
+                <div className="rounded border px-4 py-2">
+                  <Switch
+                    checked={fileUpload}
+                    label={
+                      fileUpload
+                        ? 'ファイルを添付できます'
+                        : 'ファイルは添付できません'
+                    }
+                    onSwitch={() => {
+                      setFileUpload(!fileUpload);
+                      setIsDisabledUpdate(false);
+                    }}
+                  />
+
+                  <div className="text-xs text-gray-800">
+                    添付可能なファイルはモデルによって異なります
                   </div>
                 </div>
               </ExpandableField>
@@ -560,6 +594,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                 description={description}
                 inputExamples={inputExamples}
                 fixedModelId={fixedModelId}
+                fileUpload={fileUpload}
                 previewMode
               />
             ) : (
