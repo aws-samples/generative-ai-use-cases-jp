@@ -56,17 +56,34 @@ if (
 ) {
   throw new Error('hostedZoneId must be a string');
 }
-
-// check hostName, domainName hostedZoneId are all set or none of them
+const certificateArn = app.node.tryGetContext('certificateArn');
 if (
-  !(
-    (hostName && domainName && hostedZoneId) ||
-    (!hostName && !domainName && !hostedZoneId)
-  )
+  typeof certificateArn != 'undefined' &&
+  typeof certificateArn != 'string' &&
+  certificateArn != null
 ) {
-  throw new Error(
-    'hostName, domainName and hostedZoneId must be set or none of them'
-  );
+  throw new Error('certificateArn must be a string');
+}
+
+// check custom domain settings
+if (certificateArn) {
+  // When certificateArn is provided, hostName and domainName must be set, but hostedZoneId must not be set
+  if (!hostName || !domainName) {
+    throw new Error('When certificateArn is provided, both hostName and domainName must be set');
+  }
+  if (hostedZoneId) {
+    throw new Error('When certificateArn is provided, hostedZoneId must not be set');
+  }
+} else {
+  // When certificateArn is not provided, either all of hostName, domainName, and hostedZoneId must be set, or none of them
+  if (
+    !(
+      (hostName && domainName && hostedZoneId) ||
+      (!hostName && !domainName && !hostedZoneId)
+    )
+  ) {
+    throw new Error('When certificateArn is not provided, either all of hostName, domainName, and hostedZoneId must be set, or none of them');
+  }
 }
 
 let cloudFrontWafStack: CloudFrontWafStack | undefined;
@@ -90,6 +107,7 @@ if (
     hostName,
     domainName,
     hostedZoneId,
+    certificateArn,
     crossRegionReferences: true,
   });
 }
