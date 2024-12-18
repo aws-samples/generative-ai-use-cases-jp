@@ -393,7 +393,6 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   const deleteFile = useCallback(
     (fileUrl: string) => {
-      console.log('delete', fileUrl);
       if (fileLimit && accept) {
         deleteUploadedFile(fileUrl, fileLimit, accept);
       }
