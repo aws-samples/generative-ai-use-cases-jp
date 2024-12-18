@@ -247,7 +247,6 @@ const useChatState = create<{
             // Send S3 location for video
             // https:// 形式の S3 URL から s3:// 形式の S3 URI に変換する
             const s3Uri = getS3Uri(data.source.data ?? '');
-            console.log(s3Uri);
             return {
               type: data.type,
               name: data.name,
@@ -277,7 +276,6 @@ const useChatState = create<{
           }
         }
       );
-      console.log(extraData);
       return {
         role: m.role,
         content: m.content,
