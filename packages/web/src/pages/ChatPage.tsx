@@ -48,7 +48,7 @@ const fileLimit: FileLimit = {
   maxImageFileCount: 20,
   maxImageFileSizeMB: 3.75,
   maxVideoFileCount: 1,
-  maxVideoFileSizeMB: 25, // 25 MB for base64 input (TODO: up to 1 GB through S3)
+  maxVideoFileSizeMB: 1000, // 1 GB for S3 input
 };
 
 type StateType = {

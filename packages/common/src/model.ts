@@ -37,6 +37,13 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Amazon Titan
   'amazon.titan-text-express-v1': MODEL_FEATURE.TEXT_DOC,
   'amazon.titan-text-premier-v1:0': MODEL_FEATURE.TEXT_ONLY,
+  // Amazon Nova
+  'amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
+  'amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
+  'amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
+  'us.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // S3 Video アップロードが us-east-1 のみ対応のため。 Video を利用したい場合は us-east-1 の amazon.nova-pro-v1:0 で利用できます。（注意: リージョン変更の際 RAG を有効化している場合削除されます）
+  'us.amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+  'us.amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
   // Meta
   'meta.llama3-8b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   'meta.llama3-70b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
@@ -56,13 +63,6 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Cohere
   'cohere.command-r-v1:0': MODEL_FEATURE.TEXT_DOC,
   'cohere.command-r-plus-v1:0': MODEL_FEATURE.TEXT_DOC,
-  // Amazon Nova
-  'amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
-  'us.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'us.amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'us.amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
   // Stability AI Image Gen
   'stability.stable-diffusion-xl-v1': MODEL_FEATURE.IMAGE_GEN,
   'stability.sd3-large-v1:0': MODEL_FEATURE.IMAGE_GEN,

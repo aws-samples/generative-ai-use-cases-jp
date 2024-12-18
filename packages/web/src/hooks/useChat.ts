@@ -24,6 +24,7 @@ import useChatList from './useChatList';
 // mutateListChat の本来の型は InfiniteKeyedMutator<ListChatsResponse[]>
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
+import useFileApi from './useFileApi';
 
 const useChatState = create<{
   chats: {
@@ -83,6 +84,7 @@ const useChatState = create<{
     predictStream,
     predictTitle,
   } = useChatApi();
+  const { getS3Uri } = useFileApi();
 
   const getModelId = (id: string) => {
     return get().modelIds[id] || '';
@@ -241,21 +243,37 @@ const useChatState = create<{
       // LLM で推論する形式に extraData を変換する
       const extraData: ExtraData[] | undefined = m.extraData?.flatMap(
         (data) => {
-          // 推論する際は"data:image/png..." のといった情報は必要ないため、削除する
-          const base64EncodedData = uploadedFiles
-            ?.find((uploadedFile) => uploadedFile.s3Url === data.source.data)
-            ?.base64EncodedData?.replace(/^data:(.*,)?/, '');
+          if (data.type === 'video') {
+            // Send S3 location for video
+            // https:// 形式の S3 URL から s3:// 形式の S3 URI に変換する
+            const s3Uri = getS3Uri(data.source.data ?? '');
+            return {
+              type: data.type,
+              name: data.name,
+              source: {
+                type: 's3',
+                mediaType: data.source.mediaType,
+                data: s3Uri,
+              },
+            };
+          } else {
+            // Otherwise (image and file) send base64 encoded data
+            // 推論する際は"data:image/png..." のといった情報は必要ないため、削除する
+            const base64EncodedData = uploadedFiles
+              ?.find((uploadedFile) => uploadedFile.s3Url === data.source.data)
+              ?.base64EncodedData?.replace(/^data:(.*,)?/, '');
 
-          // Base64 エンコードされた画像情報を設定する
-          return {
-            type: data.type,
-            name: data.name,
-            source: {
-              type: 'base64',
-              mediaType: data.source.mediaType,
-              data: base64EncodedData ?? '',
-            },
-          };
+            // Base64 エンコードされた画像情報を設定する
+            return {
+              type: data.type,
+              name: data.name,
+              source: {
+                type: 'base64',
+                mediaType: data.source.mediaType,
+                data: base64EncodedData ?? '',
+              },
+            };
+          }
         }
       );
       return {
