@@ -140,7 +140,10 @@ const useRag = (id: string) => {
           // 前処理：Few-shot で参考にされてしまうため、過去ログから footnote を削除
           return messages.map((message) => ({
             ...message,
-            content: message.content.replace(/\[\^(\d+)\]:.*/g, ''),
+            content: message.content
+              .replace(/\[\^0\]:[\s\S]*/s, '') // 文末の脚注を削除
+              .replace(/\[\^(\d+)\]/g, '') // 文中の脚注アンカーを削除
+              .trim(), // 前後の空白を削除
           }));
         },
         (message: string) => {
