@@ -160,6 +160,7 @@ export class Web extends Construct {
       outputSourceDirectory: './packages/web/dist',
       buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
+        NODE_OPTIONS: '--max-old-space-size=2048', // デプロイ時のCodeBuildのメモリを設定
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,

@@ -16,6 +16,7 @@ import {
   PiRobot,
   PiVideoCamera,
   PiFlowArrow,
+  PiTreeStructure,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -31,6 +32,7 @@ import {
   TranslatePageQueryParams,
   WebContentPageQueryParams,
   VideoAnalyzerPageQueryParams,
+  DiagramPageQueryParams,
 } from '../@types/navigate';
 import queryString from 'query-string';
 import { MODELS } from '../hooks/useModel';
@@ -142,6 +144,13 @@ const LandingPage: React.FC = () => {
         '映っているものを説明してください。もし映っているものに文字が書かれている場合はそれも読んでください。',
     };
     navigate(`/video?${queryString.stringify(params)}`);
+  };
+
+  const demoGenerateDiagram = () => {
+    const params: DiagramPageQueryParams = {
+      content: `会社の一般的な経費生産フローを色つきで図示してください。`,
+    };
+    navigate(`/diagram?${queryString.stringify(params)}`);
   };
 
   const demoBlog = () => {
@@ -367,6 +376,12 @@ const LandingPage: React.FC = () => {
             description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
           />
         )}
+        <CardDemo
+          label="ダイアグラム生成"
+          onClickDemo={demoGenerateDiagram}
+          icon={<PiTreeStructure />}
+          description="ダイアグラム生成機能では、自然言語による説明、文書やコードから、フローチャート、シーケンス図、マインドマップなどの様々な図を自動的に作成できます。システム設計、ビジネスフロー、プロジェクト計画などの複雑な関係性を視覚的に表現し、複雑なものの理解を効率化します。"
+        />
       </div>
 
       <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">

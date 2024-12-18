@@ -19,6 +19,7 @@ import {
   PiVideoCamera,
   PiFlowArrow,
   PiMagicWand,
+  PiTreeStructure,
 } from 'react-icons/pi';
 import { Outlet } from 'react-router-dom';
 import Drawer, { ItemProps } from './components/Drawer';
@@ -144,6 +145,12 @@ const items: ItemProps[] = [
         display: 'usecase' as const,
       }
     : null,
+  {
+    label: 'ダイアグラム生成',
+    to: '/diagram',
+    icon: <PiTreeStructure />,
+    display: 'usecase' as const,
+  },
   {
     label: '音声認識',
     to: '/transcribe',
