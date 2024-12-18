@@ -488,7 +488,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
           {props.fileUpload && (
             <div className="mb-3 flex flex-col">
-              <label>
+              <label className="w-fit">
                 <input
                   hidden
                   type="file"
