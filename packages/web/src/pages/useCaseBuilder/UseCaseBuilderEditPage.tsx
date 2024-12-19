@@ -27,6 +27,11 @@ import Select from '../../components/Select';
 import Switch from '../../components/Switch';
 import { MODELS } from '../../hooks/useModel';
 
+type MenuItem = {
+  title: string;
+  focusColor: string;
+};
+
 const ErrorMesage: React.FC<{ message: string }> = (props: {
   message: string;
 }) => {
@@ -239,16 +244,49 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, [useCaseId]);
 
   const menu = useMemo(() => {
-    const base = ['アプリ定義', '入力例', 'モデル選択', 'ファイル添付'];
+    const base: MenuItem[] = [
+      {
+        title: 'アプリ定義',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: '入力例',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: 'モデル選択',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: 'ファイル添付',
+        focusColor: 'aws-smile',
+      },
+    ];
 
     if (isUpdate) {
-      return [...base, '更新', '削除'];
+      return [
+        ...base,
+        {
+          title: '更新',
+          focusColor: 'aws-smile',
+        },
+        {
+          title: '削除',
+          focusColor: 'red-600',
+        },
+      ];
     } else {
-      return [...base, '作成'];
+      return [
+        ...base,
+        {
+          title: '作成',
+          focusColor: 'aws-smile',
+        },
+      ];
     }
   }, [isUpdate]);
 
-  const [currentMenu, setCurrentMenu] = useState(menu[0]);
+  const [currentMenu, setCurrentMenu] = useState(menu[0].title);
 
   // ページタイトルの設定
   useEffect(() => {
@@ -404,16 +442,29 @@ const UseCaseBuilderEditPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-span-12 flex flex-row lg:col-span-2 lg:flex-col">
+        <div className="col-span-12 flex flex-row lg:col-span-1 lg:flex-col">
           {menu.map((m, idx) => {
+            let className =
+              'cursor-pointer border-b-2 px-2 py-2 text-sm lg:border-b-0 lg:border-r-2 ';
+
+            if (currentMenu === m.title) {
+              className += [
+                'font-bold',
+                `text-${m.focusColor}`,
+                `border-${m.focusColor}`,
+              ].join(' ');
+            } else {
+              className += `text-gray-800 hover:text-${m.focusColor} border-gray-200`;
+            }
+
             return (
               <div
                 key={idx}
-                className={`cursor-pointer border-b-2 px-2 py-2 text-sm lg:border-b-0 lg:border-r-2 ${currentMenu === m ? 'border-aws-smile text-aws-smile font-bold' : 'hover:text-aws-smile border-gray-200'}`}
+                className={className}
                 onClick={() => {
-                  setCurrentMenu(m);
+                  setCurrentMenu(m.title);
                 }}>
-                {m}
+                {m.title}
               </div>
             );
           })}
@@ -431,6 +482,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                       setTitle(v);
                       setIsDisabledUpdate(false);
                     }}
+                    required
                   />
                 </RowItem>
 
@@ -457,6 +509,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                     }}
                     placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
                     hint="動的な入力を受け付けていないプロンプトテンプレート (Placeholder 及びファイル添付なし) は作成できません。"
+                    required
                   />
                 </RowItem>
               </>
@@ -677,7 +730,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
             )}
           </Card>
         </div>
-        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-5">
+        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
           <Card
             label={`${isPreview ? 'プレビュー' : 'ヘルプ'}`}
             className="relative">
