@@ -442,7 +442,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-span-12 flex flex-row lg:col-span-1 lg:flex-col">
+        <div className="col-span-12 flex flex-row lg:col-span-2 lg:flex-col 2xl:col-span-1">
           {menu.map((m, idx) => {
             let className =
               'cursor-pointer border-b-2 px-2 py-2 text-sm lg:border-b-0 lg:border-r-2 ';
@@ -730,7 +730,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
             )}
           </Card>
         </div>
-        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
+        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-5 2xl:col-span-6">
           <Card
             label={`${isPreview ? 'プレビュー' : 'ヘルプ'}`}
             className="relative">
