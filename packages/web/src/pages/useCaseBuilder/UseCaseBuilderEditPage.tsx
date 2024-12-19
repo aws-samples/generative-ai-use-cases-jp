@@ -16,7 +16,6 @@ import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialo
 import UseCaseBuilderHelp from '../../components/useCaseBuilder/UseCaseBuilderHelp';
 import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
-import ExpandableField from '../../components/ExpandableField';
 import {
   NOLABEL,
   extractPlaceholdersFromPromptTemplate,
@@ -27,6 +26,17 @@ import usePageTitle from '../../hooks/usePageTitle';
 import Select from '../../components/Select';
 import Switch from '../../components/Switch';
 import { MODELS } from '../../hooks/useModel';
+
+type MenuItem = {
+  title: string;
+  focusColor: string;
+};
+
+const ErrorMesage: React.FC<{ message: string }> = (props: {
+  message: string;
+}) => {
+  return <li className="text-xs">{props.message}</li>;
+};
 
 type StateType = {
   useCaseId: string | null;
@@ -165,17 +175,21 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const [isPosting, setIsPosting] = useState(false);
   const [isPreview, setIsPreview] = useState(true);
 
+  // 作成条件を満たしていない場合のエラーメッセージ
+  const [createErrorMessages, setCreateErrorMessages] = useState<string[]>([]);
+  // 更新条件を満たしていない場合のエラーメッセージ
+  const [updateErrorMessages, setUpdateErrorMessages] = useState<string[]>([]);
+
   const { modelIds: availableModels } = MODELS;
 
   useEffect(() => {
     // 初期表示時にIDを設定する
     setUseCaseId(useCaseIdPathParam ?? null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setUseCaseId, useCaseIdPathParam]);
 
   useEffect(() => {
     // DBからデータを取得した場合
-    if (useCaseIdPathParam || useCaseId) {
+    if (useCaseId) {
       setTitle(useCase?.title ?? '');
       setPromptTemplate(useCase?.promptTemplate ?? '');
       setDescription(useCase?.description ?? '');
@@ -197,9 +211,19 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
     // 初期表示時は、更新ボタンをdisabledにする
     setIsDisabledUpdate(true);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [useCase]);
+  }, [
+    useCaseId,
+    useCase,
+    state,
+    setTitle,
+    setPromptTemplate,
+    setDescription,
+    setInputExamples,
+    setFixedModelId,
+    setFileUpload,
+    clear,
+    setIsDisabledUpdate,
+  ]);
 
   // プロンプトテンプレート中にあるプレースホルダ
   const placeholders = useMemo(() => {
@@ -219,24 +243,101 @@ const UseCaseBuilderEditPage: React.FC = () => {
     return !!useCaseId;
   }, [useCaseId]);
 
+  const menu = useMemo(() => {
+    const base: MenuItem[] = [
+      {
+        title: 'アプリ定義',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: '入力例',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: 'モデル選択',
+        focusColor: 'aws-smile',
+      },
+      {
+        title: 'ファイル添付',
+        focusColor: 'aws-smile',
+      },
+    ];
+
+    if (isUpdate) {
+      return [
+        ...base,
+        {
+          title: '更新',
+          focusColor: 'aws-smile',
+        },
+        {
+          title: '削除',
+          focusColor: 'red-600',
+        },
+      ];
+    } else {
+      return [
+        ...base,
+        {
+          title: '作成',
+          focusColor: 'aws-smile',
+        },
+      ];
+    }
+  }, [isUpdate]);
+
+  const [currentMenu, setCurrentMenu] = useState(menu[0].title);
+
   // ページタイトルの設定
   useEffect(() => {
     setPageTitle(isUpdate ? 'ユースケース編集' : 'ユースケース新規作成');
   }, [isUpdate, setPageTitle]);
 
-  const canRegister = useMemo(() => {
-    // 以下の場合は登録不可
-    // - タイトルとプロンプトテンプレートに何も入力されていない
-    // - 全半角スペースしか入力されていない
-    // - プレースホルダが1件も入力されていない
-    return (
-      // eslint-disable-next-line no-irregular-whitespace
-      title.replace(/[ 　]/g, '') !== '' &&
-      // eslint-disable-next-line no-irregular-whitespace
-      promptTemplate.replace(/[ 　]/g, '') !== '' &&
-      (placeholders.length > 0 || fileUpload)
-    );
-  }, [placeholders.length, promptTemplate, title, fileUpload]);
+  useEffect(() => {
+    const tmp = [];
+
+    // eslint-disable-next-line no-irregular-whitespace
+    if (title.replace(/[ 　]/g, '') === '') {
+      tmp.push('タイトルを入力してください');
+    }
+
+    // eslint-disable-next-line no-irregular-whitespace
+    if (promptTemplate.replace(/[ 　]/g, '') === '') {
+      tmp.push('プロンプトテンプレートを入力してください');
+    }
+
+    if (placeholders.length === 0 && !fileUpload) {
+      tmp.push(
+        '動的な入力を受け付けていないプロンプトテンプレート (Placeholder 及びファイル添付なし) は作成できません'
+      );
+    }
+
+    setCreateErrorMessages(tmp);
+  }, [
+    placeholders.length,
+    promptTemplate,
+    title,
+    fileUpload,
+    setCreateErrorMessages,
+  ]);
+
+  useEffect(() => {
+    const tmp = [];
+
+    if (isDisabledUpdate) {
+      tmp.push('更新内容がありません');
+    }
+
+    setUpdateErrorMessages(tmp);
+  }, [isDisabledUpdate, setUpdateErrorMessages]);
+
+  const canCreate = useMemo(() => {
+    return createErrorMessages.length === 0;
+  }, [createErrorMessages]);
+
+  const canUpdate = useMemo(() => {
+    return createErrorMessages.length === 0 && updateErrorMessages.length === 0;
+  }, [createErrorMessages, updateErrorMessages]);
 
   const onClickRegister = useCallback(() => {
     setIsPosting(true);
@@ -310,12 +411,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
       });
   }, [deleteUseCase, navigate, useCaseId]);
 
-  // リセット
-  const onClickClear = useCallback(() => {
-    clear();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <>
       <ModalDialogDeleteUseCase
@@ -347,196 +442,282 @@ const UseCaseBuilderEditPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-span-12 lg:col-span-6">
-          <Card label="アプリの定義" className="relative">
-            <RowItem>
-              <InputText
-                label="タイトル"
-                value={title}
-                onChange={(v) => {
-                  setTitle(v);
-                  setIsDisabledUpdate(false);
-                }}
-              />
-            </RowItem>
+        <div className="col-span-12 flex flex-row lg:col-span-2 lg:flex-col 2xl:col-span-1">
+          {menu.map((m, idx) => {
+            let className =
+              'cursor-pointer border-b-2 px-2 py-2 text-sm lg:border-b-0 lg:border-r-2 ';
 
-            <RowItem>
-              <Textarea
-                label="概要"
-                rows={1}
-                value={description}
-                onChange={(v) => {
-                  setDescription(v);
-                  setIsDisabledUpdate(false);
-                }}
-              />
-            </RowItem>
-            <RowItem>
-              <Textarea
-                label="プロンプトテンプレート"
-                rows={30}
-                maxHeight={500}
-                value={promptTemplate}
-                onChange={(v) => {
-                  setPromptTemplate(v);
-                  setIsDisabledUpdate(false);
-                }}
-                placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                hint="Placeholder (例：{{text:ラベル}}) が未設定の場合は、作成できません。"
-              />
-            </RowItem>
-            <RowItem>
-              <ExpandableField label="入力例">
-                <div className="flex flex-col gap-2">
-                  {inputExamples.map((inputExample, idx) => {
-                    return (
-                      <div key={idx} className="rounded border px-4 pt-2">
-                        <div className="flex flex-col">
-                          <InputText
-                            className="mb-2"
-                            label="タイトル"
-                            value={inputExample.title}
-                            onChange={(v) => {
-                              setInputExample(idx, {
-                                ...inputExample,
-                                title: v,
-                              });
-                              setIsDisabledUpdate(false);
-                            }}
-                          />
+            if (currentMenu === m.title) {
+              className += [
+                'font-bold',
+                `text-${m.focusColor}`,
+                `border-${m.focusColor}`,
+              ].join(' ');
+            } else {
+              className += `text-gray-800 hover:text-${m.focusColor} border-gray-200`;
+            }
 
-                          {textFormItems.map((item, itemIndex) => {
-                            return (
-                              <Textarea
-                                key={itemIndex}
-                                label={
-                                  item.label !== NOLABEL
-                                    ? item.label
-                                    : undefined
-                                }
-                                rows={item.inputType === 'text' ? 2 : 1}
-                                value={
-                                  inputExample.examples
-                                    ? inputExample.examples[item.label]
-                                    : ''
-                                }
-                                onChange={(v) => {
-                                  setInputExample(idx, {
-                                    title: inputExample.title,
-                                    examples: produce(
-                                      inputExample.examples,
-                                      (draft) => {
-                                        draft[item.label] = v;
-                                      }
-                                    ),
-                                  });
-                                  setIsDisabledUpdate(false);
-                                }}
-                              />
-                            );
-                          })}
+            return (
+              <div
+                key={idx}
+                className={className}
+                onClick={() => {
+                  setCurrentMenu(m.title);
+                }}>
+                {m.title}
+              </div>
+            );
+          })}
+        </div>
 
-                          <div className="mb-2 flex justify-end">
-                            <Button
-                              className="bg-red-600"
-                              onClick={() => {
-                                removeInputExample(idx);
-                              }}>
-                              <PiTrash className="mr-2" />
-                              削除
-                            </Button>
-                          </div>
+        <div className="col-span-12 lg:col-span-5">
+          <Card label={currentMenu} className="relative">
+            {currentMenu === 'アプリ定義' && (
+              <>
+                <RowItem>
+                  <InputText
+                    label="タイトル"
+                    value={title}
+                    onChange={(v) => {
+                      setTitle(v);
+                      setIsDisabledUpdate(false);
+                    }}
+                    required
+                  />
+                </RowItem>
+
+                <RowItem>
+                  <Textarea
+                    label="概要"
+                    rows={1}
+                    value={description}
+                    onChange={(v) => {
+                      setDescription(v);
+                      setIsDisabledUpdate(false);
+                    }}
+                  />
+                </RowItem>
+                <RowItem>
+                  <Textarea
+                    label="プロンプトテンプレート"
+                    rows={30}
+                    maxHeight={500}
+                    value={promptTemplate}
+                    onChange={(v) => {
+                      setPromptTemplate(v);
+                      setIsDisabledUpdate(false);
+                    }}
+                    placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
+                    hint="動的な入力を受け付けていないプロンプトテンプレート (Placeholder 及びファイル添付なし) は作成できません。"
+                    required
+                  />
+                </RowItem>
+              </>
+            )}
+
+            {currentMenu === '入力例' && (
+              <div className="mt-2 flex flex-col gap-2">
+                {inputExamples.map((inputExample, idx) => {
+                  return (
+                    <div key={idx} className="rounded border px-4 pt-2">
+                      <div className="flex flex-col">
+                        <InputText
+                          className="mb-2"
+                          label="タイトル"
+                          value={inputExample.title}
+                          onChange={(v) => {
+                            setInputExample(idx, {
+                              ...inputExample,
+                              title: v,
+                            });
+                            setIsDisabledUpdate(false);
+                          }}
+                        />
+
+                        {textFormItems.map((item, itemIndex) => {
+                          return (
+                            <Textarea
+                              key={itemIndex}
+                              label={
+                                item.label !== NOLABEL ? item.label : undefined
+                              }
+                              rows={item.inputType === 'text' ? 2 : 1}
+                              value={
+                                inputExample.examples
+                                  ? inputExample.examples[item.label]
+                                  : ''
+                              }
+                              onChange={(v) => {
+                                setInputExample(idx, {
+                                  title: inputExample.title,
+                                  examples: produce(
+                                    inputExample.examples,
+                                    (draft) => {
+                                      draft[item.label] = v;
+                                    }
+                                  ),
+                                });
+                                setIsDisabledUpdate(false);
+                              }}
+                            />
+                          );
+                        })}
+
+                        <div className="mb-2 flex justify-end">
+                          <Button
+                            className="bg-red-600"
+                            onClick={() => {
+                              removeInputExample(idx);
+                            }}>
+                            <PiTrash className="mr-2" />
+                            削除
+                          </Button>
                         </div>
                       </div>
-                    );
-                  })}
-                  <Button
-                    outlined
-                    onClick={() => {
-                      const examples: Record<string, string> = {};
-                      items.forEach((item) => {
-                        examples[item.label] = '';
-                      });
-                      pushInputExample({
-                        title: '',
-                        examples,
-                      });
-                    }}>
-                    <PiPlus className="pr-2 text-xl" />
-                    入力例を追加
-                  </Button>
-                </div>
-              </ExpandableField>
-              <ExpandableField label="モデルの選択">
-                <div className="rounded border px-4 py-2">
-                  <Switch
-                    checked={fixedModelId !== ''}
-                    label={
-                      fixedModelId !== ''
-                        ? 'モデルが固定化されています。'
-                        : 'モデルは固定化されていません。'
+                    </div>
+                  );
+                })}
+                <Button
+                  outlined
+                  onClick={() => {
+                    const examples: Record<string, string> = {};
+                    items.forEach((item) => {
+                      examples[item.label] = '';
+                    });
+                    pushInputExample({
+                      title: '',
+                      examples,
+                    });
+                  }}>
+                  <PiPlus className="pr-2 text-xl" />
+                  入力例を追加
+                </Button>
+              </div>
+            )}
+
+            {currentMenu === 'モデル選択' && (
+              <div className="mt-4 flex flex-col gap-y-2">
+                <Switch
+                  checked={fixedModelId !== ''}
+                  label={
+                    fixedModelId !== ''
+                      ? 'モデルが固定化されています。'
+                      : 'モデルは固定化されていません。'
+                  }
+                  onSwitch={() => {
+                    if (fixedModelId !== '') {
+                      setFixedModelId('');
+                    } else {
+                      setFixedModelId(availableModels[0]);
                     }
-                    onSwitch={() => {
-                      if (fixedModelId !== '') {
-                        setFixedModelId('');
-                      } else {
-                        setFixedModelId(availableModels[0]);
-                      }
+                    setIsDisabledUpdate(false);
+                  }}
+                />
+
+                {fixedModelId !== '' && (
+                  <Select
+                    value={fixedModelId}
+                    onChange={(m) => {
+                      setFixedModelId(m);
                       setIsDisabledUpdate(false);
                     }}
+                    options={availableModels.map((m) => {
+                      return { value: m, label: m };
+                    })}
                   />
+                )}
 
-                  {fixedModelId !== '' && (
-                    <Select
-                      value={fixedModelId}
-                      onChange={(m) => {
-                        setFixedModelId(m);
-                        setIsDisabledUpdate(false);
-                      }}
-                      options={availableModels.map((m) => {
-                        return { value: m, label: m };
-                      })}
-                    />
+                <div className="text-xs text-gray-800">
+                  {fixedModelId !== '' ? (
+                    <>
+                      モデル選択の UI が表示されないため、ユーザーは生成 AI
+                      の存在を意識せずにユースケースを利用できます
+                    </>
+                  ) : (
+                    <>
+                      モデル選択の UI
+                      が表示され、ユーザーは自由にモデルを選択できます。
+                    </>
                   )}
-
-                  <div className="text-xs text-gray-800">
-                    {fixedModelId !== '' ? (
-                      <>
-                        モデル選択の UI が表示されないため、ユーザーは生成 AI
-                        の存在を意識せずにユースケースを利用できます
-                      </>
-                    ) : (
-                      <>
-                        モデル選択の UI
-                        が表示され、ユーザーは自由にモデルを選択できます。
-                      </>
-                    )}
-                  </div>
                 </div>
-              </ExpandableField>
-              <ExpandableField label="ファイル添付">
-                <div className="rounded border px-4 py-2">
-                  <Switch
-                    checked={fileUpload}
-                    label={
-                      fileUpload
-                        ? 'ファイルを添付できます'
-                        : 'ファイルは添付できません'
-                    }
-                    onSwitch={() => {
-                      setFileUpload(!fileUpload);
-                      setIsDisabledUpdate(false);
-                    }}
-                  />
+              </div>
+            )}
 
-                  <div className="text-xs text-gray-800">
-                    添付可能なファイルはモデルによって異なります
-                  </div>
+            {currentMenu === 'ファイル添付' && (
+              <div className="mt-4 flex flex-col gap-y-2">
+                <Switch
+                  checked={fileUpload}
+                  label={
+                    fileUpload
+                      ? 'ファイルを添付できます'
+                      : 'ファイルは添付できません'
+                  }
+                  onSwitch={() => {
+                    setFileUpload(!fileUpload);
+                    setIsDisabledUpdate(false);
+                  }}
+                />
+
+                <div className="text-xs text-gray-800">
+                  添付可能なファイルはモデルによって異なります
                 </div>
-              </ExpandableField>
-            </RowItem>
-            <div className="flex justify-between">
-              {isUpdate ? (
+              </div>
+            )}
+
+            {currentMenu === '作成' && (
+              <div className="mt-4 flex flex-col gap-y-2">
+                <div className="text-xs text-gray-800">
+                  ユースケースを作成します。プレビューで動作確認してから作成してください。作成後に編集することも可能です。
+                </div>
+                {createErrorMessages.length > 0 && (
+                  <div className="my-2 flex flex-col gap-y-2">
+                    <div className="text-aws-smile text-xs font-bold">
+                      作成可能なユースケースの条件を満たしていません。以下条件を全て満たしてください。
+                    </div>
+                    <ul className="list-disc pl-4">
+                      {createErrorMessages.map((m, idx) => (
+                        <ErrorMesage message={m} key={idx} />
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <Button disabled={!canCreate} onClick={onClickRegister}>
+                  作成
+                </Button>
+              </div>
+            )}
+
+            {currentMenu === '更新' && (
+              <div className="mt-4 flex flex-col gap-y-2">
+                <div className="text-xs text-gray-800">
+                  ユースケースを更新します。ユースケースが共有され他ユーザーも利用している場合、その内容も更新されます。
+                </div>
+                {(createErrorMessages.length > 0 ||
+                  updateErrorMessages.length > 0) && (
+                  <div className="my-2 flex flex-col gap-y-2">
+                    <div className="text-aws-smile text-xs font-bold">
+                      更新するためには、以下条件を全て満たしてください。
+                    </div>
+                    <ul className="list-disc pl-4">
+                      {[...createErrorMessages, ...updateErrorMessages].map(
+                        (m, idx) => (
+                          <ErrorMesage message={m} key={idx} />
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+                <Button disabled={!canUpdate} onClick={onClickRegister}>
+                  更新
+                </Button>
+              </div>
+            )}
+
+            {currentMenu === '削除' && (
+              <div className="mt-4 flex flex-col gap-y-2">
+                <div className="text-xs text-gray-800">
+                  ユースケースを削除します。共有されている場合、他のユーザーからもアクセスできなくなります。
+                </div>
                 <Button
                   className="bg-red-600"
                   onClick={() => {
@@ -545,26 +726,11 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   <PiTrash className="mr-2" />
                   削除
                 </Button>
-              ) : (
-                <div></div>
-              )}
-              <div className="flex gap-3">
-                {!isUpdate && (
-                  <Button outlined onClick={onClickClear}>
-                    クリア
-                  </Button>
-                )}
-
-                <Button
-                  disabled={!canRegister || (isUpdate && isDisabledUpdate)}
-                  onClick={onClickRegister}>
-                  {isUpdate ? '更新' : '作成'}
-                </Button>
               </div>
-            </div>
+            )}
           </Card>
         </div>
-        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-6">
+        <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-5 2xl:col-span-6">
           <Card
             label={`${isPreview ? 'プレビュー' : 'ヘルプ'}`}
             className="relative">

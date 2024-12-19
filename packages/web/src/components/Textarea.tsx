@@ -13,6 +13,7 @@ type Props = RowItemProps & {
   rows?: number;
   maxHeight?: number;
   disabled?: boolean;
+  required?: boolean;
   onEnter?: () => void;
   onChange: (value: string) => void;
   onPaste?: (pasteEvent: React.ClipboardEvent) => void;
@@ -75,6 +76,9 @@ const Textarea: React.FC<Props> = (props) => {
             <span className="ml-2 text-xs italic text-gray-500">
               - Optional
             </span>
+          )}
+          {props.required && (
+            <span className="ml-2 text-xs font-bold text-gray-800">* 必須</span>
           )}
         </div>
       )}
