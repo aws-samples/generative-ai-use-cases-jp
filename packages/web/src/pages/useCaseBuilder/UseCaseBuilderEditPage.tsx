@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import ButtonIcon from '../../components/ButtonIcon';
 import Textarea from '../../components/Textarea';
 import { create } from 'zustand';
 import RowItem from '../../components/RowItem';
 import AppBuilderView from '../../components/useCaseBuilder/UseCaseBuilderView';
 import InputText from '../../components/InputText';
-import { PiPlus, PiQuestion, PiTrash, PiEye } from 'react-icons/pi';
+import { PiPlus, PiQuestion, PiTrash, PiEye, PiX } from 'react-icons/pi';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
@@ -27,15 +28,22 @@ import Select from '../../components/Select';
 import Switch from '../../components/Switch';
 import { MODELS } from '../../hooks/useModel';
 
-type MenuItem = {
-  title: string;
-  focusColor: string;
+type ErrorWithMenu = {
+  message: string;
+  menu: string;
 };
 
-const ErrorMesage: React.FC<{ message: string }> = (props: {
+const ErrorMesage: React.FC<{
   message: string;
-}) => {
-  return <li className="text-xs">{props.message}</li>;
+  onClick: () => void;
+}> = (props: { message: string; onClick: () => void }) => {
+  return (
+    <li
+      className="text-aws-smile cursor-pointer text-xs font-bold leading-6 underline"
+      onClick={props.onClick}>
+      {props.message}
+    </li>
+  );
 };
 
 type StateType = {
@@ -176,9 +184,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const [isPreview, setIsPreview] = useState(true);
 
   // 作成条件を満たしていない場合のエラーメッセージ
-  const [createErrorMessages, setCreateErrorMessages] = useState<string[]>([]);
+  const [createErrorMessages, setCreateErrorMessages] = useState<
+    ErrorWithMenu[]
+  >([]);
   // 更新条件を満たしていない場合のエラーメッセージ
-  const [updateErrorMessages, setUpdateErrorMessages] = useState<string[]>([]);
+  const [updateErrorMessages, setUpdateErrorMessages] = useState<
+    ErrorWithMenu[]
+  >([]);
 
   const { modelIds: availableModels } = MODELS;
 
@@ -244,49 +256,21 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, [useCaseId]);
 
   const menu = useMemo(() => {
-    const base: MenuItem[] = [
-      {
-        title: 'アプリ定義',
-        focusColor: 'aws-smile',
-      },
-      {
-        title: '入力例',
-        focusColor: 'aws-smile',
-      },
-      {
-        title: 'モデル選択',
-        focusColor: 'aws-smile',
-      },
-      {
-        title: 'ファイル添付',
-        focusColor: 'aws-smile',
-      },
+    const base: string[] = [
+      'アプリ定義',
+      '入力例',
+      'モデル選択',
+      'ファイル添付',
     ];
 
     if (isUpdate) {
-      return [
-        ...base,
-        {
-          title: '更新',
-          focusColor: 'aws-smile',
-        },
-        {
-          title: '削除',
-          focusColor: 'red-600',
-        },
-      ];
+      return [...base, '更新', '削除'];
     } else {
-      return [
-        ...base,
-        {
-          title: '作成',
-          focusColor: 'aws-smile',
-        },
-      ];
+      return [...base, '作成'];
     }
   }, [isUpdate]);
 
-  const [currentMenu, setCurrentMenu] = useState(menu[0].title);
+  const [currentMenu, setCurrentMenu] = useState(menu[0]);
 
   // ページタイトルの設定
   useEffect(() => {
@@ -298,18 +282,26 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
     // eslint-disable-next-line no-irregular-whitespace
     if (title.replace(/[ 　]/g, '') === '') {
-      tmp.push('タイトルを入力してください');
+      tmp.push({
+        menu: 'アプリ定義',
+        message: 'タイトルを入力してください',
+      });
     }
 
     // eslint-disable-next-line no-irregular-whitespace
     if (promptTemplate.replace(/[ 　]/g, '') === '') {
-      tmp.push('プロンプトテンプレートを入力してください');
+      tmp.push({
+        menu: 'アプリ定義',
+        message: 'プロンプトテンプレートを入力してください',
+      });
     }
 
     if (placeholders.length === 0 && !fileUpload) {
-      tmp.push(
-        '動的な入力を受け付けていないプロンプトテンプレート (Placeholder 及びファイル添付なし) は作成できません'
-      );
+      tmp.push({
+        menu: 'アプリ定義',
+        message:
+          'ユースケースがユーザーの入力を受け付けていません。プロンプトテンプレートに placeholder を追加するか、ファイル添付を ON にしてください。',
+      });
     }
 
     setCreateErrorMessages(tmp);
@@ -325,11 +317,23 @@ const UseCaseBuilderEditPage: React.FC = () => {
     const tmp = [];
 
     if (isDisabledUpdate) {
-      tmp.push('更新内容がありません');
+      tmp.push({
+        menu: 'アプリ定義',
+        message: '更新内容がありません',
+      });
     }
 
     setUpdateErrorMessages(tmp);
   }, [isDisabledUpdate, setUpdateErrorMessages]);
+
+  // ページ遷移時に存在しないメニューが表示されないようにする
+  useEffect(() => {
+    const idx = menu.indexOf(currentMenu);
+
+    if (idx < 0) {
+      setCurrentMenu(menu[0]);
+    }
+  }, [menu, currentMenu]);
 
   const canCreate = useMemo(() => {
     return createErrorMessages.length === 0;
@@ -444,29 +448,29 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
         <div className="col-span-12 flex flex-row lg:col-span-2 lg:flex-col 2xl:col-span-1">
           {menu.map((m, idx) => {
-            let className =
-              'cursor-pointer border-b-2 px-2 py-2 text-sm lg:border-b-0 lg:border-r-2 ';
-
-            if (currentMenu === m.title) {
-              className += [
-                'font-bold',
-                `text-${m.focusColor}`,
-                `border-${m.focusColor}`,
-              ].join(' ');
+            if (currentMenu === m) {
+              return (
+                <div
+                  key={idx}
+                  className={`text-aws-smile border-aws-smile cursor-pointer border-b-2 px-2 py-2 text-sm font-bold lg:border-b-0 lg:border-r-2`}
+                  onClick={() => {
+                    setCurrentMenu(m);
+                  }}>
+                  {m}
+                </div>
+              );
             } else {
-              className += `text-gray-800 hover:text-${m.focusColor} border-gray-200`;
+              return (
+                <div
+                  key={idx}
+                  className={`hover:text-aws-smile cursor-pointer border-b-2 border-gray-200 px-2 py-2 text-sm text-gray-800 lg:border-b-0 lg:border-r-2`}
+                  onClick={() => {
+                    setCurrentMenu(m);
+                  }}>
+                  {m}
+                </div>
+              );
             }
-
-            return (
-              <div
-                key={idx}
-                className={className}
-                onClick={() => {
-                  setCurrentMenu(m.title);
-                }}>
-                {m.title}
-              </div>
-            );
           })}
         </div>
 
@@ -508,7 +512,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                       setIsDisabledUpdate(false);
                     }}
                     placeholder="プロントテンプレートの書き方については、「ヘルプ」か「サンプル集」をご覧ください。"
-                    hint="動的な入力を受け付けていないプロンプトテンプレート (Placeholder 及びファイル添付なし) は作成できません。"
+                    hint="ユーザーの入力を受け付けないユースケースは作成できません。プロンプトテンプレートに Placeholder を定義するか、ファイル添付を ON にしてください。"
                     required
                   />
                 </RowItem>
@@ -521,18 +525,26 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   return (
                     <div key={idx} className="rounded border px-4 pt-2">
                       <div className="flex flex-col">
-                        <InputText
-                          className="mb-2"
-                          label="タイトル"
-                          value={inputExample.title}
-                          onChange={(v) => {
-                            setInputExample(idx, {
-                              ...inputExample,
-                              title: v,
-                            });
-                            setIsDisabledUpdate(false);
-                          }}
-                        />
+                        <div className="relative mb-4">
+                          <InputText
+                            label="タイトル"
+                            value={inputExample.title}
+                            onChange={(v) => {
+                              setInputExample(idx, {
+                                ...inputExample,
+                                title: v,
+                              });
+                              setIsDisabledUpdate(false);
+                            }}
+                          />
+                          <ButtonIcon
+                            className="absolute -right-1 -top-1 h-6 w-6"
+                            onClick={() => {
+                              removeInputExample(idx);
+                            }}>
+                            <PiX className="" />
+                          </ButtonIcon>
+                        </div>
 
                         {textFormItems.map((item, itemIndex) => {
                           return (
@@ -562,17 +574,6 @@ const UseCaseBuilderEditPage: React.FC = () => {
                             />
                           );
                         })}
-
-                        <div className="mb-2 flex justify-end">
-                          <Button
-                            className="bg-red-600"
-                            onClick={() => {
-                              removeInputExample(idx);
-                            }}>
-                            <PiTrash className="mr-2" />
-                            削除
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   );
@@ -674,9 +675,15 @@ const UseCaseBuilderEditPage: React.FC = () => {
                     <div className="text-aws-smile text-xs font-bold">
                       作成可能なユースケースの条件を満たしていません。以下条件を全て満たしてください。
                     </div>
-                    <ul className="list-disc pl-4">
+                    <ul className="list-inside list-disc">
                       {createErrorMessages.map((m, idx) => (
-                        <ErrorMesage message={m} key={idx} />
+                        <ErrorMesage
+                          message={m.message}
+                          key={idx}
+                          onClick={() => {
+                            setCurrentMenu(m.menu);
+                          }}
+                        />
                       ))}
                     </ul>
                   </div>
@@ -701,7 +708,13 @@ const UseCaseBuilderEditPage: React.FC = () => {
                     <ul className="list-disc pl-4">
                       {[...createErrorMessages, ...updateErrorMessages].map(
                         (m, idx) => (
-                          <ErrorMesage message={m} key={idx} />
+                          <ErrorMesage
+                            message={m.message}
+                            key={idx}
+                            onClick={() => {
+                              setCurrentMenu(m.menu);
+                            }}
+                          />
                         )
                       )}
                     </ul>
