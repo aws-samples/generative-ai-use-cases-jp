@@ -16,6 +16,7 @@ import {
   PiRobot,
   PiVideoCamera,
   PiFlowArrow,
+  PiPresentationChart,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -264,6 +265,10 @@ const LandingPage: React.FC = () => {
     navigate(`/prompt-flow-chat`);
   };
 
+  const demoGenerateSlide = () => {
+    navigate('/slide');
+  };
+
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
@@ -367,6 +372,12 @@ const LandingPage: React.FC = () => {
             description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
           />
         )}
+        <CardDemo
+          label="スライド生成"
+          onClickDemo={demoGenerateSlide}
+          icon={<PiPresentationChart />}
+          description="チャット形式でスライド資料を作成します。LLM によって構造化されたテキストを生成し、スライド資料として画面に描画します。"
+        />
       </div>
 
       <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">

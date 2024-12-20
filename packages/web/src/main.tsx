@@ -23,6 +23,7 @@ import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
+import GenerateSlidePage from './pages/GenerateSlidePage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
@@ -91,6 +92,10 @@ const routes: RouteObject[] = [
   {
     path: '/image',
     element: <GenerateImagePage />,
+  },
+  {
+    path: '/slide',
+    element: <GenerateSlidePage />,
   },
   optimizePromptEnabled
     ? {
