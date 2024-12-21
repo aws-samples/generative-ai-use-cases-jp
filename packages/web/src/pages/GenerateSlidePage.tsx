@@ -11,7 +11,7 @@ import InputChatContent from '../components/InputChatContent';
 import Switch from '../components/Switch';
 import Button from '../components/Button';
 import SlidePreview from '../components/SlidePreview';
-import { PiArrowsCounterClockwise, PiDownload } from 'react-icons/pi';
+import { PiArrowsCounterClockwise, PiDownload, PiCode } from 'react-icons/pi';
 import { PresentationConverter } from '../utils/PresentationConverter';
 
 type StateType = {
@@ -130,11 +130,15 @@ const RoundedButton = (
   props: React.DetailedHTMLProps<
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
-  >
+  > & {
+    small?: boolean;
+  }
 ) => {
   return (
     <button
-      className="cursor-pointer rounded-full border p-2 text-xs hover:border-gray-300 hover:bg-gray-50"
+      className={`cursor-pointer rounded-full border p-2 hover:border-gray-300 hover:bg-gray-50 ${
+        props.small ? 'text-xs' : 'text-sm'
+      }`}
       {...props}
     />
   );
@@ -206,26 +210,39 @@ const GenerateSlidePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-12">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+    <div className="grid grid-cols-12 gap-4 p-4">
+      <div className="col-span-12 flex items-center justify-center text-xl font-semibold lg:mb-5">
         スライド生成
       </div>
-      <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
+      <div className="col-span-12 lg:col-span-10 lg:col-start-2">
         <Card label="スライドの元になる情報">
-          <div className="mb-2 flex w-full content-center justify-between">
-            <Select
-              value={getModelId()}
-              onChange={setModelId}
-              options={availableModels.map((m) => {
-                return { value: m, label: m };
-              })}
-            />
+          <div className="mb-4 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="w-full sm:w-64">
+              <Select
+                value={getModelId()}
+                onChange={setModelId}
+                options={availableModels.map((m) => ({
+                  value: m,
+                  label: m,
+                }))}
+              />
+            </div>
 
-            <Switch
-              label="Markdown テキストを表示する"
-              checked={showCode}
-              onSwitch={setShowCode}
-            />
+            <div className="flex items-center gap-2">
+              {/* 小さい画面ではアイコンボタン、大きい画面ではスイッチを表示 */}
+              <div className="block lg:hidden">
+                <RoundedButton onClick={() => setShowCode(!showCode)}>
+                  <PiCode className={showCode ? 'text-blue-600' : ''} />
+                </RoundedButton>
+              </div>
+              <div className="hidden lg:block">
+                <Switch
+                  label="Markdown テキストを表示する"
+                  checked={showCode}
+                  onSwitch={setShowCode}
+                />
+              </div>
+            </div>
           </div>
 
           <InputChatContent
@@ -240,10 +257,11 @@ const GenerateSlidePage: React.FC = () => {
             onChangeContent={setInformation}
           />
 
-          <div className="mt-4 flex justify-between">
-            <div className="mb-2 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:justify-between">
+            <div className="flex flex-wrap gap-2">
               {examplePrompts.map(({ value, label }) => (
                 <RoundedButton
+                  small
                   onClick={() => setInformation(value)}
                   key={label}>
                   {label} ↗️
@@ -253,7 +271,7 @@ const GenerateSlidePage: React.FC = () => {
 
             {!loading && text && (
               <Button
-                className="h-9 text-sm"
+                className="h-9 whitespace-nowrap text-sm"
                 outlined
                 disabled={loading}
                 onClick={() => {
@@ -267,37 +285,43 @@ const GenerateSlidePage: React.FC = () => {
           </div>
         </Card>
 
-        <div className="mt-5 flex items-center justify-between">
+        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold">スライドプレビュー</h3>
           <Button
             onClick={handleExport}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 whitespace-nowrap"
             outlined>
             <PiDownload className="h-5 w-5" />
-            パワーポイント形式でダウンロード
+            <span className="hidden sm:inline">
+              パワーポイント形式でダウンロード
+            </span>
+            <span className="sm:hidden">エクスポート</span>
           </Button>
         </div>
 
-        <div className="mb-8 mt-2 grid grid-cols-3 gap-2">
-          <div className={`${showCode ? 'col-span-2' : 'col-span-3'}`}>
+        <div className="mb-8 mt-2 grid gap-4 lg:grid-cols-3">
+          <div
+            className={`${
+              showCode ? 'lg:col-span-2' : 'lg:col-span-3'
+            } min-h-[300px]`}>
             {loading ? (
-              <div className="flex items-center justify-center">
+              <div className="flex h-full items-center justify-center">
                 <div className="border-aws-sky size-6 animate-spin rounded-full border-4 border-t-transparent"></div>
               </div>
             ) : (
               <SlidePreview
                 text={text}
                 mode="markdown"
-                className={'aspect-video rounded border border-black/30'}
+                className="aspect-video rounded border border-black/30"
                 onSlideReady={handleSlideReady}
               />
             )}
           </div>
 
           {showCode && (
-            <div className={`${showCode ? 'col-span-1' : 'col-span-0'}`}>
+            <div className="lg:col-span-1">
               <textarea
-                className="h-full w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm"
+                className="h-[300px] w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm lg:h-full"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
