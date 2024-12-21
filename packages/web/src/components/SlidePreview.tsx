@@ -1,17 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import Reveal from 'reveal.js';
 import Markdown from 'reveal.js/plugin/markdown/markdown.esm.js';
+
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/black.css';
 
 interface SlidePreviewProps {
-  markdown: string;
+  text: string;
+  mode: 'markdown' | 'html';
   className?: string;
   onSlideReady?: (container: HTMLDivElement) => void;
 }
 
 const SlidePreview: React.FC<SlidePreviewProps> = ({
-  markdown,
+  text,
+  mode = 'markdown',
   className = '',
   onSlideReady,
 }) => {
@@ -29,27 +32,33 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
       deckRef.current = null;
     }
 
-    // マークダウンをスライドごとに分割
-    const slides = markdown.split('---').map((slide) => slide.trim());
-
-    // スライドのコンテナを更新
+    //     // スライドのコンテナを更新
     const slidesContainer = container.querySelector('.slides');
     if (!slidesContainer) return;
 
-    // 各スライドをセクションに変換
-    const slidesHtml = slides
-      .map(
-        (slideContent) => `
-      <section data-markdown>
-        <textarea data-template>
-${slideContent}
-        </textarea>
-      </section>
-    `
-      )
-      .join('');
+    if (mode === 'markdown') {
+      // マークダウンテキストをスライドごとに分割
+      const slides = text.split('---').map((slide) => slide.trim());
 
-    slidesContainer.innerHTML = slidesHtml;
+      // 各スライドをセクションに変換
+      const slidesHtml = slides
+        .map(
+          (slideContent) => `
+          <section data-markdown>
+            <textarea data-template>
+    ${slideContent}
+            </textarea>
+          </section>
+        `
+        )
+        .join('');
+
+      slidesContainer.innerHTML = slidesHtml;
+    }
+
+    if (mode === 'html') {
+      slidesContainer.innerHTML = text;
+    }
 
     // Reveal.jsの初期化
     const initialize = async () => {
@@ -57,21 +66,15 @@ ${slideContent}
         const deck = new Reveal(container, {
           embedded: true,
           plugins: [Markdown],
-          width: 960,
-          height: 700,
-          margin: 0.04,
           hash: false,
           transition: 'slide',
-          // mouseWheel: true,
-          slideNumber: true,
-          showSlideNumber: 'all',
-          controlsLayout: 'bottom-right',
-          controlsBackArrows: 'visible',
+          controls: true,
+          slideNumber: 'c/t',
+          keyboard: true,
+          controlsLayout: 'edges',
+          progress: false,
           overview: true,
-          // Activate the scroll view
-          // view: 'scroll',
-          // Force the scrollbar to remain visible
-          scrollProgress: true,
+          mouseWheel: false,
         });
 
         await deck.initialize();
@@ -94,12 +97,12 @@ ${slideContent}
         deckRef.current = null;
       }
     };
-  }, [markdown, onSlideReady]);
+  }, [text, onSlideReady]);
 
   return (
-    <div className={`slide-container ${className}`}>
-      <div ref={containerRef} style={{ height: '100%' }}>
-        <div className="reveal">
+    <div className={`flex flex-col`}>
+      <div className={`${className}`}>
+        <div className="reveal" ref={containerRef}>
           <div className="slides"></div>
         </div>
       </div>

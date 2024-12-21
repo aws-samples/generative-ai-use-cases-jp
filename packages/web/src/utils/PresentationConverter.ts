@@ -14,72 +14,6 @@ export class PresentationConverter {
   }
 
   /**
-   * マークダウンをスライドデータに変換
-   */
-  private parseMarkdownSlides(markdown: string): SlideContent[] {
-    const slides: SlideContent[] = [];
-    const rawSlides = markdown.split('---').map((slide) => slide.trim());
-
-    rawSlides.forEach((slideText) => {
-      const lines = slideText.split('\n');
-      let currentSlide: SlideContent = { type: 'content' };
-      let contentItems: string[] = [];
-      let isCodeBlock = false;
-      let codeContent = '';
-
-      lines.forEach((line) => {
-        line = line.trim();
-
-        // コードブロックの処理
-        if (line.startsWith('```')) {
-          if (isCodeBlock) {
-            if (codeContent) {
-              contentItems.push(`[Code]${codeContent}`);
-              codeContent = '';
-            }
-          }
-          isCodeBlock = !isCodeBlock;
-          return;
-        }
-
-        if (isCodeBlock) {
-          codeContent += line + '\n';
-          return;
-        }
-
-        // 見出しの処理
-        if (line.startsWith('# ')) {
-          currentSlide.type = 'title';
-          currentSlide.title = line.replace('# ', '');
-        } else if (line.startsWith('## ')) {
-          currentSlide.type = 'content';
-          currentSlide.title = line.replace('## ', '');
-        }
-        // リストアイテムの処理
-        else if (line.startsWith('- ') || line.startsWith('* ')) {
-          contentItems.push(line.substring(2));
-        }
-        // 番号付きリストの処理
-        else if (/^\d+\.\s/.test(line)) {
-          contentItems.push(line.replace(/^\d+\.\s/, ''));
-        }
-        // 通常のテキスト
-        else if (line.length > 0) {
-          contentItems.push(line);
-        }
-      });
-
-      if (contentItems.length > 0) {
-        currentSlide.content = contentItems;
-      }
-
-      slides.push(currentSlide);
-    });
-
-    return slides;
-  }
-
-  /**
    * タイトルスライドの作成
    */
   private createTitleSlide(content: SlideContent) {
@@ -160,30 +94,6 @@ export class PresentationConverter {
         }
       });
     }
-  }
-
-  /**
-   * マークダウンからPPTXへの変換
-   */
-  public async convertFromMarkdown(markdown: string): Promise<void> {
-    const slides = this.parseMarkdownSlides(markdown);
-
-    this.pres.defineLayout({
-      name: 'CUSTOM',
-      width: 10,
-      height: 5.625,
-    });
-    this.pres.layout = 'CUSTOM';
-
-    slides.forEach((slide) => {
-      if (slide.type === 'title') {
-        this.createTitleSlide(slide);
-      } else {
-        this.createContentSlide(slide);
-      }
-    });
-
-    await this.pres.writeFile({ fileName: 'presentation.pptx' });
   }
 
   /**

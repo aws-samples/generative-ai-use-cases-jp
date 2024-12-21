@@ -61,6 +61,139 @@ const greet = () => {
 2. 自分でプロンプトを書く
 3. 生成されたスライドを編集`;
 
+const systemPrompt = `あなたは reveal.js でサポートされるプレゼンテーション資料を作成する専門家です。
+以下の要件に従って、マークダウン形式でスライドを作成してください：
+内容は専門家として適切に構造化し、聴衆を惹きつける魅力的な表現を心がけてください。
+
+<rules>
+1. 説明は一切不要です。\`\`\`yaml のような接頭語も一切不要です。Markdown のテキストだけ生成してください。
+2. スライドの区切りには "---" を使用します
+3. 各スライドの構成：
+ - 明確な見出し
+ - 簡潔な本文（1スライドあたり3〜4行程度）
+ - 箇条書きや番号付きリストを効果的に使用
+4. プレゼンテーションの基本原則：
+ - 1枚のスライドにつき1つの主要メッセージ
+ - 情報は簡潔に
+ - 視覚的な階層構造を意識
+5. コードブロックを含める場合：
+ - シンタックスハイライトのための言語指定を含める
+ - コードは簡潔で理解しやすいものに
+6. 画像を含める場合：
+ -  画像は pexels から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
+</rules>
+
+<example>
+---
+
+# 一番大きな見出しはこんな感じ
+~ ふつうのもじ ~
+
+---
+
+## 二番目に大きな見出し
+
+画像を含める場合の例：
+![img](https://picsum.photos/300/450)
+
+---
+
+### 三番目に大きな見出し
+
+>>>
+
+">"が三つで下スライド作れる
+
+>>>
+
+#### 四番目に大きな見出し
+
+---
+
+### テーブルレイアウト
+※ ヘッダーとデータの間は必ず -- （-を2つ）で分割します。
+|header1|header2|
+|--|--|
+|row1|data1|
+|row2|data2|
+|row3|data3|
+
+---
+
+### 文字スタイル
+文字のスタイル普通<br>
+<span style="font-size: 80%; color: blue;">
+文字サイズの変更
+</span>
+
+>>>
+
+### コードはこんな感じ
+\`\`\`
+const users = User.findAll();
+for (const user in users) {
+  const friends = user.findFriend();
+  // ...
+}
+\`\`\`
+
+---
+
+<p style="text-align: right">右寄せ</p>
+<p style="text-align: right"><span style="font-size: 70%; color: white;">右寄せ＋文字スタイル変更</span></p>
+
+
+---
+
+## コードハイライト
+
+\`\`\`text [1|2]
+1 ------
+2 ------
+\`\`\`
+</example>
+`;
+
+const examplePrompts = [
+  {
+    label: 'AWS の紹介',
+    value:
+      'AWS の良さを熱く語るスライドを作成してください。クラウドコンピューティングの未来も含めて、エモーショナルな表現で魅力を伝えてください。',
+  },
+  {
+    label: 'AWS Lambda 入門',
+    value: `AWS Lambda の入門者向けプレゼンテーションを作成してください。
+以下の内容を含めてください：
+- Lambda の基本概念と利点
+- 簡単なNode.jsのコード例
+- 主要な制限値（クォータ）を表形式で
+- ユースケース例
+
+タイトル: AWS Lambda で始めるサーバーレス開発`,
+  },
+  {
+    label: '技術トレンド',
+    value:
+      'プログラミング言語のトレンドについて分析するスライドを作成してください。人気言語のランキングやグラフ表現を含め、今後の展望まで示してください。',
+  },
+  {
+    label: 'チーム紹介',
+    value: `以下のチーム情報をスライドにまとめてください。
+
+チーム名: イノベーションチーム
+メンバー: 5名（企画2名、開発2名、デザイン1名）
+特徴: 
+- アジャイル開発を採用
+- 週次でリリース
+- ユーザーフィードバックを重視
+
+実績:
+- 新規アプリのローンチ（3ヶ月で10万ユーザー）
+- 社内改善プロジェクト主導
+- 技術勉強会の定期開催`,
+  },
+];
+
 const useGenerateSlidePageState = create<StateType>((set) => {
   const INIT_STATE = {
     information: '',
@@ -137,24 +270,6 @@ const GenerateSlidePage: React.FC = () => {
   const prompter = useMemo(() => getPrompter(getModelId()), [getModelId]);
 
   const getGeneratedText = (information: string) => {
-    const systemPrompt = `あなたはプレゼンテーション資料を作成する専門家です。
-以下の要件に従って、マークダウン形式でスライドを作成してください：
-
-1. スライドの区切りには "---" を使用
-2. 各スライドの構成：
-   - 明確な見出し
-   - 簡潔な本文（1スライドあたり3〜4行程度）
-   - 箇条書きや番号付きリストを効果的に使用
-3. プレゼンテーションの基本原則：
-   - 1枚のスライドにつき1つの主要メッセージ
-   - 情報は簡潔に
-   - 視覚的な階層構造を意識
-4. コードブロックを含める場合：
-   - シンタックスハイライトのための言語指定を含める
-   - コードは簡潔で理解しやすいものに
-
-内容は専門家として適切に構造化し、聴衆を惹きつける魅力的な表現を心がけてください。`;
-
     postChat(`${systemPrompt}\n\n${information}`, true);
   };
 
@@ -171,45 +286,6 @@ const GenerateSlidePage: React.FC = () => {
     getGeneratedText(information);
   }, [information, loading]);
 
-  const examplePrompts = [
-    {
-      label: 'AWS の紹介',
-      value:
-        'AWS の良さを熱く語るスライドを作成してください。クラウドコンピューティングの未来も含めて、エモーショナルな表現で魅力を伝えてください。',
-    },
-    {
-      label: 'AWS Lambda 入門',
-      value: `AWS Lambda の入門者向けプレゼンテーションを作成してください。
-以下の内容を含めてください：
-- Lambda の基本概念と利点
-- 簡単なNode.jsのコード例
-- 主要な制限値（クォータ）を表形式で
-- ユースケース例
-
-タイトル: AWS Lambda で始めるサーバーレス開発`,
-    },
-    {
-      label: '技術トレンド',
-      value:
-        'プログラミング言語のトレンドについて分析するスライドを作成してください。人気言語のランキングやグラフ表現を含め、今後の展望まで示してください。',
-    },
-    {
-      label: 'チーム紹介',
-      value: `以下のチーム情報をスライドにまとめてください。
-
-チーム名: イノベーションチーム
-メンバー: 5名（企画2名、開発2名、デザイン1名）
-特徴: 
-- アジャイル開発を採用
-- 週次でリリース
-- ユーザーフィードバックを重視
-
-実績:
-- 新規アプリのローンチ（3ヶ月で10万ユーザー）
-- 社内改善プロジェクト主導
-- 技術勉強会の定期開催`,
-    },
-  ];
   const slideContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleExport = useCallback(async () => {
@@ -306,8 +382,9 @@ const GenerateSlidePage: React.FC = () => {
               showCode ? 'w-1/2' : 'w-full'
             }`}>
             <SlidePreview
-              markdown={text}
-              className={showCode ? 'h-[700px]' : 'h-[700px]'}
+              text={text}
+              mode="markdown"
+              className={'h-[700px]'}
               onSlideReady={handleSlideReady}
             />
           </div>
