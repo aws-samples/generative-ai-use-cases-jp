@@ -11,6 +11,7 @@ export interface ImageData {
   height?: number;
   x?: number;
   y?: number;
+  isBackground?: boolean;
 }
 
 export interface SlideContent {
@@ -19,9 +20,11 @@ export interface SlideContent {
   content?: string[];
   table?: TableData;
   image?: ImageData;
+  backgroundImage?: string;
+  textColor?: string;
 }
 
-const DEFAULT_IMAGE_SIZE = { width: 4, height: 3 };
+const DEFAULT_IMAGE_SIZE = { width: 2, height: 2 };
 
 export class PresentationConverter {
   private pres: pptxgen;
@@ -31,10 +34,36 @@ export class PresentationConverter {
   }
 
   /**
+   * 背景画像を追加
+   */
+  private async addBackgroundImage(slide: pptxgen.Slide, imageUrl: string) {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      return new Promise<void>((resolve) => {
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          slide.background = { data: base64 };
+          resolve();
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Failed to load background image:', error);
+    }
+  }
+
+  /**
    * タイトルスライドの作成
    */
-  private createTitleSlide(content: SlideContent) {
+  private async createTitleSlide(content: SlideContent) {
     const slide = this.pres.addSlide();
+
+    if (content.backgroundImage) {
+      await this.addBackgroundImage(slide, content.backgroundImage);
+    }
 
     if (content.title) {
       slide.addText(content.title, {
@@ -43,7 +72,7 @@ export class PresentationConverter {
         w: '80%',
         h: 1,
         fontSize: 44,
-        color: '363636',
+        color: content.textColor || '363636',
         align: 'center',
         bold: true,
       });
@@ -56,7 +85,7 @@ export class PresentationConverter {
         w: '80%',
         h: 0.5,
         fontSize: 24,
-        color: '666666',
+        color: content.textColor || '666666',
         align: 'center',
       });
     }
@@ -68,17 +97,18 @@ export class PresentationConverter {
   private addTableToSlide(
     slide: pptxgen.Slide,
     tableData: TableData,
-    yPosition: number
+    yPosition: number,
+    textColor: string = '363636'
   ) {
     const tableRows = [
       tableData.headers.map((header) => ({
         text: header,
-        options: { bold: true, fill: { color: 'F5F5F5' } },
+        options: { bold: true, fill: { color: 'F5F5F5' }, color: textColor },
       })),
       ...tableData.rows.map((row) =>
         row.map((cell) => ({
           text: cell,
-          options: {},
+          options: { color: textColor },
         }))
       ),
     ];
@@ -88,7 +118,7 @@ export class PresentationConverter {
       y: yPosition,
       w: '85%',
       border: { type: 'solid', color: 'CCCCCC', pt: 1 },
-      color: '363636',
+      color: textColor,
       fontSize: 16,
     });
   }
@@ -109,13 +139,17 @@ export class PresentationConverter {
       return new Promise<void>((resolve) => {
         reader.onload = () => {
           const base64 = reader.result as string;
-          slide.addImage({
-            data: base64,
-            x: imageData.x ?? 0.7,
-            y: imageData.y ?? yPosition,
-            w: imageData.width ?? DEFAULT_IMAGE_SIZE.width,
-            h: imageData.height ?? DEFAULT_IMAGE_SIZE.height,
-          });
+          if (imageData.isBackground) {
+            slide.background = { data: base64 };
+          } else {
+            slide.addImage({
+              data: base64,
+              x: imageData.x ?? 0.7,
+              y: imageData.y ?? yPosition,
+              w: imageData.width ?? DEFAULT_IMAGE_SIZE.width,
+              h: imageData.height ?? DEFAULT_IMAGE_SIZE.height,
+            });
+          }
           resolve();
         };
         reader.readAsDataURL(blob);
@@ -132,6 +166,11 @@ export class PresentationConverter {
     const slide = this.pres.addSlide();
     let currentY = 1.5;
 
+    // 背景画像の処理
+    if (content.backgroundImage) {
+      await this.addBackgroundImage(slide, content.backgroundImage);
+    }
+
     if (content.title) {
       slide.addText(content.title, {
         x: 0.5,
@@ -139,7 +178,7 @@ export class PresentationConverter {
         w: '90%',
         h: 0.8,
         fontSize: 32,
-        color: '363636',
+        color: content.textColor || '363636',
         bold: true,
       });
     }
@@ -156,7 +195,7 @@ export class PresentationConverter {
             w: '85%',
             h: '45%',
             fontSize: 16,
-            color: '363636',
+            color: content.textColor || '363636',
             fontFace: 'Courier New',
             fill: { color: 'F5F5F5' },
             line: { color: 'CCCCCC', width: 1 },
@@ -169,7 +208,7 @@ export class PresentationConverter {
             w: '85%',
             h: 0.5,
             fontSize: 24,
-            color: '363636',
+            color: content.textColor || '363636',
             bullet: true,
           });
         }
@@ -179,7 +218,7 @@ export class PresentationConverter {
 
     // テーブルの処理
     if (content.table) {
-      this.addTableToSlide(slide, content.table, currentY);
+      this.addTableToSlide(slide, content.table, currentY, content.textColor);
     }
 
     // 画像の処理
@@ -198,6 +237,20 @@ export class PresentationConverter {
     slideElements.forEach((slideElement) => {
       const content: SlideContent = { type: 'content' };
       const contentItems: string[] = [];
+
+      // 背景画像の判定
+      const backgroundImage = slideElement.getAttribute(
+        'data-background-image'
+      );
+      if (backgroundImage) {
+        content.backgroundImage = backgroundImage;
+
+        // 背景画像がある場合、テキストカラーを確認
+        const textColorStyle = slideElement.getAttribute('style');
+        if (textColorStyle?.includes('color: white')) {
+          content.textColor = 'FFFFFF';
+        }
+      }
 
       // テキストコンテンツの収集
       slideElement
@@ -260,7 +313,7 @@ export class PresentationConverter {
 
     for (const slide of slides) {
       if (slide.type === 'title') {
-        this.createTitleSlide(slide);
+        await this.createTitleSlide(slide);
       } else {
         await this.createContentSlide(slide);
       }

@@ -22,80 +22,12 @@ type StateType = {
   clear: () => void;
 };
 
-const slidesSample = `# Gen Deck
+const slidesSample = `<!-- .slide: data-background-image="https://images.pexels.com/photos/316466/pexels-photo-316466.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" -->
 
-
-### 生成 AI でスライドを作成しよう
-
----
-
-## 使い方
-
-|No|手順|
-|--|--|
-|1| 入力フォームにスライドの内容を指示 <ul><li>「新商品のプレゼン資料を作って」</li><li>「自己紹介スライドを作って」etc...</li></ul>|
-|2| AIがスライドを生成|
-|3| 必要に応じて編集|
-
----
-
-<section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-  <h3>画像も表示できます</h3>
-  <img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-</section>
-
----
-
-## コード表示も可能 ✍️
-
-\`\`\`javascript
-const greet = () => {
-  console.log('Hello, World!');
-}
-\`\`\`
-
----
-<section data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white">
-<h2 style="color: white">さあ、はじめよう！</h2>
-<ul>
-  <li>サンプルプロンプトを試す</li>
-  <li>自分でプロンプトを書く</li>
-  <li>生成されたスライドを編集</li>  
-</ul>
-</section>
-`;
-
-const systemPrompt = `あなたは reveal.js でサポートされるプレゼンテーション資料を作成する専門家です。
-以下の要件に従って、マークダウン形式、または HTML 形式を組み合わせてスライドを作成してください：
-内容は専門家として適切に構造化し、聴衆を惹きつける魅力的な表現を心がけてください。
-
-<rules>
-1. 説明は一切不要です。\`\`\`yaml のような接頭語も一切不要です。Markdown のテキストだけ生成してください。
-2. スライドの区切りには "---" を使用します
-3. 各スライドの構成：
- - 明確な見出し
- - 簡潔な本文（1スライドあたり3〜4行程度）
- - 箇条書きや番号付きリストを効果的に使用
-4. プレゼンテーションの基本原則：
- - 1枚のスライドにつき1つの主要メッセージ
- - 情報は簡潔に
- - 視覚的な階層構造を意識
-5. テーブルレイアウトを記述する場合：
-  - ヘッダーとボディの間の区切りは -- のように半角ハイフンを２つ並べてください。３つ以上にしてはいけません。これは絶対のルールです。
-6. コードブロックを含める場合：
- - シンタックスハイライトのための言語指定を含める
- - コードは簡潔で理解しやすいものに
-7. 画像を含める場合：
- - 画像は pexels から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
- - 画像はスライド全体の 3 割程度に含めてください。
-8. グラフの表示は行いません。\`\`\`mermaid のような出力は不要です。
-</rules>
-
-<example>
 # Gen Deck
 
 
-### 生成 AI でスライドを作成しよう
+生成 AI でスライドを作成しよう
 
 ---
 
@@ -108,11 +40,9 @@ const systemPrompt = `あなたは reveal.js でサポートされるプレゼ�
 |3| 必要に応じて編集|
 
 ---
-
-<section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-  <h3>画像も表示できます</h3>
-  <img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-</section>
+<!-- style="display: flex; flex-direction: column; align-items: center; justify-content: center;" -->
+<h3>画像も表示できます</h3>
+<img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
 
 ---
 
@@ -125,14 +55,14 @@ const greet = () => {
 \`\`\`
 
 ---
-<section data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white">
+<!-- .slide: data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white"-->
+
 <h2 style="color: white">さあ、はじめよう！</h2>
 <ul>
   <li>サンプルプロンプトを試す</li>
   <li>自分でプロンプトを書く</li>
-  <li>生成されたスライドを編集</li>  
+  <li>生成されたスライドを編集する</li>  
 </ul>
-</section>
 `;
 
 const examplePrompts = [
@@ -143,35 +73,33 @@ const examplePrompts = [
   },
   {
     label: 'AWS Lambda 入門',
-    value: `AWS Lambda の入門者向けプレゼンテーションを作成してください。
+    value: `「AWS Lambda で始めるサーバーレス開発」というタイトルで、AWS Lambda の入門者向けプレゼンテーションを作成してください。
+1. Lambda の基本概念と利点
+2. 簡単なNode.jsのコード例
+3. 主要な制限値（クォータ）を表形式で
+4. ユースケース例`,
+  },
+  {
+    label: 'プロジェクト管理入門',
+    value: `効果的なプロジェクト管理の基礎に関するプレゼンテーションを作成してください。
 以下の内容を含めてください：
-- Lambda の基本概念と利点
-- 簡単なNode.jsのコード例
-- 主要な制限値（クォータ）を表形式で
-- ユースケース例
+- プロジェクト管理の重要性
+- 主要なプロジェクト管理手法（ウォーターフォール、アジャイルなど）
+- タスク管理とガントチャートの例
+- コミュニケーション戦略
+- リスク管理の基本
 
-タイトル: AWS Lambda で始めるサーバーレス開発`,
+タイトル: プロジェクト成功への道：効果的な管理の秘訣`,
   },
   {
-    label: '技術トレンド',
+    label: '働き方改革',
     value:
-      'プログラミング言語のトレンドについて分析するスライドを作成してください。人気言語のランキングやグラフ表現を含め、今後の展望まで示してください。',
+      '日本企業における働き方改革の現状と課題についてのスライドを作成してください。統計データやグラフを用いて、テレワークの普及率、残業時間の推移、従業員満足度などを示し、今後の展望も含めてください。',
   },
   {
-    label: 'チーム紹介',
-    value: `以下のチーム情報をスライドにまとめてください。
-
-チーム名: イノベーションチーム
-メンバー: 5名（企画2名、開発2名、デザイン1名）
-特徴: 
-- アジャイル開発を採用
-- 週次でリリース
-- ユーザーフィードバックを重視
-
-実績:
-- 新規アプリのローンチ（3ヶ月で10万ユーザー）
-- 社内改善プロジェクト主導
-- 技術勉強会の定期開催`,
+    label: 'ストレス管理とメンタルヘルス',
+    value:
+      'オフィスワーカーのためのストレス管理とメンタルヘルスケアに関するスライドを作成してください。ストレスの原因、症状、対処法を説明し、職場でのメンタルヘルス対策や、ワークライフバランスの重要性について触れてください。簡単な瞑想やデスクでできるストレッチなども含めてください。',
   },
 ];
 
@@ -222,12 +150,11 @@ const GenerateSlidePage: React.FC = () => {
     loading,
     messages,
     postChat,
-    updateSystemContextByModel,
+    getCurrentSystemContext,
   } = useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const [showCode, setShowCode] = React.useState(false);
 
-  // モデルIDの初期設定を1回だけ行う
   useEffect(() => {
     const params = queryString.parse(search) as GenerateTextPageQueryParams;
     const paramModelId = params.modelId;
@@ -241,13 +168,9 @@ const GenerateSlidePage: React.FC = () => {
     if (params.information) {
       setInformation(params.information);
     }
-  }, []); // 空の依存配列で1回だけ実行
-
-  // システムコンテキストの更新
-  useEffect(() => {
-    updateSystemContextByModel();
   }, []);
 
+  const systemPrompt = getCurrentSystemContext();
   const getGeneratedText = (information: string) => {
     postChat(`${systemPrompt}\n\n${information}`, false);
   };
@@ -258,7 +181,7 @@ const GenerateSlidePage: React.FC = () => {
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
     setText(_response.trim());
-  }, [messages, setText]);
+  }, [messages, setText, loading]);
 
   const onClickExecGenerateDeck = useCallback(() => {
     if (loading) return;
@@ -317,7 +240,7 @@ const GenerateSlidePage: React.FC = () => {
             onChangeContent={setInformation}
           />
 
-          <div className="mb-2 mt-4 flex justify-between">
+          <div className="mt-4 flex justify-between">
             <div className="mb-2 flex flex-wrap gap-2">
               {examplePrompts.map(({ value, label }) => (
                 <RoundedButton
@@ -355,31 +278,30 @@ const GenerateSlidePage: React.FC = () => {
           </Button>
         </div>
 
-        <div className="flex gap-2">
-          <div
-            className={`mt-2 rounded border border-black/30 ${
-              showCode ? 'w-1/2' : 'w-full'
-            }`}>
+        <div className="mb-8 mt-2 grid grid-cols-3 gap-2">
+          <div className={`${showCode ? 'col-span-2' : 'col-span-3'}`}>
             {loading ? (
-              <div className="flex h-[700px] items-center justify-center">
+              <div className="flex items-center justify-center">
                 <div className="border-aws-sky size-6 animate-spin rounded-full border-4 border-t-transparent"></div>
               </div>
             ) : (
               <SlidePreview
                 text={text}
                 mode="markdown"
-                className={'h-[700px]'}
+                className={'aspect-video rounded border border-black/30'}
                 onSlideReady={handleSlideReady}
               />
             )}
           </div>
 
           {showCode && (
-            <textarea
-              className="mt-2 h-[700px] w-1/2 whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
+            <div className={`${showCode ? 'col-span-1' : 'col-span-0'}`}>
+              <textarea
+                className="h-full w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+              />
+            </div>
           )}
         </div>
       </div>

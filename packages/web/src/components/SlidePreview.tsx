@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+
 import Reveal from 'reveal.js';
 import Markdown from 'reveal.js/plugin/markdown/markdown.esm.js';
-
+import Math from 'reveal.js/plugin/math/math.esm.js';
 import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/simple.css';
 
@@ -65,10 +66,11 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
       try {
         const deck = new Reveal(container, {
           embedded: true,
-          plugins: [Markdown],
+          plugins: [Markdown, Math.KaTeX],
           hash: false,
           transition: 'slide',
           controls: true,
+          controlsTutorial: false,
           slideNumber: 'c/t',
           keyboard: true,
           controlsLayout: 'edges',
