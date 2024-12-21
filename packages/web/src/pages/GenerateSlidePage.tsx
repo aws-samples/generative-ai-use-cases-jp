@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Select from '../components/Select';
@@ -6,7 +6,6 @@ import useChat from '../hooks/useChat';
 import { create } from 'zustand';
 import { GenerateTextPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
-import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import InputChatContent from '../components/InputChatContent';
 import Switch from '../components/Switch';
@@ -25,27 +24,29 @@ type StateType = {
 
 const slidesSample = `# Gen Deck
 
-## 生成AIでスライド作成
 
-- チャット形式で簡単作成
-- マークダウン形式で編集可能
-- リアルタイムプレビュー
+### 生成 AI でスライドを作成しよう
 
 ---
 
 ## 使い方
 
-1. 入力フォームにスライドの内容を指示
-2. AIがスライドを生成
-3. 必要に応じて編集
-
-以下のような指示ができます：
-- 「新商品のプレゼン資料を作って」
-- 「自己紹介スライドを作って」
+|No|手順|
+|--|--|
+|1| 入力フォームにスライドの内容を指示 <ul><li>「新商品のプレゼン資料を作って」</li><li>「自己紹介スライドを作って」etc...</li></ul>|
+|2| AIがスライドを生成|
+|3| 必要に応じて編集|
 
 ---
 
-## コード表示も可能
+<section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+  <h3>画像も表示できます</h3>
+  <img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
+</section>
+
+---
+
+## コード表示も可能 ✍️
 
 \`\`\`javascript
 const greet = () => {
@@ -54,15 +55,18 @@ const greet = () => {
 \`\`\`
 
 ---
-
-## さあ、はじめよう！
-
-1. サンプルプロンプトを試す
-2. 自分でプロンプトを書く
-3. 生成されたスライドを編集`;
+<section data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white">
+<h2 style="color: white">さあ、はじめよう！</h2>
+<ul>
+  <li>サンプルプロンプトを試す</li>
+  <li>自分でプロンプトを書く</li>
+  <li>生成されたスライドを編集</li>  
+</ul>
+</section>
+`;
 
 const systemPrompt = `あなたは reveal.js でサポートされるプレゼンテーション資料を作成する専門家です。
-以下の要件に従って、マークダウン形式でスライドを作成してください：
+以下の要件に従って、マークダウン形式、または HTML 形式を組み合わせてスライドを作成してください：
 内容は専門家として適切に構造化し、聴衆を惹きつける魅力的な表現を心がけてください。
 
 <rules>
@@ -76,82 +80,59 @@ const systemPrompt = `あなたは reveal.js でサポートされるプレゼ�
  - 1枚のスライドにつき1つの主要メッセージ
  - 情報は簡潔に
  - 視覚的な階層構造を意識
-5. コードブロックを含める場合：
+5. テーブルレイアウトを記述する場合：
+  - ヘッダーとボディの間の区切りは -- のように半角ハイフンを２つ並べてください。３つ以上にしてはいけません。これは絶対のルールです。
+6. コードブロックを含める場合：
  - シンタックスハイライトのための言語指定を含める
  - コードは簡潔で理解しやすいものに
-6. 画像を含める場合：
- -  画像は pexels から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
+7. 画像を含める場合：
+ - 画像は pexels から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
+ - 画像はスライド全体の 3 割程度に含めてください。
+8. グラフの表示は行いません。\`\`\`mermaid のような出力は不要です。
 </rules>
 
 <example>
----
+# Gen Deck
 
-# 一番大きな見出しはこんな感じ
-~ ふつうのもじ ~
 
----
-
-## 二番目に大きな見出し
-
-画像を含める場合の例：
-![img](https://picsum.photos/300/450)
+### 生成 AI でスライドを作成しよう
 
 ---
 
-### 三番目に大きな見出し
+## 使い方
 
->>>
-
-">"が三つで下スライド作れる
-
->>>
-
-#### 四番目に大きな見出し
-
----
-
-### テーブルレイアウト
-※ ヘッダーとデータの間は必ず -- （-を2つ）で分割します。
-|header1|header2|
+|No|手順|
 |--|--|
-|row1|data1|
-|row2|data2|
-|row3|data3|
+|1| 入力フォームにスライドの内容を指示 <ul><li>「新商品のプレゼン資料を作って」</li><li>「自己紹介スライドを作って」etc...</li></ul>|
+|2| AIがスライドを生成|
+|3| 必要に応じて編集|
 
 ---
 
-### 文字スタイル
-文字のスタイル普通<br>
-<span style="font-size: 80%; color: blue;">
-文字サイズの変更
-</span>
+<section style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+  <h3>画像も表示できます</h3>
+  <img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
+</section>
 
->>>
+---
 
-### コードはこんな感じ
-\`\`\`
-const users = User.findAll();
-for (const user in users) {
-  const friends = user.findFriend();
-  // ...
+## コード表示も可能 ✍️
+
+\`\`\`javascript
+const greet = () => {
+  console.log('Hello, World!');
 }
 \`\`\`
 
 ---
-
-<p style="text-align: right">右寄せ</p>
-<p style="text-align: right"><span style="font-size: 70%; color: white;">右寄せ＋文字スタイル変更</span></p>
-
-
----
-
-## コードハイライト
-
-\`\`\`text [1|2]
-1 ------
-2 ------
-\`\`\`
-</example>
+<section data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white">
+<h2 style="color: white">さあ、はじめよう！</h2>
+<ul>
+  <li>サンプルプロンプトを試す</li>
+  <li>自分でプロンプトを書く</li>
+  <li>生成されたスライドを編集</li>  
+</ul>
+</section>
 `;
 
 const examplePrompts = [
@@ -267,10 +248,8 @@ const GenerateSlidePage: React.FC = () => {
     updateSystemContextByModel();
   }, []);
 
-  const prompter = useMemo(() => getPrompter(getModelId()), [getModelId]);
-
   const getGeneratedText = (information: string) => {
-    postChat(`${systemPrompt}\n\n${information}`, true);
+    postChat(`${systemPrompt}\n\n${information}`, false);
   };
 
   useEffect(() => {
@@ -381,12 +360,18 @@ const GenerateSlidePage: React.FC = () => {
             className={`mt-2 rounded border border-black/30 ${
               showCode ? 'w-1/2' : 'w-full'
             }`}>
-            <SlidePreview
-              text={text}
-              mode="markdown"
-              className={'h-[700px]'}
-              onSlideReady={handleSlideReady}
-            />
+            {loading ? (
+              <div className="flex h-[700px] items-center justify-center">
+                <div className="border-aws-sky size-6 animate-spin rounded-full border-4 border-t-transparent"></div>
+              </div>
+            ) : (
+              <SlidePreview
+                text={text}
+                mode="markdown"
+                className={'h-[700px]'}
+                onSlideReady={handleSlideReady}
+              />
+            )}
           </div>
 
           {showCode && (

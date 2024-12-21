@@ -3,7 +3,7 @@ import Reveal from 'reveal.js';
 import Markdown from 'reveal.js/plugin/markdown/markdown.esm.js';
 
 import 'reveal.js/dist/reveal.css';
-import 'reveal.js/dist/theme/black.css';
+import 'reveal.js/dist/theme/simple.css';
 
 interface SlidePreviewProps {
   text: string;
@@ -32,7 +32,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
       deckRef.current = null;
     }
 
-    //     // スライドのコンテナを更新
+    // スライドのコンテナを更新
     const slidesContainer = container.querySelector('.slides');
     if (!slidesContainer) return;
 
@@ -100,7 +100,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
   }, [text, onSlideReady]);
 
   return (
-    <div className={`flex flex-col`}>
+    <div className="flex flex-col">
       <div className={`${className}`}>
         <div className="reveal" ref={containerRef}>
           <div className="slides"></div>
