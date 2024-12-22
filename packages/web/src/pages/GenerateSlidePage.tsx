@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Select from '../components/Select';
@@ -15,6 +15,7 @@ import { PiArrowsCounterClockwise, PiDownload, PiCode } from 'react-icons/pi';
 import { PresentationConverter } from '../utils/PresentationConverter';
 import SlideMarkdownHelp from '../components/SlideMarkdownHelp';
 import { SlidePreviewKeyboardShortcutHelp } from '../components/SlidePreviewKeyboardShortcutHelp';
+import { useDebounce } from '../hooks/useDebounce';
 
 type StateType = {
   information: string;
@@ -137,12 +138,13 @@ const RoundedButton = (
     small?: boolean;
   }
 ) => {
+  const { small, ...rest } = props;
   return (
     <button
       className={`cursor-pointer rounded-full border p-2 hover:border-gray-300 hover:bg-gray-50 ${
-        props.small ? 'text-xs' : 'text-sm'
+        small ? 'text-xs' : 'text-sm'
       }`}
-      {...props}
+      {...rest}
     />
   );
 };
@@ -150,6 +152,13 @@ const RoundedButton = (
 const GenerateSlidePage: React.FC = () => {
   const { information, setInformation, text, setText } =
     useGenerateSlidePageState();
+
+  const [inputText, setInputText] = useState(text);
+  const debouncedText = useDebounce(inputText, 300);
+  useEffect(() => {
+    setText(debouncedText);
+  }, [debouncedText]);
+
   const { pathname, search } = useLocation();
   const {
     getModelId,
@@ -331,8 +340,8 @@ const GenerateSlidePage: React.FC = () => {
             <div className="lg:col-span-1">
               <textarea
                 className="h-full min-h-[200px] w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm lg:h-full"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
               />
             </div>
           )}
