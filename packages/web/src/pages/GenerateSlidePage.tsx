@@ -87,7 +87,7 @@ const examplePrompts = [
 以下の内容を含めてください：
 - プロジェクト管理の重要性
 - 主要なプロジェクト管理手法（ウォーターフォール、アジャイルなど）
-- タスク管理とガントチャートの例
+- タスク管理の例
 - コミュニケーション戦略
 - リスク管理の基本
 
@@ -95,13 +95,14 @@ const examplePrompts = [
   },
   {
     label: '働き方改革',
-    value:
-      '日本企業における働き方改革の現状と課題についてのスライドを作成してください。統計データやグラフを用いて、テレワークの普及率、残業時間の推移、従業員満足度などを示し、今後の展望も含めてください。',
+    value: `日本企業における働き方改革の現状と課題についてのスライドを作成してください。
+統計データを用いて、テレワークの普及率、残業時間の推移、従業員満足度などを示し、今後の展望も含めてください。`,
   },
   {
     label: 'ストレス管理とメンタルヘルス',
-    value:
-      'オフィスワーカーのためのストレス管理とメンタルヘルスケアに関するスライドを作成してください。ストレスの原因、症状、対処法を説明し、職場でのメンタルヘルス対策や、ワークライフバランスの重要性について触れてください。簡単な瞑想やデスクでできるストレッチなども含めてください。',
+    value: `オフィスワーカーのためのストレス管理とメンタルヘルスケアに関するスライドを作成してください。
+ストレスの原因、症状、対処法を説明し、職場でのメンタルヘルス対策や、ワークライフバランスの重要性について触れてください。
+簡単な瞑想やデスクでできるストレッチなども含めてください。`,
   },
 ];
 
@@ -157,6 +158,7 @@ const GenerateSlidePage: React.FC = () => {
     messages,
     postChat,
     getCurrentSystemContext,
+    isEmpty,
   } = useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const [showCode, setShowCode] = React.useState(false);
@@ -212,13 +214,13 @@ const GenerateSlidePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4">
-      <div className="col-span-12 flex items-center justify-center text-xl font-semibold lg:mb-5">
+    <div className="grid grid-cols-12">
+      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         スライド生成
       </div>
       <div className="col-span-12 lg:col-span-10 lg:col-start-2">
         <Card label="スライドの元になる情報">
-          <div className="mb-4 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-2 flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="w-full sm:w-64">
               <Select
                 value={getModelId()}
@@ -271,7 +273,7 @@ const GenerateSlidePage: React.FC = () => {
               ))}
             </div>
 
-            {!loading && text && (
+            {!loading && !isEmpty && (
               <Button
                 className="h-9 whitespace-nowrap text-sm"
                 outlined
