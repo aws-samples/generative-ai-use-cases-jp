@@ -1,21 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import Card from '../components/Card';
-import Select from '../components/Select';
-import useChat from '../hooks/useChat';
+import Card from '../../components/Card';
+import Select from '../../components/Select';
+import useChat from '../../hooks/useChat';
 import { create } from 'zustand';
-import { GenerateTextPageQueryParams } from '../@types/navigate';
-import { MODELS } from '../hooks/useModel';
+import { GenerateTextPageQueryParams } from '../../@types/navigate';
+import { MODELS } from '../../hooks/useModel';
 import queryString from 'query-string';
-import InputChatContent from '../components/InputChatContent';
-import Switch from '../components/Switch';
-import Button from '../components/Button';
-import SlidePreview from '../components/SlidePreview';
+import InputChatContent from '../../components/InputChatContent';
+import Switch from '../../components/Switch';
+import Button from '../../components/Button';
+import SlidePreview from '../../components/SlidePreview';
 import { PiArrowsCounterClockwise, PiDownload, PiCode } from 'react-icons/pi';
-import { PresentationConverter } from '../utils/PresentationConverter';
-import SlideMarkdownHelp from '../components/SlideMarkdownHelp';
-import { SlidePreviewKeyboardShortcutHelp } from '../components/SlidePreviewKeyboardShortcutHelp';
-import { useDebounce } from '../hooks/useDebounce';
+import { PresentationConverter } from '../../utils/PresentationConverter';
+import SlideMarkdownHelp from '../../components/SlideMarkdownHelp';
+import { SlidePreviewKeyboardShortcutHelp } from '../../components/SlidePreviewKeyboardShortcutHelp';
+import { useDebounce } from '../../hooks/useDebounce';
+import { examplePrompts, slidesSample } from './constants';
 
 type StateType = {
   information: string;
@@ -24,88 +25,6 @@ type StateType = {
   setText: (s: string) => void;
   clear: () => void;
 };
-
-const slidesSample = `<!-- .slide: data-background-image="https://images.pexels.com/photos/316466/pexels-photo-316466.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" -->
-
-# Gen Deck
-
-
-生成 AI でスライドを作成しよう
-
----
-
-## 使い方
-
-|No|手順|
-|--|--|
-|1| 入力フォームにスライドの内容を指示 <ul><li>「新商品のプレゼン資料を作って」</li><li>「自己紹介スライドを作って」etc...</li></ul>|
-|2| AIがスライドを生成|
-|3| 必要に応じて編集|
-
----
-<!-- style="display: flex; flex-direction: column; align-items: center; justify-content: center;" -->
-<h3>画像も表示できます</h3>
-<img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
-
----
-
-## コード表示も可能 ✍️
-
-\`\`\`javascript
-const greet = () => {
-  console.log('Hello, World!');
-}
-\`\`\`
-
----
-<!-- .slide: data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white"-->
-
-<h2 style="color: white">さあ、はじめよう！</h2>
-<ul>
-  <li>サンプルプロンプトを試す</li>
-  <li>自分でプロンプトを書く</li>
-  <li>生成されたスライドを編集する</li>  
-</ul>
-`;
-
-const examplePrompts = [
-  {
-    label: 'AWS の紹介',
-    value:
-      'AWS の良さを熱く語るスライドを作成してください。クラウドコンピューティングの未来も含めて、エモーショナルな表現で魅力を伝えてください。',
-  },
-  {
-    label: 'AWS Lambda 入門',
-    value: `「AWS Lambda で始めるサーバーレス開発」というタイトルで、AWS Lambda の入門者向けプレゼンテーションを作成してください。
-1. Lambda の基本概念と利点
-2. 簡単なNode.jsのコード例
-3. 主要な制限値（クォータ）を表形式で
-4. ユースケース例`,
-  },
-  {
-    label: 'プロジェクト管理入門',
-    value: `効果的なプロジェクト管理の基礎に関するプレゼンテーションを作成してください。
-以下の内容を含めてください：
-- プロジェクト管理の重要性
-- 主要なプロジェクト管理手法（ウォーターフォール、アジャイルなど）
-- タスク管理の例
-- コミュニケーション戦略
-- リスク管理の基本
-
-タイトル: プロジェクト成功への道：効果的な管理の秘訣`,
-  },
-  {
-    label: '働き方改革',
-    value: `日本企業における働き方改革の現状と課題についてのスライドを作成してください。
-統計データを用いて、テレワークの普及率、残業時間の推移、従業員満足度などを示し、今後の展望も含めてください。`,
-  },
-  {
-    label: 'ストレス管理とメンタルヘルス',
-    value: `オフィスワーカーのためのストレス管理とメンタルヘルスケアに関するスライドを作成してください。
-ストレスの原因、症状、対処法を説明し、職場でのメンタルヘルス対策や、ワークライフバランスの重要性について触れてください。
-簡単な瞑想やデスクでできるストレッチなども含めてください。`,
-  },
-];
 
 const useGenerateSlidePageState = create<StateType>((set) => {
   const INIT_STATE = {
@@ -160,15 +79,8 @@ const GenerateSlidePage: React.FC = () => {
   }, [debouncedText]);
 
   const { pathname, search } = useLocation();
-  const {
-    getModelId,
-    setModelId,
-    loading,
-    messages,
-    postChat,
-    getCurrentSystemContext,
-    isEmpty,
-  } = useChat(pathname);
+  const { getModelId, setModelId, loading, messages, postChat, isEmpty } =
+    useChat(pathname);
   const { modelIds: availableModels } = MODELS;
   const [showCode, setShowCode] = React.useState(false);
 
@@ -187,9 +99,8 @@ const GenerateSlidePage: React.FC = () => {
     }
   }, []);
 
-  const systemPrompt = getCurrentSystemContext();
   const getGeneratedText = (information: string) => {
-    postChat(`${systemPrompt}\n\n${information}`, false);
+    postChat(`${information}`);
   };
 
   useEffect(() => {
@@ -197,8 +108,8 @@ const GenerateSlidePage: React.FC = () => {
     const _lastMessage = messages[messages.length - 1];
     if (_lastMessage.role !== 'assistant') return;
     const _response = messages[messages.length - 1].content;
-    setText(_response.trim());
-  }, [messages, setText, loading]);
+    setInputText(_response.trim());
+  }, [messages, setInputText, loading]);
 
   const onClickExecGenerateDeck = useCallback(() => {
     if (loading) return;
@@ -250,7 +161,7 @@ const GenerateSlidePage: React.FC = () => {
               </div>
               <div className="hidden lg:block">
                 <Switch
-                  label="Markdown テキストを表示する"
+                  label="Markdown テキストを表示"
                   checked={showCode}
                   onSwitch={setShowCode}
                 />
@@ -268,20 +179,21 @@ const GenerateSlidePage: React.FC = () => {
             hideReset={true}
             content={information}
             onChangeContent={setInformation}
+            rows={5}
           />
 
           <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:justify-between">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="text-sm font-bold text-gray-600">入力例：</div>
               {examplePrompts.map(({ value, label }) => (
                 <RoundedButton
                   small
                   onClick={() => setInformation(value)}
                   key={label}>
-                  {label} ↗️
+                  {label}
                 </RoundedButton>
               ))}
             </div>
-
             {!loading && !isEmpty && (
               <Button
                 className="h-9 whitespace-nowrap text-sm"

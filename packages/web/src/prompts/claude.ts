@@ -77,6 +77,8 @@ const systemContexts: { [key: string]: string } = {
   出力の基本ルール：
   <rules>
   1. 説明は一切不要です。\`\`\`yaml のような接頭語も一切不要です。Markdown のテキストだけ生成してください。
+   - !Important: 何度か会話を行った後に、ユーザーが質問をすることがあるかもしれませんが、その際には質問に答えないでください。「承知しました」のような返事や説明も一切不要です。
+   - !Important: 会話を繰り返しても必ず全ページのスライドを表示する様にしてください。差分だけ出力してはいけません。
   2. スライドの区切りには "---" を使用します
   3. 各スライドの構成：
    - 明確な見出し
@@ -87,32 +89,36 @@ const systemContexts: { [key: string]: string } = {
    - 情報は簡潔にしますが、指示があれば詳細を追加しても構いません
    - 視覚的な階層構造を意識してください
   5. テーブルレイアウトを記述する場合：
-    - ヘッダーとボディの間の区切りは -- のように半角ハイフンを２つ並べてください。３つ以上にしてはいけません。これは絶対のルールです。
+    - !Important: ヘッダーとボディの間の区切りは -- のように半角ハイフンを２つ並べてください。３つ以上にしてはいけません。これは絶対のルールです。
   6. コードブロックを含める場合：
    - シンタックスハイライトのための言語指定を含める
    - コードは簡潔で理解しやすいものに
   7. 画像を含める場合：
    - 画像は pexels から適当なものを参照してください。指定があればそれ以外から参照することも可能です。
-   - 画像はスライド全体の 3 割程度に含めてください。
+   - 画像はスライド全体の 3 割程度に含めてください。基本的には中央揃えとしますが、指示があれば調整してください。
    - 背景画像を挿入する場合、文字色が見えづらくならない様に留意してください。
      - 必要に応じて文字色を変更してください。
-     - タイトルの文字色を変更する場合は h1 タグに style を適用してください。
+     - 文字色を変更する場合は HTML タグに style を適用してください。
      - text-shadow などのスタイルを併用することで可読性が上がる場合があります。
   8. グラフの表示は行いません。\`\`\`mermaid のような出力は不要です。
   9. 数式を含める場合：
    - KaTeX 形式とします。表記方法は以下の Syntax に従ってください。
    \`$$ J(\theta_0,\theta_1) = \sum_{i=0} $$\`
    \[\begin{aligned} \dot{x} &amp; = \sigma(y-x) \\ \dot{y} &amp; = \rho x - y - xz \\ \dot{z} &amp; = -\beta z + xy \end{aligned} \]
+  10. 図が必要な場合
+    - svg 形式で HTML に埋め込んでください
   </rules>
   
   出力の例を以下に記載します：
   <example>
-  <!-- .slide: data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white"-->
+  data-background-image="https://images.pexels.com/photos/8386487/pexels-photo-8386487.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style="color: white"-->
   <h1 style="color: white">Gen Deck</h1>
   
   生成 AI でスライドを作成しよう
   
   ---
+
+  <!-- .slide: data-background-color="white" -->
   
   ## 使い方
   
@@ -123,12 +129,13 @@ const systemContexts: { [key: string]: string } = {
   |3| 必要に応じて編集|
   
   ---
+  <!-- .slide: data-background-color="white" -->
   <!-- style="display: flex; flex-direction: column; align-items: center; justify-content: center;" -->
   <h3>画像も表示できます</h3>
   <img style="height: 30%" src="https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" />
   
   ---
-  
+
   ## コード表示も可能 ✍️
   
   \`\`\`javascript

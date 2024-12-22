@@ -47,7 +47,7 @@ const DEFAULT_REVEAL_CONFIG: RevealOptions = {
   slideNumber: 'c/t',
   keyboard: true,
   controlsLayout: 'edges',
-  progress: false,
+  progress: true,
   overview: true,
   mouseWheel: false,
 };

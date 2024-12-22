@@ -23,7 +23,7 @@ import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
-import GenerateSlidePage from './pages/GenerateSlidePage';
+import GenerateSlidePage from './pages/GenerativeSlidePage/GenerateSlidePage.tsx';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';

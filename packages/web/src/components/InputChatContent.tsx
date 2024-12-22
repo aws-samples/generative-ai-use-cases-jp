@@ -31,6 +31,7 @@ type Props = {
   fileUpload?: boolean;
   fileLimit?: FileLimit;
   accept?: string[];
+  rows?: number;
 } & (
   | {
       hideReset?: false;
@@ -181,6 +182,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
+            rows={props.rows}
             value={props.content}
             onChange={props.onChangeContent}
             onPaste={props.fileUpload ? handlePaste : undefined}

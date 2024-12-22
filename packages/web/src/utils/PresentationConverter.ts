@@ -12,6 +12,7 @@ export interface ImageData {
   x?: number;
   y?: number;
   isBackground?: boolean;
+  isSvg?: boolean;
 }
 
 export interface SlideContent {
@@ -254,7 +255,7 @@ export class PresentationConverter {
 
       // テキストコンテンツの収集
       slideElement
-        .querySelectorAll('h1, h2, h3, li, p, pre code, table, img')
+        .querySelectorAll('h1, h2, h3, li, p, pre code, table, img, svg')
         .forEach((element) => {
           if (element.tagName === 'H1') {
             content.type = 'title';
@@ -293,6 +294,35 @@ export class PresentationConverter {
               src: imgElement.src || '',
               width: imgElement.naturalWidth / 96, // ピクセルからインチに変換
               height: imgElement.naturalHeight / 96,
+            };
+          } else if (element.tagName === 'svg') {
+            const svgElement = element as SVGElement;
+            // SVG要素のクローンを作成
+            const clone = svgElement.cloneNode(true) as SVGElement;
+
+            // 基本的な属性を設定（既存の属性は上書きしない）
+            if (!clone.getAttribute('xmlns')) {
+              clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            }
+            if (!clone.getAttribute('width')) {
+              clone.setAttribute('width', svgElement.clientWidth.toString());
+            }
+            if (!clone.getAttribute('height')) {
+              clone.setAttribute('height', svgElement.clientHeight.toString());
+            }
+
+            // SVGをシリアライズ
+            const svgData = new XMLSerializer().serializeToString(clone);
+
+            // Base64エンコード
+            const base64SVG = btoa(unescape(encodeURIComponent(svgData)));
+            const dataUrl = `data:image/svg+xml;base64,${base64SVG}`;
+
+            content.image = {
+              src: dataUrl,
+              width: parseInt(clone.getAttribute('width') || '0') / 96,
+              height: parseInt(clone.getAttribute('height') || '0') / 96,
+              isSvg: true,
             };
           }
         });

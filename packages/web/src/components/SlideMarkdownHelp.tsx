@@ -6,7 +6,7 @@ const SlideMarkdownHelp: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="rounded-lg bg-gray-50 bg-white">
+    <div className="rounded-lg bg-gray-50">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full flex-row items-center justify-between p-4"
