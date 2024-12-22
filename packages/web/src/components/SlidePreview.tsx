@@ -102,7 +102,7 @@ const SlidePreview: React.FC<SlidePreviewProps> = ({
   }, [text, onSlideReady]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2">
       <div className={`${className}`}>
         <div className="reveal" ref={containerRef}>
           <div className="slides"></div>

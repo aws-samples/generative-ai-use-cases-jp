@@ -13,6 +13,8 @@ import Button from '../components/Button';
 import SlidePreview from '../components/SlidePreview';
 import { PiArrowsCounterClockwise, PiDownload, PiCode } from 'react-icons/pi';
 import { PresentationConverter } from '../utils/PresentationConverter';
+import SlideMarkdownHelp from '../components/SlideMarkdownHelp';
+import { SlidePreviewKeyboardShortcutHelp } from '../components/SlidePreviewKeyboardShortcutHelp';
 
 type StateType = {
   information: string;
@@ -301,12 +303,13 @@ const GenerateSlidePage: React.FC = () => {
 
         <div className="mb-8 mt-2 grid gap-4 lg:grid-cols-3">
           <div
-            className={`${
-              showCode ? 'lg:col-span-2' : 'lg:col-span-3'
-            } min-h-[300px]`}>
+            className={`${showCode ? 'lg:col-span-2' : 'lg:col-span-3'} flex flex-col gap-2`}>
             {loading ? (
-              <div className="flex h-full items-center justify-center">
+              <div className="flex aspect-video h-full flex-col items-center justify-center gap-2 rounded border border-black/30">
                 <div className="border-aws-sky size-6 animate-spin rounded-full border-4 border-t-transparent"></div>
+                <span className="text-xs text-gray-500">
+                  スライドのプレビューを生成中
+                </span>
               </div>
             ) : (
               <SlidePreview
@@ -316,12 +319,16 @@ const GenerateSlidePage: React.FC = () => {
                 onSlideReady={handleSlideReady}
               />
             )}
+
+            {/* Help */}
+            <SlidePreviewKeyboardShortcutHelp />
+            <SlideMarkdownHelp />
           </div>
 
           {showCode && (
             <div className="lg:col-span-1">
               <textarea
-                className="h-[300px] w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm lg:h-full"
+                className="h-full min-h-[200px] w-full whitespace-pre-wrap break-words rounded border border-black/30 p-1.5 font-mono text-sm lg:h-full"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
