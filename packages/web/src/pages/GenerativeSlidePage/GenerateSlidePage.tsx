@@ -16,6 +16,13 @@ import { PresentationConverter } from '../../utils/PresentationConverter';
 import SlideMarkdownHelp from '../../components/SlideMarkdownHelp';
 import { SlidePreviewKeyboardShortcutHelp } from '../../components/SlidePreviewKeyboardShortcutHelp';
 import { useDebounce } from '../../hooks/useDebounce';
+
+type SlideVersion = {
+  text: string;
+  timestamp: number;
+  information: string;
+};
+
 import { examplePrompts, slidesSample } from './constants';
 
 type StateType = {
@@ -23,6 +30,8 @@ type StateType = {
   setInformation: (s: string) => void;
   text: string;
   setText: (s: string) => void;
+  versions: SlideVersion[];
+  addVersion: (text: string, information: string) => void;
   clear: () => void;
 };
 
@@ -30,6 +39,7 @@ const useGenerateSlidePageState = create<StateType>((set) => {
   const INIT_STATE = {
     information: '',
     text: slidesSample,
+    versions: [],
   };
   return {
     ...INIT_STATE,
@@ -43,11 +53,41 @@ const useGenerateSlidePageState = create<StateType>((set) => {
         text: s,
       }));
     },
+    addVersion: (text: string, information: string) => {
+      set((state) => ({
+        versions: [
+          ...state.versions,
+          {
+            text,
+            information,
+            timestamp: Date.now(),
+          },
+        ],
+      }));
+    },
     clear: () => {
       set(INIT_STATE);
     },
   };
 });
+
+const VersionButton: React.FC<{
+  version: number;
+  onClick: () => void;
+  isActive: boolean;
+}> = ({ version, onClick, isActive }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-md px-2 py-1 text-sm ${
+        isActive
+          ? 'bg-gray-600 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}>
+      v{version}
+    </button>
+  );
+};
 
 const RoundedButton = (
   props: React.DetailedHTMLProps<
@@ -69,7 +109,10 @@ const RoundedButton = (
 };
 
 const GenerateSlidePage: React.FC = () => {
-  const { information, setInformation, text, setText } =
+  const [currentVersion, setCurrentVersion] = useState<number>(-1);
+  const [prevLoading, setPrevLoading] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0); // プレビューのリフレッシュ用
+  const { information, setInformation, text, setText, versions, addVersion } =
     useGenerateSlidePageState();
 
   const [inputText, setInputText] = useState(text);
@@ -104,15 +147,32 @@ const GenerateSlidePage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (messages.length === 0) return;
-    const _lastMessage = messages[messages.length - 1];
-    if (_lastMessage.role !== 'assistant') return;
-    const _response = messages[messages.length - 1].content;
-    setInputText(_response.trim());
-  }, [messages, setInputText, loading]);
+    if (prevLoading && !loading && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        const txt = lastMessage.content.trim();
+        // 過去同じ値がなかったら
+        if (
+          versions.findIndex(
+            (v) => v.text === txt && v.information === information
+          ) === -1
+        ) {
+          // バージョンを追加
+          addVersion(txt, information);
+          setInputText(txt);
+          setCurrentVersion(-1);
+        }
+      }
+    }
+    setPrevLoading(loading);
+  }, [loading, messages]);
 
   const onClickExecGenerateDeck = useCallback(() => {
     if (loading) return;
+    if (currentVersion !== -1) {
+      setCurrentVersion(-1);
+      setText(inputText);
+    }
     getGeneratedText(information);
   }, [information, loading]);
 
@@ -128,6 +188,14 @@ const GenerateSlidePage: React.FC = () => {
       console.error('Failed to export presentation:', error);
     }
   }, []);
+
+  const handleVersionClick = (index: number) => {
+    setCurrentVersion(index);
+    setInputText(versions[index].text);
+    setText(versions[index].text);
+    setInformation(versions[index].information);
+    setPreviewKey((prev) => prev + 1); // プレビューをリフレッシュ
+  };
 
   const handleSlideReady = useCallback((container: HTMLDivElement) => {
     slideContainerRef.current = container;
@@ -211,7 +279,24 @@ const GenerateSlidePage: React.FC = () => {
         </Card>
 
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-lg font-semibold">スライドプレビュー</h3>
+          <div className="flex items-center gap-4 overflow-x-auto">
+            <h3 className="min-w-[11rem] text-lg font-semibold">
+              スライドプレビュー
+            </h3>
+            {versions.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto">
+                {versions.map((_version, index) => (
+                  <VersionButton
+                    key={index}
+                    version={index + 1}
+                    onClick={() => handleVersionClick(index)}
+                    isActive={currentVersion === index}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           <Button
             onClick={handleExport}
             className="flex items-center gap-2 whitespace-nowrap"
@@ -236,6 +321,7 @@ const GenerateSlidePage: React.FC = () => {
               </div>
             ) : (
               <SlidePreview
+                key={previewKey} // プレビューのリフレッシュ用のキーを追加
                 text={text}
                 mode="markdown"
                 className="aspect-video rounded border border-black/30"
