@@ -922,3 +922,33 @@ cdk.json 設定例
 ```
 
 設定変更後に `npm run cdk:deploy` を実行して変更内容を反映させます。
+
+## 同一アカウントに複数環境デプロイする場合
+
+同一アカウントで複数環境をデプロイする場合、異なる名前のスタックでデプロイする必要があります。
+
+`cdk.json` の `stage` を設定すると各スタックの Suffix として付与され別環境としてデプロイされます。
+
+cdk.json には以下の値を設定します。
+
+- `stage` ... ステージ名 (デフォルト: "" (空文字))
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+{
+  "context": {
+    "stage": "スタック名に付与される Suffix"
+  }
+}
+```
+
+cdk.json 設定例
+
+```json
+{
+  "context": {
+    "stage": "-dev"
+  }
+}
+```
