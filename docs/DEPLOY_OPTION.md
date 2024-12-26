@@ -927,18 +927,18 @@ cdk.json 設定例
 
 同一アカウントで複数環境をデプロイする場合、異なる名前のスタックでデプロイする必要があります。
 
-`cdk.json` の `stage` を設定すると各スタックの Suffix として付与され別環境としてデプロイされます。
+`cdk.json` の `env` を設定すると各スタックの Suffix として付与され別環境としてデプロイされます。
 
 cdk.json には以下の値を設定します。
 
-- `stage` ... ステージ名 (デフォルト: "" (空文字))
+- `env` ... 環境名 (デフォルト: "" (空文字))
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 
 ```json
 {
   "context": {
-    "stage": "スタック名に付与される Suffix"
+    "env": "スタック名に付与される Suffix"
   }
 }
 ```
@@ -948,7 +948,7 @@ cdk.json 設定例
 ```json
 {
   "context": {
-    "stage": "-dev"
+    "env": "-dev"
   }
 }
 ```

@@ -94,9 +94,7 @@ export class Rag extends Construct {
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
-    const stage: string[] | null = this.node.tryGetContext(
-      'stage'
-    ) ?? "";
+    const env: string[] | null = this.node.tryGetContext('env') ?? '';
 
     const kendraIndexArnInCdkContext =
       this.node.tryGetContext('kendraIndexArn');
@@ -185,7 +183,7 @@ export class Rag extends Construct {
 
       let index: kendra.CfnIndex;
       const indexProps: kendra.CfnIndexProps = {
-        name: `generative-ai-use-cases-index${stage}`,
+        name: `generative-ai-use-cases-index${env}`,
         edition: 'DEVELOPER_EDITION',
         roleArn: indexRole.roleArn,
 

@@ -17,7 +17,7 @@
     ]
   },
   "context": {
-    "stage": "",
+    "env": "",
     "ragEnabled": false,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
