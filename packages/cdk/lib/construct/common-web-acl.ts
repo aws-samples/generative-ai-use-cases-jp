@@ -1,3 +1,4 @@
+import { Lazy, Names } from 'aws-cdk-lib';
 import { CfnIPSet, CfnWebACL, CfnWebACLProps } from 'aws-cdk-lib/aws-wafv2';
 import { Construct } from 'constructs';
 
@@ -13,6 +14,8 @@ export class CommonWebAcl extends Construct {
 
   constructor(scope: Construct, id: string, props: CommonWebAclProps) {
     super(scope, id);
+
+    const suffix = Lazy.string({ produce: () => Names.uniqueId(this) });
 
     const rules: CfnWebACLProps['rules'] = [];
 
@@ -139,12 +142,12 @@ export class CommonWebAcl extends Construct {
 
     const webAcl = new CfnWebACL(this, `WebAcl${id}`, {
       defaultAction: { block: {} },
-      name: `WebAcl${id}`,
+      name: `WebAcl-${suffix}`,
       scope: props.scope,
       visibilityConfig: {
         cloudWatchMetricsEnabled: true,
         sampledRequestsEnabled: true,
-        metricName: `WebAcl${id}`,
+        metricName: `WebAcl-${suffix}`,
       },
       rules: rules,
     });
