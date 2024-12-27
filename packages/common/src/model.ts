@@ -73,3 +73,33 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'amazon.titan-image-generator-v1': MODEL_FEATURE.IMAGE_GEN,
   'amazon.nova-canvas-v1:0': MODEL_FEATURE.IMAGE_GEN,
 };
+
+// Light Weight Model preferred to use for light weight task (i.e. title generation)
+export const lightWeightModels = new Set([
+  // Anthropic
+  'anthropic.claude-3-sonnet-20240229-v1:0',
+  'anthropic.claude-3-haiku-20240307-v1:0',
+  'us.anthropic.claude-3-sonnet-20240229-v1:0',
+  'us.anthropic.claude-3-haiku-20240307-v1:0',
+  'eu.anthropic.claude-3-sonnet-20240229-v1:0',
+  'eu.anthropic.claude-3-haiku-20240307-v1:0',
+  'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
+  'apac.anthropic.claude-3-sonnet-20240229-v1:0',
+  'apac.anthropic.claude-3-haiku-20240307-v1:0',
+  // Amazon
+  'amazon.nova-pro-v1:0',
+  'amazon.nova-lite-v1:0',
+  'amazon.nova-micro-v1:0',
+  'us.amazon.nova-pro-v1:0',
+  'us.amazon.nova-lite-v1:0',
+  'us.amazon.nova-micro-v1:0',
+  // Meta
+  'meta.llama3-8b-instruct-v1:0',
+  'meta.llama3-70b-instruct-v1:0',
+  'meta.llama3-1-8b-instruct-v1:0',
+  'meta.llama3-1-70b-instruct-v1:0',
+  'us.meta.llama3-2-1b-instruct-v1:0',
+  'us.meta.llama3-2-3b-instruct-v1:0',
+  'us.meta.llama3-2-11b-instruct-v1:0',
+  'us.meta.llama3-2-90b-instruct-v1:0',
+]);

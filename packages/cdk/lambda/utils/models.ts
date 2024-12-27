@@ -21,25 +21,33 @@ import {
   ConversationRole,
   ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
+import { lightWeightModels } from '@generative-ai-use-cases-jp/common';
 
 // Default Models
 
-const modelId: string = JSON.parse(process.env.MODEL_IDS!)
-  .map((name: string) => name.trim())
-  .filter((name: string) => name)[0]!;
+const modelIds: string[] = (
+  JSON.parse(process.env.MODEL_IDS || '[]') as string[]
+)
+  .map((modelId: string) => modelId.trim())
+  .filter((modelId: string) => modelId);
+// 利用できるモデルの中で軽量モデルがあれば軽量モデルを優先する。
+const lightWeightModelIds = modelIds.filter((modelId: string) =>
+  lightWeightModels.has(modelId)
+);
+const defaultModelId = lightWeightModelIds[0] || modelIds[0];
 export const defaultModel: Model = {
   type: 'bedrock',
-  modelId: modelId,
+  modelId: defaultModelId,
 };
 
-const imageGenerationModelId: string = JSON.parse(
-  process.env.IMAGE_GENERATION_MODEL_IDS!
+const imageGenerationModelIds: string[] = (
+  JSON.parse(process.env.IMAGE_GENERATION_MODEL_IDS || '[]') as string[]
 )
   .map((name: string) => name.trim())
-  .filter((name: string) => name)[0]!;
+  .filter((name: string) => name);
 export const defaultImageGenerationModel: Model = {
   type: 'bedrock',
-  modelId: imageGenerationModelId,
+  modelId: imageGenerationModelIds[0],
 };
 
 // Prompt Templates
