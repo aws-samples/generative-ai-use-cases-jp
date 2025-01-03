@@ -8,6 +8,7 @@ import Select from '../components/Select';
 import ExpandableField from '../components/ExpandableField';
 import ButtonIcon from '../components/ButtonIcon';
 import { PiFileArrowUp, PiDiceFive, PiNotePencil } from 'react-icons/pi';
+import { MdDeleteOutline } from 'react-icons/md';
 import useImage from '../hooks/useImage';
 import GenerateImageAssistant from '../components/GenerateImageAssistant';
 import SketchPad, { Canvas } from '../components/SketchPad';
@@ -28,6 +29,7 @@ import {
   AmazonUIImageGenerationMode,
   ControlMode,
 } from 'generative-ai-use-cases-jp';
+import InputText from '../components/InputText';
 
 const MAX_SAMPLE = 7;
 
@@ -546,6 +548,9 @@ const GenerateImagePage: React.FC = () => {
   const [width, height] = useMemo(() => {
     return resolution.label.split('x').map((v) => Number(v));
   }, [resolution]);
+  const [colorList, setColorList] = useState<string[]>(
+    colors.split(',').map((color) => color.trim())
+  );
 
   const maskMode = useMemo(() => {
     return (
@@ -1105,15 +1110,83 @@ const GenerateImagePage: React.FC = () => {
                   />
                 )}
                 {generationMode === 'COLOR_GUIDED_GENERATION' && (
-                  <Select
-                    label="カラーパレット"
-                    help="生成画像の色合いを指定指定します。"
-                    options={colorsOptions}
-                    value={colors}
-                    onChange={setColors}
-                    fullWidth
-                    showColorChips
-                  />
+                  <div className="space-y-4">
+                    <div>
+                      <Select
+                        label="プリセットパレット"
+                        help="プリセットのカラーパレットから選択できます"
+                        options={colorsOptions}
+                        value={
+                          colorsOptions.find(
+                            (option) => option.value === colors
+                          )?.value || ''
+                        }
+                        onChange={(value) => {
+                          const newColors = value
+                            .split(',')
+                            .map((color) => color.trim());
+                          setColorList(newColors);
+                          setColors(value);
+                        }}
+                        fullWidth
+                        showColorChips
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-bold">
+                        カスタムカラー
+                      </label>
+                      <div className="mt-2 space-y-2">
+                        {colorList.map((color, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={color}
+                              onChange={(e) => {
+                                const newColors = [...colorList];
+                                newColors[index] = e.target.value;
+                                setColorList(newColors);
+                                setColors(newColors.join(','));
+                              }}
+                              className="h-8 w-8 bg-white"
+                            />
+                            <InputText
+                              value={color}
+                              onChange={(value) => {
+                                const newColors = [...colorList];
+                                newColors[index] = value;
+                                setColorList(newColors);
+                                setColors(newColors.join(','));
+                              }}
+                              className="w-24"
+                            />
+                            <ButtonIcon
+                              onClick={() => {
+                                const newColors = colorList.filter(
+                                  (_, i) => i !== index
+                                );
+                                setColorList(newColors);
+                                setColors(newColors.join(','));
+                              }}>
+                              <MdDeleteOutline />
+                            </ButtonIcon>
+                          </div>
+                        ))}
+
+                        <Button
+                          onClick={() => {
+                            const newColors = [...colorList, '#000000'];
+                            setColorList(newColors);
+                            setColors(newColors.join(','));
+                          }}
+                          className="mt-2"
+                          disabled={colorList.length >= 5}>
+                          カラーを追加
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 )}
                 {generationMode === 'IMAGE_CONDITIONING' && (
                   <Select
