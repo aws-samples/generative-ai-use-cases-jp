@@ -3,12 +3,15 @@ import { FeatureFlags } from 'generative-ai-use-cases-jp';
 // Manage Model Feature
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference-supported-models-features.html
 const MODEL_FEATURE: Record<string, FeatureFlags> = {
+  // Model Feature Flags
   TEXT_ONLY: { text: true, doc: false, image: false, video: false },
   TEXT_DOC: { text: true, doc: true, image: false, video: false },
   TEXT_DOC_IMAGE: { text: true, doc: true, image: true, video: false },
   TEXT_DOC_IMAGE_VIDEO: { text: true, doc: true, image: true, video: true },
   IMAGE_GEN: { image_gen: true },
   VIDEO_GEN: { video_gen: true },
+  // Additional Flags
+  LIGHT: { light: true },
 };
 export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Anthropic
@@ -16,21 +19,45 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'anthropic.claude-3-5-haiku-20241022-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'anthropic.claude-3-5-sonnet-20240620-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'anthropic.claude-3-opus-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'anthropic.claude-3-sonnet-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'anthropic.claude-3-haiku-20240307-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'anthropic.claude-3-sonnet-20240229-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'anthropic.claude-3-haiku-20240307-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
   'us.anthropic.claude-3-5-sonnet-20241022-v2:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-opus-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'us.anthropic.claude-3-sonnet-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'us.anthropic.claude-3-haiku-20240307-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'us.anthropic.claude-3-sonnet-20240229-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'us.anthropic.claude-3-haiku-20240307-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
   'eu.anthropic.claude-3-5-sonnet-20240620-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'eu.anthropic.claude-3-sonnet-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'eu.anthropic.claude-3-haiku-20240307-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'eu.anthropic.claude-3-sonnet-20240229-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'eu.anthropic.claude-3-haiku-20240307-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
   'apac.anthropic.claude-3-5-sonnet-20240620-v1:0':
     MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'apac.anthropic.claude-3-sonnet-20240229-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
-  'apac.anthropic.claude-3-haiku-20240307-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'apac.anthropic.claude-3-sonnet-20240229-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'apac.anthropic.claude-3-haiku-20240307-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+    ...MODEL_FEATURE.LIGHT,
+  },
   'anthropic.claude-v2:1': MODEL_FEATURE.TEXT_DOC,
   'anthropic.claude-v2': MODEL_FEATURE.TEXT_DOC,
   'anthropic.claude-instant-v1': MODEL_FEATURE.TEXT_DOC,
@@ -39,11 +66,23 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'amazon.titan-text-premier-v1:0': MODEL_FEATURE.TEXT_ONLY,
   // Amazon Nova
   'amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
-  'amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
+  'amazon.nova-lite-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE_VIDEO,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'amazon.nova-micro-v1:0': {
+    ...MODEL_FEATURE.TEXT_ONLY,
+    ...MODEL_FEATURE.LIGHT,
+  },
   'us.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // S3 Video アップロードが us-east-1 のみ対応のため。 Video を利用したい場合は us-east-1 の amazon.nova-pro-v1:0 で利用できます。（注意: リージョン変更の際 RAG を有効化している場合削除されます）
-  'us.amazon.nova-lite-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
-  'us.amazon.nova-micro-v1:0': MODEL_FEATURE.TEXT_ONLY,
+  'us.amazon.nova-lite-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'us.amazon.nova-micro-v1:0': {
+    ...MODEL_FEATURE.TEXT_ONLY,
+    ...MODEL_FEATURE.LIGHT,
+  },
   // Meta
   'meta.llama3-8b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   'meta.llama3-70b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
@@ -73,33 +112,3 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'amazon.titan-image-generator-v1': MODEL_FEATURE.IMAGE_GEN,
   'amazon.nova-canvas-v1:0': MODEL_FEATURE.IMAGE_GEN,
 };
-
-// Light Weight Model preferred to use for light weight task (i.e. title generation)
-export const lightWeightModels = new Set([
-  // Anthropic
-  'anthropic.claude-3-sonnet-20240229-v1:0',
-  'anthropic.claude-3-haiku-20240307-v1:0',
-  'us.anthropic.claude-3-sonnet-20240229-v1:0',
-  'us.anthropic.claude-3-haiku-20240307-v1:0',
-  'eu.anthropic.claude-3-sonnet-20240229-v1:0',
-  'eu.anthropic.claude-3-haiku-20240307-v1:0',
-  'apac.anthropic.claude-3-5-sonnet-20240620-v1:0',
-  'apac.anthropic.claude-3-sonnet-20240229-v1:0',
-  'apac.anthropic.claude-3-haiku-20240307-v1:0',
-  // Amazon
-  'amazon.nova-pro-v1:0',
-  'amazon.nova-lite-v1:0',
-  'amazon.nova-micro-v1:0',
-  'us.amazon.nova-pro-v1:0',
-  'us.amazon.nova-lite-v1:0',
-  'us.amazon.nova-micro-v1:0',
-  // Meta
-  'meta.llama3-8b-instruct-v1:0',
-  'meta.llama3-70b-instruct-v1:0',
-  'meta.llama3-1-8b-instruct-v1:0',
-  'meta.llama3-1-70b-instruct-v1:0',
-  'us.meta.llama3-2-1b-instruct-v1:0',
-  'us.meta.llama3-2-3b-instruct-v1:0',
-  'us.meta.llama3-2-11b-instruct-v1:0',
-  'us.meta.llama3-2-90b-instruct-v1:0',
-]);

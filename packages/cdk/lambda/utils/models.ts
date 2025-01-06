@@ -21,7 +21,7 @@ import {
   ConversationRole,
   ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
-import { lightWeightModels } from '@generative-ai-use-cases-jp/common';
+import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 // Default Models
 
@@ -31,8 +31,8 @@ const modelIds: string[] = (
   .map((modelId: string) => modelId.trim())
   .filter((modelId: string) => modelId);
 // 利用できるモデルの中で軽量モデルがあれば軽量モデルを優先する。
-const lightWeightModelIds = modelIds.filter((modelId: string) =>
-  lightWeightModels.has(modelId)
+const lightWeightModelIds = modelIds.filter(
+  (modelId: string) => modelFeatureFlags[modelId].light
 );
 const defaultModelId = lightWeightModelIds[0] || modelIds[0];
 export const defaultModel: Model = {
