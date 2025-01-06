@@ -4,7 +4,6 @@ import {
   Model,
   PromptTemplate,
   StableDiffusionParams,
-  AmazonImageParams,
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
@@ -12,6 +11,8 @@ import {
   GuardrailConverseStreamConfigParams,
   StabilityAI2024ModelParams,
   StabilityAI2024ModelResponse,
+  AmazonGeneralImageParams,
+  AmazonAdvancedImageParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -399,7 +400,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
       init_image: params.initImage,
       mask_image: params.maskImage,
       mask_source:
-        params.maskMode === 'INPAINTING'
+        params.taskType === 'INPAINTING'
           ? 'MASK_IMAGE_BLACK'
           : 'MASK_IMAGE_WHITE',
     };
@@ -455,7 +456,7 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
   return JSON.stringify(body);
 };
 
-const createBodyImageAmazonImage = (params: GenerateImageParams) => {
+const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
   // TODO: Support inpainting and outpainting too
   const imageGenerationConfig = {
     numberOfImages: 1,
@@ -465,8 +466,8 @@ const createBodyImageAmazonImage = (params: GenerateImageParams) => {
     cfgScale: params.cfgScale,
     seed: params.seed % 214783648, // max for titan image
   };
-  let body: Partial<AmazonImageParams> = {};
-  if (params.initImage && params.maskMode === undefined) {
+  let body: Partial<AmazonGeneralImageParams> = {};
+  if (params.initImage && params.taskType === undefined) {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -480,7 +481,7 @@ const createBodyImageAmazonImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'INPAINTING') {
+  } else if (params.initImage && params.taskType === 'INPAINTING') {
     body = {
       taskType: 'INPAINTING',
       inPaintingParams: {
@@ -495,7 +496,7 @@ const createBodyImageAmazonImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'OUTPAINTING') {
+  } else if (params.initImage && params.taskType === 'OUTPAINTING') {
     body = {
       taskType: 'OUTPAINTING',
       outPaintingParams: {
@@ -522,6 +523,42 @@ const createBodyImageAmazonImage = (params: GenerateImageParams) => {
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || '',
       },
       imageGenerationConfig: imageGenerationConfig,
+    };
+  }
+  return JSON.stringify(body);
+};
+
+const createBodyImageAmazonAdvancedImage = (params: GenerateImageParams) => {
+  const baseBody = JSON.parse(createBodyImageAmazonGeneralImage(params));
+  let body: Partial<AmazonAdvancedImageParams> = {
+    ...baseBody,
+  };
+
+  if (params.taskType === 'COLOR_GUIDED_GENERATION') {
+    body = {
+      taskType: 'COLOR_GUIDED_GENERATION',
+      colorGuidedGenerationParams: {
+        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        referenceImage: params.initImage,
+        colors: params.colors!,
+      },
+      imageGenerationConfig: body.imageGenerationConfig,
+    };
+  } else if (params.taskType === 'BACKGROUND_REMOVAL') {
+    body = {
+      taskType: 'BACKGROUND_REMOVAL',
+      backgroundRemovalParams: {
+        image: params.initImage!,
+      },
+    };
+  } else if (body.textToImageParams) {
+    // TEXT_IMAGE タスクタイプの拡張(Image Conditioning)
+    body.textToImageParams = {
+      ...body.textToImageParams,
+      conditionImage: params.initImage,
+      controlMode: params.controlMode,
+      controlStrength: params.controlStrength,
     };
   }
   return JSON.stringify(body);
@@ -990,15 +1027,15 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
   'amazon.titan-image-generator-v1': {
-    createBodyImage: createBodyImageAmazonImage,
+    createBodyImage: createBodyImageAmazonGeneralImage,
     extractOutputImage: extractOutputImageAmazonImage,
   },
   'amazon.titan-image-generator-v2:0': {
-    createBodyImage: createBodyImageAmazonImage,
+    createBodyImage: createBodyImageAmazonAdvancedImage,
     extractOutputImage: extractOutputImageAmazonImage,
   },
   'amazon.nova-canvas-v1:0': {
-    createBodyImage: createBodyImageAmazonImage,
+    createBodyImage: createBodyImageAmazonAdvancedImage,
     extractOutputImage: extractOutputImageAmazonImage,
   },
 };

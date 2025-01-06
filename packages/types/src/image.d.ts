@@ -1,5 +1,25 @@
+export type ControlMode = 'CANNY_EDGE' | 'SEGMENTATION';
+export type AmazonBaseImageGenerationMode =
+  | 'TEXT_IMAGE'
+  | 'IMAGE_VARIATION'
+  | 'INPAINTING'
+  | 'OUTPAINTING';
+// Titan v2, Nova Canvas
+export type AmazonAdvancedImageGenerationMode =
+  | 'IMAGE_CONDITIONING'
+  | 'COLOR_GUIDED_GENERATION'
+  | 'BACKGROUND_REMOVAL';
+// UI 表示用
+export type AmazonUIImageGenerationMode =
+  | AmazonBaseImageGenerationMode
+  | AmazonAdvancedImageGenerationMode;
+// API通信用
+export type AmazonAPIImageGenerationMode =
+  | AmazonBaseImageGenerationMode
+  | Exclude<AmazonAdvancedImageGenerationMode, 'IMAGE_CONDITIONING'>;
 // 標準化したパラメータ
 export type GenerateImageParams = {
+  taskType?: AmazonAPIImageGenerationMode;
   textPrompt: {
     text: string;
     weight: number;
@@ -17,7 +37,11 @@ export type GenerateImageParams = {
   // Inpaint / Outpaint
   maskImage?: string;
   maskPrompt?: string;
-  maskMode?: 'INPAINTING' | 'OUTPAINTING';
+  // Color Guided Generation
+  colors?: string[];
+  // Image Conditioning
+  controlStrength?: number;
+  controlMode?: ControlMode;
 };
 
 // Stable Diffusion
@@ -57,12 +81,8 @@ export type StabilityAI2024ModelParams = {
   strength?: number;
 };
 
-// Titan Image
-// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
-// Amazon Nova
-// https://docs.aws.amazon.com/nova/latest/userguide/image-gen-access.html
-export type AmazonImageParams = {
-  taskType: 'TEXT_IMAGE' | 'INPAINTING' | 'OUTPAINTING' | 'IMAGE_VARIATION';
+export type AmazonGeneralImageParams = {
+  taskType: AmazonBaseImageGenerationMode;
   textToImageParams?: {
     text: string;
     negativeText?: string;
@@ -95,6 +115,30 @@ export type AmazonImageParams = {
     width: number;
     cfgScale: number;
     seed?: number;
+  };
+};
+// Titan Image
+// https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
+// Amazon Nova
+// https://docs.aws.amazon.com/nova/latest/userguide/image-gen-access.html
+export type AmazonAdvancedImageParams = Omit<
+  AmazonGeneralImageParams,
+  'taskType'
+> & {
+  taskType: AmazonAPIImageGenerationMode;
+  textToImageParams: AmazonGeneralImageParams['textToImageParams'] & {
+    conditionImage?: string; // base64 encoded image
+    controlMode?: ControlMode;
+    controlStrength?: number;
+  };
+  colorGuidedGenerationParams?: {
+    text: string;
+    negativeText?: string;
+    referenceImage?: string; // base64 encoded image
+    colors: string[]; // list of color hex codes
+  };
+  backgroundRemovalParams?: {
+    image: string; // base64 encoded image
   };
 };
 
