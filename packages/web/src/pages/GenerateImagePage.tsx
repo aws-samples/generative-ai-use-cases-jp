@@ -1045,6 +1045,7 @@ const GenerateImagePage: React.FC = () => {
                     setGenerationMode(v as AmazonUIImageGenerationMode)
                   }
                   fullWidth
+                  help="TEXT_IMAGE:テキストから画像を生成します。IMAGE_VARIATION:参照画像から類似画像を生成します。INPAINTING:画像の一部を編集します。OUTPAINTING:画像を拡張します。IMAGE_CONDITIONING:構図を反映します。COLOR_GUIDED_GENERATION:配色指定で生成します。BACKGROUND_REMOVAL:背景を除去します"
                 />
                 <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
                   {generationMode !== GENERATION_MODES.TEXT_IMAGE && (
