@@ -210,6 +210,7 @@ GenU をご利用いただく際の、構成と料金試算例を公開してお
 | <a href="https://idealog.co.jp" target="_blank"><img src="./imgs/cases/idealog_logo.jpg"></a>|  **株式会社アイデアログ** <br/> *M従来の生成 AI ツールよりもさらに業務効率化ができていると感じます。入出力データをモデルの学習に使わない Amazon Bedrock を使っているので、セキュリティ面も安心です。* <br/> ・[事例の詳細を見る](./imgs/cases/idealog_case.png) <br/> ・[適用サービス](https://kaijosearch.com/)|
 | <a href="https://estyle.co.jp/" target="_blank"><img src="./imgs/cases/estyle_logo.png"></a>|  **株式会社エスタイル** <br/> *GenU を活用して短期間で生成 AI 環境を構築し、社内のナレッジシェアを促進することができました。* <br/> ・[事例の詳細を見る](./imgs/cases/estyle_case.png) |
 | <a href="https://meidensha.co.jp/" target="_blank"><img src="./imgs/cases/meidensha_logo.svg"></a>|  **株式会社明電舎** <br/> *Amazon Bedrock や Amazon Kendra など AWS のサービスを利用することで、生成 AI の利用環境を迅速かつセキュアに構築することができました。議事録の自動生成や社内情報の検索など、従業員の業務効率化に貢献しています。* <br/> ・[事例の詳細を見る](./imgs/cases/meidensha_case.png) |
+| <a href="https://www.st-grp.co.jp/" target="_blank"><img src="./imgs/cases/st-grp_logo.jpg"></a>|  **三協立山株式会社** <br/> *社内に埋もれていた情報が Amazon Kendra の活用で素早く探せるようになりました。GenU を参考にすることで求めていた議事録生成などの機能を迅速に提供できました。* <br/> ・[事例の詳細を見る](./imgs/cases/st-grp_case.png) |
 
 活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
