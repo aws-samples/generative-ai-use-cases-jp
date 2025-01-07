@@ -2,7 +2,10 @@
 
 set -eu
 
-STACK_NAME='GenerativeAiUseCasesStack'
+# Parse packages/cdk/cdk.json and get context.env
+env=$(cat packages/cdk/cdk.json | jq -r '.context.env')
+
+STACK_NAME="GenerativeAiUseCasesStack${env}"
 
 function extract_value {
     echo $1 | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"$2\") | .OutputValue"

@@ -133,6 +133,8 @@ export class RagKnowledgeBaseStack extends Stack {
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseStackProps) {
     super(scope, id, props);
 
+    const env: string[] | null = this.node.tryGetContext('env') ?? '';
+
     const embeddingModelId: string | null | undefined =
       this.node.tryGetContext('embeddingModelId')!;
 
@@ -148,7 +150,8 @@ export class RagKnowledgeBaseStack extends Stack {
       );
     }
 
-    const collectionName = props.collectionName ?? 'generative-ai-use-cases-jp';
+    const collectionName =
+      props.collectionName ?? `generative-ai-use-cases-jp${env}`;
     const vectorIndexName =
       props.vectorIndexName ?? 'bedrock-knowledge-base-default';
     const vectorField =

@@ -21,6 +21,8 @@ class DeletionPolicySetter implements cdk.IAspect {
 
 const app = new cdk.App();
 
+const env: string[] | null = app.node.tryGetContext('env') ?? '';
+
 const allowedIpV4AddressRanges: string[] | null = app.node.tryGetContext(
   'allowedIpV4AddressRanges'
 )!;
@@ -79,7 +81,7 @@ if (
   hostName
 ) {
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
-  cloudFrontWafStack = new CloudFrontWafStack(app, 'CloudFrontWafStack', {
+  cloudFrontWafStack = new CloudFrontWafStack(app, `CloudFrontWafStack${env}`, {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: 'us-east-1',
@@ -105,7 +107,7 @@ const modelRegion: string = app.node.tryGetContext('modelRegion')!;
 const ragKnowledgeBaseEnabled =
   app.node.tryGetContext('ragKnowledgeBaseEnabled') || false;
 const ragKnowledgeBaseStack = ragKnowledgeBaseEnabled
-  ? new RagKnowledgeBaseStack(app, 'RagKnowledgeBaseStack', {
+  ? new RagKnowledgeBaseStack(app, `RagKnowledgeBaseStack${env}`, {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: modelRegion,
@@ -120,7 +122,7 @@ const searchAgentEnabled =
   app.node.tryGetContext('searchAgentEnabled') || false;
 const agentRegion = app.node.tryGetContext('agentRegion') || 'us-east-1';
 const searchAgentStack = searchAgentEnabled
-  ? new SearchAgentStack(app, 'WebSearchAgentStack', {
+  ? new SearchAgentStack(app, `WebSearchAgentStack${env}`, {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: agentRegion,
@@ -132,7 +134,7 @@ const searchAgentStack = searchAgentEnabled
 const guardrailEnabled: boolean =
   app.node.tryGetContext('guardrailEnabled') || false;
 const guardrail = guardrailEnabled
-  ? new GuardrailStack(app, 'GuardrailStack', {
+  ? new GuardrailStack(app, `GuardrailStack${env}`, {
       env: {
         account: process.env.CDK_DEFAULT_ACCOUNT,
         region: modelRegion,
@@ -145,7 +147,7 @@ const guardrail = guardrailEnabled
 
 const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
   app,
-  'GenerativeAiUseCasesStack',
+  `GenerativeAiUseCasesStack${env}`,
   {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -179,7 +181,7 @@ cdk.Aspects.of(generativeAiUseCasesStack).add(
 const dashboard: boolean = app.node.tryGetContext('dashboard')!;
 
 if (dashboard) {
-  new DashboardStack(app, 'GenerativeAiUseCasesDashboardStack', {
+  new DashboardStack(app, `GenerativeAiUseCasesDashboardStack${env}`, {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
       region: modelRegion,

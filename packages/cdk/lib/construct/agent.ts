@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, Lazy, Names, RemovalPolicy } from 'aws-cdk-lib';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -23,6 +23,8 @@ export class Agent extends Construct {
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    const suffix = Lazy.string({ produce: () => Names.uniqueId(this) });
 
     // search api
     const searchApiKey = this.node.tryGetContext('searchApiKey') || '';
@@ -82,7 +84,7 @@ export class Agent extends Construct {
     });
 
     const searchAgent = new CfnAgent(this, 'SearchAgent', {
-      agentName: `SearchEngineAgent-${id}`,
+      agentName: `SearchEngineAgent-${suffix}`,
       actionGroups: [
         {
           actionGroupName: 'Search',
@@ -117,7 +119,7 @@ export class Agent extends Construct {
     });
 
     const codeInterpreterAgent = new CfnAgent(this, 'CodeInterpreterAgent', {
-      agentName: `CodeInterpreterAgent-${id}`,
+      agentName: `CodeInterpreterAgent-${suffix}`,
       actionGroups: [
         {
           actionGroupName: 'CodeInterpreter',
