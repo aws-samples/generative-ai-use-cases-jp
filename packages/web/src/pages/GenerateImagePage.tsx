@@ -43,6 +43,7 @@ const STABILITY_AI_MODELS = {
   SD3_LARGE: 'stability.sd3-large-v1:0',
   STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
   STABLE_IMAGE_ULTRA: 'stability.stable-image-ultra-v1:0',
+  SD3_5: 'stability.sd3-5-large-v1:0',
 };
 const GENERATION_MODES: Record<
   AmazonBaseImageGenerationMode,
@@ -104,6 +105,13 @@ const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
   },
   [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.SD3_5]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+    ],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
   [AMAZON_MODELS.TITAN_V1]: {

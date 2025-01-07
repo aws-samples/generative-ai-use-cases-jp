@@ -68,6 +68,7 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'stability.sd3-large-v1:0': MODEL_FEATURE.IMAGE_GEN,
   'stability.stable-image-core-v1:0': MODEL_FEATURE.IMAGE_GEN,
   'stability.stable-image-ultra-v1:0': MODEL_FEATURE.IMAGE_GEN,
+  'stability.sd3-5-large-v1:0': MODEL_FEATURE.IMAGE_GEN,
   // Amazon Image Gen
   'amazon.titan-image-generator-v2:0': MODEL_FEATURE.IMAGE_GEN,
   'amazon.titan-image-generator-v1': MODEL_FEATURE.IMAGE_GEN,
