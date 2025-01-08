@@ -1034,6 +1034,10 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
+  'stability.sd3-5-large-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
   'amazon.titan-image-generator-v1': {
     createBodyImage: createBodyImageAmazonGeneralImage,
     extractOutputImage: extractOutputImageAmazonImage,

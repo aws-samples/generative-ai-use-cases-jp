@@ -490,7 +490,8 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 "stability.stable-diffusion-xl-v1",
 "stability.sd3-large-v1:0",
 "stability.stable-image-core-v1:0",
-"stability.stable-image-ultra-v1:0"
+"stability.stable-image-ultra-v1:0",
+"stability.sd3-5-large-v1:0"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -544,7 +545,8 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
     "stability.stable-diffusion-xl-v1",
     "stability.sd3-large-v1:0",
     "stability.stable-image-core-v1:0",
-    "stability.stable-image-ultra-v1:0"
+    "stability.stable-image-ultra-v1:0",
+    "stability.sd3-5-large-v1:0"
   ],
 ```
 ### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
@@ -577,7 +579,8 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
     "stability.stable-diffusion-xl-v1",
     "stability.sd3-large-v1:0",
     "stability.stable-image-core-v1:0",
-    "stability.stable-image-ultra-v1:0"
+    "stability.stable-image-ultra-v1:0",
+    "stability.sd3-5-large-v1:0"
   ],
 ```
 

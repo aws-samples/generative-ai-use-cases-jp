@@ -43,6 +43,7 @@ const STABILITY_AI_MODELS = {
   SD3_LARGE: 'stability.sd3-large-v1:0',
   STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
   STABLE_IMAGE_ULTRA: 'stability.stable-image-ultra-v1:0',
+  SD3_5: 'stability.sd3-5-large-v1:0',
 };
 const GENERATION_MODES: Record<
   AmazonBaseImageGenerationMode,
@@ -104,6 +105,13 @@ const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
   },
   [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.SD3_5]: {
+    supportedModes: [
+      GENERATION_MODES.TEXT_IMAGE,
+      GENERATION_MODES.IMAGE_VARIATION,
+    ],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
   [AMAZON_MODELS.TITAN_V1]: {
@@ -1045,6 +1053,7 @@ const GenerateImagePage: React.FC = () => {
                     setGenerationMode(v as AmazonUIImageGenerationMode)
                   }
                   fullWidth
+                  help="TEXT_IMAGE:テキストから画像を生成します。IMAGE_VARIATION:参照画像から類似画像を生成します。INPAINTING:画像の一部を編集します。OUTPAINTING:画像を拡張します。IMAGE_CONDITIONING:構図を反映します。COLOR_GUIDED_GENERATION:配色指定で生成します。BACKGROUND_REMOVAL:背景を除去します"
                 />
                 <div className="mb-2 flex flex-row justify-center gap-2 lg:flex-col xl:flex-row">
                   {generationMode !== GENERATION_MODES.TEXT_IMAGE && (
