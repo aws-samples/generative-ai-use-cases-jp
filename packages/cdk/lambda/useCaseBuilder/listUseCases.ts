@@ -7,7 +7,8 @@ export const handler = async (
   try {
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const useCases = await listUseCases(userId);
+    const exclusiveStartKey = event?.queryStringParameters?.exclusiveStartKey;
+    const useCases = await listUseCases(userId, exclusiveStartKey);
 
     return {
       statusCode: 200,

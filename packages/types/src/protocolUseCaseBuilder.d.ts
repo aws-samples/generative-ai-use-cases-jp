@@ -5,7 +5,10 @@ import {
   IsShared,
 } from './useCaseBuilder';
 
-export type ListUseCasesRespose = UseCaseAsOutput[];
+export type ListUseCasesResponse = {
+  useCases: UseCaseAsOutput[];
+  lastEvaluatedKey?: string;
+};
 export type ListFavoriteUseCasesResponse = UseCaseAsOutput[];
 export type ListRecentlyUsedUseCasesResponse = UseCaseAsOutput[];
 

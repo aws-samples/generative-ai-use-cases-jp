@@ -5,6 +5,7 @@ import {
   UseCaseInTable,
   UseCaseAsOutput,
   UseCaseContent,
+  ListUseCasesResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   DeleteCommand,
@@ -53,8 +54,12 @@ const innerFindUseCaseByUseCaseId = async (
 
 // userId のユースケース一覧を取得
 const innerFindUseCasesByUserId = async (
-  userId: string
-): Promise<UseCaseInTable[]> => {
+  userId: string,
+  _exclusiveStartKey?: string
+): Promise<{ useCases: UseCaseInTable[]; lastEvaluatedKey?: string }> => {
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
+    : undefined;
   const useCasesInTable = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: USECASE_TABLE_NAME,
@@ -69,10 +74,19 @@ const innerFindUseCasesByUserId = async (
         ':dataTypePrefix': 'useCase',
       },
       ScanIndexForward: false,
+      Limit: 1, // TODO
+      ExclusiveStartKey: exclusiveStartKey,
     })
   );
 
-  return (useCasesInTable.Items || []) as UseCaseInTable[];
+  return {
+    useCases: (useCasesInTable.Items || []) as UseCaseInTable[],
+    lastEvaluatedKey: useCasesInTable.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(useCasesInTable.LastEvaluatedKey)).toString(
+          'base64'
+        )
+      : undefined,
+  };
 };
 
 // useCaseId の配列からユースケース一覧を取得
@@ -209,9 +223,11 @@ export const getUseCase = async (
 };
 
 export const listUseCases = async (
-  userId: string
-): Promise<UseCaseAsOutput[]> => {
-  const useCasesInTable = await innerFindUseCasesByUserId(userId);
+  userId: string,
+  exclusiveStartKey?: string
+): Promise<ListUseCasesResponse> => {
+  const { useCases: useCasesInTable, lastEvaluatedKey } =
+    await innerFindUseCasesByUserId(userId, exclusiveStartKey);
 
   const favorites = await innerFindCommonsByUserIdAndDataType(
     userId,
@@ -227,7 +243,10 @@ export const listUseCases = async (
     };
   });
 
-  return useCasesAsOutput;
+  return {
+    useCases: useCasesAsOutput,
+    lastEvaluatedKey,
+  };
 };
 
 export const updateUseCase = async (

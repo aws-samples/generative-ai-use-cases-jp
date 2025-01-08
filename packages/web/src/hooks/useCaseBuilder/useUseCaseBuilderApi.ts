@@ -4,7 +4,7 @@ import {
   GetUseCaseResponse,
   ListFavoriteUseCasesResponse,
   ListRecentlyUsedUseCasesResponse,
-  ListUseCasesRespose,
+  ListUseCasesResponse,
   ToggleFavoriteResponse,
   ToggleShareResponse,
   UpdateUseCaseRequest,
@@ -17,7 +17,17 @@ const useUseCaseBuilderApi = () => {
 
   return {
     listMyUseCases: () => {
-      return http.get<ListUseCasesRespose>('/usecases');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases';
+        return `usecases?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     listFavoriteUseCases: () => {
       return http.get<ListFavoriteUseCasesResponse>('/usecases/favorite');
