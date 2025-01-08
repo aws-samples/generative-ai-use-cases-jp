@@ -1,16 +1,12 @@
-import { produce } from 'immer';
 import useUseCaseBuilderApi from './useUseCaseBuilderApi';
-import {
-  UseCaseInputExample,
-  ListUseCasesResponse,
-} from 'generative-ai-use-cases-jp';
-import { useMemo } from 'react';
+import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
+import usePagination from '../usePagination';
 
 const useMyUseCases = () => {
   const {
     listMyUseCases,
     listFavoriteUseCases,
-    listResentlyUsedUseCases,
+    listRecentlyUsedUseCases,
     createUseCase,
     updateUseCase,
     updateRecentUseUseCase,
@@ -19,46 +15,45 @@ const useMyUseCases = () => {
     toggleShared,
   } = useUseCaseBuilderApi();
 
-  // const {
-  //   data: myUseCases2,
-  //   isLoading: isLoadingMyUseCases,
-  //   mutate: mutateMyUseCases,
-  // } = listMyUseCases();
-  const { data: myUseCasesData, mutate: mutateMyUseCases } = listMyUseCases();
-
-  const myUseCases = useMemo(() => {
-    if (myUseCasesData) {
-      return myUseCasesData.map((d: ListUseCasesResponse) => d.useCases).flat();
-    } else {
-      return [];
-    }
-  }, [myUseCasesData]);
-
-  const isLoadingMyUseCases = false;
+  const {
+    flattenData: myUseCases,
+    mutate: mutateMyUseCases,
+    isLoading: isLoadingMyUseCases,
+    loadMore: loadMoreMyUseCases,
+    canLoadMore: canLoadMoreMyUseCases,
+  } = usePagination(listMyUseCases(), 30);
 
   const {
-    data: favoriteUseCases,
-    isLoading: isLoadingFavoriteUseCases,
+    flattenData: favoriteUseCases,
     mutate: mutateFavoriteUseCases,
-  } = listFavoriteUseCases();
+    isLoading: isLoadingFavoriteUseCases,
+    loadMore: loadMoreFavoriteUseCases,
+    canLoadMore: canLoadMoreFavoriteUseCases,
+  } = usePagination(listFavoriteUseCases(), 20);
 
   const {
-    data: recentlyUsedUseCases,
-    isLoading: isLoadingRecentlyUsedUseCases,
+    flattenData: recentlyUsedUseCases,
     mutate: mutateRecentlyUsedUseCases,
-  } = listResentlyUsedUseCases();
-
-  // const findIndex = (useCaseId: string) => {
-  //   return myUseCases?.findIndex((d) => d.useCaseId === useCaseId) ?? -1;
-  // };
+    isLoading: isLoadingRecentlyUsedUseCases,
+    loadMore: loadMoreRecentlyUsedUseCases,
+    canLoadMore: canLoadMoreRecentlyUsedUseCases,
+  } = usePagination(listRecentlyUsedUseCases(), 20);
 
   return {
-    myUseCases: myUseCases ?? [],
+    myUseCases,
     isLoadingMyUseCases,
+    loadMoreMyUseCases,
+    canLoadMoreMyUseCases,
+
     favoriteUseCases: favoriteUseCases ?? [],
     isLoadingFavoriteUseCases,
+    loadMoreFavoriteUseCases,
+    canLoadMoreFavoriteUseCases,
+
     recentlyUsedUseCases: recentlyUsedUseCases ?? [],
     isLoadingRecentlyUsedUseCases,
+    loadMoreRecentlyUsedUseCases,
+    canLoadMoreRecentlyUsedUseCases,
 
     createUseCase: (params: {
       title: string;
@@ -81,19 +76,6 @@ const useMyUseCases = () => {
       fixedModelId?: string;
       fileUpload?: boolean;
     }) => {
-      // 一覧の更新
-      // const index = findIndex(params.useCaseId);
-      // if (index > -1 && myUseCases) {
-      //   mutateMyUseCases(
-      //     produce(myUseCases, (draft) => {
-      //       draft[index].title = myUseCases[index].title;
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-
       return updateUseCase(params.useCaseId, {
         title: params.title,
         promptTemplate: params.promptTemplate,
@@ -113,19 +95,6 @@ const useMyUseCases = () => {
       });
     },
     deleteUseCase: (useCaseId: string) => {
-      // 一覧の更新
-      // const index = findIndex(useCaseId);
-      // if (index > -1 && myUseCases) {
-      //   mutateMyUseCases(
-      //     produce(myUseCases, (draft) => {
-      //       draft.splice(index, 1);
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-
       return deleteUseCase(useCaseId).finally(() => {
         mutateMyUseCases();
         mutateFavoriteUseCases();
@@ -133,52 +102,6 @@ const useMyUseCases = () => {
       });
     },
     toggleFavorite: (useCaseId: string) => {
-      // お気に入り表示の切り替え（マイユースケース）
-      // const index = findIndex(useCaseId);
-      // if (index > -1 && myUseCases) {
-      //   mutateMyUseCases(
-      //     produce(myUseCases, (draft) => {
-      //       draft[index].isFavorite = !myUseCases[index].isFavorite;
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-      // お気に入り表示の切り替え（最近利用したユースケース）
-      // const indexRecentlyUsed =
-      //   recentlyUsedUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ??
-      //   -1;
-      // if (indexRecentlyUsed > -1 && recentlyUsedUseCases) {
-      //   mutateRecentlyUsedUseCases(
-      //     produce(recentlyUsedUseCases, (draft) => {
-      //       draft[indexRecentlyUsed].isFavorite =
-      //         !recentlyUsedUseCases[indexRecentlyUsed].isFavorite;
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-
-      // お気に入り解除したら、お気に入り一覧から削除
-      const favoriteIndex =
-        favoriteUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ?? -1;
-      if (
-        favoriteIndex > -1 &&
-        favoriteUseCases &&
-        favoriteUseCases[favoriteIndex].isFavorite
-      ) {
-        mutateFavoriteUseCases(
-          produce(favoriteUseCases, (draft) => {
-            draft.splice(favoriteIndex, 1);
-          }),
-          {
-            revalidate: false,
-          }
-        );
-      }
-
       return toggleFavorite(useCaseId).finally(() => {
         mutateMyUseCases();
         mutateFavoriteUseCases();
@@ -186,34 +109,6 @@ const useMyUseCases = () => {
       });
     },
     toggleShared: (useCaseId: string) => {
-      // 共有表示の切り替え（マイユースケース）
-      // const index = findIndex(useCaseId);
-      // if (index > -1 && myUseCases) {
-      //   mutateMyUseCases(
-      //     produce(myUseCases, (draft) => {
-      //       draft[index].isShared = !myUseCases[index].isShared;
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-      // // お気に入り表示の切り替え（最近利用したユースケース）
-      // const indexRecentlyUsed =
-      //   recentlyUsedUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ??
-      //   -1;
-      // if (indexRecentlyUsed > -1 && recentlyUsedUseCases) {
-      //   mutateRecentlyUsedUseCases(
-      //     produce(recentlyUsedUseCases, (draft) => {
-      //       draft[indexRecentlyUsed].isShared =
-      //         !recentlyUsedUseCases[indexRecentlyUsed].isShared;
-      //     }),
-      //     {
-      //       revalidate: false,
-      //     }
-      //   );
-      // }
-
       return toggleShared(useCaseId).finally(() => {
         mutateMyUseCases();
         mutateRecentlyUsedUseCases();

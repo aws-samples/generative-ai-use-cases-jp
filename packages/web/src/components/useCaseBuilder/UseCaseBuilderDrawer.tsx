@@ -15,7 +15,16 @@ type Props = BaseProps & {
 const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
   const navigate = useNavigate();
 
-  const { favoriteUseCases, recentlyUsedUseCases } = useMyUseCases();
+  const {
+    favoriteUseCases,
+    isLoadingFavoriteUseCases,
+    loadMoreFavoriteUseCases,
+    canLoadMoreFavoriteUseCases,
+    recentlyUsedUseCases,
+    isLoadingRecentlyUsedUseCases,
+    loadMoreRecentlyUsedUseCases,
+    canLoadMoreRecentlyUsedUseCases,
+  } = useMyUseCases();
 
   const items = useMemo(() => {
     return props.items;
@@ -48,15 +57,54 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
       </div>
 
       <ExpandableMenu title="お気に入り" className="mx-3 my-2 text-xs">
-        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 flex h-full flex-col gap-0.5 overflow-y-auto">
-          <CustomUseCaseDrawerItems useCases={favoriteUseCases} />
+        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+          <div>
+            <CustomUseCaseDrawerItems useCases={favoriteUseCases} />
+            {isLoadingFavoriteUseCases &&
+              new Array(10)
+                .fill('')
+                .map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-aws-sky/20 my-0.5 h-8 w-full animate-pulse rounded"></div>
+                ))}
+            {canLoadMoreFavoriteUseCases && !isLoadingFavoriteUseCases && (
+              <div className="my-2 flex w-full justify-center">
+                <button
+                  className="text-sm hover:underline"
+                  onClick={loadMoreFavoriteUseCases}>
+                  さらに読み込む
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </ExpandableMenu>
       <div className="border-b" />
 
       <ExpandableMenu title="利用履歴" className="mx-3 my-2 text-xs">
-        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 flex h-full flex-col overflow-y-auto">
-          <CustomUseCaseDrawerItems useCases={recentlyUsedUseCases} />
+        <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
+          <div>
+            <CustomUseCaseDrawerItems useCases={recentlyUsedUseCases} />
+            {isLoadingRecentlyUsedUseCases &&
+              new Array(10)
+                .fill('')
+                .map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-aws-sky/20 my-0.5 h-8 w-full animate-pulse rounded"></div>
+                ))}
+            {canLoadMoreRecentlyUsedUseCases &&
+              !isLoadingRecentlyUsedUseCases && (
+                <div className="my-2 flex w-full justify-center">
+                  <button
+                    className="text-sm hover:underline"
+                    onClick={loadMoreRecentlyUsedUseCases}>
+                    さらに読み込む
+                  </button>
+                </div>
+              )}
+          </div>
         </div>
       </ExpandableMenu>
       <div className="border-b" />

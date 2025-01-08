@@ -30,10 +30,30 @@ const useUseCaseBuilderApi = () => {
       });
     },
     listFavoriteUseCases: () => {
-      return http.get<ListFavoriteUseCasesResponse>('/usecases/favorite');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListFavoriteUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases/favorite';
+        return `usecases/favorite?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListFavoriteUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
-    listResentlyUsedUseCases: () => {
-      return http.get<ListRecentlyUsedUseCasesResponse>('/usecases/recent');
+    listRecentlyUsedUseCases: () => {
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListRecentlyUsedUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases/recent';
+        return `usecases/recent?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListRecentlyUsedUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     getUseCase: (useCaseId?: string) => {
       return http.get<GetUseCaseResponse, AxiosError>(

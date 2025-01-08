@@ -6,6 +6,7 @@ import {
   UserIdAndChatId,
   SystemContext,
   UpdateFeedbackRequest,
+  ListChatsResponse,
 } from 'generative-ai-use-cases-jp';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -106,7 +107,7 @@ export const findSystemContextById = async (
 export const listChats = async (
   _userId: string,
   _exclusiveStartKey?: string
-): Promise<{ chats: Chat[]; lastEvaluatedKey?: string }> => {
+): Promise<ListChatsResponse> => {
   const exclusiveStartKey = _exclusiveStartKey
     ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
@@ -128,7 +129,7 @@ export const listChats = async (
   );
 
   return {
-    chats: res.Items as Chat[],
+    data: res.Items as Chat[],
     lastEvaluatedKey: res.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
       : undefined,
