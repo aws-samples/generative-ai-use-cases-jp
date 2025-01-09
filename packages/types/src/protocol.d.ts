@@ -23,6 +23,11 @@ export type StreamingChunk = {
   stopReason?: string;
 };
 
+export type Pagination<T> = {
+  data: T[];
+  lastEvaluatedKey?: string;
+};
+
 export type CreateChatResponse = {
   chat: Chat;
 };
@@ -35,10 +40,7 @@ export type CreateMessagesResponse = {
   messages: RecordedMessage[];
 };
 
-export type ListChatsResponse = {
-  chats: Chat[];
-  lastEvaluatedKey?: string;
-};
+export type ListChatsResponse = Pagination<Chat>;
 
 export type FindChatByIdResponse = {
   chat: Chat;

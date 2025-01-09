@@ -5,6 +5,9 @@ import {
   UseCaseInTable,
   UseCaseAsOutput,
   UseCaseContent,
+  ListUseCasesResponse,
+  ListFavoriteUseCasesResponse,
+  ListRecentlyUsedUseCasesResponse,
 } from 'generative-ai-use-cases-jp';
 import {
   DeleteCommand,
@@ -53,8 +56,12 @@ const innerFindUseCaseByUseCaseId = async (
 
 // userId のユースケース一覧を取得
 const innerFindUseCasesByUserId = async (
-  userId: string
-): Promise<UseCaseInTable[]> => {
+  userId: string,
+  _exclusiveStartKey?: string
+): Promise<{ useCases: UseCaseInTable[]; lastEvaluatedKey?: string }> => {
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
+    : undefined;
   const useCasesInTable = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: USECASE_TABLE_NAME,
@@ -69,10 +76,19 @@ const innerFindUseCasesByUserId = async (
         ':dataTypePrefix': 'useCase',
       },
       ScanIndexForward: false,
+      Limit: 30, // マイユースケースのページあたりの取得件数
+      ExclusiveStartKey: exclusiveStartKey,
     })
   );
 
-  return (useCasesInTable.Items || []) as UseCaseInTable[];
+  return {
+    useCases: (useCasesInTable.Items || []) as UseCaseInTable[],
+    lastEvaluatedKey: useCasesInTable.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(useCasesInTable.LastEvaluatedKey)).toString(
+          'base64'
+        )
+      : undefined,
+  };
 };
 
 // useCaseId の配列からユースケース一覧を取得
@@ -92,11 +108,10 @@ const innerFindUseCasesByUseCaseIds = async (
   return useCasesInTable;
 };
 
-// userId の特定のデータタイプ (お気に入り・利用履歴) 一覧を取得
+// userId の特定のデータタイプ (お気に入り・利用履歴) 一覧を取得 (全取得)
 const innerFindCommonsByUserIdAndDataType = async (
   userId: string,
-  dataTypePrefix: string,
-  limit?: number
+  dataTypePrefix: string
 ): Promise<UseCaseCommon[]> => {
   const commons = await dynamoDbDocument.send(
     new QueryCommand({
@@ -111,12 +126,47 @@ const innerFindCommonsByUserIdAndDataType = async (
         ':id': `useCase#${userId}`,
         ':dataTypePrefix': dataTypePrefix,
       },
-      Limit: limit,
       ScanIndexForward: false,
     })
   );
 
   return (commons.Items || []) as UseCaseCommon[];
+};
+
+// userId の特定のデータタイプ (お気に入り・利用履歴) 一覧を取得 (ページネーション対応)
+const innerFindCommonsByUserIdAndDataTypePagniation = async (
+  userId: string,
+  dataTypePrefix: string,
+  _exclusiveStartKey?: string
+): Promise<{ commons: UseCaseCommon[]; lastEvaluatedKey?: string }> => {
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
+    : undefined;
+  const commons = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: USECASE_TABLE_NAME,
+      KeyConditionExpression:
+        '#id = :id and begins_with(#dataType, :dataTypePrefix)',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#dataType': 'dataType',
+      },
+      ExpressionAttributeValues: {
+        ':id': `useCase#${userId}`,
+        ':dataTypePrefix': dataTypePrefix,
+      },
+      ScanIndexForward: false,
+      Limit: 20, // お気に入り・利用履歴のページあたりの取得件数
+      ExclusiveStartKey: exclusiveStartKey,
+    })
+  );
+
+  return {
+    commons: (commons.Items || []) as UseCaseCommon[],
+    lastEvaluatedKey: commons.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(commons.LastEvaluatedKey)).toString('base64')
+      : undefined,
+  };
 };
 
 // useCaseId に関連する全てのデータ (本体・お気に入り・利用履歴) 一覧を取得
@@ -209,9 +259,11 @@ export const getUseCase = async (
 };
 
 export const listUseCases = async (
-  userId: string
-): Promise<UseCaseAsOutput[]> => {
-  const useCasesInTable = await innerFindUseCasesByUserId(userId);
+  userId: string,
+  exclusiveStartKey?: string
+): Promise<ListUseCasesResponse> => {
+  const { useCases: useCasesInTable, lastEvaluatedKey } =
+    await innerFindUseCasesByUserId(userId, exclusiveStartKey);
 
   const favorites = await innerFindCommonsByUserIdAndDataType(
     userId,
@@ -227,7 +279,10 @@ export const listUseCases = async (
     };
   });
 
-  return useCasesAsOutput;
+  return {
+    data: useCasesAsOutput,
+    lastEvaluatedKey,
+  };
 };
 
 export const updateUseCase = async (
@@ -315,9 +370,15 @@ export const deleteUseCase = async (
 };
 
 export const listFavoriteUseCases = async (
-  userId: string
-): Promise<UseCaseAsOutput[]> => {
-  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite');
+  userId: string,
+  exclusiveStartKey?: string
+): Promise<ListFavoriteUseCasesResponse> => {
+  const { commons, lastEvaluatedKey } =
+    await innerFindCommonsByUserIdAndDataTypePagniation(
+      userId,
+      'favorite',
+      exclusiveStartKey
+    );
   const useCaseIds = commons.map((c) => c.useCaseId);
   const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds);
   const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
@@ -333,7 +394,10 @@ export const listFavoriteUseCases = async (
     return u.isMyUseCase || u.isShared;
   });
 
-  return useCasesAsOutputFiltered;
+  return {
+    data: useCasesAsOutputFiltered,
+    lastEvaluatedKey,
+  };
 };
 
 export const toggleFavorite = async (
@@ -416,13 +480,15 @@ export const toggleShared = async (
 };
 
 export const listRecentlyUsedUseCases = async (
-  userId: string
-): Promise<UseCaseAsOutput[]> => {
-  const commons = await innerFindCommonsByUserIdAndDataType(
-    userId,
-    'recentlyUsed',
-    15
-  );
+  userId: string,
+  exclusiveStartKey?: string
+): Promise<ListRecentlyUsedUseCasesResponse> => {
+  const { commons, lastEvaluatedKey } =
+    await innerFindCommonsByUserIdAndDataTypePagniation(
+      userId,
+      'recentlyUsed',
+      exclusiveStartKey
+    );
   const useCaseIds = commons.map((c) => c.useCaseId);
   const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds);
 
@@ -445,7 +511,10 @@ export const listRecentlyUsedUseCases = async (
     return u.isMyUseCase || u.isShared;
   });
 
-  return useCasesAsOutputFiltered;
+  return {
+    data: useCasesAsOutputFiltered,
+    lastEvaluatedKey,
+  };
 };
 
 export const updateRecentlyUsedUseCase = async (
@@ -499,4 +568,6 @@ export const updateRecentlyUsedUseCase = async (
       })
     );
   }
+
+  // TODO: recentlyUsed のデータサイズが閾値よりも大きくなったら末尾を削除するように対応が必要
 };
