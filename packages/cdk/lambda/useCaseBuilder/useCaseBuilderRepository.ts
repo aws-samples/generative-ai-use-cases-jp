@@ -26,6 +26,11 @@ const USECASE_ID_INDEX_NAME: string = process.env.USECASE_ID_INDEX_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
+// 利用履歴の最大保存数
+// 正確には RECENTLY_USED_SAVE_LIMIT + 1 になるケースがある
+// 詳細は updateRecentlyUsedUseCase 関数を参照
+const RECENTLY_USED_SAVE_LIMIT = 100;
+
 // useCaseId のユースケースを取得
 const innerFindUseCaseByUseCaseId = async (
   useCaseId: string
@@ -521,53 +526,55 @@ export const updateRecentlyUsedUseCase = async (
   userId: string,
   useCaseId: string
 ): Promise<void> => {
+  const itemsToDelete: UseCaseCommon[] = [];
+
+  // 最近使ったユースーケースのデータに対してスキャンが走っている
   const commons = await innerFindCommonsByUserIdAndDataType(
     userId,
     'recentlyUsed'
   );
+
+  // 最近使ったユースケースの保存件数のリミット
+  if (commons.length > RECENTLY_USED_SAVE_LIMIT) {
+    itemsToDelete.push(...commons.slice(RECENTLY_USED_SAVE_LIMIT));
+  }
+
   const useCaseIds = commons.map((c) => c.useCaseId);
   const index = useCaseIds.indexOf(useCaseId);
 
-  if (index >= 0) {
-    // 削除と追加を同時に
-    await dynamoDbDocument.send(
-      new TransactWriteCommand({
-        TransactItems: [
-          {
+  // 同じユースケースに対して古い利用履歴があれば削除対象
+  if (0 <= index && index <= RECENTLY_USED_SAVE_LIMIT - 1) {
+    itemsToDelete.push(commons[index]);
+  }
+
+  // 削除と追加を同時に行う
+  // 履歴の新規追加の場合 (既存の履歴がない場合) 保存数が
+  // RECENTLY_USED_SAVE_LIMIT + 1 になるが、それは許容する
+  await dynamoDbDocument.send(
+    new TransactWriteCommand({
+      TransactItems: [
+        ...itemsToDelete.map((item: UseCaseCommon) => {
+          return {
             Delete: {
               TableName: USECASE_TABLE_NAME,
               Key: {
-                id: commons[index].id,
-                dataType: commons[index].dataType,
+                id: item.id,
+                dataType: item.dataType,
               },
             },
-          },
-          {
-            Put: {
-              TableName: USECASE_TABLE_NAME,
-              Item: {
-                id: `useCase#${userId}`,
-                dataType: `recentlyUsed#${Date.now()}`,
-                useCaseId,
-              },
+          };
+        }),
+        {
+          Put: {
+            TableName: USECASE_TABLE_NAME,
+            Item: {
+              id: `useCase#${userId}`,
+              dataType: `recentlyUsed#${Date.now()}`,
+              useCaseId,
             },
           },
-        ],
-      })
-    );
-  } else {
-    // 追加のみ
-    await dynamoDbDocument.send(
-      new PutCommand({
-        TableName: USECASE_TABLE_NAME,
-        Item: {
-          id: `useCase#${userId}`,
-          dataType: `recentlyUsed#${Date.now()}`,
-          useCaseId,
         },
-      })
-    );
-  }
-
-  // TODO: recentlyUsed のデータサイズが閾値よりも大きくなったら末尾を削除するように対応が必要
+      ],
+    })
+  );
 };
