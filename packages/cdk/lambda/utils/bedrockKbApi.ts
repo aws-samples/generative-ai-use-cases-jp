@@ -194,13 +194,19 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
           const body = streamChunk.output?.text;
           buffer += body;
           const newPosition = Math.max(0, buffer.length - 10);
-          yield streamingChunk({ text: buffer.slice(currentPosition, newPosition) });
+          yield streamingChunk({
+            text: buffer.slice(currentPosition, newPosition),
+          });
           currentPosition = newPosition;
         } else if (streamChunk.citation?.citation) {
           // Citation end までバッファを進める
-          const newPosition = (streamChunk.citation.citation.generatedResponsePart?.textResponsePart?.span?.end || 0) + 1;
+          const newPosition =
+            (streamChunk.citation.citation.generatedResponsePart
+              ?.textResponsePart?.span?.end || 0) + 1;
           if (newPosition < buffer.length) {
-            yield streamingChunk({ text: buffer.slice(currentPosition, newPosition) });
+            yield streamingChunk({
+              text: buffer.slice(currentPosition, newPosition),
+            });
             currentPosition = newPosition;
           }
 

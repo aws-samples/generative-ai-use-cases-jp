@@ -26,7 +26,7 @@ export default {
         screen: { raw: 'screen' },
       },
       spacing: {
-        '128': '32rem',
+        128: '32rem',
       },
     },
   },
