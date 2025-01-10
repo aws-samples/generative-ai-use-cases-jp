@@ -84,6 +84,8 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "rerankingModelId": "amazon.rerank-v1:0",
+    "queryDecompositionEnabled": true,
   }
 }
 ```
@@ -101,9 +103,19 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 "cohere.embed-english-v3"
 ```
 
+`rerankingModelId` は reranking に利用するモデルです。現状、以下モデルをサポートしています。（デフォルトは `null`）
+
+```
+"amazon.rerank-v1:0"
+"cohere.rerank-v3-5:0"
+```
+
+`queryDecompositionEnabled` は query decomposition を有効化するかどうかです。（デフォルトは `false`）
+
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
 
 - `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+- `modelRegion` リージョンの Bedrock で `rerankingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
 
 ```bash
@@ -203,6 +215,16 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 1. Save
 
 保存後、少し時間をおいて再度アクセスしてください。
+
+#### メタデータフィルターの設定
+
+フィルターの設定は [packages/common/src/custom/rag-knowledge-base.ts](/packages/common/src/custom/rag-knowledge-base.ts) で行えます。必要に応じてカスタマイズしてご利用ください。
+
+- `dynamicFilters` : 動的にアプリケーション側でフィルタを作成して適用します。（例: ユーザーの部署などの属性に応じてフィルタを作成して適用する）現状 Claude Sonnet ３.5 のみ対応しています。（クォータによりスロットリングが発生することがあります）Cognito Group や SAML IdP の Group を Attribute にマッピングして利用することも可能です。（詳細は [docs/SAML_WITH_ENTRA_ID.md](/docs/SAML_WITH_ENTRA_ID.md) を参照）
+- `implicitFilters` : 指定されている場合は LLM がユーザーの質問に応じて指定されたメタデータに対してフィルタを作成して適用します。 (例: ユーザーの質問に含まれる年をフィルターに指定して、その年のデータのみを検索する) 空配列の場合はフィルタは適用されません。
+- `hiddenStaticExplicitFilters` : アプリケーションレベルで適用したいフィルタを適用します。（例: データの分類が秘密のデータは除外する）
+- `userDefinedExplicitFilters` : アプリケーションの UI にて表示されるフィルターを定義します。
+
 
 ### Agent チャットユースケースの有効化
 

@@ -59,7 +59,10 @@ const useChatState = create<{
     preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
     postProcessOutput: ((message: string) => string) | undefined,
     sessionId: string | undefined,
-    extraData: UploadedFileType[] | undefined
+    uploadedFiles: UploadedFileType[] | undefined,
+    extraData: ExtraData[] | undefined,
+    overrideModelType: Model['type'] | undefined,
+    setSessionId: (sessionId: string) => void
   ) => void;
   continueGeneration: (
     id: string,
@@ -237,11 +240,12 @@ const useChatState = create<{
 
   const formatMessageProperties = (
     messages: ShownMessage[],
-    uploadedFiles?: UploadedFileType[]
+    uploadedFiles?: UploadedFileType[],
+    extraData?: ExtraData[]
   ): UnrecordedMessage[] => {
     return messages.map((m) => {
       // LLM で推論する形式に extraData を変換する
-      const extraData: ExtraData[] | undefined = m.extraData?.flatMap(
+      const convertedFiles: ExtraData[] | undefined = m.extraData?.flatMap(
         (data) => {
           if (data.type === 'video') {
             // Send S3 location for video
@@ -279,7 +283,10 @@ const useChatState = create<{
       return {
         role: m.role,
         content: m.content,
-        extraData: extraData?.filter((data) => data.source.data !== ''),
+        extraData: [
+          ...(convertedFiles?.filter((data) => data.source.data !== '') ?? []),
+          ...(extraData ?? []),
+        ],
       };
     });
   };
@@ -345,7 +352,10 @@ const useChatState = create<{
       | undefined = undefined,
     postProcessOutput: ((message: string) => string) | undefined = undefined,
     sessionId: string | undefined = undefined,
-    uploadedFiles: UploadedFileType[] | undefined = undefined
+    uploadedFiles: UploadedFileType[] | undefined = undefined,
+    extraData: ExtraData[] | undefined = undefined,
+    overrideModelType: Model['type'] | undefined = undefined,
+    setSessionId: (sessionId: string) => void = () => {}
   ) => {
     const modelId = get().modelIds[id];
 
@@ -359,6 +369,10 @@ const useChatState = create<{
     if (!model) {
       console.error(`model not found for ${modelId}`);
       return;
+    }
+
+    if (overrideModelType) {
+      model.type = overrideModelType;
     }
 
     // Agent 用の対応
@@ -410,7 +424,8 @@ const useChatState = create<{
     // LLM へのリクエスト
     const formattedMessages = formatMessageProperties(
       inputMessages,
-      uploadedFiles
+      uploadedFiles,
+      extraData
     );
 
     const stream = predictStream({
@@ -440,6 +455,11 @@ const useChatState = create<{
           // Trace
           if (payload.trace) {
             addChunkToAssistantMessage(id, '', payload.trace, model);
+          }
+
+          // SessionId
+          if (payload.sessionId) {
+            setSessionId(payload.sessionId);
           }
         }
       }
@@ -598,21 +618,27 @@ const useChatState = create<{
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      uploadedFiles: UploadedFileType[] | undefined = undefined
+      uploadedFiles: UploadedFileType[] | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined,
+      overrideModelType: Model['type'] | undefined = undefined,
+      setSessionId: (sessionId: string) => void = () => {}
     ) => {
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
         content,
         // DDB に保存する形式で、extraData を設定する
-        extraData: uploadedFiles?.map((uploadedFile) => ({
-          type: uploadedFile.type,
-          name: uploadedFile.name,
-          source: {
-            type: 's3',
-            mediaType: uploadedFile.file.type,
-            data: uploadedFile.s3Url ?? '',
-          },
-        })),
+        extraData: [
+          ...(uploadedFiles?.map((uploadedFile) => ({
+            type: uploadedFile.type,
+            name: uploadedFile.name,
+            source: {
+              type: 's3',
+              mediaType: uploadedFile.file.type,
+              data: uploadedFile.s3Url ?? '',
+            },
+          })) ?? []),
+          ...(extraData ?? []),
+        ],
       };
 
       const unrecordedAssistantMessage: UnrecordedMessage = {
@@ -639,7 +665,10 @@ const useChatState = create<{
         preProcessInput,
         postProcessOutput,
         sessionId,
-        uploadedFiles
+        uploadedFiles,
+        extraData,
+        overrideModelType,
+        setSessionId
       );
     },
 
@@ -759,7 +788,10 @@ const useChat = (id: string, chatId?: string) => {
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      extraData: UploadedFileType[] | undefined = undefined
+      uploadedFiles: UploadedFileType[] | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined,
+      overrideModelType: Model['type'] | undefined = undefined,
+      setSessionId: (sessionId: string) => void = () => {}
     ) => {
       post(
         id,
@@ -769,7 +801,10 @@ const useChat = (id: string, chatId?: string) => {
         preProcessInput,
         postProcessOutput,
         sessionId,
-        extraData
+        uploadedFiles,
+        extraData,
+        overrideModelType,
+        setSessionId
       );
     },
     continueGeneration: (
@@ -779,7 +814,7 @@ const useChat = (id: string, chatId?: string) => {
         | undefined = undefined,
       postProcessOutput: ((message: string) => string) | undefined = undefined,
       sessionId: string | undefined = undefined,
-      extraData: UploadedFileType[] | undefined = undefined
+      uploadedFiles: UploadedFileType[] | undefined = undefined
     ) => {
       continueGeneration(
         id,
@@ -788,7 +823,7 @@ const useChat = (id: string, chatId?: string) => {
         preProcessInput,
         postProcessOutput,
         sessionId,
-        extraData
+        uploadedFiles
       );
     },
     sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {

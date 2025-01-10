@@ -21,6 +21,7 @@ export type StreamingChunk = {
   text: string;
   trace?: string;
   stopReason?: string;
+  sessionId?: string;
 };
 
 export type CreateChatResponse = {
@@ -81,6 +82,7 @@ export type UpdateTitleResponse = {
 
 export type PredictRequest = {
   model?: Model;
+  idToken?: string;
   messages: UnrecordedMessage[];
   id: string;
 };

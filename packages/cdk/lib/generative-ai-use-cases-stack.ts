@@ -115,7 +115,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     const api = new Api(this, 'API', {
       userPool: auth.userPool,
       idPool: auth.idPool,
+      userPoolClient: auth.client,
       table: database.table,
+      knowledgeBaseId: props.knowledgeBaseId,
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
