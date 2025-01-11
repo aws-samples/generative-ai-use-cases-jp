@@ -3,8 +3,10 @@ import { Construct } from 'constructs';
 import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import { StackInput } from './stack-input';
 
 export interface DashboardStackProps extends StackProps {
+  params: StackInput;
   userPool: cognito.UserPool;
   userPoolClient: cognito.UserPoolClient;
   appRegion: string;
@@ -17,13 +19,7 @@ export class DashboardStack extends Stack {
   constructor(scope: Construct, id: string, props: DashboardStackProps) {
     super(scope, id, props);
 
-    // packages/cdk/lib/construct/api.ts に合わせてデフォルト値を設定
-    const modelIds: string[] = this.node.tryGetContext('modelIds') || [
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-    ];
-    const imageGenerationModelIds: string[] = this.node.tryGetContext(
-      'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v1'];
+    const params = props.params;
 
     // Bedrock のログの出力先として設定する LogGroup
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
@@ -31,7 +27,7 @@ export class DashboardStack extends Stack {
       retention: logs.RetentionDays.ONE_YEAR,
     });
 
-    const inputTokenCounts = modelIds.map((modelId: string) => {
+    const inputTokenCounts = params.modelIds.map((modelId: string) => {
       return new cw.Metric({
         namespace: 'AWS/Bedrock',
         metricName: 'InputTokenCount',
@@ -43,7 +39,7 @@ export class DashboardStack extends Stack {
       });
     });
 
-    const outputTokenCounts = modelIds.map((modelId: string) => {
+    const outputTokenCounts = params.modelIds.map((modelId: string) => {
       return new cw.Metric({
         namespace: 'AWS/Bedrock',
         metricName: 'OutputTokenCount',
@@ -55,19 +51,20 @@ export class DashboardStack extends Stack {
       });
     });
 
-    const invocations = [...modelIds, ...imageGenerationModelIds].map(
-      (modelId: string) => {
-        return new cw.Metric({
-          namespace: 'AWS/Bedrock',
-          metricName: 'Invocations',
-          dimensionsMap: {
-            ModelId: modelId,
-          },
-          period: Duration.days(1),
-          statistic: 'Sum',
-        });
-      }
-    );
+    const invocations = [
+      ...params.modelIds,
+      ...params.imageGenerationModelIds,
+    ].map((modelId: string) => {
+      return new cw.Metric({
+        namespace: 'AWS/Bedrock',
+        metricName: 'Invocations',
+        dimensionsMap: {
+          ModelId: modelId,
+        },
+        period: Duration.days(1),
+        statistic: 'Sum',
+      });
+    });
 
     const userPoolMetrics = [
       'SignInSuccesses',

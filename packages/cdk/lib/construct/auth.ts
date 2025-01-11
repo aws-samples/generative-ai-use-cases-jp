@@ -15,9 +15,9 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export interface AuthProps {
   selfSignUpEnabled: boolean;
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedSignUpEmailDomains: string[] | null | undefined;
+  allowedIpV4AddressRanges?: string[] | null;
+  allowedIpV6AddressRanges?: string[] | null;
+  allowedSignUpEmailDomains?: string[] | null;
   samlAuthEnabled: boolean;
 }
 

@@ -2,7 +2,7 @@
 
 開発者用にローカル環境を構築する手順を説明します。なお、ローカル環境を構築する場合も、[AWS へのデプロイ](/README.md#デプロイ)は完了している必要があります。
 
-### Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS 等)
+### (推奨) Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS, Windows WSL/Bash/Git Bash 等)
 
 以下のコマンドを実行することで、必要な環境変数を CloudFormation の Output から動的に取得し、サーバーを起動します。
 なお、内部で `aws` コマンドと `jq` コマンドを利用しているので、未インストールの場合はインストールしてから実行してください。
@@ -18,6 +18,9 @@ npm run web:devw
 > export AWS_PROFILE=''
 > export AWS_DEFAULT_REGION=''
 > ```
+
+> [!TIP]
+> バックエンドの環境を切り替えて利用したい際は、cdk.json の context.env を変更するか、`npm run web:devw --env=dev2` のようにコマンドライン引数で指定してください。
 
 ### その他のユーザー (Windows 等)
 
@@ -102,4 +105,14 @@ npm run web:dev
 
 ```bash
 npm run lint
+```
+
+また、CDK に変更があれば以下のコマンドでスナップショットの確認を行いスナップショットを更新してください。
+
+```bash
+# 差分を確認
+npm run cdk:test
+
+# テストを更新
+npm run cdk:test:update-snapshot
 ```

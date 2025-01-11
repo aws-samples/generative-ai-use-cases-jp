@@ -24,6 +24,16 @@ import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
 import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 export interface BackendApiProps {
+  // Context Params
+  modelRegion: string;
+  agentRegion: string;
+  modelIds: string[];
+  imageGenerationModelIds: string[];
+  endpointNames: string[];
+  customAgents: Agent[];
+  crossAccountBedrockRoleArn?: string | null;
+
+  // Resource
   userPool: UserPool;
   idPool: IdentityPool;
   table: Table;
@@ -42,33 +52,24 @@ export class Api extends Construct {
   readonly imageGenerationModelIds: string[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
-  readonly crossAccountBedrockRoleArn: string;
   readonly fileBucket: Bucket;
   readonly getFileDownloadSignedUrlFunction: IFunction;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
 
-    const { userPool, table, idPool } = props;
-
-    // region for bedrock / sagemaker
-    const modelRegion = this.node.tryGetContext('modelRegion') || 'us-east-1';
-    // region for bedrock agent
-    const agentRegion = this.node.tryGetContext('agentRegion') || 'us-east-1';
-
-    // Model IDs
-    const modelIds: string[] = this.node.tryGetContext('modelIds') || [
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-    ];
-    const imageGenerationModelIds: string[] = this.node.tryGetContext(
-      'imageGenerationModelIds'
-    ) || ['stability.stable-diffusion-xl-v1'];
-    const endpointNames: string[] =
-      this.node.tryGetContext('endpointNames') || [];
-    const agents: Agent[] = [
-      ...(props.agents || []),
-      ...(this.node.tryGetContext('agents') || []),
-    ];
+    const {
+      modelRegion,
+      agentRegion,
+      modelIds,
+      imageGenerationModelIds,
+      endpointNames,
+      crossAccountBedrockRoleArn,
+      userPool,
+      table,
+      idPool,
+    } = props;
+    const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
     // Validate Model Names
     const supportedModelIds = Object.keys(modelFeatureFlags);
@@ -106,11 +107,6 @@ export class Api extends Construct {
       maxAge: 3000,
     });
 
-    // cross account access IAM role
-    const crossAccountBedrockRoleArn = this.node.tryGetContext(
-      'crossAccountBedrockRoleArn'
-    );
-
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
       runtime: Runtime.NODEJS_18_X,
@@ -120,7 +116,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
           : {}),
@@ -144,7 +140,7 @@ export class Api extends Construct {
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         AGENT_REGION: agentRegion,
         AGENT_MAP: JSON.stringify(agentMap),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
@@ -199,7 +195,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
           : {}),
@@ -218,7 +214,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn,
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
