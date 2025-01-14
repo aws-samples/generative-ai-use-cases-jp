@@ -16,7 +16,7 @@ export interface RagKnowledgeBaseProps {
   modelRegion: string;
 
   // Resource
-  knowledgeBaseId?: string;
+  knowledgeBaseId: string;
   userPool: UserPool;
   api: RestApi;
 }
@@ -32,7 +32,7 @@ export class RagKnowledgeBase extends Construct {
       entry: './lambda/retrieveKnowledgeBase.ts',
       timeout: cdk.Duration.minutes(15),
       environment: {
-        KNOWLEDGE_BASE_ID: props.knowledgeBaseId ?? '',
+        KNOWLEDGE_BASE_ID: props.knowledgeBaseId,
         MODEL_REGION: modelRegion,
       },
     });

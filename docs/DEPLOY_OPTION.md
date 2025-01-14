@@ -84,7 +84,7 @@ npm run cdk:deploy
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
     env: 'dev',
-    ragEnabled: false,
+    ragEnabled: true,
   }),
 };
 ```

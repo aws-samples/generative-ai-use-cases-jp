@@ -155,7 +155,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // RAG Knowledge Base
-    if (params.ragKnowledgeBaseEnabled) {
+    if (params.ragKnowledgeBaseEnabled && props.knowledgeBaseId) {
       new RagKnowledgeBase(this, 'RagKnowledgeBase', {
         modelRegion: params.modelRegion,
         knowledgeBaseId: props.knowledgeBaseId,
