@@ -1,12 +1,14 @@
-import { produce } from 'immer';
 import useUseCaseBuilderApi from './useUseCaseBuilderApi';
 import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
+import usePagination from '../usePagination';
+import { produce } from 'immer';
+import { Pagination } from 'generative-ai-use-cases-jp';
 
 const useMyUseCases = () => {
   const {
     listMyUseCases,
     listFavoriteUseCases,
-    listResentlyUsedUseCases,
+    listRecentlyUsedUseCases,
     createUseCase,
     updateUseCase,
     updateRecentUseUseCase,
@@ -16,34 +18,72 @@ const useMyUseCases = () => {
   } = useUseCaseBuilderApi();
 
   const {
-    data: myUseCases,
-    isLoading: isLoadingMyUseCases,
+    data: myUseCasesRaw,
+    flattenData: myUseCases,
     mutate: mutateMyUseCases,
-  } = listMyUseCases();
+    isLoading: isLoadingMyUseCases,
+    loadMore: loadMoreMyUseCases,
+    canLoadMore: canLoadMoreMyUseCases,
+  } = usePagination(listMyUseCases(), 30);
 
   const {
-    data: favoriteUseCases,
-    isLoading: isLoadingFavoriteUseCases,
+    data: favoriteUseCasesRaw,
+    flattenData: favoriteUseCases,
     mutate: mutateFavoriteUseCases,
-  } = listFavoriteUseCases();
+    isLoading: isLoadingFavoriteUseCases,
+    loadMore: loadMoreFavoriteUseCases,
+    canLoadMore: canLoadMoreFavoriteUseCases,
+  } = usePagination(listFavoriteUseCases(), 20);
 
   const {
-    data: recentlyUsedUseCases,
-    isLoading: isLoadingRecentlyUsedUseCases,
+    data: recentlyUsedUseCasesRaw,
+    flattenData: recentlyUsedUseCases,
     mutate: mutateRecentlyUsedUseCases,
-  } = listResentlyUsedUseCases();
+    isLoading: isLoadingRecentlyUsedUseCases,
+    loadMore: loadMoreRecentlyUsedUseCases,
+    canLoadMore: canLoadMoreRecentlyUsedUseCases,
+  } = usePagination(listRecentlyUsedUseCases(), 20);
 
-  const findIndex = (useCaseId: string) => {
-    return myUseCases?.findIndex((d) => d.useCaseId === useCaseId) ?? -1;
+  const findIndex = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useCasesRaw: Pagination<any>[] | undefined,
+    useCaseId: string
+  ): { page: number; idx: number } => {
+    if (!useCasesRaw) {
+      return { page: -1, idx: -1 };
+    }
+
+    for (const [pageIndex, useCases] of useCasesRaw.entries()) {
+      const idx: number =
+        useCases.data.findIndex((u) => u.useCaseId === useCaseId) ?? -1;
+
+      if (idx >= 0) {
+        return {
+          page: pageIndex as number,
+          idx,
+        };
+      }
+    }
+
+    // 該当するものがない場合は -1 を返す
+    return { page: -1, idx: -1 };
   };
 
   return {
-    myUseCases: myUseCases ?? [],
+    myUseCases,
     isLoadingMyUseCases,
+    loadMoreMyUseCases,
+    canLoadMoreMyUseCases,
+
     favoriteUseCases: favoriteUseCases ?? [],
     isLoadingFavoriteUseCases,
+    loadMoreFavoriteUseCases,
+    canLoadMoreFavoriteUseCases,
+
     recentlyUsedUseCases: recentlyUsedUseCases ?? [],
     isLoadingRecentlyUsedUseCases,
+    loadMoreRecentlyUsedUseCases,
+    canLoadMoreRecentlyUsedUseCases,
 
     createUseCase: (params: {
       title: string;
@@ -66,12 +106,30 @@ const useMyUseCases = () => {
       fixedModelId?: string;
       fileUpload?: boolean;
     }) => {
-      // 一覧の更新
-      const index = findIndex(params.useCaseId);
-      if (index > -1 && myUseCases) {
-        mutateMyUseCases(
-          produce(myUseCases, (draft) => {
-            draft[index].title = myUseCases[index].title;
+      // 更新時に影響があるものだけ楽観的処理を入れる
+      const { page: pageFavorite, idx: idxFavorite } = findIndex(
+        favoriteUseCasesRaw,
+        params.useCaseId
+      );
+      if (pageFavorite >= 0 && idxFavorite >= 0) {
+        mutateFavoriteUseCases(
+          produce(favoriteUseCasesRaw, (draft) => {
+            draft![pageFavorite].data[idxFavorite].title = params.title;
+          }),
+          {
+            revalidate: false,
+          }
+        );
+      }
+
+      const { page: pageRecentlyUsed, idx: idxRecentlyUsed } = findIndex(
+        recentlyUsedUseCasesRaw,
+        params.useCaseId
+      );
+      if (pageRecentlyUsed >= 0 && idxRecentlyUsed >= 0) {
+        mutateRecentlyUsedUseCases(
+          produce(recentlyUsedUseCasesRaw, (draft) => {
+            draft![pageRecentlyUsed].data[idxRecentlyUsed].title = params.title;
           }),
           {
             revalidate: false,
@@ -98,12 +156,41 @@ const useMyUseCases = () => {
       });
     },
     deleteUseCase: (useCaseId: string) => {
-      // 一覧の更新
-      const index = findIndex(useCaseId);
-      if (index > -1 && myUseCases) {
+      const { page: pageMy, idx: idxMy } = findIndex(myUseCasesRaw, useCaseId);
+      if (pageMy >= 0 && idxMy >= 0) {
         mutateMyUseCases(
-          produce(myUseCases, (draft) => {
-            draft.splice(index, 1);
+          produce(myUseCasesRaw, (draft) => {
+            draft![pageMy].data.splice(idxMy, 1);
+          }),
+          {
+            revalidate: false,
+          }
+        );
+      }
+
+      const { page: pageFavorite, idx: idxFavorite } = findIndex(
+        favoriteUseCasesRaw,
+        useCaseId
+      );
+      if (pageFavorite >= 0 && idxFavorite >= 0) {
+        mutateFavoriteUseCases(
+          produce(favoriteUseCasesRaw, (draft) => {
+            draft![pageFavorite].data.splice(idxFavorite, 1);
+          }),
+          {
+            revalidate: false,
+          }
+        );
+      }
+
+      const { page: pageRecentlyUsed, idx: idxRecentlyUsed } = findIndex(
+        recentlyUsedUseCasesRaw,
+        useCaseId
+      );
+      if (pageRecentlyUsed >= 0 && idxRecentlyUsed >= 0) {
+        mutateRecentlyUsedUseCases(
+          produce(recentlyUsedUseCasesRaw, (draft) => {
+            draft![pageRecentlyUsed].data.splice(idxRecentlyUsed, 1);
           }),
           {
             revalidate: false,
@@ -118,27 +205,13 @@ const useMyUseCases = () => {
       });
     },
     toggleFavorite: (useCaseId: string) => {
-      // お気に入り表示の切り替え（マイユースケース）
-      const index = findIndex(useCaseId);
-      if (index > -1 && myUseCases) {
+      // 更新時に影響があるものだけ楽観的処理を入れる
+      const { page: pageMy, idx: idxMy } = findIndex(myUseCasesRaw, useCaseId);
+      if (pageMy >= 0 && idxMy >= 0) {
         mutateMyUseCases(
-          produce(myUseCases, (draft) => {
-            draft[index].isFavorite = !myUseCases[index].isFavorite;
-          }),
-          {
-            revalidate: false,
-          }
-        );
-      }
-      // お気に入り表示の切り替え（最近利用したユースケース）
-      const indexRecentlyUsed =
-        recentlyUsedUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ??
-        -1;
-      if (indexRecentlyUsed > -1 && recentlyUsedUseCases) {
-        mutateRecentlyUsedUseCases(
-          produce(recentlyUsedUseCases, (draft) => {
-            draft[indexRecentlyUsed].isFavorite =
-              !recentlyUsedUseCases[indexRecentlyUsed].isFavorite;
+          produce(myUseCasesRaw, (draft) => {
+            draft![pageMy].data[idxMy].isFavorite =
+              !draft![pageMy].data[idxMy].isFavorite;
           }),
           {
             revalidate: false,
@@ -146,23 +219,7 @@ const useMyUseCases = () => {
         );
       }
 
-      // お気に入り解除したら、お気に入り一覧から削除
-      const favoriteIndex =
-        favoriteUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ?? -1;
-      if (
-        favoriteIndex > -1 &&
-        favoriteUseCases &&
-        favoriteUseCases[favoriteIndex].isFavorite
-      ) {
-        mutateFavoriteUseCases(
-          produce(favoriteUseCases, (draft) => {
-            draft.splice(favoriteIndex, 1);
-          }),
-          {
-            revalidate: false,
-          }
-        );
-      }
+      // お気に入り一覧への表示・追加は処理が複雑なため楽観的処理をいれない
 
       return toggleFavorite(useCaseId).finally(() => {
         mutateMyUseCases();
@@ -171,27 +228,13 @@ const useMyUseCases = () => {
       });
     },
     toggleShared: (useCaseId: string) => {
-      // 共有表示の切り替え（マイユースケース）
-      const index = findIndex(useCaseId);
-      if (index > -1 && myUseCases) {
+      // 更新時に影響があるものだけ楽観的処理を入れる
+      const { page: pageMy, idx: idxMy } = findIndex(myUseCasesRaw, useCaseId);
+      if (pageMy >= 0 && idxMy >= 0) {
         mutateMyUseCases(
-          produce(myUseCases, (draft) => {
-            draft[index].isShared = !myUseCases[index].isShared;
-          }),
-          {
-            revalidate: false,
-          }
-        );
-      }
-      // お気に入り表示の切り替え（最近利用したユースケース）
-      const indexRecentlyUsed =
-        recentlyUsedUseCases?.findIndex((uc) => uc.useCaseId === useCaseId) ??
-        -1;
-      if (indexRecentlyUsed > -1 && recentlyUsedUseCases) {
-        mutateRecentlyUsedUseCases(
-          produce(recentlyUsedUseCases, (draft) => {
-            draft[indexRecentlyUsed].isShared =
-              !recentlyUsedUseCases[indexRecentlyUsed].isShared;
+          produce(myUseCasesRaw, (draft) => {
+            draft![pageMy].data[idxMy].isShared =
+              !draft![pageMy].data[idxMy].isShared;
           }),
           {
             revalidate: false,

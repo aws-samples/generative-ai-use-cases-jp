@@ -8,10 +8,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const exclusiveStartKey = event?.queryStringParameters?.exclusiveStartKey;
-    const { chats, lastEvaluatedKey } = await listChats(
-      userId,
-      exclusiveStartKey
-    );
+    const res = await listChats(userId, exclusiveStartKey);
 
     return {
       statusCode: 200,
@@ -19,10 +16,7 @@ export const handler = async (
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({
-        chats,
-        lastEvaluatedKey,
-      }),
+      body: JSON.stringify(res),
     };
   } catch (error) {
     console.log(error);
