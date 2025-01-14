@@ -4,7 +4,7 @@ import {
   GetUseCaseResponse,
   ListFavoriteUseCasesResponse,
   ListRecentlyUsedUseCasesResponse,
-  ListUseCasesRespose,
+  ListUseCasesResponse,
   ToggleFavoriteResponse,
   ToggleShareResponse,
   UpdateUseCaseRequest,
@@ -17,13 +17,43 @@ const useUseCaseBuilderApi = () => {
 
   return {
     listMyUseCases: () => {
-      return http.get<ListUseCasesRespose>('/usecases');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases';
+        return `usecases?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     listFavoriteUseCases: () => {
-      return http.get<ListFavoriteUseCasesResponse>('/usecases/favorite');
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListFavoriteUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases/favorite';
+        return `usecases/favorite?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListFavoriteUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
-    listResentlyUsedUseCases: () => {
-      return http.get<ListRecentlyUsedUseCasesResponse>('/usecases/recent');
+    listRecentlyUsedUseCases: () => {
+      const getKey = (
+        pageIndex: number,
+        previousPageData: ListRecentlyUsedUseCasesResponse
+      ) => {
+        if (previousPageData && !previousPageData.lastEvaluatedKey) return null;
+        if (pageIndex === 0) return '/usecases/recent';
+        return `usecases/recent?exclusiveStartKey=${previousPageData.lastEvaluatedKey}`;
+      };
+      return http.getPagination<ListRecentlyUsedUseCasesResponse>(getKey, {
+        revalidateIfStale: false,
+      });
     },
     getUseCase: (useCaseId?: string) => {
       return http.get<GetUseCaseResponse, AxiosError>(

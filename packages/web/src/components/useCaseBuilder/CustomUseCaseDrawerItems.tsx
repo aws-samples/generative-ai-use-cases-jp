@@ -23,7 +23,7 @@ const CustomUseCaseDrawerItems: React.FC<Props> = (props) => {
   );
 
   return (
-    <div>
+    <div className="flex flex-col gap-y-0.5">
       {props.useCases.map((usecase) => {
         return (
           <div

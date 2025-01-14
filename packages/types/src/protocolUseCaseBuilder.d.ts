@@ -4,10 +4,11 @@ import {
   IsFavorite,
   IsShared,
 } from './useCaseBuilder';
+import { Pagination } from './protocol';
 
-export type ListUseCasesRespose = UseCaseAsOutput[];
-export type ListFavoriteUseCasesResponse = UseCaseAsOutput[];
-export type ListRecentlyUsedUseCasesResponse = UseCaseAsOutput[];
+export type ListUseCasesResponse = Pagination<UseCaseAsOutput>;
+export type ListFavoriteUseCasesResponse = Pagination<UseCaseAsOutput>;
+export type ListRecentlyUsedUseCasesResponse = Pagination<UseCaseAsOutput>;
 
 export type GetUseCaseResponse = UseCaseAsOutput;
 
