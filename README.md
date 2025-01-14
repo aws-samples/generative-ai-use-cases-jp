@@ -153,6 +153,7 @@ npm run cdk:deploy
     - [Advanced Parsing を有効化](/docs/DEPLOY_OPTION.md#Advanced-Parsing-を有効化)
     - [チャンク戦略を変更](/docs/DEPLOY_OPTION.md#チャンク戦略を変更)
     - [Knowledge Base や OpenSearch Service を変更](/docs/DEPLOY_OPTION.md#Knowledge-Base-や-OpenSearch-Service-を再作成して変更を加える)
+    - [メタデータフィルターを設定](/docs/DEPLOY_OPTION.md#メタデータフィルターを設定)
   - [Agent チャットユースケースの有効化](/docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
     - [Code Interpreter 機能を持つエージェントのデプロイ](/docs/DEPLOY_OPTION.md#Code-Interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](/docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
