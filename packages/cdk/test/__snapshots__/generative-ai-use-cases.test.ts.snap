@@ -11215,8 +11215,19 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             },
             "GUARDRAIL_VERSION": "DRAFT",
             "IMAGE_GENERATION_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
+            "KNOWLEDGE_BASE_ID": {
+              "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
+            },
             "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
             "MODEL_REGION": "us-east-1",
+            "QUERY_DECOMPOSITION_ENABLED": "false",
+            "RERANKING_MODEL_ID": "",
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "AuthUserPoolclientA74673A9",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
           },
         },
         "Handler": "index.handler",
@@ -16837,7 +16848,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               {
                 "Fn::ImportValue": "GenerativeAiUseCasesStack:ExportsOutputRefAuthUserPoolclientA74673A913CB5D33",
               },
-              "",{"period":3600,"stat":"Sum"}],["AWS/Cognito","TokenRefreshSuccesses","UserPool","",
+              "",{"region":"us-east-1","period":3600,"stat":"Sum"}],["AWS/Cognito","TokenRefreshSuccesses","UserPool","",
               {
                 "Fn::ImportValue": "GenerativeAiUseCasesStack:ExportsOutputRefAuthUserPool8115E87F4F9C6D4C",
               },
@@ -16845,7 +16856,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               {
                 "Fn::ImportValue": "GenerativeAiUseCasesStack:ExportsOutputRefAuthUserPoolclientA74673A913CB5D33",
               },
-              "",{"period":3600,"stat":"Sum"}],["AWS/Cognito","SignUpSuccesses","UserPool","",
+              "",{"region":"us-east-1","period":3600,"stat":"Sum"}],["AWS/Cognito","SignUpSuccesses","UserPool","",
               {
                 "Fn::ImportValue": "GenerativeAiUseCasesStack:ExportsOutputRefAuthUserPool8115E87F4F9C6D4C",
               },
@@ -16853,7 +16864,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               {
                 "Fn::ImportValue": "GenerativeAiUseCasesStack:ExportsOutputRefAuthUserPoolclientA74673A913CB5D33",
               },
-              "",{"period":3600,"stat":"Sum"}]],"yAxis":{}}},{"type":"text","width":24,"height":1,"x":0,"y":7,"properties":{"markdown":"**Prompt Logs**"}},{"type":"log","width":24,"height":6,"x":0,"y":8,"properties":{"view":"table","title":"Prompt Logs","region":"",
+              "",{"region":"us-east-1","period":3600,"stat":"Sum"}]],"yAxis":{}}},{"type":"text","width":24,"height":1,"x":0,"y":7,"properties":{"markdown":"**Prompt Logs**"}},{"type":"log","width":24,"height":6,"x":0,"y":8,"properties":{"view":"table","title":"Prompt Logs","region":"",
               {
                 "Ref": "AWS::Region",
               },
