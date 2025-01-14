@@ -58,7 +58,11 @@ const ChatMessage: React.FC<Props> = (props) => {
       setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
-          return await getFileDownloadSignedUrl(file.source.data);
+          if (file.source.type === 'S3') {
+            return await getFileDownloadSignedUrl(file.source.data);
+          } else {
+            return file.source.data;
+          }
         })
       ).then((results) => setSignedUrls(results));
     } else {

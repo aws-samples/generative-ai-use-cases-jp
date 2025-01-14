@@ -7,7 +7,7 @@ import {
   RestApi,
   ResponseType,
 } from 'aws-cdk-lib/aws-apigateway';
-import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { IFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -21,7 +21,11 @@ import {
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
 import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
-import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
+import {
+  BEDROCK_IMAGE_GEN_MODELS,
+  BEDROCK_RERANKING_MODELS,
+  BEDROCK_TEXT_MODELS,
+} from '@generative-ai-use-cases-jp/common';
 
 export interface BackendApiProps {
   // Context Params
@@ -30,13 +34,17 @@ export interface BackendApiProps {
   modelIds: string[];
   imageGenerationModelIds: string[];
   endpointNames: string[];
+  queryDecompositionEnabled: boolean;
+  rerankingModelId?: string | null;
   customAgents: Agent[];
   crossAccountBedrockRoleArn?: string | null;
 
   // Resource
   userPool: UserPool;
   idPool: IdentityPool;
+  userPoolClient: UserPoolClient;
   table: Table;
+  knowledgeBaseId?: string;
   agents?: Agent[];
   guardrailIdentify?: string;
   guardrailVersion?: string;
@@ -66,23 +74,34 @@ export class Api extends Construct {
       endpointNames,
       crossAccountBedrockRoleArn,
       userPool,
+      userPoolClient,
       table,
       idPool,
+      knowledgeBaseId,
+      queryDecompositionEnabled,
+      rerankingModelId,
     } = props;
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
     // Validate Model Names
-    const supportedModelIds = Object.keys(modelFeatureFlags);
     for (const modelId of modelIds) {
-      if (!supportedModelIds.includes(modelId)) {
+      if (!BEDROCK_TEXT_MODELS.includes(modelId)) {
         throw new Error(`Unsupported Model Name: ${modelId}`);
       }
     }
     for (const modelId of imageGenerationModelIds) {
-      if (!supportedModelIds.includes(modelId)) {
+      if (!BEDROCK_IMAGE_GEN_MODELS.includes(modelId)) {
         throw new Error(`Unsupported Model Name: ${modelId}`);
       }
     }
+    if (
+      rerankingModelId &&
+      !BEDROCK_RERANKING_MODELS.includes(rerankingModelId)
+    ) {
+      throw new Error(`Unsupported Model Name: ${rerankingModelId}`);
+    }
+
+    // Agent Map
     const agentMap: AgentMap = {};
     for (const agent of agents) {
       agentMap[agent.displayName] = {
@@ -135,6 +154,8 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       memorySize: 256,
       environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
@@ -142,12 +163,15 @@ export class Api extends Construct {
         AGENT_MAP: JSON.stringify(agentMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
+        KNOWLEDGE_BASE_ID: knowledgeBaseId ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
           : {}),
         ...(props.guardrailVersion
           ? { GUARDRAIL_VERSION: props.guardrailVersion }
           : {}),
+        QUERY_DECOMPOSITION_ENABLED: JSON.stringify(queryDecompositionEnabled),
+        RERANKING_MODEL_ID: rerankingModelId ?? '',
       },
       bundling: {
         nodeModules: [

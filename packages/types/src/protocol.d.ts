@@ -21,6 +21,7 @@ export type StreamingChunk = {
   text: string;
   trace?: string;
   stopReason?: string;
+  sessionId?: string;
 };
 
 export type Pagination<T> = {
@@ -83,6 +84,7 @@ export type UpdateTitleResponse = {
 
 export type PredictRequest = {
   model?: Model;
+  idToken?: string;
   messages: UnrecordedMessage[];
   id: string;
 };

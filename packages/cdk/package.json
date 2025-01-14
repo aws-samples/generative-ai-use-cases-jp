@@ -38,6 +38,7 @@
     "@aws-sdk/s3-request-presigner": "^3.698.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.68.0",
     "aws-cdk-lib": "^2.154.1",
+    "aws-jwt-verify": "^4.0.0",
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "node-html-parser": "^6.1.13",

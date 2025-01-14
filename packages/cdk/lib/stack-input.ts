@@ -55,6 +55,8 @@ export const stackInputSchema = z.object({
   ragKnowledgeBaseAdvancedParsingModelId: z
     .string()
     .default('anthropic.claude-3-sonnet-20240229-v1:0'),
+  queryDecompositionEnabled: z.boolean().default(false),
+  rerankingModelId: z.string().nullish(),
   // Agent
   agentEnabled: z.boolean().default(false),
   searchAgentEnabled: z.boolean().default(false),
