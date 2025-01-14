@@ -1,5 +1,5 @@
 // === 注意 ===
-// useRagKnowledgeBase.ts は xxx 対応に伴い、deprecation となりました。
+// useRagKnowledgeBase.ts は #802 対応に伴い、deprecation となりました。
 // 現在 main ブランチのコードはこちらの hook を利用しておりません。
 // ============
 
