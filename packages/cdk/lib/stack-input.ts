@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 // Common Validator
 export const stackInputSchema = z.object({
-  account: z
-    .string()
-    .default(process.env.CDK_DEFAULT_ACCOUNT ?? ''),
+  account: z.string().default(process.env.CDK_DEFAULT_ACCOUNT ?? ''),
   region: z.string().default(process.env.CDK_DEFAULT_REGION ?? 'us-east-1'),
   env: z.string().default(''),
   anonymousUsageTracking: z.boolean().default(true),
