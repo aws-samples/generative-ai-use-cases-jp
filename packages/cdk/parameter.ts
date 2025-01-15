@@ -13,20 +13,16 @@ const envs: Record<string, StackInput> = {
   // paramter.ts で無名環境を定義したい場合は以下をアンコメントすると cdk.json の内容が無視され、parameter.ts がより優先されます。
   // '': stackInputSchema.parse({
   //   // 無名環境のパラメータ
-  //   env: '',
   //   // デフォルト設定を上書きしたいものは以下に追記
   // }),
   dev: stackInputSchema.parse({
     // 開発環境のパラメータ
-    env: 'dev',
   }),
   staging: stackInputSchema.parse({
     // ステージング環境のパラメータ
-    env: 'staging',
   }),
   prod: stackInputSchema.parse({
     // 本番環境のパラメータ
-    env: 'prod',
   }),
   // 他環境も必要に応じてカスタマイズ
 };
@@ -38,7 +34,10 @@ export const getParams = (app: cdk.App): StackInput => {
 
   // env が envs で定義したものにマッチ場合は、envs のパラメータを context よりも優先して使用する
   if (envs[params.env]) {
-    params = envs[params.env];
+    params = {
+      ...envs[params.env],
+      env: params.env,
+    };
   }
 
   return params;
