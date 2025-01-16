@@ -8,7 +8,6 @@ import {
   PiNote,
   PiChatsCircle,
   PiPenNib,
-  PiMagnifyingGlass,
   PiTranslate,
   PiImages,
   PiSpeakerHighBold,
@@ -155,14 +154,6 @@ const items: ItemProps[] = [
         label: 'プロンプト最適化',
         to: '/optimize',
         icon: <PiMagicWand />,
-        display: 'tool' as const,
-      }
-    : null,
-  ragEnabled
-    ? {
-        label: 'Kendra 検索',
-        to: '/kendra',
-        icon: <PiMagnifyingGlass />,
         display: 'tool' as const,
       }
     : null,
