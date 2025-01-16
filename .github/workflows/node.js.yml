@@ -33,4 +33,5 @@ jobs:
       - run: npm run web:lint
       - run: npm run cdk:lint
       - run: npm run web:build
+      - run: npm run cdk:test
       - run: npm -w packages/cdk run cdk synth

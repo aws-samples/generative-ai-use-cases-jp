@@ -31,13 +31,13 @@ export interface WebProps {
   imageGenerationModelIds: string[];
   endpointNames: string[];
   samlAuthEnabled: boolean;
-  samlCognitoDomainName: string;
-  samlCognitoFederatedIdentityProviderName: string;
+  samlCognitoDomainName?: string | null;
+  samlCognitoFederatedIdentityProviderName?: string | null;
   agentNames: string[];
   cert?: ICertificate;
-  hostName?: string;
-  domainName?: string;
-  hostedZoneId?: string;
+  hostName?: string | null;
+  domainName?: string | null;
+  hostedZoneId?: string | null;
   useCaseBuilderEnabled: boolean;
 }
 
@@ -180,10 +180,9 @@ export class Web extends Construct {
         VITE_APP_IMAGE_MODEL_IDS: JSON.stringify(props.imageGenerationModelIds),
         VITE_APP_ENDPOINT_NAMES: JSON.stringify(props.endpointNames),
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
-        VITE_APP_SAML_COGNITO_DOMAIN_NAME:
-          props.samlCognitoDomainName.toString(),
+        VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
-          props.samlCognitoFederatedIdentityProviderName.toString(),
+          props.samlCognitoFederatedIdentityProviderName ?? '',
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),

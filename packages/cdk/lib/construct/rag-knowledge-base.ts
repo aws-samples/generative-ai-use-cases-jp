@@ -12,19 +12,20 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 
 export interface RagKnowledgeBaseProps {
+  // Context Params
+  modelRegion: string;
+
+  // Resource
   knowledgeBaseId: string;
-  dataSourceBucketName: string;
   userPool: UserPool;
   api: RestApi;
 }
 
 export class RagKnowledgeBase extends Construct {
-  public readonly dataSourceBucketName: string;
-
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseProps) {
     super(scope, id);
 
-    const modelRegion: string = this.node.tryGetContext('modelRegion')!;
+    const { modelRegion } = props;
 
     const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
       runtime: Runtime.NODEJS_20_X,
@@ -40,7 +41,7 @@ export class RagKnowledgeBase extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         resources: [
-          `arn:aws:bedrock:${modelRegion}:${cdk.Stack.of(this).account}:knowledge-base/${props.knowledgeBaseId}`,
+          `arn:aws:bedrock:${modelRegion}:${cdk.Stack.of(this).account}:knowledge-base/${props.knowledgeBaseId ?? ''}`,
         ],
         actions: ['bedrock:Retrieve'],
       })
