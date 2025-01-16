@@ -17,7 +17,10 @@ import { userDefinedExplicitFilters } from '@generative-ai-use-cases-jp/common';
 import { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import { RetrievalFilterLabel } from '../components/KbFilter';
 import KbFilter from '../components/KbFilter';
-import { ExplicitFilterConfiguration } from 'generative-ai-use-cases-jp';
+import {
+  ExplicitFilterConfiguration,
+  ExtraData,
+} from 'generative-ai-use-cases-jp';
 import { Option, SelectValue } from '../components/FilterSelect';
 import ModalDialog from '../components/ModalDialog';
 import Button from '../components/Button';
@@ -136,7 +139,7 @@ const RagKnowledgeBasePage: React.FC = () => {
     setFollowing(true);
 
     // フィルターがある場合はextraDataに追加
-    const extraData = filters
+    const extraData: ExtraData[] = filters
       .map((f, index) =>
         RetrievalFilterLabelToRetrievalFilter(
           f,
@@ -148,15 +151,18 @@ const RagKnowledgeBasePage: React.FC = () => {
           f !== null &&
           Object.values(f).filter((v) => v.value != null).length > 0
       )
-      .map((f) => ({
-        type: 'json',
-        name: 'filter',
-        source: {
-          type: 'json',
-          mediaType: 'application/json',
-          data: JSON.stringify(f),
-        },
-      }));
+      .map(
+        (f) =>
+          ({
+            type: 'json',
+            name: 'filter',
+            source: {
+              type: 'json',
+              mediaType: 'application/json',
+              data: JSON.stringify(f),
+            },
+          }) as ExtraData
+      );
 
     postChat(
       content,

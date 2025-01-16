@@ -41,10 +41,10 @@ export type UnrecordedMessage = {
 };
 
 export type ExtraData = {
-  type: string; // 'image' | 'file' | 'json'
+  type: 'image' | 'video' | 'file' | 'json';
   name: string;
   source: {
-    type: string; // 'S3' | 'base64' | 'json'
+    type: 's3' | 'base64' | 'json';
     mediaType: string; // mime type (i.e. image/png, text/plain, application/pdf, application/json)
     data: string; // s3 location for s3, data for base64, json for json
   };
@@ -53,7 +53,7 @@ export type ExtraData = {
 export type UploadedFileType = {
   file: File;
   name: string;
-  type: string; // 'image' | 'file'
+  type: 'image' | 'video' | 'file';
   base64EncodedData?: string;
   s3Url?: string;
   uploading: boolean;
