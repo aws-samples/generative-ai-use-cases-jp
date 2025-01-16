@@ -16,17 +16,14 @@ GenU は、parameter.ts もしくは AWS CDK の context で設定を変更し�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     ragEnabled: false,
     // 他のパラメータも必要に応じてカスタマイズ
   }),
   staging: stackInputSchema.parse({
-    env: 'staging',
     ragEnabled: false,
     // 他のパラメータも必要に応じてカスタマイズ
   }),
   prod: stackInputSchema.parse({
-    env: 'prod',
     ragEnabled: true,
     // 他のパラメータも必要に応じてカスタマイズ
   }),
@@ -83,7 +80,6 @@ npm run cdk:deploy
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     ragEnabled: true,
   }),
 };
@@ -122,7 +118,6 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     kendraIndexArn: '<Kendra Index ARN>',
     kendraDataSourceBucketName: '<Kendra S3 Data Source Bucket Name>',
   }),
@@ -163,7 +158,6 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
@@ -248,7 +242,6 @@ Status が Available になれば完了です。S3 に保存されているフ�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
@@ -362,7 +355,6 @@ Code Interpreter エージェントは Agent を有効化するとデプロイ�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     agentEnabled: true,
     agentRegion: 'us-west-2',
   }),
@@ -396,7 +388,6 @@ API と連携し最新情報を参照して回答する Agent を作成します
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     agentEnabled: true,
     agentRegion: 'us-west-2',
     searchAgentEnabled: true,
@@ -427,7 +418,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     agents: [
       {
         displayName: 'SearchEngine',
@@ -480,7 +470,6 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     agents: [
       {
         displayName: 'Knowledge Base',
@@ -523,7 +512,6 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     promptFlows: [
       {
         flowId: 'XXXXXXXXXX',
@@ -604,7 +592,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelIds: [
       'anthropic.claude-3-sonnet-20240229-v1:0',
     ]
@@ -642,7 +629,6 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     useCaseBuilderEnabled: false,
   }),
 };
@@ -737,7 +723,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelRegion: 'us-east-1',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -800,7 +785,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelRegion: 'us-east-1',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -867,7 +851,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelRegion: 'us-east-1',
     modelIds: [
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -950,7 +933,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelRegion: 'ap-northeast-1',
     "modelIds": [
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -1020,7 +1002,6 @@ endpointNames は SageMaker エンドポイント名のリストです。（例�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     modelRegion: 'us-east-1',
     endpointNames: ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
   }),
@@ -1072,7 +1053,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     selfSignUpEnabled: false,
   }),
 };
@@ -1106,7 +1086,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     allowedSignUpEmailDomains: ["amazon.com"],
   }),
 };
@@ -1129,7 +1108,6 @@ const envs: Record<string, StackInput> = {
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     allowedSignUpEmailDomains: ["amazon.com", "amazon.jp"],
   }),
 };
@@ -1156,7 +1134,6 @@ Web アプリへのアクセスを IP アドレスで制限したい場合、AWS
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     allowedIpV4AddressRanges: ["192.168.0.0/24"],
     allowedIpV6AddressRanges: ["2001:0db8::/32"],
   }),
@@ -1187,7 +1164,6 @@ Web アプリへのアクセスをアクセス元の国で制限したい場合�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     allowedCountryCodes: ["JP"],
   }),
 };
@@ -1220,7 +1196,6 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     samlAuthEnabled: true,
     samlCognitoDomainName: "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     samlCognitoFederatedIdentityProviderName: "EntraID",
@@ -1254,7 +1229,6 @@ Converse API を使う(=テキスト出力を行う生成 AI モデル)場合は
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     guardrailEnabled: true,
   }),
 };
@@ -1296,7 +1270,6 @@ GenerativeAiUseCasesDashboardStack で作成する Kendra のインデックス�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     kendraIndexScheduleEnabled: true,
     kendraIndexScheduleCreateCron: { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
     kendraIndexScheduleDeleteCron: { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
@@ -1347,7 +1320,6 @@ Amazon CloudWatch のダッシュボードは、[マネージメントコンソ�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     dashboard: true,
   }),
 };
@@ -1389,7 +1361,6 @@ Web サイトの URL としてカスタムドメインを使用することが�
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     hostName: 'genai',
     domainName: 'example.com',
     hostedZoneId: 'XXXXXXXXXXXXXXXXXXXX',
@@ -1457,7 +1428,6 @@ Principal 設定例 (別アカウントにて設定)
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    env: 'dev',
     crossAccountBedrockRoleArn: 'arn:aws:iam::アカウントID:role/事前に作成したロール名',
   }),
 };
@@ -1487,17 +1457,7 @@ const envs: Record<string, StackInput> = {
 
 - `env` ... 環境名 (デフォルト: "" (空文字))
 
-**[parameter.ts](/packages/cdk/parameter.ts) と [packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-
-```typescript
-// parameter.ts
-const envs: Record<string, StackInput> = {
-  <環境名>: stackInputSchema.parse({
-    env: '<環境名>', // 基本的には環境名と同一のものを指定すること
-    ...
-  }),
-};
-```
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 
 ```json
 // cdk.json
@@ -1508,17 +1468,13 @@ const envs: Record<string, StackInput> = {
 }
 ```
 
-設定例
+もしくは **コマンドで context を指定** してデプロイすることも可能です。
 
-```typescript
-// parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
-    env: 'dev',
-    ...
-  }),
-};
 ```
+npm run cdk:deploy -- -c env=<環境名>
+```
+
+設定例
 
 ```json
 // cdk.json
