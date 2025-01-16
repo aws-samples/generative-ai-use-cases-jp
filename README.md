@@ -140,7 +140,11 @@ npx -w packages/cdk cdk bootstrap
 続いて、以下のコマンドで AWS リソースをデプロイします。デプロイが完了するまで、お待ちください（20 分程度かかる場合があります）。
 
 ```bash
+# 通常デプロイ
 npm run cdk:deploy
+
+# 高速デプロイ (作成されるリソースを事前確認せずに素早くデプロイ)
+npm run cdk:deploy:quick
 ```
 
 ## [デプロイオプション](/docs/DEPLOY_OPTION.md)
