@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import InputChatContent from '../components/InputChatContent';
 import { create } from 'zustand';
-import Alert from '../components/Alert';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
@@ -20,7 +19,8 @@ import { RetrievalFilterLabel } from '../components/KbFilter';
 import KbFilter from '../components/KbFilter';
 import { ExplicitFilterConfiguration } from 'generative-ai-use-cases-jp';
 import { Option, SelectValue } from '../components/FilterSelect';
-import { PiSlidersHorizontal } from 'react-icons/pi';
+import ModalDialog from '../components/ModalDialog';
+import Button from '../components/Button';
 
 type StateType = {
   sessionId: string | undefined;
@@ -74,7 +74,8 @@ const RagKnowledgeBasePage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [expanded, setExpanded] = useState(window.innerWidth > 1024);
+
+  const [showSetting, setShowSetting] = useState(false);
 
   const RetrievalFilterLabelToRetrievalFilter = (
     f: RetrievalFilterLabel | null,
@@ -188,10 +189,7 @@ const RagKnowledgeBasePage: React.FC = () => {
 
   return (
     <>
-      <div
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative ${
-          expanded ? 'lg:mr-64' : ''
-        }`}>
+      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           RAG チャット
         </div>
@@ -212,23 +210,6 @@ const RagKnowledgeBasePage: React.FC = () => {
           </div>
         )}
 
-        {isEmpty && (
-          <div
-            className={`absolute inset-x-0 top-28 m-auto flex justify-center`}>
-            <Alert severity="info">
-              <div>
-                RAG (Retrieval Augmented Generation)
-                手法のチャットを行うことができます。
-              </div>
-              <div>
-                メッセージが入力されると Knowledge Base
-                でドキュメントを検索し、検索したドキュメントをもとに LLM
-                が回答を生成します。
-              </div>
-            </Alert>
-          </div>
-        )}
-
         <div ref={scrollableContainer}>
           {messages.map((chat, idx) => (
             <div key={idx}>
@@ -242,17 +223,12 @@ const RagKnowledgeBasePage: React.FC = () => {
           ))}
         </div>
 
-        <div
-          className={`fixed right-4 top-[calc(50vh-2rem)] z-0 ${
-            expanded ? 'lg:pr-64' : ''
-          }`}>
+        <div className={`fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8`}>
           <ScrollTopBottom />
         </div>
 
         <div
-          className={`fixed bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden ${
-            expanded ? 'lg:pr-128' : 'lg:pr-64'
-          }`}>
+          className={`fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden`}>
           <InputChatContent
             content={content}
             disabled={loading}
@@ -261,40 +237,64 @@ const RagKnowledgeBasePage: React.FC = () => {
               onSend();
             }}
             onReset={onReset}
+            setting={true}
+            onSetting={() => {
+              setShowSetting(true);
+            }}
           />
         </div>
       </div>
 
-      <div
-        className={`fixed top-0 transition-all ${
-          expanded ? 'right-0 z-50' : '-right-64 z-30'
-        } pointer-events-none flex h-full justify-center`}>
-        <div
-          className="bg-aws-smile pointer-events-auto mt-16 flex size-12 cursor-pointer items-center justify-center rounded-l-full"
-          onClick={() => {
-            setExpanded(!expanded);
-          }}>
-          <PiSlidersHorizontal className="text-aws-squid-ink size-6" />
+      <ModalDialog
+        isOpen={showSetting}
+        onClose={() => {
+          setShowSetting(false);
+        }}
+        title="高度なオプション">
+        {userDefinedExplicitFilters.length > 0 && (
+          <ExpandableField
+            label="フィルタ"
+            className="relative w-full"
+            defaultOpened={true}>
+            <div className="flex justify-end">
+              フィルター設定については{' '}
+              <a
+                className="text-aws-smile underline"
+                href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
+                target="_blank">
+                こちら
+              </a>{' '}
+              をご参照ください。
+            </div>
+
+            <KbFilter
+              filterConfigs={userDefinedExplicitFilters}
+              filters={filters}
+              setFilters={setFilters}
+            />
+          </ExpandableField>
+        )}
+        {userDefinedExplicitFilters.length === 0 && (
+          <p>
+            設定が見つかりませんでした。
+            <a
+              className="text-aws-smile underline"
+              href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
+              target="_blank">
+              packages/common/src/custom/rag-knowledge-base.ts
+            </a>{' '}
+            をカスタマイズすることでフィルターを追加できます。
+          </p>
+        )}
+        <div className="mt-4 flex justify-end">
+          <Button
+            onClick={() => {
+              setShowSetting(false);
+            }}>
+            設定
+          </Button>
         </div>
-        <div className="bg-aws-squid-ink scrollbar-thin scrollbar-thumb-white pointer-events-auto h-full w-64 overflow-y-scroll break-words p-3 text-sm text-white">
-          <div className="my-2 flex items-center text-sm font-semibold">
-            <PiSlidersHorizontal className="mr-1.5 text-lg" />
-            高度なオプション
-          </div>
-          {userDefinedExplicitFilters.length > 0 && (
-            <ExpandableField
-              label="フィルタ"
-              className="relative w-full"
-              defaultOpened={true}>
-              <KbFilter
-                filterConfigs={userDefinedExplicitFilters}
-                filters={filters}
-                setFilters={setFilters}
-              />
-            </ExpandableField>
-          )}
-        </div>
-      </div>
+      </ModalDialog>
     </>
   );
 };
