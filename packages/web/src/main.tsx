@@ -18,7 +18,6 @@ import EditorialPage from './pages/EditorialPage';
 import TranslatePage from './pages/TranslatePage';
 import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
-import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
@@ -122,12 +121,6 @@ const routes: RouteObject[] = [
     ? {
         path: '/rag-knowledge-base',
         element: <RagKnowledgeBasePage />,
-      }
-    : null,
-  ragEnabled
-    ? {
-        path: '/kendra',
-        element: <KendraSearchPage />,
       }
     : null,
   agentEnabled
