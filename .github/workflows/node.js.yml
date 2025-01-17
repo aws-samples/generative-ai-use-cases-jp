@@ -20,6 +20,8 @@ jobs:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    env:
+      CDK_DEFAULT_ACCOUNT: 123456789012
 
     steps:
       - uses: actions/checkout@v3
