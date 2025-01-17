@@ -628,15 +628,18 @@ const useChatState = create<{
         content,
         // DDB に保存する形式で、extraData を設定する
         extraData: [
-          ...(uploadedFiles?.map((uploadedFile) => ({
-            type: uploadedFile.type,
-            name: uploadedFile.name,
-            source: {
-              type: 's3',
-              mediaType: uploadedFile.file.type,
-              data: uploadedFile.s3Url ?? '',
-            },
-          })) ?? []),
+          ...(uploadedFiles?.map(
+            (uploadedFile) =>
+              ({
+                type: uploadedFile.type,
+                name: uploadedFile.name,
+                source: {
+                  type: 's3',
+                  mediaType: uploadedFile.file.type,
+                  data: uploadedFile.s3Url ?? '',
+                },
+              }) as ExtraData
+          ) ?? []),
           ...(extraData ?? []),
         ],
       };
