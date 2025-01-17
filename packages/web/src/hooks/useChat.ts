@@ -351,7 +351,6 @@ const useChatState = create<{
 
   const updateStopReason = (id: string, stopReason: string) => {
     set((state) => {
-      console.log('updateStopReason', id, stopReason);
       return {
         chats: produce(state.chats, (draft) => {
           draft[id].stopReason = stopReason;
