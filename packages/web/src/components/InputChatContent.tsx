@@ -118,7 +118,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
         <div className="flex w-full flex-col">
-          {uploadedFiles.length > 0 && (
+          {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
               {uploadedFiles.map((uploadedFile, idx) => {
                 if (uploadedFile.type === 'image') {
