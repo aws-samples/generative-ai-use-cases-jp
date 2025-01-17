@@ -209,7 +209,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               Body: file.bytes,
             });
             await s3Client.send(command);
-            const url = `https://s3.${process.env.AGENT_REGION}.amazonaws.com/${bucket}/${encodeUrlString(key)}`;
+            const url = `https://${bucket}.s3.amazonaws.com/${encodeUrlString(key)}`;
 
             // Yield file path
             if (file.type?.split('/')[0] === 'image') {
