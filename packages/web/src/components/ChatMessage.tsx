@@ -6,7 +6,12 @@ import ButtonFeedback from './ButtonFeedback';
 import ButtonIcon from './ButtonIcon';
 import ZoomUpImage from './ZoomUpImage';
 import ZoomUpVideo from './ZoomUpVideo';
-import { PiUserFill, PiChalkboardTeacher, PiFloppyDisk } from 'react-icons/pi';
+import {
+  PiUserFill,
+  PiChalkboardTeacher,
+  PiFloppyDisk,
+  PiArrowClockwise,
+} from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import {
   ShownMessage,
@@ -26,6 +31,7 @@ type Props = BaseProps & {
   hideFeedback?: boolean;
   setSaveSystemContext?: (s: string) => void;
   setShowSystemContextModal?: (value: boolean) => void;
+  allowRetry?: boolean;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -34,7 +40,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   }, [props]);
 
   const { pathname } = useLocation();
-  const { sendFeedback } = useChat(pathname);
+  const { sendFeedback, retryGeneration } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
@@ -251,6 +257,13 @@ const ChatMessage: React.FC<Props> = (props) => {
             !props.loading &&
             !props.hideFeedback && (
               <>
+                {props.allowRetry && (
+                  <ButtonIcon
+                    className="mr-0.5 text-gray-400"
+                    onClick={retryGeneration}>
+                    <PiArrowClockwise />
+                  </ButtonIcon>
+                )}
                 <ButtonCopy
                   className="mr-0.5 text-gray-400"
                   text={chatContent?.content || ''}

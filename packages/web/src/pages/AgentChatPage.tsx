@@ -221,6 +221,7 @@ const AgentChatPage: React.FC = () => {
                   idx={idx}
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
+                  allowRetry={idx === showingMessages.length - 1}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>

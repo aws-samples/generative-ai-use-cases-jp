@@ -206,16 +206,21 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
       ) {
         yield streamingChunk({
           text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          stopReason: 'error',
         });
       } else if (e instanceof AccessDeniedException) {
         const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
           text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          stopReason: 'error',
         });
       } else {
         console.error(e);
         yield streamingChunk({
-          text: 'エラーが発生しました。時間をおいて試してみてください。',
+          text:
+            'エラーが発生しました。管理者に以下のエラーを報告してください。\n' +
+            e,
+          stopReason: 'error',
         });
       }
     }
