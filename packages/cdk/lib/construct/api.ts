@@ -30,7 +30,6 @@ import {
 export interface BackendApiProps {
   // Context Params
   modelRegion: string;
-  agentRegion: string;
   modelIds: string[];
   imageGenerationModelIds: string[];
   endpointNames: string[];
@@ -68,7 +67,6 @@ export class Api extends Construct {
 
     const {
       modelRegion,
-      agentRegion,
       modelIds,
       imageGenerationModelIds,
       endpointNames,
@@ -159,7 +157,6 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        AGENT_REGION: agentRegion,
         AGENT_MAP: JSON.stringify(agentMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,

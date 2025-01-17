@@ -342,13 +342,15 @@ Agent チャットユースケースでは、以下のご利用が可能です�
 - Agents for Amazon Bedrock を利用したアクションを実行させたり
 - Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
+Agent は `modelRegion` で指定したリージョンに生成されます。
+
 #### Code Interpreter エージェントのデプロイ
 
 Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。
 
 Code Interpreter エージェントは Agent を有効化するとデプロイされます。
 
-`agentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定します。
+`agentEnabled` に `true` を指定します。(デフォルトは `false`)
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -356,7 +358,6 @@ Code Interpreter エージェントは Agent を有効化するとデプロイ�
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
     agentEnabled: true,
-    agentRegion: 'us-west-2',
   }),
 };
 ```
@@ -367,7 +368,6 @@ const envs: Record<string, StackInput> = {
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
   }
 }
 ```
@@ -381,7 +381,7 @@ API と連携し最新情報を参照して回答する Agent を作成します
 > [!NOTE]
 > Agent チャットユースケースを有効化すると Agent チャットユースケースでのみ外部 API にデータを送信します。（デフォルトでは Brave Search API）他のユースケースは引き続き AWS 内のみに閉じて利用することが可能です。社内ポリシー、API の利用規約などを確認してから有効化してください。
 
-`agentEnabled` と `searchAgentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定し、`searchApiKey` に検索エンジンの API キーを指定します。
+`agentEnabled` と `searchAgentEnabled` に `true` を指定し(デフォルトは `false`)、`searchApiKey` に検索エンジンの API キーを指定します。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -389,7 +389,6 @@ API と連携し最新情報を参照して回答する Agent を作成します
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
     agentEnabled: true,
-    agentRegion: 'us-west-2',
     searchAgentEnabled: true,
     searchApiKey: '<検索エンジンの API キー>',
   }),
@@ -402,7 +401,6 @@ const envs: Record<string, StackInput> = {
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
     "searchAgentEnabled": true,
     "searchApiKey": "<検索エンジンの API キー>",
   }
@@ -448,13 +446,13 @@ const envs: Record<string, StackInput> = {
 また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
 
 > [!NOTE]
-> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
 #### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
 Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
 
-まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。`modelRegion` と同じリージョンに作成してください。
 
 続いて、 [エージェントの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
 
@@ -463,13 +461,14 @@ Agent プロンプト例: あなたは指示に応えるアシスタントです
 Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を True にします。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
+    agentEnabled: true,
     agents: [
       {
         displayName: 'Knowledge Base',
@@ -487,7 +486,6 @@ const envs: Record<string, StackInput> = {
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
     "agents": [
       {
         "displayName": "Knowledge Base",

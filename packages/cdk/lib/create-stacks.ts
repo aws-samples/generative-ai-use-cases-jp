@@ -54,7 +54,7 @@ export const createStacks = (app: cdk.App, params: StackInput) => {
     ? new SearchAgentStack(app, `WebSearchAgentStack${params.env}`, {
         env: {
           account: params.account,
-          region: params.agentRegion,
+          region: params.modelRegion,
         },
         params: params,
         crossRegionReferences: true,

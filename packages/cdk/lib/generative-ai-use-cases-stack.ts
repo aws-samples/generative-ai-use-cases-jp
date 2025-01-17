@@ -62,7 +62,6 @@ export class GenerativeAiUseCasesStack extends Stack {
     // API
     const api = new Api(this, 'API', {
       modelRegion: params.modelRegion,
-      agentRegion: params.agentRegion,
       modelIds: params.modelIds,
       imageGenerationModelIds: params.imageGenerationModelIds,
       endpointNames: params.endpointNames,
