@@ -33,7 +33,6 @@ describe('GenerativeAiUseCases', () => {
       imageGenerationModelIds: ['stability.stable-diffusion-xl-v1'],
       endpointNames: [],
       agentEnabled: true,
-      agentRegion: 'us-east-1',
       searchAgentEnabled: true,
       searchApiKey: 'XXXXXX',
       agents: [],

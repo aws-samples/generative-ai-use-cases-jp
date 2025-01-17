@@ -25,7 +25,7 @@ import { streamingChunk } from './streamingChunk';
 import { verifyToken } from './auth';
 
 const agentRuntimeClient = new BedrockAgentRuntimeClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
@@ -218,7 +218,7 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
             if (!s3Uri) continue;
             const url = convertS3UriToUrl(
               s3Uri,
-              process.env.AGENT_REGION || ''
+              process.env.MODEL_REGION || ''
             );
 
             // ページ番号を取得
@@ -267,7 +267,7 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
           text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
         });
       } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.AGENT_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.AGENT_REGION}#/modelaccess`;
+        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
           text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
         });

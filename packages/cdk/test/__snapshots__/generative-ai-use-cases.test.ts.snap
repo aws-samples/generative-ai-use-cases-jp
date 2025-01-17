@@ -11205,7 +11205,6 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
                 ],
               ],
             },
-            "AGENT_REGION": "us-east-1",
             "BUCKET_NAME": {
               "Ref": "APIFileBucket8FB29855",
             },

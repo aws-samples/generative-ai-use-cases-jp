@@ -15,7 +15,6 @@ export const stackInputSchema = z.object({
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
   // API
   modelRegion: z.string().default('us-east-1'),
-  agentRegion: z.string().default('us-east-1'),
   modelIds: z
     .array(z.string())
     .default(['anthropic.claude-3-sonnet-20240229-v1:0']),
