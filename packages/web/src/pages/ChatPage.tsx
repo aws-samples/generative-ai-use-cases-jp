@@ -439,6 +439,7 @@ const ChatPage: React.FC = () => {
                   loading={loading && idx === showingMessages.length - 1}
                   setSaveSystemContext={setSaveSystemContext}
                   setShowSystemContextModal={setShowSystemContextModal}
+                  allowRetry={idx === showingMessages.length - 1}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>

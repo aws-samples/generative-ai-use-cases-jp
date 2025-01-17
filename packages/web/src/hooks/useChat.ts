@@ -26,6 +26,8 @@ import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
 import useFileApi from './useFileApi';
 
+type GenerationMode = 'normal' | 'continue' | 'retry';
+
 const useChatState = create<{
   chats: {
     [id: string]: {
@@ -65,6 +67,7 @@ const useChatState = create<{
     setSessionId: (sessionId: string) => void
   ) => void;
   continueGeneration: (
+    generationMode: GenerationMode,
     id: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutateListChat: any, // TODO: ファイル上部コメント参照
@@ -73,6 +76,20 @@ const useChatState = create<{
     postProcessOutput: ((message: string) => string) | undefined,
     sessionId: string | undefined,
     extraData: UploadedFileType[] | undefined
+  ) => void;
+  retryGeneration: (
+    generationMode: GenerationMode,
+    id: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mutateListChat: any, // TODO: ファイル上部コメント参照
+    ignoreHistory: boolean,
+    preProcessInput: ((message: ShownMessage[]) => ShownMessage[]) | undefined,
+    postProcessOutput: ((message: string) => string) | undefined,
+    sessionId: string | undefined,
+    uploadedFiles: UploadedFileType[] | undefined,
+    extraData: ExtraData[] | undefined,
+    overrideModelType: Model['type'] | undefined,
+    setSessionId: (sessionId: string) => void
   ) => void;
   sendFeedback: (
     id: string,
@@ -342,7 +359,16 @@ const useChatState = create<{
     });
   };
 
+  const getStopReason = (id: string) => {
+    const chat = get().chats[id];
+    if (chat) {
+      return chat.stopReason;
+    }
+    return '';
+  };
+
   const generateMessage = async (
+    generationMode: GenerationMode,
     id: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutateListChat: any, // TODO: ファイル上部コメント参照
@@ -387,12 +413,10 @@ const useChatState = create<{
 
     const chatMessages = get().chats[id].messages;
 
-    // 最後のアシスタントのメッセージが存在するか確認
-    const isContinue = chatMessages[chatMessages.length - 1].content.length > 0;
     // slice の第二引数
     // - 続きを出力の場合は undefined (最後まで)
     // - そうでない場合は -1 (Assistant のメッセージはカット)
-    const sliceEndIndex = isContinue ? undefined : -1;
+    const sliceEndIndex = generationMode === 'continue' ? undefined : -1;
 
     // 最後のメッセージはアシスタントのメッセージなので、排除
     // ignoreHistory が設定されている場合は最後の会話だけ反映（コスト削減）
@@ -403,7 +427,7 @@ const useChatState = create<{
     // 続きを出力でアシスタントのメッセージが trailing whitespace で終了している場合以下のエラーが出る
     // final assistant content cannot end with trailing whitespace
     // Assistant のメッセージは trimEnd() で末尾の空白を排除
-    if (isContinue) {
+    if (generationMode === 'continue') {
       inputMessages = inputMessages.map((m: UnrecordedMessage, i: number) => {
         if (i === inputMessages.length - 1) {
           return {
@@ -413,6 +437,23 @@ const useChatState = create<{
         } else {
           return m;
         }
+      });
+    }
+
+    // リトライの場合は最後のアシスタントメッセージを空白にする
+    if (generationMode === 'retry') {
+      set((state) => {
+        const newChats = produce(state.chats, (draft) => {
+          const oldAssistantMessage = draft[id].messages.pop()!;
+          const newAssistantMessage: UnrecordedMessage = {
+            ...oldAssistantMessage,
+            content: ' ', // 空文字の場合再レンダーがされないため空白
+          };
+          draft[id].messages.push(newAssistantMessage);
+        });
+        return {
+          chats: newChats,
+        };
       });
     }
 
@@ -511,8 +552,8 @@ const useChatState = create<{
 
     const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
 
-    // 続きを出力の場合は最後のアシスタントのメッセージを更新する
-    if (isContinue) {
+    // 続きを出力 もしくはリトライの場合は最後のアシスタントのメッセージを更新する
+    if (generationMode === 'continue' || generationMode === 'retry') {
       const lastAssistantMessage: ShownMessage =
         get().chats[id].messages[get().chats[id].messages.length - 1];
       const updatedAssistantMessage: ToBeRecordedMessage = {
@@ -662,6 +703,7 @@ const useChatState = create<{
       });
 
       await generateMessage(
+        'normal',
         id,
         mutateListChat,
         ignoreHistory,
@@ -676,6 +718,7 @@ const useChatState = create<{
     },
 
     continueGeneration: generateMessage,
+    retryGeneration: generateMessage,
     sendFeedback: async (id: string, feedbackData: UpdateFeedbackRequest) => {
       const chat = get().chats[id].chat;
 
@@ -685,15 +728,7 @@ const useChatState = create<{
       }
     },
 
-    getStopReason: (id: string) => {
-      const chat = get().chats[id];
-
-      if (chat) {
-        return chat.stopReason;
-      }
-
-      return '';
-    },
+    getStopReason: getStopReason,
   };
 });
 
@@ -716,6 +751,7 @@ const useChat = (id: string, chatId?: string) => {
     restore,
     post,
     continueGeneration,
+    retryGeneration,
     sendFeedback,
     updateSystemContext,
     getCurrentSystemContext,
@@ -820,6 +856,7 @@ const useChat = (id: string, chatId?: string) => {
       uploadedFiles: UploadedFileType[] | undefined = undefined
     ) => {
       continueGeneration(
+        'continue',
         id,
         mutateChatList,
         ignoreHistory,
@@ -827,6 +864,32 @@ const useChat = (id: string, chatId?: string) => {
         postProcessOutput,
         sessionId,
         uploadedFiles
+      );
+    },
+    retryGeneration: (
+      ignoreHistory: boolean = false,
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      sessionId: string | undefined = undefined,
+      uploadedFiles: UploadedFileType[] | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined,
+      overrideModelType: Model['type'] | undefined = undefined,
+      setSessionId: (sessionId: string) => void = () => {}
+    ) => {
+      retryGeneration(
+        'retry',
+        id,
+        mutateChatList,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput,
+        sessionId,
+        uploadedFiles,
+        extraData,
+        overrideModelType,
+        setSessionId
       );
     },
     sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {

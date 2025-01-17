@@ -223,6 +223,7 @@ const RagKnowledgeBasePage: React.FC = () => {
                 idx={idx}
                 chatContent={chat}
                 loading={loading && idx === messages.length - 1}
+                allowRetry={idx === messages.length - 1}
               />
               <div className="w-full border-b border-gray-300"></div>
             </div>
