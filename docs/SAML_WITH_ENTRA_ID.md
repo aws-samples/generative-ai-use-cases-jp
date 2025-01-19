@@ -76,7 +76,7 @@ Basic SAML Configuration にある Edit を押します。
 
 
 
-次のパラメータを入れて保存を押します。[事前作業](#事前作業)で確認した Cognito user pool の ID や、[Cognito の設定 : Domain設定](#Cognito-の設定-:-Domain-設定) で確認した Domain の値を利用します。
+次のパラメータを入れて保存を押します。[事前作業](#事前作業)で確認した Cognito user pool の ID や、[Cognito の設定 : Domain設定](#cognito-の設定--domain-設定) で確認した Domain の値を利用します。
 
 Identifier (Entity ID) 
 
@@ -196,7 +196,7 @@ Edit を押します。
 
 
 [事前作業](#事前作業)で確認した WebUrl の値を Allowed callback URLs と Allowed sign-out URLs に入力します。
-[ローカル開発環境](/docs/DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
+[ローカル開発環境](./DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
 
 
 ![image-20240205185602299](assets/SAML_WITH_ENTRA_ID/image-20240205185602299.png)
@@ -222,8 +222,8 @@ Save  changes を押します。
 これで設定が完了したため、cdk.json の値を変更します。
 
 - samlAuthEnabled : `true` を指定します。SAML 専用の認証画面に切り替わり、Cognito user pools を利用した従来の認証機能は利用できなくなります。
-- samlCognitoDomainName : [「Cognito の設定 : Domain設定」](#Cognito-の設定-:-Domain-設定) で指定した Cognito Domain 名を入力します。
-- samlCognitoFederatedIdentityProviderName : [「Cognito の設定 : Federation」](#Cognito-の設定-:-Federation) で設定した Identity Provider の名前を入力します。
+- samlCognitoDomainName : [「Cognito の設定 : Domain設定」](#cognito-の設定--domain-設定) で指定した Cognito Domain 名を入力します。
+- samlCognitoFederatedIdentityProviderName : [「Cognito の設定 : Federation」](#cognito-の設定--federation) で設定した Identity Provider の名前を入力します。
 
 
 ```json

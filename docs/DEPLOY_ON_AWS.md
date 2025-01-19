@@ -2,7 +2,7 @@
 
 > [!Caution]
 > この手順は AWS Cloud9 が新規のお客様向けアクセスを閉じたことを受け、非推奨手順となりました。
-> AWS 上で完結するデプロイ方法については [CloudShell を利用したデプロイ方法](/docs/DEPLOY_ON_CLOUDSHELL.md) をご参照ください。
+> AWS 上で完結するデプロイ方法については [CloudShell を利用したデプロイ方法](./DEPLOY_ON_CLOUDSHELL.md) をご参照ください。
 > また、AWS Cloud9 からの移行については [こちら](https://aws.amazon.com/jp/blogs/news/how-to-migrate-from-aws-cloud9-to-aws-ide-toolkits-or-aws-cloudshell/) のブログをご参照ください。
 
 AWS CloudShell と AWS Cloud9 を利用することで、手元の環境に依存しないデプロイが可能です。(デプロイが AWS 上で完結します。)
@@ -39,7 +39,7 @@ npm run cdk:deploy
 
 ## デプロイオプションの設定変更
 
-`cloud9-for-prototyping/generative-ai-use-cases-jp/packages/cdk/cdk.json` を開き、context 内の項目を変更します。設定可能な内容については[こちら](/docs/DEPLOY_OPTION.md)をご参照ください。
+`cloud9-for-prototyping/generative-ai-use-cases-jp/packages/cdk/cdk.json` を開き、context 内の項目を変更します。設定可能な内容については[こちら](./DEPLOY_OPTION.md)をご参照ください。
 
 cdk.json の内容を変更したら、ファイルを保存して、`npm run cdk:deploy` を実行します。デプロイすることで設定変更が反映されます。
 
@@ -65,7 +65,7 @@ Cloud9 の Preview 機能を使うためには、localhost の 8080 ~ 8082 ポ�
 sudo yum -y install jq
 ```
 
-その後は[こちら](/docs/DEVELOPMENT.md) の手順に従います。以下のコマンドを実行してください。
+その後は[こちら](./DEVELOPMENT.md) の手順に従います。以下のコマンドを実行してください。
 
 ```bash
 npm run web:devw
