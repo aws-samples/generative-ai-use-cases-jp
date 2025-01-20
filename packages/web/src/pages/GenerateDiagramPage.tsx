@@ -66,7 +66,6 @@ const useDiagramPageState = create<StateType>((set) => {
   };
 });
 
-// ダイアグラムタイプの型
 type DiagramType =
   | 'AI'
   | 'flowchart'
@@ -88,7 +87,6 @@ type DiagramType =
   | 'requirementdiagram'
   | 'networkpacket';
 
-// ダイアグラム情報の型定義
 type DiagramInfo = {
   id: DiagramType;
   icon: React.ElementType;
@@ -101,7 +99,6 @@ type DiagramInfo = {
   category: 'main' | 'other';
 };
 
-// すべてのダイアグラム情報のデータ
 const DiagramData: Record<DiagramType, DiagramInfo> = {
   AI: {
     id: 'AI',
@@ -110,7 +107,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     description: 'AIが最適な図を選択',
     example: {
       title: 'AIによる図の生成の例',
-      content: '会社の一般的な経費生産フローを色つきで図示してください。',
+      content: `会社の一般的な経費生産フローを色つきで図示してください。`,
     },
     category: 'main',
   },
@@ -122,7 +119,13 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'フローチャートの例',
       content:
-        '朝の準備の流れをフローチャートで表現したいです。以下の手順を含めてください： 目覚める、ベッドから出る、顔を洗う、歯を磨く、朝食を食べる、服を着替える、家を出る、途中で「時間に余裕があるか？」という判断ポイントを入れ、余裕がある場合は「コーヒーを飲む」というステップを追加してください。時間に余裕がない場合は、そのまま「家を出る」に進むようにしてください。簡潔で見やすいデザインの図にしてください。',
+        `朝の準備の流れをフローチャートで表現したいです。以下の手順を含めてください: 
+目覚める、ベッドから出る、顔を洗う、歯を磨く、朝食を食べる、服を着替える、家を出る、
+
+途中で「時間に余裕があるか？」という判断ポイントを入れ、余裕がある場合は「コーヒーを飲む」というステップを追加してください。
+時間に余裕がない場合は、そのまま「家を出る」に進むようにしてください。
+
+簡潔で見やすいデザインの図にしてください。`,
     },
     category: 'main',
   },
@@ -134,7 +137,10 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: '円グラフの例',
       content:
-        '東京都内の20代、30代の通勤・通学手段の割合を示す円グラフを作成したいです。電車、自転車、徒歩、車、バスの5つの手段について、それぞれの割合を適当に設定してください。グラフのタイトルは「東京都内20-30代の通勤・通学手段」としてください。',
+        `東京都内の20代、30代の通勤・通学手段の割合を示す円グラフを作成したいです。
+
+電車、自転車、徒歩、車、バスの5つの手段について、それぞれの割合を適当に設定してください。
+グラフのタイトルは「東京都内20-30代の通勤・通学手段」としてください。`,
     },
     category: 'main',
   },
@@ -146,7 +152,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'マインドマップの例',
       content:
-        '生成AIのユースケースについて様々なアイデアを考えてマインドマップで図示してください。',
+        `生成AIのユースケースについて、様々なアイデアを考えてマインドマップで図示してください。`,
     },
     category: 'main',
   },
@@ -158,7 +164,25 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: '4象限チャートの例',
       content:
-        'ソーシャルメディアプラットフォームの特性を比較する4象限チャートを作成してください。タイトルは「ソーシャルメディアプラットフォーム分析」。 X軸は「テキスト中心」から「視覚中心」へと変化し、Y軸は「プロフェッショナル」から「カジュアル」へと変化す。各象限には以下のようにラベルを付けてください：右上の象限: 「視覚的カジュアル」、左上の象限: 「テキスト的カジュアル」、左下の象限: 「テキスト的プロフェッショナル」、右下の象限: 「視覚的プロフェッショナル」。次のソーシャルメディアプラットフォームをチャート上にプロットしてください：Twitter: テキスト寄りでややカジュアル、Instagram: 非常に視覚的でかなりカジュアル、LinkedIn: テキスト寄りで非常にプロフェッショナル、TikTok: 非常に視覚的で最もカジュアル、Facebook: X軸とY軸の中間あたり。 可能であれば、各プラットフォームを異なる色で表示してください。',
+        `ソーシャルメディアプラットフォームの特性を比較する4象限チャートを作成してください。
+タイトルは「ソーシャルメディアプラットフォーム分析」。 
+X軸は「テキスト中心」から「視覚中心」へと変化し、
+Y軸は「プロフェッショナル」から「カジュアル」へと変化する。
+
+各象限には以下のようにラベルを付けてください: 
+右上の象限: 「視覚的カジュアル」
+左上の象限: 「テキスト的カジュアル」
+左下の象限: 「テキスト的プロフェッショナル」
+右下の象限: 「視覚的プロフェッショナル」
+
+次のソーシャルメディアプラットフォームをチャート上にプロットしてください:
+Twitter: テキスト寄りでややカジュアル、
+Instagram: 非常に視覚的でかなりカジュアル、
+LinkedIn: テキスト寄りで非常にプロフェッショナル、
+TikTok: 非常に視覚的で最もカジュアル、
+Facebook: X軸とY軸の中間あたり。 
+
+可能であれば、各プラットフォームを異なる色で表示してください。`,
     },
     category: 'other',
   },
@@ -170,7 +194,9 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'シーケンス図の例',
       content:
-        'Webアプリケーションで、ユーザーがログインボタンを押してから認証が完了するまでの流れを示してください。フロントエンド、認証サーバー、データベースの3つのコンポーネントが関係します。',
+        `Webアプリケーションで、ユーザーがログインボタンを押してから認証が完了するまでの流れを示してください。
+
+フロントエンド、認証サーバー、データベースの3つのコンポーネントが関係します。`,
     },
     category: 'other',
   },
@@ -182,7 +208,17 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'タイムライン図の例',
       content:
-        '2000年から2020年までのソーシャルメディアの主要な進化と転換点をタイムラインで表現してください。以下の要素を含めてください: ブログの普及期、写真共有プラットフォームの台頭、マイクロブログの登場、動画共有サービスの発展、モバイルファースト型SNSの広がり、ショート動画プラットフォームの台頭。各転換点について、その時期に起きた重要な技術革新や社会的変化（例: スマートフォンの普及、高速モバイルインターネットの実現など）も1-2個ずつ追記してください。',
+        `2000年から2020年までのソーシャルメディアの主要な進化と転換点をタイムラインで表現してください。
+        
+以下の要素を含めてください: 
+ブログの普及期
+写真共有プラットフォームの台頭
+マイクロブログの登場
+動画共有サービスの発展
+モバイルファースト型SNSの広がり
+ショート動画プラットフォームの台頭
+
+各転換点について、その時期に起きた重要な技術革新や社会的変化（例: スマートフォンの普及、高速モバイルインターネットの実現など）も1-2個ずつ追記してください。`,
     },
     category: 'other',
   },
@@ -194,7 +230,12 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'Gitグラフの例',
       content:
-        'メインブランチから、ログイン機能とプロフィール編集機能の2つのfeatureブランチが分岐する開発フローを表現してください。ログイン機能の開発では、フォーム実装やバリデーション追加などの複数回のコミットを行い、最終的にPull Requestでmainブランチにマージします。一方、プロフィール編集機能の開発中には、mainブランチに加えられた最新の変更を取り込む必要が生じます。各マージポイントでは「Reviewed and merged login feature #123」のような、コードレビューを経た実際のプロジェクトらしいコミットメッセージを含めてください。',
+        `メインブランチから、ログイン機能とプロフィール編集機能の2つのfeatureブランチが分岐する開発フローを表現してください。
+
+ログイン機能の開発では、フォーム実装やバリデーション追加などの複数回のコミットを行い、最終的にPull Requestでmainブランチにマージします。
+一方、プロフィール編集機能の開発中には、mainブランチに加えられた最新の変更を取り込む必要が生じます。
+
+各マージポイントでは「Reviewed and merged login feature #123」のような、コードレビューを経た実際のプロジェクトらしいコミットメッセージを含めてください。`,
     },
     category: 'other',
   },
@@ -206,7 +247,14 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'ER図の例',
       content:
-        'ブログシステムのデータベース設計を示してください。記事（posts）、ユーザー（users）、コメント（comments）、カテゴリー（categories）、タグ（tags）のテーブルがあり、それぞれ適切にリレーションが設定されています。',
+        `ブログシステムのデータベース設計を示してください。
+
+以下のテーブルがあり、それぞれ適切にリレーションが設定されています。:        
+記事（posts）
+ユーザー（users）
+コメント（comments）
+カテゴリー（categories）
+タグ（tags）`,
     },
     category: 'other',
   },
@@ -218,7 +266,15 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'クラス図の例',
       content:
-        'ECサイトのドメインモデルを作成してください。以下のクラスが存在します：User（ユーザー）、Product（商品）、Order（注文）、CartItem（カート内商品）。各クラスには適切なプロパティとメソッドを含めてください。',
+        `ECサイトのドメインモデルを作成してください。
+
+以下のクラスが存在します: 
+User（ユーザー）
+Product（商品）
+Order（注文）
+CartItem（カート内商品）
+
+各クラスには適切なプロパティとメソッドを含めてください。`,
     },
     category: 'other',
   },
@@ -230,7 +286,8 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: '状態図の例',
       content:
-        'オンラインショッピングカートの状態遷移を示してください。「空」、「商品追加済み」、「チェックアウト中」、「支払い完了」などの状態を含めます。',
+        `オンラインショッピングカートの状態遷移を示してください。
+「空」、「商品追加済み」、「チェックアウト中」、「支払い完了」などの状態を含めます。`,
     },
     category: 'other',
   },
@@ -242,7 +299,9 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'XYチャートの例',
       content:
-        '過去10年間の日本の平均睡眠時間と労働時間の関係を示すXYチャートを作成してください。X軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各年のデータポイントをプロットしてください。',
+        `過去10年間の日本の平均睡眠時間と労働時間の関係を示すXYチャートを作成してください。
+
+X軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各年のデータポイントをプロットしてください。`,
     },
     category: 'other',
   },
@@ -254,7 +313,15 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'ブロック図の例',
       content:
-        'スマートフォンのハードウェアコンポーネントを示すブロック図を作成してください。プロセッサ、メモリ、ストレージ、ディスプレイ、カメラ、各種センサーなどを含めます。',
+        `スマートフォンのハードウェアコンポーネントを示すブロック図を作成してください。
+
+以下の要素を含めます:
+プロセッサ
+メモリ
+ストレージ
+ディスプレイ
+カメラ
+各種センサーなど。`,
     },
     category: 'other',
   },
@@ -266,7 +333,15 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'アーキテクチャ図の例',
       content:
-        'クラウドベースのWeb アプリケーションのアーキテクチャを示してください。フロントエンド、バックエンド、データベース、キャッシュ、ロードバランサー、CDNなどのコンポーネントを含めます。',
+        `クラウドベースのWeb アプリケーションのアーキテクチャを示してください。
+
+以下のコンポーネントを含めます:
+フロントエンド
+バックエンド
+データベース
+キャッシュ
+ロードバランサー
+CDNなど`,
     },
     category: 'other',
   },
@@ -278,7 +353,8 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'ガントチャートの例',
       content:
-        'Webアプリケーション開発プロジェクトのスケジュールを示してください。要件定義、設計、開発、テスト、デプロイメントの各フェーズを含めます。',
+        `Webアプリケーション開発プロジェクトのスケジュールを示してください。
+要件定義、設計、開発、テスト、デプロイメントの各フェーズを含めます。`,
     },
     category: 'other',
   },
@@ -290,7 +366,15 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'ユーザージャーニーの例',
       content:
-        'オンラインショッピングサイトでの顧客の購買体験を示してください。商品検索、商品閲覧、カートへの追加、チェックアウト、支払い、配送追跡までの流れを含めます。',
+        `オンラインショッピングサイトでの顧客の購買体験を示してください。
+
+以下の流れを含めてください:
+商品検索
+商品閲覧
+カートへの追加
+チェックアウト
+支払い
+配送追跡`,
     },
     category: 'other',
   },
@@ -302,7 +386,8 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'サンキーチャートの例',
       content:
-        'Webサイトのユーザーフローを示すサンキーチャートを作成してください。ランディングページから始まり、各ページの遷移と離脱率を表示します。',
+        `Webサイトのユーザーフローを示すサンキーチャートを作成してください。
+ランディングページから始まり、各ページの遷移と離脱率を表示します。`,
     },
     category: 'other',
   },
@@ -314,7 +399,8 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: '要求図の例',
       content:
-        'スマートホームシステムの主要な機能要件を示してください。照明制御、温度管理、セキュリティ、エネルギー効率化などの要件を含めます。',
+        `スマートホームシステムの主要な機能要件を示してください。
+照明制御、温度管理、セキュリティ、エネルギー効率化などの要件を含めます。`,
     },
     category: 'other',
   },
@@ -326,13 +412,13 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     example: {
       title: 'ネットワークパケット図の例',
       content:
-        'HTTPリクエストパケットの構造を示す図を作成してください。ヘッダーとボディの主要な要素を含めます。',
+        `HTTPリクエストパケットの構造を示す図を作成してください。
+ヘッダーとボディの主要な要素を含めます。`,
     },
     category: 'other',
   },
 } as const;
 
-// 主要なダイアグラムタイプとその他のタイプを分離
 const MainTypeOptions = Object.values(DiagramData).filter(
   (diagram) => diagram.category === 'main'
 );
@@ -340,7 +426,6 @@ const OtherTypeOption = Object.values(DiagramData).filter(
   (diagram) => diagram.category === 'other'
 );
 
-// ダイアグラムタイプボタンコンポーネント
 const DiagramTypeButton: React.FC<{
   option: DiagramInfo;
   isSelected: boolean;
@@ -348,9 +433,8 @@ const DiagramTypeButton: React.FC<{
 }> = ({ option, isSelected, onClick }) => (
   <button
     onClick={() => onClick(option.id)}
-    className={`min-h-[155px] w-[calc(25%)] min-w-[110px] max-w-[130px] flex-col rounded-lg border px-1
+    className={`min-h-[155px] w-[calc(25%)] min-w-[110px] max-w-[130px] flex-col rounded-lg border px-1 hover:bg-blue-50
       ${isSelected ? 'border-blue-600 bg-blue-100' : 'border-gray-500 bg-white'}`}>
-    {/* w-[calc(25%-0rem)]*/}
     <div className="text-2xl">
       {React.createElement(option.icon, {
         size: '1.5rem',
@@ -421,11 +505,10 @@ const GenerateDiagramPage: React.FC = () => {
         setModelId(availableModels[0]);
       }
     })();
-    // searchのみを依存配列に含める
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  // 無限ループ回避のため以下の依存関係のみ残す
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [availableModels, search]);
 
-  // メッセージの処理
   useEffect(() => {
     if (messages.length === 0) return;
 
@@ -434,7 +517,6 @@ const GenerateDiagramPage: React.FC = () => {
 
     const currentMessage = lastMessage.content;
 
-    // Mermaidコードの処理
     if (currentMessage.toLowerCase().includes('```mermaid')) {
       const mermaidCode = currentMessage
         .split('```mermaid')[1]
@@ -443,7 +525,6 @@ const GenerateDiagramPage: React.FC = () => {
       setDiagramCode(mermaidCode);
     }
 
-    // 説明文の処理
     if (currentMessage.toLowerCase().includes('<description>')) {
       const mermaidDescription = currentMessage
         .split(/<description>/i)[1]
@@ -463,11 +544,10 @@ const GenerateDiagramPage: React.FC = () => {
     }
   }, [messages, setDiagramCode, setDiagramSentence]);
 
-  // ダイアグラム生成処理を実行
   const onClickExec = useCallback(async () => {
     if (loading) return;
     setLoading(true);
-    // content 以外 clear
+    // 前の結果は消したいので、content 以外 clear
     setDiagramGenerationError(null);
     setDiagramCode('');
     setDiagramSentence('');
@@ -489,14 +569,13 @@ const GenerateDiagramPage: React.FC = () => {
     setLoading,
   ]);
 
-  // リセット
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
   }, [clear, clearChat]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 lg:h-screen">
+    <div className="flex min-h-screen flex-col lg:h-screen">
       <div className="invisible col-span-12 my-0 ml-5 h-0 items-center text-xl font-semibold lg:visible lg:mb-0 lg:mt-5 lg:h-min print:visible print:my-5 print:h-min">
         ダイアグラム生成
       </div>
@@ -612,13 +691,13 @@ const GenerateDiagramPage: React.FC = () => {
                   {diagramType === '' ? (
                     <div className="flex min-h-[40px] items-center justify-center rounded-md bg-gray-50 p-3">
                       <span className="text-gray-600">
-                        ステップ１：最適なダイアグラムを選んでいます
+                        ステップ１: 最適なダイアグラムを選んでいます
                       </span>
                       <div className="border-aws-sky ml-2 size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     </div>
                   ) : (
                     <div className="flex min-h-[40px] flex-col items-center justify-center rounded-md bg-blue-50 p-3">
-                      <span className="text-gray-600">ステップ１：完了</span>
+                      <span className="text-gray-600">ステップ１: 完了</span>
                       <span className="mt-1 text-gray-600">
                         {
                           DiagramData[diagramType as keyof typeof DiagramData]
@@ -633,7 +712,7 @@ const GenerateDiagramPage: React.FC = () => {
                   {diagramType !== '' && (
                     <div className="flex min-h-[40px] items-center justify-center rounded-md bg-gray-50 p-3">
                       <span className="text-gray-600">
-                        ステップ２：図を生成しています
+                        ステップ２: 図を生成しています
                       </span>
                       <div className="border-aws-sky ml-2 size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     </div>
@@ -644,7 +723,7 @@ const GenerateDiagramPage: React.FC = () => {
               {/* ダイアグラムと説明の表示 */}
               <div className="space-y-4">
                 {diagramSentence.length > 0 && (
-                  <div className="rounded-lg bg-white p-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
                     <h3 className="mb-2 text-lg font-medium">回答</h3>
                     <div className="flex justify-start whitespace-pre-wrap">
                       {diagramSentence}
@@ -653,11 +732,11 @@ const GenerateDiagramPage: React.FC = () => {
                 )}
 
                 {diagramCode.length > 0 && (
-                  <div className="rounded-lg bg-white">
+                  <div className="rounded-lg bg-gray-50">
                     <h3 className="border-b border-gray-200 p-4 text-lg font-medium">
                       {
                         DiagramData[diagramType as keyof typeof DiagramData]
-                          ?.title
+                          ?.title || 'チャート'
                       }
                     </h3>
                     {loading ? (

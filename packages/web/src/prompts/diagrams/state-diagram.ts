@@ -34,10 +34,10 @@ States
 状態は複数の方法で宣言することができます。最も単純な方法は、idのみで状態を定義することです。
 stateDiagram-v2
     stateId
-もう一つの方法は、以下のように state キーワードを使用して説明を加える方法です：
+もう一つの方法は、以下のように state キーワードを使用して説明を加える方法です: 
 stateDiagram-v2
     state "This is a state description" as s2
-状態を説明付きで定義するもう一つの方法は、状態のidの後にコロン（:）を付け、その後に説明を記述する方法です：
+状態を説明付きで定義するもう一つの方法は、状態のidの後にコロン（:）を付け、その後に説明を記述する方法です: 
 stateDiagram-v2
     s2 : This is a state description
 
@@ -46,7 +46,7 @@ Transitionsとは、ある状態から別の状態へ移行する際の経路/�
 2つの状態間の遷移を定義する際、その状態がまだ定義されていない場合、未定義の状態は遷移から得られたidで定義されます。この方法で定義された状態に対して、後から説明を追加することができます。
 stateDiagram-v2
     s1 --> s2
-遷移に対してテキストを追加して、その遷移が何を表すのかを説明することが可能です：
+遷移に対してテキストを追加して、その遷移が何を表すのかを説明することが可能です: 
 stateDiagram-v2
     s1 --> s2: A transition
 
@@ -58,7 +58,7 @@ stateDiagram-v2
 
 Composite states
 実際の現場での状態図の使用では、1つの状態が複数の内部状態を持つことがあるため、多次元的な図になることがよくあります。この用語では、これらを複合状態と呼びます。
-複合状態を定義するには、stateキーワードの後にidを記述し、{}の間に複合状態の本体を記述する必要があります。単純な状態と同様に、複合状態に対して別の行で名前を付けることができます。以下の例を参照してください：
+複合状態を定義するには、stateキーワードの後にidを記述し、{}の間に複合状態の本体を記述する必要があります。単純な状態と同様に、複合状態に対して別の行で名前を付けることができます。以下の例を参照してください: 
 stateDiagram-v2
     [*] --> First
     state First {
@@ -74,7 +74,7 @@ stateDiagram-v2
         namedSimple: Another simple
     }
 
-複数の階層で以下のように設定することができます：
+複数の階層で以下のように設定することができます: 
 stateDiagram-v2
     [*] --> First
 
@@ -91,7 +91,7 @@ stateDiagram-v2
             }
         }
     }
-複合状態間の遷移も定義することができます：
+複合状態間の遷移も定義することができます: 
 stateDiagram-v2
     [*] --> First
     First --> Second
@@ -190,17 +190,17 @@ stateDiagram-v2
 
 Styling with classDefs
 他の図（フローチャートなど）と同様に、図の中でスタイルを定義し、そのスタイルを図の中の1つまたは複数の状態に適用することができます。
-状態図のclassDefには現在、以下の制限があります：
+状態図のclassDefには現在、以下の制限があります: 
 - 開始状態や終了状態には適用できません
 - 複合状態には適用できず、また複合状態内でも使用できません
 スタイルは、classDef キーワード（「class」はCSSクラスのような意味）の後にスタイルの名前、そして1つ以上のプロパティと値のペアを使用して定義します。各プロパティと値のペアは、有効なCSSプロパティ名の後にコロン（:）を付け、その後に値を記述します。
-以下は1つのプロパティと値のペアを持つclassDefの例です：
+以下は1つのプロパティと値のペアを持つclassDefの例です: 
 classDef movement font-style:italic;
 ここで、
 - スタイルの名前は「movement」
 - 唯一のプロパティは「font-style」で、その値は「italic」です
 複数のプロパティと値のペアを持たせたい場合は、各プロパティと値のペアの間にカンマ（,）を入れます。
-以下は3つのプロパティと値のペアを持つ例です：
+以下は3つのプロパティと値のペアを持つ例です: 
 classDef badBadEvent fill:#f00,color:white,font-weight:bold,stroke-width:2px,stroke:yellow
 ここで、
 - スタイルの名前は「badBadEvent」
@@ -210,15 +210,15 @@ classDef badBadEvent fill:#f00,color:white,font-weight:bold,stroke-width:2px,str
 - 4番目のプロパティは「stroke-width」で、その値は「2px」
 - 5番目のプロパティは「stroke」で、その値は「yellow」です。
 Apply classDef styles to states
-状態にclassDefスタイルを適用するには2つの方法があります：
+状態にclassDefスタイルを適用するには2つの方法があります: 
 1. classキーワードを使用して、1つの文で1つまたは複数の状態にclassDefスタイルを適用する方法
-2. :::演算子を使用して、遷移文（例：他の状態との間の矢印）で使用されている状態にclassDefスタイルを適用する方法
+2. :::演算子を使用して、遷移文（例: 他の状態との間の矢印）で使用されている状態にclassDefスタイルを適用する方法
 1. class statement
-class文は、Mermaidに対して指定された名前のclassDefを1つまたは複数のクラスに適用するよう指示します。形式は以下の通りです：
+class文は、Mermaidに対して指定された名前のclassDefを1つまたは複数のクラスに適用するよう指示します。形式は以下の通りです: 
 class [one or more state names, separated by commas] [name of a style defined with classDef]
-以下は、Crashという名前の状態にbadBadEventスタイルを適用する例です：
+以下は、Crashという名前の状態にbadBadEventスタイルを適用する例です: 
 class Crash badBadEvent
-以下は、MovingとCrashという2つの状態にmovementスタイルを適用する例です：
+以下は、MovingとCrashという2つの状態にmovementスタイルを適用する例です: 
 class Moving, Crash movement
 以下は実際の使用例を示す図です。CrashステートにはmovementとbadBadEventという2つのclassDefスタイルが適用されていることに注意してください。
    stateDiagram
@@ -243,9 +243,9 @@ class Moving, Crash movement
    class Crash badBadEvent
    class end badBadEvent
 2. ::: operator to apply a style to a state
-:::（3つのコロン）演算子を使用して、状態にclassDefスタイルを適用することができます。構文は以下の通りです：
+:::（3つのコロン）演算子を使用して、状態にclassDefスタイルを適用することができます。構文は以下の通りです: 
 [state]:::[style name]
-クラスを使用したステートメント内の図でこれを使用することができます。これには開始状態と終了状態も含まれます。例えば：
+クラスを使用したステートメント内の図でこれを使用することができます。これには開始状態と終了状態も含まれます。例えば: 
 stateDiagram
    direction TB
 

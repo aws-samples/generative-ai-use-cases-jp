@@ -10,12 +10,12 @@ export const GitgraphPrompt = `<instruction>
 <Information>
 Part 1: 基本アーキテクチャと主要コマンド
 gitgraphの基本原則 
-A) 宣言とタイムライン構造：
+A) 宣言とタイムライン構造: 
 gitGraphキーワードで図の宣言を開始
 コード内での発生/存在順序に従ったタイムライン表示
 デフォルトでmainブランチから開始
 コマンドの挿入順序に基づく描画
-B) 基本コマンド体系：
+B) 基本コマンド体系: 
 commit: 現在のブランチへのコミット追加
 branch: 新規ブランチ作成と切り替え
 checkout/switch: 既存ブランチへの切り替え
@@ -23,12 +23,12 @@ merge: ブランチのマージ処理
 cherry-pick: 特定コミットの取り込み
 
 基本構文要素 
-A) コミットコマンド：
+A) コミットコマンド: 
 gitGraph
    commit                    //基本コミット
    commit id: "Alpha"        //IDつきコミット
    commit tag: "v1.0.0"     //タグつきコミット
-B) ブランチ操作：
+B) ブランチ操作: 
 gitGraph
    commit
    branch develop           //新規ブランチ作成
@@ -37,7 +37,7 @@ gitGraph
    checkout main          //メインブランチに戻る
 
 3.グラフ方向制御
-A) サポートされる方向：
+A) サポートされる方向: 
 - LR: 左から右（デフォルト）
 gitGraph LR:
    commit
@@ -55,9 +55,9 @@ gitGraph BT:
    commit
 
 4. 基本的な設定オプション
-A) 初期化構文：
+A) 初期化構文: 
 %%{init: { 'logLevel': 'debug', 'theme': 'base' } }%%
-B) 主要設定項目：
+B) 主要設定項目: 
 showBranches: ブランチライン表示制御
 showCommitLabel: コミットラベル表示制御
 mainBranchName: メインブランチ名設定
@@ -65,22 +65,22 @@ mainBranchOrder: メインブランチ順序
 parallelCommits: 並列コミット表示
 
 5. 重要な注意事項 
-A) ブランチ作成規則：
+A) ブランチ作成規則: 
 一意な名前が必須
 予約語と競合する場合は""で囲む
 例: branch "cherry-pick"
-B) コマンド実行順序：
+B) コマンド実行順序: 
 チェックアウト後のコミットは現在のブランチに追加
 ブランチ作成は自動的にチェックアウトを含む
 マージは現在のブランチに対して実行
-C) エラー防止：
+C) エラー防止: 
 存在しないブランチへのチェックアウト不可
 自身へのマージ不可
 無効なブランチ名使用不可
 
 Part 2: コミットとブランチの詳細仕様
 1. コミットの詳細構成 
-A) コミットタイプと視覚表現：
+A) コミットタイプと視覚表現: 
 NORMAL: デフォルトタイプ（塗りつぶし円）
 REVERSE: 反転タイプ（×印付き円）
 HIGHLIGHT: 強調タイプ（塗りつぶし四角形）
@@ -88,7 +88,7 @@ gitGraph
    commit id: "Normal"
    commit id: "Reverse" type: REVERSE
    commit id: "Highlight" type: HIGHLIGHT
-B) コミット属性の完全仕様：
+B) コミット属性の完全仕様: 
 id: カスタムID指定（文字列）
 type: コミットタイプ指定（NORMAL/REVERSE/HIGHLIGHT）
 tag: バージョンタグ等の付与
@@ -98,7 +98,7 @@ gitGraph
    commit id: "Reverse" type: REVERSE tag: "RC_1"
    commit id: "Highlight" type: HIGHLIGHT tag: "8.8.4"
 2. ブランチ管理の詳細仕様 
-A) ブランチ作成とチェックアウト：
+A) ブランチ作成とチェックアウト: 
 gitGraph
    commit
    branch develop        //新規ブランチ作成
@@ -106,7 +106,7 @@ gitGraph
    checkout main        //既存ブランチへの切り替え
    commit
    checkout develop     //developブランチへの切り替え
-B) マージ操作の詳細要件：
+B) マージ操作の詳細要件: 
 異なるブランチ間のみマージ可能
 マージコミットは自動生成
 マージコミットのカスタマイズ可能
@@ -117,12 +117,12 @@ gitGraph
    checkout main
    merge develop id: "customID" tag: "customTag" type: REVERSE
 3. チェリーピック操作の詳細 
-A) 必須要件：
+A) 必須要件: 
 既存のコミットIDが必要
 異なるブランチからのみ可能
 現在のブランチに最低1コミット必要
 マージコミットの場合は親指定が必須
-B) 実装例：
+B) 実装例: 
 gitGraph
    commit id: "ZERO"
    branch develop
@@ -131,15 +131,15 @@ gitGraph
    commit id:"ONE"
    cherry-pick id:"A"
 4. ブランチ制限と循環参照 
-A) 重要な制限事項：
+A) 重要な制限事項: 
 最大8つのブランチまでテーマ変数でカスタマイズ可能
 8つを超えるブランチは循環的に再利用
 git0からgit7までのテーマ変数を使用
-B) ブランチラベルのカスタマイズ：
+B) ブランチラベルのカスタマイズ: 
 gitBranchLabel0からgitBranchLabel7まで使用可能
 9番目以降のブランチは最初の設定を再利用
 5. パラレルコミットの制御 
-A) 時間的表示（デフォルト）：
+A) 時間的表示（デフォルト）: 
 ---
 config:
   gitGraph:
@@ -151,7 +151,7 @@ gitGraph
    commit
    checkout main
    commit
-B) 並列表示：
+B) 並列表示: 
 ---
 config:
   gitGraph:
@@ -166,7 +166,7 @@ gitGraph
 
 Part 3: カスタマイズオプションとテーマ設定
 1. グラフ表示のカスタマイズ 
-A) 基本設定オプション：
+A) 基本設定オプション: 
 %%{init: { 
     'logLevel': 'debug', 
     'gitGraph': {
@@ -176,7 +176,7 @@ A) 基本設定オプション：
         'mainBranchOrder': 0
     }
 }}%%
-B) ブランチ表示制御：
+B) ブランチ表示制御: 
 %%{init: { 
     'gitGraph': {
         'showBranches': false
@@ -189,7 +189,7 @@ gitGraph
    checkout main
    merge develop
 2. コミットラベルのレイアウト制御 
-A) 回転ラベル（デフォルト）：
+A) 回転ラベル（デフォルト）: 
 %%{init: { 
     'gitGraph': {
         'rotateCommitLabel': true
@@ -198,7 +198,7 @@ A) 回転ラベル（デフォルト）：
 gitGraph
    commit id: "feat(api): long commit message"
    commit id: "fix(client): another long message"
-B) 水平ラベル：
+B) 水平ラベル: 
 %%{init: { 
     'gitGraph': {
         'rotateCommitLabel': false
@@ -208,13 +208,13 @@ gitGraph
    commit id: "feat(api): long commit message"
    commit id: "fix(client): another long message"
 3. テーマシステムの詳細 
-A) 定義済みテーマ一覧：
+A) 定義済みテーマ一覧: 
 base: 基本テーマ
 forest: 緑基調のテーマ
 dark: ダークモードテーマ
 default: デフォルトテーマ
 neutral: モノトーンテーマ
-B) テーマ適用例：
+B) テーマ適用例: 
 %%{init: { 'theme': 'forest' }}%%
 gitGraph
    commit
@@ -236,7 +236,7 @@ A) ブランチカラー（git0-git7）:
         'git7': '#00ffff'
     }
 }}%%
-B) ブランチラベルカラー：
+B) ブランチラベルカラー: 
 %%{init: { 
     'themeVariables': {
         'gitBranchLabel0': '#ffffff',
@@ -246,7 +246,7 @@ B) ブランチラベルカラー：
     }
 }}%%
 5. コミットとタグのスタイリング 
-A) コミットスタイル：
+A) コミットスタイル: 
 %%{init: { 
     'themeVariables': {
         'commitLabelColor': '#ff0000',
@@ -254,7 +254,7 @@ A) コミットスタイル：
         'commitLabelFontSize': '16px'
     }
 }}%%
-B) タグスタイル：
+B) タグスタイル: 
 %%{init: { 
     'themeVariables': {
         'tagLabelColor': '#ff0000',
@@ -263,7 +263,7 @@ B) タグスタイル：
         'tagLabelFontSize': '16px'
     }
 }}%%
-6. ハイライトコミットのカスタマイズ A) ブランチ固有のハイライト：
+6. ハイライトコミットのカスタマイズ A) ブランチ固有のハイライト: 
 %%{init: { 
     'themeVariables': {
         'gitInv0': '#ff0000',
@@ -278,14 +278,14 @@ gitGraph
    checkout main
    commit type: HIGHLIGHT
 7. 重要な制限事項と注意点 
-A) テーマ変数の制限：
+A) テーマ変数の制限: 
 最大8つのブランチまでカスタマイズ可能
 それ以上のブランチは循環参照
 カスタム値は有効なCSS色指定が必要
-B) フォントサイズの制限：
+B) フォントサイズの制限: 
 有効なCSS単位を使用（px, em, rem等）
 ブラウザ互換性に注意
-C) カラー指定の注意点：
+C) カラー指定の注意点: 
 16進数カラーコード
 RGB/RGBA値
 名前付きカラー値
@@ -293,7 +293,7 @@ RGB/RGBA値
 
 Part 4: 高度な使用例と注意事項
 1. 複雑なブランチ戦略の実装例 
-A) Git Flow モデル：
+A) Git Flow モデル: 
 gitGraph
    commit id: "init"
    branch develop
@@ -312,7 +312,7 @@ gitGraph
    merge release/1.0 tag: "v1.0.0"
    checkout develop
    merge release/1.0
-B) 複数のフィーチャーブランチ：
+B) 複数のフィーチャーブランチ: 
 %%{init: { 'gitGraph': { 'mainBranchName': 'master' } }}%%
 gitGraph
    commit id: "initial"
@@ -334,7 +334,7 @@ gitGraph
    checkout master
    merge develop tag: "v1.0"
 2. チェリーピックの高度な使用例 
-A) マージコミットのチェリーピック：
+A) マージコミットのチェリーピック: 
 gitGraph
    commit id: "base"
    branch feature
@@ -345,7 +345,7 @@ gitGraph
    merge main id: "merge1"
    checkout main
    cherry-pick id: "merge1" parent: "M1"
-B) 選択的チェリーピック：
+B) 選択的チェリーピック: 
 gitGraph
    commit id: "init"
    branch develop
@@ -359,7 +359,7 @@ gitGraph
    merge hotfix
    cherry-pick id: "D2"
 3. エラー回避のベストプラクティス 
-A) ブランチ管理：
+A) ブランチ管理: 
 一意なブランチ名の使用
 予約語とのコンフリクト回避
 適切なブランチ順序の設定
@@ -369,7 +369,7 @@ gitGraph
    branch "feature/user-auth" order: 1
    branch "feature/payment" order: 2
    branch "hotfix/security" order: 3
-B) マージ conflicts 防止：
+B) マージ conflicts 防止: 
 マージ前のブランチ状態確認
 適切な親コミット指定
 循環マージの回避
@@ -385,7 +385,7 @@ gitGraph
    checkout main
    merge bugfix
 4. パフォーマンス最適化 
-A) コミットラベルの制御：
+A) コミットラベルの制御: 
 %%{init: { 'gitGraph': { 
     'showCommitLabel': false,
     'showBranches': true
@@ -400,7 +400,7 @@ gitGraph
    merge feature
    checkout main
    merge develop
-B) 並列コミットの効果的な使用：
+B) 並列コミットの効果的な使用: 
 %%{init: { 'gitGraph': { 
     'parallelCommits': true
 } }}%%
@@ -416,28 +416,28 @@ gitGraph
    merge parallel1
    merge parallel2
 5. 制限事項と回避策の完全リスト 
-A) ブランチ関連：
+A) ブランチ関連: 
 最大8つのカスタムブランチスタイル
 ブランチ名の一意性必須
 予約語使用時の引用符必須
 メインブランチ名変更時の注意点
-B) コミット関連：
+B) コミット関連: 
 マージコミットの親指定必須
 チェリーピックの事前条件
 コミットIDの一意性要件
 タグ名の文字列制限
-C) スタイリング関連：
+C) スタイリング関連: 
 テーマ変数の制限
 カラーコード指定形式
 フォントサイズ指定形式
 レイアウト方向の制約
 6. トラブルシューティングガイド 
-A) 一般的なエラー：
+A) 一般的なエラー: 
 無効なブランチ名
 存在しないコミットID参照
 無効なマージ操作
 スタイル設定エラー
-B) 解決策：
+B) 解決策: 
 デバッグモードの使用
 エラーメッセージの確認
 構文の検証

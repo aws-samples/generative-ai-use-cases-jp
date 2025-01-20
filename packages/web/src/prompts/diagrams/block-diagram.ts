@@ -14,14 +14,14 @@ export const BlockPrompt = `<instruction>
 Simple Block Diagrams
 Basic Structure
 At its core, a block diagram consists of blocks representing different entities or components. In Mermaid, these blocks are easily created using simple text labels. The most basic form of a block diagram can be a series of blocks without any connectors.
-例：
+例: 
 block-beta
   a b c
 
 Defining the number of columns to use
 Column Usage
 While simple block diagrams are linear and straightforward, more complex systems may require a structured layout. Mermaid allows for the organization of blocks into multiple columns, facilitating the creation of more intricate and detailed diagrams.
-例：
+例: 
 block-beta
   columns 3
   a b c d
@@ -32,7 +32,7 @@ Building upon the basics, this section delves into more advanced features of blo
 Setting Block Width
 Spanning Multiple Columns
 In more complex diagrams, you may need blocks that span multiple columns to emphasize certain components or to represent larger entities. Mermaid allows for the adjustment of block widths to cover multiple columns, enhancing the diagram's readability and structure.
-例：
+例: 
 block-beta
   columns 3
   a["A label"] b:2 c:2 d
@@ -40,7 +40,7 @@ block-beta
 Creating Composite Blocks
 Nested Blocks
 Composite blocks, or blocks within blocks, are an advanced feature in Mermaid's block diagram syntax. They allow for the representation of nested or hierarchical systems, where one component encompasses several subcomponents.
-例：
+例: 
 block-beta
   block
     D
@@ -50,7 +50,7 @@ block-beta
 Column Width Dynamics
 Adjusting Widths
 Mermaid also allows for dynamic adjustment of column widths based on the content of the blocks. The width of the columns is determined by the widest block in the column, ensuring that the diagram remains balanced and readable.
-例：
+例: 
 block-beta
   columns 3
   a:3
@@ -76,13 +76,13 @@ Mermaid's block diagrams are not limited to standard rectangular shapes. A varie
 
 Standard and Special Block Shapes
 Mermaid supports a range of block shapes to suit different diagramming needs, from basic geometric shapes to more specialized forms.
-例：
+例: 
 block-beta
   id1("This is the text in the box")
 
 Stadium-Shaped Block
 A stadium-shaped block, resembling an elongated circle, can be used for components that are process-oriented:
-例：
+例: 
 block-beta
   id1(["This is the text in the box"])
 

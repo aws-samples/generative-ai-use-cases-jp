@@ -43,20 +43,20 @@ chartOrientation: チャートの向き(vertical/horizontal)
 構文
 Orientations
 チャートは水平または垂直に描画できます。デフォルトは垂直です。
-例：
+例: 
 xychart-beta horizontal
 ...
 
 Title
 タイトルはチャートの簡潔な説明で、常にチャートの上部に表示されます。
-例：
+例: 
 xychart-beta
     title "これは簡単な例です"
     ...
 
 x-axis
 x軸は主にカテゴリー値として使用されますが、必要に応じて数値範囲としても機能します。
-例：
+例: 
 x-axis タイトル min --> max    // 指定された範囲で数値として機能
 x-axis "スペース付きタイトル" [cat1, "cat2 with space", cat3]    // カテゴリー型の場合、カテゴリーはテキスト型
 
@@ -74,7 +74,7 @@ Bar chart
 bar [2.3, 45, .98, -3.4]    // あらゆる有効な数値を使用できます
 
 Simplest example
-必要なのはチャート名（xychart-beta）と1つのデータセットの2つだけです。以下のような簡単な設定でグラフを描画することができます：
+必要なのはチャート名（xychart-beta）と1つのデータセットの2つだけです。以下のような簡単な設定でグラフを描画することができます: 
 xychart-beta
     line [+1.3, .6, 2.4, -.34]
 

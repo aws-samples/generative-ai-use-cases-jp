@@ -56,7 +56,7 @@ export const Mermaid: React.FC<MermaidProps> = (props) => {
   return code ? (
     <div
       onClick={props.handler}
-      className="flex h-full w-full cursor-pointer content-center items-center justify-center rounded-lg bg-gray-100 p-8 duration-700 hover:shadow-lg">
+      className="flex h-full w-full cursor-pointer content-center items-center justify-center rounded-lg bg-white p-8 duration-700 hover:shadow-lg">
       <div
         className="flex h-full w-full items-center justify-center"
         dangerouslySetInnerHTML={{ __html: svgContent }}
@@ -182,7 +182,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ code }) => {
           <DownloadButton type="SVG" />
           <DownloadButton type="PNG" />
         </div>
-        <div className="flex cursor-pointer rounded border text-xs font-bold">
+        <div className="flex cursor-pointer rounded border text-xs font-bold bg-white">
           <div
             className={`m-1 mr-0 flex items-center rounded p-1
               ${viewMode === 'diagram' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}

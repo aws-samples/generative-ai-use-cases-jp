@@ -46,7 +46,7 @@ The excludes is an optional attribute that accepts specific dates in YYYY-MM-DD 
 
 Weekend
 When excluding weekends, it is possible to configure the weekends to be either Friday and Saturday or Saturday and Sunday. By default weekends are Saturday and Sunday. To define the weekend start day, there is an optional attribute weekend that can be added in a new line followed by either friday or saturday.
-例：
+例: 
 gantt
     title A Gantt Diagram Excluding Fri - Sat weekends
     dateFormat YYYY-MM-DD
@@ -63,7 +63,7 @@ To do so, start a line with the section keyword and give it a name. (Note that u
 
 Milestones
 You can add milestones to the diagrams. Milestones differ from tasks as they represent a single instant in time and are identified by the keyword milestone. Below is an example on how to use milestones. As you may notice, the exact location of the milestone is determined by the initial date for the milestone and the "duration" of the task this way: initial date+duration/2.
-例：
+例: 
 gantt
     dateFormat HH:mm
     axisFormat %H:%M
@@ -139,19 +139,19 @@ Format	Definition
 
 Axis ticks
 The default output ticks are auto. You can custom your tickInterval, like 1day or 1week.
-例：
+例: 
 tickInterval 1day
 The pattern is:
 /^([1-9][0-9]*)(millisecond|second|minute|hour|day|week|month)$/;
 Week-based tickIntervals start the week on sunday by default. If you wish to specify another weekday on which the tickInterval should start, use the weekday option:
-例：
+例: 
 gantt
   tickInterval 1week
   weekday monday
 
 Comments
 Comments can be entered within a gantt chart, which will be ignored by the parser. Comments need to be on their own line and must be prefaced with %% (double percent signs). Any text after the start of the comment to the next newline will be treated as a comment, including any diagram syntax.
-例：
+例: 
 gantt
     title A Gantt Diagram
     %% This is a comment
@@ -165,11 +165,11 @@ gantt
 
 Today marker
 You can style or hide the marker for the current date. To style it, add a value for the todayMarker key.
-例：
+例: 
 todayMarker stroke-width:5px,stroke:#0f0,opacity:0.5
 
 To hide the marker, set todayMarker to off.
-例：
+例: 
 todayMarker off
 
 <実装例>

@@ -6,7 +6,6 @@ export const PiechartPrompt = `<instruction>
 3. 生成する円グラフの詳しい説明や解説は<Description></Description>タグの中に出力してください。
 4. Mermaidの図のコードは \`\`\`mermaid から初めて \`\`\` で終わるように出力してください。
 5. 次の<Information></Information>を参考に出力してください。
-6. Mermaid内のpie chart図の記法では全て英語で書いてください。日本語は使用しないでください。これは絶対です。
 
 <Information>
 Mermaidの円グラフ記法
@@ -38,32 +37,48 @@ pie [showData] [title] [titlevalue]
 実装例1:
 %%{init: {"pie": {"textPosition": 0.5}, "themeVariables": {"pieOuterStrokeWidth": "5px"}} }%%
 pie showData
-    title Key elements in Product X
-    "Calcium" : 42.96
-    "Potassium" : 50.05
-    "Magnesium" : 10.01
-    "Iron" :  5
+    title 製品Xの主要成分
+    "カルシウム" : 42.96
+    "カリウム" : 50.05
+    "マグネシウム" : 10.01
+    "鉄" :  5
 
 実装例2:
-pie showData title 円グラフのタイトル
-"データ1" : 30.5
-"データ2" : 10
-"データ3" : 59.5
+pie showData title 2023年世界のスマートフォンOS市場シェア
+    "Android" : 70.5
+    "iOS" : 28.5
+    "HarmonyOS" : 0.6
+    "その他" : 0.4
 
 実装例3:
-pie title Pets adopted by volunteers
-    "Dogs" : 386
-    "Cats" : 85
-    "Rats" : 15
+pie showData title ボランティアによって引き取られたペット
+    "犬" : 386
+    "猫" : 85
+    "ネズミ" : 15
+
+実装例4:
+%%{init: {
+  'theme': 'forest',
+  'themeVariables': {
+    'pieOpacity': '0.8',
+    'pie1': '#ff9999',
+    'pie2': '#66b3ff',
+    'pie3': '#99ff99',
+    'pie4': '#ffcc99'
+  }
+} }%%
+pie showData title 四半期別売上構成比（2024年第1四半期）
+    "製品A" : 42.8
+    "製品B" : 28.3
+    "製品C" : 18.6
+    "製品D" : 10.3
 </Information>
 
 出力フォーマット:
 <Description>
 [生成する円グラフの詳しい説明や解説]
 </Description>
-
 \`\`\`mermaid
 [Mermaid.jsの円グラフ記法]
 \`\`\`
-
 </instruction>`;
