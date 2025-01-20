@@ -38,10 +38,14 @@
     "samlCognitoFederatedIdentityProviderName": "",
     "modelRegion": "us-east-1",
     "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0"
+      "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0"
     ],
     "imageGenerationModelIds": [
-      "stability.stable-diffusion-xl-v1"
+      "amazon.nova-canvas-v1:0"
     ],
     "endpointNames": [],
     "agentEnabled": false,
