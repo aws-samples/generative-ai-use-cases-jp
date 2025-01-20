@@ -118,7 +118,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 ## デプロイ
 
 > [!IMPORTANT]
-> このリポジトリでは、デフォルトのモデルとしてバージニア北部リージョン (us-east-1) の Anthropic Claude 3 Sonnet (テキスト生成)と、Stability AI の SDXL 1.0(画像生成) を利用する設定になっています。[Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess)を開き、Anthropic Claude 3 Sonnet にチェックして Save changes してください。その他のモデル (Anthropic Claude 3 Haiku, Meta Llama3, Cohere Command-R など) を利用するために設定を変更する方法については [Amazon Bedrock のモデルを変更する](./docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) を参照してください。
+> GenU では [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json) に記載されている `modelIds` (テキスト生成) 及び `imageGenerationModelIds` (画像生成) をデフォルトのモデルとして利用します。また、`modelRegion` を Amazon Bedrock のリージョンとして利用します。GenU を利用するためには、前述したモデルが [Amazon Bedrock の Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) で有効化されている必要があります。オプションで利用するモデルを変更した場合も同様に有効化手順が必要であることに留意してください。変更方法は [Amazon Bedrock のモデルを変更する](./docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) をご参照ください。
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)

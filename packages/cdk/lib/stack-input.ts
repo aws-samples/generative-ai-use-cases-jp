@@ -17,10 +17,16 @@ export const stackInputSchema = z.object({
   modelRegion: z.string().default('us-east-1'),
   modelIds: z
     .array(z.string())
-    .default(['anthropic.claude-3-sonnet-20240229-v1:0']),
+    .default([
+      'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+      'us.amazon.nova-pro-v1:0',
+      'us.amazon.nova-lite-v1:0',
+      'us.amazon.nova-micro-v1:0',
+    ]),
   imageGenerationModelIds: z
     .array(z.string())
-    .default(['stability.stable-diffusion-xl-v1']),
+    .default(['amazon.nova-canvas-v1:0']),
   endpointNames: z.array(z.string()).default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
