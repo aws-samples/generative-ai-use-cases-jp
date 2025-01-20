@@ -23,7 +23,10 @@
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",
     "extension:build": "cd browser-extension && npm run build",
     "extension:buildw": "source ./setup-env.sh && cd browser-extension && npm run build",
-    "extension:lint": "npx prettier --write browser-extension/. && cd browser-extension && npm run lint"
+    "extension:lint": "npx prettier --write browser-extension/. && cd browser-extension && npm run lint",
+    "docs:dev": "mkdocs serve",
+    "docs:build": "mkdocs build",
+    "docs:gh-deploy": "mkdocs gh-deploy --"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
