@@ -48,7 +48,7 @@
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.17",
+    "@crxjs/vite-plugin": "^2.0.0-beta.30",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
