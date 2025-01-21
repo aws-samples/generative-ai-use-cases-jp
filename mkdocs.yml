@@ -38,7 +38,7 @@ theme:
     primary: custom
     accent: deep-orange
   font:
-    text: ShinGo,\30d2\30e9\30ae\30ce\89d2\30b4  Pro W3,Hiragino Kaku Gothic Pro,Osaka,\30e1\30a4\30ea\30aa,Meiryo,\ff2d\ff33  \ff30\30b4\30b7\30c3\30af,MS PGothic,sans-serif!important
+    text: Roboto
     code: Roboto Mono
   favicon: assets/favicon.svg
   logo: assets/favicon.svg
@@ -76,6 +76,7 @@ plugins:
       rewrite_relative_urls: true
   - gh-admonitions
   - search
+  - social
 
 hooks:
   - docs/mkdocs/material/overrides/hooks/anchors.py
