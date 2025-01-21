@@ -25,7 +25,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
-import PromptFlowChatPage from './pages/PromptFlowChatPage';
+import FlowChatPage from './pages/FlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
@@ -102,8 +102,8 @@ const routes: RouteObject[] = [
     element: <TranscribePage />,
   },
   {
-    path: '/prompt-flow-chat',
-    element: <PromptFlowChatPage />,
+    path: '/flow-chat',
+    element: <FlowChatPage />,
   },
   visionEnabled
     ? {

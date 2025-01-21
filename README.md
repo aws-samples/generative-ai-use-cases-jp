@@ -40,11 +40,11 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
-   <summary>Prompt Flow チャット</summary>
+   <summary>Flow チャット</summary>
 
-  Amazon Bedrock Prompt Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Prompt Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
+  Amazon Bedrock Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
 
-  <img src="./docs/assets/images/usecase_prompt_flow_chat.gif"/>
+  <img src="./docs/assets/images/usecase_flow_chat.gif"/>
 </details>
 
 <details>
@@ -162,7 +162,7 @@ npm run cdk:deploy:quick
     - [Code Interpreter 機能を持つエージェントのデプロイ](./docs/DEPLOY_OPTION.md#code-interpreter-エージェントのデプロイ)
     - [検索エージェントのデプロイ](./docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
     - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](./docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
-  - [PromptFlow チャットユースケースの有効化](./docs/DEPLOY_OPTION.md#promptflow-チャットユースケースの有効化)
+  - [Flow チャットユースケースの有効化](./docs/DEPLOY_OPTION.md#flow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](./docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
   - [プロンプト最適化ツールの有効化](./docs/DEPLOY_OPTION.md#プロンプト最適化ツールの有効化)
 - [ユースケースビルダーの設定](./docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)

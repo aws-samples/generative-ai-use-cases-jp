@@ -52,7 +52,7 @@
     "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [],
-    "promptFlows": [],
+    "flows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,

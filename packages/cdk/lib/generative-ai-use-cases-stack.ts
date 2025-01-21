@@ -119,8 +119,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       ragEnabled: params.ragEnabled,
       ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
       agentEnabled: params.agentEnabled,
-      promptFlows: params.promptFlows,
-      promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
+      flows: params.flows,
+      flowStreamFunctionArn: api.invokeFlowFunction.functionArn,
       optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
@@ -221,12 +221,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: api.optimizePromptFunction.functionArn,
     });
 
-    new CfnOutput(this, 'InvokePromptFlowFunctionArn', {
-      value: api.invokePromptFlowFunction.functionArn,
+    new CfnOutput(this, 'InvokeFlowFunctionArn', {
+      value: api.invokeFlowFunction.functionArn,
     });
 
-    new CfnOutput(this, 'PromptFlows', {
-      value: Buffer.from(JSON.stringify(params.promptFlows)).toString('base64'),
+    new CfnOutput(this, 'Flows', {
+      value: Buffer.from(JSON.stringify(params.flows)).toString('base64'),
     });
 
     new CfnOutput(this, 'RagEnabled', {

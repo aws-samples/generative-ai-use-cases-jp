@@ -33,7 +33,7 @@ theme:
     - search.suggest
     - toc.follow
   palette:
-    media: "(prefers-color-scheme: light)"
+    media: '(prefers-color-scheme: light)'
     scheme: default
     primary: custom
     accent: deep-orange
@@ -49,24 +49,23 @@ extra_css:
 nav:
   - 概要: index.md
   - Getting started:
-    - デプロイ方法:
-      - クイックスタート: ABOUT.md
-      - (オプション) AWS CloudShell でデプロイする: DEPLOY_ON_CLOUDSHELL.md
-      - デプロイオプション: DEPLOY_OPTION.md
-    - 認証:
-      - Google Workspace で認証する: SAML_WITH_GOOGLE_WORKSPACE.md
-      - Microsoft Entra ID で認証する: SAML_WITH_ENTRA_ID.md
-    - ブラウザ拡張機能:
-      - 概要: EXTENSION.md
-      - ビルド: EXTENSION_BUILD.md
-      - インストール: EXTENSION_INSTALL.md
-      - SAML 認証: EXTENSION_SAML.md
-    - その他:
-      - アップデート方法: UPDATE.md
-      - ローカル開発環境構築手順: DEVELOPMENT.md
-      - リソースの削除方法: DESTROY.md
-      - ネイティブアプリのように利用する方法: PWA.md
-      
+      - デプロイ方法:
+          - クイックスタート: ABOUT.md
+          - (オプション) AWS CloudShell でデプロイする: DEPLOY_ON_CLOUDSHELL.md
+          - デプロイオプション: DEPLOY_OPTION.md
+      - 認証:
+          - Google Workspace で認証する: SAML_WITH_GOOGLE_WORKSPACE.md
+          - Microsoft Entra ID で認証する: SAML_WITH_ENTRA_ID.md
+      - ブラウザ拡張機能:
+          - 概要: EXTENSION.md
+          - ビルド: EXTENSION_BUILD.md
+          - インストール: EXTENSION_INSTALL.md
+          - SAML 認証: EXTENSION_SAML.md
+      - その他:
+          - アップデート方法: UPDATE.md
+          - ローカル開発環境構築手順: DEVELOPMENT.md
+          - リソースの削除方法: DESTROY.md
+          - ネイティブアプリのように利用する方法: PWA.md
 
 extra:
   # Used in custom hook anchors.py
@@ -93,7 +92,7 @@ markdown_extensions:
       permalink: true
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
-          case: lower  
+          case: lower
 
 validation:
   links:
