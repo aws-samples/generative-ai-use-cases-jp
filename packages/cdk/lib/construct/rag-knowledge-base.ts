@@ -28,7 +28,7 @@ export class RagKnowledgeBase extends Construct {
     const { modelRegion } = props;
 
     const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/retrieveKnowledgeBase.ts',
       timeout: cdk.Duration.minutes(15),
       environment: {

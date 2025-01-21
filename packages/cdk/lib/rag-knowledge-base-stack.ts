@@ -99,7 +99,7 @@ class OpenSearchServerlessIndex extends Construct {
       this,
       'OpenSearchServerlessIndex',
       {
-        runtime: lambda.Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_LATEST,
         code: lambda.Code.fromAsset('custom-resources'),
         handler: 'oss-index.handler',
         uuid: UUID,
