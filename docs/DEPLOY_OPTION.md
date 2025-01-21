@@ -497,20 +497,20 @@ const envs: Record<string, StackInput> = {
 }
 ```
 
-### PromptFlow チャットユースケースの有効化
+### Flow チャットユースケースの有効化
 
-PromptFlow チャットユースケースでは、作成済みの Prompt Flow を呼び出すことができます。
+Flow チャットユースケースでは、作成済みの Flow を呼び出すことができます。
 
-`promptFlows` 配列を追加または編集します。
+`flows` 配列を追加または編集します。
 
-[Prompt Flows の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home#/prompt-flows) から手動で Prompt Flows を作成します。その後、Alias を作成し、作成済みの Prompt Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Prompt Flow チャットのテキストボックスに記載されます。以下はその例です。
+[Amazon Bedrock Flows の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home#/flows) から手動で Flows を作成します。その後、Alias を作成し、作成済みの Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Flow チャットのテキストボックスに記載されます。以下はその例です。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: stackInputSchema.parse({
-    promptFlows: [
+    flows: [
       {
         flowId: 'XXXXXXXXXX',
         aliasId: 'YYYYYYYYYY',
@@ -527,7 +527,7 @@ const envs: Record<string, StackInput> = {
 // cdk.json
 {
   "context": {
-    "promptFlows": [
+    "flows": [
       {
         "flowId": "XXXXXXXXXX",
         "aliasId": "YYYYYYYYYY",
@@ -1381,7 +1381,7 @@ const envs: Record<string, StackInput> = {
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
 > [!NOTE]
-> Agent 系のタスク (Agent, Prompt Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
+> Agent 系のタスク (Agent, Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
 
 別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 

@@ -36,7 +36,7 @@ describe('GenerativeAiUseCases', () => {
       searchAgentEnabled: true,
       searchApiKey: 'XXXXXX',
       agents: [],
-      promptFlows: [],
+      flows: [],
       allowedIpV4AddressRanges: null,
       allowedIpV6AddressRanges: null,
       allowedCountryCodes: ['JP'],

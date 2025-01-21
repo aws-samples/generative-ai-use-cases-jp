@@ -52,7 +52,7 @@ export interface BackendApiProps {
 export class Api extends Construct {
   readonly api: RestApi;
   readonly predictStreamFunction: NodejsFunction;
-  readonly invokePromptFlowFunction: NodejsFunction;
+  readonly invokeFlowFunction: NodejsFunction;
   readonly optimizePromptFunction: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: string[];
@@ -183,26 +183,22 @@ export class Api extends Construct {
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
-    // Prompt Flow Lambda Function の追加
-    const invokePromptFlowFunction = new NodejsFunction(
-      this,
-      'InvokePromptFlow',
-      {
-        runtime: Runtime.NODEJS_18_X,
-        entry: './lambda/invokeFlow.ts',
-        timeout: Duration.minutes(15),
-        bundling: {
-          nodeModules: [
-            '@aws-sdk/client-bedrock-runtime',
-            '@aws-sdk/client-bedrock-agent-runtime',
-          ],
-        },
-        environment: {
-          MODEL_REGION: modelRegion,
-        },
-      }
-    );
-    invokePromptFlowFunction.grantInvoke(idPool.authenticatedRole);
+    // Flow Lambda Function の追加
+    const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
+      runtime: Runtime.NODEJS_18_X,
+      entry: './lambda/invokeFlow.ts',
+      timeout: Duration.minutes(15),
+      bundling: {
+        nodeModules: [
+          '@aws-sdk/client-bedrock-runtime',
+          '@aws-sdk/client-bedrock-agent-runtime',
+        ],
+      },
+      environment: {
+        MODEL_REGION: modelRegion,
+      },
+    });
+    invokeFlowFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
       runtime: Runtime.NODEJS_18_X,
@@ -276,7 +272,7 @@ export class Api extends Construct {
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-      invokePromptFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      invokeFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
 
     // Bedrock は常に権限付与
@@ -294,7 +290,7 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      invokePromptFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      invokeFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
       // crossAccountBedrockRoleArn が指定されている場合のポリシー
@@ -764,7 +760,7 @@ export class Api extends Construct {
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
-    this.invokePromptFlowFunction = invokePromptFlowFunction;
+    this.invokeFlowFunction = invokeFlowFunction;
     this.optimizePromptFunction = optimizePromptFunction;
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;

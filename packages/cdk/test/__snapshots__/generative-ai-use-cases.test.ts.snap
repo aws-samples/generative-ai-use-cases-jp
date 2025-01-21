@@ -1955,6 +1955,9 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Ref": "AuthUserPoolclientA74673A9",
       },
     },
+    "Flows": {
+      "Value": "W10=",
+    },
     "IdPoolId": {
       "Value": {
         "Ref": "AuthIdentityPool659E7F64",
@@ -1963,10 +1966,10 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
     "ImageGenerateModelIds": {
       "Value": "["stability.stable-diffusion-xl-v1"]",
     },
-    "InvokePromptFlowFunctionArn": {
+    "InvokeFlowFunctionArn": {
       "Value": {
         "Fn::GetAtt": [
-          "APIInvokePromptFlow60E11351",
+          "APIInvokeFlow03786D76",
           "Arn",
         ],
       },
@@ -1992,9 +1995,6 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
           "Arn",
         ],
       },
-    },
-    "PromptFlows": {
-      "Value": "W10=",
     },
     "RagEnabled": {
       "Value": "true",
@@ -10546,11 +10546,11 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIInvokePromptFlow60E11351": {
+    "APIInvokeFlow03786D76": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
-        "APIInvokePromptFlowServiceRoleDefaultPolicy213B9DDC",
-        "APIInvokePromptFlowServiceRoleC86E2579",
+        "APIInvokeFlowServiceRoleDefaultPolicyF59A1D3B",
+        "APIInvokeFlowServiceRole61C02E4B",
       ],
       "Properties": {
         "Code": {
@@ -10565,7 +10565,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
-            "APIInvokePromptFlowServiceRoleC86E2579",
+            "APIInvokeFlowServiceRole61C02E4B",
             "Arn",
           ],
         },
@@ -10575,7 +10575,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIInvokePromptFlowServiceRoleC86E2579": {
+    "APIInvokeFlowServiceRole61C02E4B": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -10608,7 +10608,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIInvokePromptFlowServiceRoleDefaultPolicy213B9DDC": {
+    "APIInvokeFlowServiceRoleDefaultPolicyF59A1D3B": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "PolicyDocument": {
@@ -10624,10 +10624,10 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "APIInvokePromptFlowServiceRoleDefaultPolicy213B9DDC",
+        "PolicyName": "APIInvokeFlowServiceRoleDefaultPolicyF59A1D3B",
         "Roles": [
           {
-            "Ref": "APIInvokePromptFlowServiceRoleC86E2579",
+            "Ref": "APIInvokeFlowServiceRole61C02E4B",
           },
         ],
       },
@@ -11866,6 +11866,13 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             ],
           },
           "VITE_APP_ENDPOINT_NAMES": "[]",
+          "VITE_APP_FLOWS": "[]",
+          "VITE_APP_FLOW_STREAM_FUNCTION_ARN": {
+            "Fn::GetAtt": [
+              "APIInvokeFlow03786D76",
+              "Arn",
+            ],
+          },
           "VITE_APP_IDENTITY_POOL_ID": {
             "Ref": "AuthIdentityPool659E7F64",
           },
@@ -11881,13 +11888,6 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
           "VITE_APP_PREDICT_STREAM_FUNCTION_ARN": {
             "Fn::GetAtt": [
               "APIPredictStream44DDBC25",
-              "Arn",
-            ],
-          },
-          "VITE_APP_PROMPT_FLOWS": "[]",
-          "VITE_APP_PROMPT_FLOW_STREAM_FUNCTION_ARN": {
-            "Fn::GetAtt": [
-              "APIInvokePromptFlow60E11351",
               "Arn",
             ],
           },
@@ -13222,7 +13222,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Resource": [
                 {
                   "Fn::GetAtt": [
-                    "APIInvokePromptFlow60E11351",
+                    "APIInvokeFlow03786D76",
                     "Arn",
                   ],
                 },
@@ -13232,7 +13232,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
                     [
                       {
                         "Fn::GetAtt": [
-                          "APIInvokePromptFlow60E11351",
+                          "APIInvokeFlow03786D76",
                           "Arn",
                         ],
                       },

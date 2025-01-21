@@ -16,7 +16,7 @@ export type Agent = {
 
 export type AgentMap = Record<string, { agentId: string; aliasId: string }>;
 
-export type PromptFlow = {
+export type Flow = {
   flowId: string;
   aliasId: string;
   flowName: string;

@@ -77,8 +77,8 @@ export const stackInputSchema = z.object({
   guardrailEnabled: z.boolean().default(false),
   // Usecase builder
   useCaseBuilderEnabled: z.boolean().default(true),
-  // Prompt Flow
-  promptFlows: z
+  // Flows
+  flows: z
     .array(
       z.object({
         flowId: z.string(),

@@ -92,7 +92,7 @@ export type PredictRequest = {
 
 export type PredictResponse = string;
 
-export type PromptFlowRequest = {
+export type FlowRequest = {
   flowIdentifier: string;
   flowAliasIdentifier: string;
   document: FlowInputContent.DocumentMember['document'];
