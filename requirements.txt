@@ -1,5 +1,6 @@
 mkdocs
 mkdocs-material
+mkdocs-material[imaging]
 mkdocs-minify-plugin
 mkdocs-redirects
 mkdocs-rss-plugin
