@@ -118,8 +118,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     description: 'プロセスの流れを視覚化',
     example: {
       title: 'フローチャートの例',
-      content:
-        `朝の準備の流れをフローチャートで表現したいです。以下の手順を含めてください: 
+      content: `朝の準備の流れをフローチャートで表現したいです。以下の手順を含めてください: 
 目覚める、ベッドから出る、顔を洗う、歯を磨く、朝食を食べる、服を着替える、家を出る、
 
 途中で「時間に余裕があるか？」という判断ポイントを入れ、余裕がある場合は「コーヒーを飲む」というステップを追加してください。
@@ -136,8 +135,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     description: 'データの割合を表示',
     example: {
       title: '円グラフの例',
-      content:
-        `東京都内の20代、30代の通勤・通学手段の割合を示す円グラフを作成したいです。
+      content: `東京都内の20代、30代の通勤・通学手段の割合を示す円グラフを作成したいです。
 
 電車、自転車、徒歩、車、バスの5つの手段について、それぞれの割合を適当に設定してください。
 グラフのタイトルは「東京都内20-30代の通勤・通学手段」としてください。`,
@@ -151,8 +149,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     description: 'アイデアや概念を放射状に整理',
     example: {
       title: 'マインドマップの例',
-      content:
-        `生成AIのユースケースについて、様々なアイデアを考えてマインドマップで図示してください。`,
+      content: `生成AIのユースケースについて、様々なアイデアを考えてマインドマップで図示してください。`,
     },
     category: 'main',
   },
@@ -163,8 +160,7 @@ const DiagramData: Record<DiagramType, DiagramInfo> = {
     description: '項目を4つの領域に分類して表示',
     example: {
       title: '4象限チャートの例',
-      content:
-        `ソーシャルメディアプラットフォームの特性を比較する4象限チャートを作成してください。
+      content: `ソーシャルメディアプラットフォームの特性を比較する4象限チャートを作成してください。
 タイトルは「ソーシャルメディアプラットフォーム分析」。 
 X軸は「テキスト中心」から「視覚中心」へと変化し、
 Y軸は「プロフェッショナル」から「カジュアル」へと変化する。
@@ -193,8 +189,7 @@ Facebook: X軸とY軸の中間あたり。
     description: 'オブジェクト間の相互作用を時系列で表現',
     example: {
       title: 'シーケンス図の例',
-      content:
-        `Webアプリケーションで、ユーザーがログインボタンを押してから認証が完了するまでの流れを示してください。
+      content: `Webアプリケーションで、ユーザーがログインボタンを押してから認証が完了するまでの流れを示してください。
 
 フロントエンド、認証サーバー、データベースの3つのコンポーネントが関係します。`,
     },
@@ -207,8 +202,7 @@ Facebook: X軸とY軸の中間あたり。
     description: '出来事を時系列で表示',
     example: {
       title: 'タイムライン図の例',
-      content:
-        `2000年から2020年までのソーシャルメディアの主要な進化と転換点をタイムラインで表現してください。
+      content: `2000年から2020年までのソーシャルメディアの主要な進化と転換点をタイムラインで表現してください。
         
 以下の要素を含めてください: 
 ブログの普及期
@@ -229,8 +223,7 @@ Facebook: X軸とY軸の中間あたり。
     description: 'Gitのブランチと操作の履歴を視覚化',
     example: {
       title: 'Gitグラフの例',
-      content:
-        `メインブランチから、ログイン機能とプロフィール編集機能の2つのfeatureブランチが分岐する開発フローを表現してください。
+      content: `メインブランチから、ログイン機能とプロフィール編集機能の2つのfeatureブランチが分岐する開発フローを表現してください。
 
 ログイン機能の開発では、フォーム実装やバリデーション追加などの複数回のコミットを行い、最終的にPull Requestでmainブランチにマージします。
 一方、プロフィール編集機能の開発中には、mainブランチに加えられた最新の変更を取り込む必要が生じます。
@@ -246,8 +239,7 @@ Facebook: X軸とY軸の中間あたり。
     description: 'データベース設計を表現',
     example: {
       title: 'ER図の例',
-      content:
-        `ブログシステムのデータベース設計を示してください。
+      content: `ブログシステムのデータベース設計を示してください。
 
 以下のテーブルがあり、それぞれ適切にリレーションが設定されています。:        
 記事（posts）
@@ -265,8 +257,7 @@ Facebook: X軸とY軸の中間あたり。
     description: 'クラスの構造と関係を表示',
     example: {
       title: 'クラス図の例',
-      content:
-        `ECサイトのドメインモデルを作成してください。
+      content: `ECサイトのドメインモデルを作成してください。
 
 以下のクラスが存在します: 
 User（ユーザー）
@@ -285,8 +276,7 @@ CartItem（カート内商品）
     description: '物の状態変化を図示',
     example: {
       title: '状態図の例',
-      content:
-        `オンラインショッピングカートの状態遷移を示してください。
+      content: `オンラインショッピングカートの状態遷移を示してください。
 「空」、「商品追加済み」、「チェックアウト中」、「支払い完了」などの状態を含めます。`,
     },
     category: 'other',
@@ -298,8 +288,7 @@ CartItem（カート内商品）
     description: '2つの変数の関係を図示',
     example: {
       title: 'XYチャートの例',
-      content:
-        `過去10年間の日本の平均睡眠時間と労働時間の関係を示すXYチャートを作成してください。
+      content: `過去10年間の日本の平均睡眠時間と労働時間の関係を示すXYチャートを作成してください。
 
 X軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各年のデータポイントをプロットしてください。`,
     },
@@ -312,8 +301,7 @@ X軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各�
     description: 'システムの構成要素と接続を表現',
     example: {
       title: 'ブロック図の例',
-      content:
-        `スマートフォンのハードウェアコンポーネントを示すブロック図を作成してください。
+      content: `スマートフォンのハードウェアコンポーネントを示すブロック図を作成してください。
 
 以下の要素を含めます:
 プロセッサ
@@ -332,8 +320,7 @@ X軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各�
     description: 'システム全体の構造を表現',
     example: {
       title: 'アーキテクチャ図の例',
-      content:
-        `クラウドベースのWeb アプリケーションのアーキテクチャを示してください。
+      content: `クラウドベースのWeb アプリケーションのアーキテクチャを示してください。
 
 以下のコンポーネントを含めます:
 フロントエンド
@@ -352,8 +339,7 @@ CDNなど`,
     description: 'プロジェクトのスケジュールを視覚化',
     example: {
       title: 'ガントチャートの例',
-      content:
-        `Webアプリケーション開発プロジェクトのスケジュールを示してください。
+      content: `Webアプリケーション開発プロジェクトのスケジュールを示してください。
 要件定義、設計、開発、テスト、デプロイメントの各フェーズを含めます。`,
     },
     category: 'other',
@@ -365,8 +351,7 @@ CDNなど`,
     description: 'ユーザー体験の流れを図示',
     example: {
       title: 'ユーザージャーニーの例',
-      content:
-        `オンラインショッピングサイトでの顧客の購買体験を示してください。
+      content: `オンラインショッピングサイトでの顧客の購買体験を示してください。
 
 以下の流れを含めてください:
 商品検索
@@ -385,8 +370,7 @@ CDNなど`,
     description: 'フローの量や割合を視覚化',
     example: {
       title: 'サンキーチャートの例',
-      content:
-        `Webサイトのユーザーフローを示すサンキーチャートを作成してください。
+      content: `Webサイトのユーザーフローを示すサンキーチャートを作成してください。
 ランディングページから始まり、各ページの遷移と離脱率を表示します。`,
     },
     category: 'other',
@@ -398,8 +382,7 @@ CDNなど`,
     description: 'システム要件を構造化して表現',
     example: {
       title: '要求図の例',
-      content:
-        `スマートホームシステムの主要な機能要件を示してください。
+      content: `スマートホームシステムの主要な機能要件を示してください。
 照明制御、温度管理、セキュリティ、エネルギー効率化などの要件を含めます。`,
     },
     category: 'other',
@@ -411,8 +394,7 @@ CDNなど`,
     description: 'ネットワーク通信のパケット構造を図示',
     example: {
       title: 'ネットワークパケット図の例',
-      content:
-        `HTTPリクエストパケットの構造を示す図を作成してください。
+      content: `HTTPリクエストパケットの構造を示す図を作成してください。
 ヘッダーとボディの主要な要素を含めます。`,
     },
     category: 'other',
@@ -505,8 +487,8 @@ const GenerateDiagramPage: React.FC = () => {
         setModelId(availableModels[0]);
       }
     })();
-  // 無限ループ回避のため以下の依存関係のみ残す
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // 無限ループ回避のため以下の依存関係のみ残す
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableModels, search]);
 
   useEffect(() => {
@@ -723,7 +705,7 @@ const GenerateDiagramPage: React.FC = () => {
               {/* ダイアグラムと説明の表示 */}
               <div className="space-y-4">
                 {diagramSentence.length > 0 && (
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="rounded-lg bg-gray-50 p-4">
                     <h3 className="mb-2 text-lg font-medium">回答</h3>
                     <div className="flex justify-start whitespace-pre-wrap">
                       {diagramSentence}
@@ -734,10 +716,8 @@ const GenerateDiagramPage: React.FC = () => {
                 {diagramCode.length > 0 && (
                   <div className="rounded-lg bg-gray-50">
                     <h3 className="border-b border-gray-200 p-4 text-lg font-medium">
-                      {
-                        DiagramData[diagramType as keyof typeof DiagramData]
-                          ?.title || 'チャート'
-                      }
+                      {DiagramData[diagramType as keyof typeof DiagramData]
+                        ?.title || 'チャート'}
                     </h3>
                     {loading ? (
                       <div className="p-3">

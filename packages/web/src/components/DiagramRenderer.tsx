@@ -182,7 +182,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ code }) => {
           <DownloadButton type="SVG" />
           <DownloadButton type="PNG" />
         </div>
-        <div className="flex cursor-pointer rounded border text-xs font-bold bg-white">
+        <div className="flex cursor-pointer rounded border bg-white text-xs font-bold">
           <div
             className={`m-1 mr-0 flex items-center rounded p-1
               ${viewMode === 'diagram' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
