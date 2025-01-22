@@ -97,3 +97,4 @@
     "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true
   }
 }
+
