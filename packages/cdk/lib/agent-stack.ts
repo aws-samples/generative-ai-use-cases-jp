@@ -4,14 +4,14 @@ import { Agent } from './construct';
 import { Agent as AgentType } from 'generative-ai-use-cases-jp';
 import { StackInput } from './stack-input';
 
-export interface SearchAgentStackProps extends StackProps {
+export interface AgentStackProps extends StackProps {
   params: StackInput;
 }
 
-export class SearchAgentStack extends Stack {
+export class AgentStack extends Stack {
   public readonly agents: AgentType[];
 
-  constructor(scope: Construct, id: string, props: SearchAgentStackProps) {
+  constructor(scope: Construct, id: string, props: AgentStackProps) {
     super(scope, id, props);
 
     const { searchAgentEnabled, searchApiKey } = props.params;

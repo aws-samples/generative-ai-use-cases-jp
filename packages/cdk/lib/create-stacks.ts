@@ -1,12 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import { IConstruct } from 'constructs';
-import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack';
-import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
-import { DashboardStack } from '../lib/dashboard-stack';
-import { SearchAgentStack } from '../lib/search-agent-stack';
-import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
-import { GuardrailStack } from '../lib/guardrail-stack';
-import { StackInput } from '../lib/stack-input';
+import { GenerativeAiUseCasesStack } from './generative-ai-use-cases-stack';
+import { CloudFrontWafStack } from './cloud-front-waf-stack';
+import { DashboardStack } from './dashboard-stack';
+import { AgentStack } from './agent-stack';
+import { RagKnowledgeBaseStack } from './rag-knowledge-base-stack';
+import { GuardrailStack } from './guardrail-stack';
+import { StackInput } from './stack-input';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -51,7 +51,7 @@ export const createStacks = (app: cdk.App, params: StackInput) => {
 
   // Agent
   const agentStack = params.agentEnabled
-    ? new SearchAgentStack(app, `WebSearchAgentStack${params.env}`, {
+    ? new AgentStack(app, `WebSearchAgentStack${params.env}`, {
         env: {
           account: params.account,
           region: params.modelRegion,
