@@ -14,19 +14,19 @@ GenU は、parameter.ts もしくは AWS CDK の context で設定を変更し�
 
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     ragEnabled: false,
     // 他のパラメータも必要に応じてカスタマイズ
-  }),
-  staging: stackInputSchema.parse({
+  },
+  staging: {
     ragEnabled: false,
     // 他のパラメータも必要に応じてカスタマイズ
-  }),
-  prod: stackInputSchema.parse({
+  },
+  prod: {
     ragEnabled: true,
     // 他のパラメータも必要に応じてカスタマイズ
-  }),
+  },
 };
 ```
 
@@ -78,10 +78,10 @@ npm run cdk:deploy
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     ragEnabled: true,
-  }),
+  },
 };
 ```
 
@@ -116,11 +116,11 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     kendraIndexArn: '<Kendra Index ARN>',
     kendraDataSourceBucketName: '<Kendra S3 Data Source Bucket Name>',
-  }),
+  },
 };
 ```
 
@@ -156,14 +156,14 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
-  }),
+  },
 };
 ```
 
@@ -240,14 +240,14 @@ Status が Available になれば完了です。S3 に保存されているフ�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
-  }),
+  },
 };
 ```
 
@@ -355,10 +355,10 @@ Code Interpreter エージェントは Agent を有効化するとデプロイ�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     agentEnabled: true,
-  }),
+  },
 };
 ```
 
@@ -386,12 +386,12 @@ API と連携し最新情報を参照して回答する Agent を作成します
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     agentEnabled: true,
     searchAgentEnabled: true,
     searchApiKey: '<検索エンジンの API キー>',
-  }),
+  },
 };
 ```
 
@@ -414,8 +414,8 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     agents: [
       {
         displayName: 'SearchEngine',
@@ -423,7 +423,7 @@ const envs: Record<string, StackInput> = {
         aliasId: 'YYYYYYYY',
       },
     ],
-  }),
+  },
 };
 ```
 
@@ -466,8 +466,8 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     agentEnabled: true,
     agents: [
       {
@@ -476,7 +476,7 @@ const envs: Record<string, StackInput> = {
         aliasId: 'YYYYYYYY',
       },
     ],
-  }),
+  },
 };
 ```
 
@@ -508,8 +508,8 @@ Flow チャットユースケースでは、作成済みの Flow を呼び出す
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     flows: [
       {
         flowId: 'XXXXXXXXXX',
@@ -518,7 +518,7 @@ const envs: Record<string, StackInput> = {
         description: '任意のキーワードをウェブ検索して、説明を返すフローです。文字を入力してください',
       },
     ],
-  }),
+  },
 };
 ```
 
@@ -588,12 +588,12 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     modelIds: [
       'anthropic.claude-3-sonnet-20240229-v1:0',
     ]
-  }),
+  },
 };
 ```
 
@@ -625,10 +625,10 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     useCaseBuilderEnabled: false,
-  }),
+  },
 };
 ```
 
@@ -719,8 +719,8 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     modelRegion: 'us-east-1',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -742,7 +742,7 @@ const envs: Record<string, StackInput> = {
       "amazon.nova-canvas-v1:0",
       "stability.stable-diffusion-xl-v1"
     ],
-  }),
+  },
 };
 ```
 
@@ -781,8 +781,8 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     modelRegion: 'us-east-1',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -806,7 +806,7 @@ const envs: Record<string, StackInput> = {
       "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
     ],
-  }),
+  },
 };
 ```
 
@@ -847,8 +847,8 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     modelRegion: 'us-east-1',
     modelIds: [
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -880,7 +880,7 @@ const envs: Record<string, StackInput> = {
       "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
     ],
-  }),
+  },
 };
 ```
 
@@ -930,13 +930,13 @@ const envs: Record<string, StackInput> = {
 ```typescript
 // parameter.ts
 const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+  dev: {
     modelRegion: 'ap-northeast-1',
-    "modelIds": [
+    modelIds: [
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
       "anthropic.claude-3-haiku-20240307-v1:0"
     ],
-    "imageGenerationModelIds": [],
+    imageGenerationModelIds: [],
   }
 }
 ```
@@ -998,11 +998,11 @@ endpointNames は SageMaker エンドポイント名のリストです。（例�
 
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     modelRegion: 'us-east-1',
     endpointNames: ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
-  }),
+  },
 };
 ```
 
@@ -1049,10 +1049,10 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     selfSignUpEnabled: false,
-  }),
+  },
 };
 ```
 
@@ -1082,10 +1082,10 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     allowedSignUpEmailDomains: ["amazon.com"],
-  }),
+  },
 };
 ```
 
@@ -1104,10 +1104,10 @@ const envs: Record<string, StackInput> = {
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     allowedSignUpEmailDomains: ["amazon.com", "amazon.jp"],
-  }),
+  },
 };
 ```
 
@@ -1130,11 +1130,11 @@ Web アプリへのアクセスを IP アドレスで制限したい場合、AWS
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     allowedIpV4AddressRanges: ["192.168.0.0/24"],
     allowedIpV6AddressRanges: ["2001:0db8::/32"],
-  }),
+  },
 };
 ```
 
@@ -1160,10 +1160,10 @@ Web アプリへのアクセスをアクセス元の国で制限したい場合�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     allowedCountryCodes: ["JP"],
-  }),
+  },
 };
 ```
 
@@ -1192,12 +1192,12 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     samlAuthEnabled: true,
     samlCognitoDomainName: "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     samlCognitoFederatedIdentityProviderName: "EntraID",
-  }),
+  },
 };
 ```
 
@@ -1225,10 +1225,10 @@ Converse API を使う(=テキスト出力を行う生成 AI モデル)場合は
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     guardrailEnabled: true,
-  }),
+  },
 };
 ```
 
@@ -1266,12 +1266,12 @@ GenerativeAiUseCasesDashboardStack で作成する Kendra のインデックス�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     kendraIndexScheduleEnabled: true,
     kendraIndexScheduleCreateCron: { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
     kendraIndexScheduleDeleteCron: { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
-  }),
+  },
 };
 ```
 
@@ -1316,10 +1316,10 @@ Amazon CloudWatch のダッシュボードは、[マネージメントコンソ�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     dashboard: true,
-  }),
+  },
 };
 ```
 
@@ -1357,12 +1357,12 @@ Web サイトの URL としてカスタムドメインを使用することが�
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     hostName: 'genai',
     domainName: 'example.com',
     hostedZoneId: 'XXXXXXXXXXXXXXXXXXXX',
-  }),
+  },
 };
 ```
 
@@ -1424,10 +1424,10 @@ Principal 設定例 (別アカウントにて設定)
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
-const envs: Record<string, StackInput> = {
-  dev: stackInputSchema.parse({
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
     crossAccountBedrockRoleArn: 'arn:aws:iam::アカウントID:role/事前に作成したロール名',
-  }),
+  },
 };
 ```
 
