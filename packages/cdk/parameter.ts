@@ -8,22 +8,22 @@ const getContext = (app: cdk.App): StackInput => {
 };
 
 // パラメータを直接定義する場合
-const envs: Record<string, StackInput> = {
+const envs: Record<string, Partial<StackInput>> = {
   // 必要に応じて以下をカスタマイズ
   // paramter.ts で無名環境を定義したい場合は以下をアンコメントすると cdk.json の内容が無視され、parameter.ts がより優先されます。
-  // '': stackInputSchema.parse({
+  // '': {
   //   // 無名環境のパラメータ
   //   // デフォルト設定を上書きしたいものは以下に追記
-  // }),
-  dev: stackInputSchema.parse({
+  // },
+  dev: {
     // 開発環境のパラメータ
-  }),
-  staging: stackInputSchema.parse({
+  },
+  staging: {
     // ステージング環境のパラメータ
-  }),
-  prod: stackInputSchema.parse({
+  },
+  prod: {
     // 本番環境のパラメータ
-  }),
+  },
   // 他環境も必要に応じてカスタマイズ
 };
 
@@ -34,10 +34,10 @@ export const getParams = (app: cdk.App): StackInput => {
 
   // env が envs で定義したものにマッチ場合は、envs のパラメータを context よりも優先して使用する
   if (envs[params.env]) {
-    params = {
+    params = stackInputSchema.parse({
       ...envs[params.env],
       env: params.env,
-    };
+    });
   }
 
   return params;
