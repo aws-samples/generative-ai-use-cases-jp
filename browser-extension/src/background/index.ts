@@ -21,7 +21,7 @@ browser.tabs.onUpdated.addListener(async () => {
   browser.contextMenus.removeAll().then(() => {
     browser.contextMenus.create({
       id: 'default',
-      title: 'Bedrock連携を開く',
+      title: 'GenU拡張機能を開く',
       contexts: ['page'],
     });
 

@@ -7,8 +7,8 @@ import { version } from '../package.json';
 
 const manifest = defineManifest(async (env) => ({
   manifest_version: 3,
-  name: `${env.mode === 'development' ? '[Dev] ' : ''}generative-ai-use-cases-jp 拡張機能`,
-  description: 'generative-ai-use-cases-jp をブラウザ拡張機能として利用できます。',
+  name: `${env.mode === 'development' ? '[Dev] ' : ''}GenU 拡張機能`,
+  description: 'GenU をブラウザ拡張機能として利用できます。',
   version,
   background: {
     service_worker: 'background/index.ts',
@@ -29,17 +29,17 @@ const manifest = defineManifest(async (env) => ({
   action: {
     default_popup: 'popup/index.html',
     default_icon: {
-      '16': 'images/bedrock_icon_16.png',
-      '32': 'images/bedrock_icon_32.png',
-      '48': 'images/bedrock_icon_48.png',
-      '128': 'images/bedrock_icon_64.png',
+      '16': 'images/aws_icon_16.png',
+      '32': 'images/aws_icon_32.png',
+      '48': 'images/aws_icon_48.png',
+      '128': 'images/aws_icon_64.png',
     },
   },
   icons: {
-    '16': 'images/bedrock_icon_16.png',
-    '32': 'images/bedrock_icon_32.png',
-    '48': 'images/bedrock_icon_48.png',
-    '128': 'images/bedrock_icon_64.png',
+    '16': 'images/aws_icon_16.png',
+    '32': 'images/aws_icon_32.png',
+    '48': 'images/aws_icon_48.png',
+    '128': 'images/aws_icon_64.png',
   },
   permissions: ['storage', 'tabs', 'contextMenus'],
 }));
