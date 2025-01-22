@@ -495,7 +495,7 @@ export class Rag extends Construct {
     // RAG 関連の API を追加する
     // Lambda
     const queryFunction = new NodejsFunction(this, 'Query', {
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/queryKendra.ts',
       timeout: Duration.minutes(15),
       bundling: {
@@ -515,7 +515,7 @@ export class Rag extends Construct {
     );
 
     const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/retrieveKendra.ts',
       timeout: Duration.minutes(15),
       bundling: {

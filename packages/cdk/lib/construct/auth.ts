@@ -107,7 +107,7 @@ export class Auth extends Construct {
         this,
         'CheckEmailDomain',
         {
-          runtime: Runtime.NODEJS_18_X,
+          runtime: Runtime.NODEJS_LATEST,
           entry: './lambda/checkEmailDomain.ts',
           timeout: Duration.minutes(15),
           environment: {

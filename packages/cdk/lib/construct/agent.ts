@@ -81,7 +81,7 @@ export class Agent extends Construct {
         this,
         'BedrockAgentLambda',
         {
-          runtime: Runtime.NODEJS_18_X,
+          runtime: Runtime.NODEJS_LATEST,
           entry: './lambda/agent.ts',
           timeout: Duration.seconds(300),
           environment: {
