@@ -11,10 +11,10 @@ const getContext = (app: cdk.App): StackInput => {
 const envs: Record<string, Partial<StackInput>> = {
   // 必要に応じて以下をカスタマイズ
   // paramter.ts で無名環境を定義したい場合は以下をアンコメントすると cdk.json の内容が無視され、parameter.ts がより優先されます。
-  // '': stackInputSchema.parse({
+  // '': {
   //   // 無名環境のパラメータ
   //   // デフォルト設定を上書きしたいものは以下に追記
-  // }),
+  // },
   dev: {
     // 開発環境のパラメータ
   },
