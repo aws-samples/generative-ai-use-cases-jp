@@ -3,7 +3,7 @@ import { IConstruct } from 'constructs';
 import { GenerativeAiUseCasesStack } from '../lib/generative-ai-use-cases-stack';
 import { CloudFrontWafStack } from '../lib/cloud-front-waf-stack';
 import { DashboardStack } from '../lib/dashboard-stack';
-import { SearchAgentStack } from '../lib/search-agent-stack';
+import { AgentStack } from './agent-stack';
 import { RagKnowledgeBaseStack } from '../lib/rag-knowledge-base-stack';
 import { GuardrailStack } from '../lib/guardrail-stack';
 import { StackInput } from '../lib/stack-input';
@@ -51,7 +51,7 @@ export const createStacks = (app: cdk.App, params: StackInput) => {
 
   // Agent
   const agentStack = params.agentEnabled
-    ? new SearchAgentStack(app, `WebSearchAgentStack${params.env}`, {
+    ? new AgentStack(app, `WebSearchAgentStack${params.env}`, {
         env: {
           account: params.account,
           region: params.modelRegion,
