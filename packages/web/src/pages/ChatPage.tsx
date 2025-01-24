@@ -129,6 +129,7 @@ const ChatPage: React.FC = () => {
     updateSystemContext,
     updateSystemContextByModel,
     getCurrentSystemContext,
+    retryGeneration,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
@@ -440,6 +441,7 @@ const ChatPage: React.FC = () => {
                   setSaveSystemContext={setSaveSystemContext}
                   setShowSystemContextModal={setShowSystemContextModal}
                   allowRetry={idx === showingMessages.length - 1}
+                  retryGeneration={retryGeneration}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>

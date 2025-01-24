@@ -32,6 +32,7 @@ type Props = BaseProps & {
   setSaveSystemContext?: (s: string) => void;
   setShowSystemContextModal?: (value: boolean) => void;
   allowRetry?: boolean;
+  retryGeneration?: () => void;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -40,7 +41,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   }, [props]);
 
   const { pathname } = useLocation();
-  const { sendFeedback, retryGeneration } = useChat(pathname);
+  const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
@@ -260,7 +261,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                 {props.allowRetry && (
                   <ButtonIcon
                     className="mr-0.5 text-gray-400"
-                    onClick={retryGeneration}>
+                    onClick={() => props.retryGeneration?.()}>
                     <PiArrowClockwise />
                   </ButtonIcon>
                 )}

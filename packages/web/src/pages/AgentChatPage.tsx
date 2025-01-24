@@ -82,6 +82,7 @@ const AgentChatPage: React.FC = () => {
     clear,
     postChat,
     updateSystemContextByModel,
+    retryGeneration,
   } = useChat(pathname, chatId);
   const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
@@ -222,6 +223,7 @@ const AgentChatPage: React.FC = () => {
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
                   allowRetry={idx === showingMessages.length - 1}
+                  retryGeneration={retryGeneration}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>

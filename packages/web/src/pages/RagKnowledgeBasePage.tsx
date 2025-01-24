@@ -70,6 +70,7 @@ const RagKnowledgeBasePage: React.FC = () => {
     clear,
     postChat,
     updateSystemContextByModel,
+    retryGeneration,
   } = useChat(pathname);
   const { scrollableContainer, setFollowing } = useFollow();
   const { modelIds: availableModels } = MODELS;
@@ -135,11 +136,8 @@ const RagKnowledgeBasePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableModels, modelId, search, setContent]);
 
-  const onSend = useCallback(() => {
-    setFollowing(true);
-
-    // フィルターがある場合はextraDataに追加
-    const extraData: ExtraData[] = filters
+  const getExtraDataFromFilters = useCallback(() => {
+    return filters
       .map((f, index) =>
         RetrievalFilterLabelToRetrievalFilter(
           f,
@@ -163,7 +161,12 @@ const RagKnowledgeBasePage: React.FC = () => {
             },
           }) as ExtraData
       );
+  }, [filters]);
 
+  const onSend = useCallback(() => {
+    setFollowing(true);
+    // フィルターがある場合はextraDataに追加
+    const extraData: ExtraData[] = getExtraDataFromFilters();
     postChat(
       content,
       false,
@@ -179,12 +182,26 @@ const RagKnowledgeBasePage: React.FC = () => {
   }, [
     content,
     sessionId,
-    filters,
     postChat,
+    getExtraDataFromFilters,
     setContent,
     setFollowing,
     setSessionId,
   ]);
+
+  const onRetry = useCallback(() => {
+    const extraData: ExtraData[] = getExtraDataFromFilters();
+    retryGeneration(
+      false,
+      undefined,
+      undefined,
+      sessionId,
+      undefined,
+      extraData,
+      'bedrockKb',
+      setSessionId
+    );
+  }, [sessionId, getExtraDataFromFilters, retryGeneration, setSessionId]);
 
   const onReset = useCallback(() => {
     clear();
@@ -224,6 +241,7 @@ const RagKnowledgeBasePage: React.FC = () => {
                 chatContent={chat}
                 loading={loading && idx === messages.length - 1}
                 allowRetry={idx === messages.length - 1}
+                retryGeneration={onRetry}
               />
               <div className="w-full border-b border-gray-300"></div>
             </div>
