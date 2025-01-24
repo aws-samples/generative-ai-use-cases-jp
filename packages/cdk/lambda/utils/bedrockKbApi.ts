@@ -193,7 +193,7 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
         if (streamChunk.output?.text) {
           const body = streamChunk.output?.text;
           buffer += body;
-          const newPosition = Math.max(0, buffer.length - 10);
+          const newPosition = Math.max(0, currentPosition, buffer.length - 10);
           yield streamingChunk({
             text: buffer.slice(currentPosition, newPosition),
           });
@@ -203,7 +203,7 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
           const newPosition =
             (streamChunk.citation.citation.generatedResponsePart
               ?.textResponsePart?.span?.end || 0) + 1;
-          if (newPosition < buffer.length) {
+          if (newPosition <= buffer.length) {
             yield streamingChunk({
               text: buffer.slice(currentPosition, newPosition),
             });
@@ -247,6 +247,11 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
             yield streamingChunk({ text: body });
           }
         }
+      }
+      // 最後まで出力
+      if (buffer.length > currentPosition) {
+        yield streamingChunk({ text: buffer.slice(currentPosition) });
+        currentPosition = buffer.length;
       }
       // 文末に Reference 追加
       for (const [url, { refId, ref, fileName, pageNumber }] of Object.entries(
