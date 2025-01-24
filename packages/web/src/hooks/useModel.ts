@@ -59,9 +59,16 @@ const agentModels = [
 ];
 
 export const findModelByModelId = (modelId: string) => {
-  return [...textModels, ...imageGenModels, ...agentModels].find(
+  const model = [...textModels, ...imageGenModels, ...agentModels].find(
     (m) => m.modelId === modelId
   );
+
+  if (model) {
+    // deep copy
+    return JSON.parse(JSON.stringify(model));
+  }
+
+  return undefined;
 };
 
 export const MODELS = {
