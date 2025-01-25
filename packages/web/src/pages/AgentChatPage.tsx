@@ -93,7 +93,12 @@ const AgentChatPage: React.FC = () => {
   }, [modelId]);
 
   const [isOver, setIsOver] = useState(false);
-  const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
+  const {
+    clear: clearFiles,
+    uploadedFiles,
+    uploadFiles,
+    base64Cache,
+  } = useFiles();
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -126,11 +131,36 @@ const AgentChatPage: React.FC = () => {
 
   const onSend = useCallback(() => {
     setFollowing(true);
-    postChat(content, false, undefined, undefined, sessionId, uploadedFiles);
+    postChat(
+      content,
+      false,
+      undefined,
+      undefined,
+      sessionId,
+      uploadedFiles,
+      undefined,
+      undefined,
+      undefined,
+      base64Cache
+    );
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [content, setFollowing]);
+
+  const onRetry = useCallback(() => {
+    retryGeneration(
+      false,
+      undefined,
+      undefined,
+      sessionId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      base64Cache
+    );
+  }, [retryGeneration, sessionId, base64Cache]);
 
   const onReset = useCallback(() => {
     clear();
@@ -223,7 +253,7 @@ const AgentChatPage: React.FC = () => {
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
                   allowRetry={idx === showingMessages.length - 1}
-                  retryGeneration={retryGeneration}
+                  retryGeneration={onRetry}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>
