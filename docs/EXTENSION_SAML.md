@@ -2,13 +2,13 @@
 
 ## 前提条件
 
-ブラウザ拡張機能で SAML 認証を行うためには、GenU で事前に SAML 連携の設定を行なっている必要があります。事前に、[こちらの手順](/docs/DEPLOY_OPTION.md#SAML-認証)を参考に設定を行なってください。
+ブラウザ拡張機能で SAML 認証を行うためには、GenU で事前に SAML 連携の設定を行なっている必要があります。事前に、[こちらの手順](./DEPLOY_OPTION.md#saml-認証)を参考に設定を行なってください。
 
 ## 利用手順
 
 ### ブラウザ拡張機能のビルドとインストール
 
-まずは、[こちら](../browser-extension/README.md#利用方法)を参考に、ブラウザ拡張機能のビルドとインストールを行なってください。GenU で SAML 連携の設定を行なった後にビルドを行うと、自動で SAML 認証に必要な情報が設定されるので、最初に GenU の設定を行うことをオススメします。
+まずは、[こちら](/browser-extension/README.md#利用方法)を参考に、ブラウザ拡張機能のビルドとインストールを行なってください。GenU で SAML 連携の設定を行なった後にビルドを行うと、自動で SAML 認証に必要な情報が設定されるので、最初に GenU の設定を行うことをオススメします。
 
 ### Cognito の設定
 
@@ -18,13 +18,13 @@ SAML 認証を行う際に、Cognito からブラウザ拡張機能に対して�
 
 まず、インストールしたブラウザ拡張機能を開いて、「ログイン画面へ」ボタンを押してください。
 
-![top](../imgs/extension/saml_top.png)
+![top](./assets/images/extension/saml_top.png)
 
-もし、上記の画面ではなく通常のユーザー認証画面が表示された場合は、設定画面を開いて「SAML認証」を有効化し、必要な項目を入力してください。設定値は、[こちらの方法](../docs/EXTENSION_BUILD.md#その他のユーザー-windows-等)で確認できます。
-![settings](../imgs/extension/saml_settings.png)
+もし、上記の画面ではなく通常のユーザー認証画面が表示された場合は、設定画面を開いて「SAML認証」を有効化し、必要な項目を入力してください。設定値は、[こちらの方法](./EXTENSION_BUILD.md#その他のユーザー-windows-等)で確認できます。
+![settings](./assets/images/extension/saml_settings.png)
 
 「ログイン画面へ」ボタンを押すと、以下の SAML 認証を行う画面が"新しいタブ"に表示されます。Cognito の設定をしていないため、まだログインできません。Cognito の設定に利用するので、この画面の URL をコピーして、メモしてください。
-![login](../imgs/extension/saml_login.png)
+![login](./assets/images/extension/saml_login.png)
 
 #### Cognito の Hosted UI の設定
 
@@ -45,4 +45,4 @@ chrome-extension://拡張機能のID/index.html
 ### 動作確認
 
 ブラウザ拡張機能のログイン画面から、SAML 認証を行なってください。認証に成功したら、以下のような画面が表示されます。
-![loggedin](../imgs/extension/saml_loggedin.png)
+![loggedin](./assets/images/extension/saml_loggedin.png)

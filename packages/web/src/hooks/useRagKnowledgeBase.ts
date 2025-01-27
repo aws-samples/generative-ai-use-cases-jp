@@ -1,3 +1,8 @@
+// === 注意 ===
+// useRagKnowledgeBase.ts は #802 対応に伴い、deprecation となりました。
+// 現在 main ブランチのコードはこちらの hook を利用しておりません。
+// ============
+
 import { useMemo } from 'react';
 import useChat from './useChat';
 import useRagKnowledgeBaseApi from './useRagKnowledgeBaseApi';

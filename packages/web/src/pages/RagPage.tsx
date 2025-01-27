@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
 import InputChatContent from '../components/InputChatContent';
 import { create } from 'zustand';
-import Alert from '../components/Alert';
 import useChat from '../hooks/useChat';
 import useRag from '../hooks/useRag';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import ScrollTopBottom from '../components/ScrollTopBottom';
@@ -92,30 +91,6 @@ const RagPage: React.FC = () => {
               <PiPlus className="text-2xl text-gray-400" />
               <BedrockIcon className="fill-gray-400" />
             </div>
-          </div>
-        )}
-
-        {isEmpty && (
-          <div
-            className={`absolute inset-x-0 top-28 m-auto flex justify-center`}>
-            <Alert severity="info">
-              <div>
-                RAG (Retrieval Augmented Generation)
-                手法のチャットを行うことができます。
-              </div>
-              <div>
-                メッセージが入力されると Amazon Kendra
-                でドキュメントを検索し、検索したドキュメントをもとに LLM
-                が回答を生成します。
-              </div>
-              <div className="font-bold">
-                Amazon Kendra の検索のみを実行する場合は
-                <Link className="text-aws-smile" to="/kendra">
-                  こちら
-                </Link>
-                のページに遷移してください。
-              </div>
-            </Alert>
           </div>
         )}
 

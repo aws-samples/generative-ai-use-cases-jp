@@ -102,7 +102,12 @@ const ChatPage: React.FC = () => {
     setSaveSystemContext,
     setSaveSystemContextTitle,
   } = useChatPageState();
-  const { clear: clearFiles, uploadedFiles, uploadFiles } = useFiles();
+  const {
+    clear: clearFiles,
+    uploadedFiles,
+    uploadFiles,
+    base64Cache,
+  } = useFiles();
   const { pathname, search } = useLocation();
   const { chatId } = useParams();
 
@@ -129,6 +134,7 @@ const ChatPage: React.FC = () => {
     updateSystemContext,
     updateSystemContextByModel,
     getCurrentSystemContext,
+    retryGeneration,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { createSystemContext } = useSystemContextApi();
@@ -201,12 +207,30 @@ const ChatPage: React.FC = () => {
       undefined,
       undefined,
       undefined,
-      fileUpload ? uploadedFiles : undefined
+      fileUpload ? uploadedFiles : undefined,
+      undefined,
+      undefined,
+      undefined,
+      base64Cache
     );
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, uploadedFiles, fileUpload, setFollowing]);
+  }, [content, base64Cache, fileUpload, setFollowing]);
+
+  const onRetry = useCallback(() => {
+    retryGeneration(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      base64Cache
+    );
+  }, [retryGeneration, base64Cache]);
 
   const onReset = useCallback(() => {
     clear();
@@ -439,6 +463,8 @@ const ChatPage: React.FC = () => {
                   loading={loading && idx === showingMessages.length - 1}
                   setSaveSystemContext={setSaveSystemContext}
                   setShowSystemContextModal={setShowSystemContextModal}
+                  allowRetry={idx === showingMessages.length - 1}
+                  retryGeneration={onRetry}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>

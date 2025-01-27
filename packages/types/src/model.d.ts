@@ -7,6 +7,8 @@ export type FeatureFlags = {
   video?: boolean;
   image_gen?: boolean;
   video_gen?: boolean;
+  embedding?: boolean;
+  reranking?: boolean;
   // Additional Flags
   light?: boolean;
 };

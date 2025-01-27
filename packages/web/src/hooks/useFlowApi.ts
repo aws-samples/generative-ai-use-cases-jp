@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { PromptFlowRequest } from 'generative-ai-use-cases-jp';
+import { FlowRequest } from 'generative-ai-use-cases-jp';
 
 export type DocumentType =
   | null
@@ -17,13 +17,13 @@ export type DocumentType =
       [prop: string]: DocumentType;
     };
 
-export type PromptFlowResponse = {
+export type FlowResponse = {
   content: string;
 };
 
-const usePromptFlowApi = () => {
+const useFlowApi = () => {
   return {
-    invokePromptFlowStream: async function* (req: PromptFlowRequest) {
+    invokeFlowStream: async function* (req: FlowRequest) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
         throw new Error('認証されていません。');
@@ -47,8 +47,7 @@ const usePromptFlowApi = () => {
 
       const res = await lambda.send(
         new InvokeWithResponseStreamCommand({
-          FunctionName: import.meta.env
-            .VITE_APP_PROMPT_FLOW_STREAM_FUNCTION_ARN,
+          FunctionName: import.meta.env.VITE_APP_FLOW_STREAM_FUNCTION_ARN,
           Payload: JSON.stringify(req),
         })
       );
@@ -67,4 +66,4 @@ const usePromptFlowApi = () => {
   };
 };
 
-export default usePromptFlowApi;
+export default useFlowApi;

@@ -22,6 +22,11 @@ const useFilesState = create<{
     accept: string[]
   ) => Promise<boolean>;
   clear: () => void;
+  base64Cache: Record<string, string>;
+  getFileDownloadSignedUrl: (
+    s3Url: string,
+    cacheBase64?: boolean
+  ) => Promise<string>;
 }>((set, get) => {
   const api = useFileApi();
 
@@ -214,8 +219,8 @@ const useFilesState = create<{
       const reader = new FileReader();
       reader.readAsDataURL(uploadedFile.file);
       reader.onload = () => {
-        set(() => ({
-          uploadedFiles: produce(get().uploadedFiles, (draft) => {
+        set((state) => ({
+          uploadedFiles: produce(state.uploadedFiles, (draft) => {
             draft[idx].base64EncodedData = reader.result?.toString();
           }),
         }));
@@ -234,12 +239,16 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
-            set({
-              uploadedFiles: produce(get().uploadedFiles, (draft) => {
+            set((state) => ({
+              uploadedFiles: produce(state.uploadedFiles, (draft) => {
                 draft[idx].uploading = false;
                 draft[idx].s3Url = fileUrl;
               }),
-            });
+              base64Cache: {
+                ...state.base64Cache,
+                [fileUrl]: reader.result?.toString() ?? '',
+              },
+            }));
           });
         });
     });
@@ -290,6 +299,40 @@ const useFilesState = create<{
     return false;
   };
 
+  // getFileDownloadSignedUrl を useFileApi から移動し、Base64 キャッシュ機能を追加
+  const getFileDownloadSignedUrl = async (
+    s3Url: string,
+    cacheBase64?: boolean
+  ) => {
+    const url = await api.getFileDownloadSignedUrl(s3Url);
+
+    // Base64 キャッシュが要求された場合
+    if (cacheBase64) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const reader = new FileReader();
+
+        const base64Data = await new Promise<string>((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+
+        // キャッシュを更新
+        set((state) => ({
+          base64Cache: {
+            ...state.base64Cache,
+            [s3Url]: base64Data,
+          },
+        }));
+      } catch (error) {
+        console.error('Failed to cache base64 data:', error);
+      }
+    }
+
+    return url;
+  };
+
   return {
     clear,
     uploadedFiles: [],
@@ -297,6 +340,8 @@ const useFilesState = create<{
     uploadFiles,
     checkFiles,
     deleteUploadedFile,
+    base64Cache: {},
+    getFileDownloadSignedUrl,
   };
 });
 
@@ -308,6 +353,8 @@ const useFiles = () => {
     uploadedFiles,
     deleteUploadedFile,
     errorMessages,
+    base64Cache,
+    getFileDownloadSignedUrl,
   } = useFilesState();
   return {
     uploadFiles,
@@ -317,6 +364,8 @@ const useFiles = () => {
     uploadedFiles: uploadedFiles,
     deleteUploadedFile,
     uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
+    base64Cache,
+    getFileDownloadSignedUrl,
   };
 };
 export default useFiles;

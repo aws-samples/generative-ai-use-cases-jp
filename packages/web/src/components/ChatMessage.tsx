@@ -6,7 +6,12 @@ import ButtonFeedback from './ButtonFeedback';
 import ButtonIcon from './ButtonIcon';
 import ZoomUpImage from './ZoomUpImage';
 import ZoomUpVideo from './ZoomUpVideo';
-import { PiUserFill, PiChalkboardTeacher, PiFloppyDisk } from 'react-icons/pi';
+import {
+  PiUserFill,
+  PiChalkboardTeacher,
+  PiFloppyDisk,
+  PiArrowClockwise,
+} from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import {
   ShownMessage,
@@ -15,9 +20,9 @@ import {
 import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
-import useFileApi from '../hooks/useFileApi';
 import FileCard from './FileCard';
 import FeedbackForm from './FeedbackForm';
+import useFiles from '../hooks/useFiles';
 
 type Props = BaseProps & {
   idx?: number;
@@ -26,6 +31,8 @@ type Props = BaseProps & {
   hideFeedback?: boolean;
   setSaveSystemContext?: (s: string) => void;
   setShowSystemContextModal?: (value: boolean) => void;
+  allowRetry?: boolean;
+  retryGeneration?: () => void;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -38,7 +45,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { getFileDownloadSignedUrl } = useFileApi();
+  const { getFileDownloadSignedUrl } = useFiles();
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
@@ -58,7 +65,11 @@ const ChatMessage: React.FC<Props> = (props) => {
       setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
-          return await getFileDownloadSignedUrl(file.source.data);
+          if (file.source.type === 's3') {
+            return await getFileDownloadSignedUrl(file.source.data, true);
+          } else {
+            return file.source.data;
+          }
         })
       ).then((results) => setSignedUrls(results));
     } else {
@@ -247,6 +258,13 @@ const ChatMessage: React.FC<Props> = (props) => {
             !props.loading &&
             !props.hideFeedback && (
               <>
+                {props.allowRetry && (
+                  <ButtonIcon
+                    className="mr-0.5 text-gray-400"
+                    onClick={() => props.retryGeneration?.()}>
+                    <PiArrowClockwise />
+                  </ButtonIcon>
+                )}
                 <ButtonCopy
                   className="mr-0.5 text-gray-400"
                   text={chatContent?.content || ''}
