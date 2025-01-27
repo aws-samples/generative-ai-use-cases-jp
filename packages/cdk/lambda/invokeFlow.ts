@@ -1,12 +1,12 @@
 import { Handler, Context } from 'aws-lambda';
-import { PromptFlowRequest } from 'generative-ai-use-cases-jp';
+import { FlowRequest } from 'generative-ai-use-cases-jp';
 import bedrockFlowApi from './utils/bedrockFlowApi';
 
 declare global {
   namespace awslambda {
     function streamifyResponse(
       f: (
-        event: PromptFlowRequest,
+        event: FlowRequest,
         responseStream: NodeJS.WritableStream,
         context: Context
       ) => Promise<void>
@@ -16,7 +16,7 @@ declare global {
 
 export const handler = awslambda.streamifyResponse(
   async (
-    event: PromptFlowRequest,
+    event: FlowRequest,
     responseStream: NodeJS.WritableStream,
     context: Context
   ) => {

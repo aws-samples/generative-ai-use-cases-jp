@@ -25,6 +25,9 @@ export default {
         print: { raw: 'print' },
         screen: { raw: 'screen' },
       },
+      spacing: {
+        128: '32rem',
+      },
     },
   },
   // eslint-disable-next-line no-undef

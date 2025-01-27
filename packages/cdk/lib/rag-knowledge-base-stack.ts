@@ -7,6 +7,7 @@ import * as oss from 'aws-cdk-lib/aws-opensearchserverless';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { StackInput } from './stack-input';
 
 const UUID = '339C5FED-A1B5-43B6-B40A-5E8E59E5734D';
 
@@ -98,7 +99,7 @@ class OpenSearchServerlessIndex extends Construct {
       this,
       'OpenSearchServerlessIndex',
       {
-        runtime: lambda.Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_LATEST,
         code: lambda.Code.fromAsset('custom-resources'),
         handler: 'oss-index.handler',
         uuid: UUID,
@@ -118,7 +119,8 @@ class OpenSearchServerlessIndex extends Construct {
   }
 }
 
-interface RagKnowledgeBaseStackProps extends StackProps {
+export interface RagKnowledgeBaseStackProps extends StackProps {
+  params: StackInput;
   collectionName?: string;
   vectorIndexName?: string;
   vectorField?: string;
@@ -133,8 +135,13 @@ export class RagKnowledgeBaseStack extends Stack {
   constructor(scope: Construct, id: string, props: RagKnowledgeBaseStackProps) {
     super(scope, id, props);
 
-    const embeddingModelId: string | null | undefined =
-      this.node.tryGetContext('embeddingModelId')!;
+    const {
+      env,
+      embeddingModelId,
+      ragKnowledgeBaseStandbyReplicas,
+      ragKnowledgeBaseAdvancedParsing,
+      ragKnowledgeBaseAdvancedParsingModelId,
+    } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
       throw new Error(
@@ -148,7 +155,8 @@ export class RagKnowledgeBaseStack extends Stack {
       );
     }
 
-    const collectionName = props.collectionName ?? 'generative-ai-use-cases-jp';
+    const collectionName =
+      props.collectionName ?? `generative-ai-use-cases-jp${env.toLowerCase()}`;
     const vectorIndexName =
       props.vectorIndexName ?? 'bedrock-knowledge-base-default';
     const vectorField =
@@ -159,17 +167,6 @@ export class RagKnowledgeBaseStack extends Stack {
     const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
     });
-
-    const standbyReplicas = this.node.tryGetContext(
-      'ragKnowledgeBaseStandbyReplicas'
-    );
-
-    const ragKnowledgeBaseAdvancedParsing = this.node.tryGetContext(
-      'ragKnowledgeBaseAdvancedParsing'
-    )!;
-
-    const ragKnowledgeBaseAdvancedParsingModelId: string | null | undefined =
-      this.node.tryGetContext('ragKnowledgeBaseAdvancedParsingModelId')!;
 
     if (
       ragKnowledgeBaseAdvancedParsing &&
@@ -184,7 +181,7 @@ export class RagKnowledgeBaseStack extends Stack {
       name: collectionName,
       description: 'GenU Collection',
       type: 'VECTORSEARCH',
-      standbyReplicas: standbyReplicas ? 'ENABLED' : 'DISABLED',
+      standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
     });
 
     const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {

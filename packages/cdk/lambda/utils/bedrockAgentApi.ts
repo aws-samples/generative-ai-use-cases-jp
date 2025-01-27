@@ -24,10 +24,10 @@ import {
 import { streamingChunk } from './streamingChunk';
 
 const agentClient = new BedrockAgentClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 const agentRuntimeClient = new BedrockAgentRuntimeClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 const s3Client = new S3Client({});
 
@@ -38,17 +38,27 @@ type AgentInfo = {
 };
 const agentInfoMap: { [aliasId: string]: AgentInfo } = {};
 
-// s3://<BUCKET>/<PREFIX> から https://<BUCKET>.s3.amazonaws.com/<PREFIX> に変換する
-const convertS3UriToUrl = (s3Uri: string): string => {
+// s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
+const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
   if (result) {
     const groups = result?.groups as {
       bucketName: string;
       prefix: string;
     };
-    return `https://${groups.bucketName}.s3.amazonaws.com/${groups.prefix}`;
+    return `https://s3.${region}.amazonaws.com/${groups.bucketName}/${groups.prefix}`;
   }
   return '';
+};
+
+// 文字列をURL-encodeする
+const encodeUrlString = (str: string): string => {
+  try {
+    return encodeURIComponent(str);
+  } catch (e) {
+    console.error('Failed to URL-encode string:', e);
+    return str;
+  }
 };
 
 const getAgentInfo = async (agentId: string, agentAliasId: string) => {
@@ -138,12 +148,25 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               // S3 URI を取得し URL に変換
               const s3Uri = ref?.location?.s3Location?.uri || '';
               if (!s3Uri) continue;
-              const url = convertS3UriToUrl(s3Uri);
+              const url = convertS3UriToUrl(
+                s3Uri,
+                process.env.MODEL_REGION || ''
+              );
+
+              // ページ番号を取得
+              const pageNumber =
+                ref?.metadata?.['x-amz-bedrock-kb-document-page-number'];
+
+              // ファイル名を取得してエンコード
+              const fileName = url.split('/').pop() || '';
+              const encodedFileName = encodeUrlString(fileName);
 
               // データソースがユニークであれば文末に Reference 追加
               if (sources[url] === undefined) {
                 sources[url] = Object.keys(sources).length;
-                body += `\n[^${sources[url]}]: ${url}`;
+                body += `\n[^${sources[url]}]: [${fileName}${
+                  pageNumber ? `(${pageNumber} ページ)` : ''
+                }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
               }
               const referenceId = sources[url];
 
@@ -186,7 +209,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               Body: file.bytes,
             });
             await s3Client.send(command);
-            const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+            const url = `https://${bucket}.s3.amazonaws.com/${encodeUrlString(key)}`;
 
             // Yield file path
             if (file.type?.split('/')[0] === 'image') {
@@ -265,7 +288,9 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     .replace('</search_results>', '')
                 );
                 trace = searchResult
-                  .map((item) => `- [${item.title}](${item.url})`)
+                  .map(
+                    (item) => `- [${item.title}](${encodeUrlString(item.url)})`
+                  )
                   .join('\n');
               } else {
                 // それ以外は出力の冒頭1000文字を表示
@@ -282,9 +307,25 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     const location = Object.values(ref.location || {}).find(
                       (loc) => loc?.uri || loc?.url
                     );
-                    return location
-                      ? `- ${location.uri ? convertS3UriToUrl(location.uri) : location.url}`
-                      : [];
+                    if (location) {
+                      const url = location.uri
+                        ? convertS3UriToUrl(
+                            location.uri,
+                            process.env.MODEL_REGION || ''
+                          )
+                        : location.url;
+                      const fileName = url.split('/').pop() || '';
+                      const encodedFileName = encodeUrlString(fileName);
+                      const pageNumber =
+                        ref?.metadata?.[
+                          'x-amz-bedrock-kb-document-page-number'
+                        ];
+
+                      return `- [${fileName}${
+                        pageNumber ? `(${pageNumber} ページ)` : ''
+                      }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
+                    }
+                    return [];
                   }
                 );
               trace = Array.from(new Set(refs)).join('\n');
@@ -301,16 +342,21 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
       ) {
         yield streamingChunk({
           text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          stopReason: 'error',
         });
       } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.AGENT_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.AGENT_REGION}#/modelaccess`;
+        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
           text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          stopReason: 'error',
         });
       } else {
         console.error(e);
         yield streamingChunk({
-          text: 'エラーが発生しました。時間をおいて試してみてください。',
+          text:
+            'エラーが発生しました。管理者に以下のエラーを報告してください。\n' +
+            e,
+          stopReason: 'error',
         });
       }
     }

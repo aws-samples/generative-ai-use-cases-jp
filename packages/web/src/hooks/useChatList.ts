@@ -1,47 +1,30 @@
 import { produce } from 'immer';
-import { useMemo, useCallback } from 'react';
 import useChatApi from './useChatApi';
-import { ListChatsResponse, Chat } from 'generative-ai-use-cases-jp';
+import { Chat } from 'generative-ai-use-cases-jp';
+import usePagination from './usePagination';
 
 const useChatList = () => {
   const { listChats, deleteChat: deleteChatApi, updateTitle } = useChatApi();
-  const { data, size, setSize, mutate } = listChats();
-
-  const chats = useMemo(() => {
-    if (data) {
-      return data.map((d: ListChatsResponse) => d.chats).flat();
-    } else {
-      return [];
-    }
-  }, [data]);
-
-  const isLoading = useMemo(() => {
-    if (!data) return false;
-    return data!.length < size || data![size - 1] === undefined;
-  }, [data, size]);
-
-  const canLoadMore = useMemo(() => {
-    // チャットリストは 1 度に最大で 100 件取得される
-    return (
-      !data || (data!.length === size && data![size - 1].chats.length === 100)
-    );
-  }, [data, size]);
-
-  const loadMore = useCallback(() => {
-    setSize(size + 1);
-  }, [setSize, size]);
+  const {
+    data,
+    flattenData: chats,
+    mutate,
+    isLoading,
+    canLoadMore,
+    loadMore,
+  } = usePagination(listChats(), 100);
 
   const deleteChat = async (chatId: string) => {
     mutate(
       produce(data, (draft) => {
         if (data && draft) {
           for (const d in data) {
-            const idx = data[d].chats.findIndex(
+            const idx = data[d].data.findIndex(
               (c) => c.chatId === `chat#${chatId}`
             );
 
             if (idx > -1) {
-              draft[d].chats.splice(idx, 1);
+              draft[d].data.splice(idx, 1);
               break;
             }
           }
@@ -62,12 +45,12 @@ const useChatList = () => {
       produce(data, (draft) => {
         if (data && draft) {
           for (const d in data) {
-            const idx = data[d].chats.findIndex(
+            const idx = data[d].data.findIndex(
               (c) => c.chatId === `chat#${chatId}`
             );
 
             if (idx > -1) {
-              draft[d].chats[idx].title = title;
+              draft[d].data[idx].title = title;
               break;
             }
           }

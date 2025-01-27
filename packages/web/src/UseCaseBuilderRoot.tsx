@@ -1,5 +1,11 @@
 import React, { useMemo } from 'react';
-import { PiList, PiX, PiSwatches, PiListDashes } from 'react-icons/pi';
+import {
+  PiList,
+  PiX,
+  PiSwatches,
+  PiListDashes,
+  PiNotePencil,
+} from 'react-icons/pi';
 import { Outlet, useLocation } from 'react-router-dom';
 import { ItemProps } from './components/Drawer';
 import ButtonIcon from './components/ButtonIcon';
@@ -30,6 +36,12 @@ const UseCaseBuilderRoot: React.FC = () => {
           label: 'マイユースケース',
           to: `${ROUTE_INDEX_USE_CASE_BUILDER}/my-use-case`,
           icon: <PiListDashes />,
+          display: 'usecase' as const,
+        },
+        {
+          label: '新規作成',
+          to: `${ROUTE_INDEX_USE_CASE_BUILDER}/new`,
+          icon: <PiNotePencil />,
           display: 'usecase' as const,
         },
       ].flatMap((i) => (i !== null ? [i] : [])),

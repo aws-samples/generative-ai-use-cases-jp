@@ -20,6 +20,8 @@ jobs:
       matrix:
         node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    env:
+      CDK_DEFAULT_ACCOUNT: 123456789012
 
     steps:
       - uses: actions/checkout@v3
@@ -33,4 +35,5 @@ jobs:
       - run: npm run web:lint
       - run: npm run cdk:lint
       - run: npm run web:build
+      - run: npm run cdk:test
       - run: npm -w packages/cdk run cdk synth

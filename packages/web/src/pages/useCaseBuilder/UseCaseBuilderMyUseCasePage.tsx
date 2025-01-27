@@ -19,6 +19,8 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
   const {
     myUseCases,
     isLoadingMyUseCases,
+    loadMoreMyUseCases,
+    canLoadMoreMyUseCases,
     deleteUseCase,
     toggleFavorite,
     toggleShared,
@@ -89,13 +91,6 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
         </div>
 
         <Card>
-          {isLoadingMyUseCases && (
-            <div className="flex flex-col gap-2 p-2">
-              {new Array(10).fill('').map((_, idx) => (
-                <Skeleton key={idx} />
-              ))}
-            </div>
-          )}
           {!isLoadingMyUseCases && myUseCases.length === 0 && (
             <div className="flex h-full w-full items-center justify-center py-16 text-sm font-bold text-gray-400">
               マイユースケースがありません。
@@ -146,6 +141,23 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
               </div>
             );
           })}
+          {isLoadingMyUseCases && (
+            <div className="flex flex-col gap-2 p-2">
+              {new Array(10).fill('').map((_, idx) => (
+                <Skeleton key={idx} />
+              ))}
+            </div>
+          )}
+
+          {canLoadMoreMyUseCases && !isLoadingMyUseCases && (
+            <div className="mt-2 flex w-full justify-center">
+              <button
+                className="text-sm hover:underline"
+                onClick={loadMoreMyUseCases}>
+                さらに読み込む
+              </button>
+            </div>
+          )}
         </Card>
       </div>
     </>

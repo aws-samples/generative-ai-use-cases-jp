@@ -4,7 +4,6 @@ import {
   Model,
   PromptTemplate,
   StableDiffusionParams,
-  TitanImageParams,
   UnrecordedMessage,
   ConverseInferenceParams,
   UsecaseConverseInferenceParams,
@@ -12,6 +11,8 @@ import {
   GuardrailConverseStreamConfigParams,
   StabilityAI2024ModelParams,
   StabilityAI2024ModelResponse,
+  AmazonGeneralImageParams,
+  AmazonAdvancedImageParams,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -21,25 +22,33 @@ import {
   ConversationRole,
   ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
+import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 // Default Models
 
-const modelId: string = JSON.parse(process.env.MODEL_IDS!)
-  .map((name: string) => name.trim())
-  .filter((name: string) => name)[0]!;
+const modelIds: string[] = (
+  JSON.parse(process.env.MODEL_IDS || '[]') as string[]
+)
+  .map((modelId: string) => modelId.trim())
+  .filter((modelId: string) => modelId);
+// 利用できるモデルの中で軽量モデルがあれば軽量モデルを優先する。
+const lightWeightModelIds = modelIds.filter(
+  (modelId: string) => modelFeatureFlags[modelId].light
+);
+const defaultModelId = lightWeightModelIds[0] || modelIds[0];
 export const defaultModel: Model = {
   type: 'bedrock',
-  modelId: modelId,
+  modelId: defaultModelId,
 };
 
-const imageGenerationModelId: string = JSON.parse(
-  process.env.IMAGE_GENERATION_MODEL_IDS!
+const imageGenerationModelIds: string[] = (
+  JSON.parse(process.env.IMAGE_GENERATION_MODEL_IDS || '[]') as string[]
 )
   .map((name: string) => name.trim())
-  .filter((name: string) => name)[0]!;
+  .filter((name: string) => name);
 export const defaultImageGenerationModel: Model = {
   type: 'bedrock',
-  modelId: imageGenerationModelId,
+  modelId: imageGenerationModelIds[0],
 };
 
 // Prompt Templates
@@ -225,6 +234,17 @@ const createConverseCommandInput = (
               },
             },
           } as ContentBlock.VideoMember);
+        } else if (extra.type === 'video' && extra.source.type === 's3') {
+          contentBlocks.push({
+            video: {
+              format: extra.source.mediaType.split('/')[1],
+              source: {
+                s3Location: {
+                  uri: extra.source.data,
+                },
+              },
+            },
+          } as ContentBlock.VideoMember);
         }
       });
     }
@@ -388,7 +408,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
       init_image: params.initImage,
       mask_image: params.maskImage,
       mask_source:
-        params.maskMode === 'INPAINTING'
+        params.taskType === 'INPAINTING'
           ? 'MASK_IMAGE_BLACK'
           : 'MASK_IMAGE_WHITE',
     };
@@ -444,7 +464,7 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
   return JSON.stringify(body);
 };
 
-const createBodyImageTitanImage = (params: GenerateImageParams) => {
+const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
   // TODO: Support inpainting and outpainting too
   const imageGenerationConfig = {
     numberOfImages: 1,
@@ -454,8 +474,8 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
     cfgScale: params.cfgScale,
     seed: params.seed % 214783648, // max for titan image
   };
-  let body: Partial<TitanImageParams> = {};
-  if (params.initImage && params.maskMode === undefined) {
+  let body: Partial<AmazonGeneralImageParams> = {};
+  if (params.initImage && params.taskType === undefined) {
     body = {
       taskType: 'IMAGE_VARIATION',
       imageVariationParams: {
@@ -469,7 +489,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'INPAINTING') {
+  } else if (params.initImage && params.taskType === 'INPAINTING') {
     body = {
       taskType: 'INPAINTING',
       inPaintingParams: {
@@ -484,7 +504,7 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
       },
       imageGenerationConfig: imageGenerationConfig,
     };
-  } else if (params.initImage && params.maskMode === 'OUTPAINTING') {
+  } else if (params.initImage && params.taskType === 'OUTPAINTING') {
     body = {
       taskType: 'OUTPAINTING',
       outPaintingParams: {
@@ -511,6 +531,42 @@ const createBodyImageTitanImage = (params: GenerateImageParams) => {
         negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || '',
       },
       imageGenerationConfig: imageGenerationConfig,
+    };
+  }
+  return JSON.stringify(body);
+};
+
+const createBodyImageAmazonAdvancedImage = (params: GenerateImageParams) => {
+  const baseBody = JSON.parse(createBodyImageAmazonGeneralImage(params));
+  let body: Partial<AmazonAdvancedImageParams> = {
+    ...baseBody,
+  };
+
+  if (params.taskType === 'COLOR_GUIDED_GENERATION') {
+    body = {
+      taskType: 'COLOR_GUIDED_GENERATION',
+      colorGuidedGenerationParams: {
+        text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
+        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text,
+        referenceImage: params.initImage,
+        colors: params.colors!,
+      },
+      imageGenerationConfig: body.imageGenerationConfig,
+    };
+  } else if (params.taskType === 'BACKGROUND_REMOVAL') {
+    body = {
+      taskType: 'BACKGROUND_REMOVAL',
+      backgroundRemovalParams: {
+        image: params.initImage!,
+      },
+    };
+  } else if (body.textToImageParams) {
+    // TEXT_IMAGE タスクタイプの拡張(Image Conditioning)
+    body.textToImageParams = {
+      ...body.textToImageParams,
+      conditionImage: params.initImage,
+      controlMode: params.controlMode,
+      controlStrength: params.controlStrength,
     };
   }
   return JSON.stringify(body);
@@ -552,13 +608,13 @@ const extractOutputImageStabilityAI2024Model = (
   }
 };
 
-const extractOutputImageTitanImage = (
+const extractOutputImageAmazonImage = (
   response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
 ) => {
   if ('images' in response) {
     return response.images[0];
   } else {
-    throw new Error('Unexpected response type for Titan Image');
+    throw new Error('Unexpected response type for Amazon Image');
   }
 };
 // テキスト生成に関する、各のModel のパラメーターや関数の定義
@@ -978,13 +1034,21 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
+  'stability.sd3-5-large-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
   'amazon.titan-image-generator-v1': {
-    createBodyImage: createBodyImageTitanImage,
-    extractOutputImage: extractOutputImageTitanImage,
+    createBodyImage: createBodyImageAmazonGeneralImage,
+    extractOutputImage: extractOutputImageAmazonImage,
   },
   'amazon.titan-image-generator-v2:0': {
-    createBodyImage: createBodyImageTitanImage,
-    extractOutputImage: extractOutputImageTitanImage,
+    createBodyImage: createBodyImageAmazonAdvancedImage,
+    extractOutputImage: extractOutputImageAmazonImage,
+  },
+  'amazon.nova-canvas-v1:0': {
+    createBodyImage: createBodyImageAmazonAdvancedImage,
+    extractOutputImage: extractOutputImageAmazonImage,
   },
 };
 

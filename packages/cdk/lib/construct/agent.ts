@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Duration, Lazy, Names, RemovalPolicy } from 'aws-cdk-lib';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -18,14 +18,21 @@ import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
 import { Agent as AgentType } from 'generative-ai-use-cases-jp';
 
-export class Agent extends Construct {
-  public readonly agents: AgentType[];
+interface AgentProps {
+  // Context Params
+  searchAgentEnabled: boolean;
+  searchApiKey?: string | null;
+}
 
-  constructor(scope: Construct, id: string) {
+export class Agent extends Construct {
+  public readonly agents: AgentType[] = [];
+
+  constructor(scope: Construct, id: string, props: AgentProps) {
     super(scope, id);
 
-    // search api
-    const searchApiKey = this.node.tryGetContext('searchApiKey') || '';
+    const suffix = Lazy.string({ produce: () => Names.uniqueId(this) });
+
+    const { searchAgentEnabled, searchApiKey } = props;
 
     // agents for bedrock の schema やデータを配置するバケット
     const s3Bucket = new Bucket(this, 'Bucket', {
@@ -42,19 +49,6 @@ export class Agent extends Construct {
       destinationBucket: s3Bucket,
       destinationKeyPrefix: 'api-schema',
     });
-
-    // Lambda
-    const bedrockAgentLambda = new NodejsFunction(this, 'BedrockAgentLambda', {
-      runtime: Runtime.NODEJS_18_X,
-      entry: './lambda/agent.ts',
-      timeout: Duration.seconds(300),
-      environment: {
-        SEARCH_API_KEY: searchApiKey,
-      },
-    });
-    bedrockAgentLambda.grantInvoke(
-      new ServicePrincipal('bedrock.amazonaws.com')
-    );
 
     // Agent
     const bedrockAgentRole = new Role(this, 'BedrockAgentRole', {
@@ -81,43 +75,69 @@ export class Agent extends Construct {
       },
     });
 
-    const searchAgent = new CfnAgent(this, 'SearchAgent', {
-      agentName: `SearchEngineAgent-${id}`,
-      actionGroups: [
+    // Search Agent
+    if (searchAgentEnabled && searchApiKey) {
+      const bedrockAgentLambda = new NodejsFunction(
+        this,
+        'BedrockAgentLambda',
         {
-          actionGroupName: 'Search',
-          actionGroupExecutor: {
-            lambda: bedrockAgentLambda.functionArn,
+          runtime: Runtime.NODEJS_LATEST,
+          entry: './lambda/agent.ts',
+          timeout: Duration.seconds(300),
+          environment: {
+            SEARCH_API_KEY: searchApiKey ?? '',
           },
-          apiSchema: {
-            s3: {
-              s3BucketName: schema.deployedBucket.bucketName,
-              s3ObjectKey: 'api-schema/api-schema.json',
+        }
+      );
+      bedrockAgentLambda.grantInvoke(
+        new ServicePrincipal('bedrock.amazonaws.com')
+      );
+
+      const searchAgent = new CfnAgent(this, 'SearchAgent', {
+        agentName: `SearchEngineAgent-${suffix}`,
+        actionGroups: [
+          {
+            actionGroupName: 'Search',
+            actionGroupExecutor: {
+              lambda: bedrockAgentLambda.functionArn,
             },
+            apiSchema: {
+              s3: {
+                s3BucketName: schema.deployedBucket.bucketName,
+                s3ObjectKey: 'api-schema/api-schema.json',
+              },
+            },
+            description: 'Search',
           },
-          description: 'Search',
-        },
-        {
-          actionGroupName: 'UserInput',
-          parentActionGroupSignature: 'AMAZON.UserInput',
-        },
-      ],
-      agentResourceRoleArn: bedrockAgentRole.roleArn,
-      idleSessionTtlInSeconds: 3600,
-      autoPrepare: true,
-      description: 'Search Agent',
-      foundationModel: 'anthropic.claude-3-haiku-20240307-v1:0',
-      instruction:
-        'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
-    });
+          {
+            actionGroupName: 'UserInput',
+            parentActionGroupSignature: 'AMAZON.UserInput',
+          },
+        ],
+        agentResourceRoleArn: bedrockAgentRole.roleArn,
+        idleSessionTtlInSeconds: 3600,
+        autoPrepare: true,
+        description: 'Search Agent',
+        foundationModel: 'anthropic.claude-3-haiku-20240307-v1:0',
+        instruction:
+          'あなたは指示に応えるアシスタントです。 指示に応えるために必要な情報が十分な場合はすぐに回答し、不十分な場合は検索を行い必要な情報を入手し回答してください。複数回検索することが可能です。',
+      });
 
-    const searchAgentAlias = new CfnAgentAlias(this, 'SearchAgentAlias', {
-      agentId: searchAgent.attrAgentId,
-      agentAliasName: 'v1',
-    });
+      const searchAgentAlias = new CfnAgentAlias(this, 'SearchAgentAlias', {
+        agentId: searchAgent.attrAgentId,
+        agentAliasName: 'v1',
+      });
 
+      this.agents.push({
+        displayName: 'SearchEngine',
+        agentId: searchAgent.attrAgentId,
+        aliasId: searchAgentAlias.attrAgentAliasId,
+      });
+    }
+
+    // Code Interpreter Agent
     const codeInterpreterAgent = new CfnAgent(this, 'CodeInterpreterAgent', {
-      agentName: `CodeInterpreterAgent-${id}`,
+      agentName: `CodeInterpreterAgent-${suffix}`,
       actionGroups: [
         {
           actionGroupName: 'CodeInterpreter',
@@ -171,17 +191,10 @@ export class Agent extends Construct {
       }
     );
 
-    this.agents = [
-      {
-        displayName: 'SearchEngine',
-        agentId: searchAgent.attrAgentId,
-        aliasId: searchAgentAlias.attrAgentAliasId,
-      },
-      {
-        displayName: 'CodeInterpreter',
-        agentId: codeInterpreterAgent.attrAgentId,
-        aliasId: codeInterpreterAgentAlias.attrAgentAliasId,
-      },
-    ];
+    this.agents.push({
+      displayName: 'CodeInterpreter',
+      agentId: codeInterpreterAgent.attrAgentId,
+      aliasId: codeInterpreterAgentAlias.attrAgentAliasId,
+    });
   }
 }

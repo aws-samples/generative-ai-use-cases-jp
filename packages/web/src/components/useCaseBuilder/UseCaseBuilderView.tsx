@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from 'react';
 import Select from '../Select';
 import Button from '../Button';
 import useChat from '../../hooks/useChat';
@@ -15,19 +21,52 @@ import ButtonShare from './ButtonShare';
 import ButtonUseCaseEdit from './ButtonUseCaseEdit';
 import Skeleton from '../Skeleton';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
-import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
+import { UseCaseInputExample, FileLimit } from 'generative-ai-use-cases-jp';
 import {
   NOLABEL,
   extractPlaceholdersFromPromptTemplate,
   getItemsFromPlaceholders,
   getTextFormItemsFromItems,
+  getTextFormUniqueLabels,
 } from '../../utils/UseCaseBuilderUtils';
 import useRagKnowledgeBaseApi from '../../hooks/useRagKnowledgeBaseApi';
 import useRagApi from '../../hooks/useRagApi';
+import useFiles from '../../hooks/useFiles';
+import ZoomUpImage from '../ZoomUpImage';
+import ZoomUpVideo from '../ZoomUpVideo';
+import FileCard from '../FileCard';
+import { PiPaperclip, PiSpinnerGap } from 'react-icons/pi';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
+
+// pages/ChatPage.tsx に合わせている
+// 差分が生まれた場合は更新する
+const fileLimit: FileLimit = {
+  accept: {
+    doc: [
+      '.csv',
+      '.doc',
+      '.docx',
+      '.html',
+      '.md',
+      '.pdf',
+      '.txt',
+      '.xls',
+      '.xlsx',
+      '.gif',
+    ],
+    image: ['.jpg', '.jpeg', '.png', '.webp'],
+    video: ['.mkv', '.mov', '.mp4', '.webm'],
+  },
+  maxFileCount: 5,
+  maxFileSizeMB: 4.5,
+  maxImageFileCount: 20,
+  maxImageFileSizeMB: 3.75,
+  maxVideoFileCount: 1,
+  maxVideoFileSizeMB: 25, // 25 MB for base64 input (TODO: up to 1 GB through S3)
+};
 
 type Props = {
   modelId?: string;
@@ -36,6 +75,7 @@ type Props = {
   description?: string;
   inputExamples?: UseCaseInputExample[];
   fixedModelId: string;
+  fileUpload: boolean;
   isLoading?: boolean;
 } & (
   | {
@@ -55,15 +95,15 @@ type Props = {
 type StateType = {
   text: string;
   setText: (s: string) => void;
-  values: string[];
-  setValue: (index: number, value: string) => void;
-  clear: (valueLength: number) => void;
+  values: { [key: string]: string };
+  setValue: (label: string, value: string) => void;
+  clear: (uniqueLabels: string[]) => void;
 };
 
 const useUseCaseBuilderViewState = create<StateType>((set, get) => {
   const INIT_STATE = {
     text: '',
-    values: [],
+    values: {},
   };
   return {
     ...INIT_STATE,
@@ -72,17 +112,20 @@ const useUseCaseBuilderViewState = create<StateType>((set, get) => {
         text: s,
       }));
     },
-    setValue: (index, value) => {
+    setValue: (label, value) => {
       set(() => ({
         values: produce(get().values, (draft) => {
-          draft[index] = value;
+          draft[label] = value;
         }),
       }));
     },
-    clear: (valueLength: number) => {
+    clear: (uniqueLabels: string[]) => {
       set({
         ...INIT_STATE,
-        values: new Array(valueLength).fill(''),
+        values: uniqueLabels.reduce(
+          (obj, label) => Object.assign(obj, { [label]: '' }),
+          {}
+        ),
       });
     },
   };
@@ -114,6 +157,16 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const { updateRecentUseUseCase } = useMyUseCases();
   const { retrieve: retrieveKendra } = useRagApi();
   const { retrieve: retrieveKnowledgeBase } = useRagKnowledgeBaseApi();
+  const {
+    uploadedFiles,
+    uploadFiles,
+    checkFiles,
+    deleteUploadedFile,
+    uploading,
+    errorMessages: fileErrorMessages,
+    clear: clearFiles,
+  } = useFiles();
+
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
   const placeholders = useMemo(() => {
@@ -128,10 +181,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     return getTextFormItemsFromItems(items);
   }, [items]);
 
+  const textFormUniqueLabels = useMemo(() => {
+    return getTextFormUniqueLabels(textFormItems);
+  }, [textFormItems]);
+
   useEffect(() => {
-    clear(textFormItems.length);
+    clear(textFormUniqueLabels);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [textFormItems.length]);
+  }, [textFormUniqueLabels]);
 
   useEffect(() => {
     setModelId(
@@ -199,8 +256,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       }
     }
 
+    tmpErrorMessages.push(...fileErrorMessages);
+
     setErrorMessages(tmpErrorMessages);
-  }, [setErrorMessages, items, textFormItems]);
+  }, [setErrorMessages, items, textFormItems, fileErrorMessages]);
 
   const onClickExec = useCallback(async () => {
     if (loading) return;
@@ -210,7 +269,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
     let prompt = props.promptTemplate;
 
-    for (const [idx, textFormItem] of textFormItems.entries()) {
+    for (const textFormItem of textFormItems) {
       const sameLabelItems = items.filter(
         (i) => i.label === textFormItem.label
       );
@@ -225,18 +284,23 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         }
 
         if (item.inputType === 'text') {
-          prompt = prompt.replace(new RegExp(placeholder, 'g'), values[idx]);
+          prompt = prompt.replace(
+            new RegExp(placeholder, 'g'),
+            values[item.label]
+          );
+        } else if (item.inputType === 'form') {
+          prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
         } else if (item.inputType === 'retrieveKendra') {
-          if (ragEnabled && values[idx].length > 0) {
-            const res = await retrieveKendra(values[idx]);
+          if (ragEnabled && values[item.label].length > 0) {
+            const res = await retrieveKendra(values[item.label]);
             const resJson = JSON.stringify(res.data.ResultItems);
             prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
           } else {
             prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
           }
         } else if (item.inputType === 'retrieveKnowledgeBase') {
-          if (ragKnowledgeBaseEnabled && values[idx].length > 0) {
-            const res = await retrieveKnowledgeBase(values[idx]);
+          if (ragKnowledgeBaseEnabled && values[item.label].length > 0) {
+            const res = await retrieveKnowledgeBase(values[item.label]);
             const resJson = JSON.stringify(res.data.retrievalResults);
             prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
           } else {
@@ -246,7 +310,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       }
     }
 
-    postChat(prompt, true);
+    postChat(
+      prompt,
+      true,
+      undefined,
+      undefined,
+      undefined,
+      uploadedFiles.length > 0 ? uploadedFiles : undefined
+    );
     if (!props.previewMode) {
       updateRecentUseUseCase(props.useCaseId);
     }
@@ -262,13 +333,15 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     retrieveKendra,
     retrieveKnowledgeBase,
     setText,
+    uploadedFiles,
   ]);
 
   // リセット
   const onClickClear = useCallback(() => {
-    clear(items.length);
+    clear(textFormUniqueLabels);
     clearChat();
-  }, [clear, clearChat, items.length]);
+    clearFiles();
+  }, [clear, clearChat, clearFiles, textFormUniqueLabels]);
 
   const disabledExec = useMemo(() => {
     if (props.isLoading || loading) {
@@ -285,13 +358,46 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const fillInputsFromExamples = useCallback(
     (examples: Record<string, string>) => {
       Object.entries(examples).forEach(([key, value]) => {
-        const idx = items.findIndex((item) => item.label === key);
-        if (idx >= 0) {
-          setValue(idx, value);
-        }
+        setValue(key, value);
       });
     },
-    [items, setValue]
+    [setValue]
+  );
+
+  const accept = useMemo(() => {
+    if (!modelId) return [];
+    const feature = MODELS.modelFeatureFlags[modelId];
+    return [
+      ...(feature.doc ? fileLimit.accept.doc : []),
+      ...(feature.image ? fileLimit.accept.image : []),
+      ...(feature.video ? fileLimit.accept.video : []),
+    ];
+  }, [modelId]);
+
+  useEffect(() => {
+    checkFiles(fileLimit, accept);
+  }, [accept, checkFiles]);
+
+  const fileInput = useRef<HTMLInputElement | null>(null);
+
+  const onChangeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      uploadFiles(Array.from(files), fileLimit, accept);
+
+      if (fileInput.current) {
+        fileInput.current.value = '';
+      }
+    }
+  };
+
+  const deleteFile = useCallback(
+    (fileUrl: string) => {
+      if (fileLimit && accept) {
+        deleteUploadedFile(fileUrl, fileLimit, accept);
+      }
+    },
+    [deleteUploadedFile, accept]
   );
 
   return (
@@ -371,14 +477,87 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                 <Textarea
                   label={item.label !== NOLABEL ? item.label : undefined}
                   rows={item.inputType === 'text' ? 2 : 1}
-                  value={values[idx]}
+                  value={values[item.label]}
                   onChange={(v) => {
-                    setValue(idx, v);
+                    setValue(item.label, v);
                   }}
                 />
               </div>
             ))}
           </div>
+
+          {props.fileUpload && (
+            <div className="mb-3 flex flex-col">
+              <label className="w-fit">
+                <input
+                  hidden
+                  type="file"
+                  accept={accept.join(',')}
+                  onChange={onChangeFile}
+                  ref={fileInput}
+                />
+                <div
+                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex w-fit items-center justify-center rounded-lg border px-2 py-1 text-white`}>
+                  {uploading ? (
+                    <PiSpinnerGap className="animate-spin" />
+                  ) : (
+                    <PiPaperclip />
+                  )}
+                  ファイル添付
+                </div>
+              </label>
+
+              {uploadedFiles.length > 0 && (
+                <div className="my-2 flex flex-wrap gap-2">
+                  {uploadedFiles.map((uploadedFile, idx) => {
+                    if (uploadedFile.type === 'image') {
+                      return (
+                        <ZoomUpImage
+                          key={idx}
+                          src={uploadedFile.base64EncodedData}
+                          loading={uploadedFile.uploading}
+                          deleting={uploadedFile.deleting}
+                          size="s"
+                          error={uploadedFile.errorMessages.length > 0}
+                          onDelete={() => {
+                            deleteFile(uploadedFile.s3Url ?? '');
+                          }}
+                        />
+                      );
+                    } else if (uploadedFile.type === 'video') {
+                      return (
+                        <ZoomUpVideo
+                          key={idx}
+                          src={uploadedFile.base64EncodedData}
+                          loading={uploadedFile.uploading}
+                          deleting={uploadedFile.deleting}
+                          size="s"
+                          error={uploadedFile.errorMessages.length > 0}
+                          onDelete={() => {
+                            deleteFile(uploadedFile.s3Url ?? '');
+                          }}
+                        />
+                      );
+                    } else {
+                      return (
+                        <FileCard
+                          key={idx}
+                          filename={uploadedFile.name}
+                          loading={uploadedFile.uploading}
+                          deleting={uploadedFile.deleting}
+                          size="s"
+                          error={uploadedFile.errorMessages.length > 0}
+                          onDelete={() => {
+                            deleteFile(uploadedFile.s3Url ?? '');
+                          }}
+                        />
+                      );
+                    }
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
       <div className="flex flex-1 items-end justify-between">

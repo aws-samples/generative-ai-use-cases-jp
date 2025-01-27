@@ -18,7 +18,6 @@ import EditorialPage from './pages/EditorialPage';
 import TranslatePage from './pages/TranslatePage';
 import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
-import KendraSearchPage from './pages/KendraSearchPage';
 import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
@@ -26,7 +25,7 @@ import GenerateImagePage from './pages/GenerateImagePage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
-import PromptFlowChatPage from './pages/PromptFlowChatPage';
+import FlowChatPage from './pages/FlowChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
@@ -103,8 +102,8 @@ const routes: RouteObject[] = [
     element: <TranscribePage />,
   },
   {
-    path: '/prompt-flow-chat',
-    element: <PromptFlowChatPage />,
+    path: '/flow-chat',
+    element: <FlowChatPage />,
   },
   visionEnabled
     ? {
@@ -122,12 +121,6 @@ const routes: RouteObject[] = [
     ? {
         path: '/rag-knowledge-base',
         element: <RagKnowledgeBasePage />,
-      }
-    : null,
-  ragEnabled
-    ? {
-        path: '/kendra',
-        element: <KendraSearchPage />,
       }
     : null,
   agentEnabled

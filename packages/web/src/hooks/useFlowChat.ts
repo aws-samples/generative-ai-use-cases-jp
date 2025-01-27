@@ -1,23 +1,23 @@
 import { useState, useCallback } from 'react';
 import { create } from 'zustand';
 import { v4 as uuid } from 'uuid';
-import usePromptFlowApi from './usePromptFlowApi';
-import { PromptFlow, ShownMessage } from 'generative-ai-use-cases-jp';
+import useFlowApi from './useFlowApi';
+import { Flow, ShownMessage } from 'generative-ai-use-cases-jp';
 import { MODELS } from './useModel';
 
-type PromptFlowState = {
+type FlowState = {
   messages: ShownMessage[];
   loading: boolean;
   error: string | null;
-  flow: PromptFlow | null;
+  flow: Flow | null;
   setMessages: (messages: ShownMessage[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setFlow: (flow: PromptFlow) => void;
+  setFlow: (flow: Flow) => void;
   clear: () => void;
 };
 
-const usePromptFlowStore = create<PromptFlowState>((set) => ({
+const useFlowStore = create<FlowState>((set) => ({
   messages: [],
   loading: false,
   error: null,
@@ -42,8 +42,8 @@ function parse(content: string) {
   return document;
 }
 
-const usePromptFlowChat = () => {
-  const { invokePromptFlowStream } = usePromptFlowApi();
+const useFlowChat = () => {
+  const { invokeFlowStream } = useFlowApi();
   const {
     messages,
     loading,
@@ -54,16 +54,16 @@ const usePromptFlowChat = () => {
     setError,
     setFlow,
     clear,
-  } = usePromptFlowStore();
-  const { promptFlows } = MODELS;
-  const [availableFlows] = useState<PromptFlow[]>(promptFlows);
+  } = useFlowStore();
+  const { flows } = MODELS;
+  const [availableFlows] = useState<Flow[]>(flows);
 
   const sendMessage = useCallback(
     async (content: string) => {
       const msgs = messages;
 
       if (!flow) {
-        setError('No Prompt Flow selected');
+        setError('No Flow selected');
         return;
       }
 
@@ -73,7 +73,7 @@ const usePromptFlowChat = () => {
       setError(null);
 
       try {
-        const stream = invokePromptFlowStream({
+        const stream = invokeFlowStream({
           flowIdentifier: flow.flowId,
           flowAliasIdentifier: flow.aliasId,
           document: parse(content),
@@ -93,13 +93,13 @@ const usePromptFlowChat = () => {
           ]);
         }
       } catch (err) {
-        setError('Error invoking Prompt Flow');
+        setError('Error invoking Flow');
         console.error(err);
       } finally {
         setLoading(false);
       }
     },
-    [setLoading, setError, invokePromptFlowStream, messages, setMessages, flow]
+    [setLoading, setError, invokeFlowStream, messages, setMessages, flow]
   );
 
   return {
@@ -114,4 +114,4 @@ const usePromptFlowChat = () => {
   };
 };
 
-export default usePromptFlowChat;
+export default useFlowChat;

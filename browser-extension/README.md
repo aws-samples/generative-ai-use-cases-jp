@@ -5,7 +5,7 @@
 > [!IMPORTANT]
 > このブラウザ拡張機能を利用するためには、GenU を事前にデプロイする必要があります。まずは、[こちら](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)を参考にデプロイをしてください。
 
-![拡張機能イメージ](../imgs/extension/extension_demo.png)
+![拡張機能イメージ](../docs/assets/images/extension/extension_demo.png)
 
 ## Why Use ブラウザ拡張機能 ?
 

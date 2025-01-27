@@ -1,8 +1,9 @@
-import { Fragment, useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { PiCaretUpDown, PiCheck, PiX } from 'react-icons/pi';
 import RowItem, { RowItemProps } from './RowItem';
 import ButtonIcon from './ButtonIcon';
+import Help from './Help';
 
 type Props = RowItemProps & {
   label?: string;
@@ -11,8 +12,10 @@ type Props = RowItemProps & {
     value: string;
     label: string;
   }[];
+  help?: string;
   clearable?: boolean;
   fullWidth?: boolean;
+  showColorChips?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -27,18 +30,50 @@ const Select: React.FC<Props> = (props) => {
     props.onChange('');
   }, [props]);
 
+  const ColorChips: React.FC<{ colors: string[] }> = ({ colors }) => (
+    <div className="flex items-center gap-1">
+      {colors.map((color, index) => (
+        <div
+          key={index}
+          className="h-4 w-4 border border-gray-300"
+          style={{ backgroundColor: color }}
+        />
+      ))}
+    </div>
+  );
+
+  const OptionContent: React.FC<{ value: string; label: string }> = ({
+    value,
+    label,
+  }) => {
+    if (!props.showColorChips) return <>{label}</>;
+
+    const colors = value.split(',').map((color) => color.trim());
+    return (
+      <div className="flex items-center gap-2">
+        <ColorChips colors={colors} />
+        <span>{label}</span>
+      </div>
+    );
+  };
+
   return (
     <RowItem notItem={props.notItem} className="relative">
       {props.label && (
-        <div>
+        <div className="flex items-center">
           <span className="text-sm">{props.label}</span>
+          {props.help && <Help className="ml-1" message={props.help} />}
         </div>
       )}
       <Listbox value={props.value} onChange={props.onChange}>
         <div className="relative">
           <Listbox.Button
             className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
-            <span className="block truncate">{selectedLabel}</span>
+            <span className="block truncate">
+              {props.value && (
+                <OptionContent value={props.value} label={selectedLabel} />
+              )}
+            </span>
 
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <PiCaretUpDown className="text-sm" />
@@ -73,7 +108,10 @@ const Select: React.FC<Props> = (props) => {
                       className={`block truncate ${
                         selected ? 'font-medium' : 'font-normal'
                       }`}>
-                      {option.label}
+                      <OptionContent
+                        value={option.value}
+                        label={option.label}
+                      />
                     </span>
                     {selected ? (
                       <span className="text-aws-smile absolute inset-y-0 left-0 flex items-center pl-3">

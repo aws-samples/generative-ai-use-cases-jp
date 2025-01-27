@@ -12,7 +12,7 @@ const Header: React.FC<Props> = (props) => {
   return (
     <div className="fixed top-0 w-full z-50">
       <div className="relative h-12 flex items-center justify-between bg-aws-squid-ink p-2 brightness-150">
-        <div className="text-lg font-bold ml-3">Bedrock 連携</div>
+        <div className="text-lg font-bold ml-3">GenU 拡張機能</div>
         <div className="flex items-center">
           <ButtonIcon onClick={props.onClickPromptSettings}>
             <PiListPlus />
