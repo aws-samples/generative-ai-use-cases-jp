@@ -20,9 +20,9 @@ import {
 import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
-import useFileApi from '../hooks/useFileApi';
 import FileCard from './FileCard';
 import FeedbackForm from './FeedbackForm';
+import useFiles from '../hooks/useFiles';
 
 type Props = BaseProps & {
   idx?: number;
@@ -32,6 +32,7 @@ type Props = BaseProps & {
   setSaveSystemContext?: (s: string) => void;
   setShowSystemContextModal?: (value: boolean) => void;
   allowRetry?: boolean;
+  retryGeneration?: () => void;
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
@@ -40,11 +41,11 @@ const ChatMessage: React.FC<Props> = (props) => {
   }, [props]);
 
   const { pathname } = useLocation();
-  const { sendFeedback, retryGeneration } = useChat(pathname);
+  const { sendFeedback } = useChat(pathname);
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { getFileDownloadSignedUrl } = useFileApi();
+  const { getFileDownloadSignedUrl } = useFiles();
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
@@ -65,7 +66,7 @@ const ChatMessage: React.FC<Props> = (props) => {
       Promise.all(
         chatContent.extraData.map(async (file) => {
           if (file.source.type === 's3') {
-            return await getFileDownloadSignedUrl(file.source.data);
+            return await getFileDownloadSignedUrl(file.source.data, true);
           } else {
             return file.source.data;
           }
@@ -260,7 +261,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                 {props.allowRetry && (
                   <ButtonIcon
                     className="mr-0.5 text-gray-400"
-                    onClick={retryGeneration}>
+                    onClick={() => props.retryGeneration?.()}>
                     <PiArrowClockwise />
                   </ButtonIcon>
                 )}
