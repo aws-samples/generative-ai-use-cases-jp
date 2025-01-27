@@ -10,6 +10,7 @@ import {
   QueryCommandOutput,
   RetrieveCommandOutput,
 } from '@aws-sdk/client-kendra';
+import { StopReason } from '@aws-sdk/client-bedrock-runtime';
 import {
   FlowInputContent,
   RetrieveCommandOutput as RetrieveCommandOutputKnowledgeBase,
@@ -20,7 +21,8 @@ import { ShareId, UserIdAndChatId } from './share';
 export type StreamingChunk = {
   text: string;
   trace?: string;
-  stopReason?: string;
+  stopReason?: StopReason | 'error';
+  sessionId?: string;
 };
 
 export type Pagination<T> = {
@@ -83,13 +85,14 @@ export type UpdateTitleResponse = {
 
 export type PredictRequest = {
   model?: Model;
+  idToken?: string;
   messages: UnrecordedMessage[];
   id: string;
 };
 
 export type PredictResponse = string;
 
-export type PromptFlowRequest = {
+export type FlowRequest = {
   flowIdentifier: string;
   flowAliasIdentifier: string;
   document: FlowInputContent.DocumentMember['document'];

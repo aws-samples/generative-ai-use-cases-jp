@@ -28,15 +28,15 @@ const agentNames: string[] = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
 
-const getPromptFlows = () => {
+const getFlows = () => {
   try {
-    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+    return JSON.parse(import.meta.env.VITE_APP_FLOWS);
   } catch (e) {
     return [];
   }
 };
 
-const promptFlows = getPromptFlows();
+const flows = getFlows();
 
 // モデルオブジェクトの定義
 const textModels = [
@@ -59,9 +59,16 @@ const agentModels = [
 ];
 
 export const findModelByModelId = (modelId: string) => {
-  return [...textModels, ...imageGenModels, ...agentModels].find(
+  const model = [...textModels, ...imageGenModels, ...agentModels].find(
     (m) => m.modelId === modelId
   );
+
+  if (model) {
+    // deep copy
+    return JSON.parse(JSON.stringify(model));
+  }
+
+  return undefined;
 };
 
 export const MODELS = {
@@ -75,5 +82,5 @@ export const MODELS = {
   textModels: textModels,
   imageGenModels: imageGenModels,
   agentModels: agentModels,
-  promptFlows,
+  flows,
 };

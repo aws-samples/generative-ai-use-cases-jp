@@ -7,14 +7,10 @@ import {
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 import { CommonWebAcl } from './construct/common-web-acl';
+import { StackInput } from './stack-input';
 
 interface CloudFrontWafStackProps extends StackProps {
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
-  hostName?: string;
-  domainName?: string;
-  hostedZoneId?: string;
+  params: StackInput;
 }
 
 export class CloudFrontWafStack extends Stack {
@@ -25,16 +21,18 @@ export class CloudFrontWafStack extends Stack {
   constructor(scope: Construct, id: string, props: CloudFrontWafStackProps) {
     super(scope, id, props);
 
+    const params = props.params;
+
     if (
-      props.allowedIpV4AddressRanges ||
-      props.allowedIpV6AddressRanges ||
-      props.allowedCountryCodes
+      params.allowedIpV4AddressRanges ||
+      params.allowedIpV6AddressRanges ||
+      params.allowedCountryCodes
     ) {
       const webAcl = new CommonWebAcl(this, `WebAcl${id}`, {
         scope: 'CLOUDFRONT',
-        allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-        allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-        allowedCountryCodes: props.allowedCountryCodes,
+        allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
+        allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+        allowedCountryCodes: params.allowedCountryCodes,
       });
 
       new CfnOutput(this, 'WebAclId', {
@@ -44,17 +42,17 @@ export class CloudFrontWafStack extends Stack {
       this.webAcl = webAcl;
     }
 
-    if (props.hostName && props.domainName && props.hostedZoneId) {
+    if (params.hostName && params.domainName && params.hostedZoneId) {
       const hostedZone = HostedZone.fromHostedZoneAttributes(
         this,
         'HostedZone',
         {
-          hostedZoneId: props.hostedZoneId,
-          zoneName: props.domainName,
+          hostedZoneId: params.hostedZoneId,
+          zoneName: params.domainName,
         }
       );
       const cert = new Certificate(this, 'Cert', {
-        domainName: `${props.hostName}.${props.domainName}`,
+        domainName: `${params.hostName}.${params.domainName}`,
         validation: CertificateValidation.fromDns(hostedZone),
       });
       this.cert = cert;

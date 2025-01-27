@@ -13,31 +13,24 @@ import {
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Agent, PromptFlow } from 'generative-ai-use-cases-jp';
+import { Agent } from 'generative-ai-use-cases-jp';
 import { UseCaseBuilder } from './construct/use-case-builder';
+import { StackInput } from './stack-input';
 
-const errorMessageForBooleanContext = (key: string) => {
-  return `${key} の設定でエラーになりました。原因として考えられるものは以下です。
- - cdk.json の変更ではなく、-c オプションで設定しようとしている
- - cdk.json に boolean ではない値を設定している (例: "true" ダブルクォートは不要)
- - cdk.json に項目がない (未設定)`;
-};
-
-interface GenerativeAiUseCasesStackProps extends StackProps {
-  webAclId?: string;
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
-  cert?: ICertificate;
-  hostName?: string;
-  domainName?: string;
-  hostedZoneId?: string;
-  agents?: Agent[];
-  promptFlows?: PromptFlow[];
+export interface GenerativeAiUseCasesStackProps extends StackProps {
+  params: StackInput;
+  // RAG Knowledge Base
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
+  // Agent
+  agents?: Agent[];
+  // Guardrail
   guardrailIdentifier?: string;
   guardrailVersion?: string;
+  // WAF
+  webAclId?: string;
+  // Custom Domain
+  cert?: ICertificate;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -50,87 +43,54 @@ export class GenerativeAiUseCasesStack extends Stack {
     props: GenerativeAiUseCasesStackProps
   ) {
     super(scope, id, props);
-
     process.env.overrideWarningsEnabled = 'false';
 
-    const ragEnabled: boolean = this.node.tryGetContext('ragEnabled')!;
-    const ragKnowledgeBaseEnabled: boolean = this.node.tryGetContext(
-      'ragKnowledgeBaseEnabled'
-    )!;
-    const selfSignUpEnabled: boolean =
-      this.node.tryGetContext('selfSignUpEnabled')!;
-    const allowedSignUpEmailDomains: string[] | null | undefined =
-      this.node.tryGetContext('allowedSignUpEmailDomains');
-    const samlAuthEnabled: boolean =
-      this.node.tryGetContext('samlAuthEnabled')!;
-    const samlCognitoDomainName: string = this.node.tryGetContext(
-      'samlCognitoDomainName'
-    )!;
-    const samlCognitoFederatedIdentityProviderName: string =
-      this.node.tryGetContext('samlCognitoFederatedIdentityProviderName')!;
-    const agentEnabled = this.node.tryGetContext('agentEnabled') || false;
-    const promptFlows = this.node.tryGetContext('promptFlows') || [];
+    const params = props.params;
 
-    const guardrailEnabled: boolean =
-      this.node.tryGetContext('guardrailEnabled') || false;
-    const useCaseBuilderEnabled: boolean = this.node.tryGetContext(
-      'useCaseBuilderEnabled'
-    )!;
-
-    if (typeof ragEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('ragEnabled'));
-    }
-
-    if (typeof ragKnowledgeBaseEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('ragKnowledgeBaseEnabled'));
-    }
-
-    if (typeof selfSignUpEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('selfSignUpEnabled'));
-    }
-
-    if (typeof samlAuthEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('samlAuthEnabled'));
-    }
-
-    if (typeof guardrailEnabled !== 'boolean') {
-      throw new Error(
-        errorMessageForBooleanContext('guardrailsForAmazonBedrockEnabled')
-      );
-    }
-
-    if (typeof useCaseBuilderEnabled !== 'boolean') {
-      throw new Error(errorMessageForBooleanContext('useCaseBuilderEnabled'));
-    }
-
+    // Auth
     const auth = new Auth(this, 'Auth', {
-      selfSignUpEnabled,
-      allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-      allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowedSignUpEmailDomains,
-      samlAuthEnabled,
+      selfSignUpEnabled: params.selfSignUpEnabled,
+      allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
+      allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      allowedSignUpEmailDomains: params.allowedSignUpEmailDomains,
+      samlAuthEnabled: params.samlAuthEnabled,
     });
+
+    // Database
     const database = new Database(this, 'Database');
 
+    // API
     const api = new Api(this, 'API', {
+      modelRegion: params.modelRegion,
+      modelIds: params.modelIds,
+      imageGenerationModelIds: params.imageGenerationModelIds,
+      endpointNames: params.endpointNames,
+      customAgents: params.agents,
+      queryDecompositionEnabled: params.queryDecompositionEnabled,
+      rerankingModelId: params.rerankingModelId,
+      crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
+
       userPool: auth.userPool,
       idPool: auth.idPool,
+      userPoolClient: auth.client,
       table: database.table,
+      knowledgeBaseId: props.knowledgeBaseId,
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
     });
 
+    // WAF
     if (
-      props.allowedIpV4AddressRanges ||
-      props.allowedIpV6AddressRanges ||
-      props.allowedCountryCodes
+      params.allowedIpV4AddressRanges ||
+      params.allowedIpV6AddressRanges ||
+      params.allowedCountryCodes
     ) {
       const regionalWaf = new CommonWebAcl(this, 'RegionalWaf', {
         scope: 'REGIONAL',
-        allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-        allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-        allowedCountryCodes: props.allowedCountryCodes,
+        allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
+        allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+        allowedCountryCodes: params.allowedCountryCodes,
       });
       new CfnWebACLAssociation(this, 'ApiWafAssociation', {
         resourceArn: api.api.deploymentStage.stageArn,
@@ -142,37 +102,49 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
     }
 
+    // Web Frontend
     const web = new Web(this, 'Api', {
-      apiEndpointUrl: api.api.url,
+      // Auth
       userPoolId: auth.userPool.userPoolId,
       userPoolClientId: auth.client.userPoolClientId,
       idPoolId: auth.idPool.identityPoolId,
+      selfSignUpEnabled: params.selfSignUpEnabled,
+      samlAuthEnabled: params.samlAuthEnabled,
+      samlCognitoDomainName: params.samlCognitoDomainName,
+      samlCognitoFederatedIdentityProviderName:
+        params.samlCognitoFederatedIdentityProviderName,
+      // Backend
+      apiEndpointUrl: api.api.url,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
-      ragEnabled,
-      ragKnowledgeBaseEnabled,
-      agentEnabled,
-      promptFlows,
-      promptFlowStreamFunctionArn: api.invokePromptFlowFunction.functionArn,
+      ragEnabled: params.ragEnabled,
+      ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
+      agentEnabled: params.agentEnabled,
+      flows: params.flows,
+      flowStreamFunctionArn: api.invokeFlowFunction.functionArn,
       optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
-      selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
       modelIds: api.modelIds,
       imageGenerationModelIds: api.imageGenerationModelIds,
       endpointNames: api.endpointNames,
-      samlAuthEnabled,
-      samlCognitoDomainName,
-      samlCognitoFederatedIdentityProviderName,
       agentNames: api.agentNames,
+      useCaseBuilderEnabled: params.useCaseBuilderEnabled,
+      // Custom Domain
       cert: props.cert,
-      hostName: props.hostName,
-      domainName: props.domainName,
-      hostedZoneId: props.hostedZoneId,
-      useCaseBuilderEnabled,
+      hostName: params.hostName,
+      domainName: params.domainName,
+      hostedZoneId: params.hostedZoneId,
     });
 
-    if (ragEnabled) {
+    // RAG
+    if (params.ragEnabled) {
       const rag = new Rag(this, 'Rag', {
+        envSuffix: params.env,
+        kendraIndexArnInCdkContext: params.kendraIndexArn,
+        kendraDataSourceBucketName: params.kendraDataSourceBucketName,
+        kendraIndexScheduleEnabled: params.kendraIndexScheduleEnabled,
+        kendraIndexScheduleCreateCron: params.kendraIndexScheduleCreateCron,
+        kendraIndexScheduleDeleteCron: params.kendraIndexScheduleDeleteCron,
         userPool: auth.userPool,
         api: api.api,
       });
@@ -185,38 +157,43 @@ export class GenerativeAiUseCasesStack extends Stack {
       }
     }
 
-    if (ragKnowledgeBaseEnabled) {
+    // RAG Knowledge Base
+    if (params.ragKnowledgeBaseEnabled && props.knowledgeBaseId) {
       new RagKnowledgeBase(this, 'RagKnowledgeBase', {
-        knowledgeBaseId: props.knowledgeBaseId!,
-        dataSourceBucketName: props.knowledgeBaseDataSourceBucketName!,
+        modelRegion: params.modelRegion,
+        knowledgeBaseId: props.knowledgeBaseId,
         userPool: auth.userPool,
         api: api.api,
       });
-
       // File API から data source の Bucket のファイルをダウンロードできるようにする
-      api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName!);
+      if (props.knowledgeBaseDataSourceBucketName) {
+        api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName);
+      }
     }
 
-    if (useCaseBuilderEnabled) {
+    // Usecase builder
+    if (params.useCaseBuilderEnabled) {
       new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
       });
     }
 
+    // Transcribe
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
       api: api.api,
     });
 
+    // Cfn Outputs
     new CfnOutput(this, 'Region', {
       value: this.region,
     });
 
-    if (props.hostName && props.domainName) {
+    if (params.hostName && params.domainName) {
       new CfnOutput(this, 'WebUrl', {
-        value: `https://${props.hostName}.${props.domainName}`,
+        value: `https://${params.hostName}.${params.domainName}`,
       });
     } else {
       new CfnOutput(this, 'WebUrl', {
@@ -244,28 +221,28 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: api.optimizePromptFunction.functionArn,
     });
 
-    new CfnOutput(this, 'InvokePromptFlowFunctionArn', {
-      value: api.invokePromptFlowFunction.functionArn,
+    new CfnOutput(this, 'InvokeFlowFunctionArn', {
+      value: api.invokeFlowFunction.functionArn,
     });
 
-    new CfnOutput(this, 'PromptFlows', {
-      value: Buffer.from(JSON.stringify(promptFlows)).toString('base64'),
+    new CfnOutput(this, 'Flows', {
+      value: Buffer.from(JSON.stringify(params.flows)).toString('base64'),
     });
 
     new CfnOutput(this, 'RagEnabled', {
-      value: ragEnabled.toString(),
+      value: params.ragEnabled.toString(),
     });
 
     new CfnOutput(this, 'RagKnowledgeBaseEnabled', {
-      value: ragKnowledgeBaseEnabled.toString(),
+      value: params.ragKnowledgeBaseEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentEnabled', {
-      value: agentEnabled.toString(),
+      value: params.agentEnabled.toString(),
     });
 
     new CfnOutput(this, 'SelfSignUpEnabled', {
-      value: selfSignUpEnabled.toString(),
+      value: params.selfSignUpEnabled.toString(),
     });
 
     new CfnOutput(this, 'ModelRegion', {
@@ -285,15 +262,15 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'SamlAuthEnabled', {
-      value: samlAuthEnabled.toString(),
+      value: params.samlAuthEnabled.toString(),
     });
 
     new CfnOutput(this, 'SamlCognitoDomainName', {
-      value: samlCognitoDomainName.toString(),
+      value: params.samlCognitoDomainName ?? '',
     });
 
     new CfnOutput(this, 'SamlCognitoFederatedIdentityProviderName', {
-      value: samlCognitoFederatedIdentityProviderName.toString(),
+      value: params.samlCognitoFederatedIdentityProviderName ?? '',
     });
 
     new CfnOutput(this, 'AgentNames', {
@@ -301,7 +278,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'UseCaseBuilderEnabled', {
-      value: useCaseBuilderEnabled.toString(),
+      value: params.useCaseBuilderEnabled.toString(),
     });
 
     this.userPool = auth.userPool;

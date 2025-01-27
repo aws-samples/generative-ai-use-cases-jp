@@ -7,7 +7,7 @@
 - ローカル PC に Node.js をインストールする
   - [こちら](https://nodejs.org/en/download) から、「LTS」と記載されているバージョンをダウンロードして、インストールしてください。
 - AWS 上の Cloud9 環境を利用する
-  - [こちらの手順](../docs/DEPLOY_ON_AWS.md#cloud9-環境の作成) を参考に、cloud9 環境を作成してください。
+  - [こちらの手順](./DEPLOY_ON_AWS.md#cloud9-環境の作成) を参考に、cloud9 環境を作成してください。
 
 ## ビルド
 

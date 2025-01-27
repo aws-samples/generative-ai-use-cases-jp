@@ -4,9 +4,9 @@ import { Construct } from 'constructs';
 
 export interface CommonWebAclProps {
   scope: 'REGIONAL' | 'CLOUDFRONT';
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
+  allowedIpV4AddressRanges?: string[] | null;
+  allowedIpV6AddressRanges?: string[] | null;
+  allowedCountryCodes?: string[] | null;
 }
 
 export class CommonWebAcl extends Construct {

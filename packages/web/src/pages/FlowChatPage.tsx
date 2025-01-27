@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
-import usePromptFlowChat from '../hooks/usePromptFlowChat';
+import useFlowChat from '../hooks/useFlowChat';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import ScrollTopBottom from '../components/ScrollTopBottom';
@@ -14,7 +14,7 @@ type StateType = {
   setContent: (c: string) => void;
 };
 
-const usePromptFlowChatPageState = create<StateType>((set) => {
+const useFlowChatPageState = create<StateType>((set) => {
   return {
     content: '',
     setContent: (s: string) => {
@@ -25,8 +25,8 @@ const usePromptFlowChatPageState = create<StateType>((set) => {
   };
 });
 
-const PromptFlowChatPage: React.FC = () => {
-  const { content, setContent } = usePromptFlowChatPageState();
+const FlowChatPage: React.FC = () => {
+  const { content, setContent } = useFlowChatPageState();
   const { chatId } = useParams();
 
   const {
@@ -38,7 +38,7 @@ const PromptFlowChatPage: React.FC = () => {
     sendMessage,
     setFlow,
     clear: clearChat,
-  } = usePromptFlowChat();
+  } = useFlowChat();
 
   const { scrollableContainer, setFollowing } = useFollow();
 
@@ -62,7 +62,7 @@ const PromptFlowChatPage: React.FC = () => {
   return (
     <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        Prompt Flow チャット
+        Flow チャット
       </div>
 
       <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
@@ -128,4 +128,4 @@ const PromptFlowChatPage: React.FC = () => {
   );
 };
 
-export default PromptFlowChatPage;
+export default FlowChatPage;

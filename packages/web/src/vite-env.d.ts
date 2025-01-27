@@ -10,8 +10,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_RAG_ENABLED: string;
   readonly VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED: string;
   readonly VITE_APP_AGENT_ENABLED: string;
-  readonly VITE_APP_PROMPT_FLOW_STREAM_FUNCTION_ARN: string;
-  readonly VITE_APP_PROMPT_FLOWS: string;
+  readonly VITE_APP_FLOW_STREAM_FUNCTION_ARN: string;
+  readonly VITE_APP_FLOWS: string;
   readonly VITE_APP_SELF_SIGN_UP_ENABLED: string;
   readonly VITE_APP_VERSION: string;
   readonly VITE_APP_MODEL_REGION: string;

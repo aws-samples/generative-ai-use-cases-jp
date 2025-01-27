@@ -1,0 +1,9 @@
+mkdocs
+mkdocs-material
+mkdocs-material[imaging]
+mkdocs-minify-plugin
+mkdocs-redirects
+mkdocs-rss-plugin
+mkdocs-github-admonitions-plugin
+pymdown-extensions
+mkdocs-include-markdown-plugin @ git+https://github.com/maekawataiki/mkdocs-include-markdown-plugin@feat/html-image

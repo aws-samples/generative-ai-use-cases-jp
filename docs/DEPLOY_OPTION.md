@@ -2,9 +2,64 @@
 
 ## 設定方法
 
-GenU は、AWS CDK の context で設定を変更します。
+GenU は、parameter.ts もしくは AWS CDK の context で設定を変更します。
 
-**CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
+**複数環境の設定を定義できるため、新規に構築する場合は parameter.ts での指定を推奨します。後方互換性のために context > parameter.ts の順でパラメータを取得するようになっています。**
+
+**Context を使う場合: CDK の context は '-c' でも指定できますが、その場合コードベースに変更が入らずフロントエンドのビルドが実施されないため、このアセットに関しては全ての設定は cdk.json の設定を変更することを推奨します。**
+
+### parameter.ts の値を変更する方法
+
+[packages/cdk/parameter.ts](/packages/cdk/parameter.ts) の値を変更することで設定します。
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    ragEnabled: false,
+    // 他のパラメータも必要に応じてカスタマイズ
+  },
+  staging: {
+    ragEnabled: false,
+    // 他のパラメータも必要に応じてカスタマイズ
+  },
+  prod: {
+    ragEnabled: true,
+    // 他のパラメータも必要に応じてカスタマイズ
+  },
+};
+```
+
+CDK の context の `env` で指定した環境が `parameter.ts` で定義されている場合は、`parameter.ts` の値が優先されます。指定した `env` の環境が `parameter.ts` で定義されていない場合は、context の値で環境が作成されます。
+
+[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `context` で `env` を指定、もしくは `-c` で `env` を切り替えることが可能です。
+
+```json
+// cdk.json
+{
+  "context": {
+    "env": "dev"
+  }
+}
+```
+
+```bash
+# cdk.json の context.env で指定された env でデプロイ
+npm run cdk:deploy
+
+# 環境を prod に設定してデプロイ
+npm run cdk:deploy -- -c env=prod
+```
+
+ローカルで開発する際は以下のように `env` を指定してください。
+
+```bash
+# cdk.json の context.env で指定された env のバックエンドを使用してローカルで開発
+npm run web:devw
+
+# dev2 環境のバックエンドを使用してローカルで開発
+npm run web:devw --env=dev2
+```
 
 ### cdk.json の値を変更する方法
 
@@ -18,10 +73,21 @@ npm run cdk:deploy
 
 ### RAG チャット (Amazon Kendra) ユースケースの有効化
 
-context の `ragEnabled` に `true` を指定します。(デフォルトは `false`)
+`ragEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    ragEnabled: true,
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "ragEnabled": true
@@ -45,10 +111,22 @@ Sync run history の Status / Summary に Completed が表示されれば完了�
 
 既存の Kendra Index を利用する場合も、上記のように `ragEnabled` は `true` である必要がある点に注意してください。
 
-context の `kendraIndexArn` に Index の ARN を指定します。もし、既存の Kendra Index で S3 データソースを利用している場合は、`kendraDataSourceBucketName` にバケット名を指定します。
+`kendraIndexArn` に Index の ARN を指定します。もし、既存の Kendra Index で S3 データソースを利用している場合は、`kendraDataSourceBucketName` にバケット名を指定します。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    kendraIndexArn: '<Kendra Index ARN>',
+    kendraDataSourceBucketName: '<Kendra S3 Data Source Bucket Name>',
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "kendraIndexArn": "<Kendra Index ARN>",
@@ -73,10 +151,25 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 
 ### RAG チャット (Knowledge Base) ユースケースの有効化
 
-context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+`ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseAdvancedParsing: false,
+    ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    embeddingModelId: 'amazon.titan-embed-text-v2:0',
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
@@ -84,6 +177,8 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "rerankingModelId": "amazon.rerank-v1:0",
+    "queryDecompositionEnabled": true,
   }
 }
 ```
@@ -101,9 +196,19 @@ context の `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォ
 "cohere.embed-english-v3"
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`cdk.json` の `modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
+`rerankingModelId` は reranking に利用するモデルです。現状、以下モデルをサポートしています。（デフォルトは `null`）
+
+```
+"amazon.rerank-v1:0"
+"cohere.rerank-v3-5:0"
+```
+
+`queryDecompositionEnabled` は query decomposition を有効化するかどうかです。（デフォルトは `false`）
+
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
 
 - `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
+- `modelRegion` リージョンの Bedrock で `rerankingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
 
 ```bash
@@ -132,8 +237,23 @@ Status が Available になれば完了です。S3 に保存されているフ�
     - `anthropic.claude-3-sonnet-20240229-v1:0`
     - `anthropic.claude-3-haiku-20240307-v1:0`
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseAdvancedParsing: true,
+    ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    embeddingModelId: 'amazon.titan-embed-text-v2:0',
+  },
+};
 ```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
@@ -153,6 +273,7 @@ Status が Available になれば完了です。S3 に保存されているフ�
 例えば、セマンティックチャンクに変更する場合は、コメントアウトをはずして以下のように指定します。
 
 ```typescript
+// packages/cdk/lib/rag-knowledge-base-stack.ts
 // セマンティックチャンク
 chunkingConfiguration: {
   chunkingStrategy: 'SEMANTIC',
@@ -170,7 +291,7 @@ chunkingConfiguration: {
 
 #### Knowledge Base や OpenSearch Service を再作成して変更を加える
 
-[Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下の `cdk.json` パラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
+[Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下のパラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
@@ -179,11 +300,11 @@ chunkingConfiguration: {
 
 変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
 
-1. `cdk.json` で `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
+1. `ragKnowledgeBaseEnabled` を false にしてデプロイを行う
 1. [CloudFormation](https://console.aws.amazon.com/cloudformation/home) (リージョンに注意) を開き、RagKnowledgeBaseStack クリック
 1. 右上の Delete をクリックして を開き、RagKnowledgeBaseStack を削除  
  **S3 バケットや RAG 用のファイルも含めて削除され、一時的に RAG チャットが利用不可になります**
-1. `cdk.json` やチャンク戦略に変更を加える
+1. パラメータやチャンク戦略に変更を加える
 1. RagKnowledgeBaseStack の削除完了後、再度 `npm run cdk:deploy` でデプロイ
 
 RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
@@ -204,6 +325,16 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 
 保存後、少し時間をおいて再度アクセスしてください。
 
+#### メタデータフィルターの設定
+
+フィルターの設定は [packages/common/src/custom/rag-knowledge-base.ts](/packages/common/src/custom/rag-knowledge-base.ts) で行えます。必要に応じてカスタマイズしてご利用ください。
+
+- `dynamicFilters` : 動的にアプリケーション側でフィルタを作成して適用します。（例: ユーザーの部署などの属性に応じてフィルタを作成して適用する）現状 Claude Sonnet ３.5 のみ対応しています。（クォータによりスロットリングが発生することがあります）Cognito Group や SAML IdP の Group を Attribute にマッピングして利用することも可能です。（詳細は [Microsoft Entra ID と SAML 連携](./SAML_WITH_ENTRA_ID.md) を参照）
+- `implicitFilters` : 指定されている場合は LLM がユーザーの質問に応じて指定されたメタデータに対してフィルタを作成して適用します。 (例: ユーザーの質問に含まれる年をフィルターに指定して、その年のデータのみを検索する) 空配列の場合はフィルタは適用されません。
+- `hiddenStaticExplicitFilters` : アプリケーションレベルで適用したいフィルタを適用します。（例: データの分類が秘密のデータは除外する）
+- `userDefinedExplicitFilters` : アプリケーションの UI にて表示されるフィルターを定義します。
+
+
 ### Agent チャットユースケースの有効化
 
 Agent チャットユースケースでは、以下のご利用が可能です。
@@ -211,20 +342,32 @@ Agent チャットユースケースでは、以下のご利用が可能です�
 - Agents for Amazon Bedrock を利用したアクションを実行させたり
 - Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
+Agent は `modelRegion` で指定したリージョンに生成されます。
+
 #### Code Interpreter エージェントのデプロイ
 
 Code Interpreter を利用したデータの可視化、コード実行、データ分析などが実行できます。
 
 Code Interpreter エージェントは Agent を有効化するとデプロイされます。
 
-context の `agentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定します。
+`agentEnabled` に `true` を指定します。(デフォルトは `false`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentEnabled: true,
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
   }
 }
 ```
@@ -238,14 +381,26 @@ API と連携し最新情報を参照して回答する Agent を作成します
 > [!NOTE]
 > Agent チャットユースケースを有効化すると Agent チャットユースケースでのみ外部 API にデータを送信します。（デフォルトでは Brave Search API）他のユースケースは引き続き AWS 内のみに閉じて利用することが可能です。社内ポリシー、API の利用規約などを確認してから有効化してください。
 
-context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デフォルトは `false`)、`agentRegion` は [Agent for Bedrock が利用できるリージョン](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-supported.html) から指定し、`searchApiKey` に検索エンジンの API キーを指定します。
+`agentEnabled` と `searchAgentEnabled` に `true` を指定し(デフォルトは `false`)、`searchApiKey` に検索エンジンの API キーを指定します。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentEnabled: true,
+    searchAgentEnabled: true,
+    searchApiKey: '<検索エンジンの API キー>',
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
     "searchAgentEnabled": true,
     "searchApiKey": "<検索エンジンの API キー>",
   }
@@ -256,8 +411,25 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 
 デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agents: [
+      {
+        displayName: 'SearchEngine',
+        agentId: 'XXXXXXXXX',
+        aliasId: 'YYYYYYYY',
+      },
+    ],
+  },
+};
 ```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
 {
   "context": {
     "agents": [
@@ -274,13 +446,13 @@ context の `agentEnabled` と `searchAgentEnabled` に `true` を指定し(デ�
 また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
 
 > [!NOTE]
-> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、agentRegion の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
 #### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
 Knowledge Bases for Amazon Bedrock と連携したエージェントを手動で作成し登録することも可能です。
 
-まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。リージョンは後述する `agentRegion` と同じリージョンに作成してください。
+まず、[ナレッジベースの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/knowledge-bases) から[Knowledge Bases for Amazon Bedrock のドキュメント](https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/knowledge-base-create.html)を参考にナレッジベースを作成します。`modelRegion` と同じリージョンに作成してください。
 
 続いて、 [エージェントの AWS コンソール画面](https://console.aws.amazon.com/bedrock/home?#/agents) から手動で Agent を作成します。設定は基本的にデフォルトのままで、Agent のプロンプトは以下の例を参考にプロンプトを入力します。アクショングループは必要ないため設定せずに進み、ナレッジベースでは前のステップで作成したナレッジベースを登録し、プロンプトは以下の例を参考に入力します。
 
@@ -289,14 +461,31 @@ Agent プロンプト例: あなたは指示に応えるアシスタントです
 Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で context 追加します。`displayName` は UI に表示したい名称を設定してください。また、context の `agentEnabled` を True にし、`agentRegion` は Agent を作成したリージョンを指定します。`npm run cdk:deploy` で再度デプロイして反映させます。
+作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を True にします。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentEnabled: true,
+    agents: [
+      {
+        displayName: 'Knowledge Base',
+        agentId: 'XXXXXXXXX',
+        aliasId: 'YYYYYYYY',
+      },
+    ],
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "agentEnabled": true,
-    "agentRegion": "us-west-2",
     "agents": [
       {
         "displayName": "Knowledge Base",
@@ -308,19 +497,37 @@ Knowledge Base プロンプト例: キーワードで検索し情報を取得し
 }
 ```
 
-### PromptFlow チャットユースケースの有効化
+### Flow チャットユースケースの有効化
 
-PromptFlow チャットユースケースでは、作成済みの Prompt Flow を呼び出すことができます。
+Flow チャットユースケースでは、作成済みの Flow を呼び出すことができます。
 
-プロジェクトのルートディレクトリにある `cdk.json` ファイルを開き、`context` セクション内に `promptFlows` 配列を追加または編集します。
+`flows` 配列を追加または編集します。
 
-[Prompt Flows の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home#/prompt-flows) から手動で Prompt Flows を作成します。その後、Alias を作成し、作成済みの Prompt Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Prompt Flow チャットのテキストボックスに記載されます。以下はその例です。
+[Amazon Bedrock Flows の AWS コンソール画面](https://console.aws.amazon.com/bedrock/home#/flows) から手動で Flows を作成します。その後、Alias を作成し、作成済みの Flow の `flowId` と `aliasId`, `flowName` を追加します。`description` にはユーザーの入力を促すための説明文章を記載します。この説明文章は Flow チャットのテキストボックスに記載されます。以下はその例です。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    flows: [
+      {
+        flowId: 'XXXXXXXXXX',
+        aliasId: 'YYYYYYYYYY',
+        flowName: 'WhatIsItFlow',
+        description: '任意のキーワードをウェブ検索して、説明を返すフローです。文字を入力してください',
+      },
+    ],
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
 {
   "context": {
-    "promptFlows": [
+    "flows": [
       {
         "flowId": "XXXXXXXXXX",
         "aliasId": "YYYYYYYYYY",
@@ -349,7 +556,7 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 ### 映像分析ユースケースの有効化
 
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
-映像分析ユースケースを直接有効化するオプションはありませんが、`cdk.json` でマルチモーダルのモデルが有効化されている必要があります。
+映像分析ユースケースを直接有効化するオプションはありませんが、パラメータでマルチモーダルのモデルが有効化されている必要があります。
 
 2024/06 現在、マルチモーダルのモデルは以下です。
 
@@ -375,37 +582,37 @@ PromptFlow チャットユースケースでは、作成済みの Prompt Flow �
 "amazon.nova-lite-v1:0"
 ```
 
-これらのいずれかが `cdk.json` の `modelIds` に定義されている必要があります。
-詳細は[Amazon Bedrock のモデルを変更する](#Amazon-Bedrock-のモデルを変更する)を参照してください。
+これらのいずれかが `modelIds` に定義されている必要があります。
+詳細は[Amazon Bedrock のモデルを変更する](#amazon-bedrock-のモデルを変更する)を参照してください。
 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelIds: [
+      'anthropic.claude-3-sonnet-20240229-v1:0',
+    ]
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
-  "modelIds": [
-    "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "anthropic.claude-3-opus-20240229-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0",
-    "anthropic.claude-3-haiku-20240307-v1:0",
-    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "us.anthropic.claude-3-opus-20240229-v1:0",
-    "us.anthropic.claude-3-sonnet-20240229-v1:0",
-    "us.anthropic.claude-3-haiku-20240307-v1:0",
-    "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "eu.anthropic.claude-3-sonnet-20240229-v1:0",
-    "eu.anthropic.claude-3-haiku-20240307-v1:0",
-    "apac.anthropic.claude-3-haiku-20240307-v1:0",
-    "apac.anthropic.claude-3-sonnet-20240229-v1:0",
-    "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "us.meta.llama3-2-90b-instruct-v1:0",
-    "us.meta.llama3-2-11b-instruct-v1:0",
-    "amazon.nova-pro-v1:0",
-    "amazon.nova-lite-v1:0",
-  ]
+// cdk.json
+{
+  "context": {
+    "modelIds": [
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+    ]
+  }
+}
 ```
 
 ### プロンプト最適化ツールの有効化
 
 プロンプト最適化ツールは入力したプロンプトを指定したモデルに最適な形に変換します。
-プロンプト最適化ツールを直接有効化するオプションはありませんが、`cdk.json` の設定が以下の 2 点を満たす必要があります。
+プロンプト最適化ツールを直接有効化するオプションはありませんが、パラメータの設定が以下の 2 点を満たす必要があります。
 - `modelRegion`: Amazon Bedrock の Prompt optimization がサポートされているリージョンであること
 - `modelIds`: Amazon Bedrock の Prompt optimization がサポートされているモデルが 1 つ以上指定されていること
 
@@ -413,10 +620,21 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 
 ## ユースケースビルダーの設定
 
-ユースケースビルダーはデフォルトで有効化されており、デプロイ後画面上に表示される「ビルダーモード」という項目から利用できます。ユースケースビルダーを無効化する場合は、context の `useCaseBuilderEnabled` に `false` を指定します。(デフォルトは `true`)
+ユースケースビルダーはデフォルトで有効化されており、デプロイ後画面上に表示される「ビルダーモード」という項目から利用できます。ユースケースビルダーを無効化する場合は、パラメータの `useCaseBuilderEnabled` に `false` を指定します。(デフォルトは `true`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    useCaseBuilderEnabled: false,
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "useCaseBuilderEnabled": false
@@ -426,9 +644,9 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 
 ## Amazon Bedrock のモデルを変更する
 
-`cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
+`parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、`cdk.json` で設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
 
 (例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
@@ -498,101 +716,244 @@ Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon
 
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
-```bash
-  "modelRegion": "us-east-1",
-  "modelIds": [
-    "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0",
-    "anthropic.claude-3-haiku-20240307-v1:0",
-    "amazon.nova-pro-v1:0",
-    "amazon.nova-lite-v1:0",
-    "amazon.nova-micro-v1:0",
-    "amazon.titan-text-premier-v1:0",
-    "meta.llama3-70b-instruct-v1:0",
-    "meta.llama3-8b-instruct-v1:0",
-    "cohere.command-r-plus-v1:0",
-    "cohere.command-r-v1:0",
-    "mistral.mistral-large-2402-v1:0"
-  ],
-  "imageGenerationModelIds": [
-    "amazon.titan-image-generator-v2:0",
-    "amazon.titan-image-generator-v1",
-    "amazon.nova-canvas-v1:0",
-    "stability.stable-diffusion-xl-v1"
-  ],
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    modelIds: [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "amazon.nova-pro-v1:0",
+      "amazon.nova-lite-v1:0",
+      "amazon.nova-micro-v1:0",
+      "amazon.titan-text-premier-v1:0",
+      "meta.llama3-70b-instruct-v1:0",
+      "meta.llama3-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2402-v1:0"
+    ],
+    imageGenerationModelIds: [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "amazon.nova-canvas-v1:0",
+      "stability.stable-diffusion-xl-v1"
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-east-1",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "amazon.nova-pro-v1:0",
+      "amazon.nova-lite-v1:0",
+      "amazon.nova-micro-v1:0",
+      "amazon.titan-text-premier-v1:0",
+      "meta.llama3-70b-instruct-v1:0",
+      "meta.llama3-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2402-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "amazon.nova-canvas-v1:0",
+      "stability.stable-diffusion-xl-v1"
+    ],
+  }
+}
 ```
 
 ### us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例
 
-```bash
-  "modelRegion": "us-west-2",
-  "modelIds": [
-    "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    "anthropic.claude-3-5-haiku-20241022-v1:0",
-    "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "anthropic.claude-3-opus-20240229-v1:0",
-    "anthropic.claude-3-sonnet-20240229-v1:0",
-    "anthropic.claude-3-haiku-20240307-v1:0",
-    "meta.llama3-1-70b-instruct-v1:0",
-    "meta.llama3-1-8b-instruct-v1:0",
-    "cohere.command-r-plus-v1:0",
-    "cohere.command-r-v1:0",
-    "mistral.mistral-large-2407-v1:0"
-  ],
-  "imageGenerationModelIds": [
-    "amazon.titan-image-generator-v2:0",
-    "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1",
-    "stability.sd3-large-v1:0",
-    "stability.stable-image-core-v1:0",
-    "stability.stable-image-ultra-v1:0",
-    "stability.sd3-5-large-v1:0"
-  ],
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    modelIds: [
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-haiku-20241022-v1:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "meta.llama3-1-70b-instruct-v1:0",
+      "meta.llama3-1-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0"
+    ],
+    imageGenerationModelIds: [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.stable-diffusion-xl-v1",
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0",
+      "stability.sd3-5-large-v1:0"
+    ],
+  },
+};
 ```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-haiku-20241022-v1:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-opus-20240229-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "meta.llama3-1-70b-instruct-v1:0",
+      "meta.llama3-1-8b-instruct-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.stable-diffusion-xl-v1",
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0",
+      "stability.sd3-5-large-v1:0"
+    ],
+  }
+}
+```
+
 ### cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合
-```bash
-  "modelRegion": "us-west-2",
-  "modelIds": [
-    "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
-    "us.anthropic.claude-3-5-haiku-20241022-v1:0",
-    "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "us.anthropic.claude-3-opus-20240229-v1:0",
-    "us.anthropic.claude-3-sonnet-20240229-v1:0",
-    "us.anthropic.claude-3-haiku-20240307-v1:0",
-    "us.meta.llama3-2-90b-instruct-v1:0",
-    "us.meta.llama3-2-11b-instruct-v1:0",
-    "us.meta.llama3-2-3b-instruct-v1:0",
-    "us.meta.llama3-2-1b-instruct-v1:0",
-    "us.amazon.nova-pro-v1:0",
-    "us.amazon.nova-lite-v1:0",
-    "us.amazon.nova-micro-v1:0",
-    "cohere.command-r-plus-v1:0",
-    "cohere.command-r-v1:0",
-    "mistral.mistral-large-2407-v1:0",
-    "us.amazon.nova-pro-v1:0",
-    "us.amazon.nova-lite-v1:0",
-    "us.amazon.nova-micro-v1:0"
-  ],
-  "imageGenerationModelIds": [
-    "amazon.titan-image-generator-v2:0",
-    "amazon.titan-image-generator-v1",
-    "stability.stable-diffusion-xl-v1",
-    "stability.sd3-large-v1:0",
-    "stability.stable-image-core-v1:0",
-    "stability.stable-image-ultra-v1:0",
-    "stability.sd3-5-large-v1:0"
-  ],
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    modelIds: [
+      "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "us.anthropic.claude-3-opus-20240229-v1:0",
+      "us.anthropic.claude-3-sonnet-20240229-v1:0",
+      "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.meta.llama3-2-90b-instruct-v1:0",
+      "us.meta.llama3-2-11b-instruct-v1:0",
+      "us.meta.llama3-2-3b-instruct-v1:0",
+      "us.meta.llama3-2-1b-instruct-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0"
+    ],
+    imageGenerationModelIds: [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.stable-diffusion-xl-v1",
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0",
+      "stability.sd3-5-large-v1:0"
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "modelIds": [
+      "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+      "us.anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "us.anthropic.claude-3-opus-20240229-v1:0",
+      "us.anthropic.claude-3-sonnet-20240229-v1:0",
+      "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.meta.llama3-2-90b-instruct-v1:0",
+      "us.meta.llama3-2-11b-instruct-v1:0",
+      "us.meta.llama3-2-3b-instruct-v1:0",
+      "us.meta.llama3-2-1b-instruct-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0",
+      "cohere.command-r-plus-v1:0",
+      "cohere.command-r-v1:0",
+      "mistral.mistral-large-2407-v1:0",
+      "us.amazon.nova-pro-v1:0",
+      "us.amazon.nova-lite-v1:0",
+      "us.amazon.nova-micro-v1:0"
+    ],
+    "imageGenerationModelIds": [
+      "amazon.titan-image-generator-v2:0",
+      "amazon.titan-image-generator-v1",
+      "stability.stable-diffusion-xl-v1",
+      "stability.sd3-large-v1:0",
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-ultra-v1:0",
+      "stability.sd3-5-large-v1:0"
+    ],
+  }
+}
 ```
 
 ### ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例
 
-```bash
-  "modelRegion": "ap-northeast-1",
-  "modelIds": [
-    "anthropic.claude-3-5-sonnet-20240620-v1:0",
-    "anthropic.claude-3-haiku-20240307-v1:0"
-  ],
-  "imageGenerationModelIds": [],
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, StackInput> = {
+  dev: {
+    modelRegion: 'ap-northeast-1',
+    modelIds: [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0"
+    ],
+    imageGenerationModelIds: [],
+  }
+}
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "ap-northeast-1",
+    "modelIds": [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-haiku-20240307-v1:0"
+    ],
+    "imageGenerationModelIds": [],
+  }
+}
 ```
 
 **注：UI 上は表示されますが、Stable Diffusion および Titan Image が未対応なため、画像生成は現状 ap-northeast-1 では利用できません。**
@@ -629,39 +990,75 @@ SageMaker JumpStart では OSS の大規模言語モデルをワンクリック�
 
 ### デプロイしたモデルを GenU から呼び出す設定
 
-デプロイした SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように `cdk.json` で指定することができます。
+デプロイした SageMaker エンドポイントをターゲットのソリューションをデプロイする際は、以下のように指定することができます。
 
 endpointNames は SageMaker エンドポイント名のリストです。（例：`["elyza-llama-2", "rinna"]`）
 
 バックエンドでプロンプトを構築する際のプロンプトテンプレートを指定するために便宜上エンドポイント名の中にプロンプトの種類を含める必要があります。（例：`llama-2`、`rinna` など）詳しくは `packages/cdk/lambda/utils/models.ts` を参照してください。必要に応じてプロンプトテンプレートを追加してご利用ください。
 
-```bash
-  "modelRegion": "<SageMaker Endpoint Region>",
-  "endpointNames": ["<SageMaker Endpoint Name>"],
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'us-east-1',
+    endpointNames: ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
+  },
+};
+```
+
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "<SageMaker Endpoint Region>",
+    "endpointNames": ["<SageMaker Endpoint Name>"],
+  }
+}
 ```
 
 **Rinna 3.6B と Bilingual Rinna 4B を利用する例**
 
-```bash
-  "modelRegion": "us-west-2",
-  "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
+  }
+}
 ```
 
 **ELYZA-japanese-Llama-2-7b-instruct を利用する例**
 
-```bash
-  "modelRegion": "us-west-2",
-  "endpointNames": ["elyza-japanese-llama-2-7b-inference"],
+```json
+// cdk.json
+{
+  "context": {
+    "modelRegion": "us-west-2",
+    "endpointNames": ["elyza-japanese-llama-2-7b-inference"],
+  }
+}
 ```
 
 ## セキュリティ関連設定
 
 ### セルフサインアップを無効化する
 
-context の `selfSignUpEnabled` に `false` を指定します。(デフォルトは `true`)
+`selfSignUpEnabled` に `false` を指定します。(デフォルトは `true`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    selfSignUpEnabled: false,
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "selfSignUpEnabled": false,
@@ -670,7 +1067,7 @@ context の `selfSignUpEnabled` に `false` を指定します。(デフォル�
 ```
 
 ### サインアップできるメールアドレスのドメインを制限する
-context の allowedSignUpEmailDomains に 許可するドメインのリストを指定します（デフォルトは`null`）。
+`allowedSignUpEmailDomains` に 許可するドメインのリストを指定します（デフォルトは`null`）。
 
 値はstringのlist形式で指定し、各stringには"@"を含めないでください。メールアドレスのドメインが、許可ドメインのいずれか同じであればサインアップできます。`null` を指定すると何も制限されず、すべてのドメインを許可します。`[]` を指定するとすべて禁止し、どのドメインのメールアドレスでも登録できません。
 
@@ -678,14 +1075,23 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 既にCognitoに作成されているユーザには影響ありません。新規にサインアップ・作成しようとしているユーザのみに適用されます。
 
-
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-
 設定例
 
 - `amazon.com` のドメインのメールアドレスであればサインアップできるように設定する例
 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedSignUpEmailDomains: ["amazon.com"],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
 {
   "context": {
     "allowedSignUpEmailDomains": ["amazon.com"], // null から、許可ドメインを指定することで有効化
@@ -695,7 +1101,19 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 - `amazon.com` か `amazon.jp` のどちらかのドメインのメールアドレスであればサインアップできるように設定する例
 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedSignUpEmailDomains: ["amazon.com", "amazon.jp"],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
 {
   "context": {
     "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // null から、許可ドメインを指定することで有効化
@@ -707,25 +1125,56 @@ context の allowedSignUpEmailDomains に 許可するドメインのリスト�
 
 #### IP アドレスによる制限
 
-Web アプリへのアクセスを IP アドレスで制限したい場合、AWS WAF による IP アドレス制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
+Web アプリへのアクセスを IP アドレスで制限したい場合、AWS WAF による IP アドレス制限を有効化することができます。 `allowedIpV4AddressRanges` では許可する IPv4 の CIDR を配列で指定することができ、`allowedIpV6AddressRanges` では許可する IPv6 の CIDR を配列で指定することができます。
 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedIpV4AddressRanges: ["192.168.0.0/24"],
+    allowedIpV6AddressRanges: ["2001:0db8::/32"],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
+{
   "context": {
     "allowedIpV4AddressRanges": ["192.168.0.0/24"], // null から、許可 CIDR リストを指定することで有効化
     "allowedIpV6AddressRanges": ["2001:0db8::/32"], // null から、許可 CIDR リストを指定することで有効化
+  }
+}
 ```
 
 
 #### 地理的制限
 
-Web アプリへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。[packages/cdk/cdk.json](/packages/cdk/cdk.json) の `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
+Web アプリへのアクセスをアクセス元の国で制限したい場合、AWS WAF による地理的制限を有効化することができます。 `allowedCountryCodes` で許可する国を Country Code の配列で指定することができます。
 指定する国の Country Code は[ISO 3166-2 from wikipedia](https://en.wikipedia.org/wiki/ISO_3166-2)をご参照ください。
 
 「IP アドレスによる制限」も同時に設定している場合は、「送信元の IP アドレスが許可された IP アドレスに含まれている**かつ**、許可された国からのアクセス」のみ許可されます。
 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedCountryCodes: ["JP"],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
+{
   "context": {
     "allowedCountryCodes": ["JP"], // null から、許可国リストを指定することで有効化
+  }
+}
 ```
 
 `allowedIpV4AddressRanges` あるいは `allowedIpV6AddressRanges` あるいは `allowedCountryCodes` のいずれかを指定して再度 `npm run cdk:deploy` を実行すると、WAF 用のスタックが us-east-1 にデプロイされます（AWS WAF V2 は CloudFront に使用する場合、us-east-1 のみしか現状対応していません）。us-east-1 で CDK を利用したことがない場合は、以下のコマンドを実行して、デプロイ前に Bootstrap を行ってください。
@@ -740,13 +1189,30 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 - [Google Workspace と SAML 連携](SAML_WITH_GOOGLE_WORKSPACE.md)
 - [Microsoft Entra ID と SAML 連携](SAML_WITH_ENTRA_ID.md)
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-
-```json
-  "samlAuthEnabled": true,
-  "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
-  "samlCognitoFederatedIdentityProviderName": "EntraID",
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    samlAuthEnabled: true,
+    samlCognitoDomainName: "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
+    samlCognitoFederatedIdentityProviderName: "EntraID",
+  },
+};
 ```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "samlAuthEnabled": true,
+    "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
+    "samlCognitoFederatedIdentityProviderName": "EntraID",
+  }
+}
+```
+
 - samlAuthEnabled : `true` にすることで、SAML 専用の認証画面に切り替わります。Cognito user pools を利用した従来の認証機能は利用できなくなります。
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
@@ -754,12 +1220,28 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 
 ### ガードレール
 
-Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `packages/cdk/cdk.json` の `guardrailEnabled` キーを `true` に変更、デプロイしなおします。
+Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `guardrailEnabled` を `true` に変更しデプロイしなおします。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    guardrailEnabled: true,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
+{
   "context": {
     "guardrailEnabled" : true,
   }
+}
 ```
+
 デフォルトで適用されるガードレールは機微情報フィルターで日本語での会話の中で効果があったものを適用しています。他にも単語フィルターのカスタム、機微情報フィルターの正規表現は機能することを確認しており、必要に応じて、`packages/cdk/lib/construct/guardrail.ts` を修正してください。詳細は[Guardrails for Amazon Bedrock](https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html)と[CfnGuardrail](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnGuardrail.html)をご参照ください。
 
 > [!NOTE]
@@ -769,9 +1251,9 @@ Converse API を使う(=テキスト出力を行う生成 AI モデル)場合は
 
 ### Kendraのインデックスを自動で作成・削除するスケジュールを設定する
 
-GenerativeAiUseCasesDashboardStackで作成するKendraのインデックスを、決められたスケジュールで自動で作成・削除するための設定を行います。これによって、Kendraのインデックスを稼働時間に対して発生する利用料を抑えることができます。Kendraインデックスを作成した後は、本リポジトリでデフォルトで作成されるS3データソースに対して、同期を自動で実行します。
+GenerativeAiUseCasesDashboardStack で作成する Kendra のインデックスを、決められたスケジュールで自動で作成・削除するための設定を行います。これによって、Kendraのインデックスを稼働時間に対して発生する利用料を抑えることができます。Kendraインデックスを作成した後は、本リポジトリでデフォルトで作成されるS3データソースに対して、同期を自動で実行します。
 
-この機能は、「contextの `ragEnabled` が `true` 」かつ「contextの `kendraIndexArn` が `null` 」の場合にのみ有効で、それ以外の場合は機能しません。（つまり、外部で作成したKendraのインデックスに対しては機能しません）
+この機能は、「`ragEnabled` が `true` 」かつ「`kendraIndexArn` が `null` 」の場合にのみ有効で、それ以外の場合は機能しません。（つまり、外部で作成したKendraのインデックスに対しては機能しません）
 
 以下の例のように設定してください。
 * `kendraIndexScheduleEnabled`を`true`に設定することで、スケジュール設定を有効になり、`false`にした場合、その状態でデプロイした以降は、スケジュール設定が無効になります。
@@ -781,9 +1263,21 @@ GenerativeAiUseCasesDashboardStackで作成するKendraのインデックスを�
 
 下記の例は、日本時間の月～金08:00にインデックスの作成を開始し、日本時間の月～金の20:00にインデックスの削除を開始する場合の設定です。
 
- **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集** 
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    kendraIndexScheduleEnabled: true,
+    kendraIndexScheduleCreateCron: { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
+    kendraIndexScheduleDeleteCron: { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
+  },
+};
+```
 
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集** 
 ```json
+// cdk.json
 {
   "context": {
     "kendraIndexScheduleEnabled": true,
@@ -800,7 +1294,7 @@ Kendraのインデックスが削除されても、RAG機能はオンのまま�
 > [!NOTE]
 > - インデックス再作成後、追加されるデータソースは、デフォルトで作成されるS3データソースのみです。
 >   - インデックス作成後に他のデータソースを追加していた場合、インデックス削除時にデータソースも削除され、インデックスを再作成してもそれらのデータソースは作成されず、再度追加する必要があります。
->   - 本リポジトリのCDK内でデータソースを追加した場合、データソースの作成はされますが、同期はされません。CDKで追加したデータソースの同期を行うためには、手動でデータソースの同期を行うか、Step Functionsのステートマシンのターゲットとして追加するように[コード](../packages/cdk/lib/construct/rag.ts)を修正する必要があります。
+>   - 本リポジトリのCDK内でデータソースを追加した場合、データソースの作成はされますが、同期はされません。CDKで追加したデータソースの同期を行うためには、手動でデータソースの同期を行うか、Step Functionsのステートマシンのターゲットとして追加するように[コード](/packages/cdk/lib/construct/rag.ts)を修正する必要があります。
 > - Kendraのインデックス作成を開始してから、利用可能な状態になるまでには時間がかかります。具体的には、インデックスの作成と、データソースの同期に時間がかかります。そのため、 **RAGチャットの利用を開始したい時刻が決まっている場合、設定する起動時刻はそれよりも前に設定してください** 。リソースの空き状況・データソースの種類・データソース内のドキュメントのサイズ・数によって変動しますので、厳密な稼働時間を設定したい場合は、実際の所要時間を確認して設定するようにしてください。
 >   - おおよその目安として、インデックスの作成には30分程度、S3データソースに数百件のテキストファイルを配置した場合、データソースの同期には10分程度かかります（あくまで目安です）。（この値に合わせるなら、40分前に設定する、ということになります。）
 >   - 特に外部サービスをデータソースとして利用する場合は、所要時間が大きく変動することが予想されるため、注意してください。また、APIのコール制限などにも注意してください。
@@ -817,10 +1311,21 @@ Kendraのインデックスが削除されても、RAG機能はオンのまま�
 Amazon CloudWatch のダッシュボードは、[マネージメントコンソール](https://console.aws.amazon.com/cloudwatch/home#dashboards)から閲覧できます。
 ダッシュボードを閲覧するには、マネージメントコンソールにログイン可能かつダッシュボードが閲覧可能な権限を持った IAM ユーザーの作成が必要です。
 
-context の `dashboard` に `true` を設定します。(デフォルトは `false`)
+`dashboard` に `true` を設定します。(デフォルトは `false`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    dashboard: true,
+  },
+};
+```
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
-```
+```json
+// cdk.json
 {
   "context": {
     "dashboard": true
@@ -828,9 +1333,9 @@ context の `dashboard` に `true` を設定します。(デフォルトは `fal
 }
 ```
 
-変更後に `npm run cdk:deploy` で再度デプロイして反映させます。context の `modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
+変更後に `npm run cdk:deploy` で再度デプロイして反映させます。`modelRegion` に指定されたリージョンに `GenerativeAiUseCasesDashboardStack` という名前の Stack がデプロイされます。出力された値はこの後の手順で利用します。
 
-続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。Select the logging destinations には CloudWatch Logs only を選択してください。(S3 にも出力したい場合、Both S3 and CloudWatch Logs を選択しても構いません。) また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。なお、Model invocation logging の設定は、context で `modelRegion` として指定しているリージョンで行うことに留意してください。
+続いて、Amazon Bedrock のログの出力を設定します。[Amazon Bedrock の Settings](https://console.aws.amazon.com/bedrock/home#settings) を開き、Model invocation logging を有効化します。Select the logging destinations には CloudWatch Logs only を選択してください。(S3 にも出力したい場合、Both S3 and CloudWatch Logs を選択しても構いません。) また、Log group name には `npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.BedrockLogGroup` を指定してください。(例: `GenerativeAiUseCasesDashboardStack-LogGroupAAAAAAAA-BBBBBBBBBBBB`) Service role は任意の名前で新規に作成してください。なお、Model invocation logging の設定は、 `modelRegion` として指定しているリージョンで行うことに留意してください。
 
 設定完了後、`npm run cdk:deploy` 時に出力された `GenerativeAiUseCasesDashboardStack.DashboardUrl` を開いてください。
 
@@ -843,15 +1348,27 @@ Web サイトの URL としてカスタムドメインを使用することが�
 
 同一 AWS アカウントにパブリックホストゾーンを持っていない場合は、AWS ACM による SSL 証明書の検証時に手動で DNS レコードを追加する方法や、Eメール検証を行う方法もあります。これらの方法を利用する場合は、CDK のドキュメントを参照してカスタマイズしてください: [aws-cdk-lib.aws_certificatemanager module · AWS CDK](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_certificatemanager-readme.html)
 
-cdk.json には以下の値を設定します。
+以下の値を設定します。
 
 - `hostName` ... Web サイトのホスト名です。A レコードは CDK によって作成されます。事前に作成する必要はありません
 - `domainName` ... 事前に作成したパブリックホストゾーンのドメイン名です
 - `hostedZoneId` ... 事前に作成したパブリックホストゾーンのIDです
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    hostName: 'genai',
+    domainName: 'example.com',
+    hostedZoneId: 'XXXXXXXXXXXXXXXXXXXX',
+  },
+};
+```
 
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
 {
   "context": {
     "hostName": "genai",
@@ -864,7 +1381,7 @@ cdk.json には以下の値を設定します。
 ## 別 AWS アカウントの Bedrock を利用したい場合
 
 > [!NOTE]
-> Agent 系のタスク (Agent, Prompt Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
+> Agent 系のタスク (Agent, Flow, プロンプト最適化ツール) に関しては別 AWS アカウントの利用をサポートしていないため、実行時にエラーになる可能性があります。
 
 別 AWS アカウントの Bedrock を利用することができます。前提条件として、GenU の初回デプロイは完了済みとします。
 
@@ -900,26 +1417,26 @@ Principal 設定例 (別アカウントにて設定)
 }
 ```
 
-cdk.json には以下の値を設定します。
+パラメータには以下の値を設定します。
 
 - `crossAccountBedrockRoleArn` ... 別アカウントで事前に作成した IAM ロールの ARN です
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    crossAccountBedrockRoleArn: 'arn:aws:iam::アカウントID:role/事前に作成したロール名',
+  },
+};
+```
 
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 ```json
+// cdk.json
 {
   "context": {
     "crossAccountBedrockRoleArn": "arn:aws:iam::アカウントID:role/事前に作成したロール名"
-  }
-}
-```
-
-cdk.json 設定例
-
-```json
-{
-  "context": {
-    "crossAccountBedrockRoleArn": "arn:aws:iam::222222222222:role/YYYYYYYYYYYYYYYYYYYYY"
   }
 }
 ```
@@ -930,28 +1447,38 @@ cdk.json 設定例
 
 同一アカウントで複数環境をデプロイする場合、異なる名前のスタックでデプロイする必要があります。
 
-`cdk.json` の `env` を設定すると各スタックの Suffix として付与され別環境としてデプロイされます。
+`env` を設定すると各スタックの Suffix として付与され別環境としてデプロイされます。
 
-cdk.json には以下の値を設定します。
+`env` は `parameter.ts` の環境判定にも利用されており、`parameter.ts` に `env` で指定した環境が存在すれば、全てのパラメータを `parameter.ts` の値で上書きします。`env` で指定した環境が `parameter.ts` に存在しない場合は、`cdk.json` の `context` のパラメータでアプリケーションがデプロイされます。
+
+以下の値を設定します。
 
 - `env` ... 環境名 (デフォルト: "" (空文字))
 
 **[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
 
 ```json
+// cdk.json
 {
   "context": {
-    "env": "スタック名に付与される Suffix"
+    "env": "<環境名>"
   }
 }
 ```
 
-cdk.json 設定例
+もしくは **コマンドで context を指定** してデプロイすることも可能です。
+
+```
+npm run cdk:deploy -- -c env=<環境名>
+```
+
+設定例
 
 ```json
+// cdk.json
 {
   "context": {
-    "env": "-dev"
+    "env": "dev"
   }
 }
 ```
