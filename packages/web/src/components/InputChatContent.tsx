@@ -10,6 +10,7 @@ import {
   PiArrowsCounterClockwise,
   PiPaperclip,
   PiSpinnerGap,
+  PiSlidersHorizontal,
 } from 'react-icons/pi';
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
@@ -39,7 +40,16 @@ type Props = {
   | {
       hideReset: true;
     }
-);
+) &
+  (
+    | {
+        setting: true;
+        onSetting: () => void;
+      }
+    | {
+        setting?: false;
+      }
+  );
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
@@ -177,7 +187,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload ? 'pr-24' : 'pr-14'}`}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload || props.setting ? 'pr-24' : 'pr-14'}`}
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
@@ -208,6 +218,14 @@ const InputChatContent: React.FC<Props> = (props) => {
               </div>
             </label>
           </div>
+        )}
+        {props.setting && (
+          <ButtonSend
+            className="absolute bottom-2 right-12"
+            disabled={loading}
+            onClick={props.onSetting}
+            icon={<PiSlidersHorizontal />}
+          />
         )}
         <ButtonSend
           className="absolute bottom-2  right-2"

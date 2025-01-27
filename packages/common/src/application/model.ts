@@ -10,10 +10,14 @@ const MODEL_FEATURE: Record<string, FeatureFlags> = {
   TEXT_DOC_IMAGE_VIDEO: { text: true, doc: true, image: true, video: true },
   IMAGE_GEN: { image_gen: true },
   VIDEO_GEN: { video_gen: true },
+  EMBEDDING: { embedding: true },
+  RERANKING: { reranking: true },
   // Additional Flags
   LIGHT: { light: true },
 };
 export const modelFeatureFlags: Record<string, FeatureFlags> = {
+  // ==== Text ===
+
   // Anthropic
   'anthropic.claude-3-5-sonnet-20241022-v2:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'anthropic.claude-3-5-haiku-20241022-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
@@ -102,6 +106,9 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Cohere
   'cohere.command-r-v1:0': MODEL_FEATURE.TEXT_DOC,
   'cohere.command-r-plus-v1:0': MODEL_FEATURE.TEXT_DOC,
+
+  // === Image ===
+
   // Stability AI Image Gen
   'stability.stable-diffusion-xl-v1': MODEL_FEATURE.IMAGE_GEN,
   'stability.sd3-large-v1:0': MODEL_FEATURE.IMAGE_GEN,
@@ -112,4 +119,38 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'amazon.titan-image-generator-v2:0': MODEL_FEATURE.IMAGE_GEN,
   'amazon.titan-image-generator-v1': MODEL_FEATURE.IMAGE_GEN,
   'amazon.nova-canvas-v1:0': MODEL_FEATURE.IMAGE_GEN,
+
+  // === Video ===
+
+  // TODO
+
+  // === Embedding ===
+
+  // Amazon
+  'amazon.titan-embed-text-v1': MODEL_FEATURE.EMBEDDING,
+  'amazon.titan-embed-image-v1': MODEL_FEATURE.EMBEDDING,
+  'amazon.titan-embed-text-v2:0': MODEL_FEATURE.EMBEDDING,
+  // Cohere
+  'cohere.embed-english-v3': MODEL_FEATURE.EMBEDDING,
+  'cohere.embed-multilingual-v3': MODEL_FEATURE.EMBEDDING,
+
+  // === Reranking ===
+
+  // Amazon
+  'amazon.rerank-v1:0': MODEL_FEATURE.RERANKING,
+  // Cohere
+  'cohere.rerank-v3-5:0': MODEL_FEATURE.RERANKING,
 };
+
+export const BEDROCK_TEXT_MODELS = Object.keys(modelFeatureFlags).filter(
+  (model) => modelFeatureFlags[model].text
+);
+export const BEDROCK_IMAGE_GEN_MODELS = Object.keys(modelFeatureFlags).filter(
+  (model) => modelFeatureFlags[model].image_gen
+);
+export const BEDROCK_EMBEDDING_MODELS = Object.keys(modelFeatureFlags).filter(
+  (model) => modelFeatureFlags[model].embedding
+);
+export const BEDROCK_RERANKING_MODELS = Object.keys(modelFeatureFlags).filter(
+  (model) => modelFeatureFlags[model].reranking
+);

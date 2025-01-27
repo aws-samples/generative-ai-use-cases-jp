@@ -31,6 +31,10 @@ const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 // 詳細は updateRecentlyUsedUseCase 関数を参照
 const RECENTLY_USED_SAVE_LIMIT = 100;
 
+const getUserIdFromKey = (key: string): string => {
+  return key.split('#').slice(1).join('#');
+};
+
 // useCaseId のユースケースを取得
 const innerFindUseCaseByUseCaseId = async (
   useCaseId: string
@@ -240,7 +244,7 @@ export const getUseCase = async (
     return null;
   }
 
-  const isMyUseCase = useCaseInTable.id.split('#')[1] === userId;
+  const isMyUseCase = getUserIdFromKey(useCaseInTable.id) === userId;
   const isShared = useCaseInTable.isShared;
 
   // 自分のユースケースではない & シェアされていないものは取得させない
@@ -280,7 +284,7 @@ export const listUseCases = async (
     return {
       ...u,
       isFavorite: favoritesUseCaseIds.includes(u.useCaseId),
-      isMyUseCase: u.id.split('#')[1] === userId,
+      isMyUseCase: getUserIdFromKey(u.id) === userId,
     };
   });
 
@@ -304,9 +308,9 @@ export const updateUseCase = async (
     return;
   }
 
-  if (useCaseInTable.id.split('#')[1] !== userId) {
+  if (getUserIdFromKey(useCaseInTable.id) !== userId) {
     console.error(
-      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+      `userId mismatch ${userId} vs ${getUserIdFromKey(useCaseInTable.id)}`
     );
     return;
   }
@@ -345,9 +349,9 @@ export const deleteUseCase = async (
     return;
   }
 
-  if (useCaseInTable.id.split('#')[1] !== userId) {
+  if (getUserIdFromKey(useCaseInTable.id) !== userId) {
     console.error(
-      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+      `userId mismatch ${userId} vs ${getUserIdFromKey(useCaseInTable.id)}`
     );
     return;
   }
@@ -390,7 +394,7 @@ export const listFavoriteUseCases = async (
     return {
       ...u,
       isFavorite: true,
-      isMyUseCase: u.id.split('#')[1] === userId,
+      isMyUseCase: getUserIdFromKey(u.id) === userId,
     };
   });
 
@@ -460,9 +464,9 @@ export const toggleShared = async (
     return { isShared: false };
   }
 
-  if (useCaseInTable.id.split('#')[1] !== userId) {
+  if (getUserIdFromKey(useCaseInTable.id) !== userId) {
     console.error(
-      `userId mismatch ${userId} vs ${useCaseInTable.id.split('#')[1]}`
+      `userId mismatch ${userId} vs ${getUserIdFromKey(useCaseInTable.id)}`
     );
     return { isShared: false };
   }
@@ -507,7 +511,7 @@ export const listRecentlyUsedUseCases = async (
     return {
       ...u,
       isFavorite: favoritesUseCaseIds.includes(u.useCaseId),
-      isMyUseCase: u.id.split('#')[1] === userId,
+      isMyUseCase: getUserIdFromKey(u.id) === userId,
     };
   });
 

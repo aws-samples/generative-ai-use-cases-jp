@@ -76,7 +76,7 @@ Basic SAML Configuration にある Edit を押します。
 
 
 
-次のパラメータを入れて保存を押します。[事前作業](#事前作業)で確認した Cognito user pool の ID や、[Cognito の設定 : Domain設定](#Cognito-の設定-:-Domain-設定) で確認した Domain の値を利用します。
+次のパラメータを入れて保存を押します。[事前作業](#事前作業)で確認した Cognito user pool の ID や、[Cognito の設定 : Domain設定](#cognito-の設定--domain-設定) で確認した Domain の値を利用します。
 
 Identifier (Entity ID) 
 
@@ -196,7 +196,7 @@ Edit を押します。
 
 
 [事前作業](#事前作業)で確認した WebUrl の値を Allowed callback URLs と Allowed sign-out URLs に入力します。
-[ローカル開発環境](/docs/DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
+[ローカル開発環境](./DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
 
 
 ![image-20240205185602299](assets/SAML_WITH_ENTRA_ID/image-20240205185602299.png)
@@ -222,8 +222,8 @@ Save  changes を押します。
 これで設定が完了したため、cdk.json の値を変更します。
 
 - samlAuthEnabled : `true` を指定します。SAML 専用の認証画面に切り替わり、Cognito user pools を利用した従来の認証機能は利用できなくなります。
-- samlCognitoDomainName : [「Cognito の設定 : Domain設定」](#Cognito-の設定-:-Domain-設定) で指定した Cognito Domain 名を入力します。
-- samlCognitoFederatedIdentityProviderName : [「Cognito の設定 : Federation」](#Cognito-の設定-:-Federation) で設定した Identity Provider の名前を入力します。
+- samlCognitoDomainName : [「Cognito の設定 : Domain設定」](#cognito-の設定--domain-設定) で指定した Cognito Domain 名を入力します。
+- samlCognitoFederatedIdentityProviderName : [「Cognito の設定 : Federation」](#cognito-の設定--federation) で設定した Identity Provider の名前を入力します。
 
 
 ```json
@@ -235,3 +235,60 @@ Save  changes を押します。
 ```
 
 設定後、再度デプロイを行うと SAML 連携が有効化されます。
+
+---
+
+# (オプション) SAML IdP group custom attribute の設定
+
+ここからは SAML IdP で管理している Role や Group を Cognito の Attribute にマッピングを行い RAG のフィルタリングを行う方法を紹介します。
+
+まず、Entra ID の Enterprise Application 画面にて、Attribute & Claims の Edit を選択し編集します。
+
+![image-20250109000000001](assets/SAML_WITH_ENTRA_ID/image-20250109000000001.png)
+
+Add a group claim から、Group Claim を追加します。この際アプリケーション側に共有するグループの範囲を要件に応じて選択します。（詳細は[こちら](https://learn.microsoft.com/en-us/entra/identity/hybrid/connect/how-to-connect-fed-group-claims))
+
+![image-20250109000000002](assets/SAML_WITH_ENTRA_ID/image-20250109000000002.png)
+
+続いて、Cognito の User Pool の画面にて、Sign-up から、Custom attributes の追加画面を開きます。
+
+![image-20250109000000003](assets/SAML_WITH_ENTRA_ID/image-20250109000000003.png)
+
+適切な名前の Custom Attribute を作成します。この例では、`idpGroup` としています。
+
+![image-20250109000000004](assets/SAML_WITH_ENTRA_ID/image-20250109000000004.png)
+
+続いて Social Identity Provider の画面にて、Attribute mapping の画面を開きます。
+
+![image-20250109000000005](assets/SAML_WITH_ENTRA_ID/image-20250109000000005.png)
+
+先程作成した Custom Attribute 名と、Entra ID の Group Claim `http://schemas.microsoft.com/ws/2008/06/identity/claims/groups` をマッピングします。
+
+![image-20250109000000006](assets/SAML_WITH_ENTRA_ID/image-20250109000000006.png)
+
+これにて Entra ID で定義した Group を Cognito の Attribute にマッピングすることができました。
+
+Custom Attribute は ID トークンに含まれるため、アプリケーション側で利用することができるようになりました。
+
+Knowledge Base RAG のフィルタリングにて使用する場合は `packages/common/src/custom/rag-knowledge-base.ts` の `getDynamicFilters` 関数内の `Example2` のコメントアウトを外してください。
+
+```typescript
+// Example 2: Filter by SAML IdP group custom attribute (Check steps to setup attribute mapping in docs/SAML_WITH_ENTRA_ID.md)
+
+const groups = (idTokenPayload['custom:idpGroup'] as string) // group を string で保持している (i.e. [group1id, group2id])
+  .slice(1, -1) // 先頭と末尾の括弧を削除
+  .split(/, ?/) // カンマとスペースで分割
+  .filter(Boolean); // 空文字列を除去;
+if (!groups) throw new Error('custom:idpGroup is not set'); // Group が設定されていない場合はアクセスできずにエラーにする
+const groupFilter: RetrievalFilter = {
+  in: {
+    key: 'group',
+    value: groups,
+  },
+};
+dynamicFilters.push(groupFilter);
+```
+
+ドキュメントの group メタデータにて、ユーザーの IdP のグループの Object ID を指定している場合にフィルタリングが適用されます。
+
+同様に他のメタデータについても、Cognito の Custom Attribute と Attribute Mapping を使用して利用することが可能です。

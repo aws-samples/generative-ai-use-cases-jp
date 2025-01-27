@@ -146,7 +146,7 @@ Edit を押します。
 
 
 [事前作業](#事前作業)で確認した WebUrl の値を Allowed callback URLs と Allowed sign-out URLs に入力します。
-[ローカル開発環境](/docs/DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
+[ローカル開発環境](./DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
 
 
 ![image-20240205185602299](assets/SAML_WITH_ENTRA_ID/image-20240205185602299.png)

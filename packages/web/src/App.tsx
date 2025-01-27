@@ -8,7 +8,6 @@ import {
   PiNote,
   PiChatsCircle,
   PiPenNib,
-  PiMagnifyingGlass,
   PiTranslate,
   PiImages,
   PiSpeakerHighBold,
@@ -38,15 +37,15 @@ const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const { visionEnabled } = MODELS;
-const getPromptFlows = () => {
+const getFlows = () => {
   try {
-    return JSON.parse(import.meta.env.VITE_APP_PROMPT_FLOWS);
+    return JSON.parse(import.meta.env.VITE_APP_FLOWS);
   } catch (e) {
     return [];
   }
 };
-const promptFlows = getPromptFlows();
-const promptFlowChatEnabled: boolean = promptFlows.length > 0;
+const flows = getFlows();
+const flowChatEnabled: boolean = flows.length > 0;
 
 const items: ItemProps[] = [
   {
@@ -93,10 +92,10 @@ const items: ItemProps[] = [
         display: 'usecase' as const,
       }
     : null,
-  promptFlowChatEnabled
+  flowChatEnabled
     ? {
-        label: 'Prompt Flow チャット',
-        to: '/prompt-flow-chat',
+        label: 'Flow チャット',
+        to: '/flow-chat',
         icon: <PiFlowArrow />,
         display: 'usecase' as const,
       }
@@ -162,14 +161,6 @@ const items: ItemProps[] = [
         label: 'プロンプト最適化',
         to: '/optimize',
         icon: <PiMagicWand />,
-        display: 'tool' as const,
-      }
-    : null,
-  ragEnabled
-    ? {
-        label: 'Kendra 検索',
-        to: '/kendra',
-        icon: <PiMagnifyingGlass />,
         display: 'tool' as const,
       }
     : null,
