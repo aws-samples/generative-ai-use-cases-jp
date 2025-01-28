@@ -35,6 +35,7 @@ import UseCaseBuilderExecutePage from './pages/useCaseBuilder/UseCaseBuilderExec
 import UseCaseBuilderSamplesPage from './pages/useCaseBuilder/UseCaseBuilderSamplesPage.tsx';
 import UseCaseBuilderMyUseCasePage from './pages/useCaseBuilder/UseCaseBuilderMyUseCasePage.tsx';
 import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
+import GenerateDiagramPage from './pages/GenerateDiagramPage.tsx';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -90,6 +91,10 @@ const routes: RouteObject[] = [
   {
     path: '/image',
     element: <GenerateImagePage />,
+  },
+  {
+    path: '/diagram',
+    element: <GenerateDiagramPage />,
   },
   optimizePromptEnabled
     ? {

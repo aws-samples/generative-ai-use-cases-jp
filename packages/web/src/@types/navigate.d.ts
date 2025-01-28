@@ -66,3 +66,7 @@ export type WebContentPageQueryParams = BaseQueryParams & {
 export type VideoAnalyzerPageQueryParams = BaseQueryParams & {
   content: string;
 };
+
+export type DiagramPageQueryParams = BaseQueryParams & {
+  content: string;
+};
