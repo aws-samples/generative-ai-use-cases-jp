@@ -442,17 +442,15 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       onDragOver={props.fileUpload ? handleDragOver : undefined}
       onDragLeave={props.fileUpload ? handleDragLeave : undefined}
       onPaste={props.fileUpload ? handlePaste : undefined}
-      className='relative'>
+      className="relative">
       {isOver && props.fileUpload && (
-          <div
-            onDrop={handleDrop}
-            className="absolute inset-0 z-[999] bg-slate-300 p-10 text-center">
-            <div className="flex h-full w-full items-center justify-center outline-dashed">
-              <div className="font-bold">
-                ファイルをドロップしてアップロード
-              </div>
-            </div>
+        <div
+          onDrop={handleDrop}
+          className="absolute inset-0 z-[999] bg-slate-300 p-10 text-center">
+          <div className="flex h-full w-full items-center justify-center outline-dashed">
+            <div className="font-bold">ファイルをドロップしてアップロード</div>
           </div>
+        </div>
       )}
       <div className="mb-4 flex flex-col-reverse text-xl font-semibold md:flex-row">
         {!props.previewMode && <div className="flex-1" />}
