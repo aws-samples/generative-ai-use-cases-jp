@@ -117,7 +117,7 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
   ダイアグラム生成は、あらゆるトピックに関する文章や内容を最適な図を用いて視覚化します。
   テキストベースで簡単に図を生成でき、プログラマーやデザイナーでなくても効率的にフローチャートなどの図を作成できます。
 
-  <img src="/imgs/usecase_generate_diagram.gif"/>
+  <img src="./docs/assets/images/usecase_generate_diagram.gif"/>
 </details>
 
 ## ユースケースビルダー

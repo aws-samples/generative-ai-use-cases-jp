@@ -60,7 +60,7 @@ export type SetTitleParams = {
 };
 
 export type DiagramParams = {
-  determinType: boolean;
+  determineType: boolean;
   diagramType?: string;
 };
 

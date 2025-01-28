@@ -35,21 +35,11 @@ const useDiagram = (id: string) => {
     getModelId,
     setModelId,
     setLoading,
-    loadingMessages,
-    init,
     clear,
     updateSystemContext,
-    updateSystemContextByModel,
-    getCurrentSystemContext,
-    pushMessage,
-    popMessage,
-    rawMessages,
     messages,
     isEmpty,
     postChat,
-    continueGeneration,
-    sendFeedback,
-    getStopReason,
   } = useChat(id);
 
   const modelId = useMemo(() => getModelId(), [getModelId]);
@@ -104,7 +94,7 @@ const useDiagram = (id: string) => {
           messages: [
             {
               role: 'system',
-              content: prompter.diagramPrompt({ determinType: true }),
+              content: prompter.diagramPrompt({ determineType: true }),
             },
             {
               role: 'user',
@@ -143,7 +133,7 @@ const useDiagram = (id: string) => {
 
         // 3. 決定したダイアグラムタイプのシステムプロンプトを設定
         const systemPrompt = prompter.diagramPrompt({
-          determinType: false,
+          determineType: false,
           diagramType: chosenType,
         });
         updateSystemContext(systemPrompt);
@@ -163,21 +153,9 @@ const useDiagram = (id: string) => {
     getModelId,
     setModelId,
     setLoading,
-    loadingMessages,
-    init,
     clear,
-    updateSystemContext,
-    updateSystemContextByModel,
-    getCurrentSystemContext,
-    pushMessage,
-    popMessage,
-    rawMessages,
     messages,
     isEmpty,
-    postChat,
-    continueGeneration,
-    sendFeedback,
-    getStopReason,
     postDiagram,
     diagramType,
   };
