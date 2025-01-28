@@ -747,7 +747,7 @@ XXX
     ];
   },
   diagramPrompt(params: DiagramParams): string {
-    if (params.determinType)
+    if (params.determineType)
       return `<instruction>
 あなたは図の種類を決定する専門家です。以下の手順に従って、与えられた<content></content>タグ内の情報を分析し、最適な図の種類を選択してください。
 重要: ユーザーが特定の図を作成したいようであればそれを選択してください。これは絶対です。日本語で特定の図を指定されるので、その場合はその特定の図の日本語を英語にして考えてください。
