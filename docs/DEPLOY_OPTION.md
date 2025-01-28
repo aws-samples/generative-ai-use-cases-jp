@@ -705,6 +705,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
+"amazon.nova-canvas-v1:0",
 "stability.stable-diffusion-xl-v1",
 "stability.sd3-large-v1:0",
 "stability.stable-image-core-v1:0",
