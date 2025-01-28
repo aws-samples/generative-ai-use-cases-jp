@@ -703,14 +703,16 @@ const envs: Record<string, Partial<StackInput>> = {
 このソリューションが対応している画像生成モデルは以下です。
 
 ```
+"amazon.nova-canvas-v1:0",
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"amazon.nova-canvas-v1:0",
-"stability.stable-diffusion-xl-v1",
 "stability.sd3-large-v1:0",
-"stability.stable-image-core-v1:0",
-"stability.stable-image-ultra-v1:0",
 "stability.sd3-5-large-v1:0"
+"stability.stable-image-core-v1:0",
+"stability.stable-image-core-v1:1",
+"stability.stable-image-ultra-v1:0",
+"stability.stable-image-ultra-v1:1",
+"stability.stable-diffusion-xl-v1",
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -738,9 +740,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "mistral.mistral-large-2402-v1:0"
     ],
     imageGenerationModelIds: [
+      "amazon.nova-canvas-v1:0",
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "amazon.nova-canvas-v1:0",
       "stability.stable-diffusion-xl-v1"
     ],
   },
@@ -768,9 +770,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "mistral.mistral-large-2402-v1:0"
     ],
     "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0",
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "amazon.nova-canvas-v1:0",
       "stability.stable-diffusion-xl-v1"
     ],
   }
@@ -784,7 +786,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-1',
+    modelRegion: 'us-east-2',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-haiku-20241022-v1:0",
@@ -801,11 +803,13 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   },
 };
@@ -833,11 +837,13 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   }
 }
@@ -850,7 +856,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-1',
+    modelRegion: 'us-east-2',
     modelIds: [
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
       "us.anthropic.claude-3-5-haiku-20241022-v1:0",
@@ -875,11 +881,13 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   },
 };
@@ -915,11 +923,13 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   }
 }

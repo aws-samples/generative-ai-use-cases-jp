@@ -41,8 +41,10 @@ const AMAZON_MODELS = {
 const STABILITY_AI_MODELS = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
   SD3_LARGE: 'stability.sd3-large-v1:0',
-  STABLE_IMAGE_CORE: 'stability.stable-image-core-v1:0',
-  STABLE_IMAGE_ULTRA: 'stability.stable-image-ultra-v1:0',
+  STABLE_IMAGE_CORE1_0: 'stability.stable-image-core-v1:0',
+  STABLE_IMAGE_CORE1_1: 'stability.stable-image-core-v1:1',
+  STABLE_IMAGE_ULTRA1_0: 'stability.stable-image-ultra-v1:0',
+  STABLE_IMAGE_ULTRA1_1: 'stability.stable-image-ultra-v1:1',
   SD3_5: 'stability.sd3-5-large-v1:0',
 };
 const GENERATION_MODES: Record<
@@ -99,11 +101,19 @@ const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
     ],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
-  [STABILITY_AI_MODELS.STABLE_IMAGE_CORE]: {
+  [STABILITY_AI_MODELS.STABLE_IMAGE_CORE1_0]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
-  [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA]: {
+  [STABILITY_AI_MODELS.STABLE_IMAGE_CORE1_1]: {
+    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA1_0]: {
+    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
+    resolutionPresets: stabilityAi2024ModelPresets,
+  },
+  [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA1_1]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
