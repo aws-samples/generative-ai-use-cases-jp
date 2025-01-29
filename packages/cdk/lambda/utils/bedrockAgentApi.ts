@@ -289,7 +289,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                 );
                 trace = searchResult
                   .map(
-                    (item) => `- [${item.title}](${encodeUrlString(item.url)})`
+                    (item) => `- [${item.title}](${item.url})`
                   )
                   .join('\n');
               } else {
