@@ -143,7 +143,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     setLoading,
     messages,
     postChat,
+    continueGeneration,
     clear: clearChat,
+    getStopReason,
   } = useChat(pathname);
   const modelId = useMemo(() => {
     if (props.fixedModelId !== '') {
@@ -166,6 +168,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     errorMessages: fileErrorMessages,
     clear: clearFiles,
   } = useFiles();
+  const stopReason = getStopReason();
   const [isOver, setIsOver] = useState(false);
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
@@ -633,6 +636,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           )}
         </div>
         <div className="flex shrink-0 gap-3 ">
+          {stopReason === 'max_tokens' && (
+            <Button onClick={continueGeneration}>続きを出力</Button>
+          )}
+
           <Button
             outlined
             onClick={onClickClear}
