@@ -31,6 +31,7 @@ import useInterUseCases from './hooks/useInterUseCases';
 import { MODELS } from './hooks/useModel';
 import useScreen from './hooks/useScreen';
 import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
+import useUseCases from './hooks/useUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -46,125 +47,6 @@ const getFlows = () => {
 };
 const flows = getFlows();
 const flowChatEnabled: boolean = flows.length > 0;
-
-const items: ItemProps[] = [
-  {
-    label: 'ホーム',
-    to: '/',
-    icon: <PiHouse />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '設定情報',
-    to: '/setting',
-    icon: <PiGear />,
-    display: 'none' as const,
-  },
-  {
-    label: 'チャット',
-    to: '/chat',
-    icon: <PiChatsCircle />,
-    display: 'usecase' as const,
-  },
-  ragEnabled
-    ? {
-        label: 'RAG チャット',
-        to: '/rag',
-        icon: <PiChatCircleText />,
-        display: 'usecase' as const,
-        sub: 'Amazon Kendra',
-      }
-    : null,
-  ragKnowledgeBaseEnabled
-    ? {
-        label: 'RAG チャット',
-        to: '/rag-knowledge-base',
-        icon: <PiChatCircleText />,
-        display: 'usecase' as const,
-        sub: 'Knowledge Base',
-      }
-    : null,
-  agentEnabled
-    ? {
-        label: 'Agent チャット',
-        to: '/agent',
-        icon: <PiRobot />,
-        display: 'usecase' as const,
-      }
-    : null,
-  flowChatEnabled
-    ? {
-        label: 'Flow チャット',
-        to: '/flow-chat',
-        icon: <PiFlowArrow />,
-        display: 'usecase' as const,
-      }
-    : null,
-  {
-    label: '文章生成',
-    to: '/generate',
-    icon: <PiPencil />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '要約',
-    to: '/summarize',
-    icon: <PiNote />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '校正',
-    to: '/editorial',
-    icon: <PiPenNib />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '翻訳',
-    to: '/translate',
-    icon: <PiTranslate />,
-    display: 'usecase' as const,
-  },
-  {
-    label: 'Web コンテンツ抽出',
-    to: '/web-content',
-    icon: <PiGlobe />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '画像生成',
-    to: '/image',
-    icon: <PiImages />,
-    display: 'usecase' as const,
-  },
-  visionEnabled
-    ? {
-        label: '映像分析',
-        to: '/video',
-        icon: <PiVideoCamera />,
-        display: 'usecase' as const,
-      }
-    : null,
-  {
-    label: 'ダイアグラム生成',
-    to: '/diagram',
-    icon: <PiTreeStructure />,
-    display: 'usecase' as const,
-  },
-  {
-    label: '音声認識',
-    to: '/transcribe',
-    icon: <PiSpeakerHighBold />,
-    display: 'tool' as const,
-  },
-  optimizePromptEnabled
-    ? {
-        label: 'プロンプト最適化',
-        to: '/optimize',
-        icon: <PiMagicWand />,
-        display: 'tool' as const,
-      }
-    : null,
-].flatMap((i) => (i !== null ? [i] : []));
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す
@@ -182,6 +64,140 @@ const App: React.FC = () => {
   const { isShow } = useInterUseCases();
   const { screen, notifyScreen, scrollTopAnchorRef, scrollBottomAnchorRef } =
     useScreen();
+  const { enabled } = useUseCases();
+
+  const items: ItemProps[] = [
+    {
+      label: 'ホーム',
+      to: '/',
+      icon: <PiHouse />,
+      display: 'usecase' as const,
+    },
+    {
+      label: '設定情報',
+      to: '/setting',
+      icon: <PiGear />,
+      display: 'none' as const,
+    },
+    {
+      label: 'チャット',
+      to: '/chat',
+      icon: <PiChatsCircle />,
+      display: 'usecase' as const,
+    },
+    ragEnabled
+      ? {
+          label: 'RAG チャット',
+          to: '/rag',
+          icon: <PiChatCircleText />,
+          display: 'usecase' as const,
+          sub: 'Amazon Kendra',
+        }
+      : null,
+    ragKnowledgeBaseEnabled
+      ? {
+          label: 'RAG チャット',
+          to: '/rag-knowledge-base',
+          icon: <PiChatCircleText />,
+          display: 'usecase' as const,
+          sub: 'Knowledge Base',
+        }
+      : null,
+    agentEnabled
+      ? {
+          label: 'Agent チャット',
+          to: '/agent',
+          icon: <PiRobot />,
+          display: 'usecase' as const,
+        }
+      : null,
+    flowChatEnabled
+      ? {
+          label: 'Flow チャット',
+          to: '/flow-chat',
+          icon: <PiFlowArrow />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('generate')
+      ? {
+          label: '文章生成',
+          to: '/generate',
+          icon: <PiPencil />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('summarize')
+      ? {
+          label: '要約',
+          to: '/summarize',
+          icon: <PiNote />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('editorial')
+      ? {
+          label: '校正',
+          to: '/editorial',
+          icon: <PiPenNib />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('translate')
+      ? {
+          label: '翻訳',
+          to: '/translate',
+          icon: <PiTranslate />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('webContent')
+      ? {
+          label: 'Web コンテンツ抽出',
+          to: '/web-content',
+          icon: <PiGlobe />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('image')
+      ? {
+          label: '画像生成',
+          to: '/image',
+          icon: <PiImages />,
+          display: 'usecase' as const,
+        }
+      : null,
+    visionEnabled && enabled('video')
+      ? {
+          label: '映像分析',
+          to: '/video',
+          icon: <PiVideoCamera />,
+          display: 'usecase' as const,
+        }
+      : null,
+    enabled('diagram')
+      ? {
+          label: 'ダイアグラム生成',
+          to: '/diagram',
+          icon: <PiTreeStructure />,
+          display: 'usecase' as const,
+        }
+      : null,
+    {
+      label: '音声認識',
+      to: '/transcribe',
+      icon: <PiSpeakerHighBold />,
+      display: 'tool' as const,
+    },
+    optimizePromptEnabled
+      ? {
+          label: 'プロンプト最適化',
+          to: '/optimize',
+          icon: <PiMagicWand />,
+          display: 'tool' as const,
+        }
+      : null,
+  ].flatMap((i) => (i !== null ? [i] : []));
 
   const label = useMemo(() => {
     const chatId = extractChatId(pathname);
@@ -191,7 +207,7 @@ const App: React.FC = () => {
     } else {
       return items.find((i) => i.to === pathname)?.label || '';
     }
-  }, [pathname, getChatTitle]);
+  }, [items, pathname, getChatTitle]);
 
   // 画面間遷移時にスクロールイベントが発火しない場合 (ページ最上部からページ最上部への移動など)
   // 最上部/最下部の判定がされないので、pathname の変化に応じて再判定する

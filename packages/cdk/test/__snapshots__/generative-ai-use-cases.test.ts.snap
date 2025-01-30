@@ -1958,6 +1958,9 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
     "Flows": {
       "Value": "W10=",
     },
+    "HiddenUseCases": {
+      "Value": "{}",
+    },
     "IdPoolId": {
       "Value": {
         "Ref": "AuthIdentityPool659E7F64",
@@ -11874,6 +11877,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Arn",
             ],
           },
+          "VITE_APP_HIDDEN_USE_CASES": "{}",
           "VITE_APP_IDENTITY_POOL_ID": {
             "Ref": "AuthIdentityPool659E7F64",
           },
