@@ -180,6 +180,7 @@ npm run cdk:deploy:quick
   - [Flow チャットユースケースの有効化](./docs/DEPLOY_OPTION.md#flow-チャットユースケースの有効化)
   - [映像分析ユースケースの有効化](./docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
   - [プロンプト最適化ツールの有効化](./docs/DEPLOY_OPTION.md#プロンプト最適化ツールの有効化)
+  - [特定のユースケースを非表示にする](./docs/DEPLOY_OPTION.md#特定のユースケースを非表示にする)
 - [ユースケースビルダーの設定](./docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)
 - [Amazon Bedrock のモデルを変更する](./docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
   - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](./docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)

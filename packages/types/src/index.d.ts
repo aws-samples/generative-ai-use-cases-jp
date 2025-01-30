@@ -12,3 +12,4 @@ export * from './useCaseBuilder';
 export * from './protocolUseCaseBuilder';
 export * from './model';
 export * from './rag-knowledge-base';
+export * from './useCases';

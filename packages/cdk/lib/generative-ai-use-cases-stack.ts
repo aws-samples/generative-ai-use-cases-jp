@@ -129,6 +129,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       endpointNames: api.endpointNames,
       agentNames: api.agentNames,
       useCaseBuilderEnabled: params.useCaseBuilderEnabled,
+      // Frontend
+      hiddenUseCases: params.hiddenUseCases,
       // Custom Domain
       cert: props.cert,
       hostName: params.hostName,
@@ -279,6 +281,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'UseCaseBuilderEnabled', {
       value: params.useCaseBuilderEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'HiddenUseCases', {
+      value: JSON.stringify(params.hiddenUseCases),
     });
 
     this.userPool = auth.userPool;

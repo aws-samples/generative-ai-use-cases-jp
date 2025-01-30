@@ -53,6 +53,7 @@ export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Prov
 export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array>
 export VITE_APP_USE_CASE_BUILDER_ENABLED=<UseCase Builder Flag>
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=<Function ARN>
+export VITE_APP_HIDDEN_USE_CASES=<非表示メニューの設定 JSON>
 ```
 
 具体例は以下です。
@@ -77,6 +78,7 @@ export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
 export VITE_APP_AGENT_NAMES=["SearchEngine"]
 export VITE_APP_USE_CASE_BUILDER_ENABLED=true
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=arn:aws:lambda:ap-northeast-1:000000000000:function:FunctionName
+export VITE_APP_HIDDEN_USE_CASES={}
 ```
 
 #### `.env` ファイルを利用する方法

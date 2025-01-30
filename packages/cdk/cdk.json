@@ -36,6 +36,7 @@
     "samlAuthEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
+    "hiddenUseCases": {},
     "modelRegion": "us-east-1",
     "modelIds": [
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",

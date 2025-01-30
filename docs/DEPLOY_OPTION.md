@@ -618,6 +618,49 @@ const envs: Record<string, Partial<StackInput>> = {
 
 Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html) をご参照ください。
 
+### 特定のユースケースを非表示にする
+
+以下のオプションで指定できるユースケースは非表示にできます。
+特に指定がない場合や false を指定した場合は表示されます。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    hiddenUseCases: {
+      generate: true, // 文章生成を非表示
+      summarize: true, // 要約を非表示
+      editorial: true, // 校正を非表示
+      translate: true, // 翻訳を非表示
+      webContent: true, // Web コンテンツ抽出を非表示
+      image: true, // 画像生成を非表示
+      video: true, // 映像分析を非表示
+      diagram: true, // ダイアグラム生成を非表示
+    }
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "hiddenUseCases": {
+      "generate": true,
+      "summarize": true,
+      "editorial": true,
+      "translate": true,
+      "webContent": true,
+      "image": true,
+      "video": true,
+      "diagram": true
+    }
+  }
+}
+```
+
 ## ユースケースビルダーの設定
 
 ユースケースビルダーはデフォルトで有効化されており、デプロイ後画面上に表示される「ビルダーモード」という項目から利用できます。ユースケースビルダーを無効化する場合は、パラメータの `useCaseBuilderEnabled` に `false` を指定します。(デフォルトは `true`)

@@ -10,7 +10,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Flow } from 'generative-ai-use-cases-jp';
+import { Flow, HiddenUseCases } from 'generative-ai-use-cases-jp';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -39,6 +39,7 @@ export interface WebProps {
   domainName?: string | null;
   hostedZoneId?: string | null;
   useCaseBuilderEnabled: boolean;
+  hiddenUseCases: HiddenUseCases;
 }
 
 export class Web extends Construct {
@@ -186,6 +187,7 @@ export class Web extends Construct {
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),
+        VITE_APP_HIDDEN_USE_CASES: JSON.stringify(props.hiddenUseCases),
       },
     });
 
