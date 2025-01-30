@@ -208,11 +208,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
             )}
             {chatContent?.role === 'user' && (
-              <div className="break-all">
-                {typingTextOutput.split('\n').map((c, idx) => (
-                  <div key={idx}>{c}</div>
-                ))}
-              </div>
+              <div className="whitespace-pre-wrap">{typingTextOutput}</div>
             )}
             {chatContent?.role === 'assistant' && (
               <Markdown prefix={`${props.idx}`}>
