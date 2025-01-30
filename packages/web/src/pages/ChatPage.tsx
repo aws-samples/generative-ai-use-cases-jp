@@ -102,13 +102,13 @@ const ChatPage: React.FC = () => {
     setSaveSystemContext,
     setSaveSystemContextTitle,
   } = useChatPageState();
+  const { pathname, search } = useLocation();
   const {
     clear: clearFiles,
     uploadedFiles,
     uploadFiles,
     base64Cache,
-  } = useFiles();
-  const { pathname, search } = useLocation();
+  } = useFiles(pathname);
   const { chatId } = useParams();
 
   const { listSystemContexts, deleteSystemContext, updateSystemContextTitle } =
