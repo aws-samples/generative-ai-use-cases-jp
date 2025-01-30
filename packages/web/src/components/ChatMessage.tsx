@@ -221,11 +221,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               </Markdown>
             )}
             {chatContent?.role === 'system' && (
-              <div className="break-all">
-                {typingTextOutput.split('\n').map((c, idx) => (
-                  <div key={idx}>{c}</div>
-                ))}
-              </div>
+              <div className="whitespace-pre-wrap">{typingTextOutput}</div>
             )}
             {props.loading && (chatContent?.content ?? '') === '' && (
               <div className="animate-pulse">▍</div>
