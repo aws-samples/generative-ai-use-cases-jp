@@ -45,7 +45,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { getFileDownloadSignedUrl } = useFiles();
+  const { getFileDownloadSignedUrl } = useFiles(pathname);
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
