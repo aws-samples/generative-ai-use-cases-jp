@@ -9,14 +9,14 @@ export const extractBaseURL = (url: string) => {
 };
 const useFilesState = create<{
   uploadFiles: (
-    id: string, 
+    id: string,
     files: File[],
     fileLimit: FileLimit,
     accept: string[]
   ) => Promise<void>;
   checkFiles: (id: string, fileLimit: FileLimit, accept: string[]) => Promise<void>;
-  uploadedFilesDict: Record<string, UploadedFileType[]>;
-  errorMessagesDict: Record<string, string[]>;
+  uploadedFilesDict: { [id: string]: UploadedFileType[] };
+  errorMessagesDict: { [id: string]: string[] };
   deleteUploadedFile: (
     id: string,
     fileUrl: string,
@@ -185,13 +185,13 @@ const useFilesState = create<{
     const { uploadedFiles: newUploadedFiles, errorMessages } =
       await validateUploadedFiles(currentUploadedFiles, fileLimit, accept);
 
-    // Update Files using immer
-    set((state) =>
-      produce(state, (draft) => {
-        draft.uploadedFilesDict[id] = newUploadedFiles;
-        draft.errorMessagesDict[id] = errorMessages;
-      })
-    );
+    set(
+      produce((state) => {
+        state.uploadedFilesDict[id] = newUploadedFiles;
+        state.errorMessagesDict[id] = errorMessages;
+      }
+      ));
+
   };
 
   // Handle File Uploads
@@ -213,17 +213,13 @@ const useFilesState = create<{
       await validateUploadedFiles(newUploadedFiles, fileLimit, accept);
 
     // Update zustand to reflect current status to UI
-  
-    set((state) => ({
-      uploadedFilesDict: produce(state.uploadedFilesDict, (draft) => {
-        draft[id] = validatedFiles
-      }),
-      errorMessagesDict: produce(state.errorMessagesDict, (draft) => {
-        draft[id] = errorMessages
-      })
-    }) 
-    );
 
+    set(
+      produce((state) => {
+        state.uploadedFilesDict[id] = validatedFiles;
+        state.errorMessagesDict[id] = errorMessages;
+      })
+    );
     // Upload File
     get().uploadedFilesDict[id].forEach((uploadedFile, idx) => {
       if (!uploadedFile.uploading) return;
@@ -233,11 +229,11 @@ const useFilesState = create<{
       const reader = new FileReader();
       reader.readAsDataURL(uploadedFile.file);
       reader.onload = () => {
-        set((state) => ({
-          uploadedFilesDict: produce(state.uploadedFilesDict, (draft) => {
-            draft[id][idx].base64EncodedData = reader.result?.toString();
-          }),
-        }));
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id][idx].base64EncodedData = reader.result?.toString();
+          })
+        );
       };
 
       const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
@@ -253,16 +249,16 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
-            set((state) => ({
-              uploadedFiles: produce(state.uploadedFilesDict, (draft) => {
-                draft[id][idx].uploading = false;
-                draft[id][idx].s3Url = fileUrl;
-              }),
-              base64Cache: {
-                ...state.base64Cache,
-                [fileUrl]: reader.result?.toString() ?? '',
-              },
-            }));
+            set(
+              produce((state) => {
+                state.uploadedFilesDict[id][idx].uploading = false;
+                state.uploadedFilesDict[id][idx].s3Url = fileUrl;
+                state.base64Cache = {
+                  ...state.base64Cache,
+                  [fileUrl]: reader.result?.toString() ?? '',
+                }
+              })
+            );
           });
         });
     });
@@ -289,9 +285,9 @@ const useFilesState = create<{
 
       if (fileName) {
         // Set deleting state
-        set((state) =>
-          produce(state, (draft) => {
-            draft.uploadedFilesDict[id][targetIndex].deleting = true;
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id][targetIndex].deleting = true;
           })
         );
 
@@ -299,9 +295,9 @@ const useFilesState = create<{
 
         // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
         targetIndex = findTargetIndex();
-        set((state) =>
-          produce(state, (draft) => {
-            draft.uploadedFilesDict[id].splice(targetIndex, 1);
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id].splice(targetIndex, 1)
           })
         );
 
@@ -373,20 +369,20 @@ const useFiles = (id: string) => {
   } = useFilesState();
   return {
     uploadFiles: (
-      files: File[], 
-      fileLimit: FileLimit, 
+      files: File[],
+      fileLimit: FileLimit,
       accept: string[]
     ) => uploadFiles(id, files, fileLimit, accept),
     checkFiles: (
-      fileLimit: FileLimit, 
+      fileLimit: FileLimit,
       accept: string[]
     ) => checkFiles(id, fileLimit, accept),
     errorMessages: errorMessagesDict[id] ?? [],
     clear: () => clear(id),
     uploadedFiles: uploadedFilesDict[id] ?? [],
     deleteUploadedFile: (
-      fileUrl: string, 
-      fileLimit: FileLimit, 
+      fileUrl: string,
+      fileLimit: FileLimit,
       accept: string[]
     ) => deleteUploadedFile(id, fileUrl, fileLimit, accept),
     uploading: uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ?? false,
