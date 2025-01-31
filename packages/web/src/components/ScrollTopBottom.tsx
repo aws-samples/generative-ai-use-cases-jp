@@ -22,7 +22,7 @@ const ScrollTopBottom: React.FC<Props> = (props) => {
 
   return (
     <div
-      className={`flex w-fit flex-col text-2xl text-white ${!scrollToTopAvailable && !scrollToBottomAvailable ? 'hidden' : ''} ${props.className ?? ''}`}>
+      className={`flex w-fit flex-col text-2xl text-white ${!scrollToTopAvailable && !scrollToBottomAvailable ? 'hidden' : ''} ${props.className ?? ''} print:hidden`}>
       <button
         className={`flex h-8 w-8 items-center justify-center rounded-t bg-gray-400 ${scrollToTopAvailable ? 'opacity-80' : 'opacity-30'}`}
         onClick={scrollToTop}
