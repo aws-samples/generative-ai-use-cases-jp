@@ -2,8 +2,6 @@
 
 set -eu
 
-export AWS_PROFILE=genu
-
 # Get env from command lineargument (optional)
 if [ -n "${1:-}" ]; then
     env=$1

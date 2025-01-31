@@ -68,7 +68,7 @@ const InputChatContent: React.FC<Props> = (props) => {
     if (props.fileLimit && props.accept) {
       checkFiles(props.fileLimit, props.accept);
     }
-  }, [props.fileLimit, props.accept]);
+  }, [checkFiles, props.fileLimit, props.accept]);
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

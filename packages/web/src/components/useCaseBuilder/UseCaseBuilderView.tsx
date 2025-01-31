@@ -380,7 +380,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   useEffect(() => {
     checkFiles(fileLimit, accept);
-  }, [accept]);
+  }, [checkFiles, accept]);
 
   const fileInput = useRef<HTMLInputElement | null>(null);
 

@@ -3,7 +3,7 @@ import useFileApi from './useFileApi';
 import { FileLimit, UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 import { fileTypeFromStream } from 'file-type';
-
+import { useCallback } from 'react';
 export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
@@ -14,9 +14,13 @@ const useFilesState = create<{
     fileLimit: FileLimit,
     accept: string[]
   ) => Promise<void>;
-  checkFiles: (id: string, fileLimit: FileLimit, accept: string[]) => Promise<void>;
-  uploadedFilesDict: { [id: string]: UploadedFileType[] };
-  errorMessagesDict: { [id: string]: string[] };
+  checkFiles: (
+    id: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => Promise<void>;
+  uploadedFilesDict: Record<string, UploadedFileType[]>;
+  errorMessagesDict: Record<string, string[]>;
   deleteUploadedFile: (
     id: string,
     fileUrl: string,
@@ -39,9 +43,8 @@ const useFilesState = create<{
       }),
       errorMessagesDict: produce(state.errorMessagesDict, (draft) => {
         draft[id] = [];
-      })
+      }),
     }));
-
   };
 
   // Convert JS File Object to UploadedFileType to handle file upload status
@@ -177,7 +180,11 @@ const useFilesState = create<{
   };
 
   // Refresh error messages
-  const checkFiles = async (id: string, fileLimit: FileLimit, accept: string[]) => {
+  const checkFiles = async (
+    id: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
     // Get current files
     const currentUploadedFiles = get().uploadedFilesDict[id] ?? [];
 
@@ -189,9 +196,8 @@ const useFilesState = create<{
       produce((state) => {
         state.uploadedFilesDict[id] = newUploadedFiles;
         state.errorMessagesDict[id] = errorMessages;
-      }
-      ));
-
+      })
+    );
   };
 
   // Handle File Uploads
@@ -231,7 +237,8 @@ const useFilesState = create<{
       reader.onload = () => {
         set(
           produce((state) => {
-            state.uploadedFilesDict[id][idx].base64EncodedData = reader.result?.toString();
+            state.uploadedFilesDict[id][idx].base64EncodedData =
+              reader.result?.toString();
           })
         );
       };
@@ -256,7 +263,7 @@ const useFilesState = create<{
                 state.base64Cache = {
                   ...state.base64Cache,
                   [fileUrl]: reader.result?.toString() ?? '',
-                }
+                };
               })
             );
           });
@@ -297,7 +304,7 @@ const useFilesState = create<{
         targetIndex = findTargetIndex();
         set(
           produce((state) => {
-            state.uploadedFilesDict[id].splice(targetIndex, 1)
+            state.uploadedFilesDict[id].splice(targetIndex, 1);
           })
         );
 
@@ -368,15 +375,13 @@ const useFiles = (id: string) => {
     getFileDownloadSignedUrl,
   } = useFilesState();
   return {
-    uploadFiles: (
-      files: File[],
-      fileLimit: FileLimit,
-      accept: string[]
-    ) => uploadFiles(id, files, fileLimit, accept),
-    checkFiles: (
-      fileLimit: FileLimit,
-      accept: string[]
-    ) => checkFiles(id, fileLimit, accept),
+    uploadFiles: (files: File[], fileLimit: FileLimit, accept: string[]) =>
+      uploadFiles(id, files, fileLimit, accept),
+    checkFiles: useCallback(
+      (fileLimit: FileLimit, accept: string[]) =>
+        checkFiles(id, fileLimit, accept),
+      [checkFiles, id]
+    ),
     errorMessages: errorMessagesDict[id] ?? [],
     clear: () => clear(id),
     uploadedFiles: uploadedFilesDict[id] ?? [],
@@ -385,7 +390,9 @@ const useFiles = (id: string) => {
       fileLimit: FileLimit,
       accept: string[]
     ) => deleteUploadedFile(id, fileUrl, fileLimit, accept),
-    uploading: uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ?? false,
+    uploading:
+      uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ??
+      false,
     base64Cache,
     getFileDownloadSignedUrl,
   };
