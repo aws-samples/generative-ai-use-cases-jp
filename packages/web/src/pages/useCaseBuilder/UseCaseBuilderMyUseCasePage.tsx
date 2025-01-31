@@ -4,7 +4,6 @@ import ButtonIcon from '../../components/ButtonIcon';
 import { PiNotePencil, PiTrash } from 'react-icons/pi';
 import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
 import Skeleton from '../../components/Skeleton';
@@ -82,7 +81,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
             <Button
               className=""
               onClick={() => {
-                navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`);
+                navigate(`/use-case-builder/new`);
               }}>
               <PiNotePencil className="mr-2" />
               新規作成
@@ -104,9 +103,7 @@ const UseCaseBuilderMyUseCasePage: React.FC = () => {
                 <div
                   className="flex flex-1 cursor-pointer flex-col justify-start"
                   onClick={() => {
-                    navigate(
-                      `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${useCase.useCaseId}`
-                    );
+                    navigate(`/use-case-builder/execute/${useCase.useCaseId}`);
                   }}>
                   <div className="line-clamp-1 text-sm font-bold">
                     {useCase.title}

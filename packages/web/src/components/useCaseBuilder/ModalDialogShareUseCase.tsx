@@ -4,7 +4,6 @@ import Button from '../Button';
 import { BaseProps } from '../../@types/common';
 import Switch from '../Switch';
 import ButtonCopy from '../ButtonCopy';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 
 type Props = BaseProps & {
   isOpen: boolean;
@@ -16,7 +15,7 @@ type Props = BaseProps & {
 
 const ModalDialogShareUseCase: React.FC<Props> = (props) => {
   const shareUrl = useMemo(() => {
-    return `${window.location.origin}${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${props.useCaseId}`;
+    return `${window.location.origin}/use-case-builder/execute/${props.useCaseId}`;
   }, [props.useCaseId]);
 
   return (
