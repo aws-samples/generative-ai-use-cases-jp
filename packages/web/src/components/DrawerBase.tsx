@@ -6,7 +6,6 @@ import useVersion from '../hooks/useVersion';
 import IconWithDot from './IconWithDot';
 import { PiGear } from 'react-icons/pi';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 type Props = BaseProps & {
   builderMode?: boolean;
@@ -28,9 +27,7 @@ const DrawerBase: React.FC<Props> = (props) => {
   const hasUpdate = getHasUpdate();
 
   const settingUrl = useMemo(() => {
-    return props.builderMode
-      ? `${ROUTE_INDEX_USE_CASE_BUILDER}/setting`
-      : 'setting';
+    return props.builderMode ? `/use-case-builder/setting` : 'setting';
   }, [props.builderMode]);
 
   return (

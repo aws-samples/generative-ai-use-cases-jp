@@ -157,30 +157,29 @@ const routes: RouteObject[] = [
   },
 ].flatMap((r) => (r !== null ? [r] : []));
 
-export const ROUTE_INDEX_USE_CASE_BUILDER = '/use-case-builder';
 const useCaseBuilderRoutes: RouteObject[] = [
   {
-    path: ROUTE_INDEX_USE_CASE_BUILDER,
+    path: '/use-case-builder',
     element: <UseCaseBuilderSamplesPage />,
   },
   {
-    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/my-use-case`,
+    path: `/use-case-builder/my-use-case`,
     element: <UseCaseBuilderMyUseCasePage />,
   },
   {
-    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/new`,
+    path: `/use-case-builder/new`,
     element: <UseCaseBuilderEditPage />,
   },
   {
-    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/edit/:useCaseId`,
+    path: `/use-case-builder/edit/:useCaseId`,
     element: <UseCaseBuilderEditPage />,
   },
   {
-    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/execute/:useCaseId`,
+    path: `/use-case-builder/execute/:useCaseId`,
     element: <UseCaseBuilderExecutePage />,
   },
   {
-    path: `${ROUTE_INDEX_USE_CASE_BUILDER}/setting`,
+    path: `/use-case-builder/setting`,
     element: <Setting />,
   },
   {
@@ -206,7 +205,7 @@ const router = createBrowserRouter([
   ...(useCaseBuilderEnabled
     ? [
         {
-          path: ROUTE_INDEX_USE_CASE_BUILDER,
+          path: '/use-case-builder',
           element: samlAuthEnabled ? (
             <AuthWithSAML>
               <UseCaseBuilderRoot />

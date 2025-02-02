@@ -8,7 +8,6 @@ import ModalDialogShareUseCase from '../../components/useCaseBuilder/ModalDialog
 import { produce } from 'immer';
 import ModalDialog from '../../components/ModalDialog';
 import Button from '../../components/Button';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import usePageTitle from '../../hooks/usePageTitle';
 
 const UseCaseBuilderExecutePage: React.FC = () => {
@@ -93,7 +92,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
           <div className="flex justify-end gap-2">
             <Button
               onClick={() => {
-                navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}`);
+                navigate(`/use-case-builder`);
               }}>
               TOP画面に戻る
             </Button>

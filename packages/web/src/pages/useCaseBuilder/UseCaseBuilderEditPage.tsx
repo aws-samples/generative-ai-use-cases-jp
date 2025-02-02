@@ -19,7 +19,6 @@ import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useUseCase from '../../hooks/useCaseBuilder/useUseCase';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import ModalDialogDeleteUseCase from '../../components/useCaseBuilder/ModalDialogDeleteUseCase';
 import UseCaseBuilderHelp from '../../components/useCaseBuilder/UseCaseBuilderHelp';
 import { UseCaseInputExample } from 'generative-ai-use-cases-jp';
@@ -404,7 +403,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
           await updateRecentUseUseCase(res.useCaseId);
 
           // 実行画面に遷移
-          navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/execute/${res.useCaseId}`);
+          navigate(`/use-case-builder/execute/${res.useCaseId}`);
         })
         .finally(() => {
           setIsPosting(false);
@@ -434,7 +433,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     setIsDeleting(true);
     deleteUseCase(useCaseId)
       .then(() => {
-        navigate(ROUTE_INDEX_USE_CASE_BUILDER);
+        navigate('/use-case-builder');
       })
       .finally(() => {
         setIsDeleting(false);

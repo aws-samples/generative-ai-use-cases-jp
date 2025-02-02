@@ -14,7 +14,6 @@ import useDrawer from './hooks/useDrawer';
 import PopupInterUseCasesDemo from './components/PopupInterUseCasesDemo';
 import useInterUseCases from './hooks/useInterUseCases';
 import UseCaseBuilderDrawer from './components/useCaseBuilder/UseCaseBuilderDrawer';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from './main';
 import usePageTitle from './hooks/usePageTitle';
 
 const UseCaseBuilderRoot: React.FC = () => {
@@ -28,19 +27,19 @@ const UseCaseBuilderRoot: React.FC = () => {
       [
         {
           label: 'サンプル集',
-          to: ROUTE_INDEX_USE_CASE_BUILDER,
+          to: '/use-case-builder',
           icon: <PiSwatches />,
           display: 'usecase' as const,
         },
         {
           label: 'マイユースケース',
-          to: `${ROUTE_INDEX_USE_CASE_BUILDER}/my-use-case`,
+          to: `/use-case-builder/my-use-case`,
           icon: <PiListDashes />,
           display: 'usecase' as const,
         },
         {
           label: '新規作成',
-          to: `${ROUTE_INDEX_USE_CASE_BUILDER}/new`,
+          to: `/use-case-builder/new`,
           icon: <PiNotePencil />,
           display: 'usecase' as const,
         },

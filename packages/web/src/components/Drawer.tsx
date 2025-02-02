@@ -7,7 +7,6 @@ import ChatList from './ChatList';
 import DrawerItem, { DrawerItemProps } from './DrawerItem';
 import DrawerBase from './DrawerBase';
 import Switch from './Switch';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 export type ItemProps = DrawerItemProps & {
   display: 'usecase' | 'tool' | 'none';
@@ -49,7 +48,7 @@ const Drawer: React.FC<Props> = (props) => {
               label="ビルダーモード"
               checked={false}
               onSwitch={() => {
-                navigate(ROUTE_INDEX_USE_CASE_BUILDER);
+                navigate('/use-case-builder');
               }}
             />
             <div className="border-b" />
