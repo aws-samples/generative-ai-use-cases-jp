@@ -829,7 +829,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-2',
+    modelRegion: 'us-west-2',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-haiku-20241022-v1:0",
