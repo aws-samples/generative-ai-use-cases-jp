@@ -1,0 +1,10 @@
+{
+  "metadataAttributes": {
+    "group": ["IT"],
+    "year": 2024,
+    "tag": ["AWS", "Amazon Bedrock"],
+    "category": "AWS",
+    "is_public": true,
+    "title": "Amazon Bedrock ユーザーガイド"
+  }
+}

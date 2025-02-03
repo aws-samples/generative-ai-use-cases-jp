@@ -29,6 +29,7 @@
     "immer": "^10.0.4",
     "immutability-helper": "^3.1.1",
     "lodash.debounce": "^4.0.8",
+    "mermaid": "^11.4.1",
     "microphone-stream": "^6.0.1",
     "query-string": "^9.0.0",
     "react": "^18.2.0",
@@ -42,7 +43,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.0",
-    "swr": "^2.2.5",
+    "swr": "^2.3.0",
     "tailwind-scrollbar": "^3.1.0",
     "uuid": "^9.0.1",
     "zustand": "^4.5.2"

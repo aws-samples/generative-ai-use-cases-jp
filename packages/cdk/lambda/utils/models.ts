@@ -899,6 +899,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutputText: extractConverseOutputText,
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
+  'us.meta.llama3-3-70b-instruct-v1:0': {
+    defaultParams: LLAMA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutputText: extractConverseOutputText,
+    extractConverseStreamOutputText: extractConverseStreamOutputText,
+  },
   'mistral.mistral-7b-instruct-v0:2': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -1030,7 +1038,15 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
+  'stability.stable-image-core-v1:1': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
   'stability.stable-image-ultra-v1:0': {
+    createBodyImage: createBodyImageStabilityAI2024Model,
+    extractOutputImage: extractOutputImageStabilityAI2024Model,
+  },
+  'stability.stable-image-ultra-v1:1': {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },

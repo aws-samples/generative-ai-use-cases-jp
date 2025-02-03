@@ -52,7 +52,7 @@ export class Transcribe extends Construct {
     });
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/getFileUploadSignedUrl.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -65,7 +65,7 @@ export class Transcribe extends Construct {
       this,
       'StartTranscription',
       {
-        runtime: Runtime.NODEJS_18_X,
+        runtime: Runtime.NODEJS_LATEST,
         entry: './lambda/startTranscription.ts',
         timeout: Duration.minutes(15),
         environment: {
@@ -87,7 +87,7 @@ export class Transcribe extends Construct {
       this,
       'GetTranscription',
       {
-        runtime: Runtime.NODEJS_18_X,
+        runtime: Runtime.NODEJS_LATEST,
         entry: './lambda/getTranscription.ts',
         timeout: Duration.minutes(15),
         initialPolicy: [

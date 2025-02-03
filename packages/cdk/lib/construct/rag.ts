@@ -22,11 +22,20 @@ import { Runtime } from 'aws-cdk-lib/aws-lambda';
 const KENDRA_STATE_CFN_PARAMETER_NAME = 'kendraState';
 
 export interface RagProps {
+  // Context Params
+  envSuffix: string;
+  kendraIndexArnInCdkContext?: string | null;
+  kendraDataSourceBucketName?: string | null;
+  kendraIndexScheduleEnabled: boolean;
+  kendraIndexScheduleCreateCron?: IndexScheduleCron | null;
+  kendraIndexScheduleDeleteCron?: IndexScheduleCron | null;
+
+  // Resource
   userPool: UserPool;
   api: RestApi;
 }
 
-interface IndexScheduleCron {
+export interface IndexScheduleCron {
   minute: string;
   hour: string;
   month: string;
@@ -94,22 +103,14 @@ export class Rag extends Construct {
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
 
-    const env: string[] | null = this.node.tryGetContext('env') ?? '';
-
-    const kendraIndexArnInCdkContext =
-      this.node.tryGetContext('kendraIndexArn');
-
-    const kendraDataSourceBucketName = this.node.tryGetContext(
-      'kendraDataSourceBucketName'
-    );
-
-    const kendraIndexScheduleEnabled: boolean = this.node.tryGetContext(
-      'kendraIndexScheduleEnabled'
-    );
-    const kendraIndexScheduleCreateCron: IndexScheduleCron | null =
-      this.node.tryGetContext('kendraIndexScheduleCreateCron');
-    const kendraIndexScheduleDeleteCron: IndexScheduleCron | null =
-      this.node.tryGetContext('kendraIndexScheduleDeleteCron');
+    const {
+      envSuffix,
+      kendraIndexArnInCdkContext,
+      kendraDataSourceBucketName,
+      kendraIndexScheduleEnabled,
+      kendraIndexScheduleCreateCron,
+      kendraIndexScheduleDeleteCron,
+    } = props;
 
     let kendraIndexArn: string;
     let kendraIndexId: string;
@@ -183,7 +184,7 @@ export class Rag extends Construct {
 
       let index: kendra.CfnIndex;
       const indexProps: kendra.CfnIndexProps = {
-        name: `generative-ai-use-cases-index${env}`,
+        name: `generative-ai-use-cases-index${envSuffix}`,
         edition: 'DEVELOPER_EDITION',
         roleArn: indexRole.roleArn,
 
@@ -494,7 +495,7 @@ export class Rag extends Construct {
     // RAG 関連の API を追加する
     // Lambda
     const queryFunction = new NodejsFunction(this, 'Query', {
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/queryKendra.ts',
       timeout: Duration.minutes(15),
       bundling: {
@@ -514,7 +515,7 @@ export class Rag extends Construct {
     );
 
     const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/retrieveKendra.ts',
       timeout: Duration.minutes(15),
       bundling: {

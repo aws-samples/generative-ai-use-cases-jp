@@ -1,53 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BaseProps } from '../@types/common';
-import { Link, useNavigate } from 'react-router-dom';
-import useDrawer from '../hooks/useDrawer';
-import { PiGithubLogo, PiBookOpen, PiMagnifyingGlass } from 'react-icons/pi';
-import BedrockIcon from '../assets/bedrock.svg?react';
+import { useNavigate } from 'react-router-dom';
+import { PiMagnifyingGlass } from 'react-icons/pi';
 import ExpandableMenu from './ExpandableMenu';
 import ChatList from './ChatList';
 import DrawerItem, { DrawerItemProps } from './DrawerItem';
 import DrawerBase from './DrawerBase';
 import Switch from './Switch';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../main';
 
 export type ItemProps = DrawerItemProps & {
   display: 'usecase' | 'tool' | 'none';
-};
-
-type RefLinkProps = BaseProps & {
-  label: string;
-  to: string;
-  icon: JSX.Element;
-};
-
-const RefLink: React.FC<RefLinkProps> = (props) => {
-  const { switchOpen } = useDrawer();
-
-  // 狭い画面の場合は、クリックしたらDrawerを閉じる
-  const onClick = useCallback(() => {
-    if (
-      document
-        .getElementById('smallDrawerFiller')
-        ?.classList.contains('visible')
-    ) {
-      switchOpen();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <Link
-      className={`flex h-8 w-fit cursor-pointer items-center rounded px-1 py-2 ${props.className}`}
-      to={props.to}
-      onClick={onClick}
-      target="_blank">
-      <div className="mr-1 flex size-6 items-center justify-center">
-        {props.icon}
-      </div>
-      <div>{props.label}</div>
-    </Link>
-  );
 };
 
 type Props = BaseProps & {
@@ -86,7 +48,7 @@ const Drawer: React.FC<Props> = (props) => {
               label="ビルダーモード"
               checked={false}
               onSwitch={() => {
-                navigate(ROUTE_INDEX_USE_CASE_BUILDER);
+                navigate('/use-case-builder');
               }}
             />
             <div className="border-b" />
@@ -143,29 +105,6 @@ const Drawer: React.FC<Props> = (props) => {
           </div>
           <div className="scrollbar-thin scrollbar-thumb-white ml-2 mr-1 h-full overflow-y-auto">
             <ChatList className="mr-1" searchWords={searchWords} />
-          </div>
-        </ExpandableMenu>
-        <div className="border-b" />
-        <ExpandableMenu
-          title="リンク"
-          defaultOpened={false}
-          className="mx-3 my-2 text-xs">
-          <div className="mb-2 ml-2">
-            <RefLink
-              to="https://aws.amazon.com/jp/bedrock/"
-              icon={<BedrockIcon className="w-4 fill-white" />}
-              label="Bedrock"
-            />
-            <RefLink
-              to="https://github.com/aws-samples/generative-ai-use-cases-jp"
-              icon={<PiGithubLogo className="text-base" />}
-              label="GitHub"
-            />
-            <RefLink
-              to="https://docs.anthropic.com/claude/docs"
-              icon={<PiBookOpen className="text-base" />}
-              label="Claude Prompt Engineering"
-            />
           </div>
         </ExpandableMenu>
       </DrawerBase>

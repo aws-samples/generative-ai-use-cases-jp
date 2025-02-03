@@ -2,7 +2,7 @@
 
 開発者用にローカル環境を構築する手順を説明します。なお、ローカル環境を構築する場合も、[AWS へのデプロイ](/README.md#デプロイ)は完了している必要があります。
 
-### Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS 等)
+### (推奨) Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS, Windows WSL/Bash/Git Bash 等)
 
 以下のコマンドを実行することで、必要な環境変数を CloudFormation の Output から動的に取得し、サーバーを起動します。
 なお、内部で `aws` コマンドと `jq` コマンドを利用しているので、未インストールの場合はインストールしてから実行してください。
@@ -18,6 +18,9 @@ npm run web:devw
 > export AWS_PROFILE=''
 > export AWS_DEFAULT_REGION=''
 > ```
+
+> [!TIP]
+> バックエンドの環境を切り替えて利用したい際は、cdk.json の context.env を変更するか、`npm run web:devw --env=dev2` のようにコマンドライン引数で指定してください。
 
 ### その他のユーザー (Windows 等)
 
@@ -50,6 +53,7 @@ export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Prov
 export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array>
 export VITE_APP_USE_CASE_BUILDER_ENABLED=<UseCase Builder Flag>
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=<Function ARN>
+export VITE_APP_HIDDEN_USE_CASES=<非表示メニューの設定 JSON>
 ```
 
 具体例は以下です。
@@ -74,6 +78,7 @@ export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
 export VITE_APP_AGENT_NAMES=["SearchEngine"]
 export VITE_APP_USE_CASE_BUILDER_ENABLED=true
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=arn:aws:lambda:ap-northeast-1:000000000000:function:FunctionName
+export VITE_APP_HIDDEN_USE_CASES={}
 ```
 
 #### `.env` ファイルを利用する方法
@@ -102,4 +107,14 @@ npm run web:dev
 
 ```bash
 npm run lint
+```
+
+また、CDK に変更があれば以下のコマンドでスナップショットの確認を行いスナップショットを更新してください。
+
+```bash
+# 差分を確認
+npm run cdk:test
+
+# テストを更新
+npm run cdk:test:update-snapshot
 ```

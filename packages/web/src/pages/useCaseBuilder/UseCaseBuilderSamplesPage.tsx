@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import {
   SamplePromptType,
   useCaseBuilderSamplePrompts,
@@ -12,7 +11,7 @@ const CardSample: React.FC<CardSampleProps> = (props) => {
   const navigate = useNavigate();
 
   const onClick = useCallback(() => {
-    navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/new`, {
+    navigate(`/use-case-builder/new`, {
       state: {
         title: props.title,
         promptTemplate: props.promptTemplate,

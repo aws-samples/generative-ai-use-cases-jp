@@ -24,10 +24,10 @@ import {
 import { streamingChunk } from './streamingChunk';
 
 const agentClient = new BedrockAgentClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 const agentRuntimeClient = new BedrockAgentRuntimeClient({
-  region: process.env.AGENT_REGION,
+  region: process.env.MODEL_REGION,
 });
 const s3Client = new S3Client({});
 
@@ -150,7 +150,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
               if (!s3Uri) continue;
               const url = convertS3UriToUrl(
                 s3Uri,
-                process.env.AGENT_REGION || ''
+                process.env.MODEL_REGION || ''
               );
 
               // ページ番号を取得
@@ -288,9 +288,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     .replace('</search_results>', '')
                 );
                 trace = searchResult
-                  .map(
-                    (item) => `- [${item.title}](${encodeUrlString(item.url)})`
-                  )
+                  .map((item) => `- [${item.title}](${item.url})`)
                   .join('\n');
               } else {
                 // それ以外は出力の冒頭1000文字を表示
@@ -311,7 +309,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                       const url = location.uri
                         ? convertS3UriToUrl(
                             location.uri,
-                            process.env.AGENT_REGION || ''
+                            process.env.MODEL_REGION || ''
                           )
                         : location.url;
                       const fileName = url.split('/').pop() || '';
@@ -342,16 +340,21 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
       ) {
         yield streamingChunk({
           text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          stopReason: 'error',
         });
       } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.AGENT_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.AGENT_REGION}#/modelaccess`;
+        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
           text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          stopReason: 'error',
         });
       } else {
         console.error(e);
         yield streamingChunk({
-          text: 'エラーが発生しました。時間をおいて試してみてください。',
+          text:
+            'エラーが発生しました。管理者に以下のエラーを報告してください。\n' +
+            e,
+          stopReason: 'error',
         });
       }
     }

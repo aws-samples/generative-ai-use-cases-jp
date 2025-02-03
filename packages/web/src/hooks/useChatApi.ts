@@ -116,6 +116,9 @@ const useChatApi = () => {
         }),
       });
 
+      // Append idToken to req
+      req.idToken = token;
+
       const res = await lambda.send(
         new InvokeWithResponseStreamCommand({
           FunctionName: import.meta.env.VITE_APP_PREDICT_STREAM_FUNCTION_ARN,

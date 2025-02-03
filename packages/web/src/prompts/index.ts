@@ -59,6 +59,11 @@ export type SetTitleParams = {
   messages: UnrecordedMessage[];
 };
 
+export type DiagramParams = {
+  determineType: boolean;
+  diagramType?: string;
+};
+
 export type PromptListItem = {
   title: string;
   systemContext: string;
@@ -84,4 +89,5 @@ export interface Prompter {
   videoAnalyzerPrompt(params: VideoAnalyzerParams): string;
   setTitlePrompt(params: SetTitleParams): string;
   promptList(): PromptList;
+  diagramPrompt(params: DiagramParams): string;
 }

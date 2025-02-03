@@ -53,7 +53,7 @@ fi
 npx -w packages/cdk cdk bootstrap
 
 # デプロイの実行
-npm run cdk:deploy
+npm run cdk:deploy:quick
 
 # デプロイした CloudFront の url を取得
 weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`

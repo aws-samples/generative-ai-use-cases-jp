@@ -143,7 +143,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     setLoading,
     messages,
     postChat,
+    continueGeneration,
     clear: clearChat,
+    getStopReason,
   } = useChat(pathname);
   const modelId = useMemo(() => {
     if (props.fixedModelId !== '') {
@@ -166,6 +168,8 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     errorMessages: fileErrorMessages,
     clear: clearFiles,
   } = useFiles();
+  const stopReason = getStopReason();
+  const [isOver, setIsOver] = useState(false);
 
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
@@ -400,8 +404,57 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     [deleteUploadedFile, accept]
   );
 
+  const handleDragOver = (event: React.DragEvent) => {
+    // ファイルドラッグ時にオーバーレイを表示
+    event.preventDefault();
+    setIsOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    // ファイルドラッグ時にオーバーレイを非表示
+    event.preventDefault();
+    setIsOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    // ファイルドロップ時にファイルを追加
+    event.preventDefault();
+    setIsOver(false);
+    if (event.dataTransfer.files) {
+      // ファイルを反映しアップロード
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
+    }
+  };
+
+  const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
+    const fileList = pasteEvent.clipboardData.items || [];
+    const files = Array.from(fileList)
+      .filter((file) => file.kind === 'file')
+      .map((file) => file.getAsFile() as File);
+    if (files.length > 0 && fileLimit && accept) {
+      // ファイルをアップロード
+      uploadFiles(Array.from(files), fileLimit, accept);
+      // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
+      pasteEvent.preventDefault();
+    }
+    // ファイルがない場合はデフォルトの挙動（テキストのペースト）
+  };
+
   return (
-    <div>
+    <div
+      onDragOver={props.fileUpload ? handleDragOver : undefined}
+      onDragLeave={props.fileUpload ? handleDragLeave : undefined}
+      onPaste={props.fileUpload ? handlePaste : undefined}
+      className="relative">
+      {isOver && props.fileUpload && (
+        <div
+          onDrop={handleDrop}
+          className="absolute inset-0 z-[999] bg-slate-300 p-10 text-center">
+          <div className="flex h-full w-full items-center justify-center outline-dashed">
+            <div className="font-bold">ファイルをドロップしてアップロード</div>
+          </div>
+        </div>
+      )}
       <div className="mb-4 flex flex-col-reverse text-xl font-semibold md:flex-row">
         {!props.previewMode && <div className="flex-1" />}
         <div
@@ -583,6 +636,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           )}
         </div>
         <div className="flex shrink-0 gap-3 ">
+          {stopReason === 'max_tokens' && (
+            <Button onClick={continueGeneration}>続きを出力</Button>
+          )}
+
           <Button
             outlined
             onClick={onClickClear}
