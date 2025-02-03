@@ -83,4 +83,5 @@ export const MODELS = {
   imageGenModels: imageGenModels,
   agentModels: agentModels,
   flows,
+  flowChatEnabled: flows.length > 0,
 };
