@@ -750,7 +750,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
 "stability.sd3-large-v1:0",
-"stability.sd3-5-large-v1:0"
+"stability.sd3-5-large-v1:0",
 "stability.stable-image-core-v1:0",
 "stability.stable-image-core-v1:1",
 "stability.stable-image-ultra-v1:0",
@@ -829,7 +829,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-2',
+    modelRegion: 'us-west-2',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-haiku-20241022-v1:0",
