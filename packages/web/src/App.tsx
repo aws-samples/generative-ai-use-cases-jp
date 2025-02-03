@@ -37,16 +37,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { visionEnabled } = MODELS;
-const getFlows = () => {
-  try {
-    return JSON.parse(import.meta.env.VITE_APP_FLOWS);
-  } catch (e) {
-    return [];
-  }
-};
-const flows = getFlows();
-const flowChatEnabled: boolean = flows.length > 0;
+const { visionEnabled, flowChatEnabled } = MODELS;
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す
