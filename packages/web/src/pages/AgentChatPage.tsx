@@ -98,7 +98,7 @@ const AgentChatPage: React.FC = () => {
     uploadedFiles,
     uploadFiles,
     base64Cache,
-  } = useFiles();
+  } = useFiles(pathname);
 
   useEffect(() => {
     updateSystemContextByModel();

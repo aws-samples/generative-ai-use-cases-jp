@@ -167,7 +167,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     uploading,
     errorMessages: fileErrorMessages,
     clear: clearFiles,
-  } = useFiles();
+  } = useFiles(pathname);
   const stopReason = getStopReason();
   const [isOver, setIsOver] = useState(false);
 
@@ -380,7 +380,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   useEffect(() => {
     checkFiles(fileLimit, accept);
-  }, [accept, checkFiles]);
+  }, [checkFiles, accept]);
 
   const fileInput = useRef<HTMLInputElement | null>(null);
 
