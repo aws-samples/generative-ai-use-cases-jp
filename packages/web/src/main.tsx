@@ -36,6 +36,7 @@ import UseCaseBuilderSamplesPage from './pages/useCaseBuilder/UseCaseBuilderSamp
 import UseCaseBuilderMyUseCasePage from './pages/useCaseBuilder/UseCaseBuilderMyUseCasePage.tsx';
 import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 import GenerateDiagramPage from './pages/GenerateDiagramPage.tsx';
+import WriterPage from './pages/WriterPage.tsx';
 import useUseCases from './hooks/useUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
@@ -87,6 +88,12 @@ const routes: RouteObject[] = [
     ? {
         path: '/editorial',
         element: <EditorialPage />,
+      }
+    : null,
+  enabled('writer')
+    ? {
+        path: '/writer',
+        element: <WriterPage />,
       }
     : null,
   enabled('translate')
