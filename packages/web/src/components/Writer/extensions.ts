@@ -7,7 +7,7 @@ import {
   GlobalDragHandle,
   HighlightExtension,
   HorizontalRule,
-  Mathematics,
+  // Mathematics,
   Placeholder,
   StarterKit,
   TaskItem,
@@ -135,14 +135,14 @@ const twitter = Twitter.configure({
   inline: false,
 });
 
-const mathematics = Mathematics.configure({
-  HTMLAttributes: {
-    class: 'text-foreground rounded p-1 hover:bg-accent cursor-pointer',
-  },
-  katexOptions: {
-    throwOnError: false,
-  },
-});
+// const mathematics = Mathematics.configure({
+//   HTMLAttributes: {
+//     class: 'text-foreground rounded p-1 hover:bg-accent cursor-pointer',
+//   },
+//   katexOptions: {
+//     throwOnError: false,
+//   },
+// });
 
 const characterCount = CharacterCount.configure();
 
@@ -170,7 +170,7 @@ export const defaultExtensions = [
   codeBlockLowlight,
   youtube,
   twitter,
-  mathematics,
+  // mathematics,
   characterCount,
   TiptapUnderline,
   markdownExtension,

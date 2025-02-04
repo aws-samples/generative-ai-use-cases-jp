@@ -126,14 +126,6 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    enabled('editorial')
-      ? {
-          label: '校正',
-          to: '/editorial',
-          icon: <PiPenNib />,
-          display: 'usecase' as const,
-        }
-      : null,
     enabled('writer')
       ? {
           label: '執筆',

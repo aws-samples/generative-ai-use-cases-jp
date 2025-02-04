@@ -7,6 +7,12 @@ export const defaultEditorContent = {
       content: [{ type: 'text', text: '【新機能】GenU 執筆ユーズケース' }],
     },
     {
+      type: 'image',
+      attrs: {
+        src: 'https://placehold.co/600x400',
+      },
+    },
+    {
       type: 'paragraph',
       content: [
         {
@@ -75,131 +81,6 @@ export const defaultEditorContent = {
                 {
                   type: 'text',
                   text: 'Image uploads (drag & drop / copy & paste, or select from slash menu) ',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'Add tweets from the command slash menu:',
-                },
-              ],
-            },
-            {
-              type: 'twitter',
-              attrs: {
-                src: 'https://x.com/elonmusk/status/1800759252224729577',
-              },
-            },
-          ],
-        },
-        {
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: [
-                {
-                  type: 'text',
-                  text: 'Mathematical symbols with LaTeX expression:',
-                },
-              ],
-            },
-            {
-              type: 'orderedList',
-              attrs: {
-                tight: true,
-                start: 1,
-              },
-              content: [
-                {
-                  type: 'listItem',
-                  content: [
-                    {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'math',
-                          attrs: {
-                            latex: 'E = mc^2',
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: 'listItem',
-                  content: [
-                    {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'math',
-                          attrs: {
-                            latex: 'a^2 = \\sqrt{b^2 + c^2}',
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: 'listItem',
-                  content: [
-                    {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'math',
-                          attrs: {
-                            latex:
-                              '\\hat{f} (\\xi)=\\int_{-\\infty}^{\\infty}f(x)e^{-2\\pi ix\\xi}dx',
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: 'listItem',
-                  content: [
-                    {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'math',
-                          attrs: {
-                            latex:
-                              'A=\\begin{bmatrix}a&b\\\\c&d \\end{bmatrix}',
-                          },
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: 'listItem',
-                  content: [
-                    {
-                      type: 'paragraph',
-                      content: [
-                        {
-                          type: 'math',
-                          attrs: {
-                            latex: '\\sum_{i=0}^n x_i',
-                          },
-                        },
-                      ],
-                    },
-                  ],
                 },
               ],
             },

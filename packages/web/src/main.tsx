@@ -14,7 +14,6 @@ import ChatPage from './pages/ChatPage';
 import SharedChatPage from './pages/SharedChatPage';
 import SummarizePage from './pages/SummarizePage';
 import GenerateTextPage from './pages/GenerateTextPage';
-import EditorialPage from './pages/EditorialPage';
 import TranslatePage from './pages/TranslatePage';
 import VideoAnalyzerPage from './pages/VideoAnalyzerPage';
 import NotFound from './pages/NotFound';
@@ -82,12 +81,6 @@ const routes: RouteObject[] = [
     ? {
         path: '/summarize',
         element: <SummarizePage />,
-      }
-    : null,
-  enabled('editorial')
-    ? {
-        path: '/editorial',
-        element: <EditorialPage />,
       }
     : null,
   enabled('writer')

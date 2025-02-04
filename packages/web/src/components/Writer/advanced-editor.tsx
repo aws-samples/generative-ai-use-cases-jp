@@ -32,7 +32,7 @@ import { uploadFn } from './image-upload';
 import { TextButtons } from './selectors/text-buttons';
 import { slashCommand, suggestionItems } from './slash-command';
 
-import hljs from 'highlight.js';
+import hljs from 'highlight.js/lib/core';
 
 const extensions = [...defaultExtensions, slashCommand];
 

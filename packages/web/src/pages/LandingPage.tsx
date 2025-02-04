@@ -7,7 +7,6 @@ import {
   PiPencil,
   PiNote,
   PiChatsCircle,
-  PiPenNib,
   PiTranslate,
   PiGlobe,
   PiImages,
@@ -23,7 +22,6 @@ import useInterUseCases from '../hooks/useInterUseCases';
 import {
   AgentPageQueryParams,
   ChatPageQueryParams,
-  EditorialPageQueryParams,
   GenerateImagePageQueryParams,
   GenerateTextPageQueryParams,
   InterUseCaseParams,
@@ -95,14 +93,6 @@ const LandingPage: React.FC = () => {
       additionalContext: '',
     };
     navigate(`/summarize?${queryString.stringify(params)}`);
-  };
-
-  const demoEditorial = () => {
-    const params: EditorialPageQueryParams = {
-      sentence:
-        'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
-    };
-    navigate(`/editorial?${queryString.stringify(params)}`);
   };
 
   const demoTranslate = () => {
@@ -339,14 +329,6 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoSummarize}
             icon={<PiNote />}
             description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
-          />
-        )}
-        {enabled('editorial') && (
-          <CardDemo
-            label="校正"
-            onClickDemo={demoEditorial}
-            icon={<PiPenNib />}
-            description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
           />
         )}
         {enabled('translate') && (

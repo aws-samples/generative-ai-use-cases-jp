@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -9,15 +9,17 @@ import Select from '../components/Select';
 import useChat from '../hooks/useChat';
 import useLocalStorageBoolean from '../hooks/useLocalStorageBoolean';
 import { create } from 'zustand';
-// import Texteditor from '../components/TextEditor';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import debounce from 'lodash.debounce';
 import { EditorialPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
-import TailwindAdvancedEditor from '../components/Writer/advanced-editor';
 import useWriter from '../hooks/useWriter';
+
+const TailwindAdvancedEditor = lazy(
+  () => import('../components/Writer/advanced-editor')
+);
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -280,7 +282,9 @@ const WriterPage: React.FC = () => {
             replaceSentence={replaceSentence}
             removeComment={removeComment}
           /> */}
-          <TailwindAdvancedEditor />
+          <Suspense fallback={<div>Loading...</div>}>
+            <TailwindAdvancedEditor />
+          </Suspense>
           <ExpandableField label="追加コンテキスト" optional>
             <Textarea
               placeholder="追加で指摘してほしい点を入力することができます"
