@@ -919,9 +919,6 @@ const envs: Record<string, Partial<StackInput>> = {
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
       "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
     ],
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
@@ -961,10 +958,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.amazon.nova-micro-v1:0",
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
-      "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
+      "mistral.mistral-large-2407-v1:0"
     ],
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
