@@ -44,6 +44,7 @@ const ragKnowledgeBaseEnabled: boolean =
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const { visionEnabled } = MODELS;
 const useCaseBuilderEnabled: boolean =
   import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
@@ -145,9 +146,15 @@ const routes: RouteObject[] = [
         element: <RagKnowledgeBasePage />,
       }
     : null,
-  agentEnabled
+  agentEnabled && !inlineAgents
     ? {
         path: '/agent',
+        element: <AgentChatPage />,
+      }
+    : null,
+  agentEnabled && inlineAgents
+    ? {
+        path: '/agent/:agentName',
         element: <AgentChatPage />,
       }
     : null,

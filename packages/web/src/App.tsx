@@ -37,7 +37,8 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { visionEnabled, flowChatEnabled } = MODELS;
+const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
+const { visionEnabled, agentNames, flowChatEnabled } = MODELS;
 
 // /chat/:chatId の形式から :chatId を返す
 // path が別の形式の場合は null を返す
@@ -94,7 +95,7 @@ const App: React.FC = () => {
           sub: 'Knowledge Base',
         }
       : null,
-    agentEnabled
+    agentEnabled && !inlineAgents
       ? {
           label: 'Agent チャット',
           to: '/agent',
@@ -102,6 +103,17 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
+    ...(agentEnabled && inlineAgents
+      ? agentNames.map((name: string) => {
+          return {
+            label: name,
+            to: `/agent/${name}`,
+            icon: <PiRobot />,
+            display: 'usecase' as const,
+            sub: 'Agent',
+          };
+        })
+      : []),
     flowChatEnabled
       ? {
           label: 'Flow チャット',
