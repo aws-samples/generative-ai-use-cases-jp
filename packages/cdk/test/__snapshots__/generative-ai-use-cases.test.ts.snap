@@ -1912,7 +1912,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Value": "true",
     },
     "AgentNames": {
-      "Value": "["SearchEngine","CodeInterpreter"]",
+      "Value": "WyJTZWFyY2hFbmdpbmUiLCJDb2RlSW50ZXJwcmV0ZXIiXQ==",
     },
     "ApiEndpoint": {
       "Value": {
