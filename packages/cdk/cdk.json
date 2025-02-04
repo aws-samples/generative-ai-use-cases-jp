@@ -53,6 +53,7 @@
     "searchAgentEnabled": false,
     "searchApiKey": "",
     "agents": [],
+    "inlineAgents": false,
     "flows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

@@ -1969,6 +1969,9 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
     "ImageGenerateModelIds": {
       "Value": "["stability.stable-diffusion-xl-v1"]",
     },
+    "InlineAgents": {
+      "Value": "false",
+    },
     "InvokeFlowFunctionArn": {
       "Value": {
         "Fn::GetAtt": [
@@ -11882,6 +11885,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "Ref": "AuthIdentityPool659E7F64",
           },
           "VITE_APP_IMAGE_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
+          "VITE_APP_INLINE_AGENTS": "false",
           "VITE_APP_MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
           "VITE_APP_MODEL_REGION": "us-east-1",
           "VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN": {

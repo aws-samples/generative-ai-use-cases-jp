@@ -34,6 +34,7 @@ export interface WebProps {
   samlCognitoDomainName?: string | null;
   samlCognitoFederatedIdentityProviderName?: string | null;
   agentNames: string[];
+  inlineAgents: boolean;
   cert?: ICertificate;
   hostName?: string | null;
   domainName?: string | null;
@@ -185,6 +186,7 @@ export class Web extends Construct {
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
+        VITE_APP_INLINE_AGENTS: props.inlineAgents.toString(),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),
         VITE_APP_HIDDEN_USE_CASES: JSON.stringify(props.hiddenUseCases),

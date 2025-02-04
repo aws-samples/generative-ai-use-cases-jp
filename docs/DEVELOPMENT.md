@@ -51,6 +51,7 @@ export VITE_APP_SAMLAUTH_ENABLED=<SAML 認証 Flag>
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=<SAML Cognito Domain>
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=<SAML Cognito Provider Name>
 export VITE_APP_AGENT_NAMES=<Bedrock Agent Names の JSON Array を base64 でエンコードしたもの>
+export VITE_APP_INLINE_AGENTS=<Agent をインラインで表示するか否か boolean>
 export VITE_APP_USE_CASE_BUILDER_ENABLED=<UseCase Builder Flag>
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=<Function ARN>
 export VITE_APP_HIDDEN_USE_CASES=<非表示メニューの設定 JSON>
@@ -76,6 +77,7 @@ export VITE_APP_SAMLAUTH_ENABLED=true
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=your-preferred-name.auth.ap-northeast-1.amazoncognito.com
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=EntraID
 export VITE_APP_AGENT_NAMES=WyJTZWFyY2hFbmdpbmUiXQo=
+export VITE_APP_INLINE_AGENTS=false
 export VITE_APP_USE_CASE_BUILDER_ENABLED=true
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=arn:aws:lambda:ap-northeast-1:000000000000:function:FunctionName
 export VITE_APP_HIDDEN_USE_CASES={}
