@@ -1,144 +1,137 @@
-> [!IMPORTANT]
-> This repository is currently developed for Japanese users. If you wish for multilingual support, please react to [this issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues/151).
+<div align="center">
+  <h1>Generative AI Use Cases JP (略称:GenU)</h1>
+
+  [![](https://img.shields.io/badge/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88-%E6%9C%80%E6%96%B0-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
+
+  生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装
+
+  <img alt="生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装"
+         src="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/docs/assets/images/sc_lp.png"
+         width="68%">
+</div>
 
 > [!IMPORTANT]
 > GenU は 2025/01 に v3 にアップグレードされました。いくつかの破壊的変更を伴いますので、アップグレード前に [リリースノート](https://github.com/aws-samples/generative-ai-use-cases-jp/releases/tag/v3.0.0) をご確認ください。
 
-# Generative AI Use Cases JP (略称:GenU)
+## GenU 活用パターン集
 
-[![](https://img.shields.io/badge/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88-%E6%9C%80%E6%96%B0-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
+GenU の機能やオプションを活用パターンごとに紹介いたします。網羅的なデプロイオプションに関しては [こちら](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html) をご参照ください。
 
-Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性をもたらします。GenU は、生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装です。
-
-![sc_lp.png](./docs/assets/images/sc_lp.png)
-
-このリポジトリではブラウザ拡張機能も提供しており、より便利に 生成 AI を活用することができます。詳しくは[こちらのページ](/browser-extension/README.md)をご覧ください。
-
-> **生成AIの進化に伴い、破壊的な変更を加えることが多々あります。エラーが発生した際は、まず最初にmainブランチの更新がないかご確認ください。**
-
-## ユースケース一覧
-
-> ユースケースは随時追加予定です。ご要望があれば [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues) に起票をお願いいたします。
+> [!TIP]
+> 活用パターンをクリックして詳細を確認してください
 
 <details>
-  <summary>チャット</summary>
-
-  大規模言語モデル (LLM) とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。
-
-  <img src="./docs/assets/images/usecase_chat.gif"/>
+  <summary><strong><ins>生成 AI のユースケースを体験したい</ins></strong></summary>
+  GenU は生成 AI を活用した多様なユースケースを標準で提供しています。それらのユースケースは、生成 AI を業務活用するためのアイデアの種となったり、そのまま業務で活用できるものなど、さまざまです。今後もさらにブラッシュアップされたユースケースを随時追加予定です。また、不要であれば<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E7%89%B9%E5%AE%9A%E3%81%AE%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%82%92%E9%9D%9E%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">特定のユースケースを非表示にする</a>オプションで非表示にすることもできます。デフォルトで提供しているユースケース一覧はこちらです。
+  <br/>
+  <br/>
+  <table width="100%">
+    <thead>
+      <tr>
+        <td width="20%">ユースケース</td>
+        <td width="80%">説明</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>チャット</td>
+        <td>大規模言語モデル (LLM) とチャット形式で対話することができます。LLM と直接対話するプラットフォームが存在するおかげで、細かいユースケースや新しいユースケースに迅速に対応することができます。また、プロンプトエンジニアリングの検証用環境としても有効です。</td>
+      </tr>
+      <tr>
+        <td>文章生成</td>
+        <td>あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆる文章を生成します。</td>
+      </tr>
+      <tr>
+        <td>要約</td>
+        <td>LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。</td>
+      </tr>
+      <tr>
+        <td>校正</td>
+        <td>LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。</td>
+      </tr>
+      <tr>
+        <td>翻訳</td>
+        <td>多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。</td>
+      </tr>
+      <tr>
+        <td>Web コンテンツ抽出</td>
+        <td>ブログやドキュメントなどの Web コンテンツから必要な情報を抽出します。LLMによって不要な情報を除去し、整った文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。</td>
+      </tr>
+      <tr>
+        <td>画像生成</td>
+        <td>画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。</td>
+      </tr>
+      <tr>
+        <td>映像分析</td>
+        <td>マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。</td>
+      </tr>
+      <tr>
+        <td>ダイアグラム生成</td>
+        <td>ダイアグラム生成は、あらゆるトピックに関する文章や内容を最適な図を用いて視覚化します。 テキストベースで簡単に図を生成でき、プログラマーやデザイナーでなくても効率的にフローチャートなどの図を作成できます。</td>
+      </tr>
+    </tbody>
+  </table>
 </details>
 
 <details>
-   <summary>RAG チャット</summary>
-
-  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。それと同時に、根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。例えば、社内ドキュメントを LLM に渡せば、社内の問い合わせ対応が自動化できます。このリポジトリでは Amazon Kendra か Knowledge Base から情報を取得します。
-
-  <img src="./docs/assets/images/usecase_rag.gif"/>
+  <summary><strong><ins>RAG がしたい</ins></strong></summary>
+  RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。
+  社内に蓄積された PDF, Word, Excel などのファイルが情報ソースになります。
+  RAG は根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。
+  <br/>
+  <br/>
+  GenU は RAG チャットというユースケースを提供しています。
+  また RAG チャットの情報ソースとして <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-amazon-kendra-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">Amazon Kendra</a> と <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">Knowledge Base</a> の 2 種類が利用可能です。
+  Amazon Kendra を利用する場合は、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E6%97%A2%E5%AD%98%E3%81%AE-amazon-kendra-index-%E3%82%92%E5%88%A9%E7%94%A8%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88">手動で作成した S3 Bucket や Kendra Index をそのまま利用する</a>ことが可能です。
+  Knowledge Base を利用する場合は、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#advanced-parsing-%E3%82%92%E6%9C%89%E5%8A%B9%E5%8C%96">Advanced Parsing</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF%E6%88%A6%E7%95%A5%E3%82%92%E5%A4%89%E6%9B%B4">チャンク戦略の選択</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">クエリ分解</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">リランキング</a>など高度な RAG が利用可能です。
+  また Knowledge Base では、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%A1%E3%82%BF%E3%83%87%E3%83%BC%E3%82%BF%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%83%BC%E3%81%AE%E8%A8%AD%E5%AE%9A">フィルタリングの設定</a>も可能です。
+  例えば「組織ごとにアクセス可能なデータソースを切り替えたい」や「UI からユーザーがフィルタを設定したい」といった要件を満たすことが可能です。
 </details>
 
 <details>
-   <summary>Agent チャット</summary>
-
-  Agent は LLM を API と連携することでさまざまなタスクを行えるようにする手法です。このソリューションではサンプル実装として検索エンジンを利用し必要な情報を調査して回答する Agent を実装しています。
-
-  <img src="./docs/assets/images/usecase_agent.gif"/>
+  <summary><strong><ins>独自に作成した AI エージェントや Bedrock Flows などを社内で利用したい</ins></strong></summary>
+  GenU で<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#agent-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">エージェントを有効化</a>すると Web 検索エージェントと Code Interpreter エージェントが作成されます。
+  Web 検索エージェントは、ユーザーの質問に回答するための情報を Web で検索し、回答します。例えば「AWS の GenU ってなに？」という質問に回答できます。
+  Code Interpreter エージェントは、ユーザーからのリクエストに応えるためにコードが実行できます。例えば「適当なダミーデータで散布図を描いて」といったリクエストに応えられます。
+  <br/>
+  <br/>
+  Web 検索エージェントと Code Interpreter エージェントはエージェントとしては基本的なものですので、中にはもっと業務に寄り添った実践的なエージェントを使いたいという要望もあると思います。
+  GenU では手動で作成したエージェントや別のアセットで作成したエージェントを<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E6%89%8B%E5%8B%95%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%97%E3%81%9F-agent-%E3%82%92%E8%BF%BD%E5%8A%A0">インポートする機能</a>を提供しております。
+  GenU をエージェント活用のプラットフォームとして利用することで、GenU が提供する<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E9%96%A2%E9%80%A3%E8%A8%AD%E5%AE%9A">豊富なセキュリティオプション</a>や <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#saml-%E8%AA%8D%E8%A8%BC">SAML 認証</a>などを活用し、実践的なエージェントを社内に普及させることができます。
+  また、オプションで<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E7%89%B9%E5%AE%9A%E3%81%AE%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%82%92%E9%9D%9E%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">不要な標準ユースケースを非表示</a>にしたり、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#agent-%E3%82%92%E3%82%A4%E3%83%B3%E3%83%A9%E3%82%A4%E3%83%B3%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">エージェントをインライン表示</a>することで、よりエージェントに特化したプラットフォームとして GenU をご利用いただくことが可能です。
+  <br/>
+  <br/>
+  Bedrock Flows に関しても同様に<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#flow-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">インポート機能</a>がございますので、ぜひご活用ください。
 </details>
 
 <details>
-   <summary>Flow チャット</summary>
-
-  Amazon Bedrock Flowsにより、プロンプト、基盤モデル、および他のAWSサービスを接続することでワークフローを作成できます。Flow チャットユースケースでは、作成済みの Flow を選択して実行するチャットが利用できます。
-
-  <img src="./docs/assets/images/usecase_flow_chat.gif"/>
+  <summary><strong><ins>独自のユースケースを作成したい</ins></strong></summary>
+  GenU はプロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる「ユースケースビルダー」という機能を提供しています。
+  プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、GenU 本体のコード変更は一切不要です。
+  作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。
+  ユースケースビルダーは不要であれば<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%83%93%E3%83%AB%E3%83%80%E3%83%BC%E3%81%AE%E8%A8%AD%E5%AE%9A">無効化</a>することも可能です。
+  ユースケースビルダーについての詳細は、ぜひ<a href="https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/">こちらのブログ</a>をご覧ください。
+  <br/>
+  <br/>
+  ユースケースビルダーではフォームにテキストを入力したりファイルを添付するユースケースが作成できますが、要件によってはチャットの UI が良い場合もあると思います。
+  そのようなケースでは「チャット」ユースケースのシステムプロンプト保存機能をご活用ください。
+  システムプロンプトを保存しておくことで、ワンクリックで業務に必要な "ボット" が作成できます。
+  例えば「ソースコードを入力するとひたすらレビューしてくれるボット」や「入力した内容からひたすらメールアドレスを抽出してくれるボット」などが作成できます。
+  また、チャットの会話履歴はログインユーザーにシェアすることが可能で、シェアされた会話履歴からシステムプロンプトをインポートすることもできます。
+  <br/>
+  <br/>
+  GenU は OSS ですので、カスタマイズして独自のユースケースを追加するということも可能です。
+  その場合は GenU の main ブランチとのコンフリクトにお気をつけてください。
 </details>
-
-<details>
-   <summary>文章生成</summary>
-
-   あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。
-
-  <img src="./docs/assets/images/usecase_generate_text.gif"/>
-</details>
-
-<details>
-  <summary>要約</summary>
-
-  LLM は、大量の文章を要約するタスクを得意としています。ただ要約するだけでなく、文章をコンテキストとして与えた上で、必要な情報を対話形式で引き出すこともできます。例えば、契約書を読み込ませて「XXX の条件は？」「YYY の金額は？」といった情報を取得することが可能です。
-
-  <img src="./docs/assets/images/usecase_summarize.gif"/>
-</details>
-
-<details>
-  <summary>校正</summary>
-
-  LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。
-
-  <img src="./docs/assets/images/usecase_editorial.gif"/>
-</details>
-
-<details>
-  <summary>翻訳</summary>
-
-  多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。
-
-  <img src="./docs/assets/images/usecase_translate.gif"/>
-</details>
-
-<details>
-  <summary>Web コンテンツ抽出</summary>
-
-  ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。
-
-  <img src="./docs/assets/images/usecase_web_content.gif"/>
-</details>
-
-
-<details>
-  <summary>画像生成</summary>
-
-  画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。
-
-  <img src="./docs/assets/images/usecase_generate_image.gif"/>
-</details>
-
-
-<details>
-  <summary>映像分析</summary>
-
-  マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。
-
-  <img src="./docs/assets/images/usecase_video_analyzer.gif"/>
-</details>
-
-
-<details>
-  <summary>ダイアグラム生成</summary>
-
-  ダイアグラム生成は、あらゆるトピックに関する文章や内容を最適な図を用いて視覚化します。
-  テキストベースで簡単に図を生成でき、プログラマーやデザイナーでなくても効率的にフローチャートなどの図を作成できます。
-
-  <img src="./docs/assets/images/usecase_generate_diagram.gif"/>
-</details>
-
-## ユースケースビルダー
-
-ユースケースビルダーは、プロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる機能です。プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、**コード変更・カスタマイズ作業が一切不要** です。作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。ユースケースビルダーを無効化する場合は、[ユースケースビルダーの設定](./docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)を参照してください。
-
-## アーキテクチャ
-
-この実装では、フロントエンドに React を採用し、静的ファイルは Amazon CloudFront + Amazon S3 によって配信されています。バックエンドには Amazon API Gateway + AWS Lambda、認証には Amazon Cognito を使用しています。また、LLM は Amazon Bedrock を使用します。RAG のデータソースには Amazon Kendra を利用しています。
-
-![arch.drawio.png](./docs/assets/images/arch.drawio.png)
 
 ## デプロイ
 
 > [!IMPORTANT]
-> GenU では [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json) に記載されている `modelIds` (テキスト生成) 及び `imageGenerationModelIds` (画像生成) をデフォルトのモデルとして利用します。また、`modelRegion` を Amazon Bedrock のリージョンとして利用します。GenU を利用するためには、前述したモデルが [Amazon Bedrock の Model access 画面 (us-east-1)](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess) で有効化されている必要があります。オプションで利用するモデルを変更した場合も同様に有効化手順が必要であることに留意してください。変更方法は [Amazon Bedrock のモデルを変更する](./docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する) をご参照ください。
+> [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json) に記載されている `modelRegion` リージョンの `modelIds` (テキスト生成) 及び `imageGenerationModelIds` (画像生成) を有効化してください。([Amazon Bedrock の Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
 
-GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。Step-by-Step の解説、あるいは、別のデプロイ手段を利用する場合は以下を参照してください。
+GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。CDK の実行環境が用意できない場合は、以下のデプロイ方法を参照してください。
+- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_ON_CLOUDSHELL.html)
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
-- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](./docs/DEPLOY_ON_CLOUDSHELL.md)
-- [動画によるデプロイ手順の紹介](https://www.youtube.com/watch?v=9sMA17OKP1k)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
 
@@ -162,63 +155,22 @@ npm run cdk:deploy
 npm run cdk:deploy:quick
 ```
 
-## [デプロイオプション](./docs/DEPLOY_OPTION.md)
-- [設定方法](./docs/DEPLOY_OPTION.md#設定方法)
-  - [cdk.json の値を変更する方法](./docs/DEPLOY_OPTION.md#cdkjson-の値を変更する方法)
-- [ユースケースの設定](./docs/DEPLOY_OPTION.md#ユースケースの設定)
-  - [RAG チャット (Amazon Kendra) ユースケースの有効化](./docs/DEPLOY_OPTION.md#rag-チャット-amazon-kendra-ユースケースの有効化)
-    - [既存の Amazon Kendra Index を利用したい場合](./docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用したい場合)
-  - [RAG チャット (Knowledge Base) ユースケースの有効化](./docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)
-    - [Advanced Parsing を有効化](./docs/DEPLOY_OPTION.md#advanced-parsing-を有効化)
-    - [チャンク戦略を変更](./docs/DEPLOY_OPTION.md#チャンク戦略を変更)
-    - [Knowledge Base や OpenSearch Service を変更](./docs/DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)
-    - [メタデータフィルターを設定](./docs/DEPLOY_OPTION.md#メタデータフィルターの設定)
-  - [Agent チャットユースケースの有効化](./docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)
-    - [Code Interpreter 機能を持つエージェントのデプロイ](./docs/DEPLOY_OPTION.md#code-interpreter-エージェントのデプロイ)
-    - [検索エージェントのデプロイ](./docs/DEPLOY_OPTION.md#検索エージェントのデプロイ)
-    - [手動で作成した Agent を追加](./docs/DEPLOY_OPTION.md#手動で作成した-agent-を追加)
-    - [Knowledge Bases for Amazon Bedrock エージェントのデプロイ](./docs/DEPLOY_OPTION.md#knowledge-bases-for-amazon-bedrock-エージェントのデプロイ)
-    - [Agent をインライン表示にする](./docs/DEPLOY_OPTION.md#agent-をインライン表示にする)
-  - [Flow チャットユースケースの有効化](./docs/DEPLOY_OPTION.md#flow-チャットユースケースの有効化)
-  - [映像分析ユースケースの有効化](./docs/DEPLOY_OPTION.md#映像分析ユースケースの有効化)
-  - [プロンプト最適化ツールの有効化](./docs/DEPLOY_OPTION.md#プロンプト最適化ツールの有効化)
-  - [特定のユースケースを非表示にする](./docs/DEPLOY_OPTION.md#特定のユースケースを非表示にする)
-- [ユースケースビルダーの設定](./docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)
-- [Amazon Bedrock のモデルを変更する](./docs/DEPLOY_OPTION.md#amazon-bedrock-のモデルを変更する)
-  - [us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例](./docs/DEPLOY_OPTION.md#us-east-1-バージニア-の-amazon-bedrock-のモデルを利用する例)
-  - [us-west-2 (オレゴン) の Amazon Bedrock のモデルを利用する例](./docs/DEPLOY_OPTION.md#us-west-2-オレゴン-の-amazon-bedrock-のモデルを利用する例)
-  - [cross-region inference が対応しているモデルで us(北部バージニアもしくはオレゴン) の Amazon Bedrock のモデルを利用する場合](./docs/DEPLOY_OPTION.md#cross-region-inference-が対応しているモデルで-us北部バージニアもしくはオレゴン-の-amazon-bedrock-のモデルを利用する場合)
-  - [ap-northeast-1 (東京) の Amazon Bedrock のモデルを利用する例](./docs/DEPLOY_OPTION.md#ap-northeast-1-東京-の-amazon-bedrock-のモデルを利用する例)
-- [Amazon SageMaker のカスタムモデルを利用したい場合](./docs/DEPLOY_OPTION.md#amazon-sagemaker-のカスタムモデルを利用したい場合)
-  - [デプロイしたモデルを GenU から呼び出す設定](./docs/DEPLOY_OPTION.md#デプロイしたモデルを-genu-から呼び出す設定)
-- [セキュリティ関連設定](./docs/DEPLOY_OPTION.md#セキュリティ関連設定)
-  - [セルフサインアップを無効化する](./docs/DEPLOY_OPTION.md#セルフサインアップを無効化する)
-  - [サインアップできるメールアドレスのドメインを制限する](./docs/DEPLOY_OPTION.md#サインアップできるメールアドレスのドメインを制限する)
-  - [AWS WAF による制限を有効化する](./docs/DEPLOY_OPTION.md#aws-waf-による制限を有効化する)
-    - [IP 制限](./docs/DEPLOY_OPTION.md#ip-アドレスによる制限)
-    - [地理的制限](./docs/DEPLOY_OPTION.md#地理的制限)
-  - [SAML 認証](./docs/DEPLOY_OPTION.md#saml-認証)
-  - [ガードレール](./docs/DEPLOY_OPTION.md#ガードレール)
-- [コスト関連設定](./docs/DEPLOY_OPTION.md#コスト関連設定)
-  - [Kendraのインデックスを自動で作成・削除するスケジュールを設定する](./docs/DEPLOY_OPTION.md#kendraのインデックスを自動で作成削除するスケジュールを設定する)
-- [モニタリング用のダッシュボードの有効化](./docs/DEPLOY_OPTION.md#モニタリング用のダッシュボードの有効化)
-- [別 AWS アカウントの Bedrock を利用したい場合](./docs/DEPLOY_OPTION.md#別-aws-アカウントの-bedrock-を利用したい場合)
-- [同一アカウントに複数環境デプロイする場合](./docs/DEPLOY_OPTION.md#同一アカウントに複数環境デプロイする場合)
+## アーキテクチャ
+
+![arch.drawio.png](./docs/assets/images/arch.drawio.png)
 
 ## その他
 
- - [アップデート方法](./docs/UPDATE.md)
- - [ローカル開発環境構築手順](./docs/DEVELOPMENT.md)
- - [リソースの削除方法](./docs/DESTROY.md)
- - [ネイティブアプリのように利用する方法](./docs/PWA.md)
- - [ブラウザ拡張機能を利用する](/browser-extension/README.md)
+ - [デプロイオプション](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html)
+ - [アップデート方法](https://aws-samples.github.io/generative-ai-use-cases-jp/UPDATE.html)
+ - [ローカル開発環境構築手順](https://aws-samples.github.io/generative-ai-use-cases-jp/DEVELOPMENT.html)
+ - [リソースの削除方法](https://aws-samples.github.io/generative-ai-use-cases-jp/DESTROY.html)
+ - [ネイティブアプリのように利用する方法](https://aws-samples.github.io/generative-ai-use-cases-jp/PWA.html)
+ - [ブラウザ拡張機能を利用する](https://aws-samples.github.io/generative-ai-use-cases-jp/EXTENSION.html)
 
 ## 料金試算
 
-GenU をご利用いただく際の、構成と料金試算例を公開しております。
-この料金試算例は、Amazon Kendra を活用した RAG チャット機能を有効化する前提となっています。
-セキュリティ強化のための AWS WAF や、ファイルのアップロード機能、Knowledge Base を活用したオプション機能などは含まれていない点にご注意ください。
-従量課金制となっており、実際の料金はご利用内容により変動いたします。
+GenU をご利用いただく際の、構成と料金試算例を公開しております。(従量課金制となっており、実際の料金はご利用内容により変動いたします。)
 
 - [シンプル版 (RAG なし) 試算](https://aws.amazon.com/jp/cdp/ai-chatbot/)
 - [RAG (Amazon Kendra) あり試算](https://aws.amazon.com/jp/cdp/ai-chatapp/)
@@ -242,7 +194,6 @@ GenU をご利用いただく際の、構成と料金試算例を公開してお
 
 活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues)よりご連絡ください。
 
-
 ## 参照
  - [ブログ: 生成 AI アプリをノーコードで作成・社内配布できる GenU ユースケースビルダー](https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/)
  - [ブログ: RAG プロジェクトを成功させる方法 #1 ~ あるいは早く失敗しておく方法 ~](https://aws.amazon.com/jp/builders-flash/202502/way-to-succeed-rag-project/)
@@ -252,7 +203,6 @@ GenU をご利用いただく際の、構成と料金試算例を公開してお
  - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
  - [動画: 生成 AI ユースケースを考え倒すための Generative AI Use Cases JP (GenU) の魅力と使い方](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
 
-
 ## Security
 
 See [CONTRIBUTING](/CONTRIBUTING.md#security-issue-notifications) for more information.
@@ -260,4 +210,3 @@ See [CONTRIBUTING](/CONTRIBUTING.md#security-issue-notifications) for more infor
 ## License
 
 This library is licensed under the MIT-0 License. See the LICENSE file.
-
