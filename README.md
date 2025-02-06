@@ -13,14 +13,16 @@
 
 ## GenU 活用パターン集
 
-GenU の機能やオプションを活用パターンごとに紹介いたします。網羅的なデプロイオプションに関しては [こちら](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html) をご参照ください。
+GenU の機能やオプションを活用パターンごとに紹介いたします。網羅的なデプロイオプションに関しては [こちら](docs/DEPLOY_OPTION.md) をご参照ください。
 
 > [!TIP]
 > 活用パターンをクリックして詳細を確認してください
 
 <details markdown="1">
   <summary><strong><ins>生成 AI のユースケースを体験したい</ins></strong></summary>
-  GenU は生成 AI を活用した多様なユースケースを標準で提供しています。それらのユースケースは、生成 AI を業務活用するためのアイデアの種となったり、そのまま業務で活用できるものなど、さまざまです。今後もさらにブラッシュアップされたユースケースを随時追加予定です。また、不要であれば<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E7%89%B9%E5%AE%9A%E3%81%AE%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%82%92%E9%9D%9E%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">特定のユースケースを非表示にする</a>オプションで非表示にすることもできます。デフォルトで提供しているユースケース一覧はこちらです。
+
+  GenU は生成 AI を活用した多様なユースケースを標準で提供しています。それらのユースケースは、生成 AI を業務活用するためのアイデアの種となったり、そのまま業務で活用できるものなど、さまざまです。今後もさらにブラッシュアップされたユースケースを随時追加予定です。また、不要であれば [特定のユースケースを非表示にする](docs/DEPLOY_OPTION.md#特定のユースケースを非表示にする) オプションで非表示にすることもできます。デフォルトで提供しているユースケース一覧はこちらです。
+
   <br/>
   <br/>
   <table width="100%">
@@ -73,41 +75,42 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
 
 <details markdown="1">
   <summary><strong><ins>RAG がしたい</ins></strong></summary>
+
   RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。
   社内に蓄積された PDF, Word, Excel などのファイルが情報ソースになります。
   RAG は根拠に基づいた回答のみを許すため、LLM にありがちな「それっぽい間違った情報」を回答させないという効果もあります。
-  <br/>
-  <br/>
+
   GenU は RAG チャットというユースケースを提供しています。
-  また RAG チャットの情報ソースとして <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-amazon-kendra-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">Amazon Kendra</a> と <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">Knowledge Base</a> の 2 種類が利用可能です。
-  Amazon Kendra を利用する場合は、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E6%97%A2%E5%AD%98%E3%81%AE-amazon-kendra-index-%E3%82%92%E5%88%A9%E7%94%A8%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88">手動で作成した S3 Bucket や Kendra Index をそのまま利用する</a>ことが可能です。
-  Knowledge Base を利用する場合は、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#advanced-parsing-%E3%82%92%E6%9C%89%E5%8A%B9%E5%8C%96">Advanced Parsing</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%81%E3%83%A3%E3%83%B3%E3%82%AF%E6%88%A6%E7%95%A5%E3%82%92%E5%A4%89%E6%9B%B4">チャンク戦略の選択</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">クエリ分解</a>・<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#rag-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88-knowledge-base-%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">リランキング</a>など高度な RAG が利用可能です。
-  また Knowledge Base では、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%A1%E3%82%BF%E3%83%87%E3%83%BC%E3%82%BF%E3%83%95%E3%82%A3%E3%83%AB%E3%82%BF%E3%83%BC%E3%81%AE%E8%A8%AD%E5%AE%9A">フィルタリングの設定</a>も可能です。
+  また RAG チャットの情報ソースとして [Amazon Kendra](docs/DEPLOY_OPTION.md) と [Knowledge Base](docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化) の 2 種類が利用可能です。
+  Amazon Kendra を利用する場合は、[手動で作成した S3 Bucket や Kendra Index をそのまま利用する](docs/DEPLOY_OPTION.md#既存の-amazon-kendra-index-を利用する場合)ことが可能です。
+  Knowledge Base を利用する場合は、[Advanced Parsing](docs/DEPLOY_OPTION.md#advanced-parsing-を有効化)・[チャンク戦略の選択](docs/DEPLOY_OPTION.md#チャンク戦略を変更)・[クエリ分解](docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化)・[リランキング](docs/DEPLOY_OPTION.md#rag-チャット-knowledge-base-ユースケースの有効化) など高度な RAG が利用可能です。
+  また Knowledge Base では、[メタデータフィルターの設定](docs/DEPLOY_OPTION.md#メタデータフィルターの設定) も可能です。
   例えば「組織ごとにアクセス可能なデータソースを切り替えたい」や「UI からユーザーがフィルタを設定したい」といった要件を満たすことが可能です。
 </details>
 
 <details markdown="1">
   <summary><strong><ins>独自に作成した AI エージェントや Bedrock Flows などを社内で利用したい</ins></strong></summary>
-  GenU で<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#agent-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">エージェントを有効化</a>すると Web 検索エージェントと Code Interpreter エージェントが作成されます。
+
+  GenU で [エージェントを有効化](docs/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)すると Web 検索エージェントと Code Interpreter エージェントが作成されます。
   Web 検索エージェントは、ユーザーの質問に回答するための情報を Web で検索し、回答します。例えば「AWS の GenU ってなに？」という質問に回答できます。
   Code Interpreter エージェントは、ユーザーからのリクエストに応えるためにコードが実行できます。例えば「適当なダミーデータで散布図を描いて」といったリクエストに応えられます。
-  <br/>
-  <br/>
+
   Web 検索エージェントと Code Interpreter エージェントはエージェントとしては基本的なものですので、中にはもっと業務に寄り添った実践的なエージェントを使いたいという要望もあると思います。
-  GenU では手動で作成したエージェントや別のアセットで作成したエージェントを<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E6%89%8B%E5%8B%95%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%97%E3%81%9F-agent-%E3%82%92%E8%BF%BD%E5%8A%A0">インポートする機能</a>を提供しております。
-  GenU をエージェント活用のプラットフォームとして利用することで、GenU が提供する<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E9%96%A2%E9%80%A3%E8%A8%AD%E5%AE%9A">豊富なセキュリティオプション</a>や <a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#saml-%E8%AA%8D%E8%A8%BC">SAML 認証</a>などを活用し、実践的なエージェントを社内に普及させることができます。
-  また、オプションで<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E7%89%B9%E5%AE%9A%E3%81%AE%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%82%92%E9%9D%9E%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">不要な標準ユースケースを非表示</a>にしたり、<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#agent-%E3%82%92%E3%82%A4%E3%83%B3%E3%83%A9%E3%82%A4%E3%83%B3%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">エージェントをインライン表示</a>することで、よりエージェントに特化したプラットフォームとして GenU をご利用いただくことが可能です。
-  <br/>
-  <br/>
-  Bedrock Flows に関しても同様に<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#flow-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">インポート機能</a>がございますので、ぜひご活用ください。
+  GenU では手動で作成したエージェントや別のアセットで作成したエージェントを [インポートする機能](docs/DEPLOY_OPTION.md#手動で作成した-agent-を追加) を提供しております。
+
+  GenU をエージェント活用のプラットフォームとして利用することで、GenU が提供する [豊富なセキュリティオプション](docs/DEPLOY_OPTION.md#セキュリティ関連設定 や [SAML認証](docs/DEPLOY_OPTION.md#saml-認証) などを活用し、実践的なエージェントを社内に普及させることができます。
+  また、オプションで [不要な標準ユースケースを非表示](docs/DEPLOY_OPTION.md#特定のユースケースを非表示にする) にしたり、[エージェントをインライン表示](docs/DEPLOY_OPTION.md#agent-をインライン表示にする) することで、よりエージェントに特化したプラットフォームとして GenU をご利用いただくことが可能です。
+
+  Bedrock Flows に関しても同様に [インポート機能](docs/DEPLOY_OPTION.md#flow-チャットユースケースの有効化) がございますので、ぜひご活用ください。
 </details>
 
 <details markdown="1">
   <summary><strong><ins>独自のユースケースを作成したい</ins></strong></summary>
+
   GenU はプロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる「ユースケースビルダー」という機能を提供しています。
   プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、GenU 本体のコード変更は一切不要です。
   作成したユースケースは、個人利用だけではなく、アプリケーションにログインできる全ユーザーに共有することもできます。
-  ユースケースビルダーは不要であれば<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%83%93%E3%83%AB%E3%83%80%E3%83%BC%E3%81%AE%E8%A8%AD%E5%AE%9A">無効化</a>することも可能です。
+  ユースケースビルダーは不要であれば[無効化](docs/DEPLOY_OPTION.md#ユースケースビルダーの設定)することも可能です。
   ユースケースビルダーについての詳細は、ぜひ<a href="https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/">こちらのブログ</a>をご覧ください。
   <br/>
   <br/>
@@ -128,7 +131,7 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
 > [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json) に記載されている `modelRegion` リージョンの `modelIds` (テキスト生成) 及び `imageGenerationModelIds` (画像生成) を有効化してください。([Amazon Bedrock の Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。CDK の実行環境が用意できない場合は、以下のデプロイ方法を参照してください。
-- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_ON_CLOUDSHELL.html)
+- [AWS CloudShell を利用したデプロイ方法 (手元の環境を用意することが難しい場合)](docs/DEPLOY_ON_CLOUDSHELL.md)
 - [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
 
 まず、以下のコマンドを実行してください。全てのコマンドはリポジトリのルートで実行してください。
@@ -159,12 +162,12 @@ npm run cdk:deploy:quick
 
 ## その他
 
- - [デプロイオプション](https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html)
- - [アップデート方法](https://aws-samples.github.io/generative-ai-use-cases-jp/UPDATE.html)
- - [ローカル開発環境構築手順](https://aws-samples.github.io/generative-ai-use-cases-jp/DEVELOPMENT.html)
- - [リソースの削除方法](https://aws-samples.github.io/generative-ai-use-cases-jp/DESTROY.html)
- - [ネイティブアプリのように利用する方法](https://aws-samples.github.io/generative-ai-use-cases-jp/PWA.html)
- - [ブラウザ拡張機能を利用する](https://aws-samples.github.io/generative-ai-use-cases-jp/EXTENSION.html)
+ - [デプロイオプション](docs/DEPLOY_OPTION.md)
+ - [アップデート方法](docs/UPDATE.md)
+ - [ローカル開発環境構築手順](docs/DEVELOPMENT.md)
+ - [リソースの削除方法](docs/DESTROY.md)
+ - [ネイティブアプリのように利用する方法](docs/PWA.md)
+ - [ブラウザ拡張機能を利用する](docs/EXTENSION.md)
 
 ## 料金試算
 
