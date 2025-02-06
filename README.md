@@ -18,7 +18,7 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
 > [!TIP]
 > 活用パターンをクリックして詳細を確認してください
 
-<details>
+<details markdown="1">
   <summary><strong><ins>生成 AI のユースケースを体験したい</ins></strong></summary>
   GenU は生成 AI を活用した多様なユースケースを標準で提供しています。それらのユースケースは、生成 AI を業務活用するためのアイデアの種となったり、そのまま業務で活用できるものなど、さまざまです。今後もさらにブラッシュアップされたユースケースを随時追加予定です。また、不要であれば<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#%E7%89%B9%E5%AE%9A%E3%81%AE%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%82%92%E9%9D%9E%E8%A1%A8%E7%A4%BA%E3%81%AB%E3%81%99%E3%82%8B">特定のユースケースを非表示にする</a>オプションで非表示にすることもできます。デフォルトで提供しているユースケース一覧はこちらです。
   <br/>
@@ -71,7 +71,7 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
   </table>
 </details>
 
-<details>
+<details markdown="1">
   <summary><strong><ins>RAG がしたい</ins></strong></summary>
   RAG は LLM が苦手な最新の情報やドメイン知識を外部から伝えることで、本来なら回答できない内容にも答えられるようにする手法です。
   社内に蓄積された PDF, Word, Excel などのファイルが情報ソースになります。
@@ -86,7 +86,7 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
   例えば「組織ごとにアクセス可能なデータソースを切り替えたい」や「UI からユーザーがフィルタを設定したい」といった要件を満たすことが可能です。
 </details>
 
-<details>
+<details markdown="1">
   <summary><strong><ins>独自に作成した AI エージェントや Bedrock Flows などを社内で利用したい</ins></strong></summary>
   GenU で<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#agent-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">エージェントを有効化</a>すると Web 検索エージェントと Code Interpreter エージェントが作成されます。
   Web 検索エージェントは、ユーザーの質問に回答するための情報を Web で検索し、回答します。例えば「AWS の GenU ってなに？」という質問に回答できます。
@@ -102,7 +102,7 @@ GenU の機能やオプションを活用パターンごとに紹介いたしま
   Bedrock Flows に関しても同様に<a href="https://aws-samples.github.io/generative-ai-use-cases-jp/DEPLOY_OPTION.html#flow-%E3%83%81%E3%83%A3%E3%83%83%E3%83%88%E3%83%A6%E3%83%BC%E3%82%B9%E3%82%B1%E3%83%BC%E3%82%B9%E3%81%AE%E6%9C%89%E5%8A%B9%E5%8C%96">インポート機能</a>がございますので、ぜひご活用ください。
 </details>
 
-<details>
+<details markdown="1">
   <summary><strong><ins>独自のユースケースを作成したい</ins></strong></summary>
   GenU はプロンプトテンプレートを自然言語で記述することで独自のユースケースを作成できる「ユースケースビルダー」という機能を提供しています。
   プロンプトテンプレートだけで独自のユースケース画面が自動生成されるため、GenU 本体のコード変更は一切不要です。
