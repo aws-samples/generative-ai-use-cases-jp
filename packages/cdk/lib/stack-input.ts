@@ -86,6 +86,7 @@ export const stackInputSchema = z.object({
       })
     )
     .default([]),
+  inlineAgents: z.boolean().default(false),
   // Guardrail
   guardrailEnabled: z.boolean().default(false),
   // Usecase builder

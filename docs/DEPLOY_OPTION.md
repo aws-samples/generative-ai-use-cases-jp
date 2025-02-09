@@ -339,7 +339,7 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 
 Agent チャットユースケースでは、以下のご利用が可能です。
 - Code Interpreter を利用したデータの可視化、コード実行、データ分析
-- Agents for Amazon Bedrock を利用したアクションを実行させたり
+- Agents for Amazon Bedrock を利用したアクションを実行
 - Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
 Agent は `modelRegion` で指定したリージョンに生成されます。
@@ -409,13 +409,19 @@ const envs: Record<string, Partial<StackInput>> = {
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、デフォルトの検索エンジン Agent がデプロイされます。
 
-デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。
+> [!NOTE]
+> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+
+#### 手動で作成した Agent を追加
+
+デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。Agent は `modelRegion` で作成する点に留意してください。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
+    agentEnabled: true,
     agents: [
       {
         displayName: 'SearchEngine',
@@ -432,6 +438,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
+    "agentEnabled": true,
     "agents": [
       {
         "displayName": "SearchEngine",
@@ -444,9 +451,6 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
-
-> [!NOTE]
-> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
 
 #### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
@@ -461,7 +465,7 @@ Agent プロンプト例: あなたは指示に応えるアシスタントです
 Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を True にします。
+作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を `true` にします。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -493,6 +497,30 @@ const envs: Record<string, Partial<StackInput>> = {
         "aliasId": "YYYYYYYY"
       }
     ],
+  }
+}
+```
+
+#### Agent をインライン表示にする
+
+Agent は、デフォルトでは「Agent チャット」というユースケースの中から Agent を選択する方式で利用できます。インライン表示のオプションを有効にすると、「Agent チャット」というユースケースは表示されなくなり、利用可能な全ての Agent が他のユースケースと同じように表示されるようになります。有効な Agent が存在する状態で、`inlineAgents` を `true` に設定してください。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    inlineAgents: true,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "inlineAgents": true
   }
 }
 ```
@@ -919,9 +947,6 @@ const envs: Record<string, Partial<StackInput>> = {
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
       "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
     ],
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
@@ -961,10 +986,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.amazon.nova-micro-v1:0",
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
-      "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
+      "mistral.mistral-large-2407-v1:0"
     ],
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",

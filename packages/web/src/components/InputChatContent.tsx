@@ -61,7 +61,7 @@ const InputChatContent: React.FC<Props> = (props) => {
     deleteUploadedFile,
     uploading,
     errorMessages,
-  } = useFiles();
+  } = useFiles(pathname);
 
   // Model 変更等で accept が変更された際にエラーメッセージを表示 (自動でファイル削除は行わない)
   useEffect(() => {

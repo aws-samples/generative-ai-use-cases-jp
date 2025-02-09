@@ -41,6 +41,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const { visionEnabled, flowChatEnabled } = MODELS;
 
 const LandingPage: React.FC = () => {
@@ -304,7 +305,7 @@ const LandingPage: React.FC = () => {
             description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
           />
         )}
-        {agentEnabled && (
+        {agentEnabled && !inlineAgents && (
           <CardDemo
             label="Agent チャット"
             onClickDemo={demoAgent}
