@@ -6,21 +6,6 @@ import { Button } from './button';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { useState } from 'react';
 
-// TODO implement multiple fonts editor
-// const fonts = [
-//   {
-//     font: "Default",
-//     icon: <FontDefault className="h-4 w-4" />,
-//   },
-//   {
-//     font: "Serif",
-//     icon: <FontSerif className="h-4 w-4" />,
-//   },
-//   {
-//     font: "Mono",
-//     icon: <FontMono className="h-4 w-4" />,
-//   },
-// ];
 const appearances = [
   {
     theme: 'System',

@@ -15,20 +15,19 @@ import {
   ImageResizer,
   type JSONContent,
   handleCommandNavigation,
-  handleImageDrop,
-  handleImagePaste,
+  // handleImageDrop,
+  // handleImagePaste,
 } from 'novel';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { defaultExtensions } from './extensions';
 import { ColorSelector } from './selectors/color-selector';
 import { LinkSelector } from './selectors/link-selector';
-import { MathSelector } from './selectors/math-selector';
 import { NodeSelector } from './selectors/node-selector';
 import { Separator } from './ui/separator';
 
 import GenerativeMenuSwitch from './generative/generative-menu-switch';
-import { uploadFn } from './image-upload';
+// import { uploadFn } from './image-upload';
 import { TextButtons } from './selectors/text-buttons';
 import { slashCommand, suggestionItems } from './slash-command';
 
@@ -295,10 +294,10 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
                 handleDOMEvents: {
                   keydown: (_view, event) => handleCommandNavigation(event),
                 },
-                handlePaste: (view, event) =>
-                  handleImagePaste(view, event, uploadFn),
-                handleDrop: (view, event, _slice, moved) =>
-                  handleImageDrop(view, event, moved, uploadFn),
+                // handlePaste: (view, event) =>
+                //   handleImagePaste(view, event, uploadFn),
+                // handleDrop: (view, event, _slice, moved) =>
+                //   handleImageDrop(view, event, moved, uploadFn),
                 attributes: {
                   class:
                     'prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full',
@@ -344,7 +343,6 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
 
                 <LinkSelector open={openLink} onOpenChange={setOpenLink} />
                 <Separator orientation="vertical" />
-                <MathSelector />
                 <Separator orientation="vertical" />
                 <TextButtons />
                 <Separator orientation="vertical" />

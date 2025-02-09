@@ -13,12 +13,12 @@ import {
   TaskItem,
   TaskList,
   TextStyle,
-  TiptapImage,
+  // TiptapImage,
   TiptapLink,
   TiptapUnderline,
   Twitter,
-  UpdatedImage,
-  UploadImagesPlugin,
+  // UpdatedImage,
+  // UploadImagesPlugin,
   Youtube,
 } from 'novel';
 import { Markdown } from 'tiptap-markdown';
@@ -35,26 +35,26 @@ const tiptapLink = TiptapLink.configure({
   },
 });
 
-const tiptapImage = TiptapImage.extend({
-  addProseMirrorPlugins() {
-    return [
-      UploadImagesPlugin({
-        imageClass: 'opacity-40 rounded-lg border border-stone-200',
-      }),
-    ];
-  },
-}).configure({
-  allowBase64: true,
-  HTMLAttributes: {
-    class: 'rounded-lg border border-muted',
-  },
-});
+// const tiptapImage = TiptapImage.extend({
+//   addProseMirrorPlugins() {
+//     return [
+//       UploadImagesPlugin({
+//         imageClass: 'opacity-40 rounded-lg border border-stone-200',
+//       }),
+//     ];
+//   },
+// }).configure({
+//   allowBase64: true,
+//   HTMLAttributes: {
+//     class: 'rounded-lg border border-muted',
+//   },
+// });
 
-const updatedImage = UpdatedImage.configure({
-  HTMLAttributes: {
-    class: 'rounded-lg border border-muted',
-  },
-});
+// const updatedImage = UpdatedImage.configure({
+//   HTMLAttributes: {
+//     class: 'rounded-lg border border-muted',
+//   },
+// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
@@ -161,8 +161,8 @@ export const defaultExtensions = [
   starterKit,
   placeholder,
   tiptapLink,
-  tiptapImage,
-  updatedImage,
+  // tiptapImage,
+  // updatedImage,
   taskList,
   taskItem,
   horizontalRule,

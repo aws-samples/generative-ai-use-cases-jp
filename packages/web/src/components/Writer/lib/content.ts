@@ -29,7 +29,9 @@ export const defaultEditorContent = {
           content: [
             {
               type: 'paragraph',
-              content: [{ type: 'text', text: 'Slash menu & bubble menu' }],
+              content: [
+                { type: 'text', text: 'Slash (/) メニュー & バブルメニュー' },
+              ],
             },
           ],
         },
@@ -39,11 +41,9 @@ export const defaultEditorContent = {
             {
               type: 'paragraph',
               content: [
-                { type: 'text', text: 'AI autocomplete (type ' },
-                { type: 'text', marks: [{ type: 'code' }], text: '++' },
                 {
                   type: 'text',
-                  text: ' to activate, or select from slash menu)',
+                  text: 'AI オートコンプリート (Slash (/) メニューから選択)',
                 },
               ],
             },
@@ -57,7 +57,7 @@ export const defaultEditorContent = {
               content: [
                 {
                   type: 'text',
-                  text: 'Image uploads (drag & drop / copy & paste, or select from slash menu) ',
+                  text: '校正 (右上ボタンから実行)',
                 },
               ],
             },
