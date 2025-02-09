@@ -42,6 +42,7 @@ import { Editor } from '@tiptap/react';
 import Select from '../Select';
 import { MODELS } from '../../hooks/useModel';
 import { AICommentManager, useComments } from './extensions/ai-comments';
+import ButtonCopy from '../ButtonCopy';
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -52,8 +53,12 @@ interface Props {
 const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const { write, modelId, setModelId } = useWriter();
   const { modelIds: availableModels } = MODELS;
-  const [commentManager, setCommentManager] = useState<AICommentManager | null>(null);
-  const [initialContent, setInitialContent] = useState<null | JSONContent>(null);
+  const [commentManager, setCommentManager] = useState<AICommentManager | null>(
+    null
+  );
+  const [initialContent, setInitialContent] = useState<null | JSONContent>(
+    null
+  );
   const [saveStatus, setSaveStatus] = useState('Saved');
   const [charsCount, setCharsCount] = useState();
 
@@ -65,9 +70,12 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const { filteredComments, loading } = useComments();
 
   // エディターの初期化時にコメントマネージャーを設定
-  const handleEditorCreated = useCallback((editor: Editor) => {
-    setCommentManager(new AICommentManager(editor, write));
-  }, [write]);
+  const handleEditorCreated = useCallback(
+    (editor: Editor) => {
+      setCommentManager(new AICommentManager(editor, write));
+    },
+    [write]
+  );
 
   // Apply Codeblock Highlighting on the HTML from editor.getHTML()
   const highlightCodeblocks = (content: string) => {
@@ -104,8 +112,8 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   useEffect(() => {
     const storedContent = window.localStorage.getItem('novel-content');
     const content = initialSentence
-        ? {
-            type: 'doc',
+      ? {
+          type: 'doc',
           content: [
             {
               type: 'paragraph',
@@ -113,7 +121,9 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             },
           ],
         }
-      : (storedContent ? JSON.parse(storedContent) : defaultEditorContent);
+      : storedContent
+        ? JSON.parse(storedContent)
+        : defaultEditorContent;
     setInitialContent(content);
   }, [initialSentence]);
 
@@ -122,6 +132,15 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     if (!commentManager) return;
     await commentManager.execAnnotation();
   };
+
+  // HTMLを取得する関数
+  const getEditorHtml = useCallback(() => {
+    // @ts-expect-error: any
+    const editor = document.querySelector('.ProseMirror')?.['editor'] as Editor;
+    if (!editor) return '';
+    console.log(editor.getHTML());
+    return editor ? editor.getHTML() : '';
+  }, []);
 
   if (!initialContent) return null;
 
@@ -137,8 +156,9 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               {charsCount} Words
             </div>
           )}
+          <ButtonCopy text={getEditorHtml()} className="hover:bg-accent/80" />
         </div>
-        <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Select
             value={modelId}
             onChange={setModelId}
@@ -151,7 +171,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
           <Button
             onClick={handleExecClick}
             disabled={loading}
-            className="flex items-center gap-2 text-sm mb-3">
+            className="mb-3 flex items-center gap-2 text-sm">
             <PiChatText className="h-4 w-4" />
             校正
           </Button>
@@ -226,27 +246,30 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
           </EditorContent>
         </EditorRoot>
 
-        <div className="mb-2 rounded p-1.5 outline-none lg:ml-2 min-w-80">
-          {commentManager && filteredComments.map((comment, idx) => (
-            <Card key={`${comment.excerpt}-${idx}`} className="mb-2">
-              <div className="mb-5">
-                <span className="line-through">{comment.excerpt}</span>
-                {comment.replace && (
-                  <>
-                    <span className="mx-2">→</span>
-                    <Button onClick={() => commentManager.replaceSentence(comment)}>
-                      {comment.replace}
-                    </Button>
-                  </>
-                )}
-              </div>
+        <div className="mb-2 min-w-80 rounded p-1.5 outline-none lg:ml-2">
+          {commentManager &&
+            filteredComments.map((comment, idx) => (
+              <Card key={`${comment.excerpt}-${idx}`} className="mb-2">
+                <div className="mb-5">
+                  <span className="line-through">{comment.excerpt}</span>
+                  {comment.replace && (
+                    <>
+                      <span className="mx-2">→</span>
+                      <Button
+                        onClick={() => commentManager.replaceSentence(comment)}>
+                        {comment.replace}
+                      </Button>
+                    </>
+                  )}
+                </div>
 
-              <div className="mb-2 text-sm">{comment.comment}</div>
-              <ButtonIcon onClick={() => commentManager.removeComment(comment)}>
-                <PiTrash />
-              </ButtonIcon>
-            </Card>
-          ))}
+                <div className="mb-2 text-sm">{comment.comment}</div>
+                <ButtonIcon
+                  onClick={() => commentManager.removeComment(comment)}>
+                  <PiTrash />
+                </ButtonIcon>
+              </Card>
+            ))}
           {!loading && commentManager && filteredComments.length === 0 && (
             <div className="mb-2 ml-2">指摘事項はありません</div>
           )}

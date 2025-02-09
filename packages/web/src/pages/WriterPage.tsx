@@ -24,7 +24,7 @@ const WriterPage: React.FC = () => {
         執筆
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card className="w-fit max-w-full m-auto">
+        <Card className="m-auto w-fit max-w-full">
           <Suspense fallback={<div>Loading...</div>}>
             <TailwindAdvancedEditor initialSentence={initialSentence} />
           </Suspense>

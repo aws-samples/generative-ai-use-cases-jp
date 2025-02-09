@@ -22,7 +22,13 @@ const ButtonCopy: React.FC<Props> = (props) => {
   }, [props.interUseCasesKey, props.text, setCopyTemporary]);
 
   const copyMessage = useCallback((message: string) => {
-    copy(message);
+    copy(message, {
+      format: 'text/plain',
+      onCopy: (clipboardData) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (clipboardData as any).setData('text/html', message);
+      },
+    });
     setshowsCheck(true);
 
     setTimeout(() => {

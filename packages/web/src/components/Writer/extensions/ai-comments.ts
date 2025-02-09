@@ -33,7 +33,13 @@ const useCommentStore = create<CommentState>((set) => ({
     })),
   setFilteredComments: (filteredComments) => set({ filteredComments }),
   setLoading: (loading) => set({ loading }),
-  clearAll: () => set({ comments: [], commentState: {}, filteredComments: [], loading: false }),
+  clearAll: () =>
+    set({
+      comments: [],
+      commentState: {},
+      filteredComments: [],
+      loading: false,
+    }),
 }));
 
 export class AICommentManager {
@@ -87,14 +93,14 @@ export class AICommentManager {
         commentState[x.excerpt] === undefined &&
         x.excerpt !== x.replace
     );
-    console.log("filteredComments", filteredComments);
+    console.log('filteredComments', filteredComments);
     useCommentStore.getState().setFilteredComments(filteredComments);
     return filteredComments;
   }
 
   // コメントを削除
   removeComment(comment: DocumentComment) {
-    console.log("removeComment", comment);
+    console.log('removeComment', comment);
 
     // コメントの状態を更新
     useCommentStore.getState().addCommentState(comment.excerpt);
