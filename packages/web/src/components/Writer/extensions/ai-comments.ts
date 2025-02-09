@@ -2,6 +2,8 @@ import { Editor } from '@tiptap/react';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import { create } from 'zustand';
 import useWriter from '../../../hooks/useWriter';
+import { removeAIHighlight } from 'novel';
+import { toast } from 'sonner';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -85,7 +87,7 @@ export class AICommentManager {
   }
 
   // コメントのフィルタリング
-  filterComments(): DocumentComment[] {
+  private filterComments(): DocumentComment[] {
     const { comments, commentState } = useCommentStore.getState();
     const filteredComments = comments.filter(
       (x) =>
@@ -93,15 +95,12 @@ export class AICommentManager {
         commentState[x.excerpt] === undefined &&
         x.excerpt !== x.replace
     );
-    console.log('filteredComments', filteredComments);
     useCommentStore.getState().setFilteredComments(filteredComments);
     return filteredComments;
   }
 
   // コメントを削除
   removeComment(comment: DocumentComment) {
-    console.log('removeComment', comment);
-
     // コメントの状態を更新
     useCommentStore.getState().addCommentState(comment.excerpt);
     this.filterComments();
@@ -115,6 +114,11 @@ export class AICommentManager {
         .setTextSelection({ from, to })
         .unsetAIHighlight()
         .run();
+    }
+
+    // コメントがない場合はコメントをクリア (ハイライトが残っている場合があるため)
+    if (useCommentStore.getState().filteredComments.length === 0) {
+      this.clearComments();
     }
   }
 
@@ -134,14 +138,23 @@ export class AICommentManager {
     this.removeComment(comment);
   }
 
+  // クリック時にコメント部位にフォーカス
+  focusComment(comment: DocumentComment) {
+    const matches = this.findTextPosition(comment.excerpt);
+    if (matches.length === 0) return;
+    for (const { from, to } of matches) {
+      this.editor.chain().setTextSelection({ from, to }).focus().run();
+    }
+  }
+
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
-  handleResponse(response: string) {
+  private handleResponse(response: string) {
     const newComments = [...response.matchAll(REGEX_BRACKET)].map((x) => {
       try {
         return JSON.parse(x[0]) as DocumentComment;
       } catch (error) {
-        console.error(error);
-        return { excerpt: '' };
+        console.error(error, x[0]);
+        return { excerpt: '', type: 'error' } as DocumentComment;
       }
     });
     if (newComments.length !== useCommentStore.getState().comments.length) {
@@ -154,11 +167,7 @@ export class AICommentManager {
   // コメントをクリア
   clearComments() {
     useCommentStore.getState().clearAll();
-    this.editor
-      .chain()
-      .setTextSelection({ from: 0, to: 0 })
-      .unsetAIHighlight()
-      .run();
+    removeAIHighlight(this.editor);
   }
 
   // ハイライトを更新
@@ -191,12 +200,13 @@ export class AICommentManager {
     this.editor.commands.setTextSelection({ from: 0, to: 0 });
   }
 
-  // LLM にリクエスト送信
+  // 構成を実行
   async execAnnotation() {
     if (useCommentStore.getState().loading) return;
 
-    const text = this.editor
-      .getText()
+    // 全角を半角に変換
+    const cleanedMarkdown = this.editor.storage.markdown
+      .getMarkdown()
       .replace(REGEX_ZENKAKU, (s: string) => {
         return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
       })
@@ -204,10 +214,14 @@ export class AICommentManager {
       .replace(/[～〜]/g, '~')
       // eslint-disable-next-line no-irregular-whitespace
       .replace(/　/g, ' ');
+    this.editor.commands.setContent(cleanedMarkdown);
 
+    // コメントをクリア
     this.clearComments();
     useCommentStore.getState().setLoading(true);
 
+    // コメントを取得
+    const text = this.editor.getText();
     try {
       let buffer = '';
       for await (const chunk of this.write(text, 'comment')) {
@@ -216,15 +230,24 @@ export class AICommentManager {
       }
     } finally {
       useCommentStore.getState().setLoading(false);
+      if (useCommentStore.getState().comments.length === 0) {
+        toast.error('指摘事項がありませんでした。');
+      } else {
+        toast.success('校閲が完了しました');
+      }
     }
   }
 }
 
 export const useComments = () => {
+  const comments = useCommentStore((state) => state.comments);
+  const commentState = useCommentStore((state) => state.commentState);
   const filteredComments = useCommentStore((state) => state.filteredComments);
   const loading = useCommentStore((state) => state.loading);
 
   return {
+    comments,
+    commentState,
     filteredComments,
     loading,
   };

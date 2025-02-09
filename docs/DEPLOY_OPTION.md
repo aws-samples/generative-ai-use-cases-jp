@@ -631,7 +631,7 @@ const envs: Record<string, Partial<StackInput>> = {
     hiddenUseCases: {
       generate: true, // 文章生成を非表示
       summarize: true, // 要約を非表示
-      editorial: true, // 校正を非表示
+      writer: true, // 執筆を非表示
       translate: true, // 翻訳を非表示
       webContent: true, // Web コンテンツ抽出を非表示
       image: true, // 画像生成を非表示
@@ -650,7 +650,7 @@ const envs: Record<string, Partial<StackInput>> = {
     "hiddenUseCases": {
       "generate": true,
       "summarize": true,
-      "editorial": true,
+      "writer": true,
       "translate": true,
       "webContent": true,
       "image": true,

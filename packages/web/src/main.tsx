@@ -37,6 +37,7 @@ import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 import GenerateDiagramPage from './pages/GenerateDiagramPage.tsx';
 import WriterPage from './pages/WriterPage.tsx';
 import useUseCases from './hooks/useUseCases';
+import { Toaster } from 'sonner';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -225,6 +226,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Authenticator.Provider>
       <RouterProvider router={router} />
+      <Toaster />
     </Authenticator.Provider>
   </React.StrictMode>
 );

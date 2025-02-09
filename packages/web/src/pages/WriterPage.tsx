@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import queryString from 'query-string';
-import { EditorialPageQueryParams } from '../@types/navigate';
+import { WriterPageQueryParams } from '../@types/navigate';
 
 const TailwindAdvancedEditor = lazy(
   () => import('../components/Writer/advanced-editor')
@@ -14,7 +14,7 @@ const WriterPage: React.FC = () => {
   // URLパラメータから初期値を取得
   const initialSentence = React.useMemo(() => {
     if (search === '') return '';
-    const params = queryString.parse(search) as EditorialPageQueryParams;
+    const params = queryString.parse(search) as WriterPageQueryParams;
     return params.sentence ?? '';
   }, [search]);
 

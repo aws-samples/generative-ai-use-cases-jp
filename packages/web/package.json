@@ -33,6 +33,7 @@
     "buffer": "^6.0.3",
     "cmdk": "^1.0.4",
     "copy-to-clipboard": "^3.3.3",
+    "diff-match-patch": "^1.0.5",
     "file-type": "^19.2.0",
     "highlight.js": "^11.9.0",
     "immer": "^10.0.4",
@@ -65,6 +66,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.12",
+    "@types/diff-match-patch": "^1.0.5",
     "@types/lodash.debounce": "^4.0.9",
     "@types/react": "^18.2.77",
     "@types/react-color": "^3.0.12",

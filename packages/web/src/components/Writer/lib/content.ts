@@ -7,34 +7,11 @@ export const defaultEditorContent = {
       content: [{ type: 'text', text: '【新機能】GenU 執筆ユーズケース' }],
     },
     {
-      type: 'image',
-      attrs: {
-        src: 'https://placehold.co/600x400',
-      },
-    },
-    {
       type: 'paragraph',
       content: [
         {
           type: 'text',
-          text: 'GenU 執筆ユーズケース は、Notion-style WYSIWYG エディタです。AI による autocompletion を提供します。',
-        },
-        {
-          type: 'text',
-          marks: [
-            {
-              type: 'link',
-              attrs: {
-                href: 'https://github.com/steven-tey/novel',
-                target: '_blank',
-              },
-            },
-          ],
-          text: 'Novel',
-        },
-        {
-          type: 'text',
-          text: ' で構築されています。',
+          text: 'GenU 執筆ユーズケース は、Notion スタイルの WYSIWYG エディタです。AI による autocompletion を提供します。',
         },
       ],
     },

@@ -16,6 +16,7 @@ import {
   PiVideoCamera,
   PiFlowArrow,
   PiTreeStructure,
+  PiPenNib,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -93,6 +94,10 @@ const LandingPage: React.FC = () => {
       additionalContext: '',
     };
     navigate(`/summarize?${queryString.stringify(params)}`);
+  };
+
+  const demoWriter = () => {
+    navigate(`/writer`);
   };
 
   const demoTranslate = () => {
@@ -329,6 +334,14 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoSummarize}
             icon={<PiNote />}
             description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+          />
+        )}
+        {enabled('writer') && (
+          <CardDemo
+            label="執筆"
+            onClickDemo={demoWriter}
+            icon={<PiPenNib />}
+            description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
           />
         )}
         {enabled('translate') && (

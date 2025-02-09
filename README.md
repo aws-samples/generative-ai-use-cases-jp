@@ -69,11 +69,12 @@ Generative AI（生成 AI）は、ビジネスの変革に革新的な可能性�
 </details>
 
 <details>
-  <summary>校正</summary>
+  <summary>執筆</summary>
 
-  LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。
+  LLM による文章執筆支援、校正支援が可能です。誤字脱字のチェックだけでなく、文章の推敲をさせたり、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。
+  人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。
 
-  <img src="./docs/assets/images/usecase_editorial.gif"/>
+  <img src="./docs/assets/images/usecase_writer.gif"/>
 </details>
 
 <details>

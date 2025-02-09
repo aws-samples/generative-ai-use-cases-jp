@@ -1,6 +1,6 @@
 import {
   ChatParams,
-  EditorialParams,
+  WriterParams,
   GenerateTextParams,
   Prompter,
   PromptList,
@@ -38,7 +38,7 @@ const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
   '/summarize':
     'あなたは文章を要約するAIアシスタントです。最初のチャットで要約の指示を出すので、その後のチャットで要約結果の改善を行なってください。',
-  '/editorial':
+  '/writer':
     '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。ユーザーは <input> タグで校正してほしい文章を与えます。また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。AI は文章について問題がある部分だけを指摘してください。ただし、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
   '/generate': 'あなたは指示に従って文章を作成するライターです。',
   '/translate':
@@ -126,7 +126,7 @@ ${params.context}
 出力は要約内容を <output></output> の xml タグで囲って出力してください。例外はありません。
 `;
   },
-  editorialPrompt(params: EditorialParams): string {
+  writerPrompt(params: WriterParams): string {
     return `<input>${params.sentence}</input>
 ${
   params.context

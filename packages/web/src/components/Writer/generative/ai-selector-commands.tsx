@@ -11,22 +11,22 @@ import { CommandGroup, CommandItem, CommandSeparator } from '../ui/command';
 const options = [
   {
     value: 'improve',
-    label: 'Improve writing',
+    label: '推敲',
     icon: PiArrowClockwise,
   },
   {
     value: 'fix',
-    label: 'Fix grammar',
+    label: '校正',
     icon: PiChecks,
   },
   {
     value: 'shorter',
-    label: 'Make shorter',
+    label: '短くする',
     icon: PiEqualsThin,
   },
   {
     value: 'longer',
-    label: 'Make longer',
+    label: '長くする',
     icon: PiTextAlignJustify,
   },
 ];

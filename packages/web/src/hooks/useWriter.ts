@@ -26,10 +26,10 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You are an AI writing assistant that continues existing text based on context from prior text. ' +
-              'Give more weight/priority to the later characters than the beginning ones. ' +
-              'Limit your response to no more than 200 characters, but make sure to construct complete sentences.' +
-              'Use Markdown formatting when appropriate.',
+              '既存の文章の文脈に基づいて文章の続きを書いてください。' +
+              '文章の後半部分により重点を置いて優先してください。' +
+              '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -42,9 +42,10 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You are an AI writing assistant that improves existing text. ' +
-              'Limit your response to no more than 200 characters, but make sure to construct complete sentences.' +
-              'Use Markdown formatting when appropriate.',
+              '与えられた文章を推敲し改善してください。' +
+              '「簡潔、論理的、わかりやすい、データによる裏付け（データがない場合はプレースホルダ X を入れる）」を意識してください。' +
+              '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -61,8 +62,8 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You are an AI writing assistant that shortens existing text. ' +
-              'Use Markdown formatting when appropriate.',
+              '与えられた文章をより短く簡潔にしてください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -79,8 +80,8 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You are an AI writing assistant that lengthens existing text. ' +
-              'Use Markdown formatting when appropriate.',
+              '与えられた文章をより長く詳細にしてください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -97,9 +98,9 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You are an AI writing assistant that fixes grammar and spelling errors in existing text. ' +
-              'Limit your response to no more than 200 characters, but make sure to construct complete sentences.' +
-              'Use Markdown formatting when appropriate.',
+              '与えられた文章の文法や用語の間違いを修正してください' +
+              '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -116,9 +117,8 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'You area an AI writing assistant that generates text based on a prompt. ' +
-              'You take an input from the user and a command for manipulating the text' +
-              'Use Markdown formatting when appropriate.',
+              'ユーザーから与えられた文章と command に従って、文章を生成してください。' +
+              '適切な場合はMarkdown形式を使用してください。',
           },
           {
             role: 'user',
@@ -137,9 +137,11 @@ export const useWriter = () => {
             content:
               '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。' +
               'ユーザーは <input> タグで校正してほしい文章を与えます。' +
-              'また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。' +
-              'AI は文章について問題がある部分だけを指摘してください。' +
-              'ただし、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
+              'また、<その他指摘してほしいこと> タグで指摘時に追加で指摘してほしい箇所を与えます。' +
+              'ただし、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。' +
+              '<output-format>[{excerpt: string; replace?: string; comment?: string }]</output-format>' +
+              '問題がある部分のみ指摘してください。Important! Only output sentence with error.' +
+              '指摘事項がない場合は空配列を出力してください。',
           },
           {
             role: 'user',
