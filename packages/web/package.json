@@ -26,6 +26,7 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
+    "@tiptap/react": "^2.11.2",
     "@types/uuid": "^9.0.8",
     "aws-amplify": "^6.3.8",
     "axios": "^1.6.8",

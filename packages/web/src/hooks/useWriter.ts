@@ -19,6 +19,7 @@ export const useWriter = () => {
     option: string,
     command?: string
   ): UnrecordedMessage[] => {
+    prompt = prompt.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
     const options: Record<string, { messages: UnrecordedMessage[] }> = {
       continue: {
         messages: [
@@ -65,7 +66,11 @@ export const useWriter = () => {
           },
           {
             role: 'user',
-            content: `The existing text is: ${prompt}`,
+            content: `<input>${prompt}</input>`,
+          },
+          {
+            role: 'assistant',
+            content: '<output>',
           },
         ],
       },
@@ -79,7 +84,11 @@ export const useWriter = () => {
           },
           {
             role: 'user',
-            content: `The existing text is: ${prompt}`,
+            content: `<input>${prompt}</input>`,
+          },
+          {
+            role: 'assistant',
+            content: '<output>',
           },
         ],
       },
@@ -94,7 +103,11 @@ export const useWriter = () => {
           },
           {
             role: 'user',
-            content: `The existing text is: ${prompt}`,
+            content: `<input>${prompt}</input>`,
+          },
+          {
+            role: 'assistant',
+            content: '<output>',
           },
         ],
       },
@@ -109,7 +122,28 @@ export const useWriter = () => {
           },
           {
             role: 'user',
-            content: `For this text: ${prompt}. You have to respect the command: ${command}`,
+            content: `<input>${prompt}</input><command>${command}</command>`,
+          },
+          {
+            role: 'assistant',
+            content: '<output>',
+          },
+        ],
+      },
+      comment: {
+        messages: [
+          {
+            role: 'system',
+            content:
+              '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。' +
+              'ユーザーは <input> タグで校正してほしい文章を与えます。' +
+              'また、<その他指摘してほしいこと> タグで指摘時に追加で指摘したい箇所を与えます。' +
+              'AI は文章について問題がある部分だけを指摘してください。' +
+              'ただし、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。<output-format>[{excerpt: string; replace?: string; comment?: string}]</output-format>指摘事項がない場合は空配列を出力してください。',
+          },
+          {
+            role: 'user',
+            content: `<input>${prompt}</input>`,
           },
         ],
       },
