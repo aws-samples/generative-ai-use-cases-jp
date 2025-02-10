@@ -1,7 +1,12 @@
-import { StreamingChunk, UnrecordedMessage } from 'generative-ai-use-cases-jp';
+import {
+  Model,
+  StreamingChunk,
+  UnrecordedMessage,
+} from 'generative-ai-use-cases-jp';
 import useChatApi from './useChatApi';
 import { create } from 'zustand';
 import { MODELS } from './useModel';
+import { v4 as uuidv4 } from 'uuid';
 
 const useWriterState = create<{
   modelId: string;
@@ -18,9 +23,12 @@ export const useWriter = () => {
     prompt: string,
     option: string,
     command?: string
-  ): UnrecordedMessage[] => {
+  ): { messages: UnrecordedMessage[]; overrideModel?: Model } => {
     prompt = prompt.replace(/<mark[^>]*>/g, '').replace(/<\/mark>/g, '');
-    const options: Record<string, { messages: UnrecordedMessage[] }> = {
+    const options: Record<
+      string,
+      { messages: UnrecordedMessage[]; overrideModel?: Model }
+    > = {
       continue: {
         messages: [
           {
@@ -130,6 +138,51 @@ export const useWriter = () => {
           },
         ],
       },
+      search: {
+        messages: [
+          {
+            role: 'user',
+            content: `<input>${prompt}</input><command>${command}</command>`,
+          },
+        ],
+        overrideModel: {
+          type: 'bedrockAgent',
+          modelId: MODELS.agentNames.filter((name) =>
+            name.includes('Search')
+          )[0],
+          sessionId: uuidv4(),
+        },
+      },
+      collectData: {
+        messages: [
+          {
+            role: 'user',
+            content: `以下はユーザーから与えられた文章です。根拠が薄い部分を列挙し検索して調査しデータや根拠を追記してください。<input>${prompt}</input>`,
+          },
+        ],
+        overrideModel: {
+          type: 'bedrockAgent',
+          modelId: MODELS.agentNames.filter((name) =>
+            name.includes('Search')
+          )[0],
+          sessionId: uuidv4(),
+        },
+      },
+      factCheck: {
+        messages: [
+          {
+            role: 'user',
+            content: `以下はユーザーから与えられた文章です。述べられている事実を列挙し、それぞれファクトチェックを行ってください。<input>${prompt}</input>`,
+          },
+        ],
+        overrideModel: {
+          type: 'bedrockAgent',
+          modelId: MODELS.agentNames.filter((name) =>
+            name.includes('Search')
+          )[0],
+          sessionId: uuidv4(),
+        },
+      },
       comment: {
         messages: [
           {
@@ -151,7 +204,7 @@ export const useWriter = () => {
       },
     };
 
-    return options[option as keyof typeof options]?.messages || [];
+    return options[option as keyof typeof options];
   };
 
   const write = async function* (
@@ -159,17 +212,22 @@ export const useWriter = () => {
     option: string,
     command?: string
   ) {
-    const messages = generateMessages(prompt, option, command);
+    const { messages, overrideModel } = generateMessages(
+      prompt,
+      option,
+      command
+    );
 
     const stream = await predictStream({
       id: '1',
       messages,
-      model: {
+      model: overrideModel || {
         type: 'bedrock',
         modelId: modelId,
       },
     });
     let tmpChunk = '';
+    let tmpTrace = '';
     for await (const chunk of stream) {
       const chunks = chunk.split('\n');
 
@@ -180,17 +238,31 @@ export const useWriter = () => {
           if (payload.text.length > 0) {
             tmpChunk += payload.text;
           }
+
+          if (payload.trace) {
+            tmpTrace += payload.trace;
+          }
         }
 
         if (tmpChunk.length >= 10) {
-          yield tmpChunk;
+          yield { text: tmpChunk };
           tmpChunk = '';
+        }
+
+        if (tmpTrace.length >= 10) {
+          yield { trace: tmpTrace };
+          tmpTrace = '';
         }
       }
 
       if (tmpChunk.length > 0) {
-        yield tmpChunk;
+        yield { text: tmpChunk };
         tmpChunk = '';
+      }
+
+      if (tmpTrace.length > 0) {
+        yield { trace: tmpTrace };
+        tmpTrace = '';
       }
     }
   };

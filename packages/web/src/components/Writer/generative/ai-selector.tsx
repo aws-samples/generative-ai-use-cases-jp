@@ -3,7 +3,7 @@
 import { Command, CommandInput } from '../ui/command';
 
 // import { useCompletion } from "ai/react";
-import { PiArrowUp } from 'react-icons/pi';
+import { PiMagnifyingGlass, PiPencil } from 'react-icons/pi';
 import { useEditor } from 'novel';
 import { addAIHighlight } from 'novel';
 import { useState } from 'react';
@@ -26,6 +26,7 @@ interface AISelectorProps {
 export function AISelector({ onOpenChange }: AISelectorProps) {
   const { editor } = useEditor();
   const [inputValue, setInputValue] = useState('');
+  const [trace, setTrace] = useState('');
   const [completion, setCompletion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { write } = useWriter();
@@ -40,11 +41,18 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
 
       const stream = write(text, options.body.option, options.body.command);
 
+      let trace = '';
       let fullResponse = '';
       for await (const chunk of stream) {
-        fullResponse += chunk;
-        fullResponse = fullResponse.replace('</output>', '');
-        setCompletion(fullResponse);
+        if (chunk.text) {
+          fullResponse += chunk.text;
+          fullResponse = fullResponse.replace('</output>', '');
+          setCompletion(fullResponse);
+        }
+        if (chunk.trace) {
+          trace += chunk.trace;
+          setTrace(trace);
+        }
       }
     } catch (e: unknown) {
       toast.error(
@@ -57,7 +65,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
     }
   };
 
-  const hasCompletion = completion.length > 0;
+  const hasCompletion = completion.length > 0 || trace.length > 0;
   if (!editor) return null;
 
   return (
@@ -65,6 +73,19 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
       {hasCompletion && (
         <div className="flex max-h-[400px]">
           <ScrollArea>
+            {trace && (
+              <details className="prose prose-sm p-2 px-4">
+                <summary>
+                  <div className="inline-flex gap-1">
+                    トレース
+                    {isLoading && !completion && (
+                      <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                    )}
+                  </div>
+                </summary>
+                <Markdown>{trace}</Markdown>
+              </details>
+            )}
             <div className="prose prose-sm p-2 px-4">
               <Markdown>{completion}</Markdown>
             </div>
@@ -97,7 +118,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
             />
             <Button
               size="icon"
-              className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
+              className="absolute right-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
               onClick={() => {
                 if (completion)
                   return complete(completion, {
@@ -113,7 +134,27 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
                   body: { option: 'zap', command: inputValue },
                 }).then(() => setInputValue(''));
               }}>
-              <PiArrowUp className="h-4 w-4" />
+              <PiPencil className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
+              onClick={() => {
+                if (completion)
+                  return complete(completion, {
+                    body: { option: 'search', command: inputValue },
+                  }).then(() => setInputValue(''));
+
+                const slice = editor.state.selection.content();
+                const text = editor.storage.markdown.serializer.serialize(
+                  slice.content
+                );
+
+                complete(text, {
+                  body: { option: 'search', command: inputValue },
+                }).then(() => setInputValue(''));
+              }}>
+              <PiMagnifyingGlass className="h-4 w-4" />
             </Button>
           </div>
           {hasCompletion ? (
