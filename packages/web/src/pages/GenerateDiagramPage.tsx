@@ -468,6 +468,10 @@ const GenerateDiagramPage: React.FC = () => {
     return content === '' || loading;
   }, [content, loading]);
 
+  const handleMarkdownChange = (markdown: string) => {
+    setDiagramCode(markdown);
+  };
+
   useEffect(() => {
     (() => {
       if (search) {
@@ -727,7 +731,10 @@ const GenerateDiagramPage: React.FC = () => {
                       </div>
                     ) : (
                       <div className="p-3">
-                        <DiagramRenderer code={diagramCode} />
+                        <DiagramRenderer
+                          code={diagramCode}
+                          handleMarkdownChange={handleMarkdownChange}
+                        />
                       </div>
                     )}
                   </div>
