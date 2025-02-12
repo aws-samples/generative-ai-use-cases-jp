@@ -1480,7 +1480,7 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
             "Description": "Search",
           },
           {
-            "ActionGroupName": "UserInput",
+            "ActionGroupName": "UserInputAction",
             "ParentActionGroupSignature": "AMAZON.UserInput",
           },
         ],
