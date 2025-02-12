@@ -21,6 +21,7 @@
     "@headlessui/react": "^1.7.18",
     "@react-icons/all-files": "^4.1.0",
     "@types/uuid": "^9.0.8",
+    "@uiw/react-md-editor": "^4.0.5",
     "aws-amplify": "^6.3.8",
     "axios": "^1.6.8",
     "buffer": "^6.0.3",

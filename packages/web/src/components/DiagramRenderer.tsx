@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { IoIosClose, IoMdDownload } from 'react-icons/io';
 import { VscCode } from 'react-icons/vsc';
 import { LuNetwork } from 'react-icons/lu';
-import Markdown from './Markdown';
+import EditableMarkdown from './EditableMarkdown';
 import Button from './Button';
 import mermaid, { MermaidConfig } from 'mermaid';
 import { TbSvg, TbPng } from 'react-icons/tb';
@@ -67,9 +67,13 @@ export const Mermaid: React.FC<MermaidProps> = (props) => {
 
 interface DiagramRendererProps {
   code: string;
+  handleMarkdownChange: (markdown: string) => void;
 }
 
-const DiagramRenderer: React.FC<DiagramRendererProps> = ({ code }) => {
+const DiagramRenderer: React.FC<DiagramRendererProps> = ({
+  code,
+  handleMarkdownChange,
+}) => {
   const [zoom, setZoom] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'diagram' | 'code'>('diagram');
 
@@ -208,7 +212,10 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({ code }) => {
         </div>
         <div
           className={`${viewMode === 'code' ? 'visible opacity-100' : 'invisible absolute left-0 top-0 opacity-0'}`}>
-          <Markdown>{['```mermaid', code, '```'].join('\n')}</Markdown>
+          <EditableMarkdown
+            code={code}
+            handleMarkdownChange={handleMarkdownChange}
+          />
         </div>
       </div>
 
