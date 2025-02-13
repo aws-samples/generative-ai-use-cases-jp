@@ -49,7 +49,7 @@ export const defaultEditorContent = {
         {
           type: 'text',
           text: 'AI オートコンプリート機能は、テキストを選択してバブルメニューから Ask AI を選択することで利用できます。',
-        }
+        },
       ],
     },
     {
@@ -58,7 +58,7 @@ export const defaultEditorContent = {
         {
           type: 'text',
           text: '例 1) 以下の文を選択し短縮しましょう。',
-        }
+        },
       ],
     },
     {
@@ -67,7 +67,7 @@ export const defaultEditorContent = {
         {
           type: 'text',
           text: 'Amazon Bedrock は、単一の API を通じて AI21 Labs、Anthropic、Cohere、Luma (近日リリース予定)、Meta、Mistral AI、poolside (近日リリース予定)、Stability AI、および Amazon などの大手 AI 企業からの高性能な基盤モデル (FM) の幅広い選択肢を提供するフルマネージドサービスであり、セキュリティ、プライバシー、責任ある AI を備えた生成 AI アプリケーションを構築するために必要な幅広い機能を提供します。Amazon Bedrock を使用すると、ユースケースに最適な FM を簡単に試して評価したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータに合わせてカスタマイズしたり、エンタープライズシステムとデータソースを使用してタスクを実行するエージェントを構築したりできます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成 AI 機能をアプリケーションに安全に統合してデプロイできます。',
-        }
+        },
       ],
     },
     {
@@ -76,7 +76,7 @@ export const defaultEditorContent = {
         {
           type: 'text',
           text: '例 2) 以下の文のファクトチェックを行いましょう。',
-        }
+        },
       ],
     },
     {
@@ -85,7 +85,7 @@ export const defaultEditorContent = {
         {
           type: 'text',
           text: 'Amazon Bedrock は、AWS の AI サービスです。',
-        }
+        },
       ],
     },
     {

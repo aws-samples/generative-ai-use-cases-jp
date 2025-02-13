@@ -257,7 +257,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   if (!initialContent) return null;
 
   return (
-    <div className="relative w-full m-auto max-w-screen-lg">
+    <div className="relative m-auto w-full max-w-screen-lg">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-end gap-2 text-sm">
           <div className="flex items-center gap-2">

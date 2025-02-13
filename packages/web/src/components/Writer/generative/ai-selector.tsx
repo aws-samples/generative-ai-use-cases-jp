@@ -116,8 +116,8 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
                 hasCompletion
                   ? '続けて AI に指示'
                   : inputMode === 'searchAgent'
-                  ? '検索を AI に指示'
-                  : 'AI に指示'
+                    ? '検索を AI に指示'
+                    : 'AI に指示'
               }
               onFocus={() => addAIHighlight(editor)}
             />
@@ -126,7 +126,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
               className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
               onClick={() => {
                 const option = inputMode === 'searchAgent' ? 'search' : 'zap';
-                
+
                 if (completion)
                   return complete(completion, {
                     body: { option: option, command: inputValue },
