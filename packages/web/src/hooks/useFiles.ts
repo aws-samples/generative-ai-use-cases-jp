@@ -4,6 +4,7 @@ import { FileLimit, UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 import { fileTypeFromStream } from 'file-type';
 import { useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
@@ -23,7 +24,7 @@ const useFilesState = create<{
   errorMessagesDict: Record<string, string[]>;
   deleteUploadedFile: (
     id: string,
-    fileUrl: string,
+    fileId: string,
     fileLimit: FileLimit,
     accept: string[]
   ) => Promise<boolean>;
@@ -54,7 +55,9 @@ const useFilesState = create<{
       if (fileType.includes('video')) return 'video';
       return 'file';
     };
+    const fileId = uuidv4();
     return {
+      id: fileId,
       file,
       name: file.name,
       type: getFileType(file.type),
@@ -244,6 +247,7 @@ const useFilesState = create<{
       };
 
       const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
+      const fileId = uploadedFile.id;
 
       // 署名付き URL の取得（並列実行させるために、await せずに実行）
       api
@@ -256,10 +260,11 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
+            const current_idx = get().uploadedFilesDict[id].findIndex((file) => file.id === fileId); //アップロード中に前のファイルが削除された場合idxが変化する
             set(
               produce((state) => {
-                state.uploadedFilesDict[id][idx].uploading = false;
-                state.uploadedFilesDict[id][idx].s3Url = fileUrl;
+                state.uploadedFilesDict[id][current_idx].uploading = false;
+                state.uploadedFilesDict[id][current_idx].s3Url = fileUrl;
                 state.base64Cache = {
                   ...state.base64Cache,
                   [fileUrl]: reader.result?.toString() ?? '',
@@ -274,13 +279,12 @@ const useFilesState = create<{
   // Delete Uploaded File
   const deleteUploadedFile = async (
     id: string,
-    fileUrl: string,
+    fileId: string,
     fileLimit: FileLimit,
     accept: string[]
   ) => {
-    const baseUrl = extractBaseURL(fileUrl);
     const findTargetIndex = () =>
-      get().uploadedFilesDict[id].findIndex((file) => file.s3Url === baseUrl);
+      get().uploadedFilesDict[id].findIndex((file) => file.id === fileId);
 
     let targetIndex = findTargetIndex();
     if (targetIndex > -1) {
@@ -386,10 +390,10 @@ const useFiles = (id: string) => {
     clear: () => clear(id),
     uploadedFiles: uploadedFilesDict[id] ?? [],
     deleteUploadedFile: (
-      fileUrl: string,
+      fileId: string,
       fileLimit: FileLimit,
       accept: string[]
-    ) => deleteUploadedFile(id, fileUrl, fileLimit, accept),
+    ) => deleteUploadedFile(id, fileId, fileLimit, accept),
     uploading:
       uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ??
       false,

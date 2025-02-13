@@ -21,6 +21,7 @@ import InputChatContent from '../components/InputChatContent';
 import Card from '../components/Card';
 import Select from '../components/Select';
 import queryString from 'query-string';
+import { v4 as uuidv4 } from 'uuid';
 
 type StateType = {
   content: string;
@@ -170,8 +171,10 @@ const VideoAnalyzerPage: React.FC = () => {
       const signedUrl = (await getSignedUrl({ mediaFormat: 'png' })).data;
       await uploadFile(signedUrl, { file });
       const baseUrl = extractBaseURL(signedUrl);
+      const fileId = uuidv4();
       const uploadedFiles: UploadedFileType[] = [
         {
+          id: fileId,
           file,
           name: file.name,
           type: 'image',

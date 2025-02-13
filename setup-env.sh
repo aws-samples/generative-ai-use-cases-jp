@@ -2,6 +2,7 @@
 
 set -eu
 
+
 # Get env from command lineargument (optional)
 if [ -n "${1:-}" ]; then
     env=$1
