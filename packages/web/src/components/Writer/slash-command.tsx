@@ -7,7 +7,6 @@ import {
   // PiImage,
   PiList,
   PiListNumbers,
-  PiChatDots,
   PiTextAlignLeft,
   PiQuotes,
   PiXLogo,
@@ -17,15 +16,15 @@ import { Command, createSuggestionItems, renderItems } from 'novel';
 // import { uploadFn } from './image-upload';
 
 export const suggestionItems = createSuggestionItems([
-  {
-    title: 'Send Feedback',
-    description: 'Let us know how we can improve.',
-    icon: <PiChatDots size={18} />,
-    command: ({ editor, range }) => {
-      editor.chain().focus().deleteRange(range).run();
-      window.open('/feedback', '_blank');
-    },
-  },
+  // {
+  //   title: 'Send Feedback',
+  //   description: 'Let us know how we can improve.',
+  //   icon: <PiChatDots size={18} />,
+  //   command: ({ editor, range }) => {
+  //     editor.chain().focus().deleteRange(range).run();
+  //     window.open('/feedback', '_blank');
+  //   },
+  // },
   {
     title: 'Text',
     description: 'Just start typing with plain text.',

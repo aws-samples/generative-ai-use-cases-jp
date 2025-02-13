@@ -13,6 +13,7 @@ const AICompletionCommands = ({
   if (!editor) return null;
   return (
     <>
+      <CommandSeparator />
       <CommandGroup>
         <CommandItem
           className="gap-2 px-4"
@@ -33,7 +34,7 @@ const AICompletionCommands = ({
               .run();
           }}>
           <PiCheck className="text-muted-foreground h-4 w-4" />
-          Replace selection
+          選択範囲を置換
         </CommandItem>
         <CommandItem
           className="gap-2 px-4"
@@ -47,7 +48,7 @@ const AICompletionCommands = ({
               .run();
           }}>
           <PiQuotes className="text-muted-foreground h-4 w-4" />
-          Insert below
+          選択範囲の下に挿入
         </CommandItem>
       </CommandGroup>
       <CommandSeparator />
@@ -55,7 +56,7 @@ const AICompletionCommands = ({
       <CommandGroup>
         <CommandItem onSelect={onDiscard} value="thrash" className="gap-2 px-4">
           <PiTrash className="text-muted-foreground h-4 w-4" />
-          Discard
+          破棄
         </CommandItem>
       </CommandGroup>
     </>

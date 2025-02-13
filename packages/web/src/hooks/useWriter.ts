@@ -188,11 +188,20 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              '以下は文章を校正したいユーザーと、ユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AI のやりとりです。' +
-              'ユーザーは <input> タグで校正してほしい文章を与えます。' +
-              'また、<その他指摘してほしいこと> タグで指摘時に追加で指摘してほしい箇所を与えます。' +
-              'ただし、出力は <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。' +
-              '<output-format>[{excerpt: string; replace?: string; comment?: string }]</output-format>' +
+              'あなたはユーザーの意図と文章を理解して、適切に修正すべき箇所を指摘する校正 AIです。\n' +
+              'ユーザーは <input> タグで校正してほしい文章を与えます。 <指摘してほしいこと> を指摘してください。\n' +
+              '修正案がある場合は修正案を replace で提案してください。\n' +
+              '出力は以下の <output-format></output-format> 形式の JSON Array だけを <output></output> タグで囲って出力してください。\n' +
+              '<output-format>[{"excerpt": string; "replace"?: string; "comment"?: string }]</output-format>\n' +
+              '<指摘してほしいこと>\n' +
+              '- 誤字脱字\n' +
+              '- 文法の間違い\n' +
+              '- 根拠が不足している箇所\n' +
+              '- 論理性の不十分な箇所\n' +
+              '- 考察が不十分な箇所\n' +
+              '- 楽観的な表現の箇所\n' +
+              '- 具体性に欠ける箇所\n' +
+              '</指摘してほしいこと>\n' +
               '問題がある部分のみ指摘してください。Important! Only output sentence with error.' +
               '指摘事項がない場合は空配列を出力してください。',
           },
@@ -211,7 +220,7 @@ export const useWriter = () => {
     prompt: string,
     option: string,
     command?: string
-  ) {
+  ): AsyncGenerator<{ text?: string; trace?: string }> {
     const { messages, overrideModel } = generateMessages(
       prompt,
       option,

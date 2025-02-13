@@ -2,21 +2,18 @@
 
 import { Command, CommandInput } from '../ui/command';
 
-// import { useCompletion } from "ai/react";
-import { PiMagnifyingGlass, PiPencil } from 'react-icons/pi';
+import { PiArrowUp, PiMagnifyingGlass, PiSpinner } from 'react-icons/pi';
 import { useEditor } from 'novel';
 import { addAIHighlight } from 'novel';
 import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import CrazySpinner from '../ui/icons/crazy-spinner';
 import Magic from '../ui/icons/magic';
 import { ScrollArea } from '../ui/scroll-area';
 import AICompletionCommands from './ai-completion-command';
 import AISelectorCommands from './ai-selector-commands';
 import useWriter from '../../../hooks/useWriter';
-//TODO: I think it makes more sense to create a custom Tiptap extension for this functionality https://tiptap.dev/docs/editor/ai/introduction
 
 interface AISelectorProps {
   open: boolean;
@@ -26,8 +23,13 @@ interface AISelectorProps {
 export function AISelector({ onOpenChange }: AISelectorProps) {
   const { editor } = useEditor();
   const [inputValue, setInputValue] = useState('');
+  const [inputMode, setInputMode] = useState<'instruction' | 'searchAgent'>(
+    'instruction'
+  );
+
   const [trace, setTrace] = useState('');
   const [completion, setCompletion] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
   const { write } = useWriter();
 
@@ -96,9 +98,9 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
       {isLoading && (
         <div className="flex h-12 w-full items-center px-4 text-sm font-medium text-purple-500">
           <Magic className="mr-2 h-4 w-4 shrink-0  " />
-          AI is thinking
+          思考中
           <div className="ml-2 mt-1">
-            <CrazySpinner />
+            <PiSpinner className="h-4 w-4 animate-spin" />
           </div>
         </div>
       )}
@@ -106,43 +108,28 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
         <>
           <div className="relative">
             <CommandInput
+              className="border-none pr-6"
               value={inputValue}
               onValueChange={setInputValue}
               autoFocus
               placeholder={
                 hasCompletion
-                  ? 'Tell AI what to do next'
-                  : 'Ask AI to edit or generate...'
+                  ? '続けて AI に指示'
+                  : inputMode === 'searchAgent'
+                  ? '検索を AI に指示'
+                  : 'AI に指示'
               }
               onFocus={() => addAIHighlight(editor)}
             />
             <Button
               size="icon"
-              className="absolute right-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
-              onClick={() => {
-                if (completion)
-                  return complete(completion, {
-                    body: { option: 'zap', command: inputValue },
-                  }).then(() => setInputValue(''));
-
-                const slice = editor.state.selection.content();
-                const text = editor.storage.markdown.serializer.serialize(
-                  slice.content
-                );
-
-                complete(text, {
-                  body: { option: 'zap', command: inputValue },
-                }).then(() => setInputValue(''));
-              }}>
-              <PiPencil className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
               className="absolute right-2 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-purple-500 hover:bg-purple-900"
               onClick={() => {
+                const option = inputMode === 'searchAgent' ? 'search' : 'zap';
+                
                 if (completion)
                   return complete(completion, {
-                    body: { option: 'search', command: inputValue },
+                    body: { option: option, command: inputValue },
                   }).then(() => setInputValue(''));
 
                 const slice = editor.state.selection.content();
@@ -151,10 +138,14 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
                 );
 
                 complete(text, {
-                  body: { option: 'search', command: inputValue },
+                  body: { option, command: inputValue },
                 }).then(() => setInputValue(''));
               }}>
-              <PiMagnifyingGlass className="h-4 w-4" />
+              {inputMode === 'searchAgent' ? (
+                <PiMagnifyingGlass className="h-4 w-4" />
+              ) : (
+                <PiArrowUp className="h-4 w-4" />
+              )}
             </Button>
           </div>
           {hasCompletion ? (
@@ -165,13 +156,17 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
               }}
               completion={completion}
             />
-          ) : (
+          ) : inputMode === 'instruction' ? (
             <AISelectorCommands
-              onSelect={(value, option) =>
-                complete(value, { body: { option, command: inputValue } })
-              }
+              onSelect={(value, option) => {
+                if (option === 'search') {
+                  setInputMode('searchAgent');
+                } else {
+                  complete(value, { body: { option, command: inputValue } });
+                }
+              }}
             />
-          )}
+          ) : null}
         </>
       )}
     </Command>

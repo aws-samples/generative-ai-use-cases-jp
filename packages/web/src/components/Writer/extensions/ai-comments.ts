@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
   /[Ａ-Ｚａ-ｚ０-９！＂＃＄％＆＇（）＊＋，－．／：；＜＝＞？＠［＼］＾＿｀｛｜｝]/g;
+const highlightColor = '#fdebeb';
 
 type CommentState = {
   comments: DocumentComment[];
@@ -87,7 +88,7 @@ export class AICommentManager {
   }
 
   // コメントのフィルタリング
-  private filterComments(): DocumentComment[] {
+  private updateFilteredComments() {
     const { comments, commentState } = useCommentStore.getState();
     const filteredComments = comments.filter(
       (x) =>
@@ -96,25 +97,35 @@ export class AICommentManager {
         x.excerpt !== x.replace
     );
     useCommentStore.getState().setFilteredComments(filteredComments);
-    return filteredComments;
+  }
+
+  // コメントをクリア
+  clearComments() {
+    useCommentStore.getState().clearAll();
+    removeAIHighlight(this.editor);
   }
 
   // コメントを削除
   removeComment(comment: DocumentComment) {
     // コメントの状態を更新
     useCommentStore.getState().addCommentState(comment.excerpt);
-    this.filterComments();
-    // 全てのマッチのハイライトを削除
-    const matches = this.findTextPosition(comment.excerpt);
-    if (matches.length === 0) return;
-    for (const { from, to } of matches) {
-      this.editor
-        .chain()
-        .focus()
-        .setTextSelection({ from, to })
-        .unsetAIHighlight()
-        .run();
-    }
+    this.updateFilteredComments();
+
+    // ハイライト更新: 全削除して最新状態を反映
+    removeAIHighlight(this.editor);
+    const filteredComments = useCommentStore.getState().filteredComments;
+    const chain = this.editor.chain();
+    filteredComments.forEach((comment) => {
+      const matches = this.findTextPosition(comment.excerpt);
+      if (matches.length === 0) return;
+      for (const { from, to } of matches) {
+        chain
+          .focus()
+          .setTextSelection({ from, to })
+          .setAIHighlight({ color: highlightColor });
+      }
+    });
+    chain.run();
 
     // コメントがない場合はコメントをクリア (ハイライトが残っている場合があるため)
     if (useCommentStore.getState().filteredComments.length === 0) {
@@ -126,15 +137,15 @@ export class AICommentManager {
   replaceSentence(comment: DocumentComment) {
     const matches = this.findTextPosition(comment.excerpt);
     if (matches.length === 0 || !comment.replace) return;
+    const chain = this.editor.chain();
     for (const { from, to } of matches) {
-      this.editor
-        .chain()
+      chain
         .focus()
         .setTextSelection({ from, to })
         .unsetAIHighlight()
-        .insertContentAt({ from, to }, comment.replace)
-        .run();
+        .insertContentAt({ from, to }, comment.replace);
     }
+    chain.run();
     this.removeComment(comment);
   }
 
@@ -142,62 +153,45 @@ export class AICommentManager {
   focusComment(comment: DocumentComment) {
     const matches = this.findTextPosition(comment.excerpt);
     if (matches.length === 0) return;
+    const { from, to } = matches[0];
+    this.editor.chain().setTextSelection({ from, to }).focus().run();
+  }
+
+  // ハイライトを追加
+  private addHighlight(comment: DocumentComment) {
+    if (!comment.excerpt) return;
+    const matches = this.findTextPosition(comment.excerpt);
+    if (matches.length === 0) return;
     for (const { from, to } of matches) {
-      this.editor.chain().setTextSelection({ from, to }).focus().run();
+      this.editor
+        .chain()
+        .setTextSelection({ from, to })
+        .setAIHighlight({ color: highlightColor })
+        .run();
     }
   }
 
   // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
   private handleResponse(response: string) {
-    const newComments = [...response.matchAll(REGEX_BRACKET)].map((x) => {
-      try {
-        return JSON.parse(x[0]) as DocumentComment;
-      } catch (error) {
-        console.error(error, x[0]);
-        return { excerpt: '', type: 'error' } as DocumentComment;
-      }
-    });
-    if (newComments.length !== useCommentStore.getState().comments.length) {
+    const currentComments = useCommentStore.getState().comments;
+    const newComments = [...response.matchAll(REGEX_BRACKET)]
+      .map((x) => {
+        try {
+          return JSON.parse(x[0]) as DocumentComment;
+        } catch (error) {
+          console.error(error, x[0]);
+          return { excerpt: '', type: 'error' } as DocumentComment;
+        }
+      })
+      .filter((comment) => comment.excerpt);
+
+    if (newComments.length !== currentComments.length) {
       useCommentStore.getState().setComments(newComments);
-      this.filterComments();
-      this.updateHighlights();
+      this.updateFilteredComments();
+      newComments.slice(currentComments.length).forEach((comment) => {
+        this.addHighlight(comment);
+      });
     }
-  }
-
-  // コメントをクリア
-  clearComments() {
-    useCommentStore.getState().clearAll();
-    removeAIHighlight(this.editor);
-  }
-
-  // ハイライトを更新
-  private updateHighlights() {
-    // 既存のハイライトをクリア
-    this.editor
-      .chain()
-      .setTextSelection({ from: 0, to: 0 })
-      .unsetAIHighlight()
-      .run();
-
-    // 新しいハイライトを適用
-    const { comments } = useCommentStore.getState();
-    comments.forEach((comment) => {
-      if (!comment.excerpt) return;
-
-      const matches = this.findTextPosition(comment.excerpt);
-      if (matches.length === 0) return;
-
-      for (const { from, to } of matches) {
-        this.editor
-          .chain()
-          .setTextSelection({ from, to })
-          .setAIHighlight({ color: '#fdebeb' })
-          .run();
-      }
-    });
-
-    // 選択を解除
-    this.editor.commands.setTextSelection({ from: 0, to: 0 });
   }
 
   // 構成を実行
@@ -212,6 +206,7 @@ export class AICommentManager {
       })
       .replace(/[‐－―]/g, '-')
       .replace(/[～〜]/g, '~')
+      .replace(/["”]/g, "'") // replace double quote since Claude does not escape double quote inside json
       // eslint-disable-next-line no-irregular-whitespace
       .replace(/　/g, ' ');
     this.editor.commands.setContent(cleanedMarkdown);
@@ -225,7 +220,7 @@ export class AICommentManager {
     try {
       let buffer = '';
       for await (const chunk of this.write(text, 'comment')) {
-        buffer += chunk;
+        buffer += chunk.text;
         this.handleResponse(buffer);
       }
     } finally {

@@ -6,6 +6,7 @@ import {
   PiTextAlignJustify,
   PiMagnifyingGlass,
   PiCheck,
+  PiFileMagnifyingGlass,
 } from 'react-icons/pi';
 import { getPrevText, useEditor } from 'novel';
 import { CommandGroup, CommandItem, CommandSeparator } from '../ui/command';
@@ -35,9 +36,14 @@ const options = [
 
 const agentOptions = [
   {
-    value: 'collectData',
-    label: 'データを強化',
+    value: 'search',
+    label: '検索して執筆...',
     icon: PiMagnifyingGlass,
+  },
+  {
+    value: 'collectData',
+    label: '裏付け・データを調査し追記',
+    icon: PiFileMagnifyingGlass,
   },
   {
     value: 'factCheck',
@@ -55,7 +61,8 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
   if (!editor) return null;
   return (
     <>
-      <CommandGroup heading="Edit or review selection">
+      <CommandSeparator />
+      <CommandGroup heading="選択範囲を編集">
         {options.map((option) => (
           <CommandItem
             onSelect={(value: string) => {
@@ -74,7 +81,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
         ))}
       </CommandGroup>
       <CommandSeparator />
-      <CommandGroup heading="Agent">
+      <CommandGroup heading="検索エンジンを使う">
         {agentOptions.map((option) => (
           <CommandItem
             onSelect={(value: string) => {
@@ -93,7 +100,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
         ))}
       </CommandGroup>
       <CommandSeparator />
-      <CommandGroup heading="Use AI to do more">
+      <CommandGroup heading="生成">
         <CommandItem
           onSelect={() => {
             const pos = editor.state.selection.from;
@@ -103,7 +110,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           value="continue"
           className="gap-2 px-4">
           <PiSkipForward className="h-4 w-4 text-purple-500" />
-          Continue writing
+          続きを出力
         </CommandItem>
       </CommandGroup>
     </>

@@ -35,7 +35,7 @@ import hljs from 'highlight.js/lib/core';
 import Card from '../Card';
 import Button from '../Button';
 import ButtonIcon from '../ButtonIcon';
-import { PiTrash, PiChatText, PiSpinner } from 'react-icons/pi';
+import { PiTrash, PiChatText, PiSpinner, PiQuestion } from 'react-icons/pi';
 import useWriter from '../../hooks/useWriter';
 import { Editor } from '@tiptap/react';
 import Select from '../Select';
@@ -199,7 +199,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         editor.storage.markdown.getMarkdown()
       );
       setSaveStatus('Saved');
-      setText(editor.getText());
+      setText(editor.storage.markdown.getMarkdown());
       setHtml(editor.getHTML());
     },
     500
@@ -243,21 +243,44 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     return height + 16; // margin-bottom の 16px を加算
   }, []);
 
+  // チュートリアルボタンのクリックハンドラ
+  const handleTutorialClick = () => {
+    if (editorRef) {
+      editorRef.commands.setContent(defaultEditorContent);
+      window.localStorage.setItem(
+        'novel-content',
+        JSON.stringify(defaultEditorContent)
+      );
+    }
+  };
+
   if (!initialContent) return null;
 
   return (
-    <div className="relative w-full max-w-screen-lg">
+    <div className="relative w-full m-auto max-w-screen-lg">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-end gap-2 text-sm">
-          <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-            ローカルモード: {saveStatus}
-          </div>
-          {charsCount && (
+          <div className="flex items-center gap-2">
             <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-              {charsCount} 文字
+              ローカルモード: {saveStatus}
             </div>
-          )}
-          <ButtonCopy text={text} html={html} className="hover:bg-accent/80" />
+            {charsCount && (
+              <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
+                {charsCount} 文字
+              </div>
+            )}
+            <ButtonCopy
+              text={text}
+              html={html}
+              className="hover:bg-accent/80"
+            />
+            <ButtonIcon
+              onClick={handleTutorialClick}
+              className="hover:bg-accent/80"
+              title="チュートリアルを表示">
+              <PiQuestion />
+            </ButtonIcon>
+          </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Select
@@ -307,8 +330,10 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
                 debouncedUpdates(editor);
                 setSaveStatus('Unsaved');
               }}
-              onCreate={(props) => {
-                handleEditorCreated(props.editor);
+              onCreate={({ editor }) => {
+                handleEditorCreated(editor);
+                debouncedUpdates(editor);
+                setSaveStatus('Unsaved');
               }}
               slotAfter={<ImageResizer />}>
               <EditorCommand className="border-muted bg-background z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border px-1 py-2 shadow-md transition-all">
