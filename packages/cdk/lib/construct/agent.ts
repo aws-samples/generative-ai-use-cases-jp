@@ -110,7 +110,7 @@ export class Agent extends Construct {
             description: 'Search',
           },
           {
-            actionGroupName: 'UserInput',
+            actionGroupName: 'UserInputAction',
             parentActionGroupSignature: 'AMAZON.UserInput',
           },
         ],
