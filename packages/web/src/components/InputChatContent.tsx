@@ -79,9 +79,9 @@ const InputChatContent: React.FC<Props> = (props) => {
   };
 
   const deleteFile = useCallback(
-    (fileUrl: string) => {
+    (fileId: string) => {
       if (props.fileLimit && props.accept) {
-        deleteUploadedFile(fileUrl, props.fileLimit, props.accept);
+        deleteUploadedFile(fileId, props.fileLimit, props.accept);
       }
     },
     [deleteUploadedFile, props.fileLimit, props.accept]
@@ -141,7 +141,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {
-                        deleteFile(uploadedFile.s3Url ?? '');
+                        deleteFile(uploadedFile.id ?? '');
                       }}
                     />
                   );
@@ -155,7 +155,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {
-                        deleteFile(uploadedFile.s3Url ?? '');
+                        deleteFile(uploadedFile.id ?? '');
                       }}
                     />
                   );
@@ -169,7 +169,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                       size="s"
                       error={uploadedFile.errorMessages.length > 0}
                       onDelete={() => {
-                        deleteFile(uploadedFile.s3Url ?? '');
+                        deleteFile(uploadedFile.id ?? '');
                       }}
                     />
                   );
