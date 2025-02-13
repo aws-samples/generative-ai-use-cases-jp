@@ -247,7 +247,6 @@ const useFilesState = create<{
       };
 
       const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
-      const fileId = uploadedFile.id;
 
       // 署名付き URL の取得（並列実行させるために、await せずに実行）
       api
@@ -260,7 +259,7 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
-            const current_idx = get().uploadedFilesDict[id].findIndex((file) => file.id === fileId); //アップロード中に前のファイルが削除された場合idxが変化する
+            const current_idx = get().uploadedFilesDict[id].findIndex((file) => file.id === uploadedFile.id); //アップロード中に前のファイルが削除された場合idxが変化する
             set(
               produce((state) => {
                 state.uploadedFilesDict[id][current_idx].uploading = false;
