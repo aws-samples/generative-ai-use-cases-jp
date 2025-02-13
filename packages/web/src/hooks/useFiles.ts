@@ -259,11 +259,11 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
-            const current_idx = get().uploadedFilesDict[id].findIndex((file) => file.id === uploadedFile.id); //アップロード中に前のファイルが削除された場合idxが変化する
+            const currentIdx = get().uploadedFilesDict[id].findIndex((file) => file.id === uploadedFile.id); //アップロード中に前のファイルが削除された場合idxが変化する
             set(
               produce((state) => {
-                state.uploadedFilesDict[id][current_idx].uploading = false;
-                state.uploadedFilesDict[id][current_idx].s3Url = fileUrl;
+                state.uploadedFilesDict[id][currentIdx].uploading = false;
+                state.uploadedFilesDict[id][currentIdx].s3Url = fileUrl;
                 state.base64Cache = {
                   ...state.base64Cache,
                   [fileUrl]: reader.result?.toString() ?? '',
