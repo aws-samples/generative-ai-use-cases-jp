@@ -3,7 +3,7 @@
 import './writer.css';
 import 'katex/dist/katex.min.css';
 
-import { defaultEditorContent } from './lib/content';
+import { defaultEditorContent, emptyContent } from './lib/content';
 import {
   EditorCommand,
   EditorCommandEmpty,
@@ -35,7 +35,7 @@ import hljs from 'highlight.js/lib/core';
 import Card from '../Card';
 import Button from '../Button';
 import ButtonIcon from '../ButtonIcon';
-import { PiTrash, PiChatText, PiSpinner, PiQuestion } from 'react-icons/pi';
+import { PiTrash, PiChatText, PiSpinner } from 'react-icons/pi';
 import useWriter from '../../hooks/useWriter';
 import { Editor } from '@tiptap/react';
 import Select from '../Select';
@@ -44,6 +44,7 @@ import { AICommentManager, useComments } from './extensions/ai-comments';
 import ButtonCopy from '../ButtonCopy';
 import DiffMatchPatch from 'diff-match-patch';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
+import { toast } from 'sonner';
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -129,7 +130,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const [initialContent, setInitialContent] = useState<null | JSONContent>(
     null
   );
-  const [saveStatus, setSaveStatus] = useState('Saved');
+  const [saveStatus, setSaveStatus] = useState(true);
   const [text, setText] = useState('');
   const [html, setHtml] = useState('');
   const [charsCount, setCharsCount] = useState();
@@ -198,7 +199,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         'markdown',
         editor.storage.markdown.getMarkdown()
       );
-      setSaveStatus('Saved');
+      setSaveStatus(true);
       setText(editor.storage.markdown.getMarkdown());
       setHtml(editor.getHTML());
     },
@@ -229,7 +230,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     setInitialContent(content);
   }, [initialSentence]);
 
-  // 校正ボタンのクリックハンドラ
+  // 校閲ボタンのクリックハンドラ
   const handleExecClick = async () => {
     if (!commentManager) return;
     await commentManager.execAnnotation();
@@ -243,6 +244,20 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     return height + 16; // margin-bottom の 16px を加算
   }, []);
 
+  // クリアボタン
+  const handleClear = () => {
+    if (editorRef) {
+      editorRef.commands.setContent(emptyContent);
+      window.localStorage.setItem(
+        'novel-content',
+        JSON.stringify(emptyContent)
+      );
+      toast.info(
+        'エディタをクリアしました。Ctrl-Z/Cmd-Z で戻すことができます。'
+      );
+    }
+  };
+
   // チュートリアルボタンのクリックハンドラ
   const handleTutorialClick = () => {
     if (editorRef) {
@@ -250,6 +265,9 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
       window.localStorage.setItem(
         'novel-content',
         JSON.stringify(defaultEditorContent)
+      );
+      toast.info(
+        'チュートリアルをエディタに反映しました。Ctrl-Z/Cmd-Z で戻すことができます。'
       );
     }
   };
@@ -262,7 +280,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         <div className="flex items-center justify-end gap-2 text-sm">
           <div className="flex items-center gap-2">
             <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-              ローカルモード: {saveStatus}
+              {saveStatus ? '保存済み' : '保存中...'}
             </div>
             {charsCount && (
               <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
@@ -272,14 +290,14 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             <ButtonCopy
               text={text}
               html={html}
-              className="hover:bg-accent/80"
+              className="hover:bg-accent/80 border"
             />
-            <ButtonIcon
-              onClick={handleTutorialClick}
-              className="hover:bg-accent/80"
-              title="チュートリアルを表示">
-              <PiQuestion />
-            </ButtonIcon>
+            <Button outlined onClick={handleClear}>
+              クリア
+            </Button>
+            <Button outlined onClick={handleTutorialClick}>
+              チュートリアル
+            </Button>
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -301,7 +319,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             ) : (
               <PiChatText className="h-4 w-4" />
             )}
-            校正
+            校閲
           </Button>
         </div>
       </div>
@@ -328,12 +346,12 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               }}
               onUpdate={({ editor }) => {
                 debouncedUpdates(editor);
-                setSaveStatus('Unsaved');
+                setSaveStatus(false);
               }}
               onCreate={({ editor }) => {
                 handleEditorCreated(editor);
                 debouncedUpdates(editor);
-                setSaveStatus('Unsaved');
+                setSaveStatus(true);
               }}
               slotAfter={<ImageResizer />}>
               <EditorCommand className="border-muted bg-background z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border px-1 py-2 shadow-md transition-all">

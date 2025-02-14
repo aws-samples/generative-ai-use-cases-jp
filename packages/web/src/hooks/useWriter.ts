@@ -37,6 +37,7 @@ export const useWriter = () => {
               '既存の文章の文脈に基づいて文章の続きを書いてください。' +
               '文章の後半部分により重点を置いて優先してください。' +
               '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -53,6 +54,7 @@ export const useWriter = () => {
               '与えられた文章を推敲し改善してください。' +
               '「簡潔、論理的、わかりやすい、データによる裏付け（データがない場合はプレースホルダ X を入れる）」を意識してください。' +
               '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -71,6 +73,7 @@ export const useWriter = () => {
             role: 'system',
             content:
               '与えられた文章をより短く簡潔にしてください。' +
+              '出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -89,6 +92,7 @@ export const useWriter = () => {
             role: 'system',
             content:
               '与えられた文章をより長く詳細にしてください。' +
+              '出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -106,8 +110,9 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              '与えられた文章の文法や用語の間違いを修正してください' +
+              'あなたは校閲 AI です。与えられた文章の文法や用語の間違いを修正してください' +
               '返答は200文字以内に制限し、必ず完全な文で終わるようにしてください。' +
+              '出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -125,7 +130,7 @@ export const useWriter = () => {
           {
             role: 'system',
             content:
-              'ユーザーから与えられた文章と command に従って、文章を生成してください。' +
+              'ユーザーから与えられた文章と command に従って、文章を生成してください。出力のみを <output> タグで囲んで出力してください。' +
               '適切な場合はMarkdown形式を使用してください。',
           },
           {
@@ -147,9 +152,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.agentNames.filter((name) =>
-            name.includes('Search')
-          )[0],
+          modelId: MODELS.searchAgent,
           sessionId: uuidv4(),
         },
       },
@@ -162,9 +165,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.agentNames.filter((name) =>
-            name.includes('Search')
-          )[0],
+          modelId: MODELS.searchAgent,
           sessionId: uuidv4(),
         },
       },
@@ -177,9 +178,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.agentNames.filter((name) =>
-            name.includes('Search')
-          )[0],
+          modelId: MODELS.searchAgent,
           sessionId: uuidv4(),
         },
       },

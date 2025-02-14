@@ -10,6 +10,7 @@ import {
 } from 'react-icons/pi';
 import { getPrevText, useEditor } from 'novel';
 import { CommandGroup, CommandItem, CommandSeparator } from '../ui/command';
+import { MODELS } from '../../../hooks/useModel';
 
 const options = [
   {
@@ -19,7 +20,7 @@ const options = [
   },
   {
     value: 'fix',
-    label: '校正',
+    label: '校閲',
     icon: PiChecks,
   },
   {
@@ -99,20 +100,25 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           </CommandItem>
         ))}
       </CommandGroup>
-      <CommandSeparator />
-      <CommandGroup heading="生成">
-        <CommandItem
-          onSelect={() => {
-            const pos = editor.state.selection.from;
-            const text = getPrevText(editor, pos);
-            onSelect(text, 'continue');
-          }}
-          value="continue"
-          className="gap-2 px-4">
-          <PiSkipForward className="h-4 w-4 text-purple-500" />
-          続きを出力
-        </CommandItem>
-      </CommandGroup>
+
+      {MODELS.searchAgent && (
+        <>
+          <CommandSeparator />
+          <CommandGroup heading="生成">
+            <CommandItem
+              onSelect={() => {
+                const pos = editor.state.selection.from;
+                const text = getPrevText(editor, pos);
+                onSelect(text, 'continue');
+              }}
+              value="continue"
+              className="gap-2 px-4">
+              <PiSkipForward className="h-4 w-4 text-purple-500" />
+              続きを出力
+            </CommandItem>
+          </CommandGroup>
+        </>
+      )}
     </>
   );
 };
