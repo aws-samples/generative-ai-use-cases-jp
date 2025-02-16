@@ -74,7 +74,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPool: auth.idPool,
       userPoolClient: auth.client,
       table: database.table,
-      knowledgeBaseId: props.knowledgeBaseId,
+      knowledgeBaseId: params.ragKnowledgeBaseId || props.knowledgeBaseId,
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,

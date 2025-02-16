@@ -177,195 +177,196 @@ export class RagKnowledgeBaseStack extends Stack {
       );
     }
 
-    const collection = new oss.CfnCollection(this, 'Collection', {
-      name: collectionName,
-      description: 'GenU Collection',
-      type: 'VECTORSEARCH',
-      standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
-    });
-
-    const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
-      collectionId: collection.ref,
-      vectorIndexName,
-      vectorField,
-      textField,
-      metadataField,
-      vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
-    });
-
-    ossIndex.customResourceHandler.addToRolePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-        actions: ['aoss:APIAccessAll'],
-      })
-    );
-
-    const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
-      name: collectionName,
-      policy: JSON.stringify([
-        {
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              Permission: [
-                'aoss:DescribeCollectionItems',
-                'aoss:CreateCollectionItems',
-                'aoss:UpdateCollectionItems',
-              ],
-              ResourceType: 'collection',
-            },
-            {
-              Resource: [`index/${collectionName}/*`],
-              Permission: [
-                'aoss:UpdateIndex',
-                'aoss:DescribeIndex',
-                'aoss:ReadDocument',
-                'aoss:WriteDocument',
-                'aoss:CreateIndex',
-                'aoss:DeleteIndex',
-              ],
-              ResourceType: 'index',
-            },
-          ],
-          Principal: [
-            knowledgeBaseRole.roleArn,
-            ossIndex.customResourceHandler.role?.roleArn,
-          ],
-          Description: '',
-        },
-      ]),
-      type: 'data',
-    });
-
-    const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
-      name: collectionName,
-      policy: JSON.stringify([
-        {
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'collection',
-            },
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'dashboard',
-            },
-          ],
-          AllowFromPublic: true,
-        },
-      ]),
-      type: 'network',
-    });
-
-    const encryptionPolicy = new oss.CfnSecurityPolicy(
-      this,
-      'EncryptionPolicy',
-      {
+    if (!props.params.ragKnowledgeBaseId) {
+      const collection = new oss.CfnCollection(this, 'Collection', {
         name: collectionName,
-        policy: JSON.stringify({
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'collection',
-            },
-          ],
-          AWSOwnedKey: true,
-        }),
-        type: 'encryption',
-      }
-    );
+        description: 'GenU Collection',
+        type: 'VECTORSEARCH',
+        standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
+      });
 
-    collection.node.addDependency(accessPolicy);
-    collection.node.addDependency(networkPolicy);
-    collection.node.addDependency(encryptionPolicy);
+      const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
+        collectionId: collection.ref,
+        vectorIndexName,
+        vectorField,
+        textField,
+        metadataField,
+        vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
+      });
 
-    const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      autoDeleteObjects: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      enforceSSL: true,
-    });
+      ossIndex.customResourceHandler.addToRolePolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+          actions: ['aoss:APIAccessAll'],
+        })
+      );
 
-    const dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      autoDeleteObjects: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      serverAccessLogsBucket: accessLogsBucket,
-      serverAccessLogsPrefix: 'AccessLogs/',
-      enforceSSL: true,
-    });
-
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: ['*'],
-        actions: ['bedrock:InvokeModel'],
-      })
-    );
-
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-        actions: ['aoss:APIAccessAll'],
-      })
-    );
-
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}`],
-        actions: ['s3:ListBucket'],
-      })
-    );
-
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}/*`],
-        actions: ['s3:GetObject'],
-      })
-    );
-
-    const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
-      name: collectionName,
-      roleArn: knowledgeBaseRole.roleArn,
-      knowledgeBaseConfiguration: {
-        type: 'VECTOR',
-        vectorKnowledgeBaseConfiguration: {
-          embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
-        },
-      },
-      storageConfiguration: {
-        type: 'OPENSEARCH_SERVERLESS',
-        opensearchServerlessConfiguration: {
-          collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
-          fieldMapping: {
-            metadataField,
-            textField,
-            vectorField,
+      const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
+        name: collectionName,
+        policy: JSON.stringify([
+          {
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                Permission: [
+                  'aoss:DescribeCollectionItems',
+                  'aoss:CreateCollectionItems',
+                  'aoss:UpdateCollectionItems',
+                ],
+                ResourceType: 'collection',
+              },
+              {
+                Resource: [`index/${collectionName}/*`],
+                Permission: [
+                  'aoss:UpdateIndex',
+                  'aoss:DescribeIndex',
+                  'aoss:ReadDocument',
+                  'aoss:WriteDocument',
+                  'aoss:CreateIndex',
+                  'aoss:DeleteIndex',
+                ],
+                ResourceType: 'index',
+              },
+            ],
+            Principal: [
+              knowledgeBaseRole.roleArn,
+              ossIndex.customResourceHandler.role?.roleArn,
+            ],
+            Description: '',
           },
-          vectorIndexName,
-        },
-      },
-    });
+        ]),
+        type: 'data',
+      });
 
-    new bedrock.CfnDataSource(this, 'DataSource', {
-      dataSourceConfiguration: {
-        s3Configuration: {
-          bucketArn: `arn:aws:s3:::${dataSourceBucket.bucketName}`,
-          inclusionPrefixes: ['docs/'],
+      const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
+        name: collectionName,
+        policy: JSON.stringify([
+          {
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'collection',
+              },
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'dashboard',
+              },
+            ],
+            AllowFromPublic: true,
+          },
+        ]),
+        type: 'network',
+      });
+
+      const encryptionPolicy = new oss.CfnSecurityPolicy(
+        this,
+        'EncryptionPolicy',
+        {
+          name: collectionName,
+          policy: JSON.stringify({
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'collection',
+              },
+            ],
+            AWSOwnedKey: true,
+          }),
+          type: 'encryption',
+        }
+      );
+
+      collection.node.addDependency(accessPolicy);
+      collection.node.addDependency(networkPolicy);
+      collection.node.addDependency(encryptionPolicy);
+
+      const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        enforceSSL: true,
+      });
+
+      const dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        serverAccessLogsBucket: accessLogsBucket,
+        serverAccessLogsPrefix: 'AccessLogs/',
+        enforceSSL: true,
+      });
+
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+          actions: ['bedrock:InvokeModel'],
+        })
+      );
+
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+          actions: ['aoss:APIAccessAll'],
+        })
+      );
+
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}`],
+          actions: ['s3:ListBucket'],
+        })
+      );
+
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${dataSourceBucket.bucketName}/*`],
+          actions: ['s3:GetObject'],
+        })
+      );
+
+      const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
+        name: collectionName,
+        roleArn: knowledgeBaseRole.roleArn,
+        knowledgeBaseConfiguration: {
+          type: 'VECTOR',
+          vectorKnowledgeBaseConfiguration: {
+            embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
+          },
         },
-        type: 'S3',
-      },
-      vectorIngestionConfiguration: {
-        ...(ragKnowledgeBaseAdvancedParsing
-          ? {
+        storageConfiguration: {
+          type: 'OPENSEARCH_SERVERLESS',
+          opensearchServerlessConfiguration: {
+            collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
+            fieldMapping: {
+              metadataField,
+              textField,
+              vectorField,
+            },
+            vectorIndexName,
+          },
+        },
+      });
+
+      new bedrock.CfnDataSource(this, 'DataSource', {
+        dataSourceConfiguration: {
+          s3Configuration: {
+            bucketArn: `arn:aws:s3:::${dataSourceBucket.bucketName}`,
+            inclusionPrefixes: ['docs/'],
+          },
+          type: 'S3',
+        },
+        vectorIngestionConfiguration: {
+          ...(ragKnowledgeBaseAdvancedParsing
+            ? {
               // Advanced Parsing を有効化する場合のみ、parsingConfiguration を構成する
               parsingConfiguration: {
                 parsingStrategy: 'BEDROCK_FOUNDATION_MODEL',
@@ -377,67 +378,72 @@ export class RagKnowledgeBaseStack extends Stack {
                 },
               },
             }
-          : {}),
-        // チャンク戦略を変更したい場合は、以下のコメントアウトを外して、各種パラメータを調整することで、環境に合わせた環境構築が可能です。
-        // 以下の 4 種類のチャンク戦略が選択可能です。
-        // - デフォルト (何も指定しない)
-        // - セマンティックチャンク
-        // - 階層チャンク
-        // - 標準チャンク
-        // 詳細は以下の Document を参照ください。
-        // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html
-        // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html
-        //
-        // セマンティックチャンク
-        // chunkingConfiguration: {
-        //   chunkingStrategy: 'SEMANTIC',
-        //   semanticChunkingConfiguration: {
-        //     maxTokens: 300,
-        //     bufferSize: 0,
-        //     breakpointPercentileThreshold: 95,
-        //   },
-        // },
-        //
-        // 階層チャンク
-        // chunkingConfiguration: {
-        //   chunkingStrategy: 'HIERARCHICAL',
-        //   hierarchicalChunkingConfiguration: {
-        //     levelConfigurations: [
-        //       {
-        //         maxTokens: 1500, // 親チャンクの Max Token サイズ
-        //       },
-        //       {
-        //         maxTokens: 300, // 子チャンクの Max Token サイズ
-        //       },
-        //     ],
-        //     overlapTokens: 60,
-        //   },
-        // },
-        //
-        // 標準チャンク
-        // chunkingConfiguration: {
-        //   chunkingStrategy: 'FIXED_SIZE',
-        //   fixedSizeChunkingConfiguration: {
-        //     maxTokens: 300,
-        //     overlapPercentage: 10,
-        //   },
-        // },
-      },
-      knowledgeBaseId: knowledgeBase.ref,
-      name: 's3-data-source',
-    });
+            : {}),
+          // チャンク戦略を変更したい場合は、以下のコメントアウトを外して、各種パラメータを調整することで、環境に合わせた環境構築が可能です。
+          // 以下の 4 種類のチャンク戦略が選択可能です。
+          // - デフォルト (何も指定しない)
+          // - セマンティックチャンク
+          // - 階層チャンク
+          // - 標準チャンク
+          // 詳細は以下の Document を参照ください。
+          // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html
+          // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_bedrock.CfnDataSource.ChunkingConfigurationProperty.html
+          //
+          // セマンティックチャンク
+          // chunkingConfiguration: {
+          //   chunkingStrategy: 'SEMANTIC',
+          //   semanticChunkingConfiguration: {
+          //     maxTokens: 300,
+          //     bufferSize: 0,
+          //     breakpointPercentileThreshold: 95,
+          //   },
+          // },
+          //
+          // 階層チャンク
+          // chunkingConfiguration: {
+          //   chunkingStrategy: 'HIERARCHICAL',
+          //   hierarchicalChunkingConfiguration: {
+          //     levelConfigurations: [
+          //       {
+          //         maxTokens: 1500, // 親チャンクの Max Token サイズ
+          //       },
+          //       {
+          //         maxTokens: 300, // 子チャンクの Max Token サイズ
+          //       },
+          //     ],
+          //     overlapTokens: 60,
+          //   },
+          // },
+          //
+          // 標準チャンク
+          // chunkingConfiguration: {
+          //   chunkingStrategy: 'FIXED_SIZE',
+          //   fixedSizeChunkingConfiguration: {
+          //     maxTokens: 300,
+          //     overlapPercentage: 10,
+          //   },
+          // },
+        },
+        knowledgeBaseId: knowledgeBase.ref,
+        name: 's3-data-source',
+      });
 
-    knowledgeBase.addDependency(collection);
-    knowledgeBase.node.addDependency(ossIndex.customResource);
+      if (knowledgeBase && collection && ossIndex) {
+        knowledgeBase.addDependency(collection);
+        knowledgeBase.node.addDependency(ossIndex.customResource);
+      }
 
-    new s3Deploy.BucketDeployment(this, 'DeployDocs', {
-      sources: [s3Deploy.Source.asset('./rag-docs')],
-      destinationBucket: dataSourceBucket,
-      // 以前の設定で同 Bucket にアクセスログが残っている可能性があるため、この設定は残す
-      exclude: ['AccessLogs/*', 'logs*'],
-    });
+      new s3Deploy.BucketDeployment(this, 'DeployDocs', {
+        sources: [s3Deploy.Source.asset('./rag-docs')],
+        destinationBucket: dataSourceBucket,
+        // 以前の設定で同 Bucket にアクセスログが残っている可能性があるため、この設定は残す
+        exclude: ['AccessLogs/*', 'logs*'],
+      });
 
-    this.knowledgeBaseId = knowledgeBase.ref;
-    this.dataSourceBucketName = dataSourceBucket.bucketName;
+      this.knowledgeBaseId = knowledgeBase.ref;
+      this.dataSourceBucketName = dataSourceBucket.bucketName;
+    } else {
+      this.knowledgeBaseId = props.params.ragKnowledgeBaseId;
+    };
   }
 }
