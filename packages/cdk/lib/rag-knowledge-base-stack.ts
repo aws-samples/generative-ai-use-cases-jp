@@ -182,7 +182,9 @@ export class RagKnowledgeBaseStack extends Stack {
         name: collectionName,
         description: 'GenU Collection',
         type: 'VECTORSEARCH',
-        standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
+        standbyReplicas: ragKnowledgeBaseStandbyReplicas
+          ? 'ENABLED'
+          : 'DISABLED',
       });
 
       const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
@@ -281,14 +283,18 @@ export class RagKnowledgeBaseStack extends Stack {
       collection.node.addDependency(networkPolicy);
       collection.node.addDependency(encryptionPolicy);
 
-      const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        autoDeleteObjects: true,
-        removalPolicy: RemovalPolicy.DESTROY,
-        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-        enforceSSL: true,
-      });
+      const accessLogsBucket = new s3.Bucket(
+        this,
+        'DataSourceAccessLogsBucket',
+        {
+          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+          encryption: s3.BucketEncryption.S3_MANAGED,
+          autoDeleteObjects: true,
+          removalPolicy: RemovalPolicy.DESTROY,
+          objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+          enforceSSL: true,
+        }
+      );
 
       const dataSourceBucket = new s3.Bucket(this, 'DataSourceBucket', {
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -333,28 +339,32 @@ export class RagKnowledgeBaseStack extends Stack {
         })
       );
 
-      const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
-        name: collectionName,
-        roleArn: knowledgeBaseRole.roleArn,
-        knowledgeBaseConfiguration: {
-          type: 'VECTOR',
-          vectorKnowledgeBaseConfiguration: {
-            embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
-          },
-        },
-        storageConfiguration: {
-          type: 'OPENSEARCH_SERVERLESS',
-          opensearchServerlessConfiguration: {
-            collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
-            fieldMapping: {
-              metadataField,
-              textField,
-              vectorField,
+      const knowledgeBase = new bedrock.CfnKnowledgeBase(
+        this,
+        'KnowledgeBase',
+        {
+          name: collectionName,
+          roleArn: knowledgeBaseRole.roleArn,
+          knowledgeBaseConfiguration: {
+            type: 'VECTOR',
+            vectorKnowledgeBaseConfiguration: {
+              embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
             },
-            vectorIndexName,
           },
-        },
-      });
+          storageConfiguration: {
+            type: 'OPENSEARCH_SERVERLESS',
+            opensearchServerlessConfiguration: {
+              collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
+              fieldMapping: {
+                metadataField,
+                textField,
+                vectorField,
+              },
+              vectorIndexName,
+            },
+          },
+        }
+      );
 
       new bedrock.CfnDataSource(this, 'DataSource', {
         dataSourceConfiguration: {
@@ -367,17 +377,17 @@ export class RagKnowledgeBaseStack extends Stack {
         vectorIngestionConfiguration: {
           ...(ragKnowledgeBaseAdvancedParsing
             ? {
-              // Advanced Parsing を有効化する場合のみ、parsingConfiguration を構成する
-              parsingConfiguration: {
-                parsingStrategy: 'BEDROCK_FOUNDATION_MODEL',
-                bedrockFoundationModelConfiguration: {
-                  modelArn: `arn:aws:bedrock:${this.region}::foundation-model/${ragKnowledgeBaseAdvancedParsingModelId}`,
-                  parsingPrompt: {
-                    parsingPromptText: PARSING_PROMPT,
+                // Advanced Parsing を有効化する場合のみ、parsingConfiguration を構成する
+                parsingConfiguration: {
+                  parsingStrategy: 'BEDROCK_FOUNDATION_MODEL',
+                  bedrockFoundationModelConfiguration: {
+                    modelArn: `arn:aws:bedrock:${this.region}::foundation-model/${ragKnowledgeBaseAdvancedParsingModelId}`,
+                    parsingPrompt: {
+                      parsingPromptText: PARSING_PROMPT,
+                    },
                   },
                 },
-              },
-            }
+              }
             : {}),
           // チャンク戦略を変更したい場合は、以下のコメントアウトを外して、各種パラメータを調整することで、環境に合わせた環境構築が可能です。
           // 以下の 4 種類のチャンク戦略が選択可能です。
@@ -444,6 +454,6 @@ export class RagKnowledgeBaseStack extends Stack {
       this.dataSourceBucketName = dataSourceBucket.bucketName;
     } else {
       this.knowledgeBaseId = props.params.ragKnowledgeBaseId;
-    };
+    }
   }
 }

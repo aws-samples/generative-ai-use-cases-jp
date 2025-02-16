@@ -173,7 +173,8 @@ export class Web extends Construct {
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
         VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
           props.ragKnowledgeBaseEnabled.toString(),
-        VITE_APP_RAG_KNOWLEDGE_BASE_ID: props.ragKnowledgeBaseEnabled.toString(),
+        VITE_APP_RAG_KNOWLEDGE_BASE_ID:
+          props.ragKnowledgeBaseEnabled.toString(),
         VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
         VITE_APP_FLOWS: JSON.stringify(props.flows || []),
         VITE_APP_FLOW_STREAM_FUNCTION_ARN: props.flowStreamFunctionArn,
