@@ -438,10 +438,8 @@ export class RagKnowledgeBaseStack extends Stack {
         name: 's3-data-source',
       });
 
-      //if (knowledgeBase && collection && ossIndex) {
       knowledgeBase.addDependency(collection);
       knowledgeBase.node.addDependency(ossIndex.customResource);
-      //}
 
       new s3Deploy.BucketDeployment(this, 'DeployDocs', {
         sources: [s3Deploy.Source.asset('./rag-docs')],
