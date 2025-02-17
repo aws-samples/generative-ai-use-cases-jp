@@ -1,8 +1,5 @@
-'use client';
-
 import './writer.css';
 import 'katex/dist/katex.min.css';
-
 import { defaultEditorContent, emptyContent } from './lib/content';
 import {
   EditorCommand,
@@ -15,8 +12,6 @@ import {
   ImageResizer,
   type JSONContent,
   handleCommandNavigation,
-  // handleImageDrop,
-  // handleImagePaste,
 } from 'novel';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -27,7 +22,6 @@ import { NodeSelector } from './selectors/node-selector';
 import { Separator } from './ui/separator';
 
 import GenerativeMenuSwitch from './generative/generative-menu-switch';
-// import { uploadFn } from './image-upload';
 import { TextButtons } from './selectors/text-buttons';
 import { slashCommand, suggestionItems } from './slash-command';
 
@@ -335,10 +329,6 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
                 handleDOMEvents: {
                   keydown: (_view, event) => handleCommandNavigation(event),
                 },
-                // handlePaste: (view, event) =>
-                //   handleImagePaste(view, event, uploadFn),
-                // handleDrop: (view, event, _slice, moved) =>
-                //   handleImageDrop(view, event, moved, uploadFn),
                 attributes: {
                   class:
                     'prose prose-lg dark:prose-invert prose-headings:font-title font-default focus:outline-none max-w-full',

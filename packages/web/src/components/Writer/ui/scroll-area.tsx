@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 
 interface ScrollAreaProps extends React.HTMLProps<HTMLDivElement> {

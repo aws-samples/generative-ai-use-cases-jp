@@ -1,15 +1,17 @@
-'use client';
-
 import { Command, CommandInput } from '../ui/command';
 
-import { PiArrowUp, PiMagnifyingGlass, PiSpinner } from 'react-icons/pi';
+import {
+  PiArrowUp,
+  PiMagnifyingGlass,
+  PiSpinner,
+  PiMagicWand,
+} from 'react-icons/pi';
 import { useEditor } from 'novel';
 import { addAIHighlight } from 'novel';
 import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-import Magic from '../ui/icons/magic';
 import { ScrollArea } from '../ui/scroll-area';
 import AICompletionCommands from './ai-completion-command';
 import AISelectorCommands from './ai-selector-commands';
@@ -97,7 +99,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
 
       {isLoading && (
         <div className="flex h-12 w-full items-center px-4 text-sm font-medium text-purple-500">
-          <Magic className="mr-2 h-4 w-4 shrink-0  " />
+          <PiMagicWand className="mr-2 h-4 w-4 shrink-0  " />
           思考中
           <div className="ml-2 mt-1">
             <PiSpinner className="h-4 w-4 animate-spin" />

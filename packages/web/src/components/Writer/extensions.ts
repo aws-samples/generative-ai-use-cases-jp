@@ -3,22 +3,16 @@ import {
   CharacterCount,
   CodeBlockLowlight,
   Color,
-  // CustomKeymap,
   GlobalDragHandle,
   HighlightExtension,
   HorizontalRule,
-  // Mathematics,
-  // Placeholder,
   StarterKit,
   TaskItem,
   TaskList,
   TextStyle,
-  // TiptapImage,
   TiptapLink,
   TiptapUnderline,
   Twitter,
-  // UpdatedImage,
-  // UploadImagesPlugin,
   Youtube,
 } from 'novel';
 import { Placeholder } from '@tiptap/extension-placeholder';
@@ -46,27 +40,6 @@ const tiptapLink = TiptapLink.configure({
       'text-muted-foreground underline underline-offset-[3px] hover:text-primary transition-colors cursor-pointer',
   },
 });
-
-// const tiptapImage = TiptapImage.extend({
-//   addProseMirrorPlugins() {
-//     return [
-//       UploadImagesPlugin({
-//         imageClass: 'opacity-40 rounded-lg border border-stone-200',
-//       }),
-//     ];
-//   },
-// }).configure({
-//   allowBase64: true,
-//   HTMLAttributes: {
-//     class: 'rounded-lg border border-muted',
-//   },
-// });
-
-// const updatedImage = UpdatedImage.configure({
-//   HTMLAttributes: {
-//     class: 'rounded-lg border border-muted',
-//   },
-// });
 
 const taskList = TaskList.configure({
   HTMLAttributes: {
@@ -147,15 +120,6 @@ const twitter = Twitter.configure({
   inline: false,
 });
 
-// const mathematics = Mathematics.configure({
-//   HTMLAttributes: {
-//     class: 'text-foreground rounded p-1 hover:bg-accent cursor-pointer',
-//   },
-//   katexOptions: {
-//     throwOnError: false,
-//   },
-// });
-
 const characterCount = CharacterCount.configure();
 
 const markdownExtension = Markdown.configure({
@@ -173,8 +137,6 @@ export const defaultExtensions = [
   starterKit,
   placeholder,
   tiptapLink,
-  // tiptapImage,
-  // updatedImage,
   taskList,
   taskItem,
   horizontalRule,
@@ -182,13 +144,11 @@ export const defaultExtensions = [
   codeBlockLowlight,
   youtube,
   twitter,
-  // mathematics,
   characterCount,
   TiptapUnderline,
   markdownExtension,
   HighlightExtension,
   TextStyle,
   Color,
-  // CustomKeymap,
   GlobalDragHandle,
 ];

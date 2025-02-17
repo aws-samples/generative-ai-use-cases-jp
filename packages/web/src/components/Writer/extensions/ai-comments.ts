@@ -120,7 +120,6 @@ export class AICommentManager {
       if (matches.length === 0) return;
       for (const { from, to } of matches) {
         chain
-          .focus()
           .setTextSelection({ from, to })
           .setAIHighlight({ color: highlightColor });
       }

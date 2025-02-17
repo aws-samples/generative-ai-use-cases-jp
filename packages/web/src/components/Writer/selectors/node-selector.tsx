@@ -1,16 +1,3 @@
-// import {
-//   Check,
-//   CheckSquare,
-//   ChevronDown,
-//   Code,
-//   Heading1,
-//   Heading2,
-//   Heading3,
-//   ListOrdered,
-//   type LucideIcon,
-//   TextIcon,
-//   TextQuote,
-// } from "lucide-react";
 import { EditorBubbleItem, useEditor } from 'novel';
 
 import { Button } from '../ui/button';

@@ -1,12 +1,10 @@
-'use client';
-
 import type { DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 
 import { Dialog, DialogContent } from '../ui/dialog';
-import Magic from '../ui/icons/magic';
 import { cn } from '../lib/utils';
+import { PiMagicWand } from 'react-icons/pi';
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -42,7 +40,7 @@ const CommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div className="flex items-center px-4" cmdk-input-wrapper="">
-    <Magic className="mr-2 h-4 w-4 shrink-0 text-purple-500 " />
+    <PiMagicWand className="mr-2 h-4 w-4 shrink-0 text-purple-500 " />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(

@@ -81,44 +81,45 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           </CommandItem>
         ))}
       </CommandGroup>
-      <CommandSeparator />
-      <CommandGroup heading="検索エンジンを使う">
-        {agentOptions.map((option) => (
-          <CommandItem
-            onSelect={(value: string) => {
-              const slice = editor.state.selection.content();
-              const text = editor.storage.markdown.serializer.serialize(
-                slice.content
-              );
-              onSelect(text, value);
-            }}
-            className="flex gap-2 px-4"
-            key={option.value}
-            value={option.value}>
-            <option.icon className="h-4 w-4 text-purple-500" />
-            {option.label}
-          </CommandItem>
-        ))}
-      </CommandGroup>
 
       {MODELS.searchAgent && (
         <>
           <CommandSeparator />
-          <CommandGroup heading="生成">
-            <CommandItem
-              onSelect={() => {
-                const pos = editor.state.selection.from;
-                const text = getPrevText(editor, pos);
-                onSelect(text, 'continue');
-              }}
-              value="continue"
-              className="gap-2 px-4">
-              <PiSkipForward className="h-4 w-4 text-purple-500" />
-              続きを出力
-            </CommandItem>
+          <CommandGroup heading="検索エンジンを使う">
+            {agentOptions.map((option) => (
+              <CommandItem
+                onSelect={(value: string) => {
+                  const slice = editor.state.selection.content();
+                  const text = editor.storage.markdown.serializer.serialize(
+                    slice.content
+                  );
+                  onSelect(text, value);
+                }}
+                className="flex gap-2 px-4"
+                key={option.value}
+                value={option.value}>
+                <option.icon className="h-4 w-4 text-purple-500" />
+                {option.label}
+              </CommandItem>
+            ))}
           </CommandGroup>
         </>
       )}
+
+      <CommandSeparator />
+      <CommandGroup heading="生成">
+        <CommandItem
+          onSelect={() => {
+            const pos = editor.state.selection.from;
+            const text = getPrevText(editor, pos);
+            onSelect(text, 'continue');
+          }}
+          value="continue"
+          className="gap-2 px-4">
+          <PiSkipForward className="h-4 w-4 text-purple-500" />
+          続きを出力
+        </CommandItem>
+      </CommandGroup>
     </>
   );
 };
