@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import { WriterPageQueryParams } from '../@types/navigate';
 
 const TailwindAdvancedEditor = lazy(
-  () => import('../components/Writer/advanced-editor')
+  () => import('../components/Writer/AdvancedEditor')
 );
 
 const WriterPage: React.FC = () => {

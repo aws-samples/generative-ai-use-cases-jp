@@ -1,6 +1,6 @@
 import { PiCheck, PiList, PiMonitor, PiMoon, PiSunDim } from 'react-icons/pi';
-import { Button } from './button';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Button } from './Button';
+import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 import { useState } from 'react';
 
 const appearances = [

@@ -1,4 +1,4 @@
-import { CommandGroup, CommandItem, CommandSeparator } from '../ui/command';
+import { CommandGroup, CommandItem, CommandSeparator } from '../ui/Command';
 import { useEditor } from 'novel';
 import { PiCheck, PiQuotes, PiTrash } from 'react-icons/pi';
 

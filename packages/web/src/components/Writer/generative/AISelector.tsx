@@ -1,4 +1,4 @@
-import { Command, CommandInput } from '../ui/command';
+import { Command, CommandInput } from '../ui/Command';
 
 import {
   PiArrowUp,
@@ -11,10 +11,10 @@ import { addAIHighlight } from 'novel';
 import { useState } from 'react';
 import Markdown from 'react-markdown';
 import { toast } from 'sonner';
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
-import AICompletionCommands from './ai-completion-command';
-import AISelectorCommands from './ai-selector-commands';
+import { Button } from '../ui/Button';
+import { ScrollArea } from '../ui/ScrollArea';
+import AICompletionCommands from './AICompletionCommand';
+import AISelectorCommands from './AISelectorCommands';
 import useWriter from '../../../hooks/useWriter';
 
 interface AISelectorProps {

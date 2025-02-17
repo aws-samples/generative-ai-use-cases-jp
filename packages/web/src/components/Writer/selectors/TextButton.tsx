@@ -1,4 +1,4 @@
-import { Button } from '../ui/button';
+import { Button } from '../ui/Button';
 import { cn } from '../lib/utils';
 import {
   PiTextB,
@@ -8,7 +8,7 @@ import {
   PiTextUnderline,
 } from 'react-icons/pi';
 import { EditorBubbleItem, useEditor } from 'novel';
-import type { SelectorItem } from './node-selector';
+import type { SelectorItem } from './NodeSelector';
 
 export const TextButtons = () => {
   const { editor } = useEditor();

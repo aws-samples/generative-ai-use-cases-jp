@@ -1,5 +1,5 @@
-import { Button } from '../ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Button } from '../ui/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/Popover';
 import { cn } from '../lib/utils';
 import { PiCheck, PiTrash } from 'react-icons/pi';
 import { useEditor } from 'novel';

@@ -9,7 +9,7 @@ import {
   PiFileMagnifyingGlass,
 } from 'react-icons/pi';
 import { getPrevText, useEditor } from 'novel';
-import { CommandGroup, CommandItem, CommandSeparator } from '../ui/command';
+import { CommandGroup, CommandItem, CommandSeparator } from '../ui/Command';
 import { MODELS } from '../../../hooks/useModel';
 
 const options = [

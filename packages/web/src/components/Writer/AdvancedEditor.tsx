@@ -16,14 +16,14 @@ import {
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { defaultExtensions } from './extensions';
-import { ColorSelector } from './selectors/color-selector';
-import { LinkSelector } from './selectors/link-selector';
-import { NodeSelector } from './selectors/node-selector';
-import { Separator } from './ui/separator';
+import { ColorSelector } from './selectors/ColorSelector';
+import { LinkSelector } from './selectors/LinkSelector';
+import { NodeSelector } from './selectors/NodeSelector';
+import { Separator } from './ui/Separator';
 
-import GenerativeMenuSwitch from './generative/generative-menu-switch';
-import { TextButtons } from './selectors/text-buttons';
-import { slashCommand, suggestionItems } from './slash-command';
+import GenerativeMenuSwitch from './generative/GenerativeMenuSwitch';
+import { TextButtons } from './selectors/TextButton';
+import { slashCommand, suggestionItems } from './SlashCommand';
 
 import hljs from 'highlight.js/lib/core';
 import Card from '../Card';
@@ -34,7 +34,7 @@ import useWriter from '../../hooks/useWriter';
 import { Editor } from '@tiptap/react';
 import Select from '../Select';
 import { MODELS } from '../../hooks/useModel';
-import { AICommentManager, useComments } from './extensions/ai-comments';
+import { AICommentManager, useComments } from './extensions/AIComments';
 import ButtonCopy from '../ButtonCopy';
 import DiffMatchPatch from 'diff-match-patch';
 import { DocumentComment } from 'generative-ai-use-cases-jp';

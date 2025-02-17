@@ -1,8 +1,8 @@
 import { PiCheck, PiCaretDown } from 'react-icons/pi';
 import { EditorBubbleItem, useEditor } from 'novel';
 
-import { Button } from '../ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Button } from '../ui/Button';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/Popover';
 export interface BubbleColorMenuItem {
   name: string;
   color: string;

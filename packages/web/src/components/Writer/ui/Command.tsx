@@ -2,7 +2,7 @@ import type { DialogProps } from '@radix-ui/react-dialog';
 import { Command as CommandPrimitive } from 'cmdk';
 import * as React from 'react';
 
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/Dialog';
 import { cn } from '../lib/utils';
 import { PiMagicWand } from 'react-icons/pi';
 
