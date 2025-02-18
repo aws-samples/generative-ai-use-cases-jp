@@ -96,9 +96,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           {comment.replace ? (
             <div>{getCharacterDiff(comment.excerpt, comment.replace)}</div>
           ) : (
-            <div className="bg-red-100 text-red-600 line-through dark:bg-red-950/30 dark:text-red-400">
-              {comment.excerpt}
-            </div>
+            <div>{comment.excerpt}</div>
           )}
           {comment.replace && (
             <Button onClick={onReplace} className="ml-auto">
@@ -127,7 +125,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const [saveStatus, setSaveStatus] = useState(true);
   const [text, setText] = useState('');
   const [html, setHtml] = useState('');
-  const [charsCount, setCharsCount] = useState();
+  const [charsCount, setCharsCount] = useState(0);
 
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
@@ -194,8 +192,8 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         editor.storage.markdown.getMarkdown()
       );
       setSaveStatus(true);
-      setText(editor.storage.markdown.getMarkdown());
-      setHtml(editor.getHTML());
+      setText(editor.storage.markdown.getMarkdown() || ' ');
+      setHtml(editor.getHTML() || ' ');
     },
     500
   );
@@ -242,10 +240,8 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const handleClear = () => {
     if (editorRef) {
       editorRef.commands.setContent(emptyContent);
-      window.localStorage.setItem(
-        'novel-content',
-        JSON.stringify(emptyContent)
-      );
+      commentManager?.clearComments();
+      debouncedUpdates(editorRef);
       toast.info(
         'エディタをクリアしました。Ctrl-Z/Cmd-Z で戻すことができます。'
       );
@@ -256,10 +252,8 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const handleTutorialClick = () => {
     if (editorRef) {
       editorRef.commands.setContent(defaultEditorContent);
-      window.localStorage.setItem(
-        'novel-content',
-        JSON.stringify(defaultEditorContent)
-      );
+      commentManager?.clearComments();
+      debouncedUpdates(editorRef);
       toast.info(
         'チュートリアルをエディタに反映しました。Ctrl-Z/Cmd-Z で戻すことができます。'
       );
