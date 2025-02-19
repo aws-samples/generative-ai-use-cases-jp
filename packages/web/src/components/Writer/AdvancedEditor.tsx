@@ -90,7 +90,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   };
 
   return (
-    <Card className="mb-2">
+    <Card>
       <div className="mb-5" onClick={onClick}>
         <div className="flex flex-col gap-2 rounded p-2">
           {comment.replace ? (
@@ -175,6 +175,21 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     setCommentPosition(positions);
   }, [commentManager, editorRef, comments]);
 
+  // recalculate with debaounce when window size changed
+  const debouncedRecalculateCommentPositions = useDebouncedCallback(
+    () => recalculateCommentPositions(),
+    100
+  );
+  useEffect(() => {
+    window.addEventListener('resize', debouncedRecalculateCommentPositions);
+    return () => {
+      window.removeEventListener(
+        'resize',
+        debouncedRecalculateCommentPositions
+      );
+    };
+  }, [debouncedRecalculateCommentPositions]);
+
   // エディタの更新時にコメントの位置を再計算
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
@@ -227,14 +242,6 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     if (!commentManager) return;
     await commentManager.execAnnotation();
   };
-
-  // コメントの実際の高さを取得
-  const getCommentHeight = useCallback((idx: number) => {
-    const ref = commentRefs.current[idx];
-    if (!ref) return 0;
-    const height = ref.getBoundingClientRect().height;
-    return height + 16; // margin-bottom の 16px を加算
-  }, []);
 
   // クリアボタン
   const handleClear = () => {
@@ -386,7 +393,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             )}
             {loading && (
               <div className="mb-2 ml-2 flex justify-center">
-                <div className="border-aws-sky size-10 animate-spin rounded-full border-4 border-t-transparent"></div>
+                <PiSpinner className="h-4 w-4 animate-spin" />
               </div>
             )}
 
@@ -396,38 +403,41 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
 
                 const position = commentPosition[idx];
 
-                // 前の表示されているコメントのインデックスを探す
+                // 表示されている直前のコメントを探す
                 let prevDisplayedIndex = idx - 1;
-                while (
-                  prevDisplayedIndex >= 0 &&
-                  commentState[comments[prevDisplayedIndex].excerpt]
-                ) {
+                let lastDisplayedPosition = 0;
+
+                // 直前の表示されているコメントの実際の位置を取得
+                while (prevDisplayedIndex >= 0) {
+                  if (!commentState[comments[prevDisplayedIndex].excerpt]) {
+                    const prevRef = commentRefs.current[prevDisplayedIndex];
+                    if (prevRef) {
+                      const rect = prevRef.getBoundingClientRect();
+                      const editorRect =
+                        editorRef?.view.dom.getBoundingClientRect();
+                      if (editorRect) {
+                        lastDisplayedPosition = rect.bottom - editorRect.top;
+                        break;
+                      }
+                    }
+                  }
                   prevDisplayedIndex--;
                 }
 
-                const prevPosition =
-                  prevDisplayedIndex >= 0
-                    ? commentPosition[prevDisplayedIndex]
-                    : null;
-                const prevHeight =
-                  prevDisplayedIndex >= 0
-                    ? getCommentHeight(prevDisplayedIndex)
-                    : 0;
-
-                // 前のコメントとの間隔を計算
-                const spacerHeight =
-                  position && prevPosition
-                    ? Math.max(0, position - (prevPosition + prevHeight))
-                    : position
-                      ? position
-                      : 0;
+                // スペーサーの高さを計算（実際の表示位置との差分）
+                const spacerHeight = Math.max(
+                  0,
+                  position - lastDisplayedPosition
+                );
 
                 return (
                   <div key={`${comment.excerpt}-${idx}`}>
                     {spacerHeight > 0 && (
                       <div style={{ height: spacerHeight }} />
                     )}
-                    <div ref={(el) => (commentRefs.current[idx] = el)}>
+                    <div
+                      ref={(el) => (commentRefs.current[idx] = el)}
+                      className="pb-2">
                       <CommentItem
                         comment={comment}
                         onReplace={() => {
@@ -446,7 +456,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             {commentManager && filteredComments.length > 0 && !loading && (
               <div className="mt-4 flex justify-end gap-3">
                 <Button outlined onClick={() => commentManager.clearComments()}>
-                  クリア
+                  コメントをクリア
                 </Button>
               </div>
             )}

@@ -59,29 +59,49 @@ export class AICommentManager {
     const doc = this.editor.state.doc;
     const matches: { from: number; to: number }[] = [];
 
-    // 全テキストを連結して検索する
+    // 正規表現のエスケープ処理
+    const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // 改行、空白を柔軟にマッチングできるようにする
+    const searchRegex = new RegExp(
+      escapedSearchText
+        .replace(/\n/g, '[\\s\\n]*') // 改行を任意の空白または改行にマッチ
+        .replace(/\s+/g, '[\\s\\n]*'), // 空白を任意の空白または改行にマッチ
+      'g'
+    );
+
+    // テキストと位置情報を収集
     let fullText = '';
     const positions: number[] = [];
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    doc.descendants((node: any, pos: number) => {
-      if (node.isText) {
+    doc.descendants((node, pos) => {
+      if (node.isText && node.text) {
         fullText += node.text;
-        // 各文字の位置を記録
         for (let i = 0; i < node.text.length; i++) {
           positions.push(pos + i);
         }
+      } else if (
+        node.type.name === 'paragraph' ||
+        node.type.name === 'hardBreak'
+      ) {
+        // 段落やハードブレークは改行として扱う
+        fullText += '\n';
+        positions.push(pos);
       }
     });
 
-    // 全てのマッチを検索
-    let index = 0;
-    while ((index = fullText.indexOf(searchText, index)) !== -1) {
-      matches.push({
-        from: positions[index],
-        to: positions[index + searchText.length - 1] + 1,
-      });
-      index += searchText.length;
+    // 正規表現で検索を実行
+    let match;
+    while ((match = searchRegex.exec(fullText)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+
+      // 実際のドキュメント内の位置を取得
+      if (positions[start] !== undefined && positions[end - 1] !== undefined) {
+        matches.push({
+          from: positions[start],
+          to: positions[end - 1] + 1,
+        });
+      }
     }
 
     return matches;
@@ -139,7 +159,6 @@ export class AICommentManager {
     const chain = this.editor.chain();
     for (const { from, to } of matches) {
       chain
-        .focus()
         .setTextSelection({ from, to })
         .unsetAIHighlight()
         .insertContentAt({ from, to }, comment.replace);
