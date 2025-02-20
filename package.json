@@ -7,6 +7,7 @@
     "test": "run-s web:test",
     "root:lint": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh ${npm_config_env} && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
+    "web:devww": "powershell ./web_devw_win.ps1",
     "web:dev": "VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
     "web:build": "VITE_APP_VERSION=${npm_package_version} npm -w packages/web run build",
     "web:lint": "npm -w packages/web run lint",
