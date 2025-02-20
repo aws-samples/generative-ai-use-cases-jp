@@ -118,7 +118,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled: params.ragEnabled,
       ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
-      agentEnabled: params.agentEnabled,
+      agentEnabled: params.agentEnabled || params.agents.length > 0,
       flows: params.flows,
       flowStreamFunctionArn: api.invokeFlowFunction.functionArn,
       optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
@@ -241,7 +241,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'AgentEnabled', {
-      value: params.agentEnabled.toString(),
+      value: (params.agentEnabled || params.agents.length > 0).toString(),
     });
 
     new CfnOutput(this, 'SelfSignUpEnabled', {
