@@ -22,7 +22,17 @@ npm run web:devw
 > [!TIP]
 > バックエンドの環境を切り替えて利用したい際は、cdk.json の context.env を変更するか、`npm run web:devw --env=dev2` のようにコマンドライン引数で指定してください。
 
-### その他のユーザー (Windows 等)
+### Windows ユーザー
+
+Windows ユーザー用に開発環境を立ち上げる PowerShell スクリプト `web_devw_win.ps1` を用意しており、`web:devww` から起動できます (`w` が一つ多い)。`setup-env.sh` を PowerShell に置き換えたのに近いスクリプトで、`aws` コマンドは必要ですが `jq` は必要ありません。
+
+```bash
+npm run web:devww
+```
+
+正常に実行されれば http://localhost:5173 で起動しますので、ブラウザからアクセスしてみてください。AWS のプロファイルは `-profile` で指定できますが、Windows 上で引数を指定する際は `npm run web:devww '--' -profile dev` といったように `--` をシングルクウォートで囲ってください。これは `npm` の既知の不具合になります ([Issue 3136](https://github.com/npm/cli/issues/3136#issuecomment-2632044780))。
+
+### その他のユーザー
 
 手動で環境変数を設定することも可能です。ただし、数が多いため、基本的には前述した `npm run web:devw` の方法を推奨します。
 手動で設定する場合は `.env` ファイルを `/packages/web/.env` に作成し、以下のように環境変数を設定してください。
