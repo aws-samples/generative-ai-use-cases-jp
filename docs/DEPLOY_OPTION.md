@@ -342,7 +342,7 @@ Agent チャットユースケースでは、以下のご利用が可能です�
 - Agents for Amazon Bedrock を利用したアクションを実行
 - Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
-Agent は `modelRegion` で指定したリージョンに生成されます。
+Agent は `modelRegion` で指定したリージョンに生成されます。後述する `agentEnabled: true` は Code Interpreter エージェントと検索エージェントを作成するためのオプションで、手動で作成した Agent を追加する際には `agentEnabled: true` である必要はありません。
 
 #### Code Interpreter エージェントのデプロイ
 
@@ -416,15 +416,17 @@ const envs: Record<string, Partial<StackInput>> = {
 
 デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。Agent は `modelRegion` で作成する点に留意してください。
 
+> [!NOTE]
+> `agentEnabled: true` は Code Interpreter エージェントと検索エージェントを作成するためのオプションですので、手動で作成した Agent を追加する際には `agentEnabled: true` である必要はありません。
+
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    agentEnabled: true,
     agents: [
       {
-        displayName: 'SearchEngine',
+        displayName: 'MyCustomAgent',
         agentId: 'XXXXXXXXX',
         aliasId: 'YYYYYYYY',
       },
@@ -438,10 +440,9 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
-    "agentEnabled": true,
     "agents": [
       {
-        "displayName": "SearchEngine",
+        "displayName": "MyCustomAgent",
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }
@@ -450,7 +451,7 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
-また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
+また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。CDK に定義した Agent を利用する場合は `agentEnabled: true` にしてください。
 
 #### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
