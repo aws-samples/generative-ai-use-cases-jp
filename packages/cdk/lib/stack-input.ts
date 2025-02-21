@@ -65,6 +65,7 @@ export const stackInputSchema = z.object({
     .nullish(),
   // RAG KB
   ragKnowledgeBaseEnabled: z.boolean().default(false),
+  ragKnowledgeBaseId: z.string().nullish(),
   embeddingModelId: z.string().default('amazon.titan-embed-text-v2:0'),
   ragKnowledgeBaseStandbyReplicas: z.boolean().default(false),
   ragKnowledgeBaseAdvancedParsing: z.boolean().default(false),

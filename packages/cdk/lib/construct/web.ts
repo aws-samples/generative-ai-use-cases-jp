@@ -20,6 +20,7 @@ export interface WebProps {
   predictStreamFunctionArn: string;
   ragEnabled: boolean;
   ragKnowledgeBaseEnabled: boolean;
+  ragKnowledgeBaseId?: string;
   agentEnabled: boolean;
   flows?: Flow[];
   flowStreamFunctionArn: string;
@@ -171,6 +172,8 @@ export class Web extends Construct {
         VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
         VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
+          props.ragKnowledgeBaseEnabled.toString(),
+        VITE_APP_RAG_KNOWLEDGE_BASE_ID:
           props.ragKnowledgeBaseEnabled.toString(),
         VITE_APP_AGENT_ENABLED: props.agentEnabled.toString(),
         VITE_APP_FLOWS: JSON.stringify(props.flows || []),

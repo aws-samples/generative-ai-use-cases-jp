@@ -151,7 +151,8 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 
 ### RAG チャット (Knowledge Base) ユースケースの有効化
 
-`ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)
+`ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)  
+作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、OpenSearch Serverlessのナレッジベースが作成されます)
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -159,6 +160,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -173,6 +175,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -243,6 +246,7 @@ Status が Available になれば完了です。S3 に保存されているフ�
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
@@ -257,6 +261,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": true,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
