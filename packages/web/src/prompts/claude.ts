@@ -10,7 +10,29 @@ import {
   TranslateParams,
   VideoAnalyzerParams,
   WebContentParams,
+  DiagramParams,
 } from './index';
+
+import {
+  FlowchartPrompt,
+  SequencePrompt,
+  ClassPrompt,
+  StatePrompt,
+  ErPrompt,
+  UserJourneyPrompt,
+  GanttChartPrompt,
+  PiechartPrompt,
+  QuadrantchartPrompt,
+  RequirementPrompt,
+  GitgraphPrompt,
+  MindmapPrompt,
+  XychartPrompt,
+  SankeychartPrompt,
+  BlockPrompt,
+  NetworkpacketPrompt,
+  ArchitecturePrompt,
+  TimelinePrompt,
+} from './diagrams/index';
 
 const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
@@ -724,4 +746,72 @@ XXX
       },
     ];
   },
+  diagramPrompt(params: DiagramParams): string {
+    if (params.determineType)
+      return `<instruction>
+あなたは図の種類を決定する専門家です。以下の手順に従って、与えられた<content></content>タグ内の情報を分析し、最適な図の種類を選択してください。
+重要: ユーザーが特定の図を作成したいようであればそれを選択してください。これは絶対です。日本語で特定の図を指定されるので、その場合はその特定の図の日本語を英語にして考えてください。
+出力は必ず<Choice>リストから選択した図の種類を完全に一致する形で出力してください。:
+
+1. <content></content>を注意深く読み、内容の性質(プロセス、関係性、時系列など)を把握する。
+2. 表現したい情報の種類を特定する。
+3. 図の目的(説明、分析、計画など)を考慮する。
+4. 以下のオプションから最適な図の種類を1つ選択する:
+
+<Choice>
+"FlowChart"
+"SequenceDiagram"
+"ClassDiagram"
+"StateDiagram"
+"ERDiagram"
+"UserJourney"
+"PieChart"
+"GanttChart"
+"QuadrantChart"
+"RequirementDiagram"
+"GitGraph"
+"MindMap"
+"SankeyChart"
+"XYChart"
+"BlockDiagram"
+"NetworkPacket"
+"Architecture"
+"Timeline"
+</Choice>
+
+5. 選択した図の種類を<output></output>タグ内に出力する。
+
+出力は<Choice>から選んだ図一つだけを<output></output>タグ内の文字列のみとし、それ以外の情報は一切含めないでください。
+</instruction>
+
+<content></content>
+
+<output></output>`;
+    else
+      return (
+        diagramSystemPrompts[params.diagramType!] ||
+        diagramSystemPrompts.FlowChart
+      );
+  },
+};
+
+const diagramSystemPrompts: { [key: string]: string } = {
+  flowchart: FlowchartPrompt,
+  sequencediagram: SequencePrompt,
+  classdiagram: ClassPrompt,
+  statediagram: StatePrompt,
+  erdiagram: ErPrompt,
+  userjourney: UserJourneyPrompt,
+  ganttchart: GanttChartPrompt,
+  piechart: PiechartPrompt,
+  quadrantchart: QuadrantchartPrompt,
+  requirementdiagram: RequirementPrompt,
+  gitgraph: GitgraphPrompt,
+  mindmap: MindmapPrompt,
+  sankeychart: SankeychartPrompt,
+  xychart: XychartPrompt,
+  blockdiagram: BlockPrompt,
+  networkpacket: NetworkpacketPrompt,
+  architecture: ArchitecturePrompt,
+  timeline: TimelinePrompt,
 };

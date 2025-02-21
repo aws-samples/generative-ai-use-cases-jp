@@ -102,13 +102,13 @@ const ChatPage: React.FC = () => {
     setSaveSystemContext,
     setSaveSystemContextTitle,
   } = useChatPageState();
+  const { pathname, search } = useLocation();
   const {
     clear: clearFiles,
     uploadedFiles,
     uploadFiles,
     base64Cache,
-  } = useFiles();
-  const { pathname, search } = useLocation();
+  } = useFiles(pathname);
   const { chatId } = useParams();
 
   const { listSystemContexts, deleteSystemContext, updateSystemContextTitle } =
@@ -409,7 +409,7 @@ const ChatPage: React.FC = () => {
           </div>
         )}
 
-        <div className="mt-2 flex w-full items-end justify-center lg:mt-0">
+        <div className="mt-2 flex w-full items-end justify-center lg:mt-0 print:hidden">
           <Select
             value={modelId}
             onChange={setModelId}
@@ -430,7 +430,7 @@ const ChatPage: React.FC = () => {
         )}
 
         {!isEmpty && !loadingMessages && (
-          <div className="my-2 flex flex-col items-end pr-3">
+          <div className="my-2 flex flex-col items-end pr-3 print:hidden">
             {chatId && (
               <div>
                 <button

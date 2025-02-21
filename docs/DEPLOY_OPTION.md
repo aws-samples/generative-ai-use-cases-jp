@@ -339,10 +339,10 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 
 Agent チャットユースケースでは、以下のご利用が可能です。
 - Code Interpreter を利用したデータの可視化、コード実行、データ分析
-- Agents for Amazon Bedrock を利用したアクションを実行させたり
+- Agents for Amazon Bedrock を利用したアクションを実行
 - Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照
 
-Agent は `modelRegion` で指定したリージョンに生成されます。
+Agent は `modelRegion` で指定したリージョンに生成されます。後述する `agentEnabled: true` は Code Interpreter エージェントと検索エージェントを作成するためのオプションで、手動で作成した Agent を追加する際には `agentEnabled: true` である必要はありません。
 
 #### Code Interpreter エージェントのデプロイ
 
@@ -409,7 +409,15 @@ const envs: Record<string, Partial<StackInput>> = {
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。これにより、デフォルトの検索エンジン Agent がデプロイされます。
 
-デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。
+> [!NOTE]
+> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+
+#### 手動で作成した Agent を追加
+
+デフォルトの Agent 以外に手動で作成した Agent を登録したい場合、以下のように追加の Agent を `agents` に追加してください。Agent は `modelRegion` で作成する点に留意してください。
+
+> [!NOTE]
+> `agentEnabled: true` は Code Interpreter エージェントと検索エージェントを作成するためのオプションですので、手動で作成した Agent を追加する際には `agentEnabled: true` である必要はありません。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -418,7 +426,7 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     agents: [
       {
-        displayName: 'SearchEngine',
+        displayName: 'MyCustomAgent',
         agentId: 'XXXXXXXXX',
         aliasId: 'YYYYYYYY',
       },
@@ -434,7 +442,7 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "agents": [
       {
-        "displayName": "SearchEngine",
+        "displayName": "MyCustomAgent",
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }
@@ -443,10 +451,7 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
-また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。
-
-> [!NOTE]
-> 検索エージェントの設定を有効後に、再度無効化する場合は、`searchAgentEnabled: false` にして再デプロイすれば検索エージェントは無効化されますが、`WebSearchAgentStack` 自体は残ります。マネージメントコンソールを開き、`modelRegion` の CloudFormation から `WebSearchAgentStack` というスタックを削除することで完全に消去ができます。
+また、`packages/cdk/lib/construct/agent.ts` を改修し新たな Agent を定義することも可能です。CDK に定義した Agent を利用する場合は `agentEnabled: true` にしてください。
 
 #### Knowledge Bases for Amazon Bedrock エージェントのデプロイ
 
@@ -461,7 +466,7 @@ Agent プロンプト例: あなたは指示に応えるアシスタントです
 Knowledge Base プロンプト例: キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。
 ```
 
-作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を True にします。
+作成された Agent から Alias を作成し、`agentId` と `aliasId` をコピーし以下の形式で追加します。`displayName` は UI に表示したい名称を設定してください。また、`agentEnabled` を `true` にします。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
@@ -493,6 +498,30 @@ const envs: Record<string, Partial<StackInput>> = {
         "aliasId": "YYYYYYYY"
       }
     ],
+  }
+}
+```
+
+#### Agent をインライン表示にする
+
+Agent は、デフォルトでは「Agent チャット」というユースケースの中から Agent を選択する方式で利用できます。インライン表示のオプションを有効にすると、「Agent チャット」というユースケースは表示されなくなり、利用可能な全ての Agent が他のユースケースと同じように表示されるようになります。有効な Agent が存在する状態で、`inlineAgents` を `true` に設定してください。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    inlineAgents: true,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "inlineAgents": true
   }
 }
 ```
@@ -618,6 +647,49 @@ const envs: Record<string, Partial<StackInput>> = {
 
 Prompt optimization のサポート状況は [こちら](https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html) をご参照ください。
 
+### 特定のユースケースを非表示にする
+
+以下のオプションで指定できるユースケースは非表示にできます。
+特に指定がない場合や false を指定した場合は表示されます。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    hiddenUseCases: {
+      generate: true, // 文章生成を非表示
+      summarize: true, // 要約を非表示
+      editorial: true, // 校正を非表示
+      translate: true, // 翻訳を非表示
+      webContent: true, // Web コンテンツ抽出を非表示
+      image: true, // 画像生成を非表示
+      video: true, // 映像分析を非表示
+      diagram: true, // ダイアグラム生成を非表示
+    }
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+// cdk.json
+{
+  "context": {
+    "hiddenUseCases": {
+      "generate": true,
+      "summarize": true,
+      "editorial": true,
+      "translate": true,
+      "webContent": true,
+      "image": true,
+      "video": true,
+      "diagram": true
+    }
+  }
+}
+```
+
 ## ユースケースビルダーの設定
 
 ユースケースビルダーはデフォルトで有効化されており、デプロイ後画面上に表示される「ビルダーモード」という項目から利用できます。ユースケースビルダーを無効化する場合は、パラメータの `useCaseBuilderEnabled` に `false` を指定します。(デフォルトは `true`)
@@ -672,6 +744,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "amazon.titan-text-premier-v1:0",
+"us.meta.llama3-3-70b-instruct-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
 "us.meta.llama3-2-3b-instruct-v1:0",
@@ -703,13 +776,16 @@ const envs: Record<string, Partial<StackInput>> = {
 このソリューションが対応している画像生成モデルは以下です。
 
 ```
+"amazon.nova-canvas-v1:0",
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"stability.stable-diffusion-xl-v1",
 "stability.sd3-large-v1:0",
+"stability.sd3-5-large-v1:0",
 "stability.stable-image-core-v1:0",
+"stability.stable-image-core-v1:1",
 "stability.stable-image-ultra-v1:0",
-"stability.sd3-5-large-v1:0"
+"stability.stable-image-ultra-v1:1",
+"stability.stable-diffusion-xl-v1",
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
@@ -737,9 +813,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "mistral.mistral-large-2402-v1:0"
     ],
     imageGenerationModelIds: [
+      "amazon.nova-canvas-v1:0",
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "amazon.nova-canvas-v1:0",
       "stability.stable-diffusion-xl-v1"
     ],
   },
@@ -767,9 +843,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "mistral.mistral-large-2402-v1:0"
     ],
     "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0",
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "amazon.nova-canvas-v1:0",
       "stability.stable-diffusion-xl-v1"
     ],
   }
@@ -783,7 +859,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-1',
+    modelRegion: 'us-west-2',
     modelIds: [
       "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-haiku-20241022-v1:0",
@@ -800,11 +876,13 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   },
 };
@@ -832,11 +910,13 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   }
 }
@@ -849,7 +929,7 @@ const envs: Record<string, Partial<StackInput>> = {
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelRegion: 'us-east-1',
+    modelRegion: 'us-east-2',
     modelIds: [
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
       "us.anthropic.claude-3-5-haiku-20241022-v1:0",
@@ -857,6 +937,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.anthropic.claude-3-opus-20240229-v1:0",
       "us.anthropic.claude-3-sonnet-20240229-v1:0",
       "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.meta.llama3-3-70b-instruct-v1:0",
       "us.meta.llama3-2-90b-instruct-v1:0",
       "us.meta.llama3-2-11b-instruct-v1:0",
       "us.meta.llama3-2-3b-instruct-v1:0",
@@ -867,18 +948,17 @@ const envs: Record<string, Partial<StackInput>> = {
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
       "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
     ],
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   },
 };
@@ -897,6 +977,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.anthropic.claude-3-opus-20240229-v1:0",
       "us.anthropic.claude-3-sonnet-20240229-v1:0",
       "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "us.meta.llama3-3-70b-instruct-v1:0",
       "us.meta.llama3-2-90b-instruct-v1:0",
       "us.meta.llama3-2-11b-instruct-v1:0",
       "us.meta.llama3-2-3b-instruct-v1:0",
@@ -906,19 +987,18 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.amazon.nova-micro-v1:0",
       "cohere.command-r-plus-v1:0",
       "cohere.command-r-v1:0",
-      "mistral.mistral-large-2407-v1:0",
-      "us.amazon.nova-pro-v1:0",
-      "us.amazon.nova-lite-v1:0",
-      "us.amazon.nova-micro-v1:0"
+      "mistral.mistral-large-2407-v1:0"
     ],
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1",
       "stability.sd3-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-ultra-v1:0",
       "stability.sd3-5-large-v1:0"
+      "stability.stable-image-core-v1:0",
+      "stability.stable-image-core-v1:1",
+      "stability.stable-image-ultra-v1:0",
+      "stability.stable-image-ultra-v1:1",
+      "stability.stable-diffusion-xl-v1",
     ],
   }
 }

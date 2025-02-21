@@ -3,25 +3,32 @@ import useFileApi from './useFileApi';
 import { FileLimit, UploadedFileType } from 'generative-ai-use-cases-jp';
 import { produce } from 'immer';
 import { fileTypeFromStream } from 'file-type';
-
+import { useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 const useFilesState = create<{
   uploadFiles: (
+    id: string,
     files: File[],
     fileLimit: FileLimit,
     accept: string[]
   ) => Promise<void>;
-  checkFiles: (fileLimit: FileLimit, accept: string[]) => Promise<void>;
-  uploadedFiles: UploadedFileType[];
-  errorMessages: string[];
+  checkFiles: (
+    id: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => Promise<void>;
+  uploadedFilesDict: Record<string, UploadedFileType[]>;
+  errorMessagesDict: Record<string, string[]>;
   deleteUploadedFile: (
-    fileUrl: string,
+    id: string,
+    fileId: string,
     fileLimit: FileLimit,
     accept: string[]
   ) => Promise<boolean>;
-  clear: () => void;
+  clear: (id: string) => void;
   base64Cache: Record<string, string>;
   getFileDownloadSignedUrl: (
     s3Url: string,
@@ -30,10 +37,14 @@ const useFilesState = create<{
 }>((set, get) => {
   const api = useFileApi();
 
-  const clear = () => {
-    set(() => ({
-      errorMessages: [],
-      uploadedFiles: [],
+  const clear = (id: string) => {
+    set((state) => ({
+      uploadedFilesDict: produce(state.uploadedFilesDict, (draft) => {
+        draft[id] = [];
+      }),
+      errorMessagesDict: produce(state.errorMessagesDict, (draft) => {
+        draft[id] = [];
+      }),
     }));
   };
 
@@ -44,7 +55,9 @@ const useFilesState = create<{
       if (fileType.includes('video')) return 'video';
       return 'file';
     };
+    const fileId = uuidv4();
     return {
+      id: fileId,
       file,
       name: file.name,
       type: getFileType(file.type),
@@ -170,31 +183,35 @@ const useFilesState = create<{
   };
 
   // Refresh error messages
-  const checkFiles = async (fileLimit: FileLimit, accept: string[]) => {
+  const checkFiles = async (
+    id: string,
+    fileLimit: FileLimit,
+    accept: string[]
+  ) => {
     // Get current files
-    const currentUploadedFiles = get().uploadedFiles;
+    const currentUploadedFiles = get().uploadedFilesDict[id] ?? [];
 
     // Get updated error messages
     const { uploadedFiles: newUploadedFiles, errorMessages } =
       await validateUploadedFiles(currentUploadedFiles, fileLimit, accept);
 
-    // Update Files using immer
-    set((state) =>
-      produce(state, (draft) => {
-        draft.uploadedFiles = newUploadedFiles;
-        draft.errorMessages = errorMessages;
+    set(
+      produce((state) => {
+        state.uploadedFilesDict[id] = newUploadedFiles;
+        state.errorMessagesDict[id] = errorMessages;
       })
     );
   };
 
   // Handle File Uploads
   const uploadFiles = async (
+    id: string,
     files: File[],
     fileLimit: FileLimit,
     accept: string[]
   ) => {
     // Get File
-    const currentUploadedFiles = get().uploadedFiles;
+    const currentUploadedFiles = get().uploadedFilesDict[id] ?? [];
     const newUploadedFiles: UploadedFileType[] = [
       ...currentUploadedFiles,
       ...files.map(convertFile2UploadedFileType),
@@ -205,13 +222,15 @@ const useFilesState = create<{
       await validateUploadedFiles(newUploadedFiles, fileLimit, accept);
 
     // Update zustand to reflect current status to UI
-    set(() => ({
-      uploadedFiles: validatedFiles,
-      errorMessages: errorMessages,
-    }));
 
+    set(
+      produce((state) => {
+        state.uploadedFilesDict[id] = validatedFiles;
+        state.errorMessagesDict[id] = errorMessages;
+      })
+    );
     // Upload File
-    get().uploadedFiles.forEach((uploadedFile, idx) => {
+    get().uploadedFilesDict[id].forEach((uploadedFile, idx) => {
       if (!uploadedFile.uploading) return;
 
       // 「画像アップロード => 署名付きURL取得 => 画像ダウンロード」だと、画像が画面に表示されるまでに時間がかかるため、
@@ -219,11 +238,12 @@ const useFilesState = create<{
       const reader = new FileReader();
       reader.readAsDataURL(uploadedFile.file);
       reader.onload = () => {
-        set((state) => ({
-          uploadedFiles: produce(state.uploadedFiles, (draft) => {
-            draft[idx].base64EncodedData = reader.result?.toString();
-          }),
-        }));
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id][idx].base64EncodedData =
+              reader.result?.toString();
+          })
+        );
       };
 
       const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
@@ -239,16 +259,19 @@ const useFilesState = create<{
           const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
           // ファイルのアップロード
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
-            set((state) => ({
-              uploadedFiles: produce(state.uploadedFiles, (draft) => {
-                draft[idx].uploading = false;
-                draft[idx].s3Url = fileUrl;
-              }),
-              base64Cache: {
-                ...state.base64Cache,
-                [fileUrl]: reader.result?.toString() ?? '',
-              },
-            }));
+            const currentIdx = get().uploadedFilesDict[id].findIndex(
+              (file) => file.id === uploadedFile.id
+            ); //アップロード中に前のファイルが削除された場合idxが変化する
+            set(
+              produce((state) => {
+                state.uploadedFilesDict[id][currentIdx].uploading = false;
+                state.uploadedFilesDict[id][currentIdx].s3Url = fileUrl;
+                state.base64Cache = {
+                  ...state.base64Cache,
+                  [fileUrl]: reader.result?.toString() ?? '',
+                };
+              })
+            );
           });
         });
     });
@@ -256,27 +279,27 @@ const useFilesState = create<{
 
   // Delete Uploaded File
   const deleteUploadedFile = async (
-    fileUrl: string,
+    id: string,
+    fileId: string,
     fileLimit: FileLimit,
     accept: string[]
   ) => {
-    const baseUrl = extractBaseURL(fileUrl);
     const findTargetIndex = () =>
-      get().uploadedFiles.findIndex((file) => file.s3Url === baseUrl);
+      get().uploadedFilesDict[id].findIndex((file) => file.id === fileId);
 
     let targetIndex = findTargetIndex();
     if (targetIndex > -1) {
       // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
       const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
-        get().uploadedFiles[targetIndex].s3Url ?? ''
+        get().uploadedFilesDict[id][targetIndex].s3Url ?? ''
       );
       const fileName = result?.groups?.fileName;
 
       if (fileName) {
         // Set deleting state
-        set((state) =>
-          produce(state, (draft) => {
-            draft.uploadedFiles[targetIndex].deleting = true;
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id][targetIndex].deleting = true;
           })
         );
 
@@ -284,14 +307,14 @@ const useFilesState = create<{
 
         // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
         targetIndex = findTargetIndex();
-        set((state) =>
-          produce(state, (draft) => {
-            draft.uploadedFiles.splice(targetIndex, 1);
+        set(
+          produce((state) => {
+            state.uploadedFilesDict[id].splice(targetIndex, 1);
           })
         );
 
         // Refresh error messages
-        await checkFiles(fileLimit, accept);
+        await checkFiles(id, fileLimit, accept);
 
         return true;
       }
@@ -335,8 +358,8 @@ const useFilesState = create<{
 
   return {
     clear,
-    uploadedFiles: [],
-    errorMessages: [],
+    uploadedFilesDict: {},
+    errorMessagesDict: {},
     uploadFiles,
     checkFiles,
     deleteUploadedFile,
@@ -345,25 +368,36 @@ const useFilesState = create<{
   };
 });
 
-const useFiles = () => {
+const useFiles = (id: string) => {
   const {
     uploadFiles,
     checkFiles,
     clear,
-    uploadedFiles,
+    uploadedFilesDict,
     deleteUploadedFile,
-    errorMessages,
+    errorMessagesDict,
     base64Cache,
     getFileDownloadSignedUrl,
   } = useFilesState();
   return {
-    uploadFiles,
-    checkFiles,
-    errorMessages,
-    clear,
-    uploadedFiles: uploadedFiles,
-    deleteUploadedFile,
-    uploading: uploadedFiles.some((uploadedFile) => uploadedFile.uploading),
+    uploadFiles: (files: File[], fileLimit: FileLimit, accept: string[]) =>
+      uploadFiles(id, files, fileLimit, accept),
+    checkFiles: useCallback(
+      (fileLimit: FileLimit, accept: string[]) =>
+        checkFiles(id, fileLimit, accept),
+      [checkFiles, id]
+    ),
+    errorMessages: errorMessagesDict[id] ?? [],
+    clear: () => clear(id),
+    uploadedFiles: uploadedFilesDict[id] ?? [],
+    deleteUploadedFile: (
+      fileId: string,
+      fileLimit: FileLimit,
+      accept: string[]
+    ) => deleteUploadedFile(id, fileId, fileLimit, accept),
+    uploading:
+      uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ??
+      false,
     base64Cache,
     getFileDownloadSignedUrl,
   };

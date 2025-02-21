@@ -2,7 +2,6 @@ import React from 'react';
 import ButtonIcon from '../ButtonIcon';
 import { BaseProps } from '../../@types/common';
 import { useNavigate } from 'react-router-dom';
-import { ROUTE_INDEX_USE_CASE_BUILDER } from '../../main';
 import { PiPencilLine } from 'react-icons/pi';
 
 type Props = BaseProps & {
@@ -15,7 +14,7 @@ const ButtonUseCaseEdit: React.FC<Props> = (props) => {
     <ButtonIcon
       className={props.className ?? ''}
       onClick={() => {
-        navigate(`${ROUTE_INDEX_USE_CASE_BUILDER}/edit/${props.useCaseId}`);
+        navigate(`/use-case-builder/edit/${props.useCaseId}`);
       }}>
       <PiPencilLine />
     </ButtonIcon>

@@ -13,6 +13,19 @@ export const stackInputSchema = z.object({
   samlAuthEnabled: z.boolean().default(false),
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
+  // Frontend
+  hiddenUseCases: z
+    .object({
+      generate: z.boolean().optional(),
+      summarize: z.boolean().optional(),
+      editorial: z.boolean().optional(),
+      translate: z.boolean().optional(),
+      webContent: z.boolean().optional(),
+      image: z.boolean().optional(),
+      video: z.boolean().optional(),
+      diagram: z.boolean().optional(),
+    })
+    .default({}),
   // API
   modelRegion: z.string().default('us-east-1'),
   modelIds: z
@@ -73,6 +86,7 @@ export const stackInputSchema = z.object({
       })
     )
     .default([]),
+  inlineAgents: z.boolean().default(false),
   // Guardrail
   guardrailEnabled: z.boolean().default(false),
   // Usecase builder

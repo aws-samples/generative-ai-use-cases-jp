@@ -10,7 +10,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Flow } from 'generative-ai-use-cases-jp';
+import { Flow, HiddenUseCases } from 'generative-ai-use-cases-jp';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -34,11 +34,13 @@ export interface WebProps {
   samlCognitoDomainName?: string | null;
   samlCognitoFederatedIdentityProviderName?: string | null;
   agentNames: string[];
+  inlineAgents: boolean;
   cert?: ICertificate;
   hostName?: string | null;
   domainName?: string | null;
   hostedZoneId?: string | null;
   useCaseBuilderEnabled: boolean;
+  hiddenUseCases: HiddenUseCases;
 }
 
 export class Web extends Construct {
@@ -160,6 +162,7 @@ export class Web extends Construct {
       outputSourceDirectory: './packages/web/dist',
       buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
+        NODE_OPTIONS: '--max-old-space-size=2048', // デプロイ時のCodeBuildのメモリを設定
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,
@@ -183,8 +186,10 @@ export class Web extends Construct {
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',
         VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
+        VITE_APP_INLINE_AGENTS: props.inlineAgents.toString(),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),
+        VITE_APP_HIDDEN_USE_CASES: JSON.stringify(props.hiddenUseCases),
       },
     });
 

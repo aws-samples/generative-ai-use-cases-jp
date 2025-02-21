@@ -16,6 +16,7 @@ import {
   PiRobot,
   PiVideoCamera,
   PiFlowArrow,
+  PiTreeStructure,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -31,27 +32,22 @@ import {
   TranslatePageQueryParams,
   WebContentPageQueryParams,
   VideoAnalyzerPageQueryParams,
+  DiagramPageQueryParams,
 } from '../@types/navigate';
 import queryString from 'query-string';
 import { MODELS } from '../hooks/useModel';
+import useUseCases from '../hooks/useUseCases';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const { visionEnabled } = MODELS;
-const getFlows = () => {
-  try {
-    return JSON.parse(import.meta.env.VITE_APP_FLOWS);
-  } catch (e) {
-    return [];
-  }
-};
-const flows = getFlows();
-const flowChatEnabled: boolean = flows.length > 0;
+const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
+const { visionEnabled, flowChatEnabled } = MODELS;
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const { enabled } = useUseCases();
   const { setIsShow, init } = useInterUseCases();
 
   const demoChat = () => {
@@ -142,6 +138,13 @@ const LandingPage: React.FC = () => {
         '映っているものを説明してください。もし映っているものに文字が書かれている場合はそれも読んでください。',
     };
     navigate(`/video?${queryString.stringify(params)}`);
+  };
+
+  const demoGenerateDiagram = () => {
+    const params: DiagramPageQueryParams = {
+      content: `会社の一般的な経費生産フローを色つきで図示してください。`,
+    };
+    navigate(`/diagram?${queryString.stringify(params)}`);
   };
 
   const demoBlog = () => {
@@ -307,7 +310,7 @@ const LandingPage: React.FC = () => {
             description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
           />
         )}
-        {agentEnabled && (
+        {agentEnabled && !inlineAgents && (
           <CardDemo
             label="Agent チャット"
             onClickDemo={demoAgent}
@@ -323,43 +326,55 @@ const LandingPage: React.FC = () => {
             description="Flow を使用して、複数のステップを持つ対話型チャットフローを作成します。ユーザーの入力に基づいて、動的に次のステップを決定し、より複雑な対話シナリオを実現します。"
           />
         )}
-        <CardDemo
-          label="文章生成"
-          onClickDemo={demoGenerate}
-          icon={<PiPencil />}
-          description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
-        />
-        <CardDemo
-          label="要約"
-          onClickDemo={demoSummarize}
-          icon={<PiNote />}
-          description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
-        />
-        <CardDemo
-          label="校正"
-          onClickDemo={demoEditorial}
-          icon={<PiPenNib />}
-          description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
-        />
-        <CardDemo
-          label="翻訳"
-          onClickDemo={demoTranslate}
-          icon={<PiTranslate />}
-          description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
-        />
-        <CardDemo
-          label="Web コンテンツ抽出"
-          onClickDemo={demoWebContent}
-          icon={<PiGlobe />}
-          description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
-        />
-        <CardDemo
-          label="画像生成"
-          onClickDemo={demoGenerateImage}
-          icon={<PiImages />}
-          description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
-        />
-        {visionEnabled && (
+        {enabled('generate') && (
+          <CardDemo
+            label="文章生成"
+            onClickDemo={demoGenerate}
+            icon={<PiPencil />}
+            description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
+          />
+        )}
+        {enabled('summarize') && (
+          <CardDemo
+            label="要約"
+            onClickDemo={demoSummarize}
+            icon={<PiNote />}
+            description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+          />
+        )}
+        {enabled('editorial') && (
+          <CardDemo
+            label="校正"
+            onClickDemo={demoEditorial}
+            icon={<PiPenNib />}
+            description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
+          />
+        )}
+        {enabled('translate') && (
+          <CardDemo
+            label="翻訳"
+            onClickDemo={demoTranslate}
+            icon={<PiTranslate />}
+            description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+          />
+        )}
+        {enabled('webContent') && (
+          <CardDemo
+            label="Web コンテンツ抽出"
+            onClickDemo={demoWebContent}
+            icon={<PiGlobe />}
+            description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
+          />
+        )}
+        {enabled('image') && (
+          <CardDemo
+            label="画像生成"
+            onClickDemo={demoGenerateImage}
+            icon={<PiImages />}
+            description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+          />
+        )}
+        {visionEnabled && enabled('video') && (
           <CardDemo
             label="映像分析"
             onClickDemo={demoVideoAnalyzer}
@@ -367,26 +382,49 @@ const LandingPage: React.FC = () => {
             description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
           />
         )}
+        {enabled('diagram') && (
+          <CardDemo
+            label="ダイアグラム生成"
+            onClickDemo={demoGenerateDiagram}
+            icon={<PiTreeStructure />}
+            description="自然言語による説明、文書やコードから、フローチャート、シーケンス図、マインドマップなどの様々な図を自動的に作成できます。システム設計、ビジネスフロー、プロジェクト計画などの複雑な関係性を、視覚的に表現し理解を効率化します。"
+          />
+        )}
       </div>
 
-      <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
-        ユースケース連携
-      </h1>
+      {
+        // いずれかのユースケース連携が有効であれば表示する
+        // ブログ記事作成
+        (enabled('webContent', 'generate', 'summarize', 'image') ||
+          // 議事録作成
+          enabled('generate')) && (
+          <>
+            <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
+              ユースケース連携
+            </h1>
 
-      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
-        <CardDemo
-          label="ブログ記事作成"
-          onClickDemo={demoBlog}
-          icon={<PiPen />}
-          description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
-        />
-        <CardDemo
-          label="議事録作成"
-          onClickDemo={demoMeetingReport}
-          icon={<PiNotebook />}
-          description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
-        />
-      </div>
+            <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
+              {enabled('webContent', 'generate', 'summarize', 'image') && (
+                <CardDemo
+                  label="ブログ記事作成"
+                  onClickDemo={demoBlog}
+                  icon={<PiPen />}
+                  description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
+                />
+              )}
+
+              {enabled('generate') && (
+                <CardDemo
+                  label="議事録作成"
+                  onClickDemo={demoMeetingReport}
+                  icon={<PiNotebook />}
+                  description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
+                />
+              )}
+            </div>
+          </>
+        )
+      }
     </div>
   );
 };

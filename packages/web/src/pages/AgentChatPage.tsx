@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
-import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
 import ScrollTopBottom from '../components/ScrollTopBottom';
@@ -70,7 +69,7 @@ const useChatPageState = create<StateType>((set) => {
 const AgentChatPage: React.FC = () => {
   const { sessionId, content, setContent, setSessionId } = useChatPageState();
   const { pathname, search } = useLocation();
-  const { chatId } = useParams();
+  const { agentName } = useParams();
 
   const {
     getModelId,
@@ -83,9 +82,8 @@ const AgentChatPage: React.FC = () => {
     postChat,
     updateSystemContextByModel,
     retryGeneration,
-  } = useChat(pathname, chatId);
+  } = useChat(pathname);
   const { scrollableContainer, setFollowing } = useFollow();
-  const { getChatTitle } = useChatList();
   const { agentNames: availableModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -98,7 +96,7 @@ const AgentChatPage: React.FC = () => {
     uploadedFiles,
     uploadFiles,
     base64Cache,
-  } = useFiles();
+  } = useFiles(pathname);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -106,28 +104,32 @@ const AgentChatPage: React.FC = () => {
   }, [prompter]);
 
   const title = useMemo(() => {
-    if (chatId) {
-      return getChatTitle(chatId) || 'Agent チャット';
+    if (agentName) {
+      return agentName;
     } else {
       return 'Agent チャット';
     }
-  }, [chatId, getChatTitle]);
+  }, [agentName]);
 
   useEffect(() => {
-    const _modelId = !modelId ? availableModels[0] : modelId;
-    if (search !== '') {
-      const params = queryString.parse(search) as AgentPageQueryParams;
-      setContent(params.content ?? '');
-      setModelId(
-        availableModels.includes(params.modelId ?? '')
-          ? params.modelId!
-          : _modelId
-      );
+    if (agentName) {
+      setModelId(agentName);
     } else {
-      setModelId(_modelId);
+      const _modelId = !modelId ? availableModels[0] : modelId;
+      if (search !== '') {
+        const params = queryString.parse(search) as AgentPageQueryParams;
+        setContent(params.content ?? '');
+        setModelId(
+          availableModels.includes(params.modelId ?? '')
+            ? params.modelId!
+            : _modelId
+        );
+      } else {
+        setModelId(_modelId);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setContent, modelId, availableModels, search]);
+  }, [setContent, modelId, availableModels, search, agentName]);
 
   const onSend = useCallback(() => {
     setFollowing(true);
@@ -221,15 +223,17 @@ const AgentChatPage: React.FC = () => {
           </div>
         )}
 
-        <div className="mb-6 mt-2 flex w-full items-end justify-center lg:mt-0">
-          <Select
-            value={modelId}
-            onChange={setModelId}
-            options={availableModels.map((m) => {
-              return { value: m, label: m };
-            })}
-          />
-        </div>
+        {!agentName && (
+          <div className="mb-6 mt-2 flex w-full items-end justify-center lg:mt-0">
+            <Select
+              value={modelId}
+              onChange={setModelId}
+              options={availableModels.map((m) => {
+                return { value: m, label: m };
+              })}
+            />
+          </div>
+        )}
 
         {((isEmpty && !loadingMessages) || loadingMessages) && (
           <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center">
@@ -269,7 +273,7 @@ const AgentChatPage: React.FC = () => {
             content={content}
             disabled={loading}
             onChangeContent={setContent}
-            resetDisabled={!!chatId}
+            resetDisabled={false}
             onSend={() => {
               onSend();
             }}

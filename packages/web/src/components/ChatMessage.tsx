@@ -45,7 +45,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [isSendingFeedback, setIsSendingFeedback] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [showThankYouMessage, setShowThankYouMessage] = useState(false);
-  const { getFileDownloadSignedUrl } = useFiles();
+  const { getFileDownloadSignedUrl } = useFiles(pathname);
 
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
@@ -208,11 +208,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               </div>
             )}
             {chatContent?.role === 'user' && (
-              <div className="break-all">
-                {typingTextOutput.split('\n').map((c, idx) => (
-                  <div key={idx}>{c}</div>
-                ))}
-              </div>
+              <div className="whitespace-pre-wrap">{typingTextOutput}</div>
             )}
             {chatContent?.role === 'assistant' && (
               <Markdown prefix={`${props.idx}`}>
@@ -225,11 +221,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               </Markdown>
             )}
             {chatContent?.role === 'system' && (
-              <div className="break-all">
-                {typingTextOutput.split('\n').map((c, idx) => (
-                  <div key={idx}>{c}</div>
-                ))}
-              </div>
+              <div className="whitespace-pre-wrap">{typingTextOutput}</div>
             )}
             {props.loading && (chatContent?.content ?? '') === '' && (
               <div className="animate-pulse">▍</div>

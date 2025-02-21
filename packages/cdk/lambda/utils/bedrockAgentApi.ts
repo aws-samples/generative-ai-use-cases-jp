@@ -288,9 +288,7 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
                     .replace('</search_results>', '')
                 );
                 trace = searchResult
-                  .map(
-                    (item) => `- [${item.title}](${encodeUrlString(item.url)})`
-                  )
+                  .map((item) => `- [${item.title}](${item.url})`)
                   .join('\n');
               } else {
                 // それ以外は出力の冒頭1000文字を表示

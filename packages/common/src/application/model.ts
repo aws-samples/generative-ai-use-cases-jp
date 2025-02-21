@@ -97,6 +97,7 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'us.meta.llama3-2-3b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   'us.meta.llama3-2-11b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.meta.llama3-2-90b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'us.meta.llama3-3-70b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   // Mistral
   'mistral.mistral-7b-instruct-v0:2': MODEL_FEATURE.TEXT_DOC,
   'mistral.mixtral-8x7b-instruct-v0:1': MODEL_FEATURE.TEXT_DOC,
@@ -113,7 +114,9 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   'stability.stable-diffusion-xl-v1': MODEL_FEATURE.IMAGE_GEN,
   'stability.sd3-large-v1:0': MODEL_FEATURE.IMAGE_GEN,
   'stability.stable-image-core-v1:0': MODEL_FEATURE.IMAGE_GEN,
+  'stability.stable-image-core-v1:1': MODEL_FEATURE.IMAGE_GEN,
   'stability.stable-image-ultra-v1:0': MODEL_FEATURE.IMAGE_GEN,
+  'stability.stable-image-ultra-v1:1': MODEL_FEATURE.IMAGE_GEN,
   'stability.sd3-5-large-v1:0': MODEL_FEATURE.IMAGE_GEN,
   // Amazon Image Gen
   'amazon.titan-image-generator-v2:0': MODEL_FEATURE.IMAGE_GEN,
