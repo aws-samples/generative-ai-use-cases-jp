@@ -44,6 +44,10 @@ export const useWriter = () => {
             role: 'user',
             content: prompt,
           },
+          {
+            role: 'assistant',
+            content: '<output>',
+          },
         ],
       },
       improve: {
@@ -152,7 +156,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.searchAgent,
+          modelId: MODELS.searchAgent || '',
           sessionId: uuidv4(),
         },
       },
@@ -165,7 +169,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.searchAgent,
+          modelId: MODELS.searchAgent || '',
           sessionId: uuidv4(),
         },
       },
@@ -178,7 +182,7 @@ export const useWriter = () => {
         ],
         overrideModel: {
           type: 'bedrockAgent',
-          modelId: MODELS.searchAgent,
+          modelId: MODELS.searchAgent || '',
           sessionId: uuidv4(),
         },
       },

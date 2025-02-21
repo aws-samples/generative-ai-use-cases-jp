@@ -71,7 +71,7 @@ export const findModelByModelId = (modelId: string) => {
   return undefined;
 };
 
-const searchAgent = agentNames.filter((name) => name.includes('Search'))[0];
+const searchAgent = agentNames.find((name) => name.includes('Search'));
 
 export const MODELS = {
   modelRegion: modelRegion,

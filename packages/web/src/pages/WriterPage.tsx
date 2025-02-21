@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
-import Card from '../components/Card';
 import queryString from 'query-string';
 import { WriterPageQueryParams } from '../@types/navigate';
 
@@ -24,11 +23,11 @@ const WriterPage: React.FC = () => {
         執筆
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card className="m-auto max-w-full">
+        <div className="m-auto max-w-full p-2">
           <Suspense fallback={<div>Loading...</div>}>
             <TailwindAdvancedEditor initialSentence={initialSentence} />
           </Suspense>
-        </Card>
+        </div>
       </div>
     </div>
   );

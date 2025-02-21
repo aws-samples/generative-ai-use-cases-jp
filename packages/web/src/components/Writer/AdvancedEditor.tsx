@@ -272,8 +272,17 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   return (
     <div className="relative m-auto w-full max-w-screen-lg">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-end gap-2 text-sm">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Select
+            value={modelId}
+            onChange={setModelId}
+            options={availableModels.map((m) => ({
+              value: m,
+              label: m,
+            }))}
+            className="w-48"
+          />
+          <div className="mb-3 flex flex-wrap items-center gap-2">
             <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
               {saveStatus ? '保存済み' : '保存中...'}
             </div>
@@ -293,29 +302,18 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             <Button outlined onClick={handleTutorialClick}>
               チュートリアル
             </Button>
+            <Button
+              onClick={handleExecClick}
+              disabled={loading}
+              className="flex items-center gap-2">
+              {loading ? (
+                <PiSpinner className="h-4 w-4 animate-spin" />
+              ) : (
+                <PiChatText className="h-4 w-4" />
+              )}
+              校閲
+            </Button>
           </div>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Select
-            value={modelId}
-            onChange={setModelId}
-            options={availableModels.map((m) => ({
-              value: m,
-              label: m,
-            }))}
-            className="w-48"
-          />
-          <Button
-            onClick={handleExecClick}
-            disabled={loading}
-            className="mb-3 flex items-center gap-2 text-sm">
-            {loading ? (
-              <PiSpinner className="h-4 w-4 animate-spin" />
-            ) : (
-              <PiChatText className="h-4 w-4" />
-            )}
-            校閲
-          </Button>
         </div>
       </div>
 
