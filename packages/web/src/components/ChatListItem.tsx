@@ -13,7 +13,6 @@ import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases-jp';
 import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
-import HighlightWithinTextarea from 'react-highlight-within-textarea';
 
 type Props = BaseProps & {
   active: boolean;
@@ -76,14 +75,21 @@ const ChatListItem: React.FC<Props> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
 
-  const highlight = useMemo(() => {
-    return props.highlightWords.map((w) => {
-      return {
-        highlight: w,
-        className: 'text-aws-smile bg-inherit',
-      };
+  const highlightText = useCallback((text: string, words: string[]) => {
+    if (words.length === 0) return text;
+
+    const regex = new RegExp(`(${words.join('|')})`, 'gi');
+    return text.split(regex).map((part, i) => {
+      if (words.some((word) => part.toLowerCase() === word.toLowerCase())) {
+        return (
+          <span key={i} className="text-aws-smile">
+            {part}
+          </span>
+        );
+      }
+      return part;
     });
-  }, [props.highlightWords]);
+  }, []);
 
   return (
     <>
@@ -123,12 +129,7 @@ const ChatListItem: React.FC<Props> = (props) => {
                 }}
               />
             ) : (
-              <HighlightWithinTextarea
-                value={props.chat.title}
-                placeholder=""
-                highlight={highlight}
-                readOnly
-              />
+              <div>{highlightText(props.chat.title, props.highlightWords)}</div>
             )}
             {!editing && (
               <div

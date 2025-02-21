@@ -7,7 +7,6 @@ import {
   PiPencil,
   PiNote,
   PiChatsCircle,
-  PiPenNib,
   PiTranslate,
   PiGlobe,
   PiImages,
@@ -17,13 +16,13 @@ import {
   PiVideoCamera,
   PiFlowArrow,
   PiTreeStructure,
+  PiPenNib,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
 import {
   AgentPageQueryParams,
   ChatPageQueryParams,
-  EditorialPageQueryParams,
   GenerateImagePageQueryParams,
   GenerateTextPageQueryParams,
   InterUseCaseParams,
@@ -98,12 +97,8 @@ const LandingPage: React.FC = () => {
     navigate(`/summarize?${queryString.stringify(params)}`);
   };
 
-  const demoEditorial = () => {
-    const params: EditorialPageQueryParams = {
-      sentence:
-        'こんちは。私は校正を支援する完璧な AI アシスタントです。お好きな文章を入力してくさい。',
-    };
-    navigate(`/editorial?${queryString.stringify(params)}`);
+  const demoWriter = () => {
+    navigate(`/writer`);
   };
 
   const demoTranslate = () => {
@@ -342,12 +337,12 @@ const LandingPage: React.FC = () => {
             description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
           />
         )}
-        {enabled('editorial') && (
+        {enabled('writer') && (
           <CardDemo
-            label="校正"
-            onClickDemo={demoEditorial}
+            label="執筆"
+            onClickDemo={demoWriter}
             icon={<PiPenNib />}
-            description="LLM は、誤字脱字のチェックだけでなく、文章の流れや内容を考慮したより客観的な視点から改善点を提案できます。人に見せる前に LLM に自分では気づかなかった点を客観的にチェックしてもらいクオリティを上げる効果が期待できます。"
+            description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
           />
         )}
         {enabled('translate') && (

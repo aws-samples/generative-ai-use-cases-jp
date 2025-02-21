@@ -18,7 +18,7 @@ export const stackInputSchema = z.object({
     .object({
       generate: z.boolean().optional(),
       summarize: z.boolean().optional(),
-      editorial: z.boolean().optional(),
+      writer: z.boolean().optional(),
       translate: z.boolean().optional(),
       webContent: z.boolean().optional(),
       image: z.boolean().optional(),

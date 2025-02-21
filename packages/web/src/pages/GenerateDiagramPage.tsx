@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -10,7 +10,6 @@ import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 import useDiagram from '../hooks/useDiagram';
 import { DiagramPageQueryParams } from '../@types/navigate';
-import DiagramRenderer from '../components/DiagramRenderer';
 import Markdown from '../components/Markdown';
 import { RiRobot2Line, RiMindMap } from 'react-icons/ri';
 import { BiAbacus } from 'react-icons/bi';
@@ -31,6 +30,8 @@ import {
   TbPackages,
   TbMathSymbols,
 } from 'react-icons/tb';
+
+const DiagramRenderer = lazy(() => import('../components/DiagramRenderer'));
 
 type StateType = {
   content: string;
@@ -731,10 +732,12 @@ const GenerateDiagramPage: React.FC = () => {
                       </div>
                     ) : (
                       <div className="p-3">
-                        <DiagramRenderer
-                          code={diagramCode}
-                          handleMarkdownChange={handleMarkdownChange}
-                        />
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <DiagramRenderer
+                            code={diagramCode}
+                            handleMarkdownChange={handleMarkdownChange}
+                          />
+                        </Suspense>
                       </div>
                     )}
                   </div>

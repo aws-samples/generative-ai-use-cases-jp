@@ -25,7 +25,7 @@ export type ChatPageQueryParams = BaseQueryParams & {
   systemContext?: string;
 };
 
-export type EditorialPageQueryParams = BaseQueryParams & {
+export type WriterPageQueryParams = BaseQueryParams & {
   sentence?: string;
 };
 

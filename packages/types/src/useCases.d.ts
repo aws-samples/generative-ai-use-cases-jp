@@ -1,7 +1,7 @@
 export type HiddenUseCases = {
   generate?: boolean;
   summarize?: boolean;
-  editorial?: boolean;
+  writer?: boolean;
   translate?: boolean;
   webContent?: boolean;
   image?: boolean;

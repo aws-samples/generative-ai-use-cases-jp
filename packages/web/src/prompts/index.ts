@@ -24,7 +24,7 @@ export type SummarizeParams = {
   context?: string;
 };
 
-export type EditorialParams = {
+export type WriterParams = {
   sentence: string;
   context?: string;
 };
@@ -81,7 +81,7 @@ export interface Prompter {
   systemContext(pathname: string): string;
   chatPrompt(params: ChatParams): string;
   summarizePrompt(params: SummarizeParams): string;
-  editorialPrompt(params: EditorialParams): string;
+  writerPrompt(params: WriterParams): string;
   generateTextPrompt(params: GenerateTextParams): string;
   translatePrompt(params: TranslateParams): string;
   webContentPrompt(params: WebContentParams): string;

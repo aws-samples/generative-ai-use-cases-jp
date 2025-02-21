@@ -89,10 +89,10 @@ const ButtonSendToUseCase: React.FC<Props> = (props) => {
                 }}
               />
               <UseCaseItem
-                path="/editorial"
+                path="/writer"
                 queryKey="sentence"
                 text={props.text}
-                title="校正"
+                title="執筆"
                 onClose={() => {
                   setShowModal(false);
                 }}

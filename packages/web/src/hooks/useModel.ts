@@ -71,6 +71,8 @@ export const findModelByModelId = (modelId: string) => {
   return undefined;
 };
 
+const searchAgent = agentNames.find((name) => name.includes('Search'));
+
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: [...bedrockModelIds, ...endpointNames],
@@ -82,6 +84,8 @@ export const MODELS = {
   textModels: textModels,
   imageGenModels: imageGenModels,
   agentModels: agentModels,
+  agentEnabled: agentNames.length > 0,
+  searchAgent: searchAgent,
   flows,
   flowChatEnabled: flows.length > 0,
 };
