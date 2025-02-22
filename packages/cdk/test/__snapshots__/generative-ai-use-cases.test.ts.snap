@@ -11902,7 +11902,6 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
           },
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
-          "VITE_APP_RAG_KNOWLEDGE_BASE_ID": "true",
           "VITE_APP_REGION": "us-east-1",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
           "VITE_APP_SAML_COGNITO_DOMAIN_NAME": "",
