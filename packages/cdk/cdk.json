@@ -21,7 +21,7 @@
     "kendraIndexScheduleEnabled": false,
     "kendraIndexScheduleCreateCron": null,
     "kendraIndexScheduleDeleteCron": null,
-    "ragKnowledgeBaseEnabled": false,
+    "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -31,14 +31,14 @@
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
     "samlAuthEnabled": true,
-    "samlCognitoDomainName": "soliton-onegate.auth.ap-northeast-1.amazoncognito.com",
+    "samlCognitoDomainName": "solitononegate.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "SolitonOneGate",
     "hiddenUseCases": {},
     "modelRegion": "us-east-1",
     "modelIds":[
+      "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
-      "anthropic.claude-3-haiku-20240307-v1:0",
-      "anthropic.claude-3-5-sonnet-20241022-v2:0"
+      "anthropic.claude-3-haiku-20240307-v1:0"
     ],
     "imageGenerationModelIds": [
       "amazon.nova-canvas-v1:0"
@@ -61,7 +61,6 @@
     "guardrailEnabled" : false,
     "crossAccountBedrockRoleArn": "",
     "useCaseBuilderEnabled": true,
-    "ragKnowledgeBaseEnabled":false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
