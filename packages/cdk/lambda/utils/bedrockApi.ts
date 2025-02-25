@@ -15,6 +15,7 @@ import {
   ApiInterface,
   BedrockImageGenerationResponse,
   GenerateImageParams,
+  Model,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
@@ -84,11 +85,11 @@ const initBedrockClient = async () => {
 };
 
 const createConverseCommandInput = (
-  model: string,
+  model: Model,
   messages: UnrecordedMessage[],
   id: string
 ): ConverseCommandInput => {
-  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
   return modelConfig.createConverseCommandInput(
     messages,
     id,
@@ -99,11 +100,11 @@ const createConverseCommandInput = (
 };
 
 const createConverseStreamCommandInput = (
-  model: string,
+  model: Model,
   messages: UnrecordedMessage[],
   id: string
 ): ConverseStreamCommandInput => {
-  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
   return modelConfig.createConverseStreamCommandInput(
     messages,
     id,
@@ -114,34 +115,31 @@ const createConverseStreamCommandInput = (
 };
 
 const extractConverseOutputText = (
-  model: string,
+  model: Model,
   output: ConverseCommandOutput
 ): string => {
-  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
   return modelConfig.extractConverseOutputText(output);
 };
 
 const extractConverseStreamOutputText = (
-  model: string,
+  model: Model,
   output: ConverseStreamOutput
 ): string => {
-  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model];
+  const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
   return modelConfig.extractConverseStreamOutputText(output);
 };
 
-const createBodyImage = (
-  model: string,
-  params: GenerateImageParams
-): string => {
-  const modelConfig = BEDROCK_IMAGE_GEN_MODELS[model];
+const createBodyImage = (model: Model, params: GenerateImageParams): string => {
+  const modelConfig = BEDROCK_IMAGE_GEN_MODELS[model.modelId];
   return modelConfig.createBodyImage(params);
 };
 
 const extractOutputImage = (
-  model: string,
+  model: Model,
   response: BedrockImageGenerationResponse
 ): string => {
-  const modelConfig = BEDROCK_IMAGE_GEN_MODELS[model];
+  const modelConfig = BEDROCK_IMAGE_GEN_MODELS[model.modelId];
   return modelConfig.extractOutputImage(response);
 };
 
@@ -150,21 +148,21 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     const client = await initBedrockClient();
 
     const converseCommandInput = createConverseCommandInput(
-      model.modelId,
+      model,
       messages,
       id
     );
     const command = new ConverseCommand(converseCommandInput);
     const output = await client.send(command);
 
-    return extractConverseOutputText(model.modelId, output);
+    return extractConverseOutputText(model, output);
   },
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
 
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(
-        model.modelId,
+        model,
         messages,
         id
       );
@@ -182,10 +180,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
           break;
         }
 
-        const outputText = extractConverseStreamOutputText(
-          model.modelId,
-          response
-        );
+        const outputText = extractConverseStreamOutputText(model, response);
 
         if (outputText) {
           yield streamingChunk({ text: outputText });
@@ -231,13 +226,13 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     // Stable Diffusion や Titan Image Generator を利用した画像生成は Converse API に対応していないため、InvokeModelCommand を利用する
     const command = new InvokeModelCommand({
       modelId: model.modelId,
-      body: createBodyImage(model.modelId, params),
+      body: createBodyImage(model, params),
       contentType: 'application/json',
     });
     const res = await client.send(command);
     const body = JSON.parse(Buffer.from(res.body).toString('utf-8'));
 
-    return extractOutputImage(model.modelId, body);
+    return extractOutputImage(model, body);
   },
 };
 

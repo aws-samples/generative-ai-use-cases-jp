@@ -40,16 +40,10 @@ type Props = {
   | {
       hideReset: true;
     }
-) &
-  (
-    | {
-        setting: true;
-        onSetting: () => void;
-      }
-    | {
-        setting?: false;
-      }
-  );
+) & {
+    setting?: boolean;
+    onSetting?: () => void;
+  };
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { pathname } = useLocation();
@@ -127,7 +121,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
-        <div className="flex w-full flex-col">
+        <div className="flex grow flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
               {uploadedFiles.map((uploadedFile, idx) => {
@@ -187,7 +181,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent ${props.fileUpload || props.setting ? 'pr-24' : 'pr-14'}`}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent`}
             placeholder={props.placeholder ?? '入力してください'}
             noBorder
             notItem
@@ -197,43 +191,45 @@ const InputChatContent: React.FC<Props> = (props) => {
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
-        {props.fileUpload && (
-          <div className="absolute bottom-2 right-12">
-            <label>
-              <input
-                hidden
-                onChange={onChangeFiles}
-                type="file"
-                accept={props.accept?.join(',')}
-                multiple
-                value={[]}
-              />
-              <div
-                className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-                {uploading ? (
-                  <PiSpinnerGap className="animate-spin" />
-                ) : (
-                  <PiPaperclip />
-                )}
-              </div>
-            </label>
-          </div>
-        )}
-        {props.setting && (
+        <div className="m-2 flex gap-1">
+          {props.fileUpload && (
+            <div className="">
+              <label>
+                <input
+                  hidden
+                  onChange={onChangeFiles}
+                  type="file"
+                  accept={props.accept?.join(',')}
+                  multiple
+                  value={[]}
+                />
+                <div
+                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+                  {uploading ? (
+                    <PiSpinnerGap className="animate-spin" />
+                  ) : (
+                    <PiPaperclip />
+                  )}
+                </div>
+              </label>
+            </div>
+          )}
+          {props.setting && (
+            <ButtonSend
+              className=""
+              disabled={loading}
+              onClick={props.onSetting ?? (() => {})}
+              icon={<PiSlidersHorizontal />}
+            />
+          )}
           <ButtonSend
-            className="absolute bottom-2 right-12"
-            disabled={loading}
-            onClick={props.onSetting}
-            icon={<PiSlidersHorizontal />}
+            className=""
+            disabled={disabledSend}
+            loading={loading || uploading}
+            onClick={props.onSend}
+            icon={props.sendIcon}
           />
-        )}
-        <ButtonSend
-          className="absolute bottom-2  right-2"
-          disabled={disabledSend}
-          loading={loading || uploading}
-          onClick={props.onSend}
-          icon={props.sendIcon}
-        />
+        </div>
 
         {!isEmpty && !props.resetDisabled && !props.hideReset && (
           <Button
