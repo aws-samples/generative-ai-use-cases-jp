@@ -396,9 +396,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   };
 
   const deleteFile = useCallback(
-    (fileUrl: string) => {
+    (fileId: string) => {
       if (fileLimit && accept) {
-        deleteUploadedFile(fileUrl, fileLimit, accept);
+        deleteUploadedFile(fileId, fileLimit, accept);
       }
     },
     [deleteUploadedFile, accept]
@@ -573,7 +573,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                           size="s"
                           error={uploadedFile.errorMessages.length > 0}
                           onDelete={() => {
-                            deleteFile(uploadedFile.s3Url ?? '');
+                            deleteFile(uploadedFile.id ?? '');
                           }}
                         />
                       );
@@ -587,7 +587,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                           size="s"
                           error={uploadedFile.errorMessages.length > 0}
                           onDelete={() => {
-                            deleteFile(uploadedFile.s3Url ?? '');
+                            deleteFile(uploadedFile.id ?? '');
                           }}
                         />
                       );
@@ -601,7 +601,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                           size="s"
                           error={uploadedFile.errorMessages.length > 0}
                           onDelete={() => {
-                            deleteFile(uploadedFile.s3Url ?? '');
+                            deleteFile(uploadedFile.id ?? '');
                           }}
                         />
                       );

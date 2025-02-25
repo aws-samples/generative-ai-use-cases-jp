@@ -51,6 +51,7 @@ export type ExtraData = {
 };
 
 export type UploadedFileType = {
+  id: string;
   file: File;
   name: string;
   type: 'image' | 'video' | 'file';
