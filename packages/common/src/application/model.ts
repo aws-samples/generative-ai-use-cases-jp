@@ -31,6 +31,7 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
     ...MODEL_FEATURE.TEXT_DOC_IMAGE,
     ...MODEL_FEATURE.LIGHT,
   },
+  'us.anthropic.claude-3-7-sonnet-20250219-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-sonnet-20241022-v2:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
