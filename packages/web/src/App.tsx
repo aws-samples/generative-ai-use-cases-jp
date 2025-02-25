@@ -138,10 +138,10 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    enabled('editorial')
+    enabled('writer')
       ? {
-          label: '校正',
-          to: '/editorial',
+          label: '執筆',
+          to: '/writer',
           icon: <PiPenNib />,
           display: 'usecase' as const,
         }
