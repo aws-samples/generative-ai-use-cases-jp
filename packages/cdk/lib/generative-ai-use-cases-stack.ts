@@ -74,7 +74,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       idPool: auth.idPool,
       userPoolClient: auth.client,
       table: database.table,
-      knowledgeBaseId: props.knowledgeBaseId,
+      knowledgeBaseId: params.ragKnowledgeBaseId || props.knowledgeBaseId,
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
@@ -161,16 +161,20 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // RAG Knowledge Base
-    if (params.ragKnowledgeBaseEnabled && props.knowledgeBaseId) {
-      new RagKnowledgeBase(this, 'RagKnowledgeBase', {
-        modelRegion: params.modelRegion,
-        knowledgeBaseId: props.knowledgeBaseId,
-        userPool: auth.userPool,
-        api: api.api,
-      });
-      // File API から data source の Bucket のファイルをダウンロードできるようにする
-      if (props.knowledgeBaseDataSourceBucketName) {
-        api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName);
+    if (params.ragKnowledgeBaseEnabled) {
+      const knowledgeBaseId =
+        params.ragKnowledgeBaseId || props.knowledgeBaseId;
+      if (knowledgeBaseId) {
+        new RagKnowledgeBase(this, 'RagKnowledgeBase', {
+          modelRegion: params.modelRegion,
+          knowledgeBaseId: knowledgeBaseId,
+          userPool: auth.userPool,
+          api: api.api,
+        });
+        // File API から data source の Bucket のファイルをダウンロードできるようにする
+        if (props.knowledgeBaseDataSourceBucketName) {
+          api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName);
+        }
       }
     }
 

@@ -38,16 +38,17 @@ export const createStacks = (app: cdk.App, params: StackInput) => {
       : null;
 
   // RAG Knowledge Base
-  const ragKnowledgeBaseStack = params.ragKnowledgeBaseEnabled
-    ? new RagKnowledgeBaseStack(app, `RagKnowledgeBaseStack${params.env}`, {
-        env: {
-          account: params.account,
-          region: params.modelRegion,
-        },
-        params: params,
-        crossRegionReferences: true,
-      })
-    : null;
+  const ragKnowledgeBaseStack =
+    params.ragKnowledgeBaseEnabled && !params.ragKnowledgeBaseId
+      ? new RagKnowledgeBaseStack(app, `RagKnowledgeBaseStack${params.env}`, {
+          env: {
+            account: params.account,
+            region: params.modelRegion,
+          },
+          params: params,
+          crossRegionReferences: true,
+        })
+      : null;
 
   // Agent
   const agentStack = params.agentEnabled
