@@ -1,10 +1,12 @@
 import { PrimaryKey } from './base';
+import { AdditionalModelRequestFields } from './text';
 
 export type Role = 'system' | 'user' | 'assistant';
 
 export type Model = {
   type: 'bedrock' | 'bedrockAgent' | 'bedrockKb' | 'sagemaker';
   modelId: string;
+  modelParameters?: AdditionalModelRequestFields;
   sessionId?: string;
 };
 

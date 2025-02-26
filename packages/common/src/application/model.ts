@@ -7,6 +7,13 @@ const MODEL_FEATURE: Record<string, FeatureFlags> = {
   TEXT_ONLY: { text: true, doc: false, image: false, video: false },
   TEXT_DOC: { text: true, doc: true, image: false, video: false },
   TEXT_DOC_IMAGE: { text: true, doc: true, image: true, video: false },
+  TEXT_DOC_IMAGE_REASONING: {
+    text: true,
+    doc: true,
+    image: true,
+    video: false,
+    reasoning: true,
+  },
   TEXT_DOC_IMAGE_VIDEO: { text: true, doc: true, image: true, video: true },
   IMAGE_GEN: { image_gen: true },
   VIDEO_GEN: { video_gen: true },
@@ -31,7 +38,8 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
     ...MODEL_FEATURE.TEXT_DOC_IMAGE,
     ...MODEL_FEATURE.LIGHT,
   },
-  'us.anthropic.claude-3-7-sonnet-20250219-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
+  'us.anthropic.claude-3-7-sonnet-20250219-v1:0':
+    MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
   'us.anthropic.claude-3-5-sonnet-20241022-v2:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE,

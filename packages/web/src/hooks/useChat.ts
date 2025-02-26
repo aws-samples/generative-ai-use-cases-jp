@@ -13,6 +13,7 @@ import {
   Model,
   UpdateFeedbackRequest,
   ListChatsResponse,
+  AdditionalModelRequestFields,
 } from 'generative-ai-use-cases-jp';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
@@ -62,7 +63,8 @@ const useChatState = create<{
     extraData: ExtraData[] | undefined,
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
-    base64Cache: Record<string, string> | undefined
+    base64Cache: Record<string, string> | undefined,
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   continueGeneration: (
     generationMode: GenerationMode,
@@ -76,7 +78,8 @@ const useChatState = create<{
     extraData: ExtraData[] | undefined,
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
-    base64Cache: Record<string, string> | undefined
+    base64Cache: Record<string, string> | undefined,
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   retryGeneration: (
     generationMode: GenerationMode,
@@ -90,7 +93,8 @@ const useChatState = create<{
     extraData: ExtraData[] | undefined,
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
-    base64Cache: Record<string, string> | undefined
+    base64Cache: Record<string, string> | undefined,
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -391,7 +395,10 @@ const useChatState = create<{
     extraData: ExtraData[] | undefined = undefined,
     overrideModelType: Model['type'] | undefined = undefined,
     setSessionId: (sessionId: string) => void = () => {},
-    base64Cache: Record<string, string> | undefined = undefined
+    base64Cache: Record<string, string> | undefined = undefined,
+    overrideModelParameters:
+      | AdditionalModelRequestFields
+      | undefined = undefined
   ) => {
     const modelId = get().modelIds[id];
 
@@ -409,6 +416,10 @@ const useChatState = create<{
 
     if (overrideModelType) {
       model.type = overrideModelType;
+    }
+
+    if (overrideModelParameters) {
+      model.modelParameters = overrideModelParameters;
     }
 
     // Agent 用の対応
@@ -677,7 +688,10 @@ const useChatState = create<{
       extraData: ExtraData[] | undefined = undefined,
       overrideModelType: Model['type'] | undefined = undefined,
       setSessionId: (sessionId: string) => void = () => {},
-      base64Cache: Record<string, string> | undefined = undefined
+      base64Cache: Record<string, string> | undefined = undefined,
+      overrideModelParameters:
+        | AdditionalModelRequestFields
+        | undefined = undefined
     ) => {
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
@@ -729,7 +743,8 @@ const useChatState = create<{
         extraData,
         overrideModelType,
         setSessionId,
-        base64Cache
+        base64Cache,
+        overrideModelParameters
       );
     },
 
@@ -847,7 +862,10 @@ const useChat = (id: string, chatId?: string) => {
       extraData: ExtraData[] | undefined = undefined,
       overrideModelType: Model['type'] | undefined = undefined,
       setSessionId: (sessionId: string) => void = () => {},
-      base64Cache: Record<string, string> | undefined = undefined
+      base64Cache: Record<string, string> | undefined = undefined,
+      overrideModelParameters:
+        | AdditionalModelRequestFields
+        | undefined = undefined
     ) => {
       post(
         id,
@@ -861,7 +879,8 @@ const useChat = (id: string, chatId?: string) => {
         extraData,
         overrideModelType,
         setSessionId,
-        base64Cache
+        base64Cache,
+        overrideModelParameters
       );
     },
     continueGeneration: (
@@ -875,7 +894,10 @@ const useChat = (id: string, chatId?: string) => {
       extraData: ExtraData[] | undefined = undefined,
       overrideModelType: Model['type'] | undefined = undefined,
       setSessionId: (sessionId: string) => void = () => {},
-      base64Cache: Record<string, string> | undefined = undefined
+      base64Cache: Record<string, string> | undefined = undefined,
+      overrideModelParameters:
+        | AdditionalModelRequestFields
+        | undefined = undefined
     ) => {
       continueGeneration(
         'continue',
@@ -889,7 +911,8 @@ const useChat = (id: string, chatId?: string) => {
         extraData,
         overrideModelType,
         setSessionId,
-        base64Cache
+        base64Cache,
+        overrideModelParameters
       );
     },
     retryGeneration: (
@@ -903,7 +926,10 @@ const useChat = (id: string, chatId?: string) => {
       extraData: ExtraData[] | undefined = undefined,
       overrideModelType: Model['type'] | undefined = undefined,
       setSessionId: (sessionId: string) => void = () => {},
-      base64Cache: Record<string, string> | undefined = undefined
+      base64Cache: Record<string, string> | undefined = undefined,
+      overrideModelParameters:
+        | AdditionalModelRequestFields
+        | undefined = undefined
     ) => {
       retryGeneration(
         'retry',
@@ -917,7 +943,8 @@ const useChat = (id: string, chatId?: string) => {
         extraData,
         overrideModelType,
         setSessionId,
-        base64Cache
+        base64Cache,
+        overrideModelParameters
       );
     },
     sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {

@@ -5,8 +5,11 @@ export type FeatureFlags = {
   doc?: boolean;
   image?: boolean;
   video?: boolean;
+  reasoning?: boolean;
+
   image_gen?: boolean;
   video_gen?: boolean;
+
   embedding?: boolean;
   reranking?: boolean;
   // Additional Flags

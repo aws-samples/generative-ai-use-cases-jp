@@ -11,6 +11,13 @@ export type UsecaseConverseInferenceParams = {
   [key: string]: ConverseInferenceParams;
 };
 
+export type AdditionalModelRequestFields = {
+  reasoningConfig?: {
+    type: 'enabled' | 'disabled';
+    budgetTokens?: number;
+  };
+};
+
 export type BaseGuardrailConfigParams = {
   guardrailIdentifier: string;
   guardrailVersion: string;

@@ -24,7 +24,12 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import { FileLimit, SystemContext } from 'generative-ai-use-cases-jp';
+import {
+  AdditionalModelRequestFields,
+  FileLimit,
+  SystemContext,
+} from 'generative-ai-use-cases-jp';
+import ModelParameters from '../components/ModelParameters';
 
 const fileLimit: FileLimit = {
   accept: {
@@ -146,6 +151,10 @@ const ChatPage: React.FC = () => {
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
+  const [overrideModelParameters, setOverrideModelParameters] = useState<
+    AdditionalModelRequestFields | undefined
+  >(undefined);
+  const [showSetting, setShowSetting] = useState(false);
 
   useEffect(() => {
     // 会話履歴のページではモデルを変更してもシステムプロンプトを変更しない
@@ -175,6 +184,9 @@ const ChatPage: React.FC = () => {
   const fileUpload = useMemo(() => {
     return accept.length > 0;
   }, [accept]);
+  const setting = useMemo(() => {
+    return MODELS.modelFeatureFlags[modelId]?.reasoning ?? false;
+  }, [modelId]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -211,12 +223,13 @@ const ChatPage: React.FC = () => {
       undefined,
       undefined,
       undefined,
-      base64Cache
+      base64Cache,
+      overrideModelParameters
     );
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, base64Cache, fileUpload, setFollowing]);
+  }, [content, base64Cache, fileUpload, setFollowing, overrideModelParameters]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
@@ -228,15 +241,15 @@ const ChatPage: React.FC = () => {
       undefined,
       undefined,
       undefined,
-      base64Cache
+      base64Cache,
+      overrideModelParameters
     );
-  }, [retryGeneration, base64Cache]);
+  }, [retryGeneration, base64Cache, overrideModelParameters]);
 
   const onReset = useCallback(() => {
     clear();
     setContent('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clear]);
+  }, [clear, setContent]);
 
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
@@ -530,6 +543,10 @@ const ChatPage: React.FC = () => {
             fileUpload={fileUpload}
             fileLimit={fileLimit}
             accept={accept}
+            setting={setting}
+            onSetting={() => {
+              setShowSetting(true);
+            }}
           />
         </div>
       </div>
@@ -598,6 +615,35 @@ const ChatPage: React.FC = () => {
               リンクの作成
             </Button>
           )}
+        </div>
+      </ModalDialog>
+      <ModalDialog
+        isOpen={showSetting}
+        onClose={() => {
+          setShowSetting(false);
+        }}
+        title="高度なオプション">
+        {setting && (
+          <ExpandableField
+            label="モデルパラメータ"
+            className="relative w-full"
+            defaultOpened={true}>
+            <div className="">
+              <ModelParameters
+                modelFeatureFlags={MODELS.modelFeatureFlags[modelId]}
+                overrideModelParameters={overrideModelParameters}
+                setOverrideModelParameters={setOverrideModelParameters}
+              />
+            </div>
+          </ExpandableField>
+        )}
+        <div className="mt-4 flex justify-end">
+          <Button
+            onClick={() => {
+              setShowSetting(false);
+            }}>
+            設定
+          </Button>
         </div>
       </ModalDialog>
     </>

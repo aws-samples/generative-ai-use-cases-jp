@@ -85,6 +85,12 @@ const RINNA_PROMPT: PromptTemplate = {
 
 // Model Params
 
+const CLAUDE_3_5_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 8192,
+  temperature: 0.6,
+  topP: 0.8,
+};
+
 const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
   maxTokens: 4096,
   temperature: 0.6,
@@ -187,7 +193,7 @@ function normalizeId(id: string): string {
 const createConverseCommandInput = (
   messages: UnrecordedMessage[],
   id: string,
-  modelId: string,
+  model: Model,
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
@@ -266,12 +272,33 @@ const createConverseCommandInput = (
   const guardrailConfig = createGuardrailConfig();
 
   const converseCommandInput: ConverseCommandInput = {
-    modelId: modelId,
+    modelId: model.modelId,
     messages: conversation,
     system: systemContext,
     inferenceConfig: inferenceConfig,
     guardrailConfig: guardrailConfig,
   };
+
+  if (
+    modelFeatureFlags[model.modelId].reasoning &&
+    model.modelParameters?.reasoningConfig?.type === 'enabled'
+  ) {
+    converseCommandInput.inferenceConfig = {
+      ...inferenceConfig,
+      temperature: 1, // reasoning は temperature を 1 必須
+      topP: undefined, // reasoning は topP は不要
+      maxTokens:
+        (model.modelParameters?.reasoningConfig?.budgetTokens || 0) +
+        (inferenceConfig?.maxTokens || 0),
+    };
+    converseCommandInput.additionalModelRequestFields = {
+      reasoning_config: {
+        type: model.modelParameters?.reasoningConfig?.type,
+        budget_tokens:
+          model.modelParameters?.reasoningConfig?.budgetTokens || 0,
+      },
+    };
+  }
 
   return converseCommandInput;
 };
@@ -283,7 +310,7 @@ const createConverseCommandInput = (
 const createConverseCommandInputWithoutSystemContext = (
   messages: UnrecordedMessage[],
   id: string,
-  modelId: string,
+  model: Model,
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
@@ -305,7 +332,7 @@ const createConverseCommandInputWithoutSystemContext = (
   const guardrailConfig = createGuardrailConfig();
 
   const converseCommandInput: ConverseCommandInput = {
-    modelId: modelId,
+    modelId: model.modelId,
     messages: conversation,
     inferenceConfig: inferenceConfig,
     guardrailConfig: guardrailConfig,
@@ -318,14 +345,14 @@ const createConverseCommandInputWithoutSystemContext = (
 const createConverseStreamCommandInput = (
   messages: UnrecordedMessage[],
   id: string,
-  modelId: string,
+  model: Model,
   defaultParams: ConverseInferenceParams,
   usecaseParams: UsecaseConverseInferenceParams
 ): ConverseStreamCommandInput => {
   const converseCommandInput = createConverseCommandInput(
     messages,
     id,
-    modelId,
+    model,
     defaultParams,
     usecaseParams
   );
@@ -343,14 +370,14 @@ const createConverseStreamCommandInput = (
 const createConverseStreamCommandInputWithoutSystemContext = (
   messages: UnrecordedMessage[],
   id: string,
-  modelId: string,
+  model: Model,
   defaultParams: ConverseInferenceParams,
   usecaseParams: UsecaseConverseInferenceParams
 ): ConverseStreamCommandInput => {
   const converseCommandInput = createConverseCommandInputWithoutSystemContext(
     messages,
     id,
-    modelId,
+    model,
     defaultParams,
     usecaseParams
   );
@@ -626,14 +653,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseCommandInput: (
       messages: UnrecordedMessage[],
       id: string,
-      modelId: string,
+      model: Model,
       defaultParams: ConverseInferenceParams,
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseCommandInput;
     createConverseStreamCommandInput: (
       messages: UnrecordedMessage[],
       id: string,
-      modelId: string,
+      model: Model,
       defaultParams: ConverseInferenceParams,
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseStreamCommandInput;
@@ -642,7 +669,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
   };
 } = {
   'anthropic.claude-3-5-sonnet-20241022-v2:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -650,7 +677,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'us.anthropic.claude-3-5-sonnet-20241022-v2:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -658,7 +685,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-3-5-haiku-20241022-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -666,7 +693,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'us.anthropic.claude-3-7-sonnet-20250219-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -674,7 +701,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -682,7 +709,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -690,7 +717,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -698,7 +725,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'eu.anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -706,7 +733,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutputText: extractConverseStreamOutputText,
   },
   'apac.anthropic.claude-3-5-sonnet-20240620-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
