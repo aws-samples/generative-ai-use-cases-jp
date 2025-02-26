@@ -51,8 +51,7 @@ const LandingPage: React.FC = () => {
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
-      content: `フィボナッチ数を返す Python の関数を書いてください。また、実装を解説してください。
-引数が項で、処理は再帰で書くようにしてください。出力はマークダウンにしてください。`,
+      content: '',
       systemContext: '',
     };
     navigate(`/chat?${queryString.stringify(params)}`);
