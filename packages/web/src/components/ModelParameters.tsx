@@ -24,11 +24,11 @@ export const ModelParameters: React.FC<{
   const handleReasoningSwitch = (newValue: boolean) => {
     setOverrideModelParameters({
       ...overrideModelParameters,
-      reasoning_config: newValue
+      reasoningConfig: newValue
         ? {
             type: 'enabled',
-            budget_tokens:
-              overrideModelParameters?.reasoning_config?.budget_tokens ||
+            budgetTokens:
+              overrideModelParameters?.reasoningConfig?.budgetTokens ||
               DEFAULT_REASONING_BUDGET,
           }
         : { type: 'disabled' },
@@ -38,15 +38,15 @@ export const ModelParameters: React.FC<{
   const handleReasoningBudgetChange = (value: number) => {
     setOverrideModelParameters({
       ...overrideModelParameters,
-      reasoning_config: {
+      reasoningConfig: {
         type: 'enabled',
-        budget_tokens: value,
+        budgetTokens: value || DEFAULT_REASONING_BUDGET,
       },
     });
   };
 
   const isReasoningEnabled =
-    overrideModelParameters?.reasoning_config?.type === 'enabled';
+    overrideModelParameters?.reasoningConfig?.type === 'enabled';
 
   if (!modelFeatureFlags.reasoning) {
     return null;
@@ -66,7 +66,7 @@ export const ModelParameters: React.FC<{
               />
             </div>
           </div>
-          {overrideModelParameters?.reasoning_config?.type === 'enabled' && (
+          {overrideModelParameters?.reasoningConfig?.type === 'enabled' && (
             <div>
               <div>Reasoning Budget</div>
               <div>
@@ -75,7 +75,7 @@ export const ModelParameters: React.FC<{
                   max={MAX_REASONING_BUDGET}
                   step={REASONING_BUDGET_STEP}
                   value={
-                    overrideModelParameters?.reasoning_config?.budget_tokens ||
+                    overrideModelParameters?.reasoningConfig?.budgetTokens ||
                     DEFAULT_REASONING_BUDGET
                   }
                   onChange={handleReasoningBudgetChange}

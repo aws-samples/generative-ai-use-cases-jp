@@ -281,17 +281,23 @@ const createConverseCommandInput = (
 
   if (
     modelFeatureFlags[model.modelId].reasoning &&
-    model.modelParameters?.reasoning_config?.type === 'enabled'
+    model.modelParameters?.reasoningConfig?.type === 'enabled'
   ) {
     converseCommandInput.inferenceConfig = {
       ...inferenceConfig,
       temperature: 1, // reasoning は temperature を 1 必須
       topP: undefined, // reasoning は topP は不要
       maxTokens:
-        (model.modelParameters?.reasoning_config?.budget_tokens || 0) +
+        (model.modelParameters?.reasoningConfig?.budgetTokens || 0) +
         (inferenceConfig?.maxTokens || 0),
     };
-    converseCommandInput.additionalModelRequestFields = model.modelParameters;
+    converseCommandInput.additionalModelRequestFields = {
+      reasoning_config: {
+        type: model.modelParameters?.reasoningConfig?.type,
+        budget_tokens:
+          model.modelParameters?.reasoningConfig?.budgetTokens || 0,
+      },
+    };
   }
 
   return converseCommandInput;

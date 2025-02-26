@@ -12,9 +12,9 @@ export type UsecaseConverseInferenceParams = {
 };
 
 export type AdditionalModelRequestFields = {
-  reasoning_config?: {
+  reasoningConfig?: {
     type: 'enabled' | 'disabled';
-    budget_tokens?: number;
+    budgetTokens?: number;
   };
 };
 
