@@ -32,11 +32,18 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     VitePWA({
+      strategies: 'generateSW',
       registerType: 'autoUpdate',
       devOptions: {
         enabled: true,
       },
       injectRegister: 'auto',
+      workbox: {
+        globDirectory: 'dist',
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        swDest: 'dist/sw.js',
+        maximumFileSizeToCacheInBytes: 5000000,
+      },
       manifest: {
         name: 'Generative AI Use Cases JP',
         short_name: 'GenU',
