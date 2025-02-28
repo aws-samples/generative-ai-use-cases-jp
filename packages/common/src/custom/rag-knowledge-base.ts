@@ -23,7 +23,7 @@ export const getDynamicFilters = (
   // Example 1: Filter by cognito user group
   // Cognito のユーザーグループによってフィルタを適用する
 
-  // const groups = idTokenPayload['cognito:groups'];
+  // const groups = _idTokenPayload['cognito:groups'];
   // if (!groups) throw new Error('cognito:groups is not set'); // Group が設定されていない場合はアクセスできずにエラーにする
   // const groupFilter: RetrievalFilter = {
   //   in: {
@@ -37,7 +37,7 @@ export const getDynamicFilters = (
   // SAML IdP グループのカスタム属性によってフィルタを適用する
   // カスタム属性の設定方法は docs/SAML_WITH_ENTRA_ID.md を参照してください
 
-  // const groups = (idTokenPayload['custom:idpGroup'] as string) // group を string で保持している (i.e. [group1id, group2id])
+  // const groups = (_idTokenPayload['custom:idpGroup'] as string) // group を string で保持している (i.e. [group1id, group2id])
   //   .slice(1, -1) // 先頭と末尾の括弧を削除
   //   .split(/, ?/) // カンマとスペースで分割
   //   .filter(Boolean); // 空文字列を除去;
