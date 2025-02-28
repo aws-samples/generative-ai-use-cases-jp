@@ -38,7 +38,7 @@ const Placeholder: React.FC<{
 }> = (props) => {
   return (
     <span className="rounded bg-gray-200 px-1 py-0.5">
-      {`{{${props.inputType}${props.label ? ':' + props.label : ''}${props.options ? ':' + props.options : ''}}}`}
+      {`{{${props.inputType}${props.label !== undefined ? ':' + props.label : ''}${props.options !== undefined ? ':' + props.options : ''}}}`}
     </span>
   );
 };
@@ -154,7 +154,14 @@ const UseCaseBuilderHelp = () => {
                 label="ラベル"
                 options="選択肢1,選択肢2"
               />{' '}
-              のように記述します。 選択肢はカンマ区切りで定義します。
+              のように記述します。
+              選択肢はカンマ区切りで定義します。ラベルを表示したくない場合は
+              <Placeholder
+                inputType="select"
+                label=""
+                options="選択肢1,選択肢2"
+              />
+              のように空文字ラベルを使います。(空文字ラベルは無ラベルとは異なります。)
               <PromptSample
                 title="AWS サービスについての質問"
                 prompt={`あなたは AWS サービスに詳しいスペシャリストです。

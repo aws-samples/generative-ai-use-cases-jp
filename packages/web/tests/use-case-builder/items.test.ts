@@ -126,6 +126,14 @@ describe('オプションを正しくパースできる', () => {
       },
     ]);
 
+    expect(getItemsFromPlaceholders(['{{select::hoge}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: '',
+        options: 'hoge',
+      },
+    ]);
+
     expect(getItemsFromPlaceholders(['{{select:hoge:fuga,hage}}'])).toEqual([
       {
         inputType: 'select',

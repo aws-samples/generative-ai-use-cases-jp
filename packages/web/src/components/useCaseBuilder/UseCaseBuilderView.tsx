@@ -277,11 +277,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     }
 
     for (const item of selectItems) {
-      if (item.label === NOLABEL || item.label === '') {
-        tmpErrorMessages.push(
-          `{{select}} にラベルが設定されていません。{{select}} はラベルの設定が必須です。{{select:ラベル:オプション1,オプション2}} のように設定してください。`
-        );
-      } else if (!item.options || item.options.length === 0) {
+      if (!item.options || item.options.length === 0) {
         tmpErrorMessages.push(
           `{{select}} にオプションが設定されていません。{{select:ラベル:オプション1,オプション2}} のように設定してください`
         );
