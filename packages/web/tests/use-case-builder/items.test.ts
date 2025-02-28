@@ -53,6 +53,15 @@ describe('単一のラベルを正しくパースできる', () => {
     ]);
   });
 
+  test('空文字ラベル', () => {
+    expect(getItemsFromPlaceholders(['{{text:}}'])).toEqual([
+      {
+        inputType: 'text',
+        label: '',
+      },
+    ]);
+  });
+
   test('{} が含まれる', () => {
     expect(getItemsFromPlaceholders(['{{text:x{x}x}}'])).toEqual([
       {
@@ -62,8 +71,7 @@ describe('単一のラベルを正しくパースできる', () => {
     ]);
   });
 
-  // これは将来的に仕様が変更される可能性あり
-  test(': が含まれる', () => {
+  test('オプションが許可されていない inputType のラベルに : が含まれる', () => {
     expect(getItemsFromPlaceholders(['{{text:x:x:x}}'])).toEqual([
       {
         inputType: 'text',
@@ -77,6 +85,60 @@ describe('単一のラベルを正しくパースできる', () => {
       {
         inputType: 'text',
         label: ' xxx ',
+      },
+    ]);
+  });
+});
+
+describe('オプションを正しくパースできる', () => {
+  test('オプション未指定', () => {
+    expect(getItemsFromPlaceholders(['{{select}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: NOLABEL,
+        options: undefined,
+      },
+    ]);
+
+    expect(getItemsFromPlaceholders(['{{select:}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: '',
+        options: undefined,
+      },
+    ]);
+
+    expect(getItemsFromPlaceholders(['{{select:hoge}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: 'hoge',
+        options: undefined,
+      },
+    ]);
+  });
+
+  test('オプション指定', () => {
+    expect(getItemsFromPlaceholders(['{{select:hoge:}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: 'hoge',
+        options: '',
+      },
+    ]);
+
+    expect(getItemsFromPlaceholders(['{{select::hoge}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: '',
+        options: 'hoge',
+      },
+    ]);
+
+    expect(getItemsFromPlaceholders(['{{select:hoge:fuga,hage}}'])).toEqual([
+      {
+        inputType: 'select',
+        label: 'hoge',
+        options: 'fuga,hage',
       },
     ]);
   });

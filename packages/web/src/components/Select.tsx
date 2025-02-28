@@ -21,9 +21,10 @@ type Props = RowItemProps & {
 
 const Select: React.FC<Props> = (props) => {
   const selectedLabel = useMemo(() => {
-    return props.value === ''
-      ? ''
-      : props.options.filter((o) => o.value === props.value)[0].label;
+    if (!props.value || props.value === '') return '';
+    const selectedOption = props.options.find((o) => o.value === props.value);
+    if (!selectedOption) return '';
+    return selectedOption.label;
   }, [props.options, props.value]);
 
   const onClear = useCallback(() => {

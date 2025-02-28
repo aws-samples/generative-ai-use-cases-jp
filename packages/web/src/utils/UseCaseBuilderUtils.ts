@@ -5,6 +5,7 @@ export const NOLABEL = 'NOLABEL';
 export type BuilderItem = {
   inputType: string;
   label: string;
+  options?: string;
 };
 
 export const SUPPORTED_TYPES: string[] = [
@@ -12,9 +13,10 @@ export const SUPPORTED_TYPES: string[] = [
   'form',
   'retrieveKendra',
   'retrieveKnowledgeBase',
+  'select',
 ];
 
-export const TEXT_FORM_TYPES: string[] = ['text', 'form'];
+export const TEXT_FORM_TYPES: string[] = ['text', 'form', 'select'];
 
 export const extractPlaceholdersFromPromptTemplate = (
   promptTemplate: string
@@ -32,13 +34,30 @@ export const getItemsFromPlaceholders = (
           .replace(/^\{\{|\}\}$/g, '')
           .split(':');
 
-        // 現状は : を含んだラベルを許容している
-        // この仕様はオプション等の追加に伴い変更される可能性あり
-        const label = labels.join(':');
+        let label: string;
+        let options: string | undefined = undefined;
+
+        // 現状オプションが許可されているのは select のみ
+        if (inputType === 'select') {
+          if (labels.length >= 2) {
+            const [tmpLabel, ...tmpOptions] = labels;
+            label = tmpLabel;
+            options = tmpOptions.join(':');
+          } else {
+            label = labels[0] ?? NOLABEL;
+          }
+        } else {
+          if (labels.length === 0) {
+            label = NOLABEL;
+          } else {
+            label = labels.join(':');
+          }
+        }
 
         return {
           inputType,
-          label: label.length > 0 ? label : NOLABEL,
+          label,
+          options,
         };
       })
       .filter((item) => SUPPORTED_TYPES.includes(item.inputType))

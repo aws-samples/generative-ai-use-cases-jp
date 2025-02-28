@@ -185,6 +185,10 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     return getTextFormItemsFromItems(items);
   }, [items]);
 
+  const selectItems = useMemo(() => {
+    return textFormItems.filter((i) => i.inputType === 'select');
+  }, [textFormItems]);
+
   const textFormUniqueLabels = useMemo(() => {
     return getTextFormUniqueLabels(textFormItems);
   }, [textFormItems]);
@@ -193,6 +197,18 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     clear(textFormUniqueLabels);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textFormUniqueLabels]);
+
+  useEffect(() => {
+    for (const item of selectItems) {
+      if (
+        item.options &&
+        item.options.length > 0 &&
+        values[item.label] === ''
+      ) {
+        setValue(item.label, item.options.split(',')[0]);
+      }
+    }
+  }, [selectItems, values, setValue]);
 
   useEffect(() => {
     setModelId(
@@ -260,10 +276,37 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       }
     }
 
+    for (const item of selectItems) {
+      if (!item.options || item.options.length === 0) {
+        tmpErrorMessages.push(
+          `{{select}} にオプションが設定されていません。{{select:ラベル:オプション1,オプション2}} のように設定してください`
+        );
+      } else {
+        const options = item.options.split(',');
+        const emptyOptions = options.filter((o) => o === '');
+
+        if (emptyOptions.length > 0) {
+          tmpErrorMessages.push(
+            `{{select:${item.label}}} に空のオプションが含まれています。`
+          );
+        }
+
+        const uniqueOptions = options.filter(
+          (elem, idx, self) => self.findIndex((e) => e === elem) === idx
+        );
+
+        if (options.length !== uniqueOptions.length) {
+          tmpErrorMessages.push(
+            `{{select:${item.label}}} に重複したオプションが含まれています。`
+          );
+        }
+      }
+    }
+
     tmpErrorMessages.push(...fileErrorMessages);
 
     setErrorMessages(tmpErrorMessages);
-  }, [setErrorMessages, items, textFormItems, fileErrorMessages]);
+  }, [setErrorMessages, items, textFormItems, fileErrorMessages, selectItems]);
 
   const onClickExec = useCallback(async () => {
     if (loading) return;
@@ -282,12 +325,16 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         let placeholder;
 
         if (item.label !== NOLABEL) {
-          placeholder = `{{${item.inputType}:${item.label}}}`;
+          if (item.options) {
+            placeholder = `{{${item.inputType}:${item.label}:${item.options}}}`;
+          } else {
+            placeholder = `{{${item.inputType}:${item.label}}}`;
+          }
         } else {
           placeholder = `{{${item.inputType}}}`;
         }
 
-        if (item.inputType === 'text') {
+        if (item.inputType === 'text' || item.inputType === 'select') {
           prompt = prompt.replace(
             new RegExp(placeholder, 'g'),
             values[item.label]
@@ -527,14 +574,30 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           <div className="flex flex-col ">
             {textFormItems.map((item, idx) => (
               <div key={idx}>
-                <Textarea
-                  label={item.label !== NOLABEL ? item.label : undefined}
-                  rows={item.inputType === 'text' ? 2 : 1}
-                  value={values[item.label]}
-                  onChange={(v) => {
-                    setValue(item.label, v);
-                  }}
-                />
+                {(item.inputType === 'text' || item.inputType === 'form') && (
+                  <Textarea
+                    label={item.label !== NOLABEL ? item.label : undefined}
+                    rows={item.inputType === 'text' ? 2 : 1}
+                    value={values[item.label]}
+                    onChange={(v) => {
+                      setValue(item.label, v);
+                    }}
+                  />
+                )}
+                {item.inputType === 'select' && (
+                  <Select
+                    label={item.label !== NOLABEL ? item.label : undefined}
+                    value={values[item.label] ?? ''}
+                    options={
+                      item.options?.split(',')?.map((v: string) => {
+                        return { value: v, label: v };
+                      }) ?? []
+                    }
+                    onChange={(value) => {
+                      setValue(item.label, value);
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>
