@@ -16,6 +16,7 @@ import {
   BedrockImageGenerationResponse,
   GenerateImageParams,
   Model,
+  StreamingChunk,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
 import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
@@ -114,20 +115,20 @@ const createConverseStreamCommandInput = (
   );
 };
 
-const extractConverseOutputText = (
+const extractConverseOutput = (
   model: Model,
   output: ConverseCommandOutput
-): string => {
+): StreamingChunk => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
-  return modelConfig.extractConverseOutputText(output);
+  return modelConfig.extractConverseOutput(output);
 };
 
-const extractConverseStreamOutputText = (
+const extractConverseStreamOutput = (
   model: Model,
   output: ConverseStreamOutput
-): string => {
+): StreamingChunk => {
   const modelConfig = BEDROCK_TEXT_GEN_MODELS[model.modelId];
-  return modelConfig.extractConverseStreamOutputText(output);
+  return modelConfig.extractConverseStreamOutput(output);
 };
 
 const createBodyImage = (model: Model, params: GenerateImageParams): string => {
@@ -155,7 +156,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     const command = new ConverseCommand(converseCommandInput);
     const output = await client.send(command);
 
-    return extractConverseOutputText(model, output);
+    return extractConverseOutput(model, output).text;
   },
   invokeStream: async function* (model, messages, id) {
     const client = await initBedrockClient();
@@ -180,10 +181,10 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
           break;
         }
 
-        const outputText = extractConverseStreamOutputText(model, response);
+        const output = extractConverseStreamOutput(model, response);
 
-        if (outputText) {
-          yield streamingChunk({ text: outputText });
+        if (output.text || output.trace) {
+          yield streamingChunk({ text: output.text, trace: output.trace });
         }
 
         if (response.messageStop) {

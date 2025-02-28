@@ -13,6 +13,7 @@ import {
   StabilityAI2024ModelResponse,
   AmazonGeneralImageParams,
   AmazonAdvancedImageParams,
+  StreamingChunk,
 } from 'generative-ai-use-cases-jp';
 import {
   ConverseCommandInput,
@@ -388,27 +389,44 @@ const createConverseStreamCommandInputWithoutSystemContext = (
   } as ConverseStreamCommandInput;
 };
 
-const extractConverseOutputText = (output: ConverseCommandOutput): string => {
+const extractConverseOutput = (
+  output: ConverseCommandOutput
+): StreamingChunk => {
   if (output.output && output.output.message && output.output.message.content) {
     // output.message.content は配列になっているが、基本的に要素は 1 個しか返ってこないため、join をする必要はない。
     // ただ、安全側に実装することを意識して、配列に複数の要素が来ても問題なく動作するように、join で改行を付けるよ実装にしておく。
     const responseText = output.output.message.content
       .map((block) => block.text)
       .join('\n');
-    return responseText;
+    const reasoningText = output.output.message.content
+      .map((block) => {
+        if (block.reasoningContent) {
+          return block.reasoningContent.reasoningText?.text;
+        }
+        return '';
+      })
+      .join('\n');
+    return { text: responseText, trace: reasoningText };
   }
 
-  return '';
+  return { text: '', trace: '' };
 };
 
-const extractConverseStreamOutputText = (
+const extractConverseStreamOutput = (
   output: ConverseStreamOutput
-): string => {
+): StreamingChunk => {
   if (output.contentBlockDelta && output.contentBlockDelta.delta?.text) {
-    return output.contentBlockDelta.delta?.text;
+    return { text: output.contentBlockDelta.delta?.text };
+  } else if (
+    output.contentBlockDelta &&
+    output.contentBlockDelta.delta?.reasoningContent
+  ) {
+    const reasoningText =
+      output.contentBlockDelta.delta?.reasoningContent?.text;
+    return { text: '', trace: reasoningText };
   }
 
-  return '';
+  return { text: '', trace: '' };
 };
 
 const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
@@ -664,8 +682,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
       defaultParams: ConverseInferenceParams,
       usecaseParams: UsecaseConverseInferenceParams
     ) => ConverseStreamCommandInput;
-    extractConverseOutputText: (body: ConverseCommandOutput) => string;
-    extractConverseStreamOutputText: (body: ConverseStreamOutput) => string;
+    extractConverseOutput: (body: ConverseCommandOutput) => StreamingChunk;
+    extractConverseStreamOutput: (body: ConverseStreamOutput) => StreamingChunk;
   };
 } = {
   'anthropic.claude-3-5-sonnet-20241022-v2:0': {
@@ -673,176 +691,176 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-5-sonnet-20241022-v2:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-3-5-haiku-20241022-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-7-sonnet-20250219-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'eu.anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'apac.anthropic.claude-3-5-sonnet-20240620-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-3-opus-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-opus-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-3-sonnet-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-sonnet-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'eu.anthropic.claude-3-sonnet-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'apac.anthropic.claude-3-sonnet-20240229-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'eu.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'apac.anthropic.claude-3-haiku-20240307-v1:0': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-v2:1': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-v2': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'anthropic.claude-instant-v1': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'amazon.titan-text-express-v1': {
     defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
@@ -850,8 +868,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
     createConverseStreamCommandInput:
       createConverseStreamCommandInputWithoutSystemContext,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'amazon.titan-text-premier-v1:0': {
     defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
@@ -859,88 +877,88 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
     createConverseStreamCommandInput:
       createConverseStreamCommandInputWithoutSystemContext,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'meta.llama3-8b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'meta.llama3-70b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'meta.llama3-1-8b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'meta.llama3-1-70b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'meta.llama3-1-405b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.meta.llama3-2-1b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.meta.llama3-2-3b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.meta.llama3-2-11b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.meta.llama3-2-90b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.meta.llama3-3-70b-instruct-v1:0': {
     defaultParams: LLAMA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'mistral.mistral-7b-instruct-v0:2': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
@@ -948,8 +966,8 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
     createConverseStreamCommandInput:
       createConverseStreamCommandInputWithoutSystemContext,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'mistral.mixtral-8x7b-instruct-v0:1': {
     defaultParams: MIXTRAL_DEFAULT_PARAMS,
@@ -957,48 +975,48 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     createConverseCommandInput: createConverseCommandInputWithoutSystemContext,
     createConverseStreamCommandInput:
       createConverseStreamCommandInputWithoutSystemContext,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'mistral.mistral-small-2402-v1:0': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'mistral.mistral-large-2402-v1:0': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'mistral.mistral-large-2407-v1:0': {
     defaultParams: MISTRAL_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'cohere.command-r-v1:0': {
     defaultParams: COMMANDR_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'cohere.command-r-plus-v1:0': {
     defaultParams: COMMANDR_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
 
   'amazon.nova-pro-v1:0': {
@@ -1006,48 +1024,48 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'amazon.nova-lite-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'amazon.nova-micro-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.amazon.nova-pro-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.amazon.nova-lite-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.amazon.nova-micro-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutputText: extractConverseOutputText,
-    extractConverseStreamOutputText: extractConverseStreamOutputText,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
   },
 };
 
