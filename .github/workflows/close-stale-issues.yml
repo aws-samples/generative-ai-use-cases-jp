@@ -17,6 +17,7 @@ jobs:
           days-before-stale: 30
           days-before-close: 14
           stale-issue-label: "stale"
+          stale-pr-label: "stale"
           stale-issue-message: "This issue is stale because it has been open for 30 days with no activity."
           stale-pr-message: "This PR is stale because it has been open for 30 days with no activity."
           close-issue-message: "This issue was closed because it has been inactive for 14 days since being marked as stale."
@@ -25,4 +26,3 @@ jobs:
           exempt-pr-labels: "bug,dnc"
           exempt-draft-pr: true
           delete-branch: true
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
