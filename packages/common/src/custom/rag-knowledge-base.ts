@@ -100,6 +100,12 @@ export const userDefinedExplicitFilters: ExplicitFilterConfiguration[] = [
     description: 'カテゴリ',
   },
 
+  {
+    key: 'item_id',
+    type: 'STRING',
+    description: '製品ID',
+  },
+
   // Example 2: Filter by tag (string list)
   {
     key: 'tag',
