@@ -1,4 +1,4 @@
-import { Stack, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack, RemovalPolicy, CfnResource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   CloudFrontToS3,
@@ -11,6 +11,7 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Flow, HiddenUseCases } from 'generative-ai-use-cases-jp';
+import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
 export interface WebProps {
   apiEndpointUrl: string;
@@ -131,7 +132,7 @@ export class Web extends Construct {
       );
     }
 
-    new NodejsBuild(this, 'BuildWeb', {
+    const build = new NodejsBuild(this, 'BuildWeb', {
       assets: [
         {
           path: '../../',
@@ -162,7 +163,7 @@ export class Web extends Construct {
       outputSourceDirectory: './packages/web/dist',
       buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
-        NODE_OPTIONS: '--max-old-space-size=2048', // デプロイ時のCodeBuildのメモリを設定
+        NODE_OPTIONS: '--max-old-space-size=4096', // デプロイ時のCodeBuildのメモリを設定
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,
@@ -192,6 +193,10 @@ export class Web extends Construct {
         VITE_APP_HIDDEN_USE_CASES: JSON.stringify(props.hiddenUseCases),
       },
     });
+    // コンピューティングリソースを増強
+    (
+      build.node.findChild('Project').node.defaultChild as CfnResource
+    ).addPropertyOverride('Environment.ComputeType', ComputeType.MEDIUM);
 
     this.distribution = cloudFrontWebDistribution;
   }
