@@ -119,21 +119,38 @@ const KbFilterFormElement: React.FC<{
               } as RetrievalFilterLabel);
             }}
           />
-          <FilterSelect
-            options={filterConfig.options ?? []}
-            value={attribute.value}
-            onChange={(value) => {
-              setFilter({
-                [operator]: {
-                  key: filterConfig.key,
-                  value: value,
-                },
-              } as RetrievalFilterLabel);
-            }}
-            isSearchable
-            isClearable
-            allowOther
-          />
+          {(filterConfig.options ?? []).length > 0 ? (
+            <FilterSelect
+              options={filterConfig.options ?? []}
+              value={attribute.value}
+              onChange={(value) => {
+                setFilter({
+                  [operator]: {
+                    key: filterConfig.key,
+                    value: value,
+                  },
+                } as RetrievalFilterLabel);
+              }}
+              isSearchable
+              isClearable
+              allowOther
+            />
+          ) : (
+            <Input
+              className="focus:border-aws-smile focus:ring-aws-smile/20 grow rounded border border-gray-300 bg-white text-gray-500 shadow-sm transition-all duration-300 hover:border-gray-400 focus:outline-none focus:ring"
+              type="text"
+              value={(attribute.value as Option)?.value ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilter({
+                  [operator]: {
+                    key: filterConfig.key,
+                    value: { label: value, value: value },
+                  },
+                } as RetrievalFilterLabel);
+              }}
+            />
+          )}
         </div>
       );
     case 'BOOLEAN':
