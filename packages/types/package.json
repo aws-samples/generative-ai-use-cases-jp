@@ -3,8 +3,8 @@
   "types": "src/index.d.ts",
   "private": true,
   "dependencies": {
-    "@aws-sdk/client-bedrock-runtime": "^3.549.0",
-    "@aws-sdk/client-bedrock-agent-runtime": "^3.549.0",
-    "@aws-sdk/client-kendra": "^3.549.0"
+    "@aws-sdk/client-bedrock-runtime": "^3.755.0",
+    "@aws-sdk/client-bedrock-agent-runtime": "^3.755.0",
+    "@aws-sdk/client-kendra": "^3.755.0"
   }
 }
