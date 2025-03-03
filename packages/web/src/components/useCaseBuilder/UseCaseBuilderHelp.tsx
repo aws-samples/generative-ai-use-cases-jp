@@ -31,12 +31,14 @@ const PromptSample: React.FC<PromptSampleProps> = (props) => {
   );
 };
 
-const Placeholder: React.FC<{ inputType: string; label?: string }> = (
-  props
-) => {
+const Placeholder: React.FC<{
+  inputType: string;
+  label?: string;
+  options?: string;
+}> = (props) => {
   return (
     <span className="rounded bg-gray-200 px-1 py-0.5">
-      {`{{${props.inputType}${props.label ? ':' + props.label : ''}}}`}
+      {`{{${props.inputType}${props.label !== undefined ? ':' + props.label : ''}${props.options !== undefined ? ':' + props.options : ''}}}`}
     </span>
   );
 };
@@ -130,6 +132,46 @@ const UseCaseBuilderHelp = () => {
 <情報>
 {{retrieveKendra:クイズの元になる情報を検索}}
 </情報>`}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-y-4">
+            <div className="flex items-center text-base font-bold">
+              <Placeholder inputType="select" />{' '}
+              <ButtonCopy text={'{{select}}'} />
+            </div>
+            <div className="text-sm leading-relaxed">
+              <Placeholder inputType="select" />{' '}
+              はセレクトボックスを定義するための placeholder です。
+              <Placeholder inputType="select" /> は
+              <span className="font-bold">
+                ラベルとオプションを省略できません。
+              </span>
+              必ず{' '}
+              <Placeholder
+                inputType="select"
+                label="ラベル"
+                options="選択肢1,選択肢2"
+              />{' '}
+              のように記述します。
+              選択肢はカンマ区切りで定義します。ラベルを表示したくない場合は
+              <Placeholder
+                inputType="select"
+                label=""
+                options="選択肢1,選択肢2"
+              />
+              のように空文字ラベルを使います。(空文字ラベルは無ラベルとは異なります。)
+              <PromptSample
+                title="AWS サービスについての質問"
+                prompt={`あなたは AWS サービスに詳しいスペシャリストです。
+
+以下のサービスについての質問に答えてください。
+{{select:AWS サービス:Amazon Bedrock,Amazon S3,AWS Lambda}}
+
+質問は以下です。
+{{text:質問}}
+`}
               />
             </div>
           </div>
