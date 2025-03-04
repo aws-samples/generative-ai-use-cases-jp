@@ -94,5 +94,5 @@ npm run cdk:deploy
 ## アップデートを自動化する
 
 AWS ではアップデートを自動化する方法もあります。
-以下は AWS CodePipeline と連携することで、GitHub 上で 2 クリックするだけでアップデートする方法を紹介した記事です。
+以下は AWS CodePipeline と連携することで、GitHub 上で 2 クリックするだけでアップデートする方法を紹介した記事です。  
 [GenUを最速で更新！AWS CodePipelineで実現するワンクリック更新術](https://qiita.com/moritalous/items/9ade46091a60030415e0) by [@moritalous](https://x.com/moritalous)
