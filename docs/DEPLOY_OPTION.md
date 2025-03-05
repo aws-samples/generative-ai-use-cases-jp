@@ -613,7 +613,9 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
 "amazon.nova-pro-v1:0",
-"amazon.nova-lite-v1:0"
+"amazon.nova-lite-v1:0",
+"apac.amazon.nova-pro-v1:0",
+"apac.amazon.nova-lite-v1:0"
 ```
 
 これらのいずれかが `modelIds` に定義されている必要があります。
