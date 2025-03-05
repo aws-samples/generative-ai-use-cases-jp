@@ -5,7 +5,11 @@ GenU は頻繁にアップデートされています。
 
 [AWS CloudShell を利用したデプロイ方法](./DEPLOY_ON_CLOUDSHELL.md) を利用している場合、常に最新の main ブランチをデプロイするため、再度 `deploy.sh` を実行するとアップデートされます。(以下の手順は不要です。)
 
-## main ブランチを pull する
+## 手動でアップデートする場合
+
+ユーザー自身がアップデートする方法です。
+
+### main ブランチを pull する
 
 すでにリポジトリを clone 済みで、初回デプロイが完了していることを想定しています。
 main ブランチの内容を pull するには以下のコマンドを実行します。
@@ -44,7 +48,7 @@ git remote add aws https://github.com/aws-samples/generative-ai-use-cases-jp
 
 aws という名前で登録されたので、`git pull aws` を実行して pull を実施します。
 
-## 取り込む前に変更が見たい場合
+### 取り込む前に変更が見たい場合
 
 `git pull` コマンドは `git fetch` (変更を取得) と `git merge` (変更を取り込む) を同時に行います。
 変更点を確認してから取り込みたい場合は、`fetch` と `merge` を別々に実行してください。
@@ -69,7 +73,7 @@ git diff origin/main
 git merge origin/main
 ```
 
-## コンフリクトが発生した場合
+### コンフリクトが発生した場合
 
 `git pull` 時にコンフリクトが発生した場合、カスタマイズしたコードと、本家の変更が同時に同じファイルに対して行われてしまっています。
 コンフリクトが入ったコードは手動で修正する必要があります。
@@ -77,7 +81,7 @@ git merge origin/main
 特に [cdk.json](/packages/cdk/cdk.json) のコンフリクトには注意が必要です。
 **手元で設定した項目が消えていないか、`git pull` 後に必ず確認してください。**
 
-## 再デプロイする
+### 再デプロイする
 
 基本的には [README.md](/README.md) の手順に従いますが、Bootstrap は必要ありません。
 パッケージがアップデートされている可能性があるため、`npm ci` コマンドは実行してください。
@@ -86,3 +90,9 @@ git merge origin/main
 npm ci
 npm run cdk:deploy
 ```
+
+## アップデートを自動化する
+
+AWS ではアップデートを自動化する方法もあります。
+以下は AWS CodePipeline と連携することで、GitHub 上で 2 クリックするだけでアップデートする方法を紹介した記事です。  
+[GenUを最速で更新！AWS CodePipelineで実現するワンクリック更新術](https://qiita.com/moritalous/items/9ade46091a60030415e0) by [@moritalous](https://x.com/moritalous)
