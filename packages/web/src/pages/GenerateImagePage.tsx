@@ -997,6 +997,7 @@ const GenerateImagePage: React.FC = () => {
               options={imageGenModelIds.map((m) => {
                 return { value: m, label: m };
               })}
+              fullWidth
             />
             {generationMode !== 'BACKGROUND_REMOVAL' && (
               <Select

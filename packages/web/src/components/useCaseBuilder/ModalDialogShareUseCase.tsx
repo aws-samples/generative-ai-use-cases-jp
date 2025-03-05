@@ -26,7 +26,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
         props.onClose();
       }}>
       <div className="flex flex-col gap-2">
-        <div className="flex items-start gap-2">
+        <div>
           <Switch
             checked={props.isShared}
             className="text-xl"

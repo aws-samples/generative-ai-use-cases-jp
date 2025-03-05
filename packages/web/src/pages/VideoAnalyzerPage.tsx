@@ -254,21 +254,22 @@ const VideoAnalyzerPage: React.FC = () => {
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
         <Card label="映像をニアリアルタイムに分析する">
           <div className="flex flex-col gap-x-4 xl:flex-row">
-            <div className="w-fit">
-              <div className="flex w-full items-end">
+            <div className="">
+              <div className="mb-3 flex w-full flex-col lg:flex-row lg:items-end">
                 <Select
                   value={deviceId}
                   options={devices}
                   clearable={false}
                   onChange={setDeviceId}
                   label="カメラ"
+                  fullWidth
                 />
 
                 {recording ? (
                   <>
                     <Button
                       onClick={stopRecording}
-                      className="mb-3 ml-3 h-fit w-16">
+                      className="mb-3 h-fit w-16 lg:ml-3">
                       停止
                     </Button>
                   </>
@@ -276,14 +277,14 @@ const VideoAnalyzerPage: React.FC = () => {
                   <>
                     <Button
                       onClick={startRecording}
-                      className="mb-3 ml-3 h-fit w-16">
+                      className="mb-3 h-fit w-16 lg:ml-3">
                       開始
                     </Button>
                   </>
                 )}
               </div>
 
-              <div className="w-96">
+              <div className="w-48 sm:w-64 lg:w-96">
                 <video ref={videoElement} />
               </div>
             </div>
