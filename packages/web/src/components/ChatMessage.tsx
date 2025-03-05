@@ -177,7 +177,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                 </Markdown>
               </details>
             )}
-            {chatContent?.extraData && (
+            {chatContent?.extraData && chatContent.extraData.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-2">
                 {chatContent.extraData.map((data, idx) => {
                   if (data.type === 'image') {

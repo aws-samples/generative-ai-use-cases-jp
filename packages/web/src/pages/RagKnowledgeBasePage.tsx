@@ -282,14 +282,16 @@ const RagKnowledgeBasePage: React.FC = () => {
             className="relative w-full"
             defaultOpened={true}>
             <div className="flex justify-end">
-              フィルター設定については{' '}
-              <a
-                className="text-aws-smile underline"
-                href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
-                target="_blank">
-                こちら
-              </a>{' '}
-              をご参照ください。
+              <div>
+                フィルター設定については{' '}
+                <a
+                  className="text-aws-smile underline"
+                  href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
+                  target="_blank">
+                  こちら
+                </a>{' '}
+                をご参照ください。
+              </div>
             </div>
 
             <KbFilter

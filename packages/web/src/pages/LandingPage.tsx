@@ -280,7 +280,7 @@ const LandingPage: React.FC = () => {
         ユースケース一覧
       </h1>
 
-      <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
+      <div className="mx-4 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:mx-20 xl:grid-cols-2">
         <CardDemo
           label="チャット"
           onClickDemo={demoChat}
@@ -398,7 +398,7 @@ const LandingPage: React.FC = () => {
               ユースケース連携
             </h1>
 
-            <div className="mx-20 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:grid-cols-2">
+            <div className="mx-4 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:mx-20 xl:grid-cols-2">
               {enabled('webContent', 'generate', 'summarize', 'image') && (
                 <CardDemo
                   label="ブログ記事作成"

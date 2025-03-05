@@ -44,7 +44,7 @@ const Drawer: React.FC<Props> = (props) => {
         {useCaseBuilderEnabled && (
           <>
             <Switch
-              className="mx-3 mb-1 mt-3"
+              className="mx-3 my-2"
               label="ビルダーモード"
               checked={false}
               onSwitch={() => {
