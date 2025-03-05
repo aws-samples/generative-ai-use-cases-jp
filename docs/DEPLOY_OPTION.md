@@ -725,7 +725,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 `parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu}` と一致している必要があります。
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu|apac}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu|apac}` と一致している必要があります。
 
 (例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
@@ -777,9 +777,11 @@ const envs: Record<string, Partial<StackInput>> = {
 "amazon.nova-micro-v1:0",
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
-"us.amazon.nova-micro-v1:0"
+"us.amazon.nova-micro-v1:0",
+"apac.amazon.nova-pro-v1:0",
+"apac.amazon.nova-lite-v1:0",
+"apac.amazon.nova-micro-v1:0"
 ```
-
 
 このソリューションが対応している画像生成モデルは以下です。
 
