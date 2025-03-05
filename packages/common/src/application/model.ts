@@ -96,6 +96,15 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
     ...MODEL_FEATURE.TEXT_ONLY,
     ...MODEL_FEATURE.LIGHT,
   },
+  'apac.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // S3 Video アップロードが us-east-1 のみ対応のため。 Video を利用したい場合は us-east-1 の amazon.nova-pro-v1:0 で利用できます。（注意: リージョン変更の際 RAG を有効化している場合削除されます）
+  'apac.amazon.nova-lite-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'apac.amazon.nova-micro-v1:0': {
+    ...MODEL_FEATURE.TEXT_ONLY,
+    ...MODEL_FEATURE.LIGHT,
+  },
   // Meta
   'meta.llama3-8b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   'meta.llama3-70b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
