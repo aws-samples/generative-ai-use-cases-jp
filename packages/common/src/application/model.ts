@@ -96,6 +96,24 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
     ...MODEL_FEATURE.TEXT_ONLY,
     ...MODEL_FEATURE.LIGHT,
   },
+  'eu.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+  'eu.amazon.nova-lite-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'eu.amazon.nova-micro-v1:0': {
+    ...MODEL_FEATURE.TEXT_ONLY,
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'apac.amazon.nova-pro-v1:0': MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+  'apac.amazon.nova-lite-v1:0': {
+    ...MODEL_FEATURE.TEXT_DOC_IMAGE, // 同上
+    ...MODEL_FEATURE.LIGHT,
+  },
+  'apac.amazon.nova-micro-v1:0': {
+    ...MODEL_FEATURE.TEXT_ONLY,
+    ...MODEL_FEATURE.LIGHT,
+  },
   // Meta
   'meta.llama3-8b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
   'meta.llama3-70b-instruct-v1:0': MODEL_FEATURE.TEXT_DOC,
