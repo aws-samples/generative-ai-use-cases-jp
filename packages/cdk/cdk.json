@@ -19,7 +19,7 @@
   "context": {
     "env": "",
     "ragEnabled": false,
-    "kendraIndexArn": null,ｓｓｓｓ
+    "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
     "kendraIndexScheduleEnabled": false,
     "kendraIndexScheduleCreateCron": null,
