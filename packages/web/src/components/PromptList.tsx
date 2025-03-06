@@ -182,7 +182,7 @@ const PromptList: React.FC<Props> = (props) => {
           expanded ? 'right-0 z-50' : '-right-64 z-30'
         } pointer-events-none flex h-full justify-center`}>
         <div
-          className="bg-aws-smile pointer-events-auto mt-16 flex size-12 cursor-pointer items-center justify-center rounded-l-full"
+          className="bg-aws-smile pointer-events-auto mt-24 flex size-12 cursor-pointer items-center justify-center rounded-l-full transition-all lg:mt-16"
           onClick={() => {
             setExpanded(!expanded);
           }}>

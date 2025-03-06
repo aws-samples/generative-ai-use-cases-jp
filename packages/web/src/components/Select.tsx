@@ -70,7 +70,7 @@ const Select: React.FC<Props> = (props) => {
         <div className="relative">
           <Listbox.Button
             className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
-            <span className="block truncate">
+            <span className="line-clamp-1">
               {props.value && (
                 <OptionContent value={props.value} label={selectedLabel} />
               )}
@@ -106,7 +106,7 @@ const Select: React.FC<Props> = (props) => {
                 {({ selected }) => (
                   <>
                     <span
-                      className={`block truncate ${
+                      className={`line-clamp-1 ${
                         selected ? 'font-medium' : 'font-normal'
                       }`}>
                       <OptionContent

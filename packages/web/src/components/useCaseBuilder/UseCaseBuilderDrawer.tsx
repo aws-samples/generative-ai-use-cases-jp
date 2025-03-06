@@ -34,7 +34,7 @@ const UseCaseBuilderDrawer: React.FC<Props> = (props) => {
     <DrawerBase builderMode>
       <div className="flex-none">
         <Switch
-          className="mx-3 mb-1 mt-3"
+          className="mx-3 my-2"
           label="ビルダーモード"
           checked
           onSwitch={() => {
