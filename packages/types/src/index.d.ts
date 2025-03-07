@@ -5,6 +5,7 @@ export * from './chat';
 export * from './protocol';
 export * from './prompt';
 export * from './image';
+export * from './video';
 export * from './text';
 export * from './utils';
 export * from './systemContext';

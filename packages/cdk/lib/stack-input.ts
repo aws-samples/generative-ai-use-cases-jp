@@ -23,6 +23,7 @@ export const stackInputSchema = z.object({
       webContent: z.boolean().optional(),
       image: z.boolean().optional(),
       video: z.boolean().optional(),
+      videoAnalyzer: z.boolean().optional(),
       diagram: z.boolean().optional(),
     })
     .default({}),
@@ -40,6 +41,9 @@ export const stackInputSchema = z.object({
   imageGenerationModelIds: z
     .array(z.string())
     .default(['amazon.nova-canvas-v1:0']),
+  videoGenerationModelIds: z
+    .array(z.string())
+    .default(['amazon.nova-reel-v1:0']),
   endpointNames: z.array(z.string()).default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG

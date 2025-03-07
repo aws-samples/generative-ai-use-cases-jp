@@ -10,6 +10,7 @@ import {
   PiPenNib,
   PiTranslate,
   PiImages,
+  PiVideoLight,
   PiSpeakerHighBold,
   PiGear,
   PiGlobe,
@@ -170,10 +171,18 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    visionEnabled && enabled('video')
+    enabled('video')
+      ? {
+          label: '動画生成',
+          to: '/video',
+          icon: <PiVideoLight />,
+          display: 'usecase' as const,
+        }
+      : null,
+    visionEnabled && enabled('videoAnalyzer')
       ? {
           label: '映像分析',
-          to: '/video',
+          to: '/video-analyzer',
           icon: <PiVideoCamera />,
           display: 'usecase' as const,
         }

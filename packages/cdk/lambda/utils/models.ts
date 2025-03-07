@@ -52,6 +52,16 @@ export const defaultImageGenerationModel: Model = {
   modelId: imageGenerationModelIds[0],
 };
 
+const videoGenerationModelIds: string[] = (
+  JSON.parse(process.env.VIDEO_GENERATION_MODEL_IDS || '[]') as string[]
+)
+  .map((name: string) => name.trim())
+  .filter((name: string) => name);
+export const defaultVideoGenerationModel: Model = {
+  type: 'bedrock',
+  modelId: videoGenerationModelIds[0],
+};
+
 // Prompt Templates
 
 const LLAMA_PROMPT: PromptTemplate = {

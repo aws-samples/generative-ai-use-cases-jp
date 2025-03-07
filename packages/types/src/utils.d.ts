@@ -1,5 +1,6 @@
 import {
   GenerateImageParams,
+  GenerateVideoParams,
   Model,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
@@ -23,8 +24,14 @@ export type GenerateImageInterface = (
   params: GenerateImageParams
 ) => Promise<string>;
 
+export type GenerateVideoInterface = (
+  model: Model,
+  params: GenerateVideoParams
+) => Promise<string>;
+
 export type ApiInterface = {
   invoke: InvokeInterface;
   invokeStream: InvokeStreamInterface;
   generateImage: GenerateImageInterface;
+  generateVideo: GenerateVideoInterface;
 };

@@ -21,6 +21,7 @@ import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
+import GenerateVideoPage from './pages/GenerateVideoPage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
@@ -109,6 +110,12 @@ const routes: RouteObject[] = [
         element: <GenerateImagePage />,
       }
     : null,
+  enabled('video')
+    ? {
+        path: '/video',
+        element: <GenerateVideoPage />,
+      }
+    : null,
   enabled('diagram')
     ? {
         path: '/diagram',
@@ -129,9 +136,9 @@ const routes: RouteObject[] = [
     path: '/flow-chat',
     element: <FlowChatPage />,
   },
-  visionEnabled && enabled('video')
+  visionEnabled && enabled('videoAnalyzer')
     ? {
-        path: '/video',
+        path: '/video-analyzer',
         element: <VideoAnalyzerPage />,
       }
     : null,
