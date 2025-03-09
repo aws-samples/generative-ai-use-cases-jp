@@ -702,6 +702,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'apac.anthropic.claude-3-5-sonnet-20241022-v2:0': {
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'anthropic.claude-3-5-haiku-20241022-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
