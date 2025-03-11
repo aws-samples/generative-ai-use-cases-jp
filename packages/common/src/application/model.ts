@@ -134,6 +134,8 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // Cohere
   'cohere.command-r-v1:0': MODEL_FEATURE.TEXT_DOC,
   'cohere.command-r-plus-v1:0': MODEL_FEATURE.TEXT_DOC,
+  // DeepSeek
+  'us.deepseek.r1-v1:0': MODEL_FEATURE.TEXT_DOC,
 
   // === Image ===
 

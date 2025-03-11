@@ -137,6 +137,12 @@ const NOVA_DEFAULT_PARAMS: ConverseInferenceParams = {
   topP: 0.9,
 };
 
+const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 32768,
+  temperature: 0.6,
+  topP: 0.95,
+};
+
 const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   '/rag': {
     temperature: 0.0,
@@ -1109,6 +1115,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
   },
   'apac.amazon.nova-micro-v1:0': {
     defaultParams: NOVA_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'us.deepseek.r1-v1:0': {
+    defaultParams: DEEPSEEK_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
