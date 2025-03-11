@@ -18,6 +18,7 @@ export type GenerateVideoParams = {
 };
 
 export type VideoJob = PrimaryKey & {
+  jobId: string;
   invocationArn: string;
   // https://docs.aws.amazon.com/ja_jp/nova/latest/userguide/video-gen-access.html#video-gen-check-progress
   status: 'InProgress' | 'Completed' | 'Failed';

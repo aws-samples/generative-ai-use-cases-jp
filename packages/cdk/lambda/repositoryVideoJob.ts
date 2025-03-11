@@ -102,7 +102,7 @@ export const listVideoJobs = async (
         ':id': userId,
       },
       ScanIndexForward: false,
-      Limit: 3, // TODO
+      Limit: 10,
       ExclusiveStartKey: exclusiveStartKey,
     })
   );

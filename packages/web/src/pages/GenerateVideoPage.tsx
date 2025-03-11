@@ -6,9 +6,19 @@ import { MODELS } from '../hooks/useModel';
 import useFileApi from '../hooks/useFileApi';
 import Textarea from '../components/Textarea';
 import Select from '../components/Select';
+import ButtonIcon from '../components/ButtonIcon';
 import Button from '../components/Button';
+import ButtonCopy from '../components/ButtonCopy';
 import Card from '../components/Card';
-import { PiPlayFill } from 'react-icons/pi';
+import {
+  PiPlayFill,
+  PiDownload,
+  PiSpinnerGap,
+  PiArrowClockwise,
+} from 'react-icons/pi';
+import { GenerateVideoPageQueryParams } from '../@types/navigate';
+import { useLocation } from 'react-router-dom';
+import queryString from 'query-string';
 
 type StateType = {
   videoGenModelId: string;
@@ -104,17 +114,40 @@ const GenerateVideoPage: React.FC = () => {
     setSeed,
     clear,
   } = useGenerateVideoPageState();
-  const { generate, videoJobs, mutateVideoJobs, canLoadMoreVideoJobs, loadMoreVideoJobs } = useVideo();
+  const { search } = useLocation();
+  const {
+    generate,
+    videoJobs,
+    mutateVideoJobs,
+    canLoadMoreVideoJobs,
+    loadMoreVideoJobs,
+    isLoadingVideoJobs,
+    isValidatingVideoJobs,
+  } = useVideo();
   const { videoGenModelIds, videoGenModels } = MODELS;
   const { getFileDownloadSignedUrl } = useFileApi();
-  const [videoSrc, setVideoSrc] = useState('');
+  const [previewVideoSrc, setPreviewVideoSrc] = useState('');
+  const [previewPrompt, setPreviewPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
 
-  // TODO
   useEffect(() => {
-    setVideoGenModelId(videoGenModelIds[0]);
+    const _modelId =
+      videoGenModelId === '' ? videoGenModelIds[0] : videoGenModelId;
+
+    if (search !== '') {
+      const params = queryString.parse(search) as GenerateVideoPageQueryParams;
+      setPrompt(params.prompt ?? '');
+      setVideoGenModelId(
+        videoGenModelIds.includes(params.modelId ?? '')
+          ? params.modelId!
+          : _modelId
+      );
+    } else {
+      setVideoGenModelId(_modelId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [videoGenModelId, videoGenModelIds, search, setPrompt]);
 
   useEffect(() => {
     if (videoGenModelId === '') {
@@ -173,9 +206,26 @@ const GenerateVideoPage: React.FC = () => {
     setIsGenerating,
   ]);
 
-  const downloadVideo = async (job: VideoJob) => {
+  const setPreview = async (job: VideoJob) => {
+    setPreviewPrompt(job.prompt);
     const signedUrl = await getFileDownloadSignedUrl(job.output);
-    setVideoSrc(signedUrl);
+    setPreviewVideoSrc(signedUrl);
+  };
+
+  const downloadFile = async (job: VideoJob) => {
+    setDownloadingJobId(job.jobId);
+    const signedUrl = await getFileDownloadSignedUrl(job.output);
+    const res = await fetch(signedUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `video_${job.jobId}.mp4`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setDownloadingJobId(null);
   };
 
   const disabledExec = useMemo(() => {
@@ -215,9 +265,9 @@ const GenerateVideoPage: React.FC = () => {
             value={dimension}
             onChange={setDimension}
             options={
-            supportedOptions[videoGenModelId]?.dimension.map((m: string) => {
-              return { value: m, label: m };
-            }) ?? []
+              supportedOptions[videoGenModelId]?.dimension.map((m: string) => {
+                return { value: m, label: m };
+              }) ?? []
             }
             fullWidth
           />
@@ -228,11 +278,11 @@ const GenerateVideoPage: React.FC = () => {
               setDurationSeconds(Number(n));
             }}
             options={
-            supportedOptions[videoGenModelId]?.durationSeconds.map(
-              (m: number) => {
-                return { value: `${m}`, label: `${m}` };
-              }
-            ) ?? []
+              supportedOptions[videoGenModelId]?.durationSeconds.map(
+                (m: number) => {
+                  return { value: `${m}`, label: `${m}` };
+                }
+              ) ?? []
             }
             fullWidth
           />
@@ -243,9 +293,9 @@ const GenerateVideoPage: React.FC = () => {
               setFps(Number(n));
             }}
             options={
-            supportedOptions[videoGenModelId]?.fps.map((m: number) => {
-              return { value: `${m}`, label: `${m}` };
-            }) ?? []
+              supportedOptions[videoGenModelId]?.fps.map((m: number) => {
+                return { value: `${m}`, label: `${m}` };
+              }) ?? []
             }
             fullWidth
           />
@@ -270,17 +320,17 @@ const GenerateVideoPage: React.FC = () => {
 
       <div className="col-span-12 lg:col-span-8">
         <Card className="lg:min-h-[calc(100vh-2rem)]">
-          <div className="flex h-72 w-full justify-center">
-            {videoSrc.length > 0 ? (
+          <div className="flex flex-col items-center justify-center gap-y-4">
+            {previewVideoSrc.length > 0 ? (
               <video
-                className="w-128 h-72"
-                src={videoSrc}
+                className="w-128 h-72 max-w-full"
+                src={previewVideoSrc}
                 autoPlay
                 loop
                 controls
               />
             ) : (
-              <div className="w-128 relative h-72 border">
+              <div className="w-128 relative h-72 max-w-full border">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <PiPlayFill className="h-32 w-32 text-gray-200" />
                 </div>
@@ -289,61 +339,143 @@ const GenerateVideoPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            <div className="w-128 relative h-24 max-w-full border p-2">
+              {previewPrompt.length > 0 ? (
+                <div className="h-full w-full overflow-y-scroll">
+                  <ButtonCopy
+                    className="absolute bottom-1 right-1"
+                    text={previewPrompt}
+                  />
+                  {previewPrompt}
+                </div>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  プロンプトはここに表示されます
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="mt-8 text-sm">ジョブ一覧</div>
+          <div className="mb-1 mt-4 flex flex-row items-center gap-x-1 text-sm">
+            ジョブ一覧
+            <ButtonIcon
+              loading={isValidatingVideoJobs}
+              onClick={mutateVideoJobs}
+              className="h-8 w-8">
+              <PiArrowClockwise className="text-base" />
+            </ButtonIcon>
+          </div>
 
-          <table className="w-full table-auto border-collapse border border-gray-400">
-            <thead>
-              <tr>
-                <th className="w-24 border border-gray-300 py-4"></th>
-                <th className="w-24 border border-gray-300">ステータス</th>
-                <th className="border border-gray-300"><span className="line-clamp-1">プロンプト</span></th>
-                <th className="w-48 border border-gray-300">モデル</th>
-                <th className="w-48 border border-gray-300">日時</th>
-              </tr>
-            </thead>
-          </table>
+          <div className="w-full overflow-x-auto border sm:rounded-lg">
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full min-w-full border-collapse text-left">
+                <thead className="sticky top-0 z-10 bg-gray-50 text-xs">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="min-w-24 bg-gray-50 px-6 py-3"
+                      align="center">
+                      アクション
+                    </th>
+                    <th
+                      scope="col"
+                      className="min-w-32 bg-gray-50 px-6 py-3"
+                      align="left">
+                      ステータス
+                    </th>
+                    <th
+                      scope="col"
+                      className="min-w-48 bg-gray-50 px-6 py-3"
+                      align="center">
+                      プロンプト
+                    </th>
+                    <th
+                      scope="col"
+                      className="min-w-48 bg-gray-50 px-6 py-3"
+                      align="center">
+                      モデル
+                    </th>
+                    <th
+                      scope="col"
+                      className="min-w-48 bg-gray-50 px-6 py-3"
+                      align="center">
+                      日時
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {videoJobs.map((job, idx) => {
+                    return (
+                      <tr
+                        key={idx}
+                        className="border-b bg-white hover:bg-gray-50">
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          <div className="flex flex-row items-center justify-center gap-x-2">
+                            <ButtonIcon
+                              onClick={() => {
+                                setPreview(job);
+                              }}
+                              disabled={job.status === 'InProgress'}>
+                              <PiPlayFill className="text-aws-smile" />
+                            </ButtonIcon>
+                            <ButtonIcon
+                              onClick={() => {
+                                downloadFile(job);
+                              }}
+                              disabled={
+                                job.status === 'InProgress' ||
+                                downloadingJobId !== null
+                              }
+                              loading={downloadingJobId === job.jobId}>
+                              <PiDownload className="text-aws-smile" />
+                            </ButtonIcon>
+                          </div>
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          {job.status}
+                        </td>
+                        <td
+                          className="max-w-64 whitespace-nowrap px-6 py-4"
+                          align="left">
+                          <div className="line-clamp-1">{job.prompt}</div>
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          {job.modelId}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          {formatDate(job.createdDate)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
 
-          <div className="h-16 overflow-y-scroll">
-            <table>
-              <tbody>
-                {videoJobs.map((job, idx) => {
-                  return (
-                    <tr key={idx}>
-                      <td className="w-24 border border-gray-300 py-2" align="center">
-                        <Button
-                          onClick={() => {
-                            downloadVideo(job);
-                          }}
-                          disabled={job.status === 'InProgress'}>
-                          <PiPlayFill className="mr-2" />
-                          再生
-                        </Button>
-                      </td>
-                      <td className="w-24 border border-gray-300" align="center">
-                        {job.status}
-                      </td>
-                      <td className="border border-gray-300" align="left">
-                        <span className="line-clamp-1">{job.prompt}</span>
-                      </td>
-                      <td className="w-48 border border-gray-300" align="center">
-                        {job.modelId}
-                      </td>
-                      <td className="w-48 border border-gray-300" align="center">
-                        {formatDate(job.createdDate)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+              {isLoadingVideoJobs && (
+                <div className="flex h-12 w-full items-center justify-center">
+                  <PiSpinnerGap className="mr-2 animate-spin text-lg" />
+                </div>
+              )}
 
-            {canLoadMoreVideoJobs && (<div className="flex justify-center my-2">
-              <div className="hover:underline cursor-pointer" onClick={loadMoreVideoJobs}>
-                さらに読み込む
-              </div>
-            </div>)}
+              {canLoadMoreVideoJobs && !isLoadingVideoJobs && (
+                <div className="flex h-12 w-full items-center justify-center">
+                  <div
+                    className="cursor-pointer hover:underline"
+                    onClick={loadMoreVideoJobs}>
+                    さらに読み込む
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </Card>
       </div>

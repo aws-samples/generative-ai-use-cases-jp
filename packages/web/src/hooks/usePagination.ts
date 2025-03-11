@@ -6,7 +6,7 @@ const usePagination = (
   swr: SWRInfiniteResponse<Pagination<any>>,
   pageSize: number
 ) => {
-  const { data, size, setSize, error, mutate } = swr;
+  const { data, size, setSize, error, mutate, isValidating } = swr;
   const flattenData = data
     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data.map((d: Pagination<any>) => d.data).flat()
@@ -29,6 +29,7 @@ const usePagination = (
     mutate,
     isLoading: isLoadingMore,
     isReachingEnd,
+    isValidating,
     canLoadMore,
     loadMore: () => {
       setSize(size + 1);

@@ -10,7 +10,8 @@ const useVideo = () => {
     isLoading: isLoadingVideoJobs,
     canLoadMore: canLoadMoreVideoJobs,
     loadMore: loadMoreVideoJobs,
-  } = usePagination(listVideoJobs(), 3); // TODO
+    isValidating: isValidatingVideoJobs,
+  } = usePagination(listVideoJobs(), 10);
 
   return {
     generate: async (params: GenerateVideoParams, model: Model | undefined) => {
@@ -24,6 +25,7 @@ const useVideo = () => {
     videoJobs,
     mutateVideoJobs,
     isLoadingVideoJobs,
+    isValidatingVideoJobs,
     canLoadMoreVideoJobs,
     loadMoreVideoJobs,
   };
