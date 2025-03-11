@@ -137,6 +137,12 @@ const NOVA_DEFAULT_PARAMS: ConverseInferenceParams = {
   topP: 0.9,
 };
 
+const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
+  maxTokens: 32768,
+  temperature: 0.6,
+  topP: 0.9,
+};
+
 const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   '/rag': {
     temperature: 0.0,
@@ -1115,6 +1121,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'us.deepseek.r1-v1:0' : {
+    defaultParams: DEEPSEEK_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  }
 };
 
 // 画像生成に関する、各のModel のパラメーターや関数の定義
