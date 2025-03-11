@@ -1121,14 +1121,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
-  'us.deepseek.r1-v1:0' : {
+  'us.deepseek.r1-v1:0': {
     defaultParams: DEEPSEEK_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
-  }
+  },
 };
 
 // 画像生成に関する、各のModel のパラメーターや関数の定義
