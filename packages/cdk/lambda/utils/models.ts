@@ -140,7 +140,7 @@ const NOVA_DEFAULT_PARAMS: ConverseInferenceParams = {
 const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
   maxTokens: 32768,
   temperature: 0.6,
-  topP: 0.9,
+  topP: 0.95,
 };
 
 const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
