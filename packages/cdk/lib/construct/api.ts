@@ -775,6 +775,7 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
     const videoJobResource = videoGenerateResource.addResource('{createdDate}');
+    // DELETE: /video/generate/{createdDate}
     videoJobResource.addMethod(
       'DELETE',
       new LambdaIntegration(deleteVideoJob),

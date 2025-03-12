@@ -21,7 +21,6 @@ type Props = RowItemProps & {
 
 const Select: React.FC<Props> = (props) => {
   const selectedLabel = useMemo(() => {
-    console.log(props.value, props.options);
     if (!props.value || props.value === '') return '';
     const selectedOption = props.options.find((o) => o.value === props.value);
     if (!selectedOption) return '';

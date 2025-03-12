@@ -237,9 +237,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     return extractOutputImage(model, body);
   },
   generateVideo: async (model, params) => {
-    console.log(model, params);
     const client = await initBedrockClient();
-
     const command = new StartAsyncInvokeCommand({
       modelId: model.modelId,
       modelInput: params,
@@ -250,7 +248,6 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
       },
     });
     const res = await client.send(command);
-    console.log(res);
     return res.invocationArn!;
   },
 };
