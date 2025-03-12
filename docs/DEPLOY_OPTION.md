@@ -827,18 +827,18 @@ const envs: Record<string, Partial<StackInput>> = {
       "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
       {modelId: "us.anthropic.claude-3-5-haiku-20241022-v1:0", region: "us-east-1"},
-      "apac.mazon.nova-pro-v1:0",
+      "apac.amazon.nova-pro-v1:0",
       "apac.amazon.nova-lite-v1:0",
       "apac.amazon.nova-micro-v1:0",
       {modelId: "us.deepseek.r1-v1:0", region: "us-east-1"},
       {modelId: "us.meta.llama3-3-70b-instruct-v1:0", region: "us-east-1"},
-      {modelId: "us.meta.llama3-2-90b-instruct-v1:0", region: "us-east-1"}
+      {modelId: "us.meta.llama3-2-90b-instruct-v1:0", region: "us-east-1"},
     ],
     imageGenerationModelIds: [
       "amazon.nova-canvas-v1:0",
-      {modelId: "stability.sd3-5-large-v1:0", region: "us-west-2"}
-      {modelId: "stability.stable-image-core-v1:1", region: "us-west-2"}
-      {modelId: "stability.stable-image-ultra-v1:1", region: "us-west-2"}
+      {modelId: "stability.sd3-5-large-v1:0", region: "us-west-2"},
+      {modelId: "stability.stable-image-core-v1:1", region: "us-west-2"},
+      {modelId: "stability.stable-image-ultra-v1:1", region: "us-west-2"},
     ],
   },
 };
