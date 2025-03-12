@@ -592,7 +592,7 @@ const envs: Record<string, Partial<StackInput>> = {
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、パラメータでマルチモーダルのモデルが有効化されている必要があります。
 
-2024/06 現在、マルチモーダルのモデルは以下です。
+2025/03 現在、マルチモーダルのモデルは以下です。
 
 ```
 "anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -810,6 +810,39 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
+
+### 複数のリージョンのモデルを同時に利用する
+
+一部のモデルは、特定のリージョンのみで利用可能です。`modelIds`に`{modelId: '<モデル名>', region: '<リージョンコード>'}`を指定することで、`modelRegion`のリージョンにかかわらず、特定のモデルのみ指定したリージョンのモデルを利用することができます。
+
+#### 東京リージョンを優先しつつ、バージニア北部リージョン・オレゴンリージョンの最新のモデルも使いたい場合
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'ap-northeast-1',
+    modelIds: [
+      {modelId: "us.anthropic.claude-3-7-sonnet-20250219-v1:0", region: "us-east-1"},
+      "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      {modelId: "us.anthropic.claude-3-5-haiku-20241022-v1:0", region: "us-east-1"},
+      "apac.mazon.nova-pro-v1:0",
+      "apac.amazon.nova-lite-v1:0",
+      "apac.amazon.nova-micro-v1:0",
+      {modelId: "us.deepseek.r1-v1:0", region: "us-east-1"},
+      {modelId: "us.meta.llama3-3-70b-instruct-v1:0", region: "us-east-1"},
+      {modelId: "us.meta.llama3-2-90b-instruct-v1:0", region: "us-east-1"}
+    ],
+    imageGenerationModelIds: [
+      "amazon.nova-canvas-v1:0",
+      {modelId: "stability.sd3-5-large-v1:0", region: "us-west-2"}
+      {modelId: "stability.stable-image-core-v1:1", region: "us-west-2"}
+      {modelId: "stability.stable-image-ultra-v1:1", region: "us-west-2"}
+    ],
+  },
+};
+```
 
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
