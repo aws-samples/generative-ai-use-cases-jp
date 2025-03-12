@@ -1967,7 +1967,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       },
     },
     "ImageGenerateModelIds": {
-      "Value": "["stability.stable-diffusion-xl-v1"]",
+      "Value": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
     },
     "InlineAgents": {
       "Value": "false",
@@ -1981,7 +1981,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       },
     },
     "ModelIds": {
-      "Value": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+      "Value": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
     },
     "ModelRegion": {
       "Value": "us-east-1",
@@ -10015,8 +10015,8 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Environment": {
           "Variables": {
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
-            "IMAGE_GENERATION_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
           },
         },
@@ -11097,8 +11097,8 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Fn::ImportValue": "GuardrailStack:ExportsOutputFnGetAttGuardrailguardrail03A76CF4GuardrailIdDBA991AF",
             },
             "GUARDRAIL_VERSION": "DRAFT",
-            "IMAGE_GENERATION_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
           },
         },
@@ -11219,11 +11219,11 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Fn::ImportValue": "GuardrailStack:ExportsOutputFnGetAttGuardrailguardrail03A76CF4GuardrailIdDBA991AF",
             },
             "GUARDRAIL_VERSION": "DRAFT",
-            "IMAGE_GENERATION_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "KNOWLEDGE_BASE_ID": {
               "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
             },
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
             "QUERY_DECOMPOSITION_ENABLED": "false",
             "RERANKING_MODEL_ID": "",
@@ -11363,8 +11363,8 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Fn::ImportValue": "GuardrailStack:ExportsOutputFnGetAttGuardrailguardrail03A76CF4GuardrailIdDBA991AF",
             },
             "GUARDRAIL_VERSION": "DRAFT",
-            "IMAGE_GENERATION_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
@@ -11884,9 +11884,9 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
           "VITE_APP_IDENTITY_POOL_ID": {
             "Ref": "AuthIdentityPool659E7F64",
           },
-          "VITE_APP_IMAGE_MODEL_IDS": "["stability.stable-diffusion-xl-v1"]",
+          "VITE_APP_IMAGE_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
           "VITE_APP_INLINE_AGENTS": "false",
-          "VITE_APP_MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+          "VITE_APP_MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
           "VITE_APP_MODEL_REGION": "us-east-1",
           "VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN": {
             "Fn::GetAtt": [
@@ -16837,15 +16837,15 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               {
                 "Ref": "AWS::Region",
               },
-              "","metrics":[["AWS/Bedrock","InputTokenCount","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":6,"y":1,"properties":{"view":"timeSeries","title":"OutputTokenCount (Daily)","region":"",
+              "","metrics":[["AWS/Bedrock","InputTokenCount","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"region":"us-east-1","period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":6,"y":1,"properties":{"view":"timeSeries","title":"OutputTokenCount (Daily)","region":"",
               {
                 "Ref": "AWS::Region",
               },
-              "","metrics":[["AWS/Bedrock","OutputTokenCount","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":12,"y":1,"properties":{"view":"timeSeries","title":"Invocations (Daily)","region":"",
+              "","metrics":[["AWS/Bedrock","OutputTokenCount","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"region":"us-east-1","period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":12,"y":1,"properties":{"view":"timeSeries","title":"Invocations (Daily)","region":"",
               {
                 "Ref": "AWS::Region",
               },
-              "","metrics":[["AWS/Bedrock","Invocations","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"period":86400,"stat":"Sum"}],["AWS/Bedrock","Invocations","ModelId","stability.stable-diffusion-xl-v1",{"period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":18,"y":1,"properties":{"view":"timeSeries","title":"UserPool","region":"",
+              "","metrics":[["AWS/Bedrock","Invocations","ModelId","anthropic.claude-3-sonnet-20240229-v1:0",{"region":"us-east-1","period":86400,"stat":"Sum"}],["AWS/Bedrock","Invocations","ModelId","stability.stable-diffusion-xl-v1",{"region":"us-east-1","period":86400,"stat":"Sum"}]],"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":18,"y":1,"properties":{"view":"timeSeries","title":"UserPool","region":"",
               {
                 "Ref": "AWS::Region",
               },
