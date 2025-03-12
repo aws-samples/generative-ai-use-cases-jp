@@ -8,8 +8,6 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    console.log(event);
-    console.log(event.body);
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const req: GenerateVideoRequest = JSON.parse(event.body!);
