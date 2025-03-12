@@ -1,4 +1,5 @@
 import {
+  VideoJob,
   GenerateVideoRequest,
   GenerateVideoResponse,
   ListVideoJobsResponse,
@@ -24,6 +25,9 @@ const useVideoApi = () => {
       return http.getPagination<ListVideoJobsResponse>(getKey, {
         revalidateIfStale: false,
       });
+    },
+    deleteVideoJob: (videoJob: VideoJob) => {
+      return http.delete(`/video/generate/${videoJob.createdDate}`);
     },
   };
 };

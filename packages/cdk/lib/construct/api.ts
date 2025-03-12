@@ -286,6 +286,16 @@ export class Api extends Construct {
     });
     table.grantReadWriteData(listVideoJobs);
 
+    const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
+      runtime: Runtime.NODEJS_LATEST,
+      entry: './lambda/deleteVideoJob.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantWriteData(deleteVideoJob);
+
     const optimizePromptFunction = new NodejsFunction(
       this,
       'OptimizePromptFunction',
@@ -762,6 +772,12 @@ export class Api extends Construct {
     videoGenerateResource.addMethod(
       'GET',
       new LambdaIntegration(listVideoJobs),
+      commonAuthorizerProps
+    );
+    const videoJobResource = videoGenerateResource.addResource('{createdDate}');
+    videoJobResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteVideoJob),
       commonAuthorizerProps
     );
 

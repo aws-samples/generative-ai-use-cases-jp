@@ -3,7 +3,11 @@ import useVideoApi from './useVideoApi';
 import usePagination from './usePagination';
 
 const useVideo = () => {
-  const { generateVideo, listVideoJobs } = useVideoApi();
+  const {
+    generateVideo,
+    listVideoJobs,
+    deleteVideoJob: deleteVideoJobApi,
+  } = useVideoApi();
   const {
     flattenData: videoJobs,
     mutate: mutateVideoJobs,
@@ -22,6 +26,7 @@ const useVideo = () => {
         })
       ).data;
     },
+    deleteVideoJob: deleteVideoJobApi,
     videoJobs,
     mutateVideoJobs,
     isLoadingVideoJobs,

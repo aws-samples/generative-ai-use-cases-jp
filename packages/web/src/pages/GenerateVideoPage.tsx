@@ -6,6 +6,7 @@ import { MODELS } from '../hooks/useModel';
 import useFileApi from '../hooks/useFileApi';
 import Textarea from '../components/Textarea';
 import Select from '../components/Select';
+import RangeSlider from '../components/RangeSlider';
 import ButtonIcon from '../components/ButtonIcon';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
@@ -15,6 +16,7 @@ import {
   PiDownload,
   PiSpinnerGap,
   PiArrowClockwise,
+  PiTrash,
 } from 'react-icons/pi';
 import { GenerateVideoPageQueryParams } from '../@types/navigate';
 import { useLocation } from 'react-router-dom';
@@ -123,13 +125,19 @@ const GenerateVideoPage: React.FC = () => {
     loadMoreVideoJobs,
     isLoadingVideoJobs,
     isValidatingVideoJobs,
+    deleteVideoJob: deleteVideoJobInner,
   } = useVideo();
   const { videoGenModelIds, videoGenModels } = MODELS;
   const { getFileDownloadSignedUrl } = useFileApi();
   const [previewVideoSrc, setPreviewVideoSrc] = useState('');
   const [previewPrompt, setPreviewPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
+  const [downloadingJobIds, setDownloadingJobIds] = useState<
+    Record<string, boolean>
+  >({});
+  const [deletingJobIds, setDeletingJobIds] = useState<Record<string, boolean>>(
+    {}
+  );
 
   useEffect(() => {
     const _modelId =
@@ -206,27 +214,43 @@ const GenerateVideoPage: React.FC = () => {
     setIsGenerating,
   ]);
 
-  const setPreview = async (job: VideoJob) => {
-    setPreviewPrompt(job.prompt);
-    const signedUrl = await getFileDownloadSignedUrl(job.output);
-    setPreviewVideoSrc(signedUrl);
-  };
+  const setPreview = useCallback(
+    async (job: VideoJob) => {
+      setPreviewPrompt(job.prompt);
+      const signedUrl = await getFileDownloadSignedUrl(job.output);
+      setPreviewVideoSrc(signedUrl);
+    },
+    [setPreviewPrompt, getFileDownloadSignedUrl, setPreviewVideoSrc]
+  );
 
-  const downloadFile = async (job: VideoJob) => {
-    setDownloadingJobId(job.jobId);
-    const signedUrl = await getFileDownloadSignedUrl(job.output);
-    const res = await fetch(signedUrl);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `video_${job.jobId}.mp4`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setDownloadingJobId(null);
-  };
+  const downloadFile = useCallback(
+    async (job: VideoJob) => {
+      setDownloadingJobIds({ ...downloadingJobIds, [job.createdDate]: true });
+      const signedUrl = await getFileDownloadSignedUrl(job.output);
+      const res = await fetch(signedUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `video_${job.jobId}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setDownloadingJobIds({ ...downloadingJobIds, [job.createdDate]: false });
+    },
+    [setDownloadingJobIds, downloadingJobIds, getFileDownloadSignedUrl]
+  );
+
+  const deleteVideoJob = useCallback(
+    async (job: VideoJob) => {
+      setDeletingJobIds({ ...deletingJobIds, [job.createdDate]: true });
+      await deleteVideoJobInner(job);
+      mutateVideoJobs();
+      setDeletingJobIds({ ...deletingJobIds, [job.createdDate]: false });
+    },
+    [deleteVideoJobInner, mutateVideoJobs, deletingJobIds, setDeletingJobIds]
+  );
 
   const disabledExec = useMemo(() => {
     return prompt.length === 0 || isGenerating;
@@ -271,8 +295,9 @@ const GenerateVideoPage: React.FC = () => {
             }
             fullWidth
           />
+
           <Select
-            label="動画長"
+            label="動画長 (秒)"
             value={`${durationSeconds}`}
             onChange={(n: string) => {
               setDurationSeconds(Number(n));
@@ -286,6 +311,7 @@ const GenerateVideoPage: React.FC = () => {
             }
             fullWidth
           />
+
           <Select
             label="FPS"
             value={`${fps}`}
@@ -300,11 +326,24 @@ const GenerateVideoPage: React.FC = () => {
             fullWidth
           />
 
+          <RangeSlider
+            className="w-full"
+            label="Seed"
+            min={0}
+            max={2147483646}
+            value={seed}
+            onChange={(n) => {
+              setSeed(n);
+            }}
+            help="乱数のシード値です。同じシード値を指定すると同じ動画が生成されます。"
+          />
+
           <div className="mt-4 flex flex-row items-center gap-x-5">
             <Button
               className="h-8 w-full"
               disabled={disabledExec}
-              onClick={generateVideo}>
+              onClick={generateVideo}
+              loading={isGenerating}>
               生成
             </Button>
             <Button
@@ -374,9 +413,9 @@ const GenerateVideoPage: React.FC = () => {
                   <tr>
                     <th
                       scope="col"
-                      className="min-w-24 bg-gray-50 px-6 py-3"
+                      className="min-w-12 bg-gray-50 px-6 py-3"
                       align="center">
-                      アクション
+                      再生
                     </th>
                     <th
                       scope="col"
@@ -402,6 +441,18 @@ const GenerateVideoPage: React.FC = () => {
                       align="center">
                       日時
                     </th>
+                    <th
+                      scope="col"
+                      className="min-w-32 bg-gray-50 px-6 py-3"
+                      align="center">
+                      ダウンロード
+                    </th>
+                    <th
+                      scope="col"
+                      className="min-w-12 bg-gray-50 px-6 py-3"
+                      align="center">
+                      削除
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -413,26 +464,13 @@ const GenerateVideoPage: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4"
                           align="center">
-                          <div className="flex flex-row items-center justify-center gap-x-2">
-                            <ButtonIcon
-                              onClick={() => {
-                                setPreview(job);
-                              }}
-                              disabled={job.status === 'InProgress'}>
-                              <PiPlayFill className="text-aws-smile" />
-                            </ButtonIcon>
-                            <ButtonIcon
-                              onClick={() => {
-                                downloadFile(job);
-                              }}
-                              disabled={
-                                job.status === 'InProgress' ||
-                                downloadingJobId !== null
-                              }
-                              loading={downloadingJobId === job.jobId}>
-                              <PiDownload className="text-aws-smile" />
-                            </ButtonIcon>
-                          </div>
+                          <ButtonIcon
+                            onClick={() => {
+                              setPreview(job);
+                            }}
+                            disabled={job.status === 'InProgress'}>
+                            <PiPlayFill className="text-aws-smile" />
+                          </ButtonIcon>
                         </td>
                         <td
                           className="whitespace-nowrap px-6 py-4"
@@ -453,6 +491,30 @@ const GenerateVideoPage: React.FC = () => {
                           className="whitespace-nowrap px-6 py-4"
                           align="center">
                           {formatDate(job.createdDate)}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          <ButtonIcon
+                            onClick={() => {
+                              downloadFile(job);
+                            }}
+                            disabled={job.status === 'InProgress'}
+                            loading={downloadingJobIds[job.createdDate]}>
+                            <PiDownload className="text-aws-smile" />
+                          </ButtonIcon>
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4"
+                          align="center">
+                          <ButtonIcon
+                            onClick={() => {
+                              deleteVideoJob(job);
+                            }}
+                            disabled={job.status === 'InProgress'}
+                            loading={deletingJobIds[job.createdDate]}>
+                            <PiTrash className="text-red-500" />
+                          </ButtonIcon>
                         </td>
                       </tr>
                     );

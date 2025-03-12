@@ -4,6 +4,7 @@ import {
   PutCommand,
   QueryCommand,
   UpdateCommand,
+  DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import {
   VideoJob,
@@ -125,4 +126,21 @@ export const listVideoJobs = async (
       ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
       : undefined,
   };
+};
+
+export const deleteVideoJob = async (
+  _userId: string,
+  createdDate: string
+): Promise<void> => {
+  const userId = `videoJob#${_userId}`;
+
+  await dynamoDbDocument.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: userId,
+        createdDate,
+      },
+    })
+  );
 };
