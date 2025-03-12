@@ -148,8 +148,8 @@ const extractOutputImage = (
 };
 
 const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
-  invoke: async (model, messages, id, region?) => {
-    const client = await initBedrockClient(region);
+  invoke: async (model, messages, id) => {
+    const client = await initBedrockClient(model.region);
 
     const converseCommandInput = createConverseCommandInput(
       model,
@@ -161,9 +161,9 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
 
     return extractConverseOutput(model, output).text;
   },
-  invokeStream: async function* (model, messages, id, idToken?, region?) {
+  invokeStream: async function* (model, messages, id) {
+    const region = model.region || process.env.MODEL_REGION;
     const client = await initBedrockClient(region);
-    region = region || process.env.MODEL_REGION;
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(
         model,
@@ -224,8 +224,8 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
       }
     }
   },
-  generateImage: async (model, params, region?) => {
-    const client = await initBedrockClient(region);
+  generateImage: async (model, params) => {
+    const client = await initBedrockClient(model.region);
 
     // Stable Diffusion や Titan Image Generator を利用した画像生成は Converse API に対応していないため、InvokeModelCommand を利用する
     const command = new InvokeModelCommand({

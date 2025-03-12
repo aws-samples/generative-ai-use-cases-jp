@@ -10,7 +10,11 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Flow, HiddenUseCases } from 'generative-ai-use-cases-jp';
+import {
+  Flow,
+  HiddenUseCases,
+  ModelConfiguration,
+} from 'generative-ai-use-cases-jp';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
 export interface WebProps {
@@ -28,8 +32,8 @@ export interface WebProps {
   selfSignUpEnabled: boolean;
   webAclId?: string;
   modelRegion: string;
-  modelIds: string[];
-  imageGenerationModelIds: string[];
+  modelIds: ModelConfiguration[];
+  imageGenerationModelIds: ModelConfiguration[];
   endpointNames: string[];
   samlAuthEnabled: boolean;
   samlCognitoDomainName?: string | null;
