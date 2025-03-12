@@ -383,7 +383,7 @@ const LandingPage: React.FC = () => {
             label="動画生成"
             onClickDemo={demoGenerateVideo}
             icon={<PiVideoLight />}
-            description="動画生成 AI は短い動画を生成します。生成した動画は素材としてさまざまなシーンで活用できます。"
+            description="動画生成 AI はテキストから短い動画を生成します。生成した動画は素材としてさまざまなシーンで活用できます。"
           />
         )}
         {visionEnabled && enabled('video') && (

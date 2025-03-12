@@ -675,7 +675,8 @@ const envs: Record<string, Partial<StackInput>> = {
       translate: true, // 翻訳を非表示
       webContent: true, // Web コンテンツ抽出を非表示
       image: true, // 画像生成を非表示
-      video: true, // 映像分析を非表示
+      video: true, // 動画生成を非表示
+      videoAnalyzer: true, // 映像分析を非表示
       diagram: true, // ダイアグラム生成を非表示
     }
   },
@@ -695,6 +696,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "webContent": true,
       "image": true,
       "video": true,
+      "videoAnalyzer": true,
       "diagram": true
     }
   }
@@ -806,6 +808,12 @@ const envs: Record<string, Partial<StackInput>> = {
 "stability.stable-diffusion-xl-v1",
 ```
 
+このソリューションが対応している動画生成モデルは以下です。
+
+```
+"amazon.nova-reel-v1:0"
+```
+
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
@@ -836,6 +844,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0"
+    ],
   },
 };
 ```
@@ -865,6 +876,9 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
+    ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0"
     ],
   }
 }
