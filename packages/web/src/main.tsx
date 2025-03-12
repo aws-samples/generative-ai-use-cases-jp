@@ -47,7 +47,7 @@ const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
-const { visionEnabled } = MODELS;
+const { visionEnabled, imageGenModelIds, videoGenModelIds } = MODELS;
 const useCaseBuilderEnabled: boolean =
   import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 // eslint-disable-next-line  react-hooks/rules-of-hooks
@@ -104,13 +104,13 @@ const routes: RouteObject[] = [
         element: <WebContent />,
       }
     : null,
-  enabled('image')
+  imageGenModelIds.length > 0 && enabled('image')
     ? {
         path: '/image',
         element: <GenerateImagePage />,
       }
     : null,
-  enabled('video')
+  videoGenModelIds.length > 0 && enabled('video')
     ? {
         path: '/video',
         element: <GenerateVideoPage />,

@@ -585,7 +585,17 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### 画像生成ユースケースの有効化
 
+`imageGenerationModelIds` にモデルを 1 つ以上定義すると有効化されます。
+`imageGenerationModelIds` に関しては [Amazon Bedrock のモデルを変更する](#amazon-bedrock-のモデルを変更する) をご参照ください。
+デフォルト値は [packages/cdk/lib/stack-input.ts](/packages/cdk/lib/stack-input.ts) をご参照ください。
+
+### 動画生成ユースケースの有効化
+
+`videoGenerationModelIds` にモデルを 1 つ以上定義すると有効化されます。
+`videoGenerationModelIds` に関しては [Amazon Bedrock のモデルを変更する](#amazon-bedrock-のモデルを変更する) をご参照ください。
+デフォルト値は [packages/cdk/lib/stack-input.ts](/packages/cdk/lib/stack-input.ts) をご参照ください。
 
 ### 映像分析ユースケースの有効化
 
@@ -730,7 +740,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ## Amazon Bedrock のモデルを変更する
 
-`parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
+`parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` と `videoGenerationModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
 また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu|apac}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu|apac}` と一致している必要があります。
 
@@ -1055,7 +1065,12 @@ const envs: Record<string, StackInput> = {
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
       "anthropic.claude-3-haiku-20240307-v1:0"
     ],
-    imageGenerationModelIds: [],
+    imageGenerationModelIds: [
+      "amazon.nova-canvas-v1:0"
+    ],
+    videoGenerationModelIds: [
+      "amazon.nova-reel-v1:0"
+    ],
   }
 }
 ```
@@ -1070,12 +1085,15 @@ const envs: Record<string, StackInput> = {
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
       "anthropic.claude-3-haiku-20240307-v1:0"
     ],
-    "imageGenerationModelIds": [],
+    "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0"
+    ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0"
+    ],
   }
 }
 ```
-
-**注：UI 上は表示されますが、Stable Diffusion および Titan Image が未対応なため、画像生成は現状 ap-northeast-1 では利用できません。**
 
 ## Amazon SageMaker のカスタムモデルを利用したい場合
 
