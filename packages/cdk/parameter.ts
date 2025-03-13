@@ -1,5 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
-import { StackInput, stackInputSchema } from './lib/stack-input';
+import {
+  StackInput,
+  stackInputSchema,
+  ProcessedStackInput,
+} from './lib/stack-input';
 import { ModelConfiguration } from 'generative-ai-use-cases-jp';
 
 // CDK Context からパラメータを取得する場合
