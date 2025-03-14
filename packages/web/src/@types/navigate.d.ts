@@ -34,6 +34,10 @@ export type GenerateImagePageQueryParams = BaseQueryParams & {
   imageModelId?: string;
 };
 
+export type GenerateVideoPageQueryParams = BaseQueryParams & {
+  prompt?: string;
+};
+
 export type GenerateTextPageQueryParams = BaseQueryParams & {
   information?: string;
   context?: string;

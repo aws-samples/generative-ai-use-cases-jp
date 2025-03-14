@@ -6,6 +6,7 @@ export type HiddenUseCases = {
   webContent?: boolean;
   image?: boolean;
   video?: boolean;
+  videoAnalyzer?: boolean;
   diagram?: boolean;
 };
 

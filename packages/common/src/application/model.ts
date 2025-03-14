@@ -156,7 +156,9 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
 
   // === Video ===
 
-  // TODO
+  'amazon.nova-reel-v1:0': MODEL_FEATURE.VIDEO_GEN,
+  // 出力先の S3 Bucket に ap-northeast-1 を指定した際、エラーになる問題があるため対応を見送っている
+  // 'luma.ray-v2:0': MODEL_FEATURE.VIDEO_GEN,
 
   // === Embedding ===
 
@@ -181,6 +183,9 @@ export const BEDROCK_TEXT_MODELS = Object.keys(modelFeatureFlags).filter(
 );
 export const BEDROCK_IMAGE_GEN_MODELS = Object.keys(modelFeatureFlags).filter(
   (model) => modelFeatureFlags[model].image_gen
+);
+export const BEDROCK_VIDEO_GEN_MODELS = Object.keys(modelFeatureFlags).filter(
+  (model) => modelFeatureFlags[model].video_gen
 );
 export const BEDROCK_EMBEDDING_MODELS = Object.keys(modelFeatureFlags).filter(
   (model) => modelFeatureFlags[model].embedding

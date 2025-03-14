@@ -5,6 +5,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.755.0",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.755.0",
-    "@aws-sdk/client-kendra": "^3.755.0"
+    "@aws-sdk/client-kendra": "^3.755.0",
+    "@smithy/types": "^4.1.0"
   }
 }
