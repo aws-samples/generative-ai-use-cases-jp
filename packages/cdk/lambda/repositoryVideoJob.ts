@@ -34,11 +34,8 @@ export const createJob = async (
     status: 'InProgress',
     output: `s3://${BUCKET_NAME}/${jobId}/output.mp4`,
     modelId: req.model?.modelId,
-    prompt: req.params.textToVideoParams.text,
-    durationSeconds: req.params.videoGenerationConfig.durationSeconds,
-    fps: req.params.videoGenerationConfig.fps,
-    dimension: req.params.videoGenerationConfig.dimension,
-    seed: req.params.videoGenerationConfig.seed,
+    prompt: req.params.prompt,
+    params: JSON.stringify(req.params.params),
   };
 
   await dynamoDbDocument.send(

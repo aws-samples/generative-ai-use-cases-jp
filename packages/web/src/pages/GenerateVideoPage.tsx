@@ -7,6 +7,7 @@ import useFileApi from '../hooks/useFileApi';
 import Textarea from '../components/Textarea';
 import Select from '../components/Select';
 import RangeSlider from '../components/RangeSlider';
+import Switch from '../components/Switch';
 import ButtonIcon from '../components/ButtonIcon';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
@@ -21,20 +22,89 @@ import {
 import { GenerateVideoPageQueryParams } from '../@types/navigate';
 import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
+import { toast } from 'sonner';
 
-type StateType = {
+// LUMA Ray v2 で StartAsyncInvoke API を実行する際に ap-northeast-1 の S3 Bucket を指定すると以下のエラーになる
+// 原因は現在調査中 (Bucket が us-west-2 にあれば問題なく実行できる)
+// ```
+// botocore.errorfactory.ValidationException: An error occurred (ValidationException) when calling the StartAsyncInvoke operation: Invalid S3 credentials
+// ```
+// LUMA Ray v2 対応の実装はコメントで残す
+
+const AMAZON_MODELS = {
+  REEL_V1: 'amazon.nova-reel-v1:0',
+};
+
+// const LAY_MODELS = {
+//   RAY_V2: 'luma.ray-v2:0',
+// };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const MODEL_PARAMS: Record<string, any> = {
+  '': {},
+  [AMAZON_MODELS.REEL_V1]: {
+    dimension: ['1280x720'],
+    durationSeconds: [6],
+    fps: [24],
+    seed: 0,
+  },
+  // [LAY_MODELS.RAY_V2]: {
+  //   resolution: ['540p', '720p'],
+  //   durationSeconds: [5, 9],
+  //   aspectRatio: ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9', '9:21'],
+  //   loop: false,
+  // },
+};
+
+type ComprehensiveParams = {
+  prompt: string;
+  dimension: string;
+  durationSeconds: number;
+  fps: number;
+  seed: number;
+  resolution: string;
+  aspectRatio: string;
+  loop: boolean;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
+  [AMAZON_MODELS.REEL_V1]: (params: ComprehensiveParams) => {
+    return {
+      taskType: 'TEXT_VIDEO',
+      textToVideoParams: {
+        text: params.prompt,
+      },
+      videoGenerationConfig: {
+        durationSeconds: params.durationSeconds,
+        fps: params.fps,
+        dimension: params.dimension,
+        seed: params.seed,
+      },
+    };
+  },
+  // [LAY_MODELS.RAY_V2]: (params: ComprehensiveParams) => {
+  //   return {
+  //     prompt: params.prompt,
+  //     aspect_ratio: params.aspectRatio,
+  //     loop: params.loop,
+  //     duration: `${params.durationSeconds}s`,
+  //     resolution: params.resolution,
+  //   };
+  // },
+};
+
+type StateType = ComprehensiveParams & {
   videoGenModelId: string;
   setVideoGenModelId: (s: string) => void;
-  prompt: string;
   setPrompt: (s: string) => void;
-  dimension: string;
   setDimension: (s: string) => void;
-  durationSeconds: number;
   setDurationSeconds: (n: number) => void;
-  fps: number;
   setFps: (n: number) => void;
-  seed: number;
   setSeed: (n: number) => void;
+  setResolution: (s: string) => void;
+  setAspectRatio: (s: string) => void;
+  setLoop: (b: boolean) => void;
   clear: () => void;
 };
 
@@ -42,10 +112,13 @@ const useGenerateVideoPageState = create<StateType>((set) => {
   const INIT_STATE = {
     videoGenModelId: '',
     prompt: '',
-    dimension: '1280x720',
-    durationSeconds: 6,
-    fps: 24,
+    dimension: '',
+    durationSeconds: 0,
+    fps: 0,
     seed: 0,
+    resolution: '',
+    aspectRatio: '',
+    loop: false,
   };
   return {
     ...INIT_STATE,
@@ -79,26 +152,26 @@ const useGenerateVideoPageState = create<StateType>((set) => {
         seed: n,
       }));
     },
+    setResolution: (s: string) => {
+      set(() => ({
+        resolution: s,
+      }));
+    },
+    setAspectRatio: (s: string) => {
+      set(() => ({
+        aspectRatio: s,
+      }));
+    },
+    setLoop: (b: boolean) => {
+      set(() => ({
+        loop: b,
+      }));
+    },
     clear: () => {
       set(INIT_STATE);
     },
   };
 });
-
-type Options = {
-  dimension: string[];
-  durationSeconds: number[];
-  fps: number[];
-};
-
-// 今の所 Nova Reel しかサポートされていないので簡易な管理方法に留める
-const supportedOptions: Record<string, Options> = {
-  'amazon.nova-reel-v1:0': {
-    dimension: ['1280x720'],
-    durationSeconds: [6],
-    fps: [24],
-  },
-};
 
 const GenerateVideoPage: React.FC = () => {
   const {
@@ -114,6 +187,12 @@ const GenerateVideoPage: React.FC = () => {
     setFps,
     seed,
     setSeed,
+    resolution,
+    setResolution,
+    aspectRatio,
+    setAspectRatio,
+    loop,
+    setLoop,
     clear,
   } = useGenerateVideoPageState();
   const { search } = useLocation();
@@ -161,14 +240,33 @@ const GenerateVideoPage: React.FC = () => {
     if (videoGenModelId === '') {
       setVideoGenModelId(videoGenModelIds[0]);
     } else {
-      setDimension(
-        supportedOptions[videoGenModelId]?.dimension[0] ?? '1280x720'
-      );
-      setDurationSeconds(
-        supportedOptions[videoGenModelId]?.durationSeconds[0] ?? 6
-      );
-      setFps(supportedOptions[videoGenModelId]?.fps[0] ?? 24);
-      setSeed(0);
+      if (MODEL_PARAMS[videoGenModelId].dimension) {
+        setDimension(MODEL_PARAMS[videoGenModelId].dimension[0]);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].durationSeconds) {
+        setDurationSeconds(MODEL_PARAMS[videoGenModelId].durationSeconds[0]!);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].fps) {
+        setFps(MODEL_PARAMS[videoGenModelId].fps[0]!);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].seed !== undefined) {
+        setSeed(MODEL_PARAMS[videoGenModelId].seed);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].resolution) {
+        setResolution(MODEL_PARAMS[videoGenModelId].resolution[0]!);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].aspectRatio) {
+        setAspectRatio(MODEL_PARAMS[videoGenModelId].aspectRatio[0]!);
+      }
+
+      if (MODEL_PARAMS[videoGenModelId].loop !== undefined) {
+        setLoop(MODEL_PARAMS[videoGenModelId].loop);
+      }
     }
   }, [
     videoGenModelId,
@@ -177,29 +275,46 @@ const GenerateVideoPage: React.FC = () => {
     setDurationSeconds,
     setFps,
     setSeed,
+    setResolution,
+    setAspectRatio,
+    setLoop,
     videoGenModelIds,
   ]);
 
   const generateVideo = useCallback(async () => {
     setIsGenerating(true);
 
-    await generate(
-      {
-        taskType: 'TEXT_VIDEO',
-        textToVideoParams: {
-          text: prompt,
+    try {
+      await generate(
+        {
+          prompt,
+          params: PARAMS_GENERATOR[videoGenModelId]({
+            prompt,
+            dimension,
+            durationSeconds,
+            fps,
+            seed,
+            resolution,
+            aspectRatio,
+            loop,
+          }),
         },
-        videoGenerationConfig: {
-          durationSeconds,
-          fps,
-          dimension,
-          seed,
-        },
-      },
-      videoGenModels.find((m) => m.modelId === videoGenModelId)
-    );
+        videoGenModels.find((m) => m.modelId === videoGenModelId)
+      );
 
-    mutateVideoJobs();
+      mutateVideoJobs();
+
+      toast.info(
+        '動画生成ジョブを開始しました。生成中にページを離脱しても問題ありません。'
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error(`動画生成に失敗しました (${e})`, {
+        duration: 30000,
+        closeButton: true,
+      });
+    }
+
     setIsGenerating(false);
   }, [
     generate,
@@ -208,6 +323,9 @@ const GenerateVideoPage: React.FC = () => {
     fps,
     dimension,
     seed,
+    resolution,
+    aspectRatio,
+    loop,
     videoGenModels,
     videoGenModelId,
     mutateVideoJobs,
@@ -284,59 +402,102 @@ const GenerateVideoPage: React.FC = () => {
             required
           />
 
-          <Select
-            label="解像度"
-            value={dimension}
-            onChange={setDimension}
-            options={
-              supportedOptions[videoGenModelId]?.dimension.map((m: string) => {
-                return { value: m, label: m };
-              }) ?? []
-            }
-            fullWidth
-          />
+          {MODEL_PARAMS[videoGenModelId].dimension && (
+            <Select
+              label="画面サイズ"
+              value={dimension}
+              onChange={setDimension}
+              options={MODEL_PARAMS[videoGenModelId].dimension.map(
+                (m: string) => {
+                  return { value: m, label: m };
+                }
+              )}
+              fullWidth
+            />
+          )}
 
-          <Select
-            label="動画長 (秒)"
-            value={`${durationSeconds}`}
-            onChange={(n: string) => {
-              setDurationSeconds(Number(n));
-            }}
-            options={
-              supportedOptions[videoGenModelId]?.durationSeconds.map(
+          {MODEL_PARAMS[videoGenModelId].resolution && (
+            <Select
+              label="解像度"
+              value={resolution}
+              onChange={setResolution}
+              options={MODEL_PARAMS[videoGenModelId].resolution.map(
+                (m: string) => {
+                  return { value: m, label: m };
+                }
+              )}
+              fullWidth
+            />
+          )}
+
+          {MODEL_PARAMS[videoGenModelId].aspectRatio && (
+            <Select
+              label="アスペクト比"
+              value={aspectRatio}
+              onChange={setAspectRatio}
+              options={MODEL_PARAMS[videoGenModelId].aspectRatio.map(
+                (m: string) => {
+                  return { value: m, label: m };
+                }
+              )}
+              fullWidth
+            />
+          )}
+
+          {MODEL_PARAMS[videoGenModelId].durationSeconds && (
+            <Select
+              label="動画長 (秒)"
+              value={`${durationSeconds}`}
+              onChange={(n: string) => {
+                setDurationSeconds(Number(n));
+              }}
+              options={MODEL_PARAMS[videoGenModelId].durationSeconds.map(
                 (m: number) => {
                   return { value: `${m}`, label: `${m}` };
                 }
-              ) ?? []
-            }
-            fullWidth
-          />
+              )}
+              fullWidth
+            />
+          )}
 
-          <Select
-            label="FPS"
-            value={`${fps}`}
-            onChange={(n: string) => {
-              setFps(Number(n));
-            }}
-            options={
-              supportedOptions[videoGenModelId]?.fps.map((m: number) => {
+          {MODEL_PARAMS[videoGenModelId].fps && (
+            <Select
+              label="FPS"
+              value={`${fps}`}
+              onChange={(n: string) => {
+                setFps(Number(n));
+              }}
+              options={MODEL_PARAMS[videoGenModelId].fps.map((m: number) => {
                 return { value: `${m}`, label: `${m}` };
-              }) ?? []
-            }
-            fullWidth
-          />
+              })}
+              fullWidth
+            />
+          )}
 
-          <RangeSlider
-            className="w-full"
-            label="Seed"
-            min={0}
-            max={2147483646}
-            value={seed}
-            onChange={(n) => {
-              setSeed(n);
-            }}
-            help="乱数のシード値です。同じシード値を指定すると同じ動画が生成されます。"
-          />
+          {MODEL_PARAMS[videoGenModelId].seed !== undefined && (
+            <RangeSlider
+              className="w-full"
+              label="Seed"
+              min={0}
+              max={2147483646}
+              value={seed}
+              onChange={(n) => {
+                setSeed(n);
+              }}
+              help="乱数のシード値です。同じシード値を指定すると同じ動画が生成されます。"
+            />
+          )}
+
+          {MODEL_PARAMS[videoGenModelId].loop !== undefined && (
+            <Switch
+              className="w-full"
+              label="ループ"
+              checked={loop}
+              onSwitch={(l) => {
+                setLoop(l);
+              }}
+            />
+          )}
 
           <div className="mt-4 flex flex-row items-center gap-x-5">
             <Button
