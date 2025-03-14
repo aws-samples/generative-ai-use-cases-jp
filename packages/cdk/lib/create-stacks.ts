@@ -6,7 +6,7 @@ import { DashboardStack } from './dashboard-stack';
 import { AgentStack } from './agent-stack';
 import { RagKnowledgeBaseStack } from './rag-knowledge-base-stack';
 import { GuardrailStack } from './guardrail-stack';
-import { StackInput } from './stack-input';
+import { ProcessedStackInput } from './stack-input';
 
 class DeletionPolicySetter implements cdk.IAspect {
   constructor(private readonly policy: cdk.RemovalPolicy) {}
@@ -18,7 +18,7 @@ class DeletionPolicySetter implements cdk.IAspect {
   }
 }
 
-export const createStacks = (app: cdk.App, params: StackInput) => {
+export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
   // CloudFront WAF
   // IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、CloudFrontWafStack をデプロイする
   // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている

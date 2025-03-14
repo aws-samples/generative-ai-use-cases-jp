@@ -8,6 +8,7 @@ export type Model = {
   modelId: string;
   modelParameters?: AdditionalModelRequestFields;
   sessionId?: string;
+  region?: string;
 };
 
 export type Agent = {

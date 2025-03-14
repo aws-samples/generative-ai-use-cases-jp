@@ -15,3 +15,8 @@ export type FeatureFlags = {
   // Additional Flags
   light?: boolean;
 };
+
+export type ModelConfiguration = {
+  modelId: string;
+  region: string;
+};

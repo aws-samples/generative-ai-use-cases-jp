@@ -15,10 +15,10 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
 import { UseCaseBuilder } from './construct/use-case-builder';
-import { StackInput } from './stack-input';
+import { ProcessedStackInput } from './stack-input';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
-  params: StackInput;
+  params: ProcessedStackInput;
   // RAG Knowledge Base
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
