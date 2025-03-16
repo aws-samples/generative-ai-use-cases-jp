@@ -34,9 +34,9 @@
     "queryDecompositionEnabled": false,
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
-    "samlAuthEnabled": false,
-    "samlCognitoDomainName": "",
-    "samlCognitoFederatedIdentityProviderName": "",
+    "samlAuthEnabled": true,
+    "samlCognitoDomainName": "srcm.auth.ap-northeast-1.amazoncognito.com",
+    "samlCognitoFederatedIdentityProviderName": "GoogleWorkspace",
     "hiddenUseCases": {},
     "modelRegion": "us-east-1",
     "modelIds": [
