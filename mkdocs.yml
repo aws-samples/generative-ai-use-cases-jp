@@ -9,7 +9,7 @@ edit_uri: blob/main/docs
 watch: [mkdocs.yml, README.md, browser-extension/README.md]
 use_directory_urls: false
 
-copyright: Copyright &copy; 2025 Amazon Web Services
+copyright: © 2025, Amazon Web Services, Inc. or its affiliates. All rights reserved.
 
 theme:
   name: material
@@ -40,8 +40,8 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: assets/favicon.svg
-  logo: assets/favicon.svg
+  # favicon: assets/favicon.svg
+  # logo: assets/favicon.svg
   language: ja
 extra_css:
   - assets/stylesheets/custom/custom.css
