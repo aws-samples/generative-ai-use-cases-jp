@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import useFileApi from '../hooks/useFileApi';
@@ -55,6 +56,7 @@ const useVideoAnalyzerPageState = create<StateType>((set) => {
 });
 
 const VideoAnalyzerPage: React.FC = () => {
+  const { t } = useTranslation();
   const { content, setContent, analysis, setAnalysis, clear } =
     useVideoAnalyzerPageState();
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
@@ -249,10 +251,10 @@ const VideoAnalyzerPage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        映像分析
+        {t('videoAnalyzer.title')}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="映像をニアリアルタイムに分析する">
+        <Card label={t('videoAnalyzer.label')}>
           <div className="flex flex-col gap-x-4 xl:flex-row">
             <div className="">
               <div className="mb-3 flex w-full flex-col lg:flex-row lg:items-end">
@@ -261,7 +263,7 @@ const VideoAnalyzerPage: React.FC = () => {
                   options={devices}
                   clearable={false}
                   onChange={setDeviceId}
-                  label="カメラ"
+                  label={t('videoAnalyzer.camera')}
                   fullWidth
                 />
 
@@ -270,7 +272,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     <Button
                       onClick={stopRecording}
                       className="mb-3 h-fit w-16 lg:ml-3">
-                      停止
+                      {t('videoAnalyzer.stop')}
                     </Button>
                   </>
                 ) : (
@@ -278,7 +280,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     <Button
                       onClick={startRecording}
                       className="mb-3 h-fit w-16 lg:ml-3">
-                      開始
+                      {t('videoAnalyzer.start')}
                     </Button>
                   </>
                 )}
@@ -296,7 +298,7 @@ const VideoAnalyzerPage: React.FC = () => {
                 options={visionModelIds.map((m) => {
                   return { value: m, label: m };
                 })}
-                label="モデル"
+                label={t('videoAnalyzer.model')}
               />
 
               <div className="relative h-48 overflow-y-scroll rounded border border-black/30 p-1.5 xl:h-96">
@@ -310,7 +312,7 @@ const VideoAnalyzerPage: React.FC = () => {
                     outlined
                     onClick={onClickClear}
                     disabled={loading || sending || content.length === 0}>
-                    クリア
+                    {t('videoAnalyzer.clear')}
                   </Button>
                 </div>
               </div>

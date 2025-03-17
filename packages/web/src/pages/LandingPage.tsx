@@ -36,6 +36,7 @@ import {
 import queryString from 'query-string';
 import { MODELS } from '../hooks/useModel';
 import useUseCases from '../hooks/useUseCases';
+import { useTranslation } from 'react-i18next';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -48,6 +49,7 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { enabled } = useUseCases();
   const { setIsShow, init } = useInterUseCases();
+  const { t } = useTranslation();
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
@@ -266,123 +268,123 @@ const LandingPage: React.FC = () => {
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
         <AwsIcon className="mr-5 size-20" />
-        ではじめる生成 AI
+        {t('landing.title')}
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
         <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={demoFlowChat}>
-          試す
+          {t('landing.try')}
         </Button>
-        をクリックすることで、各ユースケースを体験できます。
+        {t('landing.try_message')}
       </div>
 
       <h1 className="mb-6 flex justify-center text-2xl font-bold">
-        ユースケース一覧
+        {t('landing.use_cases_title')}
       </h1>
 
       <div className="mx-4 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:mx-20 xl:grid-cols-2">
         <CardDemo
-          label="チャット"
+          label={t('landing.use_cases.chat.title')}
           onClickDemo={demoChat}
           icon={<PiChatsCircle />}
-          description="LLM とチャット形式で対話することができます。細かいユースケースや新しいユースケースに迅速に対応することができます。プロンプトエンジニアリングの検証用環境としても有効です。"
+          description={t('landing.use_cases.chat.description')}
         />
         {ragEnabled && (
           <CardDemo
-            label="RAG チャット"
-            sub="Amazon Kendra"
+            label={t('landing.use_cases.rag_chat.title')}
+            sub={t('landing.use_cases.rag_chat.sub_kendra')}
             onClickDemo={demoRag}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Amazon Kendra から取得した参考ドキュメントをベースに LLM が回答を生成してくれるため、「社内情報に対応した LLM チャット」を簡単に実現することが可能です。"
+            description={t('landing.use_cases.rag_chat.description_kendra')}
           />
         )}
         {ragKnowledgeBaseEnabled && (
           <CardDemo
-            label="RAG チャット"
-            sub="Knowledge Base"
+            label={t('landing.use_cases.rag_chat.title')}
+            sub={t('landing.use_cases.rag_chat.sub_kb')}
             onClickDemo={demoRagKnowledgeBase}
             icon={<PiChatCircleText />}
-            description="RAG (Retrieval Augmented Generation) は、情報の検索と LLM の文章生成を組み合わせる手法のことで、効果的な情報アクセスを実現できます。Knowledge Base の Hybrid Search を利用して参考ドキュメントを取得し、LLM が回答を生成します。"
+            description={t('landing.use_cases.rag_chat.description_kb')}
           />
         )}
         {agentEnabled && !inlineAgents && (
           <CardDemo
-            label="Agent チャット"
+            label={t('landing.use_cases.agent_chat.title')}
             onClickDemo={demoAgent}
             icon={<PiRobot />}
-            description="Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。"
+            description={t('landing.use_cases.agent_chat.description')}
           />
         )}
         {flowChatEnabled && (
           <CardDemo
-            label="Flow チャット"
+            label={t('landing.use_cases.flow_chat.title')}
             onClickDemo={demoFlowChat}
             icon={<PiFlowArrow />}
-            description="Flow を使用して、複数のステップを持つ対話型チャットフローを作成します。ユーザーの入力に基づいて、動的に次のステップを決定し、より複雑な対話シナリオを実現します。"
+            description={t('landing.use_cases.flow_chat.description')}
           />
         )}
         {enabled('generate') && (
           <CardDemo
-            label="文章生成"
+            label={t('landing.use_cases.generate_text.title')}
             onClickDemo={demoGenerate}
             icon={<PiPencil />}
-            description="あらゆるコンテキストで文章を生成することは LLM が最も得意とするタスクの 1 つです。記事・レポート・メールなど、あらゆるコンテキストに対応します。"
+            description={t('landing.use_cases.generate_text.description')}
           />
         )}
         {enabled('summarize') && (
           <CardDemo
-            label="要約"
+            label={t('landing.use_cases.summarize.title')}
             onClickDemo={demoSummarize}
             icon={<PiNote />}
-            description="LLM は、大量の文章を要約するタスクを得意としています。要約する際に「1行で」や「子供でもわかる言葉で」などコンテキストを与えることができます。"
+            description={t('landing.use_cases.summarize.description')}
           />
         )}
         {enabled('writer') && (
           <CardDemo
-            label="執筆"
+            label={t('landing.use_cases.writer.title')}
             onClickDemo={demoWriter}
             icon={<PiPenNib />}
-            description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+            description={t('landing.use_cases.writer.description')}
           />
         )}
         {enabled('translate') && (
           <CardDemo
-            label="翻訳"
+            label={t('landing.use_cases.translate.title')}
             onClickDemo={demoTranslate}
             icon={<PiTranslate />}
-            description="多言語で学習した LLM は、翻訳を行うことも可能です。また、ただ翻訳するだけではなく、カジュアルさ・対象層など様々な指定されたコンテキスト情報を翻訳に反映させることが可能です。"
+            description={t('landing.use_cases.translate.description')}
           />
         )}
         {enabled('webContent') && (
           <CardDemo
-            label="Web コンテンツ抽出"
+            label={t('landing.use_cases.web_content.title')}
             onClickDemo={demoWebContent}
             icon={<PiGlobe />}
-            description="ブログやドキュメントなどの Web コンテンツを抽出します。LLM によって不要な情報はそぎ落とし、成立した文章として整形します。抽出したコンテンツは要約、翻訳などの別のユースケースで利用できます。"
+            description={t('landing.use_cases.web_content.description')}
           />
         )}
         {enabled('image') && (
           <CardDemo
-            label="画像生成"
+            label={t('landing.use_cases.image.title')}
             onClickDemo={demoGenerateImage}
             icon={<PiImages />}
-            description="画像生成 AI は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を LLM に支援してもらうことができます。"
+            description={t('landing.use_cases.image.description')}
           />
         )}
         {visionEnabled && enabled('video') && (
           <CardDemo
-            label="映像分析"
+            label={t('landing.use_cases.video.title')}
             onClickDemo={demoVideoAnalyzer}
             icon={<PiVideoCamera />}
-            description="マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として LLM に分析を依頼します。"
+            description={t('landing.use_cases.video.description')}
           />
         )}
         {enabled('diagram') && (
           <CardDemo
-            label="ダイアグラム生成"
+            label={t('landing.use_cases.diagram.title')}
             onClickDemo={demoGenerateDiagram}
             icon={<PiTreeStructure />}
-            description="自然言語による説明、文書やコードから、フローチャート、シーケンス図、マインドマップなどの様々な図を自動的に作成できます。システム設計、ビジネスフロー、プロジェクト計画などの複雑な関係性を、視覚的に表現し理解を効率化します。"
+            description={t('landing.use_cases.diagram.description')}
           />
         )}
       </div>
@@ -395,25 +397,29 @@ const LandingPage: React.FC = () => {
           enabled('generate')) && (
           <>
             <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">
-              ユースケース連携
+              {t('landing.use_cases_integration.title')}
             </h1>
 
             <div className="mx-4 grid gap-x-20 gap-y-5 md:grid-cols-1 xl:mx-20 xl:grid-cols-2">
               {enabled('webContent', 'generate', 'summarize', 'image') && (
                 <CardDemo
-                  label="ブログ記事作成"
+                  label={t('landing.use_cases_integration.blog.title')}
                   onClickDemo={demoBlog}
                   icon={<PiPen />}
-                  description="複数のユースケースを組み合わせて、ブログ記事を生成します。記事の概要とサムネイル画像も自動生成することで、OGP の設定も容易になります。例として、AWS 公式サイトの情報を元に生成 AI を紹介するブログ記事を生成します。"
+                  description={t(
+                    'landing.use_cases_integration.blog.description'
+                  )}
                 />
               )}
 
               {enabled('generate') && (
                 <CardDemo
-                  label="議事録作成"
+                  label={t('landing.use_cases_integration.meeting.title')}
                   onClickDemo={demoMeetingReport}
                   icon={<PiNotebook />}
-                  description="複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
+                  description={t(
+                    'landing.use_cases_integration.meeting.description'
+                  )}
                 />
               )}
             </div>

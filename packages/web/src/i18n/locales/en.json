@@ -1,0 +1,537 @@
+{
+  "setting": {
+    "title": "Settings",
+    "update": {
+      "message": "Updates are available on GitHub. If you want to use the latest features, please pull the main branch of <0>generative-ai-use-cases-jp</0> and redeploy."
+    },
+    "general": "General",
+    "items": {
+      "version": "Version",
+      "version_help": "Referencing the version in package.json of generative-ai-use-cases-jp",
+      "rag_enabled": "RAG (Amazon Kendra) Enabled",
+      "rag_kb_enabled": "RAG (Knowledge Base) Enabled",
+      "agent_enabled": "Agent Enabled",
+      "language": "Language",
+      "language_help": "Change display language"
+    },
+    "ai": "Generative AI",
+    "ai_items": {
+      "llm_model": "LLM Model Name",
+      "image_gen_model": "Image Generation Model Name",
+      "agent_name": "Agent Name",
+      "model_region": "LLM & Image Generation Model Region"
+    },
+    "config_message": "Settings can be changed using <0>AWS CDK</0>, not on this screen. If you encounter errors when running use cases, please make sure you have enabled the specified models in {{region}}. For details on how to do this, please refer to <1>generative-ai-use-cases-jp</1>.",
+    "recent_updates": "Recent Updates",
+    "view_all_updates": "View All Updates",
+    "signout": "Sign Out"
+  },
+  "common": {
+    "not_available": "Not available",
+    "loading": "Loading...",
+    "clear": "Clear",
+    "execute": "Execute",
+    "error": "Error",
+    "try": "Try",
+    "load_more": "Load more",
+    "trace": "Trace",
+    "feedback_received": "Feedback received. Thank you.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "edit": "Edit",
+    "search": "Search",
+    "here": "here",
+    "optional": "Optional",
+    "submit": "Submit",
+    "no_options_found": "No options found",
+    "not_selected": "Not selected",
+    "required": "Required",
+    "enter_text": "Enter text",
+    "start_over": "Start over",
+    "create": "Create",
+    "title": "Title",
+    "next": "Next",
+    "previous": "Previous",
+    "none": "None",
+    "complete": "Complete",
+    "close": "Close"
+  },
+  "writer": {
+    "title": "Writing",
+    "saved": "Saved",
+    "saving": "Saving",
+    "characters": "characters",
+    "clear": "Clear",
+    "tutorial": "Tutorial",
+    "review": "Review",
+    "clear_success": "Editor cleared",
+    "tutorial_success": "Tutorial loaded",
+    "no_issues": "No issues found",
+    "replace": "Replace",
+    "clear_comments": "Clear Comments",
+    "no_results": "No results",
+    "appearance": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "link": "Link",
+    "paste_link": "Paste a link",
+    "color": "Color",
+    "background": "Background",
+    "colors": {
+      "default": "Default",
+      "purple": "Purple",
+      "red": "Red",
+      "yellow": "Yellow",
+      "blue": "Blue",
+      "green": "Green",
+      "orange": "Orange",
+      "pink": "Pink",
+      "gray": "Gray"
+    },
+    "ai": {
+      "trace": "Trace",
+      "thinking": "Thinking",
+      "instruct_ai": "Instruct AI",
+      "continue_instruct": "Continue instructing AI",
+      "search_instruct": "Instruct AI to search",
+      "replace_selection": "Replace selection",
+      "insert_below": "Insert below selection",
+      "discard": "Discard",
+      "error": "An error occurred",
+      "ask_ai": "Ask AI",
+      "edit_selection": "Edit Selection",
+      "use_search_engine": "Use Search Engine",
+      "generate": "Generate",
+      "options": {
+        "improve": "Improve",
+        "fix": "Fix",
+        "shorter": "Make shorter",
+        "longer": "Make longer",
+        "search": "Search and write...",
+        "collect_data": "Research and add supporting data",
+        "fact_check": "Fact check",
+        "continue": "Continue output"
+      }
+    }
+  },
+  "chat": {
+    "title": "Chat",
+    "drop_files": "Drop files here",
+    "sharing": "Sharing",
+    "share": "Share",
+    "show_system_prompt": "Show system prompt",
+    "system_prompt": "System Prompt",
+    "initialize": "Initialize",
+    "save": "Save",
+    "share_conversation": "Share Conversation History",
+    "delete_link_message": "You can stop sharing the conversation history by deleting the link.",
+    "create_link_message": "By creating a link, you will share the conversation history with all users who can log in to this application.",
+    "open_link": "Open Link",
+    "delete_link": "Delete Link",
+    "create_link": "Create Link",
+    "advanced_options": "Advanced Options",
+    "model_parameters": "Model Parameters",
+    "settings": "Settings",
+    "delete_confirmation": "Delete Confirmation",
+    "delete_chat_confirmation": "Are you sure you want to delete the chat \"{title}\"?",
+    "history": "Conversation History",
+    "search_by_title": "Search by title",
+    "create_system_prompt": "Create System Prompt",
+    "saved_system_prompts": "Saved System Prompts",
+    "prompt_examples": "Prompt Examples"
+  },
+  "agent": {
+    "title": "Agent Chat",
+    "drop_files": "Drop files to upload"
+  },
+  "flow": {
+    "title": "Flow Chat"
+  },
+  "notfound": {
+    "title": "Not Found"
+  },
+  "shared": {
+    "error": "Error",
+    "not_found_message": "Page not found. The conversation history may not be shared or has been deleted.",
+    "contact_admin": "Please contact the administrator."
+  },
+  "rag": {
+    "title": "RAG Chat",
+    "filter": "Filter",
+    "filter_settings": "For filter settings, please refer to",
+    "here": "here",
+    "please_refer": ".",
+    "no_settings_found": "No settings found. You can add filters by customizing ",
+    "can_add_filters": "."
+  },
+  "summarize": {
+    "title": "Summarize",
+    "text_to_summarize": "Text to summarize",
+    "enter_text": "Enter text",
+    "additional_context": "Additional context",
+    "additional_context_placeholder": "You can enter additional points to consider (e.g., casualness, etc.)",
+    "result_placeholder": "Summarized text will be displayed here"
+  },
+  "transcribe": {
+    "title": "Speech Recognition",
+    "select_input_method": "Please select from microphone input or file upload",
+    "mic_input": "Microphone Input",
+    "stop_recording": "Stop Recording",
+    "start_recording": "Start Recording",
+    "file_upload": "File Upload",
+    "supported_files": "mp3, mp4, wav, flac, ogg, amr, webm, m4a files are available",
+    "detailed_parameters": "Detailed parameters",
+    "speaker_recognition": "Speaker recognition",
+    "max_speakers": "Max Speakers",
+    "max_speakers_help": "Maximum number of speakers to recognize",
+    "speaker_names": "Speaker names (comma separated)",
+    "result_placeholder": "Speech recognition results will be displayed here"
+  },
+  "translate": {
+    "title": "Translate",
+    "text_to_translate": "Text to translate",
+    "auto_translate": "Auto translate",
+    "auto_detect_language": "Auto detect language",
+    "enter_text": "Enter text",
+    "additional_context": "Additional context",
+    "additional_context_placeholder": "You can enter additional points to consider (e.g., casualness, etc.)",
+    "result_placeholder": "Translation results will be displayed here",
+    "continue_output": "Continue output"
+  },
+  "webcontent": {
+    "title": "Web Content Extraction",
+    "website_to_extract": "Website to extract content from",
+    "instruction": "Please specify a website where text is the main content, such as blogs, articles, or documents. Otherwise, it may not output correctly.",
+    "enter_url": "Enter URL",
+    "additional_context": "Additional context",
+    "additional_context_placeholder": "You can enter additional points to consider (e.g., summarize)",
+    "result_placeholder": "Extracted text will be displayed here",
+    "error_message": "An error occurred when accessing the specified URL. The site may prohibit scraping or the URL may be incorrect. If you think this is a temporary issue, please try again.",
+    "original_text": "Original text ({status})",
+    "loading": "loading...",
+    "not_fetched": "not fetched",
+    "fetched": "fetched",
+    "not_fetched_instruction": "Not fetched. Please enter a URL and press the execute button."
+  },
+  "diagram": {
+    "title": "Generate Diagram",
+    "input_label": "Text for diagram generation",
+    "model": "Model",
+    "diagram_type": "Select diagram type",
+    "other_diagram_types": "View other diagram types",
+    "input_placeholder": "Enter text for diagram generation",
+    "input_example": "Input example",
+    "clear": "Clear",
+    "generate": "Generate",
+    "result": "Result",
+    "step1_loading": "Step 1: Selecting the optimal diagram",
+    "step1_complete": "Step 1: Complete",
+    "step1_selected": "Selected",
+    "step2_loading": "Step 2: Generating diagram",
+    "answer": "Answer",
+    "diagram_will_appear": "Diagram will be displayed here",
+    "download_as_svg": "Download as SVG",
+    "download_as_png": "Download as PNG",
+    "show_diagram": "Show Diagram",
+    "show_code": "Show Code",
+    "invalid_syntax": "Invalid syntax",
+    "svg_error": "SVG output error: ",
+    "png_error": "PNG output error: ",
+    "markdown_edit": "Edit Markdown",
+    "mermaid_syntax": "Mermaid syntax here"
+  },
+  "generateText": {
+    "title": "Text Generation",
+    "source_info": "Source information for text",
+    "input_placeholder": "Enter text",
+    "format_placeholder": "Specify the text format (markdown, blog, business email, etc.)",
+    "continue_output": "Continue output",
+    "clear": "Clear",
+    "execute": "Execute",
+    "result_placeholder": "Generated text will be displayed here"
+  },
+  "optimizePrompt": {
+    "title": "Prompt Optimization",
+    "input_placeholder": "Enter your current prompt as is. If the output is in English, add instructions like 'Please output in Japanese'.",
+    "result_placeholder": "Results will be displayed here",
+    "clear": "Clear",
+    "execute": "Execute"
+  },
+  "videoAnalyzer": {
+    "title": "Video Analysis",
+    "label": "Analyze video in near real-time",
+    "camera": "Camera",
+    "start": "Start",
+    "stop": "Stop",
+    "model": "Model",
+    "clear": "Clear"
+  },
+  "generateImage": {
+    "title": "Image Generation",
+    "prompt": "Prompt",
+    "negative_prompt": "Negative Prompt",
+    "model": "Model",
+    "resolution": "Resolution",
+    "seed": "Seed",
+    "image_samples": "Image Samples",
+    "generation_mode": "Generation Mode",
+    "mask_prompt": "Mask Prompt",
+    "colors": "Colors",
+    "control_mode": "Control Mode",
+    "style_preset": "Style Preset",
+    "cfg_scale": "CFG Scale",
+    "steps": "Steps",
+    "image_strength": "Image Strength",
+    "control_strength": "Control Strength",
+    "generate": "Generate",
+    "clear": "Clear",
+    "detail_parameters": "Detailed Parameters",
+    "init_image": "Initial Image",
+    "mask_image": "Mask Image",
+    "set": "Set",
+    "custom_colors": "Custom Colors",
+    "add_color": "Add Color",
+    "help": {
+      "prompt": "Describe the image you want to generate. Use keywords rather than sentences.",
+      "negative_prompt": "Describe elements you don't want in the generated image. Use keywords rather than sentences.",
+      "seed": "Random seed value. Using the same seed will generate the same image.",
+      "image_samples": "Generates the specified number of images simultaneously while setting random seeds.",
+      "generation_mode": "TEXT_IMAGE: Generate images from text. IMAGE_VARIATION: Generate similar images from a reference. INPAINTING: Edit part of an image. OUTPAINTING: Expand an image. IMAGE_CONDITIONING: Reflect composition. COLOR_GUIDED_GENERATION: Generate with color specification. BACKGROUND_REMOVAL: Remove background.",
+      "init_image": "Set an image as the initial state for generation. Setting an initial image guides the generation to produce images similar to it.",
+      "mask_image": "Set a mask for the image. Setting a mask image allows you to generate either the masked area (Inpaint) or the area outside the mask (Outpaint). Cannot be used with mask prompt.",
+      "mask_prompt": "Describe elements you want to mask/exclude (Inpaint) or elements you don't want to mask/want to keep (Outpaint). Use keywords rather than sentences. Cannot be used with mask image.",
+      "colors": "You can select from preset color palettes",
+      "control_mode": "CANNY_EDGE: Extracts edges from the reference image. Optimal for reflecting detailed patterns. SEGMENTATION: Divides the reference image into regions. Optimal for reflecting the positional relationship of multiple objects.",
+      "cfg_scale": "Higher values generate images more faithful to the prompt.",
+      "steps": "Number of iterations for image generation. More steps refine the image but take longer to generate.",
+      "image_strength": "Values closer to 1 generate images more similar to the initial image, while values closer to 0 generate images more different from the initial image.",
+      "control_strength": "Values closer to 1 generate images based more on the reference image's composition, while values closer to 0 generate images with compositions more different from the reference image."
+    }
+  },
+  "landing": {
+    "title": "Getting Started with Generative AI",
+    "try_message": "Click to try each use case.",
+    "use_cases_title": "Use Cases",
+    "use_cases": {
+      "chat": {
+        "title": "Chat",
+        "description": "You can interact with LLM in a chat format. This allows you to quickly respond to detailed use cases and new use cases. It is also effective as a verification environment for prompt engineering."
+      },
+      "rag_chat": {
+        "title": "RAG Chat",
+        "sub_kendra": "Amazon Kendra",
+        "sub_kb": "Knowledge Base",
+        "description_kendra": "RAG (Retrieval Augmented Generation) is a technique that combines information retrieval and LLM text generation to achieve effective information access. Since LLM generates answers based on reference documents retrieved from Amazon Kendra, it is easy to implement 'LLM chat that responds to internal company information'.",
+        "description_kb": "RAG (Retrieval Augmented Generation) is a technique that combines information retrieval and LLM text generation to achieve effective information access. It retrieves reference documents using Knowledge Base's Hybrid Search, and LLM generates answers."
+      },
+      "agent_chat": {
+        "title": "Agent Chat",
+        "description": "The Agent Chat use case allows you to execute actions using Agents for Amazon Bedrock and reference the vector database of Knowledge Bases for Amazon Bedrock."
+      },
+      "flow_chat": {
+        "title": "Flow Chat",
+        "description": "Create interactive chat flows with multiple steps using Flow. Dynamically determine the next step based on user input to implement more complex dialogue scenarios."
+      },
+      "generate_text": {
+        "title": "Text Generation",
+        "description": "Generating text in any context is one of the tasks that LLM excels at. It supports any context such as articles, reports, emails, etc."
+      },
+      "summarize": {
+        "title": "Summarize",
+        "description": "LLM is good at summarizing large amounts of text. When summarizing, you can provide context such as 'in one line' or 'in words that even a child can understand'."
+      },
+      "writer": {
+        "title": "Writing",
+        "description": "LLMs trained in multiple languages can also perform translation. In addition to just translating, it can reflect various specified context information such as casualness and target audience in the translation."
+      },
+      "translate": {
+        "title": "Translate",
+        "description": "LLMs trained in multiple languages can also perform translation. In addition to just translating, it can reflect various specified context information such as casualness and target audience in the translation."
+      },
+      "web_content": {
+        "title": "Web Content Extraction",
+        "description": "Extract content from blogs, documents, and other web content. Unnecessary information is trimmed away by LLM and formatted as a complete text. The extracted content can be used in other use cases such as summarization and translation."
+      },
+      "image": {
+        "title": "Image Generation",
+        "description": "Image generation AI can create new images based on text or images. It allows you to instantly visualize ideas and can be expected to improve the efficiency of design work. In this feature, you can get assistance from LLM in creating prompts."
+      },
+      "video": {
+        "title": "Video Analysis",
+        "description": "With multimodal models, it is now possible to input not only text but also images. In this feature, you can ask LLM to analyze video image frames and text as input."
+      },
+      "diagram": {
+        "title": "Diagram Generation",
+        "description": "Automatically create various diagrams such as flowcharts, sequence diagrams, and mind maps from natural language descriptions, documents, or code. Visually represent and streamline understanding of complex relationships in system design, business flows, project planning, and more."
+      }
+    },
+    "use_cases_integration": {
+      "title": "Use Case Integration",
+      "blog": {
+        "title": "Blog Post Creation",
+        "description": "Generate blog posts by combining multiple use cases. Automatically generating article summaries and thumbnail images makes OGP settings easier. As an example, we will generate a blog post introducing generative AI based on information from the AWS official website."
+      },
+      "meeting": {
+        "title": "Meeting Minutes Creation",
+        "description": "Automatically create meeting minutes from meeting recordings by combining multiple use cases. It is possible to perform transcription of recording data, formatting of transcription results, and creation of minutes without human cost."
+      }
+    },
+    "try": "Try"
+  },
+  "useCaseBuilder": {
+    "accessError": "Access Error",
+    "notExistOrNotShared": "This use case does not exist or is not shared.",
+    "returnToTop": "Return to TOP",
+    "myUseCases": "My Use Cases",
+    "createNew": "Create New",
+    "noMyUseCases": "No use cases found.",
+    "loadMore": "Load More",
+    "samples": "Samples",
+    "edit": "Edit Use Case",
+    "save": "Save",
+    "cancel": "Cancel",
+    "title": "Title",
+    "description": "Description",
+    "promptTemplate": "Prompt Template",
+    "inputExamples": "Input Examples",
+    "fixedModel": "Fixed Model",
+    "fileUpload": "File Upload",
+    "addInputExample": "Add Input Example",
+    "deleteInputExample": "Delete Input Example",
+    "inputExample": "Input Example",
+    "expectedOutput": "Expected Output",
+    "titleRequired": "Title is required",
+    "promptTemplateRequired": "Prompt template is required",
+    "deleting": "Deleting...",
+    "updating": "Updating...",
+    "creating": "Creating...",
+    "promptTemplatePlaceholder": "For information on how to write prompt templates, please see 'Help' or 'Samples'.",
+    "promptTemplateHint": "Use cases that do not accept user input cannot be created. Define a Placeholder in the prompt template or turn ON file attachment.",
+    "modelFixed": "Model is fixed.",
+    "modelNotFixed": "Model is not fixed.",
+    "modelFixedDescription": "The model selection UI is not displayed, so users can use the use case without being aware of the existence of generative AI",
+    "modelNotFixedDescription": "The model selection UI is displayed, and users can freely select a model.",
+    "fileUploadEnabled": "Files can be attached",
+    "fileUploadDisabled": "Files cannot be attached",
+    "fileUploadDescription": "Attachable files vary depending on the model",
+    "createDescription": "Create a use case. Please check the operation in the preview before creating. You can also edit it after creation.",
+    "createErrorCondition": "The conditions for creating a use case are not met. Please meet all of the following conditions.",
+    "create": "Create",
+    "updateDescription": "Update the use case. If the use case is shared and other users are using it, their content will also be updated.",
+    "updateErrorCondition": "To update, please meet all of the following conditions.",
+    "update": "Update",
+    "deleteDescription": "Delete the use case. If it is shared, other users will no longer be able to access it.",
+    "delete": "Delete",
+    "preview": "Preview",
+    "deleteUseCaseTitle": "Delete My Use Case",
+    "deleteSharedWarning": "This use case is shared. If you delete it, all users will no longer be able to use this use case.",
+    "deleteConfirmation": " will be deleted. Are you sure?",
+    "share": "Share",
+    "sharedDescription": "This use case is available to all users who can log in to this application.",
+    "notSharedDescription": "This use case is not shared, so only you can use it.",
+    "shareUrlDescription": "Other users can also use this use case by accessing this shared URL.",
+    "ok": "OK",
+    "menuAppDefinition": "App Definition",
+    "menuInputExamples": "Input Examples",
+    "menuModelSelection": "Model Selection",
+    "menuFileAttachment": "File Attachment",
+    "menuUpdate": "Update",
+    "menuDelete": "Delete",
+    "menuCreate": "Create",
+    "enterTitle": "Please enter a title",
+    "enterPromptTemplate": "Please enter a prompt template",
+    "noUserInput": "The use case does not accept user input. Please add a placeholder to the prompt template or turn ON file attachment.",
+    "noUpdateContent": "No update content",
+    "builderMode": "Builder Mode",
+    "mainMenu": "Main Menu",
+    "favorites": "Favorites",
+    "recentlyUsed": "Recently Used",
+    "untitledUseCase": "Untitled Use Case",
+    "untitled": "Untitled",
+    "resultPlaceholder": "Results will appear here",
+    "attach_file": "Attach File",
+    "error": {
+      "rag_kendra_not_enabled": "{{retrieveKendra}} is specified in the prompt template, but RAG Chat (Amazon Kendra) is not enabled in GenU.",
+      "rag_knowledge_base_not_enabled": "{{retrieveKnowledgeBase}} is specified in the prompt template, but RAG Chat (Knowledge Base) is not enabled in GenU.",
+      "missing_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Amazon Kendra.",
+      "missing_kb_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Knowledge Base.",
+      "missing_select_options": "No options are set for {{select}}. Please set it like {{select:label:option1,option2}}",
+      "empty_select_options": "{{select:{{label}}}} contains empty options.",
+      "duplicate_select_options": "{{select:{{label}}}} contains duplicate options."
+    },
+    "help": {
+      "promptTemplateTitle": "What is a Prompt Template?",
+      "promptTemplateDescription": "It's like a 'template' for giving instructions to generative AI. You can prepare instruction formats in advance according to your purpose. Placeholders that can be filled with text at runtime can be defined in prompt templates.",
+      "placeholder": "Placeholder",
+      "placeholderDescription": "Placeholders are written as {{inputType:label}}. Since the label becomes an identifier, placeholders with the same label are considered the same input. You can also write {{inputType}} without a label. In that case, placeholders without labels are considered the same input. The actual executed prompt can be confirmed from the GenU conversation history.",
+      "placeholderList": "Placeholder List",
+      "textPlaceholderDescription": "{{text}} is the most basic placeholder. It is written as {{text}} or {{text:label}}. {{text}} creates a form that accepts text input and embeds the entered value directly into the prompt template.",
+      "emailReplyExample": "Email Reply Example",
+      "emailReplyPrompt": "You are an email reply handler. Please create a reply email following these rules:\n<Rules>\n- This is an email to a business partner. You need to use polite language, but since the relationship is established, the text doesn't need to be overly formal.\n- Understand the content of the email being replied to and create a reply email that matches the reply content.\n- Never include anything in the email text that cannot be inferred from the email being replied to and the reply content.\n</Rules>\n<Email being replied to>\n{{text:Email body being replied to}}\n</Email being replied to>\n<Reply content>\n{{text:Reply content}}\n</Reply content>",
+      "formPlaceholderTitle": "Form",
+      "formPlaceholderDescription": "{{form}} is a placeholder for defining an input form. It is written as {{form}} or {{form:label}}. {{form}} creates a form that accepts text input, but does not embed the input into the prompt template. It is used for use cases where you want to query a data source with RAG, etc., but don't want to embed the query content itself in the prompt.",
+      "selectPlaceholderTitle": "Select",
+      "selectPlaceholderDescription": "{{select}} is a placeholder for defining a select box. {{select}} cannot omit the label and options. It must be written as {{select:label:option1,option2}}. Options are defined as comma-separated values. If you don't want to display a label, use an empty string label like {{select::option1,option2}} (an empty string label is different from no label).",
+      "retrieveKendraTitle": "Retrieve Kendra",
+      "retrieveKendraDescription": "{{retrieveKendra}} embeds the results retrieved from Amazon Kendra into the prompt template. It is written as {{retrieveKendra}} or {{retrieveKendra:label}}. {{retrieveKendra}} requires a separate placeholder ({{text}}) for entering the search query. They must have the same label. The actual value embedded is a string of the ResultItems from Amazon Kendra's Retrieve API in JSON. To use this feature, RAG Chat (Amazon Kendra) must be enabled in GenU.",
+      "retrieveKnowledgeBaseTitle": "Retrieve Knowledge Base",
+      "retrieveKnowledgeBaseDescription": "{{retrieveKnowledgeBase}} embeds the results retrieved from Knowledge Base into the prompt template. It is written as {{retrieveKnowledgeBase}} or {{retrieveKnowledgeBase:label}}. {{retrieveKnowledgeBase}} requires a separate placeholder ({{text}}) for entering the search query. They must have the same label. The actual value embedded is a string of the retrievalResults from Knowledge Base's Retrieve API in JSON. To use this feature, RAG Chat (Knowledge Base) must be enabled in GenU.",
+      "example": "Example",
+      "formPlaceholderExample": {
+        "title": "Quiz Generation",
+        "prompt": "You are an AI assistant that generates quizzes based on given information.\n\n{{form:Search for quiz source information}}\n\nRead the following information and create a 4-choice quiz.\nPlease also provide the correct answer.\n\n<Information>\n{{retrieveKendra:Search for quiz source information}}\n</Information>"
+      },
+      "selectPlaceholderExample": {
+        "title": "AWS Service Question",
+        "prompt": "You are a specialist knowledgeable about AWS services.\n\nPlease answer questions about the following services.\n{{select:AWS Service:Amazon Bedrock,Amazon S3,AWS Lambda}}\n\nThe question is as follows:\n{{text:Question}}"
+      },
+      "retrieveKendraExample": {
+        "title": "Simple RAG",
+        "prompt": "You are an AI assistant that answers user questions.\nPlease read the following information.\n\n<Information>\n{{retrieveKendra:Question}}\n</Information>\n\nBased on the above information, please answer the following question.\n\n<Question>\n{{text:Question}}\n</Question>"
+      },
+      "retrieveKnowledgeBaseExample": {
+        "title": "Simple RAG",
+        "prompt": "You are an AI assistant that answers user questions.\nPlease read the following information.\n\n<Information>\n{{retrieveKnowledgeBase:Question}}\n</Information>\n\nBased on the above information, please answer the following question.\n\n<Question>\n{{text:Question}}\n</Question>"
+      }
+    }
+  },
+  "auth": {
+    "title": "Generative AI Use Cases on AWS",
+    "loading": "Loading...",
+    "login": "Login"
+  },
+  "drawer": {
+    "builder_mode": "Builder Mode",
+    "use_cases": "Use Cases",
+    "generative_ai": "(Generative AI)",
+    "tools": "Tools",
+    "ai_services": "AI Services"
+  },
+  "feedback": {
+    "reason_title": "Please tell us why you rated this response.",
+    "reason_error": "Please select a reason.",
+    "additional_feedback": "If you have any additional feedback, please enter it here. (optional)",
+    "reasons": {
+      "inaccurate": "Inaccurate",
+      "outdated": "Outdated information",
+      "harmful": "Harmful or offensive",
+      "other": "Other"
+    }
+  },
+  "model": {
+    "parameters": {
+      "reasoning": "Reasoning",
+      "reasoning_budget": "Reasoning Budget"
+    }
+  },
+  "demo": {
+    "inter_use_cases": "Use Case Integration"
+  },
+  "sketch": {
+    "upload_image": "Upload Image",
+    "pen_size": "Pen Size",
+    "clear": "Clear"
+  }
+}

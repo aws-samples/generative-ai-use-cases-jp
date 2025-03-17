@@ -21,6 +21,7 @@ import Button from './Button';
 import { BaseProps } from '../@types/common';
 import ModalDialog from './ModalDialog';
 import RangeSlider from './RangeSlider';
+import { useTranslation } from 'react-i18next';
 
 type SketchButtonProps = BaseProps & {
   isActive?: boolean;
@@ -59,6 +60,7 @@ type Props = {
 };
 
 const SketchPad: React.FC<Props> = (props) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<SignatureCanvas>(null);
   const [penColor, setPenColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#FFFFFF');
@@ -217,7 +219,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
   return (
     <>
-      <ModalDialog isOpen={isOpenUpload} title="画像をアップロード">
+      <ModalDialog isOpen={isOpenUpload} title={t('sketch.upload_image')}>
         <div>
           <div className="mb-3 flex w-full">
             <input type="file" onChange={handleImageUpload} accept="image/*" />
@@ -232,9 +234,11 @@ const SketchPad: React.FC<Props> = (props) => {
               onClick={() => {
                 setIsOpenUpload(false);
               }}>
-              キャンセル
+              {t('common.cancel')}
             </Button>
-            <Button onClick={onClickUploadComplete}>完了</Button>
+            <Button onClick={onClickUploadComplete}>
+              {t('common.complete')}
+            </Button>
           </div>
         </div>
       </ModalDialog>
@@ -278,7 +282,7 @@ const SketchPad: React.FC<Props> = (props) => {
                   </div>
                   <RangeSlider
                     className=""
-                    label="PenSize"
+                    label={t('sketch.pen_size')}
                     min={1}
                     max={30}
                     value={dotSize}
@@ -327,7 +331,7 @@ const SketchPad: React.FC<Props> = (props) => {
 
           <Button outlined onClick={onClickClear}>
             <PiTrash className="mr-2" />
-            Clear
+            {t('sketch.clear')}
           </Button>
         </div>
 
@@ -355,13 +359,13 @@ const SketchPad: React.FC<Props> = (props) => {
               setIsOpenUpload(true);
             }}>
             <PiUploadSimple />
-            画像をアップロード
+            {t('sketch.upload_image')}
           </Button>
           <div className="flex gap-3">
             <Button outlined onClick={props.onCancel}>
-              キャンセル
+              {t('common.cancel')}
             </Button>
-            <Button onClick={onClickComplete}>完了</Button>
+            <Button onClick={onClickComplete}>{t('common.complete')}</Button>
           </div>
         </div>
       </div>

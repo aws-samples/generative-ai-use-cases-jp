@@ -32,6 +32,7 @@ import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useSpeach from '../hooks/useSpeach';
+import { useTranslation } from 'react-i18next';
 
 const languages = [
   '英語',
@@ -91,6 +92,7 @@ const useTranslatePageState = create<StateType>((set) => {
 });
 
 const TranslatePage: React.FC = () => {
+  const { t } = useTranslation();
   const {
     sentence,
     setSentence,
@@ -303,10 +305,10 @@ const TranslatePage: React.FC = () => {
   return (
     <div className="grid grid-cols-12">
       <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        翻訳
+        {t('translate.title')}
       </div>
       <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-        <Card label="翻訳したい文章">
+        <Card label={t('translate.text_to_translate')}>
           <div className="flex w-full flex-col justify-between sm:flex-row">
             <Select
               value={modelId}
@@ -316,13 +318,17 @@ const TranslatePage: React.FC = () => {
               })}
             />
             <div className="col-span-12 col-start-1 mx-2 lg:col-span-10 lg:col-start-2 xl:col-span-10 xl:col-start-2">
-              <Switch label="自動翻訳" checked={auto} onSwitch={setAuto} />
+              <Switch
+                label={t('translate.auto_translate')}
+                checked={auto}
+                onSwitch={setAuto}
+              />
             </div>
           </div>
           <div className="flex w-full flex-col lg:flex-row">
             <div className="w-full lg:w-1/2">
               <div className="flex h-12 items-center">
-                言語を自動検出
+                {t('translate.auto_detect_language')}
                 <div className="ml-2 justify-end">
                   {audio && (
                     <PiStopCircleBold
@@ -344,16 +350,18 @@ const TranslatePage: React.FC = () => {
               </div>
 
               <Textarea
-                placeholder="入力してください"
+                placeholder={t('translate.enter_text')}
                 value={sentence}
                 onChange={setSentence}
                 maxHeight={-1}
                 rows={5}
               />
 
-              <ExpandableField label="追加コンテキスト" optional>
+              <ExpandableField
+                label={t('translate.additional_context')}
+                optional>
                 <Textarea
-                  placeholder="追加で考慮してほしい点を入力することができます（カジュアルさ等）"
+                  placeholder={t('translate.additional_context_placeholder')}
                   value={additionalContext}
                   onChange={setAdditionalContext}
                 />
@@ -377,7 +385,7 @@ const TranslatePage: React.FC = () => {
                 )}
                 {!loading && translatedSentence === '' && (
                   <div className="text-gray-500">
-                    翻訳結果がここに表示されます
+                    {t('translate.result_placeholder')}
                   </div>
                 )}
                 <div className="flex w-full justify-end">
@@ -395,15 +403,17 @@ const TranslatePage: React.FC = () => {
               </div>
               <div className="mt-3 flex justify-end gap-3">
                 {stopReason === 'max_tokens' && (
-                  <Button onClick={continueGeneration}>続きを出力</Button>
+                  <Button onClick={continueGeneration}>
+                    {t('translate.continue_output')}
+                  </Button>
                 )}
 
                 <Button outlined onClick={onClickClear} disabled={disabledExec}>
-                  クリア
+                  {t('common.clear')}
                 </Button>
 
                 <Button disabled={disabledExec} onClick={onClickExec}>
-                  実行
+                  {t('common.execute')}
                 </Button>
               </div>
             </div>

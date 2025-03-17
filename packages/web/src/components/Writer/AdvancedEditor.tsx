@@ -39,6 +39,7 @@ import ButtonCopy from '../ButtonCopy';
 import DiffMatchPatch from 'diff-match-patch';
 import { DocumentComment } from 'generative-ai-use-cases-jp';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const extensions = [...defaultExtensions, slashCommand];
 
@@ -60,6 +61,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onRemove,
   onClick,
 }) => {
+  const { t } = useTranslation();
+
   // コンポーネント内で差分計算用の関数を追加
   const getCharacterDiff = (oldText: string, newText: string) => {
     const dmp = new DiffMatchPatch();
@@ -100,7 +103,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           )}
           {comment.replace && (
             <Button onClick={onReplace} className="ml-auto">
-              置換
+              {t('writer.replace')}
             </Button>
           )}
         </div>
@@ -114,6 +117,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 };
 
 const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
+  const { t } = useTranslation();
   const { write, modelId, setModelId } = useWriter();
   const { modelIds: availableModels } = MODELS;
   const [commentManager, setCommentManager] = useState<AICommentManager | null>(
@@ -249,9 +253,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
       editorRef.commands.setContent(emptyContent);
       commentManager?.clearComments();
       debouncedUpdates(editorRef);
-      toast.info(
-        'エディタをクリアしました。Ctrl-Z/Cmd-Z で戻すことができます。'
-      );
+      toast.info(t('writer.clear_success'));
     }
   };
 
@@ -261,9 +263,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
       editorRef.commands.setContent(defaultEditorContent);
       commentManager?.clearComments();
       debouncedUpdates(editorRef);
-      toast.info(
-        'チュートリアルをエディタに反映しました。Ctrl-Z/Cmd-Z で戻すことができます。'
-      );
+      toast.info(t('writer.tutorial_success'));
     }
   };
 
@@ -284,11 +284,11 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
           />
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-              {saveStatus ? '保存済み' : '保存中...'}
+              {saveStatus ? t('writer.saved') : t('writer.saving')}
             </div>
             {charsCount && (
               <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-                {charsCount} 文字
+                {charsCount} {t('writer.characters')}
               </div>
             )}
             <ButtonCopy
@@ -297,10 +297,10 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               className="hover:bg-accent/80 border"
             />
             <Button outlined onClick={handleClear}>
-              クリア
+              {t('writer.clear')}
             </Button>
             <Button outlined onClick={handleTutorialClick}>
-              チュートリアル
+              {t('writer.tutorial')}
             </Button>
             <Button
               onClick={handleExecClick}
@@ -311,7 +311,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               ) : (
                 <PiChatText className="h-4 w-4" />
               )}
-              校閲
+              {t('writer.review')}
             </Button>
           </div>
         </div>
@@ -345,7 +345,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               slotAfter={<ImageResizer />}>
               <EditorCommand className="border-muted bg-background z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border px-1 py-2 shadow-md transition-all">
                 <EditorCommandEmpty className="text-muted-foreground px-2">
-                  No results
+                  {t('writer.no_results')}
                 </EditorCommandEmpty>
                 <EditorCommandList>
                   {suggestionItems.map((item) => (
@@ -387,7 +387,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         {commentManager && filteredComments.length > 0 && (
           <div className="w-80 min-w-80 lg:ml-2">
             {!loading && commentManager && filteredComments.length === 0 && (
-              <div className="mb-2 ml-2">指摘事項はありません</div>
+              <div className="mb-2 ml-2">{t('writer.no_issues')}</div>
             )}
             {loading && (
               <div className="mb-2 ml-2 flex justify-center">
@@ -454,7 +454,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             {commentManager && filteredComments.length > 0 && !loading && (
               <div className="mt-4 flex justify-end gap-3">
                 <Button outlined onClick={() => commentManager.clearComments()}>
-                  コメントをクリア
+                  {t('writer.clear_comments')}
                 </Button>
               </div>
             )}

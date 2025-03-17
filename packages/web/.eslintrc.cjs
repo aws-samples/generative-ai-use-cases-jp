@@ -9,7 +9,7 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
+  plugins: ['react-refresh', 'no-japanese-strings', '@shopify'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
@@ -21,6 +21,10 @@ module.exports = {
     // size-screen は存在しないというバグがあるためこちらのルールは一時的に無効化する
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/307
     'tailwindcss/enforces-shorthand': ['off'],
+    // 日本語文字列を検知するルールを適用
+    // 'no-japanese-strings/no-japanese-strings': 'warn',
+    // Shopify のルールを適用
+    '@shopify/jsx-no-hardcoded-content': 'warn',
   },
   settings: {
     tailwindcss: {

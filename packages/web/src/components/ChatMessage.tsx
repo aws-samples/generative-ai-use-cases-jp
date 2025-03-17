@@ -23,6 +23,7 @@ import useTyping from '../hooks/useTyping';
 import FileCard from './FileCard';
 import FeedbackForm from './FeedbackForm';
 import useFiles from '../hooks/useFiles';
+import { useTranslation } from 'react-i18next';
 
 type Props = BaseProps & {
   idx?: number;
@@ -36,6 +37,7 @@ type Props = BaseProps & {
 };
 
 const ChatMessage: React.FC<Props> = (props) => {
+  const { t } = useTranslation();
   const chatContent = useMemo(() => {
     return props.chatContent;
   }, [props]);
@@ -166,7 +168,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               <details className="mb-2 cursor-pointer rounded border p-2">
                 <summary className="text-sm">
                   <div className="inline-flex gap-1">
-                    トレース
+                    {t('common.trace')}
                     {props.loading && !chatContent?.content && (
                       <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     )}
@@ -224,6 +226,7 @@ const ChatMessage: React.FC<Props> = (props) => {
               <div className="whitespace-pre-wrap">{typingTextOutput}</div>
             )}
             {props.loading && (chatContent?.content ?? '') === '' && (
+              /* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */
               <div className="animate-pulse">▍</div>
             )}
 
@@ -293,7 +296,7 @@ const ChatMessage: React.FC<Props> = (props) => {
           )}
           {showThankYouMessage && (
             <div className="mt-2 rounded-md bg-green-100 p-2 text-center text-green-700">
-              フィードバックを受け付けました。ありがとうございます。
+              {t('common.feedback_received')}
             </div>
           )}
         </div>

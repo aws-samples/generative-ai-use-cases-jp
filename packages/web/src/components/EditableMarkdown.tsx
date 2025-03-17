@@ -4,6 +4,7 @@ import Markdown from './Markdown';
 import MDEditor from '@uiw/react-md-editor';
 import Button from './Button';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface EditableMarkdownProps {
   code: string;
@@ -14,6 +15,7 @@ const EditableMarkdown: React.FC<EditableMarkdownProps> = ({
   code,
   handleMarkdownChange,
 }) => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedCode, setEditedCode] = useState(code);
 
@@ -42,7 +44,7 @@ const EditableMarkdown: React.FC<EditableMarkdownProps> = ({
           <div className="mt-2 flex justify-end">
             <Button onClick={handleSaveClick} disabled={editedCode === ''}>
               <PiCheck />
-              保存
+              {t('common.save')}
             </Button>
           </div>
         </div>
@@ -52,18 +54,18 @@ const EditableMarkdown: React.FC<EditableMarkdownProps> = ({
           <div className="mt-2 flex justify-end">
             <Button onClick={handleEditClick} outlined>
               <PiPencilLine />
-              マークダウン編集
+              {t('diagram.markdown_edit')}
             </Button>
           </div>
         </div>
       )}
       <div className="flex justify-end">
-        Mermaid の記法は
+        {t('diagram.mermaid_syntax')}
         <Link
           className="text-aws-smile underline"
           to="https://mermaid.js.org/intro/"
           target="_blank">
-          こちら
+          {t('common.here')}
         </Link>
       </div>
     </div>

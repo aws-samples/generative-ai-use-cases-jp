@@ -4,6 +4,7 @@ import {
   SamplePromptType,
   useCaseBuilderSamplePrompts,
 } from '../../prompts/useCaseBuilderSamples';
+import { useTranslation } from 'react-i18next';
 
 type CardSampleProps = SamplePromptType;
 
@@ -77,10 +78,12 @@ const CardSample: React.FC<CardSampleProps> = (props) => {
 };
 
 const UseCaseBuilderSamplesPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:h-min print:visible print:h-min">
-        サンプル集
+        {t('useCaseBuilder.samples')}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         {useCaseBuilderSamplePrompts.map((sample, idx) => {

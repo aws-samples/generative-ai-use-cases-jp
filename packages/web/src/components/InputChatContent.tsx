@@ -15,6 +15,7 @@ import {
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
 import { FileLimit } from 'generative-ai-use-cases-jp';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   content: string;
@@ -46,6 +47,7 @@ type Props = {
   };
 
 const InputChatContent: React.FC<Props> = (props) => {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const { loading: chatLoading, isEmpty } = useChat(pathname);
   const {
@@ -182,7 +184,7 @@ const InputChatContent: React.FC<Props> = (props) => {
           )}
           <Textarea
             className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent`}
-            placeholder={props.placeholder ?? '入力してください'}
+            placeholder={props.placeholder ?? t('common.enter_text')}
             noBorder
             notItem
             value={props.content}
@@ -238,7 +240,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             disabled={loading}
             onClick={props.onReset}>
             <PiArrowsCounterClockwise className="mr-2" />
-            最初からやり直す
+            {t('common.start_over')}
           </Button>
         )}
       </div>

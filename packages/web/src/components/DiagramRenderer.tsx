@@ -6,6 +6,7 @@ import EditableMarkdown from './EditableMarkdown';
 import Button from './Button';
 import mermaid, { MermaidConfig } from 'mermaid';
 import { TbSvg, TbPng } from 'react-icons/tb';
+import { useTranslation } from 'react-i18next';
 
 const defaultConfig: MermaidConfig = {
   // syntax error が dom node に勝手に追加されないようにする
@@ -23,6 +24,7 @@ interface MermaidProps {
 }
 
 export const Mermaid: React.FC<MermaidProps> = (props) => {
+  const { t } = useTranslation();
   const { code } = props;
   const [svgContent, setSvgContent] = useState<string>('');
 
@@ -44,10 +46,10 @@ export const Mermaid: React.FC<MermaidProps> = (props) => {
         }
       } catch (error) {
         console.error(error);
-        setSvgContent('<div>Invalid syntax</div>');
+        setSvgContent(`<div>${t('diagram.invalid_syntax')}</div>`);
       }
     }
-  }, [code]);
+  }, [code, t]);
 
   useEffect(() => {
     render();
@@ -74,6 +76,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
   code,
   handleMarkdownChange,
 }) => {
+  const { t } = useTranslation();
   const [zoom, setZoom] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'diagram' | 'code'>('diagram');
 
@@ -103,7 +106,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('SVG出力エラー: ', error);
+      console.error(t('diagram.svg_error'), error);
     }
   };
 
@@ -157,7 +160,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
       link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
     } catch (error) {
-      console.error('PNG出力エラー: ', error);
+      console.error(t('diagram.png_error'), error);
     }
   };
 
@@ -166,7 +169,11 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
       <Button
         outlined
         onClick={type === 'SVG' ? downloadAsSVG : downloadAsPNG}
-        title={`${type}としてダウンロード`}
+        title={
+          type === 'SVG'
+            ? t('diagram.download_as_svg')
+            : t('diagram.download_as_png')
+        }
         className="cursor-pointer">
         <IoMdDownload className="text-base" />
         {type === 'SVG' ? (
@@ -192,14 +199,14 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
               ${viewMode === 'diagram' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
             onClick={() => setViewMode('diagram')}>
             <LuNetwork className="mr-1 text-lg" />
-            図を表示
+            {t('diagram.show_diagram')}
           </div>
           <div
             className={`m-1 ml-0 flex items-center rounded p-1
               ${viewMode === 'code' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
             onClick={() => setViewMode('code')}>
             <VscCode className="mr-1 text-lg" />
-            コードを表示
+            {t('diagram.show_code')}
           </div>
         </div>
       </div>

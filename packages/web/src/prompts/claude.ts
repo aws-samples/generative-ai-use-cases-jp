@@ -34,6 +34,8 @@ import {
   TimelinePrompt,
 } from './diagrams/index';
 
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 const systemContexts: { [key: string]: string } = {
   '/chat': 'あなたはチャットでユーザを支援するAIアシスタントです。',
   '/summarize':
