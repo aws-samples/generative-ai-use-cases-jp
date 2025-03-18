@@ -61,8 +61,8 @@ const imageGenerationModels: ModelConfiguration[] = (
   .filter((model) => model.modelId);
 export const defaultImageGenerationModel: Model = {
   type: 'bedrock',
-  modelId: imageGenerationModels[0].modelId,
-  region: imageGenerationModels[0].region,
+  modelId: imageGenerationModels?.[0]?.modelId ?? '',
+  region: imageGenerationModels?.[0]?.region ?? '',
 };
 
 // Prompt Templates
