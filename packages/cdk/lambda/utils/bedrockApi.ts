@@ -241,14 +241,23 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     return extractOutputImage(model, body);
   },
   generateVideo: async (model, params) => {
+    const videoBucketRegionMap = JSON.parse(
+      process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
+    );
     const region = model.region || defaultRegion;
     const client = await initBedrockClient(region);
+    const tmpOutputBucket = videoBucketRegionMap[region];
+
+    if (!tmpOutputBucket || tmpOutputBucket.length === 0) {
+      throw new Error('Video tmp buket is not defined');
+    }
+
     const command = new StartAsyncInvokeCommand({
       modelId: model.modelId,
       modelInput: params,
       outputDataConfig: {
         s3OutputDataConfig: {
-          s3Uri: `s3://${process.env.BUCKET_NAME}`,
+          s3Uri: `s3://${tmpOutputBucket}`,
         },
       },
     });

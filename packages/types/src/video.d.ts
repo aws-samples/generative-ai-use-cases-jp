@@ -15,6 +15,7 @@ export type VideoJob = PrimaryKey & {
   status: 'InProgress' | 'Completed' | 'Failed';
   output: string;
   modelId: string;
+  region: string;
   prompt: string;
   params: string;
 };

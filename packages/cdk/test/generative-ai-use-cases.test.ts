@@ -38,6 +38,9 @@ describe('GenerativeAiUseCases', () => {
       imageGenerationModelIds: [
         { modelId: 'stability.stable-diffusion-xl-v1', region: 'us-east-1' },
       ],
+      videoGenerationModelIds: [
+        { modelId: 'amazon.nova-reel-v1:0', region: 'us-east-1' },
+      ],
       endpointNames: [],
       agentEnabled: true,
       searchAgentEnabled: true,

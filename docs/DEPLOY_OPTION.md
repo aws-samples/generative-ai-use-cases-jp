@@ -825,14 +825,15 @@ const envs: Record<string, Partial<StackInput>> = {
 このソリューションが対応している動画生成モデルは以下です。
 
 ```
-"amazon.nova-reel-v1:0"
+"amazon.nova-reel-v1:0",
+"luma.ray-v2:0"
 ```
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
 ### 複数のリージョンのモデルを同時に利用する
 
-GenU では、特に指定がない限り`modelRegion`のモデルを使用します。一部リージョンのみで利用可能な最新モデル等を使いたい場合、`modelIds`または`imageGenerationModelIds`に`{modelId: '<モデル名>', region: '<リージョンコード>'}`を指定することで、そのモデルのみ指定したリージョンから呼び出すことができます。
+GenU では、特に指定がない限り`modelRegion`のモデルを使用します。一部リージョンのみで利用可能な最新モデル等を使いたい場合、`modelIds`または`imageGenerationModelIds`または`videoGenerationModelIds`に`{modelId: '<モデル名>', region: '<リージョンコード>'}`を指定することで、そのモデルのみ指定したリージョンから呼び出すことができます。
 
 > [!NOTE]
 > [モニタリング用ダッシュボード](#モニタリング用のダッシュボードの有効化)と複数リージョンのモデル利用を併用する場合、デフォルトのダッシュボード設定では主リージョン（`modelRegion`で指定したリージョン）以外のモデルのプロンプトログが表示されません。
@@ -850,22 +851,26 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'ap-northeast-1',
     modelIds: [
-      {modelId: "us.anthropic.claude-3-7-sonnet-20250219-v1:0", region: "us-east-1"},
-      "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
-      "anthropic.claude-3-5-sonnet-20240620-v1:0",
-      {modelId: "us.anthropic.claude-3-5-haiku-20241022-v1:0", region: "us-east-1"},
-      "apac.amazon.nova-pro-v1:0",
-      "apac.amazon.nova-lite-v1:0",
-      "apac.amazon.nova-micro-v1:0",
-      {modelId: "us.deepseek.r1-v1:0", region: "us-east-1"},
-      {modelId: "us.meta.llama3-3-70b-instruct-v1:0", region: "us-east-1"},
-      {modelId: "us.meta.llama3-2-90b-instruct-v1:0", region: "us-east-1"},
+      {modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0', region: 'us-east-1'},
+      'apac.anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      {modelId: 'us.anthropic.claude-3-5-haiku-20241022-v1:0', region: 'us-east-1'},
+      'apac.amazon.nova-pro-v1:0',
+      'apac.amazon.nova-lite-v1:0',
+      'apac.amazon.nova-micro-v1:0',
+      {modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1'},
+      {modelId: 'us.meta.llama3-3-70b-instruct-v1:0', region: 'us-east-1'},
+      {modelId: 'us.meta.llama3-2-90b-instruct-v1:0', region: 'us-east-1'},
     ],
     imageGenerationModelIds: [
-      "amazon.nova-canvas-v1:0",
-      {modelId: "stability.sd3-5-large-v1:0", region: "us-west-2"},
-      {modelId: "stability.stable-image-core-v1:1", region: "us-west-2"},
-      {modelId: "stability.stable-image-ultra-v1:1", region: "us-west-2"},
+      'amazon.nova-canvas-v1:0',
+      {modelId: 'stability.sd3-5-large-v1:0', region: 'us-west-2'},
+      {modelId: 'stability.stable-image-core-v1:1', region: 'us-west-2'},
+      {modelId: 'stability.stable-image-ultra-v1:1', region: 'us-west-2'},
+    ],
+    videoGenerationModelIds: [
+      'amazon.nova-reel-v1:0',
+      {modelId: 'luma.ray-v2:0', region: 'us-west-2'},
     ],
   },
 };
@@ -915,6 +920,13 @@ const envs: Record<string, Partial<StackInput>> = {
       },
       {
         "modelId": "stability.stable-image-ultra-v1:1",
+        "region": "us-west-2"
+      }
+    ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0",
+      {
+        "modelId": "luma.ray-v2:0",
         "region": "us-west-2"
       }
     ]

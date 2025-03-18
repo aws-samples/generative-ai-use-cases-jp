@@ -34,7 +34,13 @@ const SettingItem = (props: {
 };
 
 const Setting = () => {
-  const { modelRegion, modelIds, imageGenModelIds, agentNames } = MODELS;
+  const {
+    modelRegion,
+    modelIds,
+    imageGenModelIds,
+    videoGenModelIds,
+    agentNames,
+  } = MODELS;
   const { cache } = useSWRConfig();
   const { getLocalVersion, getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
@@ -99,6 +105,10 @@ const Setting = () => {
         <SettingItem
           name="画像生成 モデル名"
           value={imageGenModelIds.join(', ')}
+        />
+        <SettingItem
+          name="動画生成 モデル名"
+          value={videoGenModelIds.join(', ')}
         />
         <SettingItem name="Agent 名" value={agentNames.join(', ')} />
         <SettingItem

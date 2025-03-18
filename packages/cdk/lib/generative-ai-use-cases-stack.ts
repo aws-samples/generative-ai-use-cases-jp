@@ -24,6 +24,8 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   knowledgeBaseDataSourceBucketName?: string;
   // Agent
   agents?: Agent[];
+  // Video Generation
+  videoBucketRegionMap: Record<string, string>;
   // Guardrail
   guardrailIdentifier?: string;
   guardrailVersion?: string;
@@ -65,6 +67,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       modelIds: params.modelIds,
       imageGenerationModelIds: params.imageGenerationModelIds,
       videoGenerationModelIds: params.videoGenerationModelIds,
+      videoBucketRegionMap: props.videoBucketRegionMap,
       endpointNames: params.endpointNames,
       customAgents: params.agents,
       queryDecompositionEnabled: params.queryDecompositionEnabled,

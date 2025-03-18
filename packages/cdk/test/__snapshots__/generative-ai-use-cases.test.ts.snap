@@ -2037,7 +2037,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       },
     },
     "VideoGenerateModelIds": {
-      "Value": "["amazon.nova-reel-v1:0"]",
+      "Value": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
     },
     "WebUrl": {
       "Value": {
@@ -10130,9 +10130,12 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -10636,6 +10639,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -10727,12 +10731,25 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Ref": "APIFileBucket8FB29855",
             },
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
-            "VIDEO_GENERATION_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+            "VIDEO_BUCKET_REGION_MAP": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"us-east-1":"",
+                  {
+                    "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -10787,32 +10804,27 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "PolicyDocument": {
           "Statement": [
             {
-              "Action": [
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
+              "Action": "s3:PutObject",
               "Effect": "Allow",
               "Resource": [
                 {
-                  "Fn::GetAtt": [
-                    "APIFileBucket8FB29855",
-                    "Arn",
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                    ],
                   ],
                 },
                 {
                   "Fn::Join": [
                     "",
                     [
+                      "arn:aws:s3:::",
                       {
-                        "Fn::GetAtt": [
-                          "APIFileBucket8FB29855",
-                          "Arn",
-                        ],
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
                       },
                       "/*",
                     ],
@@ -11785,13 +11797,29 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "BUCKET_NAME": {
+              "Ref": "APIFileBucket8FB29855",
+            },
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
-            "MODEL_IDS": "["anthropic.claude-3-sonnet-20240229-v1:0"]",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
-            "VIDEO_GENERATION_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+            "VIDEO_BUCKET_REGION_MAP": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"us-east-1":"",
+                  {
+                    "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -11845,6 +11873,73 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Properties": {
         "PolicyDocument": {
           "Statement": [
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListBucket",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "APIFileBucket8FB29855",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "APIFileBucket8FB29855",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
             {
               "Action": [
                 "dynamodb:BatchGetItem",
@@ -12014,7 +12109,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
-            "VIDEO_GENERATION_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -12148,7 +12243,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
             },
-            "VIDEO_GENERATION_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -12285,7 +12380,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
-            "VIDEO_GENERATION_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -12831,7 +12926,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "Ref": "AuthUserPool8115E87F",
           },
           "VITE_APP_USE_CASE_BUILDER_ENABLED": "true",
-          "VITE_APP_VIDEO_MODEL_IDS": "["amazon.nova-reel-v1:0"]",
+          "VITE_APP_VIDEO_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
         },
         "outputEnvFile": false,
         "outputSourceDirectory": "../packages/web/dist",

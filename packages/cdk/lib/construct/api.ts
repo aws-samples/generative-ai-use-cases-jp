@@ -38,6 +38,7 @@ export interface BackendApiProps {
   modelIds: ModelConfiguration[];
   imageGenerationModelIds: ModelConfiguration[];
   videoGenerationModelIds: ModelConfiguration[];
+  videoBucketRegionMap: Record<string, string>;
   endpointNames: string[];
   queryDecompositionEnabled: boolean;
   rerankingModelId?: string | null;
@@ -247,6 +248,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
       },
       bundling: {
@@ -261,7 +263,9 @@ export class Api extends Construct {
       environment: {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
@@ -270,7 +274,19 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
-    fileBucket.grantWrite(generateVideoFunction);
+    for (const region of Object.keys(props.videoBucketRegionMap)) {
+      const bucketName = props.videoBucketRegionMap[region];
+      generateVideoFunction.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:PutObject'],
+          resources: [
+            `arn:aws:s3:::${bucketName}`,
+            `arn:aws:s3:::${bucketName}/*`,
+          ],
+        })
+      );
+    }
     table.grantWriteData(generateVideoFunction);
 
     const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
@@ -280,14 +296,31 @@ export class Api extends Construct {
       environment: {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
+    for (const region of Object.keys(props.videoBucketRegionMap)) {
+      const bucketName = props.videoBucketRegionMap[region];
+      listVideoJobs.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:GetObject', 's3:DeleteObject', 's3:ListBucket'],
+          resources: [
+            `arn:aws:s3:::${bucketName}`,
+            `arn:aws:s3:::${bucketName}/*`,
+          ],
+        })
+      );
+    }
+    fileBucket.grantWrite(listVideoJobs);
     table.grantReadWriteData(listVideoJobs);
 
     const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
@@ -295,6 +328,9 @@ export class Api extends Construct {
       entry: './lambda/deleteVideoJob.ts',
       timeout: Duration.minutes(15),
       environment: {
+        MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         TABLE_NAME: table.tableName,
       },
     });
