@@ -23,9 +23,11 @@ import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { streamingChunk } from './streamingChunk';
 
+const defaultRegion = process.env.MODEL_REGION as string;
+
 // STSから一時的な認証情報を取得する関数
 const assumeRole = async (crossAccountBedrockRoleArn: string) => {
-  const stsClient = new STSClient({ region: process.env.MODEL_REGION });
+  const stsClient = new STSClient({ region: defaultRegion });
   const command = new AssumeRoleCommand({
     RoleArn: crossAccountBedrockRoleArn,
     RoleSessionName: 'BedrockApiAccess',
@@ -53,7 +55,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
 // そのような場合、CROSS_ACCOUNT_BEDROCK_ROLE_ARN 環境変数が設定されているかをチェックします。(cdk.json で crossAccountBedrockRoleArn が設定されている場合に環境変数として設定される)
 // 設定されている場合、指定されたロールを AssumeRole 操作によって引き受け、取得した一時的な認証情報を用いて BedrockRuntimeClient を初期化します。
 // これにより、別の AWS アカウントの Bedrock リソースへのアクセスが可能になります。
-const initBedrockClient = async () => {
+const initBedrockClient = async (region: string) => {
   // CROSS_ACCOUNT_BEDROCK_ROLE_ARN が設定されているかチェック
   if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
     // STS から一時的な認証情報を取得してクライアントを初期化
@@ -70,7 +72,7 @@ const initBedrockClient = async () => {
     }
 
     return new BedrockRuntimeClient({
-      region: process.env.MODEL_REGION,
+      region,
       credentials: {
         accessKeyId: tempCredentials.accessKeyId,
         secretAccessKey: tempCredentials.secretAccessKey,
@@ -80,7 +82,7 @@ const initBedrockClient = async () => {
   } else {
     // STSを使用しない場合のクライアント初期化
     return new BedrockRuntimeClient({
-      region: process.env.MODEL_REGION,
+      region,
     });
   }
 };
@@ -146,7 +148,8 @@ const extractOutputImage = (
 
 const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
   invoke: async (model, messages, id) => {
-    const client = await initBedrockClient();
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
 
     const converseCommandInput = createConverseCommandInput(
       model,
@@ -159,8 +162,8 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     return extractConverseOutput(model, output).text;
   },
   invokeStream: async function* (model, messages, id) {
-    const client = await initBedrockClient();
-
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(
         model,
@@ -205,7 +208,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
           stopReason: 'error',
         });
       } else if (e instanceof AccessDeniedException) {
-        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
+        const modelAccessURL = `https://${region}.console.aws.amazon.com/bedrock/home?region=${region}#/modelaccess`;
         yield streamingChunk({
           text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
           stopReason: 'error',
@@ -222,7 +225,8 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     }
   },
   generateImage: async (model, params) => {
-    const client = await initBedrockClient();
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
 
     // Stable Diffusion や Titan Image Generator を利用した画像生成は Converse API に対応していないため、InvokeModelCommand を利用する
     const command = new InvokeModelCommand({

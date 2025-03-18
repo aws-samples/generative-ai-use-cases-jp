@@ -29,7 +29,15 @@ export const stackInputSchema = z.object({
   // API
   modelRegion: z.string().default('us-east-1'),
   modelIds: z
-    .array(z.string())
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          modelId: z.string(),
+          region: z.string(),
+        }),
+      ])
+    )
     .default([
       'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
       'us.anthropic.claude-3-5-haiku-20241022-v1:0',
@@ -38,7 +46,15 @@ export const stackInputSchema = z.object({
       'us.amazon.nova-micro-v1:0',
     ]),
   imageGenerationModelIds: z
-    .array(z.string())
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          modelId: z.string(),
+          region: z.string(),
+        }),
+      ])
+    )
     .default(['amazon.nova-canvas-v1:0']),
   endpointNames: z.array(z.string()).default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
@@ -115,4 +131,21 @@ export const stackInputSchema = z.object({
   dashboard: z.boolean().default(false),
 });
 
+// 変換後用のschema
+export const processedStackInputSchema = stackInputSchema.extend({
+  modelIds: z.array(
+    z.object({
+      modelId: z.string(),
+      region: z.string(),
+    })
+  ),
+  imageGenerationModelIds: z.array(
+    z.object({
+      modelId: z.string(),
+      region: z.string(),
+    })
+  ),
+});
+
 export type StackInput = z.infer<typeof stackInputSchema>;
+export type ProcessedStackInput = z.infer<typeof processedStackInputSchema>;

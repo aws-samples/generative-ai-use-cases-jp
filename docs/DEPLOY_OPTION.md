@@ -210,6 +210,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
 
+- `modelRegion` リージョンのモデルが 1 つ以上 `modelIds` に定義されている必要があります。
 - `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンの Bedrock で `rerankingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
@@ -592,7 +593,7 @@ const envs: Record<string, Partial<StackInput>> = {
 映像分析ユースケースでは、映像の画像フレームとテキストを入力して画像の内容を LLM に分析させます。
 映像分析ユースケースを直接有効化するオプションはありませんが、パラメータでマルチモーダルのモデルが有効化されている必要があります。
 
-2024/06 現在、マルチモーダルのモデルは以下です。
+2025/03 現在、マルチモーダルのモデルは以下です。
 
 ```
 "anthropic.claude-3-5-sonnet-20241022-v2:0",
@@ -811,6 +812,99 @@ const envs: Record<string, Partial<StackInput>> = {
 
 **指定したリージョンで指定したモデルが有効化されているかご確認ください。**
 
+### 複数のリージョンのモデルを同時に利用する
+
+GenU では、特に指定がない限り`modelRegion`のモデルを使用します。一部リージョンのみで利用可能な最新モデル等を使いたい場合、`modelIds`または`imageGenerationModelIds`に`{modelId: '<モデル名>', region: '<リージョンコード>'}`を指定することで、そのモデルのみ指定したリージョンから呼び出すことができます。
+
+> [!NOTE]
+> [モニタリング用ダッシュボード](#モニタリング用のダッシュボードの有効化)と複数リージョンのモデル利用を併用する場合、デフォルトのダッシュボード設定では主リージョン（`modelRegion`で指定したリージョン）以外のモデルのプロンプトログが表示されません。
+> 
+> 全リージョンのプロンプトログを一つのダッシュボード上で一覧したい場合は、以下の追加設定が必要です：
+> 
+> 1. 各リージョンのAmazon Bedrock設定画面で「Model invocation logging」を手動で有効化する
+> 2. CloudWatchダッシュボードに各リージョンのログを集計するウィジェットを追加する
+
+#### 東京リージョンを優先しつつ、バージニア北部リージョン・オレゴンリージョンの最新のモデルも使いたい場合
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    modelRegion: 'ap-northeast-1',
+    modelIds: [
+      {modelId: "us.anthropic.claude-3-7-sonnet-20250219-v1:0", region: "us-east-1"},
+      "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      {modelId: "us.anthropic.claude-3-5-haiku-20241022-v1:0", region: "us-east-1"},
+      "apac.amazon.nova-pro-v1:0",
+      "apac.amazon.nova-lite-v1:0",
+      "apac.amazon.nova-micro-v1:0",
+      {modelId: "us.deepseek.r1-v1:0", region: "us-east-1"},
+      {modelId: "us.meta.llama3-3-70b-instruct-v1:0", region: "us-east-1"},
+      {modelId: "us.meta.llama3-2-90b-instruct-v1:0", region: "us-east-1"},
+    ],
+    imageGenerationModelIds: [
+      "amazon.nova-canvas-v1:0",
+      {modelId: "stability.sd3-5-large-v1:0", region: "us-west-2"},
+      {modelId: "stability.stable-image-core-v1:1", region: "us-west-2"},
+      {modelId: "stability.stable-image-ultra-v1:1", region: "us-west-2"},
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+```json
+{
+  "context": {
+    "modelRegion": "ap-northeast-1",
+    "modelIds": [
+      {
+        "modelId": "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+        "region": "us-east-1"
+      },
+      "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      {
+        "modelId": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+        "region": "us-east-1"
+      },
+      "apac.amazon.nova-pro-v1:0",
+      "apac.amazon.nova-lite-v1:0",
+      "apac.amazon.nova-micro-v1:0",
+      {
+        "modelId": "us.deepseek.r1-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.meta.llama3-3-70b-instruct-v1:0",
+        "region": "us-east-1"
+      },
+      {
+        "modelId": "us.meta.llama3-2-90b-instruct-v1:0",
+        "region": "us-east-1"
+      }
+    ],
+    "imageGenerationModelIds": [
+      "amazon.nova-canvas-v1:0",
+      {
+        "modelId": "stability.sd3-5-large-v1:0",
+        "region": "us-west-2"
+      },
+      {
+        "modelId": "stability.stable-image-core-v1:1",
+        "region": "us-west-2"
+      },
+      {
+        "modelId": "stability.stable-image-ultra-v1:1",
+        "region": "us-west-2"
+      }
+    ]
+  }
+}
+```
+
+
 ### us-east-1 (バージニア) の Amazon Bedrock のモデルを利用する例
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
@@ -898,7 +992,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
       "stability.sd3-large-v1:0",
-      "stability.sd3-5-large-v1:0"
+      "stability.sd3-5-large-v1:0",
       "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
       "stability.stable-image-ultra-v1:0",

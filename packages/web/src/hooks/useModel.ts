@@ -1,12 +1,24 @@
-import { Model } from 'generative-ai-use-cases-jp';
+import { Model, ModelConfiguration } from 'generative-ai-use-cases-jp';
 import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 
 // 環境変数からモデル名などを取得
-const bedrockModelIds: string[] = JSON.parse(import.meta.env.VITE_APP_MODEL_IDS)
-  .map((name: string) => name.trim())
-  .filter((name: string) => name);
+const bedrockModelConfigs = (
+  JSON.parse(import.meta.env.VITE_APP_MODEL_IDS) as ModelConfiguration[]
+)
+  .map((model) => ({
+    modelId: model.modelId.trim(),
+    region: model.region.trim(),
+  }))
+  .filter((model) => model.modelId);
+const bedrockModelIds: string[] = bedrockModelConfigs.map(
+  (model) => model.modelId
+);
+const modelIdsInModelRegion: string[] = bedrockModelConfigs
+  .filter((model) => model.region === modelRegion)
+  .map((model) => model.modelId);
+
 const visionModelIds: string[] = bedrockModelIds.filter(
   (modelId) => modelFeatureFlags[modelId].image
 );
@@ -18,11 +30,19 @@ const endpointNames: string[] = JSON.parse(
   .map((name: string) => name.trim())
   .filter((name: string) => name);
 
-const imageGenModelIds: string[] = JSON.parse(
-  import.meta.env.VITE_APP_IMAGE_MODEL_IDS
+const imageModelConfigs = (
+  JSON.parse(import.meta.env.VITE_APP_IMAGE_MODEL_IDS) as ModelConfiguration[]
 )
-  .map((name: string) => name.trim())
-  .filter((name: string) => name);
+  .map(
+    (model: ModelConfiguration): ModelConfiguration => ({
+      modelId: model.modelId.trim(),
+      region: model.region.trim(),
+    })
+  )
+  .filter((model) => model.modelId);
+const imageGenModelIds: string[] = imageModelConfigs.map(
+  (model) => model.modelId
+);
 
 const agentNames: string[] = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES)
   .map((name: string) => name.trim())
@@ -40,16 +60,26 @@ const flows = getFlows();
 
 // モデルオブジェクトの定義
 const textModels = [
-  ...bedrockModelIds.map(
-    (name) => ({ modelId: name, type: 'bedrock' }) as Model
+  ...bedrockModelConfigs.map(
+    (model) =>
+      ({
+        modelId: model.modelId,
+        type: 'bedrock',
+        region: model.region,
+      }) as Model
   ),
   ...endpointNames.map(
     (name) => ({ modelId: name, type: 'sagemaker' }) as Model
   ),
 ];
 const imageGenModels = [
-  ...imageGenModelIds.map(
-    (name) => ({ modelId: name, type: 'bedrock' }) as Model
+  ...imageModelConfigs.map(
+    (model) =>
+      ({
+        modelId: model.modelId,
+        type: 'bedrock',
+        region: model.region,
+      }) as Model
   ),
 ];
 const agentModels = [
@@ -76,6 +106,7 @@ const searchAgent = agentNames.find((name) => name.includes('Search'));
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: [...bedrockModelIds, ...endpointNames],
+  modelIdsInModelRegion,
   modelFeatureFlags: modelFeatureFlags,
   visionModelIds: visionModelIds,
   visionEnabled: visionEnabled,
