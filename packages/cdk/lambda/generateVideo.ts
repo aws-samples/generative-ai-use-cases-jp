@@ -11,6 +11,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const req: GenerateVideoRequest = JSON.parse(event.body!);
+    console.log(req);
     const model = req.model || defaultVideoGenerationModel;
     const invocationArn = await api[model.type].generateVideo(
       model,

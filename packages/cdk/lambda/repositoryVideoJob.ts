@@ -51,7 +51,7 @@ export const createJob = async (
 const checkAndUpdateJob = async (
   job: VideoJob
 ): Promise<'InProgress' | 'Completed' | 'Failed'> => {
-  const client = await initBedrockClient();
+  const client = await initBedrockClient('us-east-1'); // TODO
   const command = new GetAsyncInvokeCommand({
     invocationArn: job.invocationArn,
   });

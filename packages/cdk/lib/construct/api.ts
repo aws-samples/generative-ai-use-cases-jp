@@ -20,7 +20,11 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import { Agent, AgentMap } from 'generative-ai-use-cases-jp';
+import {
+  Agent,
+  AgentMap,
+  ModelConfiguration,
+} from 'generative-ai-use-cases-jp';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
@@ -31,9 +35,9 @@ import {
 export interface BackendApiProps {
   // Context Params
   modelRegion: string;
-  modelIds: string[];
-  imageGenerationModelIds: string[];
-  videoGenerationModelIds: string[];
+  modelIds: ModelConfiguration[];
+  imageGenerationModelIds: ModelConfiguration[];
+  videoGenerationModelIds: ModelConfiguration[];
   endpointNames: string[];
   queryDecompositionEnabled: boolean;
   rerankingModelId?: string | null;
@@ -57,9 +61,9 @@ export class Api extends Construct {
   readonly invokeFlowFunction: NodejsFunction;
   readonly optimizePromptFunction: NodejsFunction;
   readonly modelRegion: string;
-  readonly modelIds: string[];
-  readonly imageGenerationModelIds: string[];
-  readonly videoGenerationModelIds: string[];
+  readonly modelIds: ModelConfiguration[];
+  readonly imageGenerationModelIds: ModelConfiguration[];
+  readonly videoGenerationModelIds: ModelConfiguration[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
   readonly fileBucket: Bucket;
@@ -86,19 +90,19 @@ export class Api extends Construct {
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
     // Validate Model Names
-    for (const modelId of modelIds) {
-      if (!BEDROCK_TEXT_MODELS.includes(modelId)) {
-        throw new Error(`Unsupported Model Name: ${modelId}`);
+    for (const model of modelIds) {
+      if (!BEDROCK_TEXT_MODELS.includes(model.modelId)) {
+        throw new Error(`Unsupported Model Name: ${model.modelId}`);
       }
     }
-    for (const modelId of imageGenerationModelIds) {
-      if (!BEDROCK_IMAGE_GEN_MODELS.includes(modelId)) {
-        throw new Error(`Unsupported Model Name: ${modelId}`);
+    for (const model of imageGenerationModelIds) {
+      if (!BEDROCK_IMAGE_GEN_MODELS.includes(model.modelId)) {
+        throw new Error(`Unsupported Model Name: ${model.modelId}`);
       }
     }
-    for (const modelId of videoGenerationModelIds) {
-      if (!BEDROCK_VIDEO_GEN_MODELS.includes(modelId)) {
-        throw new Error(`Unsupported Model Name: ${modelId}`);
+    for (const model of videoGenerationModelIds) {
+      if (!BEDROCK_VIDEO_GEN_MODELS.includes(model.modelId)) {
+        throw new Error(`Unsupported Model Name: ${model.modelId}`);
       }
     }
     if (

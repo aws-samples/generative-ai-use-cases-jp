@@ -24,20 +24,13 @@ import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
 import { toast } from 'sonner';
 
-// LUMA Ray v2 で StartAsyncInvoke API を実行する際に ap-northeast-1 の S3 Bucket を指定すると以下のエラーになる
-// 原因は現在調査中 (Bucket が us-west-2 にあれば問題なく実行できる)
-// ```
-// botocore.errorfactory.ValidationException: An error occurred (ValidationException) when calling the StartAsyncInvoke operation: Invalid S3 credentials
-// ```
-// LUMA Ray v2 対応の実装はコメントで残す
-
 const AMAZON_MODELS = {
   REEL_V1: 'amazon.nova-reel-v1:0',
 };
 
-// const LAY_MODELS = {
-//   RAY_V2: 'luma.ray-v2:0',
-// };
+const LAY_MODELS = {
+  RAY_V2: 'luma.ray-v2:0',
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MODEL_PARAMS: Record<string, any> = {
@@ -48,12 +41,12 @@ const MODEL_PARAMS: Record<string, any> = {
     fps: [24],
     seed: 0,
   },
-  // [LAY_MODELS.RAY_V2]: {
-  //   resolution: ['540p', '720p'],
-  //   durationSeconds: [5, 9],
-  //   aspectRatio: ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9', '9:21'],
-  //   loop: false,
-  // },
+  [LAY_MODELS.RAY_V2]: {
+    resolution: ['540p', '720p'],
+    durationSeconds: [5, 9],
+    aspectRatio: ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9', '9:21'],
+    loop: false,
+  },
 };
 
 type ComprehensiveParams = {
@@ -83,15 +76,15 @@ const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
       },
     };
   },
-  // [LAY_MODELS.RAY_V2]: (params: ComprehensiveParams) => {
-  //   return {
-  //     prompt: params.prompt,
-  //     aspect_ratio: params.aspectRatio,
-  //     loop: params.loop,
-  //     duration: `${params.durationSeconds}s`,
-  //     resolution: params.resolution,
-  //   };
-  // },
+  [LAY_MODELS.RAY_V2]: (params: ComprehensiveParams) => {
+    return {
+      prompt: params.prompt,
+      aspect_ratio: params.aspectRatio,
+      loop: params.loop,
+      duration: `${params.durationSeconds}s`,
+      resolution: params.resolution,
+    };
+  },
 };
 
 type StateType = ComprehensiveParams & {

@@ -157,8 +157,7 @@ export const modelFeatureFlags: Record<string, FeatureFlags> = {
   // === Video ===
 
   'amazon.nova-reel-v1:0': MODEL_FEATURE.VIDEO_GEN,
-  // 出力先の S3 Bucket に ap-northeast-1 を指定した際、エラーになる問題があるため対応を見送っている
-  // 'luma.ray-v2:0': MODEL_FEATURE.VIDEO_GEN,
+  'luma.ray-v2:0': MODEL_FEATURE.VIDEO_GEN,
 
   // === Embedding ===
 
