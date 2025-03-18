@@ -15,6 +15,9 @@ const bedrockModelConfigs = (
 const bedrockModelIds: string[] = bedrockModelConfigs.map(
   (model) => model.modelId
 );
+const modelIdsInModelRegion: string[] = bedrockModelConfigs
+  .filter((model) => model.region === modelRegion)
+  .map((model) => model.modelId);
 
 const visionModelIds: string[] = bedrockModelIds.filter(
   (modelId) => modelFeatureFlags[modelId].image
@@ -103,6 +106,7 @@ const searchAgent = agentNames.find((name) => name.includes('Search'));
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: [...bedrockModelIds, ...endpointNames],
+  modelIdsInModelRegion,
   modelFeatureFlags: modelFeatureFlags,
   visionModelIds: visionModelIds,
   visionEnabled: visionEnabled,
