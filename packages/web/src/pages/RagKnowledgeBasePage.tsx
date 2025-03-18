@@ -73,7 +73,7 @@ const RagKnowledgeBasePage: React.FC = () => {
     retryGeneration,
   } = useChat(pathname);
   const { scrollableContainer, setFollowing } = useFollow();
-  const { modelIds: availableModels } = MODELS;
+  const { modelIdsInModelRegion: availableModels } = MODELS;
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);

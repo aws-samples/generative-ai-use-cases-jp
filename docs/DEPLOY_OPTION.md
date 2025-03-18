@@ -210,6 +210,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 変更後に `npm run cdk:deploy` で再度デプロイして反映させます。この際、`modelRegion` で指定されているリージョンに Knowledge Base がデプロイされます。以下に注意してください。
 
+- `modelRegion` リージョンのモデルが 1 つ以上 `modelIds` に定義されている必要があります。
 - `modelRegion` リージョンの Bedrock で `embeddingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンの Bedrock で `rerankingModelId` のモデルが有効化されている必要があります。
 - `modelRegion` リージョンで `npm run cdk:deploy` の前に AWS CDK の Bootstrap が完了している必要があります。
