@@ -34,6 +34,7 @@ export interface WebProps {
   modelRegion: string;
   modelIds: ModelConfiguration[];
   imageGenerationModelIds: ModelConfiguration[];
+  videoGenerationModelIds: ModelConfiguration[];
   endpointNames: string[];
   samlAuthEnabled: boolean;
   samlCognitoDomainName?: string | null;
@@ -185,6 +186,7 @@ export class Web extends Construct {
         VITE_APP_MODEL_REGION: props.modelRegion,
         VITE_APP_MODEL_IDS: JSON.stringify(props.modelIds),
         VITE_APP_IMAGE_MODEL_IDS: JSON.stringify(props.imageGenerationModelIds),
+        VITE_APP_VIDEO_MODEL_IDS: JSON.stringify(props.videoGenerationModelIds),
         VITE_APP_ENDPOINT_NAMES: JSON.stringify(props.endpointNames),
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',

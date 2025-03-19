@@ -27,6 +27,7 @@ import {
 } from 'generative-ai-use-cases-jp';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
+  BEDROCK_VIDEO_GEN_MODELS,
   BEDROCK_RERANKING_MODELS,
   BEDROCK_TEXT_MODELS,
 } from '@generative-ai-use-cases-jp/common';
@@ -36,6 +37,8 @@ export interface BackendApiProps {
   modelRegion: string;
   modelIds: ModelConfiguration[];
   imageGenerationModelIds: ModelConfiguration[];
+  videoGenerationModelIds: ModelConfiguration[];
+  videoBucketRegionMap: Record<string, string>;
   endpointNames: string[];
   queryDecompositionEnabled: boolean;
   rerankingModelId?: string | null;
@@ -61,6 +64,7 @@ export class Api extends Construct {
   readonly modelRegion: string;
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
+  readonly videoGenerationModelIds: ModelConfiguration[];
   readonly endpointNames: string[];
   readonly agentNames: string[];
   readonly fileBucket: Bucket;
@@ -73,6 +77,7 @@ export class Api extends Construct {
       modelRegion,
       modelIds,
       imageGenerationModelIds,
+      videoGenerationModelIds,
       endpointNames,
       crossAccountBedrockRoleArn,
       userPool,
@@ -93,6 +98,11 @@ export class Api extends Construct {
     }
     for (const model of imageGenerationModelIds) {
       if (!BEDROCK_IMAGE_GEN_MODELS.includes(model.modelId)) {
+        throw new Error(`Unsupported Model Name: ${model.modelId}`);
+      }
+    }
+    for (const model of videoGenerationModelIds) {
+      if (!BEDROCK_VIDEO_GEN_MODELS.includes(model.modelId)) {
         throw new Error(`Unsupported Model Name: ${model.modelId}`);
       }
     }
@@ -137,6 +147,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
@@ -161,6 +172,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         AGENT_MAP: JSON.stringify(agentMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
@@ -216,6 +228,7 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
@@ -235,12 +248,93 @@ export class Api extends Construct {
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
+
+    const generateVideoFunction = new NodejsFunction(this, 'GenerateVideo', {
+      runtime: Runtime.NODEJS_LATEST,
+      entry: './lambda/generateVideo.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_REGION: modelRegion,
+        MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        BUCKET_NAME: fileBucket.bucketName,
+        TABLE_NAME: table.tableName,
+      },
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
+    });
+    for (const region of Object.keys(props.videoBucketRegionMap)) {
+      const bucketName = props.videoBucketRegionMap[region];
+      generateVideoFunction.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:PutObject'],
+          resources: [
+            `arn:aws:s3:::${bucketName}`,
+            `arn:aws:s3:::${bucketName}/*`,
+          ],
+        })
+      );
+    }
+    table.grantWriteData(generateVideoFunction);
+
+    const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
+      runtime: Runtime.NODEJS_LATEST,
+      entry: './lambda/listVideoJobs.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_REGION: modelRegion,
+        MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
+        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        BUCKET_NAME: fileBucket.bucketName,
+        TABLE_NAME: table.tableName,
+      },
+      bundling: {
+        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+      },
+    });
+    for (const region of Object.keys(props.videoBucketRegionMap)) {
+      const bucketName = props.videoBucketRegionMap[region];
+      listVideoJobs.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['s3:GetObject', 's3:DeleteObject', 's3:ListBucket'],
+          resources: [
+            `arn:aws:s3:::${bucketName}`,
+            `arn:aws:s3:::${bucketName}/*`,
+          ],
+        })
+      );
+    }
+    fileBucket.grantWrite(listVideoJobs);
+    table.grantReadWriteData(listVideoJobs);
+
+    const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
+      runtime: Runtime.NODEJS_LATEST,
+      entry: './lambda/deleteVideoJob.ts',
+      timeout: Duration.minutes(15),
+      environment: {
+        MODEL_IDS: JSON.stringify(modelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        TABLE_NAME: table.tableName,
+      },
+    });
+    table.grantWriteData(deleteVideoJob);
 
     const optimizePromptFunction = new NodejsFunction(
       this,
@@ -276,6 +370,8 @@ export class Api extends Construct {
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      generateVideoFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      listVideoJobs.role?.addToPrincipalPolicy(sagemakerPolicy);
       invokeFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
 
@@ -294,6 +390,8 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      generateVideoFunction.role?.addToPrincipalPolicy(bedrockPolicy);
+      listVideoJobs.role?.addToPrincipalPolicy(bedrockPolicy);
       invokeFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
@@ -312,10 +410,14 @@ export class Api extends Construct {
       predictFunction.role?.addToPrincipalPolicy(logsPolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(logsPolicy);
       generateImageFunction.role?.addToPrincipalPolicy(logsPolicy);
+      generateVideoFunction.role?.addToPrincipalPolicy(logsPolicy);
+      listVideoJobs.role?.addToPrincipalPolicy(logsPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
       generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      generateVideoFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
+      listVideoJobs.role?.addToPrincipalPolicy(assumeRolePolicy);
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
@@ -698,6 +800,28 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
+    const videoResource = api.root.addResource('video');
+    const videoGenerateResource = videoResource.addResource('generate');
+    // POST: /video/generate
+    videoGenerateResource.addMethod(
+      'POST',
+      new LambdaIntegration(generateVideoFunction),
+      commonAuthorizerProps
+    );
+    // GET: /video/generate
+    videoGenerateResource.addMethod(
+      'GET',
+      new LambdaIntegration(listVideoJobs),
+      commonAuthorizerProps
+    );
+    const videoJobResource = videoGenerateResource.addResource('{createdDate}');
+    // DELETE: /video/generate/{createdDate}
+    videoJobResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteVideoJob),
+      commonAuthorizerProps
+    );
+
     // Web コンテンツ抽出のユースケースで利用
     const webTextResource = api.root.addResource('web-text');
     // GET: /web-text
@@ -769,6 +893,7 @@ export class Api extends Construct {
     this.modelRegion = modelRegion;
     this.modelIds = modelIds;
     this.imageGenerationModelIds = imageGenerationModelIds;
+    this.videoGenerationModelIds = videoGenerationModelIds;
     this.endpointNames = endpointNames;
     this.agentNames = Object.keys(agentMap);
     this.fileBucket = fileBucket;

@@ -44,6 +44,20 @@ const imageGenModelIds: string[] = imageModelConfigs.map(
   (model) => model.modelId
 );
 
+const videoModelConfigs = (
+  JSON.parse(import.meta.env.VITE_APP_VIDEO_MODEL_IDS) as ModelConfiguration[]
+)
+  .map(
+    (model: ModelConfiguration): ModelConfiguration => ({
+      modelId: model.modelId.trim(),
+      region: model.region.trim(),
+    })
+  )
+  .filter((model) => model.modelId);
+const videoGenModelIds: string[] = videoModelConfigs.map(
+  (model) => model.modelId
+);
+
 const agentNames: string[] = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
@@ -82,6 +96,16 @@ const imageGenModels = [
       }) as Model
   ),
 ];
+const videoGenModels = [
+  ...videoModelConfigs.map(
+    (model) =>
+      ({
+        modelId: model.modelId,
+        type: 'bedrock',
+        region: model.region,
+      }) as Model
+  ),
+];
 const agentModels = [
   ...agentNames.map(
     (name) => ({ modelId: name, type: 'bedrockAgent' }) as Model
@@ -89,9 +113,12 @@ const agentModels = [
 ];
 
 export const findModelByModelId = (modelId: string) => {
-  const model = [...textModels, ...imageGenModels, ...agentModels].find(
-    (m) => m.modelId === modelId
-  );
+  const model = [
+    ...textModels,
+    ...imageGenModels,
+    ...videoGenModels,
+    ...agentModels,
+  ].find((m) => m.modelId === modelId);
 
   if (model) {
     // deep copy
@@ -111,9 +138,11 @@ export const MODELS = {
   visionModelIds: visionModelIds,
   visionEnabled: visionEnabled,
   imageGenModelIds: imageGenModelIds,
+  videoGenModelIds: videoGenModelIds,
   agentNames: agentNames,
   textModels: textModels,
   imageGenModels: imageGenModels,
+  videoGenModels: videoGenModels,
   agentModels: agentModels,
   agentEnabled: agentNames.length > 0,
   searchAgent: searchAgent,

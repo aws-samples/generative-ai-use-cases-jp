@@ -23,6 +23,7 @@ export const stackInputSchema = z.object({
       webContent: z.boolean().optional(),
       image: z.boolean().optional(),
       video: z.boolean().optional(),
+      videoAnalyzer: z.boolean().optional(),
       diagram: z.boolean().optional(),
     })
     .default({}),
@@ -56,6 +57,17 @@ export const stackInputSchema = z.object({
       ])
     )
     .default(['amazon.nova-canvas-v1:0']),
+  videoGenerationModelIds: z
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          modelId: z.string(),
+          region: z.string(),
+        }),
+      ])
+    )
+    .default(['amazon.nova-reel-v1:0']),
   endpointNames: z.array(z.string()).default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
@@ -140,6 +152,12 @@ export const processedStackInputSchema = stackInputSchema.extend({
     })
   ),
   imageGenerationModelIds: z.array(
+    z.object({
+      modelId: z.string(),
+      region: z.string(),
+    })
+  ),
+  videoGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),

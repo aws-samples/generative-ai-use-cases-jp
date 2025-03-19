@@ -2036,6 +2036,9 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Ref": "AuthUserPool8115E87F",
       },
     },
+    "VideoGenerateModelIds": {
+      "Value": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
+    },
     "WebUrl": {
       "Value": {
         "Fn::Join": [
@@ -2138,7 +2141,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123ed9de8e184cda22d9d37e6209ce821ea": {
+    "APIApiDeployment3A502123d75c6f1f887fef40596e8e44b7c34d5d": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -2256,6 +2259,15 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "APIApiusecasesrecentOPTIONS750FF00D",
         "APIApiusecasesrecent31965B7B",
         "APIApiusecases8321EF30",
+        "APIApivideogeneratecreatedDateDELETE0F2B03A2",
+        "APIApivideogeneratecreatedDateOPTIONS9EB2B1CE",
+        "APIApivideogeneratecreatedDate1AAB9D62",
+        "APIApivideogenerateGETC779E422",
+        "APIApivideogenerateOPTIONS14AE6956",
+        "APIApivideogeneratePOSTACA060AA",
+        "APIApivideogenerateCBF56796",
+        "APIApivideoOPTIONS20C58EF2",
+        "APIApivideoAEC3C4D1",
         "APIApiwebtextGETB44776EB",
         "APIApiwebtextOPTIONS5EFD2A2D",
         "APIApiwebtext0828B9D5",
@@ -2276,7 +2288,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123ed9de8e184cda22d9d37e6209ce821ea",
+          "Ref": "APIApiDeployment3A502123d75c6f1f887fef40596e8e44b7c34d5d",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -8507,6 +8519,498 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::ApiGateway::Method",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIApivideoAEC3C4D1": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "APIApiFFA96F67",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "video",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideoOPTIONS20C58EF2": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApivideoAEC3C4D1",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogenerateCBF56796": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApivideoAEC3C4D1",
+        },
+        "PathPart": "generate",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogenerateGETApiPermissionGenerativeAiUseCasesStackAPIApi89219E17GETvideogenerate1240836A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIListVideoJobsBF828ABB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/GET/video/generate",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogenerateGETApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17GETvideogenerate761C5A6E": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIListVideoJobsBF828ABB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/GET/video/generate",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogenerateGETC779E422": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIListVideoJobsBF828ABB",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApivideogenerateCBF56796",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogenerateOPTIONS14AE6956": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApivideogenerateCBF56796",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratePOSTACA060AA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIGenerateVideo311A6D70",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApivideogenerateCBF56796",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratePOSTApiPermissionGenerativeAiUseCasesStackAPIApi89219E17POSTvideogenerate4636D5B4": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIGenerateVideo311A6D70",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/POST/video/generate",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratePOSTApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17POSTvideogenerateCA4ED193": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIGenerateVideo311A6D70",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/POST/video/generate",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratecreatedDate1AAB9D62": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApivideogenerateCBF56796",
+        },
+        "PathPart": "{createdDate}",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratecreatedDateDELETE0F2B03A2": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "DELETE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIDeleteVideoJobD99C15C2",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApivideogeneratecreatedDate1AAB9D62",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratecreatedDateDELETEApiPermissionGenerativeAiUseCasesStackAPIApi89219E17DELETEvideogeneratecreatedDate292B42E6": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIDeleteVideoJobD99C15C2",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/DELETE/video/generate/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratecreatedDateDELETEApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17DELETEvideogeneratecreatedDateACA94630": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIDeleteVideoJobD99C15C2",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/DELETE/video/generate/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApivideogeneratecreatedDateOPTIONS9EB2B1CE": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApivideogeneratecreatedDate1AAB9D62",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIApiwebtext0828B9D5": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -9613,6 +10117,123 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIDeleteVideoJobD99C15C2": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIDeleteVideoJobServiceRoleDefaultPolicyFA4EF7B6",
+        "APIDeleteVideoJobServiceRole42910CE4",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
+            "TABLE_NAME": {
+              "Ref": "DatabaseTableF104A135",
+            },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "APIDeleteVideoJobServiceRole42910CE4",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIDeleteVideoJobServiceRole42910CE4": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIDeleteVideoJobServiceRoleDefaultPolicyFA4EF7B6": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "APIDeleteVideoJobServiceRoleDefaultPolicyFA4EF7B6",
+        "Roles": [
+          {
+            "Ref": "APIDeleteVideoJobServiceRole42910CE4",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIFileBucket8FB29855": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -10018,6 +10639,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -10086,6 +10708,177 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Roles": [
           {
             "Ref": "APIGenerateImageServiceRoleC0428356",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIGenerateVideo311A6D70": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIGenerateVideoServiceRoleDefaultPolicy34AB447C",
+        "APIGenerateVideoServiceRole3DDCDDA7",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BUCKET_NAME": {
+              "Ref": "APIFileBucket8FB29855",
+            },
+            "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
+            "MODEL_REGION": "us-east-1",
+            "TABLE_NAME": {
+              "Ref": "DatabaseTableF104A135",
+            },
+            "VIDEO_BUCKET_REGION_MAP": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"us-east-1":"",
+                  {
+                    "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "APIGenerateVideoServiceRole3DDCDDA7",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIGenerateVideoServiceRole3DDCDDA7": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIGenerateVideoServiceRoleDefaultPolicy34AB447C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:PutObject",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "bedrock:*",
+                "logs:*",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "APIGenerateVideoServiceRoleDefaultPolicy34AB447C",
+        "Roles": [
+          {
+            "Ref": "APIGenerateVideoServiceRole3DDCDDA7",
           },
         ],
       },
@@ -10991,6 +11784,222 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIListVideoJobsBF828ABB": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIListVideoJobsServiceRoleDefaultPolicy546B8673",
+        "APIListVideoJobsServiceRole171468E3",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "BUCKET_NAME": {
+              "Ref": "APIFileBucket8FB29855",
+            },
+            "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
+            "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
+            "MODEL_REGION": "us-east-1",
+            "TABLE_NAME": {
+              "Ref": "DatabaseTableF104A135",
+            },
+            "VIDEO_BUCKET_REGION_MAP": {
+              "Fn::Join": [
+                "",
+                [
+                  "{"us-east-1":"",
+                  {
+                    "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                  },
+                  ""}",
+                ],
+              ],
+            },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "APIListVideoJobsServiceRole171468E3",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIListVideoJobsServiceRole171468E3": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIListVideoJobsServiceRoleDefaultPolicy546B8673": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListBucket",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:aws:s3:::",
+                      {
+                        "Fn::ImportValue": "VideoTmpBucketStackus-east-1:ExportsOutputRefBucket83908E7781C90AC0",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:DeleteObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "APIFileBucket8FB29855",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "APIFileBucket8FB29855",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "bedrock:*",
+                "logs:*",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "APIListVideoJobsServiceRoleDefaultPolicy546B8673",
+        "Roles": [
+          {
+            "Ref": "APIListVideoJobsServiceRole171468E3",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIOptimizePromptFunctionC14E6D1B": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -11100,6 +12109,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -11233,6 +12243,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
             },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -11369,6 +12380,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
+            "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
         "Handler": "index.handler",
@@ -11914,6 +12926,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "Ref": "AuthUserPool8115E87F",
           },
           "VITE_APP_USE_CASE_BUILDER_ENABLED": "true",
+          "VITE_APP_VIDEO_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
         },
         "outputEnvFile": false,
         "outputSourceDirectory": "../packages/web/dist",

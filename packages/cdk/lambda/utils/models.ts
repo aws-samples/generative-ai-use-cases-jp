@@ -65,6 +65,24 @@ export const defaultImageGenerationModel: Model = {
   region: imageGenerationModels?.[0]?.region ?? '',
 };
 
+const videoGenerationModels: ModelConfiguration[] = (
+  JSON.parse(
+    process.env.VIDEO_GENERATION_MODEL_IDS || '[]'
+  ) as ModelConfiguration[]
+)
+  .map(
+    (model: ModelConfiguration): ModelConfiguration => ({
+      modelId: model.modelId.trim(),
+      region: model.region.trim(),
+    })
+  )
+  .filter((model) => model.modelId);
+export const defaultVideoGenerationModel: Model = {
+  type: 'bedrock',
+  modelId: videoGenerationModels?.[0]?.modelId ?? '',
+  region: videoGenerationModels?.[0]?.region ?? '',
+};
+
 // Prompt Templates
 
 const LLAMA_PROMPT: PromptTemplate = {

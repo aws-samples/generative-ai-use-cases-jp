@@ -10,6 +10,7 @@ import {
   ServiceQuotaExceededException,
   ThrottlingException,
   AccessDeniedException,
+  StartAsyncInvokeCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   ApiInterface,
@@ -55,7 +56,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
 // そのような場合、CROSS_ACCOUNT_BEDROCK_ROLE_ARN 環境変数が設定されているかをチェックします。(cdk.json で crossAccountBedrockRoleArn が設定されている場合に環境変数として設定される)
 // 設定されている場合、指定されたロールを AssumeRole 操作によって引き受け、取得した一時的な認証情報を用いて BedrockRuntimeClient を初期化します。
 // これにより、別の AWS アカウントの Bedrock リソースへのアクセスが可能になります。
-const initBedrockClient = async (region: string) => {
+export const initBedrockClient = async (region: string) => {
   // CROSS_ACCOUNT_BEDROCK_ROLE_ARN が設定されているかチェック
   if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
     // STS から一時的な認証情報を取得してクライアントを初期化
@@ -238,6 +239,30 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     const body = JSON.parse(Buffer.from(res.body).toString('utf-8'));
 
     return extractOutputImage(model, body);
+  },
+  generateVideo: async (model, params) => {
+    const videoBucketRegionMap = JSON.parse(
+      process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
+    );
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
+    const tmpOutputBucket = videoBucketRegionMap[region];
+
+    if (!tmpOutputBucket || tmpOutputBucket.length === 0) {
+      throw new Error('Video tmp buket is not defined');
+    }
+
+    const command = new StartAsyncInvokeCommand({
+      modelId: model.modelId,
+      modelInput: params,
+      outputDataConfig: {
+        s3OutputDataConfig: {
+          s3Uri: `s3://${tmpOutputBucket}`,
+        },
+      },
+    });
+    const res = await client.send(command);
+    return res.invocationArn!;
   },
 };
 

@@ -70,6 +70,7 @@ $env:VITE_APP_SELF_SIGN_UP_ENABLED = Extract-Value $stack_output "SelfSignUpEnab
 $env:VITE_APP_MODEL_REGION = Extract-Value $stack_output "ModelRegion"
 $env:VITE_APP_MODEL_IDS = Extract-Value $stack_output "ModelIds"
 $env:VITE_APP_IMAGE_MODEL_IDS = Extract-Value $stack_output "ImageGenerateModelIds"
+$env:VITE_APP_VIDEO_MODEL_IDS = Extract-Value $stack_output "VideoGenerateModelIds"
 $env:VITE_APP_ENDPOINT_NAMES = Extract-Value $stack_output "EndpointNames"
 $env:VITE_APP_SAMLAUTH_ENABLED = Extract-Value $stack_output "SamlAuthEnabled"
 $env:VITE_APP_SAML_COGNITO_DOMAIN_NAME = Extract-Value $stack_output "SamlCognitoDomainName"

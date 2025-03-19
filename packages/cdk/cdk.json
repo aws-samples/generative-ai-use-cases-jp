@@ -49,6 +49,9 @@
     "imageGenerationModelIds": [
       "amazon.nova-canvas-v1:0"
     ],
+    "videoGenerationModelIds": [
+      "amazon.nova-reel-v1:0"
+    ],
     "endpointNames": [],
     "agentEnabled": false,
     "searchAgentEnabled": false,

@@ -63,5 +63,9 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
       params.imageGenerationModelIds,
       params.modelRegion
     ),
+    videoGenerationModelIds: convertToModelConfiguration(
+      params.videoGenerationModelIds,
+      params.modelRegion
+    ),
   };
 };
