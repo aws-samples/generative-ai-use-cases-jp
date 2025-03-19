@@ -18,13 +18,13 @@
   },
   "context": {
     "env": "",
-    "ragEnabled": true,
+    "ragEnabled": false,
     "kendraIndexArn": null,
     "kendraDataSourceBucketName": null,
     "kendraIndexScheduleEnabled": false,
     "kendraIndexScheduleCreateCron": null,
     "kendraIndexScheduleDeleteCron": null,
-    "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseEnabled": false,
     "ragKnowledgeBaseId": null,
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
@@ -38,9 +38,8 @@
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
     "hiddenUseCases": {},
-    "modelRegion": "us-west-2",
+    "modelRegion": "us-east-1",
     "modelIds": [
-      "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
       "us.anthropic.claude-3-5-haiku-20241022-v1:0",
       "us.amazon.nova-pro-v1:0",
@@ -54,37 +53,19 @@
       "amazon.nova-reel-v1:0"
     ],
     "endpointNames": [],
-    "agentEnabled": true,
-    "searchAgentEnabled": true,
-    "searchApiKey": "BSAcWLcvjFmePsZbNRnSiPK2_EH8UxS",
-    "agents": [
-      {
-        "displayName": "ResearchAgent",
-        "agentId": "2KETMNJZQJ",
-        "aliasId": "64SJSSJSVB"
-      },
-      {
-        "displayName": "RAG",
-        "agentId": "ZDRPEBUMRW",
-        "aliasId": "WVTXVEKZ1H"
-      }
-    ],
+    "agentEnabled": false,
+    "searchAgentEnabled": false,
+    "searchApiKey": "",
+    "agents": [],
     "inlineAgents": false,
-    "flows": [
-      {
-        "flowId": "GB6SYK9DAN",
-        "aliasId": "W9TDG901O2",
-        "flowName": "2x Number",
-        "description": "ただ2倍するだけのFlowです"
-      }
-    ],
+    "flows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
     "hostName": null,
     "domainName": null,
     "hostedZoneId": null,
-    "dashboard": true,
+    "dashboard": false,
     "anonymousUsageTracking": true,
     "guardrailEnabled": false,
     "crossAccountBedrockRoleArn": "",
