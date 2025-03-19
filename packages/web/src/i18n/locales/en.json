@@ -31,7 +31,7 @@
     "loading": "Loading...",
     "clear": "Clear",
     "execute": "Execute",
-    "error": "Error",
+    "notAuthenticated": "You are not authenticated.",
     "try": "Try",
     "load_more": "Load more",
     "trace": "Trace",
@@ -39,8 +39,6 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "save": "Save",
-    "edit": "Edit",
-    "search": "Search",
     "here": "here",
     "optional": "Optional",
     "submit": "Submit",
@@ -55,12 +53,16 @@
     "previous": "Previous",
     "none": "None",
     "complete": "Complete",
-    "close": "Close"
+    "close": "Close",
+    "selectUseCase": "Select Use Case",
+    "errorNoSuggestions": "No suggestions were found.",
+    "reviewComplete": "Review completed",
+    "error": "An error occurred"
   },
   "writer": {
     "title": "Writing",
     "saved": "Saved",
-    "saving": "Saving",
+    "saving": "Saving...",
     "characters": "characters",
     "clear": "Clear",
     "tutorial": "Tutorial",
@@ -70,7 +72,6 @@
     "no_issues": "No issues found",
     "replace": "Replace",
     "clear_comments": "Clear Comments",
-    "no_results": "No results",
     "appearance": "Appearance",
     "system": "System",
     "light": "Light",
@@ -114,7 +115,20 @@
         "fact_check": "Fact check",
         "continue": "Continue output"
       }
-    }
+    },
+    "description": "A tool for writing assistance, text refinement, and proofreading. You can write efficiently with AI assistance.",
+    "useAsTextEditor": "Use as a Text Editor",
+    "textEditorDescription": "This editor can be used as a normal text editor. It supports basic formatting such as bold, italic, lists, and headings. It also displays the character count during writing.",
+    "autoCompleteFeature": "AI Auto-Complete Feature",
+    "autoCompleteDescription": "You can give instructions to the AI for selected text. For example, operations such as 'improve', 'proofread', 'make shorter', 'make longer', or you can enter custom instructions.",
+    "example1": "For example, you can have the AI continue this paragraph:",
+    "amazonBedrockDescription": "Amazon Bedrock is a fully managed service that offers a choice of high-performing foundation models (FMs) from leading AI companies like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single API, along with a broad set of capabilities you need to build generative AI applications with security, privacy, and responsible AI.",
+    "example2": "You can also check facts in your text. Select the following text and choose 'Fact check':",
+    "factCheckExample": "Barack Obama was the 43rd President of the United States. He served as president from 2001 to 2009.",
+    "reviewFeature": "Review Feature",
+    "reviewDescription": "You can review your entire document. This will detect typos and grammatical errors and suggest corrections.",
+    "incorrectTextExample": "I has gone to Japan. Tokyo is a very beautifull city.",
+    "no_results": "No results"
   },
   "chat": {
     "title": "Chat",
@@ -164,7 +178,16 @@
     "here": "here",
     "please_refer": ".",
     "no_settings_found": "No settings found. You can add filters by customizing ",
-    "can_add_filters": "."
+    "can_add_filters": ".",
+    "retrieving": "Retrieving reference documents from Kendra...",
+    "errorRetrieval": "Failed to retrieve reference documents from Kendra. Please consider the following actions:\n- Check if the scheduled time for Amazon Kendra index creation has passed and enough time has elapsed for indexing\n- Verify that the scheduled time for Amazon Kendra index deletion has not passed",
+    "noDocuments": "No reference documents found. Please consider the following actions:\n- Check if the target document has been added to the Amazon Kendra data source\n- Verify that the Amazon Kendra data source has been synced\n- Try changing the expression of your input",
+    "page": "page",
+    "knowledgeBase": {
+      "retrieving": "Retrieving reference documents from Knowledge Base...",
+      "retrieveError": "An error occurred during retrieval. Please consider the following actions:\n- Verify that the embeddingModelId specified in cdk.json is enabled in Amazon Bedrock ({{region}})",
+      "noDocuments": "No reference documents found. Please consider the following actions:\n- Check if the target document has been added to the Knowledge Base data source\n- Verify that the Knowledge Base data source has been synchronized\n- Try changing the expression of your input"
+    }
   },
   "summarize": {
     "title": "Summarize",
@@ -240,7 +263,124 @@
     "svg_error": "SVG output error: ",
     "png_error": "PNG output error: ",
     "markdown_edit": "Edit Markdown",
-    "mermaid_syntax": "Mermaid syntax here"
+    "mermaid_syntax": "Mermaid syntax here",
+    "types": {
+      "AI": {
+        "description": "Let AI choose the optimal diagram type",
+        "exampleTitle": "Expense Flow Example",
+        "content": "Please illustrate a typical company expense production flow with colors."
+      },
+      "flowchart": {
+        "title": "Flowchart",
+        "desc": "Flowcharts visualize processes or workflows",
+        "exampleTitle": "Morning Routine Example",
+        "content": "I want to create a flowchart for a morning routine. Please include these steps:\nWake up, get out of bed, wash face, brush teeth, eat breakfast, get dressed, leave house.\n\nInclude a decision point 'Do I have extra time?' where if there is time, add a step 'Drink coffee' before leaving. If there's no extra time, proceed directly to 'Leave house'.\n\nPlease make it concise and easy to read."
+      },
+      "piechart": {
+        "title": "Pie Chart",
+        "desc": "Pie charts show proportions of a whole",
+        "exampleTitle": "Commute Methods Example",
+        "content": "I want to create a pie chart showing the commuting methods for people in their 20s and 30s in Tokyo.\n\nPlease set appropriate percentages for these five methods: train, bicycle, walking, car, and bus.\nThe title should be 'Commuting Methods for 20-30s in Tokyo'."
+      },
+      "mindmap": {
+        "title": "Mind Map",
+        "desc": "Mindmaps organize related concepts or ideas hierarchically",
+        "exampleTitle": "Generative AI Use Cases Example",
+        "content": "Please create a mind map illustrating various use cases for generative AI."
+      },
+      "quadrantchart": {
+        "title": "Quadrant Chart",
+        "desc": "Quadrant charts categorize items along two axes",
+        "exampleTitle": "Social Media Analysis Example",
+        "content": "Create a quadrant chart comparing social media platforms.\nThe title should be 'Social Media Platform Analysis'.\nThe X-axis ranges from 'Text-focused' to 'Visual-focused',\nand the Y-axis ranges from 'Professional' to 'Casual'.\n\nLabel the quadrants as follows:\nTop-right: 'Visual Casual'\nTop-left: 'Textual Casual'\nBottom-left: 'Textual Professional'\nBottom-right: 'Visual Professional'\n\nPlot these social media platforms:\nTwitter: Somewhat text-focused and moderately casual,\nInstagram: Very visual and quite casual,\nLinkedIn: Text-focused and very professional,\nTikTok: Very visual and the most casual,\nFacebook: Around the middle of both axes.\n\nIf possible, use different colors for each platform."
+      },
+      "sequencediagram": {
+        "title": "Sequence Diagram",
+        "desc": "Sequence diagrams show interactions between components over time",
+        "exampleTitle": "Login Flow Example",
+        "content": "Create a sequence diagram for a web application showing the flow from when a user clicks the login button to when authentication is complete.\n\nInclude these three components: Frontend, Authentication Server, and Database."
+      },
+      "timeline": {
+        "title": "Timeline",
+        "desc": "Timelines display events in chronological order",
+        "exampleTitle": "Social Media Evolution Example",
+        "content": "Create a timeline showing the major developments and turning points in social media from 2000 to 2020.\n\nInclude these elements:\nRise of blogging\nEmergence of photo sharing platforms\nIntroduction of microblogging\nDevelopment of video sharing services\nSpread of mobile-first social networks\nRise of short-form video platforms\n\nFor each turning point, add 1-2 important technological innovations or social changes (e.g., smartphone adoption, high-speed mobile internet) that occurred during that period."
+      },
+      "gitgraph": {
+        "title": "Git Graph",
+        "desc": "Git graphs visualize branch and merge history",
+        "exampleTitle": "Development Flow Example",
+        "content": "Create a git graph showing a development flow where two feature branches (login feature and profile editing feature) diverge from the main branch.\n\nThe login feature development includes multiple commits like form implementation and validation before finally being merged into the main branch via a Pull Request.\nMeanwhile, during the profile editing feature development, there's a need to incorporate the latest changes made to the main branch.\n\nAt each merge point, include commit messages that resemble real project workflow, such as 'Reviewed and merged login feature #123'."
+      },
+      "erdiagram": {
+        "title": "ER Diagram",
+        "desc": "ER diagrams represent database entities and relationships",
+        "exampleTitle": "Blog DB Design Example",
+        "content": "Show a database design for a blog system.\n\nInclude these tables with appropriate relationships between them:\nposts\nusers\ncomments\ncategories\ntags"
+      },
+      "classdiagram": {
+        "title": "Class Diagram",
+        "desc": "Class diagrams represent object-oriented class structures",
+        "exampleTitle": "E-commerce Model Example",
+        "content": "Create a domain model for an e-commerce site.\n\nInclude these classes:\nUser\nProduct\nOrder\nCartItem\n\nEach class should have appropriate properties and methods."
+      },
+      "statediagram": {
+        "title": "State Diagram",
+        "desc": "State diagrams represent system state changes",
+        "exampleTitle": "Cart State Example",
+        "content": "Create a state diagram for an online shopping cart.\nInclude states like 'Empty', 'Items Added', 'Checkout in Progress', and 'Payment Complete'."
+      },
+      "xychart": {
+        "title": "XY Chart",
+        "desc": "XY charts show relationships between two variables",
+        "exampleTitle": "Sleep vs Work Hours Example",
+        "content": "Create an XY chart showing the relationship between average sleep time and working hours in Japan over the past 10 years.\n\nUse the X-axis for average daily working hours and the Y-axis for average daily sleep hours, plotting data points for each year."
+      },
+      "blockdiagram": {
+        "title": "Block Diagram",
+        "desc": "Block diagrams represent system components",
+        "exampleTitle": "Smartphone Components Example",
+        "content": "Create a block diagram showing the hardware components of a smartphone.\n\nInclude these elements:\nProcessor\nMemory\nStorage\nDisplay\nCamera\nVarious sensors"
+      },
+      "architecture": {
+        "title": "Architecture Diagram",
+        "desc": "Architecture diagrams represent system structure",
+        "exampleTitle": "Web App Architecture Example",
+        "content": "Create an architecture diagram for a cloud-based web application.\n\nInclude these components:\nFrontend\nBackend\nDatabase\nCache\nLoad Balancer\nCDN"
+      },
+      "ganttchart": {
+        "title": "Gantt Chart",
+        "desc": "Gantt charts visualize project schedules",
+        "exampleTitle": "Development Schedule Example",
+        "content": "Create a Gantt chart showing the schedule for a web application development project.\nInclude phases for requirements gathering, design, development, testing, and deployment."
+      },
+      "userjourney": {
+        "title": "User Journey",
+        "desc": "User journeys map customer experience flows",
+        "exampleTitle": "Purchase Experience Example",
+        "content": "Create a user journey diagram for a customer experience on an online shopping site.\n\nInclude these steps:\nProduct search\nProduct viewing\nCart addition\nCheckout\nPayment\nShipment tracking"
+      },
+      "sankeychart": {
+        "title": "Sankey Chart",
+        "desc": "Sankey charts show flows with proportional width",
+        "exampleTitle": "User Flow Example",
+        "content": "Create a Sankey chart showing user flow through a website.\nStart from the landing page and show page transitions and dropout rates."
+      },
+      "requirementdiagram": {
+        "title": "Requirement Diagram",
+        "desc": "Requirement diagrams represent system requirements and relationships",
+        "exampleTitle": "Smart Home Requirements Example",
+        "content": "Show the main functional requirements for a smart home system.\nInclude requirements for lighting control, temperature management, security, and energy efficiency."
+      },
+      "networkpacket": {
+        "title": "Network Packet Diagram",
+        "desc": "Network packet diagrams represent data structures",
+        "exampleTitle": "HTTP Packet Example",
+        "content": "Create a diagram showing the structure of an HTTP request packet.\nInclude the main elements of the header and body."
+      }
+    },
+    "chart": "Chart",
+    "serverBusy": "Server is busy. Please try again later."
   },
   "generateText": {
     "title": "Text Generation",
@@ -266,7 +406,10 @@
     "start": "Start",
     "stop": "Stop",
     "model": "Model",
-    "clear": "Clear"
+    "clear": "Clear",
+    "errors": {
+      "cameraAccessFailed": "Could not access webcam:"
+    }
   },
   "generateImage": {
     "title": "Image Generation",
@@ -308,204 +451,136 @@
       "steps": "Number of iterations for image generation. More steps refine the image but take longer to generate.",
       "image_strength": "Values closer to 1 generate images more similar to the initial image, while values closer to 0 generate images more different from the initial image.",
       "control_strength": "Values closer to 1 generate images based more on the reference image's composition, while values closer to 0 generate images with compositions more different from the reference image."
+    },
+    "assistant": {
+      "title": "Image Generation Assistant",
+      "help": "Creates prompts for image generation. Tell the assistant what you want, and AI will generate prompts and negative prompts to create an image.",
+      "hint_title": "Hints",
+      "hint_1": "Start with a simple instruction like 'Generate a cute cat image'.",
+      "hint_2": "Specifying styles like 'in watercolor style' or 'realistic' is effective.",
+      "hint_3": "Describe in detail the elements you want to include, such as 'mountains in the background' or 'blue sky'.",
+      "hint_4": "Instructions related to quality, such as 'high resolution' or 'detailed', are also effective.",
+      "hint_5": "You can also specify particular artistic styles like 'anime style' or 'oil painting style'.",
+      "hint_6": "For complex scenes, give specific instructions about composition, color scheme, etc.",
+      "error_title": "An error occurred",
+      "error_message": "Failed to generate the prompt. Please try again.",
+      "retry": "Retry",
+      "generating_prompt": "Generating prompt...",
+      "prompt_completed": "Prompt generation completed",
+      "generating_image": "Generating image...",
+      "recommended_style": "Recommended Styles",
+      "no_style": "No Style",
+      "input_placeholder": "What kind of image would you like to generate?"
     }
   },
   "landing": {
-    "title": "Getting Started with Generative AI",
-    "try_message": "Click to try each use case.",
+    "title": "AWS Generative AI Sample Application",
+    "try": "Try it",
+    "try_message": "This application is a sample application using AWS generative AI services.",
     "use_cases_title": "Use Cases",
     "use_cases": {
       "chat": {
         "title": "Chat",
-        "description": "You can interact with LLM in a chat format. This allows you to quickly respond to detailed use cases and new use cases. It is also effective as a verification environment for prompt engineering."
+        "description": "Experience chat using large language models like Claude and Anthropic."
       },
       "rag_chat": {
         "title": "RAG Chat",
         "sub_kendra": "Amazon Kendra",
         "sub_kb": "Knowledge Base",
-        "description_kendra": "RAG (Retrieval Augmented Generation) is a technique that combines information retrieval and LLM text generation to achieve effective information access. Since LLM generates answers based on reference documents retrieved from Amazon Kendra, it is easy to implement 'LLM chat that responds to internal company information'.",
-        "description_kb": "RAG (Retrieval Augmented Generation) is a technique that combines information retrieval and LLM text generation to achieve effective information access. It retrieves reference documents using Knowledge Base's Hybrid Search, and LLM generates answers."
+        "description_kendra": "Get answers based on your own data using Amazon Kendra.",
+        "description_kb": "Get answers based on your own data using Knowledge Base."
       },
       "agent_chat": {
         "title": "Agent Chat",
-        "description": "The Agent Chat use case allows you to execute actions using Agents for Amazon Bedrock and reference the vector database of Knowledge Bases for Amazon Bedrock."
+        "description": "Use agents to perform complex tasks."
       },
       "flow_chat": {
         "title": "Flow Chat",
-        "description": "Create interactive chat flows with multiple steps using Flow. Dynamically determine the next step based on user input to implement more complex dialogue scenarios."
+        "description": "Combine multiple models to achieve more advanced interactions."
       },
       "generate_text": {
         "title": "Text Generation",
-        "description": "Generating text in any context is one of the tasks that LLM excels at. It supports any context such as articles, reports, emails, etc."
+        "description": "Generate text using large language models."
       },
       "summarize": {
-        "title": "Summarize",
-        "description": "LLM is good at summarizing large amounts of text. When summarizing, you can provide context such as 'in one line' or 'in words that even a child can understand'."
+        "title": "Summarization",
+        "description": "Summarize long texts and extract important points."
       },
       "writer": {
-        "title": "Writing",
-        "description": "LLMs trained in multiple languages can also perform translation. In addition to just translating, it can reflect various specified context information such as casualness and target audience in the translation."
+        "title": "Writer",
+        "description": "Provides an editor for writing text. Also includes proofreading features."
       },
       "translate": {
-        "title": "Translate",
-        "description": "LLMs trained in multiple languages can also perform translation. In addition to just translating, it can reflect various specified context information such as casualness and target audience in the translation."
+        "title": "Translation",
+        "description": "Translate text to different languages."
       },
       "web_content": {
-        "title": "Web Content Extraction",
-        "description": "Extract content from blogs, documents, and other web content. Unnecessary information is trimmed away by LLM and formatted as a complete text. The extracted content can be used in other use cases such as summarization and translation."
+        "title": "Web Content",
+        "description": "Retrieve web page content for summarization and analysis."
       },
       "image": {
         "title": "Image Generation",
-        "description": "Image generation AI can create new images based on text or images. It allows you to instantly visualize ideas and can be expected to improve the efficiency of design work. In this feature, you can get assistance from LLM in creating prompts."
+        "description": "Generate images from text."
       },
       "video": {
         "title": "Video Analysis",
-        "description": "With multimodal models, it is now possible to input not only text but also images. In this feature, you can ask LLM to analyze video image frames and text as input."
+        "description": "Analyze video content and explain it in text."
       },
       "diagram": {
         "title": "Diagram Generation",
-        "description": "Automatically create various diagrams such as flowcharts, sequence diagrams, and mind maps from natural language descriptions, documents, or code. Visually represent and streamline understanding of complex relationships in system design, business flows, project planning, and more."
+        "description": "Generate diagrams from text."
       }
     },
     "use_cases_integration": {
       "title": "Use Case Integration",
       "blog": {
         "title": "Blog Post Creation",
-        "description": "Generate blog posts by combining multiple use cases. Automatically generating article summaries and thumbnail images makes OGP settings easier. As an example, we will generate a blog post introducing generative AI based on information from the AWS official website."
+        "description": "Create blog posts by combining web content retrieval, text generation, summarization, and image generation."
       },
       "meeting": {
         "title": "Meeting Minutes Creation",
-        "description": "Automatically create meeting minutes from meeting recordings by combining multiple use cases. It is possible to perform transcription of recording data, formatting of transcription results, and creation of minutes without human cost."
+        "description": "Create meeting minutes by combining speech recognition and text generation."
       }
     },
-    "try": "Try"
-  },
-  "useCaseBuilder": {
-    "accessError": "Access Error",
-    "notExistOrNotShared": "This use case does not exist or is not shared.",
-    "returnToTop": "Return to TOP",
-    "myUseCases": "My Use Cases",
-    "createNew": "Create New",
-    "noMyUseCases": "No use cases found.",
-    "loadMore": "Load More",
-    "samples": "Samples",
-    "edit": "Edit Use Case",
-    "save": "Save",
-    "cancel": "Cancel",
-    "title": "Title",
-    "description": "Description",
-    "promptTemplate": "Prompt Template",
-    "inputExamples": "Input Examples",
-    "fixedModel": "Fixed Model",
-    "fileUpload": "File Upload",
-    "addInputExample": "Add Input Example",
-    "deleteInputExample": "Delete Input Example",
-    "inputExample": "Input Example",
-    "expectedOutput": "Expected Output",
-    "titleRequired": "Title is required",
-    "promptTemplateRequired": "Prompt template is required",
-    "deleting": "Deleting...",
-    "updating": "Updating...",
-    "creating": "Creating...",
-    "promptTemplatePlaceholder": "For information on how to write prompt templates, please see 'Help' or 'Samples'.",
-    "promptTemplateHint": "Use cases that do not accept user input cannot be created. Define a Placeholder in the prompt template or turn ON file attachment.",
-    "modelFixed": "Model is fixed.",
-    "modelNotFixed": "Model is not fixed.",
-    "modelFixedDescription": "The model selection UI is not displayed, so users can use the use case without being aware of the existence of generative AI",
-    "modelNotFixedDescription": "The model selection UI is displayed, and users can freely select a model.",
-    "fileUploadEnabled": "Files can be attached",
-    "fileUploadDisabled": "Files cannot be attached",
-    "fileUploadDescription": "Attachable files vary depending on the model",
-    "createDescription": "Create a use case. Please check the operation in the preview before creating. You can also edit it after creation.",
-    "createErrorCondition": "The conditions for creating a use case are not met. Please meet all of the following conditions.",
-    "create": "Create",
-    "updateDescription": "Update the use case. If the use case is shared and other users are using it, their content will also be updated.",
-    "updateErrorCondition": "To update, please meet all of the following conditions.",
-    "update": "Update",
-    "deleteDescription": "Delete the use case. If it is shared, other users will no longer be able to access it.",
-    "delete": "Delete",
-    "preview": "Preview",
-    "deleteUseCaseTitle": "Delete My Use Case",
-    "deleteSharedWarning": "This use case is shared. If you delete it, all users will no longer be able to use this use case.",
-    "deleteConfirmation": " will be deleted. Are you sure?",
-    "share": "Share",
-    "sharedDescription": "This use case is available to all users who can log in to this application.",
-    "notSharedDescription": "This use case is not shared, so only you can use it.",
-    "shareUrlDescription": "Other users can also use this use case by accessing this shared URL.",
-    "ok": "OK",
-    "menuAppDefinition": "App Definition",
-    "menuInputExamples": "Input Examples",
-    "menuModelSelection": "Model Selection",
-    "menuFileAttachment": "File Attachment",
-    "menuUpdate": "Update",
-    "menuDelete": "Delete",
-    "menuCreate": "Create",
-    "enterTitle": "Please enter a title",
-    "enterPromptTemplate": "Please enter a prompt template",
-    "noUserInput": "The use case does not accept user input. Please add a placeholder to the prompt template or turn ON file attachment.",
-    "noUpdateContent": "No update content",
-    "builderMode": "Builder Mode",
-    "mainMenu": "Main Menu",
-    "favorites": "Favorites",
-    "recentlyUsed": "Recently Used",
-    "untitledUseCase": "Untitled Use Case",
-    "untitled": "Untitled",
-    "resultPlaceholder": "Results will appear here",
-    "attach_file": "Attach File",
-    "error": {
-      "rag_kendra_not_enabled": "{{retrieveKendra}} is specified in the prompt template, but RAG Chat (Amazon Kendra) is not enabled in GenU.",
-      "rag_knowledge_base_not_enabled": "{{retrieveKnowledgeBase}} is specified in the prompt template, but RAG Chat (Knowledge Base) is not enabled in GenU.",
-      "missing_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Amazon Kendra.",
-      "missing_kb_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Knowledge Base.",
-      "missing_select_options": "No options are set for {{select}}. Please set it like {{select:label:option1,option2}}",
-      "empty_select_options": "{{select:{{label}}}} contains empty options.",
-      "duplicate_select_options": "{{select:{{label}}}} contains duplicate options."
-    },
-    "help": {
-      "promptTemplateTitle": "What is a Prompt Template?",
-      "promptTemplateDescription": "It's like a 'template' for giving instructions to generative AI. You can prepare instruction formats in advance according to your purpose. Placeholders that can be filled with text at runtime can be defined in prompt templates.",
-      "placeholder": "Placeholder",
-      "placeholderDescription": "Placeholders are written as {{inputType:label}}. Since the label becomes an identifier, placeholders with the same label are considered the same input. You can also write {{inputType}} without a label. In that case, placeholders without labels are considered the same input. The actual executed prompt can be confirmed from the GenU conversation history.",
-      "placeholderList": "Placeholder List",
-      "textPlaceholderDescription": "{{text}} is the most basic placeholder. It is written as {{text}} or {{text:label}}. {{text}} creates a form that accepts text input and embeds the entered value directly into the prompt template.",
-      "emailReplyExample": "Email Reply Example",
-      "emailReplyPrompt": "You are an email reply handler. Please create a reply email following these rules:\n<Rules>\n- This is an email to a business partner. You need to use polite language, but since the relationship is established, the text doesn't need to be overly formal.\n- Understand the content of the email being replied to and create a reply email that matches the reply content.\n- Never include anything in the email text that cannot be inferred from the email being replied to and the reply content.\n</Rules>\n<Email being replied to>\n{{text:Email body being replied to}}\n</Email being replied to>\n<Reply content>\n{{text:Reply content}}\n</Reply content>",
-      "formPlaceholderTitle": "Form",
-      "formPlaceholderDescription": "{{form}} is a placeholder for defining an input form. It is written as {{form}} or {{form:label}}. {{form}} creates a form that accepts text input, but does not embed the input into the prompt template. It is used for use cases where you want to query a data source with RAG, etc., but don't want to embed the query content itself in the prompt.",
-      "selectPlaceholderTitle": "Select",
-      "selectPlaceholderDescription": "{{select}} is a placeholder for defining a select box. {{select}} cannot omit the label and options. It must be written as {{select:label:option1,option2}}. Options are defined as comma-separated values. If you don't want to display a label, use an empty string label like {{select::option1,option2}} (an empty string label is different from no label).",
-      "retrieveKendraTitle": "Retrieve Kendra",
-      "retrieveKendraDescription": "{{retrieveKendra}} embeds the results retrieved from Amazon Kendra into the prompt template. It is written as {{retrieveKendra}} or {{retrieveKendra:label}}. {{retrieveKendra}} requires a separate placeholder ({{text}}) for entering the search query. They must have the same label. The actual value embedded is a string of the ResultItems from Amazon Kendra's Retrieve API in JSON. To use this feature, RAG Chat (Amazon Kendra) must be enabled in GenU.",
-      "retrieveKnowledgeBaseTitle": "Retrieve Knowledge Base",
-      "retrieveKnowledgeBaseDescription": "{{retrieveKnowledgeBase}} embeds the results retrieved from Knowledge Base into the prompt template. It is written as {{retrieveKnowledgeBase}} or {{retrieveKnowledgeBase:label}}. {{retrieveKnowledgeBase}} requires a separate placeholder ({{text}}) for entering the search query. They must have the same label. The actual value embedded is a string of the retrievalResults from Knowledge Base's Retrieve API in JSON. To use this feature, RAG Chat (Knowledge Base) must be enabled in GenU.",
-      "example": "Example",
-      "formPlaceholderExample": {
-        "title": "Quiz Generation",
-        "prompt": "You are an AI assistant that generates quizzes based on given information.\n\n{{form:Search for quiz source information}}\n\nRead the following information and create a 4-choice quiz.\nPlease also provide the correct answer.\n\n<Information>\n{{retrieveKendra:Search for quiz source information}}\n</Information>"
+    "demo": {
+      "chat": {
+        "content": "Please write a Python function that returns Fibonacci numbers. Also, explain the implementation.\nThe argument should be the term, and the processing should be written recursively. Please output in markdown."
       },
-      "selectPlaceholderExample": {
-        "title": "AWS Service Question",
-        "prompt": "You are a specialist knowledgeable about AWS services.\n\nPlease answer questions about the following services.\n{{select:AWS Service:Amazon Bedrock,Amazon S3,AWS Lambda}}\n\nThe question is as follows:\n{{text:Question}}"
+      "rag": {
+        "content": "Please explain Claude's parameters and how to set them."
       },
-      "retrieveKendraExample": {
-        "title": "Simple RAG",
-        "prompt": "You are an AI assistant that answers user questions.\nPlease read the following information.\n\n<Information>\n{{retrieveKendra:Question}}\n</Information>\n\nBased on the above information, please answer the following question.\n\n<Question>\n{{text:Question}}\n</Question>"
+      "agent": {
+        "content": "What is generative-ai-use-cases-jp?"
       },
-      "retrieveKnowledgeBaseExample": {
-        "title": "Simple RAG",
-        "prompt": "You are an AI assistant that answers user questions.\nPlease read the following information.\n\n<Information>\n{{retrieveKnowledgeBase:Question}}\n</Information>\n\nBased on the above information, please answer the following question.\n\n<Question>\n{{text:Question}}\n</Question>"
+      "generate": {
+        "information": "Amazon Bedrock is a fully managed service that offers a choice of high-performing foundation models (FMs) from leading AI companies like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single API, along with a broad set of capabilities you need to build generative AI applications with security, privacy, and responsible AI. Using Amazon Bedrock's comprehensive capabilities, you can easily experiment with a variety of top FMs, privately customize them with your data using techniques such as fine-tuning and Retrieval Augmented Generation (RAG), and create managed agents that execute complex business tasks from booking travel and processing insurance claims to creating ad campaigns and managing inventory—all without writing code. Amazon Bedrock is serverless, so there is no infrastructure to manage, and you can securely integrate and deploy generative AI capabilities into your applications using the AWS services you are already familiar with.",
+        "context": "For a presentation, please organize in markdown format with chapters, each with a concise explanation."
+      },
+      "summarize": {
+        "sentence": "Amazon Bedrock is a fully managed service that makes foundation models (FMs) from Amazon and leading AI startups available through an API, allowing you to choose from a variety of FMs to find the model best suited for your use case. Amazon Bedrock's serverless experience enables you to get started quickly with FMs, easily experiment with FMs, privately customize FMs with your own data, and seamlessly integrate and deploy FMs into your applications using AWS tools and capabilities. Amazon Bedrock Agents is a fully managed capability that makes it easy for developers to create generative AI applications that can provide up-to-date answers based on their own knowledge sources and complete tasks across a wide range of use cases. Bedrock's serverless experience enables you to get started quickly, privately customize FMs with your own data, and easily integrate and deploy them into your applications using familiar AWS tools and capabilities (including integration with Amazon SageMaker ML capabilities such as experiments for testing different models and pipelines for managing FMs at scale)."
+      },
+      "translate": {
+        "sentence": "Hello. I am an AI assistant that helps with translation. Please enter any text you'd like.",
+        "language": "English"
+      },
+      "web_content": {
+        "url": "https://aws.amazon.com/bedrock/"
+      },
+      "image": {
+        "content": "Please output smartphone advertisement design ideas.\nCute, stylish, easy to use, POP culture, friendly, youth-oriented, music, photography, trendy smartphone, city background"
+      },
+      "video": {
+        "content": "Please describe what is shown in the video. If there is any text visible, please read that as well."
+      },
+      "diagram": {
+        "content": "Please illustrate a typical company expense production flow with colors."
       }
     }
-  },
-  "auth": {
-    "title": "Generative AI Use Cases on AWS",
-    "loading": "Loading...",
-    "login": "Login"
   },
   "drawer": {
     "builder_mode": "Builder Mode",
     "use_cases": "Use Cases",
-    "generative_ai": "(Generative AI)",
+    "generative_ai": "Generative AI",
     "tools": "Tools",
     "ai_services": "AI Services"
   },
@@ -533,5 +608,173 @@
     "upload_image": "Upload Image",
     "pen_size": "Pen Size",
     "clear": "Clear"
+  },
+  "navigation": {
+    "home": "Home",
+    "settings": "Settings",
+    "chat": "Chat",
+    "ragChat": "RAG Chat",
+    "agentChat": "Agent Chat",
+    "flowChat": "Flow Chat",
+    "textGeneration": "Text Generation",
+    "summary": "Summary",
+    "writing": "Writing",
+    "translation": "Translation",
+    "webContentExtraction": "Web Content Extraction",
+    "imageGeneration": "Image Generation",
+    "videoAnalysis": "Video Analysis",
+    "diagramGeneration": "Diagram Generation",
+    "speechRecognition": "Speech Recognition",
+    "promptOptimization": "Prompt Optimization"
+  },
+  "files": {
+    "error": {
+      "mimeMismatch": "{{fileName}} has a file type that doesn't match its extension.",
+      "modelNotSupported": "This model does not support files.",
+      "invalidExtension": "{{fileName}} has an unsupported extension. Allowed extensions are {{acceptedExtensions}}",
+      "fileSizeExceeded": "{{fileName}} exceeds the maximum file size of {{maxSize}} MB.",
+      "imageCountExceeded": "Please limit image files to {{maxCount}} or fewer",
+      "videoCountExceeded": "Please limit video files to {{maxCount}} or fewer",
+      "fileCountExceeded": "Please limit files to {{maxCount}} or fewer"
+    }
+  },
+  "auth": {
+    "title": "Generative AI Use Cases on AWS",
+    "loading": "Loading...",
+    "login": "Login"
+  },
+  "useCaseBuilder": {
+    "untitledUseCase": "Untitled Use Case",
+    "inputExamples": "Input Examples",
+    "untitled": "Untitled",
+    "resultPlaceholder": "Results will appear here",
+    "attach_file": "Attach File",
+    "error": {
+      "rag_kendra_not_enabled": "{{retrieveKendra}} is specified in the prompt template, but RAG Chat (Amazon Kendra) is not enabled in GenU.",
+      "rag_knowledge_base_not_enabled": "{{retrieveKnowledgeBase}} is specified in the prompt template, but RAG Chat (Knowledge Base) is not enabled in GenU.",
+      "missing_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Amazon Kendra.",
+      "missing_kb_text_form": "Please include a form {{text{{label}}}} in the prompt template to input the search query for Knowledge Base.",
+      "missing_select_options": "No options are set for {{select}}. Please set it like {{select:label:option1,option2}}",
+      "empty_select_options": "{{select:{{label}}}} contains empty options.",
+      "duplicate_select_options": "{{select:{{label}}}} contains duplicate options."
+    },
+    "blog": {
+      "reference_info": "Get Reference Information",
+      "reference_info_description": "Automatically retrieve information as a reference for your article by specifying a URL.\nBy setting additional context, you can extract only the information you need.",
+      "reference_info_context": "Please extract only the parts that explain the overview of generative AI, how it works, and the parts that explain AWS.",
+      "generate_article": "Generate Article",
+      "generate_article_description": "Automatically generate blog articles based on reference information. By setting the context in detail, you can make it easier to generate content that matches your intentions.",
+      "generate_article_context": "Please generate a blog post explaining the mechanism of generative AI and the benefits of using generative AI on AWS. When generating the article, please follow the <rules></rules>.\n<rules>\n- Write in markdown format with chapters.\n- Target the article at beginners of generative AI and AWS.\n- Don't use terms that IT beginners wouldn't understand, or replace them with easy-to-understand words.\n- Make it an article that explains what can be done with generative AI.\n- Readers won't be satisfied with a small amount of text, so please increase the amount of text by complementing with general information.\n- Make the text engaging for readers.\n</rules>",
+      "summarize_article": "Summarize Article",
+      "summarize_article_description": "Summarize the article for OGP (the article preview displayed when sharing the article link). By properly setting the OGP, you can correctly convey the overview of the article when it is shared.",
+      "generate_thumbnail": "Generate Article Thumbnail",
+      "generate_thumbnail_description": "Generate a thumbnail for OGP (the article preview displayed when sharing the article link). Setting a catchy thumbnail for OGP might attract readers' interest.",
+      "generate_thumbnail_content": "Please generate a thumbnail image for the blog post's OGP. Make it an image that clearly shows it's an article about cloud and AI at a glance.\nThe blog post summary is set in <article></article>.\n<article>\n{{summarizedSentence}}\n</article>"
+    },
+    "meeting": {
+      "transcription": "Transcription",
+      "transcription_description": "Use the \"Speech Recognition\" feature to transcribe the conversation from the recording data. Please run it with any audio file.\nAfter the speech recognition is complete, press the \"Format\" button (the speech recognition result will be copied automatically).",
+      "formatting": "Formatting",
+      "formatting_description": "Use the \"Text Generation\" feature to format the transcription file. It corrects filler words and parts that were not correctly recognized by speech recognition, making it easier for humans to understand.",
+      "formatting_context": "The transcription result of the recording data is input, so please format it according to <rules></rules>.\n<rules>\n- Remove filler words.\n- Rewrite content that appears to be misrecognized by transcription to the correct content.\n- If conjunctions, etc. are omitted, please complement them to make it easier to read.\n- Do not omit Q&A, please include them.\n</rules>",
+      "create_minutes": "Create Minutes",
+      "create_minutes_description": "Use the \"Text Generation\" feature to generate minutes. By specifying the context in detail, you can instruct the format of the minutes and the granularity of the description.",
+      "create_minutes_context": "Please create minutes in markdown format based on the meeting's statements.\nPlease organize by theme discussed in the meeting, summarizing the content of the discussion, decisions, and homework items."
+    },
+    "edit": "Edit Use Case",
+    "createNew": "Create New",
+    "menuAppDefinition": "Application Definition",
+    "menuInputExamples": "Input Examples",
+    "menuModelSelection": "Model Selection",
+    "menuFileAttachment": "File Attachment",
+    "menuUpdate": "Update",
+    "menuCreate": "Create",
+    "menuDelete": "Delete",
+    "title": "Title",
+    "description": "Description",
+    "promptTemplate": "Prompt Template",
+    "promptTemplatePlaceholder": "Enter a prompt template.\nTo receive user input, use {{text}} or {{text:label}}.\nTo present choices, use {{select:label:option1,option2}}.\nTo use RAG, use {{retrieveKendra:label}} or {{retrieveKnowledgeBase:label}}.",
+    "promptTemplateHint": "{{text}}, {{text:label}}, {{select:label:option1,option2}}, {{form:label}}, {{retrieveKendra}}, {{retrieveKnowledgeBase}}",
+    "addInputExample": "Add Input Example",
+    "modelFixed": "Fix model",
+    "modelNotFixed": "Don't fix model",
+    "modelFixedDescription": "Users can only use the fixed model in this app.",
+    "modelNotFixedDescription": "Users can select which model to use in this app.",
+    "fileUploadEnabled": "Enable file upload",
+    "fileUploadDisabled": "Disable file upload",
+    "fileUploadDescription": "Users can upload files for the LLM to reference the content.",
+    "createDescription": "Create a use case with the above content.",
+    "updateDescription": "Update the use case with the above content.",
+    "deleteDescription": "Completely delete this use case. This action cannot be undone.",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "createErrorCondition": "The following conditions must be met:",
+    "updateErrorCondition": "The following conditions must be met:",
+    "preview": "Preview",
+    "help": {
+      "example": "Example",
+      "promptTemplateTitle": "What is a Prompt Template",
+      "promptTemplateDescription": "A prompt template is an instruction to the LLM that includes placeholders for embedding user input. Placeholders are converted to input forms in the user interface.",
+      "placeholder": "Placeholders",
+      "placeholderDescription": "Placeholders are specified in the format like {{text}}. There are several types of placeholders.",
+      "placeholderList": "Types of Placeholders",
+      "textPlaceholderDescription": "Displays a form for users to enter text. Specified in the format {{text}} or {{text:label}}.",
+      "emailReplyExample": "Email Reply Creation",
+      "emailReplyPrompt": "Please write a reply to the following email. Use a polite tone and keep it concise.\n\nOriginal email:\n{{text}}",
+      "formPlaceholderDescription": "Forms are displayed but not included in the prompt to the LLM. Specified in the format {{form}} or {{form:label}}.",
+      "formPlaceholderExample": {
+        "title": "Inquiry Form",
+        "prompt": "Please create a response to the inquiry based on the following information.\n\nCustomer name: {{text:name}}\nInquiry content: {{text:inquiry}}\nContact: {{form:contact}}\nNotes: {{form:notes}}"
+      },
+      "selectPlaceholderDescription": "Displays a form for users to select from a dropdown. Specified in the format {{select:label:option1,option2,...}}.",
+      "selectPlaceholderExample": {
+        "title": "Product Review Generation",
+        "prompt": "Please write a review of the following product in a {{select:tone:positive,neutral,negative}} tone.\n\nProduct name: {{text:product name}}\nProduct features: {{text:features}}"
+      },
+      "retrieveKendraDescription": "Includes search results from Amazon Kendra in the prompt. Specified in the format {{retrieveKendra}} or {{retrieveKendra:label}}.",
+      "retrieveKendraExample": {
+        "title": "Document Search and Response",
+        "prompt": "Please answer the following question based on the search results.\n\nQuestion: {{text:question}}\n\nSearch results:\n{{retrieveKendra:question}}"
+      },
+      "retrieveKnowledgeBaseDescription": "Includes search results from Knowledge Base in the prompt. Specified in the format {{retrieveKnowledgeBase}} or {{retrieveKnowledgeBase:label}}.",
+      "retrieveKnowledgeBaseExample": {
+        "title": "Knowledge Base Search and Response",
+        "prompt": "Please answer the following question based on the knowledge base information.\n\nQuestion: {{text:question}}\n\nSearch results:\n{{retrieveKnowledgeBase:question}}"
+      }
+    },
+    "deleting": "Deleting...",
+    "updating": "Updating...",
+    "creating": "Creating...",
+    "helpTitle": "Use Case Builder Help",
+    "samples": "Sample Collection",
+    "myUseCases": "My Use Cases",
+    "accessError": "Access Error",
+    "builderMode": "Builder Mode",
+    "cancel": "Cancel",
+    "deleteConfirmation": "Delete Confirmation",
+    "deleteSharedWarning": "Delete Shared Warning",
+    "deleteUseCaseTitle": "Delete Use Case Title",
+    "favorites": "Favorites",
+    "loadMore": "Load More",
+    "mainMenu": "Main Menu",
+    "noMyUseCases": "No My Use Cases",
+    "notExistOrNotShared": "Not Exist or Not Shared",
+    "notSharedDescription": "The use case is not shared.",
+    "ok": "OK",
+    "recentlyUsed": "Recently Used",
+    "returnToTop": "Return to Top",
+    "share": "Share",
+    "shareUrlDescription": "Share the use case with the following URL.",
+    "sharedDescription": "The use case is shared."
+  },
+  "language": {
+    "english": "English",
+    "japanese": "Japanese",
+    "chinese": "Chinese",
+    "korean": "Korean",
+    "french": "French",
+    "spanish": "Spanish",
+    "german": "German"
   }
 }

@@ -1,3 +1,5 @@
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const RequirementPrompt = `<instruction>
 あなたはMermaid.jsの要件図（Requirement Diagram）の専門家です。与えられた内容を分析し、Mermaid.jsの要件図記法を使用して表現してください。以下の制約に従ってください:
 

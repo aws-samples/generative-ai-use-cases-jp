@@ -34,16 +34,6 @@ import queryString from 'query-string';
 import useSpeach from '../hooks/useSpeach';
 import { useTranslation } from 'react-i18next';
 
-const languages = [
-  '英語',
-  '日本語',
-  '中国語',
-  '韓国語',
-  'フランス語',
-  'スペイン語',
-  'ドイツ語',
-];
-
 type StateType = {
   sentence: string;
   setSentence: (s: string) => void;
@@ -60,7 +50,7 @@ const useTranslatePageState = create<StateType>((set) => {
   const INIT_STATE = {
     sentence: '',
     additionalContext: '',
-    language: languages[0],
+    language: '', // 初期値は空文字列に
     translatedSentence: '',
   };
   return {
@@ -134,6 +124,20 @@ const TranslatePage: React.FC = () => {
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // 音声入力フラグ
   const { synthesizeSpeach, loading: speachIsLoading } = useSpeach(language);
+
+  // 言語リストをコンポーネント内で定義
+  const languages = useMemo(
+    () => [
+      t('language.english'),
+      t('language.japanese'),
+      t('language.chinese'),
+      t('language.korean'),
+      t('language.french'),
+      t('language.spanish'),
+      t('language.german'),
+    ],
+    [t]
+  );
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -301,6 +305,13 @@ const TranslatePage: React.FC = () => {
     handleSpeachEnded,
     speachIsLoading,
   ]);
+
+  useEffect(() => {
+    // 初期言語を設定
+    if (!language && languages.length > 0) {
+      setLanguage(languages[0]);
+    }
+  }, [language, languages, setLanguage]);
 
   return (
     <div className="grid grid-cols-12">

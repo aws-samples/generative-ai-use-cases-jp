@@ -5,9 +5,12 @@ import { produce } from 'immer';
 import { fileTypeFromStream } from 'file-type';
 import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import i18next from 'i18next';
+
 export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
+
 const useFilesState = create<{
   uploadFiles: (
     id: string,
@@ -105,7 +108,9 @@ const useFilesState = create<{
         // ファイルの拡張子が間違っている場合はフィルタリング
         if (isMimeSpoofedResults[idx]) {
           errorMessages.push(
-            `${uploadedFile.file.name} はファイルタイプと拡張子が合致しないファイルです。`
+            i18next.t('files.error.mimeMismatch', {
+              fileName: uploadedFile.file.name,
+            })
           );
         }
 
@@ -114,10 +119,13 @@ const useFilesState = create<{
           uploadedFile.file.name.split('.').pop()) as string;
         const isFileTypeAllowed = accept.includes(mediaFormat);
         if (accept && accept.length === 0) {
-          errorMessages.push(`このモデルはファイルに対応していません。`);
+          errorMessages.push(i18next.t('files.error.modelNotSupported'));
         } else if (!isFileTypeAllowed) {
           errorMessages.push(
-            `${uploadedFile.file.name} は許可されていない拡張子です。利用できる拡張子は ${accept.join(', ')} です`
+            i18next.t('files.error.invalidExtension', {
+              fileName: uploadedFile.file.name,
+              acceptedExtensions: accept.join(', '),
+            })
           );
         }
 
@@ -131,7 +139,10 @@ const useFilesState = create<{
         const isFileSizeAllowed = uploadedFile.file.size <= maxSizeMB * 1e6;
         if (!isFileSizeAllowed) {
           errorMessages.push(
-            `${uploadedFile.file.name} は最大ファイルサイズ ${maxSizeMB} MB を超えています。`
+            i18next.t('files.error.fileSizeExceeded', {
+              fileName: uploadedFile.file.name,
+              maxSize: maxSizeMB,
+            })
           );
         }
 
@@ -143,7 +154,9 @@ const useFilesState = create<{
             imageFileCount <= (fileLimit.maxImageFileCount || 0);
           if (!isFileNumberAllowed) {
             errorMessages.push(
-              `画像ファイルは ${fileLimit.maxImageFileCount} 個以下にしてください`
+              i18next.t('files.error.imageCountExceeded', {
+                maxCount: fileLimit.maxImageFileCount,
+              })
             );
           }
         } else if (uploadedFile.file.type.includes('video')) {
@@ -152,7 +165,9 @@ const useFilesState = create<{
             videoFileCount <= (fileLimit.maxVideoFileCount || 0);
           if (!isFileNumberAllowed) {
             errorMessages.push(
-              `動画ファイルは ${fileLimit.maxVideoFileCount} 個以下にしてください`
+              i18next.t('files.error.videoCountExceeded', {
+                maxCount: fileLimit.maxVideoFileCount,
+              })
             );
           }
         } else {
@@ -160,7 +175,9 @@ const useFilesState = create<{
           isFileNumberAllowed = fileCount <= (fileLimit.maxFileCount || 0);
           if (!isFileNumberAllowed) {
             errorMessages.push(
-              `ファイルは ${fileLimit.maxFileCount} 個以下にしてください`
+              i18next.t('files.error.fileCountExceeded', {
+                maxCount: fileLimit.maxFileCount,
+              })
             );
           }
         }
@@ -379,6 +396,7 @@ const useFiles = (id: string) => {
     base64Cache,
     getFileDownloadSignedUrl,
   } = useFilesState();
+
   return {
     uploadFiles: (files: File[], fileLimit: FileLimit, accept: string[]) =>
       uploadFiles(id, files, fileLimit, accept),
@@ -402,4 +420,5 @@ const useFiles = (id: string) => {
     getFileDownloadSignedUrl,
   };
 };
+
 export default useFiles;

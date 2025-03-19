@@ -33,6 +33,8 @@ export type SamplePromptType = {
     | 'gray';
 };
 
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const useCaseBuilderSamplePrompts: SamplePromptType[] = [
   {
     category: 'コンテンツ生成',

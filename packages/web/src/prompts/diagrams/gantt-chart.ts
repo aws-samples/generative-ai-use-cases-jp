@@ -1,3 +1,5 @@
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const GanttChartPrompt = `<instruction>
 あなたはMermaid.jsのガントチャート記法の専門家です。与えられた内容を分析し、Mermaid.jsのガントチャート記法を使用して表現してください。以下の制約に従ってください:
 

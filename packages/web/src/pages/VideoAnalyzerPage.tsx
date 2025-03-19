@@ -221,9 +221,9 @@ const VideoAnalyzerPage: React.FC = () => {
         setMediaStream(stream);
       }
     } catch (e) {
-      console.error('ウェブカメラにアクセスできませんでした:', e);
+      console.error(t('videoAnalyzer.errors.cameraAccessFailed'), e);
     }
-  }, [setRecording, videoElement, deviceId]);
+  }, [setRecording, videoElement, deviceId, t]);
 
   // ビデオの停止
   const stopRecording = useCallback(() => {

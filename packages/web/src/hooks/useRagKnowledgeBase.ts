@@ -11,6 +11,7 @@ import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { ShownMessage } from 'generative-ai-use-cases-jp';
 import { cleanEncode } from '../utils/URLUtils';
 import { arrangeItems } from './useRag';
+import { useTranslation } from 'react-i18next';
 
 // s3://<BUCKET>/<PREFIX> から https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX> に変換する
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
@@ -29,6 +30,8 @@ const convertS3UriToUrl = (s3Uri: string, region: string): string => {
 };
 
 const useRagKnowledgeBase = (id: string) => {
+  const { t } = useTranslation();
+
   const {
     getModelId,
     messages,
@@ -61,10 +64,7 @@ const useRagKnowledgeBase = (id: string) => {
       const modelRegion = import.meta.env.VITE_APP_MODEL_REGION!;
 
       pushMessage('user', content);
-      pushMessage(
-        'assistant',
-        'Knowledge Base から参考ドキュメントを取得中...'
-      );
+      pushMessage('assistant', t('rag.knowledgeBase.retrieving'));
 
       let retrievedItems = null;
 
@@ -75,8 +75,7 @@ const useRagKnowledgeBase = (id: string) => {
         popMessage();
         pushMessage(
           'assistant',
-          `Retrieve 時にエラーになりました。次の対応を検討してください。
-- cdk.json で指定した embeddingModelId のモデルが Amazon Bedrock (${modelRegion}) で有効になっているか確認`
+          t('rag.knowledgeBase.retrieveError', { region: modelRegion })
         );
         setLoading(false);
         return;
@@ -88,13 +87,7 @@ const useRagKnowledgeBase = (id: string) => {
         retrievedItems.data.retrievalResults.length === 0
       ) {
         popMessage();
-        pushMessage(
-          'assistant',
-          `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Knowledge Base のデータソースに対象のドキュメントが追加されているか確認する
-- Knowledge Base のデータソースが同期されているか確認する
-- 入力の表現を変更する`
-        );
+        pushMessage('assistant', t('rag.knowledgeBase.noDocuments'));
         setLoading(false);
         return;
       }
@@ -158,7 +151,7 @@ const useRagKnowledgeBase = (id: string) => {
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}${
                     _excerpt_page_number
-                      ? `(${_excerpt_page_number} ページ)`
+                      ? `(${_excerpt_page_number} ${t('rag.page')})`
                       : ''
                   }](
                   ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${

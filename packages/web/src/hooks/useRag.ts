@@ -7,6 +7,7 @@ import { findModelByModelId } from './useModel';
 import { getPrompter } from '../prompts';
 import { RetrieveResultItem, DocumentAttribute } from '@aws-sdk/client-kendra';
 import { cleanEncode } from '../utils/URLUtils';
+import { useTranslation } from 'react-i18next';
 
 // 同一のドキュメントとみなす Key 値
 const uniqueKeyOfItem = (item: RetrieveResultItem): string => {
@@ -38,6 +39,8 @@ export const arrangeItems = (
 };
 
 const useRag = (id: string) => {
+  const { t } = useTranslation();
+
   const {
     getModelId,
     messages,
@@ -77,7 +80,7 @@ const useRag = (id: string) => {
       // Kendra から Retrieve する際に、ローディング表示する
       setLoading(true);
       pushMessage('user', content);
-      pushMessage('assistant', 'Kendra から参照ドキュメントを取得中...');
+      pushMessage('assistant', t('rag.retrieving'));
 
       const query = await predict({
         model: model,
@@ -100,25 +103,14 @@ const useRag = (id: string) => {
         items = arrangeItems(retrievedItems.data.ResultItems ?? []);
       } catch (error) {
         popMessage();
-        pushMessage(
-          'assistant',
-          `Kendra から参照ドキュメントを取得できませんでした。次の対応を検討してください。
-- Amazon Kendraインデックス作成としてスケジュールした時刻と、その時刻からインデックス作成に必要な時間が経ったかを確認する
-- Amazon Kendraインデックス削除としてスケジュールした時刻を過ぎていないか確認する`
-        );
+        pushMessage('assistant', t('rag.errorRetrieval'));
         setLoading(false);
         return;
       }
 
       if (items.length == 0) {
         popMessage();
-        pushMessage(
-          'assistant',
-          `参考ドキュメントが見つかりませんでした。次の対応を検討してください。
-- Amazon Kendra の data source に対象のドキュメントが追加されているか確認する
-- Amazon Kendra の data source が sync されているか確認する
-- 入力の表現を変更する`
-        );
+        pushMessage('assistant', t('rag.noDocuments'));
         setLoading(false);
         return;
       }
@@ -157,7 +149,7 @@ const useRag = (id: string) => {
               return message.includes(`[^${idx}]`)
                 ? `[^${idx}]: [${item.DocumentTitle}${
                     _excerpt_page_number
-                      ? `(${_excerpt_page_number} ページ)`
+                      ? `(${_excerpt_page_number} ${t('rag.page')})`
                       : ''
                   }](
                   ${item.DocumentURI ? cleanEncode(item.DocumentURI) : ''}${

@@ -1279,7 +1279,7 @@ const GenerateImagePage: React.FC = () => {
                       step={0.01}
                       value={controlStrength}
                       onChange={setControlStrength}
-                      help="1に近いほど「参照画像」の構図に基づいた画像が生成され、0に近いほど「参照画像」の構図とは異なる画像が生成されます。"
+                      help={t('generateImage.help.control_strength')}
                     />
                   )}
                 </div>

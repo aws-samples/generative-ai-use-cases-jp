@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { extractPlaceholdersFromPromptTemplate } from '../../src/utils/UseCaseBuilderUtils';
 
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 describe('単一の placeholder を正しく抽出できる', () => {
   test('無ラベル', () => {
     expect(extractPlaceholdersFromPromptTemplate('{{text}}')).toEqual([

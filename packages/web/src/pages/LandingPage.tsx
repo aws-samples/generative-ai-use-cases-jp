@@ -53,8 +53,7 @@ const LandingPage: React.FC = () => {
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
-      content: `フィボナッチ数を返す Python の関数を書いてください。また、実装を解説してください。
-引数が項で、処理は再帰で書くようにしてください。出力はマークダウンにしてください。`,
+      content: t('landing.demo.chat.content'),
       systemContext: '',
     };
     navigate(`/chat?${queryString.stringify(params)}`);
@@ -62,38 +61,36 @@ const LandingPage: React.FC = () => {
 
   const demoRag = () => {
     const params: RagPageQueryParams = {
-      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+      content: t('landing.demo.rag.content'),
     };
     navigate(`/rag?${queryString.stringify(params)}`);
   };
 
   const demoRagKnowledgeBase = () => {
     const params: RagPageQueryParams = {
-      content: `Claude のパラメータを説明し、その設定方法も教えてください。`,
+      content: t('landing.demo.rag.content'),
     };
     navigate(`/rag-knowledge-base?${queryString.stringify(params)}`);
   };
 
   const demoAgent = () => {
     const params: AgentPageQueryParams = {
-      content: `generative-ai-use-cases-jp とはなんですか？`,
+      content: t('landing.demo.agent.content'),
     };
     navigate(`/agent?${queryString.stringify(params)}`);
   };
 
   const demoGenerate = () => {
     const params: GenerateTextPageQueryParams = {
-      information: `Amazon Bedrock は、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazon などの大手 AI 企業が提供する高性能な基盤モデル (FM) を単一の API で選択できるフルマネージド型サービスです。また、生成 AI アプリケーションの構築に必要な幅広い機能も備えているため、プライバシーとセキュリティを維持しながら開発を簡素化できます。Amazon Bedrock の包括的な機能を使用すると、さまざまなトップ FM を簡単に試したり、微調整や検索拡張生成 (RAG) などの手法を使用してデータを使用してプライベートにカスタマイズしたり、旅行の予約や保険金請求の処理から広告キャンペーンの作成や在庫管理まで、複雑なビジネスタスクを実行するマネージドエージェントを作成したりできます。これらはすべて、コードを記述することなく行えます。Amazon Bedrock はサーバーレスであるため、インフラストラクチャを管理する必要がありません。また、使い慣れた AWS サービスを使用して、生成 AI 機能をアプリケーションに安全に統合してデプロイできます。`,
-      context:
-        'プレゼンテーションのために、マークダウン形式で章立てして、それぞれ端的に説明を',
+      information: t('landing.demo.generate.information'),
+      context: t('landing.demo.generate.context'),
     };
     navigate(`/generate?${queryString.stringify(params)}`);
   };
 
   const demoSummarize = () => {
     const params: SummarizePageQueryParams = {
-      sentence:
-        'Amazon Bedrock は、Amazon や主要な AI スタートアップ企業が提供する基盤モデル (FM) を API を通じて利用できるようにする完全マネージド型サービスです。そのため、さまざまな FM から選択して、ユースケースに最も適したモデルを見つけることができます。Amazon Bedrock のサーバーレスエクスペリエンスにより、すぐに FM を開始したり、FM を簡単に試したり、独自のデータを使用して FM をプライベートにカスタマイズしたり、AWS のツールや機能を使用して FM をアプリケーションにシームレスに統合してデプロイしたりできます。Amazon Bedrock のエージェントは、開発者が独自の知識源に基づいて最新の回答を提供し、幅広いユースケースのタスクを完了できるジェネレーティブ AI アプリケーションを開発者が簡単に作成できるようにする完全マネージド機能です。Bedrock のサーバーレスエクスペリエンスにより、インフラストラクチャを管理することなく、すぐに使用を開始し、独自のデータを使用して FM をプライベートにカスタマイズし、使い慣れた AWS ツールや機能を使用してそれらをアプリケーションに簡単に統合してデプロイできます (さまざまなモデルをテストするための実験や FM を大規模に管理するためのパイプラインなどの Amazon SageMaker の ML 機能との統合を含みます)。',
+      sentence: t('landing.demo.summarize.sentence'),
       additionalContext: '',
     };
     navigate(`/summarize?${queryString.stringify(params)}`);
@@ -105,17 +102,16 @@ const LandingPage: React.FC = () => {
 
   const demoTranslate = () => {
     const params: TranslatePageQueryParams = {
-      sentence:
-        'こんにちは。私は翻訳を支援する AI アシスタントです。お好きな文章を入力してください。',
+      sentence: t('landing.demo.translate.sentence'),
       additionalContext: '',
-      language: '英語',
+      language: t('landing.demo.translate.language'),
     };
     navigate(`/translate?${queryString.stringify(params)}`);
   };
 
   const demoWebContent = () => {
     const params: WebContentPageQueryParams = {
-      url: 'https://aws.amazon.com/jp/bedrock/',
+      url: t('landing.demo.web_content.url'),
       context: '',
     };
     navigate(`/web-content?${queryString.stringify(params)}`);
@@ -123,61 +119,48 @@ const LandingPage: React.FC = () => {
 
   const demoGenerateImage = () => {
     const params: GenerateImagePageQueryParams = {
-      content: `スマホ広告のデザイン案を出力してください。
-可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街`,
+      content: t('landing.demo.image.content'),
     };
     navigate(`/image?${queryString.stringify(params)}`);
   };
 
   const demoVideoAnalyzer = () => {
     const params: VideoAnalyzerPageQueryParams = {
-      content:
-        '映っているものを説明してください。もし映っているものに文字が書かれている場合はそれも読んでください。',
+      content: t('landing.demo.video.content'),
     };
     navigate(`/video?${queryString.stringify(params)}`);
   };
 
   const demoGenerateDiagram = () => {
     const params: DiagramPageQueryParams = {
-      content: `会社の一般的な経費生産フローを色つきで図示してください。`,
+      content: t('landing.demo.diagram.content'),
     };
     navigate(`/diagram?${queryString.stringify(params)}`);
   };
 
   const demoBlog = () => {
     setIsShow(true);
-    init('ブログ記事作成', [
+    init(t('landing.use_cases_integration.blog.title'), [
       {
-        title: '参考情報の取得',
-        description: `URL を指定して、記事の参考となる情報を自動取得します。
-追加コンテキストを設定することで、自分の欲しい情報のみを抽出可能です。`,
+        title: t('useCaseBuilder.blog.reference_info'),
+        description: t('useCaseBuilder.blog.reference_info_description'),
         path: 'web-content',
         params: {
           url: {
             value: 'https://aws.amazon.com/jp/what-is/generative-ai/',
           },
           context: {
-            value:
-              '生成AIの概要、仕組みを解説している部分、AWSについて説明している部分のみ抽出してください。',
+            value: t('useCaseBuilder.blog.reference_info_context'),
           },
         } as InterUseCaseParams<WebContentPageQueryParams>,
       },
       {
-        title: '記事の生成',
-        description:
-          '参考情報を元にブログの記事を自動生成します。コンテキストを詳細に設定することで、自分の意図した内容で記事が生成されやすくなります。',
+        title: t('useCaseBuilder.blog.generate_article'),
+        description: t('useCaseBuilder.blog.generate_article_description'),
         path: 'generate',
         params: {
           context: {
-            value: `生成AIの仕組みの解説とAWSで生成AIを利用するメリットを解説するブログ記事を生成してください。記事を生成する際は、<rules></rules>を必ず守ってください。
-<rules>
-- マークダウン形式で章立てして書いてください。
-- 生成AIおよび、AWS初心者をターゲットにした記事にしてください。
-- IT初心者が分からないような用語は使わないか、分かりやすい言葉に置き換えてください。
-- 生成AIで何ができるのかがわかる記事にしてください。
-- 文章量が少ないと読者が満足しないので、一般的な情報は補完しながら文量を多くしてください。
-- 読者の興味を惹きつけるような文章にしてください。
-</rules>`,
+            value: t('useCaseBuilder.blog.generate_article_context'),
           },
           information: {
             value: '{content}',
@@ -185,9 +168,8 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<GenerateTextPageQueryParams>,
       },
       {
-        title: '記事の要約',
-        description:
-          'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、記事を要約します。OGP を適切に設定することで、記事がシェアされた際に記事の概要を正しく伝えることができます。',
+        title: t('useCaseBuilder.blog.summarize_article'),
+        description: t('useCaseBuilder.blog.summarize_article_description'),
         path: 'summarize',
         params: {
           sentence: {
@@ -196,17 +178,14 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<SummarizePageQueryParams>,
       },
       {
-        title: '記事のサムネイル生成',
-        description:
-          'OGP（記事のリンクをシェアする際に表示される記事のプレビュー）用に、サムネイルを生成します。OGP にキャッチーなサムネイルを設定することで、読者の関心を惹くことができるかもしれません。',
+        title: t('useCaseBuilder.blog.generate_thumbnail'),
+        description: t('useCaseBuilder.blog.generate_thumbnail_description'),
         path: 'image',
         params: {
           content: {
-            value: `ブログ記事のOGP用にサムネイル画像を生成してください。クラウドやAIの記事であることが一目でわかる画像にしてください。
-ブログ記事の概要は<article></article>に設定されています。
-<article>
-{summarizedSentence}
-</article>`,
+            value: t('useCaseBuilder.blog.generate_thumbnail_content', {
+              summarizedSentence: '{summarizedSentence}',
+            }),
           },
         } as InterUseCaseParams<GenerateImagePageQueryParams>,
       },
@@ -215,27 +194,19 @@ const LandingPage: React.FC = () => {
 
   const demoMeetingReport = () => {
     setIsShow(true);
-    init('議事録作成', [
+    init(t('landing.use_cases_integration.meeting.title'), [
       {
-        title: '文字起こし',
-        description: `「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
-音声認識が完了したら、「整形」ボタンを押してください（音声認識結果は自動でコピーされます）。`,
+        title: t('useCaseBuilder.meeting.transcription'),
+        description: t('useCaseBuilder.meeting.transcription_description'),
         path: 'transcribe',
       },
       {
-        title: '整形',
-        description:
-          '「文章生成」の機能を使って、文字起こしファイルを整形します。フィラーワードの除去や音声認識が正しくできていない部分などを補正し、人間が理解しやすいようにします。',
+        title: t('useCaseBuilder.meeting.formatting'),
+        description: t('useCaseBuilder.meeting.formatting_description'),
         path: 'generate',
         params: {
           context: {
-            value: `録音データの文字起こし結果が入力されているので、<rules></rules>の通りに整形してください。
-<rules>
-- フィラーワードを除去してください。
-- 文字起こしの誤認識と思われる内容は正しい内容に書き換えてください。
-- 接続詞などが省略されている場合は、読みやすいように補完してください。
-- 質疑応答も省略せず、記載してください。
-</rules>`,
+            value: t('useCaseBuilder.meeting.formatting_context'),
           },
           information: {
             value: '{transcript}',
@@ -243,14 +214,12 @@ const LandingPage: React.FC = () => {
         } as InterUseCaseParams<GenerateTextPageQueryParams>,
       },
       {
-        title: '議事録作成',
-        description:
-          '「文章生成」の機能を使って、議事録を生成します。コンテキストを詳細に指定することで、議事録のフォーマットや記載の粒度を指示できます。',
+        title: t('useCaseBuilder.meeting.create_minutes'),
+        description: t('useCaseBuilder.meeting.create_minutes_description'),
         path: 'generate',
         params: {
           context: {
-            value: `会議の発言内容を元にマークダウン形式の議事録を作成してください。
-会議で話したテーマごとに章立てし、議論した内容、決定事項、宿題事項をまとめてください。`,
+            value: t('useCaseBuilder.meeting.create_minutes_context'),
           },
           information: {
             value: '{text}',

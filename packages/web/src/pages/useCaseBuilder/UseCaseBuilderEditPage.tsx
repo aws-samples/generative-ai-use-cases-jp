@@ -295,12 +295,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
     } else {
       // エラーがない場合は「更新」「作成」にドットを表示
       if (isUpdate) {
-        return ['更新'];
+        return [t('useCaseBuilder.update')];
       } else {
-        return ['作成'];
+        return [t('useCaseBuilder.create')];
       }
     }
-  }, [createErrorMessages, updateErrorMessages, isUpdate]);
+  }, [createErrorMessages, updateErrorMessages, isUpdate, t]);
 
   // ページタイトルの設定
   useEffect(() => {
@@ -787,7 +787,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         </div>
         <div className="col-span-12 min-h-[calc(100vh-2rem)] lg:col-span-5 2xl:col-span-6">
           <Card
-            label={`${isPreview ? t('useCaseBuilder.preview') : t('useCaseBuilder.help')}`}
+            label={`${isPreview ? t('useCaseBuilder.preview') : t('useCaseBuilder.helpTitle')}`}
             className="relative">
             <div className="absolute right-3 top-3 flex rounded border text-xs font-bold">
               <div
@@ -804,7 +804,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
                   setIsPreview(false);
                 }}>
                 <PiQuestion className="mr-1 text-base" />
-                {t('useCaseBuilder.help')}
+                {t('useCaseBuilder.helpTitle')}
               </div>
             </div>
 

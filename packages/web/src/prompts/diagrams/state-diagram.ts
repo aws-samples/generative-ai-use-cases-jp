@@ -1,3 +1,5 @@
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const StatePrompt = `<instruction>
 あなたはMermaid.jsの状態図記法の専門家です。与えられた情報を分析し、Mermaid.jsの状態図記法を使用して表現してください。以下の制約に従ってください:
 1. 出力は必ずMermaid.jsの状態図記法に従ってください。

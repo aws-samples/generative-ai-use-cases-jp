@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import useWriter from '../../../hooks/useWriter';
 import { removeAIHighlight } from 'novel';
 import { toast } from 'sonner';
+import { TFunction } from 'i18next';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -48,10 +49,16 @@ const useCommentStore = create<CommentState>((set) => ({
 export class AICommentManager {
   private editor: Editor;
   private write: ReturnType<typeof useWriter>['write'];
+  private t: TFunction;
 
-  constructor(editor: Editor, write: ReturnType<typeof useWriter>['write']) {
+  constructor(
+    editor: Editor,
+    write: ReturnType<typeof useWriter>['write'],
+    t: TFunction
+  ) {
     this.editor = editor;
     this.write = write;
+    this.t = t;
   }
 
   // テキストの位置を検索する
@@ -224,7 +231,7 @@ export class AICommentManager {
       })
       .replace(/[‐－―]/g, '-')
       .replace(/[～〜]/g, '~')
-      .replace(/["”]/g, "'") // replace double quote since Claude does not escape double quote inside json
+      .replace(/[""]/g, "'") // replace double quote since Claude does not escape double quote inside json
       // eslint-disable-next-line no-irregular-whitespace
       .replace(/　/g, ' ');
     this.editor.commands.setContent(cleanedMarkdown);
@@ -244,9 +251,9 @@ export class AICommentManager {
     } finally {
       useCommentStore.getState().setLoading(false);
       if (useCommentStore.getState().comments.length === 0) {
-        toast.error('指摘事項がありませんでした。');
+        toast.error(this.t('common.errorNoSuggestions'));
       } else {
-        toast.success('校閲が完了しました');
+        toast.success(this.t('common.reviewComplete'));
       }
     }
   }

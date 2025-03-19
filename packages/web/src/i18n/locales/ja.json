@@ -39,8 +39,6 @@
     "cancel": "キャンセル",
     "delete": "削除",
     "save": "保存",
-    "edit": "編集",
-    "search": "検索",
     "here": "こちら",
     "optional": "任意",
     "submit": "送信",
@@ -55,7 +53,11 @@
     "previous": "前",
     "none": "ありません",
     "complete": "完了",
-    "close": "閉じる"
+    "close": "閉じる",
+    "selectUseCase": "ユースケースを選択",
+    "errorNoSuggestions": "候補が見つかりませんでした。",
+    "reviewComplete": "レビュー完了",
+    "notAuthenticated": "認証されていません。"
   },
   "writer": {
     "title": "執筆",
@@ -71,6 +73,12 @@
     "replace": "置換",
     "clear_comments": "コメントをクリア",
     "no_results": "結果がありません",
+    "appearance": "外観",
+    "system": "システム",
+    "light": "ライト",
+    "dark": "ダーク",
+    "link": "リンク",
+    "paste_link": "リンクを貼り付け",
     "color": "文字色",
     "background": "背景色",
     "colors": {
@@ -94,7 +102,7 @@
       "insert_below": "選択範囲の下に挿入",
       "discard": "破棄",
       "error": "エラーが発生しました",
-      "ask_ai": "Ask AI",
+      "ask_ai": "AI に質問",
       "edit_selection": "選択範囲を編集",
       "use_search_engine": "検索エンジンを使う",
       "generate": "生成",
@@ -108,7 +116,19 @@
         "fact_check": "ファクトチェック",
         "continue": "続きを出力"
       }
-    }
+    },
+    "description": "ライティングの支援、文章の推敲、校閲を行うツールです。AI の支援を得ながら効率的に執筆することができます。",
+    "useAsTextEditor": "テキストエディタとして使用する",
+    "textEditorDescription": "このエディタは通常のテキストエディタとして使用できます。太字、斜体、リスト、見出しなどの基本的な書式設定をサポートしています。また、執筆中の文字数も表示されます。",
+    "autoCompleteFeature": "AI自動補完機能",
+    "autoCompleteDescription": "選択したテキストに対してAIに指示を出すことができます。例えば「推敲」「校閲」「短くする」「長くする」などの操作や、カスタム指示を入力することも可能です。",
+    "example1": "例えば、こちらの文章の続きをAIに出力させることができます：",
+    "amazonBedrockDescription": "Amazon Bedrock は完全マネージド型のサービスで、AI21 Labs、Anthropic、Cohere、Meta、Stability AI、Amazonなどの大手AI企業から、単一のAPIを通じて高性能な基盤モデル（FM）を選択し、セキュリティ、プライバシー、責任あるAIを備えた生成AIアプリケーションを構築するために必要な幅広い機能を提供します。",
+    "example2": "また、文章に含まれる事実をチェックすることもできます。以下の文章を選択して「ファクトチェック」を選んでみてください：",
+    "factCheckExample": "バラク・オバマは米国の第43代大統領です。彼は2001年から2009年まで大統領を務めました。",
+    "reviewFeature": "校閲機能",
+    "reviewDescription": "文書全体に対して校閲を行うことができます。誤字脱字や文法的な間違いを検出し、修正案を提示します。",
+    "incorrectTextExample": "わたしは日本に行たことがあります。東京はとても美意気な都市です。"
   },
   "chat": {
     "title": "チャット",
@@ -158,7 +178,16 @@
     "here": "こちら",
     "please_refer": "をご参照ください。",
     "no_settings_found": "設定が見つかりませんでした。",
-    "can_add_filters": "をカスタマイズすることでフィルターを追加できます。"
+    "can_add_filters": "をカスタマイズすることでフィルターを追加できます。",
+    "retrieving": "Kendra から参考ドキュメントを取得しています...",
+    "errorRetrieval": "Kendra から参考ドキュメントを取得できませんでした。以下をご確認ください：\n- Amazon Kendra インデックス作成のスケジュール時間が経過し、インデックス作成に十分な時間が経過したか\n- Amazon Kendra インデックス削除のスケジュール時間が経過していないか",
+    "noDocuments": "参考ドキュメントが見つかりませんでした。以下をご確認ください：\n- 対象ドキュメントが Amazon Kendra のデータソースに追加されているか\n- Amazon Kendra のデータソースが同期されているか\n- 入力の表現を変えてみてください",
+    "page": "ページ",
+    "knowledgeBase": {
+      "retrieving": "Knowledge Base から参考ドキュメントを取得しています...",
+      "retrieveError": "取得中にエラーが発生しました。以下をご確認ください：\n- cdk.json で指定された embeddingModelId が Amazon Bedrock ({{region}}) で有効になっているか",
+      "noDocuments": "参考ドキュメントが見つかりませんでした。以下をご確認ください：\n- 対象ドキュメントが Knowledge Base のデータソースに追加されているか\n- Knowledge Base のデータソースが同期されているか\n- 入力の表現を変えてみてください"
+    }
   },
   "summarize": {
     "title": "要約",
@@ -234,7 +263,124 @@
     "svg_error": "SVG出力エラー: ",
     "png_error": "PNG出力エラー: ",
     "markdown_edit": "マークダウン編集",
-    "mermaid_syntax": "Mermaid の記法はこちら"
+    "mermaid_syntax": "Mermaid の記法はこちら",
+    "types": {
+      "AI": {
+        "description": "AIに最適なダイアグラムタイプを選択させます",
+        "exampleTitle": "経費フロー例",
+        "content": "会社の一般的な経費生産フローを色つきで図示してください。"
+      },
+      "flowchart": {
+        "title": "フローチャート",
+        "desc": "フローチャートはプロセスやワークフローを視覚化します",
+        "exampleTitle": "朝の準備フロー例",
+        "content": "朝の準備の流れをフローチャートで表現したいです。以下の手順を含めてください: \n目覚める、ベッドから出る、顔を洗う、歯を磨く、朝食を食べる、服を着替える、家を出る、\n\n途中で「時間に余裕があるか？」という判断ポイントを入れ、余裕がある場合は「コーヒーを飲む」というステップを追加してください。\n時間に余裕がない場合は、そのまま「家を出る」に進むようにしてください。\n\n簡潔で見やすいデザインの図にしてください。"
+      },
+      "piechart": {
+        "title": "円グラフ",
+        "desc": "円グラフは全体に対する割合を表現します",
+        "exampleTitle": "通勤手段割合例",
+        "content": "東京都内の20代、30代の通勤・通学手段の割合を示す円グラフを作成したいです。\n\n電車、自転車、徒歩、車、バスの5つの手段について、それぞれの割合を適当に設定してください。\nグラフのタイトルは「東京都内20-30代の通勤・通学手段」としてください。"
+      },
+      "mindmap": {
+        "title": "マインドマップ",
+        "desc": "マインドマップは関連する概念やアイデアを階層的に表現します",
+        "exampleTitle": "生成AIユースケース例",
+        "content": "生成AIのユースケースについて、様々なアイデアを考えてマインドマップで図示してください。"
+      },
+      "quadrantchart": {
+        "title": "象限チャート",
+        "desc": "4象限チャートは2軸に沿って項目を分類します",
+        "exampleTitle": "ソーシャルメディア分析例",
+        "content": "ソーシャルメディアプラットフォームの特性を比較する4象限チャートを作成してください。\nタイトルは「ソーシャルメディアプラットフォーム分析」。 \nX軸は「テキスト中心」から「視覚中心」へと変化し、\nY軸は「プロフェッショナル」から「カジュアル」へと変化する。\n\n各象限には以下のようにラベルを付けてください: \n右上の象限: 「視覚的カジュアル」\n左上の象限: 「テキスト的カジュアル」\n左下の象限: 「テキスト的プロフェッショナル」\n右下の象限: 「視覚的プロフェッショナル」\n\n次のソーシャルメディアプラットフォームをチャート上にプロットしてください:\nTwitter: テキスト寄りでややカジュアル、\nInstagram: 非常に視覚的でかなりカジュアル、\nLinkedIn: テキスト寄りで非常にプロフェッショナル、\nTikTok: 非常に視覚的で最もカジュアル、\nFacebook: X軸とY軸の中間あたり。 \n\n可能であれば、各プラットフォームを異なる色で表示してください。"
+      },
+      "sequencediagram": {
+        "title": "シーケンス図",
+        "desc": "シーケンス図はコンポーネント間の相互作用を時系列で表現します",
+        "exampleTitle": "ログインフロー例",
+        "content": "Webアプリケーションで、ユーザーがログインボタンを押してから認証が完了するまでの流れを示してください。\n\nフロントエンド、認証サーバー、データベースの3つのコンポーネントが関係します。"
+      },
+      "timeline": {
+        "title": "タイムライン",
+        "desc": "タイムラインは時間に沿って出来事を順序立てて表示します",
+        "exampleTitle": "ソーシャルメディア進化例",
+        "content": "2000年から2020年までのソーシャルメディアの主要な進化と転換点をタイムラインで表現してください。\n        \n以下の要素を含めてください: \nブログの普及期\n写真共有プラットフォームの台頭\nマイクロブログの登場\n動画共有サービスの発展\nモバイルファースト型SNSの広がり\nショート動画プラットフォームの台頭\n\n各転換点について、その時期に起きた重要な技術革新や社会的変化（例: スマートフォンの普及、高速モバイルインターネットの実現など）も1-2個ずつ追記してください。"
+      },
+      "gitgraph": {
+        "title": "Gitグラフ",
+        "desc": "Gitグラフはブランチやマージの履歴を視覚化します",
+        "exampleTitle": "開発フロー例",
+        "content": "メインブランチから、ログイン機能とプロフィール編集機能の2つのfeatureブランチが分岐する開発フローを表現してください。\n\nログイン機能の開発では、フォーム実装やバリデーション追加などの複数回のコミットを行い、最終的にPull Requestでmainブランチにマージします。\n一方、プロフィール編集機能の開発中には、mainブランチに加えられた最新の変更を取り込む必要が生じます。\n\n各マージポイントでは「Reviewed and merged login feature #123」のような、コードレビューを経た実際のプロジェクトらしいコミットメッセージを含めてください。"
+      },
+      "erdiagram": {
+        "title": "ER図",
+        "desc": "ER図はデータベースのエンティティとリレーションシップを表現します",
+        "exampleTitle": "ブログDB設計例",
+        "content": "ブログシステムのデータベース設計を示してください。\n\n以下のテーブルがあり、それぞれ適切にリレーションが設定されています。:\n記事（posts）\nユーザー（users）\nコメント（comments）\nカテゴリー（categories）\nタグ（tags）"
+      },
+      "classdiagram": {
+        "title": "クラス図",
+        "desc": "クラス図はオブジェクト指向設計のクラス構造を表現します",
+        "exampleTitle": "ECサイトモデル例",
+        "content": "ECサイトのドメインモデルを作成してください。\n\n以下のクラスが存在します: \nUser（ユーザー）\nProduct（商品）\nOrder（注文）\nCartItem（カート内商品）\n\n各クラスには適切なプロパティとメソッドを含めてください。"
+      },
+      "statediagram": {
+        "title": "状態遷移図",
+        "desc": "状態遷移図はシステムの状態変化を表現します",
+        "exampleTitle": "カート状態例",
+        "content": "オンラインショッピングカートの状態遷移を示してください。\n「空」、「商品追加済み」、「チェックアウト中」、「支払い完了」などの状態を含めます。"
+      },
+      "xychart": {
+        "title": "XYチャート",
+        "desc": "XYチャートは2つの変数間の関係を表現します",
+        "exampleTitle": "睡眠・労働時間例",
+        "content": "過去10年間の日本の平均睡眠時間と労働時間の関係を示すXYチャートを作成してください。\n\nX軸を1日の平均労働時間、Y軸を1日の平均睡眠時間とし、各年のデータポイントをプロットしてください。"
+      },
+      "blockdiagram": {
+        "title": "ブロック図",
+        "desc": "ブロック図はシステムの主要コンポーネントを表現します",
+        "exampleTitle": "スマホ構成例",
+        "content": "スマートフォンのハードウェアコンポーネントを示すブロック図を作成してください。\n\n以下の要素を含めます:\nプロセッサ\nメモリ\nストレージ\nディスプレイ\nカメラ\n各種センサーなど。"
+      },
+      "architecture": {
+        "title": "アーキテクチャ図",
+        "desc": "アーキテクチャ図はシステム全体の構造を表現します",
+        "exampleTitle": "Webアプリ構成例",
+        "content": "クラウドベースのWeb アプリケーションのアーキテクチャを示してください。\n\n以下のコンポーネントを含めます:\nフロントエンド\nバックエンド\nデータベース\nキャッシュ\nロードバランサー\nCDNなど"
+      },
+      "ganttchart": {
+        "title": "ガントチャート",
+        "desc": "ガントチャートはプロジェクトスケジュールを視覚化します",
+        "exampleTitle": "開発スケジュール例",
+        "content": "Webアプリケーション開発プロジェクトのスケジュールを示してください。\n要件定義、設計、開発、テスト、デプロイメントの各フェーズを含めます。"
+      },
+      "userjourney": {
+        "title": "ユーザージャーニー",
+        "desc": "ユーザージャーニーは顧客体験の流れを表現します",
+        "exampleTitle": "購買体験例",
+        "content": "オンラインショッピングサイトでの顧客の購買体験を示してください。\n\n以下の流れを含めてください:\n商品検索\n商品閲覧\nカートへの追加\nチェックアウト\n支払い\n配送追跡"
+      },
+      "sankeychart": {
+        "title": "サンキーチャート",
+        "desc": "サンキーチャートはフローや変化量を幅で表現します",
+        "exampleTitle": "ユーザーフロー例",
+        "content": "Webサイトのユーザーフローを示すサンキーチャートを作成してください。\nランディングページから始まり、各ページの遷移と離脱率を表示します。"
+      },
+      "requirementdiagram": {
+        "title": "要求図",
+        "desc": "要求図はシステム要件と関係を表現します",
+        "exampleTitle": "スマートホーム要件例",
+        "content": "スマートホームシステムの主要な機能要件を示してください。\n照明制御、温度管理、セキュリティ、エネルギー効率化などの要件を含めます。"
+      },
+      "networkpacket": {
+        "title": "ネットワークパケット図",
+        "desc": "ネットワークパケット図はデータ構造を表現します",
+        "exampleTitle": "HTTPパケット例",
+        "content": "HTTPリクエストパケットの構造を示す図を作成してください。\nヘッダーとボディの主要な要素を含めます。"
+      }
+    },
+    "chart": "チャート",
+    "serverBusy": "サーバーが混雑しています。しばらく経ってから再度お試しください。"
   },
   "generateText": {
     "title": "文章生成",
@@ -260,7 +406,10 @@
     "start": "開始",
     "stop": "停止",
     "model": "モデル",
-    "clear": "クリア"
+    "clear": "クリア",
+    "errors": {
+      "cameraAccessFailed": "ウェブカメラにアクセスできませんでした:"
+    }
   },
   "generateImage": {
     "title": "画像生成",
@@ -302,6 +451,26 @@
       "steps": "画像生成の反復回数です。Step 数が多いほど画像が洗練されますが、生成に時間がかかります。",
       "image_strength": "1に近いほど「初期画像」に近い画像が生成され、0に近いほど「初期画像」とは異なる画像が生成されます。",
       "control_strength": "1に近いほど「参照画像」の構図に基づいた画像が生成され、0に近いほど「参照画像」の構図とは異なる画像が生成されます。"
+    },
+    "assistant": {
+      "title": "画像生成アシスタント",
+      "help": "画像生成用のプロンプトを作成します。アシスタントに希望を伝えると、AIがプロンプトとネガティブプロンプトを生成して画像を作成します。",
+      "hint_title": "ヒント",
+      "hint_1": "「かわいい猫の画像を生成して」のような簡単な指示から始めてみましょう。",
+      "hint_2": "「水彩画風に」や「リアルに」などスタイルを指定すると効果的です。",
+      "hint_3": "「背景に山」や「青空」など、含めたい要素を詳細に描写しましょう。",
+      "hint_4": "「高解像度」や「細部まで描写」など、品質に関する指示も効果的です。",
+      "hint_5": "「アニメ風」や「油絵風」など、特定の芸術スタイルを指定することもできます。",
+      "hint_6": "複雑なシーンの場合は、構図、配色などについて具体的に指示しましょう。",
+      "error_title": "エラーが発生しました",
+      "error_message": "プロンプトの生成に失敗しました。もう一度試してください。",
+      "retry": "再試行",
+      "generating_prompt": "プロンプト生成中...",
+      "prompt_completed": "プロンプト生成完了",
+      "generating_image": "画像生成中...",
+      "recommended_style": "おすすめスタイル",
+      "no_style": "スタイルなし",
+      "input_placeholder": "どのような画像を生成したいですか？"
     }
   },
   "landing": {
@@ -372,7 +541,41 @@
         "description": "複数のユースケースを組み合わせて、会議の録音データから議事録を自動作成します。録音データの文字起こし、文字起こし結果の整形、議事録作成を人的コストをかけずに行うことが可能です。"
       }
     },
-    "try": "試す"
+    "try": "試す",
+    "demo": {
+      "agent": {
+        "content": "エージェントの内容"
+      },
+      "chat": {
+        "content": "チャットの内容"
+      },
+      "diagram": {
+        "content": "ダイアグラムの内容"
+      },
+      "generate": {
+        "context": "生成のコンテキスト",
+        "information": "生成の情報"
+      },
+      "image": {
+        "content": "画像の内容"
+      },
+      "rag": {
+        "content": "RAG の内容"
+      },
+      "summarize": {
+        "sentence": "要約のセンテンス"
+      },
+      "translate": {
+        "language": "翻訳の言語",
+        "sentence": "翻訳のセンテンス"
+      },
+      "video": {
+        "content": "映像の内容"
+      },
+      "web_content": {
+        "url": "Web コンテンツの URL"
+      }
+    }
   },
   "useCaseBuilder": {
     "accessError": "アクセスエラー",
@@ -384,20 +587,12 @@
     "loadMore": "さらに読み込む",
     "samples": "サンプル集",
     "edit": "ユースケースの編集",
-    "save": "保存",
     "cancel": "キャンセル",
     "title": "タイトル",
     "description": "説明",
     "promptTemplate": "プロンプトテンプレート",
     "inputExamples": "入力例",
-    "fixedModel": "固定モデル",
-    "fileUpload": "ファイルアップロード",
     "addInputExample": "入力例を追加",
-    "deleteInputExample": "入力例を削除",
-    "inputExample": "入力例",
-    "expectedOutput": "期待される出力",
-    "titleRequired": "タイトルは必須です",
-    "promptTemplateRequired": "プロンプトテンプレートは必須です",
     "deleting": "削除中...",
     "updating": "更新中...",
     "creating": "作成中...",
@@ -434,10 +629,6 @@
     "menuUpdate": "更新",
     "menuDelete": "削除",
     "menuCreate": "作成",
-    "enterTitle": "タイトルを入力してください",
-    "enterPromptTemplate": "プロンプトテンプレートを入力してください",
-    "noUserInput": "ユースケースがユーザーの入力を受け付けていません。プロンプトテンプレートに placeholder を追加するか、ファイル添付を ON にしてください。",
-    "noUpdateContent": "更新内容がありません",
     "builderMode": "ビルダーモード",
     "mainMenu": "メインメニュー",
     "favorites": "お気に入り",
@@ -454,6 +645,61 @@
       "missing_select_options": "{{select}} にオプションが設定されていません。{{select:ラベル:オプション1,オプション2}} のように設定してください",
       "empty_select_options": "{{select:{{label}}}} に空のオプションが含まれています。",
       "duplicate_select_options": "{{select:{{label}}}} に重複したオプションが含まれています。"
+    },
+    "blog": {
+      "generate_article": "ブログ記事作成",
+      "generate_article_context": "ブログ記事作成のコンテキスト",
+      "generate_article_description": "ブログ記事作成の説明",
+      "generate_thumbnail": "ブログ記事のサムネイル画像作成",
+      "generate_thumbnail_content": "ブログ記事のサムネイル画像作成の内容",
+      "generate_thumbnail_description": "ブログ記事のサムネイル画像作成の説明",
+      "reference_info": "参考情報",
+      "reference_info_context": "参考情報のコンテキスト",
+      "reference_info_description": "参考情報の説明",
+      "summarize_article": "要約",
+      "summarize_article_description": "要約の説明"
+    },
+    "help": {
+      "emailReplyExample": "メール返信の例",
+      "emailReplyPrompt": "メール返信のプロンプト",
+      "example": "例",
+      "formPlaceholderDescription": "フォームのプレースホルダーの説明",
+      "formPlaceholderExample": {
+        "prompt": "フォームのプレースホルダーの例",
+        "title": "フォームのプレースホルダーのタイトル"
+      },
+      "placeholder": "プレースホルダー",
+      "placeholderDescription": "プレースホルダーの説明",
+      "placeholderList": "プレースホルダーのリスト",
+      "promptTemplateDescription": "プロンプトテンプレートの説明",
+      "promptTemplateTitle": "プロンプトテンプレート",
+      "retrieveKendraDescription": "RAG チャット (Amazon Kendra) の説明",
+      "retrieveKendraExample": {
+        "prompt": "RAG チャット (Amazon Kendra) の例",
+        "title": "RAG チャット (Amazon Kendra) のタイトル"
+      },
+      "retrieveKnowledgeBaseDescription": "RAG チャット (Knowledge Base) の説明",
+      "retrieveKnowledgeBaseExample": {
+        "prompt": "RAG チャット (Knowledge Base) の例",
+        "title": "RAG チャット (Knowledge Base) のタイトル"
+      },
+      "selectPlaceholderDescription": "フォームのプレースホルダーの説明",
+      "selectPlaceholderExample": {
+        "prompt": "フォームのプレースホルダーの例",
+        "title": "フォームのプレースホルダーのタイトル"
+      },
+      "textPlaceholderDescription": "テキストのプレースホルダーの説明"
+    },
+    "helpTitle": "ヘルプ",
+    "meeting": {
+      "create_minutes": "議事録作成",
+      "create_minutes_context": "議事録作成のコンテキスト",
+      "create_minutes_description": "議事録作成の説明",
+      "formatting": "議事録作成のフォーマット",
+      "formatting_context": "議事録作成のフォーマットのコンテキスト",
+      "formatting_description": "議事録作成のフォーマットの説明",
+      "transcription": "議事録作成の音声文字起こし",
+      "transcription_description": "議事録作成の音声文字起こしの説明"
     }
   },
   "auth": {
@@ -492,5 +738,43 @@
     "upload_image": "画像をアップロード",
     "pen_size": "ペンサイズ",
     "clear": "クリア"
+  },
+  "files": {
+    "error": {
+      "fileCountExceeded": "ファイル数が上限を超えています。",
+      "fileSizeExceeded": "ファイルサイズが上限を超えています。",
+      "imageCountExceeded": "画像数が上限を超えています。",
+      "invalidExtension": "不正なファイル形式です。",
+      "mimeMismatch": "ファイル形式が不正です。",
+      "modelNotSupported": "モデルが対応していません。",
+      "videoCountExceeded": "動画数が上限を超えています。"
+    }
+  },
+  "navigation": {
+    "agentChat": "Agent チャット",
+    "chat": "チャット",
+    "diagramGeneration": "ダイアグラム生成",
+    "flowChat": "Flow チャット",
+    "home": "ホーム",
+    "imageGeneration": "画像生成",
+    "promptOptimization": "プロンプト最適化",
+    "ragChat": "RAG チャット",
+    "settings": "設定",
+    "speechRecognition": "音声認識",
+    "summary": "要約",
+    "textGeneration": "文章生成",
+    "translation": "翻訳",
+    "videoAnalysis": "映像分析",
+    "webContentExtraction": "Web コンテンツ抽出",
+    "writing": "執筆"
+  },
+  "language": {
+    "english": "英語",
+    "japanese": "日本語",
+    "chinese": "中国語",
+    "korean": "韓国語",
+    "french": "フランス語",
+    "spanish": "スペイン語",
+    "german": "ドイツ語"
   }
 }

@@ -1,3 +1,5 @@
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const SequencePrompt = `<instruction>
 あなたはMermaid.jsのシーケンス図の専門家です。与えられた内容を分析し、Mermaid.jsのシーケンス図記法を使用して表現してください。以下の制約に従ってください:
 1. 出力は必ずMermaid.jsのシーケンス図記法に従ってください。

@@ -1,3 +1,5 @@
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 export const TimelinePrompt = `<instruction>
 以下のウェブサイトの情報を参考に、Mermaid.jsのタイムライン図の記法を使ってシステムプロンプトを作成してください。以下の制約に従ってください:
 

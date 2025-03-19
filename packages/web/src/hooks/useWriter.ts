@@ -8,6 +8,8 @@ import { create } from 'zustand';
 import { MODELS } from './useModel';
 import { v4 as uuidv4 } from 'uuid';
 
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 const useWriterState = create<{
   modelId: string;
   setModelId: (modelId: string) => void;

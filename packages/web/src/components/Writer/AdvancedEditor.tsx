@@ -1,6 +1,6 @@
 import './writer.css';
 import 'katex/dist/katex.min.css';
-import { defaultEditorContent, emptyContent } from './lib/content';
+import { getDefaultEditorContent, emptyContent } from './lib/content';
 import {
   EditorCommand,
   EditorCommandEmpty,
@@ -146,9 +146,9 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const handleEditorCreated = useCallback(
     (editor: Editor) => {
       setEditorRef(editor);
-      setCommentManager(new AICommentManager(editor, write));
+      setCommentManager(new AICommentManager(editor, write, t));
     },
-    [write]
+    [write, t]
   );
 
   // Apply Codeblock Highlighting on the HTML from editor.getHTML()
@@ -237,9 +237,9 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         }
       : storedContent
         ? JSON.parse(storedContent)
-        : defaultEditorContent;
+        : getDefaultEditorContent(t);
     setInitialContent(content);
-  }, [initialSentence]);
+  }, [initialSentence, t]);
 
   // 校閲ボタンのクリックハンドラ
   const handleExecClick = async () => {
@@ -260,7 +260,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   // チュートリアルボタンのクリックハンドラ
   const handleTutorialClick = () => {
     if (editorRef) {
-      editorRef.commands.setContent(defaultEditorContent);
+      editorRef.commands.setContent(getDefaultEditorContent(t));
       commentManager?.clearComments();
       debouncedUpdates(editorRef);
       toast.info(t('writer.tutorial_success'));

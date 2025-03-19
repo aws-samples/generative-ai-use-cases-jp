@@ -4,8 +4,10 @@ import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
-import translation_en from './locales/en.json';
-import translation_ja from './locales/ja.json';
+import en from './locales/en.json';
+import ja from './locales/ja.json';
+
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
 
 // サポートする言語をオブジェクトで定義しています。
 // ユーザーが言語を手動で切り替える場合に使用するためのものです。
@@ -22,10 +24,10 @@ i18n
   .init({
     resources: {
       en: {
-        translation: translation_en,
+        translation: en,
       },
       ja: {
-        translation: translation_ja,
+        translation: ja,
       },
     },
     fallbackLng: 'ja', // フォールバック言語。指定された言語ファイルがない場合などにこの言語が使用される

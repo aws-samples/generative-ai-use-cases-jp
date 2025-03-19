@@ -4,32 +4,11 @@ import { findModelByModelId } from './useModel';
 import { getPrompter } from '../prompts';
 import useChat from '../hooks/useChat';
 import { PredictRequest } from 'generative-ai-use-cases-jp';
-
-const DIAGRAM_TYPES = {
-  flowchart: 'フローチャート',
-  piechart: '円グラフ',
-  mindmap: 'マインドマップ',
-  quadrantchart: '4象限チャート',
-  sequencediagram: 'シーケンス図',
-  timeline: 'タイムライン図',
-  gitgraph: 'Gitグラフ',
-  erdiagram: 'ER図',
-  classdiagram: 'クラス図',
-  statediagram: '状態遷移図',
-  xychart: 'XYチャート',
-  blockdiagram: 'ブロック図',
-  architecture: 'アーキテクチャ図',
-  ganttchart: 'ガントチャート',
-  userjourney: 'ユーザージャーニー図',
-  sankeychart: 'サンキーチャート',
-  requirementdiagram: '要件図',
-  networkpacket: 'ネットワークパケット図',
-} as const;
-
-type DiagramType = keyof typeof DIAGRAM_TYPES;
-const getDiagramTypeToJapanese = (): typeof DIAGRAM_TYPES => DIAGRAM_TYPES;
+import { useTranslation } from 'react-i18next';
 
 const useDiagram = (id: string) => {
+  const { t } = useTranslation();
+
   const {
     loading,
     getModelId,
@@ -52,7 +31,31 @@ const useDiagram = (id: string) => {
   }, [modelId]);
   const { predict } = useChatApi();
 
-  const diagramTypeToJapanese = useMemo(getDiagramTypeToJapanese, []);
+  const diagramTypeToJapanese = useMemo(() => {
+    return {
+      flowchart: t('diagram.types.flowchart.title'),
+      piechart: t('diagram.types.piechart.title'),
+      mindmap: t('diagram.types.mindmap.title'),
+      quadrantchart: t('diagram.types.quadrantchart.title'),
+      sequencediagram: t('diagram.types.sequencediagram.title'),
+      timeline: t('diagram.types.timeline.title'),
+      gitgraph: t('diagram.types.gitgraph.title'),
+      erdiagram: t('diagram.types.erdiagram.title'),
+      classdiagram: t('diagram.types.classdiagram.title'),
+      statediagram: t('diagram.types.statediagram.title'),
+      xychart: t('diagram.types.xychart.title'),
+      blockdiagram: t('diagram.types.blockdiagram.title'),
+      architecture: t('diagram.types.architecture.title'),
+      ganttchart: t('diagram.types.ganttchart.title'),
+      userjourney: t('diagram.types.userjourney.title'),
+      sankeychart: t('diagram.types.sankeychart.title'),
+      requirementdiagram: t('diagram.types.requirementdiagram.title'),
+      networkpacket: t('diagram.types.networkpacket.title'),
+    } as const;
+  }, [t]);
+
+  type DiagramType = keyof typeof diagramTypeToJapanese;
+
   const validTypes = useMemo(
     () => Object.keys(diagramTypeToJapanese) as DiagramType[],
     [diagramTypeToJapanese]

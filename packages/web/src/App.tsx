@@ -32,6 +32,7 @@ import { MODELS } from './hooks/useModel';
 import useScreen from './hooks/useScreen';
 import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 import useUseCases from './hooks/useUseCases';
+import { useTranslation } from 'react-i18next';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -50,6 +51,7 @@ const extractChatId = (path: string): string | null => {
 };
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { pathname } = useLocation();
   const { getChatTitle } = useChatList();
@@ -60,26 +62,26 @@ const App: React.FC = () => {
 
   const items: ItemProps[] = [
     {
-      label: 'ホーム',
+      label: t('navigation.home'),
       to: '/',
       icon: <PiHouse />,
       display: 'usecase' as const,
     },
     {
-      label: '設定情報',
+      label: t('navigation.settings'),
       to: '/setting',
       icon: <PiGear />,
       display: 'none' as const,
     },
     {
-      label: 'チャット',
+      label: t('navigation.chat'),
       to: '/chat',
       icon: <PiChatsCircle />,
       display: 'usecase' as const,
     },
     ragEnabled
       ? {
-          label: 'RAG チャット',
+          label: t('navigation.ragChat'),
           to: '/rag',
           icon: <PiChatCircleText />,
           display: 'usecase' as const,
@@ -88,7 +90,7 @@ const App: React.FC = () => {
       : null,
     ragKnowledgeBaseEnabled
       ? {
-          label: 'RAG チャット',
+          label: t('navigation.ragChat'),
           to: '/rag-knowledge-base',
           icon: <PiChatCircleText />,
           display: 'usecase' as const,
@@ -97,7 +99,7 @@ const App: React.FC = () => {
       : null,
     agentEnabled && !inlineAgents
       ? {
-          label: 'Agent チャット',
+          label: t('navigation.agentChat'),
           to: '/agent',
           icon: <PiRobot />,
           display: 'usecase' as const,
@@ -116,7 +118,7 @@ const App: React.FC = () => {
       : []),
     flowChatEnabled
       ? {
-          label: 'Flow チャット',
+          label: t('navigation.flowChat'),
           to: '/flow-chat',
           icon: <PiFlowArrow />,
           display: 'usecase' as const,
@@ -124,7 +126,7 @@ const App: React.FC = () => {
       : null,
     enabled('generate')
       ? {
-          label: '文章生成',
+          label: t('navigation.textGeneration'),
           to: '/generate',
           icon: <PiPencil />,
           display: 'usecase' as const,
@@ -132,7 +134,7 @@ const App: React.FC = () => {
       : null,
     enabled('summarize')
       ? {
-          label: '要約',
+          label: t('navigation.summary'),
           to: '/summarize',
           icon: <PiNote />,
           display: 'usecase' as const,
@@ -140,7 +142,7 @@ const App: React.FC = () => {
       : null,
     enabled('writer')
       ? {
-          label: '執筆',
+          label: t('navigation.writing'),
           to: '/writer',
           icon: <PiPenNib />,
           display: 'usecase' as const,
@@ -148,7 +150,7 @@ const App: React.FC = () => {
       : null,
     enabled('translate')
       ? {
-          label: '翻訳',
+          label: t('navigation.translation'),
           to: '/translate',
           icon: <PiTranslate />,
           display: 'usecase' as const,
@@ -156,7 +158,7 @@ const App: React.FC = () => {
       : null,
     enabled('webContent')
       ? {
-          label: 'Web コンテンツ抽出',
+          label: t('navigation.webContentExtraction'),
           to: '/web-content',
           icon: <PiGlobe />,
           display: 'usecase' as const,
@@ -164,7 +166,7 @@ const App: React.FC = () => {
       : null,
     enabled('image')
       ? {
-          label: '画像生成',
+          label: t('navigation.imageGeneration'),
           to: '/image',
           icon: <PiImages />,
           display: 'usecase' as const,
@@ -172,7 +174,7 @@ const App: React.FC = () => {
       : null,
     visionEnabled && enabled('video')
       ? {
-          label: '映像分析',
+          label: t('navigation.videoAnalysis'),
           to: '/video',
           icon: <PiVideoCamera />,
           display: 'usecase' as const,
@@ -180,21 +182,21 @@ const App: React.FC = () => {
       : null,
     enabled('diagram')
       ? {
-          label: 'ダイアグラム生成',
+          label: t('navigation.diagramGeneration'),
           to: '/diagram',
           icon: <PiTreeStructure />,
           display: 'usecase' as const,
         }
       : null,
     {
-      label: '音声認識',
+      label: t('navigation.speechRecognition'),
       to: '/transcribe',
       icon: <PiSpeakerHighBold />,
       display: 'tool' as const,
     },
     optimizePromptEnabled
       ? {
-          label: 'プロンプト最適化',
+          label: t('navigation.promptOptimization'),
           to: '/optimize',
           icon: <PiMagicWand />,
           display: 'tool' as const,

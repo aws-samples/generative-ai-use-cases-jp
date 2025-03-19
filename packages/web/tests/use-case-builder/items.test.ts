@@ -6,6 +6,8 @@ import {
   NOLABEL,
 } from '../../src/utils/UseCaseBuilderUtils';
 
+/* eslint no-japanese-strings/no-japanese-strings: 0 */
+
 describe('入力タイプを正しくパースできる', () => {
   test('text', () => {
     expect(getItemsFromPlaceholders(['{{text:xxx}}'])).toEqual([
