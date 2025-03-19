@@ -91,7 +91,12 @@ ${formValues[idx]}
             }}
           />
         ) : (
-          <Button className="" outlined icon={<IconWrapper icon={PiArrowsCounterClockwise} />} onClick={clearMessages}>
+          <Button
+            className=""
+            outlined
+            icon={<IconWrapper icon={PiArrowsCounterClockwise} />}
+            onClick={clearMessages}
+          >
             最初からやり直す
           </Button>
         )}
@@ -135,7 +140,11 @@ ${formValues[idx]}
           send();
         }}
       >
-        {isLoading ? <IconWrapper icon={PiSpinner} className="animate-spin" /> : <IconWrapper icon={PiPaperPlaneRightFill} />}
+        {isLoading ? (
+          <IconWrapper icon={PiSpinner} className="animate-spin" />
+        ) : (
+          <IconWrapper icon={PiPaperPlaneRightFill} />
+        )}
       </button>
     </div>
   );

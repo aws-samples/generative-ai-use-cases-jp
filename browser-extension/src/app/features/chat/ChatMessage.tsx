@@ -30,7 +30,10 @@ const ChatMessage: React.FC<Props> = (props) => {
             setIsOpen(!isOpen);
           }}
         >
-          <IconWrapper icon={PiCaretUp} className={twMerge('transition', isOpen ? 'rotate-180' : '')} />
+          <IconWrapper
+            icon={PiCaretUp}
+            className={twMerge('transition', isOpen ? 'rotate-180' : '')}
+          />
 
           <div>{message.title}</div>
         </div>

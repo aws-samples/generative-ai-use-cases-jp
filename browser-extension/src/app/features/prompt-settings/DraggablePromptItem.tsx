@@ -147,7 +147,10 @@ const DraggablePromptItem: React.FC<Props> = (props) => {
           }}
         >
           {isPromptSetting && (
-            <IconWrapper icon={PiCaretDown} className={twMerge('transition', isOpenSettings ? '' : 'rotate-180')} />
+            <IconWrapper
+              icon={PiCaretDown}
+              className={twMerge('transition', isOpenSettings ? '' : 'rotate-180')}
+            />
           )}
           {props.prompt.systemContextTitle}
           {props.isPreset && <IconWrapper icon={PiDesktopTower} />}

@@ -33,7 +33,10 @@ const SelectPrompt: React.FC<Props> = (props) => {
               setIsOpenContext(!isOpenContext);
             }}
           >
-            <IconWrapper icon={PiCaretUp} className={twMerge('transition', isOpenContext ? 'rotate-180' : '')} />
+            <IconWrapper
+              icon={PiCaretUp}
+              className={twMerge('transition', isOpenContext ? 'rotate-180' : '')}
+            />
             {selectedPrompt.systemContextTitle}
           </div>
         ) : (
