@@ -14,7 +14,7 @@ export const handler = async (
     const model = req.model || defaultVideoGenerationModel;
     const invocationArn = await api[model.type].generateVideo(
       model,
-      req.params.params
+      req.params
     );
 
     const res = await createJob(userId, invocationArn, req);
