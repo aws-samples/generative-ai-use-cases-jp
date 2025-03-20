@@ -346,11 +346,11 @@ export class RagKnowledgeBaseStack extends Stack {
             ? {
                 embeddingModelConfiguration: {
                   bedrockEmbeddingModelConfiguration: {
-                    embeddingDataType: 'BINARY'
-                  }
-                }
+                    embeddingDataType: 'BINARY',
+                  },
+                },
               }
-            : {})
+            : {}),
         },
       },
       storageConfiguration: {
