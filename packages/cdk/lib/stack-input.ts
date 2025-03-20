@@ -100,6 +100,7 @@ export const stackInputSchema = z.object({
   ragKnowledgeBaseAdvancedParsingModelId: z
     .string()
     .default('anthropic.claude-3-sonnet-20240229-v1:0'),
+  ragKnowledgeBaseBinaryVector: z.boolean().default(false),
   queryDecompositionEnabled: z.boolean().default(false),
   rerankingModelId: z.string().nullish(),
   // Agent
