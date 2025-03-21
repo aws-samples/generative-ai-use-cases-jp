@@ -57,7 +57,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
 // In that case, check if the CROSS_ACCOUNT_BEDROCK_ROLE_ARN environment variable is set. (It is set as an environment variable if crossAccountBedrockRoleArn is set in cdk.json)
 // If it is set, assume the specified role and initialize the BedrockRuntimeClient using the temporary credentials obtained.
 // This allows access to Bedrock resources in a different AWS account.
-const initBedrockClient = async (region: string) => {
+export const initBedrockClient = async (region: string) => {
   if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
     // Get temporary credentials from STS and initialize the client
     const tempCredentials = await assumeRole(

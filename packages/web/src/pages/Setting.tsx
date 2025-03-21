@@ -138,7 +138,7 @@ const Setting = () => {
           value={imageGenModelIds.join(', ')}
         />
         <SettingItem
-          name="動画生成 モデル名"
+          name={t('setting.ai_items.video_gen_model')}
           value={videoGenModelIds.join(', ')}
         />
         <SettingItem

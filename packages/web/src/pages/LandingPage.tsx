@@ -351,18 +351,18 @@ const LandingPage: React.FC = () => {
         )}
         {enabled('video') && (
           <CardDemo
-            label="動画生成"
+            label={t('landing.use_cases.video-generation.title')}
             onClickDemo={demoGenerateVideo}
             icon={<PiVideoLight />}
-            description="動画生成 AI はテキストから短い動画を生成します。生成した動画は素材としてさまざまなシーンで活用できます。"
+            description={t('landing.use_cases.video-generation.description')}
           />
         )}
-        {visionEnabled && enabled('video') && (
+        {visionEnabled && enabled('videoAnalyzer') && (
           <CardDemo
-            label={t('landing.use_cases.video.title')}
+            label={t('landing.use_cases.video-analysis.title')}
             onClickDemo={demoVideoAnalyzer}
             icon={<PiVideoCamera />}
-            description={t('landing.use_cases.video.description')}
+            description={t('landing.use_cases.video-analysis.description')}
           />
         )}
         {enabled('diagram') && (

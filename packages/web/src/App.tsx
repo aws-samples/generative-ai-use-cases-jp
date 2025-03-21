@@ -181,7 +181,7 @@ const App: React.FC = () => {
       : null,
     videoGenModelIds.length > 0 && enabled('video')
       ? {
-          label: '動画生成',
+          label: t('navigation.videoGeneration'),
           to: '/video',
           icon: <PiVideoLight />,
           display: 'usecase' as const,

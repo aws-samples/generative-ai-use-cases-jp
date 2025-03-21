@@ -20,7 +20,6 @@ import {
   Model,
   UnrecordedMessage,
   BraveSearchResult,
-  GenerateImageParams,
 } from 'generative-ai-use-cases-jp';
 import { streamingChunk } from './streamingChunk';
 

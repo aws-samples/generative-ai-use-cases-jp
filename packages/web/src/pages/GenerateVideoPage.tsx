@@ -23,6 +23,7 @@ import { GenerateVideoPageQueryParams } from '../@types/navigate';
 import { useLocation } from 'react-router-dom';
 import queryString from 'query-string';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const AMAZON_MODELS = {
   REEL_V1: 'amazon.nova-reel-v1:0',
@@ -167,6 +168,7 @@ const useGenerateVideoPageState = create<StateType>((set) => {
 });
 
 const GenerateVideoPage: React.FC = () => {
+  const { t } = useTranslation();
   const {
     videoGenModelId,
     setVideoGenModelId,
@@ -297,12 +299,10 @@ const GenerateVideoPage: React.FC = () => {
 
       mutateVideoJobs();
 
-      toast.info(
-        '動画生成ジョブを開始しました。生成中にページを離脱しても問題ありません。'
-      );
+      toast.info(t('video.generation.started'));
     } catch (e) {
       console.error(e);
-      toast.error(`動画生成に失敗しました (${e})`, {
+      toast.error(t('video.generation.failed', { error: e }), {
         duration: 30000,
         closeButton: true,
       });
@@ -323,6 +323,7 @@ const GenerateVideoPage: React.FC = () => {
     videoGenModelId,
     mutateVideoJobs,
     setIsGenerating,
+    t,
   ]);
 
   const setPreview = useCallback(
@@ -377,7 +378,7 @@ const GenerateVideoPage: React.FC = () => {
       <div className="col-span-12 lg:col-span-4">
         <Card>
           <Select
-            label="モデル"
+            label={t('video.model')}
             value={videoGenModelId}
             onChange={setVideoGenModelId}
             options={videoGenModelIds.map((m) => {
@@ -389,15 +390,15 @@ const GenerateVideoPage: React.FC = () => {
           <Textarea
             value={prompt}
             onChange={setPrompt}
-            label="プロンプト"
-            placeholder="Kids are playing with many balls"
+            label={t('video.prompt.title')}
+            placeholder={t('video.prompt.placeholder')}
             rows={3}
             required
           />
 
           {MODEL_PARAMS[videoGenModelId].dimension && (
             <Select
-              label="画面サイズ"
+              label={t('video.dimension')}
               value={dimension}
               onChange={setDimension}
               options={MODEL_PARAMS[videoGenModelId].dimension.map(
@@ -411,7 +412,7 @@ const GenerateVideoPage: React.FC = () => {
 
           {MODEL_PARAMS[videoGenModelId].resolution && (
             <Select
-              label="解像度"
+              label={t('video.resolution')}
               value={resolution}
               onChange={setResolution}
               options={MODEL_PARAMS[videoGenModelId].resolution.map(
@@ -425,7 +426,7 @@ const GenerateVideoPage: React.FC = () => {
 
           {MODEL_PARAMS[videoGenModelId].aspectRatio && (
             <Select
-              label="アスペクト比"
+              label={t('video.aspectRatio')}
               value={aspectRatio}
               onChange={setAspectRatio}
               options={MODEL_PARAMS[videoGenModelId].aspectRatio.map(
@@ -439,7 +440,7 @@ const GenerateVideoPage: React.FC = () => {
 
           {MODEL_PARAMS[videoGenModelId].durationSeconds && (
             <Select
-              label="動画長 (秒)"
+              label={t('video.duration')}
               value={`${durationSeconds}`}
               onChange={(n: string) => {
                 setDurationSeconds(Number(n));
@@ -455,7 +456,7 @@ const GenerateVideoPage: React.FC = () => {
 
           {MODEL_PARAMS[videoGenModelId].fps && (
             <Select
-              label="FPS"
+              label={t('video.fps')}
               value={`${fps}`}
               onChange={(n: string) => {
                 setFps(Number(n));
@@ -470,21 +471,21 @@ const GenerateVideoPage: React.FC = () => {
           {MODEL_PARAMS[videoGenModelId].seed !== undefined && (
             <RangeSlider
               className="w-full"
-              label="Seed"
+              label={t('video.seed.title')}
               min={0}
               max={2147483646}
               value={seed}
               onChange={(n) => {
                 setSeed(n);
               }}
-              help="乱数のシード値です。同じシード値を指定すると同じ動画が生成されます。"
+              help={t('video.seed.help')}
             />
           )}
 
           {MODEL_PARAMS[videoGenModelId].loop !== undefined && (
             <Switch
               className="w-full"
-              label="ループ"
+              label={t('video.loop')}
               checked={loop}
               onSwitch={(l) => {
                 setLoop(l);
@@ -498,14 +499,14 @@ const GenerateVideoPage: React.FC = () => {
               disabled={disabledExec}
               onClick={generateVideo}
               loading={isGenerating}>
-              生成
+              {t('video.generate')}
             </Button>
             <Button
               className="h-8 w-full"
               outlined
               onClick={clear}
               disabled={disabledExec}>
-              クリア
+              {t('video.clear')}
             </Button>
           </div>
         </Card>
@@ -528,7 +529,7 @@ const GenerateVideoPage: React.FC = () => {
                   <PiPlayFill className="h-32 w-32 text-gray-200" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  再生ボタンを押してください
+                  {t('video.press.play')}
                 </div>
               </div>
             )}
@@ -544,14 +545,14 @@ const GenerateVideoPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex h-full w-full items-center justify-center">
-                  プロンプトはここに表示されます
+                  {t('video.prompt.display')}
                 </div>
               )}
             </div>
           </div>
 
           <div className="mb-1 mt-4 flex flex-row items-center gap-x-1 text-sm">
-            ジョブ一覧
+            {t('video.job.list')}
             <ButtonIcon
               loading={isValidatingVideoJobs}
               onClick={mutateVideoJobs}
@@ -569,43 +570,43 @@ const GenerateVideoPage: React.FC = () => {
                       scope="col"
                       className="min-w-12 bg-gray-50 px-6 py-3"
                       align="center">
-                      再生
+                      {t('video.table.play')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-32 bg-gray-50 px-6 py-3"
                       align="left">
-                      ステータス
+                      {t('video.table.status')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-48 bg-gray-50 px-6 py-3"
                       align="center">
-                      プロンプト
+                      {t('video.table.prompt')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-48 bg-gray-50 px-6 py-3"
                       align="center">
-                      モデル
+                      {t('video.table.model')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-48 bg-gray-50 px-6 py-3"
                       align="center">
-                      日時
+                      {t('video.table.date')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-32 bg-gray-50 px-6 py-3"
                       align="center">
-                      ダウンロード
+                      {t('video.table.download')}
                     </th>
                     <th
                       scope="col"
                       className="min-w-12 bg-gray-50 px-6 py-3"
                       align="center">
-                      削除
+                      {t('video.table.delete')}
                     </th>
                   </tr>
                 </thead>
@@ -629,7 +630,7 @@ const GenerateVideoPage: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4"
                           align="center">
-                          {job.status}
+                          {t(`video.status.${job.status.toLowerCase()}`)}
                         </td>
                         <td
                           className="max-w-64 whitespace-nowrap px-6 py-4"
@@ -687,7 +688,7 @@ const GenerateVideoPage: React.FC = () => {
                   <div
                     className="cursor-pointer hover:underline"
                     onClick={loadMoreVideoJobs}>
-                    さらに読み込む
+                    {t('video.load.more')}
                   </div>
                 </div>
               )}

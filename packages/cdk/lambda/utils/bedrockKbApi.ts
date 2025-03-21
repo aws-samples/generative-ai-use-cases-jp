@@ -13,7 +13,6 @@ import {
 
 import {
   ApiInterface,
-  GenerateImageParams,
   Model,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';

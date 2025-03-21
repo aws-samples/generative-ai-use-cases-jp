@@ -17,6 +17,7 @@ setting:
   ai_items:
     llm_model: LLM モデル名
     image_gen_model: 画像生成 モデル名
+    video_gen_model: 動画生成 モデル名
     agent_name: Agent 名
     model_region: LLM & 画像生成 モデルリージョン
   config_message: >-
@@ -634,7 +635,11 @@ landing:
         画像生成 AI
         は、テキストや画像を元に新しい画像を生成できます。アイデアを即座に可視化することができ、デザイン作業などの効率化を期待できます。こちらの機能では、プロンプトの作成を
         LLM に支援してもらうことができます。
-    video:
+    video-generation:
+      title: 動画生成
+      description: >-
+        動画生成 AI はテキストから短い動画を生成します。生成した動画は素材としてさまざまなシーンで活用できます。
+    video-analysis:
       title: 映像分析
       description: >-
         マルチモーダルモデルによってテキストのみではなく、画像を入力することが可能になりました。こちらの機能では、映像の画像フレームとテキストを入力として
@@ -862,6 +867,55 @@ sketch:
   upload_image: 画像をアップロード
   pen_size: ペンサイズ
   clear: クリア
+video:
+  model: モデル
+  prompt:
+    title: プロンプト
+    placeholder: Kids are playing with many balls
+    display: プロンプトはここに表示されます
+  dimension: 画面サイズ
+  resolution: 解像度
+  aspectRatio: アスペクト比
+  duration: 動画長 (秒)
+  fps: FPS
+  seed:
+    title: シード値
+    help: 乱数のシード値です。同じシード値を指定すると同じ動画が生成されます。
+  loop: ループ
+  generate: 生成
+  clear: クリア
+  press:
+    play: 再生ボタンを押してください
+  generation:
+    started: 動画生成ジョブを開始しました。生成中にページを離脱しても問題ありません。
+    failed: 動画生成に失敗しました ({{error}})
+  load:
+    more: さらに読み込む
+  table:
+    play: 再生
+    status: ステータス
+    prompt: プロンプト
+    model: モデル
+    date: 日時
+    download: ダウンロード
+    delete: 削除
+  status:
+    inprogress: 処理中
+    completed: 完了
+    failed: 失敗
+  loading: 読み込み中...
+  no_preview: プレビューはありません
+  preview_loading: プレビュー読み込み中...
+  job:
+    delete_confirm: このジョブを削除してもよろしいですか？
+    delete_success: ジョブが削除されました
+    delete_failed: ジョブの削除に失敗しました
+    no_jobs: 生成ジョブはありません
+    list: ジョブ一覧
+  error:
+    model_not_selected: モデルが選択されていません
+    empty_prompt: プロンプトを入力してください
+    invalid_parameters: パラメータが無効です
 files:
   error:
     fileCountExceeded: ファイル数が上限を超えています。
@@ -878,6 +932,7 @@ navigation:
   flowChat: Flow チャット
   home: ホーム
   imageGeneration: 画像生成
+  videoGeneration: 動画生成
   promptOptimization: プロンプト最適化
   ragChat: RAG チャット
   settings: 設定

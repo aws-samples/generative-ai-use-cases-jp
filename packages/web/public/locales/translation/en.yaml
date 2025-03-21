@@ -18,6 +18,7 @@ setting:
   ai_items:
     llm_model: LLM Model Name
     image_gen_model: Image Generation Model Name
+    video_gen_model: Video Generation Model Name
     agent_name: Agent Name
     model_region: LLM & Image Generation Model Region
   config_message: >-
@@ -720,7 +721,11 @@ landing:
       title: Image Generation
       description: >-
         Image generation AI can create new images based on text or images. It allows immediate visualization of ideas and can be expected to improve efficiency in design work. In this feature, you can get LLM assistance in creating prompts.
-    video:
+    video-generation:
+      title: Video Generation
+      description: >-
+        Video generation AI can create short videos based on text or images. The generated videos can be used as material in various scenes.
+    video-analysis:
       title: Video Analysis
       description: >-
         With multimodal models, it is now possible to input not only text but also images. In this feature, you request the LLM to analyze input video image frames and text.
@@ -845,10 +850,60 @@ navigation:
   translation: Translation
   webContentExtraction: Web Content Extraction
   imageGeneration: Image Generation
+  videoGeneration: Video Generation
   videoAnalysis: Video Analysis
   diagramGeneration: Diagram Generation
   speechRecognition: Speech Recognition
   promptOptimization: Prompt Optimization
+video:
+  model: Model
+  prompt:
+    title: Prompt
+    placeholder: Kids are playing with many balls
+    display: Prompt will be displayed here
+  dimension: Screen Size
+  resolution: Resolution
+  aspectRatio: Aspect Ratio
+  duration: Duration (seconds)
+  fps: FPS
+  seed:
+    title: Seed
+    help: Random seed value. The same video will be generated with the same seed value.
+  loop: Loop
+  generate: Generate
+  clear: Clear
+  press:
+    play: Press the play button
+  generation:
+    started: Video generation job has started. You can leave this page during generation.
+    failed: Failed to generate video ({{error}})
+  load:
+    more: Load more
+  table:
+    play: Play
+    status: Status
+    prompt: Prompt
+    model: Model
+    date: Date
+    download: Download
+    delete: Delete
+  status:
+    inprogress: In Progress
+    completed: Completed
+    failed: Failed
+  loading: Loading...
+  no_preview: No preview available
+  preview_loading: Loading preview...
+  job:
+    list: Job List
+    delete_confirm: Are you sure you want to delete this job?
+    delete_success: Job deleted successfully
+    delete_failed: Failed to delete job
+    no_jobs: No generation jobs available
+  error:
+    model_not_selected: No model selected
+    empty_prompt: Please enter a prompt
+    invalid_parameters: Invalid parameters
 files:
   error:
     mimeMismatch: "{{fileName}} has a file type that doesn't match its extension."
