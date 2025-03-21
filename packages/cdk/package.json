@@ -7,6 +7,7 @@
     "test": "jest",
     "cdk": "cdk",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "lambda-build-dryrun": "tsc --noEmit --skipLibCheck lambda/*.ts",
     "postinstall": "npm ci --prefix custom-resources"
   },
   "devDependencies": {
