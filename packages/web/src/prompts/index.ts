@@ -1,6 +1,7 @@
 import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
+import { TFunction } from 'i18next';
 
 // 現状 prompter は Claude 用のものしか存在しない
 export const getPrompter = (modelId: string) => {
@@ -88,6 +89,6 @@ export interface Prompter {
   ragPrompt(params: RagParams): string;
   videoAnalyzerPrompt(params: VideoAnalyzerParams): string;
   setTitlePrompt(params: SetTitleParams): string;
-  promptList(): PromptList;
+  promptList(t: TFunction): PromptList;
   diagramPrompt(params: DiagramParams): string;
 }

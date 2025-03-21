@@ -8,13 +8,13 @@ import { useTranslation } from 'react-i18next';
 // Engine=neural のものが指定可能
 // https://docs.aws.amazon.com/ja_jp/polly/latest/dg/available-voices.html
 const LanguageVoiceMapping: Record<string, VoiceId> = {
-  英語: 'Joanna',
-  日本語: 'Kazuha',
-  中国語: 'Zhiyu',
-  韓国語: 'Seoyeon',
-  フランス語: 'Lea',
-  スペイン語: 'Lucia',
-  ドイツ語: 'Vicki',
+  en: 'Joanna',
+  ja: 'Kazuha',
+  zh: 'Zhiyu',
+  ko: 'Seoyeon',
+  fr: 'Lea',
+  es: 'Lucia',
+  de: 'Vicki',
 };
 
 const useSpeach = (language: string) => {

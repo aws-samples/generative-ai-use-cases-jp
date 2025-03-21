@@ -1,3 +1,4 @@
+import './i18n/config';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AuthWithUserpool from './components/AuthWithUserpool';
@@ -38,7 +39,6 @@ import GenerateDiagramPage from './pages/GenerateDiagramPage.tsx';
 import WriterPage from './pages/WriterPage.tsx';
 import useUseCases from './hooks/useUseCases';
 import { Toaster } from 'sonner';
-import './i18n/config';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -232,9 +232,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Authenticator.Provider>
-      <RouterProvider router={router} />
-      <Toaster />
-    </Authenticator.Provider>
+    {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Authenticator.Provider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </Authenticator.Provider>
+    </React.Suspense>
   </React.StrictMode>
 );

@@ -218,7 +218,7 @@ const PromptList: React.FC<Props> = (props) => {
             {t('chat.prompt_examples')}
           </div>
 
-          {prompter.promptList().map((category, i) => {
+          {prompter.promptList(t).map((category, i) => {
             return (
               <ExpandableMenu
                 title={category.title}

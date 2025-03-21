@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   SamplePromptType,
-  useCaseBuilderSamplePrompts,
+  getUseCaseBuilderSamplePrompts,
 } from '../../prompts/useCaseBuilderSamples';
 import { useTranslation } from 'react-i18next';
 
@@ -86,7 +86,7 @@ const UseCaseBuilderSamplesPage: React.FC = () => {
         {t('useCaseBuilder.samples')}
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
-        {useCaseBuilderSamplePrompts.map((sample, idx) => {
+        {getUseCaseBuilderSamplePrompts(t).map((sample, idx) => {
           return (
             <CardSample
               key={idx}

@@ -76,6 +76,7 @@
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.12",
     "@types/diff-match-patch": "^1.0.5",
+    "@types/js-yaml": "^4.0.9",
     "@types/lodash.debounce": "^4.0.9",
     "@types/react": "^18.2.77",
     "@types/react-color": "^3.0.12",

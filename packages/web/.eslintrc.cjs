@@ -24,7 +24,7 @@ module.exports = {
     // 日本語文字列を検知するルールを適用
     'i18nhelper/no-jp-string': 'warn',
     // 'i18nhelper/no-jp-comment': 'warn',
-    // Shopify のルールを適用
+    // JSX のルールを適用
     '@shopify/jsx-no-hardcoded-content': 'warn',
   },
   settings: {
