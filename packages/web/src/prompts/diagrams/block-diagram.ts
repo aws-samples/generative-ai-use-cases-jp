@@ -1,15 +1,13 @@
-/* eslint no-japanese-strings/no-japanese-strings: 0 */
-
 export const BlockPrompt = `<instruction>
-あなたはMermaid.jsのブロック図記法の専門家です。与えられた内容を分析し、Mermaid.jsのブロック図記法を使用して表現してください。以下の制約に従ってください:
+You are a Mermaid.js block diagram notation expert. Analyze the given content and express it using Mermaid.js block diagram notation. Please follow these constraints:
 
 <constraints>
-1. 出力はMermaid.jsのブロック図記法に従ってください。
-2. 挨拶やその他の前置きは一切出力しないでください。
-3. 生成するブロック図の詳しい説明や解説は<Description>タグの中に出力してください。
-4. Mermaidの図のコードは \`\`\`mermaid から初めて \`\`\` で終わるように出力してください。
-5. 次の<formatting_rules>と<mermaid_basics>、<mermaid_advanced>を参考に出力してください。
-6. Mermiadの部分は英語で出力してください。
+1. The output should follow Mermaid.js block diagram notation.
+2. Do not output any greetings or other preambles.
+3. Output detailed explanations or descriptions of the generated block diagram within <Description> tags.
+4. Output the Mermaid diagram code starting with \`\`\`mermaid and ending with \`\`\`.
+5. Refer to the following <formatting_rules>, <mermaid_basics>, and <mermaid_advanced> for your output.
+6. Output the Mermaid part in English.
 </constraints>
 
 <information>
@@ -261,10 +259,10 @@ Use comments with %% within the Mermaid syntax to document the purpose of variou
 </information>
 
 <Description>
-[生成するブロック図の詳しい説明や解説]
+[Detailed description and explanation of the block diagram to be generated]
 </Description>
 
 \`\`\`mermaid
-[Mermaid.jsのブロック図記法]
+[Block diagram notation in Mermaid.js]
 \`\`\`
 </instruction>`;

@@ -1,13 +1,11 @@
-/* eslint no-japanese-strings/no-japanese-strings: 0 */
-
 export const GanttChartPrompt = `<instruction>
-あなたはMermaid.jsのガントチャート記法の専門家です。与えられた内容を分析し、Mermaid.jsのガントチャート記法を使用して表現してください。以下の制約に従ってください:
+You are a Mermaid.js Gantt chart notation expert. Please analyze the given content and express it using Mermaid.js Gantt chart notation. Follow these constraints:
 
-1. 出力は必ずMermaid.jsのガントチャート記法に従ってください。
-2. 挨拶やその他の前置きは一切出力しないでください。
-3. 生成するガントチャートの詳しい説明や解説は<Description></Description>タグの中に出力してください。
-4. Mermaidの図のコードは \`\`\`mermaid から初めて \`\`\` で終わるように出力してください。
-5. 次の<Information></Information>を参考に出力してください。
+1. The output must strictly follow Mermaid.js Gantt chart notation.
+2. Do not output any greetings or other preambles.
+3. Output detailed explanations or commentary about the generated Gantt chart within <Description></Description> tags.
+4. Output the Mermaid diagram code starting with \`\`\`mermaid and ending with \`\`\`.
+5. Please refer to the following <Information></Information> for your output.
 
 <Information>
 Tasks are by default sequential. A task start date defaults to the end date of the preceding task.
@@ -224,12 +222,12 @@ gantt
 </実装例2>
 </Information>
 
-出力フォーマット:
+Output format:
 <Description>
-[生成するガントチャートの詳しい説明や解説]
+[Detailed explanation or interpretation of the generated Gantt chart]
 </Description>
 
 \`\`\`mermaid
-[Mermaid.jsのガントチャート記法]
+[Mermaid.js Gantt chart notation]
 \`\`\`
 </instruction>`;

@@ -25,13 +25,13 @@ const updateStatus = async (event, status, reason, physicalResourceId) => {
     },
   });
 
-  // 失敗時の記録のために残す
+  // For recording failures
   console.log(res);
   console.log(await res.text());
 };
 
 exports.handler = async (event, context) => {
-  // 失敗時の記録のために残す
+  // For recording failures
   console.log(event);
 
   const props = event.ResourceProperties;

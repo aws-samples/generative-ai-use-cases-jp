@@ -13,6 +13,7 @@
     "@types/aws-lambda": "^8.10.137",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.5",
+    "@types/sanitize-html": "^2.13.0",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "aws-cdk": "^2.154.1",

@@ -5,9 +5,11 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 
 import en from './locales/en.json';
+import enPrompts from './locales/prompts/en.json';
 import ja from './locales/ja.json';
+import jaPrompts from './locales/prompts/ja.json';
 
-/* eslint no-japanese-strings/no-japanese-strings: 0 */
+/* eslint-disable i18nhelper/no-jp-string */
 
 // サポートする言語をオブジェクトで定義しています。
 // ユーザーが言語を手動で切り替える場合に使用するためのものです。
@@ -25,11 +27,14 @@ i18n
     resources: {
       en: {
         translation: en,
+        prompts: enPrompts,
       },
       ja: {
         translation: ja,
+        prompts: jaPrompts,
       },
     },
+    defaultNS: 'translation',
     fallbackLng: 'ja', // フォールバック言語。指定された言語ファイルがない場合などにこの言語が使用される
     returnEmptyString: false, // 空文字での定義を許可に
     supportedLngs: Object.keys(supportedLngs),

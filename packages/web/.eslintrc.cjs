@@ -9,7 +9,7 @@ module.exports = {
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', 'no-japanese-strings', '@shopify'],
+  plugins: ['react-refresh', 'i18nhelper', '@shopify'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
@@ -22,7 +22,8 @@ module.exports = {
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/307
     'tailwindcss/enforces-shorthand': ['off'],
     // 日本語文字列を検知するルールを適用
-    'no-japanese-strings/no-japanese-strings': 'warn',
+    'i18nhelper/no-jp-string': 'warn',
+    // 'i18nhelper/no-jp-comment': 'warn',
     // Shopify のルールを適用
     '@shopify/jsx-no-hardcoded-content': 'warn',
   },

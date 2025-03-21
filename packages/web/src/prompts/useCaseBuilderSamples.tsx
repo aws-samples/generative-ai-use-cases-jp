@@ -33,7 +33,7 @@ export type SamplePromptType = {
     | 'gray';
 };
 
-/* eslint no-japanese-strings/no-japanese-strings: 0 */
+/* eslint i18nhelper/no-jp-string: 0 */
 
 export const useCaseBuilderSamplePrompts: SamplePromptType[] = [
   {

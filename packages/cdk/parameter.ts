@@ -1,38 +1,38 @@
 import * as cdk from 'aws-cdk-lib';
 import { StackInput, stackInputSchema } from './lib/stack-input';
 
-// CDK Context からパラメータを取得する場合
+// Get parameters from CDK Context
 const getContext = (app: cdk.App): StackInput => {
   const params = stackInputSchema.parse(app.node.getAllContext());
   return params;
 };
 
-// パラメータを直接定義する場合
+// If you want to define parameters directly
 const envs: Record<string, Partial<StackInput>> = {
-  // 必要に応じて以下をカスタマイズ
-  // paramter.ts で無名環境を定義したい場合は以下をアンコメントすると cdk.json の内容が無視され、parameter.ts がより優先されます。
+  // If you want to define an anonymous environment, uncomment the following and the content of cdk.json will be ignored.
+  // If you want to define an anonymous environment in parameter.ts, uncomment the following and the content of cdk.json will be ignored.
   // '': {
-  //   // 無名環境のパラメータ
-  //   // デフォルト設定を上書きしたいものは以下に追記
+  //   // Parameters for anonymous environment
+  //   // If you want to override the default settings, add the following
   // },
   dev: {
-    // 開発環境のパラメータ
+    // Parameters for development environment
   },
   staging: {
-    // ステージング環境のパラメータ
+    // Parameters for staging environment
   },
   prod: {
-    // 本番環境のパラメータ
+    // Parameters for production environment
   },
-  // 他環境も必要に応じてカスタマイズ
+  // If you need other environments, customize them as needed
 };
 
-// 後方互換性のため、CDK Context > parameter.ts の順でパラメータを取得する
+// For backward compatibility, get parameters from CDK Context > parameter.ts
 export const getParams = (app: cdk.App): StackInput => {
-  // デフォルトでは CDK Context からパラメータを取得する
+  // By default, get parameters from CDK Context
   let params = getContext(app);
 
-  // env が envs で定義したものにマッチ場合は、envs のパラメータを context よりも優先して使用する
+  // If the env matches the ones defined in envs, use the parameters in envs instead of the ones in context
   if (envs[params.env]) {
     params = stackInputSchema.parse({
       ...envs[params.env],

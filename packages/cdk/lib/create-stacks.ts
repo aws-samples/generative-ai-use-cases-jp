@@ -20,8 +20,8 @@ class DeletionPolicySetter implements cdk.IAspect {
 
 export const createStacks = (app: cdk.App, params: StackInput) => {
   // CloudFront WAF
-  // IP アドレス範囲(v4もしくはv6のいずれか)か地理的制限が定義されている場合のみ、CloudFrontWafStack をデプロイする
-  // WAF v2 は us-east-1 でのみデプロイ可能なため、Stack を分けている
+  // Only deploy CloudFrontWafStack if IP address range (v4 or v6) or geographic restriction is defined
+  // WAF v2 is only deployable in us-east-1, so the Stack is separated
   const cloudFrontWafStack =
     params.allowedIpV4AddressRanges ||
     params.allowedIpV6AddressRanges ||

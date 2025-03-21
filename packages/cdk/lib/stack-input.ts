@@ -44,6 +44,7 @@ export const stackInputSchema = z.object({
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
   ragEnabled: z.boolean().default(false),
+  kendraIndexLanguage: z.string().default('ja'),
   kendraIndexArn: z.string().nullish(),
   kendraDataSourceBucketName: z.string().nullish(),
   kendraIndexScheduleEnabled: z.boolean().default(false),

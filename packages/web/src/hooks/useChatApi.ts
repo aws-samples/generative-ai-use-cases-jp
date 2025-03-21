@@ -29,11 +29,9 @@ import useHttp from '../hooks/useHttp';
 import { decomposeId } from '../utils/ChatUtils';
 import { AxiosResponse } from 'axios';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { useTranslation } from 'react-i18next';
 
 const useChatApi = () => {
   const http = useHttp();
-  const { t } = useTranslation();
 
   return {
     createChat: async (): Promise<CreateChatResponse> => {
@@ -99,7 +97,7 @@ const useChatApi = () => {
     predictStream: async function* (req: PredictRequest) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
-        throw new Error(t('common.error.notAuthenticated'));
+        throw new Error('Not authenticated');
       }
 
       const region = import.meta.env.VITE_APP_REGION;

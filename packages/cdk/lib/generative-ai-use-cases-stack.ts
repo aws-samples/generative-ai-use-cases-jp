@@ -143,6 +143,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     if (params.ragEnabled) {
       const rag = new Rag(this, 'Rag', {
         envSuffix: params.env,
+        kendraIndexLanguage: params.kendraIndexLanguage,
         kendraIndexArnInCdkContext: params.kendraIndexArn,
         kendraDataSourceBucketName: params.kendraDataSourceBucketName,
         kendraIndexScheduleEnabled: params.kendraIndexScheduleEnabled,
@@ -152,9 +153,9 @@ export class GenerativeAiUseCasesStack extends Stack {
         api: api.api,
       });
 
-      // File API から data source の Bucket のファイルをダウンロードできるようにする
-      // 既存の Kendra を import している場合、data source が S3 ではない可能性がある
-      // その際は rag.dataSourceBucketName が undefined になって権限は付与されない
+      // Allow downloading files from the File API to the data source Bucket
+      // If you are importing existing Kendra, there is a possibility that the data source is not S3
+      // In that case, rag.dataSourceBucketName will be undefined and the permission will not be granted
       if (rag.dataSourceBucketName) {
         api.allowDownloadFile(rag.dataSourceBucketName);
       }
@@ -171,7 +172,7 @@ export class GenerativeAiUseCasesStack extends Stack {
           userPool: auth.userPool,
           api: api.api,
         });
-        // File API から data source の Bucket のファイルをダウンロードできるようにする
+        // Allow downloading files from the File API to the data source Bucket
         if (props.knowledgeBaseDataSourceBucketName) {
           api.allowDownloadFile(props.knowledgeBaseDataSourceBucketName);
         }

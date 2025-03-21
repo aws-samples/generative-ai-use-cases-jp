@@ -9,7 +9,7 @@
     "/search": {
       "get": {
         "summary": "Get information from search engine",
-        "description": "キーワードで検索し情報を取得します。調査、調べる、Xについて教える、まとめるといったタスクで利用できます。会話から検索キーワードを推測してください。検索結果には関連度の低い内容も含まれているため関連度の高い内容のみを参考に回答してください。複数回実行可能です。",
+        "description": "Search for information from the keyword. This can be used for tasks such as research, research, teach about X, summarize, etc. Guess the search keyword from the conversation and execute multiple times.",
         "operationId": "Search",
         "requestBody": {
           "required": true,
@@ -20,7 +20,7 @@
                 "properties": {
                   "keyword": {
                     "type": "string",
-                    "description": "検索キーワード"
+                    "description": "Search keyword"
                   }
                 },
                 "required": ["keyword"]
@@ -30,7 +30,7 @@
         },
         "responses": {
           "200": {
-            "description": "検索結果",
+            "description": "Search results",
             "content": {
               "application/json": {
                 "schema": {
@@ -38,7 +38,7 @@
                   "properties": {
                     "results": {
                       "type": "string",
-                      "description": "検索結果"
+                      "description": "Search results"
                     }
                   }
                 }

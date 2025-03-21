@@ -32,7 +32,7 @@ const modelIds: string[] = (
 )
   .map((modelId: string) => modelId.trim())
   .filter((modelId: string) => modelId);
-// 利用できるモデルの中で軽量モデルがあれば軽量モデルを優先する。
+// If there is a lightweight model among the available models, prioritize the lightweight model.
 const lightWeightModelIds = modelIds.filter(
   (modelId: string) => modelFeatureFlags[modelId].light
 );
@@ -64,6 +64,7 @@ const LLAMA_PROMPT: PromptTemplate = {
   eosToken: '</s>',
 };
 
+/* eslint-disable i18nhelper/no-jp-string */
 const BILINGUAL_RINNA_PROMPT: PromptTemplate = {
   prefix: '',
   suffix: 'システム: ',
@@ -83,6 +84,7 @@ const RINNA_PROMPT: PromptTemplate = {
   system: 'システム: {}',
   eosToken: '</s>',
 };
+/* eslint-enable i18nhelper/no-jp-string */
 
 // Model Params
 
@@ -100,7 +102,7 @@ const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
   // Doc 上は 3072 まで受け付けるが、Converse API だと 3000 までしか受け付けなかったため、3000 を設定する。
-  // 3072 が受け付けられるように修正されたら戻す。
+  // If 3072 is accepted, revert to 3072.
   // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-text.html
   maxTokens: 3000,
   temperature: 0.7,
@@ -158,7 +160,7 @@ const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
     return {
       guardrailIdentifier: process.env.GUARDRAIL_IDENTIFIER,
       guardrailVersion: process.env.GUARDRAIL_VERSION,
-      // 出力が重くなる&現状トレースを確認する手段がアプリ側に無いので disabled をハードコーディング
+      // Outputs become heavy and there is no way to check the trace on the app side, so disabled is hard-coded
       trace: 'disabled',
     };
   }
@@ -172,8 +174,9 @@ const createGuardrailStreamConfig = ():
   if (baseConfig) {
     return {
       ...baseConfig,
-      // 非同期だとマズい出力が出る可能性があるが、まずい入力をしない限り出力が出たことがない（＝入力時点でストップ）ので、
-      // 非同期で体験を良くすることとする
+      // Although there is a possibility that a bad output will occur when using asynchronous processing,
+      // since it has never occurred even with bad inputs (i.e., stopping at the input point),
+      // use asynchronous processing to improve the experience.
       // https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails-streaming.html
       streamProcessingMode: 'async',
     };
@@ -181,13 +184,13 @@ const createGuardrailStreamConfig = ():
   return undefined;
 };
 
-// ID変換ルール
+// ID conversion rules
 const idTransformationRules = [
-  // チャット履歴 -> チャット
+  // Chat history -> Chat
   { pattern: /^\/chat\/.+/, replacement: '/chat' },
 ];
 
-// ID変換
+// ID conversion
 function normalizeId(id: string): string {
   if (!id) return id;
   const rule = idTransformationRules.find((rule) => id.match(rule.pattern));
@@ -195,7 +198,7 @@ function normalizeId(id: string): string {
   return ret;
 }
 
-// API の呼び出しや、出力から文字列を抽出、などの処理
+// API call, extract string from output, etc.
 
 const createConverseCommandInput = (
   messages: UnrecordedMessage[],
@@ -204,11 +207,11 @@ const createConverseCommandInput = (
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
-  // system role で渡された文字列を、システムプロンプトに設定
+  // Set the string passed in the system role to the system prompt
   const system = messages.find((message) => message.role === 'system');
   const systemContext = system ? [{ text: system.content }] : [];
 
-  // system role 以外の、user role と assistant role の文字列を conversation に入れる
+  // Add the string of user role and assistant role other than the system role to the conversation
   messages = messages.filter((message) => message.role !== 'system');
   const conversation = messages.map((message) => {
     const contentBlocks: ContentBlock[] = [
@@ -232,7 +235,7 @@ const createConverseCommandInput = (
               format: extra.name.split('.').pop(),
               name: extra.name
                 .split('.')[0]
-                .replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X'), // ファイル名に日本語などが入っているとエラーになるため変換
+                .replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X'), // If the file name contains Japanese, it will cause an error, so convert it
               source: {
                 bytes: Buffer.from(extra.source.data, 'base64'),
               },
@@ -292,8 +295,8 @@ const createConverseCommandInput = (
   ) {
     converseCommandInput.inferenceConfig = {
       ...inferenceConfig,
-      temperature: 1, // reasoning は temperature を 1 必須
-      topP: undefined, // reasoning は topP は不要
+      temperature: 1, // reasoning requires temperature to be 1
+      topP: undefined, // reasoning does not require topP
       maxTokens:
         (model.modelParameters?.reasoningConfig?.budgetTokens || 0) +
         (inferenceConfig?.maxTokens || 0),
@@ -310,8 +313,8 @@ const createConverseCommandInput = (
   return converseCommandInput;
 };
 
-// システムプロンプトに対応していないモデル用の関数
-// - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
+// Function for models that do not support system prompts
+// - Amazon Titan model (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
 const createConverseCommandInputWithoutSystemContext = (
@@ -321,7 +324,7 @@ const createConverseCommandInputWithoutSystemContext = (
   defaultConverseInferenceParams: ConverseInferenceParams,
   usecaseConverseInferenceParams: UsecaseConverseInferenceParams
 ) => {
-  // system が利用できないので、system も user として入れる。
+  // Since system is not available, system is also included as user.
   messages = messages.filter((message) => message.role !== 'system');
   const conversation = messages.map((message) => ({
     role:
@@ -348,7 +351,7 @@ const createConverseCommandInputWithoutSystemContext = (
   return converseCommandInput;
 };
 
-// ConverseStreamCommandInput は、同じ構造を持つため「createConverseCommandInput」で作成したインプットをそのまま利用する。
+// ConverseStreamCommandInput has the same structure as ConverseCommandInput, so the input created by "createConverseCommandInput" can be used as is.
 const createConverseStreamCommandInput = (
   messages: UnrecordedMessage[],
   id: string,
@@ -370,8 +373,8 @@ const createConverseStreamCommandInput = (
   } as ConverseStreamCommandInput;
 };
 
-// システムプロンプトに対応していないモデル用の関数
-// - Amazon Titan モデル (amazon.titan-text-premier-v1:0)
+// Function for models that do not support system prompts
+// - Amazon Titan model (amazon.titan-text-premier-v1:0)
 // - Mistral AI Instruct (mistral.mixtral-8x7b-instruct-v0:1, mistral.mistral-7b-instruct-v0:2)
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html#conversation-inference-supported-models-features
 const createConverseStreamCommandInputWithoutSystemContext = (
@@ -399,8 +402,8 @@ const extractConverseOutput = (
   output: ConverseCommandOutput
 ): StreamingChunk => {
   if (output.output && output.output.message && output.output.message.content) {
-    // output.message.content は配列になっているが、基本的に要素は 1 個しか返ってこないため、join をする必要はない。
-    // ただ、安全側に実装することを意識して、配列に複数の要素が来ても問題なく動作するように、join で改行を付けるよ実装にしておく。
+    // output.message.content is an array, but usually only one element is returned, so join is not necessary.
+    // However, to implement on the safe side, join is implemented so that it works even if an array with multiple elements comes.
     const responseText = output.output.message.content
       .map((block) => block.text)
       .join('\n');
@@ -442,7 +445,7 @@ const createBodyImageStableDiffusion = (params: GenerateImageParams) => {
     style_preset: params.stylePreset,
     seed: params.seed,
     steps: params.step,
-    image_strength: params.maskImage ? 0 : params.imageStrength, // Inpaint/Outpaint 時に 0 以上だと悪さする
+    image_strength: params.maskImage ? 0 : params.imageStrength, // When inpainting/outpainting, 0 or above is bad
     height: params.height,
     width: params.width,
   };
@@ -489,7 +492,7 @@ const createBodyImageStabilityAI2024Model = (params: GenerateImageParams) => {
     body.prompt = body.prompt + ', ' + params.stylePreset;
   }
 
-  // image-to-image modeの際、aspect比を使用できない
+  // When in image-to-image mode, aspect ratio cannot be used
   if (params.aspectRatio && !params.initImage) {
     body = {
       ...body,
@@ -612,7 +615,7 @@ const createBodyImageAmazonAdvancedImage = (params: GenerateImageParams) => {
       },
     };
   } else if (body.textToImageParams) {
-    // TEXT_IMAGE タスクタイプの拡張(Image Conditioning)
+    // Extension of TEXT_IMAGE task type (Image Conditioning)
     body.textToImageParams = {
       ...body.textToImageParams,
       conditionImage: params.initImage,
@@ -627,13 +630,13 @@ const extractOutputImageStableDiffusion = (
   response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
 ) => {
   if ('result' in response) {
-    // BedrockImageGenerationResponse の場合
+    // BedrockImageGenerationResponse
     if (response.result !== 'success') {
       throw new Error('Failed to invoke model');
     }
     return response.artifacts[0].base64;
   } else {
-    // StabilityAI2024ModelResponse の場合
+    // StabilityAI2024ModelResponse
     throw new Error('Unexpected response type for Stable Diffusion');
   }
 };
@@ -642,19 +645,18 @@ const extractOutputImageStabilityAI2024Model = (
   response: BedrockImageGenerationResponse | StabilityAI2024ModelResponse
 ) => {
   if ('finish_reasons' in response) {
-    // StabilityAI2024ModelResponse の場合
+    // StabilityAI2024ModelResponse
     if (response.finish_reasons[0] !== null) {
       if (response.finish_reasons[0] == 'Filter reason: prompt') {
         throw new Error(
-          response.finish_reasons[0] +
-            ': 日本語のプロンプトには対応していません'
+          response.finish_reasons[0] + ': Japanese prompts are not supported'
         );
       }
       throw new Error(response.finish_reasons[0]);
     }
     return response.images[0];
   } else {
-    // BedrockImageGenerationResponse の場合
+    // BedrockImageGenerationResponse
     throw new Error('Unexpected response type for Stability AI 2024 Model');
   }
 };
@@ -668,7 +670,7 @@ const extractOutputImageAmazonImage = (
     throw new Error('Unexpected response type for Amazon Image');
   }
 };
-// テキスト生成に関する、各のModel のパラメーターや関数の定義
+// Definition of parameters and functions for each model related to text generation
 
 export const BEDROCK_TEXT_GEN_MODELS: {
   [key: string]: {
@@ -1139,7 +1141,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
   },
 };
 
-// 画像生成に関する、各のModel のパラメーターや関数の定義
+// Definition of parameters and functions for each image generation model
 
 export const BEDROCK_IMAGE_GEN_MODELS: {
   [key: string]: {
