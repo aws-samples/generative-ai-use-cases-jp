@@ -34,6 +34,19 @@ export const createJob = async (
 ) => {
   const userId = `videoJob#${_userId}`;
   const jobId = invocationArn.split('/').slice(-1)[0];
+
+  const params = req.params.params;
+
+  // Nova Reel の 1 フレーム目画像指定が params に含まれていたら、その情報は ddb に保存しない
+  if (
+    params &&
+    params.textToVideoParams &&
+    params.textToVideoParams.images &&
+    params.textToVideoParams.images.length > 0
+  ) {
+    params.textToVideoParams.images = [];
+  }
+
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
@@ -44,7 +57,7 @@ export const createJob = async (
     modelId: req.model!.modelId,
     region: req.model!.region,
     prompt: req.params.prompt,
-    params: JSON.stringify(req.params.params),
+    params: JSON.stringify(params),
   };
 
   await dynamoDbDocument.send(

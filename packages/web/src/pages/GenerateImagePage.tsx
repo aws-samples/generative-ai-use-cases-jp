@@ -84,6 +84,11 @@ const stabilityAi2024ModelPresets = [
   { value: '16:9', label: '1344 x 768' },
   { value: '21:9', label: '1536 x 640' },
 ];
+// Nova Reel の 1 フレーム目画像の生成に使うために以下の画像サイズを Nova Canvas に追加
+const novaCanvasPresets = [
+  ...defaultModelPresets,
+  { value: '1280 x 720', label: '1280 x 720' },
+];
 const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
   [STABILITY_AI_MODELS.STABLE_DIFFUSION_XL]: {
     supportedModes: [
@@ -155,7 +160,7 @@ const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
       AMAZON_ADVANCED_GENERATION_MODE.COLOR_GUIDED_GENERATION,
       AMAZON_ADVANCED_GENERATION_MODE.BACKGROUND_REMOVAL,
     ],
-    resolutionPresets: defaultModelPresets,
+    resolutionPresets: novaCanvasPresets,
   },
 };
 

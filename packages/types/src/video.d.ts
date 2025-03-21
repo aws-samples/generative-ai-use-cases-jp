@@ -1,11 +1,11 @@
 import { PrimaryKey } from './base';
-import { DocumentType } from '@smithy/types';
 
 export type GenerateVideoParams = {
   prompt: string;
   // モデルごとに固有のパラメータは以下
   // そのまま StartAsyncInvokeCommand に渡すもの
-  params: DocumentType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: any;
 };
 
 export type VideoJob = PrimaryKey & {
