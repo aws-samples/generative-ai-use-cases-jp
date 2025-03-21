@@ -168,7 +168,7 @@ export class Web extends Construct {
       outputSourceDirectory: './packages/web/dist',
       buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
-        NODE_OPTIONS: '--max-old-space-size=4096', // デプロイ時のCodeBuildのメモリを設定
+        NODE_OPTIONS: '--max-old-space-size=4096', // Memory for CodeBuild at deployment
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,
@@ -199,7 +199,7 @@ export class Web extends Construct {
         VITE_APP_HIDDEN_USE_CASES: JSON.stringify(props.hiddenUseCases),
       },
     });
-    // コンピューティングリソースを増強
+    // Enhance computing resources
     (
       build.node.findChild('Project').node.defaultChild as CfnResource
     ).addPropertyOverride('Environment.ComputeType', ComputeType.MEDIUM);

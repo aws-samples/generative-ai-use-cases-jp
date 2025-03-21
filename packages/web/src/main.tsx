@@ -1,3 +1,4 @@
+import './i18n/config';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AuthWithUserpool from './components/AuthWithUserpool';
@@ -238,9 +239,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Authenticator.Provider>
-      <RouterProvider router={router} />
-      <Toaster />
-    </Authenticator.Provider>
+    {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Authenticator.Provider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </Authenticator.Provider>
+    </React.Suspense>
   </React.StrictMode>
 );

@@ -17,8 +17,8 @@ const useRemoteVersion = () => {
       return version;
     },
     getHasUpdate: () => {
-      // ローカルのバージョンが参照できない時はアップデートの表示はしない
-      // (アップデートはないものとして扱う)
+      // If the local version is not available, do not display the update
+      // (Treat it as no update)
       if (!version) {
         return false;
       }

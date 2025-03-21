@@ -64,7 +64,7 @@ type Props = BaseProps & {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const LinkRenderer = (props: any) => {
-  // 現状、S3 からのファイルダウンロード機能は RAG チャットしか利用しない
+  // Currently, the file download function from S3 is only used in RAG chat
   const { downloadDoc, isS3Url, downloading } = useRagFile();
   const isS3 = useMemo(() => {
     return isS3Url(props.href);
@@ -139,7 +139,7 @@ const Markdown = React.memo(({ className, prefix, children }: Props) => {
                     <span className="flex-auto">{language} </span>
                     <ButtonCopy
                       className="mr-2 justify-end text-gray-400"
-                      text={codeText} // クリップボードにコピーする対象として、SyntaxHighlighter に渡すソースコード部分を指定
+                      text={codeText} // Specify the source code part to be copied to the clipboard as the target, and pass it to SyntaxHighlighter
                     />
                   </div>
                   <SyntaxHighlighter

@@ -30,7 +30,7 @@ const HighlightText: React.FC<Props> = (props) => {
           {baseText.substring(mid, end)}
         </span>
       );
-      // すべてのハイライトを処理したら、残りの文字列をまとめて設定
+      // After processing all highlights, set the remaining string together
       if (i === highlights.length - 1) {
         nodes.push(
           <React.Fragment key={`${i}-3`}>

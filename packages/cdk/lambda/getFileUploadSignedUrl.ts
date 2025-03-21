@@ -13,7 +13,7 @@ export const handler = async (
     const uuid = uuidv4();
 
     const client = new S3Client({});
-    // アップロード先は XXXXX/image.png 形式。ダウンロード時に正しいファイル名でダウンロード可能。
+    // The upload destination is XXXXX/image.png format. The file can be downloaded with the correct file name when downloaded.
     const command = new PutObjectCommand({
       Bucket: process.env.BUCKET_NAME,
       Key: `${uuid}/${filename}`,

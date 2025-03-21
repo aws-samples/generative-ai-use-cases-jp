@@ -1,35 +1,37 @@
 {
   "compilerOptions": {
+    // 基本的なJavaScript出力設定
     "target": "ES2020",
     "module": "commonjs",
-    "lib": [
-      "es2020",
-      "dom"
-    ],
+    "lib": ["es2020", "dom"],
     "declaration": true,
+
+    // 厳格な型チェック設定
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "strictPropertyInitialization": false,
+
+    // コード品質とエラーチェック
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
+
+    // ソースマップ設定
     "inlineSourceMap": true,
     "inlineSources": true,
+
+    // その他の設定
     "experimentalDecorators": true,
-    "strictPropertyInitialization": false,
-    "typeRoots": [
-      "../../node_modules/@types"
-    ],
-    "types": [
-      "jest",
-      "node"
-    ]
+    "esModuleInterop": true,
+
+    // 型定義ファイルの設定
+    "typeRoots": ["../../node_modules/@types"],
+    "types": ["jest", "node"]
   },
-  "exclude": [
-    "node_modules",
-    "cdk.out"
-  ]
+  // 除外するファイルとディレクトリ
+  "exclude": ["node_modules", "cdk.out"]
 }
