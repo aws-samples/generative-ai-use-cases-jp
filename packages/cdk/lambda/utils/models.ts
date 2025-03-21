@@ -2,6 +2,7 @@ import {
   BedrockImageGenerationResponse,
   GenerateImageParams,
   Model,
+  ModelConfiguration,
   PromptTemplate,
   StableDiffusionParams,
   UnrecordedMessage,
@@ -27,29 +28,59 @@ import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 // Default Models
 
-const modelIds: string[] = (
-  JSON.parse(process.env.MODEL_IDS || '[]') as string[]
+const modelIds: ModelConfiguration[] = (
+  JSON.parse(process.env.MODEL_IDS || '[]') as ModelConfiguration[]
 )
-  .map((modelId: string) => modelId.trim())
-  .filter((modelId: string) => modelId);
+  .map((model) => ({
+    modelId: model.modelId.trim(),
+    region: model.region.trim(),
+  }))
+  .filter((model) => model.modelId);
 // If there is a lightweight model among the available models, prioritize the lightweight model.
 const lightWeightModelIds = modelIds.filter(
-  (modelId: string) => modelFeatureFlags[modelId].light
+  (model: ModelConfiguration) => modelFeatureFlags[model.modelId].light
 );
-const defaultModelId = lightWeightModelIds[0] || modelIds[0];
+const defaultModelConfiguration = lightWeightModelIds[0] || modelIds[0];
 export const defaultModel: Model = {
   type: 'bedrock',
-  modelId: defaultModelId,
+  modelId: defaultModelConfiguration.modelId,
+  region: defaultModelConfiguration.region,
 };
 
-const imageGenerationModelIds: string[] = (
-  JSON.parse(process.env.IMAGE_GENERATION_MODEL_IDS || '[]') as string[]
+const imageGenerationModels: ModelConfiguration[] = (
+  JSON.parse(
+    process.env.IMAGE_GENERATION_MODEL_IDS || '[]'
+  ) as ModelConfiguration[]
 )
-  .map((name: string) => name.trim())
-  .filter((name: string) => name);
+  .map(
+    (model: ModelConfiguration): ModelConfiguration => ({
+      modelId: model.modelId.trim(),
+      region: model.region.trim(),
+    })
+  )
+  .filter((model) => model.modelId);
 export const defaultImageGenerationModel: Model = {
   type: 'bedrock',
-  modelId: imageGenerationModelIds[0],
+  modelId: imageGenerationModels?.[0]?.modelId ?? '',
+  region: imageGenerationModels?.[0]?.region ?? '',
+};
+
+const videoGenerationModels: ModelConfiguration[] = (
+  JSON.parse(
+    process.env.VIDEO_GENERATION_MODEL_IDS || '[]'
+  ) as ModelConfiguration[]
+)
+  .map(
+    (model: ModelConfiguration): ModelConfiguration => ({
+      modelId: model.modelId.trim(),
+      region: model.region.trim(),
+    })
+  )
+  .filter((model) => model.modelId);
+export const defaultVideoGenerationModel: Model = {
+  type: 'bedrock',
+  modelId: videoGenerationModels?.[0]?.modelId ?? '',
+  region: videoGenerationModels?.[0]?.region ?? '',
 };
 
 // Prompt Templates

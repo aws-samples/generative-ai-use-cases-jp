@@ -1,5 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
-import { StackInput, stackInputSchema } from './lib/stack-input';
+import {
+  StackInput,
+  stackInputSchema,
+  ProcessedStackInput,
+} from './lib/stack-input';
+import { ModelConfiguration } from 'generative-ai-use-cases-jp';
 
 // Get parameters from CDK Context
 const getContext = (app: cdk.App): StackInput => {
@@ -28,7 +33,7 @@ const envs: Record<string, Partial<StackInput>> = {
 };
 
 // For backward compatibility, get parameters from CDK Context > parameter.ts
-export const getParams = (app: cdk.App): StackInput => {
+export const getParams = (app: cdk.App): ProcessedStackInput => {
   // By default, get parameters from CDK Context
   let params = getContext(app);
 
@@ -39,6 +44,28 @@ export const getParams = (app: cdk.App): StackInput => {
       env: params.env,
     });
   }
+  //modelIds, imageGenerationModelIdsのフォーマットを揃える
+  const convertToModelConfiguration = (
+    models: (string | ModelConfiguration)[],
+    defaultRegion: string
+  ): ModelConfiguration[] => {
+    return models.map((model) =>
+      typeof model === 'string'
+        ? { modelId: model, region: defaultRegion }
+        : model
+    );
+  };
 
-  return params;
+  return {
+    ...params,
+    modelIds: convertToModelConfiguration(params.modelIds, params.modelRegion),
+    imageGenerationModelIds: convertToModelConfiguration(
+      params.imageGenerationModelIds,
+      params.modelRegion
+    ),
+    videoGenerationModelIds: convertToModelConfiguration(
+      params.videoGenerationModelIds,
+      params.modelRegion
+    ),
+  };
 };

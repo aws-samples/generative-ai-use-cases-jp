@@ -10,6 +10,7 @@ import {
   PiTranslate,
   PiGlobe,
   PiImages,
+  PiVideoLight,
   PiNotebook,
   PiPen,
   PiRobot,
@@ -24,6 +25,7 @@ import {
   AgentPageQueryParams,
   ChatPageQueryParams,
   GenerateImagePageQueryParams,
+  GenerateVideoPageQueryParams,
   GenerateTextPageQueryParams,
   InterUseCaseParams,
   RagPageQueryParams,
@@ -124,11 +126,18 @@ const LandingPage: React.FC = () => {
     navigate(`/image?${queryString.stringify(params)}`);
   };
 
+  const demoGenerateVideo = () => {
+    const params: GenerateVideoPageQueryParams = {
+      prompt: 'A banana is dancing in the middle of the ocean',
+    };
+    navigate(`/video?${queryString.stringify(params)}`);
+  };
+
   const demoVideoAnalyzer = () => {
     const params: VideoAnalyzerPageQueryParams = {
       content: t('landing.demo.video.content'),
     };
-    navigate(`/video?${queryString.stringify(params)}`);
+    navigate(`/video-analyzer?${queryString.stringify(params)}`);
   };
 
   const demoGenerateDiagram = () => {
@@ -338,6 +347,14 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoGenerateImage}
             icon={<PiImages />}
             description={t('landing.use_cases.image.description')}
+          />
+        )}
+        {enabled('video') && (
+          <CardDemo
+            label="動画生成"
+            onClickDemo={demoGenerateVideo}
+            icon={<PiVideoLight />}
+            description="動画生成 AI はテキストから短い動画を生成します。生成した動画は素材としてさまざまなシーンで活用できます。"
           />
         )}
         {visionEnabled && enabled('video') && (

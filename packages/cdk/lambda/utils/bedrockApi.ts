@@ -10,11 +10,13 @@ import {
   ServiceQuotaExceededException,
   ThrottlingException,
   AccessDeniedException,
+  StartAsyncInvokeCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   ApiInterface,
   BedrockImageGenerationResponse,
   GenerateImageParams,
+  GenerateVideoParams,
   Model,
   StreamingChunk,
   UnrecordedMessage,
@@ -23,9 +25,11 @@ import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { streamingChunk } from './streamingChunk';
 
+const defaultRegion = process.env.MODEL_REGION as string;
+
 // Function to get temporary credentials from STS
 const assumeRole = async (crossAccountBedrockRoleArn: string) => {
-  const stsClient = new STSClient({ region: process.env.MODEL_REGION });
+  const stsClient = new STSClient({ region: defaultRegion });
   const command = new AssumeRoleCommand({
     RoleArn: crossAccountBedrockRoleArn,
     RoleSessionName: 'BedrockApiAccess',
@@ -53,8 +57,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
 // In that case, check if the CROSS_ACCOUNT_BEDROCK_ROLE_ARN environment variable is set. (It is set as an environment variable if crossAccountBedrockRoleArn is set in cdk.json)
 // If it is set, assume the specified role and initialize the BedrockRuntimeClient using the temporary credentials obtained.
 // This allows access to Bedrock resources in a different AWS account.
-const initBedrockClient = async () => {
-  // Check if the CROSS_ACCOUNT_BEDROCK_ROLE_ARN environment variable is set
+const initBedrockClient = async (region: string) => {
   if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
     // Get temporary credentials from STS and initialize the client
     const tempCredentials = await assumeRole(
@@ -70,7 +73,7 @@ const initBedrockClient = async () => {
     }
 
     return new BedrockRuntimeClient({
-      region: process.env.MODEL_REGION,
+      region,
       credentials: {
         accessKeyId: tempCredentials.accessKeyId,
         secretAccessKey: tempCredentials.secretAccessKey,
@@ -80,7 +83,7 @@ const initBedrockClient = async () => {
   } else {
     // Initialize the client without using STS
     return new BedrockRuntimeClient({
-      region: process.env.MODEL_REGION,
+      region,
     });
   }
 };
@@ -146,7 +149,8 @@ const extractOutputImage = (
 
 const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
   invoke: async (model, messages, id) => {
-    const client = await initBedrockClient();
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
 
     const converseCommandInput = createConverseCommandInput(
       model,
@@ -159,8 +163,8 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     return extractConverseOutput(model, output).text;
   },
   invokeStream: async function* (model, messages, id) {
-    const client = await initBedrockClient();
-
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
     try {
       const converseStreamCommandInput = createConverseStreamCommandInput(
         model,
@@ -205,7 +209,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
           stopReason: 'error',
         });
       } else if (e instanceof AccessDeniedException) {
-        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
+        const modelAccessURL = `https://${region}.console.aws.amazon.com/bedrock/home?region=${region}#/modelaccess`;
         yield streamingChunk({
           text: `The selected model is not enabled. Please enable the model in the [Bedrock console Model Access screen](${modelAccessURL}).`,
           stopReason: 'error',
@@ -222,7 +226,8 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     }
   },
   generateImage: async (model, params) => {
-    const client = await initBedrockClient();
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
 
     // Image generation using Stable Diffusion or Titan Image Generator is not supported for the Converse API, so InvokeModelCommand is used.
     const command = new InvokeModelCommand({
@@ -234,6 +239,30 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     const body = JSON.parse(Buffer.from(res.body).toString('utf-8'));
 
     return extractOutputImage(model, body);
+  },
+  generateVideo: async (model, params: GenerateVideoParams) => {
+    const videoBucketRegionMap = JSON.parse(
+      process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
+    );
+    const region = model.region || defaultRegion;
+    const client = await initBedrockClient(region);
+    const tmpOutputBucket = videoBucketRegionMap[region];
+
+    if (!tmpOutputBucket || tmpOutputBucket.length === 0) {
+      throw new Error('Video tmp buket is not defined');
+    }
+
+    const command = new StartAsyncInvokeCommand({
+      modelId: model.modelId,
+      modelInput: params.params,
+      outputDataConfig: {
+        s3OutputDataConfig: {
+          s3Uri: `s3://${tmpOutputBucket}`,
+        },
+      },
+    });
+    const res = await client.send(command);
+    return res.invocationArn!;
   },
 };
 

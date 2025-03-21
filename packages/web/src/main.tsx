@@ -22,6 +22,7 @@ import RagPage from './pages/RagPage';
 import RagKnowledgeBasePage from './pages/RagKnowledgeBasePage';
 import WebContent from './pages/WebContent';
 import GenerateImagePage from './pages/GenerateImagePage';
+import GenerateVideoPage from './pages/GenerateVideoPage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
@@ -47,7 +48,7 @@ const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
-const { visionEnabled } = MODELS;
+const { visionEnabled, imageGenModelIds, videoGenModelIds } = MODELS;
 const useCaseBuilderEnabled: boolean =
   import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 // eslint-disable-next-line  react-hooks/rules-of-hooks
@@ -104,10 +105,16 @@ const routes: RouteObject[] = [
         element: <WebContent />,
       }
     : null,
-  enabled('image')
+  imageGenModelIds.length > 0 && enabled('image')
     ? {
         path: '/image',
         element: <GenerateImagePage />,
+      }
+    : null,
+  videoGenModelIds.length > 0 && enabled('video')
+    ? {
+        path: '/video',
+        element: <GenerateVideoPage />,
       }
     : null,
   enabled('diagram')
@@ -130,9 +137,9 @@ const routes: RouteObject[] = [
     path: '/flow-chat',
     element: <FlowChatPage />,
   },
-  visionEnabled && enabled('video')
+  visionEnabled && enabled('videoAnalyzer')
     ? {
-        path: '/video',
+        path: '/video-analyzer',
         element: <VideoAnalyzerPage />,
       }
     : null,

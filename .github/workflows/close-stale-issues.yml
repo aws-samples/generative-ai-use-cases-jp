@@ -25,4 +25,5 @@ jobs:
           exempt-issue-labels: 'bug,dnc'
           exempt-pr-labels: 'bug,dnc'
           exempt-draft-pr: true
+          operations-per-run: 100
           delete-branch: true

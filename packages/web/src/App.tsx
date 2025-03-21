@@ -10,6 +10,7 @@ import {
   PiPenNib,
   PiTranslate,
   PiImages,
+  PiVideoLight,
   PiSpeakerHighBold,
   PiGear,
   PiGlobe,
@@ -39,7 +40,13 @@ const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
-const { visionEnabled, agentNames, flowChatEnabled } = MODELS;
+const {
+  visionEnabled,
+  imageGenModelIds,
+  videoGenModelIds,
+  agentNames,
+  flowChatEnabled,
+} = MODELS;
 
 // Extract :chatId from /chat/:chatId format
 // Return null if path is in a different format
@@ -164,7 +171,7 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    enabled('image')
+    imageGenModelIds.length > 0 && enabled('image')
       ? {
           label: t('navigation.imageGeneration'),
           to: '/image',
@@ -172,10 +179,18 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    visionEnabled && enabled('video')
+    videoGenModelIds.length > 0 && enabled('video')
+      ? {
+          label: '動画生成',
+          to: '/video',
+          icon: <PiVideoLight />,
+          display: 'usecase' as const,
+        }
+      : null,
+    visionEnabled && enabled('videoAnalyzer')
       ? {
           label: t('navigation.videoAnalysis'),
-          to: '/video',
+          to: '/video-analyzer',
           icon: <PiVideoCamera />,
           display: 'usecase' as const,
         }

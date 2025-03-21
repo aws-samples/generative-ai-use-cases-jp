@@ -15,15 +15,17 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases-jp';
 import { UseCaseBuilder } from './construct/use-case-builder';
-import { StackInput } from './stack-input';
+import { ProcessedStackInput } from './stack-input';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
-  params: StackInput;
+  params: ProcessedStackInput;
   // RAG Knowledge Base
   knowledgeBaseId?: string;
   knowledgeBaseDataSourceBucketName?: string;
   // Agent
   agents?: Agent[];
+  // Video Generation
+  videoBucketRegionMap: Record<string, string>;
   // Guardrail
   guardrailIdentifier?: string;
   guardrailVersion?: string;
@@ -64,6 +66,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       modelRegion: params.modelRegion,
       modelIds: params.modelIds,
       imageGenerationModelIds: params.imageGenerationModelIds,
+      videoGenerationModelIds: params.videoGenerationModelIds,
+      videoBucketRegionMap: props.videoBucketRegionMap,
       endpointNames: params.endpointNames,
       customAgents: params.agents,
       queryDecompositionEnabled: params.queryDecompositionEnabled,
@@ -126,6 +130,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       modelRegion: api.modelRegion,
       modelIds: api.modelIds,
       imageGenerationModelIds: api.imageGenerationModelIds,
+      videoGenerationModelIds: api.videoGenerationModelIds,
       endpointNames: api.endpointNames,
       agentNames: api.agentNames,
       inlineAgents: params.inlineAgents,
@@ -263,6 +268,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'ImageGenerateModelIds', {
       value: JSON.stringify(api.imageGenerationModelIds),
+    });
+
+    new CfnOutput(this, 'VideoGenerateModelIds', {
+      value: JSON.stringify(api.videoGenerationModelIds),
     });
 
     new CfnOutput(this, 'EndpointNames', {

@@ -93,13 +93,8 @@ const getAgentInfo = async (agentId: string, agentAliasId: string) => {
 };
 
 const bedrockAgentApi: ApiInterface = {
-  invoke: async (model: Model, messages: UnrecordedMessage[]) => {
-    console.error('Unexpected invoke', model, messages);
-    throw new Error('Not implemented');
-  },
-  generateImage: async (model: Model, params: GenerateImageParams) => {
-    console.error('Unexpected generateImage', model, params);
-    throw new Error('Not implemented');
+  invoke: async () => {
+    throw new Error('Not Implemented');
   },
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
     try {
@@ -367,6 +362,12 @@ const bedrockAgentApi: ApiInterface = {
         });
       }
     }
+  },
+  generateImage: async () => {
+    throw new Error('Not Implemented');
+  },
+  generateVideo: async () => {
+    throw new Error('Not Implemented');
   },
 };
 

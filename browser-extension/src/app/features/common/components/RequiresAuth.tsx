@@ -7,6 +7,7 @@ import { I18n } from 'aws-amplify/utils';
 import { Authenticator, translations } from '@aws-amplify/ui-react';
 import Browser from 'webextension-polyfill';
 import Button from './Button';
+import { IconWrapper } from '../../../components/IconWrapper';
 
 type Props = {
   children: React.ReactNode;
@@ -66,7 +67,7 @@ const RequiresAuth: React.FC<Props> = (props) => {
       {!settings || loading ? (
         <div className="flex flex-col items-center">
           <div className="italic">Loading...</div>
-          <PiCircleNotchBold className="text-6xl animate-spin" />
+          <IconWrapper icon={PiCircleNotchBold} className="text-6xl animate-spin" />
         </div>
       ) : (
         <>
