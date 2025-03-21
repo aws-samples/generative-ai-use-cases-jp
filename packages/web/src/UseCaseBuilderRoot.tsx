@@ -73,7 +73,7 @@ const UseCaseBuilderRoot: React.FC = () => {
 
           <div className="line-clamp-1">{label}</div>
 
-          {/* label を真ん中にするためのダミーのブロック */}
+          {/* Dummy block to center the label */}
           <div className="w-10" />
         </header>
 
@@ -97,7 +97,7 @@ const UseCaseBuilderRoot: React.FC = () => {
           </ButtonIcon>
         </div>
         <div className="text-aws-font-color lg:ml-64">
-          {/* ユースケース間連携時に表示 */}
+          {/* Show when inter-use case connection is enabled */}
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />
         </div>

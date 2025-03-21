@@ -3,7 +3,7 @@ import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 
-// 環境変数からモデル名などを取得
+// Get model names and other environment variables
 const bedrockModelIds: string[] = JSON.parse(import.meta.env.VITE_APP_MODEL_IDS)
   .map((name: string) => name.trim())
   .filter((name: string) => name);
@@ -38,7 +38,7 @@ const getFlows = () => {
 
 const flows = getFlows();
 
-// モデルオブジェクトの定義
+// Define model objects
 const textModels = [
   ...bedrockModelIds.map(
     (name) => ({ modelId: name, type: 'bedrock' }) as Model

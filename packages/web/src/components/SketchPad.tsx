@@ -127,7 +127,7 @@ const SketchPad: React.FC<Props> = (props) => {
       return;
     }
 
-    // 背景色を設定するために、新しくcanvasで四角を作成し合成する
+    // To set the background color, create a new canvas and combine it
     const canvas = document.createElement('canvas');
     canvas.width = props.width;
     canvas.height = props.height;
@@ -140,15 +140,15 @@ const SketchPad: React.FC<Props> = (props) => {
       if (img) {
         ctx.drawImage(img, 0, 0, props.width, props.height);
 
-        // 二値化処理
+        // Binary processing
         if (props.maskMode) {
           const imageData = ctx.getImageData(0, 0, props.width, props.height);
           const data = imageData.data;
-          const threshold = 128; // 閾値（0～255）
+          const threshold = 128; // Threshold (0-255)
           for (let i = 0; i < data.length; i += 4) {
-            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3; // 平均値を計算
-            const value = avg > threshold ? 255 : 0; // 閾値を基に二値化
-            data[i] = data[i + 1] = data[i + 2] = value; // RGBを同じ値に設定
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3; // Calculate the average value
+            const value = avg > threshold ? 255 : 0; // Binary based on the threshold
+            data[i] = data[i + 1] = data[i + 2] = value; // Set RGB to the same value
           }
           ctx.putImageData(imageData, 0, 0);
         }

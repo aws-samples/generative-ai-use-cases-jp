@@ -39,7 +39,7 @@ const PromptList: React.FC<Props> = (props) => {
   const { onClick, onClickDeleteSystemContext, onClickUpdateSystemContext } =
     props;
   const [expanded, setExpanded] = useState(false);
-  // PromptList はチャットのページでの利用に固定
+  // PromptList is fixed for use on the chat page
   const { getModelId } = useChat('/chat');
   const modelId = getModelId();
 
@@ -47,7 +47,7 @@ const PromptList: React.FC<Props> = (props) => {
     return getPrompter(modelId);
   }, [modelId]);
 
-  // 上位の setExpanded にアクセスするためにコンポーネントをネストする
+  // To access the upper setExpanded, nest the component
   const Item: React.FC<PromptListItem> = (props) => {
     const onClickPrompt = useCallback(() => {
       onClick({

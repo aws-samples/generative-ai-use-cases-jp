@@ -41,8 +41,8 @@ const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const { visionEnabled, agentNames, flowChatEnabled } = MODELS;
 
-// /chat/:chatId の形式から :chatId を返す
-// path が別の形式の場合は null を返す
+// Extract :chatId from /chat/:chatId format
+// Return null if path is in a different format
 const extractChatId = (path: string): string | null => {
   const pattern = /\/chat\/(.+)/;
   const match = path.match(pattern);
@@ -214,8 +214,8 @@ const App: React.FC = () => {
     }
   }, [items, pathname, getChatTitle]);
 
-  // 画面間遷移時にスクロールイベントが発火しない場合 (ページ最上部からページ最上部への移動など)
-  // 最上部/最下部の判定がされないので、pathname の変化に応じて再判定する
+  // When there is no scroll event (e.g. moving from the top of the page to the top of the page)
+  // The top/bottom determination is not made, so re-determine it according to the change of pathname
   useEffect(() => {
     if (screen.current) {
       notifyScreen(screen.current);
@@ -241,7 +241,7 @@ const App: React.FC = () => {
 
           {label}
 
-          {/* label を真ん中にするためのダミーのブロック */}
+          {/* Dummy block to center the label */}
           <div className="w-10" />
         </header>
 
@@ -265,7 +265,7 @@ const App: React.FC = () => {
           </ButtonIcon>
         </div>
         <div className="text-aws-font-color lg:ml-64">
-          {/* ユースケース間連携時に表示 */}
+          {/* Show when inter-use case connection is enabled */}
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />
         </div>

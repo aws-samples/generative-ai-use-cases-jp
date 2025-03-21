@@ -63,7 +63,7 @@ const ChatMessage: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (chatContent?.extraData) {
-      // ローディング表示にするために、画像の数だけ要素を用意して、undefinedを初期値として設定する
+      // To display the loading, prepare as many elements as the number of images, and set undefined as the initial value
       setSignedUrls(new Array(chatContent.extraData.length).fill(undefined));
       Promise.all(
         chatContent.extraData.map(async (file) => {
@@ -104,7 +104,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   };
 
   const handleFeedbackClick = (feedback: string) => {
-    // ボタン押した際、ユーザーからの詳細フィードバック前にDBに送る。
+    // When the button is pressed, send the detailed feedback from the user to the DB before it is displayed.
     onSendFeedback({
       createdDate: props.chatContent!.createdDate!,
       feedback: feedback,

@@ -192,11 +192,11 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const [isPosting, setIsPosting] = useState(false);
   const [isPreview, setIsPreview] = useState(true);
 
-  // 作成条件を満たしていない場合のエラーメッセージ
+  // Error messages when the creation conditions are not met
   const [createErrorMessages, setCreateErrorMessages] = useState<
     ErrorWithMenu[]
   >([]);
-  // 更新条件を満たしていない場合のエラーメッセージ
+  // Error messages when the update conditions are not met
   const [updateErrorMessages, setUpdateErrorMessages] = useState<
     ErrorWithMenu[]
   >([]);
@@ -204,7 +204,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
   const { modelIds: availableModels } = MODELS;
 
   useEffect(() => {
-    // 初期表示時にIDを設定する
+    // Set the ID when the initial display is set
     setUseCaseId(useCaseIdPathParam ?? null);
   }, [setUseCaseId, useCaseIdPathParam]);
 
@@ -218,7 +218,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       setFixedModelId(useCase?.fixedModelId ?? '');
       setFileUpload(!!useCase?.fileUpload);
 
-      // サンプル集から遷移した場合（RouterのStateから設定）
+      // If you transition from the sample collection (set from the Router's State)
     } else if (state) {
       setTitle(state.title ?? '');
       setPromptTemplate(state.promptTemplate ?? '');
@@ -230,7 +230,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
       clear();
     }
 
-    // 初期表示時は、更新ボタンをdisabledにする
+    // When the initial display is set, disable the update button
     setIsDisabledUpdate(true);
   }, [
     useCaseId,
@@ -246,12 +246,12 @@ const UseCaseBuilderEditPage: React.FC = () => {
     setIsDisabledUpdate,
   ]);
 
-  // プロンプトテンプレート中にあるプレースホルダ
+  // Placeholders in the prompt template
   const placeholders = useMemo(() => {
     return extractPlaceholdersFromPromptTemplate(promptTemplate);
   }, [promptTemplate]);
 
-  // プレースホルダをObjectに変換
+  // Convert placeholders to an Object
   const items = useMemo(() => {
     return getItemsFromPlaceholders(placeholders);
   }, [placeholders]);
@@ -293,7 +293,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     if (errorMenu.length > 0) {
       return errorMenu;
     } else {
-      // エラーがない場合は「更新」「作成」にドットを表示
+      // If there is no error, display a dot on "Update" or "Create"
       if (isUpdate) {
         return [t('useCaseBuilder.update')];
       } else {
@@ -302,7 +302,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     }
   }, [createErrorMessages, updateErrorMessages, isUpdate, t]);
 
-  // ページタイトルの設定
+  // Set the page title
   useEffect(() => {
     setPageTitle(
       isUpdate ? t('useCaseBuilder.edit') : t('useCaseBuilder.createNew')
@@ -358,7 +358,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     setUpdateErrorMessages(tmp);
   }, [isDisabledUpdate, setUpdateErrorMessages, t]);
 
-  // ページ遷移時に存在しないメニューが表示されないようにする
+  // When transitioning to a page, prevent the non-existent menu from being displayed
   useEffect(() => {
     const idx = menu.indexOf(currentMenu);
 
@@ -408,10 +408,10 @@ const UseCaseBuilderEditPage: React.FC = () => {
         .then(async (res) => {
           setUseCaseId(res.useCaseId);
 
-          // 新規登録したら利用履歴に表示する（Drawerに表示する目的）
+          // When registering a new use case, display it in the usage history (for the purpose of displaying in the Drawer)
           await updateRecentUseUseCase(res.useCaseId);
 
-          // 実行画面に遷移
+          // Transition to the execution screen
           navigate(`/use-case-builder/execute/${res.useCaseId}`);
         })
         .finally(() => {

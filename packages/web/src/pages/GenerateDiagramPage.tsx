@@ -159,7 +159,7 @@ const GenerateDiagramPage: React.FC = () => {
         setModelId(availableModels[0]);
       }
     })();
-    // 無限ループ回避のため以下の依存関係のみ残す
+    // To avoid infinite loops, only keep the following dependencies
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableModels, search]);
 
@@ -195,7 +195,7 @@ const GenerateDiagramPage: React.FC = () => {
   const onClickExec = useCallback(async () => {
     if (loading) return;
     setLoading(true);
-    // 前の結果は消したいので、content 以外 clear
+    // I want to clear the previous result, so clear content except
     setDiagramGenerationError(null);
     setDiagramCode('');
     setDiagramSentence('');
@@ -222,7 +222,7 @@ const GenerateDiagramPage: React.FC = () => {
     clearChat();
   }, [clear, clearChat]);
 
-  // ダイアグラムデータを翻訳付きで定義
+  // Define the diagram data with translation
   const DiagramData = useMemo<Record<DiagramType, DiagramInfo>>(
     () => ({
       AI: {
@@ -487,9 +487,9 @@ const GenerateDiagramPage: React.FC = () => {
         {t('diagram.title')}
       </div>
 
-      {/* メインコンテンツ */}
+      {/* Main content */}
       <div className="flex flex-1 flex-col gap-4 p-4 lg:h-[calc(100vh-4rem)] lg:flex-row">
-        {/* 左カラム: 入力エリア */}
+        {/* Left column: Input area */}
         <div className="w-full lg:w-[45%]">
           <Card
             label={t('diagram.input_label')}
@@ -506,7 +506,7 @@ const GenerateDiagramPage: React.FC = () => {
                   label={t('diagram.model')}
                 />
               </div>
-              {/* 主要の種類を選択 */}
+              {/* Select the main type */}
               <div className="mb-2">
                 <label className="mb-2 block text-sm font-bold text-gray-700">
                   <>
@@ -529,7 +529,7 @@ const GenerateDiagramPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* その他の種類を選択 */}
+              {/* Select other types */}
               <ExpandableField label={t('diagram.other_diagram_types')}>
                 <div className="scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 flex gap-2 overflow-x-auto pb-2">
                   {OtherTypeOption.map((option) => (
@@ -552,9 +552,9 @@ const GenerateDiagramPage: React.FC = () => {
                 />
               </div>
 
-              {/* 入力例とボタンを配置 */}
+              {/* Place the input example and buttons */}
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-                {/* 入力例 */}
+                {/* Input example */}
                 <div className="w-full sm:w-auto">
                   <div className="mb-1 text-sm font-bold text-gray-600">
                     {t('diagram.input_example')}
@@ -571,7 +571,7 @@ const GenerateDiagramPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* クリア＆生成ボタン */}
+                {/* Clear & Generate buttons */}
                 <div className="mr-2 flex flex-col gap-1 sm:flex-row">
                   <Button
                     outlined
@@ -588,16 +588,16 @@ const GenerateDiagramPage: React.FC = () => {
           </Card>
         </div>
 
-        {/* 右カラム: 出力エリア */}
+        {/* Right column: Output area */}
         <div className="w-full lg:w-[55%]">
           <Card
             label={t('diagram.result')}
             className="flex h-full flex-col px-3">
             <div className="min-h-0 flex-1 overflow-auto">
-              {/* 生成ステータス表示 */}
+              {/* Display the generation status */}
               {loading && (
                 <div className="mb-4 space-y-2">
-                  {/* Step1 表示 */}
+                  {/* Step1 display */}
                   {diagramType === '' ? (
                     <div className="flex min-h-[40px] items-center justify-center rounded-md bg-gray-50 p-3">
                       <span className="text-gray-600">
@@ -620,7 +620,7 @@ const GenerateDiagramPage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Step2 表示 */}
+                  {/* Step2 display */}
                   {diagramType !== '' && (
                     <div className="flex min-h-[40px] items-center justify-center rounded-md bg-gray-50 p-3">
                       <span className="text-gray-600">
@@ -632,7 +632,7 @@ const GenerateDiagramPage: React.FC = () => {
                 </div>
               )}
 
-              {/* ダイアグラムと説明の表示 */}
+              {/* Display the diagram and description */}
               <div className="space-y-4">
                 {diagramSentence.length > 0 && (
                   <div className="rounded-lg bg-gray-50 p-4">

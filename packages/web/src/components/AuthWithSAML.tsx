@@ -22,7 +22,7 @@ const AuthWithSAML: React.FC<Props> = (props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 認証状態の検証
+    // Verify the authentication status
     if (authStatus === 'configuring') {
       setLoading(true);
       setAuthenticated(false);

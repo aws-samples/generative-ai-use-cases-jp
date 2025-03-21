@@ -12,7 +12,7 @@ const WriterPage: React.FC = () => {
   const { search } = useLocation();
   const { t } = useTranslation();
 
-  // URLパラメータから初期値を取得
+  // Get initial value from URL parameters
   const initialSentence = React.useMemo(() => {
     if (search === '') return '';
     const params = queryString.parse(search) as WriterPageQueryParams;

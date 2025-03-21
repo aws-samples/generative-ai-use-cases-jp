@@ -9,7 +9,7 @@ import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { OptimizePromptRequest } from 'generative-ai-use-cases-jp';
 import { useTranslation } from 'react-i18next';
 
-// サポート状況は以下のページから
+// Supported regions are available at the following page
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html
 export const SUPPORTED_REGIONS = [
   'us-east-1',

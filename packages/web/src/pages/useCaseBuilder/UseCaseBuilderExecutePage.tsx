@@ -27,7 +27,7 @@ const UseCaseBuilderExecutePage: React.FC = () => {
   } = useUseCase(useCaseId);
   const { toggleFavorite, toggleShared } = useMyUseCases();
 
-  // ページタイトルの設定
+  // Set the page title
   useEffect(() => {
     setPageTitle(useCase?.title ?? '');
   }, [setPageTitle, useCase?.title]);

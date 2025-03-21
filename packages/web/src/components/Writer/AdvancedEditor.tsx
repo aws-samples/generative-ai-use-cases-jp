@@ -63,7 +63,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // コンポーネント内で差分計算用の関数を追加
+  // Add a function for calculating the difference in the component
   const getCharacterDiff = (oldText: string, newText: string) => {
     const dmp = new DiffMatchPatch();
     const diffs = dmp.diff_main(oldText, newText);
@@ -142,7 +142,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const [editorRef, setEditorRef] = useState<Editor | null>(null);
   const commentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // エディターの初期化時にコメントマネージャーを設定
+  // Set the comment manager when the editor is initialized
   const handleEditorCreated = useCallback(
     (editor: Editor) => {
       setEditorRef(editor);
@@ -161,7 +161,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     return new XMLSerializer().serializeToString(doc);
   };
 
-  // コメントの位置を再計算する関数
+  // Function to recalculate the comment positions
   const recalculateCommentPositions = useCallback(() => {
     if (!editorRef || !commentManager) return;
 
@@ -194,7 +194,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     };
   }, [debouncedRecalculateCommentPositions]);
 
-  // エディタの更新時にコメントの位置を再計算
+  // Recalculate the comment positions when the editor is updated
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       setCharsCount(editor.storage.characterCount.characters());
@@ -217,12 +217,12 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     500
   );
 
-  // コメントが更新されたときに位置を再計算
+  // Recalculate the comment positions when the comments are updated
   useEffect(() => {
     recalculateCommentPositions();
   }, [comments, recalculateCommentPositions]);
 
-  // 初期コンテンツを設定
+  // Set the initial content
   useEffect(() => {
     const storedContent = window.localStorage.getItem('novel-content');
     const content = initialSentence
@@ -241,13 +241,13 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     setInitialContent(content);
   }, [initialSentence, t]);
 
-  // 校閲ボタンのクリックハンドラ
+  // Click handler for the review button
   const handleExecClick = async () => {
     if (!commentManager) return;
     await commentManager.execAnnotation();
   };
 
-  // クリアボタン
+  // Click handler for the clear button
   const handleClear = () => {
     if (editorRef) {
       editorRef.commands.setContent(emptyContent);
@@ -257,7 +257,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     }
   };
 
-  // チュートリアルボタンのクリックハンドラ
+  // Click handler for the tutorial button
   const handleTutorialClick = () => {
     if (editorRef) {
       editorRef.commands.setContent(getDefaultEditorContent(t));
@@ -401,11 +401,11 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
 
                 const position = commentPosition[idx];
 
-                // 表示されている直前のコメントを探す
+                // Find the comment immediately before the displayed comment
                 let prevDisplayedIndex = idx - 1;
                 let lastDisplayedPosition = 0;
 
-                // 直前の表示されているコメントの実際の位置を取得
+                // Get the actual position of the comment immediately before the displayed comment
                 while (prevDisplayedIndex >= 0) {
                   if (!commentState[comments[prevDisplayedIndex].excerpt]) {
                     const prevRef = commentRefs.current[prevDisplayedIndex];
@@ -422,7 +422,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
                   prevDisplayedIndex--;
                 }
 
-                // スペーサーの高さを計算（実際の表示位置との差分）
+                // Calculate the height of the spacer (the difference between the actual position and the displayed position)
                 const spacerHeight = Math.max(
                   0,
                   position - lastDisplayedPosition

@@ -23,7 +23,7 @@ module.exports = {
     'tailwindcss/enforces-shorthand': ['off'],
     // 日本語文字列を検知するルールを適用
     'i18nhelper/no-jp-string': 'warn',
-    // 'i18nhelper/no-jp-comment': 'warn',
+    'i18nhelper/no-jp-comment': 'warn',
     // JSX のルールを適用
     '@shopify/jsx-no-hardcoded-content': 'warn',
   },

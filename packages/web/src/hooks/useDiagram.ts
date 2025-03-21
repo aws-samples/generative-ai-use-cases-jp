@@ -62,7 +62,7 @@ const useDiagram = (id: string) => {
   );
   const [diagramType, setDiagramType] = useState<DiagramType | ''>('');
 
-  // ダイアグラムタイプの抽出
+  // Extract the diagram type
   const extractDiagramType = useCallback(
     (targetText: string): DiagramType => {
       const defaultType = validTypes[0];
@@ -71,12 +71,12 @@ const useDiagram = (id: string) => {
 
       const content = match[1].toLowerCase();
 
-      // 完全一致チェック
+      // Full match check
       if (validTypes.includes(content as DiagramType)) {
         return content as DiagramType;
       }
 
-      // 部分一致チェック
+      // Partial match check
       const matchingType = validTypes.find(
         (type) => content.includes(type) || type.includes(content)
       );

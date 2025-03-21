@@ -464,7 +464,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
 });
 
 // StableDiffusion の StylePreset
-// 一覧は、以下の style_preset を参照
+// See the list below for the style_preset
 // https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
 const stylePresetOptions = [
   '3d-model',
@@ -489,7 +489,7 @@ const stylePresetOptions = [
   label: s,
 }));
 
-// Titan Image Generator v2のImage Conditioning適用時のControl Mode
+// Control Mode for Image Conditioning when using Titan Image Generator v2
 // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-image.html
 const controlModeOptions = ['CANNY_EDGE', 'SEGMENTATION'].map((s) => ({
   value: s as ControlMode,
@@ -619,7 +619,7 @@ const GenerateImagePage: React.FC = () => {
     // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [prompter]);
 
-  // LandingPage のデモデータ設定
+  // Setting the demo data for LandingPage
   useEffect(() => {
     const _modelId = !modelId ? modelIds[0] : modelId;
     const _imageGenModelId = !imageGenModelId
@@ -742,7 +742,7 @@ const GenerateImagePage: React.FC = () => {
           };
         }
 
-        // 解像度の設定
+        // Setting the resolution
         if (modelConfig.resolutionPresets[0].value.includes(':')) {
           params = {
             ...params,
@@ -913,7 +913,7 @@ const GenerateImagePage: React.FC = () => {
           onChangeContent={setChatContent}
           isGeneratingImage={generating}
           onGenerate={async (p, np, sp) => {
-            // 設定に変更があった場合のみ生成する
+            // Generate only if there is a change in the settings
             if (
               p !== prompt ||
               np !== negativePrompt ||

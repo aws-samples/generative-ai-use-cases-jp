@@ -28,7 +28,7 @@ type Props = {
   onChangeContent: (content: string) => void;
   onSend: () => void;
   sendIcon?: React.ReactNode;
-  // ページ下部以外で使う時に margin bottom を無効化するためのオプション
+  // When using it outside the bottom of the page, disable the margin bottom
   disableMarginBottom?: boolean;
   fileUpload?: boolean;
   fileLimit?: FileLimit;
@@ -59,7 +59,7 @@ const InputChatContent: React.FC<Props> = (props) => {
     errorMessages,
   } = useFiles(pathname);
 
-  // Model 変更等で accept が変更された際にエラーメッセージを表示 (自動でファイル削除は行わない)
+  // When the model is changed, etc., display the error message (do not automatically delete the file)
   useEffect(() => {
     if (props.fileLimit && props.accept) {
       checkFiles(props.fileLimit, props.accept);
@@ -69,7 +69,7 @@ const InputChatContent: React.FC<Props> = (props) => {
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && props.fileLimit && props.accept) {
-      // ファイルを反映しアップロード
+      // Reflect the file and upload it
       uploadFiles(Array.from(files), props.fileLimit, props.accept);
     }
   };
@@ -88,12 +88,12 @@ const InputChatContent: React.FC<Props> = (props) => {
       .filter((file) => file.kind === 'file')
       .map((file) => file.getAsFile() as File);
     if (files.length > 0 && props.fileLimit && props.accept) {
-      // ファイルをアップロード
+      // Upload the file
       uploadFiles(Array.from(files), props.fileLimit, props.accept);
-      // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
+      // Since the file name is also pasted when the file is pasted, stop the default behavior
       pasteEvent.preventDefault();
     }
-    // ファイルがない場合はデフォルトの挙動（テキストのペースト）
+    // If there is no file, stop the default behavior (paste text)
   };
 
   const loading = useMemo(() => {

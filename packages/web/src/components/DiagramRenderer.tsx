@@ -12,10 +12,10 @@ const defaultConfig: MermaidConfig = {
   // syntax error が dom node に勝手に追加されないようにする
   // https://github.com/mermaid-js/mermaid/pull/4359
   suppressErrorRendering: true,
-  securityLevel: 'loose', // SVGのレンダリングを許可
-  fontFamily: 'monospace', // フォントファミリーを指定
-  fontSize: 16, // フォントサイズを指定
-  htmlLabels: true, // HTMLラベルを許可
+  securityLevel: 'loose', // Allow SVG rendering
+  fontFamily: 'monospace', // Specify the font family
+  fontSize: 16, // Specify the font size
+  htmlLabels: true, // Allow HTML labels
 };
 mermaid.initialize(defaultConfig);
 interface MermaidProps {
@@ -31,15 +31,15 @@ export const Mermaid: React.FC<MermaidProps> = (props) => {
   const render = useCallback(async () => {
     if (code) {
       try {
-        // 一意な ID を指定する必要あり
+        // It is necessary to specify a unique ID
         const { svg } = await mermaid.render(`m${crypto.randomUUID()}`, code);
-        // SVG文字列をパースしてDOMオブジェクトに変換
+        // Parse the SVG string to convert it to a DOM object
         const parser = new DOMParser();
         const doc = parser.parseFromString(svg, 'image/svg+xml');
         const svgElement = doc.querySelector('svg');
 
         if (svgElement) {
-          // SVG要素に必要な属性を設定
+          // Set the necessary attributes to the SVG element
           svgElement.setAttribute('width', '100%');
           svgElement.setAttribute('height', '100%');
           setSvgContent(svgElement.outerHTML);
@@ -187,7 +187,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
 
   return (
     <div className="relative flex flex-col">
-      {/* ダイアグラム図の上のヘッダー */}
+      {/* The header above the diagram */}
       <div className="mb-[12px] flex flex-row justify-between gap-1">
         <div className="flex gap-1">
           <DownloadButton type="SVG" />
@@ -211,7 +211,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
         </div>
       </div>
 
-      {/* ダイアグラム図の描画部分 */}
+      {/* The drawing part of the diagram */}
       <div className="relative">
         <div
           className={`${viewMode === 'diagram' ? 'visible opacity-100' : 'invisible absolute left-0 top-0 opacity-0'}`}>
@@ -226,7 +226,7 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
         </div>
       </div>
 
-      {/* ズーム時 */}
+      {/* When zooming */}
       {zoom && (
         <>
           <div

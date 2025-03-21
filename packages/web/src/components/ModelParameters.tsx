@@ -6,9 +6,9 @@ import Switch from './Switch';
 import RangeSlider from './RangeSlider';
 import { useTranslation } from 'react-i18next';
 
-const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet 推奨最小値
-const MIN_REASONING_BUDGET = 1024; // Claude 3.7 Sonnet 最小値
-const MAX_REASONING_BUDGET = 32768; // 仮置き
+const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet recommended minimum value
+const MIN_REASONING_BUDGET = 1024; // Claude 3.7 Sonnet minimum value
+const MAX_REASONING_BUDGET = 32768; // Temporary value
 const REASONING_BUDGET_STEP = 1024;
 
 export const ModelParameters: React.FC<{

@@ -124,7 +124,7 @@ const TranslatePage: React.FC = () => {
   }, [modelId]);
   const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
-  const [audio, setAudioInput] = useState(false); // 音声入力フラグ
+  const [audio, setAudioInput] = useState(false); // Audio input flag
   const { synthesizeSpeach, loading: speachIsLoading } = useSpeach(language);
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [prompter]);
 
-  // Memo 変数
+  // Memo variable
   const disabledExec = useMemo(() => {
     return sentence === '' || loading;
   }, [sentence, loading]);
@@ -166,7 +166,7 @@ const TranslatePage: React.FC = () => {
     setTypingTextInput(translatedSentence);
   }, [translatedSentence, setTypingTextInput]);
 
-  // 文章の更新時にコメントを更新
+  // Update the comment when the article is updated
   useEffect(() => {
     if (auto) {
       // debounce した後翻訳
@@ -175,8 +175,8 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence, language]);
 
-  // debounce した後翻訳
-  // 入力を止めて1秒ほど待ってから翻訳リクエストを送信
+  // Translate after debounce
+  // Wait for 1 second after stopping input and send a translation request
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onSentenceChange = useCallback(
     debounce(
@@ -198,7 +198,7 @@ const TranslatePage: React.FC = () => {
     [prompter]
   );
 
-  // リアルタイムにレスポンスを表示
+  // Display the response in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -208,14 +208,14 @@ const TranslatePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  // 録音機能がエラー終了した時にトグルスイッチをOFFにする
+  // When the recording function fails, turn the toggle switch off
   useEffect(() => {
     if (!recording) {
       setAudioInput(false);
     }
   }, [recording]);
 
-  // transcribeの要素が追加された時の処理. 左のボックスに自動入力する
+  // Process when the transcribe element is added. Automatically input it into the left box
   useEffect(() => {
     const combinedTranscript = transcriptMic
       .map((item) => item.transcript)
@@ -225,7 +225,7 @@ const TranslatePage: React.FC = () => {
     }
   }, [transcriptMic, setSentence]);
 
-  // LLM にリクエスト送信
+  // Send a request to the LLM
   const getTranslation = (
     sentence: string,
     language: string,
@@ -241,14 +241,14 @@ const TranslatePage: React.FC = () => {
     );
   };
 
-  // 翻訳を実行
+  // Execute translation
   const onClickExec = useCallback(() => {
     if (loading) return;
     getTranslation(sentence, language, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence, additionalContext, loading, prompter, language]);
 
-  // リセット
+  // Reset
   const onClickClear = useCallback(() => {
     clear();
     clearChat();
@@ -266,7 +266,7 @@ const TranslatePage: React.FC = () => {
   const startOrStopSpeach = useCallback(async () => {
     if (speachIsLoading) return;
 
-    // 再生中の場合は止める
+    // If it is playing, stop it
     if (isSpeachPlaying && audioRef.current) {
       setIsSpeachPlaying(false);
 

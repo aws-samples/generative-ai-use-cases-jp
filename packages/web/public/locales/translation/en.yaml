@@ -1,10 +1,10 @@
----
 setting:
   title: Settings
   update:
-    message:
+    message: >-
       Updates are available on GitHub. If you want to use the latest features,
-      please pull the main branch of <0>generative-ai-use-cases-jp</0> and redeploy.
+      please pull the main branch of <0>generative-ai-use-cases-jp</0> and
+      redeploy.
   general: General
   items:
     version: Version
@@ -20,11 +20,11 @@ setting:
     image_gen_model: Image Generation Model Name
     agent_name: Agent Name
     model_region: LLM & Image Generation Model Region
-  config_message:
-    Settings can be changed using <0>AWS CDK</0>, not on this screen.
-    If you encounter errors when running use cases, please make sure you have enabled
-    the specified models in {{region}}. For details on how to do this, please refer
-    to <1>generative-ai-use-cases-jp</1>.
+  config_message: >-
+    Settings can be changed using <0>AWS CDK</0>, not on this screen. If you
+    encounter errors when running use cases, please make sure you have enabled
+    the specified models in {{region}}. For details on how to do this, please
+    refer to <1>generative-ai-use-cases-jp</1>.
   recent_updates: Recent Updates
   view_all_updates: View All Updates
   signout: Sign Out
@@ -114,36 +114,36 @@ writer:
       collect_data: Research and add supporting data
       fact_check: Fact check
       continue: Continue output
-  description:
-    A tool for writing assistance, text refinement, and proofreading. You
-    can write efficiently with AI assistance.
+  description: >-
+    A tool for writing assistance, text refinement, and proofreading. You can
+    write efficiently with AI assistance.
   useAsTextEditor: Use as a Text Editor
-  textEditorDescription:
-    This editor can be used as a normal text editor. It supports
-    basic formatting such as bold, italic, lists, and headings. It also displays the
+  textEditorDescription: >-
+    This editor can be used as a normal text editor. It supports basic
+    formatting such as bold, italic, lists, and headings. It also displays the
     character count during writing.
   autoCompleteFeature: AI Auto-Complete Feature
-  autoCompleteDescription:
-    You can give instructions to the AI for selected text.
-    For example, operations such as 'improve', 'proofread', 'make shorter', 'make
-    longer', or you can enter custom instructions.
+  autoCompleteDescription: >-
+    You can give instructions to the AI for selected text. For example,
+    operations such as 'improve', 'proofread', 'make shorter', 'make longer', or
+    you can enter custom instructions.
   example1: 'For example, you can have the AI continue this paragraph:'
-  amazonBedrockDescription:
-    Amazon Bedrock is a fully managed service that offers
-    a choice of high-performing foundation models (FMs) from leading AI companies
-    like AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single
-    API, along with a broad set of capabilities you need to build generative AI applications
-    with security, privacy, and responsible AI.
-  example2:
-    "You can also check facts in your text. Select the following text and
-    choose 'Fact check':"
-  factCheckExample:
-    Barack Obama was the 43rd President of the United States. He served
-    as president from 2001 to 2009.
+  amazonBedrockDescription: >-
+    Amazon Bedrock is a fully managed service that offers a choice of
+    high-performing foundation models (FMs) from leading AI companies like AI21
+    Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single API,
+    along with a broad set of capabilities you need to build generative AI
+    applications with security, privacy, and responsible AI.
+  example2: >-
+    You can also check facts in your text. Select the following text and choose
+    'Fact check':
+  factCheckExample: >-
+    Barack Obama was the 43rd President of the United States. He served as
+    president from 2001 to 2009.
   reviewFeature: Review Feature
-  reviewDescription:
-    You can review your entire document. This will detect typos and
-    grammatical errors and suggest corrections.
+  reviewDescription: >-
+    You can review your entire document. This will detect typos and grammatical
+    errors and suggest corrections.
   incorrectTextExample: I has gone to Japan. Tokyo is a very beautifull city.
   no_results: No results
 chat:
@@ -156,12 +156,10 @@ chat:
   initialize: Initialize
   save: Save
   share_conversation: Share Conversation History
-  delete_link_message:
-    You can stop sharing the conversation history by deleting the
-    link.
-  create_link_message:
-    By creating a link, you will share the conversation history
-    with all users who can log in to this application.
+  delete_link_message: You can stop sharing the conversation history by deleting the link.
+  create_link_message: >-
+    By creating a link, you will share the conversation history with all users
+    who can log in to this application.
   open_link: Open Link
   delete_link: Delete Link
   create_link: Create Link
@@ -169,7 +167,7 @@ chat:
   model_parameters: Model Parameters
   settings: Settings
   delete_confirmation: Delete Confirmation
-  delete_chat_confirmation: Are you sure you want to delete the chat "{title}"?
+  delete_chat_confirmation: 'Are you sure you want to delete the chat "{title}"?'
   history: Conversation History
   search_by_title: Search by title
   create_system_prompt: Create System Prompt
@@ -184,47 +182,60 @@ notfound:
   title: Not Found
 shared:
   error: Error
-  not_found_message:
-    Page not found. The conversation history may not be shared or
-    has been deleted.
+  not_found_message: >-
+    Page not found. The conversation history may not be shared or has been
+    deleted.
   contact_admin: Please contact the administrator.
 rag:
   title: RAG Chat
   filter: Filter
-  filter_settings: For filter settings, please refer to
+  filter_settings: 'For filter settings, please refer to'
   here: here
-  please_refer: '.'
+  please_refer: .
   no_settings_found: 'No settings found. You can add filters by customizing '
-  can_add_filters: '.'
+  can_add_filters: .
   retrieving: Retrieving reference documents from Kendra...
-  errorRetrieval: |-
-    Failed to retrieve reference documents from Kendra. Please consider the following actions:
-    - Check if the scheduled time for Amazon Kendra index creation has passed and enough time has elapsed for indexing
-    - Verify that the scheduled time for Amazon Kendra index deletion has not passed
-  noDocuments: |-
+  errorRetrieval: >-
+    Failed to retrieve reference documents from Kendra. Please consider the
+    following actions:
+
+    - Check if the scheduled time for Amazon Kendra index creation has passed
+    and enough time has elapsed for indexing
+
+    - Verify that the scheduled time for Amazon Kendra index deletion has not
+    passed
+  noDocuments: >-
     No reference documents found. Please consider the following actions:
-    - Check if the target document has been added to the Amazon Kendra data source
+
+    - Check if the target document has been added to the Amazon Kendra data
+    source
+
     - Verify that the Amazon Kendra data source has been synced
+
     - Try changing the expression of your input
   page: page
   knowledgeBase:
     retrieving: Retrieving reference documents from Knowledge Base...
-    retrieveError: |-
+    retrieveError: >-
       An error occurred during retrieval. Please consider the following actions:
-      - Verify that the embeddingModelId specified in cdk.json is enabled in Amazon Bedrock ({{region}})
-    noDocuments: |-
+
+      - Verify that the embeddingModelId specified in cdk.json is enabled in
+      Amazon Bedrock ({{region}})
+    noDocuments: >-
       No reference documents found. Please consider the following actions:
-      - Check if the target document has been added to the Knowledge Base data source
+
+      - Check if the target document has been added to the Knowledge Base data
+      source
+
       - Verify that the Knowledge Base data source has been synchronized
+
       - Try changing the expression of your input
 summarize:
   title: Summarize
   text_to_summarize: Text to summarize
   enter_text: Enter text
   additional_context: Additional context
-  additional_context_placeholder:
-    You can enter additional points to consider (e.g.,
-    casualness, etc.)
+  additional_context_placeholder: 'You can enter additional points to consider (e.g., casualness, etc.)'
   result_placeholder: Summarized text will be displayed here
 transcribe:
   title: Speech Recognition
@@ -233,7 +244,7 @@ transcribe:
   stop_recording: Stop Recording
   start_recording: Start Recording
   file_upload: File Upload
-  supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a files are available
+  supported_files: 'mp3, mp4, wav, flac, ogg, amr, webm, m4a files are available'
   detailed_parameters: Detailed parameters
   speaker_recognition: Speaker recognition
   max_speakers: Max Speakers
@@ -247,28 +258,24 @@ translate:
   auto_detect_language: Auto detect language
   enter_text: Enter text
   additional_context: Additional context
-  additional_context_placeholder:
-    You can enter additional points to consider (e.g.,
-    casualness, etc.)
+  additional_context_placeholder: 'You can enter additional points to consider (e.g., casualness, etc.)'
   result_placeholder: Translation results will be displayed here
   continue_output: Continue output
 webcontent:
   title: Web Content Extraction
   website_to_extract: Website to extract content from
-  instruction:
+  instruction: >-
     Please specify a website where text is the main content, such as blogs,
     articles, or documents. Otherwise, it may not output correctly.
   enter_url: Enter URL
   additional_context: Additional context
-  additional_context_placeholder:
-    You can enter additional points to consider (e.g.,
-    summarize)
+  additional_context_placeholder: 'You can enter additional points to consider (e.g., summarize)'
   result_placeholder: Extracted text will be displayed here
-  error_message:
-    An error occurred when accessing the specified URL. The site may
-    prohibit scraping or the URL may be incorrect. If you think this is a temporary
+  error_message: >-
+    An error occurred when accessing the specified URL. The site may prohibit
+    scraping or the URL may be incorrect. If you think this is a temporary
     issue, please try again.
-  original_text: Original text ({status})
+  original_text: 'Original text ({status})'
   loading: loading...
   not_fetched: not fetched
   fetched: fetched
@@ -308,27 +315,35 @@ diagram:
       title: Flowchart
       desc: Flowcharts visualize processes or workflows
       exampleTitle: Morning Routine Example
-      content: |-
-        I want to create a flowchart for a morning routine. Please include these steps:
-        Wake up, get out of bed, wash face, brush teeth, eat breakfast, get dressed, leave house.
+      content: >-
+        I want to create a flowchart for a morning routine. Please include these
+        steps:
 
-        Include a decision point 'Do I have extra time?' where if there is time, add a step 'Drink coffee' before leaving. If there's no extra time, proceed directly to 'Leave house'.
+        Wake up, get out of bed, wash face, brush teeth, eat breakfast, get
+        dressed, leave house.
+
+        Include a decision point 'Do I have extra time?' where if there is time,
+        add a step 'Drink coffee' before leaving. If there's no extra time,
+        proceed directly to 'Leave house'.
 
         Please make it concise and easy to read.
     piechart:
       title: Pie Chart
       desc: Pie charts show proportions of a whole
       exampleTitle: Commute Methods Example
-      content: |-
-        I want to create a pie chart showing the commuting methods for people in their 20s and 30s in Tokyo.
+      content: >-
+        I want to create a pie chart showing the commuting methods for people in
+        their 20s and 30s in Tokyo.
 
-        Please set appropriate percentages for these five methods: train, bicycle, walking, car, and bus.
+        Please set appropriate percentages for these five methods: train,
+        bicycle, walking, car, and bus.
+
         The title should be 'Commuting Methods for 20-30s in Tokyo'.
     mindmap:
       title: Mind Map
       desc: Mindmaps organize related concepts or ideas hierarchically
       exampleTitle: Generative AI Use Cases Example
-      content:
+      content: >-
         Please create a mind map illustrating various use cases for generative
         AI.
     quadrantchart:
@@ -359,16 +374,19 @@ diagram:
       title: Sequence Diagram
       desc: Sequence diagrams show interactions between components over time
       exampleTitle: Login Flow Example
-      content: |-
-        Create a sequence diagram for a web application showing the flow from when a user clicks the login button to when authentication is complete.
+      content: >-
+        Create a sequence diagram for a web application showing the flow from
+        when a user clicks the login button to when authentication is complete.
 
-        Include these three components: Frontend, Authentication Server, and Database.
+        Include these three components: Frontend, Authentication Server, and
+        Database.
     timeline:
       title: Timeline
       desc: Timelines display events in chronological order
       exampleTitle: Social Media Evolution Example
-      content: |-
-        Create a timeline showing the major developments and turning points in social media from 2000 to 2020.
+      content: >-
+        Create a timeline showing the major developments and turning points in
+        social media from 2000 to 2020.
 
         Include these elements:
         Rise of blogging
@@ -378,18 +396,27 @@ diagram:
         Spread of mobile-first social networks
         Rise of short-form video platforms
 
-        For each turning point, add 1-2 important technological innovations or social changes (e.g., smartphone adoption, high-speed mobile internet) that occurred during that period.
+        For each turning point, add 1-2 important technological innovations or
+        social changes (e.g., smartphone adoption, high-speed mobile internet)
+        that occurred during that period.
     gitgraph:
       title: Git Graph
       desc: Git graphs visualize branch and merge history
       exampleTitle: Development Flow Example
-      content: |-
-        Create a git graph showing a development flow where two feature branches (login feature and profile editing feature) diverge from the main branch.
+      content: >-
+        Create a git graph showing a development flow where two feature branches
+        (login feature and profile editing feature) diverge from the main
+        branch.
 
-        The login feature development includes multiple commits like form implementation and validation before finally being merged into the main branch via a Pull Request.
-        Meanwhile, during the profile editing feature development, there's a need to incorporate the latest changes made to the main branch.
+        The login feature development includes multiple commits like form
+        implementation and validation before finally being merged into the main
+        branch via a Pull Request.
 
-        At each merge point, include commit messages that resemble real project workflow, such as 'Reviewed and merged login feature #123'.
+        Meanwhile, during the profile editing feature development, there's a
+        need to incorporate the latest changes made to the main branch.
+
+        At each merge point, include commit messages that resemble real project
+        workflow, such as 'Reviewed and merged login feature #123'.
     erdiagram:
       title: ER Diagram
       desc: ER diagrams represent database entities and relationships
@@ -421,17 +448,21 @@ diagram:
       title: State Diagram
       desc: State diagrams represent system state changes
       exampleTitle: Cart State Example
-      content: |-
+      content: >-
         Create a state diagram for an online shopping cart.
-        Include states like 'Empty', 'Items Added', 'Checkout in Progress', and 'Payment Complete'.
+
+        Include states like 'Empty', 'Items Added', 'Checkout in Progress', and
+        'Payment Complete'.
     xychart:
       title: XY Chart
       desc: XY charts show relationships between two variables
       exampleTitle: Sleep vs Work Hours Example
-      content: |-
-        Create an XY chart showing the relationship between average sleep time and working hours in Japan over the past 10 years.
+      content: >-
+        Create an XY chart showing the relationship between average sleep time
+        and working hours in Japan over the past 10 years.
 
-        Use the X-axis for average daily working hours and the Y-axis for average daily sleep hours, plotting data points for each year.
+        Use the X-axis for average daily working hours and the Y-axis for
+        average daily sleep hours, plotting data points for each year.
     blockdiagram:
       title: Block Diagram
       desc: Block diagrams represent system components
@@ -464,15 +495,19 @@ diagram:
       title: Gantt Chart
       desc: Gantt charts visualize project schedules
       exampleTitle: Development Schedule Example
-      content: |-
-        Create a Gantt chart showing the schedule for a web application development project.
-        Include phases for requirements gathering, design, development, testing, and deployment.
+      content: >-
+        Create a Gantt chart showing the schedule for a web application
+        development project.
+
+        Include phases for requirements gathering, design, development, testing,
+        and deployment.
     userjourney:
       title: User Journey
       desc: User journeys map customer experience flows
       exampleTitle: Purchase Experience Example
-      content: |-
-        Create a user journey diagram for a customer experience on an online shopping site.
+      content: >-
+        Create a user journey diagram for a customer experience on an online
+        shopping site.
 
         Include these steps:
         Product search
@@ -492,9 +527,11 @@ diagram:
       title: Requirement Diagram
       desc: Requirement diagrams represent system requirements and relationships
       exampleTitle: Smart Home Requirements Example
-      content: |-
+      content: >-
         Show the main functional requirements for a smart home system.
-        Include requirements for lighting control, temperature management, security, and energy efficiency.
+
+        Include requirements for lighting control, temperature management,
+        security, and energy efficiency.
     networkpacket:
       title: Network Packet Diagram
       desc: Network packet diagrams represent data structures
@@ -508,16 +545,16 @@ generateText:
   title: Text Generation
   source_info: Source information for text
   input_placeholder: Enter text
-  format_placeholder: Specify the text format (markdown, blog, business email, etc.)
+  format_placeholder: 'Specify the text format (markdown, blog, business email, etc.)'
   continue_output: Continue output
   clear: Clear
   execute: Execute
   result_placeholder: Generated text will be displayed here
 optimizePrompt:
   title: Prompt Optimization
-  input_placeholder:
-    Enter your current prompt as is. If the output is in English,
-    add instructions like 'Please output in Japanese'.
+  input_placeholder: >-
+    Enter your current prompt as is. If the output is in English, add
+    instructions like 'Please output in Japanese'.
   result_placeholder: Results will be displayed here
   clear: Clear
   execute: Execute
@@ -557,65 +594,71 @@ generateImage:
   custom_colors: Custom Colors
   add_color: Add Color
   help:
-    prompt: Describe the image you want to generate. Use keywords rather than sentences.
-    negative_prompt:
-      Describe elements you don't want in the generated image. Use
-      keywords rather than sentences.
+    prompt: >-
+      Describe the image you want to generate. Use keywords rather than
+      sentences.
+    negative_prompt: >-
+      Describe elements you don't want in the generated image. Use keywords
+      rather than sentences.
     seed: Random seed value. Using the same seed will generate the same image.
-    image_samples:
+    image_samples: >-
       Generates the specified number of images simultaneously while setting
       random seeds.
-    generation_mode:
-      'TEXT_IMAGE: Generate images from text. IMAGE_VARIATION: Generate
-      similar images from a reference. INPAINTING: Edit part of an image. OUTPAINTING:
-      Expand an image. IMAGE_CONDITIONING: Reflect composition. COLOR_GUIDED_GENERATION:
-      Generate with color specification. BACKGROUND_REMOVAL: Remove background.'
-    init_image:
-      Set an image as the initial state for generation. Setting an initial
-      image guides the generation to produce images similar to it.
-    mask_image:
+    generation_mode: >-
+      TEXT_IMAGE: Generate images from text. 
+      IMAGE_VARIATION: Generate similar images from a reference. 
+      INPAINTING: Edit part of an image. 
+      OUTPAINTING: Expand an image.
+      IMAGE_CONDITIONING: Reflect composition.
+      COLOR_GUIDED_GENERATION: Generate with color specification.
+      BACKGROUND_REMOVAL: Remove background.
+    init_image: >-
+      Set an image as the initial state for generation. Setting an initial image
+      guides the generation to produce images similar to it.
+    mask_image: >-
       Set a mask for the image. Setting a mask image allows you to generate
-      either the masked area (Inpaint) or the area outside the mask (Outpaint). Cannot
-      be used with mask prompt.
-    mask_prompt:
-      Describe elements you want to mask/exclude (Inpaint) or elements
-      you don't want to mask/want to keep (Outpaint). Use keywords rather than sentences.
+      either the masked area (Inpaint) or the area outside the mask (Outpaint).
+      Cannot be used with mask prompt.
+    mask_prompt: >-
+      Describe elements you want to mask/exclude (Inpaint) or elements you don't
+      want to mask/want to keep (Outpaint). Use keywords rather than sentences.
       Cannot be used with mask image.
     colors: You can select from preset color palettes
-    control_mode:
-      'CANNY_EDGE: Extracts edges from the reference image. Optimal for
-      reflecting detailed patterns. SEGMENTATION: Divides the reference image into
-      regions. Optimal for reflecting the positional relationship of multiple objects.'
+    control_mode: >-
+      CANNY_EDGE: Extracts edges from the reference image. Optimal for
+      reflecting detailed patterns. SEGMENTATION: Divides the reference image
+      into regions. Optimal for reflecting the positional relationship of
+      multiple objects.
     cfg_scale: Higher values generate images more faithful to the prompt.
-    steps:
-      Number of iterations for image generation. More steps refine the image
-      but take longer to generate.
-    image_strength:
-      Values closer to 1 generate images more similar to the initial
-      image, while values closer to 0 generate images more different from the initial
+    steps: >-
+      Number of iterations for image generation. More steps refine the image but
+      take longer to generate.
+    image_strength: >-
+      Values closer to 1 generate images more similar to the initial image,
+      while values closer to 0 generate images more different from the initial
       image.
-    control_strength:
-      Values closer to 1 generate images based more on the reference
-      image's composition, while values closer to 0 generate images with compositions
+    control_strength: >-
+      Values closer to 1 generate images based more on the reference image's
+      composition, while values closer to 0 generate images with compositions
       more different from the reference image.
   assistant:
     title: Image Generation Assistant
-    help:
+    help: >-
       Creates prompts for image generation. Tell the assistant what you want,
       and AI will generate prompts and negative prompts to create an image.
     hint_title: Hints
     hint_1: Start with a simple instruction like 'Generate a cute cat image'.
     hint_2: Specifying styles like 'in watercolor style' or 'realistic' is effective.
-    hint_3:
-      Describe in detail the elements you want to include, such as 'mountains
-      in the background' or 'blue sky'.
-    hint_4:
+    hint_3: >-
+      Describe in detail the elements you want to include, such as 'mountains in
+      the background' or 'blue sky'.
+    hint_4: >-
       Instructions related to quality, such as 'high resolution' or 'detailed',
       are also effective.
-    hint_5:
-      You can also specify particular artistic styles like 'anime style' or
-      'oil painting style'.
-    hint_6:
+    hint_5: >-
+      You can also specify particular artistic styles like 'anime style' or 'oil
+      painting style'.
+    hint_6: >-
       For complex scenes, give specific instructions about composition, color
       scheme, etc.
     error_title: An error occurred
@@ -635,116 +678,133 @@ landing:
   use_cases:
     chat:
       title: Chat
-      description: Experience chat using large language models like Claude and Anthropic.
+      description: >-
+        You can have interactive dialogues with an LLM in a chat format. It can quickly respond to detailed use cases and new use cases. It is also effective as an environment for validating prompt engineering.
     rag_chat:
       title: RAG Chat
       sub_kendra: Amazon Kendra
       sub_kb: Knowledge Base
-      description_kendra: Get answers based on your own data using Amazon Kendra.
-      description_kb: Get answers based on your own data using Knowledge Base.
+      description_kendra: >-
+        RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. By generating responses based on reference documents retrieved from Amazon Kendra, it is easy to realize an "LLM chat that corresponds to internal information".
+      description_kb: >-
+        RAG (Retrieval Augmented Generation) is a method that combines information retrieval and LLM text generation, enabling effective information access. Reference documents are retrieved using Knowledge Base's Hybrid Search, and the LLM generates responses.
     agent_chat:
       title: Agent Chat
-      description: Use agents to perform complex tasks.
+      description: >-
+        In the Agent Chat use case, you can use Agents for Amazon Bedrock to execute actions or reference the vector database of Knowledge Bases for Amazon Bedrock.
     flow_chat:
       title: Flow Chat
-      description: Combine multiple models to achieve more advanced interactions.
+      description: >-
+        Use Flow to create an interactive chat flow with multiple steps. Dynamically determine the next step based on user input to realize more complex dialogue scenarios.
     generate_text:
       title: Text Generation
-      description: Generate text using large language models.
+      description: >-
+        Generating text in any context is one of the tasks that LLMs excel at. It supports various contexts such as articles, reports, and emails.
     summarize:
       title: Summarization
-      description: Summarize long texts and extract important points.
+      description: >-
+        LLMs are good at summarizing large amounts of text. You can provide context when summarizing, such as "in one line" or "in words a child can understand".
     writer:
-      title: Writer
-      description:
-        Provides an editor for writing text. Also includes proofreading
-        features.
+      title: Writing
+      description: >-
+        LLMs trained in multiple languages can perform translation. Moreover, not only can they translate, but they can also reflect various specified context information such as casualness and target audience in the translation.
     translate:
       title: Translation
-      description: Translate text to different languages.
+      description: >-
+        LLMs trained in multiple languages can perform translation. Moreover, not only can they translate, but they can also reflect various specified context information such as casualness and target audience in the translation.
     web_content:
-      title: Web Content
-      description: Retrieve web page content for summarization and analysis.
+      title: Web Content Extraction
+      description: >-
+        Extract web content such as blogs and documents. LLMs remove unnecessary information and format it into a coherent text. The extracted content can be used in other use cases such as summarization and translation.
     image:
       title: Image Generation
-      description: Generate images from text.
+      description: >-
+        Image generation AI can create new images based on text or images. It allows immediate visualization of ideas and can be expected to improve efficiency in design work. In this feature, you can get LLM assistance in creating prompts.
     video:
       title: Video Analysis
-      description: Analyze video content and explain it in text.
+      description: >-
+        With multimodal models, it is now possible to input not only text but also images. In this feature, you request the LLM to analyze input video image frames and text.
     diagram:
       title: Diagram Generation
-      description: Generate diagrams from text.
+      description: >-
+        Automatically create various diagrams such as flowcharts, sequence diagrams, and mind maps from natural language descriptions, documents, or code. Visually represent and efficiently understand complex relationships in system design, business flows, and project planning.
   use_cases_integration:
     title: Use Case Integration
     blog:
-      title: Blog Post Creation
-      description:
-        Create blog posts by combining web content retrieval, text generation,
-        summarization, and image generation.
+      title: Blog Article Creation
+      description: >-
+        Generate blog articles by combining multiple use cases. By automatically generating the article overview and thumbnail image, OGP settings become easier. As an example, generate a blog article introducing generative AI based on information from the AWS official site.
     meeting:
       title: Meeting Minutes Creation
-      description:
-        Create meeting minutes by combining speech recognition and text
-        generation.
+      description: >-
+        Combine multiple use cases to automatically create meeting minutes from audio recording data. It is possible to transcribe, format the transcription, and create minutes without incurring human costs.
   demo:
     chat:
-      content: |-
-        Please write a Python function that returns Fibonacci numbers. Also, explain the implementation.
-        The argument should be the term, and the processing should be written recursively. Please output in markdown.
+      content: >-
+        Please write a Python function that returns Fibonacci numbers. Also,
+        explain the implementation.
+
+        The argument should be the term, and the processing should be written
+        recursively. Please output in markdown.
     rag:
       content: Please explain Claude's parameters and how to set them.
     agent:
       content: What is generative-ai-use-cases-jp?
     generate:
-      information:
-        Amazon Bedrock is a fully managed service that offers a choice
-        of high-performing foundation models (FMs) from leading AI companies like
-        AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a single
-        API, along with a broad set of capabilities you need to build generative AI
-        applications with security, privacy, and responsible AI. Using Amazon Bedrock's
-        comprehensive capabilities, you can easily experiment with a variety of top
-        FMs, privately customize them with your data using techniques such as fine-tuning
-        and Retrieval Augmented Generation (RAG), and create managed agents that execute
-        complex business tasks from booking travel and processing insurance claims
-        to creating ad campaigns and managing inventory—all without writing code.
-        Amazon Bedrock is serverless, so there is no infrastructure to manage, and
-        you can securely integrate and deploy generative AI capabilities into your
-        applications using the AWS services you are already familiar with.
-      context:
+      information: >-
+        Amazon Bedrock is a fully managed service that offers a choice of
+        high-performing foundation models (FMs) from leading AI companies like
+        AI21 Labs, Anthropic, Cohere, Meta, Stability AI, and Amazon via a
+        single API, along with a broad set of capabilities you need to build
+        generative AI applications with security, privacy, and responsible AI.
+        Using Amazon Bedrock's comprehensive capabilities, you can easily
+        experiment with a variety of top FMs, privately customize them with your
+        data using techniques such as fine-tuning and Retrieval Augmented
+        Generation (RAG), and create managed agents that execute complex
+        business tasks from booking travel and processing insurance claims to
+        creating ad campaigns and managing inventory—all without writing code.
+        Amazon Bedrock is serverless, so there is no infrastructure to manage,
+        and you can securely integrate and deploy generative AI capabilities
+        into your applications using the AWS services you are already familiar
+        with.
+      context: >-
         For a presentation, please organize in markdown format with chapters,
         each with a concise explanation.
     summarize:
-      sentence:
+      sentence: >-
         Amazon Bedrock is a fully managed service that makes foundation models
-        (FMs) from Amazon and leading AI startups available through an API, allowing
-        you to choose from a variety of FMs to find the model best suited for your
-        use case. Amazon Bedrock's serverless experience enables you to get started
-        quickly with FMs, easily experiment with FMs, privately customize FMs with
-        your own data, and seamlessly integrate and deploy FMs into your applications
-        using AWS tools and capabilities. Amazon Bedrock Agents is a fully managed
-        capability that makes it easy for developers to create generative AI applications
-        that can provide up-to-date answers based on their own knowledge sources and
-        complete tasks across a wide range of use cases. Bedrock's serverless experience
-        enables you to get started quickly, privately customize FMs with your own
-        data, and easily integrate and deploy them into your applications using familiar
-        AWS tools and capabilities (including integration with Amazon SageMaker ML
-        capabilities such as experiments for testing different models and pipelines
-        for managing FMs at scale).
+        (FMs) from Amazon and leading AI startups available through an API,
+        allowing you to choose from a variety of FMs to find the model best
+        suited for your use case. Amazon Bedrock's serverless experience enables
+        you to get started quickly with FMs, easily experiment with FMs,
+        privately customize FMs with your own data, and seamlessly integrate and
+        deploy FMs into your applications using AWS tools and capabilities.
+        Amazon Bedrock Agents is a fully managed capability that makes it easy
+        for developers to create generative AI applications that can provide
+        up-to-date answers based on their own knowledge sources and complete
+        tasks across a wide range of use cases. Bedrock's serverless experience
+        enables you to get started quickly, privately customize FMs with your
+        own data, and easily integrate and deploy them into your applications
+        using familiar AWS tools and capabilities (including integration with
+        Amazon SageMaker ML capabilities such as experiments for testing
+        different models and pipelines for managing FMs at scale).
     translate:
-      sentence:
+      sentence: >-
         Hello. I am an AI assistant that helps with translation. Please enter
         any text you'd like.
-      language: English
+      language: en
     web_content:
-      url: https://aws.amazon.com/bedrock/
+      url: 'https://aws.amazon.com/bedrock/'
     image:
-      content: |-
+      content: >-
         Please output smartphone advertisement design ideas.
-        Cute, stylish, easy to use, POP culture, friendly, youth-oriented, music, photography, trendy smartphone, city background
+
+        Cute, stylish, easy to use, POP culture, friendly, youth-oriented,
+        music, photography, trendy smartphone, city background
     video:
-      content:
-        Please describe what is shown in the video. If there is any text visible,
-        please read that as well.
+      content: >-
+        Please describe what is shown in the video. If there is any text
+        visible, please read that as well.
     diagram:
       content: Please illustrate a typical company expense production flow with colors.
 drawer:
@@ -756,9 +816,7 @@ drawer:
 feedback:
   reason_title: Please tell us why you rated this response.
   reason_error: Please select a reason.
-  additional_feedback:
-    If you have any additional feedback, please enter it here.
-    (optional)
+  additional_feedback: 'If you have any additional feedback, please enter it here. (optional)'
   reasons:
     inaccurate: Inaccurate
     outdated: Outdated information
@@ -795,13 +853,13 @@ files:
   error:
     mimeMismatch: "{{fileName}} has a file type that doesn't match its extension."
     modelNotSupported: This model does not support files.
-    invalidExtension:
-      '{{fileName}} has an unsupported extension. Allowed extensions
-      are {{acceptedExtensions}}'
+    invalidExtension: >-
+      {{fileName}} has an unsupported extension. Allowed extensions are
+      {{acceptedExtensions}}
     fileSizeExceeded: '{{fileName}} exceeds the maximum file size of {{maxSize}} MB.'
-    imageCountExceeded: Please limit image files to {{maxCount}} or fewer
-    videoCountExceeded: Please limit video files to {{maxCount}} or fewer
-    fileCountExceeded: Please limit files to {{maxCount}} or fewer
+    imageCountExceeded: 'Please limit image files to {{maxCount}} or fewer'
+    videoCountExceeded: 'Please limit video files to {{maxCount}} or fewer'
+    fileCountExceeded: 'Please limit files to {{maxCount}} or fewer'
 auth:
   title: Generative AI Use Cases on AWS
   loading: Loading...
@@ -813,88 +871,106 @@ useCaseBuilder:
   resultPlaceholder: Results will appear here
   attach_file: Attach File
   error:
-    rag_kendra_not_enabled:
-      '{{retrieveKendra}} is specified in the prompt template,
-      but RAG Chat (Amazon Kendra) is not enabled in GenU.'
-    rag_knowledge_base_not_enabled:
-      '{{retrieveKnowledgeBase}} is specified in the
-      prompt template, but RAG Chat (Knowledge Base) is not enabled in GenU.'
-    missing_text_form:
-      Please include a form {{text{{label}}}} in the prompt template
-      to input the search query for Amazon Kendra.
-    missing_kb_text_form:
-      Please include a form {{text{{label}}}} in the prompt template
-      to input the search query for Knowledge Base.
-    missing_select_options:
+    rag_kendra_not_enabled: >-
+      {{retrieveKendra}} is specified in the prompt template, but RAG Chat
+      (Amazon Kendra) is not enabled in GenU.
+    rag_knowledge_base_not_enabled: >-
+      {{retrieveKnowledgeBase}} is specified in the prompt template, but RAG
+      Chat (Knowledge Base) is not enabled in GenU.
+    missing_text_form: >-
+      Please include a form {{text{{label}}}} in the prompt template to input
+      the search query for Amazon Kendra.
+    missing_kb_text_form: >-
+      Please include a form {{text{{label}}}} in the prompt template to input
+      the search query for Knowledge Base.
+    missing_select_options: >-
       No options are set for {{select}}. Please set it like
       {{select:label:option1,option2}}
     empty_select_options: '{{select:{{label}}}} contains empty options.'
     duplicate_select_options: '{{select:{{label}}}} contains duplicate options.'
   blog:
     reference_info: Get Reference Information
-    reference_info_description: |-
-      Automatically retrieve information as a reference for your article by specifying a URL.
-      By setting additional context, you can extract only the information you need.
-    reference_info_context:
-      Please extract only the parts that explain the overview
-      of generative AI, how it works, and the parts that explain AWS.
+    reference_info_description: >-
+      Automatically retrieve information as a reference for your article by
+      specifying a URL.
+
+      By setting additional context, you can extract only the information you
+      need.
+    reference_info_context: >-
+      Please extract only the parts that explain the overview of generative AI,
+      how it works, and the parts that explain AWS.
     generate_article: Generate Article
-    generate_article_description:
-      Automatically generate blog articles based on reference
-      information. By setting the context in detail, you can make it easier to generate
-      content that matches your intentions.
-    generate_article_context: |-
-      Please generate a blog post explaining the mechanism of generative AI and the benefits of using generative AI on AWS. When generating the article, please follow the <rules></rules>.
+    generate_article_description: >-
+      Automatically generate blog articles based on reference information. By
+      setting the context in detail, you can make it easier to generate content
+      that matches your intentions.
+    generate_article_context: >-
+      Please generate a blog post explaining the mechanism of generative AI and
+      the benefits of using generative AI on AWS. When generating the article,
+      please follow the <rules></rules>.
       <rules>
       - Write in markdown format with chapters.
       - Target the article at beginners of generative AI and AWS.
-      - Don't use terms that IT beginners wouldn't understand, or replace them with easy-to-understand words.
+      - Don't use terms that IT beginners wouldn't understand, or replace them
+      with easy-to-understand words.
       - Make it an article that explains what can be done with generative AI.
-      - Readers won't be satisfied with a small amount of text, so please increase the amount of text by complementing with general information.
+      - Readers won't be satisfied with a small amount of text, so please
+      increase the amount of text by complementing with general information.
       - Make the text engaging for readers.
       </rules>
     summarize_article: Summarize Article
-    summarize_article_description:
-      Summarize the article for OGP (the article preview
-      displayed when sharing the article link). By properly setting the OGP, you can
-      correctly convey the overview of the article when it is shared.
+    summarize_article_description: >-
+      Summarize the article for OGP (the article preview displayed when sharing
+      the article link). By properly setting the OGP, you can correctly convey
+      the overview of the article when it is shared.
     generate_thumbnail: Generate Article Thumbnail
-    generate_thumbnail_description:
-      Generate a thumbnail for OGP (the article preview
-      displayed when sharing the article link). Setting a catchy thumbnail for OGP
-      might attract readers' interest.
-    generate_thumbnail_content: |-
-      Please generate a thumbnail image for the blog post's OGP. Make it an image that clearly shows it's an article about cloud and AI at a glance.
+    generate_thumbnail_description: >-
+      Generate a thumbnail for OGP (the article preview displayed when sharing
+      the article link). Setting a catchy thumbnail for OGP might attract
+      readers' interest.
+    generate_thumbnail_content: >-
+      Please generate a thumbnail image for the blog post's OGP. Make it an
+      image that clearly shows it's an article about cloud and AI at a glance.
       The blog post summary is set in <article></article>.
       <article>
       {{summarizedSentence}}
       </article>
   meeting:
     transcription: Transcription
-    transcription_description: |-
-      Use the "Speech Recognition" feature to transcribe the conversation from the recording data. Please run it with any audio file.
-      After the speech recognition is complete, press the "Format" button (the speech recognition result will be copied automatically).
+    transcription_description: >-
+      Use the "Speech Recognition" feature to transcribe the conversation from
+      the recording data. Please run it with any audio file.
+
+      After the speech recognition is complete, press the "Format" button (the
+      speech recognition result will be copied automatically).
     formatting: Formatting
-    formatting_description:
-      Use the "Text Generation" feature to format the transcription
-      file. It corrects filler words and parts that were not correctly recognized
-      by speech recognition, making it easier for humans to understand.
-    formatting_context: |-
-      The transcription result of the recording data is input, so please format it according to <rules></rules>.
+    formatting_description: >-
+      Use the "Text Generation" feature to format the transcription file. It
+      corrects filler words and parts that were not correctly recognized by
+      speech recognition, making it easier for humans to understand.
+    formatting_context: >-
+      The transcription result of the recording data is input, so please format
+      it according to <rules></rules>.
+
       <rules>
       - Remove filler words.
-      - Rewrite content that appears to be misrecognized by transcription to the correct content.
-      - If conjunctions, etc. are omitted, please complement them to make it easier to read.
+      - Rewrite content that appears to be misrecognized by transcription to the
+      correct content.
+      - If conjunctions, etc. are omitted, please complement them to make it
+      easier to read.
       - Do not omit Q&A, please include them.
       </rules>
     create_minutes: Create Minutes
-    create_minutes_description:
-      Use the "Text Generation" feature to generate minutes.
-      By specifying the context in detail, you can instruct the format of the minutes
-      and the granularity of the description.
-    create_minutes_context: |-
-      Please create minutes in markdown format based on the meeting's statements.
-      Please organize by theme discussed in the meeting, summarizing the content of the discussion, decisions, and homework items.
+    create_minutes_description: >-
+      Use the "Text Generation" feature to generate minutes. By specifying the
+      context in detail, you can instruct the format of the minutes and the
+      granularity of the description.
+    create_minutes_context: >-
+      Please create minutes in markdown format based on the meeting's
+      statements.
+
+      Please organize by theme discussed in the meeting, summarizing the content
+      of the discussion, decisions, and homework items.
   edit: Edit Use Case
   createNew: Create New
   menuAppDefinition: Application Definition
@@ -912,9 +988,9 @@ useCaseBuilder:
     To receive user input, use {{text}} or {{text:label}}.
     To present choices, use {{select:label:option1,option2}}.
     To use RAG, use {{retrieveKendra:label}} or {{retrieveKnowledgeBase:label}}.
-  promptTemplateHint:
-    '{{text}}, {{text:label}}, {{select:label:option1,option2}},
-    {{form:label}}, {{retrieveKendra}}, {{retrieveKnowledgeBase}}'
+  promptTemplateHint: >-
+    {{text}}, {{text:label}}, {{select:label:option1,option2}}, {{form:label}},
+    {{retrieveKendra}}, {{retrieveKnowledgeBase}}
   addInputExample: Add Input Example
   modelFixed: Fix model
   modelNotFixed: Don't fix model
@@ -935,49 +1011,53 @@ useCaseBuilder:
   help:
     example: Example
     promptTemplateTitle: What is a Prompt Template
-    promptTemplateDescription:
-      A prompt template is an instruction to the LLM that
-      includes placeholders for embedding user input. Placeholders are converted to
-      input forms in the user interface.
+    promptTemplateDescription: >-
+      A prompt template is an instruction to the LLM that includes placeholders
+      for embedding user input. Placeholders are converted to input forms in the
+      user interface.
     placeholder: Placeholders
-    placeholderDescription:
-      Placeholders are specified in the format like {{text}}.
-      There are several types of placeholders.
+    placeholderDescription: >-
+      Placeholders are specified in the format like {{text}}. There are several
+      types of placeholders.
     placeholderList: Types of Placeholders
-    textPlaceholderDescription:
-      Displays a form for users to enter text. Specified
-      in the format {{text}} or {{text:label}}.
+    textPlaceholderDescription: >-
+      Displays a form for users to enter text. Specified in the format {{text}}
+      or {{text:label}}.
     emailReplyExample: Email Reply Creation
-    emailReplyPrompt: |-
-      Please write a reply to the following email. Use a polite tone and keep it concise.
+    emailReplyPrompt: >-
+      Please write a reply to the following email. Use a polite tone and keep it
+      concise.
 
       Original email:
       {{text}}
-    formPlaceholderDescription:
-      Forms are displayed but not included in the prompt
-      to the LLM. Specified in the format {{form}} or {{form:label}}.
+    formPlaceholderDescription: >-
+      Forms are displayed but not included in the prompt to the LLM. Specified
+      in the format {{form}} or {{form:label}}.
     formPlaceholderExample:
       title: Inquiry Form
-      prompt: |-
-        Please create a response to the inquiry based on the following information.
+      prompt: >-
+        Please create a response to the inquiry based on the following
+        information.
 
         Customer name: {{text:name}}
         Inquiry content: {{text:inquiry}}
         Contact: {{form:contact}}
         Notes: {{form:notes}}
-    selectPlaceholderDescription:
-      Displays a form for users to select from a dropdown.
-      Specified in the format {{select:label:option1,option2,...}}.
+    selectPlaceholderDescription: >-
+      Displays a form for users to select from a dropdown. Specified in the
+      format {{select:label:option1,option2,...}}.
     selectPlaceholderExample:
       title: Product Review Generation
-      prompt: |-
-        Please write a review of the following product in a {{select:tone:positive,neutral,negative}} tone.
+      prompt: >-
+        Please write a review of the following product in a
+        {{select:tone:positive,neutral,negative}} tone.
 
         Product name: {{text:product name}}
+
         Product features: {{text:features}}
-    retrieveKendraDescription:
-      Includes search results from Amazon Kendra in the prompt.
-      Specified in the format {{retrieveKendra}} or {{retrieveKendra:label}}.
+    retrieveKendraDescription: >-
+      Includes search results from Amazon Kendra in the prompt. Specified in the
+      format {{retrieveKendra}} or {{retrieveKendra:label}}.
     retrieveKendraExample:
       title: Document Search and Response
       prompt: |-
@@ -987,17 +1067,21 @@ useCaseBuilder:
 
         Search results:
         {{retrieveKendra:question}}
-    retrieveKnowledgeBaseDescription:
-      Includes search results from Knowledge Base
-      in the prompt. Specified in the format {{retrieveKnowledgeBase}} or {{retrieveKnowledgeBase:label}}.
+    retrieveKnowledgeBaseDescription: >-
+      Includes search results from Knowledge Base in the prompt. Specified in
+      the format {{retrieveKnowledgeBase}} or {{retrieveKnowledgeBase:label}}.
     retrieveKnowledgeBaseExample:
       title: Knowledge Base Search and Response
-      prompt: |-
-        Please answer the following question based on the knowledge base information.
+      prompt: >-
+        Please answer the following question based on the knowledge base
+        information.
+
 
         Question: {{text:question}}
 
+
         Search results:
+
         {{retrieveKnowledgeBase:question}}
   deleting: Deleting...
   updating: Updating...

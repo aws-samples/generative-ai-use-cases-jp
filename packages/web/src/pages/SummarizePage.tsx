@@ -123,7 +123,7 @@ const SummarizePage: React.FC = () => {
     );
   };
 
-  // リアルタイムにレスポンスを表示
+  // Display the response in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -133,14 +133,14 @@ const SummarizePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  // 要約を実行
+  // Execute summary
   const onClickExec = useCallback(() => {
     if (loading) return;
     getSummary(sentence, additionalContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sentence, additionalContext, loading]);
 
-  // リセット
+  // Reset
   const onClickClear = useCallback(() => {
     clear();
     clearChat();

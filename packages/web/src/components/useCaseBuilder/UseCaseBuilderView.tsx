@@ -43,7 +43,7 @@ const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 
 // pages/ChatPage.tsx に合わせている
-// 差分が生まれた場合は更新する
+// If a difference occurs, update it
 const fileLimit: FileLimit = {
   accept: {
     doc: [
@@ -225,7 +225,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     setTypingTextInput(text);
   }, [text, setTypingTextInput]);
 
-  // リアルタイムにレスポンスを表示
+  // Display the real-time response
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -400,7 +400,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     uploadedFiles,
   ]);
 
-  // リセット
+  // Reset
   const onClickClear = useCallback(() => {
     clear(textFormUniqueLabels);
     clearChat();
@@ -465,23 +465,23 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   );
 
   const handleDragOver = (event: React.DragEvent) => {
-    // ファイルドラッグ時にオーバーレイを表示
+    // When a file is dragged, display the overlay
     event.preventDefault();
     setIsOver(true);
   };
 
   const handleDragLeave = (event: React.DragEvent) => {
-    // ファイルドラッグ時にオーバーレイを非表示
+    // When a file is dragged, hide the overlay
     event.preventDefault();
     setIsOver(false);
   };
 
   const handleDrop = (event: React.DragEvent) => {
-    // ファイルドロップ時にファイルを追加
+    // When a file is dropped, add the file
     event.preventDefault();
     setIsOver(false);
     if (event.dataTransfer.files) {
-      // ファイルを反映しアップロード
+      // Upload the file
       uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
     }
   };
@@ -492,12 +492,12 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       .filter((file) => file.kind === 'file')
       .map((file) => file.getAsFile() as File);
     if (files.length > 0 && fileLimit && accept) {
-      // ファイルをアップロード
+      // Upload the file
       uploadFiles(Array.from(files), fileLimit, accept);
-      // ファイルの場合ファイル名もペーストされるためデフォルトの挙動を止める
+      // Because the file name is also pasted when a file is pasted, prevent the default behavior
       pasteEvent.preventDefault();
     }
-    // ファイルがない場合はデフォルトの挙動（テキストのペースト）
+    // If there is no file, the default behavior (paste text)
   };
 
   return (

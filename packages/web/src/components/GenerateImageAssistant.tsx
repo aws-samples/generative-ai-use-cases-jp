@@ -96,7 +96,7 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
   }, []);
 
   useEffect(() => {
-    // メッセージ追加時の画像の自動生成
+    // Automatic generation of images when a message is added
     const _length = contents.length;
     if (contents.length === 0) {
       return;

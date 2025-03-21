@@ -126,7 +126,7 @@ const GenerateTextPage: React.FC = () => {
     );
   };
 
-  // リアルタイムにレスポンスを表示
+  // Display the response in real time
   useEffect(() => {
     if (messages.length === 0) return;
     const _lastMessage = messages[messages.length - 1];
@@ -136,14 +136,14 @@ const GenerateTextPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  // 要約を実行
+  // Execute summary
   const onClickExec = useCallback(() => {
     if (loading) return;
     getGeneratedText(information, context);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [information, context, loading]);
 
-  // リセット
+  // Reset
   const onClickClear = useCallback(() => {
     clear();
     clearChat();

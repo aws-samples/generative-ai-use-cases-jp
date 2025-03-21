@@ -26,6 +26,7 @@
 
     // その他の設定
     "experimentalDecorators": true,
+    "esModuleInterop": true,
 
     // 型定義ファイルの設定
     "typeRoots": ["../../node_modules/@types"],

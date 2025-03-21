@@ -107,14 +107,14 @@ const VideoAnalyzerPage: React.FC = () => {
 
   useEffect(() => {
     const getDevices = async () => {
-      // 新規で画面を開いたユーザーにカメラの利用を要求する (ダミーのリクエスト)
+      // Request camera access for users who open the page for the first time (dummy request)
       const dummyStream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: true,
       });
 
       if (dummyStream) {
-        // 録画ボタンがついてしまうため消す
+        // The recording button is added, so we remove it
         dummyStream.getTracks().forEach((track) => track.stop());
 
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -162,7 +162,7 @@ const VideoAnalyzerPage: React.FC = () => {
     canvas.height = videoElement.current.videoHeight;
     const context = canvas.getContext('2d');
     context!.drawImage(videoElement.current, 0, 0, canvas.width, canvas.height);
-    // toDataURL() で返す値は以下の形式 (;base64, 以降のみを使う)
+    // The value returned by toDataURL() is in the following format (only the ;base64, part)
     // ```
     // data:image/png;base64,<以下base64...>
     // ```
@@ -225,7 +225,7 @@ const VideoAnalyzerPage: React.FC = () => {
     }
   }, [setRecording, videoElement, deviceId, t]);
 
-  // ビデオの停止
+  // Stop video
   const stopRecording = useCallback(() => {
     if (mediaStream) {
       mediaStream.getTracks().forEach((track) => track.stop());
@@ -233,12 +233,12 @@ const VideoAnalyzerPage: React.FC = () => {
     setRecording(false);
   }, [mediaStream]);
 
-  // Callback 関数を常に最新にしておく
+  // Keep the callback function always up to date
   useEffect(() => {
     callbackRef.current = stopRecording;
   }, [stopRecording]);
 
-  // Unmount 時 (画面を離れた時) の処理
+  // Process when unmounting (when leaving the screen)
   useEffect(() => {
     return () => {
       if (callbackRef.current) {

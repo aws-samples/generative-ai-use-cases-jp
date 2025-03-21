@@ -8,7 +8,7 @@ type Props = RowItemProps & {
   defaultOpened?: boolean;
   optional?: boolean;
   children: React.ReactNode;
-  // トグル状態を親コンポーネントから制御したい場合のプロパティ
+  // If you want to control the toggle state from the parent component
   overrideExpanded?: boolean;
   setOverrideExpanded?: (overrideExpanded: boolean) => void;
 };
@@ -17,7 +17,7 @@ const ExpandableField: React.FC<Props> = (props) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(props.defaultOpened ?? false);
 
-  // トグル状態の上書きに対応するために expanded と overrideExpanded の or をとる
+  // To correspond to the override of the toggle state, take the or of expanded and overrideExpanded
   const expandState = useMemo(
     () => expanded || props.overrideExpanded,
     [expanded, props.overrideExpanded]

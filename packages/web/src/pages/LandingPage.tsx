@@ -359,10 +359,10 @@ const LandingPage: React.FC = () => {
       </div>
 
       {
-        // いずれかのユースケース連携が有効であれば表示する
-        // ブログ記事作成
+        // If any use case integration is enabled, display it
+        // Blog article creation
         (enabled('webContent', 'generate', 'summarize', 'image') ||
-          // 議事録作成
+          // Meeting report creation
           enabled('generate')) && (
           <>
             <h1 className="mb-6 mt-12 flex justify-center text-2xl font-bold">

@@ -8,8 +8,8 @@ import yaml from 'js-yaml';
 
 /* eslint-disable i18nhelper/no-jp-string */
 
-// サポートする言語をオブジェクトで定義しています。
-// ユーザーが言語を手動で切り替える場合に使用するためのものです。
+// Define the supported languages as an object.
+// This is for use when the user manually switches languages.
 export const supportedLngs = {
   en: 'English',
   ja: '日本語',
@@ -19,8 +19,8 @@ export const supportedLngs = {
 
 i18n
   .use(HttpApi)
-  .use(LanguageDetector) // ユーザーの言語設定を検知するため
-  .use(initReactI18next) // i18next インスタンスを初期化
+  .use(LanguageDetector) // To detect the user's language setting
+  .use(initReactI18next) // Initialize the i18next instance
   .init({
     backend: {
       loadPath: '/locales/{{ns}}/{{lng}}.yaml',
@@ -28,14 +28,14 @@ i18n
     },
     defaultNS: 'translation',
     ns: ['translation', 'prompts'],
-    fallbackLng: 'en', // フォールバック言語。指定された言語ファイルがない場合などにこの言語が使用される
-    returnEmptyString: false, // 空文字での定義を許可に
+    fallbackLng: 'en', // The fallback language. This language is used if no specified language file exists.
+    returnEmptyString: false, // Allow definition with empty strings
     supportedLngs: Object.keys(supportedLngs),
     debug: true, // true にすると開発コンソールに i18next が正しく初期化されたことを示す出力が表示される
 
-    // デフォルトは`escapeValue: true`
-    // 18next が翻訳メッセージ内のコードをエスケープし、XSS 攻撃から保護するためのもの
-    // React がこのエスケープを行ってくれるので、今回はこれをオフにする
+    // The default is `escapeValue: true`
+    // 18next escapes code in translation messages to protect against XSS attacks.
+    // React does this escape for us, so we turn it off this time.
     interpolation: {
       escapeValue: false,
     },

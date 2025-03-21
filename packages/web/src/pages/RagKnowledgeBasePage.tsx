@@ -167,7 +167,7 @@ const RagKnowledgeBasePage: React.FC = () => {
 
   const onSend = useCallback(() => {
     setFollowing(true);
-    // フィルターがある場合はextraDataに追加
+    // If there is a filter, add it to extraData
     const extraData: ExtraData[] = getExtraDataFromFilters();
     postChat(
       content,

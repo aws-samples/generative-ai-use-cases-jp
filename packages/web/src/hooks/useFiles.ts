@@ -100,12 +100,12 @@ const useFilesState = create<{
       })
     );
 
-    // アップロードされたファイルの検証
+    // Validate uploaded files
     const updatedFiles: UploadedFileType[] = uploadedFiles.map(
       (uploadedFile, idx) => {
         const errorMessages: string[] = [];
 
-        // ファイルの拡張子が間違っている場合はフィルタリング
+        // If the file extension is incorrect, filter it
         if (isMimeSpoofedResults[idx]) {
           errorMessages.push(
             i18next.t('files.error.mimeMismatch', {
@@ -114,7 +114,7 @@ const useFilesState = create<{
           );
         }
 
-        // 許可されたファイルタイプをフィルタリング
+        // Filter allowed file types
         const mediaFormat = ('.' +
           uploadedFile.file.name.split('.').pop()) as string;
         const isFileTypeAllowed = accept.includes(mediaFormat);
@@ -129,7 +129,7 @@ const useFilesState = create<{
           );
         }
 
-        // ファイルサイズによるフィルタリング
+        // Filter by file size
         const getMaxFileSizeMB = (fileType: string) => {
           if (fileType.includes('image')) return fileLimit.maxImageFileSizeMB;
           if (fileType.includes('video')) return fileLimit.maxVideoFileSizeMB;
@@ -146,7 +146,7 @@ const useFilesState = create<{
           );
         }
 
-        // ファイル数によるフィルタリング
+        // Filter by file count
         let isFileNumberAllowed = false;
         if (uploadedFile.file.type.includes('image')) {
           imageFileCount += 1;
@@ -250,8 +250,7 @@ const useFilesState = create<{
     get().uploadedFilesDict[id].forEach((uploadedFile, idx) => {
       if (!uploadedFile.uploading) return;
 
-      // 「画像アップロード => 署名付きURL取得 => 画像ダウンロード」だと、画像が画面に表示されるまでに時間がかかるため、
-      // 選択した画像をローカルでBASE64エンコーディングし、そのまま画面に表示する（UX改善のため）
+      // "Upload image => Get signed URL => Download image" takes time to display the image on the screen, so select the image and display it immediately (UX improvement)
       const reader = new FileReader();
       reader.readAsDataURL(uploadedFile.file);
       reader.onload = () => {
@@ -265,7 +264,7 @@ const useFilesState = create<{
 
       const mediaFormat = uploadedFile.file.name.split('.').pop() as string;
 
-      // 署名付き URL の取得（並列実行させるために、await せずに実行）
+      // Get signed URL (execute in parallel without await to improve UX)
       api
         .getSignedUrl({
           filename: uploadedFile.file.name,
@@ -273,12 +272,12 @@ const useFilesState = create<{
         })
         .then(async (signedUrlRes) => {
           const signedUrl = signedUrlRes.data;
-          const fileUrl = extractBaseURL(signedUrl); // 署名付き url からクエリパラメータを除外
-          // ファイルのアップロード
+          const fileUrl = extractBaseURL(signedUrl); // Remove query parameters from signed URL
+          // Upload file
           api.uploadFile(signedUrl, { file: uploadedFile.file }).then(() => {
             const currentIdx = get().uploadedFilesDict[id].findIndex(
               (file) => file.id === uploadedFile.id
-            ); //アップロード中に前のファイルが削除された場合idxが変化する
+            ); // If the previous file is deleted during upload, the idx changes
             set(
               produce((state) => {
                 state.uploadedFilesDict[id][currentIdx].uploading = false;
@@ -322,7 +321,7 @@ const useFilesState = create<{
 
         await api.deleteUploadedFile(fileName);
 
-        // 削除処理中に他の画像も削除された場合に、Indexがズレるため再取得する
+        // If other images are deleted during deletion processing, the index shifts, so get it again
         targetIndex = findTargetIndex();
         set(
           produce((state) => {
@@ -339,14 +338,14 @@ const useFilesState = create<{
     return false;
   };
 
-  // getFileDownloadSignedUrl を useFileApi から移動し、Base64 キャッシュ機能を追加
+  // Move getFileDownloadSignedUrl to useFileApi and add Base64 cache functionality
   const getFileDownloadSignedUrl = async (
     s3Url: string,
     cacheBase64?: boolean
   ) => {
     const url = await api.getFileDownloadSignedUrl(s3Url);
 
-    // Base64 キャッシュが要求された場合
+    // If Base64 cache is requested
     if (cacheBase64) {
       try {
         const response = await fetch(url);
@@ -358,7 +357,7 @@ const useFilesState = create<{
           reader.readAsDataURL(blob);
         });
 
-        // キャッシュを更新
+        // Update cache
         set((state) => ({
           base64Cache: {
             ...state.base64Cache,

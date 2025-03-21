@@ -159,7 +159,7 @@ const ChatPage: React.FC = () => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // 会話履歴のページではモデルを変更してもシステムプロンプトを変更しない
+    // On the conversation history page, do not change the system prompt even if the model is changed
     if (!chatId) {
       updateSystemContextByModel();
     }
@@ -381,23 +381,23 @@ const ChatPage: React.FC = () => {
   };
 
   const handleDragOver = (event: React.DragEvent) => {
-    // ファイルドラッグ時にオーバーレイを表示
+    // When a file is dragged, display the overlay
     event.preventDefault();
     setIsOver(true);
   };
 
   const handleDragLeave = (event: React.DragEvent) => {
-    // ファイルドラッグ時にオーバーレイを非表示
+    // When a file is dragged, hide the overlay
     event.preventDefault();
     setIsOver(false);
   };
 
   const handleDrop = (event: React.DragEvent) => {
-    // ファイルドロップ時にファイルを追加
+    // When a file is dropped, add the file
     event.preventDefault();
     setIsOver(false);
     if (event.dataTransfer.files) {
-      // ファイルを反映しアップロード
+      // Reflect the file and upload it
       uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
     }
   };
