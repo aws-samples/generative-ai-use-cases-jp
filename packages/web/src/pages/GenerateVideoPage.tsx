@@ -1,9 +1,14 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { VideoJob } from 'generative-ai-use-cases-jp';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import {
+  VideoJob,
+  FileLimit,
+  UploadedFileType,
+} from 'generative-ai-use-cases-jp';
 import { create } from 'zustand';
 import useVideo from '../hooks/useVideo';
 import { MODELS } from '../hooks/useModel';
 import useFileApi from '../hooks/useFileApi';
+import useFiles from '../hooks/useFiles';
 import Textarea from '../components/Textarea';
 import Select from '../components/Select';
 import RangeSlider from '../components/RangeSlider';
@@ -12,12 +17,14 @@ import ButtonIcon from '../components/ButtonIcon';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import Card from '../components/Card';
+import ZoomUpImage from '../components/ZoomUpImage';
 import {
   PiPlayFill,
   PiDownload,
   PiSpinnerGap,
   PiArrowClockwise,
   PiTrash,
+  PiUpload,
 } from 'react-icons/pi';
 import { GenerateVideoPageQueryParams } from '../@types/navigate';
 import { useLocation } from 'react-router-dom';
@@ -40,6 +47,15 @@ const MODEL_PARAMS: Record<string, any> = {
     durationSeconds: [6],
     fps: [24],
     seed: 0,
+    uploads: {
+      label: '動画の 1 フレーム目に使われる画像を指定できます',
+      accept: {
+        image: ['.jpg', '.jpeg', '.png'],
+      },
+      maxImageFileCount: 1,
+      maxImageFileSizeMB: 10,
+      strictImageDimensions: [{ width: 1280, height: 720 }],
+    },
   },
   [LAY_MODELS.RAY_V2]: {
     resolution: ['540p', '720p'],
@@ -58,15 +74,42 @@ type ComprehensiveParams = {
   resolution: string;
   aspectRatio: string;
   loop: boolean;
+  // label ではアップロードしたファイルがどのように使われるかを説明してください
+  uploads: FileLimit & { label: string };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
-  [AMAZON_MODELS.REEL_V1]: (params: ComprehensiveParams) => {
+const PARAMS_GENERATOR: Record<
+  string,
+  (
+    params: Omit<ComprehensiveParams, 'uploads'>,
+    uploadedFiles: UploadedFileType[]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => any
+> = {
+  [AMAZON_MODELS.REEL_V1]: (
+    params: Omit<ComprehensiveParams, 'uploads'>,
+    uploadedFiles: UploadedFileType[]
+  ) => {
     return {
       taskType: 'TEXT_VIDEO',
       textToVideoParams: {
         text: params.prompt,
+        images:
+          uploadedFiles.length > 0
+            ? [
+                {
+                  format: uploadedFiles[0]!.base64EncodedData!.includes(
+                    'data:image/png'
+                  )
+                    ? 'png'
+                    : 'jpeg',
+                  source: {
+                    bytes:
+                      uploadedFiles[0]!.base64EncodedData!.split(';base64,')[1],
+                  },
+                },
+              ]
+            : undefined,
       },
       videoGenerationConfig: {
         durationSeconds: params.durationSeconds,
@@ -76,7 +119,7 @@ const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
       },
     };
   },
-  [LAY_MODELS.RAY_V2]: (params: ComprehensiveParams) => {
+  [LAY_MODELS.RAY_V2]: (params: Omit<ComprehensiveParams, 'uploads'>) => {
     return {
       prompt: params.prompt,
       aspect_ratio: params.aspectRatio,
@@ -87,7 +130,7 @@ const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
   },
 };
 
-type StateType = ComprehensiveParams & {
+type StateType = Omit<ComprehensiveParams, 'uploads'> & {
   videoGenModelId: string;
   setVideoGenModelId: (s: string) => void;
   setPrompt: (s: string) => void;
@@ -188,7 +231,7 @@ const GenerateVideoPage: React.FC = () => {
     setLoop,
     clear,
   } = useGenerateVideoPageState();
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
   const {
     generate,
     videoJobs,
@@ -199,6 +242,13 @@ const GenerateVideoPage: React.FC = () => {
     isValidatingVideoJobs,
     deleteVideoJob: deleteVideoJobInner,
   } = useVideo();
+  const {
+    uploadFiles,
+    uploadedFiles,
+    deleteUploadedFile,
+    errorMessages,
+    clear: clearFiles,
+  } = useFiles(pathname);
   const { videoGenModelIds, videoGenModels } = MODELS;
   const { getFileDownloadSignedUrl } = useFileApi();
   const [previewVideoSrc, setPreviewVideoSrc] = useState('');
@@ -209,6 +259,21 @@ const GenerateVideoPage: React.FC = () => {
   >({});
   const [deletingJobIds, setDeletingJobIds] = useState<Record<string, boolean>>(
     {}
+  );
+
+  const onChangeFiles = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      const fileLimit = MODEL_PARAMS[videoGenModelId]!.uploads;
+      const accept =
+        MODEL_PARAMS[videoGenModelId].uploads?.accept?.image?.join(',');
+
+      if (files) {
+        // ファイルを反映しアップロード
+        uploadFiles(Array.from(files), fileLimit, accept);
+      }
+    },
+    [videoGenModelId, uploadFiles]
   );
 
   useEffect(() => {
@@ -281,16 +346,19 @@ const GenerateVideoPage: React.FC = () => {
       await generate(
         {
           prompt,
-          params: PARAMS_GENERATOR[videoGenModelId]({
-            prompt,
-            dimension,
-            durationSeconds,
-            fps,
-            seed,
-            resolution,
-            aspectRatio,
-            loop,
-          }),
+          params: PARAMS_GENERATOR[videoGenModelId](
+            {
+              prompt,
+              dimension,
+              durationSeconds,
+              fps,
+              seed,
+              resolution,
+              aspectRatio,
+              loop,
+            },
+            uploadedFiles
+          ),
         },
         videoGenModels.find((m) => m.modelId === videoGenModelId)
       );
@@ -323,6 +391,7 @@ const GenerateVideoPage: React.FC = () => {
     videoGenModelId,
     mutateVideoJobs,
     setIsGenerating,
+    uploadedFiles,
   ]);
 
   const setPreview = useCallback(
@@ -364,8 +433,12 @@ const GenerateVideoPage: React.FC = () => {
   );
 
   const disabledExec = useMemo(() => {
-    return prompt.length === 0 || isGenerating;
-  }, [prompt, isGenerating]);
+    return prompt.length === 0 || isGenerating || errorMessages.length > 0;
+  }, [prompt, isGenerating, errorMessages]);
+
+  const clearable = useMemo(() => {
+    return (prompt.length > 0 || uploadedFiles.length > 0) && !isGenerating;
+  }, [prompt, isGenerating, uploadedFiles]);
 
   const formatDate = useCallback((createdDate: string) => {
     const date = new Date(Number(createdDate));
@@ -492,6 +565,87 @@ const GenerateVideoPage: React.FC = () => {
             />
           )}
 
+          {/* ここから先のコードは uploads が画像であることを前提にしたコードです */}
+          {/* その他のファイル (動画、ドキュメントなど) に対応した動画生成モデルが出た場合は別途対応が必要です */}
+          {MODEL_PARAMS[videoGenModelId]!.uploads && (
+            <div>
+              <div className="text-sm">画像アップロード</div>
+
+              {/* 現状 <input multiple/> である必要はないですが、今後の拡張性も見て multiple にしています*/}
+              <label>
+                <input
+                  hidden
+                  onChange={onChangeFiles}
+                  type="file"
+                  accept={MODEL_PARAMS[
+                    videoGenModelId
+                  ]!.uploads!.accept.image.join(',')}
+                  multiple
+                  value={[]}
+                />
+                <div className="text-aws-smile border-aws-smile my-2 flex w-full cursor-pointer flex-row items-center justify-center rounded-full border-2 bg-white p-1 text-sm hover:bg-gray-100">
+                  <PiUpload className="mr-1 text-base" /> アップロード
+                </div>
+              </label>
+
+              <p className="my-1 text-xs">
+                {MODEL_PARAMS[videoGenModelId]!.uploads!.label}
+              </p>
+
+              <p className="my-1 text-xs text-gray-400">
+                サポートされている拡張子:{' '}
+                {MODEL_PARAMS[videoGenModelId]!.uploads!.accept.image.join(' ')}
+              </p>
+
+              {MODEL_PARAMS[videoGenModelId]!.uploads!
+                .strictImageDimensions && (
+                <p className="my-1 text-xs text-gray-400">
+                  サポートされている画像サイズ:{' '}
+                  {MODEL_PARAMS[
+                    videoGenModelId
+                  ]!.uploads!.strictImageDimensions.map(
+                    (d: { width: number; height: number }) =>
+                      `${d.width}x${d.height}`
+                  ).join(', ')}
+                </p>
+              )}
+
+              {errorMessages.length > 0 && (
+                <div>
+                  {errorMessages.map((errorMessage, idx) => (
+                    <p key={idx} className="text-red-500">
+                      {errorMessage}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {uploadedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {uploadedFiles.map((uploadedFile, idx) => {
+                    return (
+                      <ZoomUpImage
+                        key={idx}
+                        src={uploadedFile.base64EncodedData}
+                        loading={uploadedFile.uploading}
+                        deleting={uploadedFile.deleting}
+                        size="s"
+                        error={uploadedFile.errorMessages.length > 0}
+                        onDelete={() => {
+                          deleteUploadedFile(
+                            uploadedFile.id ?? '',
+                            MODEL_PARAMS[videoGenModelId]!.uploads!,
+                            MODEL_PARAMS[videoGenModelId]!.uploads!.accept.image
+                          );
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mt-4 flex flex-row items-center gap-x-5">
             <Button
               className="h-8 w-full"
@@ -503,8 +657,11 @@ const GenerateVideoPage: React.FC = () => {
             <Button
               className="h-8 w-full"
               outlined
-              onClick={clear}
-              disabled={disabledExec}>
+              onClick={() => {
+                clear();
+                clearFiles();
+              }}
+              disabled={!clearable}>
               クリア
             </Button>
           </div>

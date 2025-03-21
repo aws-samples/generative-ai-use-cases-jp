@@ -66,6 +66,39 @@ const useFilesState = create<{
     } as UploadedFileType;
   };
 
+  const getImageDimensions = (
+    file: File
+  ): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const img = new Image();
+
+        img.onload = () => {
+          resolve({
+            width: img.width,
+            height: img.height,
+          });
+        };
+
+        img.onerror = () => {
+          reject(new Error('Failed to load image'));
+        };
+
+        if (e.target?.result) {
+          img.src = e.target.result as string;
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Validated given uploadedFiles, return updated uploadedFiles (no side effect) and errorMessages
   const validateUploadedFiles = async (
     uploadedFiles: UploadedFileType[],
@@ -98,8 +131,8 @@ const useFilesState = create<{
     );
 
     // アップロードされたファイルの検証
-    const updatedFiles: UploadedFileType[] = uploadedFiles.map(
-      (uploadedFile, idx) => {
+    const updatedFiles: UploadedFileType[] = await Promise.all(
+      uploadedFiles.map(async (uploadedFile, idx) => {
         const errorMessages: string[] = [];
 
         // ファイルの拡張子が間違っている場合はフィルタリング
@@ -146,6 +179,25 @@ const useFilesState = create<{
               `画像ファイルは ${fileLimit.maxImageFileCount} 個以下にしてください`
             );
           }
+          if (fileLimit.strictImageDimensions) {
+            const dimension = await getImageDimensions(uploadedFile.file);
+            const isAcceptableDimension = fileLimit.strictImageDimensions.some(
+              (d) => {
+                return (
+                  d.width === dimension.width && d.height === dimension.height
+                );
+              }
+            );
+
+            if (!isAcceptableDimension) {
+              const humanReadableDimensions = fileLimit.strictImageDimensions
+                .map((d) => `${d.width}x${d.height}`)
+                .join(', ');
+              errorMessages.push(
+                `指定可能な画像ファイルのサイズは ${humanReadableDimensions} です (アップロードされた画像のサイズ ${dimension.width}x${dimension.height})`
+              );
+            }
+          }
         } else if (uploadedFile.file.type.includes('video')) {
           videoFileCount += 1;
           isFileNumberAllowed =
@@ -169,7 +221,7 @@ const useFilesState = create<{
           ...uploadedFile,
           errorMessages: errorMessages,
         } as UploadedFileType;
-      }
+      })
     );
 
     return {
