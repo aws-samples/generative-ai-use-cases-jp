@@ -21,7 +21,7 @@ const Base64Image: React.FC<Props> = (props) => {
   const src = useMemo(() => {
     return props.imageBase64?.startsWith('data')
       ? props.imageBase64
-      : `data:image/jpg;base64,${props.imageBase64}`;
+      : `data:image/png;base64,${props.imageBase64}`;
   }, [props.imageBase64]);
 
   return (
