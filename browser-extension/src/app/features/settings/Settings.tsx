@@ -5,6 +5,7 @@ import Button from '../common/components/Button';
 import { PiCaretLeft } from 'react-icons/pi';
 import useAuth from '../common/hooks/useAuth';
 import Switch from '../common/components/Switch';
+import { IconWrapper } from '../../components/IconWrapper';
 
 type Props = {
   onBack: () => void;
@@ -100,7 +101,12 @@ const Settings: React.FC<Props> = (props) => {
         )}
       </div>
       <div className="flex justify-between">
-        <Button className="mt-3" outlined icon={<PiCaretLeft />} onClick={props.onBack}>
+        <Button
+          className="mt-3"
+          outlined
+          icon={<IconWrapper icon={PiCaretLeft} />}
+          onClick={props.onBack}
+        >
           戻る
         </Button>
         <Button className="mt-3" onClick={save}>

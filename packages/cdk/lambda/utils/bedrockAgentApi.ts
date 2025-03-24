@@ -91,7 +91,10 @@ const getAgentInfo = async (agentId: string, agentAliasId: string) => {
   return agentInfoMap[agentAliasId];
 };
 
-const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
+const bedrockAgentApi: ApiInterface = {
+  invoke: async () => {
+    throw new Error('Not Implemented');
+  },
   invokeStream: async function* (model: Model, messages: UnrecordedMessage[]) {
     try {
       // Get Agent
@@ -358,6 +361,12 @@ const bedrockAgentApi: Pick<ApiInterface, 'invokeStream'> = {
         });
       }
     }
+  },
+  generateImage: async () => {
+    throw new Error('Not Implemented');
+  },
+  generateVideo: async () => {
+    throw new Error('Not Implemented');
   },
 };
 

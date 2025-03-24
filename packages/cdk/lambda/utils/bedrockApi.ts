@@ -16,6 +16,7 @@ import {
   ApiInterface,
   BedrockImageGenerationResponse,
   GenerateImageParams,
+  GenerateVideoParams,
   Model,
   StreamingChunk,
   UnrecordedMessage,
@@ -240,7 +241,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
 
     return extractOutputImage(model, body);
   },
-  generateVideo: async (model, params) => {
+  generateVideo: async (model, params: GenerateVideoParams) => {
     const videoBucketRegionMap = JSON.parse(
       process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
     );
@@ -254,7 +255,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
 
     const command = new StartAsyncInvokeCommand({
       modelId: model.modelId,
-      modelInput: params,
+      modelInput: params.params,
       outputDataConfig: {
         s3OutputDataConfig: {
           s3Uri: `s3://${tmpOutputBucket}`,

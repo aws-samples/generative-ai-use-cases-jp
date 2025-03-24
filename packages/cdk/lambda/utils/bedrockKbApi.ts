@@ -127,7 +127,10 @@ const getOrchestrationConfig = (): OrchestrationConfiguration | undefined => {
   };
 };
 
-const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
+const bedrockKbApi: ApiInterface = {
+  invoke: async () => {
+    throw new Error('Not Implemented');
+  },
   invokeStream: async function* (
     model: Model,
     messages: UnrecordedMessage[],
@@ -288,6 +291,12 @@ const bedrockKbApi: Pick<ApiInterface, 'invokeStream'> = {
         });
       }
     }
+  },
+  generateImage: async () => {
+    throw new Error('Not Implemented');
+  },
+  generateVideo: async () => {
+    throw new Error('Not Implemented');
   },
 };
 
