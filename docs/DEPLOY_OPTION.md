@@ -308,7 +308,7 @@ chunkingConfiguration: {
     - `cohere.embed-english-v3`
 
 
-#### Knowledge Base や OpenSearch Service を再xw作成して変更を加える
+#### Knowledge Base や OpenSearch Service を再作成して変更を加える
 
 [Knowledge Base のチャンク戦略](./DEPLOY_OPTION.md#チャンク戦略を変更)や、OpenSearch Service に関する以下のパラメーターについて、変更を加えた後に `npm run cdk:deploy` を実行しても変更が反映されません。
 
