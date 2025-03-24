@@ -22,19 +22,19 @@ GenU では以下の2つの方法でデプロイオプションを指定でき�
 const envs: Record<string, Partial<StackInput>> = {
   '': {
     // 無名環境のパラメータ
-    modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"],
+    modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"]
   },
   dev: {
     // 開発環境のパラメータ
     modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"],
     ragKnowledgeBaseEnabled: true,
-    ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseStandbyReplicas: false
   },
   prod: {
     // 本番環境のパラメータ
     modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"],
     ragKnowledgeBaseEnabled: true,
-    ragKnowledgeBaseStandbyReplicas: true,
+    ragKnowledgeBaseStandbyReplicas: true
   },
 };
 ```
@@ -87,12 +87,11 @@ deploy.sh は以下のオプションをサポートしています：
 ./deploy.sh --parameter-file ~/parameter.ts --env prod
 ```
 
-デプロイ途中に確認プロンプトが表示されるので、`y` と入力して Enter して進めてください。
 デプロイ完了時に CloudFront の URL が表示されます。その URL をブラウザで開くことで GenU にアクセスできます。
 
 ### 設定の優先順位
 
-1. parameter.ts が指定され、かつ環境名が parameter.ts 内で定義されている場合、その環境の設定が最優先されます
+1. parameter.ts と環境が指定され、かつ環境名(無名環境含む)が parameter.ts 内で定義されている場合、その環境の設定が最優先されます
 2. cdk.json の設定が次に適用されます
 
 なお、これらの手順を実行する場合も [Amazon Bedrock の Model access](https://console.aws.amazon.com/bedrock/home#/modelaccess) から利用するモデルの有効化が必要です。
