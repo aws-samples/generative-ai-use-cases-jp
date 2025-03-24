@@ -959,6 +959,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
           "Ref": "Collection",
         },
         "metadataField": "AMAZON_BEDROCK_METADATA",
+        "ragKnowledgeBaseBinaryVector": false,
         "textField": "AMAZON_BEDROCK_TEXT_CHUNK",
         "vectorDimension": "1024",
         "vectorField": "bedrock-knowledge-base-default-vector",

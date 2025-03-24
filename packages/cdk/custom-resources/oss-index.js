@@ -68,9 +68,14 @@ exports.handler = async (event, context) => {
                 [props.vectorField]: {
                   type: 'knn_vector',
                   dimension: Number(props.vectorDimension),
+                  ...(props.ragKnowledgeBaseBinaryVector
+                    ? { data_type: 'binary' }
+                    : {}),
                   method: {
                     engine: 'faiss',
-                    space_type: 'l2',
+                    space_type: props.ragKnowledgeBaseBinaryVector
+                      ? 'hamming'
+                      : 'l2',
                     name: 'hnsw',
                     parameters: {},
                   },
