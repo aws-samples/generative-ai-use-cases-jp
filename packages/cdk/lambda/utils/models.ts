@@ -1,6 +1,7 @@
 import {
   BedrockImageGenerationResponse,
   GenerateImageParams,
+  GenerateVideoParams,
   Model,
   ModelConfiguration,
   PromptTemplate,
@@ -699,6 +700,33 @@ const extractOutputImageAmazonImage = (
     throw new Error('Unexpected response type for Amazon Image');
   }
 };
+
+const createBodyVideoNovaReel = (params: GenerateVideoParams) => {
+  return {
+    taskType: 'TEXT_VIDEO',
+    textToVideoParams: {
+      text: params.prompt,
+      images: params.images,
+    },
+    videoGenerationConfig: {
+      durationSeconds: params.durationSeconds,
+      fps: params.fps,
+      dimension: params.dimension,
+      seed: params.seed,
+    },
+  };
+};
+
+const createBodyVideoLumaRayV2 = (params: GenerateVideoParams) => {
+  return {
+    prompt: params.prompt,
+    aspect_ratio: params.aspectRatio,
+    loop: params.loop,
+    duration: `${params.durationSeconds}s`,
+    resolution: params.resolution,
+  };
+};
+
 // テキスト生成に関する、各のModel のパラメーターや関数の定義
 
 export const BEDROCK_TEXT_GEN_MODELS: {
@@ -1219,6 +1247,20 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
   'amazon.nova-canvas-v1:0': {
     createBodyImage: createBodyImageAmazonAdvancedImage,
     extractOutputImage: extractOutputImageAmazonImage,
+  },
+};
+
+export const BEDROCK_VIDEO_GEN_MODELS: {
+  [key: string]: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    createBodyVideo: (params: GenerateVideoParams) => any;
+  };
+} = {
+  'amazon.nova-reel-v1:0': {
+    createBodyVideo: createBodyVideoNovaReel,
+  },
+  'luma.ray-v2:0': {
+    createBodyVideo: createBodyVideoLumaRayV2,
   },
 };
 

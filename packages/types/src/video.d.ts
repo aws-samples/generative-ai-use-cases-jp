@@ -2,10 +2,19 @@ import { PrimaryKey } from './base';
 
 export type GenerateVideoParams = {
   prompt: string;
-  // モデルごとに固有のパラメータは以下
-  // そのまま StartAsyncInvokeCommand に渡すもの
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  params: any;
+  durationSeconds: number;
+  dimension?: string;
+  fps?: number;
+  seed?: number;
+  resolution?: string;
+  aspectRatio?: string;
+  loop?: boolean;
+  images?: {
+    format: 'png' | 'jpeg';
+    source: {
+      bytes: string;
+    };
+  }[];
 };
 
 export type VideoJob = PrimaryKey & {
