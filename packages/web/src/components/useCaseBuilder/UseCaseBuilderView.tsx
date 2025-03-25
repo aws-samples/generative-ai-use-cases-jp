@@ -276,6 +276,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       }
     }
 
+    for (const item of items) {
+      if (item.label != item.label.trim()) {
+        tmpErrorMessages.push(
+          `"${item.label}"の前後にある空白を削除してください。`
+        );
+      }
+    }
+
     for (const item of selectItems) {
       if (!item.options || item.options.length === 0) {
         tmpErrorMessages.push(
@@ -288,6 +296,14 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         if (emptyOptions.length > 0) {
           tmpErrorMessages.push(
             `{{select:${item.label}}} に空のオプションが含まれています。`
+          );
+        }
+
+        // Check for options with leading/trailing spaces
+        const spacedOptions = options.filter((o) => o !== o.trim());
+        if (spacedOptions.length > 0) {
+          tmpErrorMessages.push(
+            `{{select:${item.label}}}のオプションを設定する際は、カンマの前後に空白を含まないでください: ${spacedOptions.map(o => `"${o}"`).join(', ')}`
           );
         }
 
