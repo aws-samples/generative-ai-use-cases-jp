@@ -17,27 +17,6 @@ GenU では以下の2つの方法でデプロイオプションを指定でき�
 
 [デフォルトの parameter.ts](/packages/cdk/parameter.ts) をダウンロードし、必要な環境設定を追加してください。parameter.ts では dev、staging、prod など複数の環境設定を1つのファイルで管理できます。
 
-```typescript
-// parameter.ts の設定例
-const envs: Record<string, Partial<StackInput>> = {
-  '': {
-    // 無名環境のパラメータ
-    modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"]
-  },
-  dev: {
-    // 開発環境のパラメータ
-    modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"],
-    ragKnowledgeBaseEnabled: true,
-    ragKnowledgeBaseStandbyReplicas: false
-  },
-  prod: {
-    // 本番環境のパラメータ
-    modelIds: ["anthropic.claude-3-sonnet-20240229-v1:0"],
-    ragKnowledgeBaseEnabled: true,
-    ragKnowledgeBaseStandbyReplicas: true
-  },
-};
-```
 
 ## CloudShell の起動
 
@@ -65,7 +44,10 @@ deploy.sh は以下のオプションをサポートしています：
 -h, --help          ... Show this message
 ```
 
+
 ### デプロイ例
+
+以下のコマンドで deploy.sh を実行します。 なお、--cdk-context オプションでカスタマイズした cdk.json へのパスを指定しています。(--parameter-file の場合は parameter.ts へのパス) 特に何もせず前述した手順で Upload files した場合はこのパスになります。cdk.json や parameter.ts が別のパスにある場合は、適宜引数の値を変更してください。
 
 1. デフォルト設定でデプロイ：
 ```bash
