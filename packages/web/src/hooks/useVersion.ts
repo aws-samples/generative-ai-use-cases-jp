@@ -30,7 +30,8 @@ const useRemoteVersion = () => {
       if (!packageJson) {
         return false;
       } else {
-        return version !== packageJson.data.version;
+        // Compare only major versions
+        return version.split('.')[0] !== packageJson.data.version.split('.')[0];
       }
     },
   };
