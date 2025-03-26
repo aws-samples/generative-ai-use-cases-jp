@@ -101,11 +101,11 @@ gitGraph
 A) Branch creation and checkout: 
 gitGraph
    commit
-   branch develop        //新規ブランチ作成
+   branch develop        // Create a new branch
    commit
-   checkout main        //既存ブランチへの切り替え
+   checkout main        // Switch to an existing branch
    commit
-   checkout develop     //developブランチへの切り替え
+   checkout develop     // Switch to the develop branch
 B) Detailed requirements for merge operations: 
 Mergeable between different branches
 Merge commits are automatically generated
@@ -278,14 +278,14 @@ gitGraph
    commit type: HIGHLIGHT
    checkout main
    commit type: HIGHLIGHT
-7. Important restrictions and注意事项 
+7. Important restrictions and notes 
 A) Theme variable restrictions: 
 Maximum 8 branches can be customized
 Branches beyond 8 are cyclically reused
 Custom values require a valid CSS color specification
 B) Font size restrictions: 
 Use valid CSS units (px, em, rem, etc.)
-注意ブラウザ互換性
+Be aware of browser compatibility
 C) Color specification Note: 
 Hexadecimal color code
 RGB/RGBA value

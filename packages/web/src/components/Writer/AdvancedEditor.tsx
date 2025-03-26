@@ -44,7 +44,7 @@ import { useTranslation } from 'react-i18next';
 const extensions = [...defaultExtensions, slashCommand];
 
 interface Props {
-  initialSentence?: string; // URLパラメータからの初期値用のみ残す
+  initialSentence?: string; // Only for initial value from URL parameters
 }
 
 interface CommentItemProps {

@@ -65,7 +65,7 @@ Financial Highlights
 Revenue: $40M
 Profit: $12M
 EPS: $1.25
-| | 12月31日終了年度 | |
+| | 12/31 ended year | |
 
 2021	2022
 Cash Flow:		

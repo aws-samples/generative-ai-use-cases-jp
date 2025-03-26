@@ -39,7 +39,7 @@ const ChatList: React.FC<Props> = (props) => {
       return chats;
     }
 
-    // OR 検索にしています
+    // OR search
     return chats.filter((c) => {
       return props.searchWords.some((w) =>
         c.title.toLowerCase().includes(w.toLowerCase())

@@ -463,7 +463,7 @@ const useGenerateImagePageState = create<StateType>((set, get) => {
   };
 });
 
-// StableDiffusion の StylePreset
+// StylePreset for StableDiffusion
 // See the list below for the style_preset
 // https://platform.stability.ai/docs/api-reference#tag/v1generation/operation/textToImage
 const stylePresetOptions = [
@@ -862,9 +862,6 @@ const GenerateImagePage: React.FC = () => {
 
   return (
     <div className="grid h-screen grid-cols-12 gap-4 p-4">
-      <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        {t('generateImage.title')}
-      </div>
       <ModalDialog
         isOpen={isOpenSketch}
         title={t('generateImage.init_image')}

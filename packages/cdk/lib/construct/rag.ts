@@ -299,7 +299,7 @@ export class Rag extends Construct {
           dataSourceProps,
           kendraIsOnCfnCondition as cdk.CfnCondition
         );
-        dataSource.cfnOptions.condition = kendraIsOnCfnCondition; // Cfn Parameterに応じて、リソースをオンオフする
+        dataSource.cfnOptions.condition = kendraIsOnCfnCondition; // Toggle resources according to Cfn Parameter
       } else {
         dataSource = new kendra.CfnDataSource(
           this,
@@ -437,7 +437,7 @@ export class Rag extends Construct {
               hour: kendraIndexScheduleCreateCron.hour,
               month: kendraIndexScheduleCreateCron.month,
               weekDay: kendraIndexScheduleCreateCron.weekDay,
-            }), // NOTE UTC時間で指定
+            }), // UTC
             targets: [new targets.SfnStateMachine(stateMachineKendraOn, {})],
           });
         }

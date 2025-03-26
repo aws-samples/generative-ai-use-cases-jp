@@ -209,7 +209,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
   }, [setUseCaseId, useCaseIdPathParam]);
 
   useEffect(() => {
-    // DBからデータを取得した場合
+    // When data is fetched from DB
     if (useCaseId) {
       setTitle(useCase?.title ?? '');
       setPromptTemplate(useCase?.promptTemplate ?? '');
@@ -389,7 +389,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         fileUpload,
       })
         .then(() => {
-          // DB変更直後は更新ボタンをDisabledにする
+          // After updating the DB, disable the update button
           setIsDisabledUpdate(true);
           setCurrentMenu(menu[0]);
         })
@@ -521,9 +521,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
         </div>
 
         <div className="col-span-12 lg:col-span-5">
-          <Card
-            label={t(`useCaseBuilder.menu${currentMenu}`)}
-            className="relative">
+          <Card label={t(`${currentMenu}`)} className="relative">
             {currentMenu === t('useCaseBuilder.menuAppDefinition') && (
               <>
                 <RowItem>

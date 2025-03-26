@@ -44,7 +44,7 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
       env: params.env,
     });
   }
-  //modelIds, imageGenerationModelIdsのフォーマットを揃える
+  // Make the format of modelIds, imageGenerationModelIds consistent
   const convertToModelConfiguration = (
     models: (string | ModelConfiguration)[],
     defaultRegion: string

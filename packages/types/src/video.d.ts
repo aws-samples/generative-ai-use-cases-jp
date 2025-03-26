@@ -3,8 +3,8 @@ import { DocumentType } from '@smithy/types';
 
 export type GenerateVideoParams = {
   prompt: string;
-  // モデルごとに固有のパラメータは以下
-  // そのまま StartAsyncInvokeCommand に渡すもの
+  // Parameters specific to each model are as follows
+  // Pass them directly to StartAsyncInvokeCommand
   params: DocumentType;
 };
 

@@ -268,12 +268,12 @@ const useChatState = create<{
     base64Cache?: Record<string, string>
   ): UnrecordedMessage[] => {
     return messages.map((m) => {
-      // LLM で推論する形式に extraData を変換する
+      // Convert extraData to the format for LLM inference
       const convertedFiles: ExtraData[] | undefined = m.extraData
         ?.flatMap((data): ExtraData => {
           if (data.type === 'video') {
             // Send S3 location for video
-            // https:// 形式の S3 URL から s3:// 形式の S3 URI に変換する
+            // Convert https://  format S3 URL to s3:// format S3 URI
             const s3Uri = getS3Uri(data.source.data ?? '');
             return {
               type: data.type,
@@ -484,7 +484,7 @@ const useChatState = create<{
       inputMessages = preProcessInput(inputMessages);
     }
 
-    // LLM へのリクエスト
+    // Request to LLM
     const formattedMessages = formatMessageProperties(
       inputMessages,
       uploadedFiles,
@@ -537,7 +537,7 @@ const useChatState = create<{
       }
     }
 
-    // tmpChunk に文字列が残っている場合は処理する
+    // If there is a string left in tmpChunk, process it
     if (tmpChunk.length > 0) {
       addChunkToAssistantMessage(id, tmpChunk, undefined, model);
     }
@@ -695,7 +695,7 @@ const useChatState = create<{
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
         content,
-        // DDB に保存する形式で、extraData を設定する
+        // Set extraData in the format to be saved in DDB
         extraData: [
           ...(uploadedFiles?.map(
             (uploadedFile) =>
@@ -718,7 +718,7 @@ const useChatState = create<{
         content: '',
       };
 
-      // User/Assistant の発言を反映
+      // Reflect the User/Assistant message
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
           draft[id].messages.push(unrecordedUserMessage);
@@ -763,8 +763,8 @@ const useChatState = create<{
 });
 
 /**
- * チャットを操作する Hooks
- * @param id 画面の URI（状態の識別に利用）
+ * Hooks to operate the chat
+ * @param id The URI of the screen (used to identify the state)
  * @param systemContext
  * @param chatId
  * @returns

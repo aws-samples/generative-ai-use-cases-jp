@@ -214,7 +214,7 @@ sequenceDiagram
     par Alice to Bob
         Alice->>Bob: Help John
     and Alice to John
-        Alice->>John: 今日中に終わらせたいの
+        Alice->>John: I would like to finish it by today
         par John to Charlie
             John->>Charlie: Can you finish it by today?
         and John to Diana
@@ -396,7 +396,7 @@ sequenceDiagram
         end
     end
 
-    par 各システムの後処理
+    par Post-processing of each system
         Web-)Stock: Inventory update
         Web-)Order: Delivery arrangement request
         Web-)Payment: Sales confirmation processing

@@ -54,7 +54,7 @@ const Setting = () => {
   const closedPullRequests = getClosedPullRequests();
 
   const onClickSignout = useCallback(() => {
-    // SWRのキャッシュを全て削除する
+    // Delete all SWR cache
     for (const key of cache.keys()) {
       cache.delete(key);
     }

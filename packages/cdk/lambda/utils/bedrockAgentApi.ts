@@ -148,7 +148,7 @@ const bedrockAgentApi: ApiInterface = {
           for (const citation of streamChunk.chunk?.attribution?.citations ||
             []) {
             for (const ref of citation.retrievedReferences || []) {
-              // S3 URI を取得し URL に変換
+              // Convert S3 URI to URL
               const s3Uri = ref?.location?.s3Location?.uri || '';
               if (!s3Uri) continue;
               const url = convertS3UriToUrl(
@@ -168,7 +168,7 @@ const bedrockAgentApi: ApiInterface = {
               if (sources[url] === undefined) {
                 sources[url] = Object.keys(sources).length;
                 body += `\n[^${sources[url]}]: [${fileName}${
-                  pageNumber ? `(${pageNumber} ページ)` : ''
+                  pageNumber ? `(p.${pageNumber})` : ''
                 }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
               }
               const referenceId = sources[url];
@@ -323,7 +323,7 @@ const bedrockAgentApi: ApiInterface = {
                         ];
 
                       return `- [${fileName}${
-                        pageNumber ? `(${pageNumber} ページ)` : ''
+                        pageNumber ? `(p.${pageNumber})` : ''
                       }](${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''})`;
                     }
                     return [];

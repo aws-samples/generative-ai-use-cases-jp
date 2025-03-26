@@ -79,10 +79,10 @@ const useFilesState = create<{
     let imageFileCount = 0;
     let videoFileCount = 0;
 
-    // filter は非同期関数が利用できないため先に評価を行う
+    // filter is not available for async functions, so evaluate it first
     const isMimeSpoofedResults = await Promise.all(
       uploadedFiles.map(async (uploadedFile) => {
-        // file.type は拡張子ベースで MIME を取得する一方、fileTypeFromStream はファイルヘッダの Signature を確認する
+        // file.type is based on the extension, while fileTypeFromStream checks the file header signature
         const realMimeType = (
           await fileTypeFromStream(uploadedFile.file.stream())
         )?.mime;
@@ -305,7 +305,7 @@ const useFilesState = create<{
 
     let targetIndex = findTargetIndex();
     if (targetIndex > -1) {
-      // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME"の形式で設定されている
+      // "https://BUCKET_NAME.s3.REGION.amazonaws.com/FILENAME" format is set
       const result = /https:\/\/.+\/(?<fileName>.+)/.exec(
         get().uploadedFilesDict[id][targetIndex].s3Url ?? ''
       );

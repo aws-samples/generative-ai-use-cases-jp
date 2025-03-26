@@ -37,7 +37,7 @@ type StateType = {
 
 const useRagKnowledgeBasePageState = create<StateType>((set) => {
   return {
-    sessionId: undefined, // RetrieveAndGenerate は sessionId のアプリ側で指定できないため、null を初期値とする
+    sessionId: undefined, // Set initial value to null because RetrieveAndGenerate does not allow sessionId to be specified on the app side
     content: '',
     filters: userDefinedExplicitFilters.map(() => null),
     setSessionId: (s: string | undefined) => {

@@ -174,7 +174,7 @@ export class AICommentManager {
     this.removeComment(comment);
   }
 
-  // Focus on the comment部位 when clicked
+  // Focus on the comment block when clicked
   focusComment(comment: DocumentComment) {
     const matches = this.findTextPosition(comment.excerpt);
     if (matches.length === 0) return;

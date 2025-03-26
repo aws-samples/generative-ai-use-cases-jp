@@ -132,7 +132,7 @@ const CLAUDE_DEFAULT_PARAMS: ConverseInferenceParams = {
 };
 
 const TITAN_TEXT_DEFAULT_PARAMS: ConverseInferenceParams = {
-  // Doc 上は 3072 まで受け付けるが、Converse API だと 3000 までしか受け付けなかったため、3000 を設定する。
+  // Converse API only accepts 3000, instead of 3072, which is described in the doc.
   // If 3072 is accepted, revert to 3072.
   // https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-titan-text.html
   maxTokens: 3000,
@@ -182,7 +182,7 @@ const USECASE_DEFAULT_PARAMS: UsecaseConverseInferenceParams = {
   },
 };
 
-// guardrail 設定
+// Guardrail Settings
 const createGuardrailConfig = (): GuardrailConverseConfigParams | undefined => {
   if (
     process.env.GUARDRAIL_IDENTIFIER !== undefined &&

@@ -67,8 +67,8 @@ const OptimizePromptPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // supportedModelIds が 0 の場合はこのページ自体が無効になるため
-    // index out of range にはならない
+    // If supportedModelIds is 0, this page will be disabled
+    // index out of range will not occur
     setModelId(supportedModelIds[0]);
   }, [supportedModelIds, setModelId]);
 

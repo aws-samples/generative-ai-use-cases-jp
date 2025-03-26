@@ -187,7 +187,7 @@ export const listVideoJobs = async (
 
   const jobs = res.Items as VideoJob[];
 
-  // InProgress のものは最新のステータスを確認
+  // Check the latest status of InProgress jobs
   for (const job of jobs) {
     if (job.status === 'InProgress') {
       const newStatus = await checkAndUpdateJob(job);

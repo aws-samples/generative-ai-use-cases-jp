@@ -12,7 +12,7 @@ Mermaid ER diagram overview
 Entity names are often written in uppercase, but there is no established standard for this, and Mermaid does not require it.
 Relationships between entities are represented by lines with cardinality-indicating terminal markers. Mermaid uses the most common cardinality notation. Cardinality conveys the potential number of instances of the connected entity in an intuitive way.
 ER diagrams can be used for various purposes, from abstract logical models that do not include implementation details to physical models of relational database tables. Including attribute definitions in ER diagrams can be useful to help understand the purpose and meaning of entities. These are not necessarily exhaustive and often a small subset of attributes is sufficient. Mermaid allows defining attributes as a type and name.
-コード: 
+Code: 
 erDiagram
     CUSTOMER ||--o{ ORDER : places
     CUSTOMER {

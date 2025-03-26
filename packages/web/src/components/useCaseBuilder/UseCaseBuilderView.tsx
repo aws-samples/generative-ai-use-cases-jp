@@ -42,7 +42,7 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 
-// pages/ChatPage.tsx に合わせている
+// Match pages/ChatPage.tsx
 // If a difference occurs, update it
 const fileLimit: FileLimit = {
   accept: {

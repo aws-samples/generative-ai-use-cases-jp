@@ -139,7 +139,7 @@ Formatting methods:
 Implementation example:
 mindmap
     root((Hybrid<br/>Work))
-        ワークスタイル
+        Work style
             Setting the ratio of remote and office work
             Utilizing flexible working hours
             Selecting locations based on business needs

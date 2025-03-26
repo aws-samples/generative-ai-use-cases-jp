@@ -198,7 +198,7 @@ export class Api extends Construct {
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
-    // Flow Lambda Function の追加
+    // Add Flow Lambda Function
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
       runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/invokeFlow.ts',

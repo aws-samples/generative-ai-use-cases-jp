@@ -5,13 +5,13 @@ export const noJpString: TSESLint.RuleModule<'noJpString', []> = {
   meta: {
     type: 'suggestion',
     docs: {
-      description: '日本語文字列を検知します',
+      description: 'Detect Japanese strings',
       recommended: 'recommended',
     },
     fixable: 'code',
     schema: [],
     messages: {
-      noJpString: '日本語文字列が検出されました: "{{value}}"',
+      noJpString: 'Japanese string detected: "{{value}}"',
     },
   },
   defaultOptions: [],

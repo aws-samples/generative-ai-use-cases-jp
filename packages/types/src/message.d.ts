@@ -35,9 +35,9 @@ export type MessageAttributes = {
 
 export type UnrecordedMessage = {
   role: Role;
-  // テキスト
+  // Text
   content: string;
-  // 追加データ（画像など）
+  // Additional data (image, etc.)
   trace?: string;
   extraData?: ExtraData[];
   llmType?: string;

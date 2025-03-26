@@ -145,7 +145,7 @@ xychart-beta
 Example implementation
 xychart-beta
     title "Sales Trend"
-    x-axis [1月, 2月, 3月, 4月, 5月, 6月, 7月, 8月, 9月, 10月, 11月, 12月]
+    x-axis [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]
     y-axis "Sales (in 10,000 yen)" 400 --> 1100
     bar [500, 600, 750, 820, 950, 1050, 1100, 1020, 920, 850, 700, 600]
     line [500, 600, 750, 820, 950, 1050, 1100, 1020, 920, 850, 700, 600]

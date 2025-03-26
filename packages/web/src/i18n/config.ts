@@ -7,6 +7,7 @@ import { initReactI18next } from 'react-i18next';
 import yaml from 'js-yaml';
 
 /* eslint-disable i18nhelper/no-jp-string */
+/* eslint-disable i18nhelper/no-jp-comment */
 
 // Define the supported languages as an object.
 // This is for use when the user manually switches languages.
@@ -31,7 +32,7 @@ i18n
     fallbackLng: 'en', // The fallback language. This language is used if no specified language file exists.
     returnEmptyString: false, // Allow definition with empty strings
     supportedLngs: Object.keys(supportedLngs),
-    debug: true, // true にすると開発コンソールに i18next が正しく初期化されたことを示す出力が表示される
+    debug: true, // Messages will be displayed in the development console if true
 
     // The default is `escapeValue: true`
     // 18next escapes code in translation messages to protect against XSS attacks.

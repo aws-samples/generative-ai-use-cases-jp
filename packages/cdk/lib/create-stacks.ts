@@ -74,9 +74,8 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       })
     : null;
 
-  // Video 生成時に StartAsyncInvoke で指定する S3 Bucket は
-  // Bedrock Runtime と同じリージョンにないとエラーになるため
-  // videoGenerationModelIds に定義されたユニークなリージョンごとに Bucket を作成する
+  // Create S3 Bucket for each unique region for StartAsyncInvoke in video generation
+  // because the S3 Bucket must be in the same region as Bedrock Runtime
   const videoModelRegions = params.videoGenerationModelIds
     .map((model) => model.region)
     .filter((elem, index, self) => self.indexOf(elem) === index);

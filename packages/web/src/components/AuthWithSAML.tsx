@@ -51,9 +51,9 @@ const AuthWithSAML: React.FC<Props> = (props) => {
         identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
         loginWith: {
           oauth: {
-            domain: samlCognitoDomainName, // cdk.json の値を指定
+            domain: samlCognitoDomainName, // Specify the value in cdk.json
             scopes: ['openid', 'email', 'profile'],
-            // CloudFront で展開している Web ページを動的に取得
+            // Get the Web page deployed with CloudFront dynamically
             redirectSignIn: [window.location.origin],
             redirectSignOut: [window.location.origin],
             responseType: 'code',

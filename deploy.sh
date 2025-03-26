@@ -11,7 +11,7 @@ echo "| |__| |  __/ | | | |__| |"
 echo " \_____|\___|_| |_|\____/ "
 echo "--------------------------"
 
-# コマンド引数の処理
+# Process command arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -c|--cdk-context)
@@ -32,30 +32,30 @@ done
 
 pushd /tmp
 
-# /tmp に存在するリポジトリを念の為削除
+# Delete the repository in /tmp if it exists
 rm -rf generative-ai-use-cases-jp
 
-# GenU を clone
+# Clone GenU
 git clone https://github.com/aws-samples/generative-ai-use-cases-jp
 
 pushd generative-ai-use-cases-jp
 
-# npm パッケージのインストール
+# Install npm packages
 npm ci
 
-# cdk.json が指定されている場合は上書きする
+# If cdk.json is specified, overwrite it
 if [[ -n "$cdk_context_path" ]]; then
     echo "Overwrite the cdk.json by $cdk_context_path"
     cp -f $cdk_context_path packages/cdk/cdk.json
 fi
 
-# CDK の bootstrap
+# Bootstrap CDK
 npx -w packages/cdk cdk bootstrap
 
-# デプロイの実行
+# Execute deployment
 npm run cdk:deploy:quick
 
-# デプロイした CloudFront の url を取得
+# Get the url of the deployed CloudFront
 weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
 
 echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"

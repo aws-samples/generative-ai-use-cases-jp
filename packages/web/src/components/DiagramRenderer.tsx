@@ -9,7 +9,7 @@ import { TbSvg, TbPng } from 'react-icons/tb';
 import { useTranslation } from 'react-i18next';
 
 const defaultConfig: MermaidConfig = {
-  // syntax error が dom node に勝手に追加されないようにする
+  // Prevent syntax error from being added to the dom node
   // https://github.com/mermaid-js/mermaid/pull/4359
   suppressErrorRendering: true,
   securityLevel: 'loose', // Allow SVG rendering

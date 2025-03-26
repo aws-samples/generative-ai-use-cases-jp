@@ -34,7 +34,7 @@ export const handler = async (
     const res = await transcribeClient.send(command);
 
     if (
-      // job を start した時のユーザーと異なる場合は Forbidden エラーを返却
+      // Return Forbidden error if the user who started the job is different
       res.TranscriptionJob?.Tags!.find(
         (tag) => tag.Key === 'userId' && tag.Value !== userId
       )

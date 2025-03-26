@@ -282,10 +282,10 @@ Example:
 ...
 Simple example: 
 flowchart TD
-    A@{ shape: stadium, label: "開始" }
+    A@{ shape: stadium, label: "Start" }
     C@{ shape: cyl, label: "DB" }
-    D@{ shape: docs, label: "レポート" }
-    E@{ shape: cross-circ, label: "完了" }
+    D@{ shape: docs, label: "Report" }
+    E@{ shape: cross-circ, label: "Completed" }
 
     A -->C
     A -->D
@@ -304,11 +304,11 @@ flowchart LR
 
 2. Texted links:
 flowchart LR
-    A--テキスト---B
-    C-->|説明|D
+    A--Text---B
+    C-->|Description|D
 
-- A--テキスト---B または A---|テキスト|B
-- A-->|テキスト|B または A--テキスト-->B
+- A--Text---B or A---|Text|B
+- A-->|Text|B or A--Text-->B
 
 3. Special links:
 flowchart LR
@@ -319,9 +319,9 @@ flowchart LR
     I <--> J
 
 - Dotted link: A-.->B
-- Texted dotted link: A-. テキスト .-> B
+- Texted dotted link: A-. Text .-> B
 - Thick link: A ==> B
-- Texted thick link: A == テキスト ==> B
+- Texted thick link: A == Text ==> B
 - Invisible link (for position adjustment): A ~~~ B
 - Circular edge: A --o B
 - Crossed edge: A --x B
@@ -375,15 +375,15 @@ subgraph title
 end
 Example: 
 flowchart TB
-    う1-->あ2
-    subgraph 一
-    あ1-->あ2
+    A1-->A2
+    subgraph 1
+    A1-->A2
     end
-    subgraph 二
-    い1-->い2
+    subgraph 2
+    B1-->B2
     end
-    subgraph 三
-    う1-->う2
+    subgraph 3
+    C1-->C2
     end
 You can also set an explicit ID for subgraphs.
 Code: 
@@ -491,7 +491,7 @@ flowchart LR
     click C call callback() "Tooltip for a callback"
     click D href "https://www.github.com" "This is a tooltip for a link"
 Links are opened in the same browser tab/window by default. You can change this behavior by adding a link target (supports _self, _blank, _parent, _top) to the click definition: 
-例: 
+example: 
 flowchart LR
     A-->B
     B-->C

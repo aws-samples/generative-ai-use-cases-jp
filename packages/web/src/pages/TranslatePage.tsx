@@ -169,7 +169,7 @@ const TranslatePage: React.FC = () => {
   // Update the comment when the article is updated
   useEffect(() => {
     if (auto) {
-      // debounce した後翻訳
+      // Translate after debounce
       onSentenceChange(sentence, additionalContext, language, loading);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

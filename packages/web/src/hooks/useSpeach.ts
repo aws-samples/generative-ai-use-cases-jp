@@ -5,7 +5,7 @@ import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Polly, SynthesizeSpeechCommand, VoiceId } from '@aws-sdk/client-polly';
 import { useTranslation } from 'react-i18next';
 
-// Engine=neural のものが指定可能
+// Only neural Engine is available
 // https://docs.aws.amazon.com/ja_jp/polly/latest/dg/available-voices.html
 const LanguageVoiceMapping: Record<string, VoiceId> = {
   en: 'Joanna',

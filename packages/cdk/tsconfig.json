@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    // 基本的なJavaScript出力設定
+    // Basic JavaScript output settings
     "target": "ES2020",
     "module": "commonjs",
     "lib": ["es2020", "dom"],
     "declaration": true,
 
-    // 厳格な型チェック設定
+    // Strict type checking settings
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -14,24 +14,24 @@
     "alwaysStrict": true,
     "strictPropertyInitialization": false,
 
-    // コード品質とエラーチェック
+    // Code quality and error checking
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
 
-    // ソースマップ設定
+    // Source map settings
     "inlineSourceMap": true,
     "inlineSources": true,
 
-    // その他の設定
+    // Other settings
     "experimentalDecorators": true,
     "esModuleInterop": true,
 
-    // 型定義ファイルの設定
+    // Type definition file settings
     "typeRoots": ["../../node_modules/@types"],
     "types": ["jest", "node"]
   },
-  // 除外するファイルとディレクトリ
+  // Exclude files and directories
   "exclude": ["node_modules", "cdk.out"]
 }

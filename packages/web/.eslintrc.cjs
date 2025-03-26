@@ -15,21 +15,21 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    // Prettire で実施するので ESLint の Rule は無効化
+    // Disable ESLint rules because Prettier will handle them
     'tailwindcss/classnames-order': ['off'],
-    // x-screen h-screen を size-screen と書くという指示が出るが
-    // size-screen は存在しないというバグがあるためこちらのルールは一時的に無効化する
+    // There is a bug that x-screen h-screen is written as size-screen, but size-screen does not exist.
+    // So this rule is temporarily disabled.
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/issues/307
     'tailwindcss/enforces-shorthand': ['off'],
-    // 日本語文字列を検知するルールを適用
+    // Detect Japanese strings
     'i18nhelper/no-jp-string': 'warn',
     'i18nhelper/no-jp-comment': 'warn',
-    // JSX のルールを適用
+    // Apply JSX rules
     '@shopify/jsx-no-hardcoded-content': 'warn',
   },
   settings: {
     tailwindcss: {
-      // 以下の Warning 対策
+      // The following warnings are suppressed
       // Classname 'w-' is not a Tailwind CSS class!
       // Classname 'h-' is not a Tailwind CSS class!
       whitelist: ['w-', 'h-'],

@@ -36,7 +36,7 @@ export type DragPromptItem = {
 };
 
 const DraggablePromptItem: React.FC<Props> = (props) => {
-  // React DnDのExampleを参考に実装
+  // Implement based on the React DnD example
   // https://react-dnd.github.io/react-dnd/examples/sortable/simple
   const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<DragPromptItem, void, { handlerId: Identifier | null }>({

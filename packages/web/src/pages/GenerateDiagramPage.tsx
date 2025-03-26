@@ -438,7 +438,6 @@ const GenerateDiagramPage: React.FC = () => {
     [t]
   );
 
-  // useMemoを使用して翻訳に依存する値を計算
   const MainTypeOptions = useMemo(
     () =>
       Object.values(DiagramData).filter(

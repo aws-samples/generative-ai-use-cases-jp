@@ -140,7 +140,7 @@ docRef: "github.com/all_the_tests"
 "Test Requirement" <- copies - "Test Entity 2"
 </Information>
 
-出力フォーマット:
+Output format:
 <Description>
 [Description of the requirement diagram to be generated]
 </Description>

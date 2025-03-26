@@ -124,24 +124,24 @@ const useDiagram = (id: string) => {
       try {
         let chosenType = type;
 
-        // 1. AIチョイス時はダイアグラムタイプを決定
+        // 1. When "AI" is selected, determine the diagram type
         if (type === 'AI') {
           chosenType = await selectDiagram(content);
         } else {
           setDiagramType(type);
         }
 
-        // 2. メッセージの過去の履歴をクリア
+        // 2. Clear the past history of messages
         clear();
 
-        // 3. 決定したダイアグラムタイプのシステムプロンプトを設定
+        // 3. Set the system prompt for the determined diagram type
         const systemPrompt = prompter.diagramPrompt({
           determineType: false,
           diagramType: chosenType,
         });
         updateSystemContext(systemPrompt);
 
-        // 4. ダイアグラム生成
+        // 4. Generate the diagram
         await postChat(content, true);
       } catch (error: unknown) {
         setLoading(false);

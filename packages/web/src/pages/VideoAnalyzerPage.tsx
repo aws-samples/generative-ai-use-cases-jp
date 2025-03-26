@@ -164,7 +164,7 @@ const VideoAnalyzerPage: React.FC = () => {
     context!.drawImage(videoElement.current, 0, 0, canvas.width, canvas.height);
     // The value returned by toDataURL() is in the following format (only the ;base64, part)
     // ```
-    // data:image/png;base64,<以下base64...>
+    // data:image/png;base64,<base64...>
     // ```
     const imageBase64 = canvas.toDataURL('image/png').split(';base64,')[1];
 

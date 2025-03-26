@@ -12,7 +12,7 @@ export const noJpComment: TSESLint.RuleModule<'noJpComment', []> = {
     },
     messages: {
       noJpComment:
-        'Please refrain from using the Japanese language for comments(日本語のご使用はお控えください)',
+        'Please refrain from using the Japanese language for comments',
     },
     schema: [],
   },

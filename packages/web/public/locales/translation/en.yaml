@@ -1141,7 +1141,9 @@ useCaseBuilder:
   deleting: Deleting...
   updating: Updating...
   creating: Creating...
-  helpTitle: Use Case Builder Help
+  shared: Shared
+  private: Private
+  helpTitle: Help
   samples: Sample Collection
   myUseCases: My Use Cases
   accessError: Access Error

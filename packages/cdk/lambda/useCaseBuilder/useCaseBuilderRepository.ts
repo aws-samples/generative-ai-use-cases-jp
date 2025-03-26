@@ -117,7 +117,7 @@ const innerFindUseCasesByUseCaseIds = async (
   return useCasesInTable;
 };
 
-// Get list of specific data type (favorite・recently used) by userId (all)
+// Get list of specific data type (favorite, recently used) by userId (all)
 const innerFindCommonsByUserIdAndDataType = async (
   userId: string,
   dataTypePrefix: string
@@ -142,7 +142,7 @@ const innerFindCommonsByUserIdAndDataType = async (
   return (commons.Items || []) as UseCaseCommon[];
 };
 
-// Get list of specific data type (favorite・recently used) by userId (pagination supported)
+// Get list of specific data type (favorite, recently used) by userId (pagination supported)
 const innerFindCommonsByUserIdAndDataTypePagniation = async (
   userId: string,
   dataTypePrefix: string,
@@ -178,7 +178,7 @@ const innerFindCommonsByUserIdAndDataTypePagniation = async (
   };
 };
 
-// Get all data (body・favorite・recently used) related to useCaseId
+// Get all data (body, favorite, recently used) related to useCaseId
 const innerFindCommonsByUseCaseId = async (
   useCaseId: string
 ): Promise<UseCaseCommon[]> => {
@@ -368,7 +368,7 @@ export const deleteUseCase = async (
     };
   });
 
-  // Delete body・favorite・recently used at once
+  // Delete body, favorite, recently used at once
   await dynamoDbDocument.send(
     new BatchWriteCommand({
       RequestItems: {
