@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 5000000,
       },
       manifest: {
-        name: 'Generative AI Use Cases JP',
+        name: 'Generative AI Use Cases',
         short_name: 'GenU',
         description:
           'Application Implementation of Business Use Cases Utilizing Generative AI',

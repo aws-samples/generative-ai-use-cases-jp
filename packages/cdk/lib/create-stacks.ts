@@ -106,7 +106,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
         region: params.region,
       },
       description: params.anonymousUsageTracking
-        ? 'Generative AI Use Cases JP (uksb-1tupboc48)'
+        ? 'Generative AI Use Cases (uksb-1tupboc48)'
         : undefined,
       params: params,
       crossRegionReferences: true,
