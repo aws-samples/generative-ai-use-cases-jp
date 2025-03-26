@@ -164,6 +164,7 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
@@ -179,6 +180,7 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "ragKnowledgeBaseBinaryVector": false,
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "rerankingModelId": "amazon.rerank-v1:0",
     "queryDecompositionEnabled": true,
@@ -251,6 +253,7 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
@@ -266,6 +269,7 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": true,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "ragKnowledgeBaseBinaryVector": false,
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
   }
 }
@@ -293,6 +297,15 @@ chunkingConfiguration: {
 
 その後、[Knowledge Base や OpenSearch Service を再作成して変更を加える](./DEPLOY_OPTION.md#knowledge-base-や-opensearch-service-を再作成して変更を加える)の章を参照して、変更を加えます。
 
+#### Binary Vector Embedding を有効化
+
+[Binary Vector Embedding 機能](https://aws.amazon.com/jp/blogs/machine-learning/build-cost-effective-rag-applications-with-binary-embeddings-in-amazon-titan-text-embeddings-v2-amazon-opensearch-serverless-and-amazon-bedrock-knowledge-bases/) を有効化できます。Binary Vector Embedding は float（浮動小数点 32 bit）で表現していたベクトルデータを、binary（1 bit）で表現する機能です。バイナリ埋め込みは、ストレージ効率、計算速度、およびスケーラビリティに大きなメリットをもたらします。
+
+- `ragKnowledgeBaseBinaryVector` : `true` で Binary Vector Embedding を有効化
+  - [サポートしているモデル](https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-supported.html#knowledge-base-supported-embeddings) (2025/03 現在)
+    - `amazon.titan-embed-text-v2:0`
+    - `cohere.embed-multilingual-v3`
+    - `cohere.embed-english-v3`
 
 
 #### Knowledge Base や OpenSearch Service を再作成して変更を加える
@@ -303,6 +316,7 @@ chunkingConfiguration: {
 - `ragKnowledgeBaseStandbyReplicas`
 - `ragKnowledgeBaseAdvancedParsing`
 - `ragKnowledgeBaseAdvancedParsingModelId`
+- `ragKnowledgeBaseBinaryVector`
 
 変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。
 

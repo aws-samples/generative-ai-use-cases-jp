@@ -77,6 +77,7 @@ export type FileLimit = {
   maxImageFileSizeMB: number;
   maxVideoFileCount: number;
   maxVideoFileSizeMB: number;
+  strictImageDimensions?: { width: number; height: number }[];
 };
 
 export type RecordedMessage = PrimaryKey &

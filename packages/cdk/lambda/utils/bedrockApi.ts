@@ -21,7 +21,11 @@ import {
   StreamingChunk,
   UnrecordedMessage,
 } from 'generative-ai-use-cases-jp';
-import { BEDROCK_TEXT_GEN_MODELS, BEDROCK_IMAGE_GEN_MODELS } from './models';
+import {
+  BEDROCK_TEXT_GEN_MODELS,
+  BEDROCK_IMAGE_GEN_MODELS,
+  BEDROCK_VIDEO_GEN_MODELS,
+} from './models';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { streamingChunk } from './streamingChunk';
 
@@ -147,6 +151,11 @@ const extractOutputImage = (
   return modelConfig.extractOutputImage(response);
 };
 
+const createBodyVideo = (model: Model, params: GenerateVideoParams) => {
+  const modelConfig = BEDROCK_VIDEO_GEN_MODELS[model.modelId];
+  return modelConfig.createBodyVideo(params);
+};
+
 const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
   invoke: async (model, messages, id) => {
     const region = model.region || defaultRegion;
@@ -254,7 +263,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
 
     const command = new StartAsyncInvokeCommand({
       modelId: model.modelId,
-      modelInput: params.params,
+      modelInput: createBodyVideo(model, params),
       outputDataConfig: {
         s3OutputDataConfig: {
           s3Uri: `s3://${tmpOutputBucket}`,

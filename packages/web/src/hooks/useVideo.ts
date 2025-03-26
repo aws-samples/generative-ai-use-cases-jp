@@ -21,8 +21,8 @@ const useVideo = () => {
     generate: async (params: GenerateVideoParams, model: Model | undefined) => {
       return (
         await generateVideo({
-          model,
           params,
+          model,
         })
       ).data;
     },

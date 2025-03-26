@@ -82,6 +82,7 @@ interface OpenSearchServerlessIndexProps {
   metadataField: string;
   textField: string;
   vectorDimension: string;
+  ragKnowledgeBaseBinaryVector: boolean;
 }
 
 class OpenSearchServerlessIndex extends Construct {
@@ -141,6 +142,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseStandbyReplicas,
       ragKnowledgeBaseAdvancedParsing,
       ragKnowledgeBaseAdvancedParsingModelId,
+      ragKnowledgeBaseBinaryVector,
     } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
@@ -191,6 +193,7 @@ export class RagKnowledgeBaseStack extends Stack {
       textField,
       metadataField,
       vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
+      ragKnowledgeBaseBinaryVector,
     });
 
     ossIndex.customResourceHandler.addToRolePolicy(
@@ -339,6 +342,15 @@ export class RagKnowledgeBaseStack extends Stack {
         type: 'VECTOR',
         vectorKnowledgeBaseConfiguration: {
           embeddingModelArn: `arn:aws:bedrock:${this.region}::foundation-model/${embeddingModelId}`,
+          ...(ragKnowledgeBaseBinaryVector
+            ? {
+                embeddingModelConfiguration: {
+                  bedrockEmbeddingModelConfiguration: {
+                    embeddingDataType: 'BINARY',
+                  },
+                },
+              }
+            : {}),
         },
       },
       storageConfiguration: {

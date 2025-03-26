@@ -904,6 +904,11 @@ video:
     model_not_selected: No model selected
     empty_prompt: Please enter a prompt
     invalid_parameters: Invalid parameters
+  upload: Upload
+  uploadImage: Upload Image
+  uploadImageHelp: Specify the image used in the first frame of the video.
+  supportedExtensions: 'Supported Extensions: {{acceptedExtensions}}'
+  supportedImageDimensions: 'Supported Image Dimensions: {{supportedDimensions}}'
 files:
   error:
     mimeMismatch: "{{fileName}} has a file type that doesn't match its extension."
@@ -915,6 +920,8 @@ files:
     imageCountExceeded: 'Please limit image files to {{maxCount}} or fewer'
     videoCountExceeded: 'Please limit video files to {{maxCount}} or fewer'
     fileCountExceeded: 'Please limit files to {{maxCount}} or fewer'
+    invalidImageDimension: >-
+      The allowed image file size is {{allowedDimensions}} (the uploaded image size is {{uploadedDimension}})
 auth:
   title: Generative AI Use Cases on AWS
   loading: Loading...

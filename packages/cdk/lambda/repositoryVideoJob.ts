@@ -34,6 +34,14 @@ export const createJob = async (
 ) => {
   const userId = `videoJob#${_userId}`;
   const jobId = invocationArn.split('/').slice(-1)[0];
+
+  const params = req.params;
+
+  // Do not save the information of the first frame image of Nova Reel in params
+  if (params.images && params.images.length > 0) {
+    params.images = [];
+  }
+
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
@@ -43,8 +51,7 @@ export const createJob = async (
     output: `s3://${BUCKET_NAME}/${jobId}/output.mp4`,
     modelId: req.model!.modelId,
     region: req.model!.region,
-    prompt: req.params.prompt,
-    params: JSON.stringify(req.params.params),
+    ...params,
   };
 
   await dynamoDbDocument.send(

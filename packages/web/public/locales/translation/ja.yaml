@@ -918,15 +918,21 @@ video:
     model_not_selected: モデルが選択されていません
     empty_prompt: プロンプトを入力してください
     invalid_parameters: パラメータが無効です
+  upload: アップロード
+  uploadImage: 画像アップロード
+  uploadImageHelp: 動画の 1 フレーム目に使われる画像を指定できます
+  supportedExtensions: 'サポートされている拡張子: {{acceptedExtensions}}'
+  supportedImageDimensions: 'サポートされている画像サイズ: {{supportedDimensions}}'
 files:
   error:
-    fileCountExceeded: ファイル数が上限を超えています。
-    fileSizeExceeded: ファイルサイズが上限を超えています。
-    imageCountExceeded: 画像数が上限を超えています。
-    invalidExtension: 不正なファイル形式です。
-    mimeMismatch: ファイル形式が不正です。
+    fileCountExceeded: ファイル数は {{maxCount}} 個以下にしてください。
+    fileSizeExceeded: ファイルサイズは {{maxSize}} MB 以下にしてください。
+    imageCountExceeded: 画像数は {{maxCount}} 個以下にしてください。
+    invalidExtension: '{{fileName}} は許可されていない拡張子です。許可されている拡張子は {{acceptedExtensions}} です。'
+    mimeMismatch: '{{fileName}} のファイル形式が不正です。'
     modelNotSupported: モデルが対応していません。
-    videoCountExceeded: 動画数が上限を超えています。
+    videoCountExceeded: 動画数は {{maxCount}} 個以下にしてください。
+    invalidImageDimension: 指定可能な画像ファイルのサイズは {{allowedDimensions}} です (アップロードされた画像のサイズ {{uploadedDimension}})
 navigation:
   agentChat: Agent チャット
   chat: チャット

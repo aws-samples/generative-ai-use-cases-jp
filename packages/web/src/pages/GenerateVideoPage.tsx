@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { VideoJob } from 'generative-ai-use-cases-jp';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { VideoJob, GenerateVideoParams } from 'generative-ai-use-cases-jp';
 import { create } from 'zustand';
 import useVideo from '../hooks/useVideo';
 import { MODELS } from '../hooks/useModel';
 import useFileApi from '../hooks/useFileApi';
+import useFiles from '../hooks/useFiles';
 import Textarea from '../components/Textarea';
 import Select from '../components/Select';
 import RangeSlider from '../components/RangeSlider';
@@ -12,12 +13,14 @@ import ButtonIcon from '../components/ButtonIcon';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import Card from '../components/Card';
+import ZoomUpImage from '../components/ZoomUpImage';
 import {
   PiPlayFill,
   PiDownload,
   PiSpinnerGap,
   PiArrowClockwise,
   PiTrash,
+  PiUpload,
 } from 'react-icons/pi';
 import { GenerateVideoPageQueryParams } from '../@types/navigate';
 import { useLocation } from 'react-router-dom';
@@ -25,24 +28,24 @@ import queryString from 'query-string';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
-const AMAZON_MODELS = {
-  REEL_V1: 'amazon.nova-reel-v1:0',
-};
-
-const LAY_MODELS = {
-  RAY_V2: 'luma.ray-v2:0',
-};
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MODEL_PARAMS: Record<string, any> = {
-  '': {},
-  [AMAZON_MODELS.REEL_V1]: {
+  'amazon.nova-reel-v1:0': {
     dimension: ['1280x720'],
     durationSeconds: [6],
     fps: [24],
     seed: 0,
+    // type of the images below: FileLimit & { label: string }
+    images: {
+      accept: {
+        image: ['.jpg', '.jpeg', '.png'],
+      },
+      maxImageFileCount: 1,
+      maxImageFileSizeMB: 10,
+      strictImageDimensions: [{ width: 1280, height: 720 }],
+    },
   },
-  [LAY_MODELS.RAY_V2]: {
+  'luma.ray-v2:0': {
     resolution: ['540p', '720p'],
     durationSeconds: [5, 9],
     aspectRatio: ['1:1', '16:9', '9:16', '4:3', '3:4', '21:9', '9:21'],
@@ -50,45 +53,7 @@ const MODEL_PARAMS: Record<string, any> = {
   },
 };
 
-type ComprehensiveParams = {
-  prompt: string;
-  dimension: string;
-  durationSeconds: number;
-  fps: number;
-  seed: number;
-  resolution: string;
-  aspectRatio: string;
-  loop: boolean;
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PARAMS_GENERATOR: Record<string, (params: ComprehensiveParams) => any> = {
-  [AMAZON_MODELS.REEL_V1]: (params: ComprehensiveParams) => {
-    return {
-      taskType: 'TEXT_VIDEO',
-      textToVideoParams: {
-        text: params.prompt,
-      },
-      videoGenerationConfig: {
-        durationSeconds: params.durationSeconds,
-        fps: params.fps,
-        dimension: params.dimension,
-        seed: params.seed,
-      },
-    };
-  },
-  [LAY_MODELS.RAY_V2]: (params: ComprehensiveParams) => {
-    return {
-      prompt: params.prompt,
-      aspect_ratio: params.aspectRatio,
-      loop: params.loop,
-      duration: `${params.durationSeconds}s`,
-      resolution: params.resolution,
-    };
-  },
-};
-
-type StateType = ComprehensiveParams & {
+type StateType = Omit<Required<GenerateVideoParams>, 'images'> & {
   videoGenModelId: string;
   setVideoGenModelId: (s: string) => void;
   setPrompt: (s: string) => void;
@@ -190,7 +155,7 @@ const GenerateVideoPage: React.FC = () => {
     setLoop,
     clear,
   } = useGenerateVideoPageState();
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
   const {
     generate,
     videoJobs,
@@ -201,6 +166,13 @@ const GenerateVideoPage: React.FC = () => {
     isValidatingVideoJobs,
     deleteVideoJob: deleteVideoJobInner,
   } = useVideo();
+  const {
+    uploadFiles,
+    uploadedFiles,
+    deleteUploadedFile,
+    errorMessages,
+    clear: clearFiles,
+  } = useFiles(pathname);
   const { videoGenModelIds, videoGenModels } = MODELS;
   const { getFileDownloadSignedUrl } = useFileApi();
   const [previewVideoSrc, setPreviewVideoSrc] = useState('');
@@ -211,6 +183,21 @@ const GenerateVideoPage: React.FC = () => {
   >({});
   const [deletingJobIds, setDeletingJobIds] = useState<Record<string, boolean>>(
     {}
+  );
+
+  const onChangeFiles = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      const fileLimit = MODEL_PARAMS[videoGenModelId]!.images;
+      const accept =
+        MODEL_PARAMS[videoGenModelId].images?.accept?.image?.join(',');
+
+      if (files) {
+        // Reflect the files and upload
+        uploadFiles(Array.from(files), fileLimit, accept);
+      }
+    },
+    [videoGenModelId, uploadFiles]
   );
 
   useEffect(() => {
@@ -280,20 +267,34 @@ const GenerateVideoPage: React.FC = () => {
     setIsGenerating(true);
 
     try {
+      const params: GenerateVideoParams = {
+        prompt,
+        durationSeconds,
+        dimension,
+        fps,
+        seed,
+        resolution,
+        aspectRatio,
+        loop,
+        images:
+          MODEL_PARAMS[videoGenModelId].images && uploadedFiles.length > 0
+            ? uploadedFiles.map((f) => {
+                return {
+                  format: f.base64EncodedData!.includes('data:image/png')
+                    ? 'png'
+                    : 'jpeg',
+                  source: {
+                    bytes: f.base64EncodedData!.split(';base64,')[1],
+                  },
+                };
+              })
+            : undefined,
+      };
+
+      console.log(params);
+
       await generate(
-        {
-          prompt,
-          params: PARAMS_GENERATOR[videoGenModelId]({
-            prompt,
-            dimension,
-            durationSeconds,
-            fps,
-            seed,
-            resolution,
-            aspectRatio,
-            loop,
-          }),
-        },
+        params,
         videoGenModels.find((m) => m.modelId === videoGenModelId)
       );
 
@@ -324,6 +325,7 @@ const GenerateVideoPage: React.FC = () => {
     mutateVideoJobs,
     setIsGenerating,
     t,
+    uploadedFiles,
   ]);
 
   const setPreview = useCallback(
@@ -365,8 +367,12 @@ const GenerateVideoPage: React.FC = () => {
   );
 
   const disabledExec = useMemo(() => {
-    return prompt.length === 0 || isGenerating;
-  }, [prompt, isGenerating]);
+    return prompt.length === 0 || isGenerating || errorMessages.length > 0;
+  }, [prompt, isGenerating, errorMessages]);
+
+  const clearable = useMemo(() => {
+    return (prompt.length > 0 || uploadedFiles.length > 0) && !isGenerating;
+  }, [prompt, isGenerating, uploadedFiles]);
 
   const formatDate = useCallback((createdDate: string) => {
     const date = new Date(Number(createdDate));
@@ -387,110 +393,200 @@ const GenerateVideoPage: React.FC = () => {
             fullWidth
           />
 
-          <Textarea
-            value={prompt}
-            onChange={setPrompt}
-            label={t('video.prompt.title')}
-            placeholder={t('video.prompt.placeholder')}
-            rows={3}
-            required
-          />
+          {MODEL_PARAMS[videoGenModelId] && (
+            <>
+              <Textarea
+                value={prompt}
+                onChange={setPrompt}
+                label={t('video.prompt.title')}
+                placeholder={t('video.prompt.placeholder')}
+                rows={3}
+                required
+              />
 
-          {MODEL_PARAMS[videoGenModelId].dimension && (
-            <Select
-              label={t('video.dimension')}
-              value={dimension}
-              onChange={setDimension}
-              options={MODEL_PARAMS[videoGenModelId].dimension.map(
-                (m: string) => {
-                  return { value: m, label: m };
-                }
+              {MODEL_PARAMS[videoGenModelId].dimension && (
+                <Select
+                  label={t('video.dimension')}
+                  value={dimension}
+                  onChange={setDimension}
+                  options={MODEL_PARAMS[videoGenModelId].dimension.map(
+                    (m: string) => {
+                      return { value: m, label: m };
+                    }
+                  )}
+                  fullWidth
+                />
               )}
-              fullWidth
-            />
-          )}
 
-          {MODEL_PARAMS[videoGenModelId].resolution && (
-            <Select
-              label={t('video.resolution')}
-              value={resolution}
-              onChange={setResolution}
-              options={MODEL_PARAMS[videoGenModelId].resolution.map(
-                (m: string) => {
-                  return { value: m, label: m };
-                }
+              {MODEL_PARAMS[videoGenModelId].resolution && (
+                <Select
+                  label={t('video.resolution')}
+                  value={resolution}
+                  onChange={setResolution}
+                  options={MODEL_PARAMS[videoGenModelId].resolution.map(
+                    (m: string) => {
+                      return { value: m, label: m };
+                    }
+                  )}
+                  fullWidth
+                />
               )}
-              fullWidth
-            />
-          )}
 
-          {MODEL_PARAMS[videoGenModelId].aspectRatio && (
-            <Select
-              label={t('video.aspectRatio')}
-              value={aspectRatio}
-              onChange={setAspectRatio}
-              options={MODEL_PARAMS[videoGenModelId].aspectRatio.map(
-                (m: string) => {
-                  return { value: m, label: m };
-                }
+              {MODEL_PARAMS[videoGenModelId].aspectRatio && (
+                <Select
+                  label={t('video.aspectRatio')}
+                  value={aspectRatio}
+                  onChange={setAspectRatio}
+                  options={MODEL_PARAMS[videoGenModelId].aspectRatio.map(
+                    (m: string) => {
+                      return { value: m, label: m };
+                    }
+                  )}
+                  fullWidth
+                />
               )}
-              fullWidth
-            />
-          )}
 
-          {MODEL_PARAMS[videoGenModelId].durationSeconds && (
-            <Select
-              label={t('video.duration')}
-              value={`${durationSeconds}`}
-              onChange={(n: string) => {
-                setDurationSeconds(Number(n));
-              }}
-              options={MODEL_PARAMS[videoGenModelId].durationSeconds.map(
-                (m: number) => {
-                  return { value: `${m}`, label: `${m}` };
-                }
+              {MODEL_PARAMS[videoGenModelId].durationSeconds && (
+                <Select
+                  label={t('video.duration')}
+                  value={`${durationSeconds}`}
+                  onChange={(n: string) => {
+                    setDurationSeconds(Number(n));
+                  }}
+                  options={MODEL_PARAMS[videoGenModelId].durationSeconds.map(
+                    (m: number) => {
+                      return { value: `${m}`, label: `${m}` };
+                    }
+                  )}
+                  fullWidth
+                />
               )}
-              fullWidth
-            />
-          )}
 
-          {MODEL_PARAMS[videoGenModelId].fps && (
-            <Select
-              label={t('video.fps')}
-              value={`${fps}`}
-              onChange={(n: string) => {
-                setFps(Number(n));
-              }}
-              options={MODEL_PARAMS[videoGenModelId].fps.map((m: number) => {
-                return { value: `${m}`, label: `${m}` };
-              })}
-              fullWidth
-            />
-          )}
+              {MODEL_PARAMS[videoGenModelId].fps && (
+                <Select
+                  label={t('video.fps')}
+                  value={`${fps}`}
+                  onChange={(n: string) => {
+                    setFps(Number(n));
+                  }}
+                  options={MODEL_PARAMS[videoGenModelId].fps.map(
+                    (m: number) => {
+                      return { value: `${m}`, label: `${m}` };
+                    }
+                  )}
+                  fullWidth
+                />
+              )}
 
-          {MODEL_PARAMS[videoGenModelId].seed !== undefined && (
-            <RangeSlider
-              className="w-full"
-              label={t('video.seed.title')}
-              min={0}
-              max={2147483646}
-              value={seed}
-              onChange={(n) => {
-                setSeed(n);
-              }}
-              help={t('video.seed.help')}
-            />
-          )}
+              {MODEL_PARAMS[videoGenModelId].seed !== undefined && (
+                <RangeSlider
+                  className="w-full"
+                  label={t('video.seed.title')}
+                  min={0}
+                  max={2147483646}
+                  value={seed}
+                  onChange={(n) => {
+                    setSeed(n);
+                  }}
+                  help={t('video.seed.help')}
+                />
+              )}
 
-          {MODEL_PARAMS[videoGenModelId].loop !== undefined && (
-            <Switch
-              className="w-full"
-              label={t('video.loop')}
-              checked={loop}
-              onSwitch={(l) => {
-                setLoop(l);
-              }}
-            />
+              {MODEL_PARAMS[videoGenModelId].loop !== undefined && (
+                <Switch
+                  className="w-full"
+                  label={t('video.loop')}
+                  checked={loop}
+                  onSwitch={(l) => {
+                    setLoop(l);
+                  }}
+                />
+              )}
+
+              {MODEL_PARAMS[videoGenModelId]!.images && (
+                <div>
+                  <div className="text-sm">{t('video.uploadImage')}</div>
+
+                  {/* Currently, <input multiple/> is not necessary, but multiple is set for future extensibility */}
+                  <label>
+                    <input
+                      hidden
+                      onChange={onChangeFiles}
+                      type="file"
+                      accept={MODEL_PARAMS[
+                        videoGenModelId
+                      ]!.images!.accept.image.join(',')}
+                      multiple
+                      value={[]}
+                    />
+                    <div className="text-aws-smile border-aws-smile my-2 flex w-full cursor-pointer flex-row items-center justify-center rounded-full border-2 bg-white p-1 text-sm hover:bg-gray-100">
+                      <PiUpload className="mr-1 text-base" />{' '}
+                      {t('video.upload')}
+                    </div>
+                  </label>
+
+                  <p className="my-1 text-xs">{t('video.uploadImageHelp')}</p>
+
+                  <p className="my-1 text-xs text-gray-400">
+                    {t('video.supportedExtensions', {
+                      acceptedExtensions:
+                        MODEL_PARAMS[
+                          videoGenModelId
+                        ]!.images!.accept.image.join(', '),
+                    })}
+                  </p>
+
+                  {MODEL_PARAMS[videoGenModelId]!.images!
+                    .strictImageDimensions && (
+                    <p className="my-1 text-xs text-gray-400">
+                      {t('video.supportedImageDimensions', {
+                        supportedDimensions: MODEL_PARAMS[
+                          videoGenModelId
+                        ]!.images!.strictImageDimensions.map(
+                          (d: { width: number; height: number }) =>
+                            `${d.width}x${d.height}`
+                        ).join(', '),
+                      })}
+                    </p>
+                  )}
+
+                  {errorMessages.length > 0 && (
+                    <div>
+                      {errorMessages.map((errorMessage, idx) => (
+                        <p key={idx} className="text-red-500">
+                          {errorMessage}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {uploadedFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {uploadedFiles.map((uploadedFile, idx) => {
+                        return (
+                          <ZoomUpImage
+                            key={idx}
+                            src={uploadedFile.base64EncodedData}
+                            loading={uploadedFile.uploading}
+                            deleting={uploadedFile.deleting}
+                            size="s"
+                            error={uploadedFile.errorMessages.length > 0}
+                            onDelete={() => {
+                              deleteUploadedFile(
+                                uploadedFile.id ?? '',
+                                MODEL_PARAMS[videoGenModelId]!.images!,
+                                MODEL_PARAMS[videoGenModelId]!.images!.accept
+                                  .image
+                              );
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           <div className="mt-4 flex flex-row items-center gap-x-5">
@@ -504,8 +600,11 @@ const GenerateVideoPage: React.FC = () => {
             <Button
               className="h-8 w-full"
               outlined
-              onClick={clear}
-              disabled={disabledExec}>
+              onClick={() => {
+                clear();
+                clearFiles();
+              }}
+              disabled={!clearable}>
               {t('video.clear')}
             </Button>
           </div>

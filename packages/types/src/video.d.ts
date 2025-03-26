@@ -1,11 +1,20 @@
 import { PrimaryKey } from './base';
-import { DocumentType } from '@smithy/types';
 
 export type GenerateVideoParams = {
   prompt: string;
-  // Parameters specific to each model are as follows
-  // Pass them directly to StartAsyncInvokeCommand
-  params: DocumentType;
+  durationSeconds: number;
+  dimension?: string;
+  fps?: number;
+  seed?: number;
+  resolution?: string;
+  aspectRatio?: string;
+  loop?: boolean;
+  images?: {
+    format: 'png' | 'jpeg';
+    source: {
+      bytes: string;
+    };
+  }[];
 };
 
 export type VideoJob = PrimaryKey & {
