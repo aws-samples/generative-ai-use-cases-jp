@@ -8,22 +8,28 @@
       
       
       
+        <link rel="canonical" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html">
       
       
+        <link rel="prev" href="EXTENSION_INSTALL.html">
       
-      <link rel="icon" href="/generative-ai-use-cases-jp/assets/images/favicon.png">
+      
+        <link rel="next" href="UPDATE.html">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>Generative AI Use Cases (GenU)</title>
+        <title>SAML 認証 - Generative AI Use Cases (GenU)</title>
       
     
     
-      <link rel="stylesheet" href="/generative-ai-use-cases-jp/assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="/generative-ai-use-cases-jp/assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -42,13 +48,39 @@
       
     
     
-      <link rel="stylesheet" href="/generative-ai-use-cases-jp/assets/stylesheets/custom/custom.css">
+      <link rel="stylesheet" href="../assets/stylesheets/custom/custom.css">
     
-    <script>__md_scope=new URL("/generative-ai-use-cases-jp/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
+    
+      
+        <meta  property="og:type"  content="website" >
+      
+        <meta  property="og:title"  content="SAML 認証 - Generative AI Use Cases (GenU)" >
+      
+        <meta  property="og:description"  content="None" >
+      
+        <meta  property="og:image"  content="https://aws-samples.github.io/generative-ai-use-cases-jp/assets/images/social/ja/EXTENSION_SAML.png" >
+      
+        <meta  property="og:image:type"  content="image/png" >
+      
+        <meta  property="og:image:width"  content="1200" >
+      
+        <meta  property="og:image:height"  content="630" >
+      
+        <meta  property="og:url"  content="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html" >
+      
+        <meta  name="twitter:card"  content="summary_large_image" >
+      
+        <meta  name="twitter:title"  content="SAML 認証 - Generative AI Use Cases (GenU)" >
+      
+        <meta  name="twitter:description"  content="None" >
+      
+        <meta  name="twitter:image"  content="https://aws-samples.github.io/generative-ai-use-cases-jp/assets/images/social/ja/EXTENSION_SAML.png" >
+      
     
     
   </head>
@@ -67,6 +99,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#ブラウザ拡張機能の-saml-認証方法" class="md-skip">
+          コンテンツにスキップ
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -79,7 +116,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="ヘッダー">
-    <a href="/generative-ai-use-cases-jp/ja/index.html" title="Generative AI Use Cases (GenU)" class="md-header__button md-logo" aria-label="Generative AI Use Cases (GenU)" data-md-component="logo">
+    <a href="index.html" title="Generative AI Use Cases (GenU)" class="md-header__button md-logo" aria-label="Generative AI Use Cases (GenU)" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -99,7 +136,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              SAML 認証
             
           </span>
         </div>
@@ -120,13 +157,13 @@
       <ul class="md-select__list">
         
           <li class="md-select__item">
-            <a href="/generative-ai-use-cases-jp/en/UPDATE.html" hreflang="en" class="md-select__link">
+            <a href="../en/EXTENSION_SAML.html" hreflang="en" class="md-select__link">
               English
             </a>
           </li>
         
           <li class="md-select__item">
-            <a href="/generative-ai-use-cases-jp/ja/UPDATE.html" hreflang="ja" class="md-select__link">
+            <a href="EXTENSION_SAML.html" hreflang="ja" class="md-select__link">
               日本語
             </a>
           </li>
@@ -207,7 +244,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/generative-ai-use-cases-jp/ja/index.html" class="md-tabs__link">
+      <a href="index.html" class="md-tabs__link">
         
   
     
@@ -222,17 +259,21 @@
         
   
   
+    
+  
   
     
     
       
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/generative-ai-use-cases-jp/ja/ABOUT.html" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="ABOUT.html" class="md-tabs__link">
           
   
     
@@ -276,7 +317,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="ナビゲーション" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/generative-ai-use-cases-jp/ja/index.html" title="Generative AI Use Cases (GenU)" class="md-nav__button md-logo" aria-label="Generative AI Use Cases (GenU)" data-md-component="logo">
+    <a href="index.html" title="Generative AI Use Cases (GenU)" class="md-nav__button md-logo" aria-label="Generative AI Use Cases (GenU)" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -306,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/index.html" class="md-nav__link">
+      <a href="index.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -323,8 +364,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -339,19 +382,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -362,7 +408,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Getting started
@@ -389,17 +435,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
         
           
-          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -424,7 +473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/ABOUT.html" class="md-nav__link">
+      <a href="ABOUT.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -445,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/DEPLOY_ON_CLOUDSHELL.html" class="md-nav__link">
+      <a href="DEPLOY_ON_CLOUDSHELL.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -466,7 +515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/DEPLOY_OPTION.html" class="md-nav__link">
+      <a href="DEPLOY_OPTION.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -506,17 +555,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
         
           
-          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -541,7 +593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/SAML_WITH_GOOGLE_WORKSPACE.html" class="md-nav__link">
+      <a href="SAML_WITH_GOOGLE_WORKSPACE.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -562,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/SAML_WITH_ENTRA_ID.html" class="md-nav__link">
+      <a href="SAML_WITH_ENTRA_ID.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -588,8 +640,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -605,18 +659,21 @@
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
         
           
-          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -627,7 +684,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             ブラウザ拡張機能
@@ -641,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/EXTENSION.html" class="md-nav__link">
+      <a href="EXTENSION.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -662,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/EXTENSION_BUILD.html" class="md-nav__link">
+      <a href="EXTENSION_BUILD.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -683,7 +740,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/EXTENSION_INSTALL.html" class="md-nav__link">
+      <a href="EXTENSION_INSTALL.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -701,10 +758,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    SAML 認証
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="EXTENSION_SAML.html" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -713,6 +790,101 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目次">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#前提条件" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提条件
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#利用手順" class="md-nav__link">
+    <span class="md-ellipsis">
+      利用手順
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="利用手順">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ブラウザ拡張機能のビルドとインストール" class="md-nav__link">
+    <span class="md-ellipsis">
+      ブラウザ拡張機能のビルドとインストール
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognito-の設定" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cognito の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cognito の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#拡張機能の-url-確認" class="md-nav__link">
+    <span class="md-ellipsis">
+      拡張機能の URL 確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognito-の-hosted-ui-の設定" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cognito の Hosted UI の設定
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#動作確認" class="md-nav__link">
+    <span class="md-ellipsis">
+      動作確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -748,17 +920,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -783,7 +958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/UPDATE.html" class="md-nav__link">
+      <a href="UPDATE.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -804,7 +979,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/DEVELOPMENT.html" class="md-nav__link">
+      <a href="DEVELOPMENT.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -825,7 +1000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/DESTROY.html" class="md-nav__link">
+      <a href="DESTROY.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -846,7 +1021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/generative-ai-use-cases-jp/ja/PWA.html" class="md-nav__link">
+      <a href="PWA.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -892,6 +1067,91 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目次
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#前提条件" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提条件
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#利用手順" class="md-nav__link">
+    <span class="md-ellipsis">
+      利用手順
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="利用手順">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ブラウザ拡張機能のビルドとインストール" class="md-nav__link">
+    <span class="md-ellipsis">
+      ブラウザ拡張機能のビルドとインストール
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognito-の設定" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cognito の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cognito の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#拡張機能の-url-確認" class="md-nav__link">
+    <span class="md-ellipsis">
+      拡張機能の URL 確認
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cognito-の-hosted-ui-の設定" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cognito の Hosted UI の設定
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#動作確認" class="md-nav__link">
+    <span class="md-ellipsis">
+      動作確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -903,8 +1163,72 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+  
+    <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/docs/ja/EXTENSION_SAML.md" title="編集" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/raw/main/docs/ja/EXTENSION_SAML.md" title="このページの原文を表示" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="ブラウザ拡張機能の-saml-認証方法">ブラウザ拡張機能の SAML 認証方法<a class="headerlink" href="#ブラウザ拡張機能の-saml-認証方法" title="Permanent link">&para;</a></h1>
+<h2 id="前提条件">前提条件<a class="headerlink" href="#前提条件" title="Permanent link">&para;</a></h2>
+<p>ブラウザ拡張機能で SAML 認証を行うためには、GenU で事前に SAML 連携の設定を行なっている必要があります。事前に、<a href="DEPLOY_OPTION.html#saml-認証">こちらの手順</a>を参考に設定を行なってください。</p>
+<h2 id="利用手順">利用手順<a class="headerlink" href="#利用手順" title="Permanent link">&para;</a></h2>
+<h3 id="ブラウザ拡張機能のビルドとインストール">ブラウザ拡張機能のビルドとインストール<a class="headerlink" href="#ブラウザ拡張機能のビルドとインストール" title="Permanent link">&para;</a></h3>
+<p>まずは、<a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/browser-extension/README.md#利用方法">こちら</a>を参考に、ブラウザ拡張機能のビルドとインストールを行なってください。GenU で SAML 連携の設定を行なった後にビルドを行うと、自動で SAML 認証に必要な情報が設定されるので、最初に GenU の設定を行うことをオススメします。</p>
+<h3 id="cognito-の設定">Cognito の設定<a class="headerlink" href="#cognito-の設定" title="Permanent link">&para;</a></h3>
+<p>SAML 認証を行う際に、Cognito からブラウザ拡張機能に対して、コールバックを行う必要があります。そのため、Cognito アプリケーションクライアントのコールバック URL にブラウザ拡張機能の URL を追加します。</p>
+<h4 id="拡張機能の-url-確認">拡張機能の URL 確認<a class="headerlink" href="#拡張機能の-url-確認" title="Permanent link">&para;</a></h4>
+<p>まず、インストールしたブラウザ拡張機能を開いて、「ログイン画面へ」ボタンを押してください。</p>
+<p><img alt="top" src="../assets/images/extension/saml_top.png" /></p>
+<p>もし、上記の画面ではなく通常のユーザー認証画面が表示された場合は、設定画面を開いて「SAML認証」を有効化し、必要な項目を入力してください。設定値は、<a href="EXTENSION_BUILD.html#その他のユーザー-windows-等">こちらの方法</a>で確認できます。
+<img alt="settings" src="../assets/images/extension/saml_settings.png" /></p>
+<p>「ログイン画面へ」ボタンを押すと、以下の SAML 認証を行う画面が"新しいタブ"に表示されます。Cognito の設定をしていないため、まだログインできません。Cognito の設定に利用するので、この画面の URL をコピーして、メモしてください。
+<img alt="login" src="../assets/images/extension/saml_login.png" /></p>
+<h4 id="cognito-の-hosted-ui-の設定">Cognito の Hosted UI の設定<a class="headerlink" href="#cognito-の-hosted-ui-の設定" title="Permanent link">&para;</a></h4>
+<p>GenU の SAML の設定で Cognito の Hosted UI を設定しましたが、そちらに拡張機能の URL を「許可されているコールバック URL」として設定します。詳細は、以下の手順をご覧ください。</p>
+<ul>
+<li><a href="SAML_WITH_ENTRA_ID.html#cognito-の設定--hosted-ui">Microsoft Entra ID の場合</a></li>
+<li><a href="SAML_WITH_GOOGLE_WORKSPACE.html#cognito-の設定--hosted-ui">Google Workspace の場合</a></li>
+</ul>
+<p>「拡張機能の URL 確認」でメモしていた拡張機能の URL を、「許可されているコールバック URL」に設定してください。拡張機能の URL は、必ず以下の形式にしてください。</p>
+<pre><code class="language-text">chrome-extension://拡張機能のID/index.html
+</code></pre>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>Microsoft Edgeを利用している場合は、ブラウザ上のURLは <code>extension://拡張機能のID/index.html</code> となっていますが、Cognito の設定は、<code>chrome-extension</code> と表記する必要があります。</p>
+</div>
+<h3 id="動作確認">動作確認<a class="headerlink" href="#動作確認" title="Permanent link">&para;</a></h3>
+<p>ブラウザ拡張機能のログイン画面から、SAML 認証を行なってください。認証に成功したら、以下のような画面が表示されます。
+<img alt="loggedin" src="../assets/images/extension/saml_loggedin.png" /></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -922,6 +1246,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="フッター" >
+        
+          
+          <a href="EXTENSION_INSTALL.html" class="md-footer__link md-footer__link--prev" aria-label="前: インストール">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                前
+              </span>
+              <div class="md-ellipsis">
+                インストール
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="UPDATE.html" class="md-footer__link md-footer__link--next" aria-label="次: アップデート方法">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                次
+              </span>
+              <div class="md-ellipsis">
+                アップデート方法
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -950,10 +1312,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "/generative-ai-use-cases-jp/", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.trackings", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "/generative-ai-use-cases-jp/assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.trackings", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f", "clipboard.copy": "\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u3078\u30b3\u30d4\u30fc", "search.result.more.one": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3082\u30461\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.more.other": "\u3053\u306e\u30da\u30fc\u30b8\u5185\u306b\u3042\u3068#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.none": "\u4f55\u3082\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f", "search.result.one": "1\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.other": "#\u4ef6\u898b\u3064\u304b\u308a\u307e\u3057\u305f", "search.result.placeholder": "\u691c\u7d22\u30ad\u30fc\u30ef\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044", "search.result.term.missing": "\u691c\u7d22\u306b\u542b\u307e\u308c\u306a\u3044", "select.version": "\u30d0\u30fc\u30b8\u30e7\u30f3\u5207\u308a\u66ff\u3048"}}</script>
     
     
-      <script src="/generative-ai-use-cases-jp/assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
     
   </body>
