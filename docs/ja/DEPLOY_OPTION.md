@@ -1228,8 +1228,8 @@ SageMaker JumpStart では OSS の大規模言語モデルをワンクリック�
 > デプロイする際、一箇所だけ修正点があります。エンドポイント名が GenU アプリケーションに表示されるほか、モデルのプロンプトテンプレート（次セクションにて説明）をエンドポイント名から判断しているためモデルを区別できるエンドポイント名を指定する必要があります。
 そのため、デプロイする際に `huggingface_model.deploy()` の引数に `endpoint_name="<モデルを区別できるエンドポイント名>"` を追加してください。
 
-![Hugging Face モデルページにて Deploy から Amazon SageMaker を選択](./assets/DEPLOY_OPTION/HF_Deploy.png)
-![Hugging Face モデルページのデプロイスクリプトのガイド](./assets/DEPLOY_OPTION/HF_Deploy2.png)
+![Hugging Face モデルページにて Deploy から Amazon SageMaker を選択](../assets/DEPLOY_OPTION/HF_Deploy.png)
+![Hugging Face モデルページのデプロイスクリプトのガイド](../assets/DEPLOY_OPTION/HF_Deploy2.png)
 
 ### デプロイしたモデルを GenU から呼び出す設定
 

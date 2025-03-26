@@ -18,13 +18,13 @@ SAML 認証を行う際に、Cognito からブラウザ拡張機能に対して�
 
 まず、インストールしたブラウザ拡張機能を開いて、「ログイン画面へ」ボタンを押してください。
 
-![top](./assets/images/extension/saml_top.png)
+![top](../assets/images/extension/saml_top.png)
 
 もし、上記の画面ではなく通常のユーザー認証画面が表示された場合は、設定画面を開いて「SAML認証」を有効化し、必要な項目を入力してください。設定値は、[こちらの方法](./EXTENSION_BUILD.md#その他のユーザー-windows-等)で確認できます。
-![settings](./assets/images/extension/saml_settings.png)
+![settings](../assets/images/extension/saml_settings.png)
 
 「ログイン画面へ」ボタンを押すと、以下の SAML 認証を行う画面が"新しいタブ"に表示されます。Cognito の設定をしていないため、まだログインできません。Cognito の設定に利用するので、この画面の URL をコピーして、メモしてください。
-![login](./assets/images/extension/saml_login.png)
+![login](../assets/images/extension/saml_login.png)
 
 #### Cognito の Hosted UI の設定
 
@@ -45,4 +45,4 @@ chrome-extension://拡張機能のID/index.html
 ### 動作確認
 
 ブラウザ拡張機能のログイン画面から、SAML 認証を行なってください。認証に成功したら、以下のような画面が表示されます。
-![loggedin](./assets/images/extension/saml_loggedin.png)
+![loggedin](../assets/images/extension/saml_loggedin.png)
