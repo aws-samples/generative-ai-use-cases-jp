@@ -75,12 +75,15 @@ npm run cdk:deploy
 
 Set `ragEnabled` to `true`. (Default is `false`)
 
+You can also set `kendraIndexLanguage` to prefered language, which may improve search performance.
+
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragEnabled: true,
+    kendraIndexLanguage: 'en'
   },
 };
 ```
@@ -90,7 +93,8 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
-    "ragEnabled": true
+    "ragEnabled": true,
+    "kendraIndexLanguage": "en"
   }
 }
 ```

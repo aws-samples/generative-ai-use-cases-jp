@@ -75,12 +75,15 @@ npm run cdk:deploy
 
 `ragEnabled` に `true` を指定します。(デフォルトは `false`)
 
+また、`kendraIndexLanguage` (デフォルトは日本語の `ja`) も必要に応じて変更することが可能です。
+
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragEnabled: true,
+    kendraIndexLanguage: 'jp'
   },
 };
 ```
@@ -90,7 +93,8 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
-    "ragEnabled": true
+    "ragEnabled": true,
+    "kendraIndexLanguage": "jp"
   }
 }
 ```

@@ -11,7 +11,9 @@
 </div>
 
 > [!IMPORTANT]
-> GenU was upgraded to v3 in January 2025. As it includes some breaking changes, please check the [release notes](https://github.com/aws-samples/generative-ai-use-cases-jp/releases/tag/v3.0.0) before upgrading.
+> GenU has supported multiple languages since v4.
+>
+> GenU は v4 から多言語対応しました。日本語ドキュメントは[こちら](https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html)
 
 ## GenU Usage Patterns
 
@@ -203,14 +205,14 @@ We have published configuration and cost estimation examples for using GenU. (Th
 If you would like to have your use case featured, please contact us via [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues).
 
 ## References
- - [Blog: GenU Use Case Builder for Creating and Distributing Generative AI Apps with No Code](https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/)
- - [Blog: How to Make RAG Projects Successful #1 ~ Or How to Fail Fast ~](https://aws.amazon.com/jp/builders-flash/202502/way-to-succeed-rag-project/)
- - [Blog: Debugging Methods to Improve Accuracy in RAG Chat](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
- - [Blog: Customizing GenU with No Coding Using Amazon Q Developer CLI](https://qiita.com/wadabee/items/659e189018ad1a08e152)
- - [Blog: How to Customize Generative AI Use Cases JP](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
- - [Blog: Let Generative AI Decline Unreasonable Requests ~ Integrating Generative AI into Browsers ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
- - [Blog: Developing an Interpreter with Amazon Bedrock!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
- - [Video: The Appeal and Usage of Generative AI Use Cases JP (GenU) for Thoroughly Considering Generative AI Use Cases](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
+ - [Blog (Japanese): GenU Use Case Builder for Creating and Distributing Generative AI Apps with No Code](https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/)
+ - [Blog (Japanese): How to Make RAG Projects Successful #1 ~ Or How to Fail Fast ~](https://aws.amazon.com/jp/builders-flash/202502/way-to-succeed-rag-project/)
+ - [Blog (Japanese): Debugging Methods to Improve Accuracy in RAG Chat](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
+ - [Blog (Japanese): Customizing GenU with No Coding Using Amazon Q Developer CLI](https://qiita.com/wadabee/items/659e189018ad1a08e152)
+ - [Blog (Japanese): How to Customize Generative AI Use Cases JP](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
+ - [Blog (Japanese): Let Generative AI Decline Unreasonable Requests ~ Integrating Generative AI into Browsers ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
+ - [Blog (Japanese): Developing an Interpreter with Amazon Bedrock!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
+ - [Video (Japanese): The Appeal and Usage of Generative AI Use Cases JP (GenU) for Thoroughly Considering Generative AI Use Cases](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
 
 ## Security
 

@@ -11,7 +11,7 @@
 </div>
 
 > [!IMPORTANT]
-> GenU は 2025/01 に v3 にアップグレードされました。いくつかの破壊的変更を伴いますので、アップグレード前に [リリースノート](https://github.com/aws-samples/generative-ai-use-cases-jp/releases/tag/v3.0.0) をご確認ください。
+> GenU は v4 より多言語対応しました。
 
 ## GenU 活用パターン集
 
