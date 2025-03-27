@@ -239,7 +239,7 @@ webcontent:
   error_message: >-
     指定した URL にアクセスした際にエラーが発生しました。スクレイピングが禁止されているか URL
     が間違っている可能性があります。一時的な問題と思われる場合は、再実行してください。
-  original_text: '抽出前のテキスト ({status})'
+  original_text: '抽出前のテキスト ({{status}})'
   loading: 読み込み中...
   not_fetched: 未取得
   fetched: 取得済

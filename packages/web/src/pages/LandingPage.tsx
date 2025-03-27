@@ -250,7 +250,7 @@ const LandingPage: React.FC = () => {
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
-        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={demoFlowChat}>
+        <Button className="mb-2 mr-0 lg:mb-0 lg:mr-2" onClick={() => {}}>
           {t('landing.try')}
         </Button>
         {t('landing.try_message')}

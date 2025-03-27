@@ -23,12 +23,12 @@ const ButtonShare: React.FC<Props> = (props) => {
       {props.isShared ? (
         <>
           <PiLinkBold className="mr-2" />
-          {t('shared')}
+          {t('useCaseBuilder.shared')}
         </>
       ) : (
         <>
           <PiLockKey className="mr-2" />
-          {t('private')}
+          {t('useCaseBuilder.private')}
         </>
       )}
     </Button>

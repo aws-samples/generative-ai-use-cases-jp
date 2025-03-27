@@ -276,7 +276,7 @@ webcontent:
     An error occurred when accessing the specified URL. The site may prohibit
     scraping or the URL may be incorrect. If you think this is a temporary
     issue, please try again.
-  original_text: 'Original text ({status})'
+  original_text: 'Original text ({{status}})'
   loading: loading...
   not_fetched: not fetched
   fetched: fetched
