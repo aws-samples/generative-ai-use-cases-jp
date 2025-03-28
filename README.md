@@ -139,7 +139,7 @@ In that case, please be careful about conflicts with GenU's main branch.
 ## Deployment
 
 > [!IMPORTANT]
-> Please enable the `modelIds` (text generation) and `imageGenerationModelIds` (image generation) in the `modelRegion` region listed in [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json). ([Amazon Bedrock Model access screen](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
+> Please enable the `modelIds` (text generation), `imageGenerationModelIds` (image generation), and `videoGenerationModelIds` (video generation) in the `modelRegion` region listed in [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json). ([Amazon Bedrock Model access screen](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
 
 GenU deployment uses [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/) (CDK). If you cannot prepare a CDK execution environment, refer to the following deployment methods:
 
