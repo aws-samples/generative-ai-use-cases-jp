@@ -100,7 +100,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#deployment-method-using-aws-cloudshell-for-cases-where-setting-up-a-local-environment-is-difficult" class="md-skip">
+        <a href="#deployment-method-using-aws-cloudshell-when-preparing-a-local-environment-is-difficult" class="md-skip">
           Skip to content
         </a>
       
@@ -542,11 +542,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#editing-cdkjson" class="md-nav__link">
+  <a href="#how-to-set-deployment-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Editing cdk.json
+      How to Set Deployment Options
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="How to Set Deployment Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-in-cdkjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting in cdk.json
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-in-parameterts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting in parameter.ts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -569,11 +593,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-deploysh" class="md-nav__link">
+  <a href="#executing-deploysh" class="md-nav__link">
     <span class="md-ellipsis">
-      Running deploy.sh
+      Executing deploy.sh
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Executing deploy.sh">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Examples
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Priority
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1038,11 +1086,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#editing-cdkjson" class="md-nav__link">
+  <a href="#how-to-set-deployment-options" class="md-nav__link">
     <span class="md-ellipsis">
-      Editing cdk.json
+      How to Set Deployment Options
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="How to Set Deployment Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setting-in-cdkjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting in cdk.json
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-in-parameterts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting in parameter.ts
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1065,11 +1137,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-deploysh" class="md-nav__link">
+  <a href="#executing-deploysh" class="md-nav__link">
     <span class="md-ellipsis">
-      Running deploy.sh
+      Executing deploy.sh
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Executing deploy.sh">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment Examples
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Priority
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1104,35 +1200,64 @@
   
 
 
-<h1 id="deployment-method-using-aws-cloudshell-for-cases-where-setting-up-a-local-environment-is-difficult">Deployment Method Using AWS CloudShell (For Cases Where Setting Up a Local Environment is Difficult)<a class="headerlink" href="#deployment-method-using-aws-cloudshell-for-cases-where-setting-up-a-local-environment-is-difficult" title="Permanent link">&para;</a></h1>
-<h2 id="editing-cdkjson">Editing cdk.json<a class="headerlink" href="#editing-cdkjson" title="Permanent link">&para;</a></h2>
-<p>In GenU, you can specify deployment options by customizing the context section in cdk.json.
-For available deployment options, please refer to <a href="DEPLOY_OPTION.html">Deployment Options</a>.
-If you're fine with using the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/cdk.json">default cdk.json</a> for now, you can skip this step.</p>
-<p>If you want to specify deployment options, download the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/cdk.json">default cdk.json</a> (you can download the file from the download button at the top right of the GitHub page), modify the context section, and save the file.</p>
+<h1 id="deployment-method-using-aws-cloudshell-when-preparing-a-local-environment-is-difficult">Deployment Method Using AWS CloudShell (When Preparing a Local Environment is Difficult)<a class="headerlink" href="#deployment-method-using-aws-cloudshell-when-preparing-a-local-environment-is-difficult" title="Permanent link">&para;</a></h1>
+<h2 id="how-to-set-deployment-options">How to Set Deployment Options<a class="headerlink" href="#how-to-set-deployment-options" title="Permanent link">&para;</a></h2>
+<p>In GenU, you can specify deployment options in the following two ways:</p>
+<ol>
+<li>Specifying in the context of cdk.json</li>
+<li>Specifying in parameter.ts (Recommended for new builds as it allows defining settings for multiple environments)</li>
+</ol>
+<p>Please refer to <a href="DEPLOY_OPTION.html">Deployment Options</a> for available deployment options.</p>
+<h3 id="setting-in-cdkjson">Setting in cdk.json<a class="headerlink" href="#setting-in-cdkjson" title="Permanent link">&para;</a></h3>
+<p>Download the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/cdk.json">default cdk.json</a> (you can download the file from the download button at the top right of the GitHub page) and modify the context section, then save the file.</p>
+<h3 id="setting-in-parameterts">Setting in parameter.ts<a class="headerlink" href="#setting-in-parameterts" title="Permanent link">&para;</a></h3>
+<p>Download the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/parameter.ts">default parameter.ts</a> and add the necessary environment settings. In parameter.ts, you can manage multiple environment settings like dev, staging, prod in a single file.</p>
 <h2 id="launching-cloudshell">Launching CloudShell<a class="headerlink" href="#launching-cloudshell" title="Permanent link">&para;</a></h2>
 <p>Launch <a href="https://console.aws.amazon.com/cloudshell/home">CloudShell</a>.
-If you customized cdk.json in the previous step, upload your customized cdk.json file using the Upload file option from the Actions menu in the top right.</p>
+If you have customized cdk.json or parameter.ts, upload the customized files from Upload file in the Actions menu at the top right.</p>
 <h2 id="downloading-deploysh-and-granting-execution-permissions">Downloading deploy.sh and Granting Execution Permissions<a class="headerlink" href="#downloading-deploysh-and-granting-execution-permissions" title="Permanent link">&para;</a></h2>
-<p>Run the following commands in CloudShell to download a script called <code>deploy.sh</code>.
-After downloading, we'll grant execution permissions to deploy.sh.</p>
+<p>Execute the following commands in CloudShell to download the <code>deploy.sh</code> script.
+After downloading, grant execution permissions to deploy.sh.</p>
 <pre><code class="language-bash">wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/refs/heads/main/deploy.sh -O deploy.sh
 chmod +x deploy.sh
 </code></pre>
-<h2 id="running-deploysh">Running deploy.sh<a class="headerlink" href="#running-deploysh" title="Permanent link">&para;</a></h2>
-<p>Run <code>deploy.sh</code> with the following command.
-Note that the <code>--cdk-context</code> option specifies the path to your customized cdk.json. (This will be the path if you uploaded files following the steps above without making any changes.)
-If your cdk.json is in a different location, please adjust the argument value accordingly.</p>
-<pre><code class="language-bash">./deploy.sh --cdk-context ~/cdk.json
+<h2 id="executing-deploysh">Executing deploy.sh<a class="headerlink" href="#executing-deploysh" title="Permanent link">&para;</a></h2>
+<p>deploy.sh supports the following options:</p>
+<pre><code class="language-bash">-c, --cdk-context    ... Path to the cdk.json file
+-p, --parameter-file ... Path to the parameter.ts file
+-e, --env           ... Environment name (e.g., dev, prod)
+-h, --help          ... Show this message
 </code></pre>
-<p>If you don't need to customize cdk.json, the <code>--cdk-context</code> specification is not required.
-In that case, the deployment will use the settings from the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/cdk.json">default cdk.json</a>.</p>
+<h3 id="deployment-examples">Deployment Examples<a class="headerlink" href="#deployment-examples" title="Permanent link">&para;</a></h3>
+<p>Execute deploy.sh with the following commands. Note that the --cdk-context option specifies the path to the customized cdk.json. (For --parameter-file, it's the path to parameter.ts) If you uploaded files without any modifications as described earlier, this path will be used. If cdk.json or parameter.ts is in a different path, modify the argument value accordingly.</p>
+<ol>
+<li>Deploy with default settings:</li>
+</ol>
 <pre><code class="language-bash">./deploy.sh
 </code></pre>
-<p>During deployment, you'll be prompted for confirmation, so enter <code>y</code> and press Enter to proceed.
-When deployment is complete, a CloudFront URL will be displayed. You can access GenU by opening that URL in your browser.</p>
-<p>Note that even when following these steps, you need to enable the models you want to use from <a href="https://console.aws.amazon.com/bedrock/home#/modelaccess">Amazon Bedrock's Model access</a>.
-If you're using the default cdk.json, please check that the models specified in modelIds and imageGenerationModelIds in the modelRegion of the <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/cdk.json">default cdk.json</a> are enabled.</p>
+<ol>
+<li>Deploy using a customized cdk.json:</li>
+</ol>
+<pre><code class="language-bash">./deploy.sh --cdk-context ~/cdk.json
+</code></pre>
+<ol>
+<li>Deploy an unnamed environment using a customized parameter.ts:</li>
+</ol>
+<pre><code class="language-bash">./deploy.sh --parameter-file ~/parameter.ts
+</code></pre>
+<ol>
+<li>Deploy specifying parameter.ts and environment:</li>
+</ol>
+<pre><code class="language-bash">./deploy.sh --parameter-file ~/parameter.ts --env prod
+</code></pre>
+<p>When deployment is complete, the CloudFront URL will be displayed. You can access GenU by opening that URL in a browser.</p>
+<h3 id="configuration-priority">Configuration Priority<a class="headerlink" href="#configuration-priority" title="Permanent link">&para;</a></h3>
+<ol>
+<li>If parameter.ts and environment are specified, and the environment name (including unnamed environments) is defined in parameter.ts, those settings have the highest priority</li>
+<li>cdk.json settings are applied next</li>
+</ol>
+<p>Note that to execute these steps, you also need to enable the models from <a href="https://console.aws.amazon.com/bedrock/home#/modelaccess">Amazon Bedrock Model access</a>.
+Confirm that the models specified in modelIds and imageGenerationModelIds in the modelRegion of the configuration file (parameter.ts or cdk.json) are enabled.</p>
 
 
 

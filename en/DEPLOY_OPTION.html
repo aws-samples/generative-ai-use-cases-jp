@@ -2080,11 +2080,13 @@ npm run web:devw --env=dev2
 <h2 id="use-case-configuration">Use Case Configuration<a class="headerlink" href="#use-case-configuration" title="Permanent link">&para;</a></h2>
 <h3 id="enabling-rag-chat-amazon-kendra-use-case">Enabling RAG Chat (Amazon Kendra) Use Case<a class="headerlink" href="#enabling-rag-chat-amazon-kendra-use-case" title="Permanent link">&para;</a></h3>
 <p>Set <code>ragEnabled</code> to <code>true</code>. (Default is <code>false</code>)</p>
+<p>You can also set <code>kendraIndexLanguage</code> to prefered language, which may improve search performance.</p>
 <p><strong>Edit <a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/parameter.ts">parameter.ts</a></strong></p>
 <pre><code class="language-typescript">// parameter.ts
 const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
   dev: {
     ragEnabled: true,
+    kendraIndexLanguage: 'en'
   },
 };
 </code></pre>
@@ -2092,7 +2094,8 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
 <pre><code class="language-json">// cdk.json
 {
   &quot;context&quot;: {
-    &quot;ragEnabled&quot;: true
+    &quot;ragEnabled&quot;: true,
+    &quot;kendraIndexLanguage&quot;: &quot;en&quot;
   }
 }
 </code></pre>

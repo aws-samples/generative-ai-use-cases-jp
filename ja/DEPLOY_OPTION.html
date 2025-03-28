@@ -658,6 +658,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#binary-vector-embedding-を有効化" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binary Vector Embedding を有効化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#knowledge-base-や-opensearch-service-を再作成して変更を加える" class="md-nav__link">
     <span class="md-ellipsis">
       Knowledge Base や OpenSearch Service を再作成して変更を加える
@@ -1595,6 +1604,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#binary-vector-embedding-を有効化" class="md-nav__link">
+    <span class="md-ellipsis">
+      Binary Vector Embedding を有効化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#knowledge-base-や-opensearch-service-を再作成して変更を加える" class="md-nav__link">
     <span class="md-ellipsis">
       Knowledge Base や OpenSearch Service を再作成して変更を加える
@@ -2080,11 +2098,13 @@ npm run web:devw --env=dev2
 <h2 id="ユースケースの設定">ユースケースの設定<a class="headerlink" href="#ユースケースの設定" title="Permanent link">&para;</a></h2>
 <h3 id="rag-チャット-amazon-kendra-ユースケースの有効化">RAG チャット (Amazon Kendra) ユースケースの有効化<a class="headerlink" href="#rag-チャット-amazon-kendra-ユースケースの有効化" title="Permanent link">&para;</a></h3>
 <p><code>ragEnabled</code> に <code>true</code> を指定します。(デフォルトは <code>false</code>)</p>
+<p>また、<code>kendraIndexLanguage</code> (デフォルトは日本語の <code>ja</code>) も必要に応じて変更することが可能です。</p>
 <p><strong><a href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/cdk/parameter.ts">parameter.ts</a> を編集</strong></p>
 <pre><code class="language-typescript">// parameter.ts
 const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
   dev: {
     ragEnabled: true,
+    kendraIndexLanguage: 'jp'
   },
 };
 </code></pre>
@@ -2092,7 +2112,8 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
 <pre><code class="language-json">// cdk.json
 {
   &quot;context&quot;: {
-    &quot;ragEnabled&quot;: true
+    &quot;ragEnabled&quot;: true,
+    &quot;kendraIndexLanguage&quot;: &quot;jp&quot;
   }
 }
 </code></pre>
@@ -2146,6 +2167,7 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
@@ -2159,6 +2181,7 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
     &quot;ragKnowledgeBaseStandbyReplicas&quot;: false,
     &quot;ragKnowledgeBaseAdvancedParsing&quot;: false,
     &quot;ragKnowledgeBaseAdvancedParsingModelId&quot;: &quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;,
+    &quot;ragKnowledgeBaseBinaryVector&quot;: false,
     &quot;embeddingModelId&quot;: &quot;amazon.titan-embed-text-v2:0&quot;,
     &quot;rerankingModelId&quot;: &quot;amazon.rerank-v1:0&quot;,
     &quot;queryDecompositionEnabled&quot;: true,
@@ -2220,6 +2243,7 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
@@ -2233,6 +2257,7 @@ const envs: Record&lt;string, Partial&lt;StackInput&gt;&gt; = {
     &quot;ragKnowledgeBaseStandbyReplicas&quot;: false,
     &quot;ragKnowledgeBaseAdvancedParsing&quot;: true,
     &quot;ragKnowledgeBaseAdvancedParsingModelId&quot;: &quot;anthropic.claude-3-sonnet-20240229-v1:0&quot;,
+    &quot;ragKnowledgeBaseBinaryVector&quot;: false,
     &quot;embeddingModelId&quot;: &quot;amazon.titan-embed-text-v2:0&quot;,
   }
 }
@@ -2253,6 +2278,17 @@ chunkingConfiguration: {
 },
 </code></pre>
 <p>その後、<a href="DEPLOY_OPTION.html#knowledge-base-や-opensearch-service-を再作成して変更を加える">Knowledge Base や OpenSearch Service を再作成して変更を加える</a>の章を参照して、変更を加えます。</p>
+<h4 id="binary-vector-embedding-を有効化">Binary Vector Embedding を有効化<a class="headerlink" href="#binary-vector-embedding-を有効化" title="Permanent link">&para;</a></h4>
+<p><a href="https://aws.amazon.com/jp/blogs/machine-learning/build-cost-effective-rag-applications-with-binary-embeddings-in-amazon-titan-text-embeddings-v2-amazon-opensearch-serverless-and-amazon-bedrock-knowledge-bases/">Binary Vector Embedding 機能</a> を有効化できます。Binary Vector Embedding は float（浮動小数点 32 bit）で表現していたベクトルデータを、binary（1 bit）で表現する機能です。バイナリ埋め込みは、ストレージ効率、計算速度、およびスケーラビリティに大きなメリットをもたらします。</p>
+<ul>
+<li><code>ragKnowledgeBaseBinaryVector</code> : <code>true</code> で Binary Vector Embedding を有効化</li>
+<li><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base-supported.html#knowledge-base-supported-embeddings">サポートしているモデル</a> (2025/03 現在)<ul>
+<li><code>amazon.titan-embed-text-v2:0</code></li>
+<li><code>cohere.embed-multilingual-v3</code></li>
+<li><code>cohere.embed-english-v3</code></li>
+</ul>
+</li>
+</ul>
 <h4 id="knowledge-base-や-opensearch-service-を再作成して変更を加える">Knowledge Base や OpenSearch Service を再作成して変更を加える<a class="headerlink" href="#knowledge-base-や-opensearch-service-を再作成して変更を加える" title="Permanent link">&para;</a></h4>
 <p><a href="DEPLOY_OPTION.html#チャンク戦略を変更">Knowledge Base のチャンク戦略</a>や、OpenSearch Service に関する以下のパラメーターについて、変更を加えた後に <code>npm run cdk:deploy</code> を実行しても変更が反映されません。</p>
 <ul>
@@ -2260,6 +2296,7 @@ chunkingConfiguration: {
 <li><code>ragKnowledgeBaseStandbyReplicas</code></li>
 <li><code>ragKnowledgeBaseAdvancedParsing</code></li>
 <li><code>ragKnowledgeBaseAdvancedParsingModelId</code></li>
+<li><code>ragKnowledgeBaseBinaryVector</code></li>
 </ul>
 <p>変更を反映する場合は、以下の手順で既存の Knowledge Base 関連のリソースを削除してから再作成を行います。</p>
 <ol>

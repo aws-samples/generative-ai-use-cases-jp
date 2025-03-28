@@ -2,224 +2,224 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/assets/images/index.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/assets/images/index.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/assets/images/index.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/index.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/index.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/index.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/ABOUT.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/ABOUT.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_AWS.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_AWS.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_AWS.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_CLOUDSHELL.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_CLOUDSHELL.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_CLOUDSHELL.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_OPTION.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_OPTION.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_OPTION.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/DESTROY.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DESTROY.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DESTROY.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEVELOPMENT.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEVELOPMENT.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEVELOPMENT.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_BUILD.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_BUILD.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_BUILD.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_INSTALL.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_INSTALL.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_INSTALL.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_SAML.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_SAML.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/PWA.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/PWA.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/PWA.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_ENTRA_ID.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_ENTRA_ID.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_ENTRA_ID.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_GOOGLE_WORKSPACE.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_GOOGLE_WORKSPACE.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_GOOGLE_WORKSPACE.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/en/UPDATE.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/UPDATE.html"/>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/UPDATE.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/assets/images/index.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/assets/images/index.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/assets/images/index.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/index.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/index.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/index.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/ABOUT.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_AWS.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_AWS.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_AWS.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_CLOUDSHELL.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_ON_CLOUDSHELL.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_ON_CLOUDSHELL.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_OPTION.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEPLOY_OPTION.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEPLOY_OPTION.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DESTROY.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DESTROY.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DESTROY.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEVELOPMENT.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/DEVELOPMENT.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/DEVELOPMENT.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_BUILD.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_BUILD.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_BUILD.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_INSTALL.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_INSTALL.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_INSTALL.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/EXTENSION_SAML.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/EXTENSION_SAML.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/PWA.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/PWA.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/PWA.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_ENTRA_ID.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_ENTRA_ID.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_ENTRA_ID.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_GOOGLE_WORKSPACE.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/SAML_WITH_GOOGLE_WORKSPACE.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/SAML_WITH_GOOGLE_WORKSPACE.html"/>
     </url>
     <url>
         <loc>https://aws-samples.github.io/generative-ai-use-cases-jp/ja/UPDATE.html</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-28</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ja" href="https://aws-samples.github.io/generative-ai-use-cases-jp/ja/UPDATE.html"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://aws-samples.github.io/generative-ai-use-cases-jp/en/UPDATE.html"/>
