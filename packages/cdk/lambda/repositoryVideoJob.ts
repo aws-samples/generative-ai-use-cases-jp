@@ -37,7 +37,7 @@ export const createJob = async (
 
   const params = req.params;
 
-  // Nova Reel の 1 フレーム目画像指定が params に含まれていたら、その情報は ddb に保存しない
+  // Do not save the information of the first frame image of Nova Reel in params
   if (params.images && params.images.length > 0) {
     params.images = [];
   }
@@ -194,7 +194,7 @@ export const listVideoJobs = async (
 
   const jobs = res.Items as VideoJob[];
 
-  // InProgress のものは最新のステータスを確認
+  // Check the latest status of InProgress jobs
   for (const job of jobs) {
     if (job.status === 'InProgress') {
       const newStatus = await checkAndUpdateJob(job);

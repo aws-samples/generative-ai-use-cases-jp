@@ -1,5 +1,6 @@
 import { PiCheck, PiCaretDown } from 'react-icons/pi';
 import { EditorBubbleItem, useEditor } from 'novel';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '../ui/Button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/Popover';
@@ -8,91 +9,87 @@ export interface BubbleColorMenuItem {
   color: string;
 }
 
-const TEXT_COLORS: BubbleColorMenuItem[] = [
-  {
-    name: 'Default',
-    color: 'var(--novel-black)',
-  },
-  {
-    name: 'Purple',
-    color: '#9333EA',
-  },
-  {
-    name: 'Red',
-    color: '#E00000',
-  },
-  {
-    name: 'Yellow',
-    color: '#EAB308',
-  },
-  {
-    name: 'Blue',
-    color: '#2563EB',
-  },
-  {
-    name: 'Green',
-    color: '#008A00',
-  },
-  {
-    name: 'Orange',
-    color: '#FFA500',
-  },
-  {
-    name: 'Pink',
-    color: '#BA4081',
-  },
-  {
-    name: 'Gray',
-    color: '#A8A29E',
-  },
-];
-
-const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
-  {
-    name: 'Default',
-    color: 'var(--novel-highlight-default)',
-  },
-  {
-    name: 'Purple',
-    color: 'var(--novel-highlight-purple)',
-  },
-  {
-    name: 'Red',
-    color: 'var(--novel-highlight-red)',
-  },
-  {
-    name: 'Yellow',
-    color: 'var(--novel-highlight-yellow)',
-  },
-  {
-    name: 'Blue',
-    color: 'var(--novel-highlight-blue)',
-  },
-  {
-    name: 'Green',
-    color: 'var(--novel-highlight-green)',
-  },
-  {
-    name: 'Orange',
-    color: 'var(--novel-highlight-orange)',
-  },
-  {
-    name: 'Pink',
-    color: 'var(--novel-highlight-pink)',
-  },
-  {
-    name: 'Gray',
-    color: 'var(--novel-highlight-gray)',
-  },
-];
-
-interface ColorSelectorProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
+  const { t } = useTranslation();
   const { editor } = useEditor();
+
+  const TEXT_COLORS: BubbleColorMenuItem[] = [
+    {
+      name: t('writer.colors.default'),
+      color: 'var(--novel-black)',
+    },
+    {
+      name: t('writer.colors.purple'),
+      color: '#9333EA',
+    },
+    {
+      name: t('writer.colors.red'),
+      color: '#E00000',
+    },
+    {
+      name: t('writer.colors.yellow'),
+      color: '#EAB308',
+    },
+    {
+      name: t('writer.colors.blue'),
+      color: '#2563EB',
+    },
+    {
+      name: t('writer.colors.green'),
+      color: '#008A00',
+    },
+    {
+      name: t('writer.colors.orange'),
+      color: '#FFA500',
+    },
+    {
+      name: t('writer.colors.pink'),
+      color: '#BA4081',
+    },
+    {
+      name: t('writer.colors.gray'),
+      color: '#A8A29E',
+    },
+  ];
+
+  const HIGHLIGHT_COLORS: BubbleColorMenuItem[] = [
+    {
+      name: t('writer.colors.default'),
+      color: 'var(--novel-highlight-default)',
+    },
+    {
+      name: t('writer.colors.purple'),
+      color: 'var(--novel-highlight-purple)',
+    },
+    {
+      name: t('writer.colors.red'),
+      color: 'var(--novel-highlight-red)',
+    },
+    {
+      name: t('writer.colors.yellow'),
+      color: 'var(--novel-highlight-yellow)',
+    },
+    {
+      name: t('writer.colors.blue'),
+      color: 'var(--novel-highlight-blue)',
+    },
+    {
+      name: t('writer.colors.green'),
+      color: 'var(--novel-highlight-green)',
+    },
+    {
+      name: t('writer.colors.orange'),
+      color: 'var(--novel-highlight-orange)',
+    },
+    {
+      name: t('writer.colors.pink'),
+      color: 'var(--novel-highlight-pink)',
+    },
+    {
+      name: t('writer.colors.gray'),
+      color: 'var(--novel-highlight-gray)',
+    },
+  ];
 
   if (!editor) return null;
   const activeColorItem = TEXT_COLORS.find(({ color }) =>
@@ -107,6 +104,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button size="sm" className="gap-2 rounded-none" variant="ghost">
+          {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
           <span
             className="rounded-sm px-1"
             style={{
@@ -125,14 +123,14 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
         align="start">
         <div className="flex flex-col">
           <div className="text-muted-foreground my-1 px-2 text-sm font-semibold">
-            Color
+            {t('writer.color')}
           </div>
           {TEXT_COLORS.map(({ name, color }) => (
             <EditorBubbleItem
               key={name}
               onSelect={() => {
                 editor.commands.unsetColor();
-                name !== 'Default' &&
+                name !== t('writer.colors.default') &&
                   editor
                     .chain()
                     .focus()
@@ -142,6 +140,7 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
               }}
               className="hover:bg-accent flex cursor-pointer items-center justify-between px-2 py-1 text-sm">
               <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                 <div
                   className="rounded-sm border px-2 py-px font-medium"
                   style={{ color }}>
@@ -154,19 +153,20 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
         </div>
         <div>
           <div className="text-muted-foreground my-1 px-2 text-sm font-semibold">
-            Background
+            {t('writer.background')}
           </div>
           {HIGHLIGHT_COLORS.map(({ name, color }) => (
             <EditorBubbleItem
               key={name}
               onSelect={() => {
                 editor.commands.unsetHighlight();
-                name !== 'Default' &&
+                name !== t('writer.colors.default') &&
                   editor.chain().focus().setHighlight({ color }).run();
                 onOpenChange(false);
               }}
               className="hover:bg-accent flex cursor-pointer items-center justify-between px-2 py-1 text-sm">
               <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                 <div
                   className="rounded-sm border px-2 py-px font-medium"
                   style={{ backgroundColor: color }}>
@@ -184,3 +184,8 @@ export const ColorSelector = ({ open, onOpenChange }: ColorSelectorProps) => {
     </Popover>
   );
 };
+
+interface ColorSelectorProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}

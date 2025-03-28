@@ -19,7 +19,7 @@ const RequiresAuth: React.FC<Props> = (props) => {
   useEffect(() => {
     if (settings) {
       if (settings.enabledSamlAuth) {
-        // SAML用の設定
+        // SAML configuration
         Amplify.configure({
           Auth: {
             Cognito: {
@@ -39,7 +39,7 @@ const RequiresAuth: React.FC<Props> = (props) => {
           },
         });
       } else {
-        // UserPool用の設定
+        // UserPool configuration
         Amplify.configure({
           Auth: {
             Cognito: {
@@ -52,7 +52,7 @@ const RequiresAuth: React.FC<Props> = (props) => {
         I18n.putVocabularies(translations);
         I18n.setLanguage('ja');
       }
-      // 認証の設定をしたら認証を実行
+      // If the authentication configuration is set, authenticate
       authenticate();
     }
   }, [authenticate, settings]);

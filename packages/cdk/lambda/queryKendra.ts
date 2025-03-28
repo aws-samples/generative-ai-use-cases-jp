@@ -7,6 +7,7 @@ import {
 import { QueryKendraRequest } from 'generative-ai-use-cases-jp';
 
 const INDEX_ID = process.env.INDEX_ID;
+const LANGUAGE = process.env.LANGUAGE;
 
 exports.handler = async (
   event: lambda.APIGatewayProxyEvent
@@ -25,14 +26,14 @@ exports.handler = async (
     };
   }
 
-  // デフォルト言語が英語なので、言語設定は必ず行う
+  // The default language is English, so language settings must be done.
   const attributeFilter: AttributeFilter = {
     AndAllFilters: [
       {
         EqualsTo: {
           Key: '_language_code',
           Value: {
-            StringValue: 'ja',
+            StringValue: LANGUAGE,
           },
         },
       },

@@ -51,7 +51,7 @@ const useFileApi = () => {
 
       const [filePrefix, anchorLink] = prefix.split('#');
 
-      // Signed URL を取得
+      // Get the signed URL
       const params: GetFileDownloadSignedUrlRequest = {
         bucketName: bucketName,
         filePrefix: decodeURIComponent(filePrefix),

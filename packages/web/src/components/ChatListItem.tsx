@@ -53,7 +53,7 @@ const ChatListItem: React.FC<Props> = (props) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
 
-          // dispatch 処理の中で Title の更新を行う（同期を取るため）
+          // Update Title in dispatch process (to synchronize)
           setTempTitle((newTitle) => {
             setEditing(false);
             props.onUpdateTitle(chatId, newTitle).catch(() => {

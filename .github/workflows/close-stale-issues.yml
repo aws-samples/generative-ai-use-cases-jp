@@ -22,8 +22,8 @@ jobs:
           stale-pr-message: 'This PR is stale because it has been open for 30 days with no activity.'
           close-issue-message: 'This issue was closed because it has been inactive for 14 days since being marked as stale.'
           close-pr-message: 'This PR was closed because it has been inactive for 14 days since being marked as stale.'
-          exempt-issue-labels: 'bug,dnc'
-          exempt-pr-labels: 'bug,dnc'
+          exempt-issue-labels: 'bug,dnc,new release'
+          exempt-pr-labels: 'bug,dnc,new release'
           exempt-draft-pr: true
           operations-per-run: 100
           delete-branch: true

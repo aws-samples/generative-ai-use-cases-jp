@@ -18,7 +18,7 @@ export type InvokeStreamInterface = (
   idToken?: string
 ) => AsyncIterable<string>;
 
-// Base64 にエンコードした画像を Return する
+// Return Base64 encoded image
 export type GenerateImageInterface = (
   model: Model,
   params: GenerateImageParams
