@@ -3,7 +3,7 @@
 
   [![](https://img.shields.io/badge/Documentation-Latest-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
 
-  English | [日本語](https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html)
+  English | [日本語](./README_ja.md)
 
   Application implementation with business use cases for safely utilizing generative AI in business operations
 
@@ -13,7 +13,7 @@
 > [!IMPORTANT]
 > GenU has supported multiple languages since v4.
 >
-> GenU は v4 から多言語対応しました。日本語ドキュメントは[こちら](https://aws-samples.github.io/generative-ai-use-cases-jp/ja/ABOUT.html)
+> GenU は v4 から多言語対応しました。日本語ドキュメントは[こちら](./README_ja.md)
 
 ## GenU Usage Patterns
 

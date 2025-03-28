@@ -3,7 +3,7 @@
 
   [![](https://img.shields.io/badge/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88-%E6%9C%80%E6%96%B0-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
 
-  [English](https://aws-samples.github.io/generative-ai-use-cases-jp/en/ABOUT.html) | 日本語
+  [English](./README.md) | 日本語
 
   生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装
 
