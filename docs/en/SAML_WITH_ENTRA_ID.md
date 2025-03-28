@@ -1,7 +1,9 @@
 # Microsoft Entra ID and SAML Integration
+
 This guide introduces the reference procedure for integrating Microsoft Entra ID (formerly Azure Active Directory) with SAML. Please modify the detailed parameters to match your environment.
 
 # Preliminary Work
+
 First, deploy GenU. After the initial deployment, you will set up SAML integration between Cognito and Entra ID.
 
 Open the Outputs tab on the CloudFormation Stack screen and note the WebUrl.
@@ -13,6 +15,7 @@ Next, from the Resource tab, note the Physical ID of the Cognito user pool.
 ![image-20240128114108630](../assets/SAML_WITH_ENTRA_ID/image-20240128114108630.png)
 
 # Cognito Configuration: Domain Setup
+
 Proceed with the Cognito domain configuration.
 On the Cognito user pool screen, open the App integration tab and display the Domain screen. Since the Cognito Domain is blank, select Create Cognito domain from Actions.
 
@@ -27,6 +30,7 @@ The Cognito domain has been configured.
 ![image-20240128115539920](../assets/SAML_WITH_ENTRA_ID/image-20240128115539920-1707114112930.png)
 
 # Microsoft Entra ID Configuration
+
 Enable SAML integration in Microsoft Entra ID (formerly Azure Active Directory).
 
 Open the Microsoft Entra ID configuration screen from Microsoft Azure.
@@ -59,7 +63,7 @@ Press Edit in Basic SAML Configuration.
 
 Enter the following parameters and press save. Use the Cognito user pool ID confirmed in [Preliminary Work](#preliminary-work) and the Domain value confirmed in [Cognito Configuration: Domain Setup](#cognito-configuration-domain-setup).
 
-Identifier (Entity ID) 
+Identifier (Entity ID)
 
 ```
 # Format

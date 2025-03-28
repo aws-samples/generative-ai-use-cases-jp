@@ -39,7 +39,7 @@ GenU の SAML の設定で Cognito の Hosted UI を設定しましたが、そ�
 chrome-extension://拡張機能のID/index.html
 ```
 
->[!IMPORTANT]
+> [!IMPORTANT]
 > Microsoft Edgeを利用している場合は、ブラウザ上のURLは `extension://拡張機能のID/index.html` となっていますが、Cognito の設定は、`chrome-extension` と表記する必要があります。
 
 ### 動作確認

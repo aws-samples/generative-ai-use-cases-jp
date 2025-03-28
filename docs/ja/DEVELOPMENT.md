@@ -14,6 +14,7 @@ npm run web:devw
 > [!TIP]
 > AWSへの認証には[デフォルトのプロファイル](https://docs.aws.amazon.com/ja_jp/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles)が利用されます。
 > 別のプロファイルやアクセスキーを認証に使いたい場合はあらかじめ環境変数をセットしておくか、[setup-env.sh](/setup-env.sh)に追加しておくことができます。
+>
 > ```bash
 > export AWS_PROFILE=''
 > export AWS_DEFAULT_REGION=''

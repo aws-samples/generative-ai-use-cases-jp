@@ -1,10 +1,9 @@
 ---
 name: Bug Report
 about: Create a report to help us improve
-title: "<Please provide a title that clearly describes the bug>"
+title: '<Please provide a title that clearly describes the bug>'
 labels: bug
 assignees: ''
-
 ---
 
 **Bug Description**
@@ -12,6 +11,7 @@ A clear and concise description of the bug
 
 **Steps to Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'

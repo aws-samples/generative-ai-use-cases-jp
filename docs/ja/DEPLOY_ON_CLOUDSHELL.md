@@ -17,7 +17,6 @@ GenU では以下の2つの方法でデプロイオプションを指定でき�
 
 [デフォルトの parameter.ts](/packages/cdk/parameter.ts) をダウンロードし、必要な環境設定を追加してください。parameter.ts では dev、staging、prod など複数の環境設定を1つのファイルで管理できます。
 
-
 ## CloudShell の起動
 
 [CloudShell](https://console.aws.amazon.com/cloudshell/home) を起動します。
@@ -44,27 +43,30 @@ deploy.sh は以下のオプションをサポートしています：
 -h, --help          ... Show this message
 ```
 
-
 ### デプロイ例
 
 以下のコマンドで deploy.sh を実行します。 なお、--cdk-context オプションでカスタマイズした cdk.json へのパスを指定しています。(--parameter-file の場合は parameter.ts へのパス) 特に何もせず前述した手順で Upload files した場合はこのパスになります。cdk.json や parameter.ts が別のパスにある場合は、適宜引数の値を変更してください。
 
 1. デフォルト設定でデプロイ：
+
 ```bash
 ./deploy.sh
 ```
 
 2. カスタマイズした cdk.json を使用してデプロイ：
+
 ```bash
 ./deploy.sh --cdk-context ~/cdk.json
 ```
 
 3. カスタマイズした parameter.ts を使用して無名環境をデプロイ：
+
 ```bash
 ./deploy.sh --parameter-file ~/parameter.ts
 ```
 
 4. parameter.ts と環境を指定してデプロイ：
+
 ```bash
 ./deploy.sh --parameter-file ~/parameter.ts --env prod
 ```

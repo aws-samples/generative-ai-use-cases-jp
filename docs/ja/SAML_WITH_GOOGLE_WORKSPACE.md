@@ -1,7 +1,9 @@
 # Google Workspace と SAML 連携
+
 Google Workspace と SAML 連携を行う参考手順を紹介します。詳細なパラメーターは各環境に合わせて変更してください。
 
 # 事前作業
+
 GenU の初回デプロイを行います。初回デプロイを行ったあと、Cognito と Google Workspace の SAML 連携を行います。
 
 CloudFormation の Stack の画面で Outputs タブを開き、WebUrl をメモします。
@@ -13,6 +15,7 @@ CloudFormation の Stack の画面で Outputs タブを開き、WebUrl をメモ
 ![image-20240128114108630](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240317105731051.png)
 
 # Cognito の設定 : Domain 設定
+
 Cognito domain の設定を進めます。
 Cognito user pool の画面で、App integration タブを開き、Domain に関する画面を表示します。Cognito Domain が空白なので、Actions から Create Cognito domain を選択します。
 
@@ -99,32 +102,23 @@ Cognito User Pool の画面を開き、Sign-in experience タブから、Add ide
 
 ![image-20240128124451746](../assets/SAML_WITH_ENTRA_ID/image-20240128124451746.png)
 
-
-
 Google Workspace の連携で SAML を利用するため、SAML を選択します。**Google は選択せずに、SAML を選択します。**
 
 ![image-20240128124529523](../assets/SAML_WITH_ENTRA_ID/image-20240128124529523.png)
-
-
 
 Provider name に任意の識別しやすい名前を入れます。ここで指定した Provider name を、後の手順で cdk.json に記載します。
 Choose file を選び、Google Workspace からダウンロードしてきた「GoogleIDPMetadata.xml」をアップロードします。
 
 ![image-20240317001734180](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240317001734180.png)
 
-
 User pool attribute の email を指定します。
 SAML attribute に、`email` 入力して、Add identity provider を選択します。
 
 ![image-20240317001748561](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240317001748561.png)
 
-
-
 設定が追加されました。
 
 ![image-20240317001814305](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240317001814305.png)
-
-
 
 # Cognito の設定 : Hosted UI
 
@@ -132,36 +126,26 @@ Google Workspace との連携を Hosted UI で利用するための設定をし�
 
 ![image-20240128125211108](../assets/SAML_WITH_ENTRA_ID/image-20240128125211108.png)
 
-
-
 既存の App Client を指定します。
 
 ![image-20240128125243769](../assets/SAML_WITH_ENTRA_ID/image-20240128125243769.png)
-
-
 
 Edit を押します。
 
 ![image-20240128125314475](../assets/SAML_WITH_ENTRA_ID/image-20240128125314475.png)
 
-
 [事前作業](#事前作業)で確認した WebUrl の値を Allowed callback URLs と Allowed sign-out URLs に入力します。
 [ローカル開発環境](./DEVELOPMENT.md) を利用してフロントエンドの開発を行いたい場合は、`http://localhost:5173` も Allowed callback URLs と Allowed sign-out URLs に追加で入力します。
 
-
 ![image-20240205185602299](../assets/SAML_WITH_ENTRA_ID/image-20240205185602299.png)
-
 
 Identity Provider で `GoogleWorkspace` を選択します。また、Cognito user pool を利用した認証は停止したいため、Cognito user pool のチェックボックスを外します。
 
 ![image-20240317002017655](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240317002017655.png)
 
-
-Save  changes を押します。
+Save changes を押します。
 
 ![image-20240128132707060](../assets/SAML_WITH_ENTRA_ID/image-20240128132707060.png)
-
-
 
 追加されました。
 
@@ -174,7 +158,6 @@ Save  changes を押します。
 - samlAuthEnabled : `true` を指定します。SAML 専用の認証画面に切り替わり、Cognito user pools を利用した従来の認証機能は利用できなくなります。
 - samlCognitoDomainName : 「Cognito の設定 : Domain設定」で指定した Cognito Domain 名を入力します。
 - samlCognitoFederatedIdentityProviderName : 「Cognito の設定 : Federation」で設定した Identity Provider の名前を入力します。
-
 
 ```json
   "context": {

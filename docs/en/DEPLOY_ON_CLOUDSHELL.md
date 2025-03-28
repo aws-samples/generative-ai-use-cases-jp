@@ -48,21 +48,25 @@ deploy.sh supports the following options:
 Execute deploy.sh with the following commands. Note that the --cdk-context option specifies the path to the customized cdk.json. (For --parameter-file, it's the path to parameter.ts) If you uploaded files without any modifications as described earlier, this path will be used. If cdk.json or parameter.ts is in a different path, modify the argument value accordingly.
 
 1. Deploy with default settings:
+
 ```bash
 ./deploy.sh
 ```
 
 2. Deploy using a customized cdk.json:
+
 ```bash
 ./deploy.sh --cdk-context ~/cdk.json
 ```
 
 3. Deploy an unnamed environment using a customized parameter.ts:
+
 ```bash
 ./deploy.sh --parameter-file ~/parameter.ts
 ```
 
 4. Deploy specifying parameter.ts and environment:
+
 ```bash
 ./deploy.sh --parameter-file ~/parameter.ts --env prod
 ```
