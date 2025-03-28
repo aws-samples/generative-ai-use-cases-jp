@@ -51,7 +51,7 @@ Please refer to the following instructions for details:
 - Which browsers can I use it with?
   - We have confirmed it works with Google Chrome and Microsoft Edge.
 - How can I distribute it within my company?
-  - Please refer to [this method](../docs/ja/EXTENSION_BUILD.md#配布方法).
+  - Please refer to [this method](../docs/en/EXTENSION_BUILD.md#distribution-method).
 - I want to add preset prompts
   - Set prompts in `browser-extension/src/app/features/prompt-settings/presetPrompts.ts` and then "build + install" again.
 - I want to use prompts from the GenU web app

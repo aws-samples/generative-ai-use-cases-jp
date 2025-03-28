@@ -1,10 +1,9 @@
 ---
 name: Feature Addition/Improvement Request
 about: Please suggest ideas for this project
-title: "<Please make the title clearly describe your request at a glance>"
+title: '<Please make the title clearly describe your request at a glance>'
 labels: enhancement
 assignees: ''
-
 ---
 
 **Is your feature request related to a problem? Please describe the background.**

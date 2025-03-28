@@ -4,12 +4,12 @@ Browser extensions become available after installing them in your browser. Here,
 
 ## Installation Target
 
-* If you built it yourself
-  * All contents under the `browser-extension/dist/` folder, which is the build output, are the installation target.
-* If you are using a distributed zip file or other compressed file
-  * Extract the compressed file and save it to any location.
-  * All contents under the extracted folder are the installation target.
-  
+- If you built it yourself
+  - All contents under the `browser-extension/dist/` folder, which is the build output, are the installation target.
+- If you are using a distributed zip file or other compressed file
+  - Extract the compressed file and save it to any location.
+  - All contents under the extracted folder are the installation target.
+
 ## Installation Method
 
 ### For Google Chrome

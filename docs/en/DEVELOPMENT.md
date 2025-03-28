@@ -11,9 +11,9 @@ Note that this internally uses the `aws` and `jq` commands, so please install th
 npm run web:devw
 ```
 
-> [!TIP]
-> [Default profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) is used for AWS authentication.
+> [!TIP] > [Default profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) is used for AWS authentication.
 > If you want to use a different profile or access key for authentication, set the environment variables in advance or add them to [setup-env.sh](/setup-env.sh).
+>
 > ```bash
 > export AWS_PROFILE=''
 > export AWS_DEFAULT_REGION=''

@@ -15,7 +15,6 @@ First, access the deployed web URL. When you access it, an install button will b
 Once installation is complete, you can run GenU independently from the browser as shown below.
 ![Installation Complete](../assets/images/pwa/chrome_installed.png)
 
-
 ### For Microsoft Edge
 
 First, access the deployed web URL. When you access it, an install button will be displayed as shown in the screen below, so click it to install.

@@ -78,17 +78,19 @@ Set `ragEnabled` to `true`. (Default is `false`)
 You can also set `kendraIndexLanguage` to prefered language, which may improve search performance.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragEnabled: true,
-    kendraIndexLanguage: 'en'
+    kendraIndexLanguage: 'en',
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -118,6 +120,7 @@ When using an existing Kendra Index, note that `ragEnabled` still needs to be `t
 Specify the Index ARN in `kendraIndexArn`. If you are using an S3 data source with the existing Kendra Index, specify the bucket name in `kendraDataSourceBucketName`.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -129,6 +132,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -159,6 +163,7 @@ Set `ragKnowledgeBaseEnabled` to `true`. (Default is `false`)
 If you have an existing Knowledge Base, set `ragKnowledgeBaseId` to the knowledge base ID. (If `null`, an OpenSearch Serverless knowledge base will be created)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -167,13 +172,15 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
-    ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseAdvancedParsingModelId:
+      'anthropic.claude-3-sonnet-20240229-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -185,12 +192,13 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "rerankingModelId": "amazon.rerank-v1:0",
-    "queryDecompositionEnabled": true,
+    "queryDecompositionEnabled": true
   }
 }
 ```
 
 `ragKnowledgeBaseStandbyReplicas` relates to the redundancy of automatically created OpenSearch Serverless:
+
 - `false`: Suitable for development and testing purposes. Runs in a single AZ, reducing OCU costs by half.
 - `true`: Suitable for production environments. Runs across multiple AZs, enabling high availability.
 
@@ -246,6 +254,7 @@ You can enable the [Advanced Parsing feature](https://docs.aws.amazon.com/bedroc
     - `anthropic.claude-3-haiku-20240307-v1:0`
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -254,13 +263,15 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: true,
-    ragKnowledgeBaseAdvancedParsingModelId: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    ragKnowledgeBaseAdvancedParsingModelId:
+      'anthropic.claude-3-sonnet-20240229-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -270,7 +281,7 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": true,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
-    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "embeddingModelId": "amazon.titan-embed-text-v2:0"
   }
 }
 ```
@@ -345,6 +356,7 @@ Filter settings can be configured in [packages/common/src/custom/rag-knowledge-b
 ### Enabling Agent Chat Use Case
 
 In the Agent Chat use case, you can:
+
 - Use Code Interpreter for data visualization, code execution, and data analysis
 - Execute actions using Agents for Amazon Bedrock
 - Reference vector databases from Knowledge Bases for Amazon Bedrock
@@ -360,6 +372,7 @@ The Code Interpreter agent is deployed when you enable Agent.
 Set `agentEnabled` to `true`. (Default is `false`)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -370,11 +383,12 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "agentEnabled": true,
+    "agentEnabled": true
   }
 }
 ```
@@ -391,6 +405,7 @@ The default search agent uses [Brave Search API's Data for AI](https://brave.com
 Set `agentEnabled` and `searchAgentEnabled` to `true` (default is `false`), and specify the search engine API key in `searchApiKey`.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -403,13 +418,14 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
     "agentEnabled": true,
     "searchAgentEnabled": true,
-    "searchApiKey": "<Search Engine API Key>",
+    "searchApiKey": "<Search Engine API Key>"
   }
 }
 ```
@@ -423,10 +439,10 @@ After making changes, redeploy with `npm run cdk:deploy` to apply the changes. T
 
 If you want to register manually created Agents other than the default Agents, add additional Agents to `agents`. Note that Agents should be created in the `modelRegion`.
 
-> [!NOTE]
-> `agentEnabled: true` is an option to create Code Interpreter agents and search agents, so it is not required when adding manually created Agents.
+> [!NOTE] > `agentEnabled: true` is an option to create Code Interpreter agents and search agents, so it is not required when adding manually created Agents.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -443,6 +459,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -453,7 +470,7 @@ const envs: Record<string, Partial<StackInput>> = {
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }
-    ],
+    ]
   }
 }
 ```
@@ -476,6 +493,7 @@ Knowledge Base prompt example: Search by keywords and get information. You can u
 Create an Alias from the created Agent, copy the `agentId` and `aliasId`, and add them in the following format. Set the `displayName` to the name you want to display in the UI. Also, set `agentEnabled` to `true`.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -493,6 +511,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -504,7 +523,7 @@ const envs: Record<string, Partial<StackInput>> = {
         "agentId": "XXXXXXXXX",
         "aliasId": "YYYYYYYY"
       }
-    ],
+    ]
   }
 }
 ```
@@ -514,6 +533,7 @@ const envs: Record<string, Partial<StackInput>> = {
 By default, Agents can be selected from within the "Agent Chat" use case. By enabling the inline display option, the "Agent Chat" use case will no longer be displayed, and all available Agents will be displayed like other use cases. Set `inlineAgents` to `true` when you have valid Agents.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -524,6 +544,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -542,6 +563,7 @@ Add or edit the `flows` array.
 Manually create Flows from the [Amazon Bedrock Flows AWS console](https://console.aws.amazon.com/bedrock/home#/flows). Then create an Alias and add the created Flow's `flowId`, `aliasId`, and `flowName`. In `description`, write an explanation to prompt user input. This explanation will be displayed in the Flow chat text box. Here's an example:
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -551,7 +573,8 @@ const envs: Record<string, Partial<StackInput>> = {
         flowId: 'XXXXXXXXXX',
         aliasId: 'YYYYYYYYYY',
         flowName: 'WhatIsItFlow',
-        description: 'This flow searches the web for any keyword and returns an explanation. Please enter text',
+        description:
+          'This flow searches the web for any keyword and returns an explanation. Please enter text',
       },
     ],
   },
@@ -559,6 +582,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -639,25 +663,23 @@ At least one of these must be defined in `modelIds`.
 For details, refer to [Changing Amazon Bedrock Models](#change-amazon-bedrock-models).
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    modelIds: [
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-    ]
+    modelIds: ['anthropic.claude-3-sonnet-20240229-v1:0'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "modelIds": [
-      "anthropic.claude-3-sonnet-20240229-v1:0",
-    ]
+    "modelIds": ["anthropic.claude-3-sonnet-20240229-v1:0"]
   }
 }
 ```
@@ -666,6 +688,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 The prompt optimization tool converts input prompts into an optimal form for the specified model.
 There is no direct option to enable the prompt optimization tool, but the parameter settings must meet the following two conditions:
+
 - `modelRegion`: A region where Amazon Bedrock Prompt optimization is supported
 - `modelIds`: At least one model supported by Amazon Bedrock Prompt optimization is specified
 
@@ -677,6 +700,7 @@ You can hide use cases with the following options.
 If not specified or set to false, the use case will be displayed.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -691,12 +715,13 @@ const envs: Record<string, Partial<StackInput>> = {
       video: true, // Hide video generation
       videoAnalyzer: true, // Hide video analysis
       diagram: true, // Hide diagram generation
-    }
+    },
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -721,6 +746,7 @@ const envs: Record<string, Partial<StackInput>> = {
 The Use Case Builder is enabled by default and can be accessed from the "Builder Mode" option displayed on the screen after deployment. To disable the Use Case Builder, specify `false` for the parameter `useCaseBuilderEnabled`. (Default is `true`)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -731,6 +757,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -837,46 +864,55 @@ By default, GenU uses models from the `modelRegion`. If you want to use the late
 
 > [!NOTE]
 > When using both the [monitoring dashboard](#enabling-monitoring-dashboard) and models from multiple regions, the default dashboard settings will not display prompt logs for models outside the primary region (`modelRegion`).
-> 
+>
 > To view prompt logs from all regions in a single dashboard, you need these additional configurations:
-> 
+>
 > 1. Manually enable "Model invocation logging" in the Amazon Bedrock settings for each region
 > 2. Add widgets to the CloudWatch dashboard to aggregate logs from each region
 
 #### Example: Using Tokyo region as primary while also using the latest models from Northern Virginia and Oregon regions
+
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'ap-northeast-1',
     modelIds: [
-      {modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0', region: 'us-east-1'},
+      {
+        modelId: 'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
+        region: 'us-east-1',
+      },
       'apac.anthropic.claude-3-5-sonnet-20241022-v2:0',
       'anthropic.claude-3-5-sonnet-20240620-v1:0',
-      {modelId: 'us.anthropic.claude-3-5-haiku-20241022-v1:0', region: 'us-east-1'},
+      {
+        modelId: 'us.anthropic.claude-3-5-haiku-20241022-v1:0',
+        region: 'us-east-1',
+      },
       'apac.amazon.nova-pro-v1:0',
       'apac.amazon.nova-lite-v1:0',
       'apac.amazon.nova-micro-v1:0',
-      {modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1'},
-      {modelId: 'us.meta.llama3-3-70b-instruct-v1:0', region: 'us-east-1'},
-      {modelId: 'us.meta.llama3-2-90b-instruct-v1:0', region: 'us-east-1'},
+      { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
+      { modelId: 'us.meta.llama3-3-70b-instruct-v1:0', region: 'us-east-1' },
+      { modelId: 'us.meta.llama3-2-90b-instruct-v1:0', region: 'us-east-1' },
     ],
     imageGenerationModelIds: [
       'amazon.nova-canvas-v1:0',
-      {modelId: 'stability.sd3-5-large-v1:0', region: 'us-west-2'},
-      {modelId: 'stability.stable-image-core-v1:1', region: 'us-west-2'},
-      {modelId: 'stability.stable-image-ultra-v1:1', region: 'us-west-2'},
+      { modelId: 'stability.sd3-5-large-v1:0', region: 'us-west-2' },
+      { modelId: 'stability.stable-image-core-v1:1', region: 'us-west-2' },
+      { modelId: 'stability.stable-image-ultra-v1:1', region: 'us-west-2' },
     ],
     videoGenerationModelIds: [
       'amazon.nova-reel-v1:0',
-      {modelId: 'luma.ray-v2:0', region: 'us-west-2'},
+      { modelId: 'luma.ray-v2:0', region: 'us-west-2' },
     ],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 {
   "context": {
@@ -937,39 +973,39 @@ const envs: Record<string, Partial<StackInput>> = {
 ### Example: Using Amazon Bedrock Models in us-east-1 (Virginia)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-east-1',
     modelIds: [
-      "anthropic.claude-3-5-sonnet-20240620-v1:0",
-      "anthropic.claude-3-sonnet-20240229-v1:0",
-      "anthropic.claude-3-haiku-20240307-v1:0",
-      "amazon.nova-pro-v1:0",
-      "amazon.nova-lite-v1:0",
-      "amazon.nova-micro-v1:0",
-      "amazon.titan-text-premier-v1:0",
-      "meta.llama3-70b-instruct-v1:0",
-      "meta.llama3-8b-instruct-v1:0",
-      "cohere.command-r-plus-v1:0",
-      "cohere.command-r-v1:0",
-      "mistral.mistral-large-2402-v1:0"
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
+      'amazon.nova-pro-v1:0',
+      'amazon.nova-lite-v1:0',
+      'amazon.nova-micro-v1:0',
+      'amazon.titan-text-premier-v1:0',
+      'meta.llama3-70b-instruct-v1:0',
+      'meta.llama3-8b-instruct-v1:0',
+      'cohere.command-r-plus-v1:0',
+      'cohere.command-r-v1:0',
+      'mistral.mistral-large-2402-v1:0',
     ],
     imageGenerationModelIds: [
-      "amazon.nova-canvas-v1:0",
-      "amazon.titan-image-generator-v2:0",
-      "amazon.titan-image-generator-v1",
-      "stability.stable-diffusion-xl-v1"
+      'amazon.nova-canvas-v1:0',
+      'amazon.titan-image-generator-v2:0',
+      'amazon.titan-image-generator-v1',
+      'stability.stable-diffusion-xl-v1',
     ],
-    "videoGenerationModelIds": [
-      "amazon.nova-reel-v1:0"
-    ],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -995,9 +1031,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
-    "videoGenerationModelIds": [
-      "amazon.nova-reel-v1:0"
-    ],
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
   }
 }
 ```
@@ -1005,40 +1039,42 @@ const envs: Record<string, Partial<StackInput>> = {
 ### Example: Using Amazon Bedrock Models in us-west-2 (Oregon)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-west-2',
     modelIds: [
-      "anthropic.claude-3-5-sonnet-20241022-v2:0",
-      "anthropic.claude-3-5-haiku-20241022-v1:0",
-      "anthropic.claude-3-5-sonnet-20240620-v1:0",
-      "anthropic.claude-3-opus-20240229-v1:0",
-      "anthropic.claude-3-sonnet-20240229-v1:0",
-      "anthropic.claude-3-haiku-20240307-v1:0",
-      "meta.llama3-1-70b-instruct-v1:0",
-      "meta.llama3-1-8b-instruct-v1:0",
-      "cohere.command-r-plus-v1:0",
-      "cohere.command-r-v1:0",
-      "mistral.mistral-large-2407-v1:0"
+      'anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'anthropic.claude-3-5-haiku-20241022-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-opus-20240229-v1:0',
+      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
+      'meta.llama3-1-70b-instruct-v1:0',
+      'meta.llama3-1-8b-instruct-v1:0',
+      'cohere.command-r-plus-v1:0',
+      'cohere.command-r-v1:0',
+      'mistral.mistral-large-2407-v1:0',
     ],
     imageGenerationModelIds: [
-      "amazon.titan-image-generator-v2:0",
-      "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
-      "stability.sd3-5-large-v1:0",
-      "stability.stable-image-core-v1:0",
-      "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
-      "stability.stable-image-ultra-v1:1",
-      "stability.stable-diffusion-xl-v1",
+      'amazon.titan-image-generator-v2:0',
+      'amazon.titan-image-generator-v1',
+      'stability.sd3-large-v1:0',
+      'stability.sd3-5-large-v1:0',
+      'stability.stable-image-core-v1:0',
+      'stability.stable-image-core-v1:1',
+      'stability.stable-image-ultra-v1:0',
+      'stability.stable-image-ultra-v1:1',
+      'stability.stable-diffusion-xl-v1',
     ],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -1075,6 +1111,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ### Example: Using cross-region inference models from us (Northern Virginia or Oregon) Amazon Bedrock
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -1117,6 +1154,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -1161,26 +1199,24 @@ const envs: Record<string, Partial<StackInput>> = {
 ### Example: Using Amazon Bedrock Models in ap-northeast-1 (Tokyo)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, StackInput> = {
   dev: {
     modelRegion: 'ap-northeast-1',
     modelIds: [
-      "anthropic.claude-3-5-sonnet-20240620-v1:0",
-      "anthropic.claude-3-haiku-20240307-v1:0"
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'anthropic.claude-3-haiku-20240307-v1:0',
     ],
-    imageGenerationModelIds: [
-      "amazon.nova-canvas-v1:0"
-    ],
-    videoGenerationModelIds: [
-      "amazon.nova-reel-v1:0"
-    ],
-  }
-}
+    imageGenerationModelIds: ['amazon.nova-canvas-v1:0'],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
+  },
+};
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -1190,12 +1226,8 @@ const envs: Record<string, StackInput> = {
       "anthropic.claude-3-5-sonnet-20240620-v1:0",
       "anthropic.claude-3-haiku-20240307-v1:0"
     ],
-    "imageGenerationModelIds": [
-      "amazon.nova-canvas-v1:0"
-    ],
-    "videoGenerationModelIds": [
-      "amazon.nova-reel-v1:0"
-    ],
+    "imageGenerationModelIds": ["amazon.nova-canvas-v1:0"],
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
   }
 }
 ```
@@ -1221,7 +1253,7 @@ SageMaker JumpStart offers one-click deployment of packaged open-source large la
 
 Thanks to [AWS's partnership with Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the model ID from Hugging Face using the SageMaker SDK.
 
-From a model's Hugging Face page, select *Deploy* > *Amazon SageMaker* to see the code for deploying the model. Copy and run this code to deploy the model. (You may need to adjust parameters like instance size or `SM_NUM_GPUS` depending on the model. If deployment fails, you can check the logs in CloudWatch Logs.)
+From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see the code for deploying the model. Copy and run this code to deploy the model. (You may need to adjust parameters like instance size or `SM_NUM_GPUS` depending on the model. If deployment fails, you can check the logs in CloudWatch Logs.)
 
 > [!NOTE]
 > There's one modification needed when deploying: The endpoint name will be displayed in the GenU application and is used to determine the model's prompt template (explained in the next section). Therefore, you need to specify a distinguishable endpoint name.
@@ -1243,7 +1275,10 @@ To specify the prompt template used when constructing prompts in the backend, yo
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-east-1',
-    endpointNames: ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
+    endpointNames: [
+      'jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16',
+      'jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16',
+    ],
   },
 };
 ```
@@ -1253,7 +1288,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "<SageMaker Endpoint Region>",
-    "endpointNames": ["<SageMaker Endpoint Name>"],
+    "endpointNames": ["<SageMaker Endpoint Name>"]
   }
 }
 ```
@@ -1265,7 +1300,10 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "us-west-2",
-    "endpointNames": ["jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16","jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"],
+    "endpointNames": [
+      "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16",
+      "jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"
+    ]
   }
 }
 ```
@@ -1277,7 +1315,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "us-west-2",
-    "endpointNames": ["elyza-japanese-llama-2-7b-inference"],
+    "endpointNames": ["elyza-japanese-llama-2-7b-inference"]
   }
 }
 ```
@@ -1289,6 +1327,7 @@ const envs: Record<string, Partial<StackInput>> = {
 Set `selfSignUpEnabled` to `false`. (Default is `true`)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -1299,16 +1338,18 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "selfSignUpEnabled": false,
+    "selfSignUpEnabled": false
   }
 }
 ```
 
 ### Restrict Email Domains for Sign-up
+
 Specify a list of allowed domains in `allowedSignUpEmailDomains` (default is `null`).
 
 Specify values as a list of strings, and do not include "@" in each string. Users can sign up if their email domain matches any of the allowed domains. Specifying `null` means no restrictions, allowing all domains. Specifying `[]` prohibits all domains, preventing any email address from registering.
@@ -1322,21 +1363,23 @@ Configuration Examples
 - Example to allow sign-up only with email addresses with the `amazon.com` domain
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    allowedSignUpEmailDomains: ["amazon.com"],
+    allowedSignUpEmailDomains: ['amazon.com'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "allowedSignUpEmailDomains": ["amazon.com"], // Change from null to specify allowed domains to enable
+    "allowedSignUpEmailDomains": ["amazon.com"] // Change from null to specify allowed domains to enable
   }
 }
 ```
@@ -1344,21 +1387,23 @@ const envs: Record<string, Partial<StackInput>> = {
 - Example to allow sign-up with email addresses with either `amazon.com` or `amazon.jp` domains
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    allowedSignUpEmailDomains: ["amazon.com", "amazon.jp"],
+    allowedSignUpEmailDomains: ['amazon.com', 'amazon.jp'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"], // Change from null to specify allowed domains to enable
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"] // Change from null to specify allowed domains to enable
   }
 }
 ```
@@ -1370,23 +1415,25 @@ const envs: Record<string, Partial<StackInput>> = {
 To restrict web app access by IP address, you can enable AWS WAF IP address restrictions. You can specify allowed IPv4 CIDRs in an array with `allowedIpV4AddressRanges` and allowed IPv6 CIDRs in an array with `allowedIpV6AddressRanges`.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    allowedIpV4AddressRanges: ["192.168.0.0/24"],
-    allowedIpV6AddressRanges: ["2001:0db8::/32"],
+    allowedIpV4AddressRanges: ['192.168.0.0/24'],
+    allowedIpV6AddressRanges: ['2001:0db8::/32'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
     "allowedIpV4AddressRanges": ["192.168.0.0/24"], // Change from null to specify allowed CIDR list to enable
-    "allowedIpV6AddressRanges": ["2001:0db8::/32"], // Change from null to specify allowed CIDR list to enable
+    "allowedIpV6AddressRanges": ["2001:0db8::/32"] // Change from null to specify allowed CIDR list to enable
   }
 }
 ```
@@ -1399,21 +1446,23 @@ For Country Codes, please refer to [ISO 3166-2 from Wikipedia](https://en.wikipe
 If "IP Address Restrictions" are also configured, only access from "source IP addresses included in the allowed IP addresses **AND** from allowed countries" will be permitted.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    allowedCountryCodes: ["JP"],
+    allowedCountryCodes: ['JP'],
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "allowedCountryCodes": ["JP"], // Change from null to specify allowed country list to enable
+    "allowedCountryCodes": ["JP"] // Change from null to specify allowed country list to enable
   }
 }
 ```
@@ -1427,29 +1476,33 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 ### SAML Authentication
 
 You can integrate with SAML authentication features provided by IdPs such as Google Workspace or Microsoft Entra ID (formerly Azure Active Directory). Here are detailed integration procedures:
+
 - [SAML Integration with Google Workspace](SAML_WITH_GOOGLE_WORKSPACE.md)
 - [SAML Integration with Microsoft Entra ID](SAML_WITH_ENTRA_ID.md)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     samlAuthEnabled: true,
-    samlCognitoDomainName: "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
-    samlCognitoFederatedIdentityProviderName: "EntraID",
+    samlCognitoDomainName:
+      'your-preferred-name.auth.ap-northeast-1.amazoncognito.com',
+    samlCognitoFederatedIdentityProviderName: 'EntraID',
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
     "samlAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
-    "samlCognitoFederatedIdentityProviderName": "EntraID",
+    "samlCognitoFederatedIdentityProviderName": "EntraID"
   }
 }
 ```
@@ -1463,6 +1516,7 @@ const envs: Record<string, Partial<StackInput>> = {
 When using the Converse API (i.e., generative AI models that produce text output), guardrails can be applied. To configure this, change `guardrailEnabled` to `true` and redeploy.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -1473,11 +1527,12 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
-    "guardrailEnabled" : true,
+    "guardrailEnabled": true
   }
 }
 ```
@@ -1496,33 +1551,56 @@ Configure settings to automatically create and delete the Kendra index created b
 This feature is only effective when `ragEnabled` is `true` AND `kendraIndexArn` is `null` (i.e., it doesn't work with externally created Kendra indexes).
 
 Configure as shown in the example below:
-* Setting `kendraIndexScheduleEnabled` to `true` enables schedule settings; setting it to `false` disables scheduling from that deployment forward.
-* Specify creation and deletion start times in Cron format using `kendraIndexScheduleCreateCron` and `kendraIndexScheduleDeleteCron`.
-  + For Cron format details, refer to [this documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html). However, to comply with EventBridge specifications, specify times in UTC. Currently, only minute, hour, month, and weekDay can be specified. These items must be specified, and other items will be ignored even if specified.
-  + Setting to `null` means creation/deletion won't be executed. You can set just one to `null` (configure only one) or both to `null` (execute nothing).
+
+- Setting `kendraIndexScheduleEnabled` to `true` enables schedule settings; setting it to `false` disables scheduling from that deployment forward.
+- Specify creation and deletion start times in Cron format using `kendraIndexScheduleCreateCron` and `kendraIndexScheduleDeleteCron`.
+  - For Cron format details, refer to [this documentation](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html). However, to comply with EventBridge specifications, specify times in UTC. Currently, only minute, hour, month, and weekDay can be specified. These items must be specified, and other items will be ignored even if specified.
+  - Setting to `null` means creation/deletion won't be executed. You can set just one to `null` (configure only one) or both to `null` (execute nothing).
 
 The example below configures index creation to start at 8:00 AM JST Monday-Friday and deletion to start at 8:00 PM JST Monday-Friday.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     kendraIndexScheduleEnabled: true,
-    kendraIndexScheduleCreateCron: { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
-    kendraIndexScheduleDeleteCron: { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
+    kendraIndexScheduleCreateCron: {
+      minute: '0',
+      hour: '23',
+      month: '*',
+      weekDay: 'SUN-THU',
+    },
+    kendraIndexScheduleDeleteCron: {
+      minute: '0',
+      hour: '11',
+      month: '*',
+      weekDay: 'MON-FRI',
+    },
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
   "context": {
     "kendraIndexScheduleEnabled": true,
-    "kendraIndexScheduleCreateCron": { "minute": "0", "hour": "23", "month": "*", "weekDay": "SUN-THU" },
-    "kendraIndexScheduleDeleteCron": { "minute": "0", "hour": "11", "month": "*", "weekDay": "MON-FRI" },
+    "kendraIndexScheduleCreateCron": {
+      "minute": "0",
+      "hour": "23",
+      "month": "*",
+      "weekDay": "SUN-THU"
+    },
+    "kendraIndexScheduleDeleteCron": {
+      "minute": "0",
+      "hour": "11",
+      "month": "*",
+      "weekDay": "MON-FRI"
+    }
   }
 }
 ```
@@ -1532,6 +1610,7 @@ Even when the Kendra index is deleted, the RAG feature remains on. RAG-related m
 EventBridge rules are used for scheduling, and Step Functions for process control. You can stop scheduling by manually disabling the EventBridge rule. You can also manually execute the Step Functions state machine to create or delete the index.
 
 > [!NOTE]
+>
 > - After index recreation, only the default S3 data source is added.
 >   - If you added other data sources after index creation, they will be deleted when the index is deleted, and won't be recreated when the index is recreated; you'll need to add them again.
 >   - If you added data sources within this repository's CDK, the data sources will be created but not synchronized. To synchronize CDK-added data sources, either manually synchronize them or modify the [code](/packages/cdk/lib/construct/rag.ts) to add them as targets for the Step Functions state machine.
@@ -1554,6 +1633,7 @@ To view the dashboard, you need to create an IAM user with permissions to log in
 Set `dashboard` to `true`. (Default is `false`)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -1564,6 +1644,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -1595,6 +1676,7 @@ Set the following values:
 - `hostedZoneId` ... The ID of the pre-created public hosted zone
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
@@ -1607,6 +1689,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {
@@ -1638,22 +1721,22 @@ Principal configuration example (set in the different account)
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": [
-                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictTitleServiceXXX-XXXXXXXXXXXX",
-                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictServiceXXXXXXXX-XXXXXXXXXXXX",
-                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictStreamServiceXX-XXXXXXXXXXXX",
-                    "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGenerateImageServiceXX-XXXXXXXXXXXX"
-                ]
-            },
-            "Action": "sts:AssumeRole",
-            "Condition": {}
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictTitleServiceXXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictServiceXXXXXXXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIPredictStreamServiceXX-XXXXXXXXXXXX",
+          "arn:aws:iam::111111111111:role/GenerativeAiUseCasesStack-APIGenerateImageServiceXX-XXXXXXXXXXXX"
+        ]
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {}
+    }
+  ]
 }
 ```
 
@@ -1662,16 +1745,19 @@ Set the following parameter:
 - `crossAccountBedrockRoleArn` ... The ARN of the IAM role created in advance in the different account
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
 ```typescript
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    crossAccountBedrockRoleArn: 'arn:aws:iam::AccountID:role/PreCreatedRoleName',
+    crossAccountBedrockRoleArn:
+      'arn:aws:iam::AccountID:role/PreCreatedRoleName',
   },
 };
 ```
 
 **Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
 ```json
 // cdk.json
 {

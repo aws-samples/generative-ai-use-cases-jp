@@ -39,7 +39,7 @@ Add the extension URL you noted in "Checking the Extension URL" to the "Allowed 
 chrome-extension://ExtensionID/index.html
 ```
 
->[!IMPORTANT]
+> [!IMPORTANT]
 > If you're using Microsoft Edge, the URL in the browser will appear as `extension://ExtensionID/index.html`, but in the Cognito configuration, you must use `chrome-extension`.
 
 ### Verification
