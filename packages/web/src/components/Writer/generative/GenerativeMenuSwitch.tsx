@@ -3,6 +3,7 @@ import { Fragment, type ReactNode, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { AISelector } from './AISelector';
 import { PiMagicWand } from 'react-icons/pi';
+import { useTranslation } from 'react-i18next';
 
 interface GenerativeMenuSwitchProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ const GenerativeMenuSwitch = ({
   open,
   onOpenChange,
 }: GenerativeMenuSwitchProps) => {
+  const { t } = useTranslation();
   const { editor } = useEditor();
   useEffect(() => {
     if (!open && editor) removeAIHighlight(editor);
@@ -40,7 +42,7 @@ const GenerativeMenuSwitch = ({
             onClick={() => onOpenChange(true)}
             size="sm">
             <PiMagicWand className="h-5 w-5" />
-            Ask AI
+            {t('writer.ai.ask_ai')}
           </Button>
           {children}
         </Fragment>

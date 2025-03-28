@@ -3,7 +3,7 @@
   "private": true,
   "version": "4.0.0",
   "scripts": {
-    "lint": "run-s root:lint web:lint cdk:lint cdk:lambda-build-dryrun",
+    "lint": "run-s custom-lint:build root:lint web:lint cdk:lint cdk:lambda-build-dryrun",
     "test": "run-s web:test",
     "root:lint": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh ${npm_config_env} && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
@@ -27,6 +27,7 @@
     "extension:build": "cd browser-extension && npm run build",
     "extension:buildw": "source ./setup-env.sh && cd browser-extension && npm run build",
     "extension:lint": "npx prettier --write browser-extension/. && cd browser-extension && npm run lint",
+    "custom-lint:build": "npm -w packages/eslint-plugin-i18nhelper run build",
     "docs:dev": "mkdocs serve",
     "docs:build": "mkdocs build",
     "docs:gh-deploy": "mkdocs gh-deploy --"

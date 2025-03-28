@@ -11,59 +11,58 @@ import {
 import { getPrevText, useEditor } from 'novel';
 import { CommandGroup, CommandItem, CommandSeparator } from '../ui/Command';
 import { MODELS } from '../../../hooks/useModel';
-
-const options = [
-  {
-    value: 'improve',
-    label: '推敲',
-    icon: PiArrowClockwise,
-  },
-  {
-    value: 'fix',
-    label: '校閲',
-    icon: PiChecks,
-  },
-  {
-    value: 'shorter',
-    label: '短くする',
-    icon: PiEqualsThin,
-  },
-  {
-    value: 'longer',
-    label: '長くする',
-    icon: PiTextAlignJustify,
-  },
-];
-
-const agentOptions = [
-  {
-    value: 'search',
-    label: '検索して執筆...',
-    icon: PiMagnifyingGlass,
-  },
-  {
-    value: 'collectData',
-    label: '裏付け・データを調査し追記',
-    icon: PiFileMagnifyingGlass,
-  },
-  {
-    value: 'factCheck',
-    label: 'ファクトチェック',
-    icon: PiCheck,
-  },
-];
-
-interface AISelectorCommandsProps {
-  onSelect: (value: string, option: string) => void;
-}
+import { useTranslation } from 'react-i18next';
 
 const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
+  const { t } = useTranslation();
   const { editor } = useEditor();
+
+  const options = [
+    {
+      value: 'improve',
+      label: t('writer.ai.options.improve'),
+      icon: PiArrowClockwise,
+    },
+    {
+      value: 'fix',
+      label: t('writer.ai.options.fix'),
+      icon: PiChecks,
+    },
+    {
+      value: 'shorter',
+      label: t('writer.ai.options.shorter'),
+      icon: PiEqualsThin,
+    },
+    {
+      value: 'longer',
+      label: t('writer.ai.options.longer'),
+      icon: PiTextAlignJustify,
+    },
+  ];
+
+  const agentOptions = [
+    {
+      value: 'search',
+      label: t('writer.ai.options.search'),
+      icon: PiMagnifyingGlass,
+    },
+    {
+      value: 'collectData',
+      label: t('writer.ai.options.collect_data'),
+      icon: PiFileMagnifyingGlass,
+    },
+    {
+      value: 'factCheck',
+      label: t('writer.ai.options.fact_check'),
+      icon: PiCheck,
+    },
+  ];
+
   if (!editor) return null;
   return (
     <>
       <CommandSeparator />
-      <CommandGroup heading="選択範囲を編集">
+      <CommandGroup heading={t('writer.ai.edit_selection')}>
         {options.map((option) => (
           <CommandItem
             onSelect={(value: string) => {
@@ -85,7 +84,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
       {MODELS.searchAgent && (
         <>
           <CommandSeparator />
-          <CommandGroup heading="検索エンジンを使う">
+          <CommandGroup heading={t('writer.ai.use_search_engine')}>
             {agentOptions.map((option) => (
               <CommandItem
                 onSelect={(value: string) => {
@@ -107,7 +106,7 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
       )}
 
       <CommandSeparator />
-      <CommandGroup heading="生成">
+      <CommandGroup heading={t('writer.ai.generate')}>
         <CommandItem
           onSelect={() => {
             const pos = editor.state.selection.from;
@@ -117,11 +116,15 @@ const AISelectorCommands = ({ onSelect }: AISelectorCommandsProps) => {
           value="continue"
           className="gap-2 px-4">
           <PiSkipForward className="h-4 w-4 text-purple-500" />
-          続きを出力
+          {t('writer.ai.options.continue')}
         </CommandItem>
       </CommandGroup>
     </>
   );
 };
+
+interface AISelectorCommandsProps {
+  onSelect: (value: string, option: string) => void;
+}
 
 export default AISelectorCommands;

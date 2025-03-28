@@ -1,5 +1,5 @@
-// ラベルが付与されていないことを識別するための特殊文字
-// 空文字だと DynamoDB に inputExample を挿入した際にエラーになる
+// Special character to identify when there is no label
+// Empty string causes an error when inserting inputExample into DynamoDB
 export const NOLABEL = 'NOLABEL';
 
 export type BuilderItem = {
@@ -37,7 +37,7 @@ export const getItemsFromPlaceholders = (
         let label: string;
         let options: string | undefined = undefined;
 
-        // 現状オプションが許可されているのは select のみ
+        // Currently, only select allows options
         if (inputType === 'select') {
           if (labels.length >= 2) {
             const [tmpLabel, ...tmpOptions] = labels;
