@@ -6,10 +6,17 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
     'plugin:tailwindcss/recommended',
+    'plugin:yml/standard',
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh', 'i18nhelper', '@shopify'],
+  overrides: [
+    {
+      files: ['*.yaml', '*.yml'],
+      parser: 'yaml-eslint-parser',
+    },
+  ],
+  plugins: ['react-refresh', 'i18nhelper', '@shopify', 'yml'],
   rules: {
     'react-refresh/only-export-components': [
       'warn',
@@ -26,6 +33,9 @@ module.exports = {
     'i18nhelper/no-jp-comment': 'warn',
     // Apply JSX rules
     '@shopify/jsx-no-hardcoded-content': 'warn',
+    // Yaml
+    'yml/sort-keys': 'error',
+    'yml/quotes': ['error', { prefer: 'single', avoidEscape: true }],
   },
   settings: {
     tailwindcss: {

@@ -105,10 +105,6 @@ plugins:
             Local Development Environment: ローカル開発環境構築手順
             Delete Resources: リソースの削除方法
             Use as a Native App: ネイティブアプリのように利用する方法
-  # - redirects:
-  #     redirect_maps:
-  #       './README.md': /en/ABOUT.md
-  #       './README_ja.md': /ja/ABOUT.md
 hooks:
   - docs/overrides/hooks/anchors.py
 

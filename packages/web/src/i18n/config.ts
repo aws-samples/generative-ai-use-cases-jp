@@ -40,6 +40,9 @@ i18n
     interpolation: {
       escapeValue: false,
     },
+    react: {
+      transKeepBasicHtmlNodesFor: ['wbr'],
+    },
   });
 
 export default i18n;
