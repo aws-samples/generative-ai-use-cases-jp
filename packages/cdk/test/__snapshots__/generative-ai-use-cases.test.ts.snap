@@ -1902,7 +1902,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
 
 exports[`GenerativeAiUseCases matches the snapshot 5`] = `
 {
-  "Description": "Generative AI Use Cases JP (uksb-1tupboc48)",
+  "Description": "Generative AI Use Cases (uksb-1tupboc48)",
   "Outputs": {
     "APIApiEndpoint036547C6": {
       "Value": {
