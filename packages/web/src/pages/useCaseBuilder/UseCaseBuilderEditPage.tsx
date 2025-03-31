@@ -266,7 +266,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
   const menu = useMemo(() => {
     const base: string[] = [
-      t('useCaseBuilder.menuAppDefinition'),
+      t('useCaseBuilder.menuUseCaseDefinition'),
       t('useCaseBuilder.menuInputExamples'),
       t('useCaseBuilder.menuModelSelection'),
       t('useCaseBuilder.menuFileAttachment'),
@@ -315,7 +315,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     // eslint-disable-next-line no-irregular-whitespace
     if (title.replace(/[ 　]/g, '') === '') {
       tmp.push({
-        menu: t('useCaseBuilder.menuAppDefinition'),
+        menu: t('useCaseBuilder.menuUseCaseDefinition'),
         message: t('useCaseBuilder.enterTitle'),
       });
     }
@@ -323,14 +323,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
     // eslint-disable-next-line no-irregular-whitespace
     if (promptTemplate.replace(/[ 　]/g, '') === '') {
       tmp.push({
-        menu: t('useCaseBuilder.menuAppDefinition'),
+        menu: t('useCaseBuilder.menuUseCaseDefinition'),
         message: t('useCaseBuilder.enterPromptTemplate'),
       });
     }
 
     if (placeholders.length === 0 && !fileUpload) {
       tmp.push({
-        menu: t('useCaseBuilder.menuAppDefinition'),
+        menu: t('useCaseBuilder.menuUseCaseDefinition'),
         message: t('useCaseBuilder.noUserInput'),
       });
     }
@@ -350,7 +350,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
     if (isDisabledUpdate) {
       tmp.push({
-        menu: t('useCaseBuilder.menuAppDefinition'),
+        menu: t('useCaseBuilder.menuUseCaseDefinition'),
         message: t('useCaseBuilder.noUpdateContent'),
       });
     }
@@ -522,7 +522,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
         <div className="col-span-12 lg:col-span-5">
           <Card label={t(`${currentMenu}`)} className="relative">
-            {currentMenu === t('useCaseBuilder.menuAppDefinition') && (
+            {currentMenu === t('useCaseBuilder.menuUseCaseDefinition') && (
               <>
                 <RowItem>
                   <InputText

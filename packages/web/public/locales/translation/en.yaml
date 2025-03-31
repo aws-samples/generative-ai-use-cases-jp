@@ -811,7 +811,7 @@ useCaseBuilder:
   builderMode: Builder Mode
   cancel: Cancel
   create: Create
-  createDescription: Create a use case with the above content.
+  createDescription: Create a use case. Please check the functionality in preview before creating. You can also edit after creation.
   createErrorCondition: 'The following conditions must be met:'
   createNew: Create New
   creating: Creating...
@@ -994,17 +994,17 @@ useCaseBuilder:
 
       After the speech recognition is complete, press the "Format" button (the
       speech recognition result will be copied automatically).
-  menuAppDefinition: Application Definition
+  menuUseCaseDefinition: Use Case Definition
   menuCreate: Create
   menuDelete: Delete
   menuFileAttachment: File Attachment
   menuInputExamples: Input Examples
   menuModelSelection: Model Selection
   menuUpdate: Update
-  modelFixed: Fix model
-  modelFixedDescription: Users can only use the fixed model in this app.
-  modelNotFixed: Don't fix model
-  modelNotFixedDescription: Users can select which model to use in this app.
+  modelFixed: Model is Fixed.
+  modelFixedDescription: Users can only use the fixed model in this use case.
+  modelNotFixed: The model is not fixed.
+  modelNotFixedDescription: Users can select which model to use in this use case.
   myUseCases: My Use Cases
   noMyUseCases: No My Use Cases
   noUpdateContent: No updates available
@@ -1016,19 +1016,16 @@ useCaseBuilder:
   private: Private
   promptTemplate: Prompt Template
   promptTemplateHint: >-
-    {{text}}, {{text:label}}, {{select:label:option1,option2}}, {{form:label}},
-    {{retrieveKendra}}, {{retrieveKnowledgeBase}}
+    User input definitions are required to create use cases. Please define placeholders in the prompt template or enable file attachments.
   promptTemplatePlaceholder: >-
     Enter a prompt template.
-    To receive user input, use {{text}} or {{text:label}}.
-    To present choices, use {{select:label:option1,option2}}.
-    To use RAG, use {{retrieveKendra:label}} or {{retrieveKnowledgeBase:label}}.
+    For how to write prompt templates, please refer to "Help" or "Sample Collection".
   recentlyUsed: Recently Used
   resultPlaceholder: Results will appear here
   returnToTop: Return to Top
   samples: Sample Collection
   share: Share
-  shareUrlDescription: Share the use case with the following URL.
+  shareUrlDescription: Share the use case with the above URL.
   shared: Shared
   sharedDescription: The use case is shared.
   title: Title
