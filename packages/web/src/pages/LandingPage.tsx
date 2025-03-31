@@ -45,7 +45,7 @@ const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
-const { visionEnabled, flowChatEnabled } = MODELS;
+const { visionEnabled, flowChatEnabled, agentNames } = MODELS;
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -76,10 +76,15 @@ const LandingPage: React.FC = () => {
   };
 
   const demoAgent = () => {
-    const params: AgentPageQueryParams = {
-      content: t('landing.demo.agent.content'),
-    };
-    navigate(`/agent?${queryString.stringify(params)}`);
+    if (agentNames.includes('CodeInterpreter')) {
+      const params: AgentPageQueryParams = {
+        modelId: 'CodeInterpreter',
+        content: t('landing.demo.agent.content'),
+      };
+      navigate(`/agent?${queryString.stringify(params)}`);
+    } else {
+      navigate(`/agent`);
+    }
   };
 
   const demoGenerate = () => {

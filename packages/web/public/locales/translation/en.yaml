@@ -471,7 +471,7 @@ generateText:
 landing:
   demo:
     agent:
-      content: What is generative-ai-use-cases-jp?
+      content: Draw a scatter chart with dummy data.
     chat:
       content: >-
         Please write a Python function that returns Fibonacci numbers. Also,

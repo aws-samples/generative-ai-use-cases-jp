@@ -406,7 +406,7 @@ generateText:
 landing:
   demo:
     agent:
-      content: generative-ai-use-cases-jp とはなんですか？
+      content: ダミーデータで散布図を描いてください。
     chat:
       content: >-
         フィボナッチ数を返す Python の関数を書いてください。また、実装を解説してください。
