@@ -704,6 +704,8 @@ useCaseBuilder:
   deleting: 削除中...
   description: 説明
   edit: ユースケースの編集
+  enterPromptTemplate: プロンプトテンプレートを入力してください
+  enterTitle: タイトルを入力してください
   error:
     duplicate_select_options: '{{select:{{label}}}} に重複したオプションが含まれています。'
     empty_select_options: '{{select:{{label}}}} に空のオプションが含まれています。'
@@ -869,6 +871,8 @@ useCaseBuilder:
   modelNotFixedDescription: モデル選択の UI が表示され、ユーザーは自由にモデルを選択できます。
   myUseCases: マイユースケース
   noMyUseCases: マイユースケースがありません。
+  noUpdateContent: 更新内容がありません
+  noUserInput: ユースケースがユーザーの入力を受け付けていません。プロンプトテンプレートに placeholder を追加するか、ファイル添付を ON にしてください。
   notExistOrNotShared: このユースケースは存在しないか、共有されていないユースケースです。
   notSharedDescription: このユースケースは共有されていないため、あなたしか利用できません。
   ok: OK
