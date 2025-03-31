@@ -823,6 +823,8 @@ useCaseBuilder:
   deleting: Deleting...
   description: Description
   edit: Edit Use Case
+  enterPromptTemplate: Please enter a prompt template
+  enterTitle: Please enter a title
   error:
     duplicate_select_options: '{{select:{{label}}}} contains duplicate options.'
     empty_select_options: '{{select:{{label}}}} contains empty options.'
@@ -1005,6 +1007,8 @@ useCaseBuilder:
   modelNotFixedDescription: Users can select which model to use in this app.
   myUseCases: My Use Cases
   noMyUseCases: No My Use Cases
+  noUpdateContent: No updates available
+  noUserInput: The use case is not accepting user input. Please add a placeholder to the prompt template or turn on file attachment.
   notExistOrNotShared: Not Exist or Not Shared
   notSharedDescription: The use case is not shared.
   ok: OK

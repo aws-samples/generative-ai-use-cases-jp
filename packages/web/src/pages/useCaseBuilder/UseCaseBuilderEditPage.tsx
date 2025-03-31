@@ -316,7 +316,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     if (title.replace(/[ 　]/g, '') === '') {
       tmp.push({
         menu: t('useCaseBuilder.menuAppDefinition'),
-        message: 'useCaseBuilder.enterTitle',
+        message: t('useCaseBuilder.enterTitle'),
       });
     }
 
@@ -324,14 +324,14 @@ const UseCaseBuilderEditPage: React.FC = () => {
     if (promptTemplate.replace(/[ 　]/g, '') === '') {
       tmp.push({
         menu: t('useCaseBuilder.menuAppDefinition'),
-        message: 'useCaseBuilder.enterPromptTemplate',
+        message: t('useCaseBuilder.enterPromptTemplate'),
       });
     }
 
     if (placeholders.length === 0 && !fileUpload) {
       tmp.push({
         menu: t('useCaseBuilder.menuAppDefinition'),
-        message: 'useCaseBuilder.noUserInput',
+        message: t('useCaseBuilder.noUserInput'),
       });
     }
 
@@ -351,7 +351,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
     if (isDisabledUpdate) {
       tmp.push({
         menu: t('useCaseBuilder.menuAppDefinition'),
-        message: 'useCaseBuilder.noUpdateContent',
+        message: t('useCaseBuilder.noUpdateContent'),
       });
     }
 
