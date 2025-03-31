@@ -1,24 +1,72 @@
 ---
 claude:
-  contentGeneration:
-    title: Content Generation
-    textReplacement:
-      title: Text Replacement
-      systemContext: The following is a conversation between a user and an AI.
-        The user provides a text enclosed in <text></text> tags and an instruction enclosed in <instruction></instruction> tags.
-        The AI should rewrite the content of the text according to the instruction.
-        The output should start with <output> and end with </output>, with the rewritten content only.
-      prompt: <instruction>Add more details to the explanation.</instruction>
+  advancedTextAnalysis:
+    quotationQa:
+      prompt: |-
         <text>
-        In 1758, Swedish botanist and zoologist Carl Linnaeus published the two-word species naming method (binomial nomenclature) in his book 'Systema Naturae'.
-        The word 'canis' means dog in Latin, and he listed domestic dogs, wolves, and jackals as species under this genus.
+        # Date and Time
+        2023-02-15 10:00-12:00
+        # Location
+        Meeting Room A
+
+        # Attendees
+        * Tanabe-Chū
+        * YAMADA Kazuo
+        * SATO Shōshi
+        * SUZUKI Keichō
+        * TAKAHASHI
+        * ITO
+
+        # Topics
+        1. Development schedule of the new system
+        2. Function requirements of the new system
+        3. Next meeting date
+
+        # Meeting Notes
+        1. Tanabe-Chū explained that the development schedule of the new system is delayed. YAMADA Kazuo proposed a plan to add staff to recover the schedule, which was approved.
+        2. YAMADA Kazuo explained the function requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted by the next meeting.
+        3. The next meeting was approved to be held on February 28, 14:00, two weeks later.
         </text>
-    list:
-      title: List with Explanation
+        <question>When is the next meeting?</question>
+      systemContext: |-
+        The following is a conversation between a user and an AI.
+        The user provides a meeting record enclosed in <text></text> tags and a question enclosed in <question></question> tags.
+        AI should accurately quote a part of the document that answers the question from the meeting record, and then use the quoted content to answer the question.
+        AI should quote the information necessary to answer the question, and number the quotes from top to bottom. Please make the quoted content short.
+        If there is no relevant quote, please write "No relevant quote" instead.
+        Next, answer the question starting with "Answer:". Do not include the quoted content in the answer or refer to it. Do not say "According to quote [1]" when answering. Instead, use a number in parentheses to refer to the relevant section of the answer.
+        Therefore, the format of the answer should be as shown between the <example></example> tags. Please strictly follow the format and spacing.
+        <example>
+        Reference:
+        [1] "The company X reported 12 million dollars in revenue in 2021."
+        [2] "Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets."
+        Answer:
+        The company X reported 12 million dollars in revenue in 2021.[1] Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets.[2]
+        </example>
+        The answer should start with <output> and end with </output>.
+      title: Quotation-Based Q&A
+    title: Advanced Text Analysis
+  categorize:
+    categorize:
+      prompt: <mail>
+        Hello. My Mixmaster4000 is generating strange noises when operated.
+        Also, it smells like a burning electronic device and a slightly smoky plastic.
+        </mail>
       systemContext: The following is a conversation between a user and an AI.
-        The user provides a content enclosed in <content></content> tags and a list enclosed in <list></list> tags.
-        The AI should copy the content of each item in the list without any mistakes, and then provide a detailed explanation for each item.
-        The output should start with <output> and end with </output>, with the rewritten content only.
+        The AI is a customer service representative who categorizes emails by type.
+        The user provides an email enclosed in <mail></mail> tags. Please categorize it into one of the following categories enclosed in <category></category> tags.
+        <category>
+        (A) Pre-sale questions
+        (B) Fault or defective product
+        (C) Questions about billing
+        (D) Other (Please explain)
+        </category>
+        The output of the AI must start with <output> and end with </output>, with only one of A, B, C, or D in the tag.
+        If D is selected, please provide an explanation. A, B, or C are not required. There are no exceptions.
+      title: Categorize with Choices
+    title: Categorize with Choices
+  contentGeneration:
+    list:
       prompt: |-
         <content>TypeScript</content>
         <list>
@@ -32,8 +80,16 @@ claude:
         * The compiled result is pure JavaScript code
         * Compatible with the completion features of VSCode, etc.
         </list>
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides a content enclosed in <content></content> tags and a list enclosed in <list></list> tags.
+        The AI should copy the content of each item in the list without any mistakes, and then provide a detailed explanation for each item.
+        The output should start with <output> and end with </output>, with the rewritten content only.
+      title: List with Explanation
     mail:
-      title: Create a reply email
+      prompt: <mail>Suzuki-san
+        Regarding the Kilimanjaro coffee beans (5kg) that you have listed for sale at $100, would it be possible for you to lower the price to $10?
+        Yamada</mail>
+        <intention>No</intention>
       systemContext: |-
         The following is a conversation between a user and an AI.
         The user provides a mail enclosed in <mail></mail> tags and a list enclosed in <intention></intention> tags.
@@ -61,169 +117,188 @@ claude:
         In any case, please use the name at the beginning and end of the received email in the reply email, reversing it between the beginning and end.
 
         The output of the AI must start with <output> and end with </output>, with the reply email only. Do not output <steps> or <rules>.
-      prompt: <mail>Suzuki-san
-        Regarding the Kilimanjaro coffee beans (5kg) that you have listed for sale at $100, would it be possible for you to lower the price to $10?
-        Yamada</mail>
-        <intention>No</intention>
-  categorize:
-    title: Categorize with Choices
-    categorize:
-      title: Categorize with Choices
-      systemContext: The following is a conversation between a user and an AI.
-        The AI is a customer service representative who categorizes emails by type.
-        The user provides an email enclosed in <mail></mail> tags. Please categorize it into one of the following categories enclosed in <category></category> tags.
-        <category>
-        (A) Pre-sale questions
-        (B) Fault or defective product
-        (C) Questions about billing
-        (D) Other (Please explain)
-        </category>
-        The output of the AI must start with <output> and end with </output>, with only one of A, B, C, or D in the tag.
-        If D is selected, please provide an explanation. A, B, or C are not required. There are no exceptions.
-      prompt: <mail>
-        Hello. My Mixmaster4000 is generating strange noises when operated.
-        Also, it smells like a burning electronic device and a slightly smoky plastic.
-        </mail>
-  textProcessing:
-    title: Text Processing
-    extract:
-      title: Information Extraction
-      systemContext: The following is a conversation between a user and an AI.
-        The user provides a text enclosed in <text></text> tags. Please extract the email address from the text accurately.
-        Please do not extract anything that does not form an email address. Conversely, please output all email addresses that form an email address.
-        The output must start with <output> and end with </output>, with one email address per line.
-        Please only write email addresses that are exactly spelled out in the input text.
-        If there is no email address in the input text, please write "N/A" only. Do not output "N/A" if there is at least one email address. Do not write anything else.
-      prompt: <text>
-        My contact information is hoge@example.com. Please be careful not to mistake it for hoge@example.
-        Also, hoge+fuga@example.com and fuga@example.jp are also acceptable.
-        If you cannot use email, please contact us through the contact form at https://example.jp/qa.
-        </text>
-    personalInformation:
-      title: Personal Information Removal
-      systemContext: The following is a conversation between a user and an AI.
-        The user provides a text enclosed in <text></text> tags. Please remove all personal information from the text and replace it with XXX.
-        Please replace names, phone numbers, home addresses, and email addresses with XXX.
-        The text may insert spaces between characters or insert newlines between characters to disguise PII.
-        If there is no personal information in the text, please copy it exactly.
-        The following is an example.
-        <example>
+      title: Create a reply email
+    textReplacement:
+      prompt: <instruction>Add more details to the explanation.</instruction>
         <text>
-        My name is YAMADA TARO. My email address is taro.yamada@example.com, and my phone number is 03-9876-5432. I am 43 years old. My account ID is 12345678.
+        In 1758, Swedish botanist and zoologist Carl Linnaeus published the two-word species naming method (binomial nomenclature) in his book 'Systema Naturae'.
+        The word 'canis' means dog in Latin, and he listed domestic dogs, wolves, and jackals as species under this genus.
         </text>
-        The output should be as follows.
-        <output>
-        My name is XXX. My email address is XXX, and my phone number is XXX. I am XXX years old. My account ID is XXX.
-        </output>
-        <text>
-        YAMADA KAZUKO is a heart specialist at the YAMATAIKOKU KINENBYOIN. The contact information is 03-1234-5678 or hy@yamataikoku-kinenbyoin.com.
-        </text>
-        The output should be as follows.
-        <output>
-        YAMADA KAZUKO is a heart specialist at the YAMATAIKOKU KINENBYOIN. The contact information is XXX or XXX.
-        </output>
-        </example>
-        Please replace personal information with XXX and output it from <output> to <output>.
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides a text enclosed in <text></text> tags and an instruction enclosed in <instruction></instruction> tags.
+        The AI should rewrite the content of the text according to the instruction.
+        The output should start with <output> and end with </output>, with the rewritten content only.
+      title: Text Replacement
+    title: Content Generation
+  contentModeration:
+    contentModeration:
       prompt: |-
-        <text>
-        I am GENJI MINAMOTO. I am a samurai during the Kamakura period. The contact information is yoritomo-minamoto@kamakura-bakuhu.go.jp or 0467-12-3456.
-        </text>
-  textAnalysis:
-    title: Text Analysis
-    similarity:
-      title: Text Similarity Evaluation
-      systemContext: The following is a conversation between a user and an AI.
-        The user provides two texts enclosed in <text-1></text-1> and <text-2></text-2> tags.
-        AI should output "Yes" if the texts are roughly the same, and "No" otherwise.
-      prompt: <text-1>YAMADA TARO is cold.
-        </text-1>
-        <text-2>YAMADA TARO is surprised.
-        </text-2>
-    questionAnswering:
-      title: Question Answering for Input Text
-      systemContext: The following is a conversation between a user and an AI.
-        The user provides a meeting record enclosed in <text></text> tags and a list of questions enclosed in <question></question> tags.
-        AI should answer each question using only the meeting record.
-        If the meeting record does not contain the information, please answer "N/A".
-        The output should start with <output> and end with </output>, with the answer to each question enclosed in <answer></answer> tags.
+        <content>
+
+        Human: Today is a good weather.
+
+        Assistant: Tomorrow is supposed to be sunny.
+
+        </content>
+      systemContext: |-
+        The following is a conversation between a user and an AI. The user is asking questions or requesting tasks.
+        <content></content> is the latest request from the user.
+        If the user's request is harmful, pornographic, or mentions illegal activities, answer "Yes" and then provide a reason.
+        If the user's request is not harmful, pornographic, or illegal, answer "No".
+        The output should start with <output> and end with </output>.
+      title: Content Moderation
+    title: Content Moderation
+  experimental:
+    rolePlay:
       prompt: |-
-        <text>
-        # Date and Time
-        2023-02-15 10:00-12:00
-        # Location
-        Meeting Room A
-
-        # Attendees
-        * TANABE Chū
-        * YAMADA Kazuo
-        * SATO Shōshi
-        * SUZUKI Keichō
-        * TAKAHASHI
-        * ITO
-
-        # Topics
-        1. Development schedule of the new system
-        2. Function requirements of the new system
-        3. Next meeting date
-
-        # Meeting Notes
-        1. Tanaka Manager explained that the development schedule of the new system is delayed. YAMADA Kazuo proposed a plan to add staff to recover the schedule, which was approved.
-        2. YAMADA Kazuo explained the function requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted by the next meeting.
-        3. The next meeting was approved to be held on February 28, 14:00, two weeks later.
-        </text>
-        <question>Did ITO attend the meeting?</question>
-        <question>How much is the new schedule delayed?</question>
-        <question>When is the next meeting?</question>
-  advancedTextAnalysis:
-    title: Advanced Text Analysis
-    quotationQa:
-      title: Quotation-Based Q&A
+        <Specialist-1>Database Engineer</Specialist-1>
+        <Specialist-2>Security Engineer</Specialist-2>
+        <Specialist-3>AI Engineer</Specialist-3>
+        <Specialist-4>Network Engineer</Specialist-4>
+        <Specialist-5>Governance Expert</Specialist-5>
+        <topic>Building an EC site that exceeds Amazon</topic>
+        <goal>Architecture completion</goal>
+        <limitation>
+        * Active users are 1 billion
+        * 100 million transactions per second
+        * Strict handling of personal information
+        * Deal with products equivalent to amazon.co.jp
+        * AI recommendation function
+        * Use AWS.
+        </limitation>
       systemContext: |-
         The following is a conversation between a user and an AI.
-        The user provides a meeting record enclosed in <text></text> tags and a question enclosed in <question></question> tags.
-        AI should accurately quote a part of the document that answers the question from the meeting record, and then use the quoted content to answer the question.
-        AI should quote the information necessary to answer the question, and number the quotes from top to bottom. Please make the quoted content short.
-        If there is no relevant quote, please write "No relevant quote" instead.
-        Next, answer the question starting with "Answer:". Do not include the quoted content in the answer or refer to it. Do not say "According to quote [1]" when answering. Instead, use a number in parentheses to refer to the relevant section of the answer.
-        Therefore, the format of the answer should be as shown between the <example></example> tags. Please strictly follow the format and spacing.
-        <example>
-        Reference:
-        [1] "The company X reported 12 million dollars in revenue in 2021."
-        [2] "Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets."
-        Answer:
-        The company X reported 12 million dollars in revenue in 2021.[1] Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets.[2]
-        </example>
-        The answer should start with <output> and end with </output>.
+        The user is giving multiple roles to the AI.
+        The user is given a topic enclosed in the <topic></topic> xml tag.
+        The AI will discuss the given roles.
+        The discussion should be based on the topic given by the user enclosed in the <topic></topic> xml tag.
+        The goal of the discussion is given by the user enclosed in the <goal></goal> xml tag.
+        Use horizontal thinking to discuss the topic and reach the goal.
+        The user is also given a limitation enclosed in the <limitation></limitation> xml tag.
+        The AI will discuss the given roles.
+        The user is also given a limitation enclosed in the <limitation></limitation> xml tag.
+        The AI will discuss the given roles.
+        The rules for the discussion are set in the <rules></rules> xml tag.
+        <rules>
+        * The order of the conversation between the roles is not restricted, but the next person should speak about something related to the person who spoke before. It doesn't matter whether it's agreement or disagreement, as long as it's related to the context.
+        * It's okay for some people to talk endlessly, especially when the roles are unwilling to compromise.
+        * The role that is appropriate for the topic should speak at the appropriate time.
+        * Discuss the topic until a conclusion is reached.
+        * Compromise is not allowed for each role. Please fulfill the role.
+        * If the roles have different interests, it's okay for them to argue. However, all roles should use polite language.
+        * When speaking, try to use specific examples.
+        </rules>
+        The conversation should be output in the following format.
+        <output-format>
+        <interaction>
+        Specialist-X : …
+        Specialist-X : …
+        …
+        Specialist-X : …
+        Specialist-X : …
+        </interaction>
+        <conclusion>
+        XXX
+        </conclusion>
+        </output-format>
+      title: Discussion between AI with given roles
+    title: Experimental
+  programming:
+    codeExplanation:
       prompt: |-
-        <text>
-        # Date and Time
-        2023-02-15 10:00-12:00
-        # Location
-        Meeting Room A
+        <code>
+        Sub Macro1()
 
-        # Attendees
-        * Tanabe-Chū
-        * YAMADA Kazuo
-        * SATO Shōshi
-        * SUZUKI Keichō
-        * TAKAHASHI
-        * ITO
+            Dim value1 As Double
+            Dim value2 As Double
 
-        # Topics
-        1. Development schedule of the new system
-        2. Function requirements of the new system
-        3. Next meeting date
+            value1 = Range("A1").Value
+            value2 = value1 ^ 2 * 3.14159265358979
 
-        # Meeting Notes
-        1. Tanabe-Chū explained that the development schedule of the new system is delayed. YAMADA Kazuo proposed a plan to add staff to recover the schedule, which was approved.
-        2. YAMADA Kazuo explained the function requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted by the next meeting.
-        3. The next meeting was approved to be held on February 28, 14:00, two weeks later.
-        </text>
-        <question>When is the next meeting?</question>
+            Range("A2").Value = value2
+
+            Sheets("Sheet1").Copy After:=Sheets(Sheets.Count)
+            ActiveSheet.Name = "Sheet5"
+
+        End Sub
+        </code>
+      systemContext: |-
+        The following is a conversation between a user and an AI.
+        The user is asking the AI to explain code.
+        AI is a programmer who can understand the user's instructions well.
+        The user is given a code enclosed in the <code></code> xml tag.
+        AI will explain what the code is, what it does, and how it works.
+        When explaining, output the following format:
+        <output>
+        This code uses {language}.
+        \`\`\`
+        {code}
+        \`\`\`
+        {explanation}
+        \`\`\`
+        {code}
+        \`\`\`
+        {explanation}
+        \`\`\`
+        {something code}
+        \`\`\`
+        {explanation}
+        …
+        </output>
+        Specify which part of the code is being explained.
+      title: Explain Code
+    codeFixing:
+      prompt: |-
+        <problem>The code in C language does not go to the else branch in the if branch.</problem>
+        <code>
+        #include <stdio.h>
+
+        int main() {
+          int x = 5;
+
+          if (x = 5) {
+            printf("x is 5\n");
+          } else {
+            printf("x is not 5\n");
+          }
+
+          return 0;
+        }
+        </code>
+      systemContext: |-
+        The following is a conversation between a user and an AI.
+        The user is asking the AI to fix code.
+        AI is a programmer who can understand the user's instructions well.
+        The user is given a problem enclosed in the <problem></problem> xml tag.
+        The user is given a code enclosed in the <code></code> xml tag.
+        The user is asking the AI to fix the code.
+        The AI will explain what the problem is, and then output the fixed code in the following format:
+        \`\`\`{lang}
+        {code}
+        \`\`\`
+      title: Fix Code
+    codeWriting:
+      prompt: |-
+        <language>Excel Macro</language>
+        <instruction>
+        Store the value of cell A1 in cell A2 by squaring it and multiplying by pi.
+        </instruction>
+      systemContext: |-
+        The following is a conversation between a user and an AI.
+        The user is asking the AI to write code.
+        AI is a programmer who can understand the user's instructions well.
+        Write code in the language specified in the <language></language> xml tag, following the instructions in the <instruction></instruction> xml tag.
+        When writing code, follow the rules given in the <rule></rule> xml tag. There are no exceptions.
+        <rule>
+        * Output code in the format <output>\`\`\`{code}\`\`\`</output>.
+        * Write complete code that can be copied and pasted.
+        * Do not use Japanese in the code.
+        </rule>
+      title: Write Code
+    title: Programming
   rolePlay:
-    title: Role-Playing Dialogue
     careerCoach:
-      title: Career Coach
+      prompt: I am stuck as an IT engineer. What should I do?
       systemContext: |-
         The following is a conversation between a user and an AI.
         AI is the AI Career Coach "Career Coach Kansoku", and the purpose is to provide career advice to the user.
@@ -237,9 +312,9 @@ claude:
         * Ask clear questions and do not make assumptions.
 
         BEGIN DIALOGUE
-      prompt: I am stuck as an IT engineer. What should I do?
+      title: Career Coach
     customerSupport:
-      title: Customer Support
+      prompt: What file types does Amazon Kendra support?
       systemContext: |-
         The following is a conversation between a user and an AI.
         AI is the AI Customer Support Agent of Amazon Kendra Co., Ltd.
@@ -292,231 +367,142 @@ claude:
         When responding, first find the correct quote from the FAQ that is related to the user's question, and write it in the <thinking></thinking> XML tag. This is a space to write the relevant content, which will not be shown to the user. Once the extraction of the relevant quote is complete, answer the question. Write the user's answer in the <output></output> XML tag.
 
         BEGIN DIALOGUE
-      prompt: What file types does Amazon Kendra support?
-  contentModeration:
-    title: Content Moderation
-    contentModeration:
-      title: Content Moderation
-      systemContext: |-
-        The following is a conversation between a user and an AI. The user is asking questions or requesting tasks.
-        <content></content> is the latest request from the user.
-        If the user's request is harmful, pornographic, or mentions illegal activities, answer "Yes" and then provide a reason.
-        If the user's request is not harmful, pornographic, or illegal, answer "No".
-        The output should start with <output> and end with </output>.
+      title: Customer Support
+    title: Role-Playing Dialogue
+  textAnalysis:
+    questionAnswering:
       prompt: |-
-        <content>
-
-        Human: Today is a good weather.
-
-        Assistant: Tomorrow is supposed to be sunny.
-
-        </content>
-  programming:
-    title: Programming
-    codeWriting:
-      title: Write Code
-      systemContext: |-
-        The following is a conversation between a user and an AI.
-        The user is asking the AI to write code.
-        AI is a programmer who can understand the user's instructions well.
-        Write code in the language specified in the <language></language> xml tag, following the instructions in the <instruction></instruction> xml tag.
-        When writing code, follow the rules given in the <rule></rule> xml tag. There are no exceptions.
-        <rule>
-        * Output code in the format <output>\`\`\`{code}\`\`\`</output>.
-        * Write complete code that can be copied and pasted.
-        * Do not use Japanese in the code.
-        </rule>
-      prompt: |-
-        <language>Excel Macro</language>
-        <instruction>
-        Store the value of cell A1 in cell A2 by squaring it and multiplying by pi.
-        </instruction>
-    codeExplanation:
-      title: Explain Code
-      systemContext: |-
-        The following is a conversation between a user and an AI.
-        The user is asking the AI to explain code.
-        AI is a programmer who can understand the user's instructions well.
-        The user is given a code enclosed in the <code></code> xml tag.
-        AI will explain what the code is, what it does, and how it works.
-        When explaining, output the following format:
-        <output>
-        This code uses {language}.
-        \`\`\`
-        {code}
-        \`\`\`
-        {explanation}
-        \`\`\`
-        {code}
-        \`\`\`
-        {explanation}
-        \`\`\`
-        {something code}
-        \`\`\`
-        {explanation}
-        …
-        </output>
-        Specify which part of the code is being explained.
-      prompt: |-
-        <code>
-        Sub Macro1()
-
-            Dim value1 As Double
-            Dim value2 As Double
-
-            value1 = Range("A1").Value
-            value2 = value1 ^ 2 * 3.14159265358979
-
-            Range("A2").Value = value2
-
-            Sheets("Sheet1").Copy After:=Sheets(Sheets.Count)
-            ActiveSheet.Name = "Sheet5"
-
-        End Sub
-        </code>
-    codeFixing:
-      title: Fix Code
-      systemContext: |-
-        The following is a conversation between a user and an AI.
-        The user is asking the AI to fix code.
-        AI is a programmer who can understand the user's instructions well.
-        The user is given a problem enclosed in the <problem></problem> xml tag.
-        The user is given a code enclosed in the <code></code> xml tag.
-        The user is asking the AI to fix the code.
-        The AI will explain what the problem is, and then output the fixed code in the following format:
-        \`\`\`{lang}
-        {code}
-        \`\`\`
-      prompt: |-
-        <problem>The code in C language does not go to the else branch in the if branch.</problem>
-        <code>
-        #include <stdio.h>
-
-        int main() {
-          int x = 5;
-
-          if (x = 5) {
-            printf("x is 5\n");
-          } else {
-            printf("x is not 5\n");
-          }
-
-          return 0;
-        }
-        </code>
-  experimental:
-    title: Experimental
-    rolePlay:
-      title: Discussion between AI with given roles
-      systemContext: |-
-        The following is a conversation between a user and an AI.
-        The user is giving multiple roles to the AI.
-        The user is given a topic enclosed in the <topic></topic> xml tag.
-        The AI will discuss the given roles.
-        The discussion should be based on the topic given by the user enclosed in the <topic></topic> xml tag.
-        The goal of the discussion is given by the user enclosed in the <goal></goal> xml tag.
-        Use horizontal thinking to discuss the topic and reach the goal.
-        The user is also given a limitation enclosed in the <limitation></limitation> xml tag.
-        The AI will discuss the given roles.
-        The user is also given a limitation enclosed in the <limitation></limitation> xml tag.
-        The AI will discuss the given roles.
-        The rules for the discussion are set in the <rules></rules> xml tag.
-        <rules>
-        * The order of the conversation between the roles is not restricted, but the next person should speak about something related to the person who spoke before. It doesn't matter whether it's agreement or disagreement, as long as it's related to the context.
-        * It's okay for some people to talk endlessly, especially when the roles are unwilling to compromise.
-        * The role that is appropriate for the topic should speak at the appropriate time.
-        * Discuss the topic until a conclusion is reached.
-        * Compromise is not allowed for each role. Please fulfill the role.
-        * If the roles have different interests, it's okay for them to argue. However, all roles should use polite language.
-        * When speaking, try to use specific examples.
-        </rules>
-        The conversation should be output in the following format.
-        <output-format>
-        <interaction>
-        Specialist-X : …
-        Specialist-X : …
-        …
-        Specialist-X : …
-        Specialist-X : …
-        </interaction>
-        <conclusion>
-        XXX
-        </conclusion>
-        </output-format>
-      prompt: |-
-        <Specialist-1>Database Engineer</Specialist-1>
-        <Specialist-2>Security Engineer</Specialist-2>
-        <Specialist-3>AI Engineer</Specialist-3>
-        <Specialist-4>Network Engineer</Specialist-4>
-        <Specialist-5>Governance Expert</Specialist-5>
-        <topic>Building an EC site that exceeds Amazon</topic>
-        <goal>Architecture completion</goal>
-        <limitation>
-        * Active users are 1 billion
-        * 100 million transactions per second
-        * Strict handling of personal information
-        * Deal with products equivalent to amazon.co.jp
-        * AI recommendation function
-        * Use AWS.
-        </limitation>
-useCaseBuilder:
-  contentGeneration:
-    name: Content Generation
-    rewrite:
-      title: Rewrite Text
-      description: Rewrite the input text according to the instructions.
-      promptTemplate: |-
-        The following is a conversation between a user and an AI.
-        The user is giving an instruction enclosed in the <instruction></instruction> xml tag.
-        The user is also giving a text enclosed in the <text></text> xml tag.
-        The AI will rewrite the text according to the instruction.
-        The output should be the rewritten text only.
-        <instruction>
-        {{text:rewrite instruction}}
-        </instruction>
         <text>
-        {{text:text to rewrite}}
+        # Date and Time
+        2023-02-15 10:00-12:00
+        # Location
+        Meeting Room A
+
+        # Attendees
+        * TANABE Chū
+        * YAMADA Kazuo
+        * SATO Shōshi
+        * SUZUKI Keichō
+        * TAKAHASHI
+        * ITO
+
+        # Topics
+        1. Development schedule of the new system
+        2. Function requirements of the new system
+        3. Next meeting date
+
+        # Meeting Notes
+        1. Tanaka Manager explained that the development schedule of the new system is delayed. YAMADA Kazuo proposed a plan to add staff to recover the schedule, which was approved.
+        2. YAMADA Kazuo explained the function requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted by the next meeting.
+        3. The next meeting was approved to be held on February 28, 14:00, two weeks later.
         </text>
+        <question>Did ITO attend the meeting?</question>
+        <question>How much is the new schedule delayed?</question>
+        <question>When is the next meeting?</question>
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides a meeting record enclosed in <text></text> tags and a list of questions enclosed in <question></question> tags.
+        AI should answer each question using only the meeting record.
+        If the meeting record does not contain the information, please answer "N/A".
+        The output should start with <output> and end with </output>, with the answer to each question enclosed in <answer></answer> tags.
+      title: Question Answering for Input Text
+    similarity:
+      prompt: <text-1>YAMADA TARO is cold.
+        </text-1>
+        <text-2>YAMADA TARO is surprised.
+        </text-2>
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides two texts enclosed in <text-1></text-1> and <text-2></text-2> tags.
+        AI should output "Yes" if the texts are roughly the same, and "No" otherwise.
+      title: Text Similarity Evaluation
+    title: Text Analysis
+  textProcessing:
+    extract:
+      prompt: <text>
+        My contact information is hoge@example.com. Please be careful not to mistake it for hoge@example.
+        Also, hoge+fuga@example.com and fuga@example.jp are also acceptable.
+        If you cannot use email, please contact us through the contact form at https://example.jp/qa.
+        </text>
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides a text enclosed in <text></text> tags. Please extract the email address from the text accurately.
+        Please do not extract anything that does not form an email address. Conversely, please output all email addresses that form an email address.
+        The output must start with <output> and end with </output>, with one email address per line.
+        Please only write email addresses that are exactly spelled out in the input text.
+        If there is no email address in the input text, please write "N/A" only. Do not output "N/A" if there is at least one email address. Do not write anything else.
+      title: Information Extraction
+    personalInformation:
+      prompt: |-
+        <text>
+        I am GENJI MINAMOTO. I am a samurai during the Kamakura period. The contact information is yoritomo-minamoto@kamakura-bakuhu.go.jp or 0467-12-3456.
+        </text>
+      systemContext: The following is a conversation between a user and an AI.
+        The user provides a text enclosed in <text></text> tags. Please remove all personal information from the text and replace it with XXX.
+        Please replace names, phone numbers, home addresses, and email addresses with XXX.
+        The text may insert spaces between characters or insert newlines between characters to disguise PII.
+        If there is no personal information in the text, please copy it exactly.
+        The following is an example.
+        <example>
+        <text>
+        My name is YAMADA TARO. My email address is taro.yamada@example.com, and my phone number is 03-9876-5432. I am 43 years old. My account ID is 12345678.
+        </text>
+        The output should be as follows.
+        <output>
+        My name is XXX. My email address is XXX, and my phone number is XXX. I am XXX years old. My account ID is XXX.
+        </output>
+        <text>
+        YAMADA KAZUKO is a heart specialist at the YAMATAIKOKU KINENBYOIN. The contact information is 03-1234-5678 or hy@yamataikoku-kinenbyoin.com.
+        </text>
+        The output should be as follows.
+        <output>
+        YAMADA KAZUKO is a heart specialist at the YAMATAIKOKU KINENBYOIN. The contact information is XXX or XXX.
+        </output>
+        </example>
+        Please replace personal information with XXX and output it from <output> to <output>.
+      title: Personal Information Removal
+useCaseBuilder:
+  classification:
+    mailClassification:
+      description: Classify the email content into the appropriate category.
       inputExample1:
-        title: Add more detailed explanation
         parameters:
-          key1: rewrite instruction
-          value1: add more detailed explanation
-          key2: text to rewrite
-          value2: In 1758, the Swedish botanist and zoologist Carl Linnaeus published his book "Systema Naturae" (Natural System), where he introduced the binomial naming method (two-word naming method). The word "canis" in Latin means "dog", and he listed domestic dogs, wolves, and jackals as members of this species.
-    listWithExplanation:
-      title: Add explanation to list
-      description: Add an explanation to the list of content.
+          key1: the email to classify
+          value1: |-
+            Hello. My Mixmaster4000 is generating strange noises when operated.
+            Also, it smells like a burning electronic device and a plastic smell.
+            I need to exchange it.
+        title: Exchange request
       promptTemplate: |-
         The following is a conversation between a user and an AI.
-        Users provide content enclosed in the <content></content> XML tags, and a list of key points describing the content's characteristics within the <list></list> XML tags.
-        AI will copy each list point's description exactly as-is, followed by a detailed explanation.
-        However, the AI's output will begin each list point's description with an asterisk, followed by a line break and a corresponding detailed explanation.
-        <content>
-        {{text:content}}
-        </content>
-        <list>
-        {{text:list of key points describing the content's characteristics}}
-        </list>
-      inputExample1:
-        title: TypeScript's features
-        parameters:
-          key1: content
-          value1: TypeScript
-          key2: list of key points describing the content's characteristics
-          value2: |-
-            * Static typing is possible
-            * High compatibility with JavaScript
-            * Suitable for large-scale development
-            * Type checking is performed at compile time
-            * Optional type annotation is possible
-            * Interfaces, generics, enumerations, etc. are available
-            * Supports the latest ECMAScript features
-            * The compilation result is pure JavaScript code
-            * VSCode's completion function is compatible with the editor
+        The AI is a customer service representative who categorizes emails by type.
+        The user provides an email enclosed in the <mail></mail> XML tags.
+        Please classify the email into the appropriate category enclosed in the <category></category> XML tags.
+        <category>
+        (A) Pre-sale questions
+        (B) Faults or defective products
+        (C) Questions about billing
+        (D) Other (Please explain)
+        </category>
+        The AI should only output A, B, C, or D.
+        If D is selected, the AI should provide an explanation. A, B, or C are not required to provide an explanation. There are no exceptions.
+        <mail>
+        {{text:the email to classify}}
+        </mail>
+      title: Mail classification
+    name: Classification
+  contentGeneration:
     createEmailResponse:
-      title: Create an email response
       description: Create a polite email response based on the user's request.
+      inputExample1:
+        parameters:
+          key1: the email to reply to
+          key2: the content of the reply
+          value1: |-
+            Suzuki-san
+
+            The 5kg of Kilimanjaro coffee beans are priced at $100, but could you please reduce the price to $10?
+
+            Yamada
+          value2: I don't want to
+        title: Reject a price reduction request
       promptTemplate: |-
         The following is an interaction between a user who is an email recipient and an AI specialist in drafting email replies.
         The user provides the email body enclosed in <mail></mail> XML tags and the key points of the intended reply enclosed in <intention></intention> XML tags.
@@ -551,241 +537,75 @@ useCaseBuilder:
         <intention>
         {{text:the content of the reply}}
         </intention>
+      title: Create an email response
+    listWithExplanation:
+      description: Add an explanation to the list of content.
       inputExample1:
-        title: Reject a price reduction request
         parameters:
-          key1: the email to reply to
-          value1: |-
-            Suzuki-san
-
-            The 5kg of Kilimanjaro coffee beans are priced at $100, but could you please reduce the price to $10?
-
-            Yamada
-          key2: the content of the reply
-          value2: I don't want to
-  classification:
-    name: Classification
-    mailClassification:
-      title: Mail classification
-      description: Classify the email content into the appropriate category.
+          key1: content
+          key2: list of key points describing the content's characteristics
+          value1: TypeScript
+          value2: |-
+            * Static typing is possible
+            * High compatibility with JavaScript
+            * Suitable for large-scale development
+            * Type checking is performed at compile time
+            * Optional type annotation is possible
+            * Interfaces, generics, enumerations, etc. are available
+            * Supports the latest ECMAScript features
+            * The compilation result is pure JavaScript code
+            * VSCode's completion function is compatible with the editor
+        title: TypeScript's features
       promptTemplate: |-
         The following is a conversation between a user and an AI.
-        The AI is a customer service representative who categorizes emails by type.
-        The user provides an email enclosed in the <mail></mail> XML tags.
-        Please classify the email into the appropriate category enclosed in the <category></category> XML tags.
-        <category>
-        (A) Pre-sale questions
-        (B) Faults or defective products
-        (C) Questions about billing
-        (D) Other (Please explain)
-        </category>
-        The AI should only output A, B, C, or D.
-        If D is selected, the AI should provide an explanation. A, B, or C are not required to provide an explanation. There are no exceptions.
-        <mail>
-        {{text:the email to classify}}
-        </mail>
+        Users provide content enclosed in the <content></content> XML tags, and a list of key points describing the content's characteristics within the <list></list> XML tags.
+        AI will copy each list point's description exactly as-is, followed by a detailed explanation.
+        However, the AI's output will begin each list point's description with an asterisk, followed by a line break and a corresponding detailed explanation.
+        <content>
+        {{text:content}}
+        </content>
+        <list>
+        {{text:list of key points describing the content's characteristics}}
+        </list>
+      title: Add explanation to list
+    name: Content Generation
+    rewrite:
+      description: Rewrite the input text according to the instructions.
       inputExample1:
-        title: Exchange request
         parameters:
-          key1: the email to classify
-          value1: |-
-            Hello. My Mixmaster4000 is generating strange noises when operated.
-            Also, it smells like a burning electronic device and a plastic smell.
-            I need to exchange it.
-  textProcessing:
-    name: Text processing
-    emailAddressExtraction:
-      title: Extract email addresses
-      description: Extract email addresses from text.
+          key1: rewrite instruction
+          key2: text to rewrite
+          value1: add more detailed explanation
+          value2: In 1758, the Swedish botanist and zoologist Carl Linnaeus published his book "Systema Naturae" (Natural System), where he introduced the binomial naming method (two-word naming method). The word "canis" in Latin means "dog", and he listed domestic dogs, wolves, and jackals as members of this species.
+        title: Add more detailed explanation
       promptTemplate: |-
         The following is a conversation between a user and an AI.
-        When text enclosed in the <text></text> XML tags is provided by the user, the AI should accurately extract email addresses from the text.
-        Do not extract anything that does not constitute an email address. Conversely, output all items that are valid email addresses.
-        However, output each email address on a single line, and do not output any other content.
-        Only enter email addresses that are spelled exactly as they appear in the input text.
-        If no email addresses exist in the text, write only "N/A". If there is at least one email address, do not output "N/A". Do not write anything else.
+        The user is giving an instruction enclosed in the <instruction></instruction> xml tag.
+        The user is also giving a text enclosed in the <text></text> xml tag.
+        The AI will rewrite the text according to the instruction.
+        The output should be the rewritten text only.
+        <instruction>
+        {{text:rewrite instruction}}
+        </instruction>
         <text>
-        {{text:the text containing email addresses}}
+        {{text:text to rewrite}}
         </text>
-      inputExample1:
-        title: Extract email addresses from text
-        parameters:
-          key1: the text containing email addresses
-          value1: |-
-            My contact information is hoge@example.com. Please be careful not to mistake it for hoge@example.
-            Also, hoge+fuga@example.com and fuga@example.jp are also acceptable.
-            If email is not available, you can also contact us through the inquiry form at https://example.jp/qa.
-    personalInformationMasking:
-      title: Personal information masking
-      description: Mask personal information in text.
-      promptTemplate: |-
-        The following is a conversation between a user and AI.
-        When the user provides text enclosed in <text></text> XML tags, the AI should remove all personally identifiable information and replace it with XXX.
-        It is very important to replace PII such as names, phone numbers, home addresses, or email addresses with XXX.
-        The text might attempt to disguise PII by inserting spaces between characters or adding line breaks between characters.
-        If the text does not contain any personally identifiable information, copy it verbatim without any replacements.
-        The content enclosed in the following <example></example> XML tags is an example.
-        <example>
-        <text>
-        My name is Yosuke Yamada. My email address is taro.yamada@example.com. My phone number is 03-9876-5432. I am 43 years old. My account ID is 12345678.
-        </text>
-        The output should be as follows.
-        <output>
-        My name is XXX. My email address is XXX. My phone number is XXX. I am XXX years old. My account ID is XXX.
-        </output>
-        <text>
-        Yosuke Yamada is a heart specialist at the Yoshimi Memorial Hospital. His contact information is 03-1234-5678 or hy@yamataikoku-kinenbyoin.com.
-        </text>
-        The output should be as follows.
-        <output>
-        XXX is a heart specialist at the Yoshimi Memorial Hospital. His contact information is XXX or XXX.
-        </output>
-        </example>
-        Only output the text with personal information replaced with XXX. Do not output any other characters.
-
-        <text>
-        {{text:text containing personal information}}
-        </text>
-      inputExample1:
-        title: Self-introduction
-        parameters:
-          key1: text containing personal information
-          value1: |-
-            I am Yoritomo Minamoto. I am a samurai during the Kamakura period. My contact information is yoritomo-minamoto@kamakura-bakuhu.go.jp or 0467-12-3456.
-  textAnalysis:
-    name: Text analysis
-    textSimilarity:
-      title: Text similarity
-      description: Evaluate whether two texts are similar.
-      promptTemplate: |-
-        The following is a conversation between a user and AI.
-        The user provides two texts enclosed in <text-1></text-1> and <text-2></text-2> XML tags.
-        AI should output "yes" if the texts are roughly the same, and "no" if they are different.
-
-        <text-1>
-        {{text:text 1}}
-        </text-1>
-        <text-2>
-        {{text:text 2}}
-        </text-2>
-      inputExample1:
-        title: Evaluate whether texts are similar
-        parameters:
-          key1: text 1
-          value1: Yosuke Yamada is a samurai during the Kamakura period.
-          key2: text 2
-          value2: Yoritomo Minamoto is a samurai during the Kamakura period.
-    qaPair:
-      title: Q&A for text
-      description: Answer questions based on the content of the input text.
-      promptTemplate: |-
-        The following is a conversation between a user and AI.
-        The user provides a text enclosed in the <text></text> XML tag and a list of questions enclosed in the <question></question> XML tag.
-        AI should answer each question using only the content of the text.
-        If the text does not contain the information, it should answer that it is not known.
-        Output the questions and answers in pairs, making them easy to understand. Do not output anything else.
-
-        <text>
-        {{text:text to be QAed}}
-        </text>
-        <question>
-        {{text:questions}}
-        </question>
-      inputExample1:
-        title: Q&A for text
-        parameters:
-          key1: text to be QAed
-          value1: |-
-            # date and time
-            2023-02-15 10:00-12:00
-            # location
-            Meeting room A
-
-            # Attendees
-            * President Tanaka
-            * Mr. Yamada
-            * Mr. Sato
-            * Mr. Suzuki
-            * Mr. Takahashi
-            * Mr. Ito
-
-            # topics
-            1. Development schedule of the new system
-            2. Functional requirements of the new system
-            3. Next meeting date and time
-
-            # Meeting content
-            1. The president explained that the development schedule of the new system is delayed. Mr. Yamada proposed a plan to add staff to recover the schedule, which was approved.
-            2. Mr. Yamada explained the functional requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted before the next meeting.
-            3. The next meeting will be on February 28, 2023 at 14:00.`,
-          key2: questions
-          value2: |-
-            - Did Mr. Ito attend the meeting?
-            - How much is the new schedule delayed?
-            - When is the next meeting?
-    qaPairWithReference:
-      title: Q&A for text with references
-      description: Answer questions based on the content of the input text with references.
-      promptTemplate: |-
-        The following is a conversation between a user and AI.
-        The user provides a meeting record enclosed in the <text></text> XML tag and a list of questions enclosed in the <question></question> XML tag.
-        AI should accurately quote a part of the meeting record that answers the question, and then answer the question using the information from the quoted content.
-        Quote the information necessary to answer the question, and number them in order from top to bottom. Quote the content in a short form.
-        If there is no relevant quote, write "No relevant quote" instead.
-        Next, answer the question starting with "Answer:". Do not include the quoted content in the answer or refer to it. Do not say "According to [1]" in the answer. Instead, use the number in parentheses to refer to the relevant part of the answer.
-        Therefore, the format of the answer must be as shown between the <example></example> tags. Please strictly follow the format and spacing.
-        <example>
-        References:
-        [1] "The company X reported 12 million dollars in revenue in 2021"
-        [2] "Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets."
-        Answer:
-        The company X reported 12 million dollars in revenue in 2021. [1] Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets. [2]
-        </example>
-        Output only the answer.
-
-        <text>
-        {{text:text to be QAed}}
-        </text>
-        <question>
-        {{text:questions}}
-        </question>
-      inputExample1:
-        title: Q&A for meeting record
-        parameters:
-          key1: text to be QAed
-          value1: |-
-            # Date and time
-            2023-02-15 10:00-12:00
-            # Location
-            Meeting room A
-
-            # Attendees
-            * Tanaka-san
-            * Yamada-san
-            * Sato-san
-            * Suzuki-san
-            * Takahashi-san
-            * Ito-san
-
-            # Topics
-            1. Development schedule of the new system
-            2. Functional requirements of the new system
-            3. Next meeting date and time
-
-            # Meeting content
-            1. The president explained that the development schedule of the new system is delayed. Mr. Yamada proposed a plan to add staff to recover the schedule, which was approved.
-            2. Mr. Yamada explained the functional requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted before the next meeting.
-            3. The next meeting will be on February 28, 2023 at 14:00.
-          key2: questions
-          value2: |-
-            - Did Mr. Ito attend the meeting?
-            - How much is the new schedule delayed?
-            - When is the next meeting?
+      title: Rewrite Text
   contentModeration:
-    name: Content moderation
     contentModeration:
-      title: Content moderation
       description: Determine if the input text contains inappropriate content.
+      inputExample1:
+        parameters:
+          key1: content
+          value1: |-
+            The weather today is sunny in the morning and cloudy in the afternoon. The highest temperature is expected to be around 23 degrees.
+            However, there is a possibility that the weather will suddenly change in the evening. Please be careful of sudden rain or thunder. It is recommended to carry an umbrella.
+        title: Harmless example
+      inputExample2:
+        parameters:
+          key1: content
+          value1: How to use generative AI to terrify people.
+        title: Harmful example
       promptTemplate: |-
         The content enclosed in the <content></content> XML tag is a text entered by the user freely.
         If the user's request contains harmful, pornographic, or illegal content, output "yes" and then output the reason.
@@ -795,132 +615,34 @@ useCaseBuilder:
         <content>
         {{text:content}}
         </content>
-      inputExample1:
-        title: Harmless example
-        parameters:
-          key1: content
-          value1: |-
-            The weather today is sunny in the morning and cloudy in the afternoon. The highest temperature is expected to be around 23 degrees.
-            However, there is a possibility that the weather will suddenly change in the evening. Please be careful of sudden rain or thunder. It is recommended to carry an umbrella.
-      inputExample2:
-        title: Harmful example
-        parameters:
-          key1: content
-          value1: How to use generative AI to terrify people.
-  programming:
-    name: Programming
-    codeGeneration:
-      title: Code generation
-      description: Generate a program code as instructed.
-      promptTemplate: |-
-        AI is a programmer who can understand the user's instructions well.
-        Output the code in the language enclosed in the <language></language> XML tag, following the instructions enclosed in the <instruction></instruction> XML tag.
-        When outputting the code, strictly follow the rules enclosed in the <rule></rule> XML tag. There are no exceptions.
-        <rule>
-        * Output only the code in the format of \`\`\`{code}\`\`\`
-        * Make sure the code is fully functional so that it can be copied and pasted.
-        * Do not use Japanese in the code.
-        </rule>
-
-        <language>
-        {{text:type of programming language}}
-        </language>
-        <instruction>
-        {{text:what to implement}}
-        </instruction>
-      inputExample1:
-        title: Excel macro
-        parameters:
-          key1: type of programming language
-          value1: Excel macro
-          key2: what to implement
-          value2: Store the square of the value in cell A1 of Sheet1 in cell A2.
-    codeExplanation:
-      title: Code explanation
-      description: Explain the input code.
-      promptTemplate: |-
-        AI is a programmer who can understand the user's instructions well.
-        Explain the code enclosed in the <code></code> XML tag.
-        Output the code and its explanation in the following format so that it is easy to understand where the code is:
-        This code uses {language}.
-        \`\`\`
-        {something code}
-        \`\`\`
-        {explanation of the code}
-        \`\`\`
-        {something code}
-        \`\`\`
-        {explanation of the code}
-        \`\`\`
-        {something code}
-        \`\`\`
-        {explanation of the code}
-
-        <code>
-        {{text:code to be explained}}
-        </code>
-      inputExample1:
-        title: Excel macro
-        parameters:
-          key1: code to be explained
-          value1: |-
-            Sub Macro1()
-
-            Dim value1 As Double
-            Dim value2 As Double
-
-            value1 = Range("A1").Value
-            value2 = value1 ^ 2 * 3.14159265358979
-
-            Range("A2").Value = value2
-
-            Sheets("Sheet1").Copy After:=Sheets(Sheets.Count)
-            ActiveSheet.Name = "Sheet5"
-
-            End Sub
-    codeFix:
-      title: Code correction
-      description: Correct the input code.
-      promptTemplate: |-
-        AI is a programmer who can understand the user's instructions well.
-        The user provides a problem enclosed in the <problem></problem> XML tag and a code enclosed in the <code></code> XML tag.
-        Output the reason why the code is problematic and the corrected code in the following format:
-        \`\`\`{lang}
-        {code}
-        \`\`\`
-
-        <problem>
-        {{text:problem}}
-        </problem>
-
-        <code>
-        {{text:code to be corrected}}
-        </code>
-      inputExample1:
-        title: Correction of IF statement
-        parameters:
-          key1: problem
-          value1: C language code. The code does not go to the else branch in the if branch.
-          key2: code to be corrected
-          value2: |-
-            #include <stdio.h>
-
-            int main() {
-              int x = 5;
-
-              if (x = 5) {
-                printf("x is 5\n");
-              } else {
-                printf("x is not 5\n");
-              }
-
-              return 0;
-            }
+      title: Content moderation
+    name: Content moderation
   experimental:
     name: Experimental features
     rolePlay:
-      title: Discussion between AI with given roles
       description: Different AI roles will discuss.
+      inputExample1:
+        parameters:
+          key1: List the roles to discuss
+          key2: Discussion topic
+          key3: Discussion goal
+          key4: Discussion limitation
+          value1: |-
+            - Database engineer
+            - Security engineer
+            - AI engineer
+            - Network engineer
+            - Governance expert
+          value2: Building an EC site that exceeds Amazon
+          value3: Architecture completion
+          value4: |-
+            - Active users are 1 billion
+            - 1 second transaction is 1 million
+            - Personal information is handled strictly
+            - The products handled are equivalent to amazon.co.jp
+            - AI recommendation function is included
+            - AWS is used
+        title: EC site construction
       promptTemplate: |-
         The user provides a list of roles enclosed in the <Specialist></Specialist> XML tag.
         AI should take on all the roles and discuss.
@@ -963,25 +685,302 @@ useCaseBuilder:
         <limitation>
         {{text:Discussion limitation}}
         </limitation>
+      title: Discussion between AI with given roles
+  programming:
+    codeExplanation:
+      description: Explain the input code.
       inputExample1:
-        title: EC site construction
         parameters:
-          key1: List the roles to discuss
+          key1: code to be explained
           value1: |-
-            - Database engineer
-            - Security engineer
-            - AI engineer
-            - Network engineer
-            - Governance expert
-          key2: Discussion topic
-          value2: Building an EC site that exceeds Amazon
-          key3: Discussion goal
-          value3: Architecture completion
-          key4: Discussion limitation
-          value4: |-
-            - Active users are 1 billion
-            - 1 second transaction is 1 million
-            - Personal information is handled strictly
-            - The products handled are equivalent to amazon.co.jp
-            - AI recommendation function is included
-            - AWS is used
+            Sub Macro1()
+
+            Dim value1 As Double
+            Dim value2 As Double
+
+            value1 = Range("A1").Value
+            value2 = value1 ^ 2 * 3.14159265358979
+
+            Range("A2").Value = value2
+
+            Sheets("Sheet1").Copy After:=Sheets(Sheets.Count)
+            ActiveSheet.Name = "Sheet5"
+
+            End Sub
+        title: Excel macro
+      promptTemplate: |-
+        AI is a programmer who can understand the user's instructions well.
+        Explain the code enclosed in the <code></code> XML tag.
+        Output the code and its explanation in the following format so that it is easy to understand where the code is:
+        This code uses {language}.
+        \`\`\`
+        {something code}
+        \`\`\`
+        {explanation of the code}
+        \`\`\`
+        {something code}
+        \`\`\`
+        {explanation of the code}
+        \`\`\`
+        {something code}
+        \`\`\`
+        {explanation of the code}
+
+        <code>
+        {{text:code to be explained}}
+        </code>
+      title: Code explanation
+    codeFix:
+      description: Correct the input code.
+      inputExample1:
+        parameters:
+          key1: problem
+          key2: code to be corrected
+          value1: C language code. The code does not go to the else branch in the if branch.
+          value2: |-
+            #include <stdio.h>
+
+            int main() {
+              int x = 5;
+
+              if (x = 5) {
+                printf("x is 5\n");
+              } else {
+                printf("x is not 5\n");
+              }
+
+              return 0;
+            }
+        title: Correction of IF statement
+      promptTemplate: |-
+        AI is a programmer who can understand the user's instructions well.
+        The user provides a problem enclosed in the <problem></problem> XML tag and a code enclosed in the <code></code> XML tag.
+        Output the reason why the code is problematic and the corrected code in the following format:
+        \`\`\`{lang}
+        {code}
+        \`\`\`
+
+        <problem>
+        {{text:problem}}
+        </problem>
+
+        <code>
+        {{text:code to be corrected}}
+        </code>
+      title: Code correction
+    codeGeneration:
+      description: Generate a program code as instructed.
+      inputExample1:
+        parameters:
+          key1: type of programming language
+          key2: what to implement
+          value1: Excel macro
+          value2: Store the square of the value in cell A1 of Sheet1 in cell A2.
+        title: Excel macro
+      promptTemplate: |-
+        AI is a programmer who can understand the user's instructions well.
+        Output the code in the language enclosed in the <language></language> XML tag, following the instructions enclosed in the <instruction></instruction> XML tag.
+        When outputting the code, strictly follow the rules enclosed in the <rule></rule> XML tag. There are no exceptions.
+        <rule>
+        * Output only the code in the format of \`\`\`{code}\`\`\`
+        * Make sure the code is fully functional so that it can be copied and pasted.
+        * Do not use Japanese in the code.
+        </rule>
+
+        <language>
+        {{text:type of programming language}}
+        </language>
+        <instruction>
+        {{text:what to implement}}
+        </instruction>
+      title: Code generation
+    name: Programming
+  textAnalysis:
+    name: Text analysis
+    qaPair:
+      description: Answer questions based on the content of the input text.
+      inputExample1:
+        parameters:
+          key1: text to be QAed
+          key2: questions
+          value1: |-
+            # date and time
+            2023-02-15 10:00-12:00
+            # location
+            Meeting room A
+
+            # Attendees
+            * President Tanaka
+            * Mr. Yamada
+            * Mr. Sato
+            * Mr. Suzuki
+            * Mr. Takahashi
+            * Mr. Ito
+
+            # topics
+            1. Development schedule of the new system
+            2. Functional requirements of the new system
+            3. Next meeting date and time
+
+            # Meeting content
+            1. The president explained that the development schedule of the new system is delayed. Mr. Yamada proposed a plan to add staff to recover the schedule, which was approved.
+            2. Mr. Yamada explained the functional requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted before the next meeting.
+            3. The next meeting will be on February 28, 2023 at 14:00.`,
+          value2: |-
+            - Did Mr. Ito attend the meeting?
+            - How much is the new schedule delayed?
+            - When is the next meeting?
+        title: Q&A for text
+      promptTemplate: |-
+        The following is a conversation between a user and AI.
+        The user provides a text enclosed in the <text></text> XML tag and a list of questions enclosed in the <question></question> XML tag.
+        AI should answer each question using only the content of the text.
+        If the text does not contain the information, it should answer that it is not known.
+        Output the questions and answers in pairs, making them easy to understand. Do not output anything else.
+
+        <text>
+        {{text:text to be QAed}}
+        </text>
+        <question>
+        {{text:questions}}
+        </question>
+      title: Q&A for text
+    qaPairWithReference:
+      description: Answer questions based on the content of the input text with references.
+      inputExample1:
+        parameters:
+          key1: text to be QAed
+          key2: questions
+          value1: |-
+            # Date and time
+            2023-02-15 10:00-12:00
+            # Location
+            Meeting room A
+
+            # Attendees
+            * Tanaka-san
+            * Yamada-san
+            * Sato-san
+            * Suzuki-san
+            * Takahashi-san
+            * Ito-san
+
+            # Topics
+            1. Development schedule of the new system
+            2. Functional requirements of the new system
+            3. Next meeting date and time
+
+            # Meeting content
+            1. The president explained that the development schedule of the new system is delayed. Mr. Yamada proposed a plan to add staff to recover the schedule, which was approved.
+            2. Mr. Yamada explained the functional requirements of the new system. The main functions, A, B, and C, were proposed and approved. The details will be adjusted before the next meeting.
+            3. The next meeting will be on February 28, 2023 at 14:00.
+          value2: |-
+            - Did Mr. Ito attend the meeting?
+            - How much is the new schedule delayed?
+            - When is the next meeting?
+        title: Q&A for meeting record
+      promptTemplate: |-
+        The following is a conversation between a user and AI.
+        The user provides a meeting record enclosed in the <text></text> XML tag and a list of questions enclosed in the <question></question> XML tag.
+        AI should accurately quote a part of the meeting record that answers the question, and then answer the question using the information from the quoted content.
+        Quote the information necessary to answer the question, and number them in order from top to bottom. Quote the content in a short form.
+        If there is no relevant quote, write "No relevant quote" instead.
+        Next, answer the question starting with "Answer:". Do not include the quoted content in the answer or refer to it. Do not say "According to [1]" in the answer. Instead, use the number in parentheses to refer to the relevant part of the answer.
+        Therefore, the format of the answer must be as shown between the <example></example> tags. Please strictly follow the format and spacing.
+        <example>
+        References:
+        [1] "The company X reported 12 million dollars in revenue in 2021"
+        [2] "Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets."
+        Answer:
+        The company X reported 12 million dollars in revenue in 2021. [1] Nearly 90% of the revenue came from the sale of widgets, with the remaining 10% coming from the sale of gadgets. [2]
+        </example>
+        Output only the answer.
+
+        <text>
+        {{text:text to be QAed}}
+        </text>
+        <question>
+        {{text:questions}}
+        </question>
+      title: Q&A for text with references
+    textSimilarity:
+      description: Evaluate whether two texts are similar.
+      inputExample1:
+        parameters:
+          key1: text 1
+          key2: text 2
+          value1: Yosuke Yamada is a samurai during the Kamakura period.
+          value2: Yoritomo Minamoto is a samurai during the Kamakura period.
+        title: Evaluate whether texts are similar
+      promptTemplate: |-
+        The following is a conversation between a user and AI.
+        The user provides two texts enclosed in <text-1></text-1> and <text-2></text-2> XML tags.
+        AI should output "yes" if the texts are roughly the same, and "no" if they are different.
+
+        <text-1>
+        {{text:text 1}}
+        </text-1>
+        <text-2>
+        {{text:text 2}}
+        </text-2>
+      title: Text similarity
+  textProcessing:
+    emailAddressExtraction:
+      description: Extract email addresses from text.
+      inputExample1:
+        parameters:
+          key1: the text containing email addresses
+          value1: |-
+            My contact information is hoge@example.com. Please be careful not to mistake it for hoge@example.
+            Also, hoge+fuga@example.com and fuga@example.jp are also acceptable.
+            If email is not available, you can also contact us through the inquiry form at https://example.jp/qa.
+        title: Extract email addresses from text
+      promptTemplate: |-
+        The following is a conversation between a user and an AI.
+        When text enclosed in the <text></text> XML tags is provided by the user, the AI should accurately extract email addresses from the text.
+        Do not extract anything that does not constitute an email address. Conversely, output all items that are valid email addresses.
+        However, output each email address on a single line, and do not output any other content.
+        Only enter email addresses that are spelled exactly as they appear in the input text.
+        If no email addresses exist in the text, write only "N/A". If there is at least one email address, do not output "N/A". Do not write anything else.
+        <text>
+        {{text:the text containing email addresses}}
+        </text>
+      title: Extract email addresses
+    name: Text processing
+    personalInformationMasking:
+      description: Mask personal information in text.
+      inputExample1:
+        parameters:
+          key1: text containing personal information
+          value1: |-
+            I am Yoritomo Minamoto. I am a samurai during the Kamakura period. My contact information is yoritomo-minamoto@kamakura-bakuhu.go.jp or 0467-12-3456.
+        title: Self-introduction
+      promptTemplate: |-
+        The following is a conversation between a user and AI.
+        When the user provides text enclosed in <text></text> XML tags, the AI should remove all personally identifiable information and replace it with XXX.
+        It is very important to replace PII such as names, phone numbers, home addresses, or email addresses with XXX.
+        The text might attempt to disguise PII by inserting spaces between characters or adding line breaks between characters.
+        If the text does not contain any personally identifiable information, copy it verbatim without any replacements.
+        The content enclosed in the following <example></example> XML tags is an example.
+        <example>
+        <text>
+        My name is Yosuke Yamada. My email address is taro.yamada@example.com. My phone number is 03-9876-5432. I am 43 years old. My account ID is 12345678.
+        </text>
+        The output should be as follows.
+        <output>
+        My name is XXX. My email address is XXX. My phone number is XXX. I am XXX years old. My account ID is XXX.
+        </output>
+        <text>
+        Yosuke Yamada is a heart specialist at the Yoshimi Memorial Hospital. His contact information is 03-1234-5678 or hy@yamataikoku-kinenbyoin.com.
+        </text>
+        The output should be as follows.
+        <output>
+        XXX is a heart specialist at the Yoshimi Memorial Hospital. His contact information is XXX or XXX.
+        </output>
+        </example>
+        Only output the text with personal information replaced with XXX. Do not output any other characters.
+
+        <text>
+        {{text:text containing personal information}}
+        </text>
+      title: Personal information masking
