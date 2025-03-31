@@ -11,7 +11,10 @@ import {
   ListVideoJobsResponse,
   GenerateVideoRequest,
 } from 'generative-ai-use-cases-jp';
-import { GetAsyncInvokeCommand, ValidationException } from '@aws-sdk/client-bedrock-runtime';
+import {
+  GetAsyncInvokeCommand,
+  ValidationException,
+} from '@aws-sdk/client-bedrock-runtime';
 import {
   S3Client,
   GetObjectCommand,
