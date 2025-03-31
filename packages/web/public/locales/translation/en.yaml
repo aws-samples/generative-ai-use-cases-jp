@@ -754,7 +754,7 @@ landing:
     rag:
       content: Please explain Claude's parameters and how to set them.
     agent:
-      content: What is generative-ai-use-cases-jp?
+      content: Draw a scatter chart with dummy data.
     generate:
       information: >-
         Amazon Bedrock is a fully managed service that offers a choice of
