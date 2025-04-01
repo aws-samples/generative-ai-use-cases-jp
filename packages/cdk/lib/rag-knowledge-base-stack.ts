@@ -143,7 +143,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsing,
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
-      multiModalStorage,
+      ragKnowledgeBaseMultiModalStorage,
     } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
@@ -304,25 +304,29 @@ export class RagKnowledgeBaseStack extends Stack {
       enforceSSL: true,
     });
 
-    const multiModalStorageAccessLogsBucket = new s3.Bucket(this, 'MultiModalStorageAccessLogsBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      autoDeleteObjects: true,
-      removalPolicy: RemovalPolicy.DESTROY,
-      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      enforceSSL: true,
-    });
+    let multiModalStorageBucket: s3.Bucket | undefined;
 
-    const multiModalStorageBucket = new s3.Bucket(this, 'MultiModalStorageBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      autoDeleteObjects: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
-      serverAccessLogsBucket: multiModalStorageAccessLogsBucket,
-      serverAccessLogsPrefix: 'AccessLogs/',
-      enforceSSL: true,
-    });
+    if (ragKnowledgeBaseMultiModalStorage) {
+      const multiModalStorageAccessLogsBucket = new s3.Bucket(this, 'MultiModalStorageAccessLogsBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        enforceSSL: true,
+      });
+    
+      multiModalStorageBucket = new s3.Bucket(this, 'MultiModalStorageBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        serverAccessLogsBucket: multiModalStorageAccessLogsBucket,
+        serverAccessLogsPrefix: 'AccessLogs/',
+        enforceSSL: true,
+      });
+    }
 
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
@@ -372,22 +376,22 @@ export class RagKnowledgeBaseStack extends Stack {
                 },
               }
             : {}),
+          ...(ragKnowledgeBaseMultiModalStorage && multiModalStorageBucket
+            ? {
+                supplementalDataStorageConfiguration: {
+                  supplementalDataStorageLocations: [
+                    {
+                      supplementalDataStorageLocationType: 'S3',
+                      s3Location: {
+                        uri: `s3://${multiModalStorageBucket.bucketName}`,
+                      },
+                    },
+                  ],
+                },
+              }
+            : {}),
         },
       },
-      ...(multiModalStorage
-        ? {
-            supplementalDataStorageConfiguration: {
-              supplementalDataStorageLocations: [
-                {
-                  supplementalDataStorageLocationType: 'S3',
-                  s3Location: {
-                    uri: `s3://${multiModalStorageBucket.bucketName}`,
-                  },
-                },
-              ],
-            },
-          }
-        : {}),
       storageConfiguration: {
         type: 'OPENSEARCH_SERVERLESS',
         opensearchServerlessConfiguration: {

@@ -98,13 +98,13 @@ export const stackInputSchema = z.object({
   embeddingModelId: z.string().default('amazon.titan-embed-text-v2:0'),
   ragKnowledgeBaseStandbyReplicas: z.boolean().default(false),
   ragKnowledgeBaseAdvancedParsing: z.boolean().default(false),
+  ragKnowledgeBaseMultiModalStorage: z.boolean().default(true),
   ragKnowledgeBaseAdvancedParsingModelId: z
     .string()
     .default('anthropic.claude-3-sonnet-20240229-v1:0'),
   ragKnowledgeBaseBinaryVector: z.boolean().default(false),
   queryDecompositionEnabled: z.boolean().default(false),
   rerankingModelId: z.string().nullish(),
-  multiModalStorage: z.boolean().default(true),
   // Agent
   agentEnabled: z.boolean().default(false),
   searchAgentEnabled: z.boolean().default(false),
