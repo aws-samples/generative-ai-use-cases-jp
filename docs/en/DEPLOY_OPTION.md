@@ -336,7 +336,7 @@ By default, when you open the Indexes tab of OpenSearch Service from the managem
 This is because the Data access policy doesn't allow the IAM user logged into the management console.
 Follow these steps to manually add the necessary permissions:
 
-1. Open [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (note the region), click on generative-ai-use-cases
+1. Open [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (note the region), click on generative-ai-use-cases-jp
 2. Click on the Associated policy named generative-ai-use-cases-jp at the bottom of the page
 3. Click Edit in the upper right
 4. Click Add principals in the Select principals section in the middle of the page, and add the IAM User/Role etc. (the permissions you're logged into the management console with)

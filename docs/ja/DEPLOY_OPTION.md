@@ -351,7 +351,7 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 これは、Data access policy でマネージメントコンソールにログインしている IAM ユーザーを許可していないためです。
 以下の手順に従い、必要な権限を手動で追加してください。
 
-1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases をクリック
+1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases-jp をクリック
 1. ページ下部 Data access の Associated policy である generative-ai-use-cases-jp をクリック
 1. 右上の Edit をクリック
 1. ページ中部の Select principals の Add principals をクリックし、IAM User/Role 等 (マネージメントコンソールにログインしている権限) を追加
