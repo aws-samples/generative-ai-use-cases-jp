@@ -4,6 +4,7 @@ import { cn } from '../lib/utils';
 import { PiCheck, PiTrash } from 'react-icons/pi';
 import { useEditor } from 'novel';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function isValidUrl(url: string) {
   try {
@@ -29,6 +30,7 @@ interface LinkSelectorProps {
 }
 
 export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const { editor } = useEditor();
 
@@ -45,12 +47,13 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
           size="sm"
           variant="ghost"
           className="gap-2 rounded-none border-none">
+          {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
           <p className="text-base">↗</p>
           <p
             className={cn('underline decoration-stone-400 underline-offset-4', {
               'text-blue-500': editor.isActive('link'),
             })}>
-            Link
+            {t('writer.link')}
           </p>
         </Button>
       </PopoverTrigger>
@@ -66,11 +69,11 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               onOpenChange(false);
             }
           }}
-          className="flex  p-1 ">
+          className="flex p-1">
           <input
             ref={inputRef}
             type="text"
-            placeholder="Paste a link"
+            placeholder={t('writer.paste_link')}
             className="bg-background flex-1 p-1 text-sm outline-none"
             defaultValue={editor.getAttributes('link').href || ''}
           />

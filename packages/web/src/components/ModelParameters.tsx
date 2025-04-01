@@ -1,13 +1,14 @@
 import {
   AdditionalModelRequestFields,
   FeatureFlags,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import Switch from './Switch';
 import RangeSlider from './RangeSlider';
+import { useTranslation } from 'react-i18next';
 
-const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet 推奨最小値
-const MIN_REASONING_BUDGET = 1024; // Claude 3.7 Sonnet 最小値
-const MAX_REASONING_BUDGET = 32768; // 仮置き
+const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet recommended minimum value
+const MIN_REASONING_BUDGET = 1024; // Claude 3.7 Sonnet minimum value
+const MAX_REASONING_BUDGET = 32768; // Temporary value
 const REASONING_BUDGET_STEP = 1024;
 
 export const ModelParameters: React.FC<{
@@ -21,6 +22,8 @@ export const ModelParameters: React.FC<{
   overrideModelParameters,
   setOverrideModelParameters,
 }) => {
+  const { t } = useTranslation();
+
   const handleReasoningSwitch = (newValue: boolean) => {
     setOverrideModelParameters({
       ...overrideModelParameters,
@@ -57,7 +60,7 @@ export const ModelParameters: React.FC<{
       {modelFeatureFlags.reasoning && (
         <div>
           <div>
-            <div>Reasoning</div>
+            <div>{t('model.parameters.reasoning')}</div>
             <div>
               <Switch
                 label=""
@@ -68,7 +71,7 @@ export const ModelParameters: React.FC<{
           </div>
           {overrideModelParameters?.reasoningConfig?.type === 'enabled' && (
             <div>
-              <div>Reasoning Budget</div>
+              <div>{t('model.parameters.reasoning_budget')}</div>
               <div>
                 <RangeSlider
                   min={MIN_REASONING_BUDGET}

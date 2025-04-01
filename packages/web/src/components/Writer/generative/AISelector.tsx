@@ -16,6 +16,7 @@ import { ScrollArea } from '../ui/ScrollArea';
 import AICompletionCommands from './AICompletionCommand';
 import AISelectorCommands from './AISelectorCommands';
 import useWriter from '../../../hooks/useWriter';
+import { useTranslation } from 'react-i18next';
 
 interface AISelectorProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface AISelectorProps {
 }
 
 export function AISelector({ onOpenChange }: AISelectorProps) {
+  const { t } = useTranslation();
   const { editor } = useEditor();
   const [inputValue, setInputValue] = useState('');
   const [inputMode, setInputMode] = useState<'instruction' | 'searchAgent'>(
@@ -62,7 +64,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
       toast.error(
         typeof e === 'object' && e && 'message' in e
           ? (e.message as string)
-          : 'エラーが発生しました'
+          : t('writer.ai.error')
       );
     } finally {
       setIsLoading(false);
@@ -81,7 +83,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
               <details className="prose prose-sm p-2 px-4">
                 <summary>
                   <div className="inline-flex gap-1">
-                    トレース
+                    {t('writer.ai.trace')}
                     {isLoading && !completion && (
                       <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                     )}
@@ -100,7 +102,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
       {isLoading && (
         <div className="flex h-12 w-full items-center px-4 text-sm font-medium text-purple-500">
           <PiMagicWand className="mr-2 h-4 w-4 shrink-0  " />
-          思考中
+          {t('writer.ai.thinking')}
           <div className="ml-2 mt-1">
             <PiSpinner className="h-4 w-4 animate-spin" />
           </div>
@@ -116,10 +118,10 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
               autoFocus
               placeholder={
                 hasCompletion
-                  ? '続けて AI に指示'
+                  ? t('writer.ai.continue_instruct')
                   : inputMode === 'searchAgent'
-                    ? '検索を AI に指示'
-                    : 'AI に指示'
+                    ? t('writer.ai.search_instruct')
+                    : t('writer.ai.instruct_ai')
               }
               onFocus={() => addAIHighlight(editor)}
             />

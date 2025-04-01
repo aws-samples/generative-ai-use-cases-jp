@@ -1,6 +1,6 @@
 import './writer.css';
 import 'katex/dist/katex.min.css';
-import { defaultEditorContent, emptyContent } from './lib/content';
+import { getDefaultEditorContent, emptyContent } from './lib/content';
 import {
   EditorCommand,
   EditorCommandEmpty,
@@ -37,13 +37,14 @@ import { MODELS } from '../../hooks/useModel';
 import { AICommentManager, useComments } from './extensions/AIComments';
 import ButtonCopy from '../ButtonCopy';
 import DiffMatchPatch from 'diff-match-patch';
-import { DocumentComment } from 'generative-ai-use-cases-jp';
+import { DocumentComment } from 'generative-ai-use-cases';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const extensions = [...defaultExtensions, slashCommand];
 
 interface Props {
-  initialSentence?: string; // URLパラメータからの初期値用のみ残す
+  initialSentence?: string; // Only for initial value from URL parameters
 }
 
 interface CommentItemProps {
@@ -60,7 +61,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
   onRemove,
   onClick,
 }) => {
-  // コンポーネント内で差分計算用の関数を追加
+  const { t } = useTranslation();
+
+  // Add a function for calculating the difference in the component
   const getCharacterDiff = (oldText: string, newText: string) => {
     const dmp = new DiffMatchPatch();
     const diffs = dmp.diff_main(oldText, newText);
@@ -100,7 +103,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           )}
           {comment.replace && (
             <Button onClick={onReplace} className="ml-auto">
-              置換
+              {t('writer.replace')}
             </Button>
           )}
         </div>
@@ -114,6 +117,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 };
 
 const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
+  const { t } = useTranslation();
   const { write, modelId, setModelId } = useWriter();
   const { modelIds: availableModels } = MODELS;
   const [commentManager, setCommentManager] = useState<AICommentManager | null>(
@@ -138,13 +142,13 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
   const [editorRef, setEditorRef] = useState<Editor | null>(null);
   const commentRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // エディターの初期化時にコメントマネージャーを設定
+  // Set the comment manager when the editor is initialized
   const handleEditorCreated = useCallback(
     (editor: Editor) => {
       setEditorRef(editor);
-      setCommentManager(new AICommentManager(editor, write));
+      setCommentManager(new AICommentManager(editor, write, t));
     },
-    [write]
+    [write, t]
   );
 
   // Apply Codeblock Highlighting on the HTML from editor.getHTML()
@@ -157,7 +161,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     return new XMLSerializer().serializeToString(doc);
   };
 
-  // コメントの位置を再計算する関数
+  // Function to recalculate the comment positions
   const recalculateCommentPositions = useCallback(() => {
     if (!editorRef || !commentManager) return;
 
@@ -190,7 +194,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     };
   }, [debouncedRecalculateCommentPositions]);
 
-  // エディタの更新時にコメントの位置を再計算
+  // Recalculate the comment positions when the editor is updated
   const debouncedUpdates = useDebouncedCallback(
     async (editor: EditorInstance) => {
       setCharsCount(editor.storage.characterCount.characters());
@@ -213,12 +217,12 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
     500
   );
 
-  // コメントが更新されたときに位置を再計算
+  // Recalculate the comment positions when the comments are updated
   useEffect(() => {
     recalculateCommentPositions();
   }, [comments, recalculateCommentPositions]);
 
-  // 初期コンテンツを設定
+  // Set the initial content
   useEffect(() => {
     const storedContent = window.localStorage.getItem('novel-content');
     const content = initialSentence
@@ -233,37 +237,33 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         }
       : storedContent
         ? JSON.parse(storedContent)
-        : defaultEditorContent;
+        : getDefaultEditorContent(t);
     setInitialContent(content);
-  }, [initialSentence]);
+  }, [initialSentence, t]);
 
-  // 校閲ボタンのクリックハンドラ
+  // Click handler for the review button
   const handleExecClick = async () => {
     if (!commentManager) return;
     await commentManager.execAnnotation();
   };
 
-  // クリアボタン
+  // Click handler for the clear button
   const handleClear = () => {
     if (editorRef) {
       editorRef.commands.setContent(emptyContent);
       commentManager?.clearComments();
       debouncedUpdates(editorRef);
-      toast.info(
-        'エディタをクリアしました。Ctrl-Z/Cmd-Z で戻すことができます。'
-      );
+      toast.info(t('writer.clear_success'));
     }
   };
 
-  // チュートリアルボタンのクリックハンドラ
+  // Click handler for the tutorial button
   const handleTutorialClick = () => {
     if (editorRef) {
-      editorRef.commands.setContent(defaultEditorContent);
+      editorRef.commands.setContent(getDefaultEditorContent(t));
       commentManager?.clearComments();
       debouncedUpdates(editorRef);
-      toast.info(
-        'チュートリアルをエディタに反映しました。Ctrl-Z/Cmd-Z で戻すことができます。'
-      );
+      toast.info(t('writer.tutorial_success'));
     }
   };
 
@@ -284,11 +284,11 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
           />
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-              {saveStatus ? '保存済み' : '保存中...'}
+              {saveStatus ? t('writer.saved') : t('writer.saving')}
             </div>
             {charsCount && (
               <div className="bg-accent text-muted-foreground rounded-lg px-2 py-1">
-                {charsCount} 文字
+                {charsCount} {t('writer.characters')}
               </div>
             )}
             <ButtonCopy
@@ -297,10 +297,10 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               className="hover:bg-accent/80 border"
             />
             <Button outlined onClick={handleClear}>
-              クリア
+              {t('writer.clear')}
             </Button>
             <Button outlined onClick={handleTutorialClick}>
-              チュートリアル
+              {t('writer.tutorial')}
             </Button>
             <Button
               onClick={handleExecClick}
@@ -311,7 +311,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               ) : (
                 <PiChatText className="h-4 w-4" />
               )}
-              校閲
+              {t('writer.review')}
             </Button>
           </div>
         </div>
@@ -345,7 +345,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
               slotAfter={<ImageResizer />}>
               <EditorCommand className="border-muted bg-background z-50 h-auto max-h-[330px] overflow-y-auto rounded-md border px-1 py-2 shadow-md transition-all">
                 <EditorCommandEmpty className="text-muted-foreground px-2">
-                  No results
+                  {t('writer.no_results')}
                 </EditorCommandEmpty>
                 <EditorCommandList>
                   {suggestionItems.map((item) => (
@@ -387,7 +387,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
         {commentManager && filteredComments.length > 0 && (
           <div className="w-80 min-w-80 lg:ml-2">
             {!loading && commentManager && filteredComments.length === 0 && (
-              <div className="mb-2 ml-2">指摘事項はありません</div>
+              <div className="mb-2 ml-2">{t('writer.no_issues')}</div>
             )}
             {loading && (
               <div className="mb-2 ml-2 flex justify-center">
@@ -401,11 +401,11 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
 
                 const position = commentPosition[idx];
 
-                // 表示されている直前のコメントを探す
+                // Find the comment immediately before the displayed comment
                 let prevDisplayedIndex = idx - 1;
                 let lastDisplayedPosition = 0;
 
-                // 直前の表示されているコメントの実際の位置を取得
+                // Get the actual position of the comment immediately before the displayed comment
                 while (prevDisplayedIndex >= 0) {
                   if (!commentState[comments[prevDisplayedIndex].excerpt]) {
                     const prevRef = commentRefs.current[prevDisplayedIndex];
@@ -422,7 +422,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
                   prevDisplayedIndex--;
                 }
 
-                // スペーサーの高さを計算（実際の表示位置との差分）
+                // Calculate the height of the spacer (the difference between the actual position and the displayed position)
                 const spacerHeight = Math.max(
                   0,
                   position - lastDisplayedPosition
@@ -454,7 +454,7 @@ const TailwindAdvancedEditor: React.FC<Props> = ({ initialSentence }) => {
             {commentManager && filteredComments.length > 0 && !loading && (
               <div className="mt-4 flex justify-end gap-3">
                 <Button outlined onClick={() => commentManager.clearComments()}>
-                  コメントをクリア
+                  {t('writer.clear_comments')}
                 </Button>
               </div>
             )}

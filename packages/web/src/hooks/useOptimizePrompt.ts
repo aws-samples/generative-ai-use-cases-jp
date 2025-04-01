@@ -6,9 +6,10 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { OptimizePromptRequest } from 'generative-ai-use-cases-jp';
+import { OptimizePromptRequest } from 'generative-ai-use-cases';
+import { useTranslation } from 'react-i18next';
 
-// サポート状況は以下のページから
+// Supported regions are available at the following page
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-management-optimize.html
 export const SUPPORTED_REGIONS = [
   'us-east-1',
@@ -49,11 +50,13 @@ export const optimizePromptEnabled =
   SUPPORTED_REGIONS.includes(modelRegion) && supportedModelIds.length > 0;
 
 const useOptimizePrompt = () => {
+  const { t } = useTranslation();
+
   return {
     optimizePrompt: async function* (req: OptimizePromptRequest) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
-        throw new Error('認証されていません。');
+        throw new Error(t('common.notAuthenticated'));
       }
 
       const region = import.meta.env.VITE_APP_REGION;

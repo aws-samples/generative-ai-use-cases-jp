@@ -2,23 +2,29 @@ import { PiCheck, PiList, PiMonitor, PiMoon, PiSunDim } from 'react-icons/pi';
 import { Button } from './Button';
 import { Popover, PopoverContent, PopoverTrigger } from './Popover';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const appearances = [
-  {
-    theme: 'System',
-    icon: <PiMonitor className="h-4 w-4" />,
-  },
-  {
-    theme: 'Light',
-    icon: <PiSunDim className="h-4 w-4" />,
-  },
-  {
-    theme: 'Dark',
-    icon: <PiMoon className="h-4 w-4" />,
-  },
-];
 export default function Menu() {
+  const { t } = useTranslation();
   const [currentTheme, setTheme] = useState('Light');
+
+  const appearances = [
+    {
+      theme: 'System',
+      label: t('writer.system'),
+      icon: <PiMonitor className="h-4 w-4" />,
+    },
+    {
+      theme: 'Light',
+      label: t('writer.light'),
+      icon: <PiSunDim className="h-4 w-4" />,
+    },
+    {
+      theme: 'Dark',
+      label: t('writer.dark'),
+      icon: <PiMoon className="h-4 w-4" />,
+    },
+  ];
 
   return (
     <Popover>
@@ -29,9 +35,9 @@ export default function Menu() {
       </PopoverTrigger>
       <PopoverContent className="w-52 p-2" align="end">
         <p className="text-muted-foreground p-2 text-xs font-medium">
-          Appearance
+          {t('writer.appearance')}
         </p>
-        {appearances.map(({ theme, icon }) => (
+        {appearances.map(({ theme, label, icon }) => (
           <Button
             variant="ghost"
             key={theme}
@@ -40,8 +46,8 @@ export default function Menu() {
               setTheme(theme.toLowerCase());
             }}>
             <div className="flex items-center space-x-2">
-              <div className="rounded-sm border  p-1">{icon}</div>
-              <span>{theme}</span>
+              <div className="rounded-sm border p-1">{icon}</div>
+              <span>{label}</span>
             </div>
             {currentTheme === theme.toLowerCase() && (
               <PiCheck className="h-4 w-4" />

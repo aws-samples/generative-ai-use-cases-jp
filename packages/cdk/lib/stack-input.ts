@@ -72,6 +72,7 @@ export const stackInputSchema = z.object({
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
   ragEnabled: z.boolean().default(false),
+  kendraIndexLanguage: z.string().default('ja'),
   kendraIndexArn: z.string().nullish(),
   kendraDataSourceBucketName: z.string().nullish(),
   kendraIndexScheduleEnabled: z.boolean().default(false),
@@ -144,7 +145,7 @@ export const stackInputSchema = z.object({
   dashboard: z.boolean().default(false),
 });
 
-// 変換後用のschema
+// schema after conversion
 export const processedStackInputSchema = stackInputSchema.extend({
   modelIds: z.array(
     z.object({

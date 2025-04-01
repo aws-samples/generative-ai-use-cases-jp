@@ -1,9 +1,9 @@
-import { Model, ModelConfiguration } from 'generative-ai-use-cases-jp';
-import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
+import { Model, ModelConfiguration } from 'generative-ai-use-cases';
+import { modelFeatureFlags } from '@generative-ai-use-cases/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 
-// 環境変数からモデル名などを取得
+// Get model names and other environment variables
 const bedrockModelConfigs = (
   JSON.parse(import.meta.env.VITE_APP_MODEL_IDS) as ModelConfiguration[]
 )
@@ -72,7 +72,7 @@ const getFlows = () => {
 
 const flows = getFlows();
 
-// モデルオブジェクトの定義
+// Define model objects
 const textModels = [
   ...bedrockModelConfigs.map(
     (model) =>
