@@ -20,7 +20,7 @@ import {
   Model,
   StreamingChunk,
   UnrecordedMessage,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   BEDROCK_TEXT_GEN_MODELS,
   BEDROCK_IMAGE_GEN_MODELS,

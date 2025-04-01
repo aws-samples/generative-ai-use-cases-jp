@@ -20,16 +20,16 @@ cd cloud9-setup-for-prototyping
 Once creation is complete, you will see an environment called cloud9-for-prototyping in [AWS Cloud9](https://console.aws.amazon.com/cloud9control/home). Click Open to launch the IDE.
 All of the following steps will be performed in the created IDE.
 
-## Deploying generative-ai-use-cases-jp
+## Deploying generative-ai-use-cases
 
-Execute the following commands in the Terminal at the bottom of the IDE. This will clone generative-ai-use-cases-jp and move to the working directory.
+Execute the following commands in the Terminal at the bottom of the IDE. This will clone generative-ai-use-cases and move to the working directory.
 
 ```bash
-git clone https://github.com/aws-samples/generative-ai-use-cases-jp
-cd generative-ai-use-cases-jp/
+git clone https://github.com/aws-samples/generative-ai-use-cases
+cd generative-ai-use-cases/
 ```
 
-Then follow the instructions in [generative-ai-use-cases-jp's README.md](/README.md#デプロイ). Below are just the commands to execute.
+Then follow the instructions in [generative-ai-use-cases's README.md](/README.md#デプロイ). Below are just the commands to execute.
 
 ```bash
 npm ci
@@ -39,15 +39,15 @@ npm run cdk:deploy
 
 ## Changing Deployment Options
 
-Open `cloud9-for-prototyping/generative-ai-use-cases-jp/packages/cdk/cdk.json` and modify the items in the context. For configurable options, please refer to [here](./DEPLOY_OPTION.md).
+Open `cloud9-for-prototyping/generative-ai-use-cases/packages/cdk/cdk.json` and modify the items in the context. For configurable options, please refer to [here](./DEPLOY_OPTION.md).
 
 After changing the contents of cdk.json, save the file and run `npm run cdk:deploy`. The configuration changes will be applied upon deployment.
 
 ## Frontend Development
 
-To use Cloud9's Preview feature, you need to listen on ports 8080 to 8082 on localhost. ([Reference](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/app-preview.html)) [Vite](https://ja.vitejs.dev/), which is used for frontend development in generative-ai-use-cases-jp, uses port 5173 by default, so we need to change this.
+To use Cloud9's Preview feature, you need to listen on ports 8080 to 8082 on localhost. ([Reference](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/app-preview.html)) [Vite](https://ja.vitejs.dev/), which is used for frontend development in generative-ai-use-cases, uses port 5173 by default, so we need to change this.
 
-Open `cloud9-for-prototyping/generative-ai-use-cases-jp/packages/web/package.json` and change the dev command in scripts from `vite` to `vite --port 8080`. After the change, part of package.json will look like this. (Note that you can also set the port in vite.config.ts, but we won't cover that here.)
+Open `cloud9-for-prototyping/generative-ai-use-cases/packages/web/package.json` and change the dev command in scripts from `vite` to `vite --port 8080`. After the change, part of package.json will look like this. (Note that you can also set the port in vite.config.ts, but we won't cover that here.)
 
 ```json
 {

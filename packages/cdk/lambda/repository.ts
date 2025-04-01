@@ -7,7 +7,7 @@ import {
   SystemContext,
   UpdateFeedbackRequest,
   ListChatsResponse,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {

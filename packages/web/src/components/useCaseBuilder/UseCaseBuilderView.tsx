@@ -21,7 +21,7 @@ import ButtonShare from './ButtonShare';
 import ButtonUseCaseEdit from './ButtonUseCaseEdit';
 import Skeleton from '../Skeleton';
 import useMyUseCases from '../../hooks/useCaseBuilder/useMyUseCases';
-import { UseCaseInputExample, FileLimit } from 'generative-ai-use-cases-jp';
+import { UseCaseInputExample, FileLimit } from 'generative-ai-use-cases';
 import {
   NOLABEL,
   extractPlaceholdersFromPromptTemplate,

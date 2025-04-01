@@ -28,10 +28,10 @@ git remote -v
 In the example output below, the repository managed by the aws-samples Organization (the original repository) is registered with the name "aws".
 
 ```
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (fetch)
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (push)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (fetch)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (push)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (fetch)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (push)
+aws     https://github.com/aws-samples/generative-ai-use-cases (fetch)
+aws     https://github.com/aws-samples/generative-ai-use-cases (push)
 ```
 
 In this case, explicitly specify "aws" when pulling:
@@ -43,7 +43,7 @@ git pull aws
 If the `git remote -v` result does not show the repository managed by aws-samples, add it with the following command:
 
 ```bash
-git remote add aws https://github.com/aws-samples/generative-ai-use-cases-jp
+git remote add aws https://github.com/aws-samples/generative-ai-use-cases
 ```
 
 Now that it's registered with the name "aws", execute `git pull aws` to perform the pull.
@@ -52,7 +52,7 @@ Now that it's registered with the name "aws", execute `git pull aws` to perform 
 
 The `git pull` command performs both `git fetch` (retrieve changes) and `git merge` (incorporate changes) simultaneously.
 If you want to check the changes before incorporating them, execute `fetch` and `merge` separately.
-In the following commands, we assume that [aws-samples/generative-ai-use-cases-jp](https://github.com/aws-samples/generative-ai-use-cases-jp) is registered as "origin" in the remote.
+In the following commands, we assume that [aws-samples/generative-ai-use-cases](https://github.com/aws-samples/generative-ai-use-cases) is registered as "origin" in the remote.
 To check the remote name, run the `git remote -v` command mentioned earlier.
 
 First, retrieve the changes with the following command:

@@ -1,4 +1,4 @@
-import { GenerateVideoParams, Model } from 'generative-ai-use-cases-jp';
+import { GenerateVideoParams, Model } from 'generative-ai-use-cases';
 import useVideoApi from './useVideoApi';
 import usePagination from './usePagination';
 

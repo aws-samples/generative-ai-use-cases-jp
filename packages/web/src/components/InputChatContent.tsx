@@ -14,7 +14,7 @@ import {
 } from 'react-icons/pi';
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
-import { FileLimit } from 'generative-ai-use-cases-jp';
+import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
 type Props = {

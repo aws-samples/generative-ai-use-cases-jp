@@ -16,7 +16,7 @@ import {
 } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
-import { Agent as AgentType } from 'generative-ai-use-cases-jp';
+import { Agent as AgentType } from 'generative-ai-use-cases';
 
 interface AgentProps {
   // Context Params

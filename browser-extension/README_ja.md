@@ -3,7 +3,7 @@
 こちらは、Generative AI Use Cases JP (略称:GenU) をより便利に利用するためのブラウザ拡張機能です。
 
 > [!IMPORTANT]
-> このブラウザ拡張機能を利用するためには、GenU を事前にデプロイする必要があります。まずは、[こちら](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4)を参考にデプロイをしてください。
+> このブラウザ拡張機能を利用するためには、GenU を事前にデプロイする必要があります。まずは、[こちら](../README_ja.md#デプロイ)を参考にデプロイをしてください。
 
 ![拡張機能イメージ](../docs/assets/images/extension/extension_demo.png)
 

@@ -1,7 +1,7 @@
 <div markdown="1" align="center">
   <h1>Generative AI Use Cases (GenU)</h1>
 
-[![](https://img.shields.io/badge/Documentation-Latest-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
+[![](https://img.shields.io/badge/Documentation-Latest-blue)](https://aws-samples.github.io/generative-ai-use-cases/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml)
 
 English | [日本語](./README_ja.md)
 
@@ -206,7 +206,7 @@ We have published configuration and cost estimation examples for using GenU. (Th
 | <a href="https://www.oisixradaichi.co.jp/" target="_blank"><img src="./docs/assets/images/cases/oisixradaichi_logo.png"></a>      | **Oisix ra daichi Inc.** <br/> _Through the use case development project using GenU, we were able to grasp the necessary resources, project structure, external support, and talent development, which helped us clarify our image for the internal deployment of generative AI._ <br/> ・[See case page](https://aws.amazon.com/jp/solutions/case-studies/oisix/)                                                                                                  |
 | <a href="https://www.san-a.co.jp/" target="_blank"><img src="./docs/assets/images/cases/san-a_logo.png"></a>                      | **SAN-A CO., LTD.** <br/> _By utilizing Amazon Bedrock, our engineers' productivity has dramatically improved, accelerating the migration of our company-specific environment, which we had built in-house, to the cloud._ <br/> ・[See case details](./docs/assets/images/cases/san-a_case.png)<br/> ・[See case page](https://aws.amazon.com/jp/solutions/case-studies/san-a/)                                                                                    |
 
-If you would like to have your use case featured, please contact us via [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues).
+If you would like to have your use case featured, please contact us via [Issue](https://github.com/aws-samples/generative-ai-use-cases/issues).
 
 ## References
 

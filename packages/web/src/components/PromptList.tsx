@@ -21,7 +21,7 @@ import useChat from '../hooks/useChat';
 import { getPrompter, PromptListItem } from '../prompts';
 import type { PromptList } from '../prompts';
 import ButtonIcon from './ButtonIcon';
-import { SystemContext } from 'generative-ai-use-cases-jp';
+import { SystemContext } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
 type Props = BaseProps & {

@@ -54,12 +54,12 @@ fi
 pushd /tmp
 
 # Delete the repository in /tmp if it exists
-rm -rf generative-ai-use-cases-jp
+rm -rf generative-ai-use-cases
 
 # Clone GenU
-git clone https://github.com/aws-samples/generative-ai-use-cases-jp
+git clone https://github.com/aws-samples/generative-ai-use-cases
 
-pushd generative-ai-use-cases-jp
+pushd generative-ai-use-cases
 
 # Install npm packages
 npm ci

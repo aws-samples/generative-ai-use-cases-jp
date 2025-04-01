@@ -4,10 +4,7 @@ import {
   GetTranscriptionJobCommand,
 } from '@aws-sdk/client-transcribe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import {
-  GetTranscriptionResponse,
-  Transcript,
-} from 'generative-ai-use-cases-jp';
+import { GetTranscriptionResponse, Transcript } from 'generative-ai-use-cases';
 
 function parseS3Url(s3Url: string) {
   const url = new URL(s3Url);

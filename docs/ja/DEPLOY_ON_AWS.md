@@ -20,16 +20,16 @@ cd cloud9-setup-for-prototyping
 作成が完了すると、[AWS Cloud9](https://console.aws.amazon.com/cloud9control/home) に cloud9-for-prototyping という環境が作成されているので、Open をクリックし IDE を開きます。
 以下の全ての手順は、作成した IDE で行います。
 
-## generative-ai-use-cases-jp のデプロイ
+## generative-ai-use-cases のデプロイ
 
-IDE 下部の Terminal で以下のコマンドを実行します。generative-ai-use-cases-jp を git clone し、作業ディレクトリに移動しています。
+IDE 下部の Terminal で以下のコマンドを実行します。generative-ai-use-cases を git clone し、作業ディレクトリに移動しています。
 
 ```bash
-git clone https://github.com/aws-samples/generative-ai-use-cases-jp
-cd generative-ai-use-cases-jp/
+git clone https://github.com/aws-samples/generative-ai-use-cases
+cd generative-ai-use-cases/
 ```
 
-その後の手順は [generative-ai-use-cases-jp の README.md](/README.md#デプロイ) の手順に従ってください。以下に、実行コマンドだけを端的に示します。
+その後の手順は [generative-ai-use-cases の README.md](/README.md#デプロイ) の手順に従ってください。以下に、実行コマンドだけを端的に示します。
 
 ```bash
 npm ci
@@ -39,15 +39,15 @@ npm run cdk:deploy
 
 ## デプロイオプションの設定変更
 
-`cloud9-for-prototyping/generative-ai-use-cases-jp/packages/cdk/cdk.json` を開き、context 内の項目を変更します。設定可能な内容については[こちら](./DEPLOY_OPTION.md)をご参照ください。
+`cloud9-for-prototyping/generative-ai-use-cases/packages/cdk/cdk.json` を開き、context 内の項目を変更します。設定可能な内容については[こちら](./DEPLOY_OPTION.md)をご参照ください。
 
 cdk.json の内容を変更したら、ファイルを保存して、`npm run cdk:deploy` を実行します。デプロイすることで設定変更が反映されます。
 
 ## フロントエンドの開発
 
-Cloud9 の Preview 機能を使うためには、localhost の 8080 ~ 8082 ポートで Listen する必要があります。([参考](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/app-preview.html)) generative-ai-use-cases-jp のフロントエンド開発で利用している [Vite](https://ja.vitejs.dev/) はデフォルトで 5173 ポートを使うため、これを変更します。
+Cloud9 の Preview 機能を使うためには、localhost の 8080 ~ 8082 ポートで Listen する必要があります。([参考](https://docs.aws.amazon.com/ja_jp/cloud9/latest/user-guide/app-preview.html)) generative-ai-use-cases のフロントエンド開発で利用している [Vite](https://ja.vitejs.dev/) はデフォルトで 5173 ポートを使うため、これを変更します。
 
-`cloud9-for-prototyping/generative-ai-use-cases-jp/packages/web/package.json` を開き、scripts の中の dev コマンドを `vite` から `vite --port 8080` に変更します。変更後の package.json の一部は以下のようになります。(なお、vite.config.ts でポートを設定することも可能ですが、ここでは案内しません。)
+`cloud9-for-prototyping/generative-ai-use-cases/packages/web/package.json` を開き、scripts の中の dev コマンドを `vite` から `vite --port 8080` に変更します。変更後の package.json の一部は以下のようになります。(なお、vite.config.ts でポートを設定することも可能ですが、ここでは案内しません。)
 
 ```json
 {

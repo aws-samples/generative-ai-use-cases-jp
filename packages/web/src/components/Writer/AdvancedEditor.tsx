@@ -37,7 +37,7 @@ import { MODELS } from '../../hooks/useModel';
 import { AICommentManager, useComments } from './extensions/AIComments';
 import ButtonCopy from '../ButtonCopy';
 import DiffMatchPatch from 'diff-match-patch';
-import { DocumentComment } from 'generative-ai-use-cases-jp';
+import { DocumentComment } from 'generative-ai-use-cases';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 

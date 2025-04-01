@@ -13,14 +13,14 @@ import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 import { getPrompter } from '../prompts';
 import ExpandableField from '../components/ExpandableField';
-import { userDefinedExplicitFilters } from '@generative-ai-use-cases-jp/common';
+import { userDefinedExplicitFilters } from '@generative-ai-use-cases/common';
 import { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import { RetrievalFilterLabel } from '../components/KbFilter';
 import KbFilter from '../components/KbFilter';
 import {
   ExplicitFilterConfiguration,
   ExtraData,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import { Option, SelectValue } from '../components/FilterSelect';
 import ModalDialog from '../components/ModalDialog';
 import Button from '../components/Button';
@@ -288,7 +288,7 @@ const RagKnowledgeBasePage: React.FC = () => {
                 {t('rag.filter_settings')}{' '}
                 <a
                   className="text-aws-smile underline"
-                  href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
+                  href="https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
                   target="_blank">
                   {t('rag.here')}
                 </a>{' '}
@@ -309,7 +309,7 @@ const RagKnowledgeBasePage: React.FC = () => {
             {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
             <a
               className="text-aws-smile underline"
-              href="https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
+              href="https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/common/src/custom/rag-knowledge-base.ts"
               target="_blank">
               packages/common/src/custom/rag-knowledge-base.ts
             </a>{' '}

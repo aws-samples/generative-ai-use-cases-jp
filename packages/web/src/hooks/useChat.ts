@@ -14,7 +14,7 @@ import {
   UpdateFeedbackRequest,
   ListChatsResponse,
   AdditionalModelRequestFields,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';

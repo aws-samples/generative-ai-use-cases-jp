@@ -13,10 +13,7 @@ import {
   PiArrowClockwise,
 } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
-import {
-  ShownMessage,
-  UpdateFeedbackRequest,
-} from 'generative-ai-use-cases-jp';
+import { ShownMessage, UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';

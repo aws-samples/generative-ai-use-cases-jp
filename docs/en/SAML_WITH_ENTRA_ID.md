@@ -49,7 +49,7 @@ Select Create your own application.
 
 ![image-20240128121629558](../assets/SAML_WITH_ENTRA_ID/image-20240128121629558-1707115633384.png)
 
-Enter any application name and press Create. In this example, we are using `generative-ai-use-cases-jp`.
+Enter any application name and press Create. In this example, we are using `generative-ai-use-cases`.
 
 ![image-20240128121916888](../assets/SAML_WITH_ENTRA_ID/image-20240128121916888.png)
 

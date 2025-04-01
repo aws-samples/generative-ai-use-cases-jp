@@ -4,7 +4,7 @@ import {
   stackInputSchema,
   ProcessedStackInput,
 } from './lib/stack-input';
-import { ModelConfiguration } from 'generative-ai-use-cases-jp';
+import { ModelConfiguration } from 'generative-ai-use-cases';
 
 // Get parameters from CDK Context
 const getContext = (app: cdk.App): StackInput => {

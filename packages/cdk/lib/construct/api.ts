@@ -20,17 +20,13 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import {
-  Agent,
-  AgentMap,
-  ModelConfiguration,
-} from 'generative-ai-use-cases-jp';
+import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
   BEDROCK_RERANKING_MODELS,
   BEDROCK_TEXT_MODELS,
-} from '@generative-ai-use-cases-jp/common';
+} from '@generative-ai-use-cases/common';
 
 export interface BackendApiProps {
   // Context Params

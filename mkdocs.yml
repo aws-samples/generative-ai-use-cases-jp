@@ -1,8 +1,8 @@
 site_name: Generative AI Use Cases (GenU)
-site_url: https://aws-samples.github.io/generative-ai-use-cases-jp/
+site_url: https://aws-samples.github.io/generative-ai-use-cases/
 
-repo_url: https://github.com/aws-samples/generative-ai-use-cases-jp
-repo_name: aws-samples/generative-ai-use-cases-jp
+repo_url: https://github.com/aws-samples/generative-ai-use-cases
+repo_name: aws-samples/generative-ai-use-cases
 edit_uri: blob/main/docs
 
 watch: [mkdocs.yml, README.md, browser-extension/README.md]
@@ -66,10 +66,12 @@ nav:
 
 extra:
   # Used in custom hook anchors.py
-  absolute_path_replace_uri: https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/
+  absolute_path_replace_uri: https://github.com/aws-samples/generative-ai-use-cases/blob/main/
   replace_dict:
     '../../README.md': '../en/ABOUT.html'
     '../../README_ja.md': '../ja/ABOUT.html'
+    '../../README.md#deployment': '../en/ABOUT.html#deployment'
+    '../../README_ja.md#デプロイ': '../ja/ABOUT.html#デプロイ'
 
 plugins:
   - include-markdown:

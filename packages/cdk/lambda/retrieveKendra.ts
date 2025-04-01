@@ -4,7 +4,7 @@ import {
   KendraClient,
   RetrieveCommand,
 } from '@aws-sdk/client-kendra';
-import { RetrieveKendraRequest } from 'generative-ai-use-cases-jp';
+import { RetrieveKendraRequest } from 'generative-ai-use-cases';
 
 const INDEX_ID = process.env.INDEX_ID;
 const LANGUAGE = process.env.LANGUAGE;

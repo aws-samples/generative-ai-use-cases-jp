@@ -3,7 +3,7 @@
 This is a browser extension that makes Generative AI Use Cases JP (abbreviated as GenU) more convenient to use.
 
 > [!IMPORTANT]
-> To use this browser extension, you need to deploy GenU in advance. First, please refer to [here](https://github.com/aws-samples/generative-ai-use-cases-jp#%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4) for deployment instructions.
+> To use this browser extension, you need to deploy GenU in advance. First, please refer to [here](../README.md#deployment) for deployment instructions.
 
 ![Extension Image](../docs/assets/images/extension/extension_demo.png)
 

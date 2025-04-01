@@ -5,7 +5,7 @@ import {
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-import { FlowRequest } from 'generative-ai-use-cases-jp';
+import { FlowRequest } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
 export type DocumentType =

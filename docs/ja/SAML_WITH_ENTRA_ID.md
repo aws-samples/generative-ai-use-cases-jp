@@ -49,7 +49,7 @@ Create your own application を選択します。
 
 ![image-20240128121629558](../assets/SAML_WITH_ENTRA_ID/image-20240128121629558-1707115633384.png)
 
-任意のアプリケーション名を入れて、Create を押します。この例では、`generative-ai-use-cases-jp` としています。
+任意のアプリケーション名を入れて、Create を押します。この例では、`generative-ai-use-cases` としています。
 
 ![image-20240128121916888](../assets/SAML_WITH_ENTRA_ID/image-20240128121916888.png)
 

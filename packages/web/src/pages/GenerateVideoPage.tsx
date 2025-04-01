@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { VideoJob, GenerateVideoParams } from 'generative-ai-use-cases-jp';
+import { VideoJob, GenerateVideoParams } from 'generative-ai-use-cases';
 import { create } from 'zustand';
 import useVideo from '../hooks/useVideo';
 import { MODELS } from '../hooks/useModel';
