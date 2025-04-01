@@ -70,6 +70,8 @@ extra:
   replace_dict:
     '../../README.md': '../en/ABOUT.html'
     '../../README_ja.md': '../ja/ABOUT.html'
+    '../../README.md#deployment': '../en/ABOUT.html#deployment'
+    '../../README_ja.md#デプロイ': '../ja/ABOUT.html#デプロイ'
 
 plugins:
   - include-markdown:
