@@ -48,7 +48,7 @@ const useMicrophone = () => {
     const transcripts: Transcript[] = rawTranscripts.flatMap(
       (t) => t.transcripts
     );
-    // 話者が連続する場合はマージ
+    // If the speaker is continuous, merge
     const mergedTranscripts = transcripts.reduce((prev, item) => {
       if (
         prev.length === 0 ||
@@ -63,7 +63,7 @@ const useMicrophone = () => {
       }
       return prev;
     }, [] as Transcript[]);
-    // 日本語の場合はスペースを除去
+    // If Japanese, remove spaces
     if (language === 'ja-JP') {
       return mergedTranscripts.map((item) => ({
         ...item,

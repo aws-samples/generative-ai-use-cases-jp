@@ -11,7 +11,10 @@ import {
   ListVideoJobsResponse,
   GenerateVideoRequest,
 } from 'generative-ai-use-cases-jp';
-import { GetAsyncInvokeCommand } from '@aws-sdk/client-bedrock-runtime';
+import {
+  GetAsyncInvokeCommand,
+  ValidationException,
+} from '@aws-sdk/client-bedrock-runtime';
 import {
   S3Client,
   GetObjectCommand,
@@ -37,7 +40,7 @@ export const createJob = async (
 
   const params = req.params;
 
-  // Nova Reel の 1 フレーム目画像指定が params に含まれていたら、その情報は ddb に保存しない
+  // Do not save the information of the first frame image of Nova Reel in params
   if (params.images && params.images.length > 0) {
     params.images = [];
   }
@@ -121,50 +124,70 @@ const copyAndDeleteObject = async (
 const checkAndUpdateJob = async (
   job: VideoJob
 ): Promise<'InProgress' | 'Completed' | 'Failed'> => {
-  const client = await initBedrockClient(job.region);
-  const command = new GetAsyncInvokeCommand({
-    invocationArn: job.invocationArn,
-  });
-
-  const res = await client.send(command);
-
-  if (res.status !== 'InProgress') {
-    const jobId = job.jobId;
-    const dstBucket = BUCKET_NAME;
-    const dstRegion = process.env.AWS_DEFAULT_REGION!;
-    const srcRegion = job.region;
-    const videoBucketRegionMap = JSON.parse(
-      process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
-    );
-    const srcBucket = videoBucketRegionMap[srcRegion];
-
-    await copyAndDeleteObject(
-      jobId,
-      srcBucket,
-      srcRegion,
-      dstBucket,
-      dstRegion
-    );
-
-    const updateCommand = new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: {
-        id: job.id,
-        createdDate: job.createdDate,
-      },
-      UpdateExpression: 'set #status = :status',
-      ExpressionAttributeNames: {
-        '#status': 'status',
-      },
-      ExpressionAttributeValues: {
-        ':status': res.status,
-      },
+  try {
+    const client = await initBedrockClient(job.region);
+    const command = new GetAsyncInvokeCommand({
+      invocationArn: job.invocationArn,
     });
 
-    await dynamoDbDocument.send(updateCommand);
-  }
+    let res;
 
-  return res.status!;
+    try {
+      res = await client.send(command);
+    } catch (e) {
+      // If it takes time to get the result, GetAsyncInvokeCommand may result in a ValidationException.
+      // In such cases, proceed assuming it has reached the Completed state.
+      if (e instanceof ValidationException) {
+        console.error(e);
+        res = { status: 'Completed' as const };
+      } else {
+        throw e;
+      }
+    }
+
+    if (res.status !== 'InProgress') {
+      if (res.status === 'Completed') {
+        const jobId = job.jobId;
+        const dstBucket = BUCKET_NAME;
+        const dstRegion = process.env.AWS_DEFAULT_REGION!;
+        const srcRegion = job.region;
+        const videoBucketRegionMap = JSON.parse(
+          process.env.VIDEO_BUCKET_REGION_MAP ?? '{}'
+        );
+        const srcBucket = videoBucketRegionMap[srcRegion];
+
+        await copyAndDeleteObject(
+          jobId,
+          srcBucket,
+          srcRegion,
+          dstBucket,
+          dstRegion
+        );
+      }
+
+      const updateCommand = new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          id: job.id,
+          createdDate: job.createdDate,
+        },
+        UpdateExpression: 'set #status = :status',
+        ExpressionAttributeNames: {
+          '#status': 'status',
+        },
+        ExpressionAttributeValues: {
+          ':status': res.status,
+        },
+      });
+
+      await dynamoDbDocument.send(updateCommand);
+    }
+
+    return res.status!;
+  } catch (e) {
+    console.error(e);
+    return job.status;
+  }
 };
 
 export const listVideoJobs = async (
@@ -194,7 +217,7 @@ export const listVideoJobs = async (
 
   const jobs = res.Items as VideoJob[];
 
-  // InProgress のものは最新のステータスを確認
+  // Check the latest status of InProgress jobs
   for (const job of jobs) {
     if (job.status === 'InProgress') {
       const newStatus = await checkAndUpdateJob(job);
