@@ -144,7 +144,7 @@ In that case, please be careful about conflicts with GenU's main branch.
 GenU deployment uses [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/) (CDK). If you cannot prepare a CDK execution environment, refer to the following deployment methods:
 
 - [Deployment method using AWS CloudShell (if preparing your own environment is difficult)](docs/en/DEPLOY_ON_CLOUDSHELL.md)
-- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases)
+- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
 
 First, run the following command. All commands should be executed at the repository root.
 
