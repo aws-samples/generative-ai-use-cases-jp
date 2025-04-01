@@ -858,13 +858,13 @@ useCaseBuilder:
     transcription_description: >-
       「音声認識」の機能を使って、録音データから会話の内容を文字起こしします。任意の音声ファイルで実行してください。
       音声認識が完了したら、「整形」ボタンを押してください（音声認識結果は自動でコピーされます）。
-  menuUseCaseDefinition: ユースケース定義
   menuCreate: 作成
   menuDelete: 削除
   menuFileAttachment: ファイル添付
   menuInputExamples: 入力例
   menuModelSelection: モデル選択
   menuUpdate: 更新
+  menuUseCaseDefinition: ユースケース定義
   modelFixed: モデルが固定化されています。
   modelFixedDescription: モデル選択の UI が表示されないため、ユーザーは生成 AI の存在を意識せずにユースケースを利用できます
   modelNotFixed: モデルは固定化されていません。

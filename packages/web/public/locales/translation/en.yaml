@@ -994,13 +994,13 @@ useCaseBuilder:
 
       After the speech recognition is complete, press the "Format" button (the
       speech recognition result will be copied automatically).
-  menuUseCaseDefinition: Use Case Definition
   menuCreate: Create
   menuDelete: Delete
   menuFileAttachment: File Attachment
   menuInputExamples: Input Examples
   menuModelSelection: Model Selection
   menuUpdate: Update
+  menuUseCaseDefinition: Use Case Definition
   modelFixed: Model is Fixed.
   modelFixedDescription: Users can only use the fixed model in this use case.
   modelNotFixed: The model is not fixed.
