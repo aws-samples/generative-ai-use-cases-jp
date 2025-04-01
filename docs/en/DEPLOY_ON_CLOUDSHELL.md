@@ -28,7 +28,7 @@ Execute the following commands in CloudShell to download the `deploy.sh` script.
 After downloading, grant execution permissions to deploy.sh.
 
 ```bash
-wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/refs/heads/main/deploy.sh -O deploy.sh
+wget https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases/refs/heads/main/deploy.sh -O deploy.sh
 chmod +x deploy.sh
 ```
 

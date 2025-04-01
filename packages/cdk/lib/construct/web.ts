@@ -14,7 +14,7 @@ import {
   Flow,
   HiddenUseCases,
   ModelConfiguration,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
 export interface WebProps {

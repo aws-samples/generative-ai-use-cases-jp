@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   PredictTitleRequest,
   UnrecordedMessage,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import { setChatTitle } from './repository';
 import api from './utils/api';
 import { defaultModel } from './utils/models';

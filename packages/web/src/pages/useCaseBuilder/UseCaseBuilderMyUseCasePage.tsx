@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { UseCaseAsOutput } from 'generative-ai-use-cases-jp';
+import { UseCaseAsOutput } from 'generative-ai-use-cases';
 import ButtonIcon from '../../components/ButtonIcon';
 import { PiNotePencil, PiTrash } from 'react-icons/pi';
 import Button from '../../components/Button';

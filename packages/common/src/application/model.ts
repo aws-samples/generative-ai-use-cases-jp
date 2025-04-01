@@ -1,4 +1,4 @@
-import { FeatureFlags } from 'generative-ai-use-cases-jp';
+import { FeatureFlags } from 'generative-ai-use-cases';
 
 // Manage Model Feature
 // https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference-supported-models-features.html

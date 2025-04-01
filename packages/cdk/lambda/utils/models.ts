@@ -16,7 +16,7 @@ import {
   AmazonGeneralImageParams,
   AmazonAdvancedImageParams,
   StreamingChunk,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   ConverseCommandInput,
   ConverseCommandOutput,
@@ -25,7 +25,7 @@ import {
   ConversationRole,
   ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
-import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
+import { modelFeatureFlags } from '@generative-ai-use-cases/common';
 
 // Default Models
 

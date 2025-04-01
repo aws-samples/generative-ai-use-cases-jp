@@ -235,7 +235,7 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 During deployment, data stored in `/packages/cdk/rag-docs/docs` will be automatically uploaded to the S3 bucket for Knowledge Base data source. (Note that files starting with `logs` will not be synchronized.) After deployment is complete, follow these steps to sync the Knowledge Base Data source:
 
 1. Open the [Knowledge Base console](https://console.aws.amazon.com/bedrock/home#/knowledge-bases)
-2. Click on generative-ai-use-cases-jp
+2. Click on generative-ai-use-cases
 3. Select s3-data-source and click Sync
 
 When the Status becomes Available, the process is complete. Files stored in S3 have been ingested and can be searched through the Knowledge Base.
@@ -336,8 +336,8 @@ By default, when you open the Indexes tab of OpenSearch Service from the managem
 This is because the Data access policy doesn't allow the IAM user logged into the management console.
 Follow these steps to manually add the necessary permissions:
 
-1. Open [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (note the region), click on generative-ai-use-cases-jp
-2. Click on the Associated policy named generative-ai-use-cases-jp at the bottom of the page
+1. Open [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (note the region), click on generative-ai-use-cases
+2. Click on the Associated policy named generative-ai-use-cases at the bottom of the page
 3. Click Edit in the upper right
 4. Click Add principals in the Select principals section in the middle of the page, and add the IAM User/Role etc. (the permissions you're logged into the management console with)
 5. Save

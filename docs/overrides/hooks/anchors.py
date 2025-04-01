@@ -36,5 +36,5 @@ def override_include_markdown_link(html, page, config, files):
 
 def on_page_content(html, page, config, files):
     html = override_absolute_path(html, page, config, files)
-    html = override_include_markdown_link(html, page, config, files)
+    # html = override_include_markdown_link(html, page, config, files)
     return html

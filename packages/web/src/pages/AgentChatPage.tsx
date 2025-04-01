@@ -14,7 +14,7 @@ import { getPrompter } from '../prompts';
 import { v4 as uuidv4 } from 'uuid';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
-import { FileLimit } from 'generative-ai-use-cases-jp';
+import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
 const fileLimit: FileLimit = {

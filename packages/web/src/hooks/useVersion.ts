@@ -3,7 +3,7 @@ import useSWR from 'swr';
 
 const version = import.meta.env.VITE_APP_VERSION;
 const PACKAGE_JSON_URL =
-  'https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases-jp/main/package.json';
+  'https://raw.githubusercontent.com/aws-samples/generative-ai-use-cases/main/package.json';
 
 interface PackageJson {
   version: string;

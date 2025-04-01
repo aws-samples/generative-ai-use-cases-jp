@@ -13,7 +13,7 @@
 
 事前準備ができたら、以下の手順でビルドを行なってください。
 
-以降の手順は、**必ず `generative-ai-use-cases-jp` のルートフォルダで実行してください。`generative-ai-use-cases-jp/browser-extension` ではありませんのでご注意ください。**
+以降の手順は、**必ず `generative-ai-use-cases` のルートフォルダで実行してください。`generative-ai-use-cases/browser-extension` ではありませんのでご注意ください。**
 
 ### Unix 系コマンドが使えるユーザー (Cloud9, Linux, MacOS 等)
 

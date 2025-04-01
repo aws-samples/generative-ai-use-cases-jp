@@ -1,5 +1,5 @@
-import { Model, ModelConfiguration } from 'generative-ai-use-cases-jp';
-import { modelFeatureFlags } from '@generative-ai-use-cases-jp/common';
+import { Model, ModelConfiguration } from 'generative-ai-use-cases';
+import { modelFeatureFlags } from '@generative-ai-use-cases/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
 

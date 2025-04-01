@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import useFileApi from './useFileApi';
-import { FileLimit, UploadedFileType } from 'generative-ai-use-cases-jp';
+import { FileLimit, UploadedFileType } from 'generative-ai-use-cases';
 import { produce } from 'immer';
 import { fileTypeFromStream } from 'file-type';
 import { useCallback } from 'react';

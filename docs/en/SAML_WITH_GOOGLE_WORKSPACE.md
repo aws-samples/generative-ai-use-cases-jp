@@ -38,7 +38,7 @@ From the application settings screen, click on Add Custom SAML App.
 
 ![image-20240316233910260](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240316233910260.png)
 
-Enter an administrative name for Google Workspace. Any name will do. Here we'll use `generative-ai-use-cases-jp`.
+Enter an administrative name for Google Workspace. Any name will do. Here we'll use `generative-ai-use-cases`.
 
 ![image-20240316234731919](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240316234731919.png)
 

@@ -38,7 +38,7 @@ https://admin.google.com/u/0/ac/home
 
 ![image-20240316233910260](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240316233910260.png)
 
-Google Workspace の管理上の名前を入れます。任意の名前で大丈夫です。今回は `generative-ai-use-cases-jp` と入れます。
+Google Workspace の管理上の名前を入れます。任意の名前で大丈夫です。今回は `generative-ai-use-cases` と入れます。
 
 ![image-20240316234731919](../assets/SAML_WITH_GOOGLE_WORKSPACE/image-20240316234731919.png)
 

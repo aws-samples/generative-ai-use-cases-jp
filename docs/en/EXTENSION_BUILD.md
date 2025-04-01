@@ -13,7 +13,7 @@ Node.js installation is required for building. If you haven't installed it yet, 
 
 Once prerequisites are ready, follow these steps to build.
 
-The following steps must be executed in the root folder of `generative-ai-use-cases-jp`. Please note that you should not run them in `generative-ai-use-cases-jp/browser-extension`.
+The following steps must be executed in the root folder of `generative-ai-use-cases`. Please note that you should not run them in `generative-ai-use-cases/browser-extension`.
 
 ### For users with Unix commands (Cloud9, Linux, macOS, etc.)
 

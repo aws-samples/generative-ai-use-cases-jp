@@ -1,4 +1,4 @@
-import { UnrecordedMessage } from 'generative-ai-use-cases-jp';
+import { UnrecordedMessage } from 'generative-ai-use-cases';
 import { RetrieveResultItem } from '@aws-sdk/client-kendra';
 import { claudePrompter } from './claude';
 import { TFunction } from 'i18next';

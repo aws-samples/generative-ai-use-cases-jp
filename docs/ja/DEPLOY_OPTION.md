@@ -237,7 +237,7 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 デプロイ時に `/packages/cdk/rag-docs/docs` に保存されているデータが、自動で Knowledge Base データソース用の S3 バケットにアップロードされます。(ただし `logs` から始まる名前のファイルは同期されませんので注意してください。) デプロイ完了後、以下の手順で Knowledge Base の Data source を Sync してください。
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
-1. generative-ai-use-cases-jp をクリック
+1. generative-ai-use-cases をクリック
 1. s3-data-source を選択肢、Sync をクリック
 
 Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
@@ -351,8 +351,8 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 これは、Data access policy でマネージメントコンソールにログインしている IAM ユーザーを許可していないためです。
 以下の手順に従い、必要な権限を手動で追加してください。
 
-1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases-jp をクリック
-1. ページ下部 Data access の Associated policy である generative-ai-use-cases-jp をクリック
+1. [OpenSearch Service](https://console.aws.amazon.com/aos/home?#opensearch/collections) (リージョンに注意) を開き、generative-ai-use-cases をクリック
+1. ページ下部 Data access の Associated policy である generative-ai-use-cases をクリック
 1. 右上の Edit をクリック
 1. ページ中部の Select principals の Add principals をクリックし、IAM User/Role 等 (マネージメントコンソールにログインしている権限) を追加
 1. Save

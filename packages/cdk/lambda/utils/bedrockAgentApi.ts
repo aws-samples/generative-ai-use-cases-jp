@@ -20,7 +20,7 @@ import {
   Model,
   UnrecordedMessage,
   BraveSearchResult,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import { streamingChunk } from './streamingChunk';
 
 const agentClient = new BedrockAgentClient({

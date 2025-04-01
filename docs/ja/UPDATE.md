@@ -28,10 +28,10 @@ git remote -v
 以下の出力例の場合、aws-samples という Organization で管理されているリポジトリ (本家のリポジトリ) が aws という名前で登録されています。
 
 ```
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (fetch)
-origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases-jp (push)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (fetch)
-aws     https://github.com/aws-samples/generative-ai-use-cases-jp (push)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (fetch)
+origin  https://my-private-git-hosting-site.com/myawesomeorg/generative-ai-use-cases (push)
+aws     https://github.com/aws-samples/generative-ai-use-cases (fetch)
+aws     https://github.com/aws-samples/generative-ai-use-cases (push)
 ```
 
 この場合は、aws を明示的に指定して pull を実施します。
@@ -43,7 +43,7 @@ git pull aws
 `git remote -v` の結果、aws-samples で管理されているリポジトリがない場合は、以下のコマンドで追加します。
 
 ```bash
-git remote add aws https://github.com/aws-samples/generative-ai-use-cases-jp
+git remote add aws https://github.com/aws-samples/generative-ai-use-cases
 ```
 
 aws という名前で登録されたので、`git pull aws` を実行して pull を実施します。
@@ -52,7 +52,7 @@ aws という名前で登録されたので、`git pull aws` を実行して pul
 
 `git pull` コマンドは `git fetch` (変更を取得) と `git merge` (変更を取り込む) を同時に行います。
 変更点を確認してから取り込みたい場合は、`fetch` と `merge` を別々に実行してください。
-以下のコマンドでは、[aws-samples/generative-ai-use-cases-jp](https://github.com/aws-samples/generative-ai-use-cases-jp) が origin という名前で remote に登録されているとして記述します。
+以下のコマンドでは、[aws-samples/generative-ai-use-cases](https://github.com/aws-samples/generative-ai-use-cases) が origin という名前で remote に登録されているとして記述します。
 remote 名を調べる場合は、前述した `git remote -v` コマンドを実行してください。
 
 まずは以下のコマンドで変更を取得します。

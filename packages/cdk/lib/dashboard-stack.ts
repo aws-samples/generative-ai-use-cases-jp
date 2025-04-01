@@ -4,7 +4,7 @@ import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ProcessedStackInput } from './stack-input';
-import { ModelConfiguration } from 'generative-ai-use-cases-jp';
+import { ModelConfiguration } from 'generative-ai-use-cases';
 
 export interface DashboardStackProps extends StackProps {
   params: ProcessedStackInput;

@@ -1,5 +1,5 @@
 {
-  "name": "@types/generative-ai-use-cases-jp",
+  "name": "@types/generative-ai-use-cases",
   "types": "src/index.d.ts",
   "private": true,
   "dependencies": {

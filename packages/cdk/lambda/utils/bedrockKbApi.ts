@@ -15,12 +15,12 @@ import {
   ApiInterface,
   Model,
   UnrecordedMessage,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   implicitFilters,
   hiddenStaticExplicitFilters,
   getDynamicFilters,
-} from '@generative-ai-use-cases-jp/common';
+} from '@generative-ai-use-cases/common';
 import { streamingChunk } from './streamingChunk';
 import { verifyToken } from './auth';
 

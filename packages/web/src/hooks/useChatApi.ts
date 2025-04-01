@@ -18,7 +18,7 @@ import {
   CreateShareIdResponse,
   FindShareIdResponse,
   GetSharedChatResponse,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   LambdaClient,
   InvokeWithResponseStreamCommand,

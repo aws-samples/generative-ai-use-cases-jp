@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import useChat from '../hooks/useChat';
 import useTyping from '../hooks/useTyping';
 import useFileApi from '../hooks/useFileApi';
-import { UploadedFileType } from 'generative-ai-use-cases-jp';
+import { UploadedFileType } from 'generative-ai-use-cases';
 import { extractBaseURL } from '../hooks/useFiles';
 import { create } from 'zustand';
 import { getPrompter } from '../prompts';

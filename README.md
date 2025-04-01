@@ -1,7 +1,7 @@
 <div markdown="1" align="center">
   <h1>Generative AI Use Cases (GenU)</h1>
 
-[![](https://img.shields.io/badge/Documentation-Latest-blue)](https://aws-samples.github.io/generative-ai-use-cases-jp/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases-jp/actions/workflows/browser-extension.yml)
+[![](https://img.shields.io/badge/Documentation-Latest-blue)](https://aws-samples.github.io/generative-ai-use-cases/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml)
 
 English | [日本語](./README_ja.md)
 
@@ -144,7 +144,7 @@ In that case, please be careful about conflicts with GenU's main branch.
 GenU deployment uses [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/) (CDK). If you cannot prepare a CDK execution environment, refer to the following deployment methods:
 
 - [Deployment method using AWS CloudShell (if preparing your own environment is difficult)](docs/en/DEPLOY_ON_CLOUDSHELL.md)
-- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases-jp)
+- [Workshop](https://catalog.workshops.aws/generative-ai-use-cases)
 
 First, run the following command. All commands should be executed at the repository root.
 
@@ -206,7 +206,7 @@ We have published configuration and cost estimation examples for using GenU. (Th
 | <a href="https://www.oisixradaichi.co.jp/" target="_blank"><img src="./docs/assets/images/cases/oisixradaichi_logo.png"></a>      | **Oisix ra daichi Inc.** <br/> _Through the use case development project using GenU, we were able to grasp the necessary resources, project structure, external support, and talent development, which helped us clarify our image for the internal deployment of generative AI._ <br/> ・[See case page](https://aws.amazon.com/jp/solutions/case-studies/oisix/)                                                                                                  |
 | <a href="https://www.san-a.co.jp/" target="_blank"><img src="./docs/assets/images/cases/san-a_logo.png"></a>                      | **SAN-A CO., LTD.** <br/> _By utilizing Amazon Bedrock, our engineers' productivity has dramatically improved, accelerating the migration of our company-specific environment, which we had built in-house, to the cloud._ <br/> ・[See case details](./docs/assets/images/cases/san-a_case.png)<br/> ・[See case page](https://aws.amazon.com/jp/solutions/case-studies/san-a/)                                                                                    |
 
-If you would like to have your use case featured, please contact us via [Issue](https://github.com/aws-samples/generative-ai-use-cases-jp/issues).
+If you would like to have your use case featured, please contact us via [Issue](https://github.com/aws-samples/generative-ai-use-cases/issues).
 
 ## References
 
@@ -214,7 +214,7 @@ If you would like to have your use case featured, please contact us via [Issue](
 - [Blog (Japanese): How to Make RAG Projects Successful #1 ~ Or How to Fail Fast ~](https://aws.amazon.com/jp/builders-flash/202502/way-to-succeed-rag-project/)
 - [Blog (Japanese): Debugging Methods to Improve Accuracy in RAG Chat](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
 - [Blog (Japanese): Customizing GenU with No Coding Using Amazon Q Developer CLI](https://qiita.com/wadabee/items/659e189018ad1a08e152)
-- [Blog (Japanese): How to Customize Generative AI Use Cases JP](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
+- [Blog (Japanese): How to Customize Generative AI Use Cases JP](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases/)
 - [Blog (Japanese): Let Generative AI Decline Unreasonable Requests ~ Integrating Generative AI into Browsers ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
 - [Blog (Japanese): Developing an Interpreter with Amazon Bedrock!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
 - [Video (Japanese): The Appeal and Usage of Generative AI Use Cases JP (GenU) for Thoroughly Considering Generative AI Use Cases](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
