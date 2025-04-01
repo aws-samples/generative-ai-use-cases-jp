@@ -104,6 +104,7 @@ export const stackInputSchema = z.object({
   ragKnowledgeBaseBinaryVector: z.boolean().default(false),
   queryDecompositionEnabled: z.boolean().default(false),
   rerankingModelId: z.string().nullish(),
+  multiModalStorage: z.boolean().default(true),
   // Agent
   agentEnabled: z.boolean().default(false),
   searchAgentEnabled: z.boolean().default(false),

@@ -143,6 +143,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsing,
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
+      multiModalStorage,
     } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
@@ -303,6 +304,26 @@ export class RagKnowledgeBaseStack extends Stack {
       enforceSSL: true,
     });
 
+    const multiModalStorageAccessLogsBucket = new s3.Bucket(this, 'MultiModalStorageAccessLogsBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      enforceSSL: true,
+    });
+
+    const multiModalStorageBucket = new s3.Bucket(this, 'MultiModalStorageBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      autoDeleteObjects: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+      serverAccessLogsBucket: multiModalStorageAccessLogsBucket,
+      serverAccessLogsPrefix: 'AccessLogs/',
+      enforceSSL: true,
+    });
+
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
@@ -353,6 +374,20 @@ export class RagKnowledgeBaseStack extends Stack {
             : {}),
         },
       },
+      ...(multiModalStorage
+        ? {
+            supplementalDataStorageConfiguration: {
+              supplementalDataStorageLocations: [
+                {
+                  supplementalDataStorageLocationType: 'S3',
+                  s3Location: {
+                    uri: `s3://${multiModalStorageBucket.bucketName}`,
+                  },
+                },
+              ],
+            },
+          }
+        : {}),
       storageConfiguration: {
         type: 'OPENSEARCH_SERVERLESS',
         opensearchServerlessConfiguration: {
