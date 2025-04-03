@@ -171,10 +171,13 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseMultiModalStorage: true,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId:
-      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
+    rerankingModelId: 'amazon.rerank-v1:0',
+    queryDecompositionEnabled: true,
   },
 };
 ```
@@ -188,8 +191,9 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseMultiModalStorage": true,
     "ragKnowledgeBaseAdvancedParsing": false,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "rerankingModelId": "amazon.rerank-v1:0",
     "queryDecompositionEnabled": true
@@ -201,6 +205,8 @@ const envs: Record<string, Partial<StackInput>> = {
 
 - `false`: Suitable for development and testing purposes. Runs in a single AZ, reducing OCU costs by half.
 - `true`: Suitable for production environments. Runs across multiple AZs, enabling high availability.
+
+`ragKnowledgeBaseMultiModalStorage` enables the Multimodal Storage Destination for Knowledge Base. When this option is enabled, you can directly parse image files (png/jpeg) and use them for answer generation. It must be used together with Advanced Parsing.
 
 `embeddingModelId` is the model used for embedding. Currently, the following models are supported:
 
@@ -249,8 +255,8 @@ You can enable the [Advanced Parsing feature](https://docs.aws.amazon.com/bedroc
 
 - `ragKnowledgeBaseAdvancedParsing`: Set to `true` to enable Advanced Parsing
 - `ragKnowledgeBaseAdvancedParsingModelId`: Specify the model ID used for extracting information
-  - Supported models (as of 2024/08)
-    - `anthropic.claude-3-sonnet-20240229-v1:0`
+  - Supported models (as of 2025/03)
+    - `anthropic.claude-3-5-sonnet-20240620-v1:0`
     - `anthropic.claude-3-haiku-20240307-v1:0`
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
@@ -262,10 +268,13 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseMultiModalStorage: true,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId:
-      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
+    rerankingModelId: 'amazon.rerank-v1:0',
+    queryDecompositionEnabled: true,
   },
 };
 ```
@@ -279,9 +288,12 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseMultiModalStorage": true,
     "ragKnowledgeBaseAdvancedParsing": true,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
-    "embeddingModelId": "amazon.titan-embed-text-v2:0"
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "rerankingModelId": "amazon.rerank-v1:0",
+    "queryDecompositionEnabled": true
   }
 }
 ```
@@ -314,8 +326,10 @@ For [Knowledge Base chunking strategy](./DEPLOY_OPTION.md#changing-chunking-stra
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
+- `ragKnowledgeBaseMultiModalStorage`
 - `ragKnowledgeBaseAdvancedParsing`
 - `ragKnowledgeBaseAdvancedParsingModelId`
+- `ragKnowledgeBaseBinaryVector`
 
 To apply changes, follow these steps to delete and recreate the existing Knowledge Base-related resources:
 
