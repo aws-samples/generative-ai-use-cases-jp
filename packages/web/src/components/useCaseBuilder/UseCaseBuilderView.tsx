@@ -283,7 +283,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     for (const item of items) {
       if (item.label != item.label.trim()) {
         tmpErrorMessages.push(
-          `"${item.label}"の前後にある空白を削除してください。`
+          t('useCaseBuilder.error.spaces_in_label', {label: item.label})
         );
       }
     }
@@ -307,7 +307,9 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
         const spacedOptions = options.filter((o) => o !== o.trim());
         if (spacedOptions.length > 0) {
           tmpErrorMessages.push(
-            `{{select:${item.label}}}のオプションを設定する際は、カンマの前後に空白を含まないでください: ${spacedOptions.map(o => `"${o}"`).join(', ')}`
+            t('useCaseBuilder.error.spaces_in_value', {
+              label: item.label
+            })
           );
         }
 
