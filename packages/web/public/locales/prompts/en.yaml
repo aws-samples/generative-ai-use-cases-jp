@@ -592,14 +592,14 @@ useCaseBuilder:
         </text>
       title: Rewrite Text
     questionnaire:
-      description: Create a questionnaire by just inputting the target (such as seminars or products) and the number of questions.
+      description: Create a questionnaire by just inputting the target and the number of questions.
       inputExample1:
         parameters:
           key1: Survey target
           key2: Number of questions
           key3: Target information
           value1: Seminar/Event
-          value2: 20
+          value2: '20'
           value3: |-
             Seminar Title: How to Start an AI App Development Project
             Overview: In this session, we will cover business & technical aspects of the AI application development journey, including what to consider before starting app development, introduction of useful AWS services for actual app development, and what to keep in mind after app development is completed.
@@ -610,7 +610,7 @@ useCaseBuilder:
           key2: Number of questions
           key3: Target information
           value1: Product/Service
-          value2: 10
+          value2: '10'
           value3: Recently, there has been an increase in users suddenly canceling despite no decrease in usage.
         title: Product/Service Improvement Survey
       inputExample3:
@@ -619,11 +619,11 @@ useCaseBuilder:
           key2: Number of questions
           key3: Target information
           value1: Employee Satisfaction
-          value2: 20
+          value2: '20'
           value3: Recently, there has been an increase in job-seeking and resignations due to mental health issues, especially among young employees.
         title: Work Engagement Survey
       promptTemplate: |-
-        As a company executive, we want to understand what needs customers and employees have, and how the benefits from our events, services, and company systems meet these needs for continuous improvement. For this purpose, we consider surveys as an effective means to gather data necessary for future decision-making by understanding current evaluations and reasons. While gathering data from surveys and making decisions is a simple action, the accumulation of such actions is a step toward transforming your company to make data-driven decisions, and you need to set an example for everyone planning to create surveys. To create effective surveys, please carefully read the survey target (target), target information (info), and number of questions (count).
+        As a global company executive, we want to understand what needs customers and employees have, and how the benefits from our events, services, and company systems meet these needs for continuous improvement. For this purpose, we consider surveys as an effective means to gather data necessary for future decision-making by understanding current evaluations and reasons. While gathering data from surveys and making decisions is a simple action, the accumulation of such actions is a step toward transforming your company to make data-driven decisions, and you need to set an example for everyone planning to create surveys. To create effective surveys, please carefully read the survey target (target), target information (info), and number of questions (count).
         <target>
         {{select:Survey target:Seminar/Event,Training,Product/Service,Customer Satisfaction,Employee Satisfaction,Market Awareness}}
         </target>
