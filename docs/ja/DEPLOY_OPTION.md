@@ -171,11 +171,14 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseMultiModalStorage: true,
     ragKnowledgeBaseAdvancedParsing: false,
     ragKnowledgeBaseAdvancedParsingModelId:
-      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
     ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
+    rerankingModelId: 'amazon.rerank-v1:0',
+    queryDecompositionEnabled: true,
   },
 };
 ```
@@ -189,8 +192,9 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseMultiModalStorage": true,
     "ragKnowledgeBaseAdvancedParsing": false,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "ragKnowledgeBaseBinaryVector": false,
     "embeddingModelId": "amazon.titan-embed-text-v2:0",
     "rerankingModelId": "amazon.rerank-v1:0",
@@ -212,6 +216,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "cohere.embed-multilingual-v3"
 "cohere.embed-english-v3"
 ```
+
+`ragKnowledgeBaseMultiModalStorage` は、Knowledge Base のマルチモーダルストレージの保存先 (Multimodal Storage Destination) を有効化します。本オプションを有効化すると、画像ファイル (png/jpeg) 単体を直接パースし、回答生成に利用することが可能となります。Advanced Parsing と合わせて利用する必要があります。
 
 `rerankingModelId` は reranking に利用するモデルです。現状、以下モデルをサポートしています。（デフォルトは `null`）
 
@@ -251,8 +257,8 @@ Status が Available になれば完了です。S3 に保存されているフ�
 
 - `ragKnowledgeBaseAdvancedParsing` : `true` で Advanced Parsing を有効化
 - `ragKnowledgeBaseAdvancedParsingModelId` : 情報を抽出するときに利用するモデル ID を指定
-  - サポートしているモデル (2024/08 現在)
-    - `anthropic.claude-3-sonnet-20240229-v1:0`
+  - サポートしているモデル (2025/03 現在)
+    - `anthropic.claude-3-5-sonnet-20240620-v1:0`
     - `anthropic.claude-3-haiku-20240307-v1:0`
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
@@ -264,11 +270,14 @@ const envs: Record<string, Partial<StackInput>> = {
     ragKnowledgeBaseEnabled: true,
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
+    ragKnowledgeBaseMultiModalStorage: true,
     ragKnowledgeBaseAdvancedParsing: true,
     ragKnowledgeBaseAdvancedParsingModelId:
-      'anthropic.claude-3-sonnet-20240229-v1:0',
+      'anthropic.claude-3-5-sonnet-20240620-v1:0',
     ragKnowledgeBaseBinaryVector: false,
     embeddingModelId: 'amazon.titan-embed-text-v2:0',
+    rerankingModelId: 'amazon.rerank-v1:0',
+    queryDecompositionEnabled: true,
   },
 };
 ```
@@ -282,10 +291,13 @@ const envs: Record<string, Partial<StackInput>> = {
     "ragKnowledgeBaseEnabled": true,
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
+    "ragKnowledgeBaseMultiModalStorage": true,
     "ragKnowledgeBaseAdvancedParsing": true,
-    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "ragKnowledgeBaseBinaryVector": false,
-    "embeddingModelId": "amazon.titan-embed-text-v2:0"
+    "embeddingModelId": "amazon.titan-embed-text-v2:0",
+    "rerankingModelId": "amazon.rerank-v1:0",
+    "queryDecompositionEnabled": true
   }
 }
 ```
@@ -328,6 +340,7 @@ chunkingConfiguration: {
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
+- `ragKnowledgeBaseMultiModalStorage`
 - `ragKnowledgeBaseAdvancedParsing`
 - `ragKnowledgeBaseAdvancedParsingModelId`
 - `ragKnowledgeBaseBinaryVector`

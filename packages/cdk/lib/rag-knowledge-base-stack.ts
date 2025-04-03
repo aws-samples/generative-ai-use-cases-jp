@@ -26,52 +26,52 @@ const MODEL_VECTOR_MAPPING: { [key: string]: string } = {
 // https://docs.aws.amazon.com/bedrock/latest/userguide/kb-chunking-parsing.html#kb-advanced-parsing
 const PARSING_PROMPT = `Write the text from the image, graph, and table content in the document, and output it in Markdown syntax, not a code block. Follow the following steps:
 
-1. Carefully examine the provided page.
+  1. Carefully examine the provided page.
 
-2. Identify all elements on the page. This includes headings, body text, footnotes, tables, visualizations, captions, and page numbers.
+  2. Identify all elements on the page. This includes headings, body text, footnotes, tables, visualizations, captions, and page numbers.
 
-3. Output using Markdown syntax:
-- Headings: Use # for main headings, ## for sections, ### for sub-sections, etc.
-- Lists: Use * or - for bullet points, and 1. 2. 3. for numbered lists.
-- Avoid repetition.
-- IMPORTANT:Output in same language as the document.
+  3. Output using Markdown syntax:
+  - Headings: Use # for main headings, ## for sections, ### for sub-sections, etc.
+  - Lists: Use * or - for bullet points, and 1. 2. 3. for numbered lists.
+  - Avoid repetition.
+  - IMPORTANT:Output in same language as the document.
 
-4. If the element is a Visualization:
-- Provide a detailed description in natural language.
-- Do not transcribe the text in the Visualization after providing the description.
+  4. If the element is a Visualization:
+  - Provide a detailed description in natural language.
+  - Do not transcribe the text in the Visualization after providing the description.
 
-5. If the element is a Table:
-- Create a Markdown table with all rows having the same number of columns.
-- Keep the cell placement as faithful as possible.
-- Do not split the table into multiple tables.
-- If a combined cell spans multiple rows or columns, place the text in the top-left cell and output ' ' for other cells.
-- Use | for column separators and |-|-| for header row separators.
-- If a cell contains multiple items, list them in separate rows.
-- If a table has a sub-header, separate the sub-header from the header on a different row.
+  5. If the element is a Table:
+  - Create a Markdown table with all rows having the same number of columns.
+  - Keep the cell placement as faithful as possible.
+  - Do not split the table into multiple tables.
+  - If a combined cell spans multiple rows or columns, place the text in the top-left cell and output ' ' for other cells.
+  - Use | for column separators and |-|-| for header row separators.
+  - If a cell contains multiple items, list them in separate rows.
+  - If a table has a sub-header, separate the sub-header from the header on a different row.
 
-6. If the element is a Paragraph:
-- Transcribe the text elements as they appear.
+  6. If the element is a Paragraph:
+  - Transcribe the text elements as they appear.
 
-7. If the element is a Header, Footer, Footnote, or Page Number:
-- Transcribe the text elements as they appear.
+  7. If the element is a Header, Footer, Footnote, or Page Number:
+  - Transcribe the text elements as they appear.
 
-Output Example:
+  Output Example:
 
-A bar chart showing annual sales with the Y-axis labeled "Sales ($million)" and the X-axis labeled "Year". The chart has bars for 2018 ($12M), 2019 ($18M), 2020 ($8M), and 2021 ($22M).
-Figure 3: This chart shows annual sales in millions of dollars. 2020 was significantly reduced due to the COVID-19 pandemic.
+  A bar chart showing annual sales with the Y-axis labeled "Sales ($million)" and the X-axis labeled "Year". The chart has bars for 2018 ($12M), 2019 ($18M), 2020 ($8M), and 2021 ($22M).
+  Figure 3: This chart shows annual sales in millions of dollars. 2020 was significantly reduced due to the COVID-19 pandemic.
 
-Annual Report
-Financial Highlights
-Revenue: $40M
-Profit: $12M
-EPS: $1.25
-| | 12/31 ended year | |
+  Annual Report
+  Financial Highlights
+  Revenue: $40M
+  Profit: $12M
+  EPS: $1.25
+  | | 12/31 ended year | |
 
-2021	2022
-Cash Flow:		
-Operating Activity	$ 46,327	$ 46,752
-Investing Activity	(58,154)	(37,601)
-Financial Activity	6,291	9,718`;
+  2021	2022
+  Cash Flow:		
+  Operating Activity	$ 46,327	$ 46,752
+  Investing Activity	(58,154)	(37,601)
+  Financial Activity	6,291	9,718`;
 
 const EMBEDDING_MODELS = Object.keys(MODEL_VECTOR_MAPPING);
 
@@ -143,6 +143,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsing,
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
+      ragKnowledgeBaseMultiModalStorage,
     } = props.params;
 
     if (typeof embeddingModelId !== 'string') {
@@ -303,6 +304,34 @@ export class RagKnowledgeBaseStack extends Stack {
       enforceSSL: true,
     });
 
+    let multiModalStorageBucket: s3.Bucket | undefined;
+
+    if (ragKnowledgeBaseMultiModalStorage) {
+      const multiModalStorageAccessLogsBucket = new s3.Bucket(
+        this,
+        'MultiModalStorageAccessLogsBucket',
+        {
+          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+          encryption: s3.BucketEncryption.S3_MANAGED,
+          autoDeleteObjects: true,
+          removalPolicy: RemovalPolicy.DESTROY,
+          objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+          enforceSSL: true,
+        }
+      );
+
+      multiModalStorageBucket = new s3.Bucket(this, 'MultiModalStorageBucket', {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        autoDeleteObjects: true,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
+        serverAccessLogsBucket: multiModalStorageAccessLogsBucket,
+        serverAccessLogsPrefix: 'AccessLogs/',
+        enforceSSL: true,
+      });
+    }
+
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
@@ -335,6 +364,24 @@ export class RagKnowledgeBaseStack extends Stack {
       })
     );
 
+    if (ragKnowledgeBaseMultiModalStorage && multiModalStorageBucket) {
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${multiModalStorageBucket.bucketName}`],
+          actions: ['s3:ListBucket'],
+        })
+      );
+
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [`arn:aws:s3:::${multiModalStorageBucket.bucketName}/*`],
+          actions: ['s3:GetObject', 's3:PutObject', 's3:DeleteObject'],
+        })
+      );
+    }
+
     const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
       name: collectionName,
       roleArn: knowledgeBaseRole.roleArn,
@@ -348,6 +395,20 @@ export class RagKnowledgeBaseStack extends Stack {
                   bedrockEmbeddingModelConfiguration: {
                     embeddingDataType: 'BINARY',
                   },
+                },
+              }
+            : {}),
+          ...(ragKnowledgeBaseMultiModalStorage && multiModalStorageBucket
+            ? {
+                supplementalDataStorageConfiguration: {
+                  supplementalDataStorageLocations: [
+                    {
+                      supplementalDataStorageLocationType: 'S3',
+                      s3Location: {
+                        uri: `s3://${multiModalStorageBucket.bucketName}`,
+                      },
+                    },
+                  ],
                 },
               }
             : {}),

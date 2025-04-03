@@ -19,9 +19,10 @@ describe('GenerativeAiUseCases', () => {
       kendraIndexScheduleDeleteCron: null,
       ragKnowledgeBaseEnabled: true,
       ragKnowledgeBaseStandbyReplicas: false,
+      ragKnowledgeBaseMultiModalStorage: true,
       ragKnowledgeBaseAdvancedParsing: false,
       ragKnowledgeBaseAdvancedParsingModelId:
-        'anthropic.claude-3-sonnet-20240229-v1:0',
+        'anthropic.claude-3-5-sonnet-20240620-v1:0',
       embeddingModelId: 'amazon.titan-embed-text-v2:0',
       selfSignUpEnabled: true,
       allowedSignUpEmailDomains: null,
