@@ -345,12 +345,6 @@ const bedrockAgentApi: ApiInterface = {
           text: 'The server is currently experiencing high access. Please try again later.',
           stopReason: 'error',
         });
-      } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
-        yield streamingChunk({
-          text: `The selected model is not enabled. Please enable the model in the [Bedrock console Model Access screen](${modelAccessURL}).`,
-          stopReason: 'error',
-        });
       } else {
         console.error(e);
         yield streamingChunk({
