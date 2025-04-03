@@ -712,7 +712,7 @@ useCaseBuilder:
     missing_kb_text_form: >-
       Knowledge Base の検索クエリを入力するためのフォーム {{text{{label}}}}
       をプロンプテンプレートに内に記述してください。
-    missing_select_options: '{{select}} にオプションが設定されていません。{{select:ラベル:オプション1,オプション2}} のように設定してください'
+    missing_select_options: '{{select}} にオプションが設定されていません。{{select:ラベル:オプション1,オプション2}} のように設定してください。'
     missing_text_form: 'Amazon Kendra の検索クエリを入力するためのフォーム {{text{{label}}}} をプロンプテンプレートに内に記述してください。'
     rag_kendra_not_enabled: >-
       プロンプトテンプレート内で {{retrieveKendra}} が指定されていますが GenU で RAG チャット (Amazon
@@ -720,6 +720,8 @@ useCaseBuilder:
     rag_knowledge_base_not_enabled: >-
       プロンプトテンプレート内で {{retrieveKnowledgeBase}} が指定されていますが GenU で RAG チャット
       (Knowledge Base) が有効になっていません。
+    spaces_in_label: '{{label}} の前後にある空白を削除してください。'
+    spaces_in_value: '{{label}} の値を設定する際は、カンマの前後に空白が含まれないよう設定してください。'
   favorites: お気に入り
   fileUploadDescription: 添付可能なファイルはモデルによって異なります
   fileUploadDisabled: ファイルは添付できません
