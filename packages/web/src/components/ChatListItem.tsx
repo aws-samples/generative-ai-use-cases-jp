@@ -10,7 +10,7 @@ import { BaseProps } from '../@types/common';
 import { Link } from 'react-router-dom';
 import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
-import { Chat } from 'generative-ai-use-cases-jp';
+import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
 
@@ -53,7 +53,7 @@ const ChatListItem: React.FC<Props> = (props) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
 
-          // dispatch 処理の中で Title の更新を行う（同期を取るため）
+          // Update Title in dispatch process (to synchronize)
           setTempTitle((newTitle) => {
             setEditing(false);
             props.onUpdateTitle(chatId, newTitle).catch(() => {

@@ -20,17 +20,13 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import {
-  Agent,
-  AgentMap,
-  ModelConfiguration,
-} from 'generative-ai-use-cases-jp';
+import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
   BEDROCK_RERANKING_MODELS,
   BEDROCK_TEXT_MODELS,
-} from '@generative-ai-use-cases-jp/common';
+} from '@generative-ai-use-cases/common';
 
 export interface BackendApiProps {
   // Context Params
@@ -190,8 +186,7 @@ export class Api extends Construct {
         nodeModules: [
           '@aws-sdk/client-bedrock-runtime',
           '@aws-sdk/client-bedrock-agent-runtime',
-          // デフォルトの client-sagemaker-runtime のバージョンは StreamingResponse に
-          // 対応していないため package.json に記載のバージョンを Bundle する
+          // The default version of client-sagemaker-runtime does not support StreamingResponse, so specify the version in package.json for bundling
           '@aws-sdk/client-sagemaker-runtime',
         ],
       },
@@ -199,7 +194,7 @@ export class Api extends Construct {
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
-    // Flow Lambda Function の追加
+    // Add Flow Lambda Function
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
       runtime: Runtime.NODEJS_LATEST,
       entry: './lambda/invokeFlow.ts',
@@ -353,7 +348,7 @@ export class Api extends Construct {
     );
     optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
 
-    // SageMaker Endpoint がある場合は権限付与
+    // If SageMaker Endpoint exists, grant permission
     if (endpointNames.length > 0) {
       // SageMaker Policy
       const sagemakerPolicy = new PolicyStatement({
@@ -375,7 +370,7 @@ export class Api extends Construct {
       invokeFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
 
-    // Bedrock は常に権限付与
+    // Bedrock is always granted permission
     // Bedrock Policy
     if (
       typeof crossAccountBedrockRoleArn !== 'string' ||
@@ -395,7 +390,7 @@ export class Api extends Construct {
       invokeFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
-      // crossAccountBedrockRoleArn が指定されている場合のポリシー
+      // Policy for when crossAccountBedrockRoleArn is specified
       const logsPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['logs:*'],
@@ -822,7 +817,7 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
-    // Web コンテンツ抽出のユースケースで利用
+    // Used in the web content extraction use case
     const webTextResource = api.root.addResource('web-text');
     // GET: /web-text
     webTextResource.addMethod(
@@ -900,7 +895,7 @@ export class Api extends Construct {
     this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
   }
 
-  // Bucket 名を指定してダウンロード可能にする
+  // Allow download by specifying bucket name
   allowDownloadFile(bucketName: string) {
     this.getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(
       new PolicyStatement({

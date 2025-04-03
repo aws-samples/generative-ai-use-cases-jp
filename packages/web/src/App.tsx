@@ -33,6 +33,7 @@ import { MODELS } from './hooks/useModel';
 import useScreen from './hooks/useScreen';
 import { optimizePromptEnabled } from './hooks/useOptimizePrompt';
 import useUseCases from './hooks/useUseCases';
+import { useTranslation } from 'react-i18next';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -47,8 +48,8 @@ const {
   flowChatEnabled,
 } = MODELS;
 
-// /chat/:chatId の形式から :chatId を返す
-// path が別の形式の場合は null を返す
+// Extract :chatId from /chat/:chatId format
+// Return null if path is in a different format
 const extractChatId = (path: string): string | null => {
   const pattern = /\/chat\/(.+)/;
   const match = path.match(pattern);
@@ -57,6 +58,7 @@ const extractChatId = (path: string): string | null => {
 };
 
 const App: React.FC = () => {
+  const { t } = useTranslation();
   const { switchOpen: switchDrawer, opened: isOpenDrawer } = useDrawer();
   const { pathname } = useLocation();
   const { getChatTitle } = useChatList();
@@ -67,26 +69,26 @@ const App: React.FC = () => {
 
   const items: ItemProps[] = [
     {
-      label: 'ホーム',
+      label: t('navigation.home'),
       to: '/',
       icon: <PiHouse />,
       display: 'usecase' as const,
     },
     {
-      label: '設定情報',
+      label: t('navigation.settings'),
       to: '/setting',
       icon: <PiGear />,
       display: 'none' as const,
     },
     {
-      label: 'チャット',
+      label: t('navigation.chat'),
       to: '/chat',
       icon: <PiChatsCircle />,
       display: 'usecase' as const,
     },
     ragEnabled
       ? {
-          label: 'RAG チャット',
+          label: t('navigation.ragChat'),
           to: '/rag',
           icon: <PiChatCircleText />,
           display: 'usecase' as const,
@@ -95,7 +97,7 @@ const App: React.FC = () => {
       : null,
     ragKnowledgeBaseEnabled
       ? {
-          label: 'RAG チャット',
+          label: t('navigation.ragChat'),
           to: '/rag-knowledge-base',
           icon: <PiChatCircleText />,
           display: 'usecase' as const,
@@ -104,7 +106,7 @@ const App: React.FC = () => {
       : null,
     agentEnabled && !inlineAgents
       ? {
-          label: 'Agent チャット',
+          label: t('navigation.agentChat'),
           to: '/agent',
           icon: <PiRobot />,
           display: 'usecase' as const,
@@ -123,7 +125,7 @@ const App: React.FC = () => {
       : []),
     flowChatEnabled
       ? {
-          label: 'Flow チャット',
+          label: t('navigation.flowChat'),
           to: '/flow-chat',
           icon: <PiFlowArrow />,
           display: 'usecase' as const,
@@ -131,7 +133,7 @@ const App: React.FC = () => {
       : null,
     enabled('generate')
       ? {
-          label: '文章生成',
+          label: t('navigation.textGeneration'),
           to: '/generate',
           icon: <PiPencil />,
           display: 'usecase' as const,
@@ -139,7 +141,7 @@ const App: React.FC = () => {
       : null,
     enabled('summarize')
       ? {
-          label: '要約',
+          label: t('navigation.summary'),
           to: '/summarize',
           icon: <PiNote />,
           display: 'usecase' as const,
@@ -147,7 +149,7 @@ const App: React.FC = () => {
       : null,
     enabled('writer')
       ? {
-          label: '執筆',
+          label: t('navigation.writing'),
           to: '/writer',
           icon: <PiPenNib />,
           display: 'usecase' as const,
@@ -155,7 +157,7 @@ const App: React.FC = () => {
       : null,
     enabled('translate')
       ? {
-          label: '翻訳',
+          label: t('navigation.translation'),
           to: '/translate',
           icon: <PiTranslate />,
           display: 'usecase' as const,
@@ -163,7 +165,7 @@ const App: React.FC = () => {
       : null,
     enabled('webContent')
       ? {
-          label: 'Web コンテンツ抽出',
+          label: t('navigation.webContentExtraction'),
           to: '/web-content',
           icon: <PiGlobe />,
           display: 'usecase' as const,
@@ -171,7 +173,7 @@ const App: React.FC = () => {
       : null,
     imageGenModelIds.length > 0 && enabled('image')
       ? {
-          label: '画像生成',
+          label: t('navigation.imageGeneration'),
           to: '/image',
           icon: <PiImages />,
           display: 'usecase' as const,
@@ -179,7 +181,7 @@ const App: React.FC = () => {
       : null,
     videoGenModelIds.length > 0 && enabled('video')
       ? {
-          label: '動画生成',
+          label: t('navigation.videoGeneration'),
           to: '/video',
           icon: <PiVideoLight />,
           display: 'usecase' as const,
@@ -187,7 +189,7 @@ const App: React.FC = () => {
       : null,
     visionEnabled && enabled('videoAnalyzer')
       ? {
-          label: '映像分析',
+          label: t('navigation.videoAnalysis'),
           to: '/video-analyzer',
           icon: <PiVideoCamera />,
           display: 'usecase' as const,
@@ -195,21 +197,21 @@ const App: React.FC = () => {
       : null,
     enabled('diagram')
       ? {
-          label: 'ダイアグラム生成',
+          label: t('navigation.diagramGeneration'),
           to: '/diagram',
           icon: <PiTreeStructure />,
           display: 'usecase' as const,
         }
       : null,
     {
-      label: '音声認識',
+      label: t('navigation.speechRecognition'),
       to: '/transcribe',
       icon: <PiSpeakerHighBold />,
       display: 'tool' as const,
     },
     optimizePromptEnabled
       ? {
-          label: 'プロンプト最適化',
+          label: t('navigation.promptOptimization'),
           to: '/optimize',
           icon: <PiMagicWand />,
           display: 'tool' as const,
@@ -227,8 +229,8 @@ const App: React.FC = () => {
     }
   }, [items, pathname, getChatTitle]);
 
-  // 画面間遷移時にスクロールイベントが発火しない場合 (ページ最上部からページ最上部への移動など)
-  // 最上部/最下部の判定がされないので、pathname の変化に応じて再判定する
+  // When there is no scroll event (e.g. moving from the top of the page to the top of the page)
+  // The top/bottom determination is not made, so re-determine it according to the change of pathname
   useEffect(() => {
     if (screen.current) {
       notifyScreen(screen.current);
@@ -254,7 +256,7 @@ const App: React.FC = () => {
 
           {label}
 
-          {/* label を真ん中にするためのダミーのブロック */}
+          {/* Dummy block to center the label */}
           <div className="w-10" />
         </header>
 
@@ -278,7 +280,7 @@ const App: React.FC = () => {
           </ButtonIcon>
         </div>
         <div className="text-aws-font-color lg:ml-64">
-          {/* ユースケース間連携時に表示 */}
+          {/* Show when inter-use case connection is enabled */}
           {isShow && <PopupInterUseCasesDemo />}
           <Outlet />
         </div>

@@ -20,7 +20,7 @@ import {
   Model,
   StreamingChunk,
   UnrecordedMessage,
-} from 'generative-ai-use-cases-jp';
+} from 'generative-ai-use-cases';
 import {
   BEDROCK_TEXT_GEN_MODELS,
   BEDROCK_IMAGE_GEN_MODELS,
@@ -31,7 +31,7 @@ import { streamingChunk } from './streamingChunk';
 
 const defaultRegion = process.env.MODEL_REGION as string;
 
-// STSから一時的な認証情報を取得する関数
+// Function to get temporary credentials from STS
 const assumeRole = async (crossAccountBedrockRoleArn: string) => {
   const stsClient = new STSClient({ region: defaultRegion });
   const command = new AssumeRoleCommand({
@@ -48,7 +48,7 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
         sessionToken: response.Credentials?.SessionToken,
       };
     } else {
-      throw new Error('認証情報を取得できませんでした。');
+      throw new Error('Failed to get credentials.');
     }
   } catch (error) {
     console.error('Error assuming role: ', error);
@@ -56,15 +56,14 @@ const assumeRole = async (crossAccountBedrockRoleArn: string) => {
   }
 };
 
-// BedrockRuntimeClient を初期化するこの関数は、通常では単純に BedrockRuntimeClient を環境変数で指定されたリージョンで初期化します。
-// 特別なケースとして、異なる AWS アカウントに存在する Bedrock リソースを利用したい場合があります。
-// そのような場合、CROSS_ACCOUNT_BEDROCK_ROLE_ARN 環境変数が設定されているかをチェックします。(cdk.json で crossAccountBedrockRoleArn が設定されている場合に環境変数として設定される)
-// 設定されている場合、指定されたロールを AssumeRole 操作によって引き受け、取得した一時的な認証情報を用いて BedrockRuntimeClient を初期化します。
-// これにより、別の AWS アカウントの Bedrock リソースへのアクセスが可能になります。
+// Initialize BedrockRuntimeClient. This function normally initializes the BedrockRuntimeClient in the region specified by the environment variable.
+// There is a special case where you want to use Bedrock resources in a different AWS account.
+// In that case, check if the CROSS_ACCOUNT_BEDROCK_ROLE_ARN environment variable is set. (It is set as an environment variable if crossAccountBedrockRoleArn is set in cdk.json)
+// If it is set, assume the specified role and initialize the BedrockRuntimeClient using the temporary credentials obtained.
+// This allows access to Bedrock resources in a different AWS account.
 export const initBedrockClient = async (region: string) => {
-  // CROSS_ACCOUNT_BEDROCK_ROLE_ARN が設定されているかチェック
   if (process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN) {
-    // STS から一時的な認証情報を取得してクライアントを初期化
+    // Get temporary credentials from STS and initialize the client
     const tempCredentials = await assumeRole(
       process.env.CROSS_ACCOUNT_BEDROCK_ROLE_ARN
     );
@@ -74,7 +73,7 @@ export const initBedrockClient = async (region: string) => {
       !tempCredentials.secretAccessKey ||
       !tempCredentials.sessionToken
     ) {
-      throw new Error('STSからの認証情報が不完全です。');
+      throw new Error('The temporary credentials from STS are incomplete.');
     }
 
     return new BedrockRuntimeClient({
@@ -86,7 +85,7 @@ export const initBedrockClient = async (region: string) => {
       },
     });
   } else {
-    // STSを使用しない場合のクライアント初期化
+    // Initialize the client without using STS
     return new BedrockRuntimeClient({
       region,
     });
@@ -215,20 +214,20 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
         e instanceof ServiceQuotaExceededException
       ) {
         yield streamingChunk({
-          text: 'ただいまアクセスが集中しているため時間をおいて試してみてください。',
+          text: 'The server is currently experiencing high access. Please try again later.',
           stopReason: 'error',
         });
       } else if (e instanceof AccessDeniedException) {
         const modelAccessURL = `https://${region}.console.aws.amazon.com/bedrock/home?region=${region}#/modelaccess`;
         yield streamingChunk({
-          text: `選択したモデルが有効化されていないようです。[Bedrock コンソールの Model Access 画面](${modelAccessURL})にて、利用したいモデルを有効化してください。`,
+          text: `The selected model is not enabled. Please enable the model in the [Bedrock console Model Access screen](${modelAccessURL}).`,
           stopReason: 'error',
         });
       } else {
         console.error(e);
         yield streamingChunk({
           text:
-            'エラーが発生しました。管理者に以下のエラーを報告してください。\n' +
+            'An error occurred. Please report the following error to the administrator.\n' +
             e,
           stopReason: 'error',
         });
@@ -239,7 +238,7 @@ const bedrockApi: Omit<ApiInterface, 'invokeFlow'> = {
     const region = model.region || defaultRegion;
     const client = await initBedrockClient(region);
 
-    // Stable Diffusion や Titan Image Generator を利用した画像生成は Converse API に対応していないため、InvokeModelCommand を利用する
+    // Image generation using Stable Diffusion or Titan Image Generator is not supported for the Converse API, so InvokeModelCommand is used.
     const command = new InvokeModelCommand({
       modelId: model.modelId,
       body: createBodyImage(model, params),

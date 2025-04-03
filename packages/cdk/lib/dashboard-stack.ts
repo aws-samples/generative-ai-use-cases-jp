@@ -4,7 +4,7 @@ import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ProcessedStackInput } from './stack-input';
-import { ModelConfiguration } from 'generative-ai-use-cases-jp';
+import { ModelConfiguration } from 'generative-ai-use-cases';
 
 export interface DashboardStackProps extends StackProps {
   params: ProcessedStackInput;
@@ -22,9 +22,9 @@ export class DashboardStack extends Stack {
 
     const params = props.params;
 
-    // Bedrock のログの出力先として設定する LogGroup
+    // LogGroup for Bedrock logs
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
-      // 1 年でリテンションする設定
+      // Retain logs for 1 year
       retention: logs.RetentionDays.ONE_YEAR,
     });
 
@@ -144,7 +144,7 @@ export class DashboardStack extends Stack {
       })
     );
 
-    // ログの出力から抜き出す
+    // Extract logs from the output
     dashboard.addWidgets(
       new cw.LogQueryWidget({
         title: 'Prompt Logs',

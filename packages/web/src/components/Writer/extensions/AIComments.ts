@@ -1,9 +1,10 @@
 import { Editor } from '@tiptap/react';
-import { DocumentComment } from 'generative-ai-use-cases-jp';
+import { DocumentComment } from 'generative-ai-use-cases';
 import { create } from 'zustand';
 import useWriter from '../../../hooks/useWriter';
 import { removeAIHighlight } from 'novel';
 import { toast } from 'sonner';
+import { TFunction } from 'i18next';
 
 const REGEX_BRACKET = /\{(?:[^{}])*\}/g;
 const REGEX_ZENKAKU =
@@ -48,28 +49,34 @@ const useCommentStore = create<CommentState>((set) => ({
 export class AICommentManager {
   private editor: Editor;
   private write: ReturnType<typeof useWriter>['write'];
+  private t: TFunction;
 
-  constructor(editor: Editor, write: ReturnType<typeof useWriter>['write']) {
+  constructor(
+    editor: Editor,
+    write: ReturnType<typeof useWriter>['write'],
+    t: TFunction
+  ) {
     this.editor = editor;
     this.write = write;
+    this.t = t;
   }
 
-  // テキストの位置を検索する
+  // Search for the position of the text
   findTextPosition(searchText: string): { from: number; to: number }[] {
     const doc = this.editor.state.doc;
     const matches: { from: number; to: number }[] = [];
 
-    // 正規表現のエスケープ処理
+    // Escape the regular expression
     const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // 改行、空白を柔軟にマッチングできるようにする
+    // Allow flexible matching of newlines and spaces
     const searchRegex = new RegExp(
       escapedSearchText
-        .replace(/\n/g, '[\\s\\n]*') // 改行を任意の空白または改行にマッチ
-        .replace(/\s+/g, '[\\s\\n]*'), // 空白を任意の空白または改行にマッチ
+        .replace(/\n/g, '[\\s\\n]*') // Match newlines with any whitespace or newline
+        .replace(/\s+/g, '[\\s\\n]*'), // Match spaces with any whitespace or newline
       'g'
     );
 
-    // テキストと位置情報を収集
+    // Collect the text and position information
     let fullText = '';
     const positions: number[] = [];
 
@@ -83,19 +90,19 @@ export class AICommentManager {
         node.type.name === 'paragraph' ||
         node.type.name === 'hardBreak'
       ) {
-        // 段落やハードブレークは改行として扱う
+        // Paragraphs and hard breaks are treated as newlines
         fullText += '\n';
         positions.push(pos);
       }
     });
 
-    // 正規表現で検索を実行
+    // Execute the search with the regular expression
     let match;
     while ((match = searchRegex.exec(fullText)) !== null) {
       const start = match.index;
       const end = start + match[0].length;
 
-      // 実際のドキュメント内の位置を取得
+      // Get the actual position in the document
       if (positions[start] !== undefined && positions[end - 1] !== undefined) {
         matches.push({
           from: positions[start],
@@ -107,7 +114,7 @@ export class AICommentManager {
     return matches;
   }
 
-  // コメントのフィルタリング
+  // Filter the comments
   private updateFilteredComments() {
     const { comments, commentState } = useCommentStore.getState();
     const filteredComments = comments.filter(
@@ -119,19 +126,19 @@ export class AICommentManager {
     useCommentStore.getState().setFilteredComments(filteredComments);
   }
 
-  // コメントをクリア
+  // Clear the comments
   clearComments() {
     useCommentStore.getState().clearAll();
     removeAIHighlight(this.editor);
   }
 
-  // コメントを削除
+  // Delete the comments
   removeComment(comment: DocumentComment) {
-    // コメントの状態を更新
+    // Update the comment state
     useCommentStore.getState().addCommentState(comment.excerpt);
     this.updateFilteredComments();
 
-    // ハイライト更新: 全削除して最新状態を反映
+    // Update the highlight: delete all and reflect the latest state
     removeAIHighlight(this.editor);
     const filteredComments = useCommentStore.getState().filteredComments;
     const chain = this.editor.chain();
@@ -146,13 +153,13 @@ export class AICommentManager {
     });
     chain.run();
 
-    // コメントがない場合はコメントをクリア (ハイライトが残っている場合があるため)
+    // If there are no comments, clear the comments (highlight may remain)
     if (useCommentStore.getState().filteredComments.length === 0) {
       this.clearComments();
     }
   }
 
-  // コメントで指摘された修正を実行
+  // Execute the correction pointed out by the comment
   replaceSentence(comment: DocumentComment) {
     const matches = this.findTextPosition(comment.excerpt);
     if (matches.length === 0 || !comment.replace) return;
@@ -167,7 +174,7 @@ export class AICommentManager {
     this.removeComment(comment);
   }
 
-  // クリック時にコメント部位にフォーカス
+  // Focus on the comment block when clicked
   focusComment(comment: DocumentComment) {
     const matches = this.findTextPosition(comment.excerpt);
     if (matches.length === 0) return;
@@ -175,7 +182,7 @@ export class AICommentManager {
     this.editor.chain().setTextSelection({ from, to }).focus().run();
   }
 
-  // ハイライトを追加
+  // Add the highlight
   private addHighlight(comment: DocumentComment) {
     if (!comment.excerpt) return;
     const matches = this.findTextPosition(comment.excerpt);
@@ -189,7 +196,7 @@ export class AICommentManager {
     }
   }
 
-  // コメントの更新時にリアルタイムで JSON 部分を抽出してコメントに変換
+  // Update the comments in real time by extracting the JSON part
   private handleResponse(response: string) {
     const currentComments = useCommentStore.getState().comments;
     const newComments = [...response.matchAll(REGEX_BRACKET)]
@@ -212,11 +219,11 @@ export class AICommentManager {
     }
   }
 
-  // 構成を実行
+  // Execute the configuration
   async execAnnotation() {
     if (useCommentStore.getState().loading) return;
 
-    // 全角を半角に変換
+    // Convert full-width characters to half-width characters
     const cleanedMarkdown = this.editor.storage.markdown
       .getMarkdown()
       .replace(REGEX_ZENKAKU, (s: string) => {
@@ -224,16 +231,16 @@ export class AICommentManager {
       })
       .replace(/[‐－―]/g, '-')
       .replace(/[～〜]/g, '~')
-      .replace(/["”]/g, "'") // replace double quote since Claude does not escape double quote inside json
+      .replace(/[""]/g, "'") // replace double quote since Claude does not escape double quote inside json
       // eslint-disable-next-line no-irregular-whitespace
       .replace(/　/g, ' ');
     this.editor.commands.setContent(cleanedMarkdown);
 
-    // コメントをクリア
+    // Clear the comments
     this.clearComments();
     useCommentStore.getState().setLoading(true);
 
-    // コメントを取得
+    // Get the comments
     const text = this.editor.getText();
     try {
       let buffer = '';
@@ -244,9 +251,9 @@ export class AICommentManager {
     } finally {
       useCommentStore.getState().setLoading(false);
       if (useCommentStore.getState().comments.length === 0) {
-        toast.error('指摘事項がありませんでした。');
+        toast.error(this.t('common.errorNoSuggestions'));
       } else {
-        toast.success('校閲が完了しました');
+        toast.success(this.t('common.reviewComplete'));
       }
     }
   }

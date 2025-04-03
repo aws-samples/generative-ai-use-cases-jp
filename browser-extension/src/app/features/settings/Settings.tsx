@@ -24,7 +24,7 @@ const Settings: React.FC<Props> = (props) => {
       <div className="text-base font-semibold mb-1">設定</div>
       <div className="font-light text-aws-font-color-gray text-xs">
         <div>拡張機能を利用するための設定を行います。</div>
-        <div>この拡張機能を利用するためには、generative-ai-use-cases-jp のデプロイが必要です。</div>
+        <div>この拡張機能を利用するためには、generative-ai-use-cases のデプロイが必要です。</div>
       </div>
 
       <div className="flex flex-col mt-3 gap-2">

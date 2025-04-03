@@ -1,6 +1,7 @@
 import { CommandGroup, CommandItem, CommandSeparator } from '../ui/Command';
 import { useEditor } from 'novel';
 import { PiCheck, PiQuotes, PiTrash } from 'react-icons/pi';
+import { useTranslation } from 'react-i18next';
 
 const AICompletionCommands = ({
   completion,
@@ -9,6 +10,7 @@ const AICompletionCommands = ({
   completion: string;
   onDiscard: () => void;
 }) => {
+  const { t } = useTranslation();
   const { editor } = useEditor();
   if (!editor) return null;
   return (
@@ -34,7 +36,7 @@ const AICompletionCommands = ({
               .run();
           }}>
           <PiCheck className="text-muted-foreground h-4 w-4" />
-          選択範囲を置換
+          {t('writer.ai.replace_selection')}
         </CommandItem>
         <CommandItem
           className="gap-2 px-4"
@@ -48,7 +50,7 @@ const AICompletionCommands = ({
               .run();
           }}>
           <PiQuotes className="text-muted-foreground h-4 w-4" />
-          選択範囲の下に挿入
+          {t('writer.ai.insert_below')}
         </CommandItem>
       </CommandGroup>
       <CommandSeparator />
@@ -56,7 +58,7 @@ const AICompletionCommands = ({
       <CommandGroup>
         <CommandItem onSelect={onDiscard} value="thrash" className="gap-2 px-4">
           <PiTrash className="text-muted-foreground h-4 w-4" />
-          破棄
+          {t('writer.ai.discard')}
         </CommandItem>
       </CommandGroup>
     </>

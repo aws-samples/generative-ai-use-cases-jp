@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { create } from 'zustand';
 import { v4 as uuid } from 'uuid';
 import useFlowApi from './useFlowApi';
-import { Flow, ShownMessage } from 'generative-ai-use-cases-jp';
+import { Flow, ShownMessage } from 'generative-ai-use-cases';
 import { MODELS } from './useModel';
 
 type FlowState = {
