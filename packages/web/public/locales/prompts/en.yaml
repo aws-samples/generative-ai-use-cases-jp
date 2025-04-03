@@ -569,28 +569,6 @@ useCaseBuilder:
         </list>
       title: Add explanation to list
     name: Content Generation
-    rewrite:
-      description: Rewrite the input text according to the instructions.
-      inputExample1:
-        parameters:
-          key1: rewrite instruction
-          key2: text to rewrite
-          value1: add more detailed explanation
-          value2: In 1758, the Swedish botanist and zoologist Carl Linnaeus published his book "Systema Naturae" (Natural System), where he introduced the binomial naming method (two-word naming method). The word "canis" in Latin means "dog", and he listed domestic dogs, wolves, and jackals as members of this species.
-        title: Add more detailed explanation
-      promptTemplate: |-
-        The following is a conversation between a user and an AI.
-        The user is giving an instruction enclosed in the <instruction></instruction> xml tag.
-        The user is also giving a text enclosed in the <text></text> xml tag.
-        The AI will rewrite the text according to the instruction.
-        The output should be the rewritten text only.
-        <instruction>
-        {{text:rewrite instruction}}
-        </instruction>
-        <text>
-        {{text:text to rewrite}}
-        </text>
-      title: Rewrite Text
     questionnaire:
       description: Create a questionnaire by just inputting the target and the number of questions.
       inputExample1:
@@ -635,6 +613,28 @@ useCaseBuilder:
         </info>
         The survey consists of three parts: title, goal, and questions. Write the title as a heading, and for the goal, based on the target and info, write in a way that everyone from other executives to junior staff can clearly understand within one minute what improvements might be needed, what measures could be considered, and what data is needed to determine the certainty of needs and prioritize measures. Create questions and answer choices as many times as specified in count. The number of choices should be minimum 2 values like "Yes, No" and maximum 5. Now, please proceed with creation.
       title: Create Survey Questions and Choices
+    rewrite:
+      description: Rewrite the input text according to the instructions.
+      inputExample1:
+        parameters:
+          key1: rewrite instruction
+          key2: text to rewrite
+          value1: add more detailed explanation
+          value2: In 1758, the Swedish botanist and zoologist Carl Linnaeus published his book "Systema Naturae" (Natural System), where he introduced the binomial naming method (two-word naming method). The word "canis" in Latin means "dog", and he listed domestic dogs, wolves, and jackals as members of this species.
+        title: Add more detailed explanation
+      promptTemplate: |-
+        The following is a conversation between a user and an AI.
+        The user is giving an instruction enclosed in the <instruction></instruction> xml tag.
+        The user is also giving a text enclosed in the <text></text> xml tag.
+        The AI will rewrite the text according to the instruction.
+        The output should be the rewritten text only.
+        <instruction>
+        {{text:rewrite instruction}}
+        </instruction>
+        <text>
+        {{text:text to rewrite}}
+        </text>
+      title: Rewrite Text
   contentModeration:
     contentModeration:
       description: Determine if the input text contains inappropriate content.
