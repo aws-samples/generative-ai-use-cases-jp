@@ -345,6 +345,11 @@ const bedrockAgentApi: ApiInterface = {
           text: 'The server is currently experiencing high access. Please try again later.',
           stopReason: 'error',
         });
+      } else if (e instanceof DependencyFailedException) {
+        yield streamingChunk({
+          text: `Your request couldn't be completed. Please try again later. If the problem continues, please report the problem to the administrator.`,
+          stopReason: 'error',
+        });
       } else {
         console.error(e);
         yield streamingChunk({
