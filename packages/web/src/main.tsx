@@ -27,6 +27,7 @@ import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import AgentChatPage from './pages/AgentChatPage.tsx';
 import FlowChatPage from './pages/FlowChatPage';
+import { MaterialAIPage } from './pages/materials/MaterialAIPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
@@ -74,6 +75,10 @@ const routes: RouteObject[] = [
   {
     path: '/share/:shareId',
     element: <SharedChatPage />,
+  },
+  {
+    path: '/materials',
+    element: <MaterialAIPage />,
   },
   enabled('generate')
     ? {

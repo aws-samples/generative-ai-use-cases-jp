@@ -19,6 +19,7 @@ import {
   PiTreeStructure,
   PiPenNib,
 } from 'react-icons/pi';
+import { FaFlask } from 'react-icons/fa';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
 import {
@@ -93,6 +94,10 @@ const LandingPage: React.FC = () => {
       context: t('landing.demo.generate.context'),
     };
     navigate(`/generate?${queryString.stringify(params)}`);
+  };
+
+  const demoMaterials = () => {
+    navigate('/materials');
   };
 
   const demoSummarize = () => {
@@ -271,6 +276,12 @@ const LandingPage: React.FC = () => {
           onClickDemo={demoChat}
           icon={<PiChatsCircle />}
           description={t('landing.use_cases.chat.description')}
+        />
+        <CardDemo
+          label="マテリアルAI"
+          onClickDemo={demoMaterials}
+          icon={<FaFlask />}
+          description="材料研究者向けの生成AIアシスタント。物性予測、構造分析、文献調査などを支援します。"
         />
         {ragEnabled && (
           <CardDemo
