@@ -1,10 +1,16 @@
-import { Stack, RemovalPolicy, CfnResource } from 'aws-cdk-lib';
+import { Stack, RemovalPolicy, CfnResource, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   CloudFrontToS3,
   CloudFrontToS3Props,
 } from '@aws-solutions-constructs/aws-cloudfront-s3';
-import { CfnDistribution, Distribution } from 'aws-cdk-lib/aws-cloudfront';
+import {
+  CfnDistribution,
+  Distribution,
+  ResponseHeadersPolicy,
+  HeadersFrameOption,
+  HeadersReferrerPolicy,
+} from 'aws-cdk-lib/aws-cloudfront';
 import { NodejsBuild } from 'deploy-time-build';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
@@ -55,6 +61,47 @@ export class Web extends Construct {
   constructor(scope: Construct, id: string, props: WebProps) {
     super(scope, id);
 
+    // Create Response Headers Policy for security headers
+    const responseHeadersPolicy = new ResponseHeadersPolicy(
+      this,
+      'SecurityHeadersPolicy',
+      {
+        responseHeadersPolicyName: `${id}-SecurityHeaders`,
+        securityHeadersBehavior: {
+          // コンテンツセキュリティポリシー設定
+          contentSecurityPolicy: {
+            contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' https://*.amazonaws.com wss://*.amazonaws.com; font-src 'self'; object-src 'none'; frame-ancestors 'none';",
+            override: true,
+          },
+          // クリックジャッキング対策
+          frameOptions: {
+            frameOption: HeadersFrameOption.DENY,
+            override: true,
+          },
+          // その他のセキュリティヘッダー
+          strictTransportSecurity: {
+            accessControlMaxAge: Duration.days(365 * 2),
+            includeSubdomains: true,
+            preload: true,
+            override: true,
+          },
+          xssProtection: {
+            protection: true,
+            modeBlock: true,
+            override: true,
+          },
+          contentTypeOptions: {
+            override: true,
+          },
+          referrerPolicy: {
+            referrerPolicy:
+              HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN,
+            override: true,
+          },
+        },
+      }
+    );
+
     const commonBucketProps: s3.BucketProps = {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       encryption: s3.BucketEncryption.S3_MANAGED,
@@ -71,6 +118,9 @@ export class Web extends Construct {
       cloudFrontLoggingBucketProps: commonBucketProps,
       cloudFrontLoggingBucketAccessLogBucketProps: commonBucketProps,
       cloudFrontDistributionProps: {
+        defaultBehavior: {
+          responseHeadersPolicy: responseHeadersPolicy,
+        },
         errorResponses: [
           {
             httpStatus: 403,
