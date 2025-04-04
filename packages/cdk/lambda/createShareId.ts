@@ -9,12 +9,9 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
 
-    // 認可チェック：指定されたチャットがユーザーに属しているかを確認
+    // Authorization check: Verify if the specified chat belongs to the user
     const chat = await findChatById(userId, chatId);
-    if (!chat) {
-      console.warn(
-        `認可エラー：ユーザー ${userId} が他人のチャット ${chatId} の共有を試みました`
-      );
+    if (chat === null) {
       return {
         statusCode: 403,
         headers: {
@@ -22,7 +19,7 @@ export const handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
-          message: 'このチャットを共有する権限がありません。',
+          message: 'You do not have permission to share this chat.',
         }),
       };
     }

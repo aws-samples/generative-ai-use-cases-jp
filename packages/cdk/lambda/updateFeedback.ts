@@ -11,15 +11,15 @@ export const handler = async (
     const userId: string = 
       event.requestContext.authorizer!.claims['cognito:username'];
     
-    // 認可チェック：このメッセージがユーザーのチャットに属しているかを確認
+    // Authorization check: verify that this message belongs to the user's chat
     const messages = await listMessages(chatId);
     
-    // リクエストのcreatedDate（メッセージID）に一致するメッセージを検索
+    // Find a message that matches the createdDate (message ID) in the request
     const targetMessage = messages.find(m => m.createdDate === req.createdDate);
     
-    // メッセージが存在しないか、そのユーザーのものでない場合は403を返す
+    // Return 403 if the message doesn't exist or doesn't belong to the user
     if (!targetMessage || targetMessage.userId !== `user#${userId}`) {
-      console.warn(`認可エラー：ユーザー ${userId} が他人のチャット ${chatId} のメッセージ ${req.createdDate} にフィードバックを試みました`);
+      console.warn(`Authorization error: User ${userId} attempted to provide feedback on message ${req.createdDate} in chat ${chatId} belonging to another user`);
       return {
         statusCode: 403,
         headers: {
@@ -27,7 +27,7 @@ export const handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
-          message: 'このメッセージにフィードバックする権限がありません。'
+          message: 'You do not have permission to provide feedback on this message.'
         }),
       };
     }

@@ -7,83 +7,101 @@ import { promisify } from 'util';
 
 const dnsLookup = promisify(dns.lookup);
 
-// IPアドレスがプライベートIPかどうかを確認する関数
+// Function to check if an IP address is a private IP
 function isPrivateIP(ip: string): boolean {
-  // IPアドレスを数値に変換する関数
+  // Function to convert an IP address to a numeric value
   const ipToLong = (ip: string) => {
-    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0) >>> 0;
+    return (
+      ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0) >>>
+      0
+    );
   };
-  
-  // 禁止されているIPアドレス範囲を定義
+
+  // Define blocked IP address ranges
   const blockedRanges = [
-    // ループバックアドレス
+    // Loopback addresses
     { start: '127.0.0.0', end: '127.255.255.255' },
-    // リンクローカルアドレス
+    // Link-local addresses
     { start: '169.254.0.0', end: '169.254.255.255' },
-    // プライベートネットワークアドレス
+    // Private network addresses
     { start: '10.0.0.0', end: '10.255.255.255' },
     { start: '172.16.0.0', end: '172.31.255.255' },
     { start: '192.168.0.0', end: '192.168.255.255' },
-    // AWSのメタデータサービスの特定アドレス
+    // AWS metadata service specific address
     { start: '169.254.169.254', end: '169.254.169.254' },
     // localhost
     { start: '0.0.0.0', end: '0.255.255.255' },
   ];
-  
+
   const ipLong = ipToLong(ip);
-  
-  // いずれかの禁止範囲に含まれるかチェック
-  return blockedRanges.some(range => {
+
+  // Check if IP is within any of the blocked ranges
+  return blockedRanges.some((range) => {
     const startLong = ipToLong(range.start);
     const endLong = ipToLong(range.end);
     return ipLong >= startLong && ipLong <= endLong;
   });
 }
 
-// URLの安全性を検証する関数
-async function validateUrl(urlString: string): Promise<{ valid: boolean; message?: string }> {
+// Function to validate URL safety
+async function validateUrl(
+  urlString: string
+): Promise<{ valid: boolean; message?: string }> {
   try {
-    // URLの形式をチェック
+    // Check URL format
     const url = new URL(urlString);
-    
-    // 許可するスキームはhttpとhttpsのみ
+
+    // Only http and https schemes are allowed
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      return { valid: false, message: '許可されていないURLスキームです。HTTPまたはHTTPSのみ使用できます。' };
+      return {
+        valid: false,
+        message: 'Unauthorized URL scheme. Only HTTP or HTTPS is allowed.',
+      };
     }
-    
-    // IPアドレスが直接指定されている場合の検証
+
+    // Validate if IP address is directly specified
     const ipv4Regex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
     if (ipv4Regex.test(url.hostname)) {
       if (isPrivateIP(url.hostname)) {
-        console.warn(`SSRF試行：プライベートIP ${url.hostname} へのアクセスがブロックされました`);
-        return { valid: false, message: '内部ネットワークへのアクセスは許可されていません。' };
+        return {
+          valid: false,
+          message: 'Access to internal networks is not allowed.',
+        };
       }
     } else {
-      // ドメイン名の場合、DNSルックアップを実行して解決されるIPをチェック
+      // For domain names, perform DNS lookup to check the resolved IP
       try {
         const { address } = await dnsLookup(url.hostname);
         if (isPrivateIP(address)) {
-          console.warn(`SSRF試行：ドメイン ${url.hostname} がプライベートIP ${address} に解決されました`);
-          return { valid: false, message: '内部ネットワークに解決されるドメインへのアクセスは許可されていません。' };
+          return {
+            valid: false,
+            message:
+              'Access to domains resolving to internal networks is not allowed.',
+          };
         }
       } catch (error) {
-        console.error(`DNSルックアップエラー: ${error}`);
-        return { valid: false, message: '指定されたドメインの解決に失敗しました。' };
+        console.error(`DNS lookup error: ${error}`);
+        return {
+          valid: false,
+          message: 'Failed to resolve the specified domain.',
+        };
       }
     }
-    
-    // localhost関連のホスト名をブロック（DNS解決をすり抜けるケースに対応）
+
+    // Block localhost-related hostnames (to handle cases bypassing DNS resolution)
     const blockedHostnames = ['localhost', '127.0.0.1', 'loopback', 'internal'];
     const hostname = url.hostname.toLowerCase();
-    if (blockedHostnames.some(blocked => hostname.includes(blocked))) {
-      console.warn(`SSRF試行：ブロックされたホスト名 ${hostname} へのアクセスが検出されました`);
-      return { valid: false, message: '内部ネットワークへのアクセスは許可されていません。' };
+    if (blockedHostnames.some((blocked) => hostname.includes(blocked))) {
+      return {
+        valid: false,
+        message: 'Access to internal networks is not allowed.',
+      };
     }
-    
+
     return { valid: true };
   } catch (error) {
-    console.error(`URL検証エラー: ${error}`);
-    return { valid: false, message: '無効なURL形式です。' };
+    console.error(`URL validation error: ${error}`);
+    return { valid: false, message: 'Invalid URL format.' };
   }
 }
 
@@ -104,7 +122,7 @@ export const handler = async (
       };
     }
 
-    // URLの安全性を検証
+    // Validate URL safety
     const validation = await validateUrl(url);
     if (!validation.valid) {
       return {
@@ -113,11 +131,13 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: validation.message || 'アクセスが拒否されました' }),
+        body: JSON.stringify({
+          message: validation.message || 'Access denied',
+        }),
       };
     }
 
-    // 安全なURLと確認できたらリクエストを実行
+    // Execute request if URL is confirmed safe
     const res = await fetch(url);
     const html = await res.text();
     // Fix invalid tags
