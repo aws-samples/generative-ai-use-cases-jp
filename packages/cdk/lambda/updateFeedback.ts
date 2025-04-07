@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { RecordedMessage, UpdateFeedbackRequest } from 'generative-ai-use-cases';
+import { UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import { listMessages, updateFeedback } from './repository';
 
 export const handler = async (
@@ -8,18 +8,22 @@ export const handler = async (
   try {
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateFeedbackRequest = JSON.parse(event.body!);
-    const userId: string = 
+    const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    
+
     // Authorization check: verify that this message belongs to the user's chat
     const messages = await listMessages(chatId);
-    
+
     // Find a message that matches the createdDate (message ID) in the request
-    const targetMessage = messages.find(m => m.createdDate === req.createdDate);
-    
+    const targetMessage = messages.find(
+      (m) => m.createdDate === req.createdDate
+    );
+
     // Return 403 if the message doesn't exist or doesn't belong to the user
     if (!targetMessage || targetMessage.userId !== `user#${userId}`) {
-      console.warn(`Authorization error: User ${userId} attempted to provide feedback on message ${req.createdDate} in chat ${chatId} belonging to another user`);
+      console.warn(
+        `Authorization error: User ${userId} attempted to provide feedback on message ${req.createdDate} in chat ${chatId} belonging to another user`
+      );
       return {
         statusCode: 403,
         headers: {
@@ -27,7 +31,8 @@ export const handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
-          message: 'You do not have permission to provide feedback on this message.'
+          message:
+            'You do not have permission to provide feedback on this message.',
         }),
       };
     }
