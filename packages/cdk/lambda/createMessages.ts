@@ -45,13 +45,15 @@ export const handler = async (
               };
             }
 
-            extra.source.data = sanitizeHtml(extra.source.data, {
-              allowedTags: [
-                ...sanitizeHtml.defaults.allowedTags,
-                'body',
-                'html',
-              ],
-            });
+            if (!extra.source.data.startsWith('s3://')) {
+              extra.source.data = sanitizeHtml(extra.source.data, {
+                allowedTags: [
+                  ...sanitizeHtml.defaults.allowedTags,
+                  'body',
+                  'html',
+                ],
+              });
+            }
           }
         }
       }
