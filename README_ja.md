@@ -213,6 +213,7 @@ GenU をご利用いただく際の、構成と料金試算例を公開してお
 - [ブログ: RAG チャットで精度向上のためのデバッグ方法](https://qiita.com/sugimount-a/items/7ed3c5fc1eb867e28566)
 - [ブログ: Amazon Q Developer CLI を利用してノーコーディングで GenU をカスタマイズ](https://qiita.com/wadabee/items/659e189018ad1a08e152)
 - [ブログ: Generative AI Use Cases JP をカスタマイズする方法](https://aws.amazon.com/jp/blogs/news/how-to-generative-ai-use-cases-jp/)
+- [ブログ: Generative AI Use Cases JP ~ はじめての Contribution ガイド](https://aws.amazon.com/jp/builders-flash/202504/genu-development-guide/)
 - [ブログ: 無茶振りは生成 AI に断ってもらおう ~ ブラウザに生成 AI を組み込んでみた ~](https://aws.amazon.com/jp/builders-flash/202405/genai-sorry-message/)
 - [ブログ: Amazon Bedrock で Interpreter を開発!](https://aws.amazon.com/jp/builders-flash/202311/bedrock-interpreter/)
 - [動画: 生成 AI ユースケースを考え倒すための Generative AI Use Cases JP (GenU) の魅力と使い方](https://www.youtube.com/live/s1P5A2SIWgc?si=PBQ4ZHQXU4pDhL8A)
