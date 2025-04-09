@@ -868,6 +868,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ```
 "amazon.nova-reel-v1:0",
+"amazon.nova-reel-v1:1",
 "luma.ray-v2:0"
 ```
 
@@ -1013,7 +1014,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'amazon.titan-image-generator-v1',
       'stability.stable-diffusion-xl-v1',
     ],
-    videoGenerationModelIds: ['amazon.nova-reel-v1:0'],
+    videoGenerationModelIds: ['amazon.nova-reel-v1:1'],
   },
 };
 ```
@@ -1045,7 +1046,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "amazon.titan-image-generator-v1",
       "stability.stable-diffusion-xl-v1"
     ],
-    "videoGenerationModelIds": ["amazon.nova-reel-v1:0"]
+    "videoGenerationModelIds": ["amazon.nova-reel-v1:1"]
   }
 }
 ```
