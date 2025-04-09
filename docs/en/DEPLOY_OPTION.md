@@ -948,8 +948,8 @@ const envs: Record<string, Partial<StackInput>> = {
         "modelId": "us.meta.llama3-2-90b-instruct-v1:0",
         "region": "us-east-1"
       },
-      { 
-        "modelId": "us.mistral.pixtral-large-2502-v1:0", 
+      {
+        "modelId": "us.mistral.pixtral-large-2502-v1:0",
         "region": "us-east-1"
       }
     ],
