@@ -137,7 +137,7 @@ GenU は OSS ですので、カスタマイズして独自のユースケース�
 ## デプロイ
 
 > [!IMPORTANT]
-> [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json) に記載されている `modelRegion` リージョンの `modelIds` (テキスト生成)、`imageGenerationModelIds` (画像生成) 及び `videoGenerationModelIds` (動画生成) を有効化してください。([Amazon Bedrock の Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
+> 設定に記載されている `modelRegion` リージョンの `modelIds` (テキスト生成)、`imageGenerationModelIds` (画像生成) 及び `videoGenerationModelIds` (動画生成) を有効化してください。(デフォルトの設定ファイル [`/packages/cdk/cdk.json`](/packages/cdk/cdk.json)) ([Amazon Bedrock の Model access 画面](https://us-east-1.console.aws.amazon.com/bedrock/home?region=us-east-1#/modelaccess))
 
 GenU のデプロイには [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/)（以降 CDK）を利用します。CDK の実行環境が用意できない場合は、以下のデプロイ方法を参照してください。
 
