@@ -1075,6 +1075,7 @@ video:
   status:
     completed: Completed
     failed: Failed
+    finalizing: Finalizing
     inprogress: In Progress
   supportedExtensions: 'Supported Extensions: {{acceptedExtensions}}'
   supportedImageDimensions: 'Supported Image Dimensions: {{supportedDimensions}}'
@@ -1086,6 +1087,7 @@ video:
     play: Play
     prompt: Prompt
     status: Status
+  taskType: Task Type
   upload: Upload
   uploadImage: Upload Image
   uploadImageHelp: Specify the image used in the first frame of the video.

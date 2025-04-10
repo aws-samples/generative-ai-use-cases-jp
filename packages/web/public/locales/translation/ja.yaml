@@ -938,6 +938,7 @@ video:
   status:
     completed: 完了
     failed: 失敗
+    finalizing: 終了中
     inprogress: 処理中
   supportedExtensions: 'サポートされている拡張子: {{acceptedExtensions}}'
   supportedImageDimensions: 'サポートされている画像サイズ: {{supportedDimensions}}'
@@ -949,6 +950,7 @@ video:
     play: 再生
     prompt: プロンプト
     status: ステータス
+  taskType: タスクタイプ
   upload: アップロード
   uploadImage: 画像アップロード
   uploadImageHelp: 動画の 1 フレーム目に使われる画像を指定できます
