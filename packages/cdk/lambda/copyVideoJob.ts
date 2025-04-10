@@ -77,8 +77,6 @@ const copyAndDeleteObject = async (
 };
 
 export const handler = async (event: CopyVideoJobParams): Promise<void> => {
-  console.log(event); // TODO: remove
-
   const id = event.id;
   const createdDate = event.createdDate;
   const jobId = event.jobId;
