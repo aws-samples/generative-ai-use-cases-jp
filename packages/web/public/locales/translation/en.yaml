@@ -1075,6 +1075,7 @@ video:
   status:
     completed: Completed
     failed: Failed
+    finalizing: Finalizing
     inprogress: In Progress
   supportedExtensions: 'Supported Extensions: {{acceptedExtensions}}'
   supportedImageDimensions: 'Supported Image Dimensions: {{supportedDimensions}}'
