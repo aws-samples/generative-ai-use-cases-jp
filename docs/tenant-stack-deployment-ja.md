@@ -5,6 +5,7 @@
 ## 概要
 
 CDKアプリケーションは、テナント固有のインフラストラクチャを個別にデプロイすることをサポートするようになりました。これにより以下が可能になります：
+
 - アプリケーション全体を再デプロイすることなく、個々のテナント用のIAMロールを作成
 - テナントリソースを独立して管理
 - 必要に応じてテナントインフラストラクチャをスケール
@@ -20,6 +21,7 @@ CDKアプリケーションは、テナント固有のインフラストラク�
 この分離により、共通デプロイとテナントデプロイで異なる環境設定を維持できます。
 
 テナントデプロイを開始するには：
+
 1. `cdk.tenant.example.json`を`cdk.tenant.json`にコピー
 2. テナント固有の設定で値を更新
 3. `npm run cdk:deploy:tenant`を実行
@@ -97,6 +99,7 @@ npm run cdk:destroy:tenant
 ## スタックの出力
 
 デプロイ後、スタックは以下を出力します：
+
 - **RoleArn**：作成されたIAMロールのARN
 - **RoleName**：作成されたIAMロールの名前
 
@@ -113,11 +116,13 @@ npm run cdk:destroy:tenant
 テナントIAMロールには、テナント分離ポリシーを作成するためのヘルパーメソッドが含まれています：
 
 ### テナントごとのDynamoDBテーブル
+
 ロールは、`<BaseTableName>-<TenantId>`の命名パターンを持つテナントごとのDynamoDBテーブルへのアクセスをサポートします。
 
 ```typescript
 // 例：'ChatHistory-tenant123'テーブルへのアクセスを許可
-const dynamoPolicy = tenantIamRole.createDynamoDbTenantTablePolicyStatement('ChatHistory');
+const dynamoPolicy =
+  tenantIamRole.createDynamoDbTenantTablePolicyStatement('ChatHistory');
 tenantIamRole.addToPolicy(dynamoPolicy);
 ```
 

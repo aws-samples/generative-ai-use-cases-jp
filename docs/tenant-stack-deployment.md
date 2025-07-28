@@ -5,6 +5,7 @@ This document explains how to deploy tenant-specific stacks separately from the 
 ## Overview
 
 The CDK application now supports deploying tenant-specific infrastructure separately. This allows you to:
+
 - Create IAM roles for individual tenants without redeploying the entire application
 - Manage tenant resources independently
 - Scale tenant infrastructure as needed
@@ -20,6 +21,7 @@ The application uses separate CDK configuration files for different deployment t
 This separation allows you to maintain different environment settings for common and tenant deployments.
 
 To get started with tenant deployments:
+
 1. Copy `cdk.tenant.example.json` to `cdk.tenant.json`
 2. Update the values with your tenant-specific configuration
 3. Run `npm run cdk:deploy:tenant`
@@ -97,6 +99,7 @@ npm run cdk:destroy:tenant
 ## Stack Outputs
 
 After deployment, the stack will output:
+
 - **RoleArn**: The ARN of the created IAM role
 - **RoleName**: The name of the created IAM role
 
@@ -113,11 +116,13 @@ To add more tenant-specific stacks:
 The tenant IAM role includes helper methods for creating tenant-isolated policies:
 
 ### DynamoDB Per-Tenant Tables
+
 The role supports access to per-tenant DynamoDB tables with naming pattern: `<BaseTableName>-<TenantId>`
 
 ```typescript
 // Example: Allow access to 'ChatHistory-tenant123' table
-const dynamoPolicy = tenantIamRole.createDynamoDbTenantTablePolicyStatement('ChatHistory');
+const dynamoPolicy =
+  tenantIamRole.createDynamoDbTenantTablePolicyStatement('ChatHistory');
 tenantIamRole.addToPolicy(dynamoPolicy);
 ```
 

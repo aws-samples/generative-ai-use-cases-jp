@@ -52,7 +52,7 @@ export class TenantIamRole extends Construct {
   /**
    * The identity provider ARN
    */
-  private readonly identityProviderArn: string;
+  public readonly identityProviderArn: string;
 
   constructor(scope: Construct, id: string, props: TenantIamRoleProps) {
     super(scope, id);
@@ -63,7 +63,7 @@ export class TenantIamRole extends Construct {
     // Extract the domain from the identity provider ARN
     let identityProviderDomain: string;
     let federatedPrincipal: string;
-    
+
     // Check if this is a Cognito Identity Pool ARN
     if (props.identityProviderArn.includes(':identitypool/')) {
       // For Cognito Identity Pool, use cognito-identity.amazonaws.com as both principal and domain
@@ -88,11 +88,13 @@ export class TenantIamRole extends Construct {
     this.role = new iam.Role(this, 'Role', {
       roleName: props.roleName,
       assumedBy: new iam.WebIdentityPrincipal(federatedPrincipal, {
-        'StringEquals': {
+        StringEquals: {
           [`${identityProviderDomain}:aud`]: props.audience,
         },
       }),
-      description: props.description || 'Role for multi-tenant access with tenant isolation',
+      description:
+        props.description ||
+        'Role for multi-tenant access with tenant isolation',
       maxSessionDuration: props.maxSessionDuration || cdk.Duration.hours(1),
     });
 
@@ -126,7 +128,10 @@ export class TenantIamRole extends Construct {
    * Create a policy statement for DynamoDB per-tenant table access
    * This allows access to tables with naming pattern: <baseTableName>-<tenantId>
    */
-  public createDynamoDbTenantTablePolicyStatement(baseTableName: string, actions?: string[]): iam.PolicyStatement {
+  public createDynamoDbTenantTablePolicyStatement(
+    baseTableName: string,
+    actions?: string[]
+  ): iam.PolicyStatement {
     const defaultActions = [
       'dynamodb:GetItem',
       'dynamodb:PutItem',
@@ -146,9 +151,8 @@ export class TenantIamRole extends Construct {
       actions: actions || defaultActions,
       resources: [
         `arn:aws:dynamodb:*:*:table/${baseTableName}-$\{${this.identityProviderArn}:${this.tenantIdClaim}}`,
-        `arn:aws:dynamodb:*:*:table/${baseTableName}-$\{${this.identityProviderArn}:${this.tenantIdClaim}}/index/*`
+        `arn:aws:dynamodb:*:*:table/${baseTableName}-$\{${this.identityProviderArn}:${this.tenantIdClaim}}/index/*`,
       ],
     });
   }
-
 }
