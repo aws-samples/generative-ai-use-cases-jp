@@ -49,7 +49,11 @@ const DrawerBase: React.FC<Props> = (props) => {
             <Link to="/stats" title={t('stat.title')}>
               <PiChartBar className="text-lg" />
             </Link>
-            {settingShowEmail && <div className="text-xs">{email}</div>}
+            {settingShowEmail && (
+              <div className="text-xs">
+                {email.length > 23 ? `${email.slice(0, 23)}...` : email}
+              </div>
+            )}
             <div className="grow" />
           </div>
         </div>
