@@ -11,6 +11,7 @@ import {
   CommonWebAcl,
   SpeechToSpeech,
   McpApi,
+  MultiTenantRole,
 } from '../../construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -61,6 +62,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       allowedSignUpEmailDomains: params.allowedSignUpEmailDomains,
       samlAuthEnabled: params.samlAuthEnabled,
+    });
+
+    // Multi-Tenant Role
+    const multiTenantRole = new MultiTenantRole(this, 'MultiTenantRole', {
+      userPool: auth.userPool,
+      userPoolClient: auth.client,
+      region: this.region,
+      account: this.account,
     });
 
     // Database
@@ -381,6 +390,11 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'McpEndpoint', {
       value: mcpEndpoint ?? '',
+    });
+
+    new CfnOutput(this, 'MultiTenantRoleArn', {
+      value: multiTenantRole.role.roleArn,
+      description: 'ARN of the single role for multi-tenant resource access',
     });
 
     this.userPool = auth.userPool;

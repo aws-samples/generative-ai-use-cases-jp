@@ -11,3 +11,4 @@ export * from './guardrail';
 export * from './speech-to-speech';
 export * from './mcp-api';
 export * from './tenant-iam-role';
+export * from './multi-tenant-role';
