@@ -41,6 +41,12 @@ const DrawerBase: React.FC<Props> = (props) => {
         <div className="flex h-full flex-col">
           {props.children}
           <div className="flex flex-none items-center justify-between gap-x-2 border-t border-gray-400 px-3 py-2">
+            {settingShowEmail && (
+              <div className="text-xs">
+                {email.length > 23 ? `${email.slice(0, 23)}...` : email}
+              </div>
+            )}
+            <div className="grow" />
             <Link to={settingUrl}>
               <IconWithDot showDot={hasUpdate}>
                 <PiGear className="text-lg" />
@@ -49,12 +55,6 @@ const DrawerBase: React.FC<Props> = (props) => {
             <Link to="/stats" title={t('stat.title')}>
               <PiChartBar className="text-lg" />
             </Link>
-            {settingShowEmail && (
-              <div className="text-xs">
-                {email.length > 23 ? `${email.slice(0, 23)}...` : email}
-              </div>
-            )}
-            <div className="grow" />
           </div>
         </div>
       </nav>
