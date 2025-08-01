@@ -42,9 +42,7 @@ const DrawerBase: React.FC<Props> = (props) => {
           {props.children}
           <div className="flex flex-none items-center justify-between gap-x-2 border-t border-gray-400 px-3 py-2">
             {settingShowEmail && (
-              <div className="text-xs">
-                {email.length > 23 ? `${email.slice(0, 23)}...` : email}
-              </div>
+              <div className="truncate text-xs">{email}</div>
             )}
             <div className="grow" />
             <Link to={settingUrl}>
