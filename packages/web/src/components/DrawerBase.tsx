@@ -45,13 +45,13 @@ const DrawerBase: React.FC<Props> = (props) => {
               <div className="truncate text-xs">{email}</div>
             )}
             <div className="grow" />
+            <Link to="/stats" title={t('stat.title')}>
+              <PiChartBar className="text-lg" />
+            </Link>
             <Link to={settingUrl}>
               <IconWithDot showDot={hasUpdate}>
                 <PiGear className="text-lg" />
               </IconWithDot>
-            </Link>
-            <Link to="/stats" title={t('stat.title')}>
-              <PiChartBar className="text-lg" />
             </Link>
           </div>
         </div>
