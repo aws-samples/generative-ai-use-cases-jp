@@ -6,15 +6,15 @@ import React, {
   useEffect,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import Button from './Button';
-import ButtonCopy from './ButtonCopy';
-import ButtonSendToUseCase from './ButtonSendToUseCase';
-import Select from './Select';
-import Switch from './Switch';
-import RangeSlider from './RangeSlider';
-import ExpandableField from './ExpandableField';
-import Textarea from './Textarea';
-import useTranscribe from '../hooks/useTranscribe';
+import Button from '../Button';
+import ButtonCopy from '../ButtonCopy';
+import ButtonSendToUseCase from '../ButtonSendToUseCase';
+import Select from '../Select';
+import Switch from '../Switch';
+import RangeSlider from '../RangeSlider';
+import ExpandableField from '../ExpandableField';
+import Textarea from '../Textarea';
+import useTranscribe from '../../hooks/useTranscribe';
 
 interface MeetingMinutesFileProps {
   /** Callback when transcript text changes */

@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import Button from './Button';
-import ButtonCopy from './ButtonCopy';
-import ButtonSendToUseCase from './ButtonSendToUseCase';
+import Button from '../Button';
+import ButtonCopy from '../ButtonCopy';
+import ButtonSendToUseCase from '../ButtonSendToUseCase';
 
 interface MeetingMinutesDirectProps {
   /** Callback when transcript text changes */

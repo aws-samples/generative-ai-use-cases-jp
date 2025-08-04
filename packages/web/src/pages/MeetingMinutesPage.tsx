@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import Card from '../components/Card';
 import { PiMicrophoneBold, PiPencilLine, PiPaperclip } from 'react-icons/pi';
-import MeetingMinutesRealtime from '../components/MeetingMinutesRealtime';
-import MeetingMinutesDirect from '../components/MeetingMinutesDirect';
-import MeetingMinutesFile from '../components/MeetingMinutesFile';
-import MeetingMinutesGeneration from '../components/MeetingMinutesGeneration';
+import MeetingMinutesRealtime from '../components/MeetingMinutes/MeetingMinutesRealtime';
+import MeetingMinutesDirect from '../components/MeetingMinutes/MeetingMinutesDirect';
+import MeetingMinutesFile from '../components/MeetingMinutes/MeetingMinutesFile';
+import MeetingMinutesGeneration from '../components/MeetingMinutes/MeetingMinutesGeneration';
 import { useTranslation } from 'react-i18next';
 import { InputMethod } from '../types/MeetingMinutesTypes';
 

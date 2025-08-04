@@ -8,23 +8,23 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
 import { Transcript } from 'generative-ai-use-cases';
-import Button from './Button';
-import ButtonCopy from './ButtonCopy';
-import ButtonSendToUseCase from './ButtonSendToUseCase';
-import Select from './Select';
-import Switch from './Switch';
-import RangeSlider from './RangeSlider';
-import ExpandableField from './ExpandableField';
-import Textarea from './Textarea';
-import ScreenAudioToggle from './ScreenAudioToggle';
-import MicAudioToggle from './MicAudioToggle';
+import Button from '../Button';
+import ButtonCopy from '../ButtonCopy';
+import ButtonSendToUseCase from '../ButtonSendToUseCase';
+import Select from '../Select';
+import Switch from '../Switch';
+import RangeSlider from '../RangeSlider';
+import ExpandableField from '../ExpandableField';
+import Textarea from '../Textarea';
+import ScreenAudioToggle from '../ScreenAudioToggle';
+import MicAudioToggle from '../MicAudioToggle';
 import MeetingMinutesTranscriptSegment from './MeetingMinutesTranscriptSegment';
 import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
-import useMicrophone from '../hooks/useMicrophone';
-import useScreenAudio from '../hooks/useScreenAudio';
-import useRealtimeTranslation from '../hooks/useRealtimeTranslation';
-import useChatApi from '../hooks/useChatApi';
-import { MODELS } from '../hooks/useModel';
+import useMicrophone from '../../hooks/useMicrophone';
+import useScreenAudio from '../../hooks/useScreenAudio';
+import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
+import useChatApi from '../../hooks/useChatApi';
+import { MODELS } from '../../hooks/useModel';
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -141,7 +141,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         return;
       }
 
-      const { findModelByModelId } = await import('../hooks/useModel');
+      const { findModelByModelId } = await import('../../hooks/useModel');
       const model = findModelByModelId(firstModelId);
 
       if (!model) {

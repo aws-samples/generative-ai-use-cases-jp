@@ -9,18 +9,18 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import queryString from 'query-string';
-import Button from './Button';
-import ButtonCopy from './ButtonCopy';
-import ButtonIcon from './ButtonIcon';
-import Select from './Select';
-import Switch from './Switch';
-import Textarea from './Textarea';
-import Markdown from './Markdown';
+import Button from '../Button';
+import ButtonCopy from '../ButtonCopy';
+import ButtonIcon from '../ButtonIcon';
+import Select from '../Select';
+import Switch from '../Switch';
+import Textarea from '../Textarea';
+import Markdown from '../Markdown';
 import { PiPencilLine, PiCaretRight, PiCaretLeft } from 'react-icons/pi';
 import useMeetingMinutes, {
   MeetingMinutesStyle,
-} from '../hooks/useMeetingMinutes';
-import { MODELS } from '../hooks/useModel';
+} from '../../hooks/useMeetingMinutes';
+import { MODELS } from '../../hooks/useModel';
 
 interface MeetingMinutesGenerationProps {
   /** Current transcript text to generate minutes from */
