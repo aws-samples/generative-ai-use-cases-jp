@@ -138,6 +138,8 @@ const baseStackInputSchema = z.object({
   inlineAgents: z.boolean().default(false),
   // MCP
   mcpEnabled: z.boolean().default(false),
+  // LiteLLM Proxy Server
+  litellmProxyEnabled: z.boolean().default(false),
   // Guardrail
   guardrailEnabled: z.boolean().default(false),
   // Usecase builder
