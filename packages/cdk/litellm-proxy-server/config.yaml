@@ -1,0 +1,38 @@
+model_list:
+  # Amazon Bedrock models - these will be configured dynamically from environment
+  - model_name: claude-3-5-sonnet
+    litellm_params:
+      model: bedrock/anthropic.claude-3-5-sonnet-20241022-v2:0
+      aws_region_name: us-east-1
+      aws_access_key_id: null  # Will use IAM role
+      aws_secret_access_key: null  # Will use IAM role
+  
+  - model_name: claude-3-5-haiku
+    litellm_params:
+      model: bedrock/anthropic.claude-3-5-haiku-20241022-v1:0
+      aws_region_name: us-east-1
+      aws_access_key_id: null  # Will use IAM role
+      aws_secret_access_key: null  # Will use IAM role
+
+  - model_name: nova-pro
+    litellm_params:
+      model: bedrock/amazon.nova-pro-v1:0
+      aws_region_name: us-east-1
+      aws_access_key_id: null  # Will use IAM role
+      aws_secret_access_key: null  # Will use IAM role
+
+# General settings
+general_settings:
+  master_key: null  # Will be set from Secrets Manager
+  database_url: null  # Optional - can be added for logging/analytics
+  
+# Proxy settings
+litellm_settings:
+  success_callback: []
+  failure_callback: []
+  cache: false
+  cache_params: null
+  default_team_settings: null
+  
+# Health check settings
+health_check: true

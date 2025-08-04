@@ -11,6 +11,7 @@ import {
   CommonWebAcl,
   SpeechToSpeech,
   McpApi,
+  LitellmProxyServer,
   MultiTenantRole,
 } from '../../construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
@@ -142,6 +143,19 @@ export class GenerativeAiUseCasesStack extends Stack {
       mcpEndpoint = mcpApi.endpoint;
     }
 
+    // LiteLLM Proxy Server
+    let litellmEndpoint: string | null = null;
+    if (params.litellmProxyEnabled) {
+      const litellmProxy = new LitellmProxyServer(this, 'LitellmProxyServer', {
+        idPool: auth.idPool,
+        isSageMakerStudio: props.isSageMakerStudio,
+        modelRegion: params.modelRegion,
+        crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn || undefined,
+        masterKeySecretName: params.litellmProxyMasterKeySecretName || undefined,
+      });
+      litellmEndpoint = litellmProxy.endpoint;
+    }
+
     // Web Frontend
     const web = new Web(this, 'Api', {
       // Auth
@@ -176,6 +190,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
+      litellmProxyEnabled: params.litellmProxyEnabled,
+      litellmEndpoint: litellmEndpoint || undefined,
       // Frontend
       hiddenUseCases: params.hiddenUseCases,
       // Custom Domain
@@ -390,6 +406,14 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'McpEndpoint', {
       value: mcpEndpoint ?? '',
+    });
+
+    new CfnOutput(this, 'LitellmProxyEnabled', {
+      value: params.litellmProxyEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'LitellmProxyEndpoint', {
+      value: litellmEndpoint ?? '',
     });
 
     new CfnOutput(this, 'MultiTenantRoleArn', {
