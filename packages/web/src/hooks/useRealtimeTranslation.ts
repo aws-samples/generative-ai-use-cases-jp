@@ -10,30 +10,18 @@ const useRealtimeTranslation = () => {
     {}
   );
 
-  // Get available models sorted by priority: Haiku > Nova Pro > Others
+  // Get available models with light models prioritized first
   const availableModels = useMemo(() => {
-    const allModels = [...modelIds];
+    const remainingModels = modelIds.filter(
+      (id) => !lightModelIds.includes(id)
+    );
+    return [...lightModelIds, ...remainingModels];
+  }, [modelIds, lightModelIds]);
 
-    // Sort by priority: Claude 3.5 Haiku first, then Nova Pro, then others
-    return allModels.sort((a, b) => {
-      const isHaikuA = a.includes('claude-3-5-haiku');
-      const isHaikuB = b.includes('claude-3-5-haiku');
-      const isNovaProA = a.includes('nova-pro');
-      const isNovaProB = b.includes('nova-pro');
-
-      if (isHaikuA && !isHaikuB) return -1;
-      if (!isHaikuA && isHaikuB) return 1;
-      if (isNovaProA && !isNovaProB) return -1;
-      if (!isNovaProA && isNovaProB) return 1;
-
-      return a.localeCompare(b);
-    });
-  }, [modelIds]);
-
-  // Default model is the first one (Haiku or Nova Pro)
+  // Default model prioritizes light models first
   const defaultModelId = useMemo(() => {
-    return availableModels[0] || lightModelIds[0] || modelIds[0];
-  }, [availableModels, lightModelIds, modelIds]);
+    return lightModelIds[0] || modelIds[0];
+  }, [lightModelIds, modelIds]);
 
   const translate = useCallback(
     async (
