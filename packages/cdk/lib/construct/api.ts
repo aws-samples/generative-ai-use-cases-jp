@@ -29,6 +29,7 @@ import {
 } from '@generative-ai-use-cases/common';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { LitellmProxyServer } from './litellm-proxy-server';
 
 export interface BackendApiProps {
   // Context Params
@@ -44,6 +45,8 @@ export interface BackendApiProps {
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
+  readonly litellmEndpoint?: string | null;
+  readonly litellmProxy?: LitellmProxyServer | null;
 
   // Resource
   readonly userPool: UserPool;
@@ -88,6 +91,7 @@ export class Api extends Construct {
       knowledgeBaseId,
       queryDecompositionEnabled,
       rerankingModelId,
+      litellmEndpoint,
     } = props;
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
@@ -199,6 +203,7 @@ export class Api extends Construct {
           : {}),
         QUERY_DECOMPOSITION_ENABLED: JSON.stringify(queryDecompositionEnabled),
         RERANKING_MODEL_ID: rerankingModelId ?? '',
+        LITELLM_ENDPOINT: litellmEndpoint ?? '',
       },
       bundling: {
         nodeModules: [
@@ -263,6 +268,7 @@ export class Api extends Construct {
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        LITELLM_ENDPOINT: litellmEndpoint ?? '',
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -283,6 +289,7 @@ export class Api extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
+        LITELLM_ENDPOINT: litellmEndpoint ?? '',
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -456,6 +463,17 @@ export class Api extends Construct {
       generateVideoFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
       listVideoJobs.role?.addToPrincipalPolicy(sagemakerPolicy);
       invokeFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+    }
+
+    // Grant permissions to access LiteLLM proxy if it's enabled
+    if (props.litellmProxy) {
+      props.litellmProxy.grantInvokeUrl(predictStreamFunction);
+      props.litellmProxy.grantInvokeUrl(predictFunction);
+      props.litellmProxy.grantInvokeUrl(predictTitleFunction);
+      props.litellmProxy.grantInvokeUrl(generateImageFunction);
+      props.litellmProxy.grantInvokeUrl(generateVideoFunction);
+      props.litellmProxy.grantInvokeUrl(listVideoJobs);
+      props.litellmProxy.grantInvokeUrl(invokeFlowFunction);
     }
 
     // Bedrock is always granted permission
