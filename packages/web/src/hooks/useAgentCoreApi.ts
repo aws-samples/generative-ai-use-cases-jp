@@ -18,6 +18,7 @@ import {
 import {
   StrandsStreamProcessor,
   convertToStrandsFormat,
+  convertFilesToStrandsContentBlocks,
 } from '../utils/strandsUtils';
 import { getRegionFromArn } from '../utils/arnUtils';
 
@@ -124,8 +125,22 @@ const useAgentCoreApi = (id: string) => {
           ? convertMessagesToStrandsFormat(req.previousMessages)
           : [];
 
-        // Process files if provided
+        // Process files if provided and convert them to Strands content blocks
         const promptBlocks: StrandsContentBlock[] = [{ text: req.prompt }];
+
+        if (req.files && req.files.length > 0) {
+          try {
+            const fileContentBlocks = await convertFilesToStrandsContentBlocks(
+              req.files
+            );
+            promptBlocks.push(...fileContentBlocks);
+          } catch (error) {
+            console.error(
+              'Error converting files to Strands content blocks:',
+              error
+            );
+          }
+        }
 
         // Create the request with the exact schema: messages, systemPrompt, prompt, model
         const agentCoreRequest: AgentCoreRequest = {
@@ -239,7 +254,13 @@ const useAgentCoreApi = (id: string) => {
         console.error('Error invoking AgentCore Runtime:', error);
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error occurred';
-        processChunk(`Error: ${errorMessage}`, req.model, processor);
+        // processChunk(`Error: ${errorMessage}`, req.model, processor);
+        addChunkToAssistantMessage(
+          errorMessage,
+          undefined,
+          req.model,
+          undefined
+        );
       } finally {
         setLoading(false);
       }
@@ -256,6 +277,7 @@ const useAgentCoreApi = (id: string) => {
       replaceMessages,
       popMessage,
       processChunk,
+      addChunkToAssistantMessage,
     ]
   );
 

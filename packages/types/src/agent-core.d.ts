@@ -56,7 +56,7 @@ export type StrandsImageBlock = {
   image: {
     format?: 'png' | 'jpeg' | 'gif' | 'webp';
     source?: {
-      bytes: string;
+      bytes: string; // base64 encoded string. Converted to bytes in backend
     };
   };
 };
@@ -77,7 +77,7 @@ export type StrandsDocumentBlock = {
       | 'md';
     name?: string;
     source?: {
-      bytes: string;
+      bytes: string; // base64 encoded string. Converted to bytes in backend
     };
   };
 };
@@ -96,7 +96,7 @@ export type StrandsVideoBlock = {
       | 'webm'
       | 'wmv';
     source?: {
-      bytes: string;
+      bytes: string; // base64 encoded string. Converted to bytes in backend
     };
   };
 };

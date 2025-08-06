@@ -38,7 +38,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     displayName: 'Claude 3.5 Sonnet v2',
   },
   'anthropic.claude-3-5-haiku-20241022-v1:0': {
-    flags: MODEL_FEATURE.TEXT_DOC_IMAGE,
+    flags: MODEL_FEATURE.TEXT_DOC,
     displayName: 'Claude 3.5 Haiku',
   },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
@@ -81,7 +81,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     displayName: 'Claude 3.5 Sonnet v2',
   },
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': {
-    flags: MODEL_FEATURE.TEXT_DOC_IMAGE,
+    flags: MODEL_FEATURE.TEXT_DOC,
     displayName: 'Claude 3.5 Haiku',
   },
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': {

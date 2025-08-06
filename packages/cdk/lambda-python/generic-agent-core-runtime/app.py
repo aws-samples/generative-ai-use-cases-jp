@@ -41,8 +41,9 @@ async def invocations(request: Request):
     Expects request with messages, system_prompt, prompt, and model
     """
     # Get session info from headers
-    session_id = request.headers["x-amzn-bedrock-agentcore-runtime-session-id"]
-    trace_id = request.headers["x-amzn-trace-id"]
+    headers = dict(request.headers)
+    session_id = headers.get("x-amzn-bedrock-agentcore-runtime-session-id")
+    trace_id = headers.get("x-amzn-trace-id")
     logger.info(f"New invocation: {session_id} {trace_id}")
 
     # Set session info in agent manager
@@ -64,7 +65,7 @@ async def invocations(request: Request):
         # Extract required fields
         messages = request_data.get("messages", [])
         system_prompt = request_data.get("system_prompt")
-        prompt = request_data.get("prompt", "")
+        prompt = request_data.get("prompt", [])
         model_info = request_data.get("model", {})
 
         # Return streaming response

@@ -2,7 +2,7 @@
 
 from strands.types.content import Message
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 
 
 class ModelInfo(BaseModel):
@@ -11,7 +11,7 @@ class ModelInfo(BaseModel):
 
 
 class AgentCoreRequest(BaseModel):
-    messages: List[Message] = []
+    messages: Union[List[Message], List[Dict[str, Any]]] = []
     system_prompt: Optional[str] = None
-    prompt: str = ""
+    prompt: Union[str, List[Dict[str, Any]]] = ""
     model: ModelInfo = {}

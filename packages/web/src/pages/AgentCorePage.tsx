@@ -18,22 +18,19 @@ import { MODELS } from '../hooks/useModel';
 const fileLimit: FileLimit = {
   accept: {
     doc: [
-      // TODO
-      // '.csv',
-      // '.doc',
-      // '.docx',
-      // '.html',
-      // '.md',
-      // '.pdf',
-      // '.txt',
-      // '.xls',
-      // '.xlsx',
-      // '.yaml',
-      // '.json',
+      '.csv',
+      '.doc',
+      '.docx',
+      '.html',
+      '.md',
+      '.pdf',
+      '.txt',
+      '.xls',
+      '.xlsx',
+      '.yaml',
+      '.json',
     ],
-    image: [
-      // '.jpg', '.jpeg', '.png', '.gif', '.webp'
-    ],
+    image: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
     video: [],
   },
   maxFileCount: 5,

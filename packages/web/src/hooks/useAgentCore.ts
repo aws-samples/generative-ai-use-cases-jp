@@ -78,7 +78,7 @@ const useAgentCore = (id: string) => {
       prompt: userPrompt,
       previousMessages, // Pass the raw messages to be converted in useAgentCoreApi
       model,
-      files, // Pass the uploaded files
+      files, // Pass the uploaded files - they will be converted to Strands format in useAgentCoreApi
     };
 
     await postMessage(request);
