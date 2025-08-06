@@ -687,7 +687,7 @@ By default, it is deployed to the `modelRegion`, but you can override this by sp
 
 With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
 
-**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
 ```typescript
 // parameter.ts
@@ -705,7 +705,7 @@ const envs: Record<string, Partial<StackInput>> = {
 };
 ```
 
-**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
 
 ```json
 // cdk.json

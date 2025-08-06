@@ -109,7 +109,7 @@ Additionally, it is possible to build a RAG that references data outside of AWS 
 </details>
 
 <details markdown="1">
-  <summary><strong><ins>I want to use custom Bedrock Agents or Bedrock Flows within my organization</ins></strong></summary>
+  <summary><strong><ins>I want to use custom Bedrock Agents or AgentCore or Bedrock Flows within my organization</ins></strong></summary>
 
 When you [enable agents](docs/en/DEPLOY_OPTION.md#enabling-agent-chat-use-case) in GenU, Web Search Agent and Code Interpreter Agent are created.
 The Web Search Agent searches the web for information to answer user questions. For example, it can answer "What is AWS GenU?"
@@ -120,6 +120,8 @@ GenU provides a feature to [import agents](docs/en/DEPLOY_OPTION.md#adding-manua
 
 By using GenU as a platform for agent utilization, you can leverage GenU's [rich security options](docs/en/DEPLOY_OPTION.md#security-related-settings) and [SAML authentication](docs/en/DEPLOY_OPTION.md#saml-authentication) to spread practical agents within your organization.
 Additionally, you can [hide unnecessary standard use cases](docs/en/DEPLOY_OPTION.md#hiding-specific-use-cases) or [display agents inline](docs/en/DEPLOY_OPTION.md#displaying-agents-inline) to use GenU as a more agent-focused platform.
+
+Similarly, there is an [import feature](docs/en/DEPLOY_OPTION.md#enabling-agentcore-use-cases) for AgentCore Runtime, so please make use of it.
 
 Similarly, there is an [import feature](docs/en/DEPLOY_OPTION.md#enabling-flow-chat-use-case) for Bedrock Flows, so please make use of it.
 

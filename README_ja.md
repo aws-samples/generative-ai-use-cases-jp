@@ -106,7 +106,7 @@ Knowledge Base を利用する場合は、[Advanced Parsing](docs/ja/DEPLOY_OPTI
 </details>
 
 <details markdown="1">
-  <summary><strong><ins>独自に作成した Bedrock Agents や Bedrock Flows などを社内で利用したい。</ins></strong></summary>
+  <summary><strong><ins>独自に作成した Bedrock Agents や AgentCore や Bedrock Flows などを社内で利用したい。</ins></strong></summary>
 
 GenU で [エージェントを有効化](docs/ja/DEPLOY_OPTION.md#agent-チャットユースケースの有効化)すると Web 検索エージェントと Code Interpreter エージェントが作成されます。
 Web 検索エージェントは、ユーザーの質問に回答するための情報を Web で検索し、回答します。例えば「AWS の GenU ってなに？」という質問に回答できます。
@@ -117,6 +117,8 @@ GenU では手動で作成したエージェントや別のアセットで作成
 
 GenU をエージェント活用のプラットフォームとして利用することで、GenU が提供する [豊富なセキュリティオプション](docs/ja/DEPLOY_OPTION.md#セキュリティ関連設定) や [SAML認証](docs/ja/DEPLOY_OPTION.md#saml-認証) などを活用し、実践的なエージェントを社内に普及させることができます。
 また、オプションで [不要な標準ユースケースを非表示](docs/ja/DEPLOY_OPTION.md#特定のユースケースを非表示にする) にしたり、[エージェントをインライン表示](docs/ja/DEPLOY_OPTION.md#agent-をインライン表示にする) することで、よりエージェントに特化したプラットフォームとして GenU をご利用いただくことが可能です。
+
+AgentCore Runtime に関しても同様に [インポート機能](docs/ja/DEPLOY_OPTION.md#agentcore-ユースケースの有効化) がございますので、ぜひご活用ください。
 
 Bedrock Flows に関しても同様に [インポート機能](docs/ja/DEPLOY_OPTION.md#flow-チャットユースケースの有効化) がございますので、ぜひご活用ください。
 
