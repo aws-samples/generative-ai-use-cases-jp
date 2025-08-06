@@ -1,7 +1,7 @@
 import { Model, ModelConfiguration } from 'generative-ai-use-cases';
 import {
   CRI_PREFIX_PATTERN,
-  modelMetadata,
+  modelMetadata as originalModelMetadata,
 } from '@generative-ai-use-cases/common';
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;
@@ -19,7 +19,7 @@ const bedrockModelIds: string[] = bedrockModelConfigs.map(
   (model) => model.modelId
 );
 const lightModelIds: string[] = bedrockModelConfigs
-  .filter((model) => modelMetadata[model.modelId].flags.light)
+  .filter((model) => originalModelMetadata[model.modelId]?.flags?.light)
   .map((model) => model.modelId);
 const modelIdsInModelRegion: string[] = bedrockModelConfigs
   .filter((model) => model.region === modelRegion)
@@ -30,7 +30,7 @@ const duplicateBaseModelIds = new Set(
     .filter((item, index, arr) => arr.indexOf(item) !== index)
 );
 const visionModelIds: string[] = bedrockModelIds.filter(
-  (modelId) => modelMetadata[modelId].flags.image
+  (modelId) => originalModelMetadata[modelId]?.flags?.image
 );
 const visionEnabled: boolean = visionModelIds.length > 0;
 
@@ -97,6 +97,16 @@ const getFlows = () => {
 
 const flows = getFlows();
 
+// List of liteLLM model IDs (configured to match config.yaml)
+const liteLlmModelIds = [
+  'gpt-4o',
+  'gpt-4o-mini',
+  'o3',
+  'gpt-4.1',
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+];
+
 // Define model objects
 const textModels = [
   ...bedrockModelConfigs.map(
@@ -110,6 +120,8 @@ const textModels = [
   ...endpointNames.map(
     (name) => ({ modelId: name, type: 'sagemaker' }) as Model
   ),
+  // Temporary hardcoded addition of liteLLM models (configured to match config.yaml)
+  ...liteLlmModelIds.map((modelId) => ({ modelId, type: 'liteLlm' }) as Model),
 ];
 const imageGenModels = [
   ...imageModelConfigs.map(
@@ -165,7 +177,54 @@ export const findModelByModelId = (modelId: string) => {
 
 const searchAgent = agentNames.find((name) => name.includes('Search'));
 
+// Add metadata for liteLLM models (extended on frontend side)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const liteLlmModelMetadata: Record<string, any> = {
+  'gpt-4o': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT-4o',
+  },
+  'gpt-4o-mini': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT-4o Mini',
+  },
+  o3: {
+    flags: {
+      text: true,
+      doc: true,
+      image: false,
+      video: false,
+      reasoning: true,
+    },
+    displayName: 'o3',
+  },
+  'gpt-4.1': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT-4.1',
+  },
+  'gemini-2.5-flash': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'Gemini 2.5 Flash',
+  },
+  'gemini-2.5-pro': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'Gemini 2.5 Pro',
+  },
+};
+
+// Merge liteLLM metadata with original modelMetadata
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const modelMetadata: Record<string, any> = {
+  ...originalModelMetadata,
+  ...liteLlmModelMetadata,
+};
+
 const modelDisplayName = (modelId: string): string => {
+  // Get display name from metadata for liteLLM models
+  if (liteLlmModelMetadata[modelId]) {
+    return liteLlmModelMetadata[modelId].displayName;
+  }
+
   // If there are multiple instances of the same model, add CRI suffix to the display name
   let displayName = modelMetadata[modelId]?.displayName ?? modelId;
   if (duplicateBaseModelIds.has(modelId.replace(CRI_PREFIX_PATTERN, ''))) {
@@ -179,7 +238,7 @@ const modelDisplayName = (modelId: string): string => {
 
 export const MODELS = {
   modelRegion: modelRegion,
-  modelIds: [...bedrockModelIds, ...endpointNames],
+  modelIds: [...bedrockModelIds, ...endpointNames, ...liteLlmModelIds],
   modelIdsInModelRegion,
   modelMetadata,
   modelDisplayName,
