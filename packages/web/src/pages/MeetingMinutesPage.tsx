@@ -6,7 +6,34 @@ import MeetingMinutesDirect from '../components/MeetingMinutes/MeetingMinutesDir
 import MeetingMinutesFile from '../components/MeetingMinutes/MeetingMinutesFile';
 import MeetingMinutesGeneration from '../components/MeetingMinutes/MeetingMinutesGeneration';
 import { useTranslation } from 'react-i18next';
-import { InputMethod } from '../types/MeetingMinutesTypes';
+
+// Types for Meeting Minutes components
+export type InputMethod = 'microphone' | 'direct' | 'file';
+
+export interface LanguageOption {
+  value: string;
+  label: string;
+}
+
+export interface AudioRecognitionSettings {
+  languageCode: string;
+  speakerLabel: boolean;
+  maxSpeakers: number;
+  speakers: string;
+}
+
+export interface AudioRecognitionSettingsHandlers {
+  onLanguageCodeChange: (code: string) => void;
+  onSpeakerLabelChange: (enabled: boolean) => void;
+  onMaxSpeakersChange: (count: number) => void;
+  onSpeakersChange: (names: string) => void;
+}
+
+export interface CommonTranscriptProps {
+  hasTranscriptText: boolean;
+  onClear: () => void;
+  disableClear: boolean;
+}
 
 const MeetingMinutesPage: React.FC = () => {
   const { t } = useTranslation();
