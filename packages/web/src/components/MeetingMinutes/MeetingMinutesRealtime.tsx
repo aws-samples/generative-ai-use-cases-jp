@@ -96,7 +96,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState(0);
 
   // Translation hook
-  const { availableModels, defaultModelId, translate, isTranslating } =
+  const { availableModels, translate, isTranslating } =
     useRealtimeTranslation();
 
   // Hook for generating system context
@@ -247,10 +247,10 @@ Respond in ${targetLanguageName}.`;
 
   // Set default translation model on mount
   useEffect(() => {
-    if (!selectedTranslationModel && defaultModelId) {
-      setSelectedTranslationModel(defaultModelId);
+    if (!selectedTranslationModel && availableModels.length > 0) {
+      setSelectedTranslationModel(availableModels[0]);
     }
-  }, [defaultModelId, selectedTranslationModel]);
+  }, [availableModels, selectedTranslationModel]);
 
   // Language options
   const languageOptions = useMemo(

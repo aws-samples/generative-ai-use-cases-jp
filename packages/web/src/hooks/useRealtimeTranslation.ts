@@ -1,10 +1,9 @@
 import { useMemo, useCallback, useState } from 'react';
-import { getPrompter } from '../prompts';
-import { MODELS, findModelByModelId } from './useModel';
-import useChatApi from '../hooks/useChatApi';
+import { MODELS } from './useModel';
+import useTranslationCore from './useTranslationCore';
 
 const useRealtimeTranslation = () => {
-  const { predict } = useChatApi();
+  const { translate } = useTranslationCore();
   const { modelIds, lightModelIds } = MODELS;
   const [translating, setTranslating] = useState<{ [key: string]: boolean }>(
     {}
@@ -18,17 +17,12 @@ const useRealtimeTranslation = () => {
     return [...lightModelIds, ...remainingModels];
   }, [modelIds, lightModelIds]);
 
-  // Default model prioritizes light models first
-  const defaultModelId = useMemo(() => {
-    return lightModelIds[0] || modelIds[0];
-  }, [lightModelIds, modelIds]);
-
-  const translate = useCallback(
+  const translateRealtime = useCallback(
     async (
       segmentId: string,
       sentence: string,
       modelId: string,
-      targetLanguage: string = 'Japanese',
+      targetLanguage: string,
       context?: string
     ): Promise<string | null> => {
       const translationKey = `${segmentId}-${modelId}`;
@@ -40,42 +34,11 @@ const useRealtimeTranslation = () => {
       setTranslating((prev) => ({ ...prev, [translationKey]: true }));
 
       try {
-        // Translate using the same mechanism as the Translation use case
-        const id = '/translate';
-        const prompter = getPrompter(modelId);
-        const systemPrompt = prompter.systemContext(id);
-        const translationPrompt = prompter.translatePrompt({
-          sentence,
-          language: targetLanguage,
+        const translated = await translate(sentence, {
+          modelId,
+          targetLanguage,
           context,
         });
-        const model = findModelByModelId(modelId);
-
-        if (!model) {
-          throw new Error(`Model not found: ${modelId}`);
-        }
-
-        const messages = [
-          {
-            role: 'system' as const,
-            content: systemPrompt,
-          },
-          {
-            role: 'user' as const,
-            content: translationPrompt,
-          },
-        ];
-
-        const translatedWithTag = await predict({
-          model,
-          messages,
-          id,
-        });
-
-        // Remove output tags
-        const translated = translatedWithTag
-          .replace(/(<output>|<\/output>|<output>|<\/o>)/g, '')
-          .trim();
 
         return translated;
       } catch (error) {
@@ -89,7 +52,7 @@ const useRealtimeTranslation = () => {
         });
       }
     },
-    [translating, predict]
+    [translating, translate]
   );
 
   const isTranslating = useCallback(
@@ -101,8 +64,7 @@ const useRealtimeTranslation = () => {
 
   return {
     availableModels,
-    defaultModelId,
-    translate,
+    translate: translateRealtime,
     isTranslating,
   };
 };
