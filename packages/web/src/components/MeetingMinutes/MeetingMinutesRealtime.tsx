@@ -652,6 +652,10 @@ Respond in ${targetLanguageName}.`;
                 enabled={enableScreenAudio}
                 onToggle={setEnableScreenAudio}
                 isSupported={isScreenAudioSupported}
+                noticeText={t('transcribe.screen_audio_notice').replace(
+                  /<br\/>/g,
+                  '\n'
+                )}
               />
               <div className="ml-0.5 mt-2">
                 <Switch

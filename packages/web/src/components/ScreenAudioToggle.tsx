@@ -10,8 +10,8 @@ interface ScreenAudioToggleProps {
   onToggle: (enabled: boolean) => void;
   /** Whether screen audio capture is supported by the browser */
   isSupported?: boolean;
-  /** Custom notice text (if not provided, uses default translation) */
-  noticeText?: string;
+  /** Notice text to display in help tooltip */
+  noticeText: string;
   /** Additional CSS classes */
   className?: string;
 }
@@ -38,14 +38,7 @@ const ScreenAudioToggle: React.FC<ScreenAudioToggleProps> = ({
           checked={enabled}
           onSwitch={onToggle}
         />
-        <Help
-          className="ml-1"
-          position="center"
-          message={
-            noticeText ||
-            t('transcribe.screen_audio_notice').replace(/<br\/>/g, '\n')
-          }
-        />
+        <Help className="ml-1" position="center" message={noticeText} />
       </div>
     </div>
   );
