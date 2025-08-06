@@ -21,6 +21,7 @@ export interface AuthProps {
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
   readonly allowedSignUpEmailDomains?: string[] | null;
+  readonly allowedSignUpEmails?: string[] | null;
   readonly samlAuthEnabled: boolean;
 }
 
@@ -112,7 +113,7 @@ export class Auth extends Construct {
     );
 
     // Lambda
-    if (props.allowedSignUpEmailDomains) {
+    if (props.allowedSignUpEmailDomains || props.allowedSignUpEmails) {
       const checkEmailDomainFunction = new NodejsFunction(
         this,
         'CheckEmailDomain',
@@ -122,7 +123,10 @@ export class Auth extends Construct {
           timeout: Duration.minutes(15),
           environment: {
             ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
-              props.allowedSignUpEmailDomains
+              props.allowedSignUpEmailDomains || []
+            ),
+            ALLOWED_SIGN_UP_EMAILS_STR: JSON.stringify(
+              props.allowedSignUpEmails || []
             ),
           },
         }

@@ -34,6 +34,7 @@
     "queryDecompositionEnabled": false,
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
+    "allowedSignUpEmails": null,
     "samlAuthEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",

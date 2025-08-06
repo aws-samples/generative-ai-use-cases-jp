@@ -6,16 +6,32 @@ const ALLOWED_SIGN_UP_EMAIL_DOMAINS: string[] = JSON.parse(
   ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR!
 );
 
-// Determine if the email domain is allowed
-const checkEmailDomain = (email: string): boolean => {
-  // If the number of @ in the email address is not one, always allow it
+const ALLOWED_SIGN_UP_EMAILS_STR = process.env.ALLOWED_SIGN_UP_EMAILS_STR;
+const ALLOWED_SIGN_UP_EMAILS: string[] = JSON.parse(
+  ALLOWED_SIGN_UP_EMAILS_STR || '[]'
+);
+
+// Determine if the email is allowed
+const checkEmail = (email: string): boolean => {
+  // If the number of @ in the email address is not one, always reject it
   if (email.split('@').length !== 2) {
     return false;
   }
 
-  // If the domain part of the email address matches any of the allowed domains, allow it
-  // Otherwise, do not allow it
-  // (If ALLOWED_SIGN_UP_EMAIL_DOMAINS is empty, always allow it)
+  // If both allowed emails and domains are empty, allow all
+  if (
+    ALLOWED_SIGN_UP_EMAILS.length === 0 &&
+    ALLOWED_SIGN_UP_EMAIL_DOMAINS.length === 0
+  ) {
+    return true;
+  }
+
+  // Check if the email is in the allowed emails list
+  if (ALLOWED_SIGN_UP_EMAILS.includes(email)) {
+    return true;
+  }
+
+  // Check if the domain part of the email address matches any of the allowed domains
   const domain = email.split('@')[1];
   return ALLOWED_SIGN_UP_EMAIL_DOMAINS.includes(domain);
 };
@@ -35,13 +51,13 @@ exports.handler = async (
   try {
     console.log('Received event:', JSON.stringify(event, null, 2));
 
-    const isAllowed = checkEmailDomain(event.request.userAttributes.email);
+    const isAllowed = checkEmail(event.request.userAttributes.email);
     if (isAllowed) {
       // If successful, return the event object as is
       callback(null, event);
     } else {
       // If failed, return an error message
-      callback(new Error('Invalid email domain'));
+      callback(new Error('Invalid email domain or email address'));
     }
   } catch (error) {
     console.log('Error ocurred:', error);
