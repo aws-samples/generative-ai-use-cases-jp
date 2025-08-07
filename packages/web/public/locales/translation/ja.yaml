@@ -415,6 +415,9 @@ landing:
         Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge
         Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。
       title: Agent チャット
+    agent_core:
+      description: AgentCore チャットは Bedrock AgentCore で作成したさまざまな Agent を利用する機能です
+      title: AgentCore
     chat:
       description: >-
         LLM

@@ -533,6 +533,9 @@ landing:
         execute actions or reference the vector database of Knowledge Bases for
         Amazon Bedrock.
       title: Agent Chat
+    agent_core:
+      description: AgentCore Chat is a feature that utilizes various Agents created with Bedrock AgentCore.
+      title: AgentCore
     chat:
       description: >-
         You can have interactive dialogues with an LLM in a chat format. It can

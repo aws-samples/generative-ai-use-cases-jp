@@ -47,6 +47,8 @@ const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
+const agentCoreEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const {
@@ -96,6 +98,10 @@ const LandingPage: React.FC = () => {
     } else {
       navigate(`/agent`);
     }
+  };
+
+  const demoAgentCore = () => {
+    navigate(`/agent-core`);
   };
 
   const demoMcp = () => {
@@ -322,6 +328,14 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoAgent}
             icon={<PiRobot />}
             description={t('landing.use_cases.agent_chat.description')}
+          />
+        )}
+        {agentCoreEnabled && (
+          <CardDemo
+            label={t('landing.use_cases.agent_core.title')}
+            onClickDemo={demoAgentCore}
+            icon={<PiRobot />}
+            description={t('landing.use_cases.agent_core.description')}
           />
         )}
         {mcpEnabled && (
