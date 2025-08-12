@@ -2086,3 +2086,8 @@ Configuration example
   }
 }
 ```
+
+## Using GenU from a Closed Network Environment
+
+To use GenU from a closed network environment, you need to deploy GenU in closed network mode.
+Please refer to [here](./CLOSED_NETWORK.md) for instructions on how to deploy GenU in closed network mode.

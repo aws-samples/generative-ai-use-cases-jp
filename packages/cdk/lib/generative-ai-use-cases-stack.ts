@@ -20,6 +20,13 @@ import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
 import { ProcessedStackInput } from './stack-input';
 import { allowS3AccessWithSourceIpCondition } from './utils/s3-access-policy';
+import {
+  InterfaceVpcEndpoint,
+  IVpc,
+  ISecurityGroup,
+  SecurityGroup,
+} from 'aws-cdk-lib/aws-ec2';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
@@ -42,6 +49,12 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly cert?: ICertificate;
   // Image build environment
   readonly isSageMakerStudio: boolean;
+  // Closed network
+  readonly vpc?: IVpc;
+  readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
+  readonly webBucket?: Bucket;
+  readonly cognitoUserPoolProxyEndpoint?: string;
+  readonly cognitoIdentityPoolProxyEndpoint?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -57,6 +70,18 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const params = props.params;
+
+    // Common security group for saving ENI in Closed network mode
+    let securityGroups: ISecurityGroup[] | undefined = undefined;
+    if (props.vpc) {
+      securityGroups = [
+        new SecurityGroup(this, 'LambdaSeurityGroup', {
+          vpc: props.vpc,
+          description: 'GenU Lambda Security Group',
+          allowAllOutbound: true,
+        }),
+      ];
+    }
 
     // Auth
     const auth = new Auth(this, 'Auth', {
@@ -96,6 +121,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
+      vpc: props.vpc,
+      securityGroups,
+      apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
     });
 
     // WAF
@@ -127,6 +155,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       userPool: auth.userPool,
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
+      vpc: props.vpc,
+      securityGroups,
     });
 
     // MCP
@@ -136,6 +166,8 @@ export class GenerativeAiUseCasesStack extends Stack {
         idPool: auth.idPool,
         isSageMakerStudio: props.isSageMakerStudio,
         fileBucket: api.fileBucket,
+        vpc: props.vpc,
+        securityGroups,
       });
       mcpEndpoint = mcpApi.endpoint;
     }
@@ -212,6 +244,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostName: params.hostName,
       domainName: params.domainName,
       hostedZoneId: params.hostedZoneId,
+      // Closed network
+      webBucket: props.webBucket,
+      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
+      cognitoIdentityPoolProxyEndpoint: props.cognitoIdentityPoolProxyEndpoint,
     });
 
     // RAG
@@ -226,6 +262,8 @@ export class GenerativeAiUseCasesStack extends Stack {
         kendraIndexScheduleDeleteCron: params.kendraIndexScheduleDeleteCron,
         userPool: auth.userPool,
         api: api.api,
+        vpc: props.vpc,
+        securityGroups,
       });
 
       // Allow downloading files from the File API to the data source Bucket
@@ -258,6 +296,8 @@ export class GenerativeAiUseCasesStack extends Stack {
           knowledgeBaseId: knowledgeBaseId,
           userPool: auth.userPool,
           api: api.api,
+          vpc: props.vpc,
+          securityGroups,
         });
         // Allow downloading files from the File API to the data source Bucket
         if (
@@ -282,6 +322,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
+        vpc: props.vpc,
+        securityGroups,
       });
     }
 
@@ -292,6 +334,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       api: api.api,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      vpc: props.vpc,
+      securityGroups,
     });
 
     // Cfn Outputs
@@ -299,15 +343,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: this.region,
     });
 
-    if (params.hostName && params.domainName) {
-      new CfnOutput(this, 'WebUrl', {
-        value: `https://${params.hostName}.${params.domainName}`,
-      });
-    } else {
-      new CfnOutput(this, 'WebUrl', {
-        value: `https://${web.distribution.domainName}`,
-      });
-    }
+    new CfnOutput(this, 'WebUrl', {
+      value: web.webUrl,
+    });
 
     new CfnOutput(this, 'ApiEndpoint', {
       value: api.api.url,
