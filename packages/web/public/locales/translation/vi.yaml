@@ -1049,9 +1049,6 @@ videoAnalyzer:
 voiceChat:
   close: Kết thúc Phiên
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice chat vẫn đang trong giai đoạn thử nghiệm. Kiến trúc và các yếu tố khác có thể thay đổi trong tương lai. Lịch sử hội thoại sẽ không được lưu. Chỉ hỗ trợ tiếng Anh.
-  experimental_warning_title: Về voice chat
   im_listening: Hãy phát biểu
   start: Bắt đầu phiên
   title: Voice Chat

@@ -9,7 +9,7 @@
     "cdk": "cdk",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
     "lambda-build-dryrun": "tsc --noEmit --skipLibCheck",
-    "postinstall": "npm ci --prefix custom-resources/agent-core-runtime && npm ci --prefix custom-resources/opensearch-index"
+    "postinstall": "npm ci --prefix custom-resources/agent-core-runtime && npm ci --prefix custom-resources/opensearch-index && npm ci --prefix fargate-s3-server"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.137",

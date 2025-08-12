@@ -13,7 +13,6 @@ import ExpandableField from '../components/ExpandableField';
 import Button from '../components/Button';
 import InputChatContent from '../components/InputChatContent';
 import ScrollTopBottom from '../components/ScrollTopBottom';
-import Alert from '../components/Alert.tsx';
 import Select from '../components/Select';
 import useFollow from '../hooks/useFollow';
 import BedrockIcon from '../assets/bedrock.svg?react';
@@ -101,12 +100,6 @@ const VoiceChatPage: React.FC = () => {
 
         {isEmpty && !isLoading && !isActive && (
           <div className="flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
-            <Alert
-              title={t('voiceChat.experimental_warning_title')}
-              severity="warning"
-              className="w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
-              {t('voiceChat.experimental_warning')}
-            </Alert>
             <div className="relative flex h-full flex-col items-center justify-center">
               <BedrockIcon className="fill-gray-400" />
             </div>

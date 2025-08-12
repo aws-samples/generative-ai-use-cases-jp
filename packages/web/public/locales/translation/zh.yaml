@@ -896,8 +896,6 @@ videoAnalyzer:
 voiceChat:
   close: 结束会话
   default_system_prompt: 您是一个AI助手。
-  experimental_warning: 语音聊天仍处于实验阶段。架构等可能在未来发生变化。对话历史不会保存。仅支持英语。
-  experimental_warning_title: 关于语音聊天
   im_listening: 请说话
   start: 开始会话
   title: 语音聊天
