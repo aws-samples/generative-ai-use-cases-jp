@@ -24,8 +24,6 @@ app.get('{*key}', async (req: Request, res: Response) => {
     key = key.substring(1);
   }
 
-  console.log(key);
-
   try {
     const headCommand = new HeadObjectCommand({
       Bucket: BUCKET,
