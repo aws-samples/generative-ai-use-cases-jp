@@ -1283,11 +1283,6 @@ videoAnalyzer:
 voiceChat:
   close: Close session
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice Chat is still in an experimental stage. The architecture, etc. may be
-    changed in the future. Conversation history will not be saved. The supported
-    language is English only.
-  experimental_warning_title: About Voice Chat
   im_listening: I'm listening...
   start: Start new session
   title: Voice Chat

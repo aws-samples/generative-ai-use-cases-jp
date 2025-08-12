@@ -1033,8 +1033,6 @@ videoAnalyzer:
 voiceChat:
   close: セッションを終了する
   default_system_prompt: You are an AI assistant.
-  experimental_warning: 音声チャットはまだ実験的な段階です。アーキテクチャ等は今後変更される可能性があります。会話履歴は保存されません。対応言語は英語のみです。
-  experimental_warning_title: 音声チャットについて
   im_listening: 発言してください
   start: セッションを始める
   title: 音声チャット

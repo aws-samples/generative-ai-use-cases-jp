@@ -569,6 +569,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### Enabling MCP Chat Use Case
 
+> [!WARNING]
+> The MCP Chat use case has been deprecated. Please use the AgentCore use case for MCP utilization. The MCP chat use case is scheduled for complete removal in v6.
+
 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) is a protocol that connects LLM models with external data and tools.
 In GenU, we provide chat use cases that execute MCP-compliant tools using [Strands Agents](https://strandsagents.com/latest/).
 To enable MCP chat use cases, the `docker` command must be executable.

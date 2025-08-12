@@ -1081,9 +1081,6 @@ videoAnalyzer:
 voiceChat:
   close: ปิดเซสชั่น
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice Chat ยังอยู่ในระยะทดลอง สถาปัตยกรรมและอื่นๆ อาจมีการเปลี่ยนแปลงในอนาคต ประวัติการสนทนาจะไม่ได้รับการบันทึก ภาษาที่รองรับคือภาษาอังกฤษเท่านั้น
-  experimental_warning_title: เกี่ยวกับ Voice Chat
   im_listening: กำลังฟัง...
   start: เริ่มเซสชันใหม่
   title: Voice Chat
