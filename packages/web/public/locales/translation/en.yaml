@@ -42,6 +42,8 @@ common:
   cancel: Cancel
   clear: Clear
   close: Close
+  collapse: Collapse
+  colon: ':'
   complete: Complete
   create: Create
   delete: Delete
@@ -49,6 +51,7 @@ common:
   error: An error occurred
   errorNoSuggestions: No suggestions were found.
   execute: Execute
+  expand: Expand
   export: Export
   feedback_received: Feedback received. Thank you.
   here: here
@@ -61,6 +64,7 @@ common:
   not_available: Not available
   not_selected: Not selected
   optional: Optional
+  other: Other
   previous: Previous
   required: Required
   reviewComplete: Review completed
@@ -670,19 +674,22 @@ mcp_chat:
   title: MCP Chat
 meetingMinutes:
   auto_generate: Auto Generate
+  clear_minutes: Clear Minutes
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
   frequency: Generation Frequency
   frequency_10min: Every 10 minutes
   frequency_1min: Every 1 minute
+  frequency_3min: Every 3 minutes
   frequency_5min: Every 5 minutes
   generate: Generate
   generate_minutes_header: Generate Meeting Minutes
   generated_minutes: Generated Minutes
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
+  generation_frequency: Generation Frequency
   generation_success: Meeting minutes generated successfully
-  language: Language
+  language: Transcription Language
   language_auto: Auto Detect
   language_chinese: Chinese
   language_english: English
@@ -692,14 +699,21 @@ meetingMinutes:
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
-  model: Model
+  model: Meeting Minutes Generation Model
+  new_recording_session: New Recording Session
+  next_generation: Next Generation
   next_generation_in: 'Next generation in : '
+  no_transcript: No Transcript
+  partial_indicator: (...)
   record_transcribe: Record & Transcribe
+  screen_audio_error: Screen Audio Error
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
+  style_detail: Detail
   style_faq: FAQ
   style_newspaper: Newspaper
+  style_summary: Summary
   style_transcription: Transcription
   title: Meeting Minutes Generator
   transcript: Transcript
@@ -859,11 +873,8 @@ transcribe:
   mic_input: Microphone Input
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
-  screen_audio_error: 'Screen Audio Error:'
-  screen_audio_notice: >-
-    For Windows: Select "Entire Screen" tab and turn ON "Share system
-    audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab
-    audio".<br/>Chrome and Edge work. Firefox does not work.
+  screen_audio_error: Screen Audio Error
+  screen_audio_notice: 'For Windows: Select "Entire Screen" tab and turn ON "Share system audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab audio".<br/>Chrome and Edge work. Firefox does not work.'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
   speaker_recognition: Speaker recognition
@@ -876,11 +887,21 @@ translate:
   additional_context_placeholder: You can enter additional points to consider (e.g., casualness, etc.)
   auto_detect_language: Auto detect language
   auto_translate: Auto translate
+  contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
   continue_output: Continue output
   enter_text: Enter text
+  model: Real-time Translation Model
+  realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
+  systemGeneratedContext: System-generated Context
+  systemGeneratedContextPlaceholder: Auto-generated context based on the meeting content
+  target_language: Real-time Translation Language
   text_to_translate: Text to translate
   title: Translate
+  translating: Translating...
+  translation: Translation
+  userDefinedContext: User-defined Context
+  userDefinedContextPlaceholder: 'Enter context to improve translation accuracy (e.g., meeting topic, technical terms, etc.)'
 useCaseBuilder:
   accessError: Access Error
   addInputExample: Add Input Example

@@ -909,6 +909,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: (body: ConverseStreamOutput) => StreamingChunk;
   };
 } = {
+  'us.anthropic.claude-opus-4-1-20250805-v1:0': {
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'us.anthropic.claude-opus-4-20250514-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
