@@ -4,6 +4,7 @@ import {
 } from '@aws-sdk/client-bedrock-agent';
 import {
   DependencyFailedException,
+  InputFile,
   InvokeAgentCommand,
   Parameter,
   ServiceQuotaExceededException,
@@ -108,20 +109,38 @@ const bedrockAgentApi: ApiInterface = {
       // Invoke Agent
       const command = new InvokeAgentCommand({
         sessionState: {
-          files:
-            messages[messages.length - 1].extraData?.map((file) => ({
-              name: file.name.replace(/[^a-zA-Z0-9\s\-()[\].]/g, 'X'), // If the file name contains Japanese, it is not recognized, so replace it
-              source: {
-                sourceType: 'BYTE_CONTENT',
-                byteContent: {
-                  mediaType: file.source.mediaType,
-                  data: Buffer.from(file.source.data, 'base64'),
+          conversationHistory: {
+            // slice: remove system prompt and lastest user messagee
+            messages: messages
+              .slice(1, messages.length - 1)
+              .map((m: UnrecordedMessage) => {
+                return {
+                  role: m.role as 'user' | 'assistant',
+                  content: [
+                    {
+                      text: m.content,
+                    },
+                  ],
+                };
+              }),
+          },
+          files: messages
+            .flatMap((m: UnrecordedMessage) => {
+              return m.extraData?.map((file) => ({
+                name: file.name.replace(/[^a-zA-Z0-9\s\-()[\].]/g, 'X'), // If the file name contains Japanese, it is not recognized, so replace it
+                source: {
+                  sourceType: 'BYTE_CONTENT',
+                  byteContent: {
+                    mediaType: file.source.mediaType,
+                    data: Buffer.from(file.source.data, 'base64'),
+                  },
                 },
-              },
-              useCase: agentInfo.codeInterpreterEnabled
-                ? 'CODE_INTERPRETER'
-                : 'CHAT',
-            })) || [],
+                useCase: agentInfo.codeInterpreterEnabled
+                  ? 'CODE_INTERPRETER'
+                  : 'CHAT',
+              })) as InputFile[] | undefined;
+            })
+            .filter((f): f is InputFile => f !== undefined),
         },
         agentId: agentId,
         agentAliasId: agentAliasId,
