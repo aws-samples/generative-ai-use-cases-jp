@@ -347,12 +347,13 @@ async function updateTokenUsage(message: RecordedMessage): Promise<void> {
   }
 }
 
-// Update TTL for parent chat record
-const updateChatTTL = async (
+// Update TTL for all records with the same chatId (parent chat + all messages)
+const updateAllRecordsTTL = async (
   userId: string,
   chatId: string,
   ttl: number
 ): Promise<void> => {
+  // Update parent chat record TTL
   const chat = await findChatById(
     userId.replace('user#', ''),
     chatId.replace('chat#', '')
@@ -375,6 +376,33 @@ const updateChatTTL = async (
       })
     );
   }
+
+  // Update all existing message records TTL for this chat
+  const messages = await listMessages(chatId.replace('chat#', ''));
+  if (messages.length > 0) {
+    // Use individual UpdateCommand for each message (BatchWriteCommand doesn't support UpdateRequest)
+    const updatePromises = messages.map((message) =>
+      dynamoDbDocument.send(
+        new UpdateCommand({
+          TableName: TABLE_NAME,
+          Key: {
+            id: message.id,
+            createdDate: message.createdDate,
+          },
+          UpdateExpression: 'set #ttl = :ttl',
+          ExpressionAttributeNames: {
+            '#ttl': 'ttl',
+          },
+          ExpressionAttributeValues: {
+            ':ttl': ttl,
+          },
+        })
+      )
+    );
+
+    // Execute all updates in parallel
+    await Promise.all(updatePromises);
+  }
 };
 
 export const batchCreateMessages = async (
@@ -388,6 +416,12 @@ export const batchCreateMessages = async (
   const feedback = 'none';
 
   const ttl = calculateTTL();
+
+  // Update existing records TTL before adding new messages
+  if (ttl) {
+    await updateAllRecordsTTL(userId, chatId, ttl);
+  }
+
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
       return {
@@ -425,11 +459,6 @@ export const batchCreateMessages = async (
 
   // Update token usage in parallel
   await Promise.all(items.map(updateTokenUsage));
-
-  // Update parent chat TTL if TTL is set for messages
-  if (ttl) {
-    await updateChatTTL(userId, chatId, ttl);
-  }
 
   return items;
 };
