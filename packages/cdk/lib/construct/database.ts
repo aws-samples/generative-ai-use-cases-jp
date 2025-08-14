@@ -6,11 +6,11 @@ export class Database extends Construct {
   public readonly statsTable: ddb.Table;
   public readonly feedbackIndexName: string;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, dataRetentionDays?: number) {
     super(scope, id);
 
     const feedbackIndexName = 'FeedbackIndex';
-    const table = new ddb.Table(this, 'Table', {
+    const tableProps: ddb.TableProps = {
       partitionKey: {
         name: 'id',
         type: ddb.AttributeType.STRING,
@@ -20,7 +20,12 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-    });
+      // Add TTL configuration if dataRetentionDays is specified
+      // Note: Positive validation is handled by zod schema
+      ...(dataRetentionDays !== undefined && { timeToLiveAttribute: 'ttl' }),
+    };
+
+    const table = new ddb.Table(this, 'Table', tableProps);
 
     table.addGlobalSecondaryIndex({
       indexName: feedbackIndexName,
@@ -31,7 +36,8 @@ export class Database extends Construct {
     });
 
     // Stats table for token usage statistics
-    const statsTable = new ddb.Table(this, 'StatsTable', {
+    // Note: Statistics data is preserved for long-term analysis and is not subject to TTL
+    const statsTableProps: ddb.TableProps = {
       partitionKey: {
         name: 'id',
         type: ddb.AttributeType.STRING,
@@ -41,7 +47,9 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-    });
+    };
+
+    const statsTable = new ddb.Table(this, 'StatsTable', statsTableProps);
 
     this.table = table;
     this.statsTable = statsTable;

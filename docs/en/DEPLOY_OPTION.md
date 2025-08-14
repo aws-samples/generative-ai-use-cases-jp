@@ -1803,6 +1803,45 @@ After configuration, open the `GenerativeAiUseCasesDashboardStack.DashboardUrl` 
 > [!NOTE]
 > If you want to disable the monitoring dashboard after enabling it, set `dashboard: false` and redeploy. This will disable the monitoring dashboard, but the `GenerativeAiUseCasesDashboardStack` itself will remain. To completely remove it, open the management console and delete the `GenerativeAiUseCasesDashboardStack` stack from CloudFormation in the modelRegion.
 
+## Data Retention Period Configuration
+
+By setting `dataRetentionDays`, you can enable automatic deletion of chat history and uploaded files. After the specified number of days, the following data will be automatically deleted:
+
+- DynamoDB chat history data (messages, system contexts)
+- **Note**: Statistics data (model usage, token counts, etc.) is preserved for long-term analysis and is not subject to TTL
+- Files stored in S3 (images, audio files, transcription results)
+
+This feature helps control storage costs that increase with long-term usage and automates data lifecycle management.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    dataRetentionDays: 30, // Automatically delete data after 30 days
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "dataRetentionDays": 30
+  }
+}
+```
+
+> [!WARNING]
+>
+> - Deleted data cannot be recovered. Please set an appropriate retention period
+> - DynamoDB TTL deletion is executed within a few days of the specified time (not immediately)
+> - Changing this setting will not update TTL for existing data. Only newly created data will be deleted with the new setting
+> - If `dataRetentionDays` is not set, data will be retained indefinitely
+
 ## Using a Custom Domain
 
 You can use a custom domain for your website URL. A public hosted zone must already be created in Route53 in the same AWS account. For public hosted zones, please refer to: [Working with public hosted zones - Amazon Route 53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)

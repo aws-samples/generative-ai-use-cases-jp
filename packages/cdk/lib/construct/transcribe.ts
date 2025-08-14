@@ -14,6 +14,7 @@ import {
   Bucket,
   BucketEncryption,
   HttpMethods,
+  LifecycleRule,
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
@@ -25,11 +26,28 @@ export interface TranscribeProps {
   readonly api: RestApi;
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
+  readonly dataRetentionDays?: number;
 }
 
 export class Transcribe extends Construct {
   constructor(scope: Construct, id: string, props: TranscribeProps) {
     super(scope, id);
+
+    // Helper function to create lifecycle rules if retention is specified
+    const createLifecycleRules = (
+      dataRetentionDays?: number
+    ): LifecycleRule[] | undefined => {
+      if (dataRetentionDays === undefined) {
+        return undefined;
+      }
+      return [
+        {
+          id: 'DeleteObjectsAfterRetention',
+          enabled: true,
+          expiration: Duration.days(dataRetentionDays),
+        },
+      ];
+    };
 
     const audioBucket = new Bucket(this, 'AudioBucket', {
       encryption: BucketEncryption.S3_MANAGED,
@@ -37,6 +55,7 @@ export class Transcribe extends Construct {
       autoDeleteObjects: true,
       enforceSSL: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: createLifecycleRules(props.dataRetentionDays),
     });
     audioBucket.addCorsRule({
       allowedOrigins: ['*'],
@@ -52,6 +71,7 @@ export class Transcribe extends Construct {
       autoDeleteObjects: true,
       enforceSSL: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: createLifecycleRules(props.dataRetentionDays),
     });
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {

@@ -163,6 +163,8 @@ const baseStackInputSchema = z.object({
   hostedZoneId: z.string().nullish(),
   // Dashboard
   dashboard: z.boolean().default(false),
+  // TTL settings (in days, must be positive)
+  dataRetentionDays: z.number().positive().optional(),
 });
 
 // Common Validator with refine

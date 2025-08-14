@@ -64,7 +64,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     // Database
-    const database = new Database(this, 'Database');
+    const database = new Database(this, 'Database', params.dataRetentionDays);
 
     // API
     const api = new Api(this, 'API', {
@@ -80,6 +80,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      dataRetentionDays: params.dataRetentionDays,
       userPool: auth.userPool,
       idPool: auth.idPool,
       userPoolClient: auth.client,
@@ -254,6 +255,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       api: api.api,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      dataRetentionDays: params.dataRetentionDays,
     });
 
     // Cfn Outputs

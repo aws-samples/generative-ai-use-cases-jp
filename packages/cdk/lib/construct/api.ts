@@ -19,6 +19,7 @@ import {
   Bucket,
   BucketEncryption,
   HttpMethods,
+  LifecycleRule,
 } from 'aws-cdk-lib/aws-s3';
 import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
 import {
@@ -44,6 +45,7 @@ export interface BackendApiProps {
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
+  readonly dataRetentionDays?: number;
 
   // Resource
   readonly userPool: UserPool;
@@ -137,12 +139,30 @@ export class Api extends Construct {
     }
 
     // S3 (File Bucket)
+    // Helper function to create lifecycle rules if retention is specified
+    const createLifecycleRules = (
+      dataRetentionDays?: number
+    ): LifecycleRule[] | undefined => {
+      if (dataRetentionDays === undefined) {
+        return undefined;
+      }
+      // Note: Positive validation is handled by zod schema
+      return [
+        {
+          id: 'DeleteObjectsAfterRetention',
+          enabled: true,
+          expiration: Duration.days(dataRetentionDays),
+        },
+      ];
+    };
+
     const fileBucket = new Bucket(this, 'FileBucket', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       enforceSSL: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: createLifecycleRules(props.dataRetentionDays),
     });
     fileBucket.addCorsRule({
       allowedOrigins: ['*'],
@@ -249,6 +269,9 @@ export class Api extends Construct {
         ...(props.guardrailVersion
           ? { GUARDRAIL_VERSION: props.guardrailVersion }
           : {}),
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantWriteData(predictTitleFunction);
@@ -283,6 +306,9 @@ export class Api extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -317,6 +343,9 @@ export class Api extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -352,6 +381,9 @@ export class Api extends Construct {
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
         COPY_VIDEO_JOB_FUNCTION_ARN: copyVideoJob.functionArn,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -513,6 +545,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantWriteData(createChatFunction);
@@ -523,6 +558,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadWriteData(deleteChatFunction);
@@ -535,6 +573,9 @@ export class Api extends Construct {
         TABLE_NAME: table.tableName,
         STATS_TABLE_NAME: props.statsTable.tableName,
         BUCKET_NAME: fileBucket.bucketName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadWriteData(createMessagesFunction);
@@ -560,6 +601,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(listChatsFunction);
@@ -570,6 +614,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(findChatbyIdFunction);
@@ -580,6 +627,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(listMessagesFunction);
@@ -590,6 +640,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadWriteData(updateFeedbackFunction);
@@ -606,6 +659,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadWriteData(createShareId);
@@ -616,6 +672,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(getSharedChat);
@@ -626,6 +685,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(findShareId);
@@ -636,6 +698,9 @@ export class Api extends Construct {
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadWriteData(deleteShareId);
@@ -713,6 +778,9 @@ export class Api extends Construct {
       environment: {
         TABLE_NAME: table.tableName,
         STATS_TABLE_NAME: props.statsTable.tableName,
+        ...(props.dataRetentionDays && {
+          DATA_RETENTION_DAYS: props.dataRetentionDays.toString(),
+        }),
       },
     });
     table.grantReadData(getTokenUsageFunction);

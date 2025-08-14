@@ -1810,6 +1810,45 @@ const envs: Record<string, Partial<StackInput>> = {
 > [!NOTE]
 > モニタリング用のダッシュボードを有効後に、再度無効化する場合は、`dashboard: false` にして再デプロイすればモニタリング用ダッシュボードは無効化されますが、`GenerativeAiUseCasesDashboardStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `GenerativeAiUseCasesDashboardStack` というスタックを削除することで完全に消去ができます。
 
+## データ保持期間の設定
+
+`dataRetentionDays` を設定することで、チャット履歴やアップロードされたファイルの自動削除を有効にできます。指定した日数が経過すると、以下のデータが自動的に削除されます：
+
+- DynamoDB のチャット履歴データ（メッセージ、システムコンテキスト）
+- **注意**: 統計情報（モデル使用量、トークン数など）は長期分析のため保持され、TTL対象外です
+- S3 に保存されたファイル（画像、音声ファイル、文字起こし結果）
+
+この機能は、長期間の使用に伴うストレージコストの増加を抑制し、データライフサイクルの管理を自動化します。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    dataRetentionDays: 30, // 30日後にデータを自動削除
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "dataRetentionDays": 30
+  }
+}
+```
+
+> [!WARNING]
+>
+> - 削除されたデータは復旧できません。適切な保持期間を設定してください
+> - DynamoDB の TTL による削除は、指定日時から数日以内に実行されます（即座ではありません）
+> - この設定を変更しても、既存データの TTL は更新されません。新しく作成されるデータのみが新しい設定で削除されます
+> - `dataRetentionDays` を設定しない場合、データは無期限に保持されます
+
 ## カスタムドメインの使用
 
 Web サイトの URL としてカスタムドメインを使用することができます。同一 AWS アカウントの Route53 にパブリックホストゾーンが作成済みであることが必要です。パブリックホストゾーンについてはこちらをご参照ください: [パブリックホストゾーンの使用 - Amazon Route 53](https://docs.aws.amazon.com/ja_jp/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html)

@@ -24,12 +24,26 @@ import {
 
 const TABLE_NAME: string = process.env.TABLE_NAME!;
 const STATS_TABLE_NAME: string = process.env.STATS_TABLE_NAME!;
+const DATA_RETENTION_DAYS: string | undefined = process.env.DATA_RETENTION_DAYS;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
+
+const calculateTTL = (): number | undefined => {
+  if (!DATA_RETENTION_DAYS) {
+    return undefined;
+  }
+  const retentionDays = parseInt(DATA_RETENTION_DAYS, 10);
+  if (isNaN(retentionDays)) {
+    return undefined;
+  }
+  // Calculate TTL in Unix epoch time (seconds)
+  return Math.floor(Date.now() / 1000) + retentionDays * 24 * 60 * 60;
+};
 
 export const createChat = async (_userId: string): Promise<Chat> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${crypto.randomUUID()}`;
+  const ttl = calculateTTL();
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
@@ -37,6 +51,7 @@ export const createChat = async (_userId: string): Promise<Chat> => {
     usecase: '',
     title: '',
     updatedDate: '',
+    ...(ttl && { ttl }),
   };
 
   await dynamoDbDocument.send(
@@ -166,12 +181,14 @@ export const createSystemContext = async (
 ): Promise<SystemContext> => {
   const userId = `systemContext#${_userId}`;
   const systemContextId = `systemContext#${crypto.randomUUID()}`;
+  const ttl = calculateTTL();
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
     systemContextId: systemContextId,
     systemContext: systemContext,
     systemContextTitle: title,
+    ...(ttl && { ttl }),
   };
 
   await dynamoDbDocument.send(
@@ -340,6 +357,7 @@ export const batchCreateMessages = async (
   const createdDate = Date.now();
   const feedback = 'none';
 
+  const ttl = calculateTTL();
   const items: RecordedMessage[] = messages.map(
     (m: ToBeRecordedMessage, i: number) => {
       return {
@@ -355,6 +373,7 @@ export const batchCreateMessages = async (
         usecase: m.usecase,
         llmType: m.llmType ?? '',
         metadata: m.metadata,
+        ...(ttl && { ttl }),
       };
     }
   );
