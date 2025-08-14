@@ -347,6 +347,36 @@ async function updateTokenUsage(message: RecordedMessage): Promise<void> {
   }
 }
 
+// Update TTL for parent chat record
+const updateChatTTL = async (
+  userId: string,
+  chatId: string,
+  ttl: number
+): Promise<void> => {
+  const chat = await findChatById(
+    userId.replace('user#', ''),
+    chatId.replace('chat#', '')
+  );
+  if (chat) {
+    await dynamoDbDocument.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: {
+          id: chat.id,
+          createdDate: chat.createdDate,
+        },
+        UpdateExpression: 'set #ttl = :ttl',
+        ExpressionAttributeNames: {
+          '#ttl': 'ttl',
+        },
+        ExpressionAttributeValues: {
+          ':ttl': ttl,
+        },
+      })
+    );
+  }
+};
+
 export const batchCreateMessages = async (
   messages: ToBeRecordedMessage[],
   _userId: string,
@@ -395,6 +425,11 @@ export const batchCreateMessages = async (
 
   // Update token usage in parallel
   await Promise.all(items.map(updateTokenUsage));
+
+  // Update parent chat TTL if TTL is set for messages
+  if (ttl) {
+    await updateChatTTL(userId, chatId, ttl);
+  }
 
   return items;
 };
