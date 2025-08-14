@@ -62,6 +62,7 @@ describe('GenerativeAiUseCases', () => {
       guardrailEnabled: true,
       crossAccountBedrockRoleArn: '',
       useCaseBuilderEnabled: true,
+      dataRetentionDays: 30,
     });
 
     const {

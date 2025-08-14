@@ -9602,6 +9602,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Ref": "APIFileBucket8FB29855",
             },
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "DATA_RETENTION_DAYS": "30",
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
@@ -9800,6 +9801,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -9917,6 +9919,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "BUCKET_NAME": {
               "Ref": "APIFileBucket8FB29855",
             },
+            "DATA_RETENTION_DAYS": "30",
             "STATS_TABLE_NAME": {
               "Ref": "DatabaseStatsTable9C709761",
             },
@@ -10069,6 +10072,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -10304,6 +10308,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -10525,6 +10530,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -10902,6 +10908,15 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             },
           ],
         },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 30,
+              "Id": "DeleteObjectsAfterRetention",
+              "Status": "Enabled",
+            },
+          ],
+        },
         "PublicAccessBlockConfiguration": {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
@@ -11038,6 +11053,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -11155,6 +11171,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -11368,6 +11385,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "Ref": "APIFileBucket8FB29855",
             },
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "DATA_RETENTION_DAYS": "30",
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
@@ -11715,6 +11733,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -11947,6 +11966,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "STATS_TABLE_NAME": {
               "Ref": "DatabaseStatsTable9C709761",
             },
@@ -12234,6 +12254,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -12351,6 +12372,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -12595,6 +12617,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               ],
             },
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "DATA_RETENTION_DAYS": "30",
             "IMAGE_GENERATION_MODEL_IDS": "[{"modelId":"stability.stable-diffusion-xl-v1","region":"us-east-1"}]",
             "MODEL_IDS": "[{"modelId":"anthropic.claude-3-sonnet-20240229-v1:0","region":"us-east-1"}]",
             "MODEL_REGION": "us-east-1",
@@ -13123,6 +13146,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         "Environment": {
           "Variables": {
             "CROSS_ACCOUNT_BEDROCK_ROLE_ARN": "",
+            "DATA_RETENTION_DAYS": "30",
             "GUARDRAIL_IDENTIFIER": {
               "Fn::ImportValue": "GuardrailStack:ExportsOutputFnGetAttGuardrailguardrail03A76CF4GuardrailIdDBA991AF",
             },
@@ -13374,6 +13398,7 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
         },
         "Environment": {
           "Variables": {
+            "DATA_RETENTION_DAYS": "30",
             "TABLE_NAME": {
               "Ref": "DatabaseTableF104A135",
             },
@@ -15704,6 +15729,10 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "KeyType": "RANGE",
           },
         ],
+        "TimeToLiveSpecification": {
+          "AttributeName": "ttl",
+          "Enabled": true,
+        },
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -15750,6 +15779,10 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             "KeyType": "RANGE",
           },
         ],
+        "TimeToLiveSpecification": {
+          "AttributeName": "ttl",
+          "Enabled": true,
+        },
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -17126,6 +17159,15 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
             },
           ],
         },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 30,
+              "Id": "DeleteObjectsAfterRetention",
+              "Status": "Enabled",
+            },
+          ],
+        },
         "PublicAccessBlockConfiguration": {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
@@ -17697,6 +17739,15 @@ exports[`GenerativeAiUseCases matches the snapshot 5`] = `
               "ServerSideEncryptionByDefault": {
                 "SSEAlgorithm": "AES256",
               },
+            },
+          ],
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "ExpirationInDays": 30,
+              "Id": "DeleteObjectsAfterRetention",
+              "Status": "Enabled",
             },
           ],
         },
