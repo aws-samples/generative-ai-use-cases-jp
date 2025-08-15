@@ -7,6 +7,8 @@ import {
   FunctionUrlAuthType,
   InvokeMode,
   HttpMethod,
+  FunctionUrl,
+  Alias,
 } from 'aws-cdk-lib/aws-lambda';
 import { PolicyStatement, Effect, IGrantable } from 'aws-cdk-lib/aws-iam';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
@@ -22,6 +24,7 @@ export interface LitellmProxyServerProps {
 export class LitellmProxyServer extends Construct {
   public readonly endpoint: string;
   public readonly function: DockerImageFunction;
+  public readonly functionUrl: FunctionUrl;
 
   constructor(scope: Construct, id: string, props: LitellmProxyServerProps) {
     super(scope, id);
@@ -44,6 +47,12 @@ export class LitellmProxyServer extends Construct {
         BEDROCK_REGION: props.modelRegion || 'us-east-1',
         LITELLM_LOG: 'INFO',
       },
+    });
+
+    const alias = new Alias(this, 'LitellmProxyAlias', {
+      aliasName: 'production',
+      version: this.function.currentVersion,
+      provisionedConcurrentExecutions: 1, // Adjust this number based on your needs
     });
 
     // Grant access to AWS Bedrock
@@ -72,7 +81,7 @@ export class LitellmProxyServer extends Construct {
     }
 
     // Create Function URL with IAM authentication for internal access
-    const litellmEndpoint = this.function.addFunctionUrl({
+    const litellmEndpoint = alias.addFunctionUrl({
       authType: FunctionUrlAuthType.AWS_IAM,
       cors: {
         allowedOrigins: ['*'], // In production, consider restricting this
@@ -91,7 +100,7 @@ export class LitellmProxyServer extends Construct {
 
     // Grant invoke permissions to authenticated users (for internal service access)
     litellmEndpoint.grantInvokeUrl(props.idPool.authenticatedRole);
-
+    this.functionUrl = litellmEndpoint;
     // Store the endpoint URL
     this.endpoint = litellmEndpoint.url;
   }
@@ -108,6 +117,6 @@ export class LitellmProxyServer extends Construct {
    * Grant Function URL invoke permissions to a specific IAM principal
    */
   public grantInvokeUrl(grantee: IGrantable) {
-    return this.function.grantInvokeUrl(grantee);
+    return this.functionUrl.grantInvokeUrl(grantee);
   }
 }
