@@ -99,6 +99,7 @@ const flows = getFlows();
 
 // List of liteLLM model IDs (configured to match config.yaml)
 const liteLlmModelIds = [
+  'gpt-5',
   'gpt-4o',
   'gpt-4o-mini',
   'o3',
@@ -180,6 +181,10 @@ const searchAgent = agentNames.find((name) => name.includes('Search'));
 // Add metadata for liteLLM models (extended on frontend side)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const liteLlmModelMetadata: Record<string, any> = {
+  'gpt-5': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT-5',
+  },
   'gpt-4o': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'GPT-4o',
