@@ -387,6 +387,15 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     flags: MODEL_FEATURE.TEXT_DOC,
     displayName: 'Palmyra X5',
   },
+  // OpenAI
+  'openai.gpt-oss-120b-1:0': {
+    flags: MODEL_FEATURE.TEXT_ONLY,
+    displayName: 'GPT OSS 120B',
+  },
+  'openai.gpt-oss-20b-1:0': {
+    flags: MODEL_FEATURE.TEXT_ONLY,
+    displayName: 'GPT OSS 20B',
+  },
 
   // === Image ===
 
