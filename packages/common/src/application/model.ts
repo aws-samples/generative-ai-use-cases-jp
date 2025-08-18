@@ -38,7 +38,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     displayName: 'Claude 3.5 Sonnet v2',
   },
   'anthropic.claude-3-5-haiku-20241022-v1:0': {
-    flags: MODEL_FEATURE.TEXT_DOC_IMAGE,
+    flags: {
+      ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+      ...MODEL_FEATURE.LIGHT,
+    },
     displayName: 'Claude 3.5 Haiku',
   },
   'anthropic.claude-3-5-sonnet-20240620-v1:0': {
@@ -64,6 +67,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     },
     displayName: 'Claude 3 Haiku',
   },
+  'us.anthropic.claude-opus-4-1-20250805-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Opus 4.1',
+  },
   'us.anthropic.claude-opus-4-20250514-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Opus 4',
@@ -81,7 +88,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     displayName: 'Claude 3.5 Sonnet v2',
   },
   'us.anthropic.claude-3-5-haiku-20241022-v1:0': {
-    flags: MODEL_FEATURE.TEXT_DOC_IMAGE,
+    flags: {
+      ...MODEL_FEATURE.TEXT_DOC_IMAGE,
+      ...MODEL_FEATURE.LIGHT,
+    },
     displayName: 'Claude 3.5 Haiku',
   },
   'us.anthropic.claude-3-5-sonnet-20240620-v1:0': {
@@ -522,6 +532,7 @@ export const BEDROCK_SPEECH_TO_SPEECH_MODELS = Object.keys(
 // Prompt caching
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
 export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
+  'anthropic.claude-opus-4-1-20250805-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-20250514-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-sonnet-4-20250514-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-3-7-sonnet-20250219-v1:0': ['messages', 'system', 'tools'],

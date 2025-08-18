@@ -85,5 +85,10 @@ $env:VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT = Extract-Value $stack_output 
 $env:VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS = Extract-Value $stack_output "SpeechToSpeechModelIds"
 $env:VITE_APP_MCP_ENABLED = Extract-Value $stack_output "McpEnabled"
 $env:VITE_APP_MCP_ENDPOINT = Extract-Value $stack_output "McpEndpoint"
+$env:VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT = Extract-Value $stack_output "CognitoUserPoolProxyEndpoint"
+$env:VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT = Extract-Value $stack_output "CognitoIdentityPoolProxyEndpoint"
+$env:VITE_APP_AGENT_CORE_ENABLED = Extract-Value $stack_output "AgentCoreEnabled"
+$env:VITE_APP_AGENT_CORE_GENERIC_RUNTIME = Extract-Value $stack_output "AgentCoreGenericRuntime"
+$env:VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES = Extract-Value $stack_output "AgentCoreExternalRuntimes"
 
 npm -w packages/web run dev

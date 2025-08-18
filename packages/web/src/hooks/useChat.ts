@@ -128,7 +128,8 @@ const useChatState = create<{
     id: string,
     chunk: string,
     trace?: string,
-    model?: Model
+    model?: Model,
+    metadata?: Metadata
   ) => void;
   addMessageIdsToUnrecordedMessages: (id: string) => ToBeRecordedMessage[];
   replaceMessages: (id: string, messages: RecordedMessage[]) => void;
@@ -392,14 +393,30 @@ const useChatState = create<{
   ) => {
     set((state) => {
       const newChats = produce(state.chats, (draft) => {
-        let traceInlineMessage: string | undefined = undefined;
+        const oldAssistantMessage = draft[id].messages.pop()!;
 
         // If the received trace is a code block, do not display it as an inline message
+        let traceInlineMessage: string | undefined = undefined;
         if (trace && !isExactlyCodeBlock(trace.trim())) {
           traceInlineMessage = trace.trim();
         }
 
-        const oldAssistantMessage = draft[id].messages.pop()!;
+        // If new metadata came when old metadata exist, add up numbers
+        if (metadata && oldAssistantMessage.metadata) {
+          metadata.usage.inputTokens +=
+            oldAssistantMessage.metadata.usage.inputTokens || 0;
+          metadata.usage.outputTokens +=
+            oldAssistantMessage.metadata.usage.outputTokens || 0;
+          metadata.usage.totalTokens +=
+            oldAssistantMessage.metadata.usage.totalTokens || 0;
+          metadata.usage.cacheReadInputTokens =
+            (metadata.usage.cacheReadInputTokens || 0) +
+            (oldAssistantMessage.metadata.usage.cacheReadInputTokens || 0);
+          metadata.usage.cacheWriteInputTokens =
+            (metadata.usage.cacheWriteInputTokens || 0) +
+            (oldAssistantMessage.metadata.usage.cacheWriteInputTokens || 0);
+        }
+
         const newAssistantMessage: ShownMessage = {
           ...oldAssistantMessage,
           role: 'assistant',
@@ -1188,9 +1205,10 @@ const useChat = (id: string, chatId?: string) => {
     addChunkToAssistantMessage: (
       chunk: string,
       trace?: string,
-      model?: Model
+      model?: Model,
+      metadata?: Metadata
     ) => {
-      addChunkToAssistantMessage(id, chunk, trace, model);
+      addChunkToAssistantMessage(id, chunk, trace, model, metadata);
     },
     addMessageIdsToUnrecordedMessages: () => {
       return addMessageIdsToUnrecordedMessages(id);

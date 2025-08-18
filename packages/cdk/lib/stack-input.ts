@@ -136,6 +136,17 @@ const baseStackInputSchema = z.object({
     )
     .default([]),
   inlineAgents: z.boolean().default(false),
+  // Agent Core Runtime
+  createGenericAgentCoreRuntime: z.boolean().default(false),
+  agentCoreRegion: z.string().nullish(),
+  agentCoreExternalRuntimes: z
+    .array(
+      z.object({
+        name: z.string(),
+        arn: z.string(),
+      })
+    )
+    .default([]),
   // MCP
   mcpEnabled: z.boolean().default(false),
   // Guardrail
@@ -165,6 +176,15 @@ const baseStackInputSchema = z.object({
   dashboard: z.boolean().default(false),
   // Tag
   tagValue: z.string().nullish(),
+  // Closed network
+  closedNetworkMode: z.boolean().default(false),
+  closedNetworkVpcIpv4Cidr: z.string().default('10.0.0.0/16'),
+  closedNetworkVpcId: z.string().nullish(),
+  closedNetworkSubnetIds: z.array(z.string()).nullish(),
+  closedNetworkCertificateArn: z.string().nullish(),
+  closedNetworkDomainName: z.string().nullish(),
+  closedNetworkCreateTestEnvironment: z.boolean().default(true),
+  closedNetworkCreateResolverEndpoint: z.boolean().default(true),
 });
 
 // Common Validator with refine
@@ -212,6 +232,8 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
       inferenceProfileArn: z.string().optional(),
     })
   ),
+  // Processed agentCoreRegion (null -> modelRegion)
+  agentCoreRegion: z.string(),
 });
 
 export type StackInput = z.infer<typeof stackInputSchema>;

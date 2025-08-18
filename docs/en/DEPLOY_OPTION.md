@@ -569,6 +569,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### Enabling MCP Chat Use Case
 
+> [!WARNING]
+> The MCP Chat use case has been deprecated. Please use the AgentCore use case for MCP utilization. The MCP chat use case is scheduled for complete removal in v6.
+
 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) is a protocol that connects LLM models with external data and tools.
 In GenU, we provide chat use cases that execute MCP-compliant tools using [Strands Agents](https://strandsagents.com/latest/).
 To enable MCP chat use cases, the `docker` command must be executable.
@@ -678,6 +681,52 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### Enabling AgentCore Use Cases
+
+This is a use case for integrating with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
+
+Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
+By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
+
+With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreExternalRuntimes: [
+      {
+        name: 'AgentCore1',
+        arn: 'arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx',
+      },
+    ],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreExternalRuntimes": [
+      {
+        "name": "AgentCore1",
+        "arn": "arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx"
+      }
+    ]
+  }
+}
+```
+
 ### Enabling Voice Chat Use Case
 
 > [!NOTE]
@@ -712,6 +761,7 @@ As of 2025/03, the multimodal models are:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -876,6 +926,7 @@ This solution supports the following text generation models:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -2067,3 +2118,8 @@ Configuration example
   }
 }
 ```
+
+## Using GenU from a Closed Network Environment
+
+To use GenU from a closed network environment, you need to deploy GenU in closed network mode.
+Please refer to [here](./CLOSED_NETWORK.md) for instructions on how to deploy GenU in closed network mode.

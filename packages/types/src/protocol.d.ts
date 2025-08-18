@@ -133,7 +133,12 @@ export type RetrieveKnowledgeBaseRequest = {
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
 
-export type S3Type = 'default' | 'knowledgeBase';
+export type S3Type = 'default' | 'knowledgeBase' | 'agentcore';
+
+export type BucketInfo = {
+  bucketName: string;
+  region: string;
+};
 
 export type GetFileDownloadSignedUrlRequest = {
   bucketName: string;

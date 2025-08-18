@@ -1,6 +1,9 @@
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
+agent_core:
+  start_conversation: AgentCore と会話を始める
+  title: AgentCore
 auth:
   loading: 読み込み中...
   login: ログイン
@@ -37,6 +40,8 @@ common:
   cancel: キャンセル
   clear: クリア
   close: 閉じる
+  collapse: 折りたたみ
+  colon: ':'
   complete: 完了
   create: 作成
   delete: 削除
@@ -44,6 +49,7 @@ common:
   error: エラー
   errorNoSuggestions: 候補が見つかりませんでした。
   execute: 実行
+  expand: 展開
   export: エクスポート
   feedback_received: フィードバックを受け付けました。ありがとうございます。
   here: こちら
@@ -56,6 +62,7 @@ common:
   not_available: 取得できませんでした
   not_selected: 選択されていません
   optional: 任意
+  other: その他
   previous: 前
   required: 必須
   reviewComplete: レビュー完了
@@ -353,7 +360,8 @@ generateText:
 landing:
   alert:
     description: >-
-      こちらは SA が内部デモのために利用する環境です。カスタマーにデモをする場合は、原則自分の AWS アカウントにデプロイしたものを利用してください。カスタマーのデータの入力や業務利用をしてはいけません。
+      こちらは SA が内部デモのために利用する環境です。カスタマーにデモをする場合は、原則自分の AWS
+      アカウントにデプロイしたものを利用してください。カスタマーのデータの入力や業務利用をしてはいけません。
     title: GenU デモ環境について
   demo:
     agent:
@@ -380,8 +388,7 @@ landing:
         スマホ広告のデザイン案を出力してください。
         可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街
     mcp:
-      content: >-
-        Amazon Bedrock のセキュリティについて調べてください。ユーザーの入力はモデルの学習に使われますか？
+      content: Amazon Bedrock のセキュリティについて調べてください。ユーザーの入力はモデルの学習に使われますか？
     rag:
       content: Claude のパラメータを説明し、その設定方法も教えてください。
     summarize:
@@ -414,6 +421,9 @@ landing:
         Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge
         Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。
       title: Agent チャット
+    agent_core:
+      description: AgentCore チャットは Bedrock AgentCore で作成したさまざまな Agent を利用する機能です
+      title: AgentCore
     chat:
       description: >-
         LLM
@@ -441,7 +451,9 @@ landing:
       title: 画像生成
     mcp_chat:
       description: >-
-        MCP チャットは  Model Context Protocol (MCP) を通じて、Bedrock の LLM モデルと外部データや外部ツールをシームレスに連携させるチャット機能です。mcp.json を編集することで、自由にツールを追加できます。MCP のエージェントとして Strands Agents を活用しています。
+        MCP チャットは  Model Context Protocol (MCP) を通じて、Bedrock の LLM
+        モデルと外部データや外部ツールをシームレスに連携させるチャット機能です。mcp.json を編集することで、自由にツールを追加できます。MCP
+        のエージェントとして Strands Agents を活用しています。
       title: MCP チャット
     meeting-minutes:
       description: >-
@@ -518,19 +530,23 @@ mcp_chat:
   title: MCP チャット
 meetingMinutes:
   auto_generate: 自動生成
+  clear_minutes: 議事録をクリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
   frequency: 生成頻度
   frequency_10min: 10分ごと
   frequency_1min: 1分ごと
+  frequency_3min: 3分ごと
   frequency_5min: 5分ごと
   generate: 生成
+  generate_minutes: 議事録を生成
   generate_minutes_header: 議事録を生成
   generated_minutes: 生成された議事録
   generating: 議事録生成中...
   generation_error: 議事録の生成に失敗しました。再試行してください。
+  generation_frequency: 生成頻度
   generation_success: 議事録が正常に生成されました
-  language: 言語
+  language: 文字起こし言語
   language_auto: 自動検出
   language_chinese: 中国語
   language_english: 英語
@@ -540,14 +556,21 @@ meetingMinutes:
   language_vietnamese: ベトナム語
   last_generated: 最後の生成時刻 {{time}}
   minutes_placeholder: 生成後にここに議事録が表示されます
-  model: モデル
+  model: 議事録生成モデル
+  new_recording_session: 新しい録音セッション
+  next_generation: 次回生成
   next_generation_in: '次回生成まで : '
+  no_transcript: 文字起こしがありません
+  partial_indicator: (...)
   record_transcribe: 音声認識
+  screen_audio_error: スクリーン音声エラー
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
+  style_detail: 詳細
   style_faq: 質疑応答
   style_newspaper: 新聞
+  style_summary: 要約
   style_transcription: 文字起こし
   title: 議事録生成
   transcript: 文字起こし
@@ -682,7 +705,7 @@ transcribe:
   mic_input: マイク入力
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
-  screen_audio_error: 'スクリーン音声エラー:'
+  screen_audio_error: スクリーン音声エラー
   screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。<br/>Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。<br/>Chrome と Edge は動作します。Firefox は動作しません。'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
@@ -696,11 +719,21 @@ translate:
   additional_context_placeholder: 追加で考慮してほしい点を入力することができます（カジュアルさ等）
   auto_detect_language: 言語を自動検出
   auto_translate: 自動翻訳
+  contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
   enter_text: 入力してください
+  model: リアルタイム翻訳モデル
+  realtimeTranslation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
+  systemGeneratedContext: システム自動コンテキスト
+  systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト
+  target_language: リアルタイム翻訳言語
   text_to_translate: 翻訳したい文章
   title: 翻訳
+  translating: 翻訳中...
+  translation: 翻訳
+  userDefinedContext: ユーザー定義コンテキスト
+  userDefinedContextPlaceholder: 翻訳精度向上のためのコンテキストを入力（会議の話題、専門用語など）
 useCaseBuilder:
   accessError: アクセスエラー
   addInputExample: 入力例を追加
@@ -1000,8 +1033,6 @@ videoAnalyzer:
 voiceChat:
   close: セッションを終了する
   default_system_prompt: You are an AI assistant.
-  experimental_warning: 音声チャットはまだ実験的な段階です。アーキテクチャ等は今後変更される可能性があります。会話履歴は保存されません。対応言語は英語のみです。
-  experimental_warning_title: 音声チャットについて
   im_listening: 発言してください
   start: セッションを始める
   title: 音声チャット

@@ -34,6 +34,8 @@ common:
   cancel: 取消
   clear: 清除
   close: 关闭
+  collapse: 折叠
+  colon: ':'
   complete: 完成
   create: 创建
   delete: 删除
@@ -41,6 +43,7 @@ common:
   error: 错误
   errorNoSuggestions: 未找到建议。
   execute: 执行
+  expand: 展开
   export: 导出
   feedback_received: 已收到反馈。谢谢。
   here: 这里
@@ -53,6 +56,7 @@ common:
   not_available: 无法获取
   not_selected: 未选择
   optional: 可选
+  other: 其他
   previous: 上一步
   required: 必填
   reviewComplete: 审核完成
@@ -445,19 +449,22 @@ language:
   zh: 中文
 meetingMinutes:
   auto_generate: 自动生成
+  clear_minutes: 清除会议纪要
   custom_prompt: 自定义提示
   custom_prompt_placeholder: 输入用于生成会议纪要的自定义提示...
   frequency: 生成频率
   frequency_10min: 每10分钟
   frequency_1min: 每分钟
+  frequency_3min: 每3分钟
   frequency_5min: 每5分钟
   generate: 生成
   generate_minutes_header: 生成会议纪要
   generated_minutes: 已生成的会议纪要
   generating: 正在生成会议纪要...
   generation_error: 会议纪要生成失败。请重试。
+  generation_frequency: 生成频率
   generation_success: 会议纪要生成成功
-  language: 语言
+  language: 语音识别语言
   language_auto: 自动检测
   language_chinese: 中文
   language_english: 英语
@@ -467,14 +474,21 @@ meetingMinutes:
   language_vietnamese: 越南语
   last_generated: 最后生成时间 {{time}}
   minutes_placeholder: 生成后会议纪要将显示在这里
-  model: 模型
+  model: 会议纪要生成模型
+  new_recording_session: 新录音会话
+  next_generation: 下次生成
   next_generation_in: '下次生成时间 :'
+  no_transcript: 无转录文本
+  partial_indicator: (...)
   record_transcribe: 录音和转录
+  screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别
   style: 会议纪要风格
   style_custom: 自定义
+  style_detail: 详细
   style_faq: 常见问题
   style_newspaper: 新闻报道
+  style_summary: 摘要
   style_transcription: 转录
   title: 会议纪要生成器
   transcript: 转录文本
@@ -597,11 +611,21 @@ translate:
   additional_context_placeholder: 您可以输入希望额外考虑的点（如随意程度等）
   auto_detect_language: 自动检测语言
   auto_translate: 自动翻译
+  contextHelp: 上下文信息通过提供会议背景信息来帮助提高翻译准确性。
   continue_output: 继续输出
   enter_text: 请输入
+  model: 实时翻译模型
+  realtimeTranslation: 实时翻译
   result_placeholder: 翻译结果将显示在这里
+  systemGeneratedContext: 系统生成上下文
+  systemGeneratedContextPlaceholder: 基于会议内容自动生成的上下文
+  target_language: 实时翻译语言
   text_to_translate: 要翻译的文本
   title: 翻译
+  translating: 翻译中...
+  translation: 翻译
+  userDefinedContext: 用户定义上下文
+  userDefinedContextPlaceholder: 输入上下文以提高翻译准确性（例如：会议主题、专业术语等）
 useCaseBuilder:
   accessError: 访问错误
   addInputExample: 添加输入示例
@@ -872,8 +896,6 @@ videoAnalyzer:
 voiceChat:
   close: 结束会话
   default_system_prompt: 您是一个AI助手。
-  experimental_warning: 语音聊天仍处于实验阶段。架构等可能在未来发生变化。对话历史不会保存。仅支持英语。
-  experimental_warning_title: 关于语音聊天
   im_listening: 请说话
   start: 开始会话
   title: 语音聊天

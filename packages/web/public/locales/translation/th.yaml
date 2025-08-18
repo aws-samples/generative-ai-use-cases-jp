@@ -37,6 +37,8 @@ common:
   cancel: ยกเลิก
   clear: ล้าง
   close: ปิด
+  collapse: ย่อ
+  colon: ':'
   complete: เสร็จสิ้น
   create: สร้าง
   delete: ลบ
@@ -44,6 +46,7 @@ common:
   error: เกิดข้อผิดพลาด
   errorNoSuggestions: ไม่พบคำแนะนำ
   execute: ดำเนินการ
+  expand: ขยาย
   export: ส่งออก
   feedback_received: ได้รับข้อเสนอแนะแล้ว ขอบคุณ
   here: ที่นี่
@@ -56,6 +59,7 @@ common:
   not_available: ไม่พร้อมใช้งาน
   not_selected: ไม่ได้เลือก
   optional: ไม่บังคับ
+  other: อื่นๆ
   previous: ก่อนหน้า
   required: จำเป็น
   reviewComplete: การตรวจสอบเสร็จสิ้น
@@ -557,19 +561,22 @@ language:
   zh: ภาษาจีน
 meetingMinutes:
   auto_generate: สร้างอัตโนมัติ
+  clear_minutes: ล้างรายงานการประชุม
   custom_prompt: พรอมต์แบบกำหนดเอง
   custom_prompt_placeholder: ป้อนพรอมต์แบบกำหนดเองสำหรับการสร้างรายงานการประชุม...
   frequency: ความถี่ในการสร้าง
   frequency_10min: ทุก 10 นาที
   frequency_1min: ทุกนาที
+  frequency_3min: ทุก 3 นาที
   frequency_5min: ทุก 5 นาที
   generate: สร้าง
   generate_minutes_header: สร้างรายงานการประชุม
   generated_minutes: รายงานการประชุมที่สร้างแล้ว
   generating: กำลังสร้างรายงานการประชุม...
   generation_error: ไม่สามารถสร้างรายงานการประชุมได้ กรุณาลองอีกครั้ง
+  generation_frequency: ความถี่ในการสร้าง
   generation_success: สร้างรายงานการประชุมสำเร็จ
-  language: ภาษา
+  language: ภาษาการถอดเสียง
   language_auto: ตรวจจับอัตโนมัติ
   language_chinese: จีน
   language_english: อังกฤษ
@@ -579,14 +586,21 @@ meetingMinutes:
   language_vietnamese: เวียดนาม
   last_generated: สร้างล่าสุดเมื่อ {{time}}
   minutes_placeholder: รายงานการประชุมจะปรากฏที่นี่หลังจากสร้าง
-  model: โมเดล
+  model: โมเดลสร้างรายงานการประชุม
+  new_recording_session: เซสชันการบันทึกใหม่
+  next_generation: การสร้างครั้งถัดไป
   next_generation_in: 'สร้างครั้งถัดไปใน : '
+  no_transcript: ไม่มีบันทึกการถอดความ
+  partial_indicator: (...)
   record_transcribe: บันทึกและถอดความ
+  screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   speech_recognition: การรู้จำเสียงพูด
   style: รูปแบบรายงานการประชุม
   style_custom: กำหนดเอง
+  style_detail: รายละเอียด
   style_faq: คำถามที่พบบ่อย
   style_newspaper: หนังสือพิมพ์
+  style_summary: สรุป
   style_transcription: การถอดความ
   title: ตัวสร้างรายงานการประชุม
   transcript: บันทึกการถอดความ
@@ -718,7 +732,7 @@ transcribe:
   mic_input: อินพุตไมโครโฟน
   result_placeholder: ข้อความที่แปลงจากเสียงของคุณ
   screen_audio: เสียงหน้าจอ
-  screen_audio_error: 'ข้อผิดพลาดเสียงหน้าจอ:'
+  screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   screen_audio_notice: 'สำหรับ Windows: เลือกแท็บ "หน้าจอทั้งหมด" และเปิด "แชร์เสียงระบบด้วย"<br/>สำหรับ Mac: เลือก "Chrome Tab" และเปิด "Also share tab audio"<br/>Chrome และ Edge ใช้งานได้ Firefox ใช้งานไม่ได้'
   select_input_method: โปรดเลือกจากอินพุตไมโครโฟนหรืออัปโหลดไฟล์
   speaker_names: ชื่อผู้พูด (คั่นด้วยเครื่องหมายจุลภาค)
@@ -732,11 +746,21 @@ translate:
   additional_context_placeholder: คุณสามารถป้อนประเด็นเพิ่มเติมที่ต้องการพิจารณา (เช่น ความไม่เป็นทางการ ฯลฯ)
   auto_detect_language: ตรวจจับภาษาอัตโนมัติ
   auto_translate: แปลอัตโนมัติ
+  contextHelp: ข้อมูลบริบทช่วยเพิ่มความแม่นยำในการแปลโดยให้ข้อมูลพื้นฐานเกี่ยวกับการประชุม
   continue_output: ดำเนินการต่อ
   enter_text: ป้อนข้อความ
+  model: โมเดลการแปลแบบเรียลไทม์
+  realtimeTranslation: การแปลแบบเรียลไทม์
   result_placeholder: ผลการแปลจะแสดงที่นี่
+  systemGeneratedContext: บริบทที่สร้างโดยระบบ
+  systemGeneratedContextPlaceholder: บริบทที่สร้างขึ้นอัตโนมัติจากเนื้อหาการประชุม
+  target_language: ภาษาการแปลแบบเรียลไทม์
   text_to_translate: ข้อความที่จะแปล
   title: แปล
+  translating: กำลังแปล...
+  translation: การแปล
+  userDefinedContext: บริบทที่ผู้ใช้กำหนด
+  userDefinedContextPlaceholder: ป้อนบริบทเพื่อเพิ่มความแม่นยำในการแปล (เช่น หัวข้อการประชุม คำศัพท์เทคนิค ฯลฯ)
 useCaseBuilder:
   accessError: ข้อผิดพลาดในการเข้าถึง
   addInputExample: เพิ่มตัวอย่างอินพุต
@@ -1057,9 +1081,6 @@ videoAnalyzer:
 voiceChat:
   close: ปิดเซสชั่น
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice Chat ยังอยู่ในระยะทดลอง สถาปัตยกรรมและอื่นๆ อาจมีการเปลี่ยนแปลงในอนาคต ประวัติการสนทนาจะไม่ได้รับการบันทึก ภาษาที่รองรับคือภาษาอังกฤษเท่านั้น
-  experimental_warning_title: เกี่ยวกับ Voice Chat
   im_listening: กำลังฟัง...
   start: เริ่มเซสชันใหม่
   title: Voice Chat

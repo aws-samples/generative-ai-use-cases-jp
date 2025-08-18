@@ -1,6 +1,9 @@
 agent:
   drop_files: Drop files to upload
   title: Agent Chat
+agent_core:
+  start_conversation: Start a conversation with AgentCore
+  title: AgentCore
 auth:
   loading: Loading...
   login: Login
@@ -39,6 +42,8 @@ common:
   cancel: Cancel
   clear: Clear
   close: Close
+  collapse: Collapse
+  colon: ':'
   complete: Complete
   create: Create
   delete: Delete
@@ -46,6 +51,7 @@ common:
   error: An error occurred
   errorNoSuggestions: No suggestions were found.
   execute: Execute
+  expand: Expand
   export: Export
   feedback_received: Feedback received. Thank you.
   here: here
@@ -58,6 +64,7 @@ common:
   not_available: Not available
   not_selected: Not selected
   optional: Optional
+  other: Other
   previous: Previous
   required: Required
   reviewComplete: Review completed
@@ -443,7 +450,9 @@ generateText:
 landing:
   alert:
     description: >-
-      This is an environment used for internal demos by SA. When giving demos to customers, please use the one deployed in your own AWS account as a rule. Do not input customer data or use it for business purposes.
+      This is an environment used for internal demos by SA. When giving demos to
+      customers, please use the one deployed in your own AWS account as a rule.
+      Do not input customer data or use it for business purposes.
     title: About GenU Demo Environment
   demo:
     agent:
@@ -485,7 +494,8 @@ landing:
         music, photography, trendy smartphone, city background
     mcp:
       content: >-
-        Please research about Amazon Bedrock security. Is user input used for model training?
+        Please research about Amazon Bedrock security. Is user input used for
+        model training?
     rag:
       content: >-
         Please provide an overview of Amazon Nova Canvas and explain its key
@@ -529,6 +539,9 @@ landing:
         execute actions or reference the vector database of Knowledge Bases for
         Amazon Bedrock.
       title: Agent Chat
+    agent_core:
+      description: AgentCore Chat is a feature that utilizes various Agents created with Bedrock AgentCore.
+      title: AgentCore
     chat:
       description: >-
         You can have interactive dialogues with an LLM in a chat format. It can
@@ -562,12 +575,16 @@ landing:
       title: Image Generation
     mcp_chat:
       description: >-
-        MCP Chat is a chat function that seamlessly integrates Bedrock's LLM models with external data and external tools through the Model Context Protocol (MCP). You can freely add tools by editing the mcp.json file. Leveraging Strands Agents as an MCP agent.
+        MCP Chat is a chat function that seamlessly integrates Bedrock's LLM
+        models with external data and external tools through the Model Context
+        Protocol (MCP). You can freely add tools by editing the mcp.json file.
+        Leveraging Strands Agents as an MCP agent.
       title: MCP Chat
     meeting-minutes:
       description: >-
-        Automatically generate meeting minutes from audio recordings or real-time transcription.
-        No need to write prompts - choose from near-original transcription, newspaper style, or FAQ format.
+        Automatically generate meeting minutes from audio recordings or
+        real-time transcription. No need to write prompts - choose from
+        near-original transcription, newspaper style, or FAQ format.
       title: Meeting Minutes Generation
     rag_chat:
       description_kb: >-
@@ -657,19 +674,22 @@ mcp_chat:
   title: MCP Chat
 meetingMinutes:
   auto_generate: Auto Generate
+  clear_minutes: Clear Minutes
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
   frequency: Generation Frequency
   frequency_10min: Every 10 minutes
   frequency_1min: Every 1 minute
+  frequency_3min: Every 3 minutes
   frequency_5min: Every 5 minutes
   generate: Generate
   generate_minutes_header: Generate Meeting Minutes
   generated_minutes: Generated Minutes
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
+  generation_frequency: Generation Frequency
   generation_success: Meeting minutes generated successfully
-  language: Language
+  language: Transcription Language
   language_auto: Auto Detect
   language_chinese: Chinese
   language_english: English
@@ -679,14 +699,21 @@ meetingMinutes:
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
   minutes_placeholder: Minutes will appear here after generation
-  model: Model
+  model: Meeting Minutes Generation Model
+  new_recording_session: New Recording Session
+  next_generation: Next Generation
   next_generation_in: 'Next generation in : '
+  no_transcript: No Transcript
+  partial_indicator: (...)
   record_transcribe: Record & Transcribe
+  screen_audio_error: Screen Audio Error
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
+  style_detail: Detail
   style_faq: FAQ
   style_newspaper: Newspaper
+  style_summary: Summary
   style_transcription: Transcription
   title: Meeting Minutes Generator
   transcript: Transcript
@@ -836,7 +863,9 @@ summarize:
 transcribe:
   detailed_parameters: Detailed parameters
   direct_input: Direct Input
-  direct_input_instruction: Please enter the source text for meeting minutes directly in the "Transcript" area below.
+  direct_input_instruction: >-
+    Please enter the source text for meeting minutes directly in the
+    "Transcript" area below.
   direct_input_placeholder: Please enter the source text for meeting minutes here...
   file_upload: File Upload
   max_speakers: Max Speakers
@@ -844,7 +873,7 @@ transcribe:
   mic_input: Microphone Input
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
-  screen_audio_error: 'Screen Audio Error:'
+  screen_audio_error: Screen Audio Error
   screen_audio_notice: 'For Windows: Select "Entire Screen" tab and turn ON "Share system audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab audio".<br/>Chrome and Edge work. Firefox does not work.'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
@@ -858,11 +887,21 @@ translate:
   additional_context_placeholder: You can enter additional points to consider (e.g., casualness, etc.)
   auto_detect_language: Auto detect language
   auto_translate: Auto translate
+  contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
   continue_output: Continue output
   enter_text: Enter text
+  model: Real-time Translation Model
+  realtimeTranslation: Real-time Translation
   result_placeholder: Translation results will be displayed here
+  systemGeneratedContext: System-generated Context
+  systemGeneratedContextPlaceholder: Auto-generated context based on the meeting content
+  target_language: Real-time Translation Language
   text_to_translate: Text to translate
   title: Translate
+  translating: Translating...
+  translation: Translation
+  userDefinedContext: User-defined Context
+  userDefinedContextPlaceholder: 'Enter context to improve translation accuracy (e.g., meeting topic, technical terms, etc.)'
 useCaseBuilder:
   accessError: Access Error
   addInputExample: Add Input Example
@@ -1244,11 +1283,6 @@ videoAnalyzer:
 voiceChat:
   close: Close session
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice Chat is still in an experimental stage. The architecture, etc. may be
-    changed in the future. Conversation history will not be saved. The supported
-    language is English only.
-  experimental_warning_title: About Voice Chat
   im_listening: I'm listening...
   start: Start new session
   title: Voice Chat

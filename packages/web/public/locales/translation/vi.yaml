@@ -37,6 +37,8 @@ common:
   cancel: Hủy
   clear: Xóa
   close: Đóng
+  collapse: Thu gọn
+  colon: ':'
   complete: Hoàn thành
   create: Tạo
   delete: Xóa
@@ -44,6 +46,7 @@ common:
   error: Lỗi
   errorNoSuggestions: Không tìm thấy gợi ý.
   execute: Thực hiện
+  expand: Mở rộng
   feedback_received: Đã nhận phản hồi. Cảm ơn bạn.
   here: Tại đây
   load_more: Tải thêm
@@ -55,6 +58,7 @@ common:
   not_available: Không thể lấy được
   not_selected: Chưa được chọn
   optional: Tùy chọn
+  other: Khác
   previous: Trước
   required: Bắt buộc
   reviewComplete: Hoàn thành đánh giá
@@ -541,19 +545,22 @@ language:
   zh: Tiếng Trung
 meetingMinutes:
   auto_generate: Tự động tạo
+  clear_minutes: Xóa biên bản
   custom_prompt: Lời nhắc tùy chỉnh
   custom_prompt_placeholder: Nhập lời nhắc tùy chỉnh để tạo biên bản cuộc họp...
   frequency: Tần suất tạo
   frequency_10min: Mỗi 10 phút
   frequency_1min: Mỗi phút
+  frequency_3min: Mỗi 3 phút
   frequency_5min: Mỗi 5 phút
   generate: Tạo
   generate_minutes_header: Tạo biên bản
   generated_minutes: Biên bản đã được tạo
   generating: Đang tạo biên bản...
   generation_error: Không thể tạo biên bản cuộc họp. Vui lòng thử lại.
+  generation_frequency: Tần suất tạo
   generation_success: Tạo biên bản cuộc họp thành công
-  language: Ngôn ngữ
+  language: Ngôn ngữ phiên âm
   language_auto: Tự động phát hiện
   language_chinese: Tiếng Trung
   language_english: Tiếng Anh
@@ -563,14 +570,21 @@ meetingMinutes:
   language_vietnamese: Tiếng Việt
   last_generated: Tạo lần cuối {{time}}
   minutes_placeholder: Biên bản sẽ xuất hiện ở đây sau khi tạo
-  model: Mô hình
+  model: Mô hình tạo biên bản cuộc họp
+  new_recording_session: Phiên ghi âm mới
+  next_generation: Tạo tiếp theo
   next_generation_in: 'Tạo tiếp theo trong : '
+  no_transcript: Không có bản chuyển đổi
+  partial_indicator: (...)
   record_transcribe: Ghi âm và chuyển đổi
+  screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
   style_custom: Tùy chỉnh
+  style_detail: Chi tiết
   style_faq: FAQ
   style_newspaper: Báo chí
+  style_summary: Tóm tắt
   style_transcription: Chuyển đổi
   title: Trình tạo biên bản cuộc họp
   transcript: Bản chuyển đổi
@@ -696,7 +710,7 @@ transcribe:
   mic_input: Đầu vào microphone
   result_placeholder: Kết quả nhận dạng giọng nói sẽ được hiển thị ở đây
   screen_audio: Âm thanh màn hình
-  screen_audio_error: 'Lỗi âm thanh màn hình:'
+  screen_audio_error: Lỗi âm thanh màn hình
   screen_audio_notice: 'Đối với Windows: Chọn tab "Toàn bộ màn hình" và bật "Chia sẻ âm thanh hệ thống".<br/>Đối với Mac: Chọn "Chrome Tab" và bật "Also share tab audio".<br/>Chrome và Edge hoạt động. Firefox không hoạt động.'
   select_input_method: Vui lòng chọn từ đầu vào microphone hoặc tải lên tệp
   speaker_names: Tên người nói (phân cách bằng dấu phẩy)
@@ -710,11 +724,21 @@ translate:
   additional_context_placeholder: Có thể nhập các điểm bổ sung muốn xem xét (như tính thân mật, v.v.)
   auto_detect_language: Tự động phát hiện ngôn ngữ
   auto_translate: Dịch tự động
+  contextHelp: Thông tin ngữ cảnh giúp cải thiện độ chính xác dịch thuật bằng cách cung cấp thông tin nền về cuộc họp.
   continue_output: Xuất tiếp tục
   enter_text: Vui lòng nhập
+  model: Mô hình dịch thời gian thực
+  realtimeTranslation: Dịch thời gian thực
   result_placeholder: Kết quả dịch thuật sẽ được hiển thị ở đây
+  systemGeneratedContext: Ngữ cảnh được tạo bởi hệ thống
+  systemGeneratedContextPlaceholder: Ngữ cảnh được tạo tự động dựa trên nội dung cuộc họp
+  target_language: Ngôn ngữ dịch thời gian thực
   text_to_translate: Văn bản muốn dịch
-  title: Dịch thuậ
+  title: Dịch thuật
+  translating: Đang dịch...
+  translation: Bản dịch
+  userDefinedContext: Ngữ cảnh do người dùng định nghĩa
+  userDefinedContextPlaceholder: 'Nhập ngữ cảnh để cải thiện độ chính xác dịch thuật (ví dụ: chủ đề cuộc họp, thuật ngữ chuyên môn, v.v.)'
 useCaseBuilder:
   accessError: Lỗi truy cập
   addInputExample: Thêm ví dụ đầu vào
@@ -1025,9 +1049,6 @@ videoAnalyzer:
 voiceChat:
   close: Kết thúc Phiên
   default_system_prompt: You are an AI assistant.
-  experimental_warning: >-
-    Voice chat vẫn đang trong giai đoạn thử nghiệm. Kiến trúc và các yếu tố khác có thể thay đổi trong tương lai. Lịch sử hội thoại sẽ không được lưu. Chỉ hỗ trợ tiếng Anh.
-  experimental_warning_title: Về voice chat
   im_listening: Hãy phát biểu
   start: Bắt đầu phiên
   title: Voice Chat

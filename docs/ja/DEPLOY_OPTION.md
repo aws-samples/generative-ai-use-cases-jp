@@ -584,6 +584,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### MCP チャットユースケースの有効化
 
+> [!WARNING]
+> MCP チャットユースケースは Deprecated ステータスになりました。MCP の活用には AgentCore ユースケースをご利用ください。MCP チャットユースケースは v6 で完全削除予定です。
+
 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) とは、LLM モデルと外部データやツールを繋ぐプロトコルです。
 GenU では [Strands Agents](https://strandsagents.com/latest/) を活用して MCP に準拠したツールを実行するチャットユースケースを用意しています。
 MCP チャットユースケースを有効化するためには、`docker` コマンドが実行可能である必要があります。
@@ -693,6 +696,52 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### AgentCore ユースケースの有効化
+
+AgentCore で作成したエージェントと連携するユースケースです。(Experimental: 予告なく破壊的変更を行うことがあります)
+
+`createGenericAgentCoreRuntime` を有効化するとデフォルトの AgentCore Runtime がデプロイされます。
+デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
+
+`agentCoreExternalRuntimes` で外部で作成した AgentCore Runtime を利用することが可能です。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreExternalRuntimes: [
+      {
+        name: 'AgentCore1',
+        arn: 'arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx',
+      },
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreExternalRuntimes": [
+      {
+        "name": "AgentCore1",
+        "arn": "arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx"
+      }
+    ]
+  }
+}
+```
+
 ### 音声チャットユースケースの有効化
 
 > [!NOTE]
@@ -727,6 +776,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -891,6 +941,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -2075,3 +2126,8 @@ npm run cdk:deploy -- -c env=<環境名>
   }
 }
 ```
+
+## 閉域環境から GenU を使う場合
+
+閉域環境から GenU を利用するには、閉域モードの GenU をデプロイする必要があります。
+閉域モードの GenU のデプロイ方法は [こちら](./CLOSED_NETWORK.md) をご参照ください。
