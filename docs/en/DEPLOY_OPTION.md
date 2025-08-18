@@ -1839,6 +1839,12 @@ However, tags cannot be used with some resources:
 - Cross-region inference model calls
 - Voice chat model calls
 
+When managing costs using tags, you need to enable “Cost allocation tags” by following these steps.
+
+- Open the “Billing and Cost Management” console.
+- Open “Cost Allocation Tags” in the left menu.
+- Activate the tag with the tag key “GenU” from “User-defined cost allocation tags.”
+
 ## Enabling Monitoring Dashboard
 
 Create a dashboard that aggregates input/output token counts and recent prompts.
