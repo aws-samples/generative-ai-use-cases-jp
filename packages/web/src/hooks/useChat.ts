@@ -587,6 +587,7 @@ const useChatState = create<{
     });
 
     // Update the assistant's message
+    let tmpBuffer = '';
     let tmpChunk = '';
 
     for await (const chunk of stream) {
@@ -603,8 +604,20 @@ const useChatState = create<{
       const chunks = chunk.split('\n');
 
       for (const c of chunks) {
+        console.log(c); // TODO: delete
+
         if (c && c.length > 0) {
-          const payload = JSON.parse(c) as StreamingChunk;
+          let payload: StreamingChunk;
+
+          try {
+            payload = JSON.parse(tmpBuffer + c) as StreamingChunk;
+            tmpBuffer = '';
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            console.warn(e);
+            tmpBuffer += c;
+            continue;
+          }
 
           if (payload.text.length > 0) {
             tmpChunk += payload.text;
