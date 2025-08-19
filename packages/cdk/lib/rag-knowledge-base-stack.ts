@@ -300,7 +300,7 @@ export class RagKnowledgeBaseStack extends Stack {
     // Always create the tag applier custom resource to handle both tag application and removal
     const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      code: lambda.Code.fromAsset('custom-resources'),
+      code: lambda.Code.fromAsset('custom-resources/apply-tags'),
       handler: 'apply-tags.handler',
       uuid: 'E2488E36-B465-4D1F-9D1C-89FB99F1CC01',
       lambdaPurpose: 'ApplyTagsToResources',
