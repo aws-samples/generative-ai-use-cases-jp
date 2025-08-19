@@ -174,6 +174,8 @@ const baseStackInputSchema = z.object({
   hostedZoneId: z.string().nullish(),
   // Dashboard
   dashboard: z.boolean().default(false),
+  // Tag
+  tagValue: z.string().nullish(),
   // Closed network
   closedNetworkMode: z.boolean().default(false),
   closedNetworkVpcIpv4Cidr: z.string().default('10.0.0.0/16'),
@@ -206,24 +208,28 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   imageGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   videoGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   speechToSpeechModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   // Processed agentCoreRegion (null -> modelRegion)

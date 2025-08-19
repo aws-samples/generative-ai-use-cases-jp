@@ -9,6 +9,8 @@ node_modules
 site*/
 .cache
 
+# Jest snapshot fix files
+*.snap.fix
 # Coding Asssitant
 .kiro/settings
 .kiro/specs
