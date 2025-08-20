@@ -210,7 +210,12 @@ const bedrockAgentApi: ApiInterface = {
           }
 
           if (body) {
-            yield streamingChunk({ text: body });
+            // Since the Agent's output can be very large, we will send it in chunks.
+            // If sent all at once, the frontend may not be able to receive everything completely, which could result in JSON.parse errors.
+            const chunkSize = 100;
+            for (let i = 0; i < body.length; i += chunkSize) {
+              yield streamingChunk({ text: body.substring(i, i + chunkSize) });
+            }
           }
         }
 

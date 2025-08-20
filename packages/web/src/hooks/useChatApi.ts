@@ -114,6 +114,11 @@ const useChatApi = () => {
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
       const lambda = new LambdaClient({
         region,
+        requestHandler: {
+          requestTimeout: 300000,
+          socketTimeout: 300000,
+          connectionTimeout: 10000,
+        },
         credentials: fromCognitoIdentityPool({
           client: cognito,
           identityPoolId: idPoolId,
