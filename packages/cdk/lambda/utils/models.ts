@@ -4,7 +4,6 @@ import {
   GenerateVideoParams,
   Model,
   ModelConfiguration,
-  PromptTemplate,
   StableDiffusionParams,
   UnrecordedMessage,
   ConverseInferenceParams,
@@ -107,40 +106,6 @@ export const defaultVideoGenerationModel: Model = {
     inferenceProfileArn: videoGenerationModels[0].inferenceProfileArn,
   }),
 };
-
-// Prompt Templates
-
-const LLAMA_PROMPT: PromptTemplate = {
-  prefix: '<s>[INST] ',
-  suffix: ' [/INST]',
-  join: '',
-  user: '{}',
-  assistant: ' [/INST] {}</s><s>[INST] ',
-  system: '<<SYS>>\n{}\n<</SYS>>\n\n',
-  eosToken: '</s>',
-};
-
-/* eslint-disable i18nhelper/no-jp-string */
-const BILINGUAL_RINNA_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: 'システム: ',
-  join: '\n',
-  user: 'ユーザー: {}',
-  assistant: 'システム: {}',
-  system: 'システム: {}',
-  eosToken: '</s>',
-};
-
-const RINNA_PROMPT: PromptTemplate = {
-  prefix: '',
-  suffix: 'システム: ',
-  join: '<NL>',
-  user: 'ユーザー: {}',
-  assistant: 'システム: {}',
-  system: 'システム: {}',
-  eosToken: '</s>',
-};
-/* eslint-enable i18nhelper/no-jp-string */
 
 // Model Params
 
@@ -1604,15 +1569,4 @@ export const BEDROCK_VIDEO_GEN_MODELS: {
   'luma.ray-v2:0': {
     createBodyVideo: createBodyVideoLumaRayV2,
   },
-};
-
-export const getSageMakerModelTemplate = (model: string): PromptTemplate => {
-  if (model.includes('llama')) {
-    return LLAMA_PROMPT;
-  } else if (model.includes('bilingual-rinna')) {
-    return BILINGUAL_RINNA_PROMPT;
-  } else if (model.includes('rinna')) {
-    return RINNA_PROMPT;
-  }
-  throw new Error('Invalid model name');
 };

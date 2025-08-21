@@ -417,11 +417,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId].flags;
+    const feature = MODELS.getModelMetadata(modelId);
     return [
-      ...(feature.doc ? fileLimit.accept.doc : []),
-      ...(feature.image ? fileLimit.accept.image : []),
-      ...(feature.video ? fileLimit.accept.video : []),
+      ...(feature.flags.doc ? fileLimit.accept.doc : []),
+      ...(feature.flags.image ? fileLimit.accept.image : []),
+      ...(feature.flags.video ? fileLimit.accept.video : []),
     ];
   }, [modelId]);
 

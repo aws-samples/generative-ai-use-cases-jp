@@ -135,7 +135,7 @@ const ChatPage: React.FC = () => {
   const { createSystemContext } = useSystemContextApi();
   const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
-  const { modelIds: availableModels, modelDisplayName } = MODELS;
+  const { allModelIds: availableModels, modelDisplayName } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -168,7 +168,7 @@ const ChatPage: React.FC = () => {
 
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId];
+    const feature = MODELS.getModelMetadata(modelId);
     return [
       ...(feature.flags.doc ? fileLimit.accept.doc : []),
       ...(feature.flags.image ? fileLimit.accept.image : []),
@@ -179,7 +179,7 @@ const ChatPage: React.FC = () => {
     return accept.length > 0;
   }, [accept]);
   const setting = useMemo(() => {
-    return MODELS.modelMetadata[modelId]?.flags.reasoning ?? false;
+    return MODELS.getModelMetadata(modelId).flags.reasoning ?? false;
   }, [modelId]);
 
   useEffect(() => {
@@ -672,7 +672,7 @@ const ChatPage: React.FC = () => {
             defaultOpened={true}>
             <div className="">
               <ModelParameters
-                modelFeatureFlags={MODELS.modelMetadata[modelId].flags}
+                modelFeatureFlags={MODELS.getModelMetadata(modelId).flags}
                 overrideModelParameters={overrideModelParameters}
                 setOverrideModelParameters={setOverrideModelParameters}
               />

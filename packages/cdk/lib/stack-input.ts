@@ -85,7 +85,17 @@ const baseStackInputSchema = z.object({
       ])
     )
     .default(['amazon.nova-sonic-v1:0']),
-  endpointNames: z.array(z.string()).default([]),
+  endpointNames: z
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          modelId: z.string(),
+          region: z.string(),
+        }),
+      ])
+    )
+    .default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
   ragEnabled: z.boolean().default(false),
@@ -230,6 +240,12 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
       modelId: z.string(),
       region: z.string(),
       inferenceProfileArn: z.string().optional(),
+    })
+  ),
+  endpointNames: z.array(
+    z.object({
+      modelId: z.string(),
+      region: z.string(),
     })
   ),
   // Processed agentCoreRegion (null -> modelRegion)

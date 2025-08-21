@@ -121,7 +121,7 @@ const AgentCorePage: React.FC = () => {
   // Accept file types based on model
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId];
+    const feature = MODELS.getModelMetadata(modelId);
     return [
       ...(feature.flags.doc ? fileLimit.accept.doc : []),
       ...(feature.flags.image ? fileLimit.accept.image : []),

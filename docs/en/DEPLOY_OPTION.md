@@ -1423,32 +1423,21 @@ const envs: Record<string, StackInput> = {
 }
 ```
 
-## Using Custom Models with Amazon SageMaker
+## When you want to use Amazon SageMaker custom models
 
-You can use large language models deployed to Amazon SageMaker endpoints. This solution supports SageMaker endpoints using [Hugging Face's Text Generation Inference (TGI) LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Ideally, the models should support chat-formatted prompts where user and assistant take turns speaking. Currently, image generation use cases are not supported with Amazon SageMaker endpoints.
+It is possible to use large language models deployed to Amazon SageMaker endpoints. It supports SageMaker Endpoints using [Text Generation Inference (TGI) Hugging Face LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Since it uses TGI's [Message API](https://huggingface.co/docs/text-generation-inference/messages_api), TGI must be version 1.4.0 or later, and the model must support Chat Template (`chat_template` defined in `tokenizer.config`). Currently, only text models are supported.
 
-There are two ways to deploy models using TGI containers to SageMaker endpoints:
+There are currently two ways to deploy models using TGI containers to SageMaker endpoints.
 
-**Deploy pre-packaged models from SageMaker JumpStart**
+**Deploy pre-prepared models by AWS with SageMaker JumpStart**
 
-SageMaker JumpStart offers one-click deployment of packaged open-source large language models. You can deploy these models by opening them in the JumpStart screen in SageMaker Studio and clicking the "Deploy" button. Examples of Japanese models provided include:
-
-- [SageMaker JumpStart Elyza Japanese Llama 2 7B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart Elyza Japanese Llama 2 13B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart CyberAgentLM2 7B Chat](https://aws.amazon.com/jp/blogs/news/cyberagentlm2-on-sagemaker-jumpstart/)
-- [SageMaker JumpStart Stable LM Instruct Alpha 7B v2](https://aws.amazon.com/jp/blogs/news/japanese-stable-lm-instruct-alpha-7b-v2-from-stability-ai-is-now-available-in-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+SageMaker JumpStart provides OSS large language models packaged for one-click deployment. You can open a model from the JumpStart screen in SageMaker Studio and deploy it by clicking the "Deploy" button.
 
 **Deploy with a few lines of code using SageMaker SDK**
 
-Thanks to [AWS's partnership with Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the model ID from Hugging Face using the SageMaker SDK.
+Through the [partnership between AWS and Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the ID of models published on Hugging Face with the SageMaker SDK.
 
-From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see the code for deploying the model. Copy and run this code to deploy the model. (You may need to adjust parameters like instance size or `SM_NUM_GPUS` depending on the model. If deployment fails, you can check the logs in CloudWatch Logs.)
-
-> [!NOTE]
-> There's one modification needed when deploying: The endpoint name will be displayed in the GenU application and is used to determine the model's prompt template (explained in the next section). Therefore, you need to specify a distinguishable endpoint name.
-> Add `endpoint_name="<distinguishable endpoint name>"` as an argument to `huggingface_model.deploy()` when deploying.
+From a published Hugging Face model page, select _Deploy_ > _Amazon SageMaker_ to display the code for deploying the model. You can deploy the model by copying and executing this code. (Depending on the model, you may need to change parameters such as instance size or `SM_NUM_GPUS`. If deployment fails, you can check the logs from CloudWatch Logs)
 
 ![Select Amazon SageMaker from Deploy on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy.png)
 ![Deployment script guide on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy2.png)
@@ -1457,9 +1446,7 @@ From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see th
 
 To use deployed SageMaker endpoints with the target solution, specify them as follows:
 
-endpointNames is a list of SageMaker endpoint names. (Example: `["elyza-llama-2", "rinna"]`)
-
-To specify the prompt template used when constructing prompts in the backend, you need to include the prompt type in the endpoint name. (Example: `llama-2`, `rinna`, etc.) See `packages/cdk/lambda/utils/models.ts` for details. Add prompt templates as needed.
+`endpointNames` is a list of SageMaker endpoint names. Optionally you can specify region for each endpoint.
 
 ```typescript
 // parameter.ts
@@ -1467,8 +1454,11 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-east-1',
     endpointNames: [
-      'jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16',
-      'jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16',
+      '<SageMaker Endpoint Name>',
+      {
+        modelIds: '<SageMaker Endpoint Name>',
+        region: '<SageMaker Endpoint Name>',
+      },
     ],
   },
 };
@@ -1479,34 +1469,13 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "<SageMaker Endpoint Region>",
-    "endpointNames": ["<SageMaker Endpoint Name>"]
-  }
-}
-```
-
-**Example: Using Rinna 3.6B and Bilingual Rinna 4B**
-
-```json
-// cdk.json
-{
-  "context": {
-    "modelRegion": "us-west-2",
     "endpointNames": [
-      "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16",
-      "jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"
+      "<SageMaker Endpoint Name>",
+      {
+        "modelIds": "<SageMaker Endpoint Name>",
+        "region": "<SageMaker Endpoint Name>"
+      }
     ]
-  }
-}
-```
-
-**Example: Using ELYZA-japanese-Llama-2-7b-instruct**
-
-```json
-// cdk.json
-{
-  "context": {
-    "modelRegion": "us-west-2",
-    "endpointNames": ["elyza-japanese-llama-2-7b-inference"]
   }
 }
 ```

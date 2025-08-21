@@ -48,7 +48,7 @@ export interface BackendApiProps {
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
   readonly videoBucketRegionMap: Record<string, string>;
-  readonly endpointNames: string[];
+  readonly endpointNames: ModelConfiguration[];
   readonly queryDecompositionEnabled: boolean;
   readonly rerankingModelId?: string | null;
   readonly customAgents: Agent[];
@@ -83,7 +83,7 @@ export class Api extends Construct {
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
-  readonly endpointNames: string[];
+  readonly endpointNames: ModelConfiguration[];
   readonly agentNames: string[];
   readonly fileBucket: Bucket;
   readonly getFileDownloadSignedUrlFunction: IFunction;
@@ -505,9 +505,9 @@ export class Api extends Construct {
         actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
         resources: endpointNames.map(
           (endpointName) =>
-            `arn:aws:sagemaker:${modelRegion}:${
+            `arn:aws:sagemaker:${endpointName.region}:${
               Stack.of(this).account
-            }:endpoint/${endpointName}`
+            }:endpoint/${endpointName.modelId}`
         ),
       });
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);

@@ -42,7 +42,7 @@ export interface WebProps {
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
-  readonly endpointNames: string[];
+  readonly endpointNames: ModelConfiguration[];
   readonly samlAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
