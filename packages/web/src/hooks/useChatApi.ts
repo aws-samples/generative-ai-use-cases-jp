@@ -94,7 +94,10 @@ const useChatApi = () => {
       return res.data;
     },
     // Streaming Response
-    predictStream: async function* (req: PredictRequest) {
+    predictStream: async function* (
+      req: PredictRequest,
+      decode: boolean = true
+    ) {
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
       if (!token) {
         throw new Error('Not authenticated');
@@ -141,7 +144,11 @@ const useChatApi = () => {
 
       for await (const event of events) {
         if (event.PayloadChunk) {
-          yield new TextDecoder('utf-8').decode(event.PayloadChunk.Payload);
+          if (decode) {
+            yield new TextDecoder('utf-8').decode(event.PayloadChunk.Payload);
+          } else {
+            yield event.PayloadChunk.Payload;
+          }
         }
 
         if (event.InvokeComplete) {

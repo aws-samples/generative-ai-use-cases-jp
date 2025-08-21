@@ -38,7 +38,7 @@ export const useWriter = () => {
     let tmpChunk = '';
     let tmpTrace = '';
     for await (const chunk of stream) {
-      const chunks = chunk.split('\n');
+      const chunks = (chunk as string).split('\n');
 
       for (const c of chunks) {
         if (c && c.length > 0) {
