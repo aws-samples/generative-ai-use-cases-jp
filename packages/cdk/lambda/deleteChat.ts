@@ -8,12 +8,12 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    await deleteChat(userId, chatId);
+    await deleteChat(userId, chatId, event);
 
-    const shareId = await findShareId(userId, chatId);
+    const shareId = await findShareId(userId, chatId, event);
 
     if (shareId) {
-      await deleteShareId(shareId.shareId.split('#')[1]);
+      await deleteShareId(shareId.shareId.split('#')[1], event);
     }
 
     return {

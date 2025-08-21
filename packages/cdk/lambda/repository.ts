@@ -11,23 +11,112 @@ import {
 } from 'generative-ai-use-cases';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import {
   BatchGetCommand,
   BatchWriteCommand,
   DeleteCommand,
-  DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
   TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { getTenantId } from './utils/tenantUtils';
+import { createTenantDynamoDBClient } from './utils/tenantDynamoDBClient';
 
-const TABLE_NAME: string = process.env.TABLE_NAME!;
-const STATS_TABLE_NAME: string = process.env.STATS_TABLE_NAME!;
-const dynamoDb = new DynamoDBClient({});
-const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
+const TABLE_PREFIX: string = process.env.TABLE_NAME!;
+const DEFAULT_TABLE_NAME: string = process.env.DEFAULT_TABLE_NAME!;
+const STATS_TABLE_PREFIX: string = process.env.STATS_TABLE_NAME!;
+const DEFAULT_STATS_TABLE_NAME: string = process.env.DEFAULT_STATS_TABLE_NAME!;
 
-export const createChat = async (_userId: string): Promise<Chat> => {
+/**
+ * Get or create a tenant-specific DynamoDB document client
+ * Falls back to default client if tenant-specific access fails
+ */
+async function getTenantDynamoDBDocument(
+  event: APIGatewayProxyEvent
+): Promise<DynamoDBDocumentClient> {
+  const tenantId = getTenantId(event);
+
+  // For default tenant, use standard DynamoDB client
+  if (!tenantId || tenantId === 'default') {
+    // Create standard DynamoDB client without AssumeRole
+    return DynamoDBDocumentClient.from(new DynamoDBClient({}));
+  }
+
+  try {
+    // Try to create client with tenant credentials
+    // Each request gets fresh credentials to ensure proper user isolation
+    const dynamoDb = await createTenantDynamoDBClient(event);
+    return DynamoDBDocumentClient.from(dynamoDb);
+  } catch (error) {
+    console.error(
+      'Failed to assume role for tenant access, falling back to default:',
+      error
+    );
+    // Fall back to standard DynamoDB client
+    return DynamoDBDocumentClient.from(new DynamoDBClient({}));
+  }
+}
+
+/**
+ * Get tenant-specific table name
+ * Note: Tenant ID extraction is only for constructing the correct table name.
+ * Security/isolation is enforced by IAM policies using session tags from the JWT.
+ */
+function getTableName(event: APIGatewayProxyEvent): string {
+  const tenantId = getTenantId(event);
+
+  // For default/fallback users, use the actual CDK-generated table name
+  if (!tenantId || tenantId === 'default') {
+    return DEFAULT_TABLE_NAME;
+  }
+
+  // For tenant users, construct tenant-specific table name directly
+  return `${TABLE_PREFIX}-tenant-${tenantId}`;
+}
+
+/**
+ * Get tenant-specific stats table name
+ */
+function getStatsTableName(event: APIGatewayProxyEvent): string {
+  const tenantId = getTenantId(event);
+
+  // For default/fallback users, use the actual CDK-generated stats table name
+  if (!tenantId || tenantId === 'default') {
+    return DEFAULT_STATS_TABLE_NAME;
+  }
+
+  // For tenant users, construct tenant-specific stats table name directly
+  return `${STATS_TABLE_PREFIX}-tenant-${tenantId}`;
+}
+
+// ============================================
+// Helper Functions
+// ============================================
+
+/**
+ * Execute DynamoDB operation with proper tenant table selection
+ */
+async function executeDynamoDBOperation<T>(
+  event: APIGatewayProxyEvent,
+  operation: (client: DynamoDBDocumentClient, tableName: string) => Promise<T>
+): Promise<T> {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
+  return await operation(dynamoDbDocument, tableName);
+}
+
+// ============================================
+// Repository Functions
+// ============================================
+
+export const createChat = async (
+  _userId: string,
+  event: APIGatewayProxyEvent
+): Promise<Chat> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${crypto.randomUUID()}`;
   const item = {
@@ -39,11 +128,16 @@ export const createChat = async (_userId: string): Promise<Chat> => {
     updatedDate: '',
   };
 
-  await dynamoDbDocument.send(
-    new PutCommand({
-      TableName: TABLE_NAME,
-      Item: item,
-    })
+  await executeDynamoDBOperation(
+    event,
+    async (client, tableName) => {
+      return client.send(
+        new PutCommand({
+          TableName: tableName,
+          Item: item,
+        })
+      );
+    }
   );
 
   return item;
@@ -51,24 +145,31 @@ export const createChat = async (_userId: string): Promise<Chat> => {
 
 export const findChatById = async (
   _userId: string,
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<Chat | null> => {
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
-  const res = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: '#id = :id',
-      FilterExpression: '#chatId = :chatId',
-      ExpressionAttributeNames: {
-        '#id': 'id',
-        '#chatId': 'chatId',
-      },
-      ExpressionAttributeValues: {
-        ':id': userId,
-        ':chatId': chatId,
-      },
-    })
+
+  const res = await executeDynamoDBOperation(
+    event,
+    async (client, tableName) => {
+      return client.send(
+        new QueryCommand({
+          TableName: tableName,
+          KeyConditionExpression: '#id = :id',
+          FilterExpression: '#chatId = :chatId',
+          ExpressionAttributeNames: {
+            '#id': 'id',
+            '#chatId': 'chatId',
+          },
+          ExpressionAttributeValues: {
+            ':id': userId,
+            ':chatId': chatId,
+          },
+        })
+      );
+    }
   );
 
   if (!res.Items || res.Items.length === 0) {
@@ -80,24 +181,31 @@ export const findChatById = async (
 
 export const findSystemContextById = async (
   _userId: string,
-  _systemContextId: string
+  _systemContextId: string,
+  event: APIGatewayProxyEvent
 ): Promise<SystemContext | null> => {
   const userId = `systemContext#${_userId}`;
   const systemContextId = `systemContext#${_systemContextId}`;
-  const res = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: '#id = :id',
-      FilterExpression: '#systemContextId = :systemContextId',
-      ExpressionAttributeNames: {
-        '#id': 'id',
-        '#systemContextId': 'systemContextId',
-      },
-      ExpressionAttributeValues: {
-        ':id': userId,
-        ':systemContextId': systemContextId,
-      },
-    })
+
+  const res = await executeDynamoDBOperation(
+    event,
+    async (client, tableName) => {
+      return client.send(
+        new QueryCommand({
+          TableName: tableName,
+          KeyConditionExpression: '#id = :id',
+          FilterExpression: '#systemContextId = :systemContextId',
+          ExpressionAttributeNames: {
+            '#id': 'id',
+            '#systemContextId': 'systemContextId',
+          },
+          ExpressionAttributeValues: {
+            ':id': userId,
+            ':systemContextId': systemContextId,
+          },
+        })
+      );
+    }
   );
 
   if (!res.Items || res.Items.length === 0) {
@@ -109,15 +217,20 @@ export const findSystemContextById = async (
 
 export const listChats = async (
   _userId: string,
+  event: APIGatewayProxyEvent,
   _exclusiveStartKey?: string
 ): Promise<ListChatsResponse> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const exclusiveStartKey = _exclusiveStartKey
     ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
   const userId = `user#${_userId}`;
+
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#id = :id',
       ExpressionAttributeNames: {
         '#id': 'id',
@@ -126,7 +239,7 @@ export const listChats = async (
         ':id': userId,
       },
       ScanIndexForward: false,
-      Limit: 100, // Return the list of chats in 100 items at a time
+      Limit: 100,
       ExclusiveStartKey: exclusiveStartKey,
     })
   );
@@ -140,12 +253,17 @@ export const listChats = async (
 };
 
 export const listSystemContexts = async (
-  _userId: string
+  _userId: string,
+  event: APIGatewayProxyEvent
 ): Promise<SystemContext[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const userId = `systemContext#${_userId}`;
+
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#id = :id',
       ExpressionAttributeNames: {
         '#id': 'id',
@@ -156,16 +274,22 @@ export const listSystemContexts = async (
       ScanIndexForward: false,
     })
   );
+
   return res.Items as SystemContext[];
 };
 
 export const createSystemContext = async (
   _userId: string,
   title: string,
-  systemContext: string
+  systemContext: string,
+  event: APIGatewayProxyEvent
 ): Promise<SystemContext> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const userId = `systemContext#${_userId}`;
   const systemContextId = `systemContext#${crypto.randomUUID()}`;
+
   const item = {
     id: userId,
     createdDate: `${Date.now()}`,
@@ -176,7 +300,7 @@ export const createSystemContext = async (
 
   await dynamoDbDocument.send(
     new PutCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Item: item,
     })
   );
@@ -185,12 +309,17 @@ export const createSystemContext = async (
 };
 
 export const listMessages = async (
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<RecordedMessage[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const chatId = `chat#${_chatId}`;
+
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#id = :id',
       ExpressionAttributeNames: {
         '#id': 'id',
@@ -204,15 +333,19 @@ export const listMessages = async (
   return res.Items as RecordedMessage[];
 };
 
-// Update token usage
-async function updateTokenUsage(message: RecordedMessage): Promise<void> {
+// Update token usage helper function
+async function updateTokenUsage(
+  message: RecordedMessage,
+  event: APIGatewayProxyEvent,
+  dynamoDbDocument: DynamoDBDocumentClient
+): Promise<void> {
   if (!message.metadata?.usage) {
     return;
   }
 
   const timestamp = message.createdDate.split('#')[0];
   const date = new Date(parseInt(timestamp));
-  const dateStr = date.toISOString().slice(0, 10); // YYYY-MM-DD
+  const dateStr = date.toISOString().slice(0, 10);
   const userId = message.userId.replace('user#', '');
   const modelId = message.llmType || 'unknown';
   const usecase = message.usecase || 'unknown';
@@ -222,12 +355,12 @@ async function updateTokenUsage(message: RecordedMessage): Promise<void> {
     cacheReadInputTokens: 0,
     cacheWriteInputTokens: 0,
   };
+  const statsTableName = getStatsTableName(event);
 
   try {
-    // Try to update with shallow nesting structure
     await dynamoDbDocument.send(
       new UpdateCommand({
-        TableName: STATS_TABLE_NAME,
+        TableName: statsTableName,
         Key: {
           id: `stats#${dateStr}`,
           userId: userId,
@@ -274,23 +407,22 @@ async function updateTokenUsage(message: RecordedMessage): Promise<void> {
       updateError
     );
     try {
-      // Create record with complete object structure (without condition)
       await dynamoDbDocument.send(
         new UpdateCommand({
-          TableName: STATS_TABLE_NAME,
+          TableName: statsTableName,
           Key: {
             id: `stats#${dateStr}`,
             userId: userId,
           },
           UpdateExpression: `
-              SET
-                #date = :date,
-                executions = :executionsObj,
-                inputTokens = :inputTokensObj,
-                outputTokens = :outputTokensObj,
-                cacheReadInputTokens = :cacheReadInputTokensObj,
-                cacheWriteInputTokens = :cacheWriteInputTokensObj
-            `,
+            SET
+              #date = :date,
+              executions = :executionsObj,
+              inputTokens = :inputTokensObj,
+              outputTokens = :outputTokensObj,
+              cacheReadInputTokens = :cacheReadInputTokensObj,
+              cacheWriteInputTokens = :cacheWriteInputTokensObj
+          `,
           ExpressionAttributeNames: {
             '#date': 'date',
           },
@@ -333,8 +465,12 @@ async function updateTokenUsage(message: RecordedMessage): Promise<void> {
 export const batchCreateMessages = async (
   messages: ToBeRecordedMessage[],
   _userId: string,
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<RecordedMessage[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
   const createdDate = Date.now();
@@ -359,11 +495,10 @@ export const batchCreateMessages = async (
     }
   );
 
-  // Save messages
   await dynamoDbDocument.send(
     new BatchWriteCommand({
       RequestItems: {
-        [TABLE_NAME]: items.map((m) => {
+        [tableName]: items.map((m) => {
           return {
             PutRequest: {
               Item: m,
@@ -375,7 +510,9 @@ export const batchCreateMessages = async (
   );
 
   // Update token usage in parallel
-  await Promise.all(items.map(updateTokenUsage));
+  await Promise.all(
+    items.map((item) => updateTokenUsage(item, event, dynamoDbDocument))
+  );
 
   return items;
 };
@@ -383,11 +520,15 @@ export const batchCreateMessages = async (
 export const setChatTitle = async (
   id: string,
   createdDate: string,
-  title: string
+  title: string,
+  event: APIGatewayProxyEvent
 ) => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: id,
         createdDate: createdDate,
@@ -399,15 +540,21 @@ export const setChatTitle = async (
       ReturnValues: 'ALL_NEW',
     })
   );
+
   return res.Attributes as Chat;
 };
 
 export const updateFeedback = async (
   _chatId: string,
-  feedbackData: UpdateFeedbackRequest
+  feedbackData: UpdateFeedbackRequest,
+  event: APIGatewayProxyEvent
 ): Promise<RecordedMessage> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const chatId = `chat#${_chatId}`;
   const { createdDate, feedback, reasons, detailedFeedback } = feedbackData;
+
   let updateExpression = 'set feedback = :feedback';
   const expressionAttributeValues: {
     ':feedback': string;
@@ -429,7 +576,7 @@ export const updateFeedback = async (
 
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: chatId,
         createdDate,
@@ -445,13 +592,17 @@ export const updateFeedback = async (
 
 export const deleteChat = async (
   _userId: string,
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<void> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   // Delete Chat
-  const chatItem = await findChatById(_userId, _chatId);
+  const chatItem = await findChatById(_userId, _chatId, event);
   await dynamoDbDocument.send(
     new DeleteCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: chatItem?.id,
         createdDate: chatItem?.createdDate,
@@ -460,34 +611,45 @@ export const deleteChat = async (
   );
 
   // Delete Messages
-  const messageItems = await listMessages(_chatId);
-  await dynamoDbDocument.send(
-    new BatchWriteCommand({
-      RequestItems: {
-        [TABLE_NAME]: messageItems.map((m) => {
-          return {
-            DeleteRequest: {
-              Key: {
-                id: m.id,
-                createdDate: m.createdDate,
+  const messageItems = await listMessages(_chatId, event);
+  if (messageItems.length > 0) {
+    await dynamoDbDocument.send(
+      new BatchWriteCommand({
+        RequestItems: {
+          [tableName]: messageItems.map((m) => {
+            return {
+              DeleteRequest: {
+                Key: {
+                  id: m.id,
+                  createdDate: m.createdDate,
+                },
               },
-            },
-          };
-        }),
-      },
-    })
-  );
+            };
+          }),
+        },
+      })
+    );
+  }
 };
 
 export const updateSystemContextTitle = async (
   _userId: string,
   _systemContextId: string,
-  title: string
+  title: string,
+  event: APIGatewayProxyEvent
 ): Promise<SystemContext> => {
-  const systemContext = await findSystemContextById(_userId, _systemContextId);
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
+  const systemContext = await findSystemContextById(
+    _userId,
+    _systemContextId,
+    event
+  );
+
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: systemContext?.id,
         createdDate: systemContext?.createdDate,
@@ -505,13 +667,21 @@ export const updateSystemContextTitle = async (
 
 export const deleteSystemContext = async (
   _userId: string,
-  _systemContextId: string
+  _systemContextId: string,
+  event: APIGatewayProxyEvent
 ): Promise<void> => {
-  // Delete System Context
-  const systemContext = await findSystemContextById(_userId, _systemContextId);
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
+  const systemContext = await findSystemContextById(
+    _userId,
+    _systemContextId,
+    event
+  );
+
   await dynamoDbDocument.send(
     new DeleteCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: systemContext?.id,
         createdDate: systemContext?.createdDate,
@@ -522,11 +692,15 @@ export const deleteSystemContext = async (
 
 export const createShareId = async (
   _userId: string,
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<{
   shareId: ShareId;
   userIdAndChatId: UserIdAndChatId;
 }> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
   const createdDate = `${Date.now()}`;
@@ -550,13 +724,13 @@ export const createShareId = async (
       TransactItems: [
         {
           Put: {
-            TableName: TABLE_NAME,
+            TableName: tableName,
             Item: itemShareId,
           },
         },
         {
           Put: {
-            TableName: TABLE_NAME,
+            TableName: tableName,
             Item: itemUserIdAndChatId,
           },
         },
@@ -571,12 +745,17 @@ export const createShareId = async (
 };
 
 export const findUserIdAndChatId = async (
-  _shareId: string
+  _shareId: string,
+  event: APIGatewayProxyEvent
 ): Promise<UserIdAndChatId | null> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const shareId = `share#${_shareId}`;
+
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#id = :id',
       ExpressionAttributeNames: {
         '#id': 'id',
@@ -596,13 +775,18 @@ export const findUserIdAndChatId = async (
 
 export const findShareId = async (
   _userId: string,
-  _chatId: string
+  _chatId: string,
+  event: APIGatewayProxyEvent
 ): Promise<ShareId | null> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   const userId = `user#${_userId}`;
   const chatId = `chat#${_chatId}`;
+
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#id = :id',
       ExpressionAttributeNames: {
         '#id': 'id',
@@ -620,13 +804,19 @@ export const findShareId = async (
   }
 };
 
-export const deleteShareId = async (_shareId: string): Promise<void> => {
-  const userIdAndChatId = await findUserIdAndChatId(_shareId);
+export const deleteShareId = async (
+  _shareId: string,
+  event: APIGatewayProxyEvent
+): Promise<void> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
+  const userIdAndChatId = await findUserIdAndChatId(_shareId, event);
   const share = await findShareId(
     // SAML authentication includes # in userId
-    // Example: user#EntraID_hogehoge.com#EXT#@hogehoge.onmicrosoft.com
     userIdAndChatId!.userId.split('#').slice(1).join('#'),
-    userIdAndChatId!.chatId.split('#')[1]
+    userIdAndChatId!.chatId.split('#')[1],
+    event
   );
 
   await dynamoDbDocument.send(
@@ -634,7 +824,7 @@ export const deleteShareId = async (_shareId: string): Promise<void> => {
       TransactItems: [
         {
           Delete: {
-            TableName: TABLE_NAME,
+            TableName: tableName,
             Key: {
               id: share!.id,
               createdDate: share!.createdDate,
@@ -643,7 +833,7 @@ export const deleteShareId = async (_shareId: string): Promise<void> => {
         },
         {
           Delete: {
-            TableName: TABLE_NAME,
+            TableName: tableName,
             Key: {
               id: userIdAndChatId!.id,
               createdDate: userIdAndChatId!.createdDate,
@@ -658,15 +848,18 @@ export const deleteShareId = async (_shareId: string): Promise<void> => {
 export const aggregateTokenUsage = async (
   startDate: string,
   endDate: string,
+  event: APIGatewayProxyEvent,
   userIds?: string[]
 ): Promise<TokenUsageStats[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const statsTableName = getStatsTableName(event);
+
   const userId = userIds?.[0];
   if (!userId) {
     throw new Error('userId is required');
   }
 
   try {
-    // Initialize all dates in the date range
     const start = new Date(startDate);
     const end = new Date(endDate);
     const statsMap = new Map<string, TokenUsageStats>();
@@ -695,7 +888,6 @@ export const aggregateTokenUsage = async (
     }
 
     // BatchGetItem supports up to 100 items per request
-    // Split keys into chunks if necessary
     const chunkSize = 100;
     const keyChunks = [];
     for (let i = 0; i < keys.length; i += chunkSize) {
@@ -707,7 +899,7 @@ export const aggregateTokenUsage = async (
       dynamoDbDocument.send(
         new BatchGetCommand({
           RequestItems: {
-            [STATS_TABLE_NAME]: {
+            [statsTableName]: {
               Keys: chunk,
             },
           },
@@ -719,7 +911,7 @@ export const aggregateTokenUsage = async (
 
     // Update the map with the retrieved data
     batchResults.forEach((result) => {
-      result.Responses?.[STATS_TABLE_NAME]?.forEach((item) => {
+      result.Responses?.[statsTableName]?.forEach((item) => {
         const stats = item as TokenUsageStats;
         if (stats.date) {
           statsMap.set(stats.date, stats);

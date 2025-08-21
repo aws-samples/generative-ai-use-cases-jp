@@ -1,15 +1,37 @@
+import json
+
 def handler(event, context):
-    user_attributes = event["request"]["userAttributes"]
-    tenant_id = user_attributes.get("custom:tenant_id")
-    
-    if tenant_id:
+    """
+    Cognito Pre Token Generation trigger (V2) to add tenant ID to JWT claims.
+    This enables Cognito Identity Pool to map claims to principal tags for ABAC.
+    """
+    try:
+        print(f"Pre Token Generation Event: {json.dumps(event, indent=2)}")
+        
+        user_attributes = event["request"]["userAttributes"]
+        tenant_id = user_attributes.get("custom:tenant_id", "default")
+        
+        # For Identity Pool Enhanced Flow, we only need to ensure the custom:tenant_id
+        # claim is present in the JWT. The Identity Pool will automatically map
+        # this to the TenantID principal tag based on the principalTags configuration.
         event["response"]["claimsAndScopeOverrideDetails"] = {
             "idTokenGeneration": {
                 "claimsToAddOrOverride": {
-                    "https://aws.amazon.com/tags": {
-                        "principal_tags": {"TenantID": [tenant_id]}
-                    }
+                    # Add tenant ID as a claim - this will be mapped to principal tag by Identity Pool
+                    "custom:tenant_id": tenant_id
+                }
+            },
+            "accessTokenGeneration": {
+                "claimsToAddOrOverride": {
+                    "custom:tenant_id": tenant_id
                 }
             }
         }
-    return event
+        
+        print(f"Token generation response: {json.dumps(event['response'], indent=2)}")
+        return event
+        
+    except Exception as e:
+        print(f"Error in pre-token generation: {str(e)}")
+        # Return the event unchanged to avoid breaking authentication
+        return event

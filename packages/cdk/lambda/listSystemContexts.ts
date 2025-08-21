@@ -8,8 +8,10 @@ export const handler = async (
   try {
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const systemContextItems: SystemContext[] =
-      await listSystemContexts(userId);
+    const systemContextItems: SystemContext[] = await listSystemContexts(
+      userId,
+      event
+    );
 
     return {
       statusCode: 200,

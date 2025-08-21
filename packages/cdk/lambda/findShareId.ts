@@ -8,7 +8,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const res = await findShareId(userId, chatId);
+    const res = await findShareId(userId, chatId, event);
 
     if (res === null) {
       return {

@@ -13,7 +13,7 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Effect, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
 import {
   BlockPublicAccess,
   Bucket,
@@ -50,6 +50,7 @@ export interface BackendApiProps {
 
   // Resource
   readonly userPool: UserPool;
+  readonly multiTenantRole: Role;
   readonly idPool: IdentityPool;
   readonly userPoolClient: UserPoolClient;
   readonly table: Table;
@@ -139,6 +140,18 @@ export class Api extends Construct {
         aliasId: agent.aliasId,
       };
     }
+
+    // Table name prefixes for constructing tenant-specific table names
+    const TABLE_PREFIX = 'ChatHistory';
+    const STATS_TABLE_PREFIX = 'TokenUsageStats';
+    const DEFAULT_TENANT_ID = 'default';
+
+    // IAM policy for assuming multi-tenant role with web identity
+    const multiTenantAssumeRolePolicy = new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: ['sts:AssumeRoleWithWebIdentity'],
+      resources: [props.multiTenantRole.roleArn],
+    });
 
     // S3 (File Bucket)
     const fileBucket = new Bucket(this, 'FileBucket', {
@@ -242,7 +255,12 @@ export class Api extends Construct {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
@@ -257,6 +275,7 @@ export class Api extends Construct {
       },
     });
     table.grantWriteData(predictTitleFunction);
+    predictTitleFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const generateImageFunction = new NodejsFunction(this, 'GenerateImage', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -288,8 +307,13 @@ export class Api extends Construct {
         VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
         LITELLM_ENDPOINT: litellmEndpoint ?? '',
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -309,6 +333,7 @@ export class Api extends Construct {
       );
     }
     table.grantWriteData(generateVideoFunction);
+    generateVideoFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const copyVideoJob = new NodejsFunction(this, 'CopyVideoJob', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -323,7 +348,12 @@ export class Api extends Construct {
         VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
@@ -344,6 +374,7 @@ export class Api extends Construct {
     }
     fileBucket.grantWrite(copyVideoJob);
     table.grantWriteData(copyVideoJob);
+    copyVideoJob.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -357,7 +388,12 @@ export class Api extends Construct {
         VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
         COPY_VIDEO_JOB_FUNCTION_ARN: copyVideoJob.functionArn,
       },
       bundling: {
@@ -365,6 +401,7 @@ export class Api extends Construct {
       },
     });
     table.grantReadWriteData(listVideoJobs);
+    listVideoJobs.addToRolePolicy(multiTenantAssumeRolePolicy);
     copyVideoJob.grantInvoke(listVideoJobs);
 
     const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
@@ -375,10 +412,16 @@ export class Api extends Construct {
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantWriteData(deleteVideoJob);
+    deleteVideoJob.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const optimizePromptFunction = new NodejsFunction(
       this,
@@ -530,33 +573,52 @@ export class Api extends Construct {
       entry: './lambda/createChat.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantWriteData(createChatFunction);
+    createChatFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const deleteChatFunction = new NodejsFunction(this, 'DeleteChat', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteChat.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadWriteData(deleteChatFunction);
+    deleteChatFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/createMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
-        STATS_TABLE_NAME: props.statsTable.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        STATS_TABLE_NAME: STATS_TABLE_PREFIX,
+        DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
         BUCKET_NAME: fileBucket.bucketName,
       },
     });
     table.grantReadWriteData(createMessagesFunction);
     props.statsTable.grantReadWriteData(createMessagesFunction);
+    createMessagesFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const updateChatTitleFunction = new NodejsFunction(
       this,
@@ -566,51 +628,83 @@ export class Api extends Construct {
         entry: './lambda/updateTitle.ts',
         timeout: Duration.minutes(15),
         environment: {
-          TABLE_NAME: table.tableName,
+          TABLE_NAME: TABLE_PREFIX,
+          DEFAULT_TABLE_NAME: props.table.tableName,
+          DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+          IDENTITY_POOL_ID: props.idPool.identityPoolId,
+          USER_POOL_ID: props.userPool.userPoolId,
         },
       }
     );
     table.grantReadWriteData(updateChatTitleFunction);
+    updateChatTitleFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listChatsFunction = new NodejsFunction(this, 'ListChats', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/listChats.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        STATS_TABLE_NAME: STATS_TABLE_PREFIX,
+        DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(listChatsFunction);
+    listChatsFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const findChatbyIdFunction = new NodejsFunction(this, 'FindChatbyId', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/findChatById.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(findChatbyIdFunction);
+    findChatbyIdFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/listMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(listMessagesFunction);
+    listMessagesFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const updateFeedbackFunction = new NodejsFunction(this, 'UpdateFeedback', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/updateFeedback.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadWriteData(updateFeedbackFunction);
+    updateFeedbackFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const getWebTextFunction = new NodejsFunction(this, 'GetWebText', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -623,40 +717,64 @@ export class Api extends Construct {
       entry: './lambda/createShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadWriteData(createShareId);
+    createShareId.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getSharedChat.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(getSharedChat);
+    getSharedChat.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const findShareId = new NodejsFunction(this, 'FindShareId', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/findShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(findShareId);
+    findShareId.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const deleteShareId = new NodejsFunction(this, 'DeleteShareId', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadWriteData(deleteShareId);
+    deleteShareId.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listSystemContextsFunction = new NodejsFunction(
       this,
@@ -666,11 +784,17 @@ export class Api extends Construct {
         entry: './lambda/listSystemContexts.ts',
         timeout: Duration.minutes(15),
         environment: {
-          TABLE_NAME: table.tableName,
+          TABLE_NAME: TABLE_PREFIX,
+          DEFAULT_TABLE_NAME: props.table.tableName,
+          DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+          IDENTITY_POOL_ID: props.idPool.identityPoolId,
+          USER_POOL_ID: props.userPool.userPoolId,
         },
       }
     );
     table.grantReadData(listSystemContextsFunction);
+    listSystemContextsFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const createSystemContextFunction = new NodejsFunction(
       this,
@@ -680,11 +804,17 @@ export class Api extends Construct {
         entry: './lambda/createSystemContext.ts',
         timeout: Duration.minutes(15),
         environment: {
-          TABLE_NAME: table.tableName,
+          TABLE_NAME: TABLE_PREFIX,
+          DEFAULT_TABLE_NAME: props.table.tableName,
+          DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+          IDENTITY_POOL_ID: props.idPool.identityPoolId,
+          USER_POOL_ID: props.userPool.userPoolId,
         },
       }
     );
     table.grantWriteData(createSystemContextFunction);
+    createSystemContextFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const updateSystemContextTitleFunction = new NodejsFunction(
       this,
@@ -694,11 +824,19 @@ export class Api extends Construct {
         entry: './lambda/updateSystemContextTitle.ts',
         timeout: Duration.minutes(15),
         environment: {
-          TABLE_NAME: table.tableName,
+          TABLE_NAME: TABLE_PREFIX,
+          DEFAULT_TABLE_NAME: props.table.tableName,
+          DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+          IDENTITY_POOL_ID: props.idPool.identityPoolId,
+          USER_POOL_ID: props.userPool.userPoolId,
         },
       }
     );
     table.grantReadWriteData(updateSystemContextTitleFunction);
+    updateSystemContextTitleFunction.addToRolePolicy(
+      multiTenantAssumeRolePolicy
+    );
 
     const deleteSystemContextFunction = new NodejsFunction(
       this,
@@ -708,11 +846,17 @@ export class Api extends Construct {
         entry: './lambda/deleteSystemContext.ts',
         timeout: Duration.minutes(15),
         environment: {
-          TABLE_NAME: table.tableName,
+          TABLE_NAME: TABLE_PREFIX,
+          DEFAULT_TABLE_NAME: props.table.tableName,
+          DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+          IDENTITY_POOL_ID: props.idPool.identityPoolId,
+          USER_POOL_ID: props.userPool.userPoolId,
         },
       }
     );
     table.grantReadWriteData(deleteSystemContextFunction);
+    deleteSystemContextFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -729,12 +873,23 @@ export class Api extends Construct {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getTokenUsage.ts',
       environment: {
-        TABLE_NAME: table.tableName,
-        STATS_TABLE_NAME: props.statsTable.tableName,
+        TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_TABLE_NAME: props.table.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        STATS_TABLE_NAME: STATS_TABLE_PREFIX,
+        DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
+        MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: props.idPool.identityPoolId,
+        USER_POOL_ID: props.userPool.userPoolId,
       },
     });
     table.grantReadData(getTokenUsageFunction);
     props.statsTable.grantReadData(getTokenUsageFunction);
+    getTokenUsageFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
+
+    // Note: The unified multi-tenant approach handles AssumeRoleWithWebIdentity
+    // directly within each Lambda function, so separate Lambda functions for
+    // tenant operations are no longer needed.
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
@@ -771,6 +926,9 @@ export class Api extends Construct {
         'Access-Control-Allow-Origin': "'*'",
       },
     });
+
+    // Note: Tenant-specific API routes have been removed as the unified approach
+    // handles multi-tenancy through existing Lambda functions with AssumeRoleWithWebIdentity
 
     const predictResource = api.root.addResource('predict');
 

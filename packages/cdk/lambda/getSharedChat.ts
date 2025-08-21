@@ -6,7 +6,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const shareId = event.pathParameters!.shareId!;
-    const res = await findUserIdAndChatId(shareId);
+    const res = await findUserIdAndChatId(shareId, event);
 
     if (res === null) {
       return {
@@ -26,9 +26,10 @@ export const handler = async (
       // SAML authentication includes # in userId
       // Example: user#EntraID_hogehoge.com#EXT#@hogehoge.onmicrosoft.com
       userId.split('#').slice(1).join('#'),
-      chatId.split('#')[1]
+      chatId.split('#')[1],
+      event
     );
-    const messages = await listMessages(chatId.split('#')[1]);
+    const messages = await listMessages(chatId.split('#')[1], event);
 
     return {
       statusCode: 200,

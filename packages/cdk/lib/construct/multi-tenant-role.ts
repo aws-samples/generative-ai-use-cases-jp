@@ -1,19 +1,23 @@
 import { Construct } from 'constructs';
 import {
   Role,
-  WebIdentityPrincipal,
+  IRole,
   PolicyStatement,
   Effect,
-  FederatedPrincipal,
+  WebIdentityPrincipal,
+  CfnRole,
 } from 'aws-cdk-lib/aws-iam';
-import { Stack, CfnJson } from 'aws-cdk-lib';
+import { Stack, Fn, CfnJson } from 'aws-cdk-lib';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
+import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 
 export interface MultiTenantRoleProps {
   readonly userPool: UserPool;
   readonly userPoolClient: UserPoolClient;
+  readonly identityPool: IdentityPool;
   readonly region: string;
   readonly account: string;
+  readonly env?: string;
 }
 
 export class MultiTenantRole extends Construct {
@@ -22,52 +26,19 @@ export class MultiTenantRole extends Construct {
   constructor(scope: Construct, id: string, props: MultiTenantRoleProps) {
     super(scope, id);
 
-    // Get the OIDC provider ARN from the user pool
-    const oidcProviderArn = Stack.of(this).formatArn({
-      service: 'iam',
-      region: '',
-      account: props.account,
-      resource: 'oidc-provider',
-      resourceName: `cognito-idp.${props.region}.amazonaws.com/${props.userPool.userPoolId}`,
-    });
+    // Use the existing Identity Pool authenticated role instead of creating a new role
+    // This ensures that Cognito Identity Pool can properly apply principal tags
+    // Cast IRole to Role since we know it's a concrete Role instance
+    this.role = props.identityPool.authenticatedRole as Role;
 
-    // Create CfnJson to handle dynamic condition keys
-    const trustConditions = new CfnJson(this, 'TrustConditions', {
-      value: {
-        [`cognito-idp.${props.region}.amazonaws.com/${props.userPool.userPoolId}:aud`]:
-          props.userPoolClient.userPoolClientId,
-        [`cognito-idp.${props.region}.amazonaws.com/${props.userPool.userPoolId}:amr`]:
-          'authenticated',
-      },
-    });
+    // Note: Trust relationship is now properly configured in the Auth construct
+    // The Identity Pool's authenticated role trusts cognito-identity.amazonaws.com
+    // and principal tags are mapped from JWT claims via CfnIdentityPoolPrincipalTag
 
-    // Create the single role for multi-tenant access
-    this.role = new Role(this, 'MultiTenantAccessRole', {
-      roleName: `${Stack.of(this).stackName}-MultiTenantAccessRole`,
-      assumedBy: new FederatedPrincipal(
-        oidcProviderArn,
-        {
-          StringEquals: trustConditions,
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
-      description:
-        'Single role for multi-tenant resource access with dynamic tenant ID',
-    });
-
-    // Grant the ability to tag sessions
-    this.role.assumeRolePolicy?.addStatements(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        principals: [new WebIdentityPrincipal(oidcProviderArn)],
-        actions: ['sts:TagSession'],
-      })
-    );
-
-    // Add S3 access policy for tenant-specific buckets
-    // Assumes bucket naming pattern: <prefix>-tenant-<tenant-id>
+    // Add S3 access policy for tenant-specific buckets using PrincipalTag
     this.role.addToPolicy(
       new PolicyStatement({
+        sid: 'S3TenantAccess',
         effect: Effect.ALLOW,
         actions: [
           's3:GetObject',
@@ -76,18 +47,18 @@ export class MultiTenantRole extends Construct {
           's3:ListBucket',
         ],
         resources: [
-          // Bucket-level permissions
-          `arn:aws:s3:::*-tenant-$\{aws:PrincipalTag/TenantID}`,
-          // Object-level permissions
-          `arn:aws:s3:::*-tenant-$\{aws:PrincipalTag/TenantID}/*`,
+          // Bucket-level permissions (stack-specific)
+          `arn:aws:s3:::generativeaiusecasesstack${props.env || ''}-*-tenant-\${aws:PrincipalTag/TenantID}`,
+          // Object-level permissions (stack-specific)
+          `arn:aws:s3:::generativeaiusecasesstack${props.env || ''}-*-tenant-\${aws:PrincipalTag/TenantID}/*`,
         ],
       })
     );
 
-    // Add DynamoDB access policy for tenant-specific tables
-    // Assumes table naming pattern: <prefix>-tenant-<tenant-id>
+    // Add DynamoDB access policy for tenant-specific tables using PrincipalTag
     this.role.addToPolicy(
       new PolicyStatement({
+        sid: 'DynamoDBTenantAccess',
         effect: Effect.ALLOW,
         actions: [
           'dynamodb:GetItem',
@@ -103,10 +74,52 @@ export class MultiTenantRole extends Construct {
         ],
         resources: [
           // Allow access to tables with tenant-specific naming pattern
-          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-$\{aws:PrincipalTag/TenantID}`,
-          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-$\{aws:PrincipalTag/TenantID}/*`,
+          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-\${aws:PrincipalTag/TenantID}`,
+          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-\${aws:PrincipalTag/TenantID}/index/*`,
         ],
       })
     );
+
+    // Add condition to deny access to tenant resources without proper TenantID tag
+    // Only applies to tenant-specific resources (not all resources)
+    this.role.addToPolicy(
+      new PolicyStatement({
+        sid: 'DenyTenantResourceAccessWithoutTenantTag',
+        effect: Effect.DENY,
+        actions: ['dynamodb:*', 's3:*'],
+        resources: [
+          // Only deny access to tenant-specific resources, not all resources
+          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-*`,
+          `arn:aws:dynamodb:${props.region}:${props.account}:table/*-tenant-*/index/*`,
+          `arn:aws:s3:::*-tenant-*`,
+          `arn:aws:s3:::*-tenant-*/*`,
+        ],
+        conditions: {
+          Null: {
+            'aws:PrincipalTag/TenantID': 'true',
+          },
+        },
+      })
+    );
+
+    // Add CloudWatch Logs access for debugging
+    this.role.addToPolicy(
+      new PolicyStatement({
+        sid: 'CloudWatchLogsAccess',
+        effect: Effect.ALLOW,
+        actions: [
+          'logs:CreateLogGroup',
+          'logs:CreateLogStream',
+          'logs:PutLogEvents',
+        ],
+        resources: [
+          `arn:aws:logs:${props.region}:${props.account}:log-group:/aws/lambda/*`,
+        ],
+      })
+    );
+
+    // IMPORTANT: Do not modify the trust policy here - it's configured in the Auth construct
+    // The Identity Pool's authenticated role must trust cognito-identity.amazonaws.com
+    // Principal tags are automatically applied by the Identity Pool based on CfnIdentityPoolPrincipalTag configuration
   }
 }

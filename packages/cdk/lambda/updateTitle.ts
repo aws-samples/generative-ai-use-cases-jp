@@ -11,7 +11,7 @@ export const handler = async (
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateTitleRequest = JSON.parse(event.body!);
 
-    const chatItem = await findChatById(userId, chatId);
+    const chatItem = await findChatById(userId, chatId, event);
 
     if (!chatItem) {
       return {
@@ -27,7 +27,8 @@ export const handler = async (
     const updatedChat = await setChatTitle(
       chatItem?.id,
       chatItem?.createdDate,
-      req.title
+      req.title,
+      event
     );
 
     return {

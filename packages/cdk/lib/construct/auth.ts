@@ -1,5 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
+import { Duration, Stack, CfnJson } from 'aws-cdk-lib';
 import {
+  CfnIdentityPoolPrincipalTag,
   LambdaVersion,
   StringAttribute,
   UserPool,
@@ -10,7 +11,15 @@ import {
   IdentityPool,
   UserPoolAuthenticationProvider,
 } from 'aws-cdk-lib/aws-cognito-identitypool';
-import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import {
+  Effect,
+  Policy,
+  PolicyStatement,
+  Role,
+  ServicePrincipal,
+  FederatedPrincipal,
+  CfnRole,
+} from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS, LAMBDA_RUNTIME_PYTHON } from '../../consts';
@@ -70,7 +79,35 @@ export class Auth extends Construct {
           }),
         ],
       },
+      allowUnauthenticatedIdentities: false,
     });
+
+    // Fix the trust relationship for the authenticated role
+    // The Identity Pool's default authenticated role needs proper trust policy
+    const authenticatedRole = idPool.authenticatedRole as Role;
+    const cfnRole = authenticatedRole.node.defaultChild as CfnRole;
+
+    // Update the assume role policy to properly trust cognito-identity.amazonaws.com
+    cfnRole.assumeRolePolicyDocument = {
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Principal: {
+            Federated: 'cognito-identity.amazonaws.com',
+          },
+          Action: ['sts:AssumeRoleWithWebIdentity', 'sts:TagSession'],
+          Condition: {
+            StringEquals: {
+              'cognito-identity.amazonaws.com:aud': idPool.identityPoolId,
+            },
+            'ForAnyValue:StringLike': {
+              'cognito-identity.amazonaws.com:amr': 'authenticated',
+            },
+          },
+        },
+      ],
+    };
 
     if (props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges) {
       const ipRanges = [
@@ -154,6 +191,24 @@ export class Auth extends Construct {
       preTokenGenerationFunction,
       LambdaVersion.V2_0
     );
+
+    // Configure principal tag mapping using CfnIdentityPoolPrincipalTag
+    // This maps JWT claims to principal tags for ABAC
+    const principalTagMapping = new CfnIdentityPoolPrincipalTag(
+      this,
+      'IdentityPoolPrincipalTag',
+      {
+        identityPoolId: idPool.identityPoolId,
+        identityProviderName: userPool.userPoolProviderName,
+        principalTags: {
+          TenantID: 'custom:tenant_id',
+        },
+        useDefaults: false,
+      }
+    );
+
+    // Ensure the principal tag mapping depends on the trust relationship being configured
+    principalTagMapping.node.addDependency(authenticatedRole);
 
     this.client = client;
     this.userPool = userPool;

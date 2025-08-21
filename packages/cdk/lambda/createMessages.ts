@@ -20,7 +20,7 @@ export const handler = async (
     const chatId = event.pathParameters!.chatId!;
 
     // Authorization check: Verify if the specified chat belongs to the user
-    const chat = await findChatById(userId, chatId);
+    const chat = await findChatById(userId, chatId, event);
     if (chat === null) {
       return {
         statusCode: 403,
@@ -55,7 +55,12 @@ export const handler = async (
       }
     }
 
-    const messages = await batchCreateMessages(req.messages, userId, chatId);
+    const messages = await batchCreateMessages(
+      req.messages,
+      userId,
+      chatId,
+      event
+    );
 
     return {
       statusCode: 200,

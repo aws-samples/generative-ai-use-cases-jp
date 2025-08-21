@@ -12,7 +12,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
 
     // Authorization check: verify that this message belongs to the user's chat
-    const messages = await listMessages(chatId);
+    const messages = await listMessages(chatId, event);
 
     // Find a message that matches the createdDate (message ID) in the request
     const targetMessage = messages.find(
@@ -37,7 +37,7 @@ export const handler = async (
       };
     }
 
-    const message = await updateFeedback(chatId, req);
+    const message = await updateFeedback(chatId, req, event);
 
     return {
       statusCode: 200,

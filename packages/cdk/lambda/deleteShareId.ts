@@ -7,7 +7,7 @@ export const handler = async (
   try {
     const shareId = event.pathParameters!.shareId!;
 
-    await deleteShareId(shareId);
+    await deleteShareId(shareId, event);
 
     return {
       statusCode: 204,

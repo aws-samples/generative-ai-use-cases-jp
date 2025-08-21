@@ -8,7 +8,7 @@ export const handler = async (
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const chat = await findChatById(userId, chatId);
+    const chat = await findChatById(userId, chatId, event);
 
     if (chat === null) {
       return {
@@ -21,7 +21,7 @@ export const handler = async (
       };
     }
 
-    const messages = await listMessages(chatId);
+    const messages = await listMessages(chatId, event);
 
     return {
       statusCode: 200,

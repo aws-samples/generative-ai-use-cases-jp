@@ -7,7 +7,7 @@ export const handler = async (
   try {
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-    const chat = await createChat(userId);
+    const chat = await createChat(userId, event);
 
     return {
       statusCode: 200,
