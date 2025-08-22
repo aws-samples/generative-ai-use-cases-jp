@@ -30,14 +30,12 @@ if (!tenantId) {
   );
 }
 
+
 const params = {
   account: context.account || process.env.CDK_DEFAULT_ACCOUNT,
   region: context.tenantRegion || process.env.CDK_DEFAULT_REGION || 'us-east-1',
   tenantId: tenantId,
-  identityProviderArn: context.identityProviderArn,
-  audience: context.audience,
-  tenantIdClaim: context.tenantIdClaim,
-  roleName: context.roleName,
+  environment: context.environment || 'dev',
 };
 
 createTenantStacks(app, params);

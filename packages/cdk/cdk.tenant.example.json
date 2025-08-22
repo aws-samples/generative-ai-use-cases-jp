@@ -1,11 +1,8 @@
 {
   "context": {
     "tenantId": "tenant123",
-    "identityProviderArn": "arn:aws:cognito-idp:us-east-1:123456789012:userpool/us-east-1_XXXXXXXX",
-    "audience": "your-client-id",
-    "tenantIdClaim": "custom:tenant_id",
+    "environment": "dev",
     "tenantRegion": "us-east-1",
-    "roleName": "GenUTenantRole-tenant123",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],

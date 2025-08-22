@@ -12,3 +12,4 @@ export * from './speech-to-speech';
 export * from './mcp-api';
 export * from './litellm-proxy-server';
 export * from './multi-tenant-role';
+export * from './tenant-dynamodb';

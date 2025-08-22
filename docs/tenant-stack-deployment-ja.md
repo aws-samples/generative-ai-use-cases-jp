@@ -1,14 +1,18 @@
 # テナントスタックのデプロイメント
 
-このドキュメントでは、メインアプリケーションスタックとは別にテナント固有のスタックをデプロイする方法について説明します。
+このドキュメントでは、メインアプリケーションスタックとは別にテナント固有のDynamoDBスタックをデプロイする方法について説明します。
 
 ## 概要
 
-CDKアプリケーションは、テナント固有のインフラストラクチャを個別にデプロイすることをサポートするようになりました。これにより以下が可能になります：
+CDKアプリケーションは、シンプルなテーブルベースのアプローチを使用してテナント固有のインフラストラクチャを個別にデプロイすることをサポートしています。これにより以下が可能になります：
 
-- アプリケーション全体を再デプロイすることなく、個々のテナント用のIAMロールを作成
 - テナントリソースを独立して管理
 - 必要に応じてテナントインフラストラクチャをスケール
+- テナント間の完全なデータ分離を提供
+
+## アーキテクチャ
+
+テナント固有のデプロイメントでは、複雑なIAMロール管理の必要性を排除し、各テナント用に分離されたDynamoDBテーブルを作成します。各テナントは、環境対応の命名規則と適切な削除保護を持つ独自のテーブルセットを持ちます。
 
 ## 設定ファイル
 
@@ -16,24 +20,27 @@ CDKアプリケーションは、テナント固有のインフラストラク�
 
 - `cdk.json` - 共通スタック（メインアプリケーション）の設定
 - `cdk.tenant.json` - テナント固有スタックの設定（gitignored）
-- `cdk.tenant.example.json` - テナント設定用のサンプルテンプレート
+- `packages/cdk/cdk.tenant.example.json` - テナント設定用のサンプルテンプレート
 
 この分離により、共通デプロイとテナントデプロイで異なる環境設定を維持できます。
 
 テナントデプロイを開始するには：
 
-1. `cdk.tenant.example.json`を`cdk.tenant.json`にコピー
+1. `packages/cdk/cdk.tenant.example.json`を`packages/cdk/cdk.tenant.json`にコピー
 2. テナント固有の設定で値を更新
-3. `npm run cdk:deploy:tenant`を実行
+3. `npm run cdk:tenant:deploy`を実行
 
 ## デプロイメントコマンド
 
 アプリケーションは、共通スタックとテナントスタック用に個別のデプロイメントコマンドを提供します：
 
 - `npm run cdk:deploy` - `cdk.json`を使用してすべての共通スタックをデプロイ
-- `npm run cdk:deploy:tenant` - `cdk.tenant.json`を使用してテナント固有のスタックをデプロイ
+- `npm run cdk:tenant:deploy` - `cdk.tenant.json`を使用してテナント固有のスタックをデプロイ
+- `npm run cdk:tenant:synth` - デプロイなしでテナントスタックを合成
+- `npm run cdk:tenant:diff` - テナントスタックの差分を表示
+- `npm run cdk:tenant:list` - すべてのテナントスタックをリスト表示
 - `npm run cdk:destroy` - すべての共通スタックを削除
-- `npm run cdk:destroy:tenant` - すべてのテナントスタックを削除
+- `npm run cdk:tenant:destroy` - すべてのテナントスタックを削除
 
 ## ディレクトリ構造
 
@@ -49,27 +56,25 @@ packages/cdk/lib/
 │   │   ├── rag-knowledge-base-stack.ts
 │   │   └── video-tmp-bucket-stack.ts
 │   └── tenant/          # テナント固有のスタック
-│       └── tenant-iam-role-stack.ts
+│       └── tenant-dynamodb-stack.ts
+├── construct/
+│   └── tenant-dynamodb.ts  # テナントテーブル用のDynamoDBコンストラクト
 ├── create-stacks.ts     # メインスタック作成
 └── create-tenant-stacks.ts  # テナントスタック作成
 ```
 
-## テナントIAMロールスタックのデプロイ
+## テナントDynamoDBスタックのデプロイ
 
 ### 設定
 
-`cdk.tenant.json`ファイルを作成してテナントデプロイメントを設定します：
+`packages/cdk/cdk.tenant.json`ファイルを作成してテナントデプロイメントを設定します：
 
 ```json
 {
-  "app": "npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts",
   "context": {
     "tenantId": "tenant123",
-    "identityProviderArn": "arn:aws:cognito-idp:us-east-1:123456789012:userpool/us-east-1_XXXXXXXX",
-    "audience": "your-client-id",
-    "tenantIdClaim": "custom:tenant_id",
-    "tenantRegion": "us-east-1",
-    "roleName": "CustomTenantRole"
+    "environment": "dev",
+    "tenantRegion": "us-east-1"
   }
 }
 ```
@@ -78,30 +83,69 @@ packages/cdk/lib/
 
 ```bash
 # すべてのテナントスタックをデプロイ
-npm run cdk:deploy:tenant
+npm run cdk:tenant:deploy
 
 # 特定のテナントスタックをデプロイ
-npm run cdk:deploy:tenant -- TenantStack-tenant123
+npm run cdk:tenant:deploy -- TenantDynamoDBStackdev-tenant123
+
+# テナントスタックを合成（デプロイなし）
+npm run cdk:tenant:synth
+
+# テナントスタックの差分を表示
+npm run cdk:tenant:diff
+
+# すべてのテナントスタックをリスト表示
+npm run cdk:tenant:list
 
 # すべてのテナントスタックを削除
-npm run cdk:destroy:tenant
+npm run cdk:tenant:destroy
 ```
 
 ### 設定オプション
 
 - `tenantId`（必須）：テナントの一意の識別子
-- `identityProviderArn`（必須）：IDプロバイダー（Cognito User PoolまたはOIDCプロバイダー）のARN
-- `audience`（必須）：IDプロバイダーのオーディエンス/クライアントID
-- `tenantIdClaim`：テナントIDを含むJWTクレーム（デフォルト："custom:tenant_id"）
+- `environment`（必須）：環境名（例：dev、staging、prod）
 - `tenantRegion`：デプロイメント用のAWSリージョン（デフォルト：CDK_DEFAULT_REGIONまたはus-east-1）
-- `roleName`：カスタムロール名（デフォルト：TenantRole-{tenantId}）
 
-## スタックの出力
+## テナントDynamoDBテーブル
 
-デプロイ後、スタックは以下を出力します：
+テナントデプロイメントは、各テナント用に3つの専用テーブルを作成します：
 
-- **RoleArn**：作成されたIAMロールのARN
-- **RoleName**：作成されたIAMロールの名前
+### テーブル命名規則
+
+すべてのテーブルは以下のパターンに従います：`{BaseTableName}-{environment}-tenant-{tenantId}`
+
+### ChatHistoryテーブル
+- **目的**：テナント固有のチャット会話履歴を保存
+- **パーティションキー**：`id` (STRING)
+- **ソートキー**：`createdDate` (STRING)
+- **グローバルセカンダリインデックス**：`feedback`属性の`FeedbackIndex`
+
+### TokenUsageStatsテーブル
+- **目的**：テナントのトークン使用統計を追跡
+- **パーティションキー**：`id` (STRING)
+- **ソートキー**：`userId` (STRING)
+- **グローバルセカンダリインデックス**：月次集計用の`MonthIndex`
+
+### UseCaseBuilderテーブル
+- **目的**：テナント固有のユースケース設定を保存
+- **パーティションキー**：`id` (STRING)
+- **ソートキー**：`dataType` (STRING)
+- **グローバルセカンダリインデックス**：ユースケースクエリ用の`UseCaseIdIndexName`
+
+### 環境ベースの機能
+
+- **削除保護**：本番環境（`prod`）のテーブルは`RETAIN`削除ポリシーを使用し、開発環境（`dev`）は簡単なクリーンアップのために`DESTROY`を使用
+- **課金モード**：すべてのテーブルはコスト最適化のために`PAY_PER_REQUEST`課金モードを使用
+- **タグ付け**：すべてのテーブルはリソース管理のために自動的に`TenantId`と`Environment`でタグ付けされる
+
+## スタック命名
+
+テナントスタックは以下のパターンを使用して命名されます：`TenantDynamoDBStack{environment}-{tenantId}`
+
+例：
+- 開発環境：`TenantDynamoDBStackdev-tenant123`
+- 本番環境：`TenantDynamoDBStackprod-tenant123`
 
 ## さらなるテナントスタックの追加
 
@@ -111,27 +155,12 @@ npm run cdk:destroy:tenant
 2. `packages/cdk/lib/create-tenant-stacks.ts`でインポートしてインスタンス化
 3. 上記と同じパターンを使用してデプロイ
 
-## IAMポリシー設定
-
-テナントIAMロールには、テナント分離ポリシーを作成するためのヘルパーメソッドが含まれています：
-
-### テナントごとのDynamoDBテーブル
-
-ロールは、`<BaseTableName>-<TenantId>`の命名パターンを持つテナントごとのDynamoDBテーブルへのアクセスをサポートします。
-
-```typescript
-// 例：'ChatHistory-tenant123'テーブルへのアクセスを許可
-const dynamoPolicy =
-  tenantIamRole.createDynamoDbTenantTablePolicyStatement('ChatHistory');
-tenantIamRole.addToPolicy(dynamoPolicy);
-```
-
-このポリシーにより、テナントはJWTトークン内のテナントIDクレームに基づいて、自分のテーブルのみにアクセスできます。
-
 ## ベストプラクティス
 
-1. **命名規則**：テナントリソースには一貫した命名を使用（例：スタック名にテナントIDを含める）
-2. **テーブル命名**：DynamoDBテーブルには`<BaseTableName>-<TenantId>`パターンに従う
-3. **分離**：テナントリソースを共通リソースから分離して保持
-4. **ドキュメント**：テナント固有の設定や要件を文書化
-5. **テスト**：最初に開発環境でテナントスタックのデプロイメントをテスト
+1. **命名規則**：環境とテナントIDを含む、テナントリソースの一貫した命名を使用
+2. **テーブル命名**：すべてのDynamoDBテーブルには`{BaseTableName}-{environment}-tenant-{tenantId}`パターンに従う
+3. **環境分離**：適切なライフサイクル管理のために異なる環境（dev、staging、prod）を使用
+4. **削除保護**：本番テーブルが偶発的な削除を防ぐ適切な削除ポリシーを持つことを確認
+5. **リソースタグ付け**：すべてのテナントリソースはコスト追跡と管理のために自動的にタグ付けされる
+6. **テスト**：最初に開発環境でテナントスタックのデプロイメントを常にテスト
+7. **ドキュメント**：テナント固有の設定や要件を文書化

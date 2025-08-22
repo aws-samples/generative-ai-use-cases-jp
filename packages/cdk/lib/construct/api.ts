@@ -47,6 +47,7 @@ export interface BackendApiProps {
   readonly allowedIpV6AddressRanges?: string[] | null;
   readonly litellmEndpoint?: string | null;
   readonly litellmProxy?: LitellmProxyServer | null;
+  readonly environment: string;
 
   // Resource
   readonly userPool: UserPool;
@@ -144,6 +145,7 @@ export class Api extends Construct {
     // Table name prefixes for constructing tenant-specific table names
     const TABLE_PREFIX = 'ChatHistory';
     const STATS_TABLE_PREFIX = 'TokenUsageStats';
+    const USECASE_BUILDER_TABLE_PREFIX = 'UseCaseBuilder';
     const DEFAULT_TENANT_ID = 'default';
 
     // IAM policy for assuming multi-tenant role with web identity
@@ -258,6 +260,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -311,6 +314,7 @@ export class Api extends Construct {
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
         LITELLM_ENDPOINT: litellmEndpoint ?? '',
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -351,6 +355,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -391,6 +396,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -415,6 +421,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -576,6 +583,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -592,6 +600,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -610,6 +619,7 @@ export class Api extends Construct {
         STATS_TABLE_NAME: STATS_TABLE_PREFIX,
         DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -631,6 +641,7 @@ export class Api extends Construct {
           TABLE_NAME: TABLE_PREFIX,
           DEFAULT_TABLE_NAME: props.table.tableName,
           DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          ENVIRONMENT: props.environment || 'dev',
           MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
           IDENTITY_POOL_ID: props.idPool.identityPoolId,
           USER_POOL_ID: props.userPool.userPoolId,
@@ -650,6 +661,7 @@ export class Api extends Construct {
         STATS_TABLE_NAME: STATS_TABLE_PREFIX,
         DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -666,6 +678,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -682,6 +695,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -698,6 +712,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -720,6 +735,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -736,6 +752,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -752,6 +769,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -768,6 +786,7 @@ export class Api extends Construct {
         TABLE_NAME: TABLE_PREFIX,
         DEFAULT_TABLE_NAME: props.table.tableName,
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -787,6 +806,7 @@ export class Api extends Construct {
           TABLE_NAME: TABLE_PREFIX,
           DEFAULT_TABLE_NAME: props.table.tableName,
           DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          ENVIRONMENT: props.environment || 'dev',
           MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
           IDENTITY_POOL_ID: props.idPool.identityPoolId,
           USER_POOL_ID: props.userPool.userPoolId,
@@ -807,6 +827,7 @@ export class Api extends Construct {
           TABLE_NAME: TABLE_PREFIX,
           DEFAULT_TABLE_NAME: props.table.tableName,
           DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          ENVIRONMENT: props.environment || 'dev',
           MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
           IDENTITY_POOL_ID: props.idPool.identityPoolId,
           USER_POOL_ID: props.userPool.userPoolId,
@@ -827,6 +848,7 @@ export class Api extends Construct {
           TABLE_NAME: TABLE_PREFIX,
           DEFAULT_TABLE_NAME: props.table.tableName,
           DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          ENVIRONMENT: props.environment || 'dev',
           MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
           IDENTITY_POOL_ID: props.idPool.identityPoolId,
           USER_POOL_ID: props.userPool.userPoolId,
@@ -849,6 +871,7 @@ export class Api extends Construct {
           TABLE_NAME: TABLE_PREFIX,
           DEFAULT_TABLE_NAME: props.table.tableName,
           DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+          ENVIRONMENT: props.environment || 'dev',
           MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
           IDENTITY_POOL_ID: props.idPool.identityPoolId,
           USER_POOL_ID: props.userPool.userPoolId,
@@ -878,6 +901,7 @@ export class Api extends Construct {
         DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
         STATS_TABLE_NAME: STATS_TABLE_PREFIX,
         DEFAULT_STATS_TABLE_NAME: props.statsTable.tableName,
+        ENVIRONMENT: props.environment || 'dev',
         MULTI_TENANT_ROLE_ARN: props.multiTenantRole.roleArn,
         IDENTITY_POOL_ID: props.idPool.identityPoolId,
         USER_POOL_ID: props.userPool.userPoolId,
@@ -1151,6 +1175,7 @@ export class Api extends Construct {
       new LambdaIntegration(getTokenUsageFunction),
       commonAuthorizerProps
     );
+
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

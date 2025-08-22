@@ -26,6 +26,7 @@ import { getTenantId } from './utils/tenantUtils';
 import { createTenantDynamoDBClient } from './utils/tenantDynamoDBClient';
 
 const TABLE_PREFIX: string = process.env.TABLE_NAME!;
+const ENVIRONMENT: string = process.env.ENVIRONMENT!;
 const DEFAULT_TABLE_NAME: string = process.env.DEFAULT_TABLE_NAME!;
 const STATS_TABLE_PREFIX: string = process.env.STATS_TABLE_NAME!;
 const DEFAULT_STATS_TABLE_NAME: string = process.env.DEFAULT_STATS_TABLE_NAME!;
@@ -74,7 +75,7 @@ function getTableName(event: APIGatewayProxyEvent): string {
   }
 
   // For tenant users, construct tenant-specific table name directly
-  return `${TABLE_PREFIX}-tenant-${tenantId}`;
+  return `${TABLE_PREFIX}-${ENVIRONMENT}-tenant-${tenantId}`;
 }
 
 /**
@@ -89,7 +90,7 @@ function getStatsTableName(event: APIGatewayProxyEvent): string {
   }
 
   // For tenant users, construct tenant-specific stats table name directly
-  return `${STATS_TABLE_PREFIX}-tenant-${tenantId}`;
+  return `${STATS_TABLE_PREFIX}-${ENVIRONMENT}-tenant-${tenantId}`;
 }
 
 // ============================================
