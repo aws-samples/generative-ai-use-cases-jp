@@ -642,7 +642,6 @@ const useChatState = create<{
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } catch (e: any) {
             console.warn(e);
-            console.warn(c);
             tmpBuffer = new Uint8Array([...tmpBuffer, ...c]);
             continue;
           }
