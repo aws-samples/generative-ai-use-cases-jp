@@ -589,7 +589,7 @@ const useChatState = create<{
       false
     );
 
-    function splitByNewlineBinary(data: Uint8Array): Uint8Array[] {
+    const splitByNewlineBinary = (data: Uint8Array): Uint8Array[] => {
       const newline = 0x0a; // '\n'
       const result: Uint8Array[] = [];
 
@@ -603,7 +603,7 @@ const useChatState = create<{
       }
 
       return result;
-    }
+    };
 
     // Update the assistant's message
     let tmpChunk = '';
