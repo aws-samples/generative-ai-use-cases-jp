@@ -1457,7 +1457,7 @@ const envs: Record<string, Partial<StackInput>> = {
       '<SageMaker Endpoint Name>',
       {
         modelIds: '<SageMaker Endpoint Name>',
-        region: '<SageMaker Endpoint Name>',
+        region: '<SageMaker Endpoint Region>',
       },
     ],
   },
@@ -1473,7 +1473,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "<SageMaker Endpoint Name>",
       {
         "modelIds": "<SageMaker Endpoint Name>",
-        "region": "<SageMaker Endpoint Name>"
+        "region": "<SageMaker Endpoint Region>"
       }
     ]
   }
