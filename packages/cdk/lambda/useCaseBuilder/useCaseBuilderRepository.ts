@@ -21,11 +21,62 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import * as crypto from 'crypto';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { getTenantId } from '../utils/tenantUtils';
+import { createTenantDynamoDBClient } from '../utils/tenantDynamoDBClient';
 
-const USECASE_TABLE_NAME: string = process.env.USECASE_TABLE_NAME!;
+const USECASE_TABLE_PREFIX: string = process.env.USECASE_TABLE_NAME!;
+const ENVIRONMENT: string = process.env.ENVIRONMENT!;
+const DEFAULT_USECASE_TABLE_NAME: string = process.env.DEFAULT_USECASE_TABLE_NAME!;
+const DEFAULT_TENANT_ID: string = process.env.DEFAULT_TENANT_ID!;
 const USECASE_ID_INDEX_NAME: string = process.env.USECASE_ID_INDEX_NAME!;
-const dynamoDb = new DynamoDBClient({});
-const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
+
+/**
+ * Get or create a tenant-specific DynamoDB document client
+ * Falls back to default client if tenant-specific access fails
+ */
+async function getTenantDynamoDBDocument(
+  event: APIGatewayProxyEvent
+): Promise<DynamoDBDocumentClient> {
+  const tenantId = getTenantId(event);
+
+  // For default tenant, use standard DynamoDB client
+  if (!tenantId || tenantId === DEFAULT_TENANT_ID) {
+    // Create standard DynamoDB client without AssumeRole
+    return DynamoDBDocumentClient.from(new DynamoDBClient({}));
+  }
+
+  try {
+    // Try to create client with tenant credentials
+    // Each request gets fresh credentials to ensure proper user isolation
+    const dynamoDb = await createTenantDynamoDBClient(event);
+    return DynamoDBDocumentClient.from(dynamoDb);
+  } catch (error) {
+    console.error(
+      'Failed to assume role for tenant access, falling back to default:',
+      error
+    );
+    // Fall back to standard DynamoDB client
+    return DynamoDBDocumentClient.from(new DynamoDBClient({}));
+  }
+}
+
+/**
+ * Get tenant-specific table name
+ * Note: Tenant ID extraction is only for constructing the correct table name.
+ * Security/isolation is enforced by IAM policies using session tags from the JWT.
+ */
+function getTableName(event: APIGatewayProxyEvent): string {
+  const tenantId = getTenantId(event);
+
+  // For default/fallback users, use the actual CDK-generated table name
+  if (!tenantId || tenantId === DEFAULT_TENANT_ID) {
+    return DEFAULT_USECASE_TABLE_NAME;
+  }
+
+  // For tenant users, construct tenant-specific table name directly
+  return `${USECASE_TABLE_PREFIX}-${ENVIRONMENT}-tenant-${tenantId}`;
+}
 
 // Max number of recently used use cases
 // Actually, it becomes RECENTLY_USED_SAVE_LIMIT + 1 in some cases
@@ -37,9 +88,9 @@ const getUserIdFromKey = (key: string): string => {
 };
 
 // Create a query command to get use case by useCaseId
-const createFindUseCaseByUseCaseIdCommand = (useCaseId: string) =>
+const createFindUseCaseByUseCaseIdCommand = (useCaseId: string, tableName: string) =>
   new QueryCommand({
-    TableName: USECASE_TABLE_NAME,
+    TableName: tableName,
     IndexName: USECASE_ID_INDEX_NAME,
     KeyConditionExpression:
       '#useCaseId = :useCaseId and begins_with(#dataType, :dataTypePrefix)',
@@ -55,9 +106,12 @@ const createFindUseCaseByUseCaseIdCommand = (useCaseId: string) =>
 
 // Get use case by useCaseId
 const innerFindUseCaseByUseCaseId = async (
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseInTable | null> => {
-  const command = createFindUseCaseByUseCaseIdCommand(useCaseId);
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+  const command = createFindUseCaseByUseCaseIdCommand(useCaseId, tableName);
   const useCaseInTable = await dynamoDbDocument.send(command);
   return (useCaseInTable.Items?.[0] as UseCaseInTable) || null;
 };
@@ -65,14 +119,17 @@ const innerFindUseCaseByUseCaseId = async (
 // Get use case list by userId
 const innerFindUseCasesByUserId = async (
   userId: string,
+  event: APIGatewayProxyEvent,
   _exclusiveStartKey?: string
 ): Promise<{ useCases: UseCaseInTable[]; lastEvaluatedKey?: string }> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const exclusiveStartKey = _exclusiveStartKey
     ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
   const useCasesInTable = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression:
         '#id = :id and begins_with(#dataType, :dataTypePrefix)',
       ExpressionAttributeNames: {
@@ -101,12 +158,15 @@ const innerFindUseCasesByUserId = async (
 
 // Get use case list from useCaseId array
 const innerFindUseCasesByUseCaseIds = async (
-  useCaseIds: string[]
+  useCaseIds: string[],
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseInTable[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   // Run multiple queries in parallel
   const useCasesInTable: QueryCommandOutput[] = await Promise.all(
     useCaseIds.map((useCaseId) =>
-      dynamoDb.send(createFindUseCaseByUseCaseIdCommand(useCaseId))
+      dynamoDbDocument.send(createFindUseCaseByUseCaseIdCommand(useCaseId, tableName))
     )
   );
   return useCasesInTable.flatMap(
@@ -118,11 +178,14 @@ const innerFindUseCasesByUseCaseIds = async (
 // Get list of specific data type (favorite, recently used) by userId (all)
 const innerFindCommonsByUserIdAndDataType = async (
   userId: string,
-  dataTypePrefix: string
+  dataTypePrefix: string,
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseCommon[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const commons = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression:
         '#id = :id and begins_with(#dataType, :dataTypePrefix)',
       ExpressionAttributeNames: {
@@ -144,14 +207,17 @@ const innerFindCommonsByUserIdAndDataType = async (
 const innerFindCommonsByUserIdAndDataTypePagniation = async (
   userId: string,
   dataTypePrefix: string,
+  event: APIGatewayProxyEvent,
   _exclusiveStartKey?: string
 ): Promise<{ commons: UseCaseCommon[]; lastEvaluatedKey?: string }> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const exclusiveStartKey = _exclusiveStartKey
     ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
   const commons = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression:
         '#id = :id and begins_with(#dataType, :dataTypePrefix)',
       ExpressionAttributeNames: {
@@ -178,11 +244,14 @@ const innerFindCommonsByUserIdAndDataTypePagniation = async (
 
 // Get all data (body, favorite, recently used) related to useCaseId
 const innerFindCommonsByUseCaseId = async (
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseCommon[]> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const commons = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       IndexName: USECASE_ID_INDEX_NAME,
       KeyConditionExpression: '#useCaseId = :useCaseId',
       ExpressionAttributeNames: {
@@ -199,8 +268,11 @@ const innerFindCommonsByUseCaseId = async (
 
 export const createUseCase = async (
   userId: string,
-  content: UseCaseContent
+  content: UseCaseContent,
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseAsOutput> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const id = `useCase#${userId}`;
   const useCaseId = crypto.randomUUID();
   const dataType = `useCase#${Date.now()}`;
@@ -220,7 +292,7 @@ export const createUseCase = async (
 
   await dynamoDbDocument.send(
     new PutCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       Item: item,
     })
   );
@@ -234,9 +306,10 @@ export const createUseCase = async (
 
 export const getUseCase = async (
   userId: string,
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<UseCaseAsOutput | null> => {
-  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId, event);
 
   if (!useCaseInTable) {
     return null;
@@ -252,7 +325,8 @@ export const getUseCase = async (
 
   const favorites = await innerFindCommonsByUserIdAndDataType(
     userId,
-    'favorite'
+    'favorite',
+    event
   );
   const favoritesUseCaseIds = favorites.map((f) => f.useCaseId);
 
@@ -267,14 +341,16 @@ export const getUseCase = async (
 
 export const listUseCases = async (
   userId: string,
+  event: APIGatewayProxyEvent,
   exclusiveStartKey?: string
 ): Promise<ListUseCasesResponse> => {
   const { useCases: useCasesInTable, lastEvaluatedKey } =
-    await innerFindUseCasesByUserId(userId, exclusiveStartKey);
+    await innerFindUseCasesByUserId(userId, event, exclusiveStartKey);
 
   const favorites = await innerFindCommonsByUserIdAndDataType(
     userId,
-    'favorite'
+    'favorite',
+    event
   );
   const favoritesUseCaseIds = favorites.map((f) => f.useCaseId);
 
@@ -295,9 +371,10 @@ export const listUseCases = async (
 export const updateUseCase = async (
   userId: string,
   useCaseId: string,
-  content: UseCaseContent
+  content: UseCaseContent,
+  event: APIGatewayProxyEvent
 ): Promise<void> => {
-  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId, event);
 
   if (!useCaseInTable) {
     console.error(
@@ -313,9 +390,12 @@ export const updateUseCase = async (
     return;
   }
 
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: useCaseInTable.id,
         dataType: useCaseInTable.dataType,
@@ -336,9 +416,10 @@ export const updateUseCase = async (
 
 export const deleteUseCase = async (
   userId: string,
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<void> => {
-  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId, event);
 
   if (!useCaseInTable) {
     console.error(
@@ -354,7 +435,9 @@ export const deleteUseCase = async (
     return;
   }
 
-  const commons = await innerFindCommonsByUseCaseId(useCaseId);
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+  const commons = await innerFindCommonsByUseCaseId(useCaseId, event);
   const requestItems = commons.map((common) => {
     return {
       DeleteRequest: {
@@ -370,7 +453,7 @@ export const deleteUseCase = async (
   await dynamoDbDocument.send(
     new BatchWriteCommand({
       RequestItems: {
-        [USECASE_TABLE_NAME]: requestItems,
+        [tableName]: requestItems,
       },
     })
   );
@@ -378,16 +461,18 @@ export const deleteUseCase = async (
 
 export const listFavoriteUseCases = async (
   userId: string,
+  event: APIGatewayProxyEvent,
   exclusiveStartKey?: string
 ): Promise<ListFavoriteUseCasesResponse> => {
   const { commons, lastEvaluatedKey } =
     await innerFindCommonsByUserIdAndDataTypePagniation(
       userId,
       'favorite',
+      event,
       exclusiveStartKey
     );
   const useCaseIds = commons.map((c) => c.useCaseId);
-  const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds);
+  const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds, event);
   const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
     return {
       ...u,
@@ -409,11 +494,14 @@ export const listFavoriteUseCases = async (
 
 export const toggleFavorite = async (
   userId: string,
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<IsFavorite> => {
   // Get my favorite list and check if it is already registered
   // MEMO: If the number of favorites is large, it may overflow from the list
-  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite');
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite', event);
   const useCaseIds = commons.map((c) => c.useCaseId);
   const index = useCaseIds.indexOf(useCaseId);
 
@@ -423,7 +511,7 @@ export const toggleFavorite = async (
 
     await dynamoDbDocument.send(
       new DeleteCommand({
-        TableName: USECASE_TABLE_NAME,
+        TableName: tableName,
         Key: {
           id: common.id,
           dataType: common.dataType,
@@ -436,7 +524,7 @@ export const toggleFavorite = async (
     // Register favorite
     await dynamoDbDocument.send(
       new PutCommand({
-        TableName: USECASE_TABLE_NAME,
+        TableName: tableName,
         Item: {
           id: `useCase#${userId}`,
           dataType: `favorite#${Date.now()}`,
@@ -451,9 +539,10 @@ export const toggleFavorite = async (
 
 export const toggleShared = async (
   userId: string,
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<IsShared> => {
-  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId);
+  const useCaseInTable = await innerFindUseCaseByUseCaseId(useCaseId, event);
 
   if (!useCaseInTable) {
     console.error(
@@ -469,9 +558,12 @@ export const toggleShared = async (
     return { isShared: false };
   }
 
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
+
   await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: USECASE_TABLE_NAME,
+      TableName: tableName,
       Key: {
         id: useCaseInTable.id,
         dataType: useCaseInTable.dataType,
@@ -488,21 +580,23 @@ export const toggleShared = async (
 
 export const listRecentlyUsedUseCases = async (
   userId: string,
+  event: APIGatewayProxyEvent,
   exclusiveStartKey?: string
 ): Promise<ListRecentlyUsedUseCasesResponse> => {
   const { commons, lastEvaluatedKey } =
     await innerFindCommonsByUserIdAndDataTypePagniation(
       userId,
       'recentlyUsed',
+      event,
       exclusiveStartKey
     );
   const useCaseIds = commons.map((c) => c.useCaseId);
 
   const [useCasesInTable, favorites] = await Promise.all([
     // List user's use cases
-    innerFindUseCasesByUseCaseIds(useCaseIds),
+    innerFindUseCasesByUseCaseIds(useCaseIds, event),
     // List user's favorites
-    innerFindCommonsByUserIdAndDataType(userId, 'favorite'),
+    innerFindCommonsByUserIdAndDataType(userId, 'favorite', event),
   ]);
   const favoritesUseCaseIds = new Set(favorites.map((f) => f.useCaseId));
 
@@ -527,14 +621,18 @@ export const listRecentlyUsedUseCases = async (
 
 export const updateRecentlyUsedUseCase = async (
   userId: string,
-  useCaseId: string
+  useCaseId: string,
+  event: APIGatewayProxyEvent
 ): Promise<void> => {
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getTableName(event);
   const itemsToDelete: UseCaseCommon[] = [];
 
   // Scan is running for recently used use case data
   const commons = await innerFindCommonsByUserIdAndDataType(
     userId,
-    'recentlyUsed'
+    'recentlyUsed',
+    event
   );
 
   // Max number of recently used use cases
@@ -558,7 +656,7 @@ export const updateRecentlyUsedUseCase = async (
         ...itemsToDelete.map((item: UseCaseCommon) => {
           return {
             Delete: {
-              TableName: USECASE_TABLE_NAME,
+              TableName: tableName,
               Key: {
                 id: item.id,
                 dataType: item.dataType,
@@ -568,7 +666,7 @@ export const updateRecentlyUsedUseCase = async (
         }),
         {
           Put: {
-            TableName: USECASE_TABLE_NAME,
+            TableName: tableName,
             Item: {
               id: `useCase#${userId}`,
               dataType: `recentlyUsed#${Date.now()}`,

@@ -9,7 +9,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    await updateRecentlyUsedUseCase(userId, useCaseId);
+    await updateRecentlyUsedUseCase(userId, useCaseId, event);
 
     return {
       statusCode: 200,

@@ -11,18 +11,30 @@ import {
 } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Duration } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
+import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
+import { Effect, PolicyStatement, Role } from 'aws-cdk-lib/aws-iam';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 
 export interface UseCaseBuilderProps {
   readonly userPool: UserPool;
   readonly api: RestApi;
+  readonly multiTenantRole: Role;
+  readonly idPool: IdentityPool;
+  readonly environment: string;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api } = props;
+    const { userPool, api, multiTenantRole, idPool, environment } = props;
+
+    // Multi-tenant role assumption policy
+    const multiTenantAssumeRolePolicy = new PolicyStatement({
+      effect: Effect.ALLOW,
+      actions: ['sts:AssumeRole'],
+      resources: [multiTenantRole.roleArn],
+    });
 
     const useCaseIdIndexName = 'UseCaseIdIndexName';
     const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
@@ -50,11 +62,20 @@ export class UseCaseBuilder extends Construct {
       projectionType: ddb.ProjectionType.ALL,
     });
 
+    const TABLE_PREFIX = 'UseCaseBuilder';
+    const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID || 'default';
+
     const commonProperty: NodejsFunctionProps = {
       runtime: LAMBDA_RUNTIME_NODEJS,
       timeout: Duration.minutes(15),
       environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        USECASE_TABLE_NAME: TABLE_PREFIX,
+        DEFAULT_USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
+        DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
+        ENVIRONMENT: environment,
+        MULTI_TENANT_ROLE_ARN: multiTenantRole.roleArn,
+        IDENTITY_POOL_ID: idPool.identityPoolId,
+        USER_POOL_ID: userPool.userPoolId,
         USECASE_ID_INDEX_NAME: useCaseIdIndexName,
       },
     };
@@ -68,6 +89,7 @@ export class UseCaseBuilder extends Construct {
       entry: `${commonPath}/listUseCases.ts`,
     });
     useCaseBuilderTable.grantReadData(listUseCasesFunction);
+    listUseCasesFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listFavoriteUseCasesFunction = new NodejsFunction(
       this,
@@ -83,6 +105,7 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
+    listFavoriteUseCasesFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       ...commonProperty,
@@ -90,36 +113,42 @@ export class UseCaseBuilder extends Construct {
       entry: `${commonPath}/getUseCase.ts`,
     });
     useCaseBuilderTable.grantReadData(getUseCaseFunction);
+    getUseCaseFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/createUseCase.ts`,
     });
     useCaseBuilderTable.grantWriteData(createUseCaseFunction);
+    createUseCaseFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/updateUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
+    updateUseCaseFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
       ...commonProperty,
       entry: `${commonPath}/deleteUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
+    deleteUseCaseFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
       ...commonProperty,
       entry: `${commonPath}/toggleFavorite.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
+    toggleFavoriteFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       ...commonProperty,
       entry: `${commonPath}/toggleShared.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
+    toggleSharedFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const listRecentlyUsedUseCasesFunction = new NodejsFunction(
       this,
@@ -131,6 +160,7 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
+    listRecentlyUsedUseCasesFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
       this,
@@ -141,6 +171,7 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
+    updateRecentlyUsedUseCaseFunction.addToRolePolicy(multiTenantAssumeRolePolicy);
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {

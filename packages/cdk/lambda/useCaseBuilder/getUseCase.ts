@@ -9,7 +9,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const useCase = await getUseCase(userId, useCaseId);
+    const useCase = await getUseCase(userId, useCaseId, event);
 
     if (!useCase) {
       return {

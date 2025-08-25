@@ -275,6 +275,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
+        multiTenantRole: multiTenantRole.role,
+        idPool: auth.idPool,
+        environment: params.env,
       });
     }
 

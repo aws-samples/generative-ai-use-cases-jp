@@ -9,7 +9,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    await deleteUseCase(userId, useCaseId);
+    await deleteUseCase(userId, useCaseId, event);
 
     return {
       statusCode: 204,

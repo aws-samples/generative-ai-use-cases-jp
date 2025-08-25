@@ -10,7 +10,7 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const isShared: IsShared = await toggleShared(userId, useCaseId);
+    const isShared: IsShared = await toggleShared(userId, useCaseId, event);
 
     return {
       statusCode: 200,
