@@ -1,0 +1,192 @@
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { TenantS3 } from '../../construct/tenant-s3';
+
+export interface TenantS3StackProps extends cdk.StackProps {
+  /**
+   * The tenant identifier
+   */
+  readonly tenantId?: string;
+
+  /**
+   * The environment (e.g., dev, staging, prod)
+   */
+  readonly environment: string;
+
+  /**
+   * Removal policy for buckets (true = DESTROY, false = RETAIN)
+   */
+  readonly removalPolicy: boolean;
+
+  /**
+   * Base name for the documents bucket
+   * @default 'docs'
+   */
+  readonly documentsBucketBaseName?: string;
+
+  /**
+   * Base name for the chat attachments bucket
+   * @default 'chat'
+   */
+  readonly chatBucketBaseName?: string;
+
+  /**
+   * Base name for the analytics bucket
+   * @default 'analytics'
+   */
+  readonly analyticsBucketBaseName?: string;
+
+  /**
+   * Whether to enable versioning on buckets
+   * @default true
+   */
+  readonly enableVersioning?: boolean;
+
+  /**
+   * Whether to enable server access logging
+   * @default true
+   */
+  readonly enableAccessLogging?: boolean;
+
+  /**
+   * Description for the stack
+   * @default 'S3 buckets for tenant {tenantId}'
+   */
+  readonly description?: string;
+}
+
+/**
+ * Stack for creating tenant-specific S3 buckets
+ */
+export class TenantS3Stack extends cdk.Stack {
+  /**
+   * The tenant S3 construct
+   */
+  private readonly tenantS3: TenantS3;
+
+  constructor(scope: Construct, id: string, props?: TenantS3StackProps) {
+    super(scope, id, props);
+
+    // Create parameter if tenant ID not provided
+    const tenantId = props?.tenantId || new cdk.CfnParameter(this, 'TenantId', {
+      description: 'The tenant identifier for the S3 buckets',
+      type: 'String',
+      allowedPattern: '^[a-zA-Z0-9-]+$',
+      constraintDescription: 'Tenant ID must contain only alphanumeric characters and hyphens',
+    }).valueAsString;
+
+    // Get environment (required parameter)
+    const environment = props?.environment!;
+
+    // Get removal policy (required parameter)
+    const removalPolicy = props?.removalPolicy!;
+
+    // Create the tenant S3 construct
+    this.tenantS3 = new TenantS3(this, 'TenantS3', {
+      tenantId,
+      environment,
+      removalPolicy,
+      documentsBucketBaseName: props?.documentsBucketBaseName,
+      chatBucketBaseName: props?.chatBucketBaseName,
+      analyticsBucketBaseName: props?.analyticsBucketBaseName,
+      enableVersioning: props?.enableVersioning,
+      enableAccessLogging: props?.enableAccessLogging,
+    });
+
+    // Add stack-level outputs with export names
+    // Documents Bucket outputs
+    new cdk.CfnOutput(this, 'StackDocumentsBucketArn', {
+      value: this.tenantS3.documentsBucket.bucketArn,
+      description: `ARN of the documents bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-DocumentsBucketArn`,
+    });
+
+    new cdk.CfnOutput(this, 'StackDocumentsBucketName', {
+      value: this.tenantS3.documentsBucket.bucketName,
+      description: `Name of the documents bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-DocumentsBucketName`,
+    });
+
+    new cdk.CfnOutput(this, 'StackDocumentsBucketDomainName', {
+      value: this.tenantS3.documentsBucket.bucketDomainName,
+      description: `Domain name of the documents bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-DocumentsBucketDomainName`,
+    });
+
+    // Chat Bucket outputs
+    new cdk.CfnOutput(this, 'StackChatBucketArn', {
+      value: this.tenantS3.chatBucket.bucketArn,
+      description: `ARN of the chat attachments bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-ChatBucketArn`,
+    });
+
+    new cdk.CfnOutput(this, 'StackChatBucketName', {
+      value: this.tenantS3.chatBucket.bucketName,
+      description: `Name of the chat attachments bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-ChatBucketName`,
+    });
+
+    new cdk.CfnOutput(this, 'StackChatBucketDomainName', {
+      value: this.tenantS3.chatBucket.bucketDomainName,
+      description: `Domain name of the chat attachments bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-ChatBucketDomainName`,
+    });
+
+    // Analytics Bucket outputs
+    new cdk.CfnOutput(this, 'StackAnalyticsBucketArn', {
+      value: this.tenantS3.analyticsBucket.bucketArn,
+      description: `ARN of the analytics bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-AnalyticsBucketArn`,
+    });
+
+    new cdk.CfnOutput(this, 'StackAnalyticsBucketName', {
+      value: this.tenantS3.analyticsBucket.bucketName,
+      description: `Name of the analytics bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-AnalyticsBucketName`,
+    });
+
+    new cdk.CfnOutput(this, 'StackAnalyticsBucketDomainName', {
+      value: this.tenantS3.analyticsBucket.bucketDomainName,
+      description: `Domain name of the analytics bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-AnalyticsBucketDomainName`,
+    });
+
+    // Add tags
+    cdk.Tags.of(this).add('TenantId', tenantId.toString());
+    cdk.Tags.of(this).add('Environment', environment);
+    cdk.Tags.of(this).add('Purpose', 'TenantS3Buckets');
+    cdk.Tags.of(this).add('RemovalPolicy', removalPolicy.toString());
+
+    // Set stack description
+    this.templateOptions.description = props?.description || 
+      `Creates tenant-specific S3 buckets for multi-tenant application (tenant: ${tenantId})`;
+  }
+
+  /**
+   * Get the tenant S3 construct
+   */
+  public getTenantS3(): TenantS3 {
+    return this.tenantS3;
+  }
+
+  /**
+   * Get the documents bucket
+   */
+  public getDocumentsBucket() {
+    return this.tenantS3.documentsBucket;
+  }
+
+  /**
+   * Get the chat bucket
+   */
+  public getChatBucket() {
+    return this.tenantS3.chatBucket;
+  }
+
+  /**
+   * Get the analytics bucket
+   */
+  public getAnalyticsBucket() {
+    return this.tenantS3.analyticsBucket;
+  }
+}

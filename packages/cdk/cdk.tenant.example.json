@@ -3,6 +3,7 @@
     "tenantId": "tenant123",
     "environment": "dev",
     "tenantRegion": "us-east-1",
+    "enableAutoDelete": false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
