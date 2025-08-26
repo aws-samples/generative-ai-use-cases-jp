@@ -702,6 +702,11 @@ AgentCore で作成したエージェントと連携するユースケースで�
 
 `createGenericAgentCoreRuntime` を有効化するとデフォルトの AgentCore Runtime がデプロイされます。
 デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
+AgentCore で使用できるデフォルトのエージェントは、[mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json) で定義する MCP サーバーを利用することができます。
+デフォルトで定義されている MCP サーバーは、AWS に関連する MCP サーバー及び、現在時刻に関連する MCP サーバーです。
+詳細は[こちら](https://awslabs.github.io/mcp/)のドキュメントをご参照ください。
+MCP サーバーを追加する場合は上述の `mcp.json` に追記してください。
+ただし、`uvx` 以外で起動する MCP サーバーは Dockefile の書き換え等開発が必要です。
 
 `agentCoreExternalRuntimes` で外部で作成した AgentCore Runtime を利用することが可能です。
 

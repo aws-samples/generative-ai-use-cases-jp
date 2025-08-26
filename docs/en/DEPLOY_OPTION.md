@@ -687,6 +687,11 @@ This is a use case for integrating with agents created in AgentCore. (Experiment
 
 Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
 By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
+The default agents available in AgentCore can utilize MCP servers defined in [mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json).
+The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
+For details, please refer to the documentation [here](https://awslabs.github.io/mcp/).
+When adding MCP servers, please add them to the aforementioned `mcp.json`.
+However, MCP servers that start with methods other than `uvx` require development work such as rewriting the Dockerfile.
 
 With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
 
