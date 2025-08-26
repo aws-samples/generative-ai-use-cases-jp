@@ -51,7 +51,7 @@
     "immutability-helper": "^3.1.1",
     "lodash.debounce": "^4.0.8",
     "lowlight": "^3.1.0",
-    "mermaid": "^11.4.1",
+    "mermaid": "^11.10.0",
     "microphone-stream": "^6.0.1",
     "novel": "^1.0.2",
     "query-string": "^9.0.0",
