@@ -580,14 +580,34 @@ const useChatState = create<{
       base64Cache
     );
 
-    const stream = predictStream({
-      model: model,
-      messages: formattedMessages,
-      id: id,
-    });
+    const stream = predictStream(
+      {
+        model: model,
+        messages: formattedMessages,
+        id: id,
+      },
+      false
+    );
+
+    const splitByNewlineBinary = (data: Uint8Array): Uint8Array[] => {
+      const newline = 0x0a; // '\n'
+      const result: Uint8Array[] = [];
+
+      let start = 0;
+
+      for (let i = 0; i <= data.length; i++) {
+        if (i === data.length || data[i] === newline) {
+          result.push(data.slice(start, i));
+          start = i + 1;
+        }
+      }
+
+      return result;
+    };
 
     // Update the assistant's message
     let tmpChunk = '';
+    let tmpBuffer: Uint8Array = new Uint8Array([]);
 
     for await (const chunk of stream) {
       if (get().chats[id].forcedStop) {
@@ -600,11 +620,31 @@ const useChatState = create<{
         setWriting(id, true);
       }
 
-      const chunks = chunk.split('\n');
+      const chunks = splitByNewlineBinary(chunk as Uint8Array);
 
       for (const c of chunks) {
         if (c && c.length > 0) {
-          const payload = JSON.parse(c) as StreamingChunk;
+          let payload: StreamingChunk;
+
+          try {
+            if (tmpBuffer.length === 0) {
+              payload = JSON.parse(
+                new TextDecoder('utf-8').decode(c)
+              ) as StreamingChunk;
+            } else {
+              payload = JSON.parse(
+                new TextDecoder('utf-8').decode(
+                  new Uint8Array([...tmpBuffer, ...c])
+                )
+              ) as StreamingChunk;
+              tmpBuffer = new Uint8Array([]);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            console.warn(e);
+            tmpBuffer = new Uint8Array([...tmpBuffer, ...c]);
+            continue;
+          }
 
           if (payload.text.length > 0) {
             tmpChunk += payload.text;
