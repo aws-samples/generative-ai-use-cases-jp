@@ -454,13 +454,18 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
     event.preventDefault();
+    event.stopPropagation();
     setIsOver(true);
   };
 
   const handleDragLeave = (event: React.DragEvent) => {
     // When a file is dragged, hide the overlay
+    event.stopPropagation();
     event.preventDefault();
-    setIsOver(false);
+
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setIsOver(false);
+    }
   };
 
   const handleDrop = (event: React.DragEvent) => {
