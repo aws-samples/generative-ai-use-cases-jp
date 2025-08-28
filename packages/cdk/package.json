@@ -6,7 +6,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "test:lambda:watch": "jest lambda --watchAll",
-    "precdk": "if [ \"$(uname -m)\" = \"x86_64\" ]; then docker run --privileged --rm tonistiigi/binfmt --install arm64; fi",
+    "precdk": "if [ \"$(uname -m)\" = \"x86_64\" ]; then sudo docker run --privileged --rm tonistiigi/binfmt --install arm64; fi",
     "cdk": "cdk",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
     "lambda-build-dryrun": "tsc --noEmit --skipLibCheck",
