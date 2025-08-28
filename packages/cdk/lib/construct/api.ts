@@ -60,6 +60,11 @@ export interface BackendApiProps {
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
+
+  // LangChain Credentials
+  readonly openai?: {
+    readonly apiKey: string; // OPENAI_API_KEY
+  };
 }
 
 export class Api extends Construct {
@@ -188,9 +193,17 @@ export class Api extends Construct {
         ...(props.guardrailVersion
           ? { GUARDRAIL_VERSION: props.guardrailVersion }
           : {}),
+
+        // LangChain Credentials
+        OPENAI_API_KEY: props.openai?.apiKey ?? '',
       },
       bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        nodeModules: [
+          '@aws-sdk/client-bedrock-runtime',
+
+          '@langchain/core',
+          '@langchain/openai',
+        ],
       },
     });
 
@@ -219,6 +232,9 @@ export class Api extends Construct {
         QUERY_DECOMPOSITION_ENABLED: JSON.stringify(queryDecompositionEnabled),
         RERANKING_MODEL_ID: rerankingModelId ?? '',
         LITELLM_ENDPOINT: litellmEndpoint ?? '',
+
+        // LangChain Credentials
+        OPENAI_API_KEY: props.openai?.apiKey ?? '',
       },
       bundling: {
         nodeModules: [
@@ -226,6 +242,9 @@ export class Api extends Construct {
           '@aws-sdk/client-bedrock-agent-runtime',
           // The default version of client-sagemaker-runtime does not support StreamingResponse, so specify the version in package.json for bundling
           '@aws-sdk/client-sagemaker-runtime',
+
+          '@langchain/core',
+          '@langchain/openai',
         ],
       },
     });
@@ -1175,7 +1194,6 @@ export class Api extends Construct {
       new LambdaIntegration(getTokenUsageFunction),
       commonAuthorizerProps
     );
-
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

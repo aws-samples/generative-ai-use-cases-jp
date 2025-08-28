@@ -1,4 +1,8 @@
-import { Model, ModelConfiguration } from 'generative-ai-use-cases';
+import {
+  Model,
+  ModelConfiguration,
+  ModelMetadata,
+} from 'generative-ai-use-cases';
 import {
   CRI_PREFIX_PATTERN,
   modelMetadata as originalModelMetadata,
@@ -97,15 +101,17 @@ const getFlows = () => {
 
 const flows = getFlows();
 
-// List of liteLLM model IDs (configured to match config.yaml)
-const liteLlmModelIds = [
-  'gpt-5',
-  'gpt-4o',
-  'gpt-4o-mini',
-  'o3',
-  'gpt-4.1',
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
+// List of LangChain model IDs (configured to match config.yaml)
+const liteLlmModelIds = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+
+// List of LangChain model IDs
+const langchainModelIds = [
+  // OpenAI
+  'openai:gpt-4o',
+  'openai:gpt-4o-mini',
+  'openai:o3',
+  'openai:gpt-4.1',
+  'openai:gpt-5',
 ];
 
 // Define model objects
@@ -121,8 +127,11 @@ const textModels = [
   ...endpointNames.map(
     (name) => ({ modelId: name, type: 'sagemaker' }) as Model
   ),
-  // Temporary hardcoded addition of liteLLM models (configured to match config.yaml)
+  // Temporary hardcoded addition of LiteLLM and LangChain models
   ...liteLlmModelIds.map((modelId) => ({ modelId, type: 'liteLlm' }) as Model),
+  ...langchainModelIds.map(
+    (modelId) => ({ modelId, type: 'langchain' }) as Model
+  ),
 ];
 const imageGenModels = [
   ...imageModelConfigs.map(
@@ -179,34 +188,7 @@ export const findModelByModelId = (modelId: string) => {
 const searchAgent = agentNames.find((name) => name.includes('Search'));
 
 // Add metadata for liteLLM models (extended on frontend side)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const liteLlmModelMetadata: Record<string, any> = {
-  'gpt-5': {
-    flags: { text: true, doc: true, image: true, video: false },
-    displayName: 'GPT-5',
-  },
-  'gpt-4o': {
-    flags: { text: true, doc: true, image: true, video: false },
-    displayName: 'GPT-4o',
-  },
-  'gpt-4o-mini': {
-    flags: { text: true, doc: true, image: true, video: false },
-    displayName: 'GPT-4o Mini',
-  },
-  o3: {
-    flags: {
-      text: true,
-      doc: true,
-      image: false,
-      video: false,
-      reasoning: true,
-    },
-    displayName: 'o3',
-  },
-  'gpt-4.1': {
-    flags: { text: true, doc: true, image: true, video: false },
-    displayName: 'GPT-4.1',
-  },
+const liteLlmModelMetadata: Record<string, ModelMetadata> = {
   'gemini-2.5-flash': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'Gemini 2.5 Flash',
@@ -217,17 +199,44 @@ const liteLlmModelMetadata: Record<string, any> = {
   },
 };
 
-// Merge liteLLM metadata with original modelMetadata
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const modelMetadata: Record<string, any> = {
-  ...originalModelMetadata,
+const langchainModelMetadata: Record<string, ModelMetadata> = {
+  'openai:gpt-4o': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT 4o',
+  },
+  'openai:gpt-4o-mini': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT 4o mini',
+  },
+  'openai:o3': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'o3',
+  },
+  'openai:gpt-4.1': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT 4.1',
+  },
+  'openai:gpt-5': {
+    flags: { text: true, doc: true, image: true, video: false },
+    displayName: 'GPT 5',
+  },
+};
+
+// Merge LangChain metadata with original modelMetadata
+const modelMetadata: Record<string, ModelMetadata> = {
   ...liteLlmModelMetadata,
+  ...langchainModelMetadata,
+  ...originalModelMetadata,
 };
 
 const modelDisplayName = (modelId: string): string => {
-  // Get display name from metadata for liteLLM models
   if (liteLlmModelMetadata[modelId]) {
     return liteLlmModelMetadata[modelId].displayName;
+  }
+
+  // Get display name from metadata for LangChain models
+  if (langchainModelMetadata[modelId]) {
+    return langchainModelMetadata[modelId].displayName;
   }
 
   // If there are multiple instances of the same model, add CRI suffix to the display name
@@ -243,7 +252,12 @@ const modelDisplayName = (modelId: string): string => {
 
 export const MODELS = {
   modelRegion: modelRegion,
-  modelIds: [...bedrockModelIds, ...endpointNames, ...liteLlmModelIds],
+  modelIds: [
+    ...bedrockModelIds,
+    ...endpointNames,
+    ...langchainModelIds,
+    ...liteLlmModelIds,
+  ],
   modelIdsInModelRegion,
   modelMetadata,
   modelDisplayName,

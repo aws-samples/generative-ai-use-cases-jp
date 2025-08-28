@@ -166,6 +166,13 @@ const baseStackInputSchema = z.object({
   hostedZoneId: z.string().nullish(),
   // Dashboard
   dashboard: z.boolean().default(false),
+
+  // LangChain
+  openai: z
+    .object({
+      apiKey: z.string(),
+    })
+    .optional(),
 });
 
 // Common Validator with refine
