@@ -178,15 +178,16 @@ const Setting = () => {
       </div>
 
       <div className="text-sm">
-        <SettingItem
+        {/* <SettingItem
           name={t('setting.items.version')}
           value={localVersion || t('common.not_available')}
           helpMessage={t('setting.items.version_help')}
           top={true}
-        />
+        /> */}
         <SettingItem
           name={t('setting.items.rag_enabled')}
           value={ragEnabled.toString()}
+          top={true}
         />
         <SettingItem
           name={t('setting.items.rag_kb_enabled')}
