@@ -85,7 +85,7 @@ const Setting = () => {
               components={[
                 <Link
                   className="text-aws-smile"
-                  to="https://github.com/aws-samples/generative-ai-use-cases"
+                  to="https://github.com/fixer-github/generative-ai-use-cases"
                   target="_blank"
                 />,
               ]}
@@ -228,7 +228,7 @@ const Setting = () => {
               />,
               <Link
                 className="text-aws-smile"
-                to="https://github.com/aws-samples/generative-ai-use-cases"
+                to="https://github.com/fixer-github/generative-ai-use-cases"
                 target="_blank"
               />,
             ]}
@@ -261,7 +261,7 @@ const Setting = () => {
 
         <div className="mb-3 mt-1 flex w-full justify-end text-xs">
           <a
-            href="https://github.com/aws-samples/generative-ai-use-cases/pulls?q=is%3Apr+is%3Aclosed"
+            href="https://github.com/fixer-github/generative-ai-use-cases/pulls?q=is%3Apr+is%3Aclosed"
             className="flex items-center hover:underline"
             target="_blank">
             <PiArrowSquareOut className="mr-1 text-base" />
