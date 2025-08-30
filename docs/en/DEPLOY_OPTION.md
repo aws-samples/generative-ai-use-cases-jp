@@ -696,6 +696,25 @@ However, MCP servers that start with methods other than `uvx` require developmen
 
 With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
 
+To enable AgentCore use cases, the `docker` command must be executable.
+
+> [!WARNING]
+> On Linux machines using x86_64 CPUs (Intel, AMD, etc.), run the following command before cdk deployment:
+>
+> ```
+> docker run --privileged --rm tonistiigi/binfmt --install arm64
+> ```
+>
+> If you do not run the above command, the following error will occur:  
+> During the deployment process, ARM-based container images used by AgentCore Runtime are built. When building ARM container images on x86_64 CPUs, errors occur due to CPU architecture differences.
+>
+> ```
+> ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
+> AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
+> ```
+>
+> Running this command makes temporary configuration changes to the host Linux Kernel. It registers QEMU emulator custom handlers in Binary Format Miscellaneous (binfmt_misc), enabling ARM container image builds. The configuration returns to its original state after reboot, so the command must be re-executed before re-deployments.
+
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
 ```typescript

@@ -711,6 +711,25 @@ MCP サーバーを追加する場合は上述の `mcp.json` に追記してく�
 
 `agentCoreExternalRuntimes` で外部で作成した AgentCore Runtime を利用することが可能です。
 
+AgentCore ユースケースを有効化するためには、`docker` コマンドが実行可能である必要があります。
+
+> [!WARNING]
+> x86_64 系のCPU (Intel AMD など) を利用した Linux マシンでは、以下のコマンドを実行してからデプロイを行ってください。
+>
+> ```
+> docker run --privileged --rm tonistiigi/binfmt --install arm64
+> ```
+>
+> 上記コマンドを実行しない場合、以下のエラーが発生します。  
+> デプロイプロセスで、AgentCore Runtime で利用する ARM ベースのコンテナイメージをビルドします。この際に、x86_64 系の CPU で ARM コンテナイメージをビルドすると、CPU のアーキテクチャの違いによりエラーが発生します。
+>
+> ```
+> ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
+> AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
+> ```
+>
+> このコマンドを実行することで、ホスト側の Linux Kernel に一時的な設定変更を行います。Binary Format Miscellaneous (binfmt_misc) に QEMU のカスタムハンドラを登録することで、ARM コンテナイメージをビルドできます。再起動で設定が元に戻るので、再度デプロイする際には、再実行が必要です。
+
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 
 ```typescript
