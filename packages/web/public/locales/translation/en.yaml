@@ -447,6 +447,10 @@ generateText:
   result_placeholder: Generated text will be displayed here
   source_info: Source information for text
   title: Text Generation
+inputs:
+  attachment: Attachment
+  reasoning: Extended thinking
+  setting: Setting
 landing:
   alert:
     description: >-
@@ -719,8 +723,7 @@ meetingMinutes:
   transcript: Transcript
 model:
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: Token budget for extended thinking
 navigation:
   agentChat: Agent Chat
   chat: Chat

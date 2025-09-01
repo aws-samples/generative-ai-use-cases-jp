@@ -357,6 +357,10 @@ generateText:
   result_placeholder: 生成された文章がここに表示されます
   source_info: 文章の元になる情報
   title: 文章生成
+inputs:
+  attachment: 添付ファイル
+  reasoning: 深く考える
+  setting: 設定
 landing:
   alert:
     description: >-
@@ -576,8 +580,7 @@ meetingMinutes:
   transcript: 文字起こし
 model:
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: 深く考えるトークン数上限
 navigation:
   agentChat: Agent チャット
   chat: チャット

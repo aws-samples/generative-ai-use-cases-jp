@@ -4,7 +4,9 @@ import { BaseProps } from '../@types/common';
 type Props = BaseProps & {
   message: string;
   position?: 'left' | 'right' | 'center';
+  topPosition?: string;
   children: React.ReactNode;
+  nowrap?: boolean;
 };
 
 const Tooltip: React.FC<Props> = (props) => {
@@ -22,8 +24,9 @@ const Tooltip: React.FC<Props> = (props) => {
   return (
     <div className={`${props.className ?? ''} group relative`}>
       <div
-        className={`invisible absolute ${position} -top-5 z-50 bg-transparent p-3 pl-5 pt-8 text-xs font-normal text-white opacity-0 transition group-hover:visible group-hover:opacity-100`}>
-        <div className="w-64 rounded border border-gray-400 bg-black/90 p-1 ">
+        className={`invisible absolute ${position} ${props.topPosition ?? '-top-5'} z-50 bg-transparent p-3 pl-5 pt-8 text-xs font-normal text-white opacity-0 transition group-hover:visible group-hover:opacity-100`}>
+        <div
+          className={`${props.nowrap ? 'w-fit text-nowrap' : 'w-64'} rounded border border-gray-400 bg-black/70 p-1`}>
           {props.message}
         </div>
       </div>

@@ -590,8 +590,7 @@ meetingMinutes:
   transcript: Bản chuyển đổi
 model:
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: Token budget for extended thinking
 navigation:
   agentChat: Agent Chat
   chat: Chat

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import ButtonSend from './ButtonSend';
+import ButtonToggle from './ButtonToggle';
 import Textarea from './Textarea';
 import ZoomUpImage from './ZoomUpImage';
 import ZoomUpVideo from './ZoomUpVideo';
@@ -11,12 +12,14 @@ import {
   PiPaperclip,
   PiSpinnerGap,
   PiSlidersHorizontal,
+  PiClockCountdownLight,
 } from 'react-icons/pi';
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
 import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 import useUserSetting from '../hooks/useUserSetting';
+import Tooltip from './Tooltip';
 
 type Props = {
   content: string;
@@ -35,6 +38,9 @@ type Props = {
   fileLimit?: FileLimit;
   accept?: string[];
   canStop?: boolean;
+  reasoning?: boolean;
+  onReasoningSwitched?: () => void;
+  reasoningEnabled?: boolean;
 } & (
   | {
       hideReset?: false;
@@ -123,7 +129,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         </p>
       )}
       <div
-        className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+        className={`relative flex flex-col rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
           props.disableMarginBottom
             ? ''
             : settingSubmitCmdOrCtrlEnter
@@ -132,7 +138,7 @@ const InputChatContent: React.FC<Props> = (props) => {
         }`}>
         <div className="flex grow flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
-            <div className="m-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 p-2">
               {uploadedFiles.map((uploadedFile, idx) => {
                 if (uploadedFile.type === 'image') {
                   return (
@@ -190,7 +196,7 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent`}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin -mr-14 bg-transparent p-4`}
             placeholder={props.placeholder ?? t('common.enter_text')}
             noBorder
             notItem
@@ -200,36 +206,61 @@ const InputChatContent: React.FC<Props> = (props) => {
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
-        <div className="m-2 flex gap-1">
+        <div className="m-2 flex justify-end gap-1">
           {props.fileUpload && (
-            <div className="">
-              <label>
-                <input
-                  hidden
-                  onChange={onChangeFiles}
-                  type="file"
-                  accept={props.accept?.join(',')}
-                  multiple
-                  value={[]}
-                />
-                <div
-                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-                  {uploading ? (
-                    <PiSpinnerGap className="animate-spin" />
-                  ) : (
-                    <PiPaperclip />
-                  )}
-                </div>
-              </label>
-            </div>
+            <Tooltip
+              message={t('inputs.attachment')}
+              position="center"
+              topPosition="-top-16"
+              nowrap>
+              <div className="">
+                <label>
+                  <input
+                    hidden
+                    onChange={onChangeFiles}
+                    type="file"
+                    accept={props.accept?.join(',')}
+                    multiple
+                    value={[]}
+                  />
+                  <div
+                    className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+                    {uploading ? (
+                      <PiSpinnerGap className="animate-spin" />
+                    ) : (
+                      <PiPaperclip />
+                    )}
+                  </div>
+                </label>
+              </div>
+            </Tooltip>
+          )}
+          {props.reasoning && (
+            <Tooltip
+              message={t('inputs.reasoning')}
+              position="center"
+              topPosition="-top-16"
+              nowrap>
+              <ButtonToggle
+                onSwitch={props.onReasoningSwitched ?? (() => {})}
+                icon={<PiClockCountdownLight />}
+                isEnabled={!!props.reasoningEnabled}
+              />
+            </Tooltip>
           )}
           {props.setting && (
-            <ButtonSend
-              className=""
-              disabled={loading}
-              onClick={props.onSetting ?? (() => {})}
-              icon={<PiSlidersHorizontal />}
-            />
+            <Tooltip
+              message={t('inputs.setting')}
+              position="center"
+              topPosition="-top-16"
+              nowrap>
+              <ButtonSend
+                className=""
+                disabled={loading}
+                onClick={props.onSetting ?? (() => {})}
+                icon={<PiSlidersHorizontal />}
+              />
+            </Tooltip>
           )}
           <ButtonSend
             className=""

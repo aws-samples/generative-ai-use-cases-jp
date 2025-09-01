@@ -494,7 +494,6 @@ meetingMinutes:
   transcript: 转录文本
 model:
   parameters:
-    reasoning: 推理
     reasoning_budget: 推理预算
 navigation:
   agentChat: Agent聊天

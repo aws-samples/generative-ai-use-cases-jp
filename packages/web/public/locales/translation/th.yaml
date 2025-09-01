@@ -606,7 +606,6 @@ meetingMinutes:
   transcript: บันทึกการถอดความ
 model:
   parameters:
-    reasoning: การให้เหตุผล
     reasoning_budget: งบประมาณการให้เหตุผล
 navigation:
   agentChat: Agent Chat
