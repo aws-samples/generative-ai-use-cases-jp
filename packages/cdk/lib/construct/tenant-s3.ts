@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import { HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as crypto from 'crypto';
 
@@ -38,6 +39,18 @@ export interface TenantS3Props {
   readonly analyticsBucketBaseName?: string;
 
   /**
+   * Base name for the transcripts bucket
+   * @default 'transcripts'
+   */
+  readonly transcriptsBucketBaseName?: string;
+
+  /**
+   * Base name for the videos bucket
+   * @default 'videos'
+   */
+  readonly videosBucketBaseName?: string;
+
+  /**
    * Whether to enable versioning on buckets
    * @default true
    */
@@ -67,6 +80,16 @@ export class TenantS3 extends Construct {
   public readonly analyticsBucket: s3.Bucket;
 
   /**
+   * The transcripts bucket for the tenant
+   */
+  public readonly transcriptsBucket: s3.Bucket;
+
+  /**
+   * The videos bucket for the tenant
+   */
+  public readonly videosBucket: s3.Bucket;
+
+  /**
    * The tenant ID
    */
   public readonly tenantId: string;
@@ -86,6 +109,16 @@ export class TenantS3 extends Construct {
    */
   public readonly analyticsBucketName: string;
 
+  /**
+   * Transcripts bucket name
+   */
+  public readonly transcriptsBucketName: string;
+
+  /**
+   * Videos bucket name
+   */
+  public readonly videosBucketName: string;
+
   constructor(scope: Construct, id: string, props: TenantS3Props) {
     super(scope, id);
 
@@ -103,12 +136,18 @@ export class TenantS3 extends Construct {
     }
 
     // Sanitize tenant ID for use in resource names
-    const sanitizedTenantId = this.tenantId.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+    const sanitizedTenantId = this.tenantId
+      .replace(/[^a-zA-Z0-9-]/g, '-')
+      .toLowerCase();
 
     // Set bucket base names
     const documentsBucketBaseName = props.documentsBucketBaseName || 'docs';
     const chatBucketBaseName = props.chatBucketBaseName || 'chat';
-    const analyticsBucketBaseName = props.analyticsBucketBaseName || 'analytics';
+    const analyticsBucketBaseName =
+      props.analyticsBucketBaseName || 'analytics';
+    const transcriptsBucketBaseName =
+      props.transcriptsBucketBaseName || 'transcripts';
+    const videosBucketBaseName = props.videosBucketBaseName || 'videos';
 
     // Generate unique bucket names
     this.documentsBucketName = this.generateUniqueBucketName(
@@ -126,9 +165,21 @@ export class TenantS3 extends Construct {
       environment,
       sanitizedTenantId
     );
+    this.transcriptsBucketName = this.generateUniqueBucketName(
+      transcriptsBucketBaseName,
+      environment,
+      sanitizedTenantId
+    );
+    this.videosBucketName = this.generateUniqueBucketName(
+      videosBucketBaseName,
+      environment,
+      sanitizedTenantId
+    );
 
     // Determine removal policy
-    const removalPolicy = props.removalPolicy ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN;
+    const removalPolicy = props.removalPolicy
+      ? cdk.RemovalPolicy.DESTROY
+      : cdk.RemovalPolicy.RETAIN;
 
     // Create common bucket properties
     const commonBucketProps: Partial<s3.BucketProps> = {
@@ -147,11 +198,41 @@ export class TenantS3 extends Construct {
       autoDeleteObjects: props.removalPolicy,
     });
 
+    // Add CORS configuration for documents bucket (needed for file uploads from browser)
+    this.documentsBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+      allowedHeaders: ['*'],
+      exposedHeaders: [
+        'ETag',
+        'x-amz-request-id',
+        'x-amz-id-2',
+        'x-amz-checksum-crc32',
+        'x-amz-sdk-checksum-algorithm',
+      ],
+      maxAge: 3000,
+    });
+
     // Create chat attachments bucket
     this.chatBucket = new s3.Bucket(this, 'ChatBucket', {
       bucketName: this.chatBucketName,
       ...commonBucketProps,
       autoDeleteObjects: props.removalPolicy,
+    });
+
+    // Add CORS configuration for chat bucket (needed for file uploads from browser)
+    this.chatBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+      allowedHeaders: ['*'],
+      exposedHeaders: [
+        'ETag',
+        'x-amz-request-id',
+        'x-amz-id-2',
+        'x-amz-checksum-crc32',
+        'x-amz-sdk-checksum-algorithm',
+      ],
+      maxAge: 3000,
     });
 
     // Create analytics bucket
@@ -160,6 +241,22 @@ export class TenantS3 extends Construct {
       ...commonBucketProps,
       autoDeleteObjects: props.removalPolicy,
       // No CORS needed for analytics bucket as it's primarily for backend use
+    });
+
+    // Create transcripts bucket
+    this.transcriptsBucket = new s3.Bucket(this, 'TranscriptsBucket', {
+      bucketName: this.transcriptsBucketName,
+      ...commonBucketProps,
+      autoDeleteObjects: props.removalPolicy,
+      // No CORS needed for transcripts bucket as it's primarily for backend use
+    });
+
+    // Create videos bucket
+    this.videosBucket = new s3.Bucket(this, 'VideosBucket', {
+      bucketName: this.videosBucketName,
+      ...commonBucketProps,
+      autoDeleteObjects: props.removalPolicy,
+      // No CORS needed for videos bucket as it's primarily for backend use
     });
 
     // Add tags to all buckets
@@ -173,6 +270,8 @@ export class TenantS3 extends Construct {
       cdk.Tags.of(this.documentsBucket).add(key, value);
       cdk.Tags.of(this.chatBucket).add(key, value);
       cdk.Tags.of(this.analyticsBucket).add(key, value);
+      cdk.Tags.of(this.transcriptsBucket).add(key, value);
+      cdk.Tags.of(this.videosBucket).add(key, value);
     });
 
     // Output bucket ARNs and names
@@ -204,6 +303,26 @@ export class TenantS3 extends Construct {
     new cdk.CfnOutput(this, 'AnalyticsBucketName', {
       value: this.analyticsBucket.bucketName,
       description: `Name of the analytics bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'TranscriptsBucketArn', {
+      value: this.transcriptsBucket.bucketArn,
+      description: `ARN of the transcripts bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'TranscriptsBucketName', {
+      value: this.transcriptsBucket.bucketName,
+      description: `Name of the transcripts bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'VideosBucketArn', {
+      value: this.videosBucket.bucketArn,
+      description: `ARN of the videos bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'VideosBucketName', {
+      value: this.videosBucket.bucketName,
+      description: `Name of the videos bucket for tenant ${this.tenantId}`,
     });
   }
 
@@ -246,18 +365,19 @@ export class TenantS3 extends Construct {
     const SEPARATOR = '-';
 
     // Calculate available space for GUID hash
-    const baseLength = bucketBaseName.length +
-                      SEPARATOR.length +
-                      environment.length +
-                      SEPARATOR.length +
-                      TENANT_PREFIX.length +
-                      tenantId.length +
-                      SEPARATOR.length;
+    const baseLength =
+      bucketBaseName.length +
+      SEPARATOR.length +
+      environment.length +
+      SEPARATOR.length +
+      TENANT_PREFIX.length +
+      tenantId.length +
+      SEPARATOR.length;
 
     if (baseLength >= MAX_BUCKET_NAME_LENGTH) {
       throw new Error(
         `Bucket name base components too long: ${baseLength} characters. ` +
-        `Consider shortening bucketBaseName, environment, or tenantId.`
+          `Consider shortening bucketBaseName, environment, or tenantId.`
       );
     }
 
@@ -273,16 +393,22 @@ export class TenantS3 extends Construct {
 
     // Final validation
     if (bucketName.length > MAX_BUCKET_NAME_LENGTH) {
-      throw new Error(`Generated bucket name exceeds maximum length: ${bucketName.length} > ${MAX_BUCKET_NAME_LENGTH}`);
+      throw new Error(
+        `Generated bucket name exceeds maximum length: ${bucketName.length} > ${MAX_BUCKET_NAME_LENGTH}`
+      );
     }
 
     // Validate S3 bucket naming rules
     if (!/^[a-z0-9-]+$/.test(bucketName)) {
-      throw new Error(`Generated bucket name contains invalid characters: ${bucketName}`);
+      throw new Error(
+        `Generated bucket name contains invalid characters: ${bucketName}`
+      );
     }
 
     if (bucketName.startsWith('-') || bucketName.endsWith('-')) {
-      throw new Error(`Generated bucket name cannot start or end with hyphen: ${bucketName}`);
+      throw new Error(
+        `Generated bucket name cannot start or end with hyphen: ${bucketName}`
+      );
     }
 
     return bucketName;
@@ -306,5 +432,4 @@ export class TenantS3 extends Construct {
     const stack = cdk.Stack.of(this);
     return `${stack.account || 'unknown'}-${stack.region || 'unknown'}`;
   }
-
 }

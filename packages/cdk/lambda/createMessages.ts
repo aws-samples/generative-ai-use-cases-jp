@@ -1,6 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CreateMessagesRequest, ExtraData } from 'generative-ai-use-cases';
 import { batchCreateMessages, findChatById } from './repository';
+import { getTenantId } from './utils/tenantUtils';
+import {
+  getTenantBucketNameByTenantId,
+} from './utils/tenantS3Utils';
 
 const FILE_UPLOAD_BUCKET_NAME = process.env.BUCKET_NAME!;
 
@@ -19,6 +23,10 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
 
+    // Extract tenant ID to determine appropriate file upload bucket
+    const tenantId = getTenantId(event);
+    console.log(`Processing create messages request for tenant: ${tenantId}`);
+
     // Authorization check: Verify if the specified chat belongs to the user
     const chat = await findChatById(userId, chatId, event);
     if (chat === null) {
@@ -34,11 +42,21 @@ export const handler = async (
       };
     }
 
+    // Get appropriate upload bucket for validation (tenant-specific or fallback)
+    const uploadBucketName = await getTenantBucketNameByTenantId(
+      tenantId,
+      'chat',
+      FILE_UPLOAD_BUCKET_NAME
+    );
+    console.log(
+      `Using upload bucket for validation: ${uploadBucketName}`
+    );
+
     if (req.messages) {
       for (const message of req.messages) {
         if (message.extraData && message.extraData.length > 0) {
           for (const extra of message.extraData) {
-            if (!isValidExtraData(extra, FILE_UPLOAD_BUCKET_NAME)) {
+            if (!isValidExtraData(extra, uploadBucketName)) {
               return {
                 statusCode: 400,
                 headers: {

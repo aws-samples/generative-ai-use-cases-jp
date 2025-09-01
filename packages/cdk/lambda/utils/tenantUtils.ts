@@ -18,4 +18,3 @@ export const getTenantId = (event: APIGatewayProxyEvent): string => {
 
   return tenantId;
 };
-

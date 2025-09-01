@@ -31,11 +31,13 @@ describe('TenantS3 Tests', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
-      // Check that three buckets are created
+
+      // Check that five buckets are created
       const resources = template.toJSON().Resources;
-      const buckets = Object.values(resources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
-      expect(buckets.length).toBe(3);
+      const buckets = Object.values(resources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
+      expect(buckets.length).toBe(5);
 
       // Check bucket properties
       template.hasResourceProperties('AWS::S3::Bucket', {
@@ -75,11 +77,25 @@ describe('TenantS3 Tests', () => {
       expect(tenantS3.documentsBucketName.length).toBeLessThanOrEqual(63);
       expect(tenantS3.chatBucketName.length).toBeLessThanOrEqual(63);
       expect(tenantS3.analyticsBucketName.length).toBeLessThanOrEqual(63);
+      expect(tenantS3.transcriptsBucketName.length).toBeLessThanOrEqual(63);
+      expect(tenantS3.videosBucketName.length).toBeLessThanOrEqual(63);
 
       // Check that names follow the expected pattern
-      expect(tenantS3.documentsBucketName).toMatch(/^docs-dev-tenant-test-tenant-short-[a-f0-9]+$/);
-      expect(tenantS3.chatBucketName).toMatch(/^chat-dev-tenant-test-tenant-short-[a-f0-9]+$/);
-      expect(tenantS3.analyticsBucketName).toMatch(/^analytics-dev-tenant-test-tenant-short-[a-f0-9]+$/);
+      expect(tenantS3.documentsBucketName).toMatch(
+        /^docs-dev-tenant-test-tenant-short-[a-f0-9]+$/
+      );
+      expect(tenantS3.chatBucketName).toMatch(
+        /^chat-dev-tenant-test-tenant-short-[a-f0-9]+$/
+      );
+      expect(tenantS3.analyticsBucketName).toMatch(
+        /^analytics-dev-tenant-test-tenant-short-[a-f0-9]+$/
+      );
+      expect(tenantS3.transcriptsBucketName).toMatch(
+        /^transcripts-dev-tenant-test-tenant-short-[a-f0-9]+$/
+      );
+      expect(tenantS3.videosBucketName).toMatch(
+        /^videos-dev-tenant-test-tenant-short-[a-f0-9]+$/
+      );
     });
 
     test('Should sanitize tenant ID for resource names', () => {
@@ -95,9 +111,21 @@ describe('TenantS3 Tests', () => {
 
       // Assert
       // Check that special characters are replaced with hyphens and converted to lowercase
-      expect(tenantS3.documentsBucketName).toMatch(/^docs-dev-tenant-test-tenant-123--[a-f0-9]+$/);
-      expect(tenantS3.chatBucketName).toMatch(/^chat-dev-tenant-test-tenant-123--[a-f0-9]+$/);
-      expect(tenantS3.analyticsBucketName).toMatch(/^analytics-dev-tenant-test-tenant-123--[a-f0-9]+$/);
+      expect(tenantS3.documentsBucketName).toMatch(
+        /^docs-dev-tenant-test-tenant-123--[a-f0-9]+$/
+      );
+      expect(tenantS3.chatBucketName).toMatch(
+        /^chat-dev-tenant-test-tenant-123--[a-f0-9]+$/
+      );
+      expect(tenantS3.analyticsBucketName).toMatch(
+        /^analytics-dev-tenant-test-tenant-123--[a-f0-9]+$/
+      );
+      expect(tenantS3.transcriptsBucketName).toMatch(
+        /^transcripts-dev-tenant-test-tenant-123--[a-f0-9]+$/
+      );
+      expect(tenantS3.videosBucketName).toMatch(
+        /^videos-dev-tenant-test-tenant-123--[a-f0-9]+$/
+      );
     });
 
     test('Should throw error if tenant ID is empty', () => {
@@ -122,7 +150,6 @@ describe('TenantS3 Tests', () => {
       }).toThrow('Environment is required');
     });
 
-
     test('Should apply correct removal policy', () => {
       // Arrange
       const tenantId = 'test-tenant-retention';
@@ -145,17 +172,21 @@ describe('TenantS3 Tests', () => {
       // Assert
       const destroyTemplate = Template.fromStack(stack);
       const retainTemplate = Template.fromStack(retainStack);
-      
+
       // Check DESTROY policy - CDK uses UpdateReplacePolicy and DeletionPolicy
       const destroyResources = destroyTemplate.toJSON().Resources;
-      const destroyBuckets = Object.values(destroyResources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
+      const destroyBuckets = Object.values(destroyResources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
       destroyBuckets.forEach((bucket: any) => {
         expect(bucket.UpdateReplacePolicy).toBe('Delete');
       });
 
       // Check RETAIN policy
       const retainResources = retainTemplate.toJSON().Resources;
-      const retainBuckets = Object.values(retainResources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
+      const retainBuckets = Object.values(retainResources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
       retainBuckets.forEach((bucket: any) => {
         expect(bucket.UpdateReplacePolicy).toBe('Retain');
       });
@@ -175,19 +206,23 @@ describe('TenantS3 Tests', () => {
 
       // Assert
       const template = Template.fromStack(stack);
-      
+
       // Check that buckets have tags (order may vary)
       const resources = template.toJSON().Resources;
-      const buckets = Object.values(resources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
-      
+      const buckets = Object.values(resources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
+
       buckets.forEach((bucket: any) => {
         const tags = bucket.Properties.Tags;
         expect(tags).toContainEqual({ Key: 'TenantId', Value: tenantId });
         expect(tags).toContainEqual({ Key: 'Environment', Value: environment });
-        expect(tags).toContainEqual({ Key: 'Purpose', Value: 'TenantS3Storage' });
+        expect(tags).toContainEqual({
+          Key: 'Purpose',
+          Value: 'TenantS3Storage',
+        });
       });
     });
-
 
     test('Should use custom bucket base names', () => {
       // Arrange
@@ -204,15 +239,22 @@ describe('TenantS3 Tests', () => {
       });
 
       // Assert
-      expect(tenantS3.documentsBucketName).toMatch(/^custom-docs-dev-tenant-test-tenant-custom-[a-f0-9]+$/);
-      expect(tenantS3.chatBucketName).toMatch(/^custom-chat-dev-tenant-test-tenant-custom-[a-f0-9]+$/);
-      expect(tenantS3.analyticsBucketName).toMatch(/^custom-analytics-dev-tenant-test-tenant-custom-[a-f0-9]+$/);
+      expect(tenantS3.documentsBucketName).toMatch(
+        /^custom-docs-dev-tenant-test-tenant-custom-[a-f0-9]+$/
+      );
+      expect(tenantS3.chatBucketName).toMatch(
+        /^custom-chat-dev-tenant-test-tenant-custom-[a-f0-9]+$/
+      );
+      expect(tenantS3.analyticsBucketName).toMatch(
+        /^custom-analytics-dev-tenant-test-tenant-custom-[a-f0-9]+$/
+      );
+      // Note: custom base names are only tested for the three original buckets
     });
-
 
     test('Should throw error for overly long names', () => {
       // Arrange
-      const veryLongTenantId = 'this-is-a-very-long-tenant-id-that-might-cause-issues-with-bucket-naming';
+      const veryLongTenantId =
+        'this-is-a-very-long-tenant-id-that-might-cause-issues-with-bucket-naming';
       const longEnvironment = 'very-long-environment-name';
 
       // Act & Assert
@@ -245,11 +287,11 @@ describe('TenantS3 Tests', () => {
 
       // Assert
       const template = Template.fromStack(tenantS3Stack);
-      
+
       // Check that all required outputs exist
       const outputs = template.toJSON().Outputs;
       const outputKeys = Object.keys(outputs);
-      
+
       expect(outputKeys).toContain('StackDocumentsBucketArn');
       expect(outputKeys).toContain('StackDocumentsBucketName');
       expect(outputKeys).toContain('StackDocumentsBucketDomainName');
@@ -259,11 +301,19 @@ describe('TenantS3 Tests', () => {
       expect(outputKeys).toContain('StackAnalyticsBucketArn');
       expect(outputKeys).toContain('StackAnalyticsBucketName');
       expect(outputKeys).toContain('StackAnalyticsBucketDomainName');
+      expect(outputKeys).toContain('StackTranscriptsBucketArn');
+      expect(outputKeys).toContain('StackTranscriptsBucketName');
+      expect(outputKeys).toContain('StackTranscriptsBucketDomainName');
+      expect(outputKeys).toContain('StackVideosBucketArn');
+      expect(outputKeys).toContain('StackVideosBucketName');
+      expect(outputKeys).toContain('StackVideosBucketDomainName');
 
-      // Check that three buckets are created
+      // Check that five buckets are created
       const resources = template.toJSON().Resources;
-      const buckets = Object.values(resources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
-      expect(buckets.length).toBe(3);
+      const buckets = Object.values(resources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
+      expect(buckets.length).toBe(5);
     });
 
     test('Should have proper stack tags', () => {
@@ -281,16 +331,21 @@ describe('TenantS3 Tests', () => {
       // Assert - Check that tags are applied to the stack
       const template = Template.fromStack(tenantS3Stack);
       const resources = template.toJSON().Resources;
-      
+
       // Check tags on buckets (stack tags are inherited)
-      const buckets = Object.values(resources).filter((r: any) => r.Type === 'AWS::S3::Bucket');
+      const buckets = Object.values(resources).filter(
+        (r: any) => r.Type === 'AWS::S3::Bucket'
+      );
       expect(buckets.length).toBeGreaterThan(0);
-      
+
       buckets.forEach((bucket: any) => {
         const tags = bucket.Properties.Tags;
         expect(tags).toContainEqual({ Key: 'TenantId', Value: tenantId });
         expect(tags).toContainEqual({ Key: 'Environment', Value: environment });
-        expect(tags).toContainEqual({ Key: 'Purpose', Value: 'TenantS3Storage' });
+        expect(tags).toContainEqual({
+          Key: 'Purpose',
+          Value: 'TenantS3Storage',
+        });
       });
     });
 
@@ -303,7 +358,7 @@ describe('TenantS3 Tests', () => {
 
       // Assert
       const template = Template.fromStack(tenantS3Stack);
-      
+
       // Check that TenantId parameter is created
       const parameters = template.toJSON().Parameters;
       expect(parameters.TenantId).toBeDefined();
@@ -327,12 +382,26 @@ describe('TenantS3 Tests', () => {
       expect(tenantS3Stack.getDocumentsBucket()).toBeDefined();
       expect(tenantS3Stack.getChatBucket()).toBeDefined();
       expect(tenantS3Stack.getAnalyticsBucket()).toBeDefined();
+      expect(tenantS3Stack.getTranscriptsBucket()).toBeDefined();
+      expect(tenantS3Stack.getVideosBucket()).toBeDefined();
 
       // Check that bucket names are stored correctly in the construct
       const tenantS3 = tenantS3Stack.getTenantS3();
-      expect(tenantS3.documentsBucketName).toMatch(/^docs-dev-tenant-getter-test-tenant-[a-f0-9]+$/);
-      expect(tenantS3.chatBucketName).toMatch(/^chat-dev-tenant-getter-test-tenant-[a-f0-9]+$/);
-      expect(tenantS3.analyticsBucketName).toMatch(/^analytics-dev-tenant-getter-test-tenant-[a-f0-9]+$/);
+      expect(tenantS3.documentsBucketName).toMatch(
+        /^docs-dev-tenant-getter-test-tenant-[a-f0-9]+$/
+      );
+      expect(tenantS3.chatBucketName).toMatch(
+        /^chat-dev-tenant-getter-test-tenant-[a-f0-9]+$/
+      );
+      expect(tenantS3.analyticsBucketName).toMatch(
+        /^analytics-dev-tenant-getter-test-tenant-[a-f0-9]+$/
+      );
+      expect(tenantS3.transcriptsBucketName).toMatch(
+        /^transcripts-dev-tenant-getter-test-tenant-[a-f0-9]+$/
+      );
+      expect(tenantS3.videosBucketName).toMatch(
+        /^videos-dev-tenant-getter-test-tenant-[a-f0-9]+$/
+      );
     });
   });
 });

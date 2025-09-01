@@ -1,13 +1,9 @@
 import { Construct } from 'constructs';
 import {
   Role,
-  IRole,
   PolicyStatement,
   Effect,
-  WebIdentityPrincipal,
-  CfnRole,
 } from 'aws-cdk-lib/aws-iam';
-import { Stack, Fn, CfnJson } from 'aws-cdk-lib';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 
@@ -47,10 +43,10 @@ export class MultiTenantRole extends Construct {
           's3:ListBucket',
         ],
         resources: [
-          // Bucket-level permissions (stack-specific)
-          `arn:aws:s3:::generativeaiusecasesstack${props.env || ''}-*-tenant-\${aws:PrincipalTag/TenantID}`,
-          // Object-level permissions (stack-specific)
-          `arn:aws:s3:::generativeaiusecasesstack${props.env || ''}-*-tenant-\${aws:PrincipalTag/TenantID}/*`,
+          // Bucket-level permissions using simplified naming
+          `arn:aws:s3:::*-${props.env}-tenant-\${aws:PrincipalTag/TenantID}-*`,
+          // Object-level permissions using simplified naming
+          `arn:aws:s3:::*-${props.env}-tenant-\${aws:PrincipalTag/TenantID}-*/*`,
         ],
       })
     );
