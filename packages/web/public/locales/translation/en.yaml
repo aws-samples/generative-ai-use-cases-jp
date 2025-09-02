@@ -24,13 +24,12 @@ chat:
   hint_ctrl_enter: Ctrl + Enter to Submit
   history: Conversation History
   initialize: Initialize
-  model_parameters: Model Parameters
   open_link: Open Link
   prompt_examples: Prompt Examples
   save: Save
   saved_system_prompts: Saved System Prompts
   search_by_title: Search by title
-  settings: Settings
+  settings: Apply
   share: Share
   share_conversation: Share Conversation History
   sharing: Sharing

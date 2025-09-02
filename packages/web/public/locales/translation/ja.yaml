@@ -22,7 +22,6 @@ chat:
   hint_ctrl_enter: Ctrl + Enter で送信
   history: 会話履歴
   initialize: 初期化
-  model_parameters: モデルパラメータ
   open_link: リンクを開く
   prompt_examples: プロンプト例
   save: 保存

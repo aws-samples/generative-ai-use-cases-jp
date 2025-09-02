@@ -692,18 +692,13 @@ const ChatPage: React.FC = () => {
         }}
         title={t('chat.advanced_options')}>
         {setting && (
-          <ExpandableField
-            label={t('chat.model_parameters')}
-            className="relative w-full"
-            defaultOpened={true}>
-            <div className="">
-              <ModelParameters
-                modelFeatureFlags={MODELS.getModelMetadata(modelId).flags}
-                overrideModelParameters={overrideModelParameters}
-                setOverrideModelParameters={setOverrideModelParameters}
-              />
-            </div>
-          </ExpandableField>
+          <div className="">
+            <ModelParameters
+              modelFeatureFlags={MODELS.getModelMetadata(modelId).flags}
+              overrideModelParameters={overrideModelParameters}
+              setOverrideModelParameters={setOverrideModelParameters}
+            />
+          </div>
         )}
         <div className="mt-4 flex justify-end">
           <Button

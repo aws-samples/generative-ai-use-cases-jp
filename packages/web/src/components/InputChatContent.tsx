@@ -7,6 +7,7 @@ import ZoomUpVideo from './ZoomUpVideo';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
+import ButtonIcon from './ButtonIcon';
 import {
   PiArrowsCounterClockwise,
   PiPaperclip,
@@ -206,70 +207,73 @@ const InputChatContent: React.FC<Props> = (props) => {
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
-        <div className="m-2 flex justify-end gap-1">
-          {props.fileUpload && (
-            <Tooltip
-              message={t('inputs.attachment')}
-              position="center"
-              topPosition="-top-16"
-              nowrap>
-              <div className="">
-                <label>
-                  <input
-                    hidden
-                    onChange={onChangeFiles}
-                    type="file"
-                    accept={props.accept?.join(',')}
-                    multiple
-                    value={[]}
-                  />
-                  <div
-                    className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-                    {uploading ? (
-                      <PiSpinnerGap className="animate-spin" />
-                    ) : (
-                      <PiPaperclip />
-                    )}
-                  </div>
-                </label>
-              </div>
-            </Tooltip>
-          )}
-          {props.reasoning && (
-            <Tooltip
-              message={t('inputs.reasoning')}
-              position="center"
-              topPosition="-top-16"
-              nowrap>
-              <ButtonToggle
-                onSwitch={props.onReasoningSwitched ?? (() => {})}
-                icon={<PiClockCountdownLight />}
-                isEnabled={!!props.reasoningEnabled}
-              />
-            </Tooltip>
-          )}
-          {props.setting && (
-            <Tooltip
-              message={t('inputs.setting')}
-              position="center"
-              topPosition="-top-16"
-              nowrap>
-              <ButtonSend
-                className=""
-                disabled={loading}
-                onClick={props.onSetting ?? (() => {})}
-                icon={<PiSlidersHorizontal />}
-              />
-            </Tooltip>
-          )}
-          <ButtonSend
-            className=""
-            disabled={disabledSend}
-            loading={loading || uploading}
-            onClick={props.onSend}
-            icon={props.sendIcon}
-            canStop={props.canStop}
-          />
+        <div className="m-2 flex justify-between gap-1">
+          <div className="flex gap-x-1">
+            {props.fileUpload && (
+              <Tooltip
+                message={t('inputs.attachment')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <div className="">
+                  <label>
+                    <input
+                      hidden
+                      onChange={onChangeFiles}
+                      type="file"
+                      accept={props.accept?.join(',')}
+                      multiple
+                      value={[]}
+                    />
+                    <div
+                      className={`${uploading ? 'bg-gray-300' : 'cursor-pointer bg-white '} ${uploadedFiles.length > 0 ? 'text-aws-smile border-aws-smile' : 'border-gray-400 text-gray-400'} flex items-center justify-center rounded-xl border p-2 align-bottom text-xl`}>
+                      {uploading ? (
+                        <PiSpinnerGap className="animate-spin" />
+                      ) : (
+                        <PiPaperclip />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </Tooltip>
+            )}
+            {props.reasoning && (
+              <Tooltip
+                message={t('inputs.reasoning')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <ButtonToggle
+                  onSwitch={props.onReasoningSwitched ?? (() => {})}
+                  icon={<PiClockCountdownLight />}
+                  isEnabled={!!props.reasoningEnabled}
+                />
+              </Tooltip>
+            )}
+          </div>
+          <div className="flex items-center gap-x-2">
+            {props.setting && (
+              <Tooltip
+                message={t('inputs.setting')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <ButtonIcon
+                  onClick={props.onSetting ?? (() => {})}
+                  className="text-gray-500">
+                  <PiSlidersHorizontal />
+                </ButtonIcon>
+              </Tooltip>
+            )}
+            <ButtonSend
+              className=""
+              disabled={disabledSend}
+              loading={loading || uploading}
+              onClick={props.onSend}
+              icon={props.sendIcon}
+              canStop={props.canStop}
+            />
+          </div>
         </div>
 
         {!isEmpty && !props.resetDisabled && !props.hideReset && (
