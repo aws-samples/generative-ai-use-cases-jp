@@ -48,12 +48,11 @@ const Setting = () => {
     agentNames,
   } = MODELS;
   const { cache } = useSWRConfig();
-  const { getLocalVersion, getHasUpdate } = useVersion();
+  const { getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
   const { signOut } = useAuthenticator();
   const { i18n, t } = useTranslation();
 
-  const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();
   const {
@@ -178,12 +177,6 @@ const Setting = () => {
       </div>
 
       <div className="text-sm">
-        {/* <SettingItem
-          name={t('setting.items.version')}
-          value={localVersion || t('common.not_available')}
-          helpMessage={t('setting.items.version_help')}
-          top={true}
-        /> */}
         <SettingItem
           name={t('setting.items.rag_enabled')}
           value={ragEnabled.toString()}
