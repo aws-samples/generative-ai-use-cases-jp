@@ -1625,6 +1625,7 @@ You can integrate with SAML authentication features provided by IdPs such as Goo
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     samlAuthEnabled: true,
+    samlDefaultAuthEnabled: true,
     samlCognitoDomainName:
       'your-preferred-name.auth.ap-northeast-1.amazoncognito.com',
     samlCognitoFederatedIdentityProviderName: 'EntraID',
@@ -1639,13 +1640,15 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "samlAuthEnabled": true,
+    "samlDefaultAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "EntraID"
   }
 }
 ```
 
-- samlAuthEnabled: Setting to `true` switches to a SAML-specific authentication screen. The conventional authentication using Cognito user pools will no longer be available.
+- samlAuthEnabled: Setting to `true` enables SAML authentication. If this is enabled and `samlDefaultAuthEnabled` is `false`, the conventional authentication using Cognito user pools will no longer be available.
+- samlDefaultAuthEnabled: When `true` and SAML is enabled, users can choose between SAML and the default Cognito user pool authentication on the login screen.
 - samlCognitoDomainName: Specify the Cognito Domain name to be set in Cognito's App integration.
 - samlCognitoFederatedIdentityProviderName: Specify the Identity Provider name to be set in Cognito's Sign-in experience.
 

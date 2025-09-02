@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AuthWithUserpool from './components/AuthWithUserpool';
 import AuthWithSAML from './components/AuthWithSAML';
+import AuthWithSamlOrUserpool from './components/AuthWithSamlOrUserpool';
 import './index.css';
 import {
   RouterProvider,
@@ -50,6 +51,8 @@ const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
+const samlDefaultAuthEnabled: boolean =
+  import.meta.env.VITE_APP_SAML_DEFAULT_AUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
@@ -240,9 +243,15 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: samlAuthEnabled ? (
-      <AuthWithSAML>
-        <App />
-      </AuthWithSAML>
+      samlDefaultAuthEnabled ? (
+        <AuthWithSamlOrUserpool>
+          <App />
+        </AuthWithSamlOrUserpool>
+      ) : (
+        <AuthWithSAML>
+          <App />
+        </AuthWithSAML>
+      )
     ) : (
       <AuthWithUserpool>
         <App />
@@ -255,9 +264,15 @@ const router = createBrowserRouter([
         {
           path: '/use-case-builder',
           element: samlAuthEnabled ? (
-            <AuthWithSAML>
-              <UseCaseBuilderRoot />
-            </AuthWithSAML>
+            samlDefaultAuthEnabled ? (
+              <AuthWithSamlOrUserpool>
+                <UseCaseBuilderRoot />
+              </AuthWithSamlOrUserpool>
+            ) : (
+              <AuthWithSAML>
+                <UseCaseBuilderRoot />
+              </AuthWithSAML>
+            )
           ) : (
             <AuthWithUserpool>
               <UseCaseBuilderRoot />

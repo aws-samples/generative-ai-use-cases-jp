@@ -1632,6 +1632,7 @@ Google Workspace や Microsoft Entra ID (旧 Azure Active Directory) などの I
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     samlAuthEnabled: true,
+    samlDefaultAuthEnabled: true,
     samlCognitoDomainName:
       'your-preferred-name.auth.ap-northeast-1.amazoncognito.com',
     samlCognitoFederatedIdentityProviderName: 'EntraID',
@@ -1646,13 +1647,15 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "samlAuthEnabled": true,
+    "samlDefaultAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "EntraID"
   }
 }
 ```
 
-- samlAuthEnabled : `true` にすることで、SAML 専用の認証画面に切り替わります。Cognito user pools を利用した従来の認証機能は利用できなくなります。
+- samlAuthEnabled : `true` にすることで、SAML 認証が有効になります。`samlDefaultAuthEnabled` が `false` の場合、Cognito user pools を利用した従来の認証機能は利用できなくなります。
+- samlDefaultAuthEnabled : `true` に設定すると、SAML 認証が有効な場合でも、ログイン画面で Cognito user pools を利用した従来の認証方法を選択できます。
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 

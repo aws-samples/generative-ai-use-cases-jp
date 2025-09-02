@@ -36,6 +36,7 @@
     "allowedSignUpEmailDomains": null,
     "allowedSignUpEmails": null,
     "samlAuthEnabled": false,
+    "samlDefaultAuthEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
     "hiddenUseCases": {},

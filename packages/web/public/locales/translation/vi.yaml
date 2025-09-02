@@ -4,6 +4,7 @@ agent:
 auth:
   loading: Đang tải...
   login: Đăng nhập
+  loginWith: 'Đăng nhập bằng {{provider}}'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Tùy chọn nâng cao

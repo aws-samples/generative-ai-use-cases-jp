@@ -4,6 +4,7 @@ agent:
 auth:
   loading: Loading...
   login: Login
+  loginWith: 'Login with {{provider}}'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Advanced Options

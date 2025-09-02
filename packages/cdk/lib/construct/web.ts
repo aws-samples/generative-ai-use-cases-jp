@@ -43,6 +43,7 @@ export interface WebProps {
   readonly videoGenerationModelIds: ModelConfiguration[];
   readonly endpointNames: string[];
   readonly samlAuthEnabled: boolean;
+  readonly samlDefaultAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
   readonly agentNames: string[];
@@ -248,6 +249,8 @@ export class Web extends Construct {
         VITE_APP_VIDEO_MODEL_IDS: JSON.stringify(props.videoGenerationModelIds),
         VITE_APP_ENDPOINT_NAMES: JSON.stringify(props.endpointNames),
         VITE_APP_SAMLAUTH_ENABLED: props.samlAuthEnabled.toString(),
+        VITE_APP_SAML_DEFAULT_AUTH_ENABLED:
+          props.samlDefaultAuthEnabled.toString(),
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',

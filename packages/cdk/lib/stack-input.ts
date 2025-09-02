@@ -12,6 +12,7 @@ const baseStackInputSchema = z.object({
   allowedSignUpEmailDomains: z.array(z.string()).nullish(),
   allowedSignUpEmails: z.array(z.string()).nullish(),
   samlAuthEnabled: z.boolean().default(false),
+  samlDefaultAuthEnabled: z.boolean().default(false),
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
   // Frontend

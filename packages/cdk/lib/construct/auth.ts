@@ -32,6 +32,7 @@ export interface AuthProps {
   readonly allowedSignUpEmailDomains?: string[] | null;
   readonly allowedSignUpEmails?: string[] | null;
   readonly samlAuthEnabled: boolean;
+  readonly samlDefaultAuthEnabled: boolean;
 }
 
 export class Auth extends Construct {
@@ -43,10 +44,11 @@ export class Auth extends Construct {
     super(scope, id);
 
     const userPool = new UserPool(this, 'UserPool', {
-      // If SAML authentication is enabled, do not use self-sign-up with UserPool. Be aware of security.
-      selfSignUpEnabled: props.samlAuthEnabled
-        ? false
-        : props.selfSignUpEnabled,
+      // If SAML authentication is enabled and default auth is disabled, do not use self-sign-up with UserPool. Be aware of security.
+      selfSignUpEnabled:
+        props.samlAuthEnabled && !props.samlDefaultAuthEnabled
+          ? false
+          : props.selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,

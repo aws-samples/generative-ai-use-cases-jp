@@ -4,6 +4,7 @@ agent:
 auth:
   loading: 加载中...
   login: 登录
+  loginWith: '使用 {{provider}} 登录'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高级选项

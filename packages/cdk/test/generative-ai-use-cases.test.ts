@@ -26,6 +26,7 @@ describe('GenerativeAiUseCases', () => {
       selfSignUpEnabled: true,
       allowedSignUpEmailDomains: null,
       samlAuthEnabled: false,
+      samlDefaultAuthEnabled: false,
       samlCognitoDomainName: '',
       samlCognitoFederatedIdentityProviderName: '',
       modelRegion: 'us-east-1',

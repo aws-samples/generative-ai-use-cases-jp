@@ -4,6 +4,7 @@ agent:
 auth:
   loading: กำลังโหลด...
   login: เข้าสู่ระบบ
+  loginWith: 'เข้าสู่ระบบด้วย {{provider}}'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: ตัวเลือกขั้นสูง

@@ -64,8 +64,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedSignUpEmailDomains: params.allowedSignUpEmailDomains,
       allowedSignUpEmails: params.allowedSignUpEmails,
       samlAuthEnabled: params.samlAuthEnabled,
+      samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
     });
-
 
     // Multi-Tenant Role
     const multiTenantRole = new MultiTenantRole(this, 'MultiTenantRole', {
@@ -168,13 +168,19 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // Web Frontend
+    const selfSignUpEnabledForWeb =
+      params.samlAuthEnabled && !params.samlDefaultAuthEnabled
+        ? false
+        : params.selfSignUpEnabled;
+
     const web = new Web(this, 'Api', {
       // Auth
       userPoolId: auth.userPool.userPoolId,
       userPoolClientId: auth.client.userPoolClientId,
       idPoolId: auth.idPool.identityPoolId,
-      selfSignUpEnabled: params.selfSignUpEnabled,
+      selfSignUpEnabled: selfSignUpEnabledForWeb,
       samlAuthEnabled: params.samlAuthEnabled,
+      samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
       samlCognitoDomainName: params.samlCognitoDomainName,
       samlCognitoFederatedIdentityProviderName:
         params.samlCognitoFederatedIdentityProviderName,
@@ -373,6 +379,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'SamlAuthEnabled', {
       value: params.samlAuthEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'SamlDefaultAuthEnabled', {
+      value: params.samlDefaultAuthEnabled.toString(),
     });
 
     new CfnOutput(this, 'SamlCognitoDomainName', {
