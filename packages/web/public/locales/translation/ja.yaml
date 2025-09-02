@@ -2,6 +2,8 @@ agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
 agent_core:
+  model: モデル
+  runtime: ランタイム
   start_conversation: AgentCore と会話を始める
   title: AgentCore
 auth:

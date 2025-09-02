@@ -213,10 +213,10 @@ const AgentCorePage: React.FC = () => {
   const runtimeOptions = useMemo(() => {
     return allAvailableRuntimes.map((runtime) => {
       const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
-      const typeLabel = isGeneric ? '[Generic]' : '[External]';
       return {
         value: runtime.arn,
-        label: `${runtime.name} ${typeLabel}`,
+        label: runtime.name,
+        tags: isGeneric ? ['Generic'] : undefined,
       };
     });
   }, [allAvailableRuntimes, genericRuntime]);
@@ -257,22 +257,26 @@ const AgentCorePage: React.FC = () => {
         )}
 
         {/* Selection Controls */}
-        <div className="mb-2 mt-2 flex w-full flex-col items-center justify-center gap-4 md:flex-row">
+        <div className="my-2 flex w-full flex-col items-center justify-center gap-x-2 md:flex-row print:hidden">
           {/* AgentCore Runtime Selection */}
-          <div className="flex max-w-xl flex-col items-start px-4">
+          <div className="w-4/5 sm:w-1/2 md:w-fit">
             <Select
               value={selectedArn}
               onChange={setSelectedArn}
               options={runtimeOptions}
+              label={t('agent_core.runtime')}
+              fullWidth
+              showTags
             />
           </div>
-
           {/* Model Selection */}
-          <div className="flex items-end justify-center print:hidden">
+          <div className="w-4/5 sm:w-1/2 md:w-fit">
             <Select
               value={modelId}
               onChange={setModelId}
               options={modelOptions}
+              label={t('agent_core.model')}
+              fullWidth
             />
           </div>
         </div>

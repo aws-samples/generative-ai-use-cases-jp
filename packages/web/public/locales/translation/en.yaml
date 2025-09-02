@@ -2,6 +2,8 @@ agent:
   drop_files: Drop files to upload
   title: Agent Chat
 agent_core:
+  model: Model
+  runtime: Runtime
   start_conversation: Start a conversation with AgentCore
   title: AgentCore
 auth:
