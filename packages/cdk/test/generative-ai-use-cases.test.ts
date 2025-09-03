@@ -24,7 +24,7 @@ describe('GenerativeAiUseCases', () => {
         'anthropic.claude-3-sonnet-20240229-v1:0',
       embeddingModelId: 'amazon.titan-embed-text-v2:0',
       selfSignUpEnabled: true,
-      allowedSignUpEmailDomains: null,
+      selfSignUpTenantMap: null,
       samlAuthEnabled: false,
       samlDefaultAuthEnabled: false,
       samlCognitoDomainName: '',

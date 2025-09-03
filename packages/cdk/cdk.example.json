@@ -33,8 +33,13 @@
     "rerankingModelId": null,
     "queryDecompositionEnabled": false,
     "selfSignUpEnabled": true,
-    "allowedSignUpEmailDomains": null,
-    "allowedSignUpEmails": null,
+    "selfSignUpTenantMap": [
+      {
+        "tenantId": "tenant-a",
+        "domains": ["example.com"],
+        "emails": ["user@example.com"]
+      }
+    ],
     "samlAuthEnabled": false,
     "samlDefaultAuthEnabled": false,
     "samlCognitoDomainName": "",

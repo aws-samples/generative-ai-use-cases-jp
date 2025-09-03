@@ -61,8 +61,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       selfSignUpEnabled: params.selfSignUpEnabled,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
-      allowedSignUpEmailDomains: params.allowedSignUpEmailDomains,
-      allowedSignUpEmails: params.allowedSignUpEmails,
+      selfSignUpTenantMap: params.selfSignUpTenantMap,
       samlAuthEnabled: params.samlAuthEnabled,
       samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
     });

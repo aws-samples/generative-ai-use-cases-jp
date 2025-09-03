@@ -1486,19 +1486,16 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
-### Restrict Email Domains for Sign-up
+### Map Tenants for Self Sign-up
 
-Specify a list of allowed domains in `allowedSignUpEmailDomains` (default is `null`).
+Use `selfSignUpTenantMap` to control who can sign up and automatically tag users with a tenant ID.
 
-Specify values as a list of strings, and do not include "@" in each string. Users can sign up if their email domain matches any of the allowed domains. Specifying `null` means no restrictions, allowing all domains. Specifying `[]` prohibits all domains, preventing any email address from registering.
+Each entry in the map consists of `tenantId` and optional `domains` or `emails`. When a user signs up, a Pre Sign-up Lambda checks the provided email address against the map:
 
-When configured, users with non-allowed domains will receive an error when trying to "Create Account" on the web signup screen, preventing them from signing up for GenU. Also, attempting to "Create User" from the Cognito service screen in the AWS Management Console will result in an error.
+- If the email or its domain matches an entry, the sign-up request continues. The tenant ID will then be attached to the user by a Post Confirmation Lambda.
+- If no entry matches, the sign-up request is rejected.
 
-This does not affect users already created in Cognito. It only applies to new users attempting to sign up or be created.
-
-Configuration Examples
-
-- Example to allow sign-up only with email addresses with the `amazon.com` domain
+Configuration Example
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
@@ -1506,7 +1503,10 @@ Configuration Examples
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    allowedSignUpEmailDomains: ['amazon.com'],
+    selfSignUpTenantMap: [
+      { tenantId: 'tenant-a', domains: ['example.com'] },
+      { tenantId: 'tenant-b', emails: ['user@another.com'] },
+    ],
   },
 };
 ```
@@ -1517,31 +1517,16 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
-    "allowedSignUpEmailDomains": ["amazon.com"] // Change from null to specify allowed domains to enable
-  }
-}
-```
-
-- Example to allow sign-up with email addresses with either `amazon.com` or `amazon.jp` domains
-
-**Edit [parameter.ts](/packages/cdk/parameter.ts)**
-
-```typescript
-// parameter.ts
-const envs: Record<string, Partial<StackInput>> = {
-  dev: {
-    allowedSignUpEmailDomains: ['amazon.com', 'amazon.jp'],
-  },
-};
-```
-
-**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
-
-```json
-// cdk.json
-{
-  "context": {
-    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"] // Change from null to specify allowed domains to enable
+    "selfSignUpTenantMap": [
+      {
+        "tenantId": "tenant-a",
+        "domains": ["example.com"]
+      },
+      {
+        "tenantId": "tenant-b",
+        "emails": ["user@another.com"]
+      }
+    ]
   }
 }
 ```
