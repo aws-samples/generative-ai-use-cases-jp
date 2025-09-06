@@ -28,7 +28,7 @@ import { MODELS } from '../../hooks/useModel';
 
 // Sentence delimiters for different languages
 const SENTENCE_DELIMITERS = {
-  'ja-JP': ['。', '？'],
+  'ja-JP': ['。', '?'],
   'en-US': ['.', '?'],
   // Add more languages as needed
 } as const;
@@ -420,7 +420,6 @@ Respond in ${targetLanguageName}.`;
     } catch (error) {
       console.error('Failed to generate system context:', error);
     }
-     
   }, [
     realtimeTranslationEnabled,
     micRecording,
