@@ -2,6 +2,13 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Transcript } from 'generative-ai-use-cases';
 
+interface TranslationSegment {
+  text: string;
+  needsTranslation: boolean;
+  translation?: string;
+  lastTranslatedText?: string;
+}
+
 interface MeetingMinutesTranscriptSegmentProps {
   startTime: number;
   transcripts: Transcript[];
@@ -9,6 +16,7 @@ interface MeetingMinutesTranscriptSegmentProps {
   isPartial: boolean;
   formatTime: (seconds: number) => string;
   translation?: string;
+  translationSegments?: TranslationSegment[];
   isTranslating?: boolean;
   translationEnabled?: boolean;
 }
@@ -22,6 +30,7 @@ const MeetingMinutesTranscriptSegment: React.FC<
   isPartial,
   formatTime,
   translation,
+  translationSegments,
   isTranslating,
   translationEnabled,
 }) => {
@@ -57,23 +66,63 @@ const MeetingMinutesTranscriptSegment: React.FC<
       {/* Translation Display */}
       {translationEnabled && (
         <div className="mt-3 border-t border-gray-300 pt-3">
-          {translation ? (
-            <div className="flex gap-2">
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="text-sm text-gray-500">
-                  {t('translate.translation')}
-                  {t('common.colon')}
-                </span>
-              </div>
-              <div className="flex-1 leading-relaxed text-gray-900">
-                {translation}
-              </div>
-            </div>
-          ) : isTranslating ? (
-            <div className="text-sm italic text-gray-500">
-              {t('translate.translating')}
-            </div>
-          ) : null}
+          {translationSegments ? (
+            // New sentence-based translation display
+            <>
+              {console.log('🖥️ Rendering translation segments:', {
+                hasSegments: !!translationSegments,
+                segmentCount: translationSegments.length,
+                segments: translationSegments.map((seg) => ({
+                  text: seg.text.substring(0, 20) + '...',
+                  hasTranslation: !!seg.translation,
+                  translation: seg.translation,
+                  needsTranslation: seg.needsTranslation,
+                })),
+              })}
+              {translationSegments.some(
+                (seg) => seg.translation && seg.translation.trim()
+              ) ? (
+                <div className="flex gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {t('translate.translation')}
+                      {t('common.colon')}
+                    </span>
+                  </div>
+                  <div className="flex-1 leading-relaxed text-gray-900">
+                    {translationSegments
+                      .map((seg) => seg.translation || '')
+                      .join('')}
+                  </div>
+                </div>
+              ) : isTranslating ? (
+                <div className="text-sm italic text-gray-500">
+                  {t('translate.translating')}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            // Legacy translation display
+            <>
+              {translation ? (
+                <div className="flex gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {t('translate.translation')}
+                      {t('common.colon')}
+                    </span>
+                  </div>
+                  <div className="flex-1 leading-relaxed text-gray-900">
+                    {translation}
+                  </div>
+                </div>
+              ) : isTranslating ? (
+                <div className="text-sm italic text-gray-500">
+                  {t('translate.translating')}
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       )}
     </div>
