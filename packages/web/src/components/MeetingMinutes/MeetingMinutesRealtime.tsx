@@ -153,15 +153,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         const newSegments =
           typeof updater === 'function' ? updater(prev) : updater;
         realtimeSegmentsRef.current = newSegments;
-        console.log('🔄 Updating realtimeSegmentsRef:', {
-          previousLength: prev.length,
-          newLength: newSegments.length,
-          segments: newSegments.map((s) => ({
-            resultId: s.resultId,
-            isPartial: s.isPartial,
-            hasTranslationSegments: !!s.translationSegments,
-          })),
-        });
         return newSegments;
       });
     },
@@ -198,14 +189,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       translationSegment: TranslationSegment
     ) => {
       try {
-        console.log('📝 Starting translation for sentence:', {
-          segmentId: segment.resultId,
-          sentenceIndex,
-          text: translationSegment.text,
-          selectedTranslationModel,
-          selectedTargetLanguage,
-        });
-
         const targetLanguageName = getLanguageNameFromCode(
           selectedTargetLanguage
         );
@@ -229,12 +212,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         const combinedContext =
           contexts.length > 0 ? contexts.join('\n\n') : undefined;
 
-        console.log('🌐 Calling translate API with:', {
-          uniqueId: `${segment.resultId}-${sentenceIndex}`,
-          targetLanguageName,
-          hasContext: !!combinedContext,
-        });
-
         const translation = await translate(
           `${segment.resultId}-${sentenceIndex}`, // Unique ID for sentence
           translationSegment.text,
@@ -243,19 +220,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           combinedContext
         );
 
-        console.log('📤 Translation API response:', {
-          translation,
-          type: typeof translation,
-        });
-
         if (translation) {
-          console.log('🟢 Sentence translation successful:', {
-            segmentId: segment.resultId,
-            sentenceIndex,
-            originalText: translationSegment.text,
-            translation: translation.substring(0, 50) + '...',
-          });
-
           setRealtimeSegments((prev) =>
             prev.map((seg) =>
               seg.resultId === segment.resultId && seg.source === segment.source
@@ -285,7 +250,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             )
           );
         } else {
-          console.log('❌ Translation failed - no result returned');
           // Mark as not needing translation even if failed
           setRealtimeSegments((prev) =>
             prev.map((seg) =>
@@ -312,7 +276,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           );
         }
       } catch (error) {
-        console.error('💥 Failed to translate sentence:', error);
+        console.error('Failed to translate sentence:', error);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -799,21 +763,6 @@ Respond in ${targetLanguageName}.`;
 
     const handleFinalTranslation = async () => {
       // Handle sentence-based translation for completed segments
-      realtimeSegments.forEach((seg, index) => {
-        console.log(`🔍 Segment ${index}:`, {
-          resultId: seg.resultId,
-          isPartial: seg.isPartial,
-          hasTranslationSegments: !!seg.translationSegments,
-          languageCode: seg.languageCode,
-          supportsSentenceTranslation: supportsSentenceTranslation(
-            seg.languageCode
-          ),
-          isTranslating: isTranslating(seg.resultId, selectedTranslationModel),
-          transcriptsLength: seg.transcripts.length,
-          sessionId: seg.sessionId,
-        });
-      });
-
       const sentenceBasedSegments = realtimeSegments.filter(
         (segment) =>
           !segment.isPartial &&
@@ -822,21 +771,6 @@ Respond in ${targetLanguageName}.`;
           !isTranslating(segment.resultId, selectedTranslationModel)
       );
 
-      console.log('🎯 Final translation check for sentence-based segments:', {
-        totalSegments: realtimeSegments.length,
-        sentenceBasedSegments: sentenceBasedSegments.length,
-        segments: sentenceBasedSegments.map((seg) => ({
-          resultId: seg.resultId,
-          languageCode: seg.languageCode,
-          translationSegmentsCount: seg.translationSegments?.length,
-          segmentsNeedingTranslation: seg.translationSegments?.filter(
-            (ts) => ts.needsTranslation
-          ).length,
-        })),
-      });
-
-      console.log('🔍 Processing segments for final translation...');
-
       for (const segment of sentenceBasedSegments) {
         const sentencesToTranslate = segment.translationSegments!.filter(
           (translationSegment) =>
@@ -844,30 +778,9 @@ Respond in ${targetLanguageName}.`;
             translationSegment.text.trim()
         );
 
-        console.log('🔄 Processing completed segment for final translation:', {
-          segmentId: segment.resultId,
-          sentencesToTranslate: sentencesToTranslate.length,
-          translationSegments: segment.translationSegments?.map((ts) => ({
-            text: ts.text.substring(0, 30) + '...',
-            needsTranslation: ts.needsTranslation,
-            hasTranslation: !!ts.translation,
-          })),
-        });
-
         for (const translationSegment of sentencesToTranslate) {
           const sentenceIndex =
             segment.translationSegments!.indexOf(translationSegment);
-
-          console.log('📝 Final translation - checking sentence:', {
-            segmentId: segment.resultId,
-            sentenceIndex,
-            text: translationSegment.text.substring(0, 50) + '...',
-            needsTranslation: translationSegment.needsTranslation,
-            isTranslatingCheck: isTranslating(
-              `${segment.resultId}-${sentenceIndex}`,
-              selectedTranslationModel
-            ),
-          });
 
           if (
             isTranslating(
@@ -875,11 +788,9 @@ Respond in ${targetLanguageName}.`;
               selectedTranslationModel
             )
           ) {
-            console.log('⏸️  Skipping sentence - already translating');
             continue;
           }
 
-          console.log('🚀 Executing final translation for sentence');
           await translateSentence(segment, sentenceIndex, translationSegment);
         }
       }
@@ -968,64 +879,16 @@ Respond in ${targetLanguageName}.`;
 
   // Handle interval translation for partial segments
   useEffect(() => {
-    console.log('🔧 Interval translation useEffect triggered:', {
-      realtimeTranslationEnabled,
-      selectedTranslationModel,
-      translationInterval,
-    });
-
     if (!realtimeTranslationEnabled || !selectedTranslationModel) {
-      console.log('❌ Interval translation not starting:', {
-        realtimeTranslationEnabled,
-        selectedTranslationModel,
-      });
       return;
     }
 
-    console.log(
-      '✅ Starting interval translation with interval:',
-      translationInterval
-    );
-
     const intervalId = setInterval(async () => {
       const currentSegments = realtimeSegmentsRef.current;
-      console.log(
-        '⏰ Interval check - currentSegments:',
-        currentSegments.length
-      );
-      console.log(
-        '⏰ Interval segments:',
-        currentSegments.map((s) => ({
-          resultId: s.resultId,
-          isPartial: s.isPartial,
-          hasTranslationSegments: !!s.translationSegments,
-        }))
-      );
 
       for (const segment of currentSegments) {
-        console.log('🔍 Interval - Checking segment:', {
-          resultId: segment.resultId,
-          isPartial: segment.isPartial,
-          hasTranslationSegments: !!segment.translationSegments,
-          languageCode: segment.languageCode,
-          isTranslating: isTranslating(
-            segment.resultId,
-            selectedTranslationModel
-          ),
-          transcriptLength: segment.transcripts.length,
-          transcriptText:
-            segment.transcripts
-              .map((t) => t.transcript)
-              .join(' ')
-              .substring(0, 50) + '...',
-        });
-
         // Skip if already translating this segment
         if (isTranslating(segment.resultId, selectedTranslationModel)) {
-          console.log(
-            '⏸️  Interval - Skipping segment - already translating:',
-            segment.resultId
-          );
           continue;
         }
 
@@ -1040,19 +903,6 @@ Respond in ${targetLanguageName}.`;
               translationSegment.text.trim()
           );
 
-          console.log('🔍 Checking sentence-based translation:', {
-            segmentId: segment.resultId,
-            isPartial: segment.isPartial,
-            languageCode: segment.languageCode,
-            totalSentences: segment.translationSegments.length,
-            sentencesToTranslate: sentencesToTranslate.length,
-            sentences: segment.translationSegments.map((ts) => ({
-              text: ts.text.substring(0, 30) + '...',
-              needsTranslation: ts.needsTranslation,
-              hasTranslation: !!ts.translation,
-            })),
-          });
-
           for (const translationSegment of sentencesToTranslate) {
             const sentenceIndex =
               segment.translationSegments.indexOf(translationSegment);
@@ -1064,13 +914,6 @@ Respond in ${targetLanguageName}.`;
             ) {
               continue;
             }
-
-            console.log('🚀 Translating partial sentence:', {
-              segmentId: segment.resultId,
-              sentenceIndex,
-              isPartial: segment.isPartial,
-              text: translationSegment.text,
-            });
 
             // Translate individual sentence
             await translateSentence(segment, sentenceIndex, translationSegment);

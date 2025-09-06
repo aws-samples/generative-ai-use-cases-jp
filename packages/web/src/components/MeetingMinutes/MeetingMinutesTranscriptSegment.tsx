@@ -69,16 +69,6 @@ const MeetingMinutesTranscriptSegment: React.FC<
           {translationSegments ? (
             // New sentence-based translation display
             <>
-              {console.log('🖥️ Rendering translation segments:', {
-                hasSegments: !!translationSegments,
-                segmentCount: translationSegments.length,
-                segments: translationSegments.map((seg) => ({
-                  text: seg.text.substring(0, 20) + '...',
-                  hasTranslation: !!seg.translation,
-                  translation: seg.translation,
-                  needsTranslation: seg.needsTranslation,
-                })),
-              })}
               {translationSegments.some(
                 (seg) => seg.translation && seg.translation.trim()
               ) ? (
