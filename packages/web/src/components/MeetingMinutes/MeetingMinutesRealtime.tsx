@@ -26,6 +26,11 @@ import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
 import useChatApi from '../../hooks/useChatApi';
 import { MODELS } from '../../hooks/useModel';
 import { splitIntoSentences } from './MeetingMinutesSegmentSplitter';
+import {
+  generateSystemContext,
+  shouldGenerateContext,
+  getLanguageNameFromCode,
+} from './MeetingMinutesContextGenerator';
 
 // Translation segment for sentence-by-sentence translation
 interface TranslationSegment {
@@ -45,8 +50,6 @@ interface RealtimeSegment {
   transcripts: Transcript[];
   sessionId: number; // Session identifier for continuity
   languageCode?: string; // Language code from Transcribe response
-
-  // Translation segments (always present: multiple for supported languages, single for unsupported)
   translationSegments: TranslationSegment[];
 }
 
@@ -168,49 +171,39 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           combinedContext
         );
 
-        if (translation) {
+        // Update translation segment state
+        const updateTranslationSegment = (translationResult?: string) => {
           setRealtimeSegments((prev) =>
-            prev.map((seg) =>
-              seg.resultId === segment.resultId && seg.source === segment.source
-                ? {
-                    ...seg,
-                    translationSegments: seg.translationSegments?.map(
-                      (ts, index) =>
-                        index === sentenceIndex
-                          ? {
-                              ...ts,
-                              translation,
-                              needsTranslation: false,
-                              lastTranslatedText: ts.text,
-                            }
-                          : ts
-                    ),
+            prev.map((seg) => {
+              if (
+                seg.resultId !== segment.resultId ||
+                seg.source !== segment.source
+              ) {
+                return seg;
+              }
+
+              return {
+                ...seg,
+                translationSegments: seg.translationSegments.map(
+                  (ts, index) => {
+                    if (index !== sentenceIndex) {
+                      return ts;
+                    }
+
+                    return {
+                      ...ts,
+                      translation: translationResult,
+                      needsTranslation: false,
+                      lastTranslatedText: ts.text,
+                    };
                   }
-                : seg
-            )
+                ),
+              };
+            })
           );
-        } else {
-          // Mark as not needing translation even if failed
-          setRealtimeSegments((prev) =>
-            prev.map((seg) =>
-              seg.resultId === segment.resultId && seg.source === segment.source
-                ? {
-                    ...seg,
-                    translationSegments: seg.translationSegments?.map(
-                      (ts, index) =>
-                        index === sentenceIndex
-                          ? {
-                              ...ts,
-                              needsTranslation: false,
-                              lastTranslatedText: ts.text,
-                            }
-                          : ts
-                    ),
-                  }
-                : seg
-            )
-          );
-        }
+        };
+
+        updateTranslationSegment(translation || undefined);
       } catch (error) {
         console.error('Failed to translate sentence:', error);
       }
@@ -232,93 +225,28 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const { predict } = useChatApi();
 
   // Generate system context based on transcript history
-  const generateSystemContext = useCallback(async () => {
+  const generateSystemContextCallback = useCallback(async () => {
     const currentlyRecording = micRecording || screenRecording;
 
     if (
-      !realtimeTranslationEnabled ||
-      !currentlyRecording ||
-      realtimeSegments.length === 0
+      !shouldGenerateContext(
+        realtimeTranslationEnabled,
+        currentlyRecording,
+        realtimeSegments,
+        { minTranscriptLength: 50, targetLanguage: selectedTargetLanguage }
+      )
     ) {
       return;
     }
 
-    try {
-      // Get transcript text from recent segments
-      const transcriptText = realtimeSegments
-        .filter(
-          (segment) => !segment.isPartial && segment.transcripts.length > 0
-        )
-        .sort((a, b) => a.startTime - b.startTime)
-        .map((segment) =>
-          segment.transcripts
-            .map((transcript) => transcript.transcript)
-            .join(' ')
-        )
-        .join(' ')
-        .trim();
+    const result = await generateSystemContext(
+      realtimeSegments,
+      { minTranscriptLength: 50, targetLanguage: selectedTargetLanguage },
+      predict
+    );
 
-      if (!transcriptText || transcriptText.length < 50) {
-        return;
-      }
-
-      const { modelIds } = MODELS;
-      const firstModelId = modelIds[0];
-
-      if (!firstModelId) {
-        console.error('No models available for system context generation');
-        return;
-      }
-
-      const { findModelByModelId } = await import('../../hooks/useModel');
-      const model = findModelByModelId(firstModelId);
-
-      if (!model) {
-        console.error('Model not found:', firstModelId);
-        return;
-      }
-
-      // Get target language name for context generation
-      const getLanguageNameFromCodeLocal = (languageCode: string): string => {
-        const languageNameMapping: { [key: string]: string } = {
-          'ja-JP': 'Japanese',
-          'en-US': 'English',
-          'zh-CN': 'Chinese',
-          'ko-KR': 'Korean',
-          'th-TH': 'Thai',
-          'vi-VN': 'Vietnamese',
-        };
-        return languageNameMapping[languageCode] || 'Japanese';
-      };
-      const targetLanguageName = getLanguageNameFromCodeLocal(
-        selectedTargetLanguage
-      );
-
-      const systemPrompt = `You are an AI assistant that analyzes meeting transcripts to generate context for translation improvement.
-Based on the provided transcript, generate a brief context (2-3 sentences) about what kind of meeting this is, the main topics being discussed, and any technical terms or domain-specific language being used.
-Focus on information that would help improve translation accuracy.
-Respond in ${targetLanguageName}.`;
-
-      const messages = [
-        {
-          role: 'system' as const,
-          content: systemPrompt,
-        },
-        {
-          role: 'user' as const,
-          content: `Please analyze this meeting transcript and provide context for translation improvement:\n\n${transcriptText}`,
-        },
-      ];
-
-      const result = await predict({
-        model,
-        messages,
-        id: '/meeting-context',
-      });
-
-      setSystemGeneratedContext(result.trim());
-    } catch (error) {
-      console.error('Failed to generate system context:', error);
+    if (result) {
+      setSystemGeneratedContext(result);
     }
   }, [
     realtimeTranslationEnabled,
@@ -327,12 +255,10 @@ Respond in ${targetLanguageName}.`;
     realtimeSegments,
     selectedTargetLanguage,
     predict,
-    // Note: We intentionally omit getLanguageNameFromCode and getRecentSegmentsContext as dependencies
-    // since they are defined within this component and would cause unnecessary re-creation.
   ]);
 
   // Update ref with latest function
-  generateSystemContextRef.current = generateSystemContext;
+  generateSystemContextRef.current = generateSystemContextCallback;
 
   // Timer for generating system context every minute
   useEffect(() => {
@@ -401,22 +327,6 @@ Respond in ${targetLanguageName}.`;
   const targetLanguageOptions = useMemo(
     () => languageOptions.filter((option) => option.value !== 'auto'),
     [languageOptions]
-  );
-
-  // Convert language code to language name for translation API
-  const getLanguageNameFromCode = useCallback(
-    (languageCode: string): string => {
-      const languageNameMapping: { [key: string]: string } = {
-        'ja-JP': 'Japanese',
-        'en-US': 'English',
-        'zh-CN': 'Chinese',
-        'ko-KR': 'Korean',
-        'th-TH': 'Thai',
-        'vi-VN': 'Vietnamese',
-      };
-      return languageNameMapping[languageCode] || 'Japanese';
-    },
-    []
   );
 
   // Speaker mapping
