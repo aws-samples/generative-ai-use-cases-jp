@@ -9,6 +9,9 @@ const useRealtimeTranslation = () => {
     {}
   );
 
+  // Interval for real-time translation (in milliseconds)
+  const [translationInterval, setTranslationInterval] = useState<number>(1000);
+
   // Get available models with light models prioritized first
   const availableModels = useMemo(() => {
     const remainingModels = modelIds.filter(
@@ -62,10 +65,21 @@ const useRealtimeTranslation = () => {
     [translating]
   );
 
+  // Check if text has changed (for diff detection)
+  const hasTextChanged = useCallback(
+    (currentText: string, lastTranslatedText?: string): boolean => {
+      return currentText.trim() !== (lastTranslatedText || '').trim();
+    },
+    []
+  );
+
   return {
     availableModels,
     translate: translateRealtime,
     isTranslating,
+    translationInterval,
+    setTranslationInterval,
+    hasTextChanged,
   };
 };
 

@@ -36,6 +36,8 @@ interface RealtimeSegment {
   transcripts: Transcript[];
   translation?: string;
   sessionId: number; // Session identifier for continuity
+  needsTranslation?: boolean; // Flag to indicate if translation is needed
+  lastTranslatedText?: string; // Last text that was translated for diff detection
 }
 
 interface MeetingMinutesRealtimeProps {
@@ -50,6 +52,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
   const generateSystemContextRef = useRef<(() => Promise<void>) | null>(null);
+  const realtimeSegmentsRef = useRef<RealtimeSegment[]>([]);
 
   // Microphone and screen audio hooks
   const {
@@ -78,7 +81,24 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [speakers, setSpeakers] = useState('');
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
   const [enableMicAudio, setEnableMicAudio] = useState(true);
-  const [realtimeSegments, setRealtimeSegments] = useState<RealtimeSegment[]>(
+  const [realtimeSegments, setRealtimeSegmentsState] = useState<
+    RealtimeSegment[]
+  >([]);
+
+  // Helper function to update both state and ref
+  const setRealtimeSegments = useCallback(
+    (
+      updater:
+        | RealtimeSegment[]
+        | ((prev: RealtimeSegment[]) => RealtimeSegment[])
+    ) => {
+      setRealtimeSegmentsState((prev) => {
+        const newSegments =
+          typeof updater === 'function' ? updater(prev) : updater;
+        realtimeSegmentsRef.current = newSegments;
+        return newSegments;
+      });
+    },
     []
   );
 
@@ -96,8 +116,13 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState(0);
 
   // Translation hook
-  const { availableModels, translate, isTranslating } =
-    useRealtimeTranslation();
+  const {
+    availableModels,
+    translate,
+    isTranslating,
+    translationInterval,
+    hasTextChanged,
+  } = useRealtimeTranslation();
 
   // Hook for generating system context
   const { predict } = useChatApi();
@@ -388,23 +413,56 @@ Respond in ${targetLanguageName}.`;
   }, [realtimeText, onTranscriptChange]);
 
   // Real-time integration of raw transcripts
-  const updateRealtimeSegments = useCallback((newSegment: RealtimeSegment) => {
-    setRealtimeSegments((prev) => {
-      const existingIndex = prev.findIndex(
-        (seg) =>
-          seg.resultId === newSegment.resultId &&
-          seg.source === newSegment.source
-      );
+  const updateRealtimeSegments = useCallback(
+    (newSegment: RealtimeSegment) => {
+      setRealtimeSegments((prev) => {
+        const existingIndex = prev.findIndex(
+          (seg) =>
+            seg.resultId === newSegment.resultId &&
+            seg.source === newSegment.source
+        );
 
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = newSegment;
-        return updated;
-      } else {
-        return [...prev, newSegment];
-      }
-    });
-  }, []);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          const currentSegment = updated[existingIndex];
+          const currentText = newSegment.transcripts
+            .map((transcript) => transcript.transcript)
+            .join(' ')
+            .trim();
+
+          // Check if translation is needed due to text change
+          const needsTranslation = hasTextChanged(
+            currentText,
+            currentSegment.lastTranslatedText
+          );
+
+          updated[existingIndex] = {
+            ...newSegment,
+            needsTranslation:
+              needsTranslation || currentSegment.needsTranslation,
+            lastTranslatedText: currentSegment.lastTranslatedText,
+            translation: currentSegment.translation,
+          };
+          return updated;
+        } else {
+          const currentText = newSegment.transcripts
+            .map((transcript) => transcript.transcript)
+            .join(' ')
+            .trim();
+
+          return [
+            ...prev,
+            {
+              ...newSegment,
+              needsTranslation: currentText.length > 0,
+              lastTranslatedText: undefined,
+            },
+          ];
+        }
+      });
+    },
+    [hasTextChanged, setRealtimeSegments]
+  );
 
   // Process microphone raw transcripts
   useEffect(() => {
@@ -450,21 +508,21 @@ Respond in ${targetLanguageName}.`;
     currentSessionId,
   ]);
 
-  // Handle translation for completed segments
+  // Handle translation for completed segments (final translation)
   useEffect(() => {
     if (!realtimeTranslationEnabled || !selectedTranslationModel) {
       return;
     }
 
-    const handleTranslation = async () => {
-      const segmentsNeedingTranslation = realtimeSegments.filter(
+    const handleFinalTranslation = async () => {
+      const segmentsNeedingFinalTranslation = realtimeSegments.filter(
         (segment) =>
           !segment.isPartial &&
-          !segment.translation &&
+          segment.needsTranslation &&
           !isTranslating(segment.resultId, selectedTranslationModel)
       );
 
-      for (const segment of segmentsNeedingTranslation) {
+      for (const segment of segmentsNeedingFinalTranslation) {
         const segmentText = segment.transcripts
           .map((transcript) => transcript.transcript)
           .join(' ')
@@ -511,18 +569,23 @@ Respond in ${targetLanguageName}.`;
               prev.map((seg) =>
                 seg.resultId === segment.resultId &&
                 seg.source === segment.source
-                  ? { ...seg, translation }
+                  ? {
+                      ...seg,
+                      translation,
+                      needsTranslation: false,
+                      lastTranslatedText: segmentText,
+                    }
                   : seg
               )
             );
           }
         } catch (error) {
-          console.error('Failed to translate segment:', error);
+          console.error('Failed to translate completed segment:', error);
         }
       }
     };
 
-    handleTranslation();
+    handleFinalTranslation();
   }, [
     realtimeSegments,
     realtimeTranslationEnabled,
@@ -534,6 +597,118 @@ Respond in ${targetLanguageName}.`;
     getRecentSegmentsContext,
     systemGeneratedContext,
     userDefinedContext,
+    setRealtimeSegments,
+  ]);
+
+  // Handle interval translation for partial segments
+  useEffect(() => {
+    if (!realtimeTranslationEnabled || !selectedTranslationModel) {
+      return;
+    }
+
+    const intervalId = setInterval(async () => {
+      const currentSegments = realtimeSegmentsRef.current;
+      const partialSegmentsNeedingTranslation = currentSegments.filter(
+        (segment) =>
+          segment.isPartial &&
+          segment.needsTranslation &&
+          !isTranslating(segment.resultId, selectedTranslationModel)
+      );
+
+      for (const segment of partialSegmentsNeedingTranslation) {
+        const segmentText = segment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
+        if (
+          !segmentText ||
+          !hasTextChanged(segmentText, segment.lastTranslatedText)
+        ) {
+          continue;
+        }
+
+        try {
+          const targetLanguageName = getLanguageNameFromCode(
+            selectedTargetLanguage
+          );
+
+          // Build combined context for translation
+          const contexts = [];
+          if (userDefinedContext.trim()) {
+            contexts.push(`User-defined context: ${userDefinedContext.trim()}`);
+          }
+          if (systemGeneratedContext.trim()) {
+            contexts.push(
+              `System-generated context: ${systemGeneratedContext.trim()}`
+            );
+          }
+
+          const recentSegmentsText = getRecentSegmentsContext();
+          if (recentSegmentsText) {
+            contexts.push(`Recent conversation context: ${recentSegmentsText}`);
+          }
+
+          const combinedContext =
+            contexts.length > 0 ? contexts.join('\n\n') : undefined;
+
+          const translation = await translate(
+            segment.resultId,
+            segmentText,
+            selectedTranslationModel,
+            targetLanguageName,
+            combinedContext
+          );
+
+          if (translation) {
+            setRealtimeSegments((prev) =>
+              prev.map((seg) =>
+                seg.resultId === segment.resultId &&
+                seg.source === segment.source
+                  ? {
+                      ...seg,
+                      translation,
+                      needsTranslation: false,
+                      lastTranslatedText: segmentText,
+                    }
+                  : seg
+              )
+            );
+          } else {
+            // Keep the existing translation and mark as not needing translation
+            setRealtimeSegments((prev) =>
+              prev.map((seg) =>
+                seg.resultId === segment.resultId &&
+                seg.source === segment.source
+                  ? {
+                      ...seg,
+                      needsTranslation: false,
+                      lastTranslatedText: segmentText,
+                    }
+                  : seg
+              )
+            );
+          }
+        } catch (error) {
+          console.error('Failed to translate partial segment:', error);
+        }
+      }
+    }, translationInterval);
+
+    return () => clearInterval(intervalId);
+  }, [
+    realtimeTranslationEnabled,
+    selectedTranslationModel,
+    selectedTargetLanguage,
+    translationInterval,
+    systemGeneratedContext,
+    userDefinedContext,
+    hasTextChanged,
+    getLanguageNameFromCode,
+    isTranslating,
+    translate,
+    getRecentSegmentsContext,
+    setRealtimeSegments,
   ]);
 
   // Recording states
@@ -566,6 +741,7 @@ Respond in ${targetLanguageName}.`;
 
     onTranscriptChange?.('');
   }, [
+    setRealtimeSegments,
     stopMicTranscription,
     stopScreenTranscription,
     clearMicTranscripts,

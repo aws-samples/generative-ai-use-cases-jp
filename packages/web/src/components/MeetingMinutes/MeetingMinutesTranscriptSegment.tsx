@@ -57,11 +57,7 @@ const MeetingMinutesTranscriptSegment: React.FC<
       {/* Translation Display */}
       {translationEnabled && (
         <div className="mt-3 border-t border-gray-300 pt-3">
-          {isTranslating ? (
-            <div className="text-sm italic text-gray-500">
-              {t('translate.translating')}
-            </div>
-          ) : translation ? (
+          {translation ? (
             <div className="flex gap-2">
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-sm text-gray-500">
@@ -72,6 +68,10 @@ const MeetingMinutesTranscriptSegment: React.FC<
               <div className="flex-1 leading-relaxed text-gray-900">
                 {translation}
               </div>
+            </div>
+          ) : isTranslating ? (
+            <div className="text-sm italic text-gray-500">
+              {t('translate.translating')}
             </div>
           ) : null}
         </div>
