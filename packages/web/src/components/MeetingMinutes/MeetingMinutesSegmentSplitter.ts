@@ -121,3 +121,56 @@ export const countSentences = (text: string, languageCode?: string): number => {
   const sentences = splitIntoSentences(text, languageCode);
   return sentences.length;
 };
+
+// Translation segment interface (re-exported for convenience)
+export interface TranslationSegment {
+  text: string;
+  needsTranslation: boolean;
+  translation?: string;
+  lastTranslatedText?: string;
+}
+
+/**
+ * Update translation segments with change detection
+ * This function handles the logic of determining which sentences need translation
+ * based on comparison with existing segments
+ *
+ * @param newText - New text to split into sentences
+ * @param languageCode - Language code for sentence splitting
+ * @param existingSegments - Existing translation segments to compare against
+ * @returns Updated translation segments with appropriate needsTranslation flags
+ */
+export const updateTranslationSegments = (
+  newText: string,
+  languageCode: string | undefined,
+  existingSegments: TranslationSegment[]
+): TranslationSegment[] => {
+  const newSentences = splitIntoSentences(newText, languageCode);
+
+  return newSentences.map((sentence, index) => {
+    const existingSegment = existingSegments[index];
+
+    if (!existingSegment) {
+      // New sentence - needs translation if not empty
+      return {
+        text: sentence,
+        needsTranslation: sentence.trim().length > 0,
+        translation: undefined,
+        lastTranslatedText: undefined,
+      };
+    }
+
+    if (existingSegment.text === sentence) {
+      // Sentence unchanged - keep existing state
+      return existingSegment;
+    } else {
+      // Sentence changed - needs re-translation
+      return {
+        ...existingSegment,
+        text: sentence,
+        needsTranslation: sentence.trim().length > 0,
+        // Keep existing translation for reference, but mark as needing update
+      };
+    }
+  });
+};

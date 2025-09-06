@@ -25,20 +25,16 @@ import useScreenAudio from '../../hooks/useScreenAudio';
 import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
 import useChatApi from '../../hooks/useChatApi';
 import { MODELS } from '../../hooks/useModel';
-import { splitIntoSentences } from './MeetingMinutesSegmentSplitter';
+import {
+  updateTranslationSegments,
+  type TranslationSegment,
+} from './MeetingMinutesSegmentSplitter';
 import {
   generateSystemContext,
   shouldGenerateContext,
   getLanguageNameFromCode,
+  getRecentSegmentsContext,
 } from './MeetingMinutesContextGenerator';
-
-// Translation segment for sentence-by-sentence translation
-interface TranslationSegment {
-  text: string; // Split sentence text
-  needsTranslation: boolean; // Flag to indicate if this sentence needs translation
-  translation?: string; // Translation result for this sentence
-  lastTranslatedText?: string; // Last text that was translated for diff detection
-}
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -155,7 +151,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           );
         }
 
-        const recentSegmentsText = getRecentSegmentsContext();
+        const recentSegmentsText = getRecentSegmentsContext(realtimeSegments);
         if (recentSegmentsText) {
           contexts.push(`Recent conversation context: ${recentSegmentsText}`);
         }
@@ -216,8 +212,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       systemGeneratedContext,
       translate,
       setRealtimeSegments,
-      // Note: We intentionally omit getLanguageNameFromCode and getRecentSegmentsContext as dependencies
-      // since they are defined within this component and would cause unnecessary re-creation.
+      // Note: getLanguageNameFromCode and getRecentSegmentsContext are external functions and stable
     ]
   );
 
@@ -286,21 +281,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       clearTimeout(initialTimeout);
     };
   }, [realtimeTranslationEnabled, micRecording, screenRecording]);
-
-  // Get context from recent segments for translation
-  const getRecentSegmentsContext = useCallback((): string => {
-    const recentSegments = realtimeSegments
-      .filter((segment) => !segment.isPartial && segment.transcripts.length > 0)
-      .sort((a, b) => a.startTime - b.startTime)
-      .slice(-10); // Get last 10 segments
-
-    return recentSegments
-      .map((segment) =>
-        segment.transcripts.map((transcript) => transcript.transcript).join(' ')
-      )
-      .join(' ')
-      .trim();
-  }, [realtimeSegments]);
 
   // Set default translation model on mount
   useEffect(() => {
@@ -446,31 +426,12 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             .join(' ')
             .trim();
 
-          // Handle translation segments for all languages (unified approach)
-          const sentences = splitIntoSentences(
+          // Use the new updateTranslationSegments function for efficient change detection
+          const updatedTranslationSegments = updateTranslationSegments(
             currentText,
-            newSegment.languageCode
+            newSegment.languageCode,
+            currentSegment.translationSegments
           );
-          const existingSegments = currentSegment.translationSegments;
-
-          // Create updated translation segments
-          const updatedTranslationSegments: TranslationSegment[] =
-            sentences.map((sentence, index) => {
-              const existingSegment = existingSegments[index];
-
-              if (existingSegment && existingSegment.text === sentence) {
-                // Sentence unchanged, keep existing translation
-                return existingSegment;
-              } else {
-                // New or changed sentence, needs translation
-                return {
-                  text: sentence,
-                  needsTranslation: true,
-                  translation: existingSegment?.translation,
-                  lastTranslatedText: existingSegment?.lastTranslatedText,
-                };
-              }
-            });
 
           updated[existingIndex] = {
             ...newSegment,
@@ -483,18 +444,11 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             .join(' ')
             .trim();
 
-          // Handle translation segments for new segments (unified approach)
-          const sentences = splitIntoSentences(
+          // Use the new updateTranslationSegments function for new segments (with empty existing segments)
+          const translationSegments = updateTranslationSegments(
             currentText,
-            newSegment.languageCode
-          );
-          const translationSegments: TranslationSegment[] = sentences.map(
-            (sentence) => ({
-              text: sentence,
-              needsTranslation: sentence.trim().length > 0,
-              translation: undefined,
-              lastTranslatedText: undefined,
-            })
+            newSegment.languageCode,
+            [] // Empty existing segments for new segment
           );
 
           return [
@@ -519,17 +473,10 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         .join(' ')
         .trim();
 
-      const sentences = splitIntoSentences(
+      const translationSegments = updateTranslationSegments(
         currentText,
-        languageCode === 'auto' ? undefined : languageCode
-      );
-      const translationSegments: TranslationSegment[] = sentences.map(
-        (sentence) => ({
-          text: sentence,
-          needsTranslation: sentence.trim().length > 0,
-          translation: undefined,
-          lastTranslatedText: undefined,
-        })
+        languageCode === 'auto' ? undefined : languageCode,
+        [] // Empty existing segments for new segment
       );
 
       const segment: RealtimeSegment = {
@@ -566,17 +513,10 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         .join(' ')
         .trim();
 
-      const sentences = splitIntoSentences(
+      const translationSegments = updateTranslationSegments(
         currentText,
-        languageCode === 'auto' ? undefined : languageCode
-      );
-      const translationSegments: TranslationSegment[] = sentences.map(
-        (sentence) => ({
-          text: sentence,
-          needsTranslation: sentence.trim().length > 0,
-          translation: undefined,
-          lastTranslatedText: undefined,
-        })
+        languageCode === 'auto' ? undefined : languageCode,
+        [] // Empty existing segments for new segment
       );
 
       const segment: RealtimeSegment = {

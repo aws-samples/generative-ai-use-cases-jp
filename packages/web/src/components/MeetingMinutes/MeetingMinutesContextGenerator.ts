@@ -182,3 +182,26 @@ export const createContextGenerator = (
     return generateSystemContext(segments, config, predict);
   };
 };
+
+/**
+ * Get context from recent segments for translation
+ * @param segments - Array of realtime segments
+ * @param maxSegments - Maximum number of recent segments to include (default: 10)
+ * @returns Recent segments context as string
+ */
+export const getRecentSegmentsContext = (
+  segments: RealtimeSegmentForContext[],
+  maxSegments: number = 10
+): string => {
+  const recentSegments = segments
+    .filter((segment) => !segment.isPartial && segment.transcripts.length > 0)
+    .sort((a, b) => a.startTime - b.startTime)
+    .slice(-maxSegments); // Get last N segments
+
+  return recentSegments
+    .map((segment) =>
+      segment.transcripts.map((transcript) => transcript.transcript).join(' ')
+    )
+    .join(' ')
+    .trim();
+};
