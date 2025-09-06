@@ -25,49 +25,7 @@ import useScreenAudio from '../../hooks/useScreenAudio';
 import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
 import useChatApi from '../../hooks/useChatApi';
 import { MODELS } from '../../hooks/useModel';
-
-// Sentence delimiters for different languages
-const SENTENCE_DELIMITERS = {
-  'ja-JP': ['。', '?'],
-  'en-US': ['.', '?'],
-  // Add more languages as needed
-} as const;
-
-// Check if language supports sentence-based translation
-const supportsSentenceTranslation = (languageCode?: string): boolean => {
-  return languageCode !== undefined && languageCode in SENTENCE_DELIMITERS;
-};
-
-// Split text into sentences based on language
-const splitIntoSentences = (text: string, languageCode?: string): string[] => {
-  if (!supportsSentenceTranslation(languageCode)) {
-    return [text]; // Return as single segment for unsupported languages
-  }
-
-  const delimiters =
-    SENTENCE_DELIMITERS[languageCode as keyof typeof SENTENCE_DELIMITERS];
-
-  // Create regex pattern that captures delimiters
-  const pattern = new RegExp(
-    `([${delimiters.map((d) => d.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}])`,
-    'g'
-  );
-
-  // Split and reconstruct with delimiters
-  const parts = text.split(pattern);
-  const sentences: string[] = [];
-
-  for (let i = 0; i < parts.length; i += 2) {
-    const sentence = parts[i] || '';
-    const delimiter = parts[i + 1] || '';
-
-    if (sentence.trim() || delimiter) {
-      sentences.push(sentence + delimiter);
-    }
-  }
-
-  return sentences.filter((s) => s.trim().length > 0);
-};
+import { splitIntoSentences } from './MeetingMinutesSegmentSplitter';
 
 // Translation segment for sentence-by-sentence translation
 interface TranslationSegment {
@@ -88,13 +46,8 @@ interface RealtimeSegment {
   sessionId: number; // Session identifier for continuity
   languageCode?: string; // Language code from Transcribe response
 
-  // New sentence-based translation system
-  translationSegments?: TranslationSegment[];
-
-  // Legacy translation system (for backward compatibility)
-  translation?: string;
-  needsTranslation?: boolean; // Flag to indicate if translation is needed
-  lastTranslatedText?: string; // Last text that was translated for diff detection
+  // Translation segments (always present: multiple for supported languages, single for unsupported)
+  translationSegments: TranslationSegment[];
 }
 
 interface MeetingMinutesRealtimeProps {
@@ -173,13 +126,8 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   const [currentSessionId, setCurrentSessionId] = useState(0);
 
   // Translation hook
-  const {
-    availableModels,
-    translate,
-    isTranslating,
-    translationInterval,
-    hasTextChanged,
-  } = useRealtimeTranslation();
+  const { availableModels, translate, isTranslating, translationInterval } =
+    useRealtimeTranslation();
 
   // Helper function to translate individual sentences
   const translateSentence = useCallback(
@@ -237,14 +185,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                             }
                           : ts
                     ),
-                    // Update legacy translation field for display compatibility
-                    translation: seg.translationSegments
-                      ?.map((ts, index) =>
-                        index === sentenceIndex
-                          ? translation
-                          : ts.translation || ''
-                      )
-                      .join(''),
                   }
                 : seg
             )
@@ -266,10 +206,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                             }
                           : ts
                     ),
-                    // Update legacy translation field
-                    translation: seg.translationSegments
-                      ?.map((ts) => ts.translation || '')
-                      .join(''),
                   }
                 : seg
             )
@@ -600,58 +536,36 @@ Respond in ${targetLanguageName}.`;
             .join(' ')
             .trim();
 
-          // Handle sentence-based translation for supported languages
-          if (supportsSentenceTranslation(newSegment.languageCode)) {
-            const newSentences = splitIntoSentences(
-              currentText,
-              newSegment.languageCode
-            );
-            const existingSegments = currentSegment.translationSegments || [];
+          // Handle translation segments for all languages (unified approach)
+          const sentences = splitIntoSentences(
+            currentText,
+            newSegment.languageCode
+          );
+          const existingSegments = currentSegment.translationSegments;
 
-            // Create updated translation segments
-            const updatedTranslationSegments: TranslationSegment[] =
-              newSentences.map((sentence, index) => {
-                const existingSegment = existingSegments[index];
+          // Create updated translation segments
+          const updatedTranslationSegments: TranslationSegment[] =
+            sentences.map((sentence, index) => {
+              const existingSegment = existingSegments[index];
 
-                if (existingSegment && existingSegment.text === sentence) {
-                  // Sentence unchanged, keep existing translation
-                  return existingSegment;
-                } else {
-                  // New or changed sentence, needs translation
-                  return {
-                    text: sentence,
-                    needsTranslation: true,
-                    translation: existingSegment?.translation, // Keep partial translation if available
-                    lastTranslatedText: existingSegment?.lastTranslatedText,
-                  };
-                }
-              });
+              if (existingSegment && existingSegment.text === sentence) {
+                // Sentence unchanged, keep existing translation
+                return existingSegment;
+              } else {
+                // New or changed sentence, needs translation
+                return {
+                  text: sentence,
+                  needsTranslation: true,
+                  translation: existingSegment?.translation,
+                  lastTranslatedText: existingSegment?.lastTranslatedText,
+                };
+              }
+            });
 
-            updated[existingIndex] = {
-              ...newSegment,
-              translationSegments: updatedTranslationSegments,
-              // Keep legacy fields for backward compatibility
-              needsTranslation: updatedTranslationSegments.some(
-                (seg) => seg.needsTranslation
-              ),
-              lastTranslatedText: currentSegment.lastTranslatedText,
-              translation: currentSegment.translation,
-            };
-          } else {
-            // Legacy translation logic for unsupported languages
-            const needsTranslation = hasTextChanged(
-              currentText,
-              currentSegment.lastTranslatedText
-            );
-
-            updated[existingIndex] = {
-              ...newSegment,
-              needsTranslation:
-                needsTranslation || currentSegment.needsTranslation,
-              lastTranslatedText: currentSegment.lastTranslatedText,
-              translation: currentSegment.translation,
-            };
-          }
+          updated[existingIndex] = {
+            ...newSegment,
+            translationSegments: updatedTranslationSegments,
+          };
           return updated;
         } else {
           const currentText = newSegment.transcripts
@@ -659,54 +573,55 @@ Respond in ${targetLanguageName}.`;
             .join(' ')
             .trim();
 
-          // Handle sentence-based translation for new segments
-          if (supportsSentenceTranslation(newSegment.languageCode)) {
-            const sentences = splitIntoSentences(
-              currentText,
-              newSegment.languageCode
-            );
-            const translationSegments: TranslationSegment[] = sentences.map(
-              (sentence) => ({
-                text: sentence,
-                needsTranslation: sentence.trim().length > 0,
-                translation: undefined,
-                lastTranslatedText: undefined,
-              })
-            );
+          // Handle translation segments for new segments (unified approach)
+          const sentences = splitIntoSentences(
+            currentText,
+            newSegment.languageCode
+          );
+          const translationSegments: TranslationSegment[] = sentences.map(
+            (sentence) => ({
+              text: sentence,
+              needsTranslation: sentence.trim().length > 0,
+              translation: undefined,
+              lastTranslatedText: undefined,
+            })
+          );
 
-            return [
-              ...prev,
-              {
-                ...newSegment,
-                translationSegments,
-                // Legacy fields for backward compatibility
-                needsTranslation: translationSegments.some(
-                  (seg) => seg.needsTranslation
-                ),
-                lastTranslatedText: undefined,
-              },
-            ];
-          } else {
-            // Legacy logic for unsupported languages
-            return [
-              ...prev,
-              {
-                ...newSegment,
-                needsTranslation: currentText.length > 0,
-                lastTranslatedText: undefined,
-              },
-            ];
-          }
+          return [
+            ...prev,
+            {
+              ...newSegment,
+              translationSegments,
+            },
+          ];
         }
       });
     },
-    [hasTextChanged, setRealtimeSegments]
+    [setRealtimeSegments]
   );
 
   // Process microphone raw transcripts
   useEffect(() => {
     if (micRawTranscripts && micRawTranscripts.length > 0) {
       const latestSegment = micRawTranscripts[micRawTranscripts.length - 1];
+      const currentText = latestSegment.transcripts
+        .map((transcript) => transcript.transcript)
+        .join(' ')
+        .trim();
+
+      const sentences = splitIntoSentences(
+        currentText,
+        languageCode === 'auto' ? undefined : languageCode
+      );
+      const translationSegments: TranslationSegment[] = sentences.map(
+        (sentence) => ({
+          text: sentence,
+          needsTranslation: sentence.trim().length > 0,
+          translation: undefined,
+          lastTranslatedText: undefined,
+        })
+      );
+
       const segment: RealtimeSegment = {
         resultId: latestSegment.resultId,
         source: 'microphone',
@@ -716,6 +631,7 @@ Respond in ${targetLanguageName}.`;
         transcripts: latestSegment.transcripts,
         sessionId: currentSessionId,
         languageCode: languageCode === 'auto' ? undefined : languageCode,
+        translationSegments,
       };
       updateRealtimeSegments(segment);
     }
@@ -735,6 +651,24 @@ Respond in ${targetLanguageName}.`;
     ) {
       const latestSegment =
         screenRawTranscripts[screenRawTranscripts.length - 1];
+      const currentText = latestSegment.transcripts
+        .map((transcript) => transcript.transcript)
+        .join(' ')
+        .trim();
+
+      const sentences = splitIntoSentences(
+        currentText,
+        languageCode === 'auto' ? undefined : languageCode
+      );
+      const translationSegments: TranslationSegment[] = sentences.map(
+        (sentence) => ({
+          text: sentence,
+          needsTranslation: sentence.trim().length > 0,
+          translation: undefined,
+          lastTranslatedText: undefined,
+        })
+      );
+
       const segment: RealtimeSegment = {
         resultId: latestSegment.resultId,
         source: 'screen',
@@ -744,6 +678,7 @@ Respond in ${targetLanguageName}.`;
         transcripts: latestSegment.transcripts,
         sessionId: currentSessionId,
         languageCode: languageCode === 'auto' ? undefined : languageCode,
+        translationSegments,
       };
       updateRealtimeSegments(segment);
     }
@@ -762,17 +697,15 @@ Respond in ${targetLanguageName}.`;
     }
 
     const handleFinalTranslation = async () => {
-      // Handle sentence-based translation for completed segments
-      const sentenceBasedSegments = realtimeSegments.filter(
+      // Handle translation for all completed segments (unified approach)
+      const segmentsNeedingFinalTranslation = realtimeSegments.filter(
         (segment) =>
           !segment.isPartial &&
-          segment.translationSegments &&
-          supportsSentenceTranslation(segment.languageCode) &&
           !isTranslating(segment.resultId, selectedTranslationModel)
       );
 
-      for (const segment of sentenceBasedSegments) {
-        const sentencesToTranslate = segment.translationSegments!.filter(
+      for (const segment of segmentsNeedingFinalTranslation) {
+        const sentencesToTranslate = segment.translationSegments.filter(
           (translationSegment) =>
             translationSegment.needsTranslation &&
             translationSegment.text.trim()
@@ -780,7 +713,7 @@ Respond in ${targetLanguageName}.`;
 
         for (const translationSegment of sentencesToTranslate) {
           const sentenceIndex =
-            segment.translationSegments!.indexOf(translationSegment);
+            segment.translationSegments.indexOf(translationSegment);
 
           if (
             isTranslating(
@@ -792,77 +725,6 @@ Respond in ${targetLanguageName}.`;
           }
 
           await translateSentence(segment, sentenceIndex, translationSegment);
-        }
-      }
-
-      // Legacy translation for non-sentence-based segments
-      const legacySegmentsNeedingFinalTranslation = realtimeSegments.filter(
-        (segment) =>
-          !segment.isPartial &&
-          segment.needsTranslation &&
-          !segment.translationSegments &&
-          !isTranslating(segment.resultId, selectedTranslationModel)
-      );
-
-      for (const segment of legacySegmentsNeedingFinalTranslation) {
-        const segmentText = segment.transcripts
-          .map((transcript) => transcript.transcript)
-          .join(' ')
-          .trim();
-
-        if (!segmentText) {
-          continue;
-        }
-
-        try {
-          const targetLanguageName = getLanguageNameFromCode(
-            selectedTargetLanguage
-          );
-
-          // Build combined context for translation
-          const contexts = [];
-          if (userDefinedContext.trim()) {
-            contexts.push(`User-defined context: ${userDefinedContext.trim()}`);
-          }
-          if (systemGeneratedContext.trim()) {
-            contexts.push(
-              `System-generated context: ${systemGeneratedContext.trim()}`
-            );
-          }
-
-          const recentSegmentsText = getRecentSegmentsContext();
-          if (recentSegmentsText) {
-            contexts.push(`Recent conversation context: ${recentSegmentsText}`);
-          }
-
-          const combinedContext =
-            contexts.length > 0 ? contexts.join('\n\n') : undefined;
-
-          const translation = await translate(
-            segment.resultId,
-            segmentText,
-            selectedTranslationModel,
-            targetLanguageName,
-            combinedContext
-          );
-
-          if (translation) {
-            setRealtimeSegments((prev) =>
-              prev.map((seg) =>
-                seg.resultId === segment.resultId &&
-                seg.source === segment.source
-                  ? {
-                      ...seg,
-                      translation,
-                      needsTranslation: false,
-                      lastTranslatedText: segmentText,
-                    }
-                  : seg
-              )
-            );
-          }
-        } catch (error) {
-          console.error('Failed to translate completed segment:', error);
         }
       }
     };
@@ -892,118 +754,27 @@ Respond in ${targetLanguageName}.`;
           continue;
         }
 
-        // Handle sentence-based translation for supported languages
-        if (
-          segment.translationSegments &&
-          supportsSentenceTranslation(segment.languageCode)
-        ) {
-          const sentencesToTranslate = segment.translationSegments.filter(
-            (translationSegment) =>
-              translationSegment.needsTranslation &&
-              translationSegment.text.trim()
-          );
+        // Handle translation for all segments (unified approach)
+        const sentencesToTranslate = segment.translationSegments.filter(
+          (translationSegment) =>
+            translationSegment.needsTranslation &&
+            translationSegment.text.trim()
+        );
 
-          for (const translationSegment of sentencesToTranslate) {
-            const sentenceIndex =
-              segment.translationSegments.indexOf(translationSegment);
-            if (
-              isTranslating(
-                `${segment.resultId}-${sentenceIndex}`,
-                selectedTranslationModel
-              )
-            ) {
-              continue;
-            }
-
-            // Translate individual sentence
-            await translateSentence(segment, sentenceIndex, translationSegment);
-          }
-        } else {
-          // Legacy translation logic for unsupported languages or segments without translationSegments
-          if (!segment.needsTranslation) {
-            continue;
-          }
-
-          const segmentText = segment.transcripts
-            .map((transcript) => transcript.transcript)
-            .join(' ')
-            .trim();
-
+        for (const translationSegment of sentencesToTranslate) {
+          const sentenceIndex =
+            segment.translationSegments.indexOf(translationSegment);
           if (
-            !segmentText ||
-            !hasTextChanged(segmentText, segment.lastTranslatedText)
+            isTranslating(
+              `${segment.resultId}-${sentenceIndex}`,
+              selectedTranslationModel
+            )
           ) {
             continue;
           }
 
-          try {
-            const targetLanguageName = getLanguageNameFromCode(
-              selectedTargetLanguage
-            );
-
-            // Build combined context for translation
-            const contexts = [];
-            if (userDefinedContext.trim()) {
-              contexts.push(
-                `User-defined context: ${userDefinedContext.trim()}`
-              );
-            }
-            if (systemGeneratedContext.trim()) {
-              contexts.push(
-                `System-generated context: ${systemGeneratedContext.trim()}`
-              );
-            }
-
-            const recentSegmentsText = getRecentSegmentsContext();
-            if (recentSegmentsText) {
-              contexts.push(
-                `Recent conversation context: ${recentSegmentsText}`
-              );
-            }
-
-            const combinedContext =
-              contexts.length > 0 ? contexts.join('\n\n') : undefined;
-
-            const translation = await translate(
-              segment.resultId,
-              segmentText,
-              selectedTranslationModel,
-              targetLanguageName,
-              combinedContext
-            );
-
-            if (translation) {
-              setRealtimeSegments((prev) =>
-                prev.map((seg) =>
-                  seg.resultId === segment.resultId &&
-                  seg.source === segment.source
-                    ? {
-                        ...seg,
-                        translation,
-                        needsTranslation: false,
-                        lastTranslatedText: segmentText,
-                      }
-                    : seg
-                )
-              );
-            } else {
-              // Keep the existing translation and mark as not needing translation
-              setRealtimeSegments((prev) =>
-                prev.map((seg) =>
-                  seg.resultId === segment.resultId &&
-                  seg.source === segment.source
-                    ? {
-                        ...seg,
-                        needsTranslation: false,
-                        lastTranslatedText: segmentText,
-                      }
-                    : seg
-                )
-              );
-            }
-          } catch (error) {
-            console.error('Failed to translate partial segment:', error);
-          }
+          // Translate individual sentence
+          await translateSentence(segment, sentenceIndex, translationSegment);
         }
       }
     }, translationInterval);
@@ -1355,7 +1126,9 @@ Respond in ${targetLanguageName}.`;
                       speakerMapping={speakerMapping}
                       isPartial={segment.isPartial}
                       formatTime={formatTime}
-                      translation={segment.translation}
+                      translation={segment.translationSegments
+                        .map((ts) => ts.translation || '')
+                        .join('')}
                       translationSegments={segment.translationSegments}
                       isTranslating={isTranslating(
                         segment.resultId,
