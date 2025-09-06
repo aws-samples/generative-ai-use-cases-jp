@@ -2,6 +2,7 @@
 
 import os
 import logging
+import litellm
 from typing import Dict, Any
 
 # Configure root logger
@@ -10,6 +11,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Configure LiteLLM
+litellm.drop_params = True  # Remove unnecessary parameters
+litellm.set_verbose = False  # Disable verbose logging
 
 WORKSPACE_DIR = "/tmp/ws"
 
@@ -68,8 +73,15 @@ def extract_model_info(model_info: Any) -> tuple[str, str]:
         region = aws_creds.get("AWS_REGION", "us-east-1")
     else:
         model_id = model_info.get(
-            "modelId", "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+            "modelId", "anthropic.claude-3-5-sonnet-20241022-v2:0"
         )
         region = model_info.get("region", aws_creds.get("AWS_REGION", "us-east-1"))
+    
+    # If model_id starts with "us.", remove it for compatibility with LiteLLM
+    if model_id.startswith("us."):
+        model_id = model_id[3:]
+    # For other regional prefixes like "eu.", "ap.", etc.
+    elif "." in model_id and len(model_id.split(".", 1)[0]) <= 3:
+        model_id = model_id.split(".", 1)[1]
 
     return model_id, region

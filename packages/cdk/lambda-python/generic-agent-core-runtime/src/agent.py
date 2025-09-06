@@ -1,12 +1,12 @@
 """Agent management for the agent core runtime."""
 
-import boto3
 import json
 import logging
-from strands.models import BedrockModel
+import litellm
+from strands.models.litellm_model import LiteLLMModel
 from strands import Agent as StrandsAgent
 from typing import List, Dict, Union, Any, Optional, AsyncGenerator
-from .config import get_system_prompt, extract_model_info
+from .config import get_system_prompt, extract_model_info, get_aws_credentials
 from .tools import ToolManager
 from .utils import (
     create_empty_response, 
@@ -47,13 +47,18 @@ class AgentManager:
             # Get all tools
             tools = self.tool_manager.get_all_tools()
             
-            # Create boto3 session and Bedrock model
-            session = boto3.Session(region_name=region)
-            bedrock_model = BedrockModel(
-                model_id=model_id,
-                boto_session=session,
-                cache_prompt="default",
-                cache_tools="default",
+            # Setup LiteLLM with AWS credentials
+            aws_creds = get_aws_credentials()
+            litellm_model = LiteLLMModel(
+                model_id=f"bedrock/{model_id}",
+                litellm_kwargs={
+                    "aws_access_key_id": aws_creds.get("AWS_ACCESS_KEY_ID"),
+                    "aws_secret_access_key": aws_creds.get("AWS_SECRET_ACCESS_KEY"),
+                    "aws_session_token": aws_creds.get("AWS_SESSION_TOKEN"),
+                    "aws_region_name": region,
+                    "cache_prompt": "default",
+                    "cache_tools": "default",
+                },
             )
             
             # Process messages and prompt using utility functions
@@ -64,7 +69,7 @@ class AgentManager:
             agent = StrandsAgent(
                 system_prompt=combined_system_prompt,
                 messages=processed_messages,
-                model=bedrock_model,
+                model=litellm_model,
                 tools=tools,
             )
 

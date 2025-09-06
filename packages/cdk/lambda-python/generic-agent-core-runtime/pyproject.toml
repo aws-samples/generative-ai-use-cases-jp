@@ -11,4 +11,5 @@ dependencies = [
   "uvicorn",
   "pydantic",
   "aws-opentelemetry-distro>=0.10.1",
+  "litellm>=1.76.2",
 ]
