@@ -4992,7 +4992,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
         "CustomConfig": {
           "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08",
+            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23b590c79ae142699dd6724f5298a7e7143db86c07b7f4f9d3afde6623ef5966",
           },
           "environmentVariables": {
             "FILE_BUCKET": {
@@ -26205,7 +26205,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
         "CustomConfig": {
           "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08",
+            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23b590c79ae142699dd6724f5298a7e7143db86c07b7f4f9d3afde6623ef5966",
           },
           "environmentVariables": {
             "FILE_BUCKET": {
