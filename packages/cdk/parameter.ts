@@ -28,6 +28,7 @@ const envs: Record<string, Partial<StackInput>> = {
   },
   prod: {
     // Parameters for production environment
+    ragEnabled: true,
   },
   // If you need other environments, customize them as needed
 };
