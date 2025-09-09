@@ -315,11 +315,11 @@ chunkingConfiguration: {
 },
 ```
 
-그런 다음 [변경사항 적용을 위한 Knowledge Base 또는 OpenSearch Service 재생성](./DEPLOY_OPTION.md#recreating-knowledge-base-or-opensearch-service-to-apply-changes) 장을 참조하여 변경사항을 적용합니다.
+그런 다음 [변경사항 적용을 위한 Knowledge Base 또는 OpenSearch Service 재생성](./DEPLOY_OPTION.md#변경사항-적용을-위한-knowledge-base-또는-opensearch-service-재생성) 장을 참조하여 변경사항을 적용합니다.
 
 #### 변경사항 적용을 위한 Knowledge Base 또는 OpenSearch Service 재생성
 
-[Knowledge Base 청킹 전략](./DEPLOY_OPTION.md#changing-chunking-strategy) 또는 다음 OpenSearch Service 매개변수의 경우, 변경 후 `npm run cdk:deploy`를 실행해도 변경사항이 반영되지 않습니다:
+[Knowledge Base 청킹 전략](./DEPLOY_OPTION.md#청킹-전략-변경) 또는 다음 OpenSearch Service 매개변수의 경우, 변경 후 `npm run cdk:deploy`를 실행해도 변경사항이 반영되지 않습니다:
 
 - `embeddingModelId`
 - `ragKnowledgeBaseStandbyReplicas`
@@ -768,6 +768,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -932,6 +933,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -1786,6 +1788,39 @@ Kendra 인덱스가 삭제되어도 RAG 기능은 계속 켜져 있습니다. �
 >   - 스택을 생성할 때 (GenerativeAiUseCasesStack이 존재하지 않을 때 cdk:deploy 실행), `ragEnabled`가 `true`이면 Kendra 인덱스가 생성됩니다. 일정 시간이 설정되어 있어도 인덱스가 생성됩니다. 인덱스는 다음 삭제 일정 시간까지 생성된 상태로 유지됩니다.
 > - 현재 시작/종료 오류를 알리는 기능은 없습니다.
 > - 인덱스가 재생성될 때마다 IndexId와 DataSourceId가 변경됩니다. 다른 서비스에서 이를 참조하는 경우 이러한 변경사항에 적응해야 합니다.
+
+### 태그 설정 방법
+
+GenU는 비용 관리 및 기타 목적을 위한 태그를 지원합니다. 태그의 키 이름은 자동으로 `GenU`로 설정됩니다. 설정 방법의 예시는 다음과 같습니다:
+
+`cdk.json`에서 설정:
+
+```json
+// cdk.json
+  ...
+  "context": {
+    "tagValue": "dev",
+    ...
+```
+
+`parameter.ts`에서 설정:
+
+```typescript
+    ...
+    tagValue: "dev",
+    ...
+```
+
+그러나 일부 리소스에서는 태그를 사용할 수 없습니다:
+
+- 교차 지역 추론 모델 호출
+- 음성 채팅 모델 호출
+
+When managing costs using tags, you need to enable “Cost allocation tags” by following these steps.
+
+- Open the “Billing and Cost Management” console.
+- Open “Cost Allocation Tags” in the left menu.
+- Activate the tag with the tag key “GenU” from “User-defined cost allocation tags.”
 
 ## 모니터링 대시보드 활성화
 

@@ -122,7 +122,7 @@ GenU는 수동으로 생성했거나 다른 자산으로 생성한 [에이전트
 GenU를 에이전트 활용 플랫폼으로 사용하면 GenU의 [풍부한 보안 옵션](docs/ko/DEPLOY_OPTION.md#security-related-settings)과 [SAML 인증](docs/ko/DEPLOY_OPTION.md#saml-authentication)을 활용하여 조직 내에 실용적인 에이전트를 확산시킬 수 있습니다.
 또한 [불필요한 표준 사용 사례를 숨기거나](docs/ko/DEPLOY_OPTION.md#hiding-specific-use-cases) [에이전트를 인라인으로 표시](docs/ko/DEPLOY_OPTION.md#displaying-agents-inline)하여 GenU를 더 에이전트 중심의 플랫폼으로 사용할 수 있습니다.
 
-AgentCore Runtime에 대해서도 마찬가지로 [가져오기 기능](docs/ko/DEPLOY_OPTION.md#agentcore-ユースケースの有効化)이 있으므로 활용해 주세요.
+AgentCore Runtime에 대해서도 마찬가지로 [가져오기 기능](docs/ko/DEPLOY_OPTION.md#enabling-agentcore-use-cases)이 있으므로 활용해 주세요.
 
 마찬가지로 Bedrock Flows에 대한 [가져오기 기능](docs/ko/DEPLOY_OPTION.md#enabling-flow-chat-use-case)이 있으므로 활용해 주세요.
 
