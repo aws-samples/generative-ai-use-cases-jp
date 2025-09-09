@@ -12,7 +12,7 @@ import {
   SpeechToSpeech,
   McpApi,
   LitellmProxyServer,
-  MultiTenantRole,
+  TenantManager,
 } from '../../construct';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -66,18 +66,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
     });
 
-    // Multi-Tenant Role
-    const multiTenantRole = new MultiTenantRole(this, 'MultiTenantRole', {
-      userPool: auth.userPool,
-      userPoolClient: auth.client,
-      identityPool: auth.idPool,
-      region: this.region,
-      account: this.account,
-      env: params.env,
-    });
-
     // Database
     const database = new Database(this, 'Database');
+
+    // Tenant Management
+    const tenantManager = new TenantManager(this, 'TenantManager', {
+      environment: params.env,
+      enableAutoDelete: params.enableAutoDelete,
+    });
 
     // LiteLLM Proxy Server (must be created before API)
     let litellmEndpoint: string | null = null;
@@ -119,6 +115,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
       environment: params.env,
+      tenantManager: tenantManager,
 
       // LangChain Credentials
       openai: params.openai,
@@ -436,9 +433,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: litellmEndpoint ?? '',
     });
 
-    new CfnOutput(this, 'MultiTenantRoleArn', {
-      value: multiTenantRole.role.roleArn,
-      description: 'ARN of the single role for multi-tenant resource access',
+    new CfnOutput(this, 'TenantsTableName', {
+      value: tenantManager.tenantsTable.tableName,
+      description: 'Name of the DynamoDB Tenants table',
+    });
+
+    new CfnOutput(this, 'TenantsKmsKeyId', {
+      value: tenantManager.kmsKey.keyId,
+      description: 'ID of the KMS key for tenant data encryption',
     });
 
     this.userPool = auth.userPool;

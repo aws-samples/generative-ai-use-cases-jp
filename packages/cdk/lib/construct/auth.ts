@@ -1,6 +1,5 @@
-import { Duration, Stack, CfnJson } from 'aws-cdk-lib';
+import { Duration } from 'aws-cdk-lib';
 import {
-  CfnIdentityPoolPrincipalTag,
   LambdaVersion,
   StringAttribute,
   UserPool,
@@ -200,24 +199,6 @@ export class Auth extends Construct {
       preTokenGenerationFunction,
       LambdaVersion.V2_0
     );
-
-    // Configure principal tag mapping using CfnIdentityPoolPrincipalTag
-    // This maps JWT claims to principal tags for ABAC
-    const principalTagMapping = new CfnIdentityPoolPrincipalTag(
-      this,
-      'IdentityPoolPrincipalTag',
-      {
-        identityPoolId: idPool.identityPoolId,
-        identityProviderName: userPool.userPoolProviderName,
-        principalTags: {
-          TenantID: 'custom:tenant_id',
-        },
-        useDefaults: false,
-      }
-    );
-
-    // Ensure the principal tag mapping depends on the trust relationship being configured
-    principalTagMapping.node.addDependency(authenticatedRole);
 
     this.client = client;
     this.userPool = userPool;

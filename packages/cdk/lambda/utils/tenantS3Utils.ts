@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 // Constants at file level
 const ENVIRONMENT = process.env.ENVIRONMENT!;
 const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID!;
-const CDK_ACCOUNT_ID = process.env.CDK_ACCOUNT_ID!;
+const AWS_ACCOUNT_ID = process.env.AWS_ACCOUNT_ID!;
 const AWS_REGION = process.env.AWS_REGION!;
 
 /**
@@ -34,7 +34,7 @@ export async function getTenantBucketNameByTenantId(
       bucketType,
       ENVIRONMENT,
       tenantId,
-      CDK_ACCOUNT_ID,
+      AWS_ACCOUNT_ID,
       AWS_REGION
     );
 

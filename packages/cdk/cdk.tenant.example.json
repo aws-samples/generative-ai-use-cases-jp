@@ -1,9 +1,13 @@
 {
   "context": {
+    "accountId": "YOUR_AWS_ACCOUNT_ID",
     "tenantId": "tenant123",
     "environment": "dev",
     "tenantRegion": "us-east-1",
     "enableAutoDelete": false,
+    "userPoolId": "us-east-1_EXAMPLE123",
+    "identityPoolId": "us-east-1:12345678-1234-1234-1234-123456789012",
+    "userPoolClientId": "YOUR_USER_POOL_CLIENT_ID",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],

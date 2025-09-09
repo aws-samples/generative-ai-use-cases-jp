@@ -14,17 +14,17 @@ export async function createTenantDynamoDBClient(
     // Get fresh credentials for each request to ensure proper user isolation
     const credentials = await getTenantCredentials(event);
 
-    if (!credentials.AccessKeyId || !credentials.SecretKey) {
+    if (!credentials.AccessKeyId || !credentials.SecretAccessKey) {
       throw new Error(
-        'Invalid credentials received from Cognito Identity Pool'
+        'Invalid credentials received from AssumeRoleWithWebIdentity'
       );
     }
 
-    // Create DynamoDB client with Identity Pool credentials
+    // Create DynamoDB client with tenant role credentials
     return new DynamoDBClient({
       credentials: {
         accessKeyId: credentials.AccessKeyId,
-        secretAccessKey: credentials.SecretKey,
+        secretAccessKey: credentials.SecretAccessKey,
         sessionToken: credentials.SessionToken,
       },
       region: process.env.AWS_REGION,

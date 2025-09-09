@@ -16,6 +16,7 @@
   },
   "context": {
     "env": "",
+    "enableAutoDelete": false,
     "ragEnabled": false,
     "kendraIndexArn": null,
     "kendraIndexLanguage": "ja",

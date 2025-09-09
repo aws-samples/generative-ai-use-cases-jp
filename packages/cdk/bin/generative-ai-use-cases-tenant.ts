@@ -23,6 +23,13 @@ const context = {
   ...app.node.getAllContext(),
 };
 
+// Set the merged context back to the app
+Object.keys(tenantConfig).forEach(key => {
+  if (!(key in app.node.getAllContext())) {
+    app.node.setContext(key, (tenantConfig as any)[key]);
+  }
+});
+
 const tenantId = context.tenantId;
 if (!tenantId) {
   throw new Error(

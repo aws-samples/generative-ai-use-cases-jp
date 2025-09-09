@@ -6,6 +6,7 @@ const baseStackInputSchema = z.object({
   region: z.string().default(process.env.CDK_DEFAULT_REGION ?? 'us-east-1'),
   env: z.string().default(''),
   anonymousUsageTracking: z.boolean().default(true),
+  enableAutoDelete: z.boolean().default(false),
 
   // Auth
   selfSignUpEnabled: z.boolean().default(true),
