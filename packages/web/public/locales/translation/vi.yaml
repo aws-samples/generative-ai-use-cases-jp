@@ -19,7 +19,6 @@ chat:
   hint_ctrl_enter: Ctrl + Enter để gửi
   history: Lịch sử cuộc trò chuyện
   initialize: Khởi tạo
-  model_parameters: Tham số mô hình
   open_link: Mở liên kết
   prompt_examples: Ví dụ prompt
   save: Lưu
@@ -590,8 +589,7 @@ meetingMinutes:
   transcript: Bản chuyển đổi
 model:
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: Token budget for extended thinking
 navigation:
   agentChat: Agent Chat
   chat: Chat

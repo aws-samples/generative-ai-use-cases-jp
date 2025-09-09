@@ -26,7 +26,7 @@ export class CognitoPrivateProxy extends Construct {
         restApiName: 'GenU Cognito UserPool Proxy API',
         defaultCorsPreflightOptions: {
           allowOrigins: agw.Cors.ALL_ORIGINS,
-          allowMethods: ['POST', 'OPTIONS'],
+          allowMethods: ['GET', 'POST', 'OPTIONS'],
           allowHeaders: [
             'amz-sdk-invocation-id',
             'amz-sdk-request',
@@ -61,6 +61,44 @@ export class CognitoPrivateProxy extends Construct {
             }),
           ],
         }),
+      }
+    );
+
+    const userPoolResource =
+      this.cognitoUserPoolProxyApi.root.addResource('{userPoolId}');
+    const wellKnownResource = userPoolResource.addResource('.well-known');
+    const jwksResource = wellKnownResource.addResource('jwks.json');
+
+    // Add GET method to the root resource to serve jwtks.json
+    jwksResource.addMethod(
+      'GET',
+      new agw.HttpIntegration(
+        `${cognitoUserPoolEndpoint}/{userPoolId}/.well-known/jwks.json`,
+        {
+          proxy: false,
+          httpMethod: 'GET',
+          options: {
+            requestParameters: {
+              'integration.request.path.userPoolId':
+                'method.request.path.userPoolId',
+            },
+            integrationResponses: [
+              {
+                statusCode: '200',
+              },
+            ],
+          },
+        }
+      ),
+      {
+        requestParameters: {
+          'method.request.path.userPoolId': true,
+        },
+        methodResponses: [
+          {
+            statusCode: '200',
+          },
+        ],
       }
     );
 

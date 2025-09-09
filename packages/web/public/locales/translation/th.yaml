@@ -19,7 +19,6 @@ chat:
   hint_ctrl_enter: Ctrl + Enter เพื่อส่ง
   history: ประวัติการสนทนา
   initialize: เริ่มต้นใหม่
-  model_parameters: พารามิเตอร์โมเดล
   open_link: เปิดลิงก์
   prompt_examples: ตัวอย่าง prompt
   save: บันทึก
@@ -606,7 +605,6 @@ meetingMinutes:
   transcript: บันทึกการถอดความ
 model:
   parameters:
-    reasoning: การให้เหตุผล
     reasoning_budget: งบประมาณการให้เหตุผล
 navigation:
   agentChat: Agent Chat

@@ -17,7 +17,6 @@ chat:
   drop_files: 请拖放文件
   history: 对话历史
   initialize: 初始化
-  model_parameters: 模型参数
   open_link: 打开链接
   prompt_examples: 提示示例
   save: 保存
@@ -494,7 +493,6 @@ meetingMinutes:
   transcript: 转录文本
 model:
   parameters:
-    reasoning: 推理
     reasoning_budget: 推理预算
 navigation:
   agentChat: Agent聊天

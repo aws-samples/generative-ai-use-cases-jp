@@ -2,6 +2,8 @@ agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
 agent_core:
+  model: モデル
+  runtime: ランタイム
   start_conversation: AgentCore と会話を始める
   title: AgentCore
 auth:
@@ -22,7 +24,6 @@ chat:
   hint_ctrl_enter: Ctrl + Enter で送信
   history: 会話履歴
   initialize: 初期化
-  model_parameters: モデルパラメータ
   open_link: リンクを開く
   prompt_examples: プロンプト例
   save: 保存
@@ -357,6 +358,10 @@ generateText:
   result_placeholder: 生成された文章がここに表示されます
   source_info: 文章の元になる情報
   title: 文章生成
+inputs:
+  attachment: 添付ファイル
+  reasoning: 深く考える
+  setting: 設定
 landing:
   alert:
     description: >-
@@ -576,8 +581,7 @@ meetingMinutes:
   transcript: 文字起こし
 model:
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: 深く考えるトークン数上限
 navigation:
   agentChat: Agent チャット
   chat: チャット

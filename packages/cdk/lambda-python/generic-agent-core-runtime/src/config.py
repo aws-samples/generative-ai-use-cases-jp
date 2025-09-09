@@ -1,8 +1,8 @@
 """Configuration and environment setup for the agent core runtime."""
 
-import os
 import logging
-from typing import Dict, Any
+import os
+from typing import Any
 
 # Configure root logger
 logging.basicConfig(
@@ -21,7 +21,7 @@ FIXED_SYSTEM_PROMPT = f"""## About File Output
 """
 
 
-def get_aws_credentials() -> Dict[str, str]:
+def get_aws_credentials() -> dict[str, str]:
     """Get AWS credentials from environment or IAM role"""
     credentials = {}
 
@@ -37,7 +37,7 @@ def get_aws_credentials() -> Dict[str, str]:
     return credentials
 
 
-def get_uv_environment() -> Dict[str, str]:
+def get_uv_environment() -> dict[str, str]:
     """Get UV environment with AWS credentials"""
     aws_creds = get_aws_credentials()
     return {
@@ -62,14 +62,12 @@ def get_system_prompt(user_system_prompt: str = None) -> str:
 def extract_model_info(model_info: Any) -> tuple[str, str]:
     """Extract model ID and region from model info"""
     aws_creds = get_aws_credentials()
-    
+
     if isinstance(model_info, str):
         model_id = model_info
         region = aws_creds.get("AWS_REGION", "us-east-1")
     else:
-        model_id = model_info.get(
-            "modelId", "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
-        )
+        model_id = model_info.get("modelId", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
         region = model_info.get("region", aws_creds.get("AWS_REGION", "us-east-1"))
 
     return model_id, region

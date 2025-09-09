@@ -10,6 +10,13 @@ const MODEL_FEATURE: Record<string, FeatureFlags> = {
   // Model Feature Flags
   TEXT_ONLY: { text: true, doc: false, image: false, video: false },
   TEXT_DOC: { text: true, doc: true, image: false, video: false },
+  TEXT_DOC_REASONING: {
+    text: true,
+    doc: true,
+    image: false,
+    video: false,
+    reasoning: true,
+  },
   TEXT_DOC_IMAGE: { text: true, doc: true, image: true, video: false },
   TEXT_DOC_IMAGE_REASONING: {
     text: true,
@@ -74,6 +81,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   'us.anthropic.claude-opus-4-20250514-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Opus 4',
+  },
+  'global.anthropic.claude-sonnet-4-20250514-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Sonnet 4',
   },
   'us.anthropic.claude-sonnet-4-20250514-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
@@ -375,7 +386,7 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   },
   // DeepSeek
   'us.deepseek.r1-v1:0': {
-    flags: MODEL_FEATURE.TEXT_DOC,
+    flags: MODEL_FEATURE.TEXT_DOC_REASONING,
     displayName: 'DeepSeek-R1',
   },
   // Writer
