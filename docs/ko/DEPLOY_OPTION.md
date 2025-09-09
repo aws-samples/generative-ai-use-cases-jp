@@ -697,6 +697,25 @@ MCP 서버를 추가할 때는 앞서 언급한 `mcp.json`에 추가하세요.
 
 `agentCoreExternalRuntimes`를 사용하면 외부에서 생성된 AgentCore Runtime을 사용할 수 있습니다.
 
+AgentCore 사용 사례를 활성화하려면 `docker` 명령을 실행할 수 있어야 합니다.
+
+> [!WARNING]
+> x86_64 CPU(Intel, AMD 등)를 사용하는 Linux 머신에서는 cdk 배포 전에 다음 명령을 실행하세요:
+>
+> ```
+> docker run --privileged --rm tonistiigi/binfmt --install arm64
+> ```
+>
+> 위 명령을 실행하지 않으면 다음 오류가 발생합니다:  
+> 배포 과정에서 AgentCore Runtime에서 사용하는 ARM 기반 컨테이너 이미지가 빌드됩니다. x86_64 CPU에서 ARM 컨테이너 이미지를 빌드할 때 CPU 아키텍처 차이로 인해 오류가 발생합니다.
+>
+> ```
+> ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
+> AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
+> ```
+>
+> 이 명령을 실행하면 호스트 Linux 커널에 임시 구성 변경이 이루어집니다. Binary Format Miscellaneous (binfmt_misc)에 QEMU 에뮬레이터 사용자 정의 핸들러를 등록하여 ARM 컨테이너 이미지 빌드를 가능하게 합니다. 구성은 재부팅 후 원래 상태로 돌아가므로 재배포 전에 명령을 다시 실행해야 합니다.
+
 **[parameter.ts](/packages/cdk/parameter.ts) 편집**
 
 ```typescript
@@ -768,6 +787,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -933,6 +953,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
