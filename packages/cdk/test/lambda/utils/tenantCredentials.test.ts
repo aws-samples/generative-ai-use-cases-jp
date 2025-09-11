@@ -73,7 +73,7 @@ const createMockEvent = (tenantId: string): APIGatewayProxyEvent => ({
   isBase64Encoded: false,
 });
 
-describe('Phase 1 Tenant Authentication', () => {
+describe('Tenant Authentication', () => {
   describe('extractTenantId', () => {
     it('should extract tenant ID from JWT claims', () => {
       const event = createMockEvent('test-tenant-123');
@@ -130,7 +130,7 @@ export const testHelpers = {
   
   // Helper to validate that the new authentication flow works
   async validateAuthenticationFlow(tenantId: string) {
-    console.log(`\n=== Phase 1 Authentication Flow Test ===`);
+    console.log(`\n=== Authentication Flow Test ===`);
     console.log(`Testing tenant: ${tenantId}`);
     
     const event = createMockEvent(tenantId);
@@ -148,9 +148,9 @@ export const testHelpers = {
       const expectedRoleArn = `arn:aws:iam::${mockEnv.AWS_ACCOUNT_ID}:role/TenantRole-${tenantId}`;
       console.log(`   ✓ Role ARN: ${expectedRoleArn}`);
       
-      console.log(`\n✅ Phase 1 authentication flow validation completed successfully!`);
+      console.log(`\n✅ Authentication flow validation completed successfully!`);
       console.log(`\nNext steps for full testing:`);
-      console.log(`1. Deploy the stack with Phase 1 changes`);
+      console.log(`1. Deploy the stack with authentication changes`);
       console.log(`2. Create tenant-specific IAM roles`);
       console.log(`3. Test with real JWT tokens from Cognito User Pool`);
       console.log(`4. Verify AssumeRoleWithWebIdentity works with actual AWS STS`);

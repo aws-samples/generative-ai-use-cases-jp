@@ -17,8 +17,8 @@ export async function createTenantS3Client(
   event: APIGatewayProxyEvent
 ): Promise<S3Client> {
   try {
-    // Get fresh credentials for each request to ensure proper user isolation
-    const credentials = await getTenantCredentials(event);
+    // Get fresh credentials and tenant info for each request to ensure proper user isolation
+    const { credentials, tenant } = await getTenantCredentials(event);
 
     if (!credentials.AccessKeyId || !credentials.SecretAccessKey) {
       throw new Error(
@@ -26,14 +26,20 @@ export async function createTenantS3Client(
       );
     }
 
-    // Create S3 client with tenant role credentials
+    if (!tenant.region) {
+      throw new Error(`Tenant ${tenant.tenantId} is missing region information`);
+    }
+
+    console.log(`Creating S3 client for tenant ${tenant.tenantId} in region ${tenant.region}`);
+
+    // Create S3 client with tenant role credentials and tenant's region
     return new S3Client({
       credentials: {
         accessKeyId: credentials.AccessKeyId,
         secretAccessKey: credentials.SecretAccessKey,
         sessionToken: credentials.SessionToken,
       },
-      region: process.env.AWS_REGION!,
+      region: tenant.region,
     });
   } catch (error) {
     console.error('Failed to create tenant S3 client:', error);
@@ -46,14 +52,16 @@ export async function createTenantS3Client(
  * Uses STS AssumeRole with session tags to maintain ABAC security
  * For use in background lambdas that don't have API Gateway events
  * NOTE: No caching to ensure proper security isolation
+ * @param tenantId - The tenant ID
+ * @param tenantRegion - The tenant's region (required for cross-account tenants)
  */
 export async function createTenantS3ClientForBackgroundJob(
   tenantId: string,
-  region?: string
+  tenantRegion?: string
 ): Promise<S3Client> {
   // Use default credentials for default tenant
   if (isDefaultTenant(tenantId)) {
-    return new S3Client({ region: region || process.env.AWS_REGION! });
+    return new S3Client({ region: tenantRegion || process.env.AWS_REGION! });
   }
 
   // Assume multi-tenant role with tenant ID as session tag for ABAC
@@ -75,7 +83,7 @@ export async function createTenantS3ClientForBackgroundJob(
     }
 
     return new S3Client({
-      region: region || process.env.AWS_REGION!,
+      region: tenantRegion || process.env.AWS_REGION!,
       credentials: {
         accessKeyId: response.Credentials.AccessKeyId!,
         secretAccessKey: response.Credentials.SecretAccessKey!,
@@ -89,6 +97,6 @@ export async function createTenantS3ClientForBackgroundJob(
     );
     // Fall back to default credentials
     console.warn(`Falling back to default S3 client for tenant: ${tenantId}`);
-    return new S3Client({ region: region || process.env.AWS_REGION! });
+    return new S3Client({ region: tenantRegion || process.env.AWS_REGION! });
   }
 }

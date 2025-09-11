@@ -3,7 +3,6 @@ import * as crypto from 'crypto';
 // Constants at file level
 const ENVIRONMENT = process.env.ENVIRONMENT!;
 const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID!;
-const AWS_ACCOUNT_ID = process.env.AWS_ACCOUNT_ID!;
 const AWS_REGION = process.env.AWS_REGION!;
 
 /**
@@ -14,6 +13,25 @@ export function isDefaultTenant(tenantId: string): boolean {
 }
 
 /**
+ * Extract account ID from role ARN
+ * @param roleArn - Role ARN in format: arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME
+ * @returns Account ID or null if extraction fails
+ */
+export function extractAccountIdFromRoleArn(roleArn: string): string | null {
+  try {
+    // ARN format: arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME
+    const parts = roleArn.split(':');
+    if (parts.length >= 5 && parts[0] === 'arn' && parts[2] === 'iam') {
+      return parts[4]; // Account ID is at index 4
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to extract account ID from role ARN:', error);
+    return null;
+  }
+}
+
+/**
  * Get the appropriate bucket name for a tenant operation using tenant ID directly
  * Returns fallback bucket for default tenant, tenant bucket for others
  * Uses deterministic bucket name generation (no s3:ListAllMyBuckets permission needed)
@@ -21,7 +39,10 @@ export function isDefaultTenant(tenantId: string): boolean {
 export async function getTenantBucketNameByTenantId(
   tenantId: string,
   bucketType: 'chat' | 'docs' | 'analytics' | 'transcripts' | 'videos',
-  fallbackBucketName: string
+  fallbackBucketName: string,
+  accountId: string,
+  region: string,
+  environment: string
 ): Promise<string> {
   // Use fallback bucket for default tenant
   if (isDefaultTenant(tenantId)) {
@@ -32,10 +53,10 @@ export async function getTenantBucketNameByTenantId(
     // For tenant users, generate the exact bucket name deterministically
     const bucketName = generateTenantBucketName(
       bucketType,
-      ENVIRONMENT,
+      environment,
       tenantId,
-      AWS_ACCOUNT_ID,
-      AWS_REGION
+      accountId,
+      region
     );
 
     console.log(`Generated deterministic tenant bucket name: ${bucketName}`);

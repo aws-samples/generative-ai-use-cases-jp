@@ -3,13 +3,11 @@ import {
   GetItemCommand,
   PutItemCommand,
   UpdateItemCommand,
-  QueryCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 // Environment variables
 const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME!;
-const TENANTS_KMS_KEY_ID = process.env.TENANTS_KMS_KEY_ID!;
 
 // DynamoDB client
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION! });
@@ -27,19 +25,22 @@ export interface Tenant {
   tenantId: string;
   status: TenantStatus;
   region: string;
+  environment: string;
   createdAt: string;
   updatedAt: string;
   metadata?: Record<string, any>;
-  // Phase 2 fields (placeholder, not used in Phase 1)
-  accountId?: string;
-  encryptedCrossAccountRoleArn?: string;
+  accountId: string;
+  roleArn: string;
 }
 
 // Request interfaces
 interface RegisterTenantRequest {
   tenantId: string;
   region?: string;
+  environment?: string;
   metadata?: Record<string, any>;
+  accountId: string;
+  roleArn: string;
 }
 
 interface UpdateTenantRequest {
@@ -47,6 +48,8 @@ interface UpdateTenantRequest {
   status?: TenantStatus;
   region?: string;
   metadata?: Record<string, any>;
+  accountId?: string;
+  roleArn?: string;
 }
 
 /**
@@ -83,9 +86,12 @@ export async function registerTenant(
     tenantId: request.tenantId,
     status: TenantStatus.PROVISIONING,
     region: request.region || process.env.AWS_REGION!,
+    environment: request.environment || process.env.ENVIRONMENT!,
     createdAt: now,
     updatedAt: now,
     metadata: request.metadata || {},
+    accountId: request.accountId,
+    roleArn: request.roleArn,
   };
 
   try {
@@ -146,6 +152,19 @@ export async function updateTenant(
       updateExpression.push('#metadata = :metadata');
       expressionAttributeNames['#metadata'] = 'metadata';
       expressionAttributeValues[':metadata'] = request.metadata;
+    }
+
+    // Cross-account fields
+    if (request.accountId !== undefined) {
+      updateExpression.push('#accountId = :accountId');
+      expressionAttributeNames['#accountId'] = 'accountId';
+      expressionAttributeValues[':accountId'] = request.accountId;
+    }
+
+    if (request.roleArn !== undefined) {
+      updateExpression.push('#roleArn = :roleArn');
+      expressionAttributeNames['#roleArn'] = 'roleArn';
+      expressionAttributeValues[':roleArn'] = request.roleArn;
     }
 
     // Always update updatedAt

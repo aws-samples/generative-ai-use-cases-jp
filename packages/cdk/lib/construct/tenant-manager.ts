@@ -1,12 +1,10 @@
 import { Construct } from 'constructs';
-import { RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { RemovalPolicy, Duration } from 'aws-cdk-lib';
 import { Table, AttributeType, BillingMode, TableEncryption } from 'aws-cdk-lib/aws-dynamodb';
-import { Key } from 'aws-cdk-lib/aws-kms';
-import {
-  PolicyStatement,
-  Effect,
-  ServicePrincipal,
-} from 'aws-cdk-lib/aws-iam';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Tracing } from 'aws-cdk-lib/aws-lambda';
+import * as path from 'path';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 
 export interface TenantManagerProps {
   readonly environment: string;
@@ -15,7 +13,7 @@ export interface TenantManagerProps {
 
 export class TenantManager extends Construct {
   public readonly tenantsTable: Table;
-  public readonly kmsKey: Key;
+  public readonly registrationLambda: NodejsFunction;
 
   constructor(scope: Construct, id: string, props: TenantManagerProps) {
     super(scope, id);
@@ -36,37 +34,28 @@ export class TenantManager extends Construct {
         : RemovalPolicy.RETAIN,
     });
 
-    // KMS Key for tenant data encryption (Phase 2)
-    this.kmsKey = new Key(this, 'TenantsKmsKey', {
-      alias: `TenantsKey-${props.environment}`,
-      description: 'KMS key for tenant cross-account role ARN encryption',
-      enableKeyRotation: true,
-      // Removal policy based on enableAutoDelete context parameter
-      removalPolicy: props.enableAutoDelete
-        ? RemovalPolicy.DESTROY
-        : RemovalPolicy.RETAIN,
+    // Tenant Registration Lambda Function
+    this.registrationLambda = new NodejsFunction(this, 'TenantRegistrationFunction', {
+      functionName: `TenantRegistration-${props.environment}`,
+      entry: path.join(__dirname, '..', '..', 'lambda', 'tenantRegistrationHandler.ts'),
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      timeout: Duration.minutes(5),
+      memorySize: 256,
+      tracing: Tracing.ACTIVE,
+      environment: {
+        TENANTS_TABLE_NAME: this.tenantsTable.tableName,
+      },
+      bundling: {
+        minify: true,
+        nodeModules: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/util-dynamodb'
+        ],
+      },
     });
 
-    // Grant permissions to Lambda service
-    this.kmsKey.addToResourcePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        principals: [new ServicePrincipal('lambda.amazonaws.com')],
-        actions: [
-          'kms:Encrypt',
-          'kms:Decrypt',
-          'kms:ReEncrypt*',
-          'kms:GenerateDataKey*',
-          'kms:DescribeKey',
-        ],
-        resources: ['*'],
-        conditions: {
-          StringEquals: {
-            'kms:ViaService': `dynamodb.${Stack.of(this).region}.amazonaws.com`,
-          },
-        },
-      })
-    );
+    // Grant permissions to the Lambda function
+    this.tenantsTable.grantReadWriteData(this.registrationLambda);
 
   }
 }

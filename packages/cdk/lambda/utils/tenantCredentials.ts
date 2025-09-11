@@ -2,9 +2,15 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { Credentials } from '@aws-sdk/client-sts';
 import {
   assumeRoleWithWebIdentity,
-  buildTenantRoleArn,
   extractTenantId,
 } from './assumeRoleWithWebIdentity';
+import { getTenant, Tenant } from '../tenantManager';
+
+// Interface for returning both credentials and tenant info
+export interface TenantCredentialsWithInfo {
+  credentials: Credentials;
+  tenant: Tenant;
+}
 
 // Environment validation helper
 const validateEnvironment = () => {
@@ -20,14 +26,15 @@ const validateEnvironment = () => {
   };
 };
 
+
 /**
  * Get tenant credentials using AssumeRoleWithWebIdentity
- * This is the new Phase 1 authentication flow that replaces Identity Pool GetCredentialsForIdentity
+ * Supports both cross-account and same-account roles with automatic fallback
  * NOTE: No caching to ensure proper user isolation within tenants
  */
 export async function getTenantCredentials(
   event: APIGatewayProxyEvent
-): Promise<Credentials> {
+): Promise<TenantCredentialsWithInfo> {
   // Validate environment variables
   const { region, accountId } = validateEnvironment();
 
@@ -43,20 +50,30 @@ export async function getTenantCredentials(
   );
 
   try {
-    // Phase 1: Build role ARN for same account tenant-specific role
-    // Phase 2: This will be replaced with cross-account role ARN retrieval from tenant metadata
-    const roleArn = buildTenantRoleArn(accountId, tenantId);
+    // Get tenant metadata - required for cross-account access
+    const tenant = await getTenant(tenantId);
+    if (!tenant) {
+      throw new Error(`Tenant ${tenantId} not found in tenants table`);
+    }
 
-    console.log(`Assuming role: ${roleArn}`);
+    // Check if tenant has role ARN configured
+    if (!tenant.roleArn) {
+      throw new Error(`Tenant ${tenantId} is missing roleArn configuration`);
+    }
+
+    console.log(`Assuming role for tenant ${tenantId}: ${tenant.roleArn}`);
 
     // Use AssumeRoleWithWebIdentity to get tenant credentials
-    const credentials = await assumeRoleWithWebIdentity(event, roleArn);
+    const credentials = await assumeRoleWithWebIdentity(event, tenant.roleArn);
 
     console.log(
       `Successfully obtained tenant credentials for tenant: ${tenantId}, user: ${userId}`
     );
 
-    return credentials;
+    return {
+      credentials,
+      tenant,
+    };
   } catch (error) {
     console.error(
       `Failed to get tenant credentials for tenant: ${tenantId}, user: ${userId}:`,

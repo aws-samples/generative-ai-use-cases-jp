@@ -4,7 +4,9 @@ import { batchCreateMessages, findChatById } from './repository';
 import { getTenantId } from './utils/tenantUtils';
 import {
   getTenantBucketNameByTenantId,
+  extractAccountIdFromRoleArn,
 } from './utils/tenantS3Utils';
+import { getTenant } from './tenantManager';
 
 const FILE_UPLOAD_BUCKET_NAME = process.env.BUCKET_NAME!;
 
@@ -42,11 +44,20 @@ export const handler = async (
       };
     }
 
+    // Get tenant information for bucket name generation
+    const tenant = await getTenant(tenantId);
+    const tenantAccountId = tenant?.roleArn ? extractAccountIdFromRoleArn(tenant.roleArn) : undefined;
+    const tenantRegion = tenant?.region || process.env.AWS_REGION!;
+    const tenantEnvironment = tenant?.environment || process.env.ENVIRONMENT!;
+
     // Get appropriate upload bucket for validation (tenant-specific or fallback)
     const uploadBucketName = await getTenantBucketNameByTenantId(
       tenantId,
       'chat',
-      FILE_UPLOAD_BUCKET_NAME
+      FILE_UPLOAD_BUCKET_NAME,
+      tenantAccountId || process.env.AWS_ACCOUNT_ID!,
+      tenantRegion,
+      tenantEnvironment
     );
     console.log(
       `Using upload bucket for validation: ${uploadBucketName}`

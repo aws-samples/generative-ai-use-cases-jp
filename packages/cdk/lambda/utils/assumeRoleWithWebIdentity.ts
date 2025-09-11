@@ -17,7 +17,7 @@ const SESSION_DURATION_SECONDS = 3600;
 
 /**
  * Assume role using Identity Pool token exchange from Cognito User Pool JWT
- * Phase 1: Exchange User Pool JWT → Identity Pool token → AssumeRoleWithWebIdentity
+ * Exchange User Pool JWT → Identity Pool token → AssumeRoleWithWebIdentity
  */
 export async function assumeRoleWithWebIdentity(
   event: APIGatewayProxyEvent,
@@ -150,8 +150,8 @@ export async function assumeRoleWithWebIdentity(
 }
 
 /**
- * Build tenant-specific role ARN for same account (Phase 1)
- * In Phase 2, this will be replaced with cross-account role ARNs from tenant metadata
+ * Build tenant-specific role ARN for same account
+ * For cross-account scenarios, role ARNs are retrieved from tenant metadata
  */
 export function buildTenantRoleArn(
   accountId: string,

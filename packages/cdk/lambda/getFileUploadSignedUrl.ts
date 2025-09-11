@@ -5,9 +5,11 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { GetFileUploadSignedUrlRequest } from 'generative-ai-use-cases';
 import { getTenantId } from './utils/tenantUtils';
 import { createTenantS3Client } from './utils/tenantS3Client';
+import { getTenant } from './tenantManager';
 import {
   getTenantBucketNameByTenantId,
   isDefaultTenant,
+  extractAccountIdFromRoleArn,
 } from './utils/tenantS3Utils';
 
 // Constants
@@ -26,28 +28,54 @@ export const handler = async (
     console.log(`Processing file upload for tenant: ${tenantId}`);
     console.log(`Request filename: ${filename}`);
 
+    // Get tenant information for proper bucket name generation
+    const { tenantAccountId, tenantRegion, tenantEnvironment } = !isDefaultTenant(tenantId) ? await (async () => {
+      try {
+        const tenant = await getTenant(tenantId);
+        if (!tenant?.roleArn) {
+          throw new Error(`Tenant ${tenantId} missing role ARN`);
+        }
+        
+        const accountId = extractAccountIdFromRoleArn(tenant.roleArn);
+        if (!accountId || !tenant.region || !tenant.environment) {
+          throw new Error(`Incomplete tenant information for ${tenantId}: accountId=${accountId}, region=${tenant.region}, environment=${tenant.environment}`);
+        }
+        
+        console.log(`Tenant info - Account: ${accountId}, Region: ${tenant.region}, Environment: ${tenant.environment}`);
+        return { 
+          tenantAccountId: accountId, 
+          tenantRegion: tenant.region, 
+          tenantEnvironment: tenant.environment 
+        };
+      } catch (error) {
+        console.error(`Failed to get tenant info for ${tenantId}:`, error);
+        throw new Error(`Cannot generate bucket name without tenant information: ${error}`);
+      }
+    })() : { tenantAccountId: undefined, tenantRegion: undefined, tenantEnvironment: undefined };
+
     // Get appropriate bucket name (tenant-specific or fallback)
-    const bucketName = await getTenantBucketNameByTenantId(
-      tenantId,
-      'chat',
-      DEFAULT_BUCKET_NAME
-    );
+    const bucketName = isDefaultTenant(tenantId) 
+      ? DEFAULT_BUCKET_NAME 
+      : await getTenantBucketNameByTenantId(
+          tenantId,
+          'chat',
+          DEFAULT_BUCKET_NAME,
+          tenantAccountId!,
+          tenantRegion!,
+          tenantEnvironment!
+        );
     console.log(`Using bucket for upload operation: ${bucketName}`);
 
     // Use tenant-specific S3 client and bucket
-    let s3Client: S3Client;
-
-    if (isDefaultTenant(tenantId)) {
-      // Default tenant path - simple and clear
-      console.log('Using default S3 client for default tenant');
-      s3Client = new S3Client({});
-    } else {
-      // Create tenant-specific S3 client for signed URL generation (maintains tenant isolation)
-      console.log(
-        `Creating tenant-specific S3 client for signed URL generation`
-      );
-      s3Client = await createTenantS3Client(event);
-    }
+    const s3Client: S3Client = isDefaultTenant(tenantId) 
+      ? (() => {
+          console.log('Using default S3 client for default tenant');
+          return new S3Client({});
+        })()
+      : await (() => {
+          console.log('Creating tenant-specific S3 client for signed URL generation');
+          return createTenantS3Client(event);
+        })();
 
     // The upload destination is XXXXX/image.png format. The file can be downloaded with the correct file name when downloaded.
     console.log(

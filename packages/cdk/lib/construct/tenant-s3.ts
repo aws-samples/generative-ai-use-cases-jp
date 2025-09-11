@@ -201,7 +201,7 @@ export class TenantS3 extends Construct {
     // Add CORS configuration for documents bucket (needed for file uploads from browser)
     this.documentsBucket.addCorsRule({
       allowedOrigins: ['*'],
-      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT, HttpMethods.HEAD, HttpMethods.DELETE],
       allowedHeaders: ['*'],
       exposedHeaders: [
         'ETag',
@@ -223,7 +223,7 @@ export class TenantS3 extends Construct {
     // Add CORS configuration for chat bucket (needed for file uploads from browser)
     this.chatBucket.addCorsRule({
       allowedOrigins: ['*'],
-      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT, HttpMethods.HEAD, HttpMethods.DELETE],
       allowedHeaders: ['*'],
       exposedHeaders: [
         'ETag',
@@ -383,7 +383,7 @@ export class TenantS3 extends Construct {
 
     const remainingLength = MAX_BUCKET_NAME_LENGTH - baseLength;
 
-    // Generate deterministic GUID hash for remaining space
+    // Generate deterministic GUID hash for remaining space (use tenantId which is already sanitized)
     const guidHash = this.generateHash(
       `${bucketBaseName}-${environment}-${tenantId}-${this.getAccountInfo()}`,
       remainingLength

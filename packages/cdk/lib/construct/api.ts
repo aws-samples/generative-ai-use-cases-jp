@@ -1,4 +1,4 @@
-import { Stack, Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack, Duration, RemovalPolicy, CfnOutput } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -6,6 +6,7 @@ import {
   LambdaIntegration,
   RestApi,
   ResponseType,
+  Period,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { IFunction } from 'aws-cdk-lib/aws-lambda';
@@ -60,7 +61,7 @@ export interface BackendApiProps {
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
-  // Phase 1: Tenant Management
+  // Tenant Management
   readonly tenantManager?: TenantManager;
 
   // LangChain Credentials
@@ -115,7 +116,6 @@ export class Api extends Construct {
       AWS_ACCOUNT_ID: Stack.of(this).account!,
       ...(props.tenantManager ? {
         TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
-        TENANTS_KMS_KEY_ID: props.tenantManager.kmsKey.keyId,
       } : {}),
       ...additionalEnvVars,
     });
@@ -207,6 +207,11 @@ export class Api extends Construct {
 
         // LangChain Credentials
         OPENAI_API_KEY: props.openai?.apiKey ?? '',
+        
+        // Tenant Management Environment Variables
+        ...(props.tenantManager ? {
+          TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
+        } : {}),
       },
       bundling: {
         nodeModules: [
@@ -246,6 +251,11 @@ export class Api extends Construct {
 
         // LangChain Credentials
         OPENAI_API_KEY: props.openai?.apiKey ?? '',
+        
+        // Tenant Management Environment Variables
+        ...(props.tenantManager ? {
+          TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
+        } : {}),
       },
       bundling: {
         nodeModules: [
@@ -262,6 +272,12 @@ export class Api extends Construct {
     });
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
+    
+    // Grant tenants table read access if tenant manager is available
+    if (props.tenantManager) {
+      props.tenantManager.tenantsTable.grantReadData(predictStreamFunction);
+      props.tenantManager.tenantsTable.grantReadData(predictFunction);
+    }
 
     // Add Flow Lambda Function
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
@@ -276,9 +292,19 @@ export class Api extends Construct {
       },
       environment: {
         MODEL_REGION: modelRegion,
+        
+        // Tenant Management Environment Variables
+        ...(props.tenantManager ? {
+          TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
+        } : {}),
       },
     });
     invokeFlowFunction.grantInvoke(idPool.authenticatedRole);
+    
+    // Grant tenants table read access if tenant manager is available
+    if (props.tenantManager) {
+      props.tenantManager.tenantsTable.grantReadData(invokeFlowFunction);
+    }
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -314,11 +340,21 @@ export class Api extends Construct {
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         LITELLM_ENDPOINT: litellmEndpoint ?? '',
+        
+        // Tenant Management Environment Variables
+        ...(props.tenantManager ? {
+          TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
+        } : {}),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
     });
+    
+    // Grant tenants table read access if tenant manager is available
+    if (props.tenantManager) {
+      props.tenantManager.tenantsTable.grantReadData(generateImageFunction);
+    }
 
     const generateVideoFunction = new NodejsFunction(this, 'GenerateVideo', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -765,6 +801,47 @@ export class Api extends Construct {
     // directly within each Lambda function, so separate Lambda functions for
     // tenant operations are no longer needed.
 
+    // Grant tenants table read access to all Lambda functions that need to access DynamoDB/S3
+    // This is required because getTenantCredentials() now reads tenant metadata from the tenants table
+    if (props.tenantManager) {
+      // Chat-related functions
+      props.tenantManager.tenantsTable.grantReadData(createChatFunction);
+      props.tenantManager.tenantsTable.grantReadData(deleteChatFunction);
+      props.tenantManager.tenantsTable.grantReadData(createMessagesFunction);
+      props.tenantManager.tenantsTable.grantReadData(updateChatTitleFunction);
+      props.tenantManager.tenantsTable.grantReadData(listChatsFunction);
+      props.tenantManager.tenantsTable.grantReadData(findChatbyIdFunction);
+      props.tenantManager.tenantsTable.grantReadData(listMessagesFunction);
+      props.tenantManager.tenantsTable.grantReadData(updateFeedbackFunction);
+      props.tenantManager.tenantsTable.grantReadData(predictTitleFunction);
+      
+      // Share-related functions
+      props.tenantManager.tenantsTable.grantReadData(createShareId);
+      props.tenantManager.tenantsTable.grantReadData(getSharedChat);
+      props.tenantManager.tenantsTable.grantReadData(findShareId);
+      props.tenantManager.tenantsTable.grantReadData(deleteShareId);
+      
+      // System context functions
+      props.tenantManager.tenantsTable.grantReadData(listSystemContextsFunction);
+      props.tenantManager.tenantsTable.grantReadData(createSystemContextFunction);
+      props.tenantManager.tenantsTable.grantReadData(updateSystemContextTitleFunction);
+      props.tenantManager.tenantsTable.grantReadData(deleteSystemContextFunction);
+      
+      // Video-related functions
+      props.tenantManager.tenantsTable.grantReadData(generateVideoFunction);
+      props.tenantManager.tenantsTable.grantReadData(copyVideoJob);
+      props.tenantManager.tenantsTable.grantReadData(listVideoJobs);
+      props.tenantManager.tenantsTable.grantReadData(deleteVideoJob);
+      
+      // File operations (for S3 cross-account access)
+      props.tenantManager.tenantsTable.grantReadData(deleteFileFunction);
+      props.tenantManager.tenantsTable.grantReadData(getSignedUrlFunction);
+      props.tenantManager.tenantsTable.grantReadData(getFileDownloadSignedUrlFunction);
+      
+      // Token usage
+      props.tenantManager.tenantsTable.grantReadData(getTokenUsageFunction);
+    }
+
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
@@ -1025,6 +1102,57 @@ export class Api extends Construct {
       new LambdaIntegration(getTokenUsageFunction),
       commonAuthorizerProps
     );
+
+    // POST: /tenant-registration (API key protected for tenant self-registration)
+    // Only create if tenantManager is provided
+    if (props.tenantManager) {
+      const tenantRegistrationResource = api.root.addResource('tenant-registration');
+      tenantRegistrationResource.addMethod(
+        'POST',
+        new LambdaIntegration(props.tenantManager.registrationLambda),
+        {
+          authorizationType: AuthorizationType.NONE,
+          apiKeyRequired: true,
+        }
+      );
+
+      // Create API key for tenant registration
+      const tenantRegistrationApiKey = api.addApiKey('TenantRegistrationApiKey', {
+        apiKeyName: `tenant-registration-key-${props.environment}`,
+        description: 'API key for tenant self-registration',
+      });
+
+      // Create usage plan with rate limiting
+      const tenantRegistrationUsagePlan = api.addUsagePlan('TenantRegistrationUsagePlan', {
+        name: `tenant-registration-plan-${props.environment}`,
+        throttle: {
+          rateLimit: 10,    // 10 requests per second
+          burstLimit: 20,   // Burst of 20 requests
+        },
+        quota: {
+          limit: 1000,      // 1000 requests per month
+          period: Period.MONTH,
+        },
+      });
+
+      tenantRegistrationUsagePlan.addApiStage({
+        stage: api.deploymentStage,
+      });
+      tenantRegistrationUsagePlan.addApiKey(tenantRegistrationApiKey);
+
+      // Output the API endpoint and key for tenant configuration
+      new CfnOutput(this, 'TenantRegistrationEndpoint', {
+        value: `${api.url}tenant-registration`,
+        description: 'API endpoint for tenant self-registration',
+        exportName: `${Stack.of(this).stackName}-TenantRegEndpoint`,
+      });
+
+      new CfnOutput(this, 'TenantRegistrationApiKeyId', {
+        value: tenantRegistrationApiKey.keyId,
+        description: 'API key ID for tenant registration',
+        exportName: `${Stack.of(this).stackName}-TenantRegApiKeyId`,
+      });
+    }
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

@@ -9,23 +9,25 @@ import {
   NodejsFunction,
   NodejsFunctionProps,
 } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Duration } from 'aws-cdk-lib';
+import { Duration, Stack } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { TenantManager } from './tenant-manager';
 
 export interface UseCaseBuilderProps {
   readonly userPool: UserPool;
   readonly api: RestApi;
   readonly idPool: IdentityPool;
   readonly environment: string;
+  readonly tenantManager?: TenantManager;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api, idPool, environment } = props;
+    const { userPool, api, idPool, environment, tenantManager } = props;
 
     const useCaseIdIndexName = 'UseCaseIdIndexName';
     const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
@@ -67,6 +69,10 @@ export class UseCaseBuilder extends Construct {
         IDENTITY_POOL_ID: idPool.identityPoolId,
         USER_POOL_ID: userPool.userPoolId,
         USECASE_ID_INDEX_NAME: useCaseIdIndexName,
+        AWS_ACCOUNT_ID: Stack.of(this).account!,
+        ...(tenantManager ? {
+          TENANTS_TABLE_NAME: tenantManager.tenantsTable.tableName,
+        } : {}),
       },
     };
 
@@ -79,6 +85,9 @@ export class UseCaseBuilder extends Construct {
       entry: `${commonPath}/listUseCases.ts`,
     });
     useCaseBuilderTable.grantReadData(listUseCasesFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(listUseCasesFunction);
+    }
 
     const listFavoriteUseCasesFunction = new NodejsFunction(
       this,
@@ -94,6 +103,9 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(listFavoriteUseCasesFunction);
+    }
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       ...commonProperty,
@@ -101,36 +113,54 @@ export class UseCaseBuilder extends Construct {
       entry: `${commonPath}/getUseCase.ts`,
     });
     useCaseBuilderTable.grantReadData(getUseCaseFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(getUseCaseFunction);
+    }
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/createUseCase.ts`,
     });
     useCaseBuilderTable.grantWriteData(createUseCaseFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(createUseCaseFunction);
+    }
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/updateUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(updateUseCaseFunction);
+    }
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
       ...commonProperty,
       entry: `${commonPath}/deleteUseCase.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(deleteUseCaseFunction);
+    }
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
       ...commonProperty,
       entry: `${commonPath}/toggleFavorite.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(toggleFavoriteFunction);
+    }
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       ...commonProperty,
       entry: `${commonPath}/toggleShared.ts`,
     });
     useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(toggleSharedFunction);
+    }
 
     const listRecentlyUsedUseCasesFunction = new NodejsFunction(
       this,
@@ -142,6 +172,9 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(listRecentlyUsedUseCasesFunction);
+    }
 
     const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
       this,
@@ -152,6 +185,9 @@ export class UseCaseBuilder extends Construct {
       }
     );
     useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(updateRecentlyUsedUseCaseFunction);
+    }
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {

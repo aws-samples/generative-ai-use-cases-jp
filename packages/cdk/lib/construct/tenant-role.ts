@@ -21,7 +21,8 @@ export interface TenantRoleProps {
 }
 
 /**
- * Creates a single tenant-specific IAM role for Phase 1 AssumeRoleWithWebIdentity authentication
+ * Creates a single tenant-specific IAM role for AssumeRoleWithWebIdentity authentication
+ * Supports both same-account and cross-account deployment scenarios
  * This construct is designed to be used within tenant-specific stacks
  */
 export class TenantRole extends Construct {
@@ -36,7 +37,7 @@ export class TenantRole extends Construct {
     // Create tenant-specific IAM role
     this.role = new Role(this, `TenantRole`, {
       roleName: `TenantRole-${props.tenantId}`,
-      description: `IAM role for tenant ${props.tenantId} - Phase 1 same account access`,
+      description: `IAM role for tenant ${props.tenantId} - supports both same-account and cross-account access`,
       assumedBy: new FederatedPrincipal(
         'cognito-identity.amazonaws.com',
         {
