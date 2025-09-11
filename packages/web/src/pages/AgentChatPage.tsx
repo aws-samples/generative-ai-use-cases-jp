@@ -153,7 +153,7 @@ const AgentChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, setFollowing]);
+  }, [content, setFollowing, uploadFiles]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
