@@ -236,7 +236,14 @@ const ChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, base64Cache, fileUpload, setFollowing, overrideModelParameters]);
+  }, [
+    content,
+    base64Cache,
+    fileUpload,
+    setFollowing,
+    overrideModelParameters,
+    uploadedFiles,
+  ]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
