@@ -22,7 +22,7 @@
 
 ## アーキテクチャ
 
-![arch-closed-network.drawio.png](./docs/assets/images/arch-closed-network.drawio.png)
+![arch-closed-network.drawio.png](../assets/images/arch-closed-network.drawio.png)
 
 ## 現状の制約
 

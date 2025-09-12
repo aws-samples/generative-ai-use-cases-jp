@@ -22,7 +22,7 @@ Options related to closed network mode have the `closedNetwork` prefix. The foll
 
 ## Architecture
 
-![arch-closed-network.drawio.png](./docs/assets/images/arch-closed-network.drawio.png)
+![arch-closed-network.drawio.png](../assets/images/arch-closed-network.drawio.png)
 
 ## Current Limitations
 
