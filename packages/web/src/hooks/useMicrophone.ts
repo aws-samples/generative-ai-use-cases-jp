@@ -13,6 +13,8 @@ import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { Transcript } from 'generative-ai-use-cases';
 
+const MAX_AUDIO_CHUNK_SIZE = 48000;
+
 const pcmEncodeChunk = (chunk: Buffer) => {
   const input = MicrophoneStream.toRaw(chunk);
   let offset = 0;
@@ -115,11 +117,13 @@ const useMicrophone = () => {
 
     const audioStream = async function* () {
       for await (const chunk of mic as unknown as Buffer[]) {
-        yield {
-          AudioEvent: {
-            AudioChunk: pcmEncodeChunk(chunk),
-          },
-        };
+        if (chunk.length <= MAX_AUDIO_CHUNK_SIZE) {
+          yield {
+            AudioEvent: {
+              AudioChunk: pcmEncodeChunk(chunk),
+            },
+          };
+        }
       }
     };
 
