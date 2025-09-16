@@ -35,17 +35,17 @@ export const handler = async (
         if (!tenant?.roleArn) {
           throw new Error(`Tenant ${tenantId} missing role ARN`);
         }
-        
+
         const accountId = extractAccountIdFromRoleArn(tenant.roleArn);
         if (!accountId || !tenant.region || !tenant.environment) {
           throw new Error(`Incomplete tenant information for ${tenantId}: accountId=${accountId}, region=${tenant.region}, environment=${tenant.environment}`);
         }
-        
+
         console.log(`Tenant info - Account: ${accountId}, Region: ${tenant.region}, Environment: ${tenant.environment}`);
-        return { 
-          tenantAccountId: accountId, 
-          tenantRegion: tenant.region, 
-          tenantEnvironment: tenant.environment 
+        return {
+          tenantAccountId: accountId,
+          tenantRegion: tenant.region,
+          tenantEnvironment: tenant.environment
         };
       } catch (error) {
         console.error(`Failed to get tenant info for ${tenantId}:`, error);
@@ -54,28 +54,28 @@ export const handler = async (
     })() : { tenantAccountId: undefined, tenantRegion: undefined, tenantEnvironment: undefined };
 
     // Get appropriate bucket name (tenant-specific or fallback)
-    const bucketName = isDefaultTenant(tenantId) 
-      ? DEFAULT_BUCKET_NAME 
+    const bucketName = isDefaultTenant(tenantId)
+      ? DEFAULT_BUCKET_NAME
       : await getTenantBucketNameByTenantId(
-          tenantId,
-          'chat',
-          DEFAULT_BUCKET_NAME,
-          tenantAccountId!,
-          tenantRegion!,
-          tenantEnvironment!
-        );
+        tenantId,
+        'chat',
+        DEFAULT_BUCKET_NAME,
+        tenantAccountId!,
+        tenantRegion!,
+        tenantEnvironment!
+      );
     console.log(`Using bucket for upload operation: ${bucketName}`);
 
     // Use tenant-specific S3 client and bucket
-    const s3Client: S3Client = isDefaultTenant(tenantId) 
+    const s3Client: S3Client = isDefaultTenant(tenantId)
       ? (() => {
-          console.log('Using default S3 client for default tenant');
-          return new S3Client({});
-        })()
+        console.log('Using default S3 client for default tenant');
+        return new S3Client({});
+      })()
       : await (() => {
-          console.log('Creating tenant-specific S3 client for signed URL generation');
-          return createTenantS3Client(event);
-        })();
+        console.log('Creating tenant-specific S3 client for signed URL generation');
+        return createTenantS3Client(event);
+      })();
 
     // The upload destination is XXXXX/image.png format. The file can be downloaded with the correct file name when downloaded.
     console.log(

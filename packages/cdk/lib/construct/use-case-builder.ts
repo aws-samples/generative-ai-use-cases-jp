@@ -13,7 +13,7 @@ import { Duration, Stack } from 'aws-cdk-lib';
 import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
-import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { LAMBDA_RUNTIME_NODEJS, DEFAULT_TENANT_ID } from '../../consts';
 import { TenantManager } from './tenant-manager';
 
 export interface UseCaseBuilderProps {
@@ -56,7 +56,6 @@ export class UseCaseBuilder extends Construct {
     });
 
     const TABLE_PREFIX = 'UseCaseBuilder';
-    const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID || 'default';
 
     const commonProperty: NodejsFunctionProps = {
       runtime: LAMBDA_RUNTIME_NODEJS,

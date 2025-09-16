@@ -293,6 +293,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       api: api.api,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      tenantManager: tenantManager,
+      environment: params.env,
     });
 
     // Cfn Outputs

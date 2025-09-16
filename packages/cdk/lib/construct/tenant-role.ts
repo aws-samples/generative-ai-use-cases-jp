@@ -132,6 +132,20 @@ export class TenantRole extends Construct {
               resources: ['*'], // Polly doesn't have tenant-specific resources
             }),
 
+            // Transcribe access for audio transcription functionality (tenant-agnostic)
+            new PolicyStatement({
+              sid: 'TranscribeAccess',
+              effect: Effect.ALLOW,
+              actions: [
+                'transcribe:StartTranscriptionJob',
+                'transcribe:GetTranscriptionJob',
+                'transcribe:ListTranscriptionJobs',
+                'transcribe:DeleteTranscriptionJob',
+                'transcribe:TagResource',
+              ],
+              resources: ['*'], // Transcribe doesn't have tenant-specific resources
+            }),
+
           ],
         }),
       },

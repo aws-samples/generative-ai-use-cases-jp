@@ -29,7 +29,7 @@ import {
   BEDROCK_TEXT_MODELS,
 } from '@generative-ai-use-cases/common';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
-import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { LAMBDA_RUNTIME_NODEJS, DEFAULT_TENANT_ID } from '../../consts';
 import { LitellmProxyServer } from './litellm-proxy-server';
 import { TenantManager } from './tenant-manager';
 
@@ -169,7 +169,6 @@ export class Api extends Construct {
     // Table name prefixes for constructing tenant-specific table names
     const TABLE_PREFIX = 'ChatHistory';
     const STATS_TABLE_PREFIX = 'TokenUsageStats';
-    const DEFAULT_TENANT_ID = 'default';
 
     // S3 (File Bucket)
     const fileBucket = new Bucket(this, 'FileBucket', {
