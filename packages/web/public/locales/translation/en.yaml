@@ -703,6 +703,7 @@ navigation:
   meetingMinutes: Meeting Minutes
   promptOptimization: Prompt Optimization
   ragChat: RAG Chat
+  ragChatBot: RAG ChatBot
   settings: Settings
   speechRecognition: Speech Recognition
   summary: Summary
@@ -1355,3 +1356,98 @@ writer:
   tutorial: Tutorial
   tutorial_success: Tutorial loaded
   useAsTextEditor: Use as a Text Editor
+ragChatBot:
+  title: RAG ChatBot Management
+  description: Create, manage, and share AI bots
+  search: Search
+  searchPlaceholder: Search by bot name or description
+  filter: Filter
+  filterAll: All
+  filterPrivate: Private
+  filterPublic: Public
+  filterStarred: Starred
+  showStarredOnly: Show starred only
+  createNew: Create New Bot
+  popularBots: Popular Bots
+  myBots: My Bots
+  allBots: All Bots
+  noBots: No bots found
+  viewMore: View More
+  chat: Chat
+  confirmDelete: Are you sure you want to delete this bot?
+  shared: Shared
+  lastUsed: Last used
+  editTitle: Edit
+  delete: Delete
+  syncStatus:
+    completed: Sync Complete
+    syncing: Syncing
+    failed: Sync Failed
+  changeVisibility: Change Visibility
+  private: Private
+  privateDescription: Only you can use this bot
+  organizationPublic: Organization Public
+  organizationPublicDescription: Members of your organization can use this bot
+  edit:
+    back: Back
+    editTitle: Edit Bot
+    createTitle: Create New Bot
+    basicInfo: Basic Information
+    title: Title
+    description: Description
+    instruction: Instruction
+    generationParams: Generation Parameters
+    maxTokens: Max Tokens
+    temperature: Temperature
+    topP: Top-P
+    topK: Top-K
+    knowledge: Knowledge Base
+    sourceUrls: Source URLs
+    uploadFiles: Upload Files
+    displayRetrievedChunks: Display Retrieved Chunks
+    promptCaching: Prompt Caching
+    quickStarters: Quick Starters
+    quickStarterTitle: Title
+    quickStarterExample: Example
+    add: Add
+    cancel: Cancel
+    save: Save
+    saving: Saving...
+    saveFailed: Failed to save
+    requiredFields: Please fill in required fields
+    saveBeforeUpload: Please save the bot before uploading files
+  chatPage:
+    title: ChatBot Chat
+    botInfo: Bot Information
+    instruction: Instruction
+    syncStatus: Sync Status
+    chunksEnabled: Chunks display enabled
+    noMessages: No messages
+    quickStarters: Quick Starters
+    inputPlaceholder: Type a message...
+    send: Send
+    sendError: Failed to send message
+    confirmClear: Are you sure you want to clear the conversation?
+    copy: Copy
+  history:
+    title: Conversation History
+    back: Back
+    searchPlaceholder: Search conversations...
+    search: Search
+    confirmDelete: Are you sure you want to delete this conversation?
+    confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
+    selected: '{{count}} selected'
+    selectAll: Select All
+    deselectAll: Deselect All
+    deleteSelected: Delete Selected
+    noConversations: No conversations found
+    showing: 'Showing {{count}} conversations'
+    open: Open
+    untitled: Untitled
+    noDate: No date
+    minutesAgo: '{{minutes}} minutes ago'
+    hoursAgo: '{{hours}} hours ago'
+    yesterday: Yesterday
+    daysAgo: '{{days}} days ago'
+    lastMessage: Last message
+    messageCount: 'Messages: {{count}}'

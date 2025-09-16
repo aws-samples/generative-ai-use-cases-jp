@@ -109,6 +109,13 @@ const App: React.FC = () => {
           sub: 'Knowledge Base',
         }
       : null,
+    {
+      label: t('navigation.ragChatBot'),
+      to: '/rag-chat-bot',
+      icon: <PiChatCircleText />,
+      display: 'usecase' as const,
+      sub: 'Experimental',
+    },
     agentEnabled && !inlineAgents
       ? {
           label: t('navigation.agentChat'),

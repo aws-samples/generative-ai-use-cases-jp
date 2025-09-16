@@ -1,0 +1,35 @@
+import React from 'react';
+import { BaseProps } from '../@types/common';
+
+type Props = BaseProps & {
+  label?: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange?: (value: number) => void;
+};
+
+const Slider: React.FC<Props> = (props) => {
+  return (
+    <div className={props.className}>
+      {props.label && <span className="text-sm">{props.label}</span>}
+      <div className="flex items-center gap-2">
+        <input
+          type="range"
+          className="flex-1"
+          value={props.value}
+          min={props.min}
+          max={props.max}
+          step={props.step || 1}
+          onChange={(e) => {
+            props.onChange ? props.onChange(Number(e.target.value)) : null;
+          }}
+        />
+        <span className="text-sm font-medium w-12 text-right">{props.value}</span>
+      </div>
+    </div>
+  );
+};
+
+export default Slider;

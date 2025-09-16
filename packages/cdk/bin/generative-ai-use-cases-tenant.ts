@@ -90,6 +90,11 @@ const params = {
   tenantId: tenantId,
   environment: context.environment || 'dev',
   removalPolicy: context.enableAutoDelete || false, // Map enableAutoDelete to removalPolicy, default to RETAIN (false) if not specified
+  userPoolId: context.controlPlane?.userPoolId!,
+  identityPoolId: context.controlPlane?.identityPoolId!,
+  userPoolClientId: context.controlPlane?.userPoolClientId!,
+  enableBedrockChat: true, // Bedrock Chatスタックを有効化
+  bedrockRegion: context.bedrockRegion || context.tenantRegion || process.env.CDK_DEFAULT_REGION || 'us-east-1',
 };
 
 createTenantStacks(app, params);

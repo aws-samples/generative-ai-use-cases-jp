@@ -564,6 +564,7 @@ navigation:
   meetingMinutes: 議事録生成
   promptOptimization: プロンプト最適化
   ragChat: RAG チャット
+  ragChatBot: RAG チャットボット
   settings: 設定
   speechRecognition: 音声認識
   summary: 要約
@@ -1090,3 +1091,98 @@ writer:
   tutorial: チュートリアル
   tutorial_success: チュートリアルを読み込みました
   useAsTextEditor: テキストエディタとして使用する
+ragChatBot:
+  title: RAG ChatBot 管理
+  description: AIボットを作成、管理、共有できます
+  search: 検索
+  searchPlaceholder: ボット名または説明で検索
+  filter: フィルター
+  filterAll: すべて
+  filterPrivate: プライベート
+  filterPublic: パブリック
+  filterStarred: スター付き
+  showStarredOnly: スター付きのみ表示
+  createNew: 新規ボット作成
+  popularBots: 人気のボット
+  myBots: マイボット
+  allBots: すべてのボット
+  noBots: ボットが見つかりません
+  viewMore: もっと見る
+  chat: チャット
+  confirmDelete: このボットを削除してもよろしいですか？
+  shared: 共有中
+  lastUsed: 最終使用
+  editTitle: 編集
+  delete: 削除
+  syncStatus:
+    completed: 同期完了
+    syncing: 同期中
+    failed: 同期失敗
+  changeVisibility: 公開設定を変更
+  private: プライベート
+  privateDescription: 自分だけが利用できます
+  organizationPublic: 組織内公開
+  organizationPublicDescription: 組織内のメンバーが利用できます
+  edit:
+    back: 戻る
+    editTitle: ボットを編集
+    createTitle: 新規ボット作成
+    basicInfo: 基本情報
+    title: タイトル
+    description: 説明
+    instruction: 指示
+    generationParams: 生成パラメータ
+    maxTokens: 最大トークン数
+    temperature: 温度
+    topP: Top-P
+    topK: Top-K
+    knowledge: ナレッジベース
+    sourceUrls: ソースURL
+    uploadFiles: ファイルをアップロード
+    displayRetrievedChunks: 取得したチャンクを表示
+    promptCaching: プロンプトキャッシング
+    quickStarters: クイックスタート
+    quickStarterTitle: タイトル
+    quickStarterExample: 例文
+    add: 追加
+    cancel: キャンセル
+    save: 保存
+    saving: 保存中...
+    saveFailed: 保存に失敗しました
+    requiredFields: 必須項目を入力してください
+    saveBeforeUpload: ファイルをアップロードする前にボットを保存してください
+  chatPage:
+    title: ChatBot チャット
+    botInfo: ボット情報
+    instruction: 指示
+    syncStatus: 同期状態
+    chunksEnabled: チャンク表示が有効
+    noMessages: メッセージがありません
+    quickStarters: クイックスタート
+    inputPlaceholder: メッセージを入力...
+    send: 送信
+    sendError: メッセージの送信に失敗しました
+    confirmClear: 会話履歴をクリアしてもよろしいですか？
+    copy: コピー
+  history:
+    title: 会話履歴
+    back: 戻る
+    searchPlaceholder: 会話を検索...
+    search: 検索
+    confirmDelete: この会話を削除してもよろしいですか？
+    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
+    selected: '{{count}}件選択中'
+    selectAll: すべて選択
+    deselectAll: 選択解除
+    deleteSelected: 選択した項目を削除
+    noConversations: 会話履歴がありません
+    showing: '{{count}}件の会話を表示中'
+    open: 開く
+    untitled: 無題
+    noDate: 日付なし
+    minutesAgo: '{{minutes}}分前'
+    hoursAgo: '{{hours}}時間前'
+    yesterday: 昨日
+    daysAgo: '{{days}}日前'
+    lastMessage: 最終メッセージ
+    messageCount: 'メッセージ数: {{count}}'
