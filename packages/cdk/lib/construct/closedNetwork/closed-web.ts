@@ -16,15 +16,16 @@ import {
   OperatingSystemFamily,
 } from 'aws-cdk-lib/aws-ecs';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
-import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
+import { Platform, NetworkMode } from 'aws-cdk-lib/aws-ecr-assets';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
 export interface ClosedWebProps {
-  vpc: IVpc;
-  subnetIds?: string[] | null;
+  readonly vpc: IVpc;
+  readonly subnetIds?: string[] | null;
+  readonly isSageMakerStudio: boolean;
   // For HTTPS listener
-  hostedZone?: PrivateHostedZone;
-  certificateArn?: string | null;
+  readonly hostedZone?: PrivateHostedZone;
+  readonly certificateArn?: string | null;
 }
 
 export class ClosedWeb extends Construct {
@@ -77,6 +78,9 @@ export class ClosedWeb extends Construct {
       taskImageOptions: {
         image: ContainerImage.fromAsset('./fargate-s3-server', {
           platform: Platform.LINUX_AMD64,
+          networkMode: props.isSageMakerStudio
+            ? NetworkMode.custom('sagemaker')
+            : NetworkMode.DEFAULT,
         }),
         containerPort: 8080,
         environment: {

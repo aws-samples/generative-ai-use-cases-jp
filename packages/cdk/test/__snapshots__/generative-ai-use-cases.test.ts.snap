@@ -1164,7 +1164,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             ],
             "Essential": true,
             "Image": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:7d1a9cbcd523fa1f30afeb1394c611b18778bbdc6343bc4d9ed3f9109ce669e9",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:f42c9250931c270e4dbe045bdf1556d0f4363901fa75fc81605cf456a556646a",
             },
             "LogConfiguration": {
               "LogDriver": "awslogs",
