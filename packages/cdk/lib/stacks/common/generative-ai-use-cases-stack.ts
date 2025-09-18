@@ -135,7 +135,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         allowedCountryCodes: params.allowedCountryCodes,
       });
       new CfnWebACLAssociation(this, 'ApiWafAssociation', {
-        resourceArn: api.api.deploymentStage.stageArn,
+        resourceArn: api.restApi.deploymentStage.stageArn,
         webAclArn: regionalWaf.webAclArn,
       });
       new CfnWebACLAssociation(this, 'UserPoolWafAssociation', {
@@ -147,7 +147,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     // SpeechToSpeech (for bidirectional communication)
     const speechToSpeech = new SpeechToSpeech(this, 'SpeechToSpeech', {
       envSuffix: params.env,
-      api: api.api,
+      api: api.restApi,
       userPool: auth.userPool,
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
@@ -182,7 +182,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       samlCognitoFederatedIdentityProviderName:
         params.samlCognitoFederatedIdentityProviderName,
       // Backend
-      apiEndpointUrl: api.api.url,
+      apiEndpointUrl: api.restApi.url,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
       ragEnabled: params.ragEnabled,
       ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
@@ -224,7 +224,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         kendraIndexScheduleCreateCron: params.kendraIndexScheduleCreateCron,
         kendraIndexScheduleDeleteCron: params.kendraIndexScheduleDeleteCron,
         userPool: auth.userPool,
-        api: api.api,
+        api: api.restApi,
       });
 
       // Allow downloading files from the File API to the data source Bucket
@@ -256,7 +256,7 @@ export class GenerativeAiUseCasesStack extends Stack {
           crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
           knowledgeBaseId: knowledgeBaseId,
           userPool: auth.userPool,
-          api: api.api,
+          api: api.restApi,
         });
         // Allow downloading files from the File API to the data source Bucket
         if (
@@ -280,7 +280,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     if (params.useCaseBuilderEnabled) {
       new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
-        api: api.api,
+        api: api.restApi,
         idPool: auth.idPool,
         environment: params.env,
         tenantManager: tenantManager,
@@ -291,7 +291,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     new Transcribe(this, 'Transcribe', {
       userPool: auth.userPool,
       idPool: auth.idPool,
-      api: api.api,
+      api: api.restApi,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       tenantManager: tenantManager,
@@ -314,7 +314,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     new CfnOutput(this, 'ApiEndpoint', {
-      value: api.api.url,
+      value: api.restApi.url,
     });
 
     new CfnOutput(this, 'UserPoolId', { value: auth.userPool.userPoolId });
