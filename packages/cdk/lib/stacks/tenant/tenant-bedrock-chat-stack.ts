@@ -75,12 +75,6 @@ export interface TenantBedrockChatStackProps extends cdk.StackProps {
   readonly globalAvailableModels?: string[];
 
   /**
-   * 環境プレフィックス
-   * リソース名の先頭に付与される識別子（例：prod-、dev- など）
-   */
-  readonly envPrefix?: string;
-
-  /**
    * リソースの削除ポリシー
    * RETAIN（保持）またはDESTROY（削除）を指定
    * @default RemovalPolicy.RETAIN
@@ -144,6 +138,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // 必須パラメータの取得
     const environment = props.environment;  // 環境名（dev, staging, prod など）
     const bedrockRegion = props.bedrockRegion;  // Bedrockを使用するリージョン
+    const envPrefix = props.environment ?? '';  // リソース名で使用する環境プレフィックス
 
     // ==============================================
     // 1. ドキュメントバケットの作成
@@ -177,21 +172,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     });
 
     // ==============================================
-    // 3. 大容量メッセージ用バケットの作成
-    // ==============================================
-    // WebSocketやAPIで扱えない大きなメッセージ（画像、長文など）を
-    // 一時的に保存するためのS3バケット
-    const largeMessageBucket = new s3.Bucket(this, 'LargeMessageBucket', {
-      bucketName: `bedrock-chat-large-msg-${environment}-${tenantId}`,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      enforceSSL: true,
-      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,
-    });
-
-    // ==============================================
-    // 4. API Lambda関数の作成
+    // 3. API Lambda関数の作成
     // ==============================================
     // Lambda関数用のIAMロールを作成
     const handlerRole = new iam.Role(this, 'HandlerRole', {
@@ -212,7 +193,46 @@ export class TenantBedrockChatStack extends cdk.Stack {
         resources: [this.database.tableAccessRole.roleArn],
       })
     );
-    
+
+    // 大容量メッセージ用バケットの作成
+    const largeMessageBucket = new s3.Bucket(this, 'LargeMessageBucket', {
+      bucketName: `bedrock-chat-large-msg-${environment}-${tenantId}`,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,
+    });
+
+    // アクセスログ保存用バケットの作成
+    const accessLogBucket = new s3.Bucket(this, 'AccessLogBucket', {
+      bucketName: `bedrock-chat-access-logs-${environment}-${tenantId}`,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      enforceSSL: true,
+      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,
+    });
+
+    // 使用状況分析機能の作成
+    // DynamoDBのデータをエクスポートし、Athenaで分析可能にする
+    this.usageAnalysis = new UsageAnalysis(this, 'UsageAnalysis', {
+      envPrefix,
+      accessLogBucket,  // ログの保存先
+      sourceDatabase: this.database,  // 分析対象のデータベース
+    });
+
+    // ボットストア機能の作成（Lambda関数作成前に移動）
+    // カスタムボットの定義、管理、検索機能を提供
+    // OpenSearchを使用した高度な検索が可能
+    this.botStore = new BotStore(this, 'BotStore', {
+      envPrefix,
+      botTable: this.database.botTable,  // ボット定義を保存するテーブル
+      conversationTable: this.database.conversationTable,  // 会話履歴テーブル
+      language: props.botStoreLanguage || 'ja',  // デフォルトは日本語
+      enableBotStoreReplicas: props.enableBotStoreReplicas || false,  // レプリカによる高可用性
+    });
+
     // Bedrock ChatのAPI処理を行うLambda関数
     // メインスタックのプロキシから呼び出される
     const apiHandler = new PythonFunction(this, 'ApiHandler', {
@@ -230,7 +250,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         CONVERSATION_TABLE_NAME: this.database.conversationTable.tableName,
         BOT_TABLE_NAME: this.database.botTable.tableName,
         ENV_NAME: props.environment,
-        ENV_PREFIX: props.envPrefix || '',
+        ENV_PREFIX: envPrefix,
         // CORS設定はメインスタックのものを使用
         CORS_ALLOW_ORIGINS: '*',
         // Cognito認証は使用しない（プロキシ経由でユーザー情報を受け取る）
@@ -242,18 +262,16 @@ export class TenantBedrockChatStack extends cdk.Stack {
         TABLE_ACCESS_ROLE_ARN: this.database.tableAccessRole.roleArn,
         DOCUMENT_BUCKET: this.documentBucket.bucketName,
         LARGE_MESSAGE_BUCKET: largeMessageBucket.bucketName,
-        OPENSEARCH_DOMAIN_ENDPOINT: this.botStore?.openSearchEndpoint || '',
+        OPENSEARCH_DOMAIN_ENDPOINT: this.botStore.openSearchEndpoint || '',
         ENABLE_BEDROCK_CROSS_REGION_INFERENCE: 'true',
         GLOBAL_AVAILABLE_MODELS: props.globalAvailableModels 
           ? JSON.stringify(props.globalAvailableModels)
           : '[]',
         // UsageAnalysis関連の環境変数
-        USAGE_ANALYSIS_DATABASE: this.usageAnalysis?.database.databaseName || '',
-        USAGE_ANALYSIS_TABLE: this.usageAnalysis?.ddbExportTable.tableName || '',
-        USAGE_ANALYSIS_WORKGROUP: this.usageAnalysis?.workgroupName || '',
-        USAGE_ANALYSIS_OUTPUT_LOCATION: this.usageAnalysis
-          ? `s3://${this.usageAnalysis.resultOutputBucket.bucketName}`
-          : '',
+        USAGE_ANALYSIS_DATABASE: this.usageAnalysis.database.databaseName || '',
+        USAGE_ANALYSIS_TABLE: this.usageAnalysis.ddbExportTable.tableName || '',
+        USAGE_ANALYSIS_WORKGROUP: this.usageAnalysis.workgroupName || '',
+        USAGE_ANALYSIS_OUTPUT_LOCATION: `s3://${this.usageAnalysis.resultOutputBucket.bucketName}`,
         // Lambda Web Adapter設定
         AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
         PORT: '8000',
@@ -316,6 +334,15 @@ export class TenantBedrockChatStack extends cdk.Stack {
             `arn:aws:aoss:${Stack.of(this).region}:${Stack.of(this).account}:collection/*`,
           ],
         })
+      );
+
+      // BotStoreにLambda関数のロールのアクセス権限を追加
+      this.botStore.addDataAccessPolicy(
+        envPrefix,
+        'LambdaDataAccessPolicy',
+        handlerRole,
+        ['aoss:DescribeCollectionItems', 'aoss:CreateCollectionItems', 'aoss:UpdateCollectionItems'],
+        ['aoss:ReadDocument', 'aoss:WriteDocument', 'aoss:DescribeIndex', 'aoss:CreateIndex', 'aoss:UpdateIndex']
       );
     }
     
@@ -396,7 +423,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
 
 
     // ==============================================
-    // 5. CodeBuildプロジェクトの作成（Knowledge Base用）
+    // 4. CodeBuildプロジェクトの作成（Knowledge Base用）
     // ==============================================
     // CodeBuildプロジェクト用のソースバケットを作成
     const codeBuildSourceBucket = new s3.Bucket(this, 'CodeBuildSourceBucket', {
@@ -419,13 +446,13 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // Knowledge Base構築用のCodeBuildプロジェクトを作成
     const bedrockCustomBotCodebuild = new BedrockCustomBotCodebuild(this, 'BedrockCustomBotCodebuild', {
       envName: environment,
-      envPrefix: props.envPrefix || '',
+      envPrefix,
       bedrockRegion: bedrockRegion,
       sourceBucket: codeBuildSourceBucket,
     });
 
     // ==============================================
-    // 6. Embedding（ベクトル化）機能の作成（オプション）
+    // 5. Embedding（ベクトル化）機能の作成（オプション）
     // ==============================================
     // RAG（Retrieval-Augmented Generation）機能のための文書ベクトル化
     // 文書をAIが理解できる数値ベクトルに変換し、類似検索を可能にする
@@ -440,42 +467,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     }
 
     // ==============================================
-    // 7. 使用状況分析機能の作成
-    // ==============================================
-    // チャットの利用状況を分析するためのログ収集とAthenaクエリ環境
-    // アクセスログ保存用バケットの作成
-    const accessLogBucket = new s3.Bucket(this, 'AccessLogBucket', {
-      bucketName: `bedrock-chat-access-logs-${environment}-${tenantId}`,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      enforceSSL: true,
-      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
-      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,
-    });
-
-    // 使用状況分析コンストラクトの作成
-    // DynamoDBのデータをエクスポートし、Athenaで分析可能にする
-    this.usageAnalysis = new UsageAnalysis(this, 'UsageAnalysis', {
-      envPrefix: props.envPrefix || '',
-      accessLogBucket,  // ログの保存先
-      sourceDatabase: this.database,  // 分析対象のデータベース
-    });
-
-    // ==============================================
-    // 8. ボットストア機能の作成（オプション）
-    // ==============================================
-    // カスタムボットの定義、管理、検索機能を提供
-    // OpenSearchを使用した高度な検索が可能
-    this.botStore = new BotStore(this, 'BotStore', {
-      envPrefix: props.envPrefix || '',
-      botTable: this.database.botTable,  // ボット定義を保存するテーブル
-      conversationTable: this.database.conversationTable,  // 会話履歴テーブル
-      language: props.botStoreLanguage || 'ja',  // デフォルトは日本語
-      enableBotStoreReplicas: props.enableBotStoreReplicas || false,  // レプリカによる高可用性
-    });
-
-    // ==============================================
-    // 9. スタック出力の定義
+    // 6. スタック出力の定義
     // ==============================================
     // 他のスタックやアプリケーションから参照するための出力値
     
