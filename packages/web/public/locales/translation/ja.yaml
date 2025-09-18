@@ -1179,6 +1179,9 @@ ragChatBot:
   filterPublic: パブリック
   filterStarred: スター付き
   showStarredOnly: スター付きのみ表示
+  scopeFilter: 公開範囲
+  all: すべて
+  starredOnly: スター付きのみ
   createNew: 新規ボット作成
   popularBots: 人気のボット
   myBots: マイボット
@@ -1200,6 +1203,10 @@ ragChatBot:
   privateDescription: 自分だけが利用できます
   organizationPublic: 組織内公開
   organizationPublicDescription: 組織内のメンバーが利用できます
+  tenantPublic: テナント内公開
+  tenantPublicDescription: テナント内のメンバーが利用できます
+  star: スター
+  unstar: スター解除
   edit:
     back: 戻る
     editTitle: ボットを編集

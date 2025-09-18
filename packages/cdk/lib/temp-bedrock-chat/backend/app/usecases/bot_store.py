@@ -4,6 +4,7 @@ from app.repositories.bot_store import (
     find_bots_by_query,
     find_bots_sorted_by_usage_count,
     find_random_bots,
+    find_bots_by_filters,
 )
 from app.routes.schemas.bot import BotMetaOutput
 from app.routes.schemas.bot_guardrails import BedrockGuardrailsOutput
@@ -16,15 +17,30 @@ logger.setLevel(logging.DEBUG)
 
 def search_bots(
     user: User,
-    query: str,
+    query: str = None,
+    scope: str = None,
+    starred: bool = None,
     limit: int = 20,
+    sort: str = "usage",
 ) -> list[BotMetaOutput]:
-    """Search bots by query string."""
-    bots = find_bots_by_query(
-        query,
-        user,
-        limit=limit,
-    )
+    """Search bots by query string with filtering options."""
+    # If no query is provided and sort is 'usage', use the sorted by usage count function
+    if not query and sort == "usage":
+        bots = find_bots_by_filters(
+            user,
+            scope=scope,
+            starred=starred,
+            limit=limit,
+        )
+    else:
+        bots = find_bots_by_query(
+            query,
+            user,
+            scope=scope,
+            starred=starred,
+            limit=limit,
+            sort=sort,
+        )
     bot_metas = []
     for bot in bots:
         bot_metas.append(bot.to_output())

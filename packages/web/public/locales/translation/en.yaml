@@ -1444,6 +1444,9 @@ ragChatBot:
   filterPublic: Public
   filterStarred: Starred
   showStarredOnly: Show starred only
+  scopeFilter: Scope
+  all: All
+  starredOnly: Starred Only
   createNew: Create New Bot
   popularBots: Popular Bots
   myBots: My Bots
@@ -1465,6 +1468,10 @@ ragChatBot:
   privateDescription: Only you can use this bot
   organizationPublic: Organization Public
   organizationPublicDescription: Members of your organization can use this bot
+  tenantPublic: Tenant Public
+  tenantPublicDescription: Members of your tenant can use this bot
+  star: Star
+  unstar: Unstar
   edit:
     back: Back
     editTitle: Edit Bot
