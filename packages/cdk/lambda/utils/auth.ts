@@ -17,7 +17,7 @@ function getJwtVerifier(): any {
     if (!USER_POOL_ID || !USER_POOL_CLIENT_ID) {
       throw new Error('USER_POOL_ID and USER_POOL_CLIENT_ID environment variables are required');
     }
-    
+
     jwtVerifier = CognitoJwtVerifier.create({
       userPoolId: USER_POOL_ID,
       clientId: USER_POOL_CLIENT_ID,
@@ -38,10 +38,10 @@ export async function verifyToken(token: string): Promise<any | null> {
 
   try {
     const verifier = getJwtVerifier();
-    
+
     // Verify the token - this will throw if verification fails
     const payload = await verifier.verify(token);
-    
+
     console.log('Token verified successfully for user:', payload['cognito:username']);
     return payload;
   } catch (error) {

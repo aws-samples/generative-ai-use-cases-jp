@@ -1,5 +1,6 @@
 import useVersion from '../hooks/useVersion';
 import useUserSetting from '../hooks/useUserSetting';
+import useAdminAuth from '../hooks/useAdminAuth';
 import { Link } from 'react-router-dom';
 import Help from '../components/Help';
 import Alert from '../components/Alert';
@@ -7,7 +8,7 @@ import Button from '../components/Button';
 import Switch from '../components/Switch';
 import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
-import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
+import { PiGithubLogoFill, PiArrowSquareOut, PiShieldCheck } from 'react-icons/pi';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { useCallback } from 'react';
 import { useSWRConfig } from 'swr';
@@ -50,8 +51,9 @@ const Setting = () => {
   const { cache } = useSWRConfig();
   const { getHasUpdate } = useVersion();
   const { getClosedPullRequests } = useGitHub();
-  const { signOut } = useAuthenticator();
+  const { signOut, user: _user } = useAuthenticator();
   const { i18n, t } = useTranslation();
+  const { isAdmin, isLoading: isAdminLoading } = useAdminAuth();
 
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();
@@ -170,6 +172,34 @@ const Setting = () => {
               <PiArrowSquareOut className="text-base" />
             </Link>
           }></SettingItem>
+
+        {/* Admin Portal Button - Only show for tenant admins */}
+        {/* Show loading state while checking admin status */}
+        {isAdminLoading && (
+          <SettingItem
+            name={t('setting.items.admin_portal')}
+            value={
+              <div className="flex items-center text-gray-500">
+                <PiShieldCheck className="mr-1 text-base animate-pulse" />
+                {t('setting.items.admin_portal_checking')}
+              </div>
+            }
+          />
+        )}
+
+        {/* Show admin portal link for verified admins */}
+        {!isAdminLoading && isAdmin && (
+          <SettingItem
+            name={t('setting.items.admin_portal')}
+            value={
+              <Link to="/admin" className="flex items-center text-blue-600 hover:text-blue-800">
+                <PiShieldCheck className="mr-1 text-base" />
+                {t('setting.items.admin_portal_manage_users')}{' '}
+                <PiArrowSquareOut className="text-base ml-1" />
+              </Link>
+            }
+          />
+        )}
       </div>
 
       <div className="mb-3 mt-9 flex justify-center font-semibold">

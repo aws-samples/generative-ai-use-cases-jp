@@ -1,3 +1,77 @@
+adminPortal:
+  title: 管理者ポータル
+  manageTenant: 'テナントのユーザーを管理: {{tenantId}}'
+  inviteUsers: ユーザーを招待
+  userManagement: ユーザー管理
+  stats:
+    totalUsers: 総ユーザー数
+    admins: 管理者
+    regularUsers: 一般ユーザー
+    disabledUsers: 無効ユーザー
+  table:
+    user: ユーザー
+    role: 役割
+    status: ステータス
+    created: 作成日
+    actions: アクション
+  roles:
+    regularUser: 一般ユーザー
+    admin: 管理者
+  status:
+    disabled: 無効
+  actions:
+    remove: 削除
+  messages:
+    loading: 読み込み中...
+    refreshingSession: セッションを更新中...
+    failedToCheckAdminStatus: 管理者ステータスの確認に失敗しました
+    failedToLoadUsers: ユーザーの読み込みに失敗しました
+    failedToUpdateUserRole: ユーザーの役割更新に失敗しました
+    failedToRefreshSession: 認証セッションの更新に失敗しました
+    failedToRemoveUser: ユーザーの削除に失敗しました
+    removeUserConfirmation: 'ユーザー {{username}} を削除してもよろしいですか？この操作は元に戻せません。'
+    noUsersFound: ユーザーが見つかりません
+  invite:
+    title: ユーザーを招待
+    mode:
+      single: 単一ユーザー
+      bulk: 一括招待
+    singleUser:
+      emailLabel: メールアドレス
+      emailPlaceholder: user@example.com
+    bulkMode:
+      csvUpload: CSVファイルアップロード
+      csvFormat: 'CSVフォーマット: 最初の列にメール。例: john@example.com,John Doe,営業部'
+      csvSelected: '選択済み: {{filename}}'
+      manualEntry: 手動入力（1行に1つのメール）
+      manualPlaceholder: user1@example.com
+      or: または
+    options:
+      sendEmail: 招待メールを自動送信する
+      sendEmailHelp: ユーザーはログイン手順を含むメールを受信します
+      noSendEmailHelp: ログイン認証情報をユーザーと手動で共有する必要があります
+    errors:
+      invalidFile: 有効なCSVファイルを選択してください
+      noEmailsProvided: 少なくとも1つのメールアドレスを提供してください
+      tooManyEmails: 一度に招待できるユーザーは最大100人です
+      invitationFailed: ユーザーの招待に失敗しました
+    results:
+      title: 招待結果
+      summary: '合計: {{total}} | 成功: {{successful}} | 失敗: {{failed}}'
+      invited: ✓ 招待済み
+      failed: '✗ {{error}}'
+      warning: '重要: 自動メールが無効になっているため、一時パスワードを招待されたユーザーと手動で共有する必要があります。'
+    actions:
+      cancel: キャンセル
+      close: 閉じる
+      sendInvitations: 招待を送信
+      inviting: 招待中...
+    unconfiguredDomain:
+      title: ドメイン設定警告
+      message: 以下のメールアドレスのドメインは自動サインアップ用に設定されていません。これらのユーザーは招待後にシステムにアクセスするために管理者の支援が必要になります。
+      affectedUsers: '未設定ドメインのユーザー:'
+      cancel: キャンセル
+      proceedAnyway: とにかく続行
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
@@ -622,6 +696,9 @@ setting:
     {{region}} にて指定したモデルを有効化しているか確認してください。それぞれのやり方については
     <1>generative-ai-use-cases</1> をご参照ください。
   items:
+    admin_portal: 管理者ポータル
+    admin_portal_checking: 権限を確認中...
+    admin_portal_manage_users: ユーザーを管理
     agent_enabled: Agent 有効
     language: 言語設定
     language_help: 表示言語を変更できます

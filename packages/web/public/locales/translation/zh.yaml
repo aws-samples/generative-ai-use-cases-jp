@@ -1,3 +1,77 @@
+adminPortal:
+  title: 管理员门户
+  manageTenant: '管理租户用户: {{tenantId}}'
+  inviteUsers: 邀请用户
+  userManagement: 用户管理
+  stats:
+    totalUsers: 总用户数
+    admins: 管理员
+    regularUsers: 普通用户
+    disabledUsers: 禁用用户
+  table:
+    user: 用户
+    role: 角色
+    status: 状态
+    created: 创建时间
+    actions: 操作
+  roles:
+    regularUser: 普通用户
+    admin: 管理员
+  status:
+    disabled: 已禁用
+  actions:
+    remove: 删除
+  messages:
+    loading: 加载中...
+    refreshingSession: 刷新会话中...
+    failedToCheckAdminStatus: 验证管理员状态失败
+    failedToLoadUsers: 加载用户失败
+    failedToUpdateUserRole: 更新用户角色失败
+    failedToRefreshSession: 刷新认证会话失败
+    failedToRemoveUser: 删除用户失败
+    removeUserConfirmation: '确定要删除用户 {{username}} 吗？此操作无法撤销。'
+    noUsersFound: 未找到用户
+  invite:
+    title: 邀请用户
+    mode:
+      single: 单个用户
+      bulk: 批量邀请
+    singleUser:
+      emailLabel: 邮箱地址
+      emailPlaceholder: user@example.com
+    bulkMode:
+      csvUpload: CSV文件上传
+      csvFormat: 'CSV格式: 第一列为邮箱。示例: john@example.com,张三,销售部'
+      csvSelected: '已选择: {{filename}}'
+      manualEntry: 手动输入（每行一个邮箱）
+      manualPlaceholder: user1@example.com
+      or: 或
+    options:
+      sendEmail: 自动发送邀请邮件
+      sendEmailHelp: 用户将收到包含登录说明的邮件
+      noSendEmailHelp: 您需要手动与用户分享登录凭据
+    errors:
+      invalidFile: 请选择有效的CSV文件
+      noEmailsProvided: 请提供至少一个邮箱地址
+      tooManyEmails: 一次最多只能邀请100个用户
+      invitationFailed: 邀请用户失败
+    results:
+      title: 邀请结果
+      summary: '总计: {{total}} | 成功: {{successful}} | 失败: {{failed}}'
+      invited: ✓ 已邀请
+      failed: '✗ {{error}}'
+      warning: '重要: 由于自动邮件已禁用，您需要手动与受邀用户分享临时密码。'
+    actions:
+      cancel: 取消
+      close: 关闭
+      sendInvitations: 发送邀请
+      inviting: 邀请中...
+    unconfiguredDomain:
+      title: 域名配置警告
+      message: 以下电子邮件地址的域名尚未配置为允许自助注册。这些用户在受邀后需要管理员协助才能访问系统。
+      affectedUsers: '域名未配置的用户：'
+      cancel: 取消
+      proceedAnyway: 仍然继续
 agent:
   drop_files: 拖放文件上传
   title: Agent 聊天
@@ -546,6 +620,9 @@ setting:
     设置更改不在此屏幕而是在<0>AWS CDK</0>中进行。此外，如果在执行用例时出现错误，
     请务必确认您是否在{{region}}中启用了指定的模型。有关各种方法， 请参考<1>generative-ai-use-cases</1>。
   items:
+    admin_portal: 管理门户
+    admin_portal_checking: 检查权限中...
+    admin_portal_manage_users: 管理用户
     agent_enabled: Agent已启用
     language: 语言设置
     language_help: 可以更改显示语言

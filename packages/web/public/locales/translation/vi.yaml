@@ -1,3 +1,77 @@
+adminPortal:
+  title: Cổng Quản Trị
+  manageTenant: 'Quản lý người dùng cho tenant: {{tenantId}}'
+  inviteUsers: Mời Người Dùng
+  userManagement: Quản Lý Người Dùng
+  stats:
+    totalUsers: Tổng Người Dùng
+    admins: Quản Trị Viên
+    regularUsers: Người Dùng Thường
+    disabledUsers: Người Dùng Bị Vô Hiệu
+  table:
+    user: Người Dùng
+    role: Vai Trò
+    status: Trạng Thái
+    created: Ngày Tạo
+    actions: Hành Động
+  roles:
+    regularUser: Người Dùng Thường
+    admin: Quản Trị Viên
+  status:
+    disabled: VÔ HIỆU
+  actions:
+    remove: Xóa
+  messages:
+    loading: Đang tải...
+    refreshingSession: Đang làm mới phiên...
+    failedToCheckAdminStatus: Không thể xác minh trạng thái quản trị viên
+    failedToLoadUsers: Không thể tải người dùng
+    failedToUpdateUserRole: Không thể cập nhật vai trò người dùng
+    failedToRefreshSession: Không thể làm mới phiên xác thực
+    failedToRemoveUser: Không thể xóa người dùng
+    removeUserConfirmation: 'Bạn có chắc chắn muốn xóa người dùng {{username}}? Hành động này không thể hoàn tác.'
+    noUsersFound: Không tìm thấy người dùng
+  invite:
+    title: Mời Người Dùng
+    mode:
+      single: Người Dùng Đơn Lẻ
+      bulk: Mời Hàng Loạt
+    singleUser:
+      emailLabel: Địa Chỉ Email
+      emailPlaceholder: user@example.com
+    bulkMode:
+      csvUpload: Tải Lên File CSV
+      csvFormat: 'Định dạng CSV: Email ở cột đầu. Ví dụ: john@example.com,John Doe,Kinh doanh'
+      csvSelected: 'Đã chọn: {{filename}}'
+      manualEntry: Nhập Thủ Công (một email mỗi dòng)
+      manualPlaceholder: user1@example.com
+      or: hoặc
+    options:
+      sendEmail: Tự động gửi email mời
+      sendEmailHelp: Người dùng sẽ nhận được email với hướng dẫn đăng nhập
+      noSendEmailHelp: Bạn sẽ cần chia sẻ thông tin đăng nhập với người dùng một cách thủ công
+    errors:
+      invalidFile: Vui lòng chọn file CSV hợp lệ
+      noEmailsProvided: Vui lòng cung cấp ít nhất một địa chỉ email
+      tooManyEmails: Tối đa 100 người dùng có thể được mời cùng một lúc
+      invitationFailed: Không thể mời người dùng
+    results:
+      title: Kết Quả Mời
+      summary: 'Tổng cộng: {{total}} | Thành công: {{successful}} | Thất bại: {{failed}}'
+      invited: ✓ Đã mời
+      failed: '✗ {{error}}'
+      warning: 'Quan trọng: Vì email tự động bị tắt, bạn cần chia sẻ mật khẩu tạm thời với người dùng được mời một cách thủ công.'
+    actions:
+      cancel: Hủy
+      close: Đóng
+      sendInvitations: Gửi Lời Mời
+      inviting: Đang mời...
+    unconfiguredDomain:
+      title: Cảnh Báo Cấu Hình Domain
+      message: Các địa chỉ email sau đây có domain chưa được cấu hình cho việc đăng ký tự động. Những người dùng này sẽ cần sự hỗ trợ từ quản trị viên để truy cập hệ thống sau khi được mời.
+      affectedUsers: 'Người dùng có domain chưa được cấu hình:'
+      cancel: Hủy
+      proceedAnyway: Tiếp Tục Dù Sao
 agent:
   drop_files: Thả file để tải lên
   title: Chat Agent
@@ -648,6 +722,9 @@ setting:
     hãy chắc chắn kiểm tra xem bạn đã kích hoạt mô hình được chỉ định trong {{region}} .Để biết cách thực hiện từng cách, vui lòng tham khảo 
     <1>generative-ai-use-cases</1>.
   items:
+    admin_portal: Cổng Quản Trị
+    admin_portal_checking: Đang kiểm tra quyền...
+    admin_portal_manage_users: Quản Lý Người Dùng
     agent_enabled: Agent được bật
     language: Cài đặt ngôn ngữ
     language_help: Có thể thay đổi ngôn ngữ hiển thị

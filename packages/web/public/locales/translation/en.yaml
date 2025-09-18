@@ -1,3 +1,77 @@
+adminPortal:
+  title: Admin Portal
+  manageTenant: 'Manage users for tenant: {{tenantId}}'
+  inviteUsers: Invite Users
+  userManagement: User Management
+  stats:
+    totalUsers: Total Users
+    admins: Admins
+    regularUsers: Regular
+    disabledUsers: Disabled
+  table:
+    user: User
+    role: Role
+    status: Status
+    created: Created
+    actions: Actions
+  roles:
+    regularUser: Regular User
+    admin: Admin
+  status:
+    disabled: DISABLED
+  actions:
+    remove: Remove
+  messages:
+    loading: Loading...
+    refreshingSession: Refreshing session...
+    failedToCheckAdminStatus: Failed to verify admin status
+    failedToLoadUsers: Failed to load users
+    failedToUpdateUserRole: Failed to update user role
+    failedToRefreshSession: Failed to refresh authentication session
+    failedToRemoveUser: Failed to remove user
+    removeUserConfirmation: 'Are you sure you want to remove user {{username}}? This action cannot be undone.'
+    noUsersFound: No users found
+  invite:
+    title: Invite Users
+    mode:
+      single: Single User
+      bulk: Bulk Invite
+    singleUser:
+      emailLabel: Email Address
+      emailPlaceholder: user@example.com
+    bulkMode:
+      csvUpload: CSV File Upload
+      csvFormat: 'CSV format: Email in first column. Example: john@example.com,John Doe,Sales'
+      csvSelected: 'Selected: {{filename}}'
+      manualEntry: Manual Entry (one email per line)
+      manualPlaceholder: user1@example.com
+      or: or
+    options:
+      sendEmail: Send invitation email automatically
+      sendEmailHelp: Users will receive email with login instructions
+      noSendEmailHelp: You will need to manually share login credentials with users
+    errors:
+      invalidFile: Please select a valid CSV file
+      noEmailsProvided: Please provide at least one email address
+      tooManyEmails: Maximum 100 users can be invited at once
+      invitationFailed: Failed to invite users
+    results:
+      title: Invitation Results
+      summary: 'Total: {{total}} | Successful: {{successful}} | Failed: {{failed}}'
+      invited: ✓ Invited
+      failed: '✗ {{error}}'
+      warning: 'Important: Since automatic emails are disabled, you need to manually share the temporary passwords with invited users.'
+    actions:
+      cancel: Cancel
+      close: Close
+      sendInvitations: Send Invitations
+      inviting: Inviting...
+    unconfiguredDomain:
+      title: Domain Configuration Warning
+      message: The following email addresses have domains that are not configured for self-signup. These users will need admin assistance to access the system after invitation.
+      affectedUsers: 'Users with unconfigured domains:'
+      cancel: Cancel
+      proceedAnyway: Proceed Anyway
 agent:
   drop_files: Drop files to upload
   title: Agent Chat
@@ -781,6 +855,9 @@ setting:
     enabled the specified models in {{region}}. For details on how to do this,
     please refer to <1>generative-ai-use-cases</1>.
   items:
+    admin_portal: Admin Portal
+    admin_portal_checking: Checking permissions...
+    admin_portal_manage_users: Manage Users
     agent_enabled: Agent Enabled
     language: Language
     language_help: Change display language

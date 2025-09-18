@@ -47,6 +47,7 @@ import RagChatBotPage from './pages/RagChatBotPage.tsx';
 import RagChatBotEditPage from './pages/RagChatBotEditPage.tsx';
 import RagChatBotChatPage from './pages/RagChatBotChatPage.tsx';
 import RagChatBotHistoryPage from './pages/RagChatBotHistoryPage.tsx';
+import AdminPortal from './pages/AdminPortal.tsx';
 import useUseCases from './hooks/useUseCases';
 import { Toaster } from 'sonner';
 
@@ -229,6 +230,10 @@ const routes: RouteObject[] = [
   {
     path: '/rag-chat-bot/history',
     element: <RagChatBotHistoryPage />,
+  },
+  {
+    path: '/admin',
+    element: <AdminPortal />,
   },
   {
     path: '*',

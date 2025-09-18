@@ -105,6 +105,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       litellmEndpoint: litellmEndpoint,
       litellmProxy: litellmProxy,
+      selfSignUpTenantMap: params.selfSignUpTenantMap,
       userPool: auth.userPool,
       idPool: auth.idPool,
       userPoolClient: auth.client,

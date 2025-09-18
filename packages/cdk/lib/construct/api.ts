@@ -21,7 +21,7 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
+import { Agent, AgentMap, ModelConfiguration, SelfSignUpTenantMapEntry } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
@@ -50,6 +50,7 @@ export interface BackendApiProps {
   readonly litellmEndpoint?: string | null;
   readonly litellmProxy?: LitellmProxyServer | null;
   readonly environment: string;
+  readonly selfSignUpTenantMap?: SelfSignUpTenantMapEntry[] | null;
 
   // Resource
   readonly userPool: UserPool;
@@ -1152,6 +1153,161 @@ export class Api extends Construct {
         exportName: `${Stack.of(this).stackName}-TenantRegApiKeyId`,
       });
     }
+
+    // Admin API Routes for tenant administration
+    const adminResource = api.root.addResource('admin');
+
+    // Lambda functions for admin operations
+    const listTenantUsersFunction = new NodejsFunction(this, 'ListTenantUsers', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/listTenantUsers.ts',
+      timeout: Duration.minutes(5),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      }),
+    });
+
+    const inviteTenantUsersFunction = new NodejsFunction(this, 'InviteTenantUsers', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/inviteTenantUsers.ts',
+      timeout: Duration.minutes(5),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      }),
+    });
+
+    const updateUserRoleFunction = new NodejsFunction(this, 'UpdateUserRole', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/updateUserRole.ts',
+      timeout: Duration.minutes(5),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      }),
+    });
+
+    const removeTenantUserFunction = new NodejsFunction(this, 'RemoveTenantUser', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/removeTenantUser.ts',
+      timeout: Duration.minutes(5),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      }),
+    });
+
+    const checkAdminStatusFunction = new NodejsFunction(this, 'CheckAdminStatus', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/checkAdminStatus.ts',
+      timeout: Duration.minutes(2),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+      }),
+    });
+
+    const validateInvitationDomainsFunction = new NodejsFunction(this, 'ValidateInvitationDomains', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/validateInvitationDomains.ts',
+      timeout: Duration.minutes(2),
+      bundling: {
+        nodeModules: ['aws-jwt-verify'],
+      },
+      environment: getBaseEnvironment({
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+        SELF_SIGNUP_TENANT_MAP: JSON.stringify(props.selfSignUpTenantMap || []),
+      }),
+    });
+
+    // Grant Cognito permissions to admin functions
+    const adminFunctions = [
+      listTenantUsersFunction,
+      inviteTenantUsersFunction,
+      updateUserRoleFunction,
+      removeTenantUserFunction,
+      checkAdminStatusFunction,
+      validateInvitationDomainsFunction,
+    ];
+
+    adminFunctions.forEach((func) => {
+      func.addToRolePolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            'cognito-idp:ListUsers',
+            'cognito-idp:AdminGetUser',
+            'cognito-idp:AdminCreateUser',
+            'cognito-idp:AdminUpdateUserAttributes',
+            'cognito-idp:AdminDeleteUser',
+            'cognito-idp:AdminDisableUser',
+            'cognito-idp:AdminEnableUser',
+          ],
+          resources: [userPool.userPoolArn],
+        })
+      );
+    });
+
+    // Admin API routes
+    const usersResource = adminResource.addResource('users');
+    const statusResource = adminResource.addResource('status');
+
+    // GET /admin/users - List tenant users
+    usersResource.addMethod(
+      'GET',
+      new LambdaIntegration(listTenantUsersFunction),
+      commonAuthorizerProps
+    );
+
+    // POST /admin/users/invite - Invite users
+    const inviteResource = usersResource.addResource('invite');
+    inviteResource.addMethod(
+      'POST',
+      new LambdaIntegration(inviteTenantUsersFunction),
+      commonAuthorizerProps
+    );
+
+    // POST /admin/users/invite/validate-domains - Validate domains before invitation
+    const validateDomainsResource = inviteResource.addResource('validate-domains');
+    validateDomainsResource.addMethod(
+      'POST',
+      new LambdaIntegration(validateInvitationDomainsFunction),
+      commonAuthorizerProps
+    );
+
+    // PUT /admin/users/{userId}/role - Update user role
+    const userIdResource = usersResource.addResource('{userId}');
+    const roleResource = userIdResource.addResource('role');
+    roleResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateUserRoleFunction),
+      commonAuthorizerProps
+    );
+
+    // DELETE /admin/users/{userId} - Remove user
+    userIdResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(removeTenantUserFunction),
+      commonAuthorizerProps
+    );
+
+    // GET /admin/status - Check admin status
+    statusResource.addMethod(
+      'GET',
+      new LambdaIntegration(checkAdminStatusFunction),
+      commonAuthorizerProps
+    );
 
     const bedrockChatResource = api.root.addResource('bedrock-chat');
     const bedrockChatProxyResource = bedrockChatResource.addResource('{proxy+}');
