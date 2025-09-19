@@ -21,9 +21,9 @@ def find_bots_by_query(
     query: str,
     user: User,
     scope: str = None,
-    starred: bool = None,
     limit: int = 20,
     sort: str = "usage",
+    starred_bot_ids: set[str] | None = None,
     client: OpenSearch | None = None,
 ) -> list[BotMeta]:
     """Search bots by query string.
@@ -52,7 +52,7 @@ def find_bots_by_query(
         - Admins can see their own private bots (`PK.keyword = admin-user`)
     """
     client = client or get_opensearch_client()
-    logger.info(f"Searching bots with query: {query}, scope: {scope}, starred: {starred}, sort: {sort}")
+    logger.info(f"Searching bots with query: {query}, scope: {scope}, sort: {sort}")
 
     if scope is not None and scope not in VALID_SCOPES:
         logger.warning("Received invalid scope value '%s'", scope)
@@ -60,6 +60,15 @@ def find_bots_by_query(
 
     # Include only BOT items
     filter_must = [{"prefix": {"SK.keyword": "BOT"}}]
+
+    # Apply starred filter if provided
+    if starred_bot_ids is not None:
+        if not starred_bot_ids:
+            # If empty set, return no results
+            return []
+        # Add terms filter for starred bot IDs
+        filter_must.append({"terms": {"BotId.keyword": list(starred_bot_ids)}})
+
     # Apply scope filtering
     if scope == "private":
         # Only private bots (no SharedScope field)
@@ -72,11 +81,6 @@ def find_bots_by_query(
     elif scope == "all":
         # Only fully public bots
         filter_must.append({"term": {"SharedScope.keyword": "all"}})
-
-    # Apply starred filtering
-    if starred is not None:
-        if starred:
-            filter_must.append({"term": {"IsStarred": True}})
 
     # Condition for bots that can be acquired
     filter_should = []
@@ -452,8 +456,8 @@ def find_random_bots(
 def find_bots_by_filters(
     user: User,
     scope: str = None,
-    starred: bool = None,
     limit: int = 20,
+    starred_bot_ids: set[str] | None = None,
     client: OpenSearch | None = None,
 ) -> list[BotMeta]:
     """Find bots by filters without query, sorted by usage count."""
@@ -461,8 +465,8 @@ def find_bots_by_filters(
         query=None,
         user=user,
         scope=scope,
-        starred=starred,
         limit=limit,
         sort="usage",
+        starred_bot_ids=starred_bot_ids,
         client=client,
     )

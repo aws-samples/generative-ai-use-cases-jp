@@ -928,7 +928,7 @@ class BotMeta(BaseModel):
             description=source["Description"],
             create_time=float(source["CreateTime"]),
             last_used_time=float(source.get("LastUsedTime", source["CreateTime"])),
-            is_starred=source.get("IsStarred", False),
+            is_starred=False,  # Will be populated from DynamoDB later
             sync_status=source["SyncStatus"],
             has_bedrock_knowledge_base=bool(source.get("BedrockKnowledgeBase")),
             owned=source["PK"] == user_id,

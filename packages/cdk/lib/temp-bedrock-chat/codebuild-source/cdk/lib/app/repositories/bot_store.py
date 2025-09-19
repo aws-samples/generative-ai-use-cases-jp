@@ -19,7 +19,6 @@ def find_bots_by_query(
     query: str,
     user: User,
     scope: str = None,
-    starred: bool = None,
     limit: int = 20,
     sort: str = "usage",
     client: OpenSearch | None = None,
@@ -50,7 +49,7 @@ def find_bots_by_query(
         - Admins can see their own private bots (`PK.keyword = admin-user`)
     """
     client = client or get_opensearch_client()
-    logger.info(f"Searching bots with query: {query}, scope: {scope}, starred: {starred}, sort: {sort}")
+    logger.info(f"Searching bots with query: {query}, scope: {scope}, sort: {sort}")
 
     # Include only BOT items
     filter_must = [{"prefix": {"SK.keyword": "BOT"}}]
@@ -66,13 +65,6 @@ def find_bots_by_query(
     elif scope == "all":
         # Only fully public bots
         filter_must.append({"term": {"SharedScope.keyword": "all"}})
-
-    # Apply starred filtering
-    if starred is not None:
-        if starred:
-            filter_must.append({"term": {"IsStarred": True}})
-        else:
-            filter_must.append({"term": {"IsStarred": False}})
 
     # Condition for bots that can be acquired
     filter_should = []
@@ -448,7 +440,6 @@ def find_random_bots(
 def find_bots_by_filters(
     user: User,
     scope: str = None,
-    starred: bool = None,
     limit: int = 20,
     client: OpenSearch | None = None,
 ) -> list[BotMeta]:
@@ -457,7 +448,6 @@ def find_bots_by_filters(
         query=None,
         user=user,
         scope=scope,
-        starred=starred,
         limit=limit,
         sort="usage",
         client=client,
