@@ -8,3 +8,9 @@ node_modules
 # MkDocs documentation
 site*/
 .cache
+
+# Jest snapshot fix files
+*.snap.fix
+# Coding Asssitant
+.kiro/settings
+.kiro/specs

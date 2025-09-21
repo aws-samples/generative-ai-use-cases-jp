@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  generic-agent-core-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      # AWS credentials (use your local credentials or set these)
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+
+      # Optional: S3 bucket for file uploads (set if you want to test file uploads)
+      - FILE_BUCKET=${FILE_BUCKET:-test-bucket}
+
+      # Agent Core Runtime specific
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+
+      # Code Interpreter settings (optional)
+      - CODE_INTERPRETER_REGION=${AWS_REGION:-us-east-1}
+
+      # Browser tool settings (optional)
+      - STRANDS_BROWSER_HEADLESS=true
+      - STRANDS_BROWSER_WIDTH=1280
+      - STRANDS_BROWSER_HEIGHT=800
+      - DISPLAY=:99
+      - CHROMIUM_PATH=/usr/bin/chromium
+    volumes:
+      # Mount source code for development (optional - remove for production)
+      - ./src:/var/task/src:ro
+      - ./app.py:/var/task/app.py:ro
+      - ./mcp.json:/var/task/mcp.json:ro
+
+      # Mount AWS credentials (optional - if using local AWS credentials)
+      - ~/.aws:/root/.aws:ro
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/ping']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Optional: Add a simple test client
+  test-client:
+    image: curlimages/curl:latest
+    depends_on:
+      - generic-agent-core-runtime
+    command: >
+      sh -c "
+        echo 'Waiting for service to be ready...' &&
+        sleep 10 &&
+        echo 'Testing health endpoint...' &&
+        curl -f http://generic-agent-core-runtime:8080/ping &&
+        echo 'Health check passed!'
+      "
+    profiles:
+      - test

@@ -1,4 +1,4 @@
-import { Duration } from 'aws-cdk-lib';
+import { Duration, Size } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   DockerImageFunction,
@@ -10,9 +10,16 @@ import {
 } from 'aws-cdk-lib/aws-lambda';
 import { PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
+import { NetworkMode } from 'aws-cdk-lib/aws-ecr-assets';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface McpApiProps {
   readonly idPool: IdentityPool;
+  readonly isSageMakerStudio: boolean;
+  readonly fileBucket: Bucket;
+  readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class McpApi extends Construct {
@@ -20,15 +27,22 @@ export class McpApi extends Construct {
 
   constructor(scope: Construct, id: string, props: McpApiProps) {
     super(scope, id);
-
     const mcpFunction = new DockerImageFunction(this, 'McpFunction', {
-      code: DockerImageCode.fromImageAsset('./mcp-api'),
+      code: DockerImageCode.fromImageAsset('./mcp-api', {
+        networkMode: props.isSageMakerStudio
+          ? NetworkMode.custom('sagemaker')
+          : NetworkMode.DEFAULT,
+      }),
       memorySize: 1024,
+      ephemeralStorageSize: Size.mebibytes(1024),
       timeout: Duration.minutes(15),
-      architecture: Architecture.ARM_64,
+      architecture: Architecture.X86_64,
       environment: {
         AWS_LWA_INVOKE_MODE: 'RESPONSE_STREAM',
+        FILE_BUCKET: props.fileBucket.bucketName,
       },
+      vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
 
     mcpFunction.role?.addToPrincipalPolicy(
@@ -38,6 +52,8 @@ export class McpApi extends Construct {
         resources: ['*'],
       })
     );
+
+    props.fileBucket.grantWrite(mcpFunction);
 
     const mcpEndpoint = mcpFunction.addFunctionUrl({
       authType: FunctionUrlAuthType.AWS_IAM,

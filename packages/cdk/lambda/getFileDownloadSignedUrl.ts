@@ -13,6 +13,7 @@ export const handler = async (
     const req = event.queryStringParameters as GetFileDownloadSignedUrlRequest;
 
     // We pass `s3Type` parameter since Knowledge Base may need to reference S3 in a different account
+    // default and agentcore currently reside in same account and region is specifed in request
     const client =
       req.s3Type === 'knowledgeBase'
         ? await initKnowledgeBaseS3Client({

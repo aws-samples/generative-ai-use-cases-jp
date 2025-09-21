@@ -77,7 +77,7 @@ export const useMeetingMinutes = (
 
         for await (const chunk of stream) {
           if (chunk) {
-            const chunks = chunk.split('\n');
+            const chunks = (chunk as string).split('\n');
 
             for (const c of chunks) {
               if (c && c.length > 0) {

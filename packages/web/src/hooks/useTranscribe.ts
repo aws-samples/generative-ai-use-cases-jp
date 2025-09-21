@@ -6,7 +6,11 @@ const useTranscribeState = create<{
   loading: boolean;
   file: File | null;
   setFile: (file: File) => void;
-  transcribe: (speakerLabel?: boolean, maxSpakers?: number) => Promise<void>;
+  transcribe: (
+    speakerLabel?: boolean,
+    maxSpakers?: number,
+    languageCode?: string
+  ) => Promise<void>;
   jobName: string | null;
   status: string;
   setStatus: (status: string) => void;
@@ -35,7 +39,11 @@ const useTranscribeState = create<{
     }));
   };
 
-  const transcribe = async (speakerLabel = false, maxSpeakers = 1) => {
+  const transcribe = async (
+    speakerLabel = false,
+    maxSpeakers = 1,
+    languageCode?: string
+  ) => {
     set(() => ({
       loading: true,
     }));
@@ -57,6 +65,7 @@ const useTranscribeState = create<{
       audioUrl: audioUrl,
       speakerLabel: speakerLabel,
       maxSpeakers: maxSpeakers,
+      languageCode: languageCode,
     });
 
     set(() => ({

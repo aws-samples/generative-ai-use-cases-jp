@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.12",
     "@aws-crypto/sha256-js": "^5.2.0",
+    "@aws-sdk/client-bedrock-agentcore": "^3.755.0",
     "@aws-sdk/client-cognito-identity": "^3.755.0",
     "@aws-sdk/client-kendra": "^3.755.0",
     "@aws-sdk/client-lambda": "^3.755.0",
@@ -50,7 +51,7 @@
     "immutability-helper": "^3.1.1",
     "lodash.debounce": "^4.0.8",
     "lowlight": "^3.1.0",
-    "mermaid": "^11.4.1",
+    "mermaid": "^11.10.0",
     "microphone-stream": "^6.0.1",
     "novel": "^1.0.2",
     "query-string": "^9.0.0",
@@ -105,9 +106,10 @@
     "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5",
-    "vite": "^6.3.4",
+    "vite": "^6.3.6",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-svgr": "^4.2.0",
+    "vite-plugin-webfont-dl": "^3.11.1",
     "vitest": "^3.0.7"
   }
 }

@@ -107,6 +107,27 @@ plugins:
             Local Development Environment: ローカル開発環境構築手順
             Delete Resources: リソースの削除方法
             Use as a Native App: ネイティブアプリのように利用する方法
+        - locale: ko
+          name: 한국어
+          nav_translations:
+            Overview: 개요
+            Deploy: 배포
+            Quick Start: Quick Start
+            (Optional) Deploy with AWS CloudShell: (선택사항) AWS CloudShell로 배포하기
+            Deploy Options: 배포 옵션
+            Authentication: 인증
+            Authenticate with Google Workspace: Google Workspace로 인증하기
+            Authenticate with Microsoft Entra ID: Microsoft Entra ID로 인증하기
+            Browser Extension: 브라우저 확장 프로그램
+            Build: 빌드
+            Install: 설치
+            SAML Authentication: SAML 인증
+            Other: 기타
+            Update: 업데이트
+            Local Development Environment: 로컬 개발 환경
+            Delete Resources: 리소스 삭제
+            Use as a Native App: 네이티브 앱처럼 사용하는 방법
+
 hooks:
   - docs/overrides/hooks/anchors.py
 

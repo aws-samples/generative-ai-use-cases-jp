@@ -240,7 +240,7 @@ const RagKnowledgeBasePage: React.FC = () => {
 
   return (
     <>
-      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
+      <div className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {t('rag.title')}
         </div>

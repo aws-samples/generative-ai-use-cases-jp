@@ -26,7 +26,14 @@ const pcmEncodeChunk = (chunk: Buffer) => {
 };
 
 const region = import.meta.env.VITE_APP_REGION;
-const cognito = new CognitoIdentityClient({ region });
+const cognitoIdentityPoolProxyEndpoint = import.meta.env
+  .VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT;
+const cognito = new CognitoIdentityClient({
+  region,
+  ...(cognitoIdentityPoolProxyEndpoint
+    ? { endpoint: cognitoIdentityPoolProxyEndpoint }
+    : {}),
+});
 const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
 const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
 const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
@@ -36,6 +43,9 @@ const useMicrophone = () => {
   const [recording, setRecording] = useState(false);
   const [rawTranscripts, setRawTranscripts] = useState<
     {
+      resultId: string;
+      startTime: number;
+      endTime: number;
       isPartial: boolean;
       transcripts: Transcript[];
     }[]
@@ -181,6 +191,10 @@ const useMicrophone = () => {
                 const tmp = update(prev, {
                   $push: [
                     {
+                      resultId:
+                        result.ResultId ?? `mic-${Date.now()}-${Math.random()}`,
+                      startTime: result.StartTime ?? 0,
+                      endTime: result.EndTime ?? 0,
                       isPartial: result.IsPartial ?? false,
                       transcripts,
                     },
@@ -195,6 +209,11 @@ const useMicrophone = () => {
                       prev.length - 1,
                       1,
                       {
+                        resultId:
+                          result.ResultId ??
+                          `mic-${Date.now()}-${Math.random()}`,
+                        startTime: result.StartTime ?? 0,
+                        endTime: result.EndTime ?? 0,
                         isPartial: result.IsPartial ?? false,
                         transcripts,
                       },
@@ -259,6 +278,7 @@ const useMicrophone = () => {
     recording,
     transcriptMic,
     clearTranscripts,
+    rawTranscripts,
   };
 };
 

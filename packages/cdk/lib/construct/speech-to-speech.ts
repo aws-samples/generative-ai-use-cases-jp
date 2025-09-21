@@ -4,10 +4,11 @@ import * as appsync from 'aws-cdk-lib/aws-appsync';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as agw from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { ModelConfiguration } from 'generative-ai-use-cases';
 import { BEDROCK_SPEECH_TO_SPEECH_MODELS } from '@generative-ai-use-cases/common';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface SpeechToSpeechProps {
   readonly envSuffix: string;
@@ -15,6 +16,8 @@ export interface SpeechToSpeechProps {
   readonly api: agw.RestApi;
   readonly speechToSpeechModelIds: ModelConfiguration[];
   readonly crossAccountBedrockRoleArn?: string | null;
+  readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class SpeechToSpeech extends Construct {
@@ -70,18 +73,21 @@ export class SpeechToSpeech extends Construct {
     const eventApiEndpoint = `https://${eventApi.httpDns}/event`;
 
     const speechToSpeechTask = new NodejsFunction(this, 'Task', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/speechToSpeechTask.ts',
       timeout: Duration.minutes(15),
       environment: {
         EVENT_API_ENDPOINT: eventApiEndpoint,
         NAMESPACE: channelNamespaceName,
+        SPEECH_TO_SPEECH_MODEL_IDS: JSON.stringify(speechToSpeechModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       memorySize: 512,
+      vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
 
     eventApi.grantConnect(speechToSpeechTask);
@@ -114,15 +120,18 @@ export class SpeechToSpeech extends Construct {
       this,
       'StartSession',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/startSpeechToSpeechSession.ts',
         timeout: Duration.minutes(15),
         environment: {
           SPEECH_TO_SPEECH_TASK_FUNCTION_ARN: speechToSpeechTask.functionArn,
+          SPEECH_TO_SPEECH_MODEL_IDS: JSON.stringify(speechToSpeechModelIds),
         },
         bundling: {
           nodeModules: ['@aws-sdk/client-bedrock-runtime'],
         },
+        vpc: props.vpc,
+        securityGroups: props.securityGroups,
       }
     );
 

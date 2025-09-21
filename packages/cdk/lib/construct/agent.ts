@@ -1,5 +1,4 @@
 import { Duration, Lazy, Names, RemovalPolicy } from 'aws-cdk-lib';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import {
@@ -17,11 +16,16 @@ import {
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
 import { Agent as AgentType } from 'generative-ai-use-cases';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { StackInput } from '../stack-input';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 interface AgentProps {
   // Context Params
   readonly searchAgentEnabled: boolean;
   readonly searchApiKey?: string | null;
+  readonly searchEngine?: StackInput['searchEngine'];
+  readonly vpc?: IVpc;
 }
 
 export class Agent extends Construct {
@@ -32,7 +36,7 @@ export class Agent extends Construct {
 
     const suffix = Lazy.string({ produce: () => Names.uniqueId(this) });
 
-    const { searchAgentEnabled, searchApiKey } = props;
+    const { searchAgentEnabled, searchApiKey, searchEngine } = props;
 
     // Bucket to store schema and data for agents for bedrock
     const s3Bucket = new Bucket(this, 'Bucket', {
@@ -76,17 +80,19 @@ export class Agent extends Construct {
     });
 
     // Search Agent
-    if (searchAgentEnabled && searchApiKey) {
+    if (searchAgentEnabled && searchApiKey && searchEngine) {
       const bedrockAgentLambda = new NodejsFunction(
         this,
         'BedrockAgentLambda',
         {
-          runtime: Runtime.NODEJS_LATEST,
+          runtime: LAMBDA_RUNTIME_NODEJS,
           entry: './lambda/agent.ts',
           timeout: Duration.seconds(300),
           environment: {
             SEARCH_API_KEY: searchApiKey ?? '',
+            SEARCH_ENGINE: searchEngine,
           },
+          vpc: props.vpc,
         }
       );
       bedrockAgentLambda.grantInvoke(

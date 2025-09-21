@@ -83,6 +83,8 @@ const useChatPageState = create<StateType>((set) => {
   };
 });
 
+const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet recommended minimum value
+
 const ChatPage: React.FC = () => {
   const {
     content,
@@ -135,15 +137,19 @@ const ChatPage: React.FC = () => {
   const { createSystemContext } = useSystemContextApi();
   const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
-  const { modelIds: availableModels, modelDisplayName } = MODELS;
+  const { allModelIds: availableModels, modelDisplayName } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [overrideModelParameters, setOverrideModelParameters] = useState<
-    AdditionalModelRequestFields | undefined
-  >(undefined);
+  const [overrideModelParameters, setOverrideModelParameters] =
+    useState<AdditionalModelRequestFields>({
+      reasoningConfig: {
+        type: 'disabled',
+        budgetTokens: DEFAULT_REASONING_BUDGET,
+      },
+    });
   const [showSetting, setShowSetting] = useState(false);
   const { t } = useTranslation();
   const [forceExpandPromptList, setForceExpandPromptList] = useState<
@@ -168,7 +174,7 @@ const ChatPage: React.FC = () => {
 
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId];
+    const feature = MODELS.getModelMetadata(modelId);
     return [
       ...(feature.flags.doc ? fileLimit.accept.doc : []),
       ...(feature.flags.image ? fileLimit.accept.image : []),
@@ -178,9 +184,16 @@ const ChatPage: React.FC = () => {
   const fileUpload = useMemo(() => {
     return accept.length > 0;
   }, [accept]);
-  const setting = useMemo(() => {
-    return MODELS.modelMetadata[modelId]?.flags.reasoning ?? false;
+  const reasoning = useMemo(() => {
+    return MODELS.getModelMetadata(modelId).flags.reasoning ?? false;
   }, [modelId]);
+  const reasoningEnabled = useMemo(() => {
+    return overrideModelParameters.reasoningConfig.type === 'enabled';
+  }, [overrideModelParameters]);
+  // Currently, the settings modal is only used with the reasoning option
+  const setting = useMemo(() => {
+    return reasoning;
+  }, [reasoning]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -223,7 +236,14 @@ const ChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, base64Cache, fileUpload, setFollowing, overrideModelParameters]);
+  }, [
+    content,
+    base64Cache,
+    fileUpload,
+    setFollowing,
+    overrideModelParameters,
+    uploadedFiles,
+  ]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
@@ -396,6 +416,16 @@ const ChatPage: React.FC = () => {
     }
   };
 
+  const onReasoningSwitched = useCallback(() => {
+    setOverrideModelParameters({
+      ...overrideModelParameters,
+      reasoningConfig: {
+        type: reasoningEnabled ? 'disabled' : 'enabled',
+        budgetTokens: overrideModelParameters.reasoningConfig.budgetTokens,
+      },
+    });
+  }, [reasoningEnabled, overrideModelParameters, setOverrideModelParameters]);
+
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
     event.preventDefault();
@@ -427,7 +457,7 @@ const ChatPage: React.FC = () => {
     <>
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
+        className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
@@ -585,6 +615,9 @@ const ChatPage: React.FC = () => {
             fileUpload={fileUpload}
             fileLimit={fileLimit}
             accept={accept}
+            reasoning={reasoning}
+            onReasoningSwitched={onReasoningSwitched}
+            reasoningEnabled={reasoningEnabled}
             setting={setting}
             onSetting={() => {
               setShowSetting(true);
@@ -666,18 +699,13 @@ const ChatPage: React.FC = () => {
         }}
         title={t('chat.advanced_options')}>
         {setting && (
-          <ExpandableField
-            label={t('chat.model_parameters')}
-            className="relative w-full"
-            defaultOpened={true}>
-            <div className="">
-              <ModelParameters
-                modelFeatureFlags={MODELS.modelMetadata[modelId].flags}
-                overrideModelParameters={overrideModelParameters}
-                setOverrideModelParameters={setOverrideModelParameters}
-              />
-            </div>
-          </ExpandableField>
+          <div className="">
+            <ModelParameters
+              modelFeatureFlags={MODELS.getModelMetadata(modelId).flags}
+              overrideModelParameters={overrideModelParameters}
+              setOverrideModelParameters={setOverrideModelParameters}
+            />
+          </div>
         )}
         <div className="mt-4 flex justify-end">
           <Button

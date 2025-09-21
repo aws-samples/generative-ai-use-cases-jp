@@ -405,12 +405,15 @@ const envs: Record<string, Partial<StackInput>> = {
 
 Creates an Agent that connects to APIs to reference the latest information for responses. You can customize the Agent to add other actions and create multiple Agents to switch between.
 
-The default search agent uses [Brave Search API's Data for AI](https://brave.com/search/api/) due to its large free tier, request limit considerations, and cost factors, but you can customize it to use other APIs. Getting an API key requires credit card registration even for the free plan.
+The default search agents available are [Data for AI in Brave Search API] (https://brave.com/search/api/) or [Tavily's Tavily Search API] (https://docs.tavily.com/documentation/api-reference/endpoint/search). It is also possible to customise the API so that it can be used with other APIs. Please note that Brave Search API requires credit card setup, even for free plans.
 
 > [!NOTE]
-> When you enable the Agent Chat use case, it only sends data to external APIs in the Agent Chat use case. (By default, Brave Search API) Other use cases can continue to be used entirely within AWS. Please check your internal policies and API terms of service before enabling.
+> When you enable the Agent Chat use case, it only sends data to external APIs in the Agent Chat use case. (By default, Brave Search API or Tavily Search) Other use cases can continue to be used entirely within AWS. Please check your internal policies and API terms of service before enabling.
 
-Set `agentEnabled` and `searchAgentEnabled` to `true` (default is `false`), and specify the search engine API key in `searchApiKey`.
+Set `agentEnabled` and `searchAgentEnabled` to `true` (default is `false`), and then set the required fields.
+
+- `searchEngine` : Specify the search engine to use. You can use `Brave` or `Tavily`.
+- `searchApiKey` : Specify the API key of the search engine.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
@@ -420,6 +423,7 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     agentEnabled: true,
     searchAgentEnabled: true,
+    searchEngine: 'Brave' or 'Tavily',
     searchApiKey: '<Search Engine API Key>',
   },
 };
@@ -433,6 +437,7 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "agentEnabled": true,
     "searchAgentEnabled": true,
+    "searchEngine": "Brave" or "Tavily",
     "searchApiKey": "<Search Engine API Key>"
   }
 }
@@ -564,6 +569,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### Enabling MCP Chat Use Case
 
+> [!WARNING]
+> The MCP Chat use case has been deprecated. Please use the AgentCore use case for MCP utilization. The MCP chat use case is scheduled for complete removal in v6.
+
 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) is a protocol that connects LLM models with external data and tools.
 In GenU, we provide chat use cases that execute MCP-compliant tools using [Strands Agents](https://strandsagents.com/latest/).
 To enable MCP chat use cases, the `docker` command must be executable.
@@ -673,6 +681,77 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### Enabling AgentCore Use Cases
+
+This is a use case for integrating with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
+
+Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
+By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
+
+The default agents available in AgentCore can utilize MCP servers defined in [mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json).
+The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
+For details, please refer to the documentation [here](https://awslabs.github.io/mcp/).
+When adding MCP servers, please add them to the aforementioned `mcp.json`.
+However, MCP servers that start with methods other than `uvx` require development work such as rewriting the Dockerfile.
+
+With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
+
+To enable AgentCore use cases, the `docker` command must be executable.
+
+> [!WARNING]
+> On Linux machines using x86_64 CPUs (Intel, AMD, etc.), run the following command before cdk deployment:
+>
+> ```
+> docker run --privileged --rm tonistiigi/binfmt --install arm64
+> ```
+>
+> If you do not run the above command, the following error will occur:  
+> During the deployment process, ARM-based container images used by AgentCore Runtime are built. When building ARM container images on x86_64 CPUs, errors occur due to CPU architecture differences.
+>
+> ```
+> ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
+> AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
+> ```
+>
+> Running this command makes temporary configuration changes to the host Linux Kernel. It registers QEMU emulator custom handlers in Binary Format Miscellaneous (binfmt_misc), enabling ARM container image builds. The configuration returns to its original state after reboot, so the command must be re-executed before re-deployments.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreExternalRuntimes: [
+      {
+        name: 'AgentCore1',
+        arn: 'arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx',
+      },
+    ],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreExternalRuntimes": [
+      {
+        "name": "AgentCore1",
+        "arn": "arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx"
+      }
+    ]
+  }
+}
+```
+
 ### Enabling Voice Chat Use Case
 
 > [!NOTE]
@@ -707,6 +786,8 @@ As of 2025/03, the multimodal models are:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -871,6 +952,8 @@ This solution supports the following text generation models:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -931,7 +1014,9 @@ This solution supports the following text generation models:
 "eu.amazon.nova-micro-v1:0",
 "apac.amazon.nova-pro-v1:0",
 "apac.amazon.nova-lite-v1:0",
-"apac.amazon.nova-micro-v1:0"
+"apac.amazon.nova-micro-v1:0",
+"openai.gpt-oss-120b-1:0",
+"openai.gpt-oss-20b-1:0"
 ```
 
 This solution supports the following speech-to-speech models:
@@ -1365,32 +1450,21 @@ const envs: Record<string, StackInput> = {
 }
 ```
 
-## Using Custom Models with Amazon SageMaker
+## When you want to use Amazon SageMaker custom models
 
-You can use large language models deployed to Amazon SageMaker endpoints. This solution supports SageMaker endpoints using [Hugging Face's Text Generation Inference (TGI) LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Ideally, the models should support chat-formatted prompts where user and assistant take turns speaking. Currently, image generation use cases are not supported with Amazon SageMaker endpoints.
+It is possible to use large language models deployed to Amazon SageMaker endpoints. It supports SageMaker Endpoints using [Text Generation Inference (TGI) Hugging Face LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Since it uses TGI's [Message API](https://huggingface.co/docs/text-generation-inference/messages_api), TGI must be version 1.4.0 or later, and the model must support Chat Template (`chat_template` defined in `tokenizer.config`). Currently, only text models are supported.
 
-There are two ways to deploy models using TGI containers to SageMaker endpoints:
+There are currently two ways to deploy models using TGI containers to SageMaker endpoints.
 
-**Deploy pre-packaged models from SageMaker JumpStart**
+**Deploy pre-prepared models by AWS with SageMaker JumpStart**
 
-SageMaker JumpStart offers one-click deployment of packaged open-source large language models. You can deploy these models by opening them in the JumpStart screen in SageMaker Studio and clicking the "Deploy" button. Examples of Japanese models provided include:
-
-- [SageMaker JumpStart Elyza Japanese Llama 2 7B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart Elyza Japanese Llama 2 13B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart CyberAgentLM2 7B Chat](https://aws.amazon.com/jp/blogs/news/cyberagentlm2-on-sagemaker-jumpstart/)
-- [SageMaker JumpStart Stable LM Instruct Alpha 7B v2](https://aws.amazon.com/jp/blogs/news/japanese-stable-lm-instruct-alpha-7b-v2-from-stability-ai-is-now-available-in-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+SageMaker JumpStart provides OSS large language models packaged for one-click deployment. You can open a model from the JumpStart screen in SageMaker Studio and deploy it by clicking the "Deploy" button.
 
 **Deploy with a few lines of code using SageMaker SDK**
 
-Thanks to [AWS's partnership with Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the model ID from Hugging Face using the SageMaker SDK.
+Through the [partnership between AWS and Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the ID of models published on Hugging Face with the SageMaker SDK.
 
-From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see the code for deploying the model. Copy and run this code to deploy the model. (You may need to adjust parameters like instance size or `SM_NUM_GPUS` depending on the model. If deployment fails, you can check the logs in CloudWatch Logs.)
-
-> [!NOTE]
-> There's one modification needed when deploying: The endpoint name will be displayed in the GenU application and is used to determine the model's prompt template (explained in the next section). Therefore, you need to specify a distinguishable endpoint name.
-> Add `endpoint_name="<distinguishable endpoint name>"` as an argument to `huggingface_model.deploy()` when deploying.
+From a published Hugging Face model page, select _Deploy_ > _Amazon SageMaker_ to display the code for deploying the model. You can deploy the model by copying and executing this code. (Depending on the model, you may need to change parameters such as instance size or `SM_NUM_GPUS`. If deployment fails, you can check the logs from CloudWatch Logs)
 
 ![Select Amazon SageMaker from Deploy on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy.png)
 ![Deployment script guide on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy2.png)
@@ -1399,9 +1473,7 @@ From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see th
 
 To use deployed SageMaker endpoints with the target solution, specify them as follows:
 
-endpointNames is a list of SageMaker endpoint names. (Example: `["elyza-llama-2", "rinna"]`)
-
-To specify the prompt template used when constructing prompts in the backend, you need to include the prompt type in the endpoint name. (Example: `llama-2`, `rinna`, etc.) See `packages/cdk/lambda/utils/models.ts` for details. Add prompt templates as needed.
+`endpointNames` is a list of SageMaker endpoint names. Optionally you can specify region for each endpoint.
 
 ```typescript
 // parameter.ts
@@ -1409,8 +1481,11 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-east-1',
     endpointNames: [
-      'jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16',
-      'jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16',
+      '<SageMaker Endpoint Name>',
+      {
+        modelIds: '<SageMaker Endpoint Name>',
+        region: '<SageMaker Endpoint Region>',
+      },
     ],
   },
 };
@@ -1421,34 +1496,13 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "<SageMaker Endpoint Region>",
-    "endpointNames": ["<SageMaker Endpoint Name>"]
-  }
-}
-```
-
-**Example: Using Rinna 3.6B and Bilingual Rinna 4B**
-
-```json
-// cdk.json
-{
-  "context": {
-    "modelRegion": "us-west-2",
     "endpointNames": [
-      "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16",
-      "jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"
+      "<SageMaker Endpoint Name>",
+      {
+        "modelIds": "<SageMaker Endpoint Name>",
+        "region": "<SageMaker Endpoint Region>"
+      }
     ]
-  }
-}
-```
-
-**Example: Using ELYZA-japanese-Llama-2-7b-instruct**
-
-```json
-// cdk.json
-{
-  "context": {
-    "modelRegion": "us-west-2",
-    "endpointNames": ["elyza-japanese-llama-2-7b-inference"]
   }
 }
 ```
@@ -1756,6 +1810,39 @@ EventBridge rules are used for scheduling, and Step Functions for process contro
 > - Currently, there's no feature to notify of startup/shutdown errors.
 > - Each time the index is recreated, the IndexId and DataSourceId change. If other services reference these, you'll need to adapt to these changes.
 
+### How to Set Tags
+
+GenU supports tags for cost management and other purposes. The key name of the tag is automatically set to `GenU` `. Here are examples of how to set them:
+
+Setting in `cdk.json`:
+
+```json
+// cdk.json
+  ...
+  "context": {
+    "tagValue": "dev",
+    ...
+```
+
+Setting in `parameter.ts`:
+
+```typescript
+    ...
+    tagValue: "dev",
+    ...
+```
+
+However, tags cannot be used with some resources:
+
+- Cross-region inference model calls
+- Voice chat model calls
+
+When managing costs using tags, you need to enable “Cost allocation tags” by following these steps.
+
+- Open the “Billing and Cost Management” console.
+- Open “Cost Allocation Tags” in the left menu.
+- Activate the tag with the tag key “GenU” from “User-defined cost allocation tags.”
+
 ## Enabling Monitoring Dashboard
 
 Create a dashboard that aggregates input/output token counts and recent prompts.
@@ -2035,3 +2122,8 @@ Configuration example
   }
 }
 ```
+
+## Using GenU from a Closed Network Environment
+
+To use GenU from a closed network environment, you need to deploy GenU in closed network mode.
+Please refer to [here](./CLOSED_NETWORK.md) for instructions on how to deploy GenU in closed network mode.

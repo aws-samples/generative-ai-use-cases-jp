@@ -71,5 +71,11 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
       params.speechToSpeechModelIds,
       params.modelRegion
     ),
+    endpointNames: convertToModelConfiguration(
+      params.endpointNames,
+      params.modelRegion
+    ),
+    // Process agentCoreRegion: null -> modelRegion
+    agentCoreRegion: params.agentCoreRegion || params.modelRegion,
   };
 };

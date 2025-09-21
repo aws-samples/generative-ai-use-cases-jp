@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   TranscribeClient,
   StartTranscriptionJobCommand,
+  LanguageCode,
 } from '@aws-sdk/client-transcribe';
 import { StartTranscriptionRequest } from 'generative-ai-use-cases';
 
@@ -14,13 +15,14 @@ export const handler = async (
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
     const userId = event.requestContext.authorizer!.claims.sub;
 
-    const { audioUrl, speakerLabel, maxSpeakers } = req;
+    const { audioUrl, speakerLabel, maxSpeakers, languageCode } = req;
 
     const uuid = uuidv4();
 
     const command = new StartTranscriptionJobCommand({
-      IdentifyLanguage: true,
-      LanguageOptions: ['ja-JP', 'en-US'],
+      IdentifyLanguage: !languageCode, // Enable auto-detection when no language specified
+      LanguageCode: languageCode ? (languageCode as LanguageCode) : undefined, // Use specified language when provided
+      LanguageOptions: !languageCode ? ['ja-JP', 'en-US'] : undefined, // Language candidates for auto-detection only
       Media: { MediaFileUri: audioUrl },
       TranscriptionJobName: uuid,
       Settings: {

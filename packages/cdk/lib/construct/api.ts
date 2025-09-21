@@ -6,14 +6,20 @@ import {
   LambdaIntegration,
   RestApi,
   ResponseType,
+  EndpointType,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
-import { IFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import {
+  AnyPrincipal,
+  Effect,
+  PolicyDocument,
+  PolicyStatement,
+} from 'aws-cdk-lib/aws-iam';
 import {
   BlockPublicAccess,
   Bucket,
@@ -28,6 +34,12 @@ import {
   BEDROCK_TEXT_MODELS,
 } from '@generative-ai-use-cases/common';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import {
+  InterfaceVpcEndpoint,
+  IVpc,
+  ISecurityGroup,
+} from 'aws-cdk-lib/aws-ec2';
 
 export interface BackendApiProps {
   // Context Params
@@ -36,13 +48,14 @@ export interface BackendApiProps {
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
   readonly videoBucketRegionMap: Record<string, string>;
-  readonly endpointNames: string[];
+  readonly endpointNames: ModelConfiguration[];
   readonly queryDecompositionEnabled: boolean;
   readonly rerankingModelId?: string | null;
   readonly customAgents: Agent[];
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
+  readonly additionalS3Buckets?: Bucket[];
 
   // Resource
   readonly userPool: UserPool;
@@ -54,6 +67,12 @@ export interface BackendApiProps {
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
+
+  // Closed network
+  readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
+  readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
+  readonly cognitoUserPoolProxyEndpoint?: string;
 }
 
 export class Api extends Construct {
@@ -65,7 +84,7 @@ export class Api extends Construct {
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
-  readonly endpointNames: string[];
+  readonly endpointNames: ModelConfiguration[];
   readonly agentNames: string[];
   readonly fileBucket: Bucket;
   readonly getFileDownloadSignedUrlFunction: IFunction;
@@ -87,6 +106,9 @@ export class Api extends Construct {
       knowledgeBaseId,
       queryDecompositionEnabled,
       rerankingModelId,
+      vpc,
+      securityGroups,
+      apiGatewayVpcEndpoint,
     } = props;
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
@@ -153,7 +175,7 @@ export class Api extends Construct {
 
     // Lambda
     const predictFunction = new NodejsFunction(this, 'Predict', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/predict.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -172,16 +194,19 @@ export class Api extends Construct {
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
+      vpc,
+      securityGroups,
     });
 
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       memorySize: 256,
       environment: {
         USER_POOL_ID: userPool.userPoolId,
         USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+        USER_POOL_PROXY_ENDPOINT: props.cognitoUserPoolProxyEndpoint ?? '',
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
@@ -207,13 +232,15 @@ export class Api extends Construct {
           '@aws-sdk/client-sagemaker-runtime',
         ],
       },
+      vpc,
+      securityGroups,
     });
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
     // Add Flow Lambda Function
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/invokeFlow.ts',
       timeout: Duration.minutes(15),
       bundling: {
@@ -225,11 +252,13 @@ export class Api extends Construct {
       environment: {
         MODEL_REGION: modelRegion,
       },
+      vpc,
+      securityGroups,
     });
     invokeFlowFunction.grantInvoke(idPool.authenticatedRole);
 
     const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/predictTitle.ts',
       timeout: Duration.minutes(15),
       bundling: {
@@ -249,11 +278,13 @@ export class Api extends Construct {
           ? { GUARDRAIL_VERSION: props.guardrailVersion }
           : {}),
       },
+      vpc,
+      securityGroups,
     });
     table.grantWriteData(predictTitleFunction);
 
     const generateImageFunction = new NodejsFunction(this, 'GenerateImage', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/generateImage.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -266,10 +297,12 @@ export class Api extends Construct {
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
+      vpc,
+      securityGroups,
     });
 
     const generateVideoFunction = new NodejsFunction(this, 'GenerateVideo', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/generateVideo.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -286,6 +319,8 @@ export class Api extends Construct {
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
+      vpc,
+      securityGroups,
     });
     for (const region of Object.keys(props.videoBucketRegionMap)) {
       const bucketName = props.videoBucketRegionMap[region];
@@ -303,7 +338,7 @@ export class Api extends Construct {
     table.grantWriteData(generateVideoFunction);
 
     const copyVideoJob = new NodejsFunction(this, 'CopyVideoJob', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/copyVideoJob.ts',
       timeout: Duration.minutes(15),
       memorySize: 512,
@@ -320,6 +355,8 @@ export class Api extends Construct {
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
+      vpc,
+      securityGroups,
     });
     for (const region of Object.keys(props.videoBucketRegionMap)) {
       const bucketName = props.videoBucketRegionMap[region];
@@ -338,7 +375,7 @@ export class Api extends Construct {
     table.grantWriteData(copyVideoJob);
 
     const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/listVideoJobs.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -355,12 +392,14 @@ export class Api extends Construct {
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(listVideoJobs);
     copyVideoJob.grantInvoke(listVideoJobs);
 
     const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteVideoJob.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -369,6 +408,8 @@ export class Api extends Construct {
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantWriteData(deleteVideoJob);
 
@@ -376,7 +417,7 @@ export class Api extends Construct {
       this,
       'OptimizePromptFunction',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/optimizePrompt.ts',
         timeout: Duration.minutes(15),
         bundling: {
@@ -385,17 +426,21 @@ export class Api extends Construct {
         environment: {
           MODEL_REGION: modelRegion,
         },
+        vpc,
+        securityGroups,
       }
     );
     optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
 
     const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getFileUploadSignedUrl.ts',
       timeout: Duration.minutes(15),
       environment: {
         BUCKET_NAME: fileBucket.bucketName,
       },
+      vpc,
+      securityGroups,
     });
     // Grant S3 write permissions with source IP condition
     if (getSignedUrlFunction.role) {
@@ -414,16 +459,20 @@ export class Api extends Construct {
       this,
       'GetFileDownloadSignedUrlFunction',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/getFileDownloadSignedUrl.ts',
         timeout: Duration.minutes(15),
         environment: {
           CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+          MODEL_REGION: modelRegion,
         },
+        vpc,
+        securityGroups,
       }
     );
     // Grant S3 read permissions with source IP condition
     if (getFileDownloadSignedUrlFunction.role) {
+      // Default bucket permissions
       allowS3AccessWithSourceIpCondition(
         fileBucket.bucketName,
         getFileDownloadSignedUrlFunction.role,
@@ -433,6 +482,21 @@ export class Api extends Construct {
           ipv6: props.allowedIpV6AddressRanges,
         }
       );
+
+      // Additional buckets permissions (AgentCore, external buckets, etc.)
+      if (props.additionalS3Buckets) {
+        props.additionalS3Buckets.forEach((bucket) => {
+          allowS3AccessWithSourceIpCondition(
+            bucket.bucketName,
+            getFileDownloadSignedUrlFunction.role!,
+            'read',
+            {
+              ipv4: props.allowedIpV4AddressRanges,
+              ipv6: props.allowedIpV6AddressRanges,
+            }
+          );
+        });
+      }
     }
 
     // If SageMaker Endpoint exists, grant permission
@@ -443,9 +507,9 @@ export class Api extends Construct {
         actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
         resources: endpointNames.map(
           (endpointName) =>
-            `arn:aws:sagemaker:${modelRegion}:${
+            `arn:aws:sagemaker:${endpointName.region}:${
               Stack.of(this).account
-            }:endpoint/${endpointName}`
+            }:endpoint/${endpointName.modelId}`
         ),
       });
       predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
@@ -507,27 +571,31 @@ export class Api extends Construct {
     }
 
     const createChatFunction = new NodejsFunction(this, 'CreateChat', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/createChat.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantWriteData(createChatFunction);
 
     const deleteChatFunction = new NodejsFunction(this, 'DeleteChat', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteChat.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(deleteChatFunction);
 
     const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/createMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -535,6 +603,8 @@ export class Api extends Construct {
         STATS_TABLE_NAME: props.statsTable.tableName,
         BUCKET_NAME: fileBucket.bucketName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(createMessagesFunction);
     props.statsTable.grantReadWriteData(createMessagesFunction);
@@ -543,99 +613,119 @@ export class Api extends Construct {
       this,
       'UpdateChatTitle',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/updateTitle.ts',
         timeout: Duration.minutes(15),
         environment: {
           TABLE_NAME: table.tableName,
         },
+        vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(updateChatTitleFunction);
 
     const listChatsFunction = new NodejsFunction(this, 'ListChats', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/listChats.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(listChatsFunction);
 
     const findChatbyIdFunction = new NodejsFunction(this, 'FindChatbyId', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/findChatById.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(findChatbyIdFunction);
 
     const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/listMessages.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(listMessagesFunction);
 
     const updateFeedbackFunction = new NodejsFunction(this, 'UpdateFeedback', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/updateFeedback.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(updateFeedbackFunction);
 
     const getWebTextFunction = new NodejsFunction(this, 'GetWebText', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getWebText.ts',
       timeout: Duration.minutes(15),
+      vpc,
+      securityGroups,
     });
 
     const createShareId = new NodejsFunction(this, 'CreateShareId', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/createShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(createShareId);
 
     const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getSharedChat.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(getSharedChat);
 
     const findShareId = new NodejsFunction(this, 'FindShareId', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/findShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(findShareId);
 
     const deleteShareId = new NodejsFunction(this, 'DeleteShareId', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteShareId.ts',
       timeout: Duration.minutes(15),
       environment: {
         TABLE_NAME: table.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadWriteData(deleteShareId);
 
@@ -643,12 +733,14 @@ export class Api extends Construct {
       this,
       'ListSystemContexts',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/listSystemContexts.ts',
         timeout: Duration.minutes(15),
         environment: {
           TABLE_NAME: table.tableName,
         },
+        vpc,
+        securityGroups,
       }
     );
     table.grantReadData(listSystemContextsFunction);
@@ -657,12 +749,14 @@ export class Api extends Construct {
       this,
       'CreateSystemContexts',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/createSystemContext.ts',
         timeout: Duration.minutes(15),
         environment: {
           TABLE_NAME: table.tableName,
         },
+        vpc,
+        securityGroups,
       }
     );
     table.grantWriteData(createSystemContextFunction);
@@ -671,12 +765,14 @@ export class Api extends Construct {
       this,
       'UpdateSystemContextTitle',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/updateSystemContextTitle.ts',
         timeout: Duration.minutes(15),
         environment: {
           TABLE_NAME: table.tableName,
         },
+        vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(updateSystemContextTitleFunction);
@@ -685,34 +781,40 @@ export class Api extends Construct {
       this,
       'DeleteSystemContexts',
       {
-        runtime: Runtime.NODEJS_LATEST,
+        runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/deleteSystemContext.ts',
         timeout: Duration.minutes(15),
         environment: {
           TABLE_NAME: table.tableName,
         },
+        vpc,
+        securityGroups,
       }
     );
     table.grantReadWriteData(deleteSystemContextFunction);
 
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteFile.ts',
       timeout: Duration.minutes(15),
       environment: {
         BUCKET_NAME: fileBucket.bucketName,
       },
+      vpc,
+      securityGroups,
     });
     fileBucket.grantDelete(deleteFileFunction);
 
     // Lambda function for getting token usage
     const getTokenUsageFunction = new NodejsFunction(this, 'GetTokenUsage', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/getTokenUsage.ts',
       environment: {
         TABLE_NAME: table.tableName,
         STATS_TABLE_NAME: props.statsTable.tableName,
       },
+      vpc,
+      securityGroups,
     });
     table.grantReadData(getTokenUsageFunction);
     props.statsTable.grantReadData(getTokenUsageFunction);
@@ -737,6 +839,31 @@ export class Api extends Construct {
       },
       cloudWatchRole: true,
       defaultMethodOptions: commonAuthorizerProps,
+      endpointConfiguration: vpc
+        ? {
+            types: [EndpointType.PRIVATE],
+            vpcEndpoints: [apiGatewayVpcEndpoint!],
+          }
+        : undefined,
+      policy: vpc
+        ? new PolicyDocument({
+            statements: [apiGatewayVpcEndpoint!].map(
+              (e: InterfaceVpcEndpoint) => {
+                return new PolicyStatement({
+                  effect: Effect.ALLOW,
+                  principals: [new AnyPrincipal()],
+                  actions: ['execute-api:Invoke'],
+                  resources: ['execute-api:/*'],
+                  conditions: {
+                    StringEquals: {
+                      'aws:SourceVpce': e.vpcEndpointId,
+                    },
+                  },
+                });
+              }
+            ),
+          })
+        : undefined,
     });
 
     api.addGatewayResponse('Api4XX', {

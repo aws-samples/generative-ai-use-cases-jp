@@ -9,7 +9,8 @@ import {
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface RagKnowledgeBaseProps {
   // Context Params
@@ -20,6 +21,10 @@ export interface RagKnowledgeBaseProps {
   readonly knowledgeBaseId: string;
   readonly userPool: UserPool;
   readonly api: RestApi;
+
+  // Closed network
+  readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class RagKnowledgeBase extends Construct {
@@ -29,7 +34,7 @@ export class RagKnowledgeBase extends Construct {
     const { modelRegion } = props;
 
     const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
-      runtime: Runtime.NODEJS_LATEST,
+      runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/retrieveKnowledgeBase.ts',
       timeout: cdk.Duration.minutes(15),
       environment: {
@@ -37,6 +42,8 @@ export class RagKnowledgeBase extends Construct {
         MODEL_REGION: modelRegion,
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
       },
+      vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
 
     if (!props.crossAccountBedrockRoleArn) {
