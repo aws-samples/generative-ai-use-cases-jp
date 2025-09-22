@@ -1026,6 +1026,8 @@ This solution supports the following image generation models:
 
 ```
 "amazon.nova-canvas-v1:0",
+"amazon.titan-image-generator-v2:0",
+"amazon.titan-image-generator-v1",
 "stability.sd3-5-large-v1:0",
 "stability.stable-image-core-v1:1",
 "stability.stable-image-ultra-v1:1",
