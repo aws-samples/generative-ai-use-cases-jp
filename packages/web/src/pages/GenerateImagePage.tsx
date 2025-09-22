@@ -97,22 +97,7 @@ const modelInfo: Record<string, ModelInfo<'base' | 'advanced'>> = {
     ],
     resolutionPresets: defaultModelPresets,
   },
-  [STABILITY_AI_MODELS.SD3_LARGE]: {
-    supportedModes: [
-      GENERATION_MODES.TEXT_IMAGE,
-      GENERATION_MODES.IMAGE_VARIATION,
-    ],
-    resolutionPresets: stabilityAi2024ModelPresets,
-  },
-  [STABILITY_AI_MODELS.STABLE_IMAGE_CORE1_0]: {
-    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
-    resolutionPresets: stabilityAi2024ModelPresets,
-  },
   [STABILITY_AI_MODELS.STABLE_IMAGE_CORE1_1]: {
-    supportedModes: [GENERATION_MODES.TEXT_IMAGE],
-    resolutionPresets: stabilityAi2024ModelPresets,
-  },
-  [STABILITY_AI_MODELS.STABLE_IMAGE_ULTRA1_0]: {
     supportedModes: [GENERATION_MODES.TEXT_IMAGE],
     resolutionPresets: stabilityAi2024ModelPresets,
   },
