@@ -41,10 +41,7 @@ const AMAZON_MODELS = {
 };
 const STABILITY_AI_MODELS = {
   STABLE_DIFFUSION_XL: 'stability.stable-diffusion-xl-v1',
-  SD3_LARGE: 'stability.sd3-large-v1:0',
-  STABLE_IMAGE_CORE1_0: 'stability.stable-image-core-v1:0',
   STABLE_IMAGE_CORE1_1: 'stability.stable-image-core-v1:1',
-  STABLE_IMAGE_ULTRA1_0: 'stability.stable-image-ultra-v1:0',
   STABLE_IMAGE_ULTRA1_1: 'stability.stable-image-ultra-v1:1',
   SD3_5: 'stability.sd3-5-large-v1:0',
 };

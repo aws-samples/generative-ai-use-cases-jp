@@ -1146,30 +1146,6 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
-  'anthropic.claude-v2:1': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
-  'anthropic.claude-v2': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
-  'anthropic.claude-instant-v1': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
   'amazon.titan-text-express-v1': {
     defaultParams: TITAN_TEXT_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -1524,19 +1500,7 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStableDiffusion,
     extractOutputImage: extractOutputImageStableDiffusion,
   },
-  'stability.sd3-large-v1:0': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
-  'stability.stable-image-core-v1:0': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
   'stability.stable-image-core-v1:1': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
-  'stability.stable-image-ultra-v1:0': {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },
