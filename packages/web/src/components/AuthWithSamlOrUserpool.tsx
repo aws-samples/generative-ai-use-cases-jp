@@ -103,7 +103,9 @@ const AuthWithSamlOrUserpool: React.FC<Props> = (props) => {
             variation="primary"
             onClick={() => signIn()}
             className="mt-6 w-60">
-            {t('auth.loginWith', { provider: samlCognitoFederatedIdentityProviderName })}
+            {t('auth.loginWith', {
+              provider: samlCognitoFederatedIdentityProviderName,
+            })}
           </Button>
         </div>
       ) : (

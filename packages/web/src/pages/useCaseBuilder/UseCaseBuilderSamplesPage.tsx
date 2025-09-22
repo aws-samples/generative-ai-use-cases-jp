@@ -60,12 +60,12 @@ const CardSample: React.FC<CardSampleProps> = (props) => {
       className="flex cursor-pointer rounded-lg border-2 p-3 hover:bg-gray-100"
       onClick={onClick}>
       <div className="flex items-center">
-        <div className={`${color} rounded-xl border p-2 text-3xl  shadow-md`}>
+        <div className={`${color} rounded-xl border p-2 text-3xl shadow-md`}>
           {props.icon}
         </div>
         <div className="ml-2 flex flex-col">
           <div className="font-bold">{props.title}</div>
-          <div className="text-sm text-gray-600 ">{props.description}</div>
+          <div className="text-sm text-gray-600">{props.description}</div>
           <div className="flex">
             <div className="mt-1 rounded bg-gray-200 p-1 text-xs font-semibold">
               {props.category}

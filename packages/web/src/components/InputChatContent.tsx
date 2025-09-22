@@ -207,7 +207,7 @@ const InputChatContent: React.FC<Props> = (props) => {
                   value={[]}
                 />
                 <div
-                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
+                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer'} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
                   {uploading ? (
                     <PiSpinnerGap className="animate-spin" />
                   ) : (

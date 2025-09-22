@@ -15,7 +15,7 @@ const NAMESPACE = import.meta.env.VITE_APP_SPEECH_TO_SPEECH_NAMESPACE!;
 const MIN_AUDIO_CHUNKS_PER_BATCH = 10;
 const MAX_AUDIO_CHUNKS_PER_BATCH = 20;
 
-const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+const arrayBufferToBase64 = (buffer: ArrayBufferLike) => {
   const binary = [];
   const bytes = new Uint8Array(buffer);
   for (let i = 0; i < bytes.byteLength; i++) {

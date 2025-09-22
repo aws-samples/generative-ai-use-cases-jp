@@ -1,19 +1,19 @@
-import { Construct } from "constructs";
-import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
-import { WebSocketLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import { Construct } from 'constructs';
+import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
+import { WebSocketLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 
-import { IFunction, Runtime, SnapStartConf } from "aws-cdk-lib/aws-lambda";
-import * as path from "path";
-import * as iam from "aws-cdk-lib/aws-iam";
-import { CfnOutput, Duration, RemovalPolicy, Stack } from "aws-cdk-lib";
-import { IAuth } from "./auth";
-import { ITable } from "aws-cdk-lib/aws-dynamodb";
-import { CfnRouteResponse } from "aws-cdk-lib/aws-apigatewayv2";
-import * as logs from "aws-cdk-lib/aws-logs";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import { excludeDockerImage } from "../constants/docker";
-import { PythonFunction } from "@aws-cdk/aws-lambda-python-alpha";
-import { Database } from "./database";
+import { IFunction, Runtime, SnapStartConf } from 'aws-cdk-lib/aws-lambda';
+import * as path from 'path';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { CfnOutput, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
+import { IAuth } from './auth';
+import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { CfnRouteResponse } from 'aws-cdk-lib/aws-apigatewayv2';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { excludeDockerImage } from '../constants/docker';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
+import { Database } from './database';
 
 export interface WebSocketProps {
   readonly database: Database;
@@ -30,7 +30,7 @@ export interface WebSocketProps {
 export class WebSocket extends Construct {
   readonly webSocketApi: apigwv2.IWebSocketApi;
   readonly handler: IFunction;
-  private readonly defaultStageName = "dev";
+  private readonly defaultStageName = 'dev';
 
   constructor(scope: Construct, id: string, props: WebSocketProps) {
     super(scope, id);
@@ -42,7 +42,7 @@ export class WebSocket extends Construct {
     // See: https://docs.aws.amazon.com/sns/latest/dg/extended-client-library-python.html
     const largePayloadSupportBucket = new s3.Bucket(
       this,
-      "LargePayloadSupportBucket",
+      'LargePayloadSupportBucket',
       {
         encryption: s3.BucketEncryption.S3_MANAGED,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -51,35 +51,35 @@ export class WebSocket extends Construct {
         objectOwnership: s3.ObjectOwnership.OBJECT_WRITER,
         autoDeleteObjects: true,
         serverAccessLogsBucket: props.accessLogBucket,
-        serverAccessLogsPrefix: "LargePayloadSupportBucket",
+        serverAccessLogsPrefix: 'LargePayloadSupportBucket',
       }
     );
 
-    const handlerRole = new iam.Role(this, "HandlerRole", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    const handlerRole = new iam.Role(this, 'HandlerRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
     handlerRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
+        'service-role/AWSLambdaBasicExecutionRole'
       )
     );
     handlerRole.addToPolicy(
       // Assume the table access role for row-level access control.
       new iam.PolicyStatement({
-        actions: ["sts:AssumeRole"],
+        actions: ['sts:AssumeRole'],
         resources: [tableAccessRole.roleArn],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["bedrock:*"],
-        resources: ["*"],
+        actions: ['bedrock:*'],
+        resources: ['*'],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ["cognito-idp:AdminListGroupsForUser"],
+        actions: ['cognito-idp:AdminListGroupsForUser'],
         resources: [props.auth.userPool.userPoolArn],
       })
     );
@@ -87,7 +87,7 @@ export class WebSocket extends Construct {
     // get api key from secrets manager
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["secretsmanager:GetSecretValue"],
+        actions: ['secretsmanager:GetSecretValue'],
         resources: [
           `arn:aws:secretsmanager:${Stack.of(this).region}:${
             Stack.of(this).account
@@ -104,12 +104,12 @@ export class WebSocket extends Construct {
     props.largeMessageBucket.grantReadWrite(handlerRole);
     props.documentBucket.grantRead(handlerRole);
 
-    const handler = new PythonFunction(this, "HandlerV2", {
-      entry: path.join(__dirname, "../backend"),
-      index: "app/websocket.py",
+    const handler = new PythonFunction(this, 'HandlerV2', {
+      entry: path.join(__dirname, '../backend'),
+      index: 'app/websocket.py',
       bundling: {
         assetExcludes: [...excludeDockerImage],
-        buildArgs: { POETRY_VERSION: "1.8.3" },
+        buildArgs: { POETRY_VERSION: '1.8.3' },
       },
       runtime: Runtime.PYTHON_3_13,
       memorySize: 512,
@@ -136,37 +136,37 @@ export class WebSocket extends Construct {
       logRetention: logs.RetentionDays.THREE_MONTHS,
     });
 
-    const webSocketApi = new apigwv2.WebSocketApi(this, "WebSocketApi", {
+    const webSocketApi = new apigwv2.WebSocketApi(this, 'WebSocketApi', {
       connectRouteOptions: {
         integration: new WebSocketLambdaIntegration(
-          "ConnectIntegration",
+          'ConnectIntegration',
           handler.currentVersion
         ),
       },
     });
-    const route = webSocketApi.addRoute("$default", {
+    const route = webSocketApi.addRoute('$default', {
       integration: new WebSocketLambdaIntegration(
-        "DefaultIntegration",
+        'DefaultIntegration',
         handler.currentVersion
       ),
     });
-    new apigwv2.WebSocketStage(this, "WebSocketStage", {
+    new apigwv2.WebSocketStage(this, 'WebSocketStage', {
       webSocketApi,
       stageName: this.defaultStageName,
       autoDeploy: true,
     });
     webSocketApi.grantManageConnections(handler);
 
-    new CfnRouteResponse(this, "RouteResponse", {
+    new CfnRouteResponse(this, 'RouteResponse', {
       apiId: webSocketApi.apiId,
       routeId: route.routeId,
-      routeResponseKey: "$default",
+      routeResponseKey: '$default',
     });
 
     this.webSocketApi = webSocketApi;
     this.handler = handler;
 
-    new CfnOutput(this, "WebSocketEndpoint", {
+    new CfnOutput(this, 'WebSocketEndpoint', {
       value: this.apiEndpoint,
     });
   }

@@ -26,7 +26,9 @@ const Slider: React.FC<Props> = (props) => {
             props.onChange ? props.onChange(Number(e.target.value)) : null;
           }}
         />
-        <span className="text-sm font-medium w-12 text-right">{props.value}</span>
+        <span className="w-12 text-right text-sm font-medium">
+          {props.value}
+        </span>
       </div>
     </div>
   );

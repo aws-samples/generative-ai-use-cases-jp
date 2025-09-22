@@ -6,7 +6,6 @@ export const noJpString: TSESLint.RuleModule<'noJpString', []> = {
     type: 'suggestion',
     docs: {
       description: 'Detect Japanese strings',
-      recommended: 'recommended',
     },
     fixable: 'code',
     schema: [],

@@ -328,8 +328,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             revalidateOnFocus: false,
             revalidateOnReconnect: true,
             revalidateOnMount: true,
-          }}
-        >
+          }}>
           <RouterProvider router={router} />
         </SWRConfig>
         <Toaster />

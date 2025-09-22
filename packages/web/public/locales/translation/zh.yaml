@@ -1,77 +1,77 @@
 adminPortal:
-  title: 管理员门户
-  manageTenant: '管理租户用户: {{tenantId}}'
-  inviteUsers: 邀请用户
-  userManagement: 用户管理
-  stats:
-    totalUsers: 总用户数
-    admins: 管理员
-    regularUsers: 普通用户
-    disabledUsers: 禁用用户
-  table:
-    user: 用户
-    role: 角色
-    status: 状态
-    created: 创建时间
-    actions: 操作
-  roles:
-    regularUser: 普通用户
-    admin: 管理员
-  status:
-    disabled: 已禁用
   actions:
     remove: 删除
-  messages:
-    loading: 加载中...
-    refreshingSession: 刷新会话中...
-    failedToCheckAdminStatus: 验证管理员状态失败
-    failedToLoadUsers: 加载用户失败
-    failedToUpdateUserRole: 更新用户角色失败
-    failedToRefreshSession: 刷新认证会话失败
-    failedToRemoveUser: 删除用户失败
-    removeUserConfirmation: '确定要删除用户 {{username}} 吗？此操作无法撤销。'
-    noUsersFound: 未找到用户
   invite:
-    title: 邀请用户
-    mode:
-      single: 单个用户
-      bulk: 批量邀请
-    singleUser:
-      emailLabel: 邮箱地址
-      emailPlaceholder: user@example.com
-    bulkMode:
-      csvUpload: CSV文件上传
-      csvFormat: 'CSV格式: 第一列为邮箱。示例: john@example.com,张三,销售部'
-      csvSelected: '已选择: {{filename}}'
-      manualEntry: 手动输入（每行一个邮箱）
-      manualPlaceholder: user1@example.com
-      or: 或
-    options:
-      sendEmail: 自动发送邀请邮件
-      sendEmailHelp: 用户将收到包含登录说明的邮件
-      noSendEmailHelp: 您需要手动与用户分享登录凭据
-    errors:
-      invalidFile: 请选择有效的CSV文件
-      noEmailsProvided: 请提供至少一个邮箱地址
-      tooManyEmails: 一次最多只能邀请100个用户
-      invitationFailed: 邀请用户失败
-    results:
-      title: 邀请结果
-      summary: '总计: {{total}} | 成功: {{successful}} | 失败: {{failed}}'
-      invited: ✓ 已邀请
-      failed: '✗ {{error}}'
-      warning: '重要: 由于自动邮件已禁用，您需要手动与受邀用户分享临时密码。'
     actions:
       cancel: 取消
       close: 关闭
-      sendInvitations: 发送邀请
       inviting: 邀请中...
+      sendInvitations: 发送邀请
+    bulkMode:
+      csvFormat: 'CSV格式: 第一列为邮箱。示例: john@example.com,张三,销售部'
+      csvSelected: '已选择: {{filename}}'
+      csvUpload: CSV文件上传
+      manualEntry: 手动输入（每行一个邮箱）
+      manualPlaceholder: user1@example.com
+      or: 或
+    errors:
+      invalidFile: 请选择有效的CSV文件
+      invitationFailed: 邀请用户失败
+      noEmailsProvided: 请提供至少一个邮箱地址
+      tooManyEmails: 一次最多只能邀请100个用户
+    mode:
+      bulk: 批量邀请
+      single: 单个用户
+    options:
+      noSendEmailHelp: 您需要手动与用户分享登录凭据
+      sendEmail: 自动发送邀请邮件
+      sendEmailHelp: 用户将收到包含登录说明的邮件
+    results:
+      failed: '✗ {{error}}'
+      invited: ✓ 已邀请
+      summary: '总计: {{total}} | 成功: {{successful}} | 失败: {{failed}}'
+      title: 邀请结果
+      warning: '重要: 由于自动邮件已禁用，您需要手动与受邀用户分享临时密码。'
+    singleUser:
+      emailLabel: 邮箱地址
+      emailPlaceholder: user@example.com
+    title: 邀请用户
     unconfiguredDomain:
-      title: 域名配置警告
-      message: 以下电子邮件地址的域名尚未配置为允许自助注册。这些用户在受邀后需要管理员协助才能访问系统。
-      affectedUsers: '域名未配置的用户：'
+      affectedUsers: 域名未配置的用户：
       cancel: 取消
+      message: 以下电子邮件地址的域名尚未配置为允许自助注册。这些用户在受邀后需要管理员协助才能访问系统。
       proceedAnyway: 仍然继续
+      title: 域名配置警告
+  inviteUsers: 邀请用户
+  manageTenant: '管理租户用户: {{tenantId}}'
+  messages:
+    failedToCheckAdminStatus: 验证管理员状态失败
+    failedToLoadUsers: 加载用户失败
+    failedToRefreshSession: 刷新认证会话失败
+    failedToRemoveUser: 删除用户失败
+    failedToUpdateUserRole: 更新用户角色失败
+    loading: 加载中...
+    noUsersFound: 未找到用户
+    refreshingSession: 刷新会话中...
+    removeUserConfirmation: '确定要删除用户 {{username}} 吗？此操作无法撤销。'
+  roles:
+    admin: 管理员
+    regularUser: 普通用户
+  stats:
+    admins: 管理员
+    disabledUsers: 禁用用户
+    regularUsers: 普通用户
+    totalUsers: 总用户数
+  status:
+    disabled: 已禁用
+  table:
+    actions: 操作
+    created: 创建时间
+    role: 角色
+    user: 用户
+    status: 状态
+  title: 管理员门户
+  userManagement: 用户管理
 agent:
   drop_files: 拖放文件上传
   title: Agent 聊天

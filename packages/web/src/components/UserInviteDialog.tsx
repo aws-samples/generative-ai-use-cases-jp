@@ -48,7 +48,10 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
   const [results, setResults] = useState<InviteResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showUnconfiguredWarning, setShowUnconfiguredWarning] = useState(false);
-  const [pendingInvitation, setPendingInvitation] = useState<{emails: string[], sendEmail: boolean} | null>(null);
+  const [pendingInvitation, setPendingInvitation] = useState<{
+    emails: string[];
+    sendEmail: boolean;
+  } | null>(null);
   const [unconfiguredEmails, setUnconfiguredEmails] = useState<string[]>([]);
 
   const handleClose = () => {
@@ -66,9 +69,9 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    
+
     if (!file) return;
-    
+
     // Accept common CSV MIME types
     const acceptedMimeTypes = [
       'text/csv',
@@ -78,15 +81,15 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       'text/x-csv',
       'application/x-csv',
       'text/comma-separated-values',
-      'text/x-comma-separated-values'
+      'text/x-comma-separated-values',
     ];
-    
+
     // Check MIME type OR file extension as fallback
-    const isValidCSV = 
-      acceptedMimeTypes.includes(file.type) || 
+    const isValidCSV =
+      acceptedMimeTypes.includes(file.type) ||
       file.type === '' || // Handle empty MIME type
       file.name.toLowerCase().endsWith('.csv');
-    
+
     if (isValidCSV) {
       setCsvFile(file);
       setBulkEmails(''); // Clear manual input when file is selected
@@ -131,14 +134,17 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
     if (bulkEmails) {
       return bulkEmails
         .split('\n')
-        .map(email => email.trim())
-        .filter(email => email && email.includes('@'));
+        .map((email) => email.trim())
+        .filter((email) => email && email.includes('@'));
     }
 
     return [];
   };
 
-  const performInvitation = async (emails: string[], sendEmailFlag: boolean) => {
+  const performInvitation = async (
+    emails: string[],
+    sendEmailFlag: boolean
+  ) => {
     setLoading(true);
     setError(null);
 
@@ -155,7 +161,10 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       }
     } catch (error: any) {
       console.error('Failed to invite users:', error);
-      setError(error.response?.data?.message || t('adminPortal.invite.errors.invitationFailed'));
+      setError(
+        error.response?.data?.message ||
+          t('adminPortal.invite.errors.invitationFailed')
+      );
     } finally {
       setLoading(false);
     }
@@ -192,7 +201,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
 
       // First, validate domains
       const domainValidation = await validateDomains(emails);
-      
+
       // Store pending invitation
       setPendingInvitation({ emails, sendEmail });
 
@@ -204,7 +213,6 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
         // No unconfigured domains, proceed directly
         await performInvitation(emails, sendEmail);
       }
-
     } catch (error: any) {
       console.error('Failed to prepare invitation:', error);
       setError(t('adminPortal.invite.errors.invitationFailed'));
@@ -215,7 +223,10 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
     if (pendingInvitation) {
       setShowUnconfiguredWarning(false);
       // Now proceed with the actual invitation
-      await performInvitation(pendingInvitation.emails, pendingInvitation.sendEmail);
+      await performInvitation(
+        pendingInvitation.emails,
+        pendingInvitation.sendEmail
+      );
     }
   };
 
@@ -229,12 +240,15 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={handleClose} />
+      <div className="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
+        <div
+          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          onClick={handleClose}
+        />
 
-        <div className="inline-block w-full max-w-2xl transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:p-6 sm:align-middle">
+        <div className="inline-block w-full max-w-2xl overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left align-bottom shadow-xl transition-all sm:my-8 sm:p-6 sm:align-middle">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center">
               <PiUserPlus className="mr-3 text-2xl text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-900">
@@ -243,8 +257,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
             </div>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-500"
-            >
+              className="text-gray-400 hover:text-gray-500">
               <PiX className="h-6 w-6" />
             </button>
           </div>
@@ -253,22 +266,22 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
           <div className="mb-6">
             <div className="flex rounded-lg border border-gray-300 p-1">
               <button
-                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${inviteMode === 'single'
+                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+                  inviteMode === 'single'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                onClick={() => setInviteMode('single')}
-              >
+                }`}
+                onClick={() => setInviteMode('single')}>
                 <PiEnvelope className="mr-2 inline" />
                 {t('adminPortal.invite.mode.single')}
               </button>
               <button
-                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${inviteMode === 'bulk'
+                className={`flex-1 rounded-md px-4 py-2 text-sm font-medium ${
+                  inviteMode === 'bulk'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                onClick={() => setInviteMode('bulk')}
-              >
+                }`}
+                onClick={() => setInviteMode('bulk')}>
                 <PiUpload className="mr-2 inline" />
                 {t('adminPortal.invite.mode.bulk')}
               </button>
@@ -278,13 +291,15 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
           {/* Single User Mode */}
           {inviteMode === 'single' && (
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 {t('adminPortal.invite.singleUser.emailLabel')}
               </label>
               <InputText
                 value={singleEmail}
                 onChange={setSingleEmail}
-                placeholder={t('adminPortal.invite.singleUser.emailPlaceholder')}
+                placeholder={t(
+                  'adminPortal.invite.singleUser.emailPlaceholder'
+                )}
                 className="w-full"
               />
             </div>
@@ -294,18 +309,20 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
           {inviteMode === 'bulk' && (
             <div className="mb-6">
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   {t('adminPortal.invite.bulkMode.csvUpload')}
                 </label>
                 <input
                   type="file"
                   accept=".csv"
                   onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
                 />
                 {csvFile && (
                   <p className="mt-2 text-sm text-green-600">
-                    {t('adminPortal.invite.bulkMode.csvSelected', { filename: csvFile.name })}
+                    {t('adminPortal.invite.bulkMode.csvSelected', {
+                      filename: csvFile.name,
+                    })}
                   </p>
                 )}
                 <p className="mt-2 text-sm text-gray-500">
@@ -318,18 +335,22 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-2 text-gray-500">{t('adminPortal.invite.bulkMode.or')}</span>
+                  <span className="bg-white px-2 text-gray-500">
+                    {t('adminPortal.invite.bulkMode.or')}
+                  </span>
                 </div>
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   {t('adminPortal.invite.bulkMode.manualEntry')}
                 </label>
                 <Textarea
                   value={bulkEmails}
                   onChange={setBulkEmails}
-                  placeholder={t('adminPortal.invite.bulkMode.manualPlaceholder')}
+                  placeholder={t(
+                    'adminPortal.invite.bulkMode.manualPlaceholder'
+                  )}
                   rows={6}
                   className="w-full"
                   disabled={!!csvFile}
@@ -354,8 +375,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
             <p className="ml-6 text-xs text-gray-500">
               {sendEmail
                 ? t('adminPortal.invite.options.sendEmailHelp')
-                : t('adminPortal.invite.options.noSendEmailHelp')
-              }
+                : t('adminPortal.invite.options.noSendEmailHelp')}
             </p>
           </div>
 
@@ -369,14 +389,14 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
           {results && (
             <div className="mb-6">
               <div className="rounded-lg border border-gray-200 p-4">
-                <h4 className="font-semibold text-gray-900 mb-3">
+                <h4 className="mb-3 font-semibold text-gray-900">
                   {t('adminPortal.invite.results.title')}
                 </h4>
                 <div className="mb-3 text-sm text-gray-600">
                   {t('adminPortal.invite.results.summary', {
                     total: results.summary.totalRequested,
                     successful: results.summary.successful,
-                    failed: results.summary.failed
+                    failed: results.summary.failed,
                   })}
                 </div>
 
@@ -384,15 +404,19 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
                   {results.results.map((result, index) => (
                     <div
                       key={index}
-                      className={`flex items-center justify-between p-2 rounded ${result.success ? 'bg-green-50' : 'bg-red-50'
-                        }`}
-                    >
+                      className={`flex items-center justify-between rounded p-2 ${
+                        result.success ? 'bg-green-50' : 'bg-red-50'
+                      }`}>
                       <span className="text-sm">{result.email}</span>
                       {result.success ? (
-                        <span className="text-xs text-green-600">{t('adminPortal.invite.results.invited')}</span>
+                        <span className="text-xs text-green-600">
+                          {t('adminPortal.invite.results.invited')}
+                        </span>
                       ) : (
                         <span className="text-xs text-red-600">
-                          {t('adminPortal.invite.results.failed', { error: result.error })}
+                          {t('adminPortal.invite.results.failed', {
+                            error: result.error,
+                          })}
                         </span>
                       )}
                     </div>
@@ -400,12 +424,15 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
                 </div>
 
                 {!sendEmail && results.summary.successful > 0 && (
-                  <div className="mt-3 p-3 bg-yellow-50 rounded">
+                  <div className="mt-3 rounded bg-yellow-50 p-3">
                     <p className="text-sm text-yellow-800">
                       <span className="font-semibold">
                         {t('adminPortal.invite.results.warning').split(':')[0]}:
                       </span>
-                      {t('adminPortal.invite.results.warning').split(':').slice(1).join(':')}
+                      {t('adminPortal.invite.results.warning')
+                        .split(':')
+                        .slice(1)
+                        .join(':')}
                     </p>
                   </div>
                 )}
@@ -415,19 +442,16 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
 
           {/* Actions */}
           <div className="flex justify-end space-x-3">
-            <Button
-              outlined={true}
-              onClick={handleClose}
-              disabled={loading}
-            >
-              {results ? t('adminPortal.invite.actions.close') : t('adminPortal.invite.actions.cancel')}
+            <Button outlined={true} onClick={handleClose} disabled={loading}>
+              {results
+                ? t('adminPortal.invite.actions.close')
+                : t('adminPortal.invite.actions.cancel')}
             </Button>
             {!results && (
               <Button
                 onClick={handleInvite}
                 disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+                className="bg-blue-600 hover:bg-blue-700">
                 {loading ? (
                   <>
                     <LoadingWave />
@@ -448,26 +472,26 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       {/* Unconfigured Domain Warning Dialog */}
       {showUnconfiguredWarning && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex min-h-screen items-end justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
             <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
-            <div className="inline-block w-full max-w-lg transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:p-6 sm:align-middle">
-              <div className="flex items-center justify-between mb-4">
+            <div className="inline-block w-full max-w-lg overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left align-bottom shadow-xl transition-all sm:my-8 sm:p-6 sm:align-middle">
+              <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-orange-800">
                   {t('adminPortal.invite.unconfiguredDomain.title')}
                 </h3>
               </div>
 
               <div className="mb-4">
-                <p className="text-sm text-gray-700 mb-3">
+                <p className="mb-3 text-sm text-gray-700">
                   {t('adminPortal.invite.unconfiguredDomain.message')}
                 </p>
 
-                <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
-                  <h4 className="text-sm font-medium text-orange-800 mb-2">
+                <div className="rounded-md border border-orange-200 bg-orange-50 p-3">
+                  <h4 className="mb-2 text-sm font-medium text-orange-800">
                     {t('adminPortal.invite.unconfiguredDomain.affectedUsers')}
                   </h4>
-                  <ul className="text-sm text-orange-700 space-y-1">
+                  <ul className="space-y-1 text-sm text-orange-700">
                     {unconfiguredEmails.map((email, index) => (
                       <li key={index} className="font-mono">
                         {email}
@@ -478,17 +502,13 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
               </div>
 
               <div className="flex justify-end space-x-3">
-                <Button
-                  outlined={true}
-                  onClick={handleCancelInvitation}
-                >
+                <Button outlined={true} onClick={handleCancelInvitation}>
                   {t('adminPortal.invite.unconfiguredDomain.cancel')}
                 </Button>
                 <Button
                   onClick={handleConfirmInvitation}
                   disabled={loading}
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
-                >
+                  className="bg-orange-600 text-white hover:bg-orange-700">
                   {loading ? (
                     <>
                       <LoadingWave />

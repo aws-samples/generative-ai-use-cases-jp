@@ -23,12 +23,10 @@ export async function assumeRoleWithWebIdentity(
   event: APIGatewayProxyEvent,
   roleArn: string
 ): Promise<Credentials> {
-
   // Extract tenant ID and user ID from claims
   const tenantId =
     event.requestContext?.authorizer?.claims?.['custom:tenant_id'];
-  const userId =
-    event.requestContext?.authorizer?.claims?.['cognito:username'];
+  const userId = event.requestContext?.authorizer?.claims?.['cognito:username'];
 
   // Extract User Pool JWT token from Authorization header
   const userPoolToken = event.headers.Authorization;
@@ -90,7 +88,9 @@ export async function assumeRoleWithWebIdentity(
         throw new Error('Failed to get OpenID token from Identity Pool');
       }
 
-      console.log(`Got OpenID token, proceeding with AssumeRoleWithWebIdentity`);
+      console.log(
+        `Got OpenID token, proceeding with AssumeRoleWithWebIdentity`
+      );
 
       // Step 3: Use Identity Pool OpenID token with AssumeRoleWithWebIdentity
       // Create unique session name for better traceability (must be <= 64 characters)
@@ -99,7 +99,9 @@ export async function assumeRoleWithWebIdentity(
       const shortUserId = userId.substring(0, 8); // First 8 chars
       const sessionName = `TS-${shortTenantId}-${shortUserId}-${timestamp}`;
 
-      console.log(`Attempting AssumeRoleWithWebIdentity using Identity Pool token, attempt ${attempt}`);
+      console.log(
+        `Attempting AssumeRoleWithWebIdentity using Identity Pool token, attempt ${attempt}`
+      );
 
       const assumeRoleResponse = await stsClient.send(
         new AssumeRoleWithWebIdentityCommand({

@@ -578,7 +578,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       )}
       {!props.isLoading && (
         <>
-          <div className="flex flex-col ">
+          <div className="flex flex-col">
             {textFormItems.map((item, idx) => (
               <div key={idx}>
                 {(item.inputType === 'text' || item.inputType === 'form') && (
@@ -620,7 +620,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                   ref={fileInput}
                 />
                 <div
-                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex w-fit items-center justify-center rounded-lg border px-2 py-1 text-white`}>
+                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer'} flex w-fit items-center justify-center rounded-lg border px-2 py-1 text-white`}>
                   {uploading ? (
                     <PiSpinnerGap className="animate-spin" />
                   ) : (
@@ -709,7 +709,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
             </>
           )}
         </div>
-        <div className="flex shrink-0 gap-3 ">
+        <div className="flex shrink-0 gap-3">
           {stopReason === 'max_tokens' && (
             <Button onClick={continueGeneration}>
               {t('translate.continue_output')}

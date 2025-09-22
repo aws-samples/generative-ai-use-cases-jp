@@ -98,16 +98,21 @@ export class TenantDynamoDB extends Construct {
 
     // Set table names with environment prefix
     const chatHistoryBaseName = props.chatHistoryTableBaseName || 'ChatHistory';
-    const tokenUsageStatsBaseName = props.tokenUsageStatsTableBaseName || 'TokenUsageStats';
-    const useCaseBuilderBaseName = props.useCaseBuilderTableBaseName || 'UseCaseBuilder';
+    const tokenUsageStatsBaseName =
+      props.tokenUsageStatsTableBaseName || 'TokenUsageStats';
+    const useCaseBuilderBaseName =
+      props.useCaseBuilderTableBaseName || 'UseCaseBuilder';
 
     this.chatHistoryTableName = `${chatHistoryBaseName}-${environment}-tenant-${sanitizedTenantId}`;
     this.tokenUsageStatsTableName = `${tokenUsageStatsBaseName}-${environment}-tenant-${sanitizedTenantId}`;
     this.useCaseBuilderTableName = `${useCaseBuilderBaseName}-${environment}-tenant-${sanitizedTenantId}`;
 
     // Determine removal policy based on environment
-    const removalPolicy = props.removalPolicy || 
-      (environment === 'dev' ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN);
+    const removalPolicy =
+      props.removalPolicy ||
+      (environment === 'dev'
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN);
 
     // Chat History Table
     this.chatHistoryTable = new dynamodb.Table(this, 'ChatHistoryTable', {
@@ -138,19 +143,23 @@ export class TenantDynamoDB extends Construct {
     });
 
     // Token Usage Stats Table
-    this.tokenUsageStatsTable = new dynamodb.Table(this, 'TokenUsageStatsTable', {
-      tableName: this.tokenUsageStatsTableName,
-      partitionKey: {
-        name: 'id',
-        type: dynamodb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'userId',
-        type: dynamodb.AttributeType.STRING,
-      },
-      billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: removalPolicy,
-    });
+    this.tokenUsageStatsTable = new dynamodb.Table(
+      this,
+      'TokenUsageStatsTable',
+      {
+        tableName: this.tokenUsageStatsTableName,
+        partitionKey: {
+          name: 'id',
+          type: dynamodb.AttributeType.STRING,
+        },
+        sortKey: {
+          name: 'userId',
+          type: dynamodb.AttributeType.STRING,
+        },
+        billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+        removalPolicy: removalPolicy,
+      }
+    );
 
     // Add tags to Token Usage Stats table
     cdk.Tags.of(this.tokenUsageStatsTable).add('TenantId', this.tenantId);
@@ -240,7 +249,11 @@ export class TenantDynamoDB extends Construct {
    * Generate tenant-specific table name
    * This helper method can be used to generate table names consistently
    */
-  public static generateTableName(baseTableName: string, tenantId: string, environment: string = 'dev'): string {
+  public static generateTableName(
+    baseTableName: string,
+    tenantId: string,
+    environment: string = 'dev'
+  ): string {
     const sanitizedTenantId = tenantId.replace(/[^a-zA-Z0-9-]/g, '-');
     return `${baseTableName}-${environment}-tenant-${sanitizedTenantId}`;
   }
@@ -257,10 +270,17 @@ export class TenantDynamoDB extends Construct {
     globalSecondaryIndexes?: dynamodb.GlobalSecondaryIndexProps[],
     environment: string = 'dev'
   ): dynamodb.Table {
-    const tableName = TenantDynamoDB.generateTableName(baseTableName, this.tenantId, environment);
+    const tableName = TenantDynamoDB.generateTableName(
+      baseTableName,
+      this.tenantId,
+      environment
+    );
 
     // Determine removal policy based on environment
-    const removalPolicy = environment === 'dev' ? cdk.RemovalPolicy.DESTROY : cdk.RemovalPolicy.RETAIN;
+    const removalPolicy =
+      environment === 'dev'
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN;
 
     const table = new dynamodb.Table(this, id, {
       tableName,

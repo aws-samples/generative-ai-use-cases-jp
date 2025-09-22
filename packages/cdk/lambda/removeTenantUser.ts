@@ -1,12 +1,18 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { 
-  CognitoIdentityProviderClient, 
+import {
+  CognitoIdentityProviderClient,
   AdminDeleteUserCommand,
-  AdminDisableUserCommand
+  AdminDisableUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyAdminAccessWithUser, isAdminUserResult, CORS_HEADERS } from './utils/adminAuth';
+import {
+  verifyAdminAccessWithUser,
+  isAdminUserResult,
+  CORS_HEADERS,
+} from './utils/adminAuth';
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION! });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: process.env.AWS_REGION!,
+});
 const USER_POOL_ID = process.env.USER_POOL_ID!;
 
 export interface RemoveUserRequest {
@@ -14,7 +20,9 @@ export interface RemoveUserRequest {
   action?: 'disable' | 'delete'; // default: 'disable'
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -44,7 +52,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'action must be either "disable" or "delete"' }),
+        body: JSON.stringify({
+          message: 'action must be either "disable" or "delete"',
+        }),
       };
     }
 
@@ -61,8 +71,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ 
-          message: 'Cannot remove yourself' 
+        body: JSON.stringify({
+          message: 'Cannot remove yourself',
         }),
       };
     }
@@ -96,7 +106,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           action,
         }),
       };
-
     } catch (error: unknown) {
       console.error(`Failed to ${action} user ${username}:`, error);
 
@@ -110,13 +119,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       throw error; // Re-throw to be caught by outer catch block
     }
-
   } catch (error) {
     console.error('Error removing user:', error);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         message: 'Failed to remove user',
         error: error instanceof Error ? error.message : 'Unknown error',
       }),

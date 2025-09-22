@@ -8,7 +8,9 @@ export interface AdminStatusResponse {
   username: string;
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -23,7 +25,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       };
     }
 
-    const claims = await verifyToken(token) as JWTClaims | null;
+    const claims = (await verifyToken(token)) as JWTClaims | null;
     if (!claims) {
       return {
         statusCode: 401,
@@ -50,20 +52,21 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       username,
     };
 
-    console.log(`Admin status check for user ${username}: isAdmin=${isAdmin}, tenantId=${tenantId}`);
+    console.log(
+      `Admin status check for user ${username}: isAdmin=${isAdmin}, tenantId=${tenantId}`
+    );
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error checking admin status:', error);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         message: 'Failed to check admin status',
         error: error instanceof Error ? error.message : 'Unknown error',
       }),

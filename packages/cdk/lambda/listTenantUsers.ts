@@ -1,8 +1,19 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { CognitoIdentityProviderClient, ListUsersCommand, AttributeType } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyAdminAccess, isAdminContext, getAttributeValue, CORS_HEADERS } from './utils/adminAuth';
+import {
+  CognitoIdentityProviderClient,
+  ListUsersCommand,
+  AttributeType,
+} from '@aws-sdk/client-cognito-identity-provider';
+import {
+  verifyAdminAccess,
+  isAdminContext,
+  getAttributeValue,
+  CORS_HEADERS,
+} from './utils/adminAuth';
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION! });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: process.env.AWS_REGION!,
+});
 const USER_POOL_ID = process.env.USER_POOL_ID!;
 
 export interface TenantUser {
@@ -16,7 +27,9 @@ export interface TenantUser {
   lastModifiedDate: string;
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -46,7 +59,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       if (response.Users) {
         for (const user of response.Users) {
-          const userTenantId = getAttributeValue(user.Attributes, 'custom:tenant_id');
+          const userTenantId = getAttributeValue(
+            user.Attributes,
+            'custom:tenant_id'
+          );
 
           // Only include users from the admin's tenant
           if (userTenantId === tenantId) {
@@ -54,7 +70,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
               username: user.Username || '',
               email: getAttributeValue(user.Attributes, 'email'),
               tenantId: userTenantId,
-              tenantAdmin: getAttributeValue(user.Attributes, 'custom:tenantAdmin') === 'true',
+              tenantAdmin:
+                getAttributeValue(user.Attributes, 'custom:tenantAdmin') ===
+                'true',
               enabled: user.Enabled || false,
               userStatus: user.UserStatus || '',
               createdDate: user.UserCreateDate?.toISOString() || '',
@@ -77,7 +95,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         totalCount: users.length,
       }),
     };
-
   } catch (error) {
     console.error('Error listing tenant users:', error);
     return {

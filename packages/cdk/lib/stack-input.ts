@@ -12,15 +12,21 @@ const baseStackInputSchema = z.object({
   selfSignUpEnabled: z.boolean().default(true),
   selfSignUpTenantMap: z
     .array(
-      z.object({
-        tenantId: z.string().min(1, 'Tenant ID cannot be empty'),
-        domains: z.array(z.string().toLowerCase()).optional(),
-        emails: z.array(z.string().email().toLowerCase()).optional(),
-      }).refine(
-        (data) => (data.domains && data.domains.length > 0) ||
-                  (data.emails && data.emails.length > 0),
-        { message: 'Each tenant map entry must have at least one domain or email' }
-      )
+      z
+        .object({
+          tenantId: z.string().min(1, 'Tenant ID cannot be empty'),
+          domains: z.array(z.string().toLowerCase()).optional(),
+          emails: z.array(z.string().email().toLowerCase()).optional(),
+        })
+        .refine(
+          (data) =>
+            (data.domains && data.domains.length > 0) ||
+            (data.emails && data.emails.length > 0),
+          {
+            message:
+              'Each tenant map entry must have at least one domain or email',
+          }
+        )
     )
     .nullish(),
   samlAuthEnabled: z.boolean().default(false),

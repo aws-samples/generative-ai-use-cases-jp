@@ -1,77 +1,77 @@
 adminPortal:
-  title: 管理者ポータル
-  manageTenant: 'テナントのユーザーを管理: {{tenantId}}'
-  inviteUsers: ユーザーを招待
-  userManagement: ユーザー管理
-  stats:
-    totalUsers: 総ユーザー数
-    admins: 管理者
-    regularUsers: 一般ユーザー
-    disabledUsers: 無効ユーザー
-  table:
-    user: ユーザー
-    role: 役割
-    status: ステータス
-    created: 作成日
-    actions: アクション
-  roles:
-    regularUser: 一般ユーザー
-    admin: 管理者
-  status:
-    disabled: 無効
   actions:
     remove: 削除
-  messages:
-    loading: 読み込み中...
-    refreshingSession: セッションを更新中...
-    failedToCheckAdminStatus: 管理者ステータスの確認に失敗しました
-    failedToLoadUsers: ユーザーの読み込みに失敗しました
-    failedToUpdateUserRole: ユーザーの役割更新に失敗しました
-    failedToRefreshSession: 認証セッションの更新に失敗しました
-    failedToRemoveUser: ユーザーの削除に失敗しました
-    removeUserConfirmation: 'ユーザー {{username}} を削除してもよろしいですか？この操作は元に戻せません。'
-    noUsersFound: ユーザーが見つかりません
   invite:
-    title: ユーザーを招待
-    mode:
-      single: 単一ユーザー
-      bulk: 一括招待
-    singleUser:
-      emailLabel: メールアドレス
-      emailPlaceholder: user@example.com
-    bulkMode:
-      csvUpload: CSVファイルアップロード
-      csvFormat: 'CSVフォーマット: 最初の列にメール。例: john@example.com,John Doe,営業部'
-      csvSelected: '選択済み: {{filename}}'
-      manualEntry: 手動入力（1行に1つのメール）
-      manualPlaceholder: user1@example.com
-      or: または
-    options:
-      sendEmail: 招待メールを自動送信する
-      sendEmailHelp: ユーザーはログイン手順を含むメールを受信します
-      noSendEmailHelp: ログイン認証情報をユーザーと手動で共有する必要があります
-    errors:
-      invalidFile: 有効なCSVファイルを選択してください
-      noEmailsProvided: 少なくとも1つのメールアドレスを提供してください
-      tooManyEmails: 一度に招待できるユーザーは最大100人です
-      invitationFailed: ユーザーの招待に失敗しました
-    results:
-      title: 招待結果
-      summary: '合計: {{total}} | 成功: {{successful}} | 失敗: {{failed}}'
-      invited: ✓ 招待済み
-      failed: '✗ {{error}}'
-      warning: '重要: 自動メールが無効になっているため、一時パスワードを招待されたユーザーと手動で共有する必要があります。'
     actions:
       cancel: キャンセル
       close: 閉じる
-      sendInvitations: 招待を送信
       inviting: 招待中...
+      sendInvitations: 招待を送信
+    bulkMode:
+      csvFormat: 'CSVフォーマット: 最初の列にメール。例: john@example.com,John Doe,営業部'
+      csvSelected: '選択済み: {{filename}}'
+      csvUpload: CSVファイルアップロード
+      manualEntry: 手動入力（1行に1つのメール）
+      manualPlaceholder: user1@example.com
+      or: または
+    errors:
+      invalidFile: 有効なCSVファイルを選択してください
+      invitationFailed: ユーザーの招待に失敗しました
+      noEmailsProvided: 少なくとも1つのメールアドレスを提供してください
+      tooManyEmails: 一度に招待できるユーザーは最大100人です
+    mode:
+      bulk: 一括招待
+      single: 単一ユーザー
+    options:
+      noSendEmailHelp: ログイン認証情報をユーザーと手動で共有する必要があります
+      sendEmail: 招待メールを自動送信する
+      sendEmailHelp: ユーザーはログイン手順を含むメールを受信します
+    results:
+      failed: '✗ {{error}}'
+      invited: ✓ 招待済み
+      summary: '合計: {{total}} | 成功: {{successful}} | 失敗: {{failed}}'
+      title: 招待結果
+      warning: '重要: 自動メールが無効になっているため、一時パスワードを招待されたユーザーと手動で共有する必要があります。'
+    singleUser:
+      emailLabel: メールアドレス
+      emailPlaceholder: user@example.com
+    title: ユーザーを招待
     unconfiguredDomain:
-      title: ドメイン設定警告
-      message: 以下のメールアドレスのドメインは自動サインアップ用に設定されていません。これらのユーザーは招待後にシステムにアクセスするために管理者の支援が必要になります。
       affectedUsers: '未設定ドメインのユーザー:'
       cancel: キャンセル
+      message: 以下のメールアドレスのドメインは自動サインアップ用に設定されていません。これらのユーザーは招待後にシステムにアクセスするために管理者の支援が必要になります。
       proceedAnyway: とにかく続行
+      title: ドメイン設定警告
+  inviteUsers: ユーザーを招待
+  manageTenant: 'テナントのユーザーを管理: {{tenantId}}'
+  messages:
+    failedToCheckAdminStatus: 管理者ステータスの確認に失敗しました
+    failedToLoadUsers: ユーザーの読み込みに失敗しました
+    failedToRefreshSession: 認証セッションの更新に失敗しました
+    failedToRemoveUser: ユーザーの削除に失敗しました
+    failedToUpdateUserRole: ユーザーの役割更新に失敗しました
+    loading: 読み込み中...
+    noUsersFound: ユーザーが見つかりません
+    refreshingSession: セッションを更新中...
+    removeUserConfirmation: 'ユーザー {{username}} を削除してもよろしいですか？この操作は元に戻せません。'
+  roles:
+    admin: 管理者
+    regularUser: 一般ユーザー
+  stats:
+    admins: 管理者
+    disabledUsers: 無効ユーザー
+    regularUsers: 一般ユーザー
+    totalUsers: 総ユーザー数
+  status:
+    disabled: 無効
+  table:
+    actions: アクション
+    created: 作成日
+    role: 役割
+    user: ユーザー
+    status: ステータス
+  title: 管理者ポータル
+  userManagement: ユーザー管理
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
@@ -684,6 +684,108 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
+ragChatBot:
+  all: すべて
+  allBots: すべてのボット
+  changeVisibility: 公開設定を変更
+  chat: チャット
+  chatPage:
+    botInfo: ボット情報
+    chunksEnabled: チャンク表示が有効
+    confirmClear: 会話履歴をクリアしてもよろしいですか？
+    copy: コピー
+    inputPlaceholder: メッセージを入力...
+    instruction: 指示
+    syncStatus: 同期状態
+    title: ChatBot チャット
+    noMessages: メッセージがありません
+    quickStarters: クイックスタート
+    send: 送信
+    sendError: メッセージの送信に失敗しました
+  confirmDelete: このボットを削除してもよろしいですか？
+  createNew: 新規ボット作成
+  delete: 削除
+  description: AIボットを作成、管理、共有できます
+  title: RAG ChatBot 管理
+  search: 検索
+  searchPlaceholder: ボット名または説明で検索
+  filter: フィルター
+  filterAll: すべて
+  filterPrivate: プライベート
+  filterPublic: パブリック
+  filterStarred: スター付き
+  scopeFilter: 公開範囲
+  showStarredOnly: スター付きのみ表示
+  popularBots: 人気のボット
+  starredOnly: スター付きのみ
+  myBots: マイボット
+  edit:
+    add: 追加
+    back: 戻る
+    basicInfo: 基本情報
+    cancel: キャンセル
+    createTitle: 新規ボット作成
+    description: 説明
+    displayRetrievedChunks: 取得したチャンクを表示
+    editTitle: ボットを編集
+    instruction: 指示
+    title: タイトル
+    generationParams: 生成パラメータ
+    knowledge: ナレッジベース
+    maxTokens: 最大トークン数
+    sourceUrls: ソースURL
+    temperature: 温度
+    topK: Top-K
+    topP: Top-P
+    uploadFiles: ファイルをアップロード
+    promptCaching: プロンプトキャッシング
+    quickStarterExample: 例文
+    quickStarterTitle: タイトル
+    quickStarters: クイックスタート
+    requiredFields: 必須項目を入力してください
+    save: 保存
+    saveBeforeUpload: ファイルをアップロードする前にボットを保存してください
+    saveFailed: 保存に失敗しました
+    saving: 保存中...
+  editTitle: 編集
+  history:
+    back: 戻る
+    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
+    confirmDelete: この会話を削除してもよろしいですか？
+    daysAgo: '{{days}}日前'
+    deleteSelected: 選択した項目を削除
+    search: 検索
+    searchPlaceholder: 会話を検索...
+    title: 会話履歴
+    deselectAll: 選択解除
+    hoursAgo: '{{hours}}時間前'
+    lastMessage: 最終メッセージ
+    minutesAgo: '{{minutes}}分前'
+    selectAll: すべて選択
+    selected: '{{count}}件選択中'
+    noConversations: 会話履歴がありません
+    noDate: 日付なし
+    open: 開く
+    showing: '{{count}}件の会話を表示中'
+    untitled: 無題
+    yesterday: 昨日
+    messageCount: 'メッセージ数: {{count}}'
+  lastUsed: 最終使用
+  noBots: ボットが見つかりません
+  viewMore: もっと見る
+  shared: 共有中
+  organizationPublic: 組織内公開
+  organizationPublicDescription: 組織内のメンバーが利用できます
+  private: プライベート
+  privateDescription: 自分だけが利用できます
+  syncStatus:
+    completed: 同期完了
+    failed: 同期失敗
+    syncing: 同期中
+  star: スター
+  tenantPublic: テナント内公開
+  tenantPublicDescription: テナント内のメンバーが利用できます
+  unstar: スター解除
 setting:
   ai_items:
     agent_name: Agent 名
@@ -1168,105 +1270,3 @@ writer:
   tutorial: チュートリアル
   tutorial_success: チュートリアルを読み込みました
   useAsTextEditor: テキストエディタとして使用する
-ragChatBot:
-  title: RAG ChatBot 管理
-  description: AIボットを作成、管理、共有できます
-  search: 検索
-  searchPlaceholder: ボット名または説明で検索
-  filter: フィルター
-  filterAll: すべて
-  filterPrivate: プライベート
-  filterPublic: パブリック
-  filterStarred: スター付き
-  showStarredOnly: スター付きのみ表示
-  scopeFilter: 公開範囲
-  all: すべて
-  starredOnly: スター付きのみ
-  createNew: 新規ボット作成
-  popularBots: 人気のボット
-  myBots: マイボット
-  allBots: すべてのボット
-  noBots: ボットが見つかりません
-  viewMore: もっと見る
-  chat: チャット
-  confirmDelete: このボットを削除してもよろしいですか？
-  shared: 共有中
-  lastUsed: 最終使用
-  editTitle: 編集
-  delete: 削除
-  syncStatus:
-    completed: 同期完了
-    syncing: 同期中
-    failed: 同期失敗
-  changeVisibility: 公開設定を変更
-  private: プライベート
-  privateDescription: 自分だけが利用できます
-  organizationPublic: 組織内公開
-  organizationPublicDescription: 組織内のメンバーが利用できます
-  tenantPublic: テナント内公開
-  tenantPublicDescription: テナント内のメンバーが利用できます
-  star: スター
-  unstar: スター解除
-  edit:
-    back: 戻る
-    editTitle: ボットを編集
-    createTitle: 新規ボット作成
-    basicInfo: 基本情報
-    title: タイトル
-    description: 説明
-    instruction: 指示
-    generationParams: 生成パラメータ
-    maxTokens: 最大トークン数
-    temperature: 温度
-    topP: Top-P
-    topK: Top-K
-    knowledge: ナレッジベース
-    sourceUrls: ソースURL
-    uploadFiles: ファイルをアップロード
-    displayRetrievedChunks: 取得したチャンクを表示
-    promptCaching: プロンプトキャッシング
-    quickStarters: クイックスタート
-    quickStarterTitle: タイトル
-    quickStarterExample: 例文
-    add: 追加
-    cancel: キャンセル
-    save: 保存
-    saving: 保存中...
-    saveFailed: 保存に失敗しました
-    requiredFields: 必須項目を入力してください
-    saveBeforeUpload: ファイルをアップロードする前にボットを保存してください
-  chatPage:
-    title: ChatBot チャット
-    botInfo: ボット情報
-    instruction: 指示
-    syncStatus: 同期状態
-    chunksEnabled: チャンク表示が有効
-    noMessages: メッセージがありません
-    quickStarters: クイックスタート
-    inputPlaceholder: メッセージを入力...
-    send: 送信
-    sendError: メッセージの送信に失敗しました
-    confirmClear: 会話履歴をクリアしてもよろしいですか？
-    copy: コピー
-  history:
-    title: 会話履歴
-    back: 戻る
-    searchPlaceholder: 会話を検索...
-    search: 検索
-    confirmDelete: この会話を削除してもよろしいですか？
-    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
-    selected: '{{count}}件選択中'
-    selectAll: すべて選択
-    deselectAll: 選択解除
-    deleteSelected: 選択した項目を削除
-    noConversations: 会話履歴がありません
-    showing: '{{count}}件の会話を表示中'
-    open: 開く
-    untitled: 無題
-    noDate: 日付なし
-    minutesAgo: '{{minutes}}分前'
-    hoursAgo: '{{hours}}時間前'
-    yesterday: 昨日
-    daysAgo: '{{days}}日前'
-    lastMessage: 最終メッセージ
-    messageCount: 'メッセージ数: {{count}}'

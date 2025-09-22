@@ -4,7 +4,7 @@ import {
   Stack,
   CustomResource,
   RemovalPolicy,
-} from "aws-cdk-lib";
+} from 'aws-cdk-lib';
 import {
   ProviderAttribute,
   UserPool,
@@ -13,16 +13,16 @@ import {
   UserPoolIdentityProviderGoogle,
   CfnUserPoolGroup,
   UserPoolIdentityProviderOidc,
-} from "aws-cdk-lib/aws-cognito";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
-import * as logs from "aws-cdk-lib/aws-logs";
-import { Runtime, Code, SingletonFunction } from "aws-cdk-lib/aws-lambda";
-import { PythonFunction } from "@aws-cdk/aws-lambda-python-alpha";
-import { Construct } from "constructs";
-import * as path from "path";
-import * as fs from "fs";
-import { Idp, TIdentityProvider } from "../utils/identity-provider";
+} from 'aws-cdk-lib/aws-cognito';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Runtime, Code, SingletonFunction } from 'aws-cdk-lib/aws-lambda';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
+import { Construct } from 'constructs';
+import * as path from 'path';
+import * as fs from 'fs';
+import { Idp, TIdentityProvider } from '../utils/identity-provider';
 
 export interface AuthProps {
   readonly origin: string;
@@ -44,7 +44,7 @@ export class Auth extends Construct {
   readonly client: UserPoolClient;
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
-    const userPool = new UserPool(this, "UserPool", {
+    const userPool = new UserPool(this, 'UserPool', {
       passwordPolicy: {
         requireUppercase: true,
         requireSymbols: true,
@@ -95,14 +95,14 @@ export class Auth extends Construct {
       );
 
       const clientId = secret
-        .secretValueFromJson("clientId")
+        .secretValueFromJson('clientId')
         .unsafeUnwrap()
         .toString();
-      const clientSecret = secret.secretValueFromJson("clientSecret");
+      const clientSecret = secret.secretValueFromJson('clientSecret');
 
       switch (provider.service) {
         // Currently only Google and custom OIDC are supported
-        case "google": {
+        case 'google': {
           const googleProvider = new UserPoolIdentityProviderGoogle(
             this,
             `GoogleProvider-${provider.secretName}`,
@@ -110,7 +110,7 @@ export class Auth extends Construct {
               userPool,
               clientId,
               clientSecretValue: clientSecret,
-              scopes: ["openid", "email"],
+              scopes: ['openid', 'email'],
               attributeMapping: {
                 email: ProviderAttribute.GOOGLE_EMAIL,
               },
@@ -119,9 +119,9 @@ export class Auth extends Construct {
           client.node.addDependency(googleProvider);
           break;
         }
-        case "oidc": {
+        case 'oidc': {
           const issuerUrl = secret
-            .secretValueFromJson("issuerUrl")
+            .secretValueFromJson('issuerUrl')
             .unsafeUnwrap()
             .toString();
 
@@ -137,9 +137,9 @@ export class Auth extends Construct {
               attributeMapping: {
                 // This is an example of mapping the email attribute.
                 // Replace this with the actual idp attribute key.
-                email: ProviderAttribute.other("EMAIL"),
+                email: ProviderAttribute.other('EMAIL'),
               },
-              scopes: ["openid", "email"],
+              scopes: ['openid', 'email'],
             }
           );
           client.node.addDependency(oidcProvider);
@@ -153,7 +153,7 @@ export class Auth extends Construct {
         configureProvider(provider, userPool, client);
       }
 
-      userPool.addDomain("UserPool", {
+      userPool.addDomain('UserPool', {
         cognitoDomain: {
           domainPrefix: props.userPoolDomainPrefixKey,
         },
@@ -163,14 +163,11 @@ export class Auth extends Construct {
     if (props.allowedSignUpEmailDomains.length >= 1) {
       const checkEmailDomainFunction = new PythonFunction(
         this,
-        "CheckEmailDomain",
+        'CheckEmailDomain',
         {
           runtime: Runtime.PYTHON_3_13,
-          index: "check_email_domain.py",
-          entry: path.join(
-            __dirname,
-            "../backend/auth/check_email_domain"
-          ),
+          index: 'check_email_domain.py',
+          entry: path.join(__dirname, '../backend/auth/check_email_domain'),
           timeout: Duration.minutes(1),
           environment: {
             ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
@@ -187,25 +184,25 @@ export class Auth extends Construct {
       );
     }
 
-    const adminGroup = new CfnUserPoolGroup(this, "AdminGroup", {
-      groupName: "Admin",
+    const adminGroup = new CfnUserPoolGroup(this, 'AdminGroup', {
+      groupName: 'Admin',
       userPoolId: userPool.userPoolId,
     });
 
     const creatingBotAllowedGroup = new CfnUserPoolGroup(
       this,
-      "CreatingBotAllowedGroup",
+      'CreatingBotAllowedGroup',
       {
-        groupName: "CreatingBotAllowed",
+        groupName: 'CreatingBotAllowed',
         userPoolId: userPool.userPoolId,
       }
     );
 
     const publishAllowedGroup = new CfnUserPoolGroup(
       this,
-      "PublishAllowedGroup",
+      'PublishAllowedGroup',
       {
-        groupName: "PublishAllowed",
+        groupName: 'PublishAllowed',
         userPoolId: userPool.userPoolId,
       }
     );
@@ -221,14 +218,11 @@ export class Auth extends Construct {
        */
       const addUserToGroupsFunction = new PythonFunction(
         this,
-        "AddUserToGroups",
+        'AddUserToGroups',
         {
           runtime: Runtime.PYTHON_3_13,
-          index: "add_user_to_groups.py",
-          entry: path.join(
-            __dirname,
-            "../backend/auth/add_user_to_groups"
-          ),
+          index: 'add_user_to_groups.py',
+          entry: path.join(__dirname, '../backend/auth/add_user_to_groups'),
           timeout: Duration.minutes(1),
           environment: {
             USER_POOL_ID: userPool.userPoolId,
@@ -237,32 +231,32 @@ export class Auth extends Construct {
           logRetention: logs.RetentionDays.THREE_MONTHS,
         }
       );
-      addUserToGroupsFunction.addPermission("CognitoTrigger", {
-        principal: new iam.ServicePrincipal("cognito-idp.amazonaws.com"),
+      addUserToGroupsFunction.addPermission('CognitoTrigger', {
+        principal: new iam.ServicePrincipal('cognito-idp.amazonaws.com'),
         sourceArn: userPool.userPoolArn,
         scope: userPool,
       });
       userPool.grant(
         addUserToGroupsFunction,
-        "cognito-idp:AdminAddUserToGroup"
+        'cognito-idp:AdminAddUserToGroup'
       );
 
       const cognitoTriggerRegistrationFunction = new SingletonFunction(
         this,
-        "CognitoTriggerRegistrationFunction",
+        'CognitoTriggerRegistrationFunction',
         {
-          uuid: "a84c6122-180e-48fc-afaf-f4d65da2b370",
-          lambdaPurpose: "CognitoTriggerRegistrationFunction",
+          uuid: 'a84c6122-180e-48fc-afaf-f4d65da2b370',
+          lambdaPurpose: 'CognitoTriggerRegistrationFunction',
           code: Code.fromInline(
             fs.readFileSync(
               path.join(
                 __dirname,
-                "../../custom-resources/cognito-trigger/index.py"
+                '../../custom-resources/cognito-trigger/index.py'
               ),
-              "utf8"
+              'utf8'
             )
           ),
-          handler: "index.handler",
+          handler: 'index.handler',
 
           runtime: Runtime.PYTHON_3_13,
           environment: {
@@ -274,13 +268,13 @@ export class Auth extends Construct {
       );
       userPool.grant(
         cognitoTriggerRegistrationFunction,
-        "cognito-idp:UpdateUserPool",
-        "cognito-idp:DescribeUserPool"
+        'cognito-idp:UpdateUserPool',
+        'cognito-idp:DescribeUserPool'
       );
 
-      const cognitoTrigger = new CustomResource(this, "CognitoTrigger", {
+      const cognitoTrigger = new CustomResource(this, 'CognitoTrigger', {
         serviceToken: cognitoTriggerRegistrationFunction.functionArn,
-        resourceType: "Custom::CognitoTrigger",
+        resourceType: 'Custom::CognitoTrigger',
         properties: {
           Triggers: {
             PostConfirmation: addUserToGroupsFunction.functionArn,
@@ -294,10 +288,10 @@ export class Auth extends Construct {
     this.client = client;
     this.userPool = userPool;
 
-    new CfnOutput(this, "UserPoolId", { value: userPool.userPoolId });
-    new CfnOutput(this, "UserPoolClientId", { value: client.userPoolClientId });
+    new CfnOutput(this, 'UserPoolId', { value: userPool.userPoolId });
+    new CfnOutput(this, 'UserPoolClientId', { value: client.userPoolClientId });
     if (props.idp.isExist())
-      new CfnOutput(this, "ApprovedRedirectURI", {
+      new CfnOutput(this, 'ApprovedRedirectURI', {
         value: `https://${props.userPoolDomainPrefixKey}.auth.${
           Stack.of(userPool).region
         }.amazoncognito.com/oauth2/idpresponse`,

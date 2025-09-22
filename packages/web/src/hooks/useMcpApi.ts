@@ -106,7 +106,7 @@ const useMcpApi = (id: string) => {
         let buffer = '';
         let isFirstChunk = true;
 
-        // eslint-disable-next-line no-constant-condition
+         
         while (true) {
           const { done, value } = await reader.read();
 

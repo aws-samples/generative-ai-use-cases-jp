@@ -278,7 +278,7 @@ const LandingPage: React.FC = () => {
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-between text-xl font-semibold text-white lg:flex-row">
         <div className="w-[262.5px]" />
-        <GaiXerIcon className="my-2.5 h-[100px] w-[525px] " />
+        <GaiXerIcon className="my-2.5 h-[100px] w-[525px]" />
         <div className="mx-3 my-5 flex flex-col items-center justify-center lg:flex-row">
           <AwsIcon className="mr-5 size-20" />
           {t('landing.title')}

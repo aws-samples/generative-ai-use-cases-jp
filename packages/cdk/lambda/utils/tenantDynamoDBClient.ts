@@ -21,10 +21,14 @@ export async function createTenantDynamoDBClient(
     }
 
     if (!tenant.region) {
-      throw new Error(`Tenant ${tenant.tenantId} is missing region information`);
+      throw new Error(
+        `Tenant ${tenant.tenantId} is missing region information`
+      );
     }
 
-    console.log(`Creating DynamoDB client for tenant ${tenant.tenantId} in region ${tenant.region}`);
+    console.log(
+      `Creating DynamoDB client for tenant ${tenant.tenantId} in region ${tenant.region}`
+    );
 
     // Create DynamoDB client with tenant role credentials and tenant's region
     return new DynamoDBClient({

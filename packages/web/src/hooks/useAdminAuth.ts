@@ -18,13 +18,13 @@ interface AdminAuthState {
 /**
  * Custom hook for ABAC (Attribute-Based Access Control) validation
  * specifically for tenantAdmin attribute validation
- * 
+ *
  * This hook provides:
  * - Real-time admin status checking via API
  * - Loading states for UI feedback
  * - Error handling for network issues
  * - Cached results for performance
- * 
+ *
  * @returns AdminAuthState object with admin validation results
  */
 const useAdminAuth = (): AdminAuthState => {
@@ -42,11 +42,11 @@ const useAdminAuth = (): AdminAuthState => {
 
     const checkAdminStatus = async () => {
       try {
-        setState(prev => ({ ...prev, isLoading: true, error: null }));
-        
+        setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
         // Call the same endpoint that AdminPortal uses for consistency
         const response = await api.get<AdminStatus>('/admin/status');
-        
+
         if (isMounted) {
           setState({
             isAdmin: response.data.isAdmin || false,
@@ -62,9 +62,10 @@ const useAdminAuth = (): AdminAuthState => {
           setState({
             isAdmin: false,
             isLoading: false,
-            error: error.response?.status === 403 
-              ? null // 403 is expected for non-admin users, don't show as error
-              : 'Failed to verify admin status',
+            error:
+              error.response?.status === 403
+                ? null // 403 is expected for non-admin users, don't show as error
+                : 'Failed to verify admin status',
             tenantId: null,
             username: null,
           });

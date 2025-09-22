@@ -1,11 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   CognitoIdentityProviderClient,
-  AdminUpdateUserAttributesCommand
+  AdminUpdateUserAttributesCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyAdminAccessWithUser, isAdminUserResult, CORS_HEADERS } from './utils/adminAuth';
+import {
+  verifyAdminAccessWithUser,
+  isAdminUserResult,
+  CORS_HEADERS,
+} from './utils/adminAuth';
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION! });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: process.env.AWS_REGION!,
+});
 const USER_POOL_ID = process.env.USER_POOL_ID!;
 
 export interface UpdateUserRoleRequest {
@@ -13,7 +19,9 @@ export interface UpdateUserRoleRequest {
   tenantAdmin: boolean;
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -36,7 +44,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         statusCode: 400,
         headers: CORS_HEADERS,
         body: JSON.stringify({
-          message: 'username (string) and tenantAdmin (boolean) are required'
+          message: 'username (string) and tenantAdmin (boolean) are required',
         }),
       };
     }
@@ -55,7 +63,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         statusCode: 400,
         headers: CORS_HEADERS,
         body: JSON.stringify({
-          message: 'Cannot remove admin privileges from yourself'
+          message: 'Cannot remove admin privileges from yourself',
         }),
       };
     }
@@ -75,7 +83,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       await cognitoClient.send(updateCommand);
 
-      console.log(`Successfully updated user ${username} tenantAdmin status to ${tenantAdmin}`);
+      console.log(
+        `Successfully updated user ${username} tenantAdmin status to ${tenantAdmin}`
+      );
 
       return {
         statusCode: 200,
@@ -86,7 +96,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           tenantAdmin,
         }),
       };
-
     } catch (error: unknown) {
       console.error(`Failed to update user ${username}:`, error);
 
@@ -100,7 +109,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
       throw error; // Re-throw to be caught by outer catch block
     }
-
   } catch (error) {
     console.error('Error updating user role:', error);
     return {

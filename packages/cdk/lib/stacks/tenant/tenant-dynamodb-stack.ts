@@ -60,17 +60,19 @@ export class TenantDynamoDBStack extends cdk.Stack {
    */
   private readonly tenantDynamoDB: TenantDynamoDB;
 
-
   constructor(scope: Construct, id: string, props?: TenantDynamoDBStackProps) {
     super(scope, id, props);
 
     // Create parameter if tenant ID not provided
-    const tenantId = props?.tenantId || new cdk.CfnParameter(this, 'TenantId', {
-      description: 'The tenant identifier for the DynamoDB tables',
-      type: 'String',
-      allowedPattern: '^[a-zA-Z0-9-]+$',
-      constraintDescription: 'Tenant ID must contain only alphanumeric characters and hyphens',
-    }).valueAsString;
+    const tenantId =
+      props?.tenantId ||
+      new cdk.CfnParameter(this, 'TenantId', {
+        description: 'The tenant identifier for the DynamoDB tables',
+        type: 'String',
+        allowedPattern: '^[a-zA-Z0-9-]+$',
+        constraintDescription:
+          'Tenant ID must contain only alphanumeric characters and hyphens',
+      }).valueAsString;
 
     // Get environment (required parameter)
     const environment = props?.environment!;
@@ -132,7 +134,8 @@ export class TenantDynamoDBStack extends cdk.Stack {
     cdk.Tags.of(this).add('Purpose', 'TenantDynamoDBTables');
 
     // Set stack description
-    this.templateOptions.description = props?.description || 
+    this.templateOptions.description =
+      props?.description ||
       'Creates tenant-specific DynamoDB tables for multi-tenant application';
   }
 }

@@ -26,7 +26,6 @@ const validateEnvironment = () => {
   };
 };
 
-
 /**
  * Get tenant credentials using AssumeRoleWithWebIdentity
  * Supports both cross-account and same-account roles with automatic fallback
@@ -85,6 +84,8 @@ export async function getTenantCredentials(
       }
     );
 
-    throw new Error(`Failed to get tenant credentials: ${(error as Error).message}`);
+    throw new Error(
+      `Failed to get tenant credentials: ${(error as Error).message}`
+    );
   }
 }

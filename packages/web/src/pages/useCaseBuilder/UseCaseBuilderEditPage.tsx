@@ -561,7 +561,7 @@ const UseCaseBuilderEditPage: React.FC = () => {
 
       <div className="grid h-screen grid-cols-12 gap-4 p-4">
         <div className="invisible col-span-12 my-0 flex h-0 items-center justify-center lg:visible lg:h-min print:visible print:h-min">
-          <div className=" text-xl font-semibold">
+          <div className="text-xl font-semibold">
             {isUpdate
               ? t('useCaseBuilder.edit')
               : t('useCaseBuilder.createNew')}

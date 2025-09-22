@@ -8,7 +8,11 @@ import Button from '../components/Button';
 import Switch from '../components/Switch';
 import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
-import { PiGithubLogoFill, PiArrowSquareOut, PiShieldCheck } from 'react-icons/pi';
+import {
+  PiGithubLogoFill,
+  PiArrowSquareOut,
+  PiShieldCheck,
+} from 'react-icons/pi';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { useCallback } from 'react';
 import { useSWRConfig } from 'swr';
@@ -180,7 +184,7 @@ const Setting = () => {
             name={t('setting.items.admin_portal')}
             value={
               <div className="flex items-center text-gray-500">
-                <PiShieldCheck className="mr-1 text-base animate-pulse" />
+                <PiShieldCheck className="mr-1 animate-pulse text-base" />
                 {t('setting.items.admin_portal_checking')}
               </div>
             }
@@ -192,10 +196,12 @@ const Setting = () => {
           <SettingItem
             name={t('setting.items.admin_portal')}
             value={
-              <Link to="/admin" className="flex items-center text-blue-600 hover:text-blue-800">
+              <Link
+                to="/admin"
+                className="flex items-center text-blue-600 hover:text-blue-800">
                 <PiShieldCheck className="mr-1 text-base" />
                 {t('setting.items.admin_portal_manage_users')}{' '}
-                <PiArrowSquareOut className="text-base ml-1" />
+                <PiArrowSquareOut className="ml-1 text-base" />
               </Link>
             }
           />

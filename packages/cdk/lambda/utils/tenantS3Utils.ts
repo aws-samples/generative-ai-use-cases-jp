@@ -135,7 +135,7 @@ function generateTenantBucketName(
   if (baseLength >= MAX_BUCKET_NAME_LENGTH) {
     throw new Error(
       `Bucket name base components too long: ${baseLength} characters. ` +
-      `Consider shortening bucketBaseName, environment, or tenantId.`
+        `Consider shortening bucketBaseName, environment, or tenantId.`
     );
   }
 

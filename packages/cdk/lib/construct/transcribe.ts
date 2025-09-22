@@ -39,11 +39,15 @@ export class Transcribe extends Construct {
       DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
       IDENTITY_POOL_ID: props.idPool.identityPoolId,
       USER_POOL_ID: props.userPool.userPoolId,
-      AWS_ACCOUNT_ID: this.node.tryGetContext('aws:cdk:lookup:account-id') || process.env.CDK_DEFAULT_ACCOUNT!,
+      AWS_ACCOUNT_ID:
+        this.node.tryGetContext('aws:cdk:lookup:account-id') ||
+        process.env.CDK_DEFAULT_ACCOUNT!,
       ENVIRONMENT: props.environment!,
-      ...(props.tenantManager ? {
-        TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
-      } : {}),
+      ...(props.tenantManager
+        ? {
+            TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
+          }
+        : {}),
     };
 
     const audioBucket = new Bucket(this, 'AudioBucket', {
@@ -111,13 +115,15 @@ export class Transcribe extends Construct {
         ],
         resources: ['*'],
       }),
-      ...(props.tenantManager ? [
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: ['dynamodb:GetItem'],
-          resources: [props.tenantManager.tenantsTable.tableArn],
-        })
-      ] : []),
+      ...(props.tenantManager
+        ? [
+            new PolicyStatement({
+              effect: Effect.ALLOW,
+              actions: ['dynamodb:GetItem'],
+              resources: [props.tenantManager.tenantsTable.tableArn],
+            }),
+          ]
+        : []),
     ];
 
     const startTranscriptionFunction = new NodejsFunction(
@@ -138,7 +144,9 @@ export class Transcribe extends Construct {
     transcriptBucket.grantWrite(startTranscriptionFunction);
     // Grant DynamoDB read permissions if tenant manager is configured
     if (props.tenantManager) {
-      props.tenantManager.tenantsTable.grantReadData(startTranscriptionFunction);
+      props.tenantManager.tenantsTable.grantReadData(
+        startTranscriptionFunction
+      );
     }
 
     const getTranscriptionFunction = new NodejsFunction(

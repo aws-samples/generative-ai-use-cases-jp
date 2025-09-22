@@ -1,5 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { verifyAdminAccess, isAdminContext, CORS_HEADERS } from './utils/adminAuth';
+import {
+  verifyAdminAccess,
+  isAdminContext,
+  CORS_HEADERS,
+} from './utils/adminAuth';
 import { SelfSignUpTenantMapEntry } from 'generative-ai-use-cases';
 
 // Load tenant map for domain validation
@@ -34,7 +38,7 @@ function isDomainConfigured(email: string): boolean {
   }
   const lowerEmail = email.toLowerCase();
   const domain = lowerEmail.split('@')[1];
-  
+
   for (const entry of TENANT_MAP) {
     if (entry.emails && entry.emails.includes(lowerEmail)) {
       return true;
@@ -46,7 +50,9 @@ function isDomainConfigured(email: string): boolean {
   return false;
 }
 
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -74,47 +80,50 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'emails array is required and must not be empty' }),
+        body: JSON.stringify({
+          message: 'emails array is required and must not be empty',
+        }),
       };
     }
 
     // Validate all emails
-    const invalidEmails = emails.filter(email => !isValidEmail(email));
+    const invalidEmails = emails.filter((email) => !isValidEmail(email));
     if (invalidEmails.length > 0) {
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
         body: JSON.stringify({
           message: 'Invalid email addresses found',
-          invalidEmails
+          invalidEmails,
         }),
       };
     }
 
     // Check domain configuration for each email
-    const results: DomainValidationResult[] = emails.map(email => ({
+    const results: DomainValidationResult[] = emails.map((email) => ({
       email,
-      hasUnconfiguredDomain: !isDomainConfigured(email)
+      hasUnconfiguredDomain: !isDomainConfigured(email),
     }));
 
     const unconfiguredEmails = results
-      .filter(result => result.hasUnconfiguredDomain)
-      .map(result => result.email);
+      .filter((result) => result.hasUnconfiguredDomain)
+      .map((result) => result.email);
 
     const response: ValidateDomainsResponse = {
       results,
       hasAnyUnconfiguredDomains: unconfiguredEmails.length > 0,
-      unconfiguredEmails
+      unconfiguredEmails,
     };
 
-    console.log(`Domain validation results: ${unconfiguredEmails.length} unconfigured out of ${emails.length} total`);
+    console.log(
+      `Domain validation results: ${unconfiguredEmails.length} unconfigured out of ${emails.length} total`
+    );
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error validating domains:', error);
     return {

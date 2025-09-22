@@ -195,15 +195,13 @@ const DiagramRenderer: React.FC<DiagramRendererProps> = ({
         </div>
         <div className="flex cursor-pointer rounded border bg-white text-xs font-bold">
           <div
-            className={`m-1 mr-0 flex items-center rounded p-1
-              ${viewMode === 'diagram' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
+            className={`m-1 mr-0 flex items-center rounded p-1 ${viewMode === 'diagram' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
             onClick={() => setViewMode('diagram')}>
             <LuNetwork className="mr-1 text-lg" />
             {t('diagram.show_diagram')}
           </div>
           <div
-            className={`m-1 ml-0 flex items-center rounded p-1
-              ${viewMode === 'code' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
+            className={`m-1 ml-0 flex items-center rounded p-1 ${viewMode === 'code' ? 'bg-gray-600 text-white' : 'text-gray-600'}`}
             onClick={() => setViewMode('code')}>
             <VscCode className="mr-1 text-lg" />
             {t('diagram.show_code')}

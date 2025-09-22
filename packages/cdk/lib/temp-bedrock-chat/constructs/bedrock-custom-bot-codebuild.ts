@@ -1,7 +1,7 @@
-import { Construct } from "constructs";
-import * as codebuild from "aws-cdk-lib/aws-codebuild";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import * as iam from "aws-cdk-lib/aws-iam";
+import { Construct } from 'constructs';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export interface BedrockCustomBotCodebuildProps {
   readonly envName: string;
@@ -20,10 +20,10 @@ export class BedrockCustomBotCodebuild extends Construct {
     super(scope, id);
 
     const sourceBucket = props.sourceBucket;
-    const project = new codebuild.Project(this, "Project", {
+    const project = new codebuild.Project(this, 'Project', {
       source: codebuild.Source.s3({
         bucket: sourceBucket,
-        path: "",
+        path: '',
       }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
@@ -35,18 +35,18 @@ export class BedrockCustomBotCodebuild extends Construct {
         BEDROCK_REGION: { value: props.bedrockRegion },
       },
       buildSpec: codebuild.BuildSpec.fromObject({
-        version: "0.2",
+        version: '0.2',
         phases: {
           install: {
-            "runtime-versions": {
-              nodejs: "18",
+            'runtime-versions': {
+              nodejs: '18',
             },
-            "on-failure": "ABORT",
+            'on-failure': 'ABORT',
           },
           build: {
             commands: [
-              "cd cdk",
-              "npm ci",
+              'cd cdk',
+              'npm ci',
               // Extract BOT_ID from SK. Note that SK is given like BOT#<bot-id>
               `export BOT_ID=$(echo $SK | awk -F'#' '{print $2}')`,
               // Replace cdk's entrypoint. This is a workaround to avoid the issue that cdk synthesize all stacks.
@@ -62,8 +62,8 @@ export class BedrockCustomBotCodebuild extends Construct {
     // Allow `cdk deploy`
     project.role!.addToPrincipalPolicy(
       new iam.PolicyStatement({
-        actions: ["sts:AssumeRole"],
-        resources: ["arn:aws:iam::*:role/cdk-*"],
+        actions: ['sts:AssumeRole'],
+        resources: ['arn:aws:iam::*:role/cdk-*'],
       })
     );
 

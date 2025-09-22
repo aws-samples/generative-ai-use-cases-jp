@@ -42,7 +42,7 @@ const context = {
 };
 
 // Set the merged context back to the app
-Object.keys(tenantConfig).forEach(key => {
+Object.keys(tenantConfig).forEach((key) => {
   if (!(key in app.node.getAllContext())) {
     app.node.setContext(key, (tenantConfig as any)[key]);
   }
@@ -51,27 +51,51 @@ Object.keys(tenantConfig).forEach(key => {
 // Extract and set controlPlane properties as individual context values
 if (tenantConfig.controlPlane) {
   const controlPlane = tenantConfig.controlPlane;
-  
+
   // Set each controlPlane property as a top-level context value if not already set
   if (controlPlane.userPoolId && !app.node.getAllContext()['userPoolId']) {
     app.node.setContext('userPoolId', controlPlane.userPoolId);
   }
-  if (controlPlane.identityPoolId && !app.node.getAllContext()['identityPoolId']) {
+  if (
+    controlPlane.identityPoolId &&
+    !app.node.getAllContext()['identityPoolId']
+  ) {
     app.node.setContext('identityPoolId', controlPlane.identityPoolId);
   }
-  if (controlPlane.userPoolClientId && !app.node.getAllContext()['userPoolClientId']) {
+  if (
+    controlPlane.userPoolClientId &&
+    !app.node.getAllContext()['userPoolClientId']
+  ) {
     app.node.setContext('userPoolClientId', controlPlane.userPoolClientId);
   }
-  if (controlPlane.tenantsTableName && !app.node.getAllContext()['tenantsTableName']) {
+  if (
+    controlPlane.tenantsTableName &&
+    !app.node.getAllContext()['tenantsTableName']
+  ) {
     app.node.setContext('tenantsTableName', controlPlane.tenantsTableName);
   }
-  if (controlPlane.registrationLambdaArn && !app.node.getAllContext()['registrationLambdaArn']) {
-    app.node.setContext('registrationLambdaArn', controlPlane.registrationLambdaArn);
+  if (
+    controlPlane.registrationLambdaArn &&
+    !app.node.getAllContext()['registrationLambdaArn']
+  ) {
+    app.node.setContext(
+      'registrationLambdaArn',
+      controlPlane.registrationLambdaArn
+    );
   }
-  if (controlPlane.registrationApiEndpoint && !app.node.getAllContext()['registrationApiEndpoint']) {
-    app.node.setContext('registrationApiEndpoint', controlPlane.registrationApiEndpoint);
+  if (
+    controlPlane.registrationApiEndpoint &&
+    !app.node.getAllContext()['registrationApiEndpoint']
+  ) {
+    app.node.setContext(
+      'registrationApiEndpoint',
+      controlPlane.registrationApiEndpoint
+    );
   }
-  if (controlPlane.registrationApiKey && !app.node.getAllContext()['registrationApiKey']) {
+  if (
+    controlPlane.registrationApiKey &&
+    !app.node.getAllContext()['registrationApiKey']
+  ) {
     app.node.setContext('registrationApiKey', controlPlane.registrationApiKey);
   }
 }
@@ -83,7 +107,6 @@ if (!tenantId) {
   );
 }
 
-
 const params = {
   account: context.account || process.env.CDK_DEFAULT_ACCOUNT,
   region: context.tenantRegion || process.env.CDK_DEFAULT_REGION || 'us-east-1',
@@ -94,7 +117,11 @@ const params = {
   identityPoolId: context.controlPlane?.identityPoolId!,
   userPoolClientId: context.controlPlane?.userPoolClientId!,
   enableBedrockChat: true, // Bedrock Chatスタックを有効化
-  bedrockRegion: context.bedrockRegion || context.tenantRegion || process.env.CDK_DEFAULT_REGION || 'us-east-1',
+  bedrockRegion:
+    context.bedrockRegion ||
+    context.tenantRegion ||
+    process.env.CDK_DEFAULT_REGION ||
+    'us-east-1',
 };
 
 createTenantStacks(app, params);

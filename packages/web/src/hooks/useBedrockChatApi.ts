@@ -118,11 +118,13 @@ const toCamelCase = (obj: any): any => {
   if (obj === null || obj === undefined) return obj;
   if (Array.isArray(obj)) return obj.map(toCamelCase);
   if (typeof obj !== 'object') return obj;
-  
+
   const converted: any = {};
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) =>
+        letter.toUpperCase()
+      );
       converted[camelKey] = toCamelCase(obj[key]);
     }
   }
@@ -132,7 +134,8 @@ const toCamelCase = (obj: any): any => {
 const useBedrockChatApi = () => {
   const testConnection = async () => {
     try {
-      const response = await bedrockChatApi.get<BedrockChatHealthResponse>('/health');
+      const response =
+        await bedrockChatApi.get<BedrockChatHealthResponse>('/health');
       return response.data;
     } catch (error) {
       console.error('BedrockChat health check failed:', error);
@@ -142,7 +145,8 @@ const useBedrockChatApi = () => {
 
   const getConfig = async () => {
     try {
-      const response = await bedrockChatApi.get<BedrockChatConfigResponse>('/config/global');
+      const response =
+        await bedrockChatApi.get<BedrockChatConfigResponse>('/config/global');
       return response.data;
     } catch (error) {
       console.error('BedrockChat config fetch failed:', error);
@@ -152,7 +156,8 @@ const useBedrockChatApi = () => {
 
   const getConversations = async () => {
     try {
-      const response = await bedrockChatApi.get<BedrockChatConversation[]>('/conversations');
+      const response =
+        await bedrockChatApi.get<BedrockChatConversation[]>('/conversations');
       return response.data;
     } catch (error) {
       console.error('BedrockChat conversations fetch failed:', error);
@@ -160,10 +165,11 @@ const useBedrockChatApi = () => {
     }
   };
 
-
   const deleteConversation = async (conversationId: string) => {
     try {
-      const response = await bedrockChatApi.delete(`/conversation/${conversationId}`);
+      const response = await bedrockChatApi.delete(
+        `/conversation/${conversationId}`
+      );
       return response.data;
     } catch (error) {
       console.error('BedrockChat conversation deletion failed:', error);
@@ -184,23 +190,26 @@ const useBedrockChatApi = () => {
   };
 
   // Test basic store endpoints
-  const searchStore = useCallback(async (params?: {
-    query?: string;
-    scope?: 'all' | 'organization' | 'private';
-    starred?: boolean;
-    limit?: number;
-    sort?: 'usage' | 'relevance';
-  }) => {
-    try {
-      const response = await bedrockChatApi.get('/store/search', {
-        params: params || {},
-      });
-      return response.data;
-    } catch (error) {
-      console.error('BedrockChat store search failed:', error);
-      throw error;
-    }
-  }, []);
+  const searchStore = useCallback(
+    async (params?: {
+      query?: string;
+      scope?: 'all' | 'organization' | 'private';
+      starred?: boolean;
+      limit?: number;
+      sort?: 'usage' | 'relevance';
+    }) => {
+      try {
+        const response = await bedrockChatApi.get('/store/search', {
+          params: params || {},
+        });
+        return response.data;
+      } catch (error) {
+        console.error('BedrockChat store search failed:', error);
+        throw error;
+      }
+    },
+    []
+  );
 
   const getPopularBots = async () => {
     try {
@@ -213,26 +222,32 @@ const useBedrockChatApi = () => {
   };
 
   // Bot management endpoints
-  const getAllBots = useCallback(async (params?: {
-    kind?: 'private' | 'mixed';
-    starred?: boolean;
-    limit?: number;
-  }, signal?: AbortSignal) => {
-    try {
-      const response = await bedrockChatApi.get<BedrockChatBot[]>('/bot', {
-        params,
-        signal,
-      });
-      return response.data;
-    } catch (error) {
-      if (axios.isCancel(error)) {
-        console.log('BedrockChat get all bots cancelled');
-        return [];
+  const getAllBots = useCallback(
+    async (
+      params?: {
+        kind?: 'private' | 'mixed';
+        starred?: boolean;
+        limit?: number;
+      },
+      signal?: AbortSignal
+    ) => {
+      try {
+        const response = await bedrockChatApi.get<BedrockChatBot[]>('/bot', {
+          params,
+          signal,
+        });
+        return response.data;
+      } catch (error) {
+        if (axios.isCancel(error)) {
+          console.log('BedrockChat get all bots cancelled');
+          return [];
+        }
+        console.error('BedrockChat get all bots failed:', error);
+        throw error;
       }
-      console.error('BedrockChat get all bots failed:', error);
-      throw error;
-    }
-  }, []);
+    },
+    []
+  );
 
   const getPrivateBot = async (botId: string) => {
     try {
@@ -291,14 +306,14 @@ const useBedrockChatApi = () => {
         },
         // Add missing required fields with default values
         agent: {
-          tools: []
+          tools: [],
         },
         bedrockKnowledgeBase: {
           knowledgeBaseId: null,
           existKnowledgeBaseId: null,
           embeddingsModel: 'titan_v2',
           chunkingConfiguration: {
-            chunkingStrategy: 'default'
+            chunkingStrategy: 'default',
           },
           openSearch: {
             analyzer: {
@@ -311,19 +326,19 @@ const useBedrockChatApi = () => {
                 'cjk_width',
                 'ja_stop',
                 'lowercase',
-                'icu_folding'
-              ]
-            }
+                'icu_folding',
+              ],
+            },
           },
           searchParams: {
             maxResults: 5,
-            searchType: 'hybrid'
+            searchType: 'hybrid',
           },
           webCrawlingScope: 'DEFAULT',
           webCrawlingFilters: {
             includePatterns: [''],
-            excludePatterns: ['']
-          }
+            excludePatterns: [''],
+          },
         },
         bedrockGuardrails: {
           isGuardrailEnabled: false,
@@ -335,24 +350,33 @@ const useBedrockChatApi = () => {
           groundingThreshold: 0,
           relevanceThreshold: 0,
           guardrailArn: '',
-          guardrailVersion: ''
-        }
+          guardrailVersion: '',
+        },
       };
-      
+
       // Convert snake_case to camelCase
       const camelCaseData = toCamelCase(botData);
       // Add stopSequences if not present
-      if (camelCaseData.generationParams && !camelCaseData.generationParams.stopSequences) {
+      if (
+        camelCaseData.generationParams &&
+        !camelCaseData.generationParams.stopSequences
+      ) {
         camelCaseData.generationParams.stopSequences = [''];
       }
       // Add reasoningParams if not present
-      if (camelCaseData.generationParams && !camelCaseData.generationParams.reasoningParams) {
+      if (
+        camelCaseData.generationParams &&
+        !camelCaseData.generationParams.reasoningParams
+      ) {
         camelCaseData.generationParams.reasoningParams = {
-          budgetTokens: 1024
+          budgetTokens: 1024,
         };
       }
-      
-      const response = await bedrockChatApi.post<BedrockChatBot>('/bot', camelCaseData);
+
+      const response = await bedrockChatApi.post<BedrockChatBot>(
+        '/bot',
+        camelCaseData
+      );
       return response.data;
     } catch (error) {
       console.error('BedrockChat create bot failed:', error);
@@ -360,11 +384,17 @@ const useBedrockChatApi = () => {
     }
   };
 
-  const updateBot = async (botId: string, bot: Partial<BedrockChatBotInput>) => {
+  const updateBot = async (
+    botId: string,
+    bot: Partial<BedrockChatBotInput>
+  ) => {
     try {
       // Convert snake_case to camelCase
       const camelCaseData = toCamelCase(bot);
-      const response = await bedrockChatApi.patch(`/bot/${botId}`, camelCaseData);
+      const response = await bedrockChatApi.patch(
+        `/bot/${botId}`,
+        camelCaseData
+      );
       return response.data;
     } catch (error) {
       console.error('BedrockChat update bot failed:', error);
@@ -382,17 +412,20 @@ const useBedrockChatApi = () => {
     }
   }, []);
 
-  const setStarredStatus = useCallback(async (botId: string, starred: boolean) => {
-    try {
-      const response = await bedrockChatApi.patch(`/bot/${botId}/starred`, {
-        starred,
-      });
-      return response.data;
-    } catch (error) {
-      console.error('BedrockChat set starred status failed:', error);
-      throw error;
-    }
-  }, []);
+  const setStarredStatus = useCallback(
+    async (botId: string, starred: boolean) => {
+      try {
+        const response = await bedrockChatApi.patch(`/bot/${botId}/starred`, {
+          starred,
+        });
+        return response.data;
+      } catch (error) {
+        console.error('BedrockChat set starred status failed:', error);
+        throw error;
+      }
+    },
+    []
+  );
 
   const setBotVisibility = async (
     botId: string,
@@ -400,24 +433,27 @@ const useBedrockChatApi = () => {
   ) => {
     try {
       let requestBody: any;
-      
+
       if (visibility === 'private') {
         requestBody = {
-          target_shared_scope: 'private'
+          target_shared_scope: 'private',
         };
       } else if (visibility === 'partial') {
         requestBody = {
           target_shared_scope: 'partial',
           target_allowed_user_ids: [],
-          target_allowed_group_ids: []
+          target_allowed_group_ids: [],
         };
       } else if (visibility === 'all') {
         requestBody = {
-          target_shared_scope: 'all'
+          target_shared_scope: 'all',
         };
       }
-      
-      const response = await bedrockChatApi.patch(`/bot/${botId}/visibility`, requestBody);
+
+      const response = await bedrockChatApi.patch(
+        `/bot/${botId}/visibility`,
+        requestBody
+      );
       return response.data;
     } catch (error) {
       console.error('BedrockChat set bot visibility failed:', error);
@@ -431,12 +467,13 @@ const useBedrockChatApi = () => {
     contentType: string
   ) => {
     try {
-      const response = await bedrockChatApi.get<BedrockChatPresignedUrlResponse>(
-        `/bot/${botId}/presigned-url`,
-        {
-          params: { filename, contentType },
-        }
-      );
+      const response =
+        await bedrockChatApi.get<BedrockChatPresignedUrlResponse>(
+          `/bot/${botId}/presigned-url`,
+          {
+            params: { filename, contentType },
+          }
+        );
       return response.data;
     } catch (error) {
       console.error('BedrockChat get presigned url failed:', error);
@@ -482,7 +519,7 @@ const useBedrockChatApi = () => {
         },
         bot_id: botId,
       });
-      
+
       // Convert response to camelCase
       const camelCaseResponse = toCamelCase(response.data);
       return camelCaseResponse;
@@ -497,34 +534,36 @@ const useBedrockChatApi = () => {
       const response = await bedrockChatApi.get(
         `/conversation/${conversationId}`
       );
-      
+
       // Convert snake_case to camelCase and transform message_map to messages array
       const data = response.data;
       const camelCaseData = toCamelCase(data);
-      
+
       // Transform messageMap object to messages array
       if (camelCaseData.messageMap) {
         const messages: BedrockChatMessage[] = [];
         const messageMap = camelCaseData.messageMap;
-        
+
         // Convert message map to array and sort by timestamp
         for (const msgId in messageMap) {
           const msg = messageMap[msgId];
-          
+
           // Skip system messages
           if (msg.role === 'system' || msgId === 'system') {
             continue;
           }
-          
+
           // Extract text content from message
-          const textContent = msg.content
-            ?.filter((c: any) => c.contentType === 'text')
-            .map((c: any) => c.body)
-            .join('\n') || '';
-          
+          const textContent =
+            msg.content
+              ?.filter((c: any) => c.contentType === 'text')
+              .map((c: any) => c.body)
+              .join('\n') || '';
+
           // Map role correctly: 'assistant' for AI responses (not 'bot')
-          const messageRole: 'user' | 'assistant' = msg.role === 'user' ? 'user' : 'assistant';
-          
+          const messageRole: 'user' | 'assistant' =
+            msg.role === 'user' ? 'user' : 'assistant';
+
           messages.push({
             id: msgId,
             content: textContent,
@@ -532,25 +571,27 @@ const useBedrockChatApi = () => {
             timestamp: new Date().toISOString(), // Use current time as fallback
           });
         }
-        
+
         // Sort messages by their position in the conversation tree
         // We'll need to traverse from the last message backwards
         const sortedMessages: BedrockChatMessage[] = [];
         let currentMsgId = camelCaseData.lastMessageId;
-        
+
         while (currentMsgId) {
           const msg = messageMap[currentMsgId];
           if (msg) {
             // Skip system messages
             if (msg.role !== 'system' && currentMsgId !== 'system') {
-              const textContent = msg.content
-                ?.filter((c: any) => c.contentType === 'text')
-                .map((c: any) => c.body)
-                .join('\n') || '';
-              
+              const textContent =
+                msg.content
+                  ?.filter((c: any) => c.contentType === 'text')
+                  .map((c: any) => c.body)
+                  .join('\n') || '';
+
               // Map role correctly: 'assistant' for AI responses (not 'bot')
-              const messageRole: 'user' | 'assistant' = msg.role === 'user' ? 'user' : 'assistant';
-              
+              const messageRole: 'user' | 'assistant' =
+                msg.role === 'user' ? 'user' : 'assistant';
+
               sortedMessages.unshift({
                 id: currentMsgId,
                 content: textContent,
@@ -558,17 +599,17 @@ const useBedrockChatApi = () => {
                 timestamp: new Date().toISOString(),
               });
             }
-            
+
             // Move to parent message
             currentMsgId = msg.parent;
           } else {
             break;
           }
         }
-        
+
         camelCaseData.messages = sortedMessages;
       }
-      
+
       return camelCaseData;
     } catch (error) {
       console.error('BedrockChat get conversation failed:', error);

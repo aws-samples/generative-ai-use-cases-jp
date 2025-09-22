@@ -27,10 +27,14 @@ export async function createTenantS3Client(
     }
 
     if (!tenant.region) {
-      throw new Error(`Tenant ${tenant.tenantId} is missing region information`);
+      throw new Error(
+        `Tenant ${tenant.tenantId} is missing region information`
+      );
     }
 
-    console.log(`Creating S3 client for tenant ${tenant.tenantId} in region ${tenant.region}`);
+    console.log(
+      `Creating S3 client for tenant ${tenant.tenantId} in region ${tenant.region}`
+    );
 
     // Create S3 client with tenant role credentials and tenant's region
     return new S3Client({

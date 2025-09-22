@@ -1,21 +1,21 @@
-import { z } from "zod";
-import { TIdentityProvider } from "./identity-provider";
-import { App } from "aws-cdk-lib";
+import { z } from 'zod';
+import { TIdentityProvider } from './identity-provider';
+import { App } from 'aws-cdk-lib';
 
 export const BotStoreLanguageSchema = z.enum([
-  "en",
-  "de",
-  "fr",
-  "es",
-  "ja",
-  "ko",
-  "zhhans",
-  "zhhant",
-  "it",
-  "nb",
-  "th",
-  "id",
-  "ms",
+  'en',
+  'de',
+  'fr',
+  'es',
+  'ja',
+  'ko',
+  'zhhans',
+  'zhhant',
+  'it',
+  'nb',
+  'th',
+  'id',
+  'ms',
 ]);
 
 /**
@@ -27,11 +27,11 @@ const BaseParametersSchema = z.object({
     .string()
     .max(10)
     .regex(/^$|^[a-zA-Z][a-zA-Z0-9]*$/)
-    .default("default"),
-  envPrefix: z.string().default(""),
+    .default('default'),
+  envPrefix: z.string().default(''),
 
   // Bedrock configuration
-  bedrockRegion: z.string().default("us-east-1"),
+  bedrockRegion: z.string().default('us-east-1'),
   enableBedrockCrossRegionInference: z.boolean().default(true),
 });
 
@@ -50,25 +50,24 @@ function getEnvVar(name: string, defaultValue?: string): string | undefined {
  * Parameters schema for the main Bedrock Chat application
  */
 const BedrockChatParametersSchema = BaseParametersSchema.extend({
-
   // IP address restrictions
   allowedIpV4AddressRanges: z
     .array(z.string())
-    .default(["0.0.0.0/1", "128.0.0.0/1"]),
+    .default(['0.0.0.0/1', '128.0.0.0/1']),
   allowedIpV6AddressRanges: z
     .array(z.string())
     .default([
-      "0000:0000:0000:0000:0000:0000:0000:0000/1",
-      "8000:0000:0000:0000:0000:0000:0000:0000/1",
+      '0000:0000:0000:0000:0000:0000:0000:0000/1',
+      '8000:0000:0000:0000:0000:0000:0000:0000/1',
     ]),
   publishedApiAllowedIpV4AddressRanges: z
     .array(z.string())
-    .default(["0.0.0.0/1", "128.0.0.0/1"]),
+    .default(['0.0.0.0/1', '128.0.0.0/1']),
   publishedApiAllowedIpV6AddressRanges: z
     .array(z.string())
     .default([
-      "0000:0000:0000:0000:0000:0000:0000:0000/1",
-      "8000:0000:0000:0000:0000:0000:0000:0000/1",
+      '0000:0000:0000:0000:0000:0000:0000:0000/1',
+      '8000:0000:0000:0000:0000:0000:0000:0000/1',
     ]),
 
   // Optional list of allowed countries specified as ISO 3166-1 alpha-2 codes
@@ -82,7 +81,7 @@ const BedrockChatParametersSchema = BaseParametersSchema.extend({
     )
     .pipe(z.array(z.custom<TIdentityProvider>()))
     .default([]),
-  userPoolDomainPrefix: z.string().default(""),
+  userPoolDomainPrefix: z.string().default(''),
   allowedSignUpEmailDomains: z.array(z.string()).default([]),
   autoJoinUserGroups: z.array(z.string()).default([]),
   selfSignUpEnabled: z.boolean().default(true),
@@ -92,13 +91,13 @@ const BedrockChatParametersSchema = BaseParametersSchema.extend({
   enableLambdaSnapStart: z.boolean().default(true),
 
   // Custom domain configuration
-  alternateDomainName: z.string().default(""),
-  hostedZoneId: z.string().default(""),
+  alternateDomainName: z.string().default(''),
+  hostedZoneId: z.string().default(''),
 
   // BotStore
   enableBotStore: z.boolean().default(true),
   enableBotStoreReplicas: z.boolean().default(false),
-  botStoreLanguage: BotStoreLanguageSchema.default("en"),
+  botStoreLanguage: BotStoreLanguageSchema.default('en'),
 
   // ID token refresh interval
   tokenValidMinutes: z.number().default(30),
@@ -108,7 +107,7 @@ const BedrockChatParametersSchema = BaseParametersSchema.extend({
   globalAvailableModels: z.array(z.string()).default([]),
 
   // debug parameter
-  devAccessIamRoleArn: z.string().default("")
+  devAccessIamRoleArn: z.string().default(''),
 });
 
 /**
@@ -128,8 +127,8 @@ const ApiPublishParametersSchema = BaseParametersSchema.extend({
     .string()
     .optional()
     .transform((val) => (val ? Number(val) : undefined)),
-  publishedApiQuotaPeriod: z.enum(["DAY", "WEEK", "MONTH"]).optional(),
-  publishedApiDeploymentStage: z.string().default("api"),
+  publishedApiQuotaPeriod: z.enum(['DAY', 'WEEK', 'MONTH']).optional(),
+  publishedApiDeploymentStage: z.string().default('api'),
   publishedApiId: z.string().optional(),
   publishedApiAllowedOrigins: z.string().default('["*"]'),
 });
@@ -148,8 +147,8 @@ const BedrockCustomBotParametersSchema = BaseParametersSchema.extend({
   enableRagReplicas: z
     .string()
     .optional()
-    .transform((val) => val === "true")
-    .default("false"),
+    .transform((val) => val === 'true')
+    .default('false'),
 });
 
 /**
@@ -192,48 +191,48 @@ export function resolveBedrockChatParameters(
   }
 
   // Get environment variables
-  const envName = app.node.tryGetContext("envName") || "default";
-  const envPrefix = envName === "default" ? "" : envName;
+  const envName = app.node.tryGetContext('envName') || 'default';
+  const envPrefix = envName === 'default' ? '' : envName;
 
   // Otherwise, get parameters from context
-  const identityProviders = app.node.tryGetContext("identityProviders");
+  const identityProviders = app.node.tryGetContext('identityProviders');
 
   const contextParams = {
     envName,
     envPrefix,
-    bedrockRegion: app.node.tryGetContext("bedrockRegion"),
+    bedrockRegion: app.node.tryGetContext('bedrockRegion'),
     allowedIpV4AddressRanges: app.node.tryGetContext(
-      "allowedIpV4AddressRanges"
+      'allowedIpV4AddressRanges'
     ),
     allowedIpV6AddressRanges: app.node.tryGetContext(
-      "allowedIpV6AddressRanges"
+      'allowedIpV6AddressRanges'
     ),
-    allowedCountries: app.node.tryGetContext("allowedCountries"),
-    identityProviders: app.node.tryGetContext("identityProviders"),
-    userPoolDomainPrefix: app.node.tryGetContext("userPoolDomainPrefix"),
+    allowedCountries: app.node.tryGetContext('allowedCountries'),
+    identityProviders: app.node.tryGetContext('identityProviders'),
+    userPoolDomainPrefix: app.node.tryGetContext('userPoolDomainPrefix'),
     allowedSignUpEmailDomains: app.node.tryGetContext(
-      "allowedSignUpEmailDomains"
+      'allowedSignUpEmailDomains'
     ),
-    autoJoinUserGroups: app.node.tryGetContext("autoJoinUserGroups"),
-    selfSignUpEnabled: app.node.tryGetContext("selfSignUpEnabled"),
+    autoJoinUserGroups: app.node.tryGetContext('autoJoinUserGroups'),
+    selfSignUpEnabled: app.node.tryGetContext('selfSignUpEnabled'),
     publishedApiAllowedIpV4AddressRanges: app.node.tryGetContext(
-      "publishedApiAllowedIpV4AddressRanges"
+      'publishedApiAllowedIpV4AddressRanges'
     ),
     publishedApiAllowedIpV6AddressRanges: app.node.tryGetContext(
-      "publishedApiAllowedIpV6AddressRanges"
+      'publishedApiAllowedIpV6AddressRanges'
     ),
-    enableRagReplicas: app.node.tryGetContext("enableRagReplicas"),
+    enableRagReplicas: app.node.tryGetContext('enableRagReplicas'),
     enableBedrockCrossRegionInference: app.node.tryGetContext(
-      "enableBedrockCrossRegionInference"
+      'enableBedrockCrossRegionInference'
     ),
-    enableLambdaSnapStart: app.node.tryGetContext("enableLambdaSnapStart"),
-    alternateDomainName: app.node.tryGetContext("alternateDomainName"),
-    hostedZoneId: app.node.tryGetContext("hostedZoneId"),
-    enableBotStore: app.node.tryGetContext("enableBotStore"),
-    enableBotStoreReplicas: app.node.tryGetContext("EnableBotStoreReplicas"),
-    botStoreLanguage: app.node.tryGetContext("botStoreLanguage"),
-    globalAvailableModels: app.node.tryGetContext("globalAvailableModels"),
-    devAccessIamRoleArn: app.node.tryGetContext("devAccessIamRoleArn"),
+    enableLambdaSnapStart: app.node.tryGetContext('enableLambdaSnapStart'),
+    alternateDomainName: app.node.tryGetContext('alternateDomainName'),
+    hostedZoneId: app.node.tryGetContext('hostedZoneId'),
+    enableBotStore: app.node.tryGetContext('enableBotStore'),
+    enableBotStoreReplicas: app.node.tryGetContext('EnableBotStoreReplicas'),
+    botStoreLanguage: app.node.tryGetContext('botStoreLanguage'),
+    globalAvailableModels: app.node.tryGetContext('globalAvailableModels'),
+    devAccessIamRoleArn: app.node.tryGetContext('devAccessIamRoleArn'),
   };
 
   return BedrockChatParametersSchema.parse(contextParams);
@@ -254,12 +253,12 @@ export function getBedrockChatParameters(
   paramsMap: Map<string, BedrockChatParametersInput>
 ): BedrockChatParameters {
   if (envName == undefined) {
-    if (paramsMap.has("default")) {
+    if (paramsMap.has('default')) {
       // Use parameter.ts instead of context parameters
-      const params = paramsMap.get("default") || {};
+      const params = paramsMap.get('default') || {};
       return resolveBedrockChatParameters(app, {
-        envName: "default",
-        envPrefix: "",
+        envName: 'default',
+        envPrefix: '',
         ...params,
       });
     } else {
@@ -273,7 +272,7 @@ export function getBedrockChatParameters(
     }
 
     const params = paramsMap.get(envName) || {};
-    const envPrefix = envName === "default" ? "" : envName;
+    const envPrefix = envName === 'default' ? '' : envName;
 
     return resolveBedrockChatParameters(app, {
       envName,
@@ -291,23 +290,23 @@ export function getBedrockChatParameters(
  */
 export function resolveApiPublishParameters(): ApiPublishParameters {
   const envVars = {
-    envName: getEnvVar("ENV_NAME"),
-    envPrefix: getEnvVar("ENV_PREFIX"),
-    bedrockRegion: getEnvVar("BEDROCK_REGION"),
+    envName: getEnvVar('ENV_NAME'),
+    envPrefix: getEnvVar('ENV_PREFIX'),
+    bedrockRegion: getEnvVar('BEDROCK_REGION'),
     enableBedrockCrossRegionInference: getEnvVar(
-      "ENABLE_BEDROCK_CROSS_REGION_INFERENCE"
+      'ENABLE_BEDROCK_CROSS_REGION_INFERENCE'
     ),
     publishedApiThrottleRateLimit: getEnvVar(
-      "PUBLISHED_API_THROTTLE_RATE_LIMIT"
+      'PUBLISHED_API_THROTTLE_RATE_LIMIT'
     ),
     publishedApiThrottleBurstLimit: getEnvVar(
-      "PUBLISHED_API_THROTTLE_BURST_LIMIT"
+      'PUBLISHED_API_THROTTLE_BURST_LIMIT'
     ),
-    publishedApiQuotaLimit: getEnvVar("PUBLISHED_API_QUOTA_LIMIT"),
-    publishedApiQuotaPeriod: getEnvVar("PUBLISHED_API_QUOTA_PERIOD"),
-    publishedApiDeploymentStage: getEnvVar("PUBLISHED_API_DEPLOYMENT_STAGE"),
-    publishedApiId: getEnvVar("PUBLISHED_API_ID"),
-    publishedApiAllowedOrigins: getEnvVar("PUBLISHED_API_ALLOWED_ORIGINS"),
+    publishedApiQuotaLimit: getEnvVar('PUBLISHED_API_QUOTA_LIMIT'),
+    publishedApiQuotaPeriod: getEnvVar('PUBLISHED_API_QUOTA_PERIOD'),
+    publishedApiDeploymentStage: getEnvVar('PUBLISHED_API_DEPLOYMENT_STAGE'),
+    publishedApiId: getEnvVar('PUBLISHED_API_ID'),
+    publishedApiAllowedOrigins: getEnvVar('PUBLISHED_API_ALLOWED_ORIGINS'),
   };
 
   return ApiPublishParametersSchema.parse(envVars);
@@ -321,16 +320,16 @@ export function resolveApiPublishParameters(): ApiPublishParameters {
  */
 export function resolveBedrockCustomBotParameters(): BedrockCustomBotParameters {
   const envVars = {
-    envName: getEnvVar("ENV_NAME"),
-    envPrefix: getEnvVar("ENV_PREFIX"),
-    bedrockRegion: getEnvVar("BEDROCK_REGION"),
-    pk: getEnvVar("PK"),
-    sk: getEnvVar("SK"),
-    documentBucketName: getEnvVar("BEDROCK_CLAUDE_CHAT_DOCUMENT_BUCKET_NAME"),
-    knowledge: getEnvVar("KNOWLEDGE"),
-    knowledgeBase: getEnvVar("BEDROCK_KNOWLEDGE_BASE"),
-    guardrails: getEnvVar("BEDROCK_GUARDRAILS"),
-    enableRagReplicas: getEnvVar("ENABLE_RAG_REPLICAS"),
+    envName: getEnvVar('ENV_NAME'),
+    envPrefix: getEnvVar('ENV_PREFIX'),
+    bedrockRegion: getEnvVar('BEDROCK_REGION'),
+    pk: getEnvVar('PK'),
+    sk: getEnvVar('SK'),
+    documentBucketName: getEnvVar('BEDROCK_CLAUDE_CHAT_DOCUMENT_BUCKET_NAME'),
+    knowledge: getEnvVar('KNOWLEDGE'),
+    knowledgeBase: getEnvVar('BEDROCK_KNOWLEDGE_BASE'),
+    guardrails: getEnvVar('BEDROCK_GUARDRAILS'),
+    enableRagReplicas: getEnvVar('ENABLE_RAG_REPLICAS'),
   };
 
   return BedrockCustomBotParametersSchema.parse(envVars);

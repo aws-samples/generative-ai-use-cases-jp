@@ -47,7 +47,7 @@ const ModalDialogShareUseCase: React.FC<Props> = (props) => {
         <div className="flex flex-col">
           {props.isShared && (
             <>
-              <div className="flex grow ">
+              <div className="flex grow">
                 <div className="bg-aws-squid-ink my-2 flex flex-row items-center justify-between rounded px-2 py-1 text-white">
                   <div className="break-all text-sm">{shareUrl}</div>
                   <ButtonCopy text={shareUrl} />

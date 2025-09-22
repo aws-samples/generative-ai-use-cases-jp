@@ -15,10 +15,13 @@ CDKアプリケーションは、シンプルなアプローチを使用して�
 テナント固有のデプロイメントでは、複雑なIAMロール管理の必要性を排除し、各テナント用に分離されたDynamoDBテーブルとS3バケットを作成します。各テナントは、環境対応の命名規則と適切な削除保護を持つ独自のリソースセットを持ちます。
 
 ### DynamoDBテーブル
+
 各テナントは、適切なインデックスとアクセスパターンを持つデータ保存用の専用DynamoDBテーブルを受け取ります。
 
 ### S3バケット
+
 各テナントは3つの専用S3バケットを受け取ります：
+
 - **Documentsバケット**: RAG/ナレッジベースドキュメント保存用
 - **Chatバケット**: チャットファイル添付とアップロード用
 - **Analyticsバケット**: 使用状況分析とレポートデータ用
@@ -138,18 +141,21 @@ npm run cdk:tenant:destroy
 すべてのテーブルは以下のパターンに従います：`{BaseTableName}-{environment}-tenant-{tenantId}`
 
 ### ChatHistoryテーブル
+
 - **目的**：テナント固有のチャット会話履歴を保存
 - **パーティションキー**：`id` (STRING)
 - **ソートキー**：`createdDate` (STRING)
 - **グローバルセカンダリインデックス**：`feedback`属性の`FeedbackIndex`
 
 ### TokenUsageStatsテーブル
+
 - **目的**：テナントのトークン使用統計を追跡
 - **パーティションキー**：`id` (STRING)
 - **ソートキー**：`userId` (STRING)
 - **グローバルセカンダリインデックス**：月次集計用の`MonthIndex`
 
 ### UseCaseBuilderテーブル
+
 - **目的**：テナント固有のユースケース設定を保存
 - **パーティションキー**：`id` (STRING)
 - **ソートキー**：`dataType` (STRING)
@@ -168,6 +174,7 @@ npm run cdk:tenant:destroy
 ### バケット命名規則
 
 すべてのバケットは、AWS S3要件に準拠するためのグローバル一意パターンに従います：
+
 ```
 {BucketBaseName}-{environment}-tenant-{tenantId}-{guidHash}
 ```
@@ -178,18 +185,21 @@ npm run cdk:tenant:destroy
 - **大文字小文字**：すべてのバケット名は小文字
 
 ### Documentsバケット
+
 - **目的**：RAG/ナレッジベースドキュメントとファイルの保存
 - **ベース名**：`docs`（設定可能）
 - **機能**：Webアプリケーションアクセス用CORS有効、バージョニング、暗号化
 - **使用例**：ドキュメントアップロード、ナレッジベースコンテンツ、RAGデータソース
 
 ### Chatバケット
+
 - **目的**：チャット添付ファイルとアップロードファイルの保存
 - **ベース名**：`chat`（設定可能）
 - **機能**：Webアプリケーションアクセス用CORS有効、バージョニング、暗号化
 - **使用例**：会話内のファイル添付、一時アップロード、共有メディア
 
 ### Analyticsバケット
+
 - **目的**：使用状況分析、レポート、メトリクスデータの保存
 - **ベース名**：`analytics`（設定可能）
 - **機能**：バックエンド専用アクセス（CORS無し）、バージョニング、暗号化
@@ -206,6 +216,7 @@ npm run cdk:tenant:destroy
 ### CORS設定
 
 DocumentsとChatバケットには、Webアプリケーションアクセス用のCORS設定が含まれています：
+
 ```json
 {
   "AllowedMethods": ["GET", "PUT", "POST"],
@@ -222,12 +233,14 @@ DocumentsとChatバケットには、Webアプリケーションアクセス用�
 テナントスタックは以下のパターンを使用して命名されます：
 
 ### DynamoDBスタック
+
 - パターン：`TenantDynamoDBStack{environment}-{tenantId}`
 - 例：
   - 開発環境：`TenantDynamoDBStackdev-tenant123`
   - 本番環境：`TenantDynamoDBStackprod-tenant123`
 
 ### S3スタック
+
 - パターン：`TenantS3Stack{environment}-{tenantId}`
 - 例：
   - 開発環境：`TenantS3Stackdev-tenant123`

@@ -299,4 +299,3 @@ export const deleteMessagesForChat = async (
     );
   }
 };
-

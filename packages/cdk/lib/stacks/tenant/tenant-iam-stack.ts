@@ -1,7 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { UserPool, IUserPool } from 'aws-cdk-lib/aws-cognito';
-import { IdentityPool, IIdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
+import {
+  IdentityPool,
+  IIdentityPool,
+} from 'aws-cdk-lib/aws-cognito-identitypool';
 import { Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { TenantRole } from '../../construct/tenant-role';
@@ -43,13 +46,14 @@ export class TenantIAMStack extends cdk.Stack {
     super(scope, id, props);
 
     // Get tenant ID from props (required)
-    this.tenantId = props?.tenantId || (() => {
-      throw new Error('tenantId must be provided in stack props');
-    })();
+    this.tenantId =
+      props?.tenantId ||
+      (() => {
+        throw new Error('tenantId must be provided in stack props');
+      })();
 
     // Get environment (required parameter)
     const environment = props?.environment!;
-
 
     // For tenant stacks, use CDK context variables to import from main stack
     // Since main stack and tenant stacks are separate deployments
@@ -76,7 +80,9 @@ export class TenantIAMStack extends cdk.Stack {
     }
 
     // Get tenant registration API endpoint and key from context
-    const registrationApiEndpoint = this.node.tryGetContext('registrationApiEndpoint');
+    const registrationApiEndpoint = this.node.tryGetContext(
+      'registrationApiEndpoint'
+    );
     const registrationApiKey = this.node.tryGetContext('registrationApiKey');
     if (!registrationApiEndpoint) {
       throw new Error(
@@ -90,8 +96,16 @@ export class TenantIAMStack extends cdk.Stack {
     }
 
     // Import existing pools using the context values from main stack
-    const userPool = UserPool.fromUserPoolId(this, 'ImportedUserPool', userPoolId);
-    const identityPool = IdentityPool.fromIdentityPoolId(this, 'ImportedIdentityPool', identityPoolId);
+    const userPool = UserPool.fromUserPoolId(
+      this,
+      'ImportedUserPool',
+      userPoolId
+    );
+    const identityPool = IdentityPool.fromIdentityPoolId(
+      this,
+      'ImportedIdentityPool',
+      identityPoolId
+    );
 
     // Create the tenant role construct
     this.tenantRole = new TenantRole(this, 'TenantRole', {
@@ -243,10 +257,14 @@ export class TenantIAMStack extends cdk.Stack {
     });
 
     // Create Custom Resource using the local Lambda
-    const tenantRegistrationResource = new cdk.CustomResource(this, 'TenantRegistration', {
-      serviceToken: registerTenantLambda.functionArn,
-      resourceType: 'Custom::TenantRegistration',
-    });
+    const tenantRegistrationResource = new cdk.CustomResource(
+      this,
+      'TenantRegistration',
+      {
+        serviceToken: registerTenantLambda.functionArn,
+        resourceType: 'Custom::TenantRegistration',
+      }
+    );
 
     // Ensure registration happens after role creation
     tenantRegistrationResource.node.addDependency(this.tenantRole);

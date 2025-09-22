@@ -43,11 +43,13 @@ This specification describes the implementation of tenant admin functionality th
 ### Authentication & Authorization
 
 #### Current Implementation
+
 - Users have `custom:tenant_id` attribute for tenant isolation
 - Pre-token generation Lambda adds tenant claims to JWT
 - Identity Pool maps claims to principal tags for cross-account resource access
 
 #### New Implementation
+
 - Add `custom:tenantAdmin` attribute (values: "true" | "false")
 - Update pre-token generation Lambda to include tenantAdmin claim in JWT
 - Backend APIs verify tenantAdmin claim for admin operations
@@ -94,15 +96,18 @@ GET /admin/status - Check admin status
 ### Frontend Components
 
 #### Pages
+
 - **AdminPortal.tsx**: Main admin dashboard with user management interface
 
 #### Components
+
 - **UserManagementTable.tsx**: Table displaying tenant users with action buttons
 - **UserInviteDialog.tsx**: Form for individual user invitation
 - **CSVUploader.tsx**: Component for bulk user invitation via CSV upload
 - **RoleSelector.tsx**: Dropdown for changing user roles
 
 #### Settings Page Update
+
 - Add "Admin Portal" button that appears only for users with tenantAdmin=true
 - Button navigation to /admin route
 
@@ -111,10 +116,12 @@ GET /admin/status - Check admin status
 ### Cognito Integration
 
 #### User Pool Configuration
+
 - No changes to existing user pool structure
 - Utilize existing custom attributes mechanism
 
 #### AdminCreateUser Parameters
+
 ```typescript
 {
   UserPoolId: USER_POOL_ID,
@@ -131,6 +138,7 @@ GET /admin/status - Check admin status
 ```
 
 #### Email Template
+
 ```
 Subject: Invitation to join [Tenant Name]
 
@@ -146,6 +154,7 @@ Please log in and change your password on first access.
 ### Access Control
 
 #### Backend Validation
+
 ```typescript
 // In each admin Lambda function
 const claims = await verifyToken(authToken);
@@ -156,6 +165,7 @@ if (!isAdmin) {
 ```
 
 #### Frontend Route Guards
+
 ```typescript
 // AdminPortal.tsx
 const { user } = useAuthenticator();
@@ -176,6 +186,7 @@ user3@example.com
 ```
 
 #### Validation Rules
+
 - Valid email format
 - Unique emails within CSV
 - Maximum 100 users per upload
@@ -192,18 +203,21 @@ user3@example.com
 ## Testing Strategy
 
 ### Unit Tests
+
 - Lambda function logic for user management operations
 - JWT claim verification
 - CSV parsing and validation
 - Component rendering based on admin status
 
 ### Integration Tests
+
 - End-to-end admin workflows
 - Cognito user creation and attribute management
 - Email invitation flow
 - Role switching validation
 
 ### Security Tests
+
 - Unauthorized access attempts
 - Cross-tenant data access attempts
 - Admin privilege escalation attempts
@@ -219,16 +233,19 @@ user3@example.com
 ## Migration Plan
 
 ### Phase 1: Backend Implementation
+
 1. Create Lambda functions
 2. Add API routes
 3. Update pre-token generation Lambda
 
 ### Phase 2: Frontend Implementation
+
 1. Create admin components
 2. Update settings page
 3. Add routing and guards
 
 ### Phase 3: Testing & Documentation
+
 1. End-to-end testing
 2. User documentation
 3. Admin training materials
@@ -236,6 +253,7 @@ user3@example.com
 ## Rollback Plan
 
 If issues occur:
+
 1. Remove admin API routes from API Gateway
 2. Revert pre-token generation Lambda
 3. Hide admin UI components via feature flag

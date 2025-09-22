@@ -37,7 +37,7 @@ const FileCard: React.FC<Props> = (props) => {
         )}
         {props.onDelete && !props.loading && (
           <ButtonIcon
-            className={`invisible absolute right-0 top-0 m-0.5 border bg-white text-xs group-hover:visible `}
+            className={`invisible absolute right-0 top-0 m-0.5 border bg-white text-xs group-hover:visible`}
             onClick={props.onDelete}>
             <PiX />
           </ButtonIcon>

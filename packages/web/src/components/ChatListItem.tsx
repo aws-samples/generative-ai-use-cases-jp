@@ -107,14 +107,13 @@ const ChatListItem: React.FC<Props> = (props) => {
         />
       )}
       <Link
-        className={`hover:bg-aws-sky group flex h-8 w-full items-center justify-start rounded p-2  ${
+        className={`hover:bg-aws-sky group flex h-8 w-full items-center justify-start rounded p-2 ${
           props.active && 'bg-aws-sky'
-        }
-          ${props.className}`}
+        } ${props.className}`}
         to={`/chat/${chatId}`}>
         <div
           className={`flex h-8 max-h-5 w-full justify-start overflow-hidden`}>
-          <div className="mr-2 ">
+          <div className="mr-2">
             <PiChat />
           </div>
           <div className="relative flex-1 text-ellipsis break-all">
@@ -133,9 +132,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             )}
             {!editing && (
               <div
-                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute right-0 w-8 bg-gradient-to-l
-            ${props.active ? 'from-aws-sky' : 'from-aws-squid-ink'}
-            `}
+                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute right-0 w-8 bg-gradient-to-l ${props.active ? 'from-aws-sky' : 'from-aws-squid-ink'} `}
               />
             )}
           </div>

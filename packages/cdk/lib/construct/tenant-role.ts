@@ -42,7 +42,8 @@ export class TenantRole extends Construct {
         'cognito-identity.amazonaws.com',
         {
           StringEquals: {
-            'cognito-identity.amazonaws.com:aud': props.identityPool.identityPoolId,
+            'cognito-identity.amazonaws.com:aud':
+              props.identityPool.identityPoolId,
           },
           'ForAnyValue:StringLike': {
             'cognito-identity.amazonaws.com:amr': 'authenticated',
@@ -136,10 +137,7 @@ export class TenantRole extends Construct {
             new PolicyStatement({
               sid: 'LambdaInvokeTenantFunctions',
               effect: Effect.ALLOW,
-              actions: [
-                'lambda:InvokeFunction',
-                'lambda:InvokeAsync',
-              ],
+              actions: ['lambda:InvokeFunction', 'lambda:InvokeAsync'],
               resources: [
                 // Allow invoking only Lambda functions for this specific tenant
                 `arn:aws:lambda:${props.region}:${props.account}:function:*`,
@@ -159,7 +157,6 @@ export class TenantRole extends Construct {
               ],
               resources: ['*'], // Transcribe doesn't have tenant-specific resources
             }),
-
           ],
         }),
       },

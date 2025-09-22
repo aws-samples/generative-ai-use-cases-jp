@@ -88,14 +88,16 @@ describe('Tenant Authentication', () => {
         delete event.requestContext.authorizer.claims['custom:tenant_id'];
       }
 
-      expect(() => extractTenantId(event)).toThrow('Tenant ID not found in JWT claims');
+      expect(() => extractTenantId(event)).toThrow(
+        'Tenant ID not found in JWT claims'
+      );
     });
   });
 
   describe('getTenantCredentials', () => {
     it('should validate required environment variables', async () => {
       const event = createMockEvent('test-tenant-123');
-      
+
       // Test missing AWS_REGION
       const originalRegion = process.env.AWS_REGION;
       delete process.env.AWS_REGION;
@@ -104,7 +106,7 @@ describe('Tenant Authentication', () => {
       );
       process.env.AWS_REGION = originalRegion;
 
-      // Test missing AWS_ACCOUNT_ID  
+      // Test missing AWS_ACCOUNT_ID
       const originalAccountId = process.env.AWS_ACCOUNT_ID;
       delete process.env.AWS_ACCOUNT_ID;
       await expect(getTenantCredentials(event)).rejects.toThrow(
@@ -115,8 +117,9 @@ describe('Tenant Authentication', () => {
 
     it('should build correct tenant role ARN', () => {
       const event = createMockEvent('test-tenant-123');
-      const expectedRoleArn = 'arn:aws:iam::123456789012:role/TenantRole-test-tenant-123';
-      
+      const expectedRoleArn =
+        'arn:aws:iam::123456789012:role/TenantRole-test-tenant-123';
+
       // We can't easily test the full flow without mocking STS, but we can validate the ARN construction
       // This would be tested by checking the console logs or by mocking the STS client
       expect(true).toBe(true); // Placeholder - in real implementation, we'd mock STS and verify the role ARN
@@ -127,34 +130,38 @@ describe('Tenant Authentication', () => {
 // Integration test helpers (for manual testing)
 export const testHelpers = {
   createMockEvent,
-  
+
   // Helper to validate that the new authentication flow works
   async validateAuthenticationFlow(tenantId: string) {
     console.log(`\n=== Authentication Flow Test ===`);
     console.log(`Testing tenant: ${tenantId}`);
-    
+
     const event = createMockEvent(tenantId);
-    
+
     try {
       console.log(`1. Extracting tenant ID from JWT claims...`);
       const extractedTenantId = extractTenantId(event);
       console.log(`   ✓ Tenant ID: ${extractedTenantId}`);
-      
+
       console.log(`2. Environment variables check...`);
       console.log(`   ✓ AWS_REGION: ${mockEnv.AWS_REGION}`);
       console.log(`   ✓ AWS_ACCOUNT_ID: ${mockEnv.AWS_ACCOUNT_ID}`);
-      
+
       console.log(`3. Building tenant role ARN...`);
       const expectedRoleArn = `arn:aws:iam::${mockEnv.AWS_ACCOUNT_ID}:role/TenantRole-${tenantId}`;
       console.log(`   ✓ Role ARN: ${expectedRoleArn}`);
-      
-      console.log(`\n✅ Authentication flow validation completed successfully!`);
+
+      console.log(
+        `\n✅ Authentication flow validation completed successfully!`
+      );
       console.log(`\nNext steps for full testing:`);
       console.log(`1. Deploy the stack with authentication changes`);
       console.log(`2. Create tenant-specific IAM roles`);
       console.log(`3. Test with real JWT tokens from Cognito User Pool`);
-      console.log(`4. Verify AssumeRoleWithWebIdentity works with actual AWS STS`);
-      
+      console.log(
+        `4. Verify AssumeRoleWithWebIdentity works with actual AWS STS`
+      );
+
       return {
         success: true,
         tenantId: extractedTenantId,

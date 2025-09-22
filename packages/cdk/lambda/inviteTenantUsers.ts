@@ -5,11 +5,17 @@ import {
   AdminGetUserCommand,
   MessageActionType,
   DeliveryMediumType,
-  AttributeType
+  AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyAdminAccess, isAdminContext, CORS_HEADERS } from './utils/adminAuth';
+import {
+  verifyAdminAccess,
+  isAdminContext,
+  CORS_HEADERS,
+} from './utils/adminAuth';
 
-const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION! });
+const cognitoClient = new CognitoIdentityProviderClient({
+  region: process.env.AWS_REGION!,
+});
 const USER_POOL_ID = process.env.USER_POOL_ID!;
 
 export interface InviteUserRequest {
@@ -28,12 +34,17 @@ export interface InviteResult {
 
 // Generate a secure temporary password
 function generateTemporaryPassword(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
   let password = '';
 
   // Ensure password meets requirements: uppercase, lowercase, number, symbol, 8+ chars
-  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(Math.floor(Math.random() * 26)); // uppercase
-  password += 'abcdefghijklmnopqrstuvwxyz'.charAt(Math.floor(Math.random() * 26)); // lowercase
+  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(
+    Math.floor(Math.random() * 26)
+  ); // uppercase
+  password += 'abcdefghijklmnopqrstuvwxyz'.charAt(
+    Math.floor(Math.random() * 26)
+  ); // lowercase
   password += '0123456789'.charAt(Math.floor(Math.random() * 10)); // number
   password += '!@#$%^&*'.charAt(Math.floor(Math.random() * 8)); // symbol
 
@@ -43,7 +54,10 @@ function generateTemporaryPassword(): string {
   }
 
   // Shuffle the password
-  return password.split('').sort(() => 0.5 - Math.random()).join('');
+  return password
+    .split('')
+    .sort(() => 0.5 - Math.random())
+    .join('');
 }
 
 // Validate email format
@@ -52,8 +66,9 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-
-export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
@@ -83,7 +98,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'emails array is required and must not be empty' }),
+        body: JSON.stringify({
+          message: 'emails array is required and must not be empty',
+        }),
       };
     }
 
@@ -91,19 +108,21 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Maximum 100 users can be invited at once' }),
+        body: JSON.stringify({
+          message: 'Maximum 100 users can be invited at once',
+        }),
       };
     }
 
     // Validate all emails
-    const invalidEmails = emails.filter(email => !isValidEmail(email));
+    const invalidEmails = emails.filter((email) => !isValidEmail(email));
     if (invalidEmails.length > 0) {
       return {
         statusCode: 400,
         headers: CORS_HEADERS,
         body: JSON.stringify({
           message: 'Invalid email addresses found',
-          invalidEmails
+          invalidEmails,
         }),
       };
     }
@@ -126,19 +145,20 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         // First, check if user already exists
         let userExists = false;
         let userStatus = '';
-        
+
         try {
           const getUserCommand = new AdminGetUserCommand({
             UserPoolId: USER_POOL_ID,
             Username: email,
           });
-          
+
           const existingUser = await cognitoClient.send(getUserCommand);
           userExists = true;
           userStatus = existingUser.UserStatus || '';
-          
-          console.log(`User ${email} already exists with status: ${userStatus}`);
-          
+
+          console.log(
+            `User ${email} already exists with status: ${userStatus}`
+          );
         } catch (getUserError: any) {
           if (getUserError.name !== 'UserNotFoundException') {
             throw getUserError; // Re-throw if it's not a "user not found" error
@@ -153,8 +173,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
             success: false,
             error: 'User already exists',
           });
-          
-          console.log(`User ${email} already exists with status: ${userStatus}`);
+
+          console.log(
+            `User ${email} already exists with status: ${userStatus}`
+          );
         } else {
           // Create new user
           const temporaryPassword = generateTemporaryPassword();
@@ -173,7 +195,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
             UserAttributes: userAttributes,
             TemporaryPassword: temporaryPassword,
             MessageAction: sendEmail ? undefined : MessageActionType.SUPPRESS,
-            DesiredDeliveryMediums: sendEmail ? [DeliveryMediumType.EMAIL] : undefined,
+            DesiredDeliveryMediums: sendEmail
+              ? [DeliveryMediumType.EMAIL]
+              : undefined,
           });
 
           const response = await cognitoClient.send(command);
@@ -188,7 +212,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
           console.log(`Successfully created new user: ${email}`);
         }
-
       } catch (error: any) {
         console.error(`Failed to process user ${email}:`, error);
 
@@ -198,7 +221,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         } else if (error.name === 'InvalidPasswordException') {
           errorMessage = 'Invalid password format';
         } else if (error.name === 'UnsupportedUserStateException') {
-          errorMessage = 'Cannot resend invitation - user is not in correct status';
+          errorMessage =
+            'Cannot resend invitation - user is not in correct status';
         } else if (error.name === 'UserNotFoundException') {
           errorMessage = 'User not found for resend operation';
         }
@@ -211,10 +235,12 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
 
-    const successCount = results.filter(r => r.success).length;
-    const failCount = results.filter(r => !r.success).length;
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.filter((r) => !r.success).length;
 
-    console.log(`Invitation results: ${successCount} successful, ${failCount} failed`);
+    console.log(
+      `Invitation results: ${successCount} successful, ${failCount} failed`
+    );
 
     return {
       statusCode: 200,
@@ -228,7 +254,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         },
       }),
     };
-
   } catch (error) {
     console.error('Error inviting users:', error);
     return {

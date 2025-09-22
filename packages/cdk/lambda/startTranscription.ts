@@ -23,7 +23,9 @@ export const handler = async (
     const userId = event.requestContext.authorizer!.claims.sub;
     const tenantId = getTenantId(event);
 
-    console.log(`Starting transcription for tenant: ${tenantId}, user: ${userId}`);
+    console.log(
+      `Starting transcription for tenant: ${tenantId}, user: ${userId}`
+    );
 
     const { audioUrl, speakerLabel, maxSpeakers, languageCode } = req;
     const uuid = uuidv4();
@@ -37,7 +39,9 @@ export const handler = async (
         };
       }
 
-      console.log(`Creating tenant-specific Transcribe client for tenant: ${tenantId}`);
+      console.log(
+        `Creating tenant-specific Transcribe client for tenant: ${tenantId}`
+      );
 
       // Get tenant info for bucket name generation
       const tenant = await getTenant(tenantId);
@@ -47,7 +51,9 @@ export const handler = async (
 
       const tenantAccountId = extractAccountIdFromRoleArn(tenant.roleArn);
       if (!tenantAccountId || !tenant.region || !tenant.environment) {
-        throw new Error(`Incomplete tenant information for ${tenantId}: accountId=${tenantAccountId}, region=${tenant.region}, environment=${tenant.environment}`);
+        throw new Error(
+          `Incomplete tenant information for ${tenantId}: accountId=${tenantAccountId}, region=${tenant.region}, environment=${tenant.environment}`
+        );
       }
 
       // Generate tenant-specific transcript bucket name

@@ -1,13 +1,13 @@
-import { CfnOutput, RemovalPolicy, Stack } from "aws-cdk-lib";
+import { CfnOutput, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import {
   AttributeType,
   BillingMode,
   Table,
   TableEncryption,
   StreamViewType,
-} from "aws-cdk-lib/aws-dynamodb";
-import { AccountPrincipal, Role } from "aws-cdk-lib/aws-iam";
-import { Construct } from "constructs";
+} from 'aws-cdk-lib/aws-dynamodb';
+import { AccountPrincipal, Role } from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
 
 export interface DatabaseProps {
   pointInTimeRecovery?: boolean;
@@ -23,11 +23,11 @@ export class Database extends Construct {
     super(scope, id);
 
     // Conversation Table
-    const conversationTable = new Table(this, "ConversationTableV3", {
+    const conversationTable = new Table(this, 'ConversationTableV3', {
       // PK: UserId
-      partitionKey: { name: "PK", type: AttributeType.STRING },
+      partitionKey: { name: 'PK', type: AttributeType.STRING },
       // SK: ConversationId
-      sortKey: { name: "SK", type: AttributeType.STRING },
+      sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
       stream: StreamViewType.NEW_IMAGE,
@@ -36,16 +36,16 @@ export class Database extends Construct {
     });
     conversationTable.addGlobalSecondaryIndex({
       // Used to fetch conversation or bot by id
-      indexName: "SKIndex",
-      partitionKey: { name: "SK", type: AttributeType.STRING },
+      indexName: 'SKIndex',
+      partitionKey: { name: 'SK', type: AttributeType.STRING },
     });
 
     // Bot Table
-    const botTable = new Table(this, "BotTableV3", {
+    const botTable = new Table(this, 'BotTableV3', {
       // PK: UserId
-      partitionKey: { name: "PK", type: AttributeType.STRING },
+      partitionKey: { name: 'PK', type: AttributeType.STRING },
       // SK: ItemType
-      sortKey: { name: "SK", type: AttributeType.STRING },
+      sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
       stream: StreamViewType.NEW_IMAGE,
@@ -55,32 +55,32 @@ export class Database extends Construct {
     });
     // LSI-1
     botTable.addLocalSecondaryIndex({
-      indexName: "StarredIndex",
-      sortKey: { name: "IsStarred", type: AttributeType.STRING },
+      indexName: 'StarredIndex',
+      sortKey: { name: 'IsStarred', type: AttributeType.STRING },
     });
     // LSI-2
     botTable.addLocalSecondaryIndex({
-      indexName: "LastUsedTimeIndex",
-      sortKey: { name: "LastUsedTime", type: AttributeType.NUMBER },
+      indexName: 'LastUsedTimeIndex',
+      sortKey: { name: 'LastUsedTime', type: AttributeType.NUMBER },
     });
     // GSI-1
     botTable.addGlobalSecondaryIndex({
-      indexName: "BotIdIndex",
-      partitionKey: { name: "BotId", type: AttributeType.STRING },
+      indexName: 'BotIdIndex',
+      partitionKey: { name: 'BotId', type: AttributeType.STRING },
     });
     // GSI-2
     botTable.addGlobalSecondaryIndex({
-      indexName: "SharedScopeIndex",
-      partitionKey: { name: "SharedScope", type: AttributeType.STRING },
-      sortKey: { name: "SharedStatus", type: AttributeType.STRING },
+      indexName: 'SharedScopeIndex',
+      partitionKey: { name: 'SharedScope', type: AttributeType.STRING },
+      sortKey: { name: 'SharedStatus', type: AttributeType.STRING },
     });
     // GSI-3
     botTable.addGlobalSecondaryIndex({
-      indexName: "ItemTypeIndex",
-      partitionKey: { name: "ItemType", type: AttributeType.STRING },
+      indexName: 'ItemTypeIndex',
+      partitionKey: { name: 'ItemType', type: AttributeType.STRING },
     });
 
-    const tableAccessRole = new Role(this, "TableAccessRole", {
+    const tableAccessRole = new Role(this, 'TableAccessRole', {
       assumedBy: new AccountPrincipal(Stack.of(this).account),
     });
     conversationTable.grantReadWriteData(tableAccessRole);
@@ -88,12 +88,12 @@ export class Database extends Construct {
 
     // Websocket session table.
     // This table is used to concatenate user input exceeding 32KB which is the limit of API Gateway.
-    const websocketSessionTable = new Table(this, "WebsocketSessionTable", {
-      partitionKey: { name: "ConnectionId", type: AttributeType.STRING },
-      sortKey: { name: "MessagePartId", type: AttributeType.NUMBER },
+    const websocketSessionTable = new Table(this, 'WebsocketSessionTable', {
+      partitionKey: { name: 'ConnectionId', type: AttributeType.STRING },
+      sortKey: { name: 'MessagePartId', type: AttributeType.NUMBER },
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY,
-      timeToLiveAttribute: "expire",
+      timeToLiveAttribute: 'expire',
     });
 
     this.conversationTable = conversationTable;
@@ -101,10 +101,10 @@ export class Database extends Construct {
     this.tableAccessRole = tableAccessRole;
     this.websocketSessionTable = websocketSessionTable;
 
-    new CfnOutput(this, "ConversationTableName", {
+    new CfnOutput(this, 'ConversationTableName', {
       value: conversationTable.tableName,
     });
-    new CfnOutput(this, "BotTableName", {
+    new CfnOutput(this, 'BotTableName', {
       value: botTable.tableName,
     });
   }

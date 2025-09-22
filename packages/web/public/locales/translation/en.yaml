@@ -1,77 +1,77 @@
 adminPortal:
-  title: Admin Portal
-  manageTenant: 'Manage users for tenant: {{tenantId}}'
-  inviteUsers: Invite Users
-  userManagement: User Management
-  stats:
-    totalUsers: Total Users
-    admins: Admins
-    regularUsers: Regular
-    disabledUsers: Disabled
-  table:
-    user: User
-    role: Role
-    status: Status
-    created: Created
-    actions: Actions
-  roles:
-    regularUser: Regular User
-    admin: Admin
-  status:
-    disabled: DISABLED
   actions:
     remove: Remove
-  messages:
-    loading: Loading...
-    refreshingSession: Refreshing session...
-    failedToCheckAdminStatus: Failed to verify admin status
-    failedToLoadUsers: Failed to load users
-    failedToUpdateUserRole: Failed to update user role
-    failedToRefreshSession: Failed to refresh authentication session
-    failedToRemoveUser: Failed to remove user
-    removeUserConfirmation: 'Are you sure you want to remove user {{username}}? This action cannot be undone.'
-    noUsersFound: No users found
   invite:
-    title: Invite Users
-    mode:
-      single: Single User
-      bulk: Bulk Invite
-    singleUser:
-      emailLabel: Email Address
-      emailPlaceholder: user@example.com
-    bulkMode:
-      csvUpload: CSV File Upload
-      csvFormat: 'CSV format: Email in first column. Example: john@example.com,John Doe,Sales'
-      csvSelected: 'Selected: {{filename}}'
-      manualEntry: Manual Entry (one email per line)
-      manualPlaceholder: user1@example.com
-      or: or
-    options:
-      sendEmail: Send invitation email automatically
-      sendEmailHelp: Users will receive email with login instructions
-      noSendEmailHelp: You will need to manually share login credentials with users
-    errors:
-      invalidFile: Please select a valid CSV file
-      noEmailsProvided: Please provide at least one email address
-      tooManyEmails: Maximum 100 users can be invited at once
-      invitationFailed: Failed to invite users
-    results:
-      title: Invitation Results
-      summary: 'Total: {{total}} | Successful: {{successful}} | Failed: {{failed}}'
-      invited: ✓ Invited
-      failed: '✗ {{error}}'
-      warning: 'Important: Since automatic emails are disabled, you need to manually share the temporary passwords with invited users.'
     actions:
       cancel: Cancel
       close: Close
-      sendInvitations: Send Invitations
       inviting: Inviting...
+      sendInvitations: Send Invitations
+    bulkMode:
+      csvFormat: 'CSV format: Email in first column. Example: john@example.com,John Doe,Sales'
+      csvSelected: 'Selected: {{filename}}'
+      csvUpload: CSV File Upload
+      manualEntry: Manual Entry (one email per line)
+      manualPlaceholder: user1@example.com
+      or: or
+    errors:
+      invalidFile: Please select a valid CSV file
+      invitationFailed: Failed to invite users
+      noEmailsProvided: Please provide at least one email address
+      tooManyEmails: Maximum 100 users can be invited at once
+    mode:
+      bulk: Bulk Invite
+      single: Single User
+    options:
+      noSendEmailHelp: You will need to manually share login credentials with users
+      sendEmail: Send invitation email automatically
+      sendEmailHelp: Users will receive email with login instructions
+    results:
+      failed: '✗ {{error}}'
+      invited: ✓ Invited
+      summary: 'Total: {{total}} | Successful: {{successful}} | Failed: {{failed}}'
+      title: Invitation Results
+      warning: 'Important: Since automatic emails are disabled, you need to manually share the temporary passwords with invited users.'
+    singleUser:
+      emailLabel: Email Address
+      emailPlaceholder: user@example.com
+    title: Invite Users
     unconfiguredDomain:
-      title: Domain Configuration Warning
-      message: The following email addresses have domains that are not configured for self-signup. These users will need admin assistance to access the system after invitation.
       affectedUsers: 'Users with unconfigured domains:'
       cancel: Cancel
+      message: The following email addresses have domains that are not configured for self-signup. These users will need admin assistance to access the system after invitation.
       proceedAnyway: Proceed Anyway
+      title: Domain Configuration Warning
+  inviteUsers: Invite Users
+  manageTenant: 'Manage users for tenant: {{tenantId}}'
+  messages:
+    failedToCheckAdminStatus: Failed to verify admin status
+    failedToLoadUsers: Failed to load users
+    failedToRefreshSession: Failed to refresh authentication session
+    failedToRemoveUser: Failed to remove user
+    failedToUpdateUserRole: Failed to update user role
+    loading: Loading...
+    noUsersFound: No users found
+    refreshingSession: Refreshing session...
+    removeUserConfirmation: 'Are you sure you want to remove user {{username}}? This action cannot be undone.'
+  roles:
+    admin: Admin
+    regularUser: Regular User
+  stats:
+    admins: Admins
+    disabledUsers: Disabled
+    regularUsers: Regular
+    totalUsers: Total Users
+  status:
+    disabled: DISABLED
+  table:
+    actions: Actions
+    created: Created
+    role: Role
+    user: User
+    status: Status
+  title: Admin Portal
+  userManagement: User Management
 agent:
   drop_files: Drop files to upload
   title: Agent Chat
@@ -842,6 +842,108 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
+ragChatBot:
+  all: All
+  allBots: All Bots
+  changeVisibility: Change Visibility
+  chat: Chat
+  chatPage:
+    botInfo: Bot Information
+    chunksEnabled: Chunks display enabled
+    confirmClear: Are you sure you want to clear the conversation?
+    copy: Copy
+    inputPlaceholder: Type a message...
+    instruction: Instruction
+    syncStatus: Sync Status
+    title: ChatBot Chat
+    noMessages: No messages
+    quickStarters: Quick Starters
+    send: Send
+    sendError: Failed to send message
+  confirmDelete: Are you sure you want to delete this bot?
+  createNew: Create New Bot
+  delete: Delete
+  description: Create, manage, and share AI bots
+  title: RAG ChatBot Management
+  search: Search
+  searchPlaceholder: Search by bot name or description
+  filter: Filter
+  filterAll: All
+  filterPrivate: Private
+  filterPublic: Public
+  filterStarred: Starred
+  scopeFilter: Scope
+  showStarredOnly: Show starred only
+  popularBots: Popular Bots
+  starredOnly: Starred Only
+  myBots: My Bots
+  edit:
+    add: Add
+    back: Back
+    basicInfo: Basic Information
+    cancel: Cancel
+    createTitle: Create New Bot
+    description: Description
+    displayRetrievedChunks: Display Retrieved Chunks
+    editTitle: Edit Bot
+    instruction: Instruction
+    title: Title
+    generationParams: Generation Parameters
+    knowledge: Knowledge Base
+    maxTokens: Max Tokens
+    sourceUrls: Source URLs
+    temperature: Temperature
+    topK: Top-K
+    topP: Top-P
+    uploadFiles: Upload Files
+    promptCaching: Prompt Caching
+    quickStarterExample: Example
+    quickStarterTitle: Title
+    quickStarters: Quick Starters
+    requiredFields: Please fill in required fields
+    save: Save
+    saveBeforeUpload: Please save the bot before uploading files
+    saveFailed: Failed to save
+    saving: Saving...
+  editTitle: Edit
+  history:
+    back: Back
+    confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
+    confirmDelete: Are you sure you want to delete this conversation?
+    daysAgo: '{{days}} days ago'
+    deleteSelected: Delete Selected
+    search: Search
+    searchPlaceholder: Search conversations...
+    title: Conversation History
+    deselectAll: Deselect All
+    hoursAgo: '{{hours}} hours ago'
+    lastMessage: Last message
+    minutesAgo: '{{minutes}} minutes ago'
+    selectAll: Select All
+    selected: '{{count}} selected'
+    noConversations: No conversations found
+    noDate: No date
+    open: Open
+    showing: 'Showing {{count}} conversations'
+    untitled: Untitled
+    yesterday: Yesterday
+    messageCount: 'Messages: {{count}}'
+  lastUsed: Last used
+  noBots: No bots found
+  viewMore: View More
+  shared: Shared
+  organizationPublic: Organization Public
+  organizationPublicDescription: Members of your organization can use this bot
+  private: Private
+  privateDescription: Only you can use this bot
+  syncStatus:
+    completed: Sync Complete
+    failed: Sync Failed
+    syncing: Syncing
+  star: Star
+  tenantPublic: Tenant Public
+  tenantPublicDescription: Members of your tenant can use this bot
+  unstar: Unstar
 setting:
   ai_items:
     agent_name: Agent Name
@@ -1433,105 +1535,3 @@ writer:
   tutorial: Tutorial
   tutorial_success: Tutorial loaded
   useAsTextEditor: Use as a Text Editor
-ragChatBot:
-  title: RAG ChatBot Management
-  description: Create, manage, and share AI bots
-  search: Search
-  searchPlaceholder: Search by bot name or description
-  filter: Filter
-  filterAll: All
-  filterPrivate: Private
-  filterPublic: Public
-  filterStarred: Starred
-  showStarredOnly: Show starred only
-  scopeFilter: Scope
-  all: All
-  starredOnly: Starred Only
-  createNew: Create New Bot
-  popularBots: Popular Bots
-  myBots: My Bots
-  allBots: All Bots
-  noBots: No bots found
-  viewMore: View More
-  chat: Chat
-  confirmDelete: Are you sure you want to delete this bot?
-  shared: Shared
-  lastUsed: Last used
-  editTitle: Edit
-  delete: Delete
-  syncStatus:
-    completed: Sync Complete
-    syncing: Syncing
-    failed: Sync Failed
-  changeVisibility: Change Visibility
-  private: Private
-  privateDescription: Only you can use this bot
-  organizationPublic: Organization Public
-  organizationPublicDescription: Members of your organization can use this bot
-  tenantPublic: Tenant Public
-  tenantPublicDescription: Members of your tenant can use this bot
-  star: Star
-  unstar: Unstar
-  edit:
-    back: Back
-    editTitle: Edit Bot
-    createTitle: Create New Bot
-    basicInfo: Basic Information
-    title: Title
-    description: Description
-    instruction: Instruction
-    generationParams: Generation Parameters
-    maxTokens: Max Tokens
-    temperature: Temperature
-    topP: Top-P
-    topK: Top-K
-    knowledge: Knowledge Base
-    sourceUrls: Source URLs
-    uploadFiles: Upload Files
-    displayRetrievedChunks: Display Retrieved Chunks
-    promptCaching: Prompt Caching
-    quickStarters: Quick Starters
-    quickStarterTitle: Title
-    quickStarterExample: Example
-    add: Add
-    cancel: Cancel
-    save: Save
-    saving: Saving...
-    saveFailed: Failed to save
-    requiredFields: Please fill in required fields
-    saveBeforeUpload: Please save the bot before uploading files
-  chatPage:
-    title: ChatBot Chat
-    botInfo: Bot Information
-    instruction: Instruction
-    syncStatus: Sync Status
-    chunksEnabled: Chunks display enabled
-    noMessages: No messages
-    quickStarters: Quick Starters
-    inputPlaceholder: Type a message...
-    send: Send
-    sendError: Failed to send message
-    confirmClear: Are you sure you want to clear the conversation?
-    copy: Copy
-  history:
-    title: Conversation History
-    back: Back
-    searchPlaceholder: Search conversations...
-    search: Search
-    confirmDelete: Are you sure you want to delete this conversation?
-    confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
-    selected: '{{count}} selected'
-    selectAll: Select All
-    deselectAll: Deselect All
-    deleteSelected: Delete Selected
-    noConversations: No conversations found
-    showing: 'Showing {{count}} conversations'
-    open: Open
-    untitled: Untitled
-    noDate: No date
-    minutesAgo: '{{minutes}} minutes ago'
-    hoursAgo: '{{hours}} hours ago'
-    yesterday: Yesterday
-    daysAgo: '{{days}} days ago'
-    lastMessage: Last message
-    messageCount: 'Messages: {{count}}'

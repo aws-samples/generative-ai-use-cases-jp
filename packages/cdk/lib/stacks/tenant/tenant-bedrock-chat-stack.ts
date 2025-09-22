@@ -11,7 +11,10 @@ import { Database } from '../../temp-bedrock-chat/constructs/database';
 import { WebSocket } from '../../temp-bedrock-chat/constructs/websocket';
 import { Embedding } from '../../temp-bedrock-chat/constructs/embedding';
 import { UsageAnalysis } from '../../temp-bedrock-chat/constructs/usage-analysis';
-import { BotStore, Language } from '../../temp-bedrock-chat/constructs/bot-store';
+import {
+  BotStore,
+  Language,
+} from '../../temp-bedrock-chat/constructs/bot-store';
 import { excludeDockerImage } from '../../temp-bedrock-chat/constants/docker';
 import { BedrockCustomBotCodebuild } from '../../temp-bedrock-chat/constructs/bedrock-custom-bot-codebuild';
 
@@ -87,7 +90,7 @@ export interface TenantBedrockChatStackProps extends cdk.StackProps {
 
 /**
  * テナント専用のBedrock Chatスタック
- * 
+ *
  * このスタックは、各テナントごとに独立したチャット機能を提供するためのAWSリソースを作成します。
  * マルチテナントアーキテクチャにおいて、各テナントのデータとリソースを完全に分離し、
  * セキュアで独立したチャット環境を実現します。
@@ -123,22 +126,28 @@ export class TenantBedrockChatStack extends cdk.Stack {
    */
   public readonly documentBucket: s3.Bucket;
 
-  constructor(scope: Construct, id: string, props: TenantBedrockChatStackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: TenantBedrockChatStackProps
+  ) {
     super(scope, id, props);
 
     // テナントIDの取得または作成
     // propsで提供されない場合は、CloudFormationパラメータとして定義
-    const tenantId = props?.tenantId || new cdk.CfnParameter(this, 'TenantId', {
-      description: 'Bedrock Chatリソース用のテナント識別子',
-      type: 'String',
-      allowedPattern: '^[a-zA-Z0-9-]+$',
-      constraintDescription: 'テナントIDは英数字とハイフンのみ使用可能です',
-    }).valueAsString;
+    const tenantId =
+      props?.tenantId ||
+      new cdk.CfnParameter(this, 'TenantId', {
+        description: 'Bedrock Chatリソース用のテナント識別子',
+        type: 'String',
+        allowedPattern: '^[a-zA-Z0-9-]+$',
+        constraintDescription: 'テナントIDは英数字とハイフンのみ使用可能です',
+      }).valueAsString;
 
     // 必須パラメータの取得
-    const environment = props.environment;  // 環境名（dev, staging, prod など）
-    const bedrockRegion = props.bedrockRegion;  // Bedrockを使用するリージョン
-    const envPrefix = props.environment ?? '';  // リソース名で使用する環境プレフィックス
+    const environment = props.environment; // 環境名（dev, staging, prod など）
+    const bedrockRegion = props.bedrockRegion; // Bedrockを使用するリージョン
+    const envPrefix = props.environment ?? ''; // リソース名で使用する環境プレフィックス
 
     // ==============================================
     // 1. ドキュメントバケットの作成
@@ -147,16 +156,21 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // テナントごとに完全に分離されたストレージを提供
     this.documentBucket = new s3.Bucket(this, 'DocumentBucket', {
       bucketName: `bedrock-chat-docs-${environment}-${tenantId}`,
-      encryption: s3.BucketEncryption.S3_MANAGED,  // S3管理の暗号化を使用
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,  // パブリックアクセスを完全にブロック
-      enforceSSL: true,  // HTTPS接続のみを許可
-      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,  // スタック削除時の動作
-      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,  // DESTROYの場合、中身も削除
-      cors: [  // CORS設定（ブラウザからの直接アップロードを許可）
+      encryption: s3.BucketEncryption.S3_MANAGED, // S3管理の暗号化を使用
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL, // パブリックアクセスを完全にブロック
+      enforceSSL: true, // HTTPS接続のみを許可
+      removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN, // スタック削除時の動作
+      autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY, // DESTROYの場合、中身も削除
+      cors: [
+        // CORS設定（ブラウザからの直接アップロードを許可）
         {
-          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.PUT, s3.HttpMethods.POST],
-          allowedOrigins: ["*"],  // 本番環境では特定のドメインに制限すべき
-          allowedHeaders: ["*"],
+          allowedMethods: [
+            s3.HttpMethods.GET,
+            s3.HttpMethods.PUT,
+            s3.HttpMethods.POST,
+          ],
+          allowedOrigins: ['*'], // 本番環境では特定のドメインに制限すべき
+          allowedHeaders: ['*'],
           maxAge: 3000,
         },
       ],
@@ -168,7 +182,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // DynamoDBテーブル群を作成（会話履歴、ボット定義、セッション管理など）
     // Point-in-Time Recovery（PITR）を有効化して、データの復旧を可能に
     this.database = new Database(this, 'Database', {
-      pointInTimeRecovery: true,  // 過去35日間の任意の時点へのリストアが可能
+      pointInTimeRecovery: true, // 過去35日間の任意の時点へのリストアが可能
     });
 
     // ==============================================
@@ -178,14 +192,14 @@ export class TenantBedrockChatStack extends cdk.Stack {
     const handlerRole = new iam.Role(this, 'HandlerRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
-    
+
     // 基本的なLambda実行権限を付与
     handlerRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         'service-role/AWSLambdaBasicExecutionRole'
       )
     );
-    
+
     // tableAccessRoleをAssumeRoleできる権限を付与
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
@@ -218,8 +232,8 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // DynamoDBのデータをエクスポートし、Athenaで分析可能にする
     this.usageAnalysis = new UsageAnalysis(this, 'UsageAnalysis', {
       envPrefix,
-      accessLogBucket,  // ログの保存先
-      sourceDatabase: this.database,  // 分析対象のデータベース
+      accessLogBucket, // ログの保存先
+      sourceDatabase: this.database, // 分析対象のデータベース
     });
 
     // ボットストア機能の作成（Lambda関数作成前に移動）
@@ -227,10 +241,10 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // OpenSearchを使用した高度な検索が可能
     this.botStore = new BotStore(this, 'BotStore', {
       envPrefix,
-      botTable: this.database.botTable,  // ボット定義を保存するテーブル
-      conversationTable: this.database.conversationTable,  // 会話履歴テーブル
-      language: props.botStoreLanguage || 'ja',  // デフォルトは日本語
-      enableBotStoreReplicas: props.enableBotStoreReplicas || false,  // レプリカによる高可用性
+      botTable: this.database.botTable, // ボット定義を保存するテーブル
+      conversationTable: this.database.conversationTable, // 会話履歴テーブル
+      language: props.botStoreLanguage || 'ja', // デフォルトは日本語
+      enableBotStoreReplicas: props.enableBotStoreReplicas || false, // レプリカによる高可用性
     });
 
     // Bedrock ChatのAPI処理を行うLambda関数
@@ -240,7 +254,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
       index: 'app/main.py',
       bundling: {
         assetExcludes: [...excludeDockerImage],
-        buildArgs: { POETRY_VERSION: "1.8.3" },
+        buildArgs: { POETRY_VERSION: '1.8.3' },
       },
       runtime: Runtime.PYTHON_3_13,
       architecture: Architecture.X86_64,
@@ -264,7 +278,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         LARGE_MESSAGE_BUCKET: largeMessageBucket.bucketName,
         OPENSEARCH_DOMAIN_ENDPOINT: this.botStore.openSearchEndpoint || '',
         ENABLE_BEDROCK_CROSS_REGION_INFERENCE: 'true',
-        GLOBAL_AVAILABLE_MODELS: props.globalAvailableModels 
+        GLOBAL_AVAILABLE_MODELS: props.globalAvailableModels
           ? JSON.stringify(props.globalAvailableModels)
           : '[]',
         // UsageAnalysis関連の環境変数
@@ -295,7 +309,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // S3バケットへのアクセス権限を付与
     this.documentBucket.grantReadWrite(apiHandler);
     largeMessageBucket.grantReadWrite(apiHandler);
-    
+
     // WebSocketセッションテーブルへのアクセス権限を付与（32KB超のメッセージ処理用）
     this.database.websocketSessionTable.grantReadWriteData(apiHandler);
 
@@ -306,7 +320,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         resources: ['*'],
       })
     );
-    
+
     // Cognito権限は削除（クロスアカウントアクセス不可のため）
     // ユーザー情報はプロキシLambdaからカスタムヘッダー経由で受け取る
 
@@ -341,11 +355,21 @@ export class TenantBedrockChatStack extends cdk.Stack {
         envPrefix,
         'LambdaDataAccessPolicy',
         handlerRole,
-        ['aoss:DescribeCollectionItems', 'aoss:CreateCollectionItems', 'aoss:UpdateCollectionItems'],
-        ['aoss:ReadDocument', 'aoss:WriteDocument', 'aoss:DescribeIndex', 'aoss:CreateIndex', 'aoss:UpdateIndex']
+        [
+          'aoss:DescribeCollectionItems',
+          'aoss:CreateCollectionItems',
+          'aoss:UpdateCollectionItems',
+        ],
+        [
+          'aoss:ReadDocument',
+          'aoss:WriteDocument',
+          'aoss:DescribeIndex',
+          'aoss:CreateIndex',
+          'aoss:UpdateIndex',
+        ]
       );
     }
-    
+
     // SecretManager権限（Firecrawl APIキーなどの管理用）
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
@@ -367,7 +391,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         ],
       })
     );
-    
+
     // UsageAnalysis関連の権限（使用状況分析機能用）
     if (this.usageAnalysis) {
       // Athenaクエリ実行権限
@@ -385,7 +409,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
           resources: [this.usageAnalysis.workgroupArn || ''],
         })
       );
-      
+
       // Glueデータカタログへのアクセス権限
       handlerRole.addToPolicy(
         new iam.PolicyStatement({
@@ -397,7 +421,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
           ],
         })
       );
-      
+
       handlerRole.addToPolicy(
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
@@ -415,12 +439,11 @@ export class TenantBedrockChatStack extends cdk.Stack {
           ],
         })
       );
-      
+
       // S3バケットへのアクセス権限
       this.usageAnalysis.resultOutputBucket.grantReadWrite(handlerRole);
       this.usageAnalysis.ddbBucket.grantRead(handlerRole);
     }
-
 
     // ==============================================
     // 4. CodeBuildプロジェクトの作成（Knowledge Base用）
@@ -434,22 +457,28 @@ export class TenantBedrockChatStack extends cdk.Stack {
       removalPolicy: props.removalPolicy || cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: props.removalPolicy === cdk.RemovalPolicy.DESTROY,
     });
-    
+
     // CodeBuild用のソースコードをS3バケットにデプロイ
     new s3deploy.BucketDeployment(this, 'CodeBuildSourceDeployment', {
       sources: [
-        s3deploy.Source.asset(path.join(__dirname, '../../temp-bedrock-chat/codebuild-source')),
+        s3deploy.Source.asset(
+          path.join(__dirname, '../../temp-bedrock-chat/codebuild-source')
+        ),
       ],
       destinationBucket: codeBuildSourceBucket,
     });
-    
+
     // Knowledge Base構築用のCodeBuildプロジェクトを作成
-    const bedrockCustomBotCodebuild = new BedrockCustomBotCodebuild(this, 'BedrockCustomBotCodebuild', {
-      envName: environment,
-      envPrefix,
-      bedrockRegion: bedrockRegion,
-      sourceBucket: codeBuildSourceBucket,
-    });
+    const bedrockCustomBotCodebuild = new BedrockCustomBotCodebuild(
+      this,
+      'BedrockCustomBotCodebuild',
+      {
+        envName: environment,
+        envPrefix,
+        bedrockRegion: bedrockRegion,
+        sourceBucket: codeBuildSourceBucket,
+      }
+    );
 
     // ==============================================
     // 5. Embedding（ベクトル化）機能の作成（オプション）
@@ -462,7 +491,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         database: this.database,
         documentBucket: this.documentBucket,
         bedrockCustomBotProject: bedrockCustomBotCodebuild.project,
-        enableRagReplicas: props.enableRagReplicas || false,  // レプリカによる高可用性
+        enableRagReplicas: props.enableRagReplicas || false, // レプリカによる高可用性
       });
     }
 
@@ -470,7 +499,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // 6. スタック出力の定義
     // ==============================================
     // 他のスタックやアプリケーションから参照するための出力値
-    
+
     // API Lambda関数のARN（プロキシから呼び出すため）
     new cdk.CfnOutput(this, 'ApiHandlerArn', {
       value: apiHandler.functionArn,
@@ -489,12 +518,11 @@ export class TenantBedrockChatStack extends cdk.Stack {
     // 10. リソースタグの追加
     // ==============================================
     // コスト管理とリソース識別のためのタグ付け
-    cdk.Tags.of(this).add('TenantId', tenantId.toString());  // テナント識別用
-    cdk.Tags.of(this).add('Environment', environment);  // 環境識別用
-    cdk.Tags.of(this).add('Purpose', 'TenantBedrockChat');  // 用途識別用
+    cdk.Tags.of(this).add('TenantId', tenantId.toString()); // テナント識別用
+    cdk.Tags.of(this).add('Environment', environment); // 環境識別用
+    cdk.Tags.of(this).add('Purpose', 'TenantBedrockChat'); // 用途識別用
 
     // スタックの説明文を設定
-    this.templateOptions.description = 
-      `テナント ${tenantId} 専用のBedrock Chatリソースを作成します`;
+    this.templateOptions.description = `テナント ${tenantId} 専用のBedrock Chatリソースを作成します`;
   }
 }

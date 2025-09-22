@@ -1,6 +1,11 @@
 import { Construct } from 'constructs';
 import { RemovalPolicy, Duration } from 'aws-cdk-lib';
-import { Table, AttributeType, BillingMode, TableEncryption } from 'aws-cdk-lib/aws-dynamodb';
+import {
+  Table,
+  AttributeType,
+  BillingMode,
+  TableEncryption,
+} from 'aws-cdk-lib/aws-dynamodb';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Tracing } from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
@@ -35,27 +40,33 @@ export class TenantManager extends Construct {
     });
 
     // Tenant Registration Lambda Function
-    this.registrationLambda = new NodejsFunction(this, 'TenantRegistrationFunction', {
-      functionName: `TenantRegistration-${props.environment}`,
-      entry: path.join(__dirname, '..', '..', 'lambda', 'tenantRegistrationHandler.ts'),
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      timeout: Duration.minutes(5),
-      memorySize: 256,
-      tracing: Tracing.ACTIVE,
-      environment: {
-        TENANTS_TABLE_NAME: this.tenantsTable.tableName,
-      },
-      bundling: {
-        minify: true,
-        nodeModules: [
-          '@aws-sdk/client-dynamodb',
-          '@aws-sdk/util-dynamodb'
-        ],
-      },
-    });
+    this.registrationLambda = new NodejsFunction(
+      this,
+      'TenantRegistrationFunction',
+      {
+        functionName: `TenantRegistration-${props.environment}`,
+        entry: path.join(
+          __dirname,
+          '..',
+          '..',
+          'lambda',
+          'tenantRegistrationHandler.ts'
+        ),
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        timeout: Duration.minutes(5),
+        memorySize: 256,
+        tracing: Tracing.ACTIVE,
+        environment: {
+          TENANTS_TABLE_NAME: this.tenantsTable.tableName,
+        },
+        bundling: {
+          minify: true,
+          nodeModules: ['@aws-sdk/client-dynamodb', '@aws-sdk/util-dynamodb'],
+        },
+      }
+    );
 
     // Grant permissions to the Lambda function
     this.tenantsTable.grantReadWriteData(this.registrationLambda);
-
   }
 }

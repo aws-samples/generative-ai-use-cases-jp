@@ -1,9 +1,5 @@
 import { Construct } from 'constructs';
-import {
-  Role,
-  PolicyStatement,
-  Effect,
-} from 'aws-cdk-lib/aws-iam';
+import { Role, PolicyStatement, Effect } from 'aws-cdk-lib/aws-iam';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 

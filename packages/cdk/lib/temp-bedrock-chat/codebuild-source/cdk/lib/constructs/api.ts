@@ -1,31 +1,31 @@
-import { Construct } from "constructs";
-import { CfnOutput, CfnResource, Duration } from "aws-cdk-lib";
-import { ITable } from "aws-cdk-lib/aws-dynamodb";
-import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
-import { HttpUserPoolAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+import { Construct } from 'constructs';
+import { CfnOutput, CfnResource, Duration } from 'aws-cdk-lib';
+import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import { HttpUserPoolAuthorizer } from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import {
   Architecture,
   IFunction,
   LayerVersion,
   Runtime,
   SnapStartConf,
-} from "aws-cdk-lib/aws-lambda";
+} from 'aws-cdk-lib/aws-lambda';
 import {
   CorsHttpMethod,
   HttpApi,
   HttpMethod,
-} from "aws-cdk-lib/aws-apigatewayv2";
-import { IAuth } from "./auth";
-import { Stack } from "aws-cdk-lib";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as logs from "aws-cdk-lib/aws-logs";
-import * as path from "path";
-import { IBucket } from "aws-cdk-lib/aws-s3";
-import * as codebuild from "aws-cdk-lib/aws-codebuild";
-import { UsageAnalysis } from "./usage-analysis";
-import { excludeDockerImage } from "../constants/docker";
-import { PythonFunction } from "@aws-cdk/aws-lambda-python-alpha";
-import { Database } from "./database";
+} from 'aws-cdk-lib/aws-apigatewayv2';
+import { IAuth } from './auth';
+import { Stack } from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as path from 'path';
+import { IBucket } from 'aws-cdk-lib/aws-s3';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import { UsageAnalysis } from './usage-analysis';
+import { excludeDockerImage } from '../constants/docker';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
+import { Database } from './database';
 
 export interface ApiProps {
   readonly database: Database;
@@ -51,37 +51,37 @@ export class Api extends Construct {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id);
 
-    const { database, corsAllowOrigins: allowOrigins = ["*"] } = props;
+    const { database, corsAllowOrigins: allowOrigins = ['*'] } = props;
     const { tableAccessRole } = database;
 
     const usageAnalysisOutputLocation =
-      `s3://${props.usageAnalysis?.resultOutputBucket.bucketName}` || "";
+      `s3://${props.usageAnalysis?.resultOutputBucket.bucketName}` || '';
 
-    const handlerRole = new iam.Role(this, "HandlerRole", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    const handlerRole = new iam.Role(this, 'HandlerRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
     handlerRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
+        'service-role/AWSLambdaBasicExecutionRole'
       )
     );
     handlerRole.addToPolicy(
       // Assume the table access role for row-level access control.
       new iam.PolicyStatement({
-        actions: ["sts:AssumeRole"],
+        actions: ['sts:AssumeRole'],
         resources: [tableAccessRole.roleArn],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["bedrock:*"],
-        resources: ["*"],
+        actions: ['bedrock:*'],
+        resources: ['*'],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ["codebuild:StartBuild"],
+        actions: ['codebuild:StartBuild'],
         resources: [
           props.apiPublishProject.projectArn,
           props.bedrockCustomBotProject.projectArn,
@@ -92,11 +92,11 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "cloudformation:DescribeStacks",
-          "cloudformation:DescribeStackEvents",
-          "cloudformation:DescribeStackResource",
-          "cloudformation:DescribeStackResources",
-          "cloudformation:DeleteStack",
+          'cloudformation:DescribeStacks',
+          'cloudformation:DescribeStackEvents',
+          'cloudformation:DescribeStackResource',
+          'cloudformation:DescribeStackResources',
+          'cloudformation:DeleteStack',
         ],
         resources: [`*`],
       })
@@ -104,7 +104,7 @@ export class Api extends Construct {
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ["codebuild:BatchGetBuilds"],
+        actions: ['codebuild:BatchGetBuilds'],
         resources: [
           props.apiPublishProject.projectArn,
           props.bedrockCustomBotProject.projectArn,
@@ -115,10 +115,10 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "apigateway:GET",
-          "apigateway:POST",
-          "apigateway:PUT",
-          "apigateway:DELETE",
+          'apigateway:GET',
+          'apigateway:POST',
+          'apigateway:PUT',
+          'apigateway:DELETE',
         ],
         resources: [`arn:aws:apigateway:${Stack.of(this).region}::/*`],
       })
@@ -127,23 +127,23 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "athena:GetWorkGroup",
-          "athena:StartQueryExecution",
-          "athena:StopQueryExecution",
-          "athena:GetQueryExecution",
-          "athena:GetQueryResults",
-          "athena:GetDataCatalog",
+          'athena:GetWorkGroup',
+          'athena:StartQueryExecution',
+          'athena:StopQueryExecution',
+          'athena:GetQueryExecution',
+          'athena:GetQueryResults',
+          'athena:GetDataCatalog',
         ],
-        resources: [props.usageAnalysis?.workgroupArn || ""],
+        resources: [props.usageAnalysis?.workgroupArn || ''],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ["glue:GetDatabase", "glue:GetDatabases"],
+        actions: ['glue:GetDatabase', 'glue:GetDatabases'],
         resources: [
-          props.usageAnalysis?.database.databaseArn || "",
-          props.usageAnalysis?.database.catalogArn || "",
+          props.usageAnalysis?.database.databaseArn || '',
+          props.usageAnalysis?.database.catalogArn || '',
         ],
       })
     );
@@ -151,16 +151,16 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "glue:GetDatabase",
-          "glue:GetTable",
-          "glue:GetTables",
-          "glue:GetPartition",
-          "glue:GetPartitions",
+          'glue:GetDatabase',
+          'glue:GetTable',
+          'glue:GetTables',
+          'glue:GetPartition',
+          'glue:GetPartitions',
         ],
         resources: [
-          props.usageAnalysis?.database.databaseArn || "",
-          props.usageAnalysis?.database.catalogArn || "",
-          props.usageAnalysis?.ddbExportTable.tableArn || "",
+          props.usageAnalysis?.database.databaseArn || '',
+          props.usageAnalysis?.database.catalogArn || '',
+          props.usageAnalysis?.ddbExportTable.tableArn || '',
         ],
       })
     );
@@ -168,10 +168,10 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "cognito-idp:AdminGetUser",
-          "cognito-idp:AdminListGroupsForUser",
-          "cognito-idp:ListUsers",
-          "cognito-idp:ListGroups",
+          'cognito-idp:AdminGetUser',
+          'cognito-idp:AdminListGroupsForUser',
+          'cognito-idp:ListUsers',
+          'cognito-idp:ListGroups',
         ],
         resources: [props.auth.userPool.userPoolArn],
       })
@@ -180,20 +180,20 @@ export class Api extends Construct {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          "aoss:APIAccessAll",
-          "aoss:DescribeCollection",
-          "aoss:GetCollection",
-          "aoss:SearchCollections",
-          "aoss:BatchGetCollection",
-          "aoss:ListCollections",
+          'aoss:APIAccessAll',
+          'aoss:DescribeCollection',
+          'aoss:GetCollection',
+          'aoss:SearchCollections',
+          'aoss:BatchGetCollection',
+          'aoss:ListCollections',
         ],
-        resources: ["*"],
+        resources: ['*'],
       })
     );
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ["aoss:DescribeIndex", "aoss:ReadDocument"],
+        actions: ['aoss:DescribeIndex', 'aoss:ReadDocument'],
         resources: [
           `arn:aws:aoss:${Stack.of(this).region}:${
             Stack.of(this).account
@@ -205,17 +205,17 @@ export class Api extends Construct {
     handlerRole.addToPolicy(
       new iam.PolicyStatement({
         actions: [
-          "secretsmanager:CreateSecret",
-          "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret",
-          "secretsmanager:RestoreSecret",
-          "secretsmanager:PutSecretValue",
-          "secretsmanager:UpdateSecretVersionStage",
-          "secretsmanager:DeleteSecret",
-          "secretsmanager:RotateSecret",
-          "secretsmanager:CancelRotateSecret",
-          "secretsmanager:UpdateSecret",
-          "secretsmanager:TagResource",
+          'secretsmanager:CreateSecret',
+          'secretsmanager:GetSecretValue',
+          'secretsmanager:DescribeSecret',
+          'secretsmanager:RestoreSecret',
+          'secretsmanager:PutSecretValue',
+          'secretsmanager:UpdateSecretVersionStage',
+          'secretsmanager:DeleteSecret',
+          'secretsmanager:RotateSecret',
+          'secretsmanager:CancelRotateSecret',
+          'secretsmanager:UpdateSecret',
+          'secretsmanager:TagResource',
         ],
         resources: [
           `arn:aws:secretsmanager:${Stack.of(this).region}:${
@@ -228,12 +228,12 @@ export class Api extends Construct {
     props.usageAnalysis?.ddbBucket.grantRead(handlerRole);
     props.largeMessageBucket.grantReadWrite(handlerRole);
 
-    const handler = new PythonFunction(this, "HandlerV2", {
-      entry: path.join(__dirname, "../backend"),
-      index: "app/main.py",
+    const handler = new PythonFunction(this, 'HandlerV2', {
+      entry: path.join(__dirname, '../backend'),
+      index: 'app/main.py',
       bundling: {
         assetExcludes: [...excludeDockerImage],
-        buildArgs: { POETRY_VERSION: "1.8.3" },
+        buildArgs: { POETRY_VERSION: '1.8.3' },
       },
       runtime: Runtime.PYTHON_3_13,
       architecture: Architecture.X86_64,
@@ -244,7 +244,7 @@ export class Api extends Construct {
         BOT_TABLE_NAME: database.botTable.tableName,
         ENV_NAME: props.envName,
         ENV_PREFIX: props.envPrefix,
-        CORS_ALLOW_ORIGINS: allowOrigins.join(","),
+        CORS_ALLOW_ORIGINS: allowOrigins.join(','),
         USER_POOL_ID: props.auth.userPool.userPoolId,
         CLIENT_ID: props.auth.client.userPoolClientId,
         ACCOUNT: Stack.of(this).account,
@@ -257,19 +257,19 @@ export class Api extends Construct {
         // KNOWLEDGE_BASE_CODEBUILD_PROJECT_NAME:
         //   props.bedrockCustomBotProject.projectName,
         USAGE_ANALYSIS_DATABASE:
-          props.usageAnalysis?.database.databaseName || "",
+          props.usageAnalysis?.database.databaseName || '',
         USAGE_ANALYSIS_TABLE:
-          props.usageAnalysis?.ddbExportTable.tableName || "",
-        USAGE_ANALYSIS_WORKGROUP: props.usageAnalysis?.workgroupName || "",
+          props.usageAnalysis?.ddbExportTable.tableName || '',
+        USAGE_ANALYSIS_WORKGROUP: props.usageAnalysis?.workgroupName || '',
         USAGE_ANALYSIS_OUTPUT_LOCATION: usageAnalysisOutputLocation,
         ENABLE_BEDROCK_CROSS_REGION_INFERENCE:
           props.enableBedrockCrossRegionInference.toString(),
-        GLOBAL_AVAILABLE_MODELS: props.globalAvailableModels 
+        GLOBAL_AVAILABLE_MODELS: props.globalAvailableModels
           ? JSON.stringify(props.globalAvailableModels)
-          : "[]",
-        OPENSEARCH_DOMAIN_ENDPOINT: props.openSearchEndpoint || "",
-        AWS_LAMBDA_EXEC_WRAPPER: "/opt/bootstrap",
-        PORT: "8000",
+          : '[]',
+        OPENSEARCH_DOMAIN_ENDPOINT: props.openSearchEndpoint || '',
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
+        PORT: '8000',
       },
       role: handlerRole,
       logRetention: logs.RetentionDays.THREE_MONTHS,
@@ -279,7 +279,7 @@ export class Api extends Construct {
       layers: [
         LayerVersion.fromLayerVersionArn(
           this,
-          "LwaLayer",
+          'LwaLayer',
           // https://github.com/awslabs/aws-lambda-web-adapter?tab=readme-ov-file#lambda-functions-packaged-as-zip-package-for-aws-managed-runtimes
           `arn:aws:lambda:${
             Stack.of(this).region
@@ -289,14 +289,14 @@ export class Api extends Construct {
     });
     // https://github.com/awslabs/aws-lambda-web-adapter/tree/main/examples/fastapi-zip
     (handler.node.defaultChild as CfnResource).addPropertyOverride(
-      "Handler",
-      "run.sh"
+      'Handler',
+      'run.sh'
     );
 
-    const api = new HttpApi(this, "Default", {
+    const api = new HttpApi(this, 'Default', {
       description: `Main API for ${Stack.of(this).stackName}`,
       corsPreflight: {
-        allowHeaders: ["*"],
+        allowHeaders: ['*'],
         allowMethods: [
           CorsHttpMethod.GET,
           CorsHttpMethod.HEAD,
@@ -312,18 +312,18 @@ export class Api extends Construct {
     });
 
     const integration = new HttpLambdaIntegration(
-      "Integration",
+      'Integration',
       handler.currentVersion
     );
     const authorizer = new HttpUserPoolAuthorizer(
-      "Authorizer",
+      'Authorizer',
       props.auth.userPool,
       {
         userPoolClients: [props.auth.client],
       }
     );
     let routeProps: any = {
-      path: "/{proxy+}",
+      path: '/{proxy+}',
       integration,
       methods: [
         HttpMethod.GET,
@@ -340,6 +340,6 @@ export class Api extends Construct {
     this.api = api;
     this.handler = handler;
 
-    new CfnOutput(this, "BackendApiUrl", { value: api.apiEndpoint });
+    new CfnOutput(this, 'BackendApiUrl', { value: api.apiEndpoint });
   }
 }

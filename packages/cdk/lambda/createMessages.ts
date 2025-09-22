@@ -46,7 +46,9 @@ export const handler = async (
 
     // Get tenant information for bucket name generation
     const tenant = await getTenant(tenantId);
-    const tenantAccountId = tenant?.roleArn ? extractAccountIdFromRoleArn(tenant.roleArn) : undefined;
+    const tenantAccountId = tenant?.roleArn
+      ? extractAccountIdFromRoleArn(tenant.roleArn)
+      : undefined;
     const tenantRegion = tenant?.region || process.env.AWS_REGION!;
     const tenantEnvironment = tenant?.environment || process.env.ENVIRONMENT!;
 
@@ -59,9 +61,7 @@ export const handler = async (
       tenantRegion,
       tenantEnvironment
     );
-    console.log(
-      `Using upload bucket for validation: ${uploadBucketName}`
-    );
+    console.log(`Using upload bucket for validation: ${uploadBucketName}`);
 
     if (req.messages) {
       for (const message of req.messages) {

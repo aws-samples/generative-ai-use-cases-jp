@@ -1,37 +1,37 @@
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { VectorCollection } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearchserverless";
+import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import { VectorCollection } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearchserverless';
 import {
   Analyzer,
   VectorIndex,
-} from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearch-vectorindex";
-import { VectorCollectionStandbyReplicas } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearchserverless";
-import * as s3 from "aws-cdk-lib/aws-s3";
-import * as iam from "aws-cdk-lib/aws-iam";
-import { BedrockFoundationModel } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock";
-import { ChunkingStrategy } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/chunking";
-import { S3DataSource } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/s3-data-source";
+} from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearch-vectorindex';
+import { VectorCollectionStandbyReplicas } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearchserverless';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import { BedrockFoundationModel } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock';
+import { ChunkingStrategy } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/chunking';
+import { S3DataSource } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/s3-data-source';
 import {
   WebCrawlerDataSource,
   CrawlingScope,
   CrawlingFilters,
-} from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/web-crawler-data-source";
-import { ParsingStategy } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/parsing";
+} from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/web-crawler-data-source';
+import { ParsingStategy } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/parsing';
 
 import {
   KnowledgeBase,
   IKnowledgeBase,
-} from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock";
-import { aws_bedrock as bedrock } from "aws-cdk-lib";
+} from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock';
+import { aws_bedrock as bedrock } from 'aws-cdk-lib';
 import {
   AwsCustomResource,
   PhysicalResourceId,
   AwsCustomResourcePolicy,
-} from "aws-cdk-lib/custom-resources";
-import { getThreshold } from "./utils/bedrock-guardrails";
+} from 'aws-cdk-lib/custom-resources';
+import { getThreshold } from './utils/bedrock-guardrails';
 
-const BLOCKED_INPUT_MESSAGE = "this input message is blocked";
-const BLOCKED_OUTPUT_MESSAGE = "this output message is blocked";
+const BLOCKED_INPUT_MESSAGE = 'this input message is blocked';
+const BLOCKED_OUTPUT_MESSAGE = 'this output message is blocked';
 
 interface BedrockGuardrailProps {
   readonly is_guardrail_enabled?: boolean;
@@ -85,36 +85,36 @@ export class BedrockCustomBotStack extends Stack {
 
     // if knowledge base arn does not exist
     if (props.existKnowledgeBaseId == undefined) {
-      const vectorCollection = new VectorCollection(this, "KBVectors", {
+      const vectorCollection = new VectorCollection(this, 'KBVectors', {
         collectionName: `kb-${props.botId.slice(0, 20).toLowerCase()}`,
         standbyReplicas:
           props.enableRagReplicas === true
             ? VectorCollectionStandbyReplicas.ENABLED
             : VectorCollectionStandbyReplicas.DISABLED,
       });
-      const vectorIndex = new VectorIndex(this, "KBIndex", {
+      const vectorIndex = new VectorIndex(this, 'KBIndex', {
         collection: vectorCollection,
         // DO NOT CHANGE THIS VALUE
-        indexName: "bedrock-knowledge-base-default-index",
+        indexName: 'bedrock-knowledge-base-default-index',
         // DO NOT CHANGE THIS VALUE
-        vectorField: "bedrock-knowledge-base-default-vector",
+        vectorField: 'bedrock-knowledge-base-default-vector',
         vectorDimensions: props.embeddingsModel.vectorDimensions!,
         mappings: [
           {
-            mappingField: "AMAZON_BEDROCK_TEXT_CHUNK",
-            dataType: "text",
+            mappingField: 'AMAZON_BEDROCK_TEXT_CHUNK',
+            dataType: 'text',
             filterable: true,
           },
           {
-            mappingField: "AMAZON_BEDROCK_METADATA",
-            dataType: "text",
+            mappingField: 'AMAZON_BEDROCK_METADATA',
+            dataType: 'text',
             filterable: false,
           },
         ],
         analyzer: props.analyzer,
       });
 
-      kb = new KnowledgeBase(this, "KB", {
+      kb = new KnowledgeBase(this, 'KB', {
         embeddingsModel: props.embeddingsModel,
         vectorStore: vectorCollection,
         vectorIndex: vectorIndex,
@@ -123,7 +123,7 @@ export class BedrockCustomBotStack extends Stack {
 
       const dataSources = docBucketsAndPrefixes.map(({ bucket, prefix }) => {
         bucket.grantRead(kb.role);
-        const inclusionPrefixes = prefix === "" ? undefined : [prefix];
+        const inclusionPrefixes = prefix === '' ? undefined : [prefix];
         return new S3DataSource(this, `DataSource${prefix}`, {
           bucket: bucket,
           knowledgeBase: kb,
@@ -142,7 +142,7 @@ export class BedrockCustomBotStack extends Stack {
       if (props.sourceUrls.length > 0) {
         const webCrawlerDataSource = new WebCrawlerDataSource(
           this,
-          "WebCrawlerDataSource",
+          'WebCrawlerDataSource',
           {
             knowledgeBase: kb,
             sourceUrls: props.sourceUrls,
@@ -159,7 +159,7 @@ export class BedrockCustomBotStack extends Stack {
             },
           }
         );
-        new CfnOutput(this, "DataSourceIdWebCrawler", {
+        new CfnOutput(this, 'DataSourceIdWebCrawler', {
           value: webCrawlerDataSource.dataSourceId,
         });
       }
@@ -168,7 +168,7 @@ export class BedrockCustomBotStack extends Stack {
         // Use only parameters with a value greater than or equal to 0
         let contentPolicyConfigFiltersConfig = [];
         let contextualGroundingFiltersConfig = [];
-        console.log("props.guardrail: ", props.guardrail);
+        console.log('props.guardrail: ', props.guardrail);
 
         if (
           props.guardrail.hateThreshold != undefined &&
@@ -177,7 +177,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.push({
             inputStrength: getThreshold(props.guardrail.hateThreshold),
             outputStrength: getThreshold(props.guardrail.hateThreshold),
-            type: "HATE",
+            type: 'HATE',
           });
         }
 
@@ -188,7 +188,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.push({
             inputStrength: getThreshold(props.guardrail.insultsThreshold),
             outputStrength: getThreshold(props.guardrail.insultsThreshold),
-            type: "INSULTS",
+            type: 'INSULTS',
           });
         }
 
@@ -199,7 +199,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.push({
             inputStrength: getThreshold(props.guardrail.sexualThreshold),
             outputStrength: getThreshold(props.guardrail.sexualThreshold),
-            type: "SEXUAL",
+            type: 'SEXUAL',
           });
         }
 
@@ -210,7 +210,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.push({
             inputStrength: getThreshold(props.guardrail.violenceThreshold),
             outputStrength: getThreshold(props.guardrail.violenceThreshold),
-            type: "VIOLENCE",
+            type: 'VIOLENCE',
           });
         }
 
@@ -221,7 +221,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.push({
             inputStrength: getThreshold(props.guardrail.misconductThreshold),
             outputStrength: getThreshold(props.guardrail.misconductThreshold),
-            type: "MISCONDUCT",
+            type: 'MISCONDUCT',
           });
         }
 
@@ -231,7 +231,7 @@ export class BedrockCustomBotStack extends Stack {
         ) {
           contextualGroundingFiltersConfig.push({
             threshold: props.guardrail.groundingThreshold!,
-            type: "GROUNDING",
+            type: 'GROUNDING',
           });
         }
 
@@ -241,16 +241,16 @@ export class BedrockCustomBotStack extends Stack {
         ) {
           contextualGroundingFiltersConfig.push({
             threshold: props.guardrail.relevanceThreshold!,
-            type: "RELEVANCE",
+            type: 'RELEVANCE',
           });
         }
 
         console.log(
-          "contentPolicyConfigFiltersConfig: ",
+          'contentPolicyConfigFiltersConfig: ',
           contentPolicyConfigFiltersConfig
         );
         console.log(
-          "contextualGroundingFiltersConfig: ",
+          'contextualGroundingFiltersConfig: ',
           contextualGroundingFiltersConfig
         );
 
@@ -259,7 +259,7 @@ export class BedrockCustomBotStack extends Stack {
           contentPolicyConfigFiltersConfig.length > 0 ||
           contextualGroundingFiltersConfig.length > 0
         ) {
-          const guardrail = new bedrock.CfnGuardrail(this, "Guardrail", {
+          const guardrail = new bedrock.CfnGuardrail(this, 'Guardrail', {
             name: props.botId,
             blockedInputMessaging: BLOCKED_INPUT_MESSAGE,
             blockedOutputsMessaging: BLOCKED_OUTPUT_MESSAGE,
@@ -276,10 +276,10 @@ export class BedrockCustomBotStack extends Stack {
                   }
                 : undefined,
           });
-          new CfnOutput(this, "GuardrailArn", {
+          new CfnOutput(this, 'GuardrailArn', {
             value: guardrail.attrGuardrailArn,
           });
-          new CfnOutput(this, "GuardrailVersion", {
+          new CfnOutput(this, 'GuardrailVersion', {
             value: guardrail.attrVersion,
           });
         }
@@ -293,10 +293,10 @@ export class BedrockCustomBotStack extends Stack {
       });
     } else {
       // if knowledgeBaseArn exists
-      const getKnowledgeBase = new AwsCustomResource(this, "GetKnowledgeBase", {
+      const getKnowledgeBase = new AwsCustomResource(this, 'GetKnowledgeBase', {
         onCreate: {
-          service: "bedrock-agent",
-          action: "GetKnowledgeBase",
+          service: 'bedrock-agent',
+          action: 'GetKnowledgeBase',
           parameters: {
             knowledgeBaseId: props.existKnowledgeBaseId,
           },
@@ -304,7 +304,7 @@ export class BedrockCustomBotStack extends Stack {
         },
         policy: AwsCustomResourcePolicy.fromStatements([
           new iam.PolicyStatement({
-            actions: ["bedrock:GetKnowledgeBase"],
+            actions: ['bedrock:GetKnowledgeBase'],
             resources: [
               `arn:aws:bedrock:${this.region}:${this.account}:knowledge-base/${props.existKnowledgeBaseId}`,
             ],
@@ -312,24 +312,24 @@ export class BedrockCustomBotStack extends Stack {
         ]),
       });
 
-      const executionRoleArn = getKnowledgeBase.getResponseField("roleArn");
+      const executionRoleArn = getKnowledgeBase.getResponseField('roleArn');
 
-      kb = KnowledgeBase.fromKnowledgeBaseAttributes(this, "MyKnowledgeBase", {
+      kb = KnowledgeBase.fromKnowledgeBaseAttributes(this, 'MyKnowledgeBase', {
         knowledgeBaseId: props.existKnowledgeBaseId,
         executionRoleArn: executionRoleArn,
       });
     }
 
-    new CfnOutput(this, "KnowledgeBaseId", {
+    new CfnOutput(this, 'KnowledgeBaseId', {
       value: kb.knowledgeBaseId,
     });
-    new CfnOutput(this, "KnowledgeBaseArn", {
+    new CfnOutput(this, 'KnowledgeBaseArn', {
       value: kb.knowledgeBaseArn,
     });
-    new CfnOutput(this, "OwnerUserId", {
+    new CfnOutput(this, 'OwnerUserId', {
       value: props.ownerUserId,
     });
-    new CfnOutput(this, "BotId", {
+    new CfnOutput(this, 'BotId', {
       value: props.botId,
     });
   }
@@ -374,17 +374,17 @@ export class BedrockCustomBotStack extends Stack {
 
   private parseS3Url(url: string): { bucketName: string; prefix: string } {
     console.info(`Parsing S3 URL: ${url}`);
-    if (!url.startsWith("s3://")) {
+    if (!url.startsWith('s3://')) {
       throw new Error(`Invalid S3 URL format: ${url}`);
     }
 
-    const urlParts = url.replace("s3://", "").split("/");
+    const urlParts = url.replace('s3://', '').split('/');
     if (urlParts.length < 1) {
       throw new Error(`Invalid S3 URL format: ${url}`);
     }
 
     const bucketName = urlParts.shift()!;
-    const prefix = urlParts.join("/");
+    const prefix = urlParts.join('/');
     console.info(`Parsed S3 URL: bucketName=${bucketName}, prefix=${prefix}`);
     return { bucketName, prefix };
   }

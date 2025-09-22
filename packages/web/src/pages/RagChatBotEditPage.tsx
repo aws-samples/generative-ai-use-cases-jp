@@ -24,7 +24,13 @@ const RagChatBotEditPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { botId } = useParams<{ botId?: string }>();
-  const { getPrivateBot, createBot, updateBot, getBotPresignedUrl, deleteBotUploadedFile } = useBedrockChatApi();
+  const {
+    getPrivateBot,
+    createBot,
+    updateBot,
+    getBotPresignedUrl,
+    deleteBotUploadedFile,
+  } = useBedrockChatApi();
 
   const isEditMode = !!botId;
   const tempBotId = useMemo(() => uuidv4(), []);
@@ -65,7 +71,7 @@ const RagChatBotEditPage: React.FC = () => {
 
   const fetchBot = async () => {
     if (!botId) return;
-    
+
     setLoading(true);
     try {
       const bot = await getPrivateBot(botId);
@@ -128,7 +134,7 @@ const RagChatBotEditPage: React.FC = () => {
           file.name,
           file.type
         );
-        
+
         await fetch(url, {
           method: 'PUT',
           body: file,
@@ -159,7 +165,7 @@ const RagChatBotEditPage: React.FC = () => {
         console.error('Failed to delete file:', error);
       }
     }
-    
+
     setUploadedFiles((prev) => prev.filter((f) => f !== filename));
     setFormData((prev) => ({
       ...prev,
@@ -211,31 +217,34 @@ const RagChatBotEditPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <LoadingWave />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center gap-4">
         <Button
           outlined
           onClick={() => navigate('/rag-chat-bot')}
-          className="flex items-center gap-1"
-        >
+          className="flex items-center gap-1">
           <PiArrowLeft />
           {t('ragChatBot.edit.back')}
         </Button>
-        <h1 className="text-2xl font-bold flex-1">
-          {isEditMode ? t('ragChatBot.edit.editTitle') : t('ragChatBot.edit.createTitle')}
+        <h1 className="flex-1 text-2xl font-bold">
+          {isEditMode
+            ? t('ragChatBot.edit.editTitle')
+            : t('ragChatBot.edit.createTitle')}
         </h1>
       </div>
 
       <Card className="mb-6">
-        <h2 className="text-lg font-semibold mb-4">{t('ragChatBot.edit.basicInfo')}</h2>
-        
+        <h2 className="mb-4 text-lg font-semibold">
+          {t('ragChatBot.edit.basicInfo')}
+        </h2>
+
         <div className="space-y-4">
           <InputText
             label={t('ragChatBot.edit.title')}
@@ -243,18 +252,22 @@ const RagChatBotEditPage: React.FC = () => {
             onChange={(value) => setFormData({ ...formData, title: value })}
             required
           />
-          
+
           <Textarea
             label={t('ragChatBot.edit.description')}
             value={formData.description || ''}
-            onChange={(value) => setFormData({ ...formData, description: value })}
+            onChange={(value) =>
+              setFormData({ ...formData, description: value })
+            }
             rows={3}
           />
-          
+
           <Textarea
             label={t('ragChatBot.edit.instruction')}
             value={formData.instruction}
-            onChange={(value) => setFormData({ ...formData, instruction: value })}
+            onChange={(value) =>
+              setFormData({ ...formData, instruction: value })
+            }
             rows={6}
             required
           />
@@ -262,24 +275,27 @@ const RagChatBotEditPage: React.FC = () => {
       </Card>
 
       <Card className="mb-6">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
           <PiFile />
           {t('ragChatBot.edit.knowledge')}
         </h2>
-        
+
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="mb-2 block text-sm font-medium">
               {t('ragChatBot.edit.sourceUrls')}
             </label>
-            <div className="flex gap-2 mb-2">
+            <div className="mb-2 flex gap-2">
               <InputText
                 value={newUrl}
                 onChange={setNewUrl}
                 placeholder="https://example.com"
                 className="flex-1"
               />
-              <Button onClick={addSourceUrl} outlined className="flex items-center gap-1">
+              <Button
+                onClick={addSourceUrl}
+                outlined
+                className="flex items-center gap-1">
                 <PiPlus />
                 {t('ragChatBot.edit.add')}
               </Button>
@@ -302,8 +318,7 @@ const RagChatBotEditPage: React.FC = () => {
                           ),
                         },
                       })
-                    }
-                  >
+                    }>
                     <PiTrash />
                   </Button>
                 </div>
@@ -312,7 +327,7 @@ const RagChatBotEditPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="mb-2 block text-sm font-medium">
               {t('ragChatBot.edit.uploadFiles')}
             </label>
             <FileUploader
@@ -328,30 +343,24 @@ const RagChatBotEditPage: React.FC = () => {
                   <Button
                     outlined
                     className="text-sm"
-                    onClick={() => handleDeleteFile(filename)}
-                  >
+                    onClick={() => handleDeleteFile(filename)}>
                     <PiTrash />
                   </Button>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button
-          outlined
-          onClick={() => navigate('/rag-chat-bot')}
-        >
+        <Button outlined onClick={() => navigate('/rag-chat-bot')}>
           {t('ragChatBot.edit.cancel')}
         </Button>
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-1"
-        >
+          className="flex items-center gap-1">
           <PiFloppyDisk />
           {saving ? t('ragChatBot.edit.saving') : t('ragChatBot.edit.save')}
         </Button>

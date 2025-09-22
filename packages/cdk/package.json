@@ -17,14 +17,11 @@
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.5",
     "@types/sanitize-html": "^2.13.0",
-    "@typescript-eslint/eslint-plugin": "^7.6.0",
-    "@typescript-eslint/parser": "^7.6.0",
     "aws-cdk": "^2.154.1",
-    "eslint": "^8.56.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "~5.4.5"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@aws-cdk/aws-glue-alpha": "^2.189.0-alpha.0",

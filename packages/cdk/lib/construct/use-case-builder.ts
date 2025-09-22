@@ -69,9 +69,11 @@ export class UseCaseBuilder extends Construct {
         USER_POOL_ID: userPool.userPoolId,
         USECASE_ID_INDEX_NAME: useCaseIdIndexName,
         AWS_ACCOUNT_ID: Stack.of(this).account!,
-        ...(tenantManager ? {
-          TENANTS_TABLE_NAME: tenantManager.tenantsTable.tableName,
-        } : {}),
+        ...(tenantManager
+          ? {
+              TENANTS_TABLE_NAME: tenantManager.tenantsTable.tableName,
+            }
+          : {}),
       },
     };
 
@@ -172,7 +174,9 @@ export class UseCaseBuilder extends Construct {
     );
     useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
     if (tenantManager) {
-      tenantManager.tenantsTable.grantReadData(listRecentlyUsedUseCasesFunction);
+      tenantManager.tenantsTable.grantReadData(
+        listRecentlyUsedUseCasesFunction
+      );
     }
 
     const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
@@ -185,7 +189,9 @@ export class UseCaseBuilder extends Construct {
     );
     useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
     if (tenantManager) {
-      tenantManager.tenantsTable.grantReadData(updateRecentlyUsedUseCaseFunction);
+      tenantManager.tenantsTable.grantReadData(
+        updateRecentlyUsedUseCaseFunction
+      );
     }
 
     // API Gateway

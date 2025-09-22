@@ -63,9 +63,9 @@ export class Auth extends Construct {
           mutable: true,
         }),
         tenantAdmin: new StringAttribute({
-          minLen: 4,      // "true" or "false"
+          minLen: 4, // "true" or "false"
           maxLen: 5,
-          mutable: true,  // Allows updating admin status
+          mutable: true, // Allows updating admin status
         }),
       },
     });

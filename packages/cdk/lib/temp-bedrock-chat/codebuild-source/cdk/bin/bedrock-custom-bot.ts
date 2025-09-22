@@ -1,6 +1,6 @@
-import "source-map-support/register";
-import * as cdk from "aws-cdk-lib";
-import { BedrockCustomBotStack } from "../lib/bedrock-custom-bot-stack";
+import 'source-map-support/register';
+import * as cdk from 'aws-cdk-lib';
+import { BedrockCustomBotStack } from '../lib/bedrock-custom-bot-stack';
 import {
   getEmbeddingModel,
   getChunkingStrategy,
@@ -8,15 +8,15 @@ import {
   getParsingModel,
   getCrowlingScope,
   getCrawlingFilters,
-} from "../lib/utils/bedrock-knowledge-base-args";
-import { BedrockFoundationModel } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock";
-import { ChunkingStrategy } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/chunking";
+} from '../lib/utils/bedrock-knowledge-base-args';
+import { BedrockFoundationModel } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock';
+import { ChunkingStrategy } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/chunking';
 import {
   CrawlingFilters,
   CrawlingScope,
-} from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/web-crawler-data-source";
-import { Analyzer } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearch-vectorindex";
-import { resolveBedrockCustomBotParameters } from "../lib/utils/parameter-models";
+} from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/web-crawler-data-source';
+import { Analyzer } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearch-vectorindex';
+import { resolveBedrockCustomBotParameters } from '../lib/utils/parameter-models';
 
 const app = new cdk.App();
 
@@ -84,7 +84,7 @@ const baseConfig: BaseConfig = {
   envPrefix: params.envPrefix,
   bedrockRegion: params.bedrockRegion,
   ownerUserId: params.pk,
-  botId: params.sk.split("#")[1],
+  botId: params.sk.split('#')[1],
   documentBucketName: params.documentBucketName,
   enableRagReplicas: params.enableRagReplicas === true,
 };
@@ -181,22 +181,22 @@ const guardrailConfig: GuardrailConfig = {
 };
 
 // Log organized configurations for debugging
-console.log("Base Configuration:", JSON.stringify(baseConfig, null, 2));
+console.log('Base Configuration:', JSON.stringify(baseConfig, null, 2));
 console.log(
-  "Knowledge Configuration:",
+  'Knowledge Configuration:',
   JSON.stringify(
     {
       ...knowledgeConfig,
       embeddingsModel: knowledgeConfig.embeddingsModel.toString(),
       parsingModel: knowledgeConfig.parsingModel?.toString(),
-      analyzer: knowledgeConfig.analyzer ? "configured" : "undefined",
+      analyzer: knowledgeConfig.analyzer ? 'configured' : 'undefined',
     },
     null,
     2
   )
 );
 console.log(
-  "Chunking Configuration:",
+  'Chunking Configuration:',
   JSON.stringify(
     {
       ...chunkingConfig,
@@ -207,11 +207,11 @@ console.log(
   )
 );
 console.log(
-  "Guardrail Configuration:",
+  'Guardrail Configuration:',
   JSON.stringify(guardrailConfig, null, 2)
 );
 console.log(
-  "Crawling Configuration:",
+  'Crawling Configuration:',
   JSON.stringify(
     {
       crawlingScope: crawlingConfig.crawlingScope?.toString(),
@@ -257,4 +257,4 @@ new BedrockCustomBotStack(app, `BrChatKbStack${baseConfig.botId}`, {
   guardrail: guardrailConfig,
 });
 
-cdk.Tags.of(app).add("CDKEnvironment", baseConfig.envName);
+cdk.Tags.of(app).add('CDKEnvironment', baseConfig.envName);

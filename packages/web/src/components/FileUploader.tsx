@@ -35,8 +35,7 @@ const FileUploader: React.FC<Props> = (props) => {
       />
       <button
         onClick={handleClick}
-        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-      >
+        className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50">
         <PiUploadSimple />
         <span>Upload Files</span>
       </button>

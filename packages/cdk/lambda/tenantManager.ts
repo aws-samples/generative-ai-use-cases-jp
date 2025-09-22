@@ -201,4 +201,3 @@ export async function deactivateTenant(tenantId: string): Promise<Tenant> {
     status: TenantStatus.INACTIVE,
   });
 }
-

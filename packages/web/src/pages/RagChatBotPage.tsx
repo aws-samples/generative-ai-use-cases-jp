@@ -26,7 +26,13 @@ type ScopeFilter = 'none' | 'all' | 'private';
 const RagChatBotPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { searchStore, deleteBot, getPrivateBot, setBotVisibility, setStarredStatus } = useBedrockChatApi();
+  const {
+    searchStore,
+    deleteBot,
+    getPrivateBot,
+    setBotVisibility,
+    setStarredStatus,
+  } = useBedrockChatApi();
 
   const [bots, setBots] = useState<BedrockChatBot[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,8 +41,12 @@ const RagChatBotPage: React.FC = () => {
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>('none');
   const [showOnlyStarred, setShowOnlyStarred] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [visibilityModalBotId, setVisibilityModalBotId] = useState<string | null>(null);
-  const [newVisibility, setNewVisibility] = useState<'private' | 'partial' | 'all'>('private');
+  const [visibilityModalBotId, setVisibilityModalBotId] = useState<
+    string | null
+  >(null);
+  const [newVisibility, setNewVisibility] = useState<
+    'private' | 'partial' | 'all'
+  >('private');
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
@@ -82,9 +92,7 @@ const RagChatBotPage: React.FC = () => {
 
   // Function to update only sync status without full reload
   const updateSyncStatuses = useCallback(async () => {
-    const botsToUpdate = bots.filter(bot => 
-      bot.syncStatus === 'RUNNING'
-    );
+    const botsToUpdate = bots.filter((bot) => bot.syncStatus === 'RUNNING');
 
     if (botsToUpdate.length === 0) return;
 
@@ -95,15 +103,18 @@ const RagChatBotPage: React.FC = () => {
             const updatedBot = await getPrivateBot(bot.id);
             return { id: bot.id, syncStatus: updatedBot.syncStatus };
           } catch (error) {
-            console.error(`Failed to update sync status for bot ${bot.id}:`, error);
+            console.error(
+              `Failed to update sync status for bot ${bot.id}:`,
+              error
+            );
             return null;
           }
         })
       );
 
-      setBots(prevBots => 
-        prevBots.map(bot => {
-          const update = updates.find(u => u && u.id === bot.id);
+      setBots((prevBots) =>
+        prevBots.map((bot) => {
+          const update = updates.find((u) => u && u.id === bot.id);
           return update ? { ...bot, syncStatus: update.syncStatus } : bot;
         })
       );
@@ -136,9 +147,7 @@ const RagChatBotPage: React.FC = () => {
 
   // Polling for sync status
   useEffect(() => {
-    const shouldPoll = bots.some(bot =>
-      bot.syncStatus === 'RUNNING'
-    );
+    const shouldPoll = bots.some((bot) => bot.syncStatus === 'RUNNING');
 
     if (shouldPoll) {
       pollingInterval.current = setInterval(() => {
@@ -170,7 +179,6 @@ const RagChatBotPage: React.FC = () => {
     navigate(`/rag-chat-bot/chat/${botId}`);
   };
 
-
   const handleDeleteBot = async (botId: string) => {
     if (window.confirm(t('ragChatBot.confirmDelete'))) {
       try {
@@ -185,8 +193,8 @@ const RagChatBotPage: React.FC = () => {
   const handleToggleStar = async (botId: string, currentStarred: boolean) => {
     try {
       await setStarredStatus(botId, !currentStarred);
-      setBots(prevBots =>
-        prevBots.map(bot =>
+      setBots((prevBots) =>
+        prevBots.map((bot) =>
           bot.id === botId ? { ...bot, isStarred: !currentStarred } : bot
         )
       );
@@ -195,11 +203,14 @@ const RagChatBotPage: React.FC = () => {
     }
   };
 
-  const handleChangeVisibility = async (botId: string, visibility: 'private' | 'partial' | 'all') => {
+  const handleChangeVisibility = async (
+    botId: string,
+    visibility: 'private' | 'partial' | 'all'
+  ) => {
     try {
       await setBotVisibility(botId, visibility);
-      setBots(prevBots => 
-        prevBots.map(bot => 
+      setBots((prevBots) =>
+        prevBots.map((bot) =>
           bot.id === botId ? { ...bot, sharedScope: visibility } : bot
         )
       );
@@ -222,7 +233,7 @@ const RagChatBotPage: React.FC = () => {
       case 'RUNNING':
         return {
           text: t('ragChatBot.syncStatus.syncing'),
-          icon: <PiClockCountdown className="text-blue-600 animate-pulse" />,
+          icon: <PiClockCountdown className="animate-pulse text-blue-600" />,
           className: 'text-blue-600',
         };
       case 'FAILED':
@@ -244,36 +255,36 @@ const RagChatBotPage: React.FC = () => {
     const isOwner = bot.owned === true;
     const syncStatusDisplay = getSyncStatusDisplay(bot.syncStatus);
     const isMenuOpen = openMenuId === bot.id;
-    
+
     return (
       <div
         key={bot.id}
-        className="mb-4 hover:shadow-lg transition-shadow cursor-pointer relative border-aws-font-color/20 rounded-lg border p-5 shadow"
+        className="border-aws-font-color/20 relative mb-4 cursor-pointer rounded-lg border p-5 shadow transition-shadow hover:shadow-lg"
         onClick={(e) => {
           // Check if click is on card itself, not on buttons
           const target = e.target as HTMLElement;
           if (!target.closest('button')) {
             handleChatWithBot(bot.id);
           }
-        }}
-      >
-        <div className="flex items-stretch justify-between h-full">
-          <div className="flex-1 flex flex-col justify-between">
+        }}>
+        <div className="flex h-full items-stretch justify-between">
+          <div className="flex flex-1 flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="mb-2 flex items-center gap-2">
                 <PiRobot className="text-2xl text-blue-600" />
                 <h3 className="text-lg font-semibold">{bot.title}</h3>
               </div>
               {bot.description && (
-                <p className="text-gray-600 text-sm">{bot.description}</p>
+                <p className="text-sm text-gray-600">{bot.description}</p>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 ml-4">
+          <div className="ml-4 flex items-center gap-2">
             {/* Sync Status Display */}
-            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded">
+            <div className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1">
               {syncStatusDisplay.icon}
-              <span className={`text-xs font-medium ${syncStatusDisplay.className}`}>
+              <span
+                className={`text-xs font-medium ${syncStatusDisplay.className}`}>
                 {syncStatusDisplay.text}
               </span>
             </div>
@@ -282,13 +293,14 @@ const RagChatBotPage: React.FC = () => {
             <div onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => handleToggleStar(bot.id, bot.isStarred || false)}
-                className="p-2 hover:bg-gray-100 rounded transition-colors"
-                title={bot.isStarred ? t('ragChatBot.unstar') : t('ragChatBot.star')}
-              >
+                className="rounded p-2 transition-colors hover:bg-gray-100"
+                title={
+                  bot.isStarred ? t('ragChatBot.unstar') : t('ragChatBot.star')
+                }>
                 {bot.isStarred ? (
-                  <PiStarFill className="text-yellow-500 text-xl" />
+                  <PiStarFill className="text-xl text-yellow-500" />
                 ) : (
-                  <PiStar className="text-gray-400 text-xl hover:text-yellow-500" />
+                  <PiStar className="text-xl text-gray-400 hover:text-yellow-500" />
                 )}
               </button>
             </div>
@@ -299,15 +311,20 @@ const RagChatBotPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setVisibilityModalBotId(bot.id);
-                    setNewVisibility(bot.sharedScope === 'private' ? 'private' : 'all');
+                    setNewVisibility(
+                      bot.sharedScope === 'private' ? 'private' : 'all'
+                    );
                   }}
-                  className="p-2 hover:bg-gray-100 rounded transition-colors"
-                  title={bot.sharedScope === 'private' ? t('ragChatBot.private') : t('ragChatBot.tenantPublic')}
-                >
+                  className="rounded p-2 transition-colors hover:bg-gray-100"
+                  title={
+                    bot.sharedScope === 'private'
+                      ? t('ragChatBot.private')
+                      : t('ragChatBot.tenantPublic')
+                  }>
                   {bot.sharedScope === 'private' ? (
-                    <PiLock className="text-gray-500 text-xl" />
+                    <PiLock className="text-xl text-gray-500" />
                   ) : (
-                    <PiUsers className="text-blue-500 text-xl" />
+                    <PiUsers className="text-xl text-blue-500" />
                   )}
                 </button>
               </div>
@@ -318,30 +335,27 @@ const RagChatBotPage: React.FC = () => {
               <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
                   onClick={() => setOpenMenuId(isMenuOpen ? null : bot.id)}
-                  className="p-2 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <PiDotsThreeVertical className="text-gray-500 text-xl hover:text-gray-700" />
+                  className="rounded p-2 transition-colors hover:bg-gray-100">
+                  <PiDotsThreeVertical className="text-xl text-gray-500 hover:text-gray-700" />
                 </button>
                 {isMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                  <div className="absolute right-0 z-10 mt-2 w-48 rounded-md border border-gray-200 bg-white shadow-lg">
                     <button
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEditBot(bot.id);
                         setOpenMenuId(null);
-                      }}
-                    >
+                      }}>
                       <PiPencil /> {t('ragChatBot.editTitle')}
                     </button>
                     <button
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2 text-red-600"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteBot(bot.id);
                         setOpenMenuId(null);
-                      }}
-                    >
+                      }}>
                       <PiTrash /> {t('ragChatBot.delete')}
                     </button>
                   </div>
@@ -379,25 +393,22 @@ const RagChatBotPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto max-w-7xl px-4 py-8">
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">{t('ragChatBot.title')}</h1>
+          <h1 className="mb-2 text-3xl font-bold">{t('ragChatBot.title')}</h1>
           <p className="text-gray-600">{t('ragChatBot.description')}</p>
         </div>
         {/* 新規作成ボタン */}
-        <Button
-          onClick={handleCreateBot}
-          className="flex items-center gap-1"
-        >
+        <Button onClick={handleCreateBot} className="flex items-center gap-1">
           <PiPlus />
           {t('ragChatBot.createNew')}
         </Button>
       </div>
 
       {/* 検索・フィルタリング設定部分 */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex gap-2 items-center">
+      <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div className="flex items-center gap-2">
           {/* 検索入力フォーム - 可変幅 */}
           <input
             type="text"
@@ -411,8 +422,7 @@ const RagChatBotPage: React.FC = () => {
           <select
             value={scopeFilter}
             onChange={(e) => setScopeFilter(e.target.value as ScopeFilter)}
-            className="w-40 rounded border border-black/30 px-3 py-2 outline-none"
-          >
+            className="w-40 rounded border border-black/30 px-3 py-2 outline-none">
             <option value="none">{t('ragChatBot.noFilter', '指定なし')}</option>
             <option value="all">{t('ragChatBot.tenantPublic')}</option>
             <option value="private">{t('ragChatBot.private')}</option>
@@ -433,74 +443,79 @@ const RagChatBotPage: React.FC = () => {
           <LoadingWave />
         </div>
       ) : bots.length === 0 ? (
-        <div className="text-center py-12">
-          <PiRobot className="text-6xl text-gray-300 mx-auto mb-4" />
+        <div className="py-12 text-center">
+          <PiRobot className="mx-auto mb-4 text-6xl text-gray-300" />
           <p className="text-gray-500">{t('ragChatBot.noBots')}</p>
         </div>
       ) : (
-        <div>
-          {bots.map((bot) => renderBotCard(bot))}
-        </div>
+        <div>{bots.map((bot) => renderBotCard(bot))}</div>
       )}
 
       {/* Visibility Change Modal */}
       {visibilityModalBotId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">{t('ragChatBot.changeVisibility')}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">
+                {t('ragChatBot.changeVisibility')}
+              </h3>
               <button
                 onClick={() => setVisibilityModalBotId(null)}
-                className="p-1 hover:bg-gray-100 rounded"
-              >
+                className="rounded p-1 hover:bg-gray-100">
                 <PiX className="text-xl" />
               </button>
             </div>
-            
-            <div className="space-y-3 mb-6">
-              <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+
+            <div className="mb-6 space-y-3">
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-gray-50">
                 <input
                   type="radio"
                   name="visibility"
                   value="private"
                   checked={newVisibility === 'private'}
-                  onChange={(e) => setNewVisibility(e.target.value as 'private')}
-                  className="w-4 h-4"
+                  onChange={(e) =>
+                    setNewVisibility(e.target.value as 'private')
+                  }
+                  className="h-4 w-4"
                 />
                 <PiLock className="text-xl text-gray-500" />
                 <div className="flex-1">
                   <div className="font-medium">{t('ragChatBot.private')}</div>
-                  <div className="text-sm text-gray-600">{t('ragChatBot.privateDescription')}</div>
+                  <div className="text-sm text-gray-600">
+                    {t('ragChatBot.privateDescription')}
+                  </div>
                 </div>
               </label>
-              
-              <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-gray-50">
                 <input
                   type="radio"
                   name="visibility"
                   value="all"
                   checked={newVisibility === 'all'}
                   onChange={(e) => setNewVisibility(e.target.value as 'all')}
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                 />
                 <PiUsers className="text-xl text-blue-500" />
                 <div className="flex-1">
-                  <div className="font-medium">{t('ragChatBot.tenantPublic')}</div>
-                  <div className="text-sm text-gray-600">{t('ragChatBot.tenantPublicDescription')}</div>
+                  <div className="font-medium">
+                    {t('ragChatBot.tenantPublic')}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {t('ragChatBot.tenantPublicDescription')}
+                  </div>
                 </div>
               </label>
             </div>
-            
-            <div className="flex gap-2 justify-end">
-              <Button
-                outlined
-                onClick={() => setVisibilityModalBotId(null)}
-              >
+
+            <div className="flex justify-end gap-2">
+              <Button outlined onClick={() => setVisibilityModalBotId(null)}>
                 {t('common.cancel')}
               </Button>
               <Button
-                onClick={() => handleChangeVisibility(visibilityModalBotId, newVisibility)}
-              >
+                onClick={() =>
+                  handleChangeVisibility(visibilityModalBotId, newVisibility)
+                }>
                 {t('common.save')}
               </Button>
             </div>

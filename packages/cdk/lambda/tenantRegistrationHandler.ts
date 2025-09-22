@@ -1,12 +1,9 @@
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
-  Context
+  Context,
 } from 'aws-lambda';
-import {
-  DynamoDBClient,
-  PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 
 // Environment variables
@@ -60,7 +57,8 @@ export const handler = async (
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          error: 'Missing required fields: tenantId, accountId, region, environment',
+          error:
+            'Missing required fields: tenantId, accountId, region, environment',
         }),
       };
     }
@@ -105,7 +103,10 @@ export const handler = async (
     console.error('Error registering tenant:', error);
 
     // Handle duplicate tenant
-    if (error instanceof Error && error.name === 'ConditionalCheckFailedException') {
+    if (
+      error instanceof Error &&
+      error.name === 'ConditionalCheckFailedException'
+    ) {
       return {
         statusCode: 409,
         headers: { 'Content-Type': 'application/json' },
@@ -124,4 +125,3 @@ export const handler = async (
     };
   }
 };
-

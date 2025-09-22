@@ -28,7 +28,9 @@ export const handler = async (
     const userId = event.requestContext.authorizer!.claims.sub;
     const tenantId = getTenantId(event);
 
-    console.log(`Getting transcription for tenant: ${tenantId}, user: ${userId}, job: ${jobName}`);
+    console.log(
+      `Getting transcription for tenant: ${tenantId}, user: ${userId}, job: ${jobName}`
+    );
 
     // Get tenant-specific clients
     const { transcribeClient, s3Client } = await (async () => {
@@ -38,12 +40,12 @@ export const handler = async (
           s3Client: new S3Client({}),
         };
       }
-      
+
       console.log(`Creating tenant-specific clients for tenant: ${tenantId}`);
-      
+
       // Use existing utility for tenant S3 client creation
       const s3Client = await createTenantS3Client(event);
-      
+
       // Get tenant credentials for Transcribe client
       const { credentials, tenant } = await getTenantCredentials(event);
 

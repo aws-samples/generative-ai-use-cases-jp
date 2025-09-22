@@ -18,8 +18,7 @@ const Button: React.FC<Props> = (props) => {
         props.outlined
           ? 'text-aws-font-color border-aws-font-color/20 border bg-white'
           : 'bg-aws-smile border text-white'
-      }
-      flex items-center justify-center rounded-lg p-1 px-3 ${
+      } flex items-center justify-center rounded-lg p-1 px-3 ${
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       title={props.title}

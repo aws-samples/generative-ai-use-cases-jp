@@ -101,7 +101,7 @@ export function AISelector({ onOpenChange }: AISelectorProps) {
 
       {isLoading && (
         <div className="flex h-12 w-full items-center px-4 text-sm font-medium text-purple-500">
-          <PiMagicWand className="mr-2 h-4 w-4 shrink-0  " />
+          <PiMagicWand className="mr-2 h-4 w-4 shrink-0" />
           {t('writer.ai.thinking')}
           <div className="ml-2 mt-1">
             <PiSpinner className="h-4 w-4 animate-spin" />

@@ -28,15 +28,17 @@ export const handler = async (
       if (isDefaultTenant(tenantId)) {
         return DEFAULT_BUCKET_NAME;
       }
-      
+
       const tenant = await getTenant(tenantId);
       if (!tenant?.roleArn || !tenant?.region || !tenant?.environment) {
         throw new Error(`Incomplete tenant information for ${tenantId}`);
       }
-      
+
       const tenantAccountId = extractAccountIdFromRoleArn(tenant.roleArn);
       if (!tenantAccountId) {
-        throw new Error(`Cannot extract account ID from role ARN: ${tenant.roleArn}`);
+        throw new Error(
+          `Cannot extract account ID from role ARN: ${tenant.roleArn}`
+        );
       }
 
       return getTenantBucketNameByTenantId(

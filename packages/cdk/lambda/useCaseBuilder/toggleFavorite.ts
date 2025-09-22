@@ -10,7 +10,11 @@ export const handler = async (
       event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    const isFavorite: IsFavorite = await toggleFavorite(userId, useCaseId, event);
+    const isFavorite: IsFavorite = await toggleFavorite(
+      userId,
+      useCaseId,
+      event
+    );
 
     return {
       statusCode: 200,

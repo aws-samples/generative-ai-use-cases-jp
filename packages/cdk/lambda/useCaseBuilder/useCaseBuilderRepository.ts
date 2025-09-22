@@ -27,7 +27,8 @@ import { createTenantDynamoDBClient } from '../utils/tenantDynamoDBClient';
 
 const USECASE_TABLE_PREFIX: string = process.env.USECASE_TABLE_NAME!;
 const ENVIRONMENT: string = process.env.ENVIRONMENT!;
-const DEFAULT_USECASE_TABLE_NAME: string = process.env.DEFAULT_USECASE_TABLE_NAME!;
+const DEFAULT_USECASE_TABLE_NAME: string =
+  process.env.DEFAULT_USECASE_TABLE_NAME!;
 const DEFAULT_TENANT_ID: string = process.env.DEFAULT_TENANT_ID!;
 const USECASE_ID_INDEX_NAME: string = process.env.USECASE_ID_INDEX_NAME!;
 
@@ -88,7 +89,10 @@ const getUserIdFromKey = (key: string): string => {
 };
 
 // Create a query command to get use case by useCaseId
-const createFindUseCaseByUseCaseIdCommand = (useCaseId: string, tableName: string) =>
+const createFindUseCaseByUseCaseIdCommand = (
+  useCaseId: string,
+  tableName: string
+) =>
   new QueryCommand({
     TableName: tableName,
     IndexName: USECASE_ID_INDEX_NAME,
@@ -166,7 +170,9 @@ const innerFindUseCasesByUseCaseIds = async (
   // Run multiple queries in parallel
   const useCasesInTable: QueryCommandOutput[] = await Promise.all(
     useCaseIds.map((useCaseId) =>
-      dynamoDbDocument.send(createFindUseCaseByUseCaseIdCommand(useCaseId, tableName))
+      dynamoDbDocument.send(
+        createFindUseCaseByUseCaseIdCommand(useCaseId, tableName)
+      )
     )
   );
   return useCasesInTable.flatMap(
@@ -472,7 +478,10 @@ export const listFavoriteUseCases = async (
       exclusiveStartKey
     );
   const useCaseIds = commons.map((c) => c.useCaseId);
-  const useCasesInTable = await innerFindUseCasesByUseCaseIds(useCaseIds, event);
+  const useCasesInTable = await innerFindUseCasesByUseCaseIds(
+    useCaseIds,
+    event
+  );
   const useCasesAsOutput: UseCaseAsOutput[] = useCasesInTable.map((u) => {
     return {
       ...u,
@@ -501,7 +510,11 @@ export const toggleFavorite = async (
   // MEMO: If the number of favorites is large, it may overflow from the list
   const dynamoDbDocument = await getTenantDynamoDBDocument(event);
   const tableName = getTableName(event);
-  const commons = await innerFindCommonsByUserIdAndDataType(userId, 'favorite', event);
+  const commons = await innerFindCommonsByUserIdAndDataType(
+    userId,
+    'favorite',
+    event
+  );
   const useCaseIds = commons.map((c) => c.useCaseId);
   const index = useCaseIds.indexOf(useCaseId);
 

@@ -28,14 +28,14 @@ exports.handler = async (
 ) => {
   try {
     console.log('Received event:', JSON.stringify(event, null, 2));
-    
+
     // Allow admin-created users to bypass domain validation
     if (event.triggerSource === 'PreSignUp_AdminCreateUser') {
       console.log('Admin-created user detected, bypassing domain validation');
       callback(null, event);
       return;
     }
-    
+
     // For self-signup and external provider users, perform domain validation
     const email = event.request.userAttributes.email;
     if (isAllowed(email) || TENANT_MAP.length === 0) {

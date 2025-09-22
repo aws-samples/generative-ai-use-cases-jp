@@ -1,9 +1,9 @@
 /**
  * Reference: https://github.com/awslabs/generative-ai-cdk-constructs/blob/main/src/common/helpers/utils.ts
  */
-import { IConstruct } from "constructs";
-import * as cdk from "aws-cdk-lib";
-import { createHash } from "crypto";
+import { IConstruct } from 'constructs';
+import * as cdk from 'aws-cdk-lib';
+import { createHash } from 'crypto';
 
 export interface GeneratePhysicalNameOptions
   extends cdk.UniqueResourceNameOptions {
@@ -62,24 +62,24 @@ export function generatePhysicalName(
   function objectToHash(obj: any): string {
     // Nothing to hash if undefined
     if (obj === undefined) {
-      return "";
+      return '';
     }
 
     // Convert the object to a JSON string
     const jsonString = JSON.stringify(obj);
 
     // Create a SHA-256 hash
-    const hash = createHash("sha256");
+    const hash = createHash('sha256');
 
     // Update the hash with the JSON string and get the digest in hexadecimal format
     // Shorten it (modeled after seven characters like git commit hash shortening)
-    return hash.update(jsonString).digest("hex").slice(0, 7).toUpperCase();
+    return hash.update(jsonString).digest('hex').slice(0, 7).toUpperCase();
   }
 
   const {
     maxLength = 256,
     lower = false,
-    separator = "",
+    separator = '',
     destroyCreate = undefined,
     suppressWarnings = false,
     minUniqueNameLength = 5,
@@ -119,9 +119,9 @@ export function generatePhysicalName(
   // Create a unique hash using CDK's unique name and the full prefix
   // This ensures different resources get different hashes even with similar prefixes
   const uniqueInput = `${cdkUniqueName}:${prefix}`;
-  const uniqueHash = createHash("md5")
+  const uniqueHash = createHash('md5')
     .update(uniqueInput)
-    .digest("hex")
+    .digest('hex')
     .slice(0, minUniqueNameLength)
     .toUpperCase();
 
