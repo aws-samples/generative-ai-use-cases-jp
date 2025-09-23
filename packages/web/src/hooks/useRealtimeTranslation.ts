@@ -33,22 +33,12 @@ const useRealtimeTranslation = () => {
       }
 
       // Check current translation state using ref
-      console.log(
-        `[Translation Debug] translationKey: ${translationKey}, translatingRef:`,
-        translatingRef.current
-      );
       if (translatingRef.current[translationKey]) {
-        console.log(
-          `[Translation Skip] Already translating: ${translationKey}`
-        );
         return null;
       }
 
       // Add to translation state when starting
       translatingRef.current[translationKey] = true;
-      console.log(
-        `[Translation Start] Starting translation: ${translationKey}`
-      );
 
       try {
         const translated = await translate(sentence, {

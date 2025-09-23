@@ -210,10 +210,11 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
 
         // Check if this is still the latest request before updating UI
         const currentLatestTimestamp = latestRequestTimestamps.get(requestId);
-        if (
-          !currentLatestTimestamp ||
-          requestTimestamp >= currentLatestTimestamp
-        ) {
+        const isLatestRequest =
+          !currentLatestTimestamp || requestTimestamp >= currentLatestTimestamp;
+
+        // Only update UI if we have a valid translation result and this is the latest request
+        if (isLatestRequest && translation !== null) {
           // Update translation segment state only if this is the latest request
           setRealtimeSegments((prev) =>
             prev.map((seg) => {
