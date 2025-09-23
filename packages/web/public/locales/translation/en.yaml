@@ -40,6 +40,7 @@ chat:
   title: Chat
   view_prompt_examples: View Prompt Examples
 common:
+  arrow: →
   cancel: Cancel
   clear: Clear
   close: Close
@@ -903,6 +904,7 @@ translate:
   auto_translate: Auto translate
   contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
   continue_output: Continue output
+  detectedLanguage: Detected Language
   enter_text: Enter text
   realtimeTranslation: Real-time Translation
   realtime_translation: Real-time Translation

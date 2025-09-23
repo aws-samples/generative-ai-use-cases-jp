@@ -13,20 +13,23 @@ interface RealtimeSegmentForContext {
   startTime: number;
 }
 
-// Configuration for context generation
-interface ContextGenerationConfig {
-  minTranscriptLength: number;
-  targetLanguage: string;
-}
-
 // Language code mapping for context generation
 const LANGUAGE_NAME_MAPPING: { [key: string]: string } = {
   'ja-JP': 'Japanese',
   'en-US': 'English',
+  'en-GB': 'English',
   'zh-CN': 'Chinese',
+  'zh-TW': 'Chinese',
   'ko-KR': 'Korean',
   'th-TH': 'Thai',
   'vi-VN': 'Vietnamese',
+  // Language family fallbacks
+  ja: 'Japanese',
+  en: 'English',
+  zh: 'Chinese',
+  ko: 'Korean',
+  th: 'Thai',
+  vi: 'Vietnamese',
 };
 
 /**
@@ -35,7 +38,20 @@ const LANGUAGE_NAME_MAPPING: { [key: string]: string } = {
  * @returns Language name (e.g., 'Japanese')
  */
 export const getLanguageNameFromCode = (languageCode: string): string => {
-  return LANGUAGE_NAME_MAPPING[languageCode] || 'Japanese';
+  // Try exact match first
+  if (LANGUAGE_NAME_MAPPING[languageCode]) {
+    return LANGUAGE_NAME_MAPPING[languageCode];
+  }
+
+  // Try language family match (e.g., 'fr-FR' -> 'fr')
+  const languageFamily = languageCode.split('-')[0];
+  if (LANGUAGE_NAME_MAPPING[languageFamily]) {
+    return LANGUAGE_NAME_MAPPING[languageFamily];
+  }
+
+  // Return the language code as-is if no mapping found
+  // This allows Bedrock to handle unknown languages gracefully
+  return languageCode;
 };
 
 /**
@@ -61,21 +77,19 @@ export const extractTranscriptText = (
  * @param isTranslationEnabled - Whether real-time translation is enabled
  * @param isRecording - Whether currently recording
  * @param segments - Array of segments
- * @param config - Configuration object
  * @returns True if context generation should proceed
  */
 export const shouldGenerateContext = (
   isTranslationEnabled: boolean,
   isRecording: boolean,
-  segments: RealtimeSegmentForContext[],
-  config: ContextGenerationConfig
+  segments: RealtimeSegmentForContext[]
 ): boolean => {
   if (!isTranslationEnabled || !isRecording || segments.length === 0) {
     return false;
   }
 
   const transcriptText = extractTranscriptText(segments);
-  return transcriptText.length >= config.minTranscriptLength;
+  return transcriptText.length >= 50; // Default minimum length
 };
 
 /**
@@ -95,13 +109,13 @@ Respond in ${targetLanguageName}.`;
 /**
  * Generate system context from transcript segments
  * @param segments - Array of realtime segments
- * @param config - Configuration for context generation
+ * @param targetLanguage - Target language code for context generation
  * @param predict - Prediction function from useChatApi
  * @returns Promise resolving to generated context or null if failed
  */
 export const generateSystemContext = async (
   segments: RealtimeSegmentForContext[],
-  config: ContextGenerationConfig,
+  targetLanguage: string,
   predict: (params: {
     model: Model;
     messages: Array<{ role: 'system' | 'user'; content: string }>;
@@ -111,7 +125,8 @@ export const generateSystemContext = async (
   try {
     // Extract and validate transcript text
     const transcriptText = extractTranscriptText(segments);
-    if (transcriptText.length < config.minTranscriptLength) {
+    if (transcriptText.length < 50) {
+      // Default minimum length
       return null;
     }
 
@@ -134,7 +149,7 @@ export const generateSystemContext = async (
     }
 
     // Prepare messages for context generation
-    const targetLanguageName = getLanguageNameFromCode(config.targetLanguage);
+    const targetLanguageName = getLanguageNameFromCode(targetLanguage);
     const systemPrompt = createContextGenerationPrompt(targetLanguageName);
 
     const messages = [
@@ -163,13 +178,13 @@ export const generateSystemContext = async (
 };
 
 /**
- * Create a context generation function with preset configuration
- * @param config - Configuration object
+ * Create a context generation function with preset target language
+ * @param targetLanguage - Target language code
  * @param predict - Prediction function
  * @returns Configured context generation function
  */
 export const createContextGenerator = (
-  config: ContextGenerationConfig,
+  targetLanguage: string,
   predict: (params: {
     model: Model;
     messages: Array<{ role: 'system' | 'user'; content: string }>;
@@ -179,7 +194,7 @@ export const createContextGenerator = (
   return async (
     segments: RealtimeSegmentForContext[]
   ): Promise<string | null> => {
-    return generateSystemContext(segments, config, predict);
+    return generateSystemContext(segments, targetLanguage, predict);
   };
 };
 

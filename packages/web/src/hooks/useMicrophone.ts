@@ -48,6 +48,7 @@ const useMicrophone = () => {
       endTime: number;
       isPartial: boolean;
       transcripts: Transcript[];
+      languageCode?: string;
     }[]
   >([]);
   const [language, setLanguage] = useState<string>('ja-JP');
@@ -111,7 +112,8 @@ const useMicrophone = () => {
   const startStream = async (
     mic: MicrophoneStream,
     languageCode?: LanguageCode,
-    speakerLabel: boolean = false
+    speakerLabel: boolean = false,
+    languageOptions?: string[]
   ) => {
     if (!transcribeClient) return;
 
@@ -134,7 +136,11 @@ const useMicrophone = () => {
     const command = new StartStreamTranscriptionCommand({
       LanguageCode: languageCode,
       IdentifyLanguage: languageCode ? false : true,
-      LanguageOptions: languageCode ? undefined : 'en-US,ja-JP',
+      LanguageOptions: languageCode
+        ? undefined
+        : languageOptions
+          ? languageOptions.join(',')
+          : 'en-US,ja-JP',
       MediaEncoding: 'pcm',
       MediaSampleRateHertz: 48000,
       AudioStream: audioStream(),
@@ -197,6 +203,7 @@ const useMicrophone = () => {
                       endTime: result.EndTime ?? 0,
                       isPartial: result.IsPartial ?? false,
                       transcripts,
+                      languageCode: result.LanguageCode,
                     },
                   ],
                 });
@@ -216,6 +223,7 @@ const useMicrophone = () => {
                         endTime: result.EndTime ?? 0,
                         isPartial: result.IsPartial ?? false,
                         transcripts,
+                        languageCode: result.LanguageCode,
                       },
                     ],
                   ],
@@ -237,7 +245,8 @@ const useMicrophone = () => {
 
   const startTranscription = async (
     languageCode?: LanguageCode,
-    speakerLabel?: boolean
+    speakerLabel?: boolean,
+    languageOptions?: string[]
   ) => {
     const mic = new MicrophoneStream();
     try {
@@ -250,7 +259,7 @@ const useMicrophone = () => {
       );
 
       setRecording(true);
-      await startStream(mic, languageCode, speakerLabel);
+      await startStream(mic, languageCode, speakerLabel, languageOptions);
     } catch (e) {
       console.log(e);
     } finally {

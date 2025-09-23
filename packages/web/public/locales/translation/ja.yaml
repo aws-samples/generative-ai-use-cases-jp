@@ -38,6 +38,7 @@ chat:
   title: チャット
   view_prompt_examples: プロンプト例を見る
 common:
+  arrow: →
   cancel: キャンセル
   clear: クリア
   close: 閉じる
@@ -735,6 +736,7 @@ translate:
   auto_translate: 自動翻訳
   contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
+  detectedLanguage: 検出言語
   enter_text: 入力してください
   realtimeTranslation: リアルタイム翻訳
   realtime_translation: リアルタイム翻訳

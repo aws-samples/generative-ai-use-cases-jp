@@ -36,6 +36,32 @@ import {
   getRecentSegmentsContext,
 } from './MeetingMinutesContextGenerator';
 
+const getTranslationTarget = (
+  translationType: string,
+  detectedLanguageCode: string | undefined,
+  primaryLanguage: string,
+  secondaryLanguage: string
+): string => {
+  // For unidirectional translation, always use the target language
+  if (translationType !== 'bidirectional' || !detectedLanguageCode) {
+    return secondaryLanguage;
+  }
+
+  // For bidirectional translation with detected language:
+  // If detected language matches primary language, translate to target language
+  if (detectedLanguageCode === primaryLanguage) {
+    return secondaryLanguage;
+  }
+
+  // If detected language matches target language, translate to primary language
+  if (detectedLanguageCode === secondaryLanguage) {
+    return primaryLanguage;
+  }
+
+  // If detected language doesn't match either configured language, use target language as fallback
+  return secondaryLanguage;
+};
+
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
   resultId: string;
@@ -84,7 +110,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   } = useScreenAudio();
 
   // Internal state management
-  const [languageCode, setLanguageCode] = useState('en-US');
+  const [primaryLanguage, setPrimaryLanguage] = useState('en-US');
   const [speakerLabel, setSpeakerLabel] = useState(false);
   const [maxSpeakers, setMaxSpeakers] = useState(4);
   const [speakers, setSpeakers] = useState('');
@@ -115,7 +141,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   const realtimeTranslationEnabled = true; // Always enabled in this tab
   const [translationType, setTranslationType] = useState('unidirectional');
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
-  const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
+  const [secondaryLanguage, setSecondaryLanguage] = useState('ja-JP');
 
   // Context states for translation accuracy improvement
   const [userDefinedContext, setUserDefinedContext] = useState('');
@@ -177,9 +203,15 @@ const MeetingMinutesRealtimeTranslation: React.FC<
       );
 
       try {
-        const targetLanguageName = getLanguageNameFromCode(
-          selectedTargetLanguage
+        // Determine translation target language using helper function
+        const targetLanguage = getTranslationTarget(
+          translationType,
+          segment.languageCode,
+          primaryLanguage,
+          secondaryLanguage
         );
+
+        const targetLanguageName = getLanguageNameFromCode(targetLanguage);
 
         // Build combined context for translation
         const contexts = [];
@@ -252,7 +284,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       selectedTranslationModel,
-      selectedTargetLanguage,
+      secondaryLanguage,
       userDefinedContext,
       systemGeneratedContext,
       translate,
@@ -274,8 +306,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
       !shouldGenerateContext(
         realtimeTranslationEnabled,
         currentlyRecording,
-        realtimeSegments,
-        { minTranscriptLength: 50, targetLanguage: selectedTargetLanguage }
+        realtimeSegments
       )
     ) {
       return;
@@ -283,7 +314,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
 
     const result = await generateSystemContext(
       realtimeSegments,
-      { minTranscriptLength: 50, targetLanguage: selectedTargetLanguage },
+      secondaryLanguage,
       predict
     );
 
@@ -295,7 +326,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     micRecording,
     screenRecording,
     realtimeSegments,
-    selectedTargetLanguage,
+    secondaryLanguage,
     predict,
   ]);
 
@@ -499,7 +530,8 @@ const MeetingMinutesRealtimeTranslation: React.FC<
 
       const translationSegments = updateTranslationSegments(
         currentText,
-        languageCode === 'auto' ? undefined : languageCode,
+        latestSegment.languageCode ||
+          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
         [] // Empty existing segments for new segment
       );
 
@@ -511,7 +543,9 @@ const MeetingMinutesRealtimeTranslation: React.FC<
         isPartial: latestSegment.isPartial,
         transcripts: latestSegment.transcripts,
         sessionId: currentSessionId,
-        languageCode: languageCode === 'auto' ? undefined : languageCode,
+        languageCode:
+          latestSegment.languageCode ||
+          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
         translationSegments,
       };
       updateRealtimeSegments(segment);
@@ -520,7 +554,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     micRawTranscripts,
     updateRealtimeSegments,
     currentSessionId,
-    languageCode,
+    primaryLanguage,
   ]);
 
   // Process screen audio raw transcripts
@@ -539,7 +573,8 @@ const MeetingMinutesRealtimeTranslation: React.FC<
 
       const translationSegments = updateTranslationSegments(
         currentText,
-        languageCode === 'auto' ? undefined : languageCode,
+        latestSegment.languageCode ||
+          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
         [] // Empty existing segments for new segment
       );
 
@@ -551,7 +586,9 @@ const MeetingMinutesRealtimeTranslation: React.FC<
         isPartial: latestSegment.isPartial,
         transcripts: latestSegment.transcripts,
         sessionId: currentSessionId,
-        languageCode: languageCode === 'auto' ? undefined : languageCode,
+        languageCode:
+          latestSegment.languageCode ||
+          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
         translationSegments,
       };
       updateRealtimeSegments(segment);
@@ -561,7 +598,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     enableScreenAudio,
     updateRealtimeSegments,
     currentSessionId,
-    languageCode,
+    primaryLanguage,
   ]);
 
   // Handle interval translation for partial segments
@@ -647,8 +684,20 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     clearMicTranscripts();
     clearScreenTranscripts();
 
-    const langCode =
-      languageCode === 'auto' ? undefined : (languageCode as LanguageCode);
+    // For bidirectional translation, use language auto-detection with both languages
+    let langCode: LanguageCode | undefined;
+    let languageOptions: string[] | undefined;
+
+    if (translationType === 'bidirectional') {
+      langCode = undefined; // Enable auto-detection
+      languageOptions = [primaryLanguage, secondaryLanguage];
+    } else {
+      langCode =
+        primaryLanguage === 'auto'
+          ? undefined
+          : (primaryLanguage as LanguageCode);
+      languageOptions = undefined;
+    }
 
     try {
       let screenStream: MediaStream | null = null;
@@ -657,19 +706,26 @@ const MeetingMinutesRealtimeTranslation: React.FC<
       }
 
       if (screenStream) {
-        startTranscriptionWithStream(screenStream, langCode, speakerLabel);
+        startTranscriptionWithStream(
+          screenStream,
+          langCode,
+          speakerLabel,
+          languageOptions
+        );
       }
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel);
+        startMicTranscription(langCode, speakerLabel, languageOptions);
       }
     } catch (error) {
       console.error('Failed to start synchronized recording:', error);
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel);
+        startMicTranscription(langCode, speakerLabel, languageOptions);
       }
     }
   }, [
-    languageCode,
+    primaryLanguage,
+    secondaryLanguage,
+    translationType,
     speakerLabel,
     startMicTranscription,
     enableScreenAudio,
@@ -765,8 +821,8 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                       : t('meetingMinutes.transcription_language')}
                   </label>
                   <Select
-                    value={languageCode}
-                    onChange={setLanguageCode}
+                    value={primaryLanguage}
+                    onChange={setPrimaryLanguage}
                     options={languageOptions}
                   />
                 </div>
@@ -777,8 +833,8 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                       : t('meetingMinutes.translation_language')}
                   </label>
                   <Select
-                    value={selectedTargetLanguage}
-                    onChange={setSelectedTargetLanguage}
+                    value={secondaryLanguage}
+                    onChange={setSecondaryLanguage}
                     options={targetLanguageOptions}
                   />
                 </div>
@@ -949,6 +1005,14 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                       translationSegments={segment.translationSegments}
                       isTranslating={false}
                       translationEnabled={realtimeTranslationEnabled}
+                      detectedLanguage={segment.languageCode}
+                      translationTarget={getTranslationTarget(
+                        translationType,
+                        segment.languageCode,
+                        primaryLanguage,
+                        secondaryLanguage
+                      )}
+                      isBidirectional={translationType === 'bidirectional'}
                     />
                   </React.Fragment>
                 );

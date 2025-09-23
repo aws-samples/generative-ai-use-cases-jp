@@ -19,6 +19,9 @@ interface MeetingMinutesTranscriptSegmentProps {
   translationSegments?: TranslationSegment[];
   isTranslating?: boolean;
   translationEnabled?: boolean;
+  detectedLanguage?: string;
+  translationTarget?: string;
+  isBidirectional?: boolean;
 }
 
 const MeetingMinutesTranscriptSegment: React.FC<
@@ -33,6 +36,9 @@ const MeetingMinutesTranscriptSegment: React.FC<
   translationSegments,
   isTranslating,
   translationEnabled,
+  detectedLanguage,
+  translationTarget,
+  isBidirectional,
 }) => {
   const { t } = useTranslation();
   return (
@@ -66,6 +72,20 @@ const MeetingMinutesTranscriptSegment: React.FC<
       {/* Translation Display */}
       {translationEnabled && (
         <div className="mt-3 border-t border-gray-300 pt-3">
+          {/* Language detection indicator for bidirectional translation */}
+          {isBidirectional && detectedLanguage && (
+            <div className="mb-2 flex gap-2">
+              <span className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-600">
+                {t('translate.detectedLanguage')}
+                {t('common.colon')} {detectedLanguage}
+                {translationTarget && (
+                  <span className="ml-1">
+                    {t('common.arrow')} {translationTarget}
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
           {translationSegments ? (
             // New sentence-based translation display
             <>

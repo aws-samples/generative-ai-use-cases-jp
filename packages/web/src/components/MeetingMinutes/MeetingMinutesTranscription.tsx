@@ -524,6 +524,9 @@ const MeetingMinutesTranscription: React.FC<
                       translationSegments={[]}
                       isTranslating={false}
                       translationEnabled={false}
+                      detectedLanguage={undefined}
+                      translationTarget={undefined}
+                      isBidirectional={false}
                     />
                   </React.Fragment>
                 );
