@@ -201,7 +201,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           contexts.length > 0 ? contexts.join('\n\n') : undefined;
 
         const translation = await translate(
-          requestId, // Unique ID for sentence
           translationSegment.text,
           selectedTranslationModel,
           targetLanguageName,

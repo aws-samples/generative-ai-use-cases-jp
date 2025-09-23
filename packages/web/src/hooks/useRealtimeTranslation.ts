@@ -1,14 +1,13 @@
-import { useMemo, useCallback, useState, useRef } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { MODELS } from './useModel';
 import useTranslationCore from './useTranslationCore';
 
 const useRealtimeTranslation = () => {
   const { translate } = useTranslationCore();
   const { modelIds, lightModelIds } = MODELS;
-  const translatingRef = useRef<{ [key: string]: boolean }>({});
 
   // Interval for real-time translation (in milliseconds)
-  const [translationInterval, setTranslationInterval] = useState<number>(1000);
+  const [translationInterval, setTranslationInterval] = useState<number>(2000);
 
   // Get available models with light models prioritized first
   const availableModels = useMemo(() => {
@@ -20,25 +19,14 @@ const useRealtimeTranslation = () => {
 
   const translateRealtime = useCallback(
     async (
-      requestId: string,
       sentence: string,
       modelId: string,
       targetLanguage: string,
       context?: string
     ): Promise<string | null> => {
-      const translationKey = requestId;
-
       if (!sentence.trim()) {
         return null;
       }
-
-      // Check current translation state using ref
-      if (translatingRef.current[translationKey]) {
-        return null;
-      }
-
-      // Add to translation state when starting
-      translatingRef.current[translationKey] = true;
 
       try {
         const translated = await translate(sentence, {
@@ -51,9 +39,6 @@ const useRealtimeTranslation = () => {
       } catch (error) {
         console.error('Translation failed:', error);
         return null;
-      } finally {
-        // Remove from translation state when finished
-        delete translatingRef.current[translationKey];
       }
     },
     [translate]
