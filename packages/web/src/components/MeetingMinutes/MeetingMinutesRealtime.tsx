@@ -597,11 +597,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       const currentSegments = realtimeSegmentsRef.current;
 
       for (const segment of currentSegments) {
-        // Skip if already translating this segment
-        if (isTranslating(segment.resultId, selectedTranslationModel)) {
-          continue;
-        }
-
         // Handle translation for all segments (unified approach)
         const sentencesToTranslate = segment.translationSegments.filter(
           (translationSegment) =>
@@ -609,9 +604,9 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
             translationSegment.text.trim()
         );
 
-        for (const translationSegment of sentencesToTranslate) {
+        for (const translationSentence of sentencesToTranslate) {
           const sentenceIndex =
-            segment.translationSegments.indexOf(translationSegment);
+            segment.translationSegments.indexOf(translationSentence);
           if (
             isTranslating(
               `${segment.resultId}-${sentenceIndex}`,
@@ -622,7 +617,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           }
 
           // Translate individual sentence
-          await translateSentence(segment, sentenceIndex, translationSegment);
+          await translateSentence(segment, sentenceIndex, translationSentence);
         }
       }
     }, translationInterval);
