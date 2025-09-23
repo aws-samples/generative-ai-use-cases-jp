@@ -535,6 +535,7 @@ mcp_chat:
   title: MCP チャット
 meetingMinutes:
   auto_generate: 自動生成
+  bidirectional: 双方向翻訳
   clear_minutes: 議事録をクリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
@@ -577,8 +578,12 @@ meetingMinutes:
   style_newspaper: 新聞
   style_summary: 要約
   style_transcription: 文字起こし
+  target_language: 翻訳先言語
   title: 議事録生成
   transcript: 文字起こし
+  translation_model: リアルタイム翻訳モデル
+  translation_type: 翻訳方式
+  unidirectional: 片方向翻訳
 model:
   parameters:
     reasoning_budget: 深く考えるトークン数上限
@@ -727,13 +732,11 @@ translate:
   contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
   enter_text: 入力してください
-  model: リアルタイム翻訳モデル
   realtimeTranslation: リアルタイム翻訳
   realtime_translation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
   systemGeneratedContext: システム自動コンテキスト
   systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト
-  target_language: リアルタイム翻訳言語
   text_to_translate: 翻訳したい文章
   title: 翻訳
   translating: 翻訳中...

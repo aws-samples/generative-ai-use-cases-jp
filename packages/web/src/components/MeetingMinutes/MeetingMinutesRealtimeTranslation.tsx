@@ -57,7 +57,7 @@ interface MeetingMinutesRealtimeTranslationProps {
 const MeetingMinutesRealtimeTranslation: React.FC<
   MeetingMinutesRealtimeTranslationProps
 > = ({ onTranscriptChange }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
   const generateSystemContextRef = useRef<(() => Promise<void>) | null>(null);
@@ -84,7 +84,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   } = useScreenAudio();
 
   // Internal state management
-  const [languageCode, setLanguageCode] = useState('auto');
+  const [languageCode, setLanguageCode] = useState('en-US');
   const [speakerLabel, setSpeakerLabel] = useState(false);
   const [maxSpeakers, setMaxSpeakers] = useState(4);
   const [speakers, setSpeakers] = useState('');
@@ -112,8 +112,8 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   );
 
   // Translation states - Default to enabled for realtime translation tab
-  const [realtimeTranslationEnabled, setRealtimeTranslationEnabled] =
-    useState(true);
+  const realtimeTranslationEnabled = true; // Always enabled in this tab
+  const [translationType, setTranslationType] = useState('unidirectional');
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
   const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
 
@@ -356,44 +356,21 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     [languageOptions]
   );
 
+  // Translation type options
+  const translationTypeOptions = useMemo(
+    () => [
+      { value: 'unidirectional', label: t('meetingMinutes.unidirectional') },
+      { value: 'bidirectional', label: t('meetingMinutes.bidirectional') },
+    ],
+    [t]
+  );
+
   // Speaker mapping
   const speakerMapping = useMemo(() => {
     return Object.fromEntries(
       speakers.split(',').map((speaker, idx) => [`spk_${idx}`, speaker.trim()])
     );
   }, [speakers]);
-
-  // Map i18n language to transcription language
-  const getTranscriptionLanguageFromSettings = useCallback(
-    (settingsLang: string): string => {
-      const langMapping: { [key: string]: string } = {
-        ja: 'ja-JP',
-        en: 'en-US',
-        zh: 'zh-CN',
-        ko: 'ko-KR',
-        th: 'th-TH',
-        vi: 'vi-VN',
-      };
-      return langMapping[settingsLang] || 'auto';
-    },
-    []
-  );
-
-  // Set language from settings on mount
-  useEffect(() => {
-    if (i18n.resolvedLanguage && languageCode === 'auto') {
-      const mappedLang = getTranscriptionLanguageFromSettings(
-        i18n.resolvedLanguage
-      );
-      if (mappedLang !== 'auto') {
-        setLanguageCode(mappedLang);
-      }
-    }
-  }, [
-    i18n.resolvedLanguage,
-    languageCode,
-    getTranscriptionLanguageFromSettings,
-  ]);
 
   // Helper function to format time in MM:SS format
   const formatTime = useCallback((seconds: number): string => {
@@ -731,7 +708,7 @@ const MeetingMinutesRealtimeTranslation: React.FC<
             )}
           </div>
           {!isRecording && (
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <MicAudioToggle
                 enabled={enableMicAudio}
                 onToggle={setEnableMicAudio}
@@ -745,13 +722,6 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                   '\n'
                 )}
               />
-              <div className="ml-0.5 mt-2">
-                <Switch
-                  label={t('translate.realtimeTranslation')}
-                  checked={realtimeTranslationEnabled}
-                  onSwitch={setRealtimeTranslationEnabled}
-                />
-              </div>
             </div>
           )}
         </div>
@@ -761,42 +731,51 @@ const MeetingMinutesRealtimeTranslation: React.FC<
       {!isRecording && (
         <div className="mb-4 px-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Left column: Transcription language */}
-            <div>
-              <label className="mb-2 block font-bold">
-                {t('meetingMinutes.language')}
-              </label>
-              <Select
-                value={languageCode}
-                onChange={setLanguageCode}
-                options={languageOptions}
-              />
+            {/* Left column: Translation type and model */}
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('meetingMinutes.translation_type')}
+                </label>
+                <Select
+                  value={translationType}
+                  onChange={setTranslationType}
+                  options={translationTypeOptions}
+                />
+              </div>
+              <div>
+                <Select
+                  value={selectedTranslationModel}
+                  onChange={setSelectedTranslationModel}
+                  options={availableModels.map((modelId) => ({
+                    value: modelId,
+                    label: MODELS.modelDisplayName(modelId),
+                  }))}
+                />
+              </div>
             </div>
 
-            {/* Right column: Real-time translation settings (vertically arranged) */}
+            {/* Right column: Languages */}
             {realtimeTranslationEnabled && (
               <div className="space-y-4">
                 <div>
                   <label className="mb-2 block font-bold">
-                    {t('translate.target_language')}
+                    {t('meetingMinutes.language')}
+                  </label>
+                  <Select
+                    value={languageCode}
+                    onChange={setLanguageCode}
+                    options={languageOptions}
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block font-bold">
+                    {t('meetingMinutes.target_language')}
                   </label>
                   <Select
                     value={selectedTargetLanguage}
                     onChange={setSelectedTargetLanguage}
                     options={targetLanguageOptions}
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block font-bold">
-                    {t('translate.model')}
-                  </label>
-                  <Select
-                    value={selectedTranslationModel}
-                    onChange={setSelectedTranslationModel}
-                    options={availableModels.map((modelId) => ({
-                      value: modelId,
-                      label: MODELS.modelDisplayName(modelId),
-                    }))}
                   />
                 </div>
               </div>

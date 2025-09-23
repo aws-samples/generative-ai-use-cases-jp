@@ -679,6 +679,7 @@ mcp_chat:
   title: MCP Chat
 meetingMinutes:
   auto_generate: Auto Generate
+  bidirectional: Bidirectional Translation
   clear_minutes: Clear Minutes
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
@@ -720,8 +721,12 @@ meetingMinutes:
   style_newspaper: Newspaper
   style_summary: Summary
   style_transcription: Transcription
+  target_language: Real-time Translation Language
   title: Meeting Minutes Generator
   transcript: Transcript
+  translation_model: Real-time Translation Model
+  translation_type: Translation Type
+  unidirectional: Unidirectional Translation
 model:
   parameters:
     reasoning_budget: Token budget for extended thinking
@@ -895,13 +900,11 @@ translate:
   contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
   continue_output: Continue output
   enter_text: Enter text
-  model: Real-time Translation Model
   realtimeTranslation: Real-time Translation
   realtime_translation: Real-time Translation
   result_placeholder: Translation results will be displayed here
   systemGeneratedContext: System-generated Context
   systemGeneratedContextPlaceholder: Auto-generated context based on the meeting content
-  target_language: Real-time Translation Language
   text_to_translate: Text to translate
   title: Translate
   translating: Translating...
