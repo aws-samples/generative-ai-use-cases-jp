@@ -886,6 +886,7 @@ transcribe:
   stop_recording: Stop Recording
   supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a files are available
   title: Speech Recognition
+  voice_transcription: Voice Transcription
 translate:
   additional_context: Additional context
   additional_context_placeholder: You can enter additional points to consider (e.g., casualness, etc.)
@@ -896,6 +897,7 @@ translate:
   enter_text: Enter text
   model: Real-time Translation Model
   realtimeTranslation: Real-time Translation
+  realtime_translation: Real-time Translation
   result_placeholder: Translation results will be displayed here
   systemGeneratedContext: System-generated Context
   systemGeneratedContextPlaceholder: Auto-generated context based on the meeting content

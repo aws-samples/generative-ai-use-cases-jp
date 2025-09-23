@@ -718,6 +718,7 @@ transcribe:
   stop_recording: 録音を停止する
   supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
   title: 音声認識
+  voice_transcription: 音声文字起こし
 translate:
   additional_context: 追加コンテキスト
   additional_context_placeholder: 追加で考慮してほしい点を入力することができます（カジュアルさ等）
@@ -728,6 +729,7 @@ translate:
   enter_text: 入力してください
   model: リアルタイム翻訳モデル
   realtimeTranslation: リアルタイム翻訳
+  realtime_translation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
   systemGeneratedContext: システム自動コンテキスト
   systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト

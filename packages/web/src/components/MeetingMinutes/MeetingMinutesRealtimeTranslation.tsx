@@ -49,14 +49,14 @@ interface RealtimeSegment {
   translationSegments: TranslationSegment[];
 }
 
-interface MeetingMinutesRealtimeProps {
+interface MeetingMinutesRealtimeTranslationProps {
   /** Callback when transcript text changes */
   onTranscriptChange?: (text: string) => void;
 }
 
-const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
-  onTranscriptChange,
-}) => {
+const MeetingMinutesRealtimeTranslation: React.FC<
+  MeetingMinutesRealtimeTranslationProps
+> = ({ onTranscriptChange }) => {
   const { t, i18n } = useTranslation();
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
@@ -111,9 +111,9 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
     []
   );
 
-  // Translation states
+  // Translation states - Default to enabled for realtime translation tab
   const [realtimeTranslationEnabled, setRealtimeTranslationEnabled] =
-    useState(false);
+    useState(true);
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
   const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
 
@@ -706,7 +706,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
 
   return (
     <div>
-      {/* Microphone Input Content */}
+      {/* Realtime Translation Content */}
       <div className="mb-4">
         <div className="p-2">
           <div className="flex justify-center">
@@ -977,4 +977,4 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   );
 };
 
-export default MeetingMinutesRealtime;
+export default MeetingMinutesRealtimeTranslation;

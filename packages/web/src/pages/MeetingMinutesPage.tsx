@@ -1,14 +1,24 @@
 import React, { useState, useCallback } from 'react';
 import Card from '../components/Card';
-import { PiMicrophoneBold, PiPencilLine, PiPaperclip } from 'react-icons/pi';
-import MeetingMinutesRealtime from '../components/MeetingMinutes/MeetingMinutesRealtime';
+import {
+  PiMicrophoneBold,
+  PiPencilLine,
+  PiPaperclip,
+  PiTranslateBold,
+} from 'react-icons/pi';
+import MeetingMinutesTranscription from '../components/MeetingMinutes/MeetingMinutesTranscription';
+import MeetingMinutesRealtimeTranslation from '../components/MeetingMinutes/MeetingMinutesRealtimeTranslation';
 import MeetingMinutesDirect from '../components/MeetingMinutes/MeetingMinutesDirect';
 import MeetingMinutesFile from '../components/MeetingMinutes/MeetingMinutesFile';
 import MeetingMinutesGeneration from '../components/MeetingMinutes/MeetingMinutesGeneration';
 import { useTranslation } from 'react-i18next';
 
 // Types for Meeting Minutes components
-export type InputMethod = 'microphone' | 'direct' | 'file';
+export type InputMethod =
+  | 'transcription'
+  | 'direct'
+  | 'file'
+  | 'realtime_translation';
 
 export interface LanguageOption {
   value: string;
@@ -39,13 +49,14 @@ const MeetingMinutesPage: React.FC = () => {
   const { t } = useTranslation();
 
   // State management
-  const [inputMethod, setInputMethod] = useState<InputMethod>('microphone');
+  const [inputMethod, setInputMethod] = useState<InputMethod>('transcription');
   const [isGenerationPanelCollapsed, setIsGenerationPanelCollapsed] =
     useState(false);
   const [transcriptTexts, setTranscriptTexts] = useState({
-    microphone: '',
+    transcription: '',
     direct: '',
     file: '',
+    realtime_translation: '',
   });
 
   // Handle transcript changes from components
@@ -56,9 +67,15 @@ const MeetingMinutesPage: React.FC = () => {
     }));
   };
 
-  // Memoized callback for microphone transcript changes
-  const handleMicrophoneTranscriptChange = useCallback(
-    (text: string) => handleTranscriptChange('microphone', text),
+  // Memoized callback for transcription transcript changes
+  const handleTranscriptionTranscriptChange = useCallback(
+    (text: string) => handleTranscriptChange('transcription', text),
+    []
+  );
+
+  // Memoized callback for realtime translation transcript changes
+  const handleRealtimeTranslationTranscriptChange = useCallback(
+    (text: string) => handleTranscriptChange('realtime_translation', text),
     []
   );
 
@@ -103,13 +120,23 @@ const MeetingMinutesPage: React.FC = () => {
             <div className="mb-6 flex border-b border-gray-200">
               <button
                 className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  inputMethod === 'microphone'
+                  inputMethod === 'transcription'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
-                onClick={() => setInputMethod('microphone')}>
+                onClick={() => setInputMethod('transcription')}>
                 <PiMicrophoneBold className="mr-2 h-4 w-4" />
-                {t('transcribe.mic_input')}
+                {t('transcribe.voice_transcription')}
+              </button>
+              <button
+                className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                  inputMethod === 'realtime_translation'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => setInputMethod('realtime_translation')}>
+                <PiTranslateBold className="mr-2 h-4 w-4" />
+                {t('translate.realtime_translation')}
               </button>
               <button
                 className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
@@ -137,10 +164,19 @@ const MeetingMinutesPage: React.FC = () => {
             <div>
               <div
                 style={{
-                  display: inputMethod === 'microphone' ? 'block' : 'none',
+                  display: inputMethod === 'transcription' ? 'block' : 'none',
                 }}>
-                <MeetingMinutesRealtime
-                  onTranscriptChange={handleMicrophoneTranscriptChange}
+                <MeetingMinutesTranscription
+                  onTranscriptChange={handleTranscriptionTranscriptChange}
+                />
+              </div>
+              <div
+                style={{
+                  display:
+                    inputMethod === 'realtime_translation' ? 'block' : 'none',
+                }}>
+                <MeetingMinutesRealtimeTranslation
+                  onTranscriptChange={handleRealtimeTranslationTranscriptChange}
                 />
               </div>
               <div
