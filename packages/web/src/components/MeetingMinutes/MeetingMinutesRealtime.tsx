@@ -124,6 +124,11 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   // Simple session management
   const [currentSessionId, setCurrentSessionId] = useState(0);
 
+  // Latest request timestamp tracking for race condition handling
+  const [latestRequestTimestamps, setLatestRequestTimestamps] = useState<
+    Map<string, number>
+  >(new Map());
+
   // Translation hook
   const { availableModels, translate, isTranslating, translationInterval } =
     useRealtimeTranslation();
@@ -135,6 +140,42 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       sentenceIndex: number,
       translationSegment: TranslationSegment
     ) => {
+      const requestId = `${segment.resultId}-${sentenceIndex}`;
+      const requestTimestamp = Date.now();
+
+      // Update latest request timestamp for this segment
+      setLatestRequestTimestamps((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(requestId, requestTimestamp);
+        return newMap;
+      });
+
+      // Update translation segment with request timestamp
+      setRealtimeSegments((prev) =>
+        prev.map((seg) => {
+          if (
+            seg.resultId !== segment.resultId ||
+            seg.source !== segment.source
+          ) {
+            return seg;
+          }
+
+          return {
+            ...seg,
+            translationSegments: seg.translationSegments.map((ts, index) => {
+              if (index !== sentenceIndex) {
+                return ts;
+              }
+
+              return {
+                ...ts,
+                requestTimestamp,
+              };
+            }),
+          };
+        })
+      );
+
       try {
         const targetLanguageName = getLanguageNameFromCode(
           selectedTargetLanguage
@@ -160,15 +201,20 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
           contexts.length > 0 ? contexts.join('\n\n') : undefined;
 
         const translation = await translate(
-          `${segment.resultId}-${sentenceIndex}`, // Unique ID for sentence
+          requestId, // Unique ID for sentence
           translationSegment.text,
           selectedTranslationModel,
           targetLanguageName,
           combinedContext
         );
 
-        // Update translation segment state
-        const updateTranslationSegment = (translationResult?: string) => {
+        // Check if this is still the latest request before updating UI
+        const currentLatestTimestamp = latestRequestTimestamps.get(requestId);
+        if (
+          !currentLatestTimestamp ||
+          requestTimestamp >= currentLatestTimestamp
+        ) {
+          // Update translation segment state only if this is the latest request
           setRealtimeSegments((prev) =>
             prev.map((seg) => {
               if (
@@ -188,7 +234,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
 
                     return {
                       ...ts,
-                      translation: translationResult,
+                      translation: translation || undefined,
                       needsTranslation: false,
                       lastTranslatedText: ts.text,
                     };
@@ -197,10 +243,9 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
               };
             })
           );
-        };
-
-        updateTranslationSegment(translation || undefined);
+        }
       } catch (error) {
+        // On error, skip UI update (as requested by user)
         console.error('Failed to translate sentence:', error);
       }
     },
@@ -212,6 +257,8 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
       systemGeneratedContext,
       translate,
       setRealtimeSegments,
+      latestRequestTimestamps,
+      setLatestRequestTimestamps,
       // Note: getLanguageNameFromCode and getRecentSegmentsContext are external functions and stable
     ]
   );

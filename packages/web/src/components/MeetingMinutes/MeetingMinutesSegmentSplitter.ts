@@ -128,6 +128,7 @@ export interface TranslationSegment {
   needsTranslation: boolean;
   translation?: string;
   lastTranslatedText?: string;
+  requestTimestamp?: number; // Unix timestamp when translation was requested
 }
 
 /**
