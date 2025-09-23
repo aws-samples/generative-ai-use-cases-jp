@@ -553,6 +553,8 @@ meetingMinutes:
   generation_frequency: 生成頻度
   generation_success: 議事録が正常に生成されました
   language: 文字起こし言語
+  language_1: 言語1
+  language_2: 言語2
   language_auto: 自動検出
   language_chinese: 中国語
   language_english: 英語
@@ -578,9 +580,11 @@ meetingMinutes:
   style_newspaper: 新聞
   style_summary: 要約
   style_transcription: 文字起こし
-  target_language: 翻訳先言語
+  target_language: 翻訳言語
   title: 議事録生成
   transcript: 文字起こし
+  transcription_language: 文字起こし言語
+  translation_language: 翻訳言語
   translation_model: リアルタイム翻訳モデル
   translation_type: 翻訳方式
   unidirectional: 片方向翻訳

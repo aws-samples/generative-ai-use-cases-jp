@@ -696,6 +696,8 @@ meetingMinutes:
   generation_frequency: Generation Frequency
   generation_success: Meeting minutes generated successfully
   language: Transcription Language
+  language_1: Language 1
+  language_2: Language 2
   language_auto: Auto Detect
   language_chinese: Chinese
   language_english: English
@@ -724,6 +726,8 @@ meetingMinutes:
   target_language: Real-time Translation Language
   title: Meeting Minutes Generator
   transcript: Transcript
+  transcription_language: Transcription Language
+  translation_language: Translation Language
   translation_model: Real-time Translation Model
   translation_type: Translation Type
   unidirectional: Unidirectional Translation

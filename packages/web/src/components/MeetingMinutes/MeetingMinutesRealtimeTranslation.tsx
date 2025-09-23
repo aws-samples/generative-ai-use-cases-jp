@@ -760,7 +760,9 @@ const MeetingMinutesRealtimeTranslation: React.FC<
               <div className="space-y-4">
                 <div>
                   <label className="mb-2 block font-bold">
-                    {t('meetingMinutes.language')}
+                    {translationType === 'bidirectional'
+                      ? t('meetingMinutes.language_1')
+                      : t('meetingMinutes.transcription_language')}
                   </label>
                   <Select
                     value={languageCode}
@@ -770,7 +772,9 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                 </div>
                 <div>
                   <label className="mb-2 block font-bold">
-                    {t('meetingMinutes.target_language')}
+                    {translationType === 'bidirectional'
+                      ? t('meetingMinutes.language_2')
+                      : t('meetingMinutes.translation_language')}
                   </label>
                   <Select
                     value={selectedTargetLanguage}
