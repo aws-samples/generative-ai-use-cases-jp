@@ -1,13 +1,11 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useRef } from 'react';
 import { MODELS } from './useModel';
 import useTranslationCore from './useTranslationCore';
 
 const useRealtimeTranslation = () => {
   const { translate } = useTranslationCore();
   const { modelIds, lightModelIds } = MODELS;
-  const [translating, setTranslating] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const translatingRef = useRef<{ [key: string]: boolean }>({});
 
   // Interval for real-time translation (in milliseconds)
   const [translationInterval, setTranslationInterval] = useState<number>(1000);
@@ -22,19 +20,35 @@ const useRealtimeTranslation = () => {
 
   const translateRealtime = useCallback(
     async (
-      segmentId: string,
+      requestId: string,
       sentence: string,
       modelId: string,
       targetLanguage: string,
       context?: string
     ): Promise<string | null> => {
-      const translationKey = `${segmentId}-${modelId}`;
+      const translationKey = requestId;
 
-      if (translating[translationKey] || !sentence.trim()) {
+      if (!sentence.trim()) {
         return null;
       }
 
-      setTranslating((prev) => ({ ...prev, [translationKey]: true }));
+      // Check current translation state using ref
+      console.log(
+        `[Translation Debug] translationKey: ${translationKey}, translatingRef:`,
+        translatingRef.current
+      );
+      if (translatingRef.current[translationKey]) {
+        console.log(
+          `[Translation Skip] Already translating: ${translationKey}`
+        );
+        return null;
+      }
+
+      // Add to translation state when starting
+      translatingRef.current[translationKey] = true;
+      console.log(
+        `[Translation Start] Starting translation: ${translationKey}`
+      );
 
       try {
         const translated = await translate(sentence, {
@@ -48,21 +62,11 @@ const useRealtimeTranslation = () => {
         console.error('Translation failed:', error);
         return null;
       } finally {
-        setTranslating((prev) => {
-          const updated = { ...prev };
-          delete updated[translationKey];
-          return updated;
-        });
+        // Remove from translation state when finished
+        delete translatingRef.current[translationKey];
       }
     },
-    [translating, translate]
-  );
-
-  const isTranslating = useCallback(
-    (segmentId: string, modelId: string) => {
-      return translating[`${segmentId}-${modelId}`] || false;
-    },
-    [translating]
+    [translate]
   );
 
   // Check if text has changed (for diff detection)
@@ -76,7 +80,6 @@ const useRealtimeTranslation = () => {
   return {
     availableModels,
     translate: translateRealtime,
-    isTranslating,
     translationInterval,
     setTranslationInterval,
     hasTextChanged,

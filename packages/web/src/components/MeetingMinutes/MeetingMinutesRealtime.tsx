@@ -130,7 +130,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   >(new Map());
 
   // Translation hook
-  const { availableModels, translate, isTranslating, translationInterval } =
+  const { availableModels, translate, translationInterval } =
     useRealtimeTranslation();
 
   // Helper function to translate individual sentences
@@ -235,8 +235,8 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                     return {
                       ...ts,
                       translation: translation || undefined,
-                      needsTranslation: false,
-                      lastTranslatedText: ts.text,
+                      needsTranslation: ts.text !== translationSegment.text,
+                      lastTranslatedText: translationSegment.text,
                     };
                   }
                 ),
@@ -607,16 +607,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
         for (const translationSentence of sentencesToTranslate) {
           const sentenceIndex =
             segment.translationSegments.indexOf(translationSentence);
-          if (
-            isTranslating(
-              `${segment.resultId}-${sentenceIndex}`,
-              selectedTranslationModel
-            )
-          ) {
-            continue;
-          }
-
-          // Translate individual sentence
+          // Translate individual sentence (duplicate prevention is now handled inside translateSentence)
           await translateSentence(segment, sentenceIndex, translationSentence);
         }
       }
@@ -973,10 +964,7 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
                         .map((ts) => ts.translation || '')
                         .join('')}
                       translationSegments={segment.translationSegments}
-                      isTranslating={isTranslating(
-                        segment.resultId,
-                        selectedTranslationModel
-                      )}
+                      isTranslating={false}
                       translationEnabled={realtimeTranslationEnabled}
                     />
                   </React.Fragment>
