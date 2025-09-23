@@ -587,55 +587,6 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
     languageCode,
   ]);
 
-  // Handle translation for completed segments (final translation)
-  useEffect(() => {
-    if (!realtimeTranslationEnabled || !selectedTranslationModel) {
-      return;
-    }
-
-    const handleFinalTranslation = async () => {
-      // Handle translation for all completed segments (unified approach)
-      const segmentsNeedingFinalTranslation = realtimeSegments.filter(
-        (segment) =>
-          !segment.isPartial &&
-          !isTranslating(segment.resultId, selectedTranslationModel)
-      );
-
-      for (const segment of segmentsNeedingFinalTranslation) {
-        const sentencesToTranslate = segment.translationSegments.filter(
-          (translationSegment) =>
-            translationSegment.needsTranslation &&
-            translationSegment.text.trim()
-        );
-
-        for (const translationSegment of sentencesToTranslate) {
-          const sentenceIndex =
-            segment.translationSegments.indexOf(translationSegment);
-
-          if (
-            isTranslating(
-              `${segment.resultId}-${sentenceIndex}`,
-              selectedTranslationModel
-            )
-          ) {
-            continue;
-          }
-
-          await translateSentence(segment, sentenceIndex, translationSegment);
-        }
-      }
-    };
-
-    handleFinalTranslation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    realtimeTranslationEnabled,
-    selectedTranslationModel,
-    translationInterval,
-    // Note: We intentionally omit function dependencies to prevent infinite loop recreation of this useEffect.
-    // The handleFinalTranslation function accesses current values through closure, which is acceptable for this use case.
-  ]);
-
   // Handle interval translation for partial segments
   useEffect(() => {
     if (!realtimeTranslationEnabled || !selectedTranslationModel) {
