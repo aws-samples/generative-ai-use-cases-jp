@@ -1,8 +1,9 @@
 """Data models for the agent core runtime."""
 
-from strands.types.content import Message
+from typing import Any
+
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional, Union
+from strands.types.content import Message
 
 
 class ModelInfo(BaseModel):
@@ -11,7 +12,7 @@ class ModelInfo(BaseModel):
 
 
 class AgentCoreRequest(BaseModel):
-    messages: Union[List[Message], List[Dict[str, Any]]] = []
-    system_prompt: Optional[str] = None
-    prompt: Union[str, List[Dict[str, Any]]] = ""
+    messages: list[Message] | list[dict[str, Any]] = []
+    system_prompt: str | None = None
+    prompt: str | list[dict[str, Any]] = ""
     model: ModelInfo = {}

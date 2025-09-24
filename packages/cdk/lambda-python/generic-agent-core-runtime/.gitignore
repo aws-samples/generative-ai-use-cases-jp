@@ -51,6 +51,7 @@ logs/
 tmp/
 temp/
 .tmp/
+.ruff_cache/
 
 # Docker
 .dockerignore

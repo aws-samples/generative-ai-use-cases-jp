@@ -20,6 +20,10 @@
 | closedNetworkCreateTestEnvironment  | 検証環境を作成するかどうか。デフォルトで作成する。必要ない場合は false を指定する。検証環境は EC2 の Windows インスタンスとして作成し、Fleet Manager 経由でアクセスする。(詳細な手順は後述。)                               |
 | closedNetworkCreateResolverEndpoint | Route53 の Resolver Endpoint を生成するかどうか。デフォルトで true。                                                                                                                                                        |
 
+## アーキテクチャ
+
+![arch-closed-network.drawio.png](../assets/images/arch-closed-network.drawio.png)
+
 ## 現状の制約
 
 - デプロイはインターネットに疎通可能な環境で行う必要があります。また、動作検証環境にはマネージメントコンソールからアクセスするため、その場合もインターネット疎通が必要になります。

@@ -3,11 +3,12 @@
 import json
 import logging
 import traceback
+
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+
 from src.agent import AgentManager
-from src.utils import create_ws_directory, clean_ws_directory, create_error_response
-from src.types import AgentCoreRequest
+from src.utils import clean_ws_directory, create_error_response, create_ws_directory
 
 # Configure root logger
 logging.basicConfig(
@@ -71,12 +72,7 @@ async def invocations(request: Request):
         # Return streaming response
         async def generate():
             try:
-                async for chunk in agent_manager.process_request_streaming(
-                    messages=messages,
-                    system_prompt=system_prompt,
-                    prompt=prompt,
-                    model_info=model_info
-                ):
+                async for chunk in agent_manager.process_request_streaming(messages=messages, system_prompt=system_prompt, prompt=prompt, model_info=model_info):
                     yield chunk
             finally:
                 clean_ws_directory()
@@ -92,4 +88,5 @@ async def invocations(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="warning", access_log=False)

@@ -1,20 +1,18 @@
 """Agent management for the agent core runtime."""
 
-import boto3
 import json
 import logging
-from strands.models import BedrockModel
+from collections.abc import AsyncGenerator
+from typing import Any
+
+import boto3
 from strands import Agent as StrandsAgent
-from typing import List, Dict, Union, Any, Optional, AsyncGenerator
-from .config import get_system_prompt, extract_model_info
+from strands.models import BedrockModel
+
+from .config import extract_model_info, get_system_prompt
 from .tools import ToolManager
-from .utils import (
-    create_empty_response, 
-    create_error_response,
-    process_messages,
-    process_prompt
-)
-from .types import ModelInfo, Message
+from .types import Message, ModelInfo
+from .utils import process_messages, process_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -31,22 +29,22 @@ class AgentManager:
 
     async def process_request_streaming(
         self,
-        messages: Union[List[Message], List[Dict[str, Any]]],
-        system_prompt: Optional[str],
-        prompt: Union[str, List[Dict[str, Any]]],
+        messages: list[Message] | list[dict[str, Any]],
+        system_prompt: str | None,
+        prompt: str | list[dict[str, Any]],
         model_info: ModelInfo,
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[str]:
         """Process a request and yield streaming responses as raw events"""
         try:
             # Get model info
             model_id, region = extract_model_info(model_info)
-            
+
             # Combine system prompts
             combined_system_prompt = get_system_prompt(system_prompt)
-            
+
             # Get all tools
             tools = self.tool_manager.get_all_tools()
-            
+
             # Create boto3 session and Bedrock model
             session = boto3.Session(region_name=region)
             bedrock_model = BedrockModel(
@@ -55,11 +53,11 @@ class AgentManager:
                 cache_prompt="default",
                 cache_tools="default",
             )
-            
+
             # Process messages and prompt using utility functions
             processed_messages = process_messages(messages)
             processed_prompt = process_prompt(prompt)
-            
+
             # Create Strands agent and stream response
             agent = StrandsAgent(
                 system_prompt=combined_system_prompt,

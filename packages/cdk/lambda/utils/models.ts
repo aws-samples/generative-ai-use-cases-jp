@@ -938,6 +938,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'global.anthropic.claude-sonnet-4-20250514-v1:0': {
+    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'us.anthropic.claude-sonnet-4-20250514-v1:0': {
     defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
@@ -1131,30 +1139,6 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'apac.anthropic.claude-3-haiku-20240307-v1:0': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
-  'anthropic.claude-v2:1': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
-  'anthropic.claude-v2': {
-    defaultParams: CLAUDE_DEFAULT_PARAMS,
-    usecaseParams: USECASE_DEFAULT_PARAMS,
-    createConverseCommandInput: createConverseCommandInput,
-    createConverseStreamCommandInput: createConverseStreamCommandInput,
-    extractConverseOutput: extractConverseOutput,
-    extractConverseStreamOutput: extractConverseStreamOutput,
-  },
-  'anthropic.claude-instant-v1': {
     defaultParams: CLAUDE_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
@@ -1516,19 +1500,7 @@ export const BEDROCK_IMAGE_GEN_MODELS: {
     createBodyImage: createBodyImageStableDiffusion,
     extractOutputImage: extractOutputImageStableDiffusion,
   },
-  'stability.sd3-large-v1:0': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
-  'stability.stable-image-core-v1:0': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
   'stability.stable-image-core-v1:1': {
-    createBodyImage: createBodyImageStabilityAI2024Model,
-    extractOutputImage: extractOutputImageStabilityAI2024Model,
-  },
-  'stability.stable-image-ultra-v1:0': {
     createBodyImage: createBodyImageStabilityAI2024Model,
     extractOutputImage: extractOutputImageStabilityAI2024Model,
   },

@@ -1164,7 +1164,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             ],
             "Essential": true,
             "Image": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:7d1a9cbcd523fa1f30afeb1394c611b18778bbdc6343bc4d9ed3f9109ce669e9",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:f42c9250931c270e4dbe045bdf1556d0f4363901fa75fc81605cf456a556646a",
             },
             "LogConfiguration": {
               "LogDriver": "awslogs",
@@ -1808,8 +1808,15 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Retain",
     },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC105771a0029216e27aa20a3859719b309": {
+    "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC1b5bb02dcd4261d6e44e76aa0863f6287": {
       "DependsOn": [
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonGET21D71187",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonOPTIONSA2D13B9E",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownOPTIONSB9A49912",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdOPTIONSC878F5C3",
+        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
         "CognitoPrivateProxyCognitoUserPoolProxyApiOPTIONSCE339C8F",
         "CognitoPrivateProxyCognitoUserPoolProxyApiPOST0CAE9A7C",
       ],
@@ -1830,7 +1837,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC105771a0029216e27aa20a3859719b309",
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC1b5bb02dcd4261d6e44e76aa0863f6287",
         },
         "RestApiId": {
           "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
@@ -1849,7 +1856,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             {
               "ResponseParameters": {
                 "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
                 "method.response.header.Access-Control-Allow-Origin": "'*'",
               },
               "StatusCode": "204",
@@ -1929,6 +1936,199 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
             "RootResourceId",
           ],
+        },
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{userPoolId}",
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdOPTIONSC878F5C3": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
+        },
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
+        },
+        "PathPart": ".well-known",
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownOPTIONSB9A49912": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
+        },
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238": {
+      "Properties": {
+        "ParentId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
+        },
+        "PathPart": "jwks.json",
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonGET21D71187": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "GET",
+        "Integration": {
+          "IntegrationHttpMethod": "GET",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+            },
+          ],
+          "RequestParameters": {
+            "integration.request.path.userPoolId": "method.request.path.userPoolId",
+          },
+          "Type": "HTTP",
+          "Uri": "https://cognito-idp.us-east-1.amazonaws.com/{userPoolId}/.well-known/jwks.json",
+        },
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+          },
+        ],
+        "RequestParameters": {
+          "method.request.path.userPoolId": true,
+        },
+        "ResourceId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
+        },
+        "RestApiId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonOPTIONSA2D13B9E": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
         },
         "RestApiId": {
           "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
@@ -4792,7 +4992,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
         "CustomConfig": {
           "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08",
+            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:736d91ac33c9bb64c93f49d1258dbf8aff8d6ec20441291f20f42076efb65f00",
           },
           "environmentVariables": {
             "FILE_BUCKET": {
@@ -17224,6 +17424,26 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
             },
+            "USER_POOL_PROXY_ENDPOINT": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
+                  },
+                  ".execute-api.us-east-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
+                  },
+                  "/",
+                ],
+              ],
+            },
             "VIDEO_GENERATION_MODEL_IDS": {
               "Fn::Join": [
                 "",
@@ -25985,7 +26205,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
         "CustomConfig": {
           "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08",
+            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:736d91ac33c9bb64c93f49d1258dbf8aff8d6ec20441291f20f42076efb65f00",
           },
           "environmentVariables": {
             "FILE_BUCKET": {
@@ -37620,6 +37840,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
             },
+            "USER_POOL_PROXY_ENDPOINT": "",
             "VIDEO_GENERATION_MODEL_IDS": {
               "Fn::Join": [
                 "",

@@ -2,6 +2,9 @@
 
 set -e
 
+# Set Node.js memory limit to 1.5GB (1536MB)
+export NODE_OPTIONS="--max-old-space-size=1536"
+
 echo "--------------------------"
 echo "  _____            _    _ "
 echo " / ____|          | |  | |"
