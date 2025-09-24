@@ -473,15 +473,16 @@ const MeetingMinutesRealtimeTranslation: React.FC<
             seg.source === newSegment.source
         );
 
+        const currentText = newSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
         if (existingIndex >= 0) {
           const updated = [...prev];
           const currentSegment = updated[existingIndex];
-          const currentText = newSegment.transcripts
-            .map((transcript) => transcript.transcript)
-            .join(' ')
-            .trim();
 
-          // Use the new updateTranslationSegments function for efficient change detection
+          // Simple overwrite - no complex logic
           const updatedTranslationSegments = updateTranslationSegments(
             currentText,
             newSegment.languageCode,
@@ -494,11 +495,6 @@ const MeetingMinutesRealtimeTranslation: React.FC<
           };
           return updated;
         } else {
-          const currentText = newSegment.transcripts
-            .map((transcript) => transcript.transcript)
-            .join(' ')
-            .trim();
-
           // Use the new updateTranslationSegments function for new segments (with empty existing segments)
           const translationSegments = updateTranslationSegments(
             currentText,
@@ -522,33 +518,35 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   // Process microphone raw transcripts
   useEffect(() => {
     if (micRawTranscripts && micRawTranscripts.length > 0) {
-      const latestSegment = micRawTranscripts[micRawTranscripts.length - 1];
-      const currentText = latestSegment.transcripts
-        .map((transcript) => transcript.transcript)
-        .join(' ')
-        .trim();
+      // Process ALL segments from micRawTranscripts, not just the latest
+      micRawTranscripts.forEach((rawSegment) => {
+        const currentText = rawSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
 
-      const translationSegments = updateTranslationSegments(
-        currentText,
-        latestSegment.languageCode ||
-          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
-        [] // Empty existing segments for new segment
-      );
+        const translationSegments = updateTranslationSegments(
+          currentText,
+          rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          [] // Empty existing segments for new segment
+        );
 
-      const segment: RealtimeSegment = {
-        resultId: latestSegment.resultId,
-        source: 'microphone',
-        startTime: latestSegment.startTime,
-        endTime: latestSegment.endTime,
-        isPartial: latestSegment.isPartial,
-        transcripts: latestSegment.transcripts,
-        sessionId: currentSessionId,
-        languageCode:
-          latestSegment.languageCode ||
-          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
-        translationSegments,
-      };
-      updateRealtimeSegments(segment);
+        const segment: RealtimeSegment = {
+          resultId: rawSegment.resultId,
+          source: 'microphone',
+          startTime: rawSegment.startTime,
+          endTime: rawSegment.endTime,
+          isPartial: rawSegment.isPartial,
+          transcripts: rawSegment.transcripts,
+          sessionId: currentSessionId,
+          languageCode:
+            rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          translationSegments,
+        };
+        updateRealtimeSegments(segment);
+      });
     }
   }, [
     micRawTranscripts,
@@ -564,34 +562,35 @@ const MeetingMinutesRealtimeTranslation: React.FC<
       screenRawTranscripts &&
       screenRawTranscripts.length > 0
     ) {
-      const latestSegment =
-        screenRawTranscripts[screenRawTranscripts.length - 1];
-      const currentText = latestSegment.transcripts
-        .map((transcript) => transcript.transcript)
-        .join(' ')
-        .trim();
+      // Process ALL segments from screenRawTranscripts, not just the latest
+      screenRawTranscripts.forEach((rawSegment) => {
+        const currentText = rawSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
 
-      const translationSegments = updateTranslationSegments(
-        currentText,
-        latestSegment.languageCode ||
-          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
-        [] // Empty existing segments for new segment
-      );
+        const translationSegments = updateTranslationSegments(
+          currentText,
+          rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          [] // Empty existing segments for new segment
+        );
 
-      const segment: RealtimeSegment = {
-        resultId: latestSegment.resultId,
-        source: 'screen',
-        startTime: latestSegment.startTime,
-        endTime: latestSegment.endTime,
-        isPartial: latestSegment.isPartial,
-        transcripts: latestSegment.transcripts,
-        sessionId: currentSessionId,
-        languageCode:
-          latestSegment.languageCode ||
-          (primaryLanguage === 'auto' ? undefined : primaryLanguage),
-        translationSegments,
-      };
-      updateRealtimeSegments(segment);
+        const segment: RealtimeSegment = {
+          resultId: rawSegment.resultId,
+          source: 'screen',
+          startTime: rawSegment.startTime,
+          endTime: rawSegment.endTime,
+          isPartial: rawSegment.isPartial,
+          transcripts: rawSegment.transcripts,
+          sessionId: currentSessionId,
+          languageCode:
+            rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          translationSegments,
+        };
+        updateRealtimeSegments(segment);
+      });
     }
   }, [
     screenRawTranscripts,
@@ -684,19 +683,23 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     clearMicTranscripts();
     clearScreenTranscripts();
 
-    // For bidirectional translation, use language auto-detection with both languages
+    // For bidirectional translation, use multi-language identification with both languages
     let langCode: LanguageCode | undefined;
     let languageOptions: string[] | undefined;
+    let enableMultiLanguage: boolean = false;
 
     if (translationType === 'bidirectional') {
-      langCode = undefined; // Enable auto-detection
+      langCode = undefined; // No fixed language code for multi-language
       languageOptions = [primaryLanguage, secondaryLanguage];
+      enableMultiLanguage = true; // Enable multi-language identification
     } else {
       langCode =
         primaryLanguage === 'auto'
           ? undefined
           : (primaryLanguage as LanguageCode);
-      languageOptions = undefined;
+      languageOptions =
+        primaryLanguage === 'auto' ? ['en-US', 'ja-JP'] : undefined;
+      enableMultiLanguage = false;
     }
 
     try {
@@ -710,16 +713,27 @@ const MeetingMinutesRealtimeTranslation: React.FC<
           screenStream,
           langCode,
           speakerLabel,
-          languageOptions
+          languageOptions,
+          enableMultiLanguage
         );
       }
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel, languageOptions);
+        startMicTranscription(
+          langCode,
+          speakerLabel,
+          languageOptions,
+          enableMultiLanguage
+        );
       }
     } catch (error) {
       console.error('Failed to start synchronized recording:', error);
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel, languageOptions);
+        startMicTranscription(
+          langCode,
+          speakerLabel,
+          languageOptions,
+          enableMultiLanguage
+        );
       }
     }
   }, [

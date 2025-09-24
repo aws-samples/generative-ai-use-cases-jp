@@ -113,7 +113,8 @@ const useMicrophone = () => {
     mic: MicrophoneStream,
     languageCode?: LanguageCode,
     speakerLabel: boolean = false,
-    languageOptions?: string[]
+    languageOptions?: string[],
+    enableMultiLanguage: boolean = false
   ) => {
     if (!transcribeClient) return;
 
@@ -133,14 +134,40 @@ const useMicrophone = () => {
     };
 
     // Best Practice: https://docs.aws.amazon.com/transcribe/latest/dg/streaming.html
-    const command = new StartStreamTranscriptionCommand({
-      LanguageCode: languageCode,
-      IdentifyLanguage: languageCode ? false : true,
-      LanguageOptions: languageCode
-        ? undefined
-        : languageOptions
+    let commandParams;
+
+    if (enableMultiLanguage) {
+      // Multi-language identification mode (bidirectional translation)
+      commandParams = {
+        LanguageCode: undefined,
+        IdentifyLanguage: false,
+        IdentifyMultipleLanguages: true,
+        LanguageOptions: languageOptions
           ? languageOptions.join(',')
           : 'en-US,ja-JP',
+      };
+    } else if (languageCode) {
+      // Specific language mode
+      commandParams = {
+        LanguageCode: languageCode,
+        IdentifyLanguage: false,
+        IdentifyMultipleLanguages: false,
+        LanguageOptions: undefined,
+      };
+    } else {
+      // Auto language identification mode
+      commandParams = {
+        LanguageCode: undefined,
+        IdentifyLanguage: true,
+        IdentifyMultipleLanguages: false,
+        LanguageOptions: languageOptions
+          ? languageOptions.join(',')
+          : 'en-US,ja-JP',
+      };
+    }
+
+    const command = new StartStreamTranscriptionCommand({
+      ...commandParams,
       MediaEncoding: 'pcm',
       MediaSampleRateHertz: 48000,
       AudioStream: audioStream(),
@@ -246,7 +273,8 @@ const useMicrophone = () => {
   const startTranscription = async (
     languageCode?: LanguageCode,
     speakerLabel?: boolean,
-    languageOptions?: string[]
+    languageOptions?: string[],
+    enableMultiLanguage?: boolean
   ) => {
     const mic = new MicrophoneStream();
     try {
@@ -259,7 +287,13 @@ const useMicrophone = () => {
       );
 
       setRecording(true);
-      await startStream(mic, languageCode, speakerLabel, languageOptions);
+      await startStream(
+        mic,
+        languageCode,
+        speakerLabel,
+        languageOptions,
+        enableMultiLanguage
+      );
     } catch (e) {
       console.log(e);
     } finally {
