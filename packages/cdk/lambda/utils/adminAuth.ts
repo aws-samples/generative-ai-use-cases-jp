@@ -4,7 +4,7 @@ import {
   AdminGetUserCommand,
   AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyToken } from './auth';
+import { verifyToken, verifyTokenWithRoleCheck } from './auth';
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION!,
@@ -39,7 +39,8 @@ export const CORS_HEADERS = {
 };
 
 /**
- * Verify JWT token and admin status, return admin context or error response
+ * Verify JWT token and admin status with real-time role checking
+ * Handles cases where token claims might be outdated after role changes
  */
 export async function verifyAdminAccess(
   event: APIGatewayProxyEvent
@@ -54,9 +55,9 @@ export async function verifyAdminAccess(
     };
   }
 
-  // Verify token
-  const claims = (await verifyToken(token)) as JWTClaims | null;
-  if (!claims) {
+  // Verify token with real-time role checking
+  const verificationResult = await verifyTokenWithRoleCheck(token, true);
+  if (!verificationResult) {
     return {
       statusCode: 401,
       headers: CORS_HEADERS,
@@ -64,8 +65,8 @@ export async function verifyAdminAccess(
     };
   }
 
+  const { claims, isCurrentlyAdmin, tokenClaimAdmin } = verificationResult;
   const tenantId = claims['custom:tenant_id'];
-  const isAdmin = claims['custom:tenantAdmin'] === 'true';
   const username = claims['cognito:username'] || claims.username || '';
 
   // Check tenant ID
@@ -77,13 +78,22 @@ export async function verifyAdminAccess(
     };
   }
 
-  // Check admin status
-  if (!isAdmin) {
+  // Use current admin status from Cognito, not token claim
+  if (!isCurrentlyAdmin) {
+    // Provide different messages based on token vs current status
+    const message = tokenClaimAdmin 
+      ? 'Admin privileges have been revoked. Please refresh your session.'
+      : 'Access denied. Admin privileges required.';
+    
+    const statusCode = tokenClaimAdmin ? 409 : 403; // 409 for role mismatch, 403 for no privileges
+    
     return {
-      statusCode: 403,
+      statusCode,
       headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Access denied. Admin privileges required.',
+      body: JSON.stringify({ 
+        message,
+        roleChanged: tokenClaimAdmin !== isCurrentlyAdmin,
+        refreshRequired: tokenClaimAdmin && !isCurrentlyAdmin
       }),
     };
   }
@@ -91,10 +101,11 @@ export async function verifyAdminAccess(
   return {
     tenantId,
     username,
-    isAdmin,
+    isAdmin: isCurrentlyAdmin,
     claims,
   };
 }
+
 
 /**
  * Verify that a user belongs to the same tenant as the admin

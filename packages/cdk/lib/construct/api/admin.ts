@@ -115,6 +115,22 @@ class AdminApi extends Construct {
       }
     );
 
+    const refreshUserRoleFunction = new NodejsFunction(
+      this,
+      'RefreshUserRole',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/refreshUserRole.ts',
+        timeout: Duration.minutes(2),
+        bundling: {
+          nodeModules: ['aws-jwt-verify'],
+        },
+        environment: getBaseEnvironment(this, props, {
+          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+        }),
+      }
+    );
+
     // Grant Cognito permissions to admin functions
     const adminFunctions = [
       listTenantUsersFunction,
@@ -123,6 +139,7 @@ class AdminApi extends Construct {
       removeTenantUserFunction,
       checkAdminStatusFunction,
       validateInvitationDomainsFunction,
+      refreshUserRoleFunction,
     ];
 
     adminFunctions.forEach((func) => {
@@ -134,6 +151,8 @@ class AdminApi extends Construct {
             'cognito-idp:AdminGetUser',
             'cognito-idp:AdminCreateUser',
             'cognito-idp:AdminUpdateUserAttributes',
+            'cognito-idp:AdminUserGlobalSignOut',
+            'cognito-idp:RevokeToken',
             'cognito-idp:AdminDeleteUser',
             'cognito-idp:AdminDisableUser',
             'cognito-idp:AdminEnableUser',
@@ -193,6 +212,14 @@ class AdminApi extends Construct {
     statusResource.addMethod(
       'GET',
       new LambdaIntegration(checkAdminStatusFunction),
+      commonAuthorizerProps
+    );
+
+    // POST /admin/refresh-role - Refresh user role status
+    const refreshRoleResource = adminResource.addResource('refresh-role');
+    refreshRoleResource.addMethod(
+      'POST',
+      new LambdaIntegration(refreshUserRoleFunction),
       commonAuthorizerProps
     );
   }

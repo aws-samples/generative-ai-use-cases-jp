@@ -72,6 +72,15 @@ export class Auth extends Construct {
 
     const client = userPool.addClient('client', {
       idTokenValidity: Duration.days(1),
+      refreshTokenValidity: Duration.days(30),
+      accessTokenValidity: Duration.hours(1),
+      enableTokenRevocation: true,
+      authFlows: {
+        adminUserPassword: true,
+        custom: true,
+        userPassword: true,
+        userSrp: true,
+      },
     });
 
     const idPool = new IdentityPool(this, 'IdentityPool', {

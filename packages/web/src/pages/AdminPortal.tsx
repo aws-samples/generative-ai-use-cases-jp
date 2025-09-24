@@ -44,6 +44,7 @@ const AdminPortal: React.FC = () => {
     Map<string, boolean>
   >(new Map());
   const [refreshingToken, setRefreshingToken] = useState<boolean>(false);
+  const [checkingRole, setCheckingRole] = useState<boolean>(false);
 
   const loadUsers = useCallback(async () => {
     try {
@@ -54,6 +55,46 @@ const AdminPortal: React.FC = () => {
       setError(t('adminPortal.messages.failedToLoadUsers'));
     }
   }, [api, t]);
+
+  const refreshUserRole = useCallback(async () => {
+    if (checkingRole) return;
+    
+    setCheckingRole(true);
+    try {
+      const response = await api.post('/admin/refresh-role');
+      const { isAdmin, roleChanged, message } = response.data;
+      
+      if (roleChanged) {
+        if (isAdmin) {
+          // User was promoted
+          setError(`${message} Please refresh the page to see your new privileges.`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        } else {
+          // User was demoted
+          setError(`${message} Redirecting to settings...`);
+          setTimeout(() => {
+            window.location.href = '/settings';
+          }, 2000);
+        }
+      } else {
+        console.log('Role status verified - no changes detected');
+      }
+    } catch (refreshError) {
+      console.error('Failed to refresh role:', refreshError);
+      if (refreshError && typeof refreshError === 'object' && 'response' in refreshError && 
+          refreshError.response && typeof refreshError.response === 'object' && 'status' in refreshError.response &&
+          (refreshError.response.status === 403 || refreshError.response.status === 409)) {
+        setError('Your admin privileges have been revoked. Redirecting to settings...');
+        setTimeout(() => {
+          window.location.href = '/settings';
+        }, 2000);
+      }
+    } finally {
+      setCheckingRole(false);
+    }
+  }, [api, checkingRole]);
 
   // Check admin status on component mount
   useEffect(() => {
@@ -67,14 +108,23 @@ const AdminPortal: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to check admin status:', error);
-        setError(t('adminPortal.messages.failedToCheckAdminStatus'));
+        
+        // Check if this is a role mismatch error
+        if (error && typeof error === 'object' && 'response' in error &&
+            error.response && typeof error.response === 'object' && 'status' in error.response &&
+            (error.response.status === 403 || error.response.status === 409)) {
+          // Try to refresh role status first
+          await refreshUserRole();
+        } else {
+          setError(t('adminPortal.messages.failedToCheckAdminStatus'));
+        }
       } finally {
         setLoading(false);
       }
     };
 
     checkAdminStatus();
-  }, [api, t, loadUsers]);
+  }, [api, t, loadUsers, refreshUserRole]);
 
   const handleRoleChange = async (username: string, isAdmin: boolean) => {
     // Store the original role value for potential rollback
@@ -94,31 +144,64 @@ const AdminPortal: React.FC = () => {
         tenantAdmin: isAdmin,
       });
 
-      // If current user's role changed, refresh auth session to get updated token
-      if (isCurrentUser) {
-        setRefreshingToken(true);
-        try {
-          // Force refresh the auth session to get new token with updated claims
-          await fetchAuthSession({ forceRefresh: true });
+      const { actionType, sessionInvalidated } = response.data;
 
-          // If user is no longer admin, sign them out to trigger redirect
-          if (!isAdmin) {
+      // Handle different role change scenarios
+      if (isCurrentUser) {
+        if (actionType === 'demoted') {
+          // Current user was demoted, sign them out
+          setRefreshingToken(true);
+          try {
             await signOut();
             return; // Early return to prevent further processing
+          } catch (signOutError) {
+            console.error('Failed to sign out after demotion:', signOutError);
+            setError(t('adminPortal.messages.failedToSignOutAfterDemotion'));
+          } finally {
+            setRefreshingToken(false);
           }
-        } catch (tokenError) {
-          console.error('Failed to refresh auth session:', tokenError);
-          setError(t('adminPortal.messages.failedToRefreshSession'));
-        } finally {
-          setRefreshingToken(false);
+        } else if (actionType === 'promoted') {
+          // Current user was promoted, refresh their session
+          setRefreshingToken(true);
+          try {
+            await fetchAuthSession({ forceRefresh: true });
+            setError(null); // Clear any previous errors
+            // Show success message for promotion
+            setError(`Congratulations! You have been promoted to admin. Your new privileges are now active.`);
+            setTimeout(() => setError(null), 5000); // Clear success message after 5 seconds
+          } catch (tokenError) {
+            console.error('Failed to refresh auth session after promotion:', tokenError);
+            setError(t('adminPortal.messages.failedToRefreshSession'));
+          } finally {
+            setRefreshingToken(false);
+          }
         }
-      }
+      } else {
+        // Handle other user's role change
+        if (sessionInvalidated) {
+          // Force clients to re-check their status if their sessions were invalidated
+          setTimeout(() => {
+            window.dispatchEvent(new Event('focus'));
+          }, 1000);
+        }
+        
+        if (response.data.warning === 'SESSION_INVALIDATION_FAILED') {
+          setError(
+            `Role updated but user sessions remain active. The user "${username}" should be asked to sign out manually for security.`
+          );
+        }
 
-      // If session was invalidated, force all clients to re-check their status
-      if (response.data.sessionInvalidated) {
-        setTimeout(() => {
-          window.dispatchEvent(new Event('focus'));
-        }, 1000);
+        // Show appropriate success message based on action type
+        if (actionType === 'promoted') {
+          setError(`${username} has been promoted to admin. They will have administrative privileges after their next login.`);
+          setTimeout(() => setError(null), 5000);
+        } else if (actionType === 'demoted') {
+          const message = sessionInvalidated 
+            ? `${username} has been demoted and their admin sessions have been terminated.`
+            : `${username} has been demoted to regular user.`;
+          setError(message);
+          setTimeout(() => setError(null), 5000);
+        }
       }
 
       // Clear pending change and reload users to reflect server state
@@ -130,6 +213,18 @@ const AdminPortal: React.FC = () => {
       await loadUsers();
     } catch (error) {
       console.error('Failed to update user role:', error);
+      
+      // Check for specific role mismatch errors
+      if (error && typeof error === 'object' && 'response' in error &&
+          error.response && typeof error.response === 'object' && 'status' in error.response &&
+          error.response.status === 409) {
+        setError('Your admin privileges have been revoked. Redirecting to settings...');
+        setTimeout(() => {
+          window.location.href = '/settings';
+        }, 2000);
+        return;
+      }
+      
       setError(t('adminPortal.messages.failedToUpdateUserRole'));
 
       // Revert to original value on failure
@@ -183,6 +278,10 @@ const AdminPortal: React.FC = () => {
         {t('adminPortal.messages.refreshingSession')}
       </LoadingOverlay>
     );
+  }
+
+  if (checkingRole) {
+    return <LoadingOverlay>Verifying admin privileges...</LoadingOverlay>;
   }
 
   return (
