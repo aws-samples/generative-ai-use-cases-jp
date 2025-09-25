@@ -277,18 +277,18 @@ const ChatMessage: React.FC<Props> = (props) => {
                     {chatContent.metadata.usage.inputTokens}
                     <PiArrowDown title="Output tokens" />
                     {chatContent.metadata.usage.outputTokens}
-                    {chatContent.metadata.usage.cacheWriteInputTokens && (
+                    {chatContent.metadata.usage.cacheWriteInputTokens ? (
                       <>
                         <PiCloudArrowUp title="Cache write input tokens" />
                         {chatContent.metadata.usage.cacheWriteInputTokens}
                       </>
-                    )}
-                    {chatContent.metadata.usage.cacheReadInputTokens && (
+                    ) : null}
+                    {chatContent.metadata.usage.cacheReadInputTokens ? (
                       <>
                         <PiCloudArrowDown title="Cache read input tokens" />
                         {chatContent.metadata.usage.cacheReadInputTokens}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>

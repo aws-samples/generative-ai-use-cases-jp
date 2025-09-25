@@ -229,6 +229,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       agents: agentStack?.agents,
       // Agent Core
       agentCoreStack: agentCoreStack || undefined,
+      createGenericAgentCoreRuntime: params.createGenericAgentCoreRuntime,
       // Video Generation
       videoBucketRegionMap,
       // Guardrail

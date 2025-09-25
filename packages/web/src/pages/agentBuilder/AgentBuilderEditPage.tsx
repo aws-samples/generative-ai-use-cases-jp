@@ -1,0 +1,159 @@
+import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams, useNavigate } from 'react-router-dom';
+import Button from '../../components/Button';
+import AgentForm, {
+  AgentFormData,
+} from '../../components/agentBuilder/AgentForm';
+import AgentTester from '../../components/agentBuilder/AgentTester';
+import { useAgentBuilder } from '../../hooks/agentBuilder/useAgentBuilder';
+import { PiRobot as RobotIcon, PiArrowLeft as BackIcon } from 'react-icons/pi';
+
+const AgentBuilderEditPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { agentId } = useParams<{ agentId?: string }>();
+  const navigate = useNavigate();
+
+  const { agent, loading, createAgent, updateAgent, error } =
+    useAgentBuilder(agentId);
+
+  const isEditMode = Boolean(agentId);
+  const [testMode, setTestMode] = useState(false);
+
+  const handleSave = useCallback(
+    async (formData: AgentFormData) => {
+      if (agentId && isEditMode) {
+        await updateAgent(agentId, {
+          name: formData.name,
+          description: formData.description,
+          systemPrompt: formData.systemPrompt,
+          modelId: formData.modelId,
+          mcpServers: formData.mcpServers as string[], // Explicit type assertion
+          codeExecutionEnabled: formData.codeExecutionEnabled,
+          isPublic: formData.isPublic,
+          tags: formData.tags,
+          agentId,
+        });
+        navigate('/agent-builder');
+      } else {
+        console.log(
+          'Creating agent with data:',
+          JSON.stringify(formData, null, 2)
+        );
+        const newAgent = await createAgent({
+          name: formData.name,
+          description: formData.description,
+          systemPrompt: formData.systemPrompt,
+          modelId: formData.modelId,
+          mcpServers: formData.mcpServers as string[], // Explicit type assertion
+          codeExecutionEnabled: formData.codeExecutionEnabled,
+          isPublic: formData.isPublic,
+          tags: formData.tags,
+        });
+        if (newAgent) {
+          console.log('Created agent:', JSON.stringify(newAgent, null, 2));
+          navigate('/agent-builder');
+        }
+      }
+    },
+    [agentId, isEditMode, updateAgent, navigate, createAgent]
+  ); // Remove function dependencies
+
+  const handleCancel = useCallback(() => {
+    navigate('/agent-builder');
+  }, [navigate]);
+
+  const title = isEditMode
+    ? t('agent_builder.edit_agent')
+    : t('agent_builder.create_agent');
+
+  // Loading state
+  if (loading && isEditMode) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="border-aws-sky h-8 w-8 animate-spin rounded-full border-2 border-t-transparent"></div>
+          <p className="text-sm font-medium text-gray-600">
+            {t('common.loading')}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+            <RobotIcon className="h-8 w-8 text-red-600" />
+          </div>
+          <h1 className="mb-4 text-xl font-semibold text-gray-900">{error}</h1>
+          <Button onClick={handleCancel} outlined>
+            <BackIcon className="mr-2 h-4 w-4" />
+            {t('common.back')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto max-w-6xl px-4 py-8">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button outlined onClick={handleCancel}>
+            <BackIcon className="mr-2 h-4 w-4" />
+            {t('common.back')}
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            outlined
+            onClick={() => setTestMode(!testMode)}
+            disabled={!agent && isEditMode}>
+            {t('agent_builder.test')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        {/* Agent Configuration */}
+        <div className="space-y-6">
+          <AgentForm
+            initialData={agent || undefined}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            loading={loading}
+            error={error || undefined}
+            isEditMode={isEditMode}
+          />
+        </div>
+
+        {/* Agent Testing */}
+        {testMode && agent && (
+          <div className="space-y-6">
+            <AgentTester
+              agent={{
+                ...agent,
+                agentId: agentId || 'temp-id',
+                isPublic: false,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                createdBy: 'current-user',
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AgentBuilderEditPage;

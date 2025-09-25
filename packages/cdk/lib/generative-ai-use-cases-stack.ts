@@ -13,6 +13,7 @@ import {
   McpApi,
   AgentCore,
 } from './construct';
+import { loadMCPConfig, extractSafeMCPConfig } from './utils/mcp-config-loader';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -37,6 +38,7 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   // Agent
   readonly agents?: Agent[];
   // Agent Core
+  readonly createGenericAgentCoreRuntime?: boolean;
   readonly agentCoreStack?: AgentCoreStack;
   // Video Generation
   readonly videoBucketRegionMap: Record<string, string>;
@@ -324,6 +326,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         api: api.api,
         vpc: props.vpc,
         securityGroups,
+        createGenericAgentCoreRuntime: props.createGenericAgentCoreRuntime,
       });
     }
 
@@ -477,6 +480,13 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'AgentCoreExternalRuntimes', {
       value: JSON.stringify(params.agentCoreExternalRuntimes),
+    });
+
+    // Load MCP configuration and add as output
+    const mcpServers = loadMCPConfig();
+    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
+    new CfnOutput(this, 'McpServersConfig', {
+      value: safeMCPConfig,
     });
 
     this.userPool = auth.userPool;

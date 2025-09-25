@@ -14,18 +14,20 @@ import { UserPool } from 'aws-cdk-lib/aws-cognito';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface UseCaseBuilderProps {
   readonly userPool: UserPool;
   readonly api: RestApi;
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
+  readonly createGenericAgentCoreRuntime?: boolean;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api } = props;
+    const { userPool, api, createGenericAgentCoreRuntime } = props;
 
     const useCaseIdIndexName = 'UseCaseIdIndexName';
     const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
@@ -240,5 +242,64 @@ export class UseCaseBuilder extends Construct {
       new LambdaIntegration(updateRecentlyUsedUseCaseFunction),
       commonAuthorizerProps
     );
+
+    if (createGenericAgentCoreRuntime) {
+      // Add Agent Builder related APIs
+      const agentBuilderFunction = new NodejsFunction(this, 'AgentBuilder', {
+        ...commonProperty,
+        memorySize: 1024,
+        entry: './lambda/agentBuilder.ts',
+        environment: {
+          ...commonProperty.environment,
+          MODEL_REGION: process.env.MODEL_REGION || 'us-east-1',
+          USER_POOL_ID: userPool.userPoolId,
+        },
+        bundling: {
+          nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        },
+      });
+      useCaseBuilderTable.grantReadWriteData(agentBuilderFunction);
+
+      // Grant Bedrock permissions for agent testing
+      const bedrockPolicyForAgent = new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ['*'],
+        actions: ['bedrock:*', 'logs:*'],
+      });
+      agentBuilderFunction.role?.addToPrincipalPolicy(bedrockPolicyForAgent);
+
+      // Grant Cognito permissions for getting user information
+      const cognitoPolicyForAgent = new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: [userPool.userPoolArn],
+        actions: ['cognito-idp:AdminGetUser'],
+      });
+      agentBuilderFunction.role?.addToPrincipalPolicy(cognitoPolicyForAgent);
+
+      // Agent Builder API endpoints
+      const agentsResource = api.root.addResource('agents');
+
+      // GET: /agents
+      agentsResource.addMethod(
+        'GET',
+        new LambdaIntegration(agentBuilderFunction),
+        commonAuthorizerProps
+      );
+
+      // POST: /agents
+      agentsResource.addMethod(
+        'POST',
+        new LambdaIntegration(agentBuilderFunction),
+        commonAuthorizerProps
+      );
+
+      // All agent sub-routes handled by proxy+ integration
+      const agentResource = agentsResource.addResource('{proxy+}');
+      agentResource.addMethod(
+        'ANY',
+        new LambdaIntegration(agentBuilderFunction),
+        commonAuthorizerProps
+      );
+    }
   }
 }

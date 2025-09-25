@@ -57,3 +57,4 @@ export VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT=$(extract_value "$stack_out
 export VITE_APP_AGENT_CORE_ENABLED=$(extract_value "$stack_output" AgentCoreEnabled)
 export VITE_APP_AGENT_CORE_GENERIC_RUNTIME=$(extract_value "$stack_output" AgentCoreGenericRuntime)
 export VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES=$(extract_value "$stack_output" AgentCoreExternalRuntimes)
+export VITE_APP_MCP_SERVERS_CONFIG=$(extract_value "$stack_output" McpServersConfig)

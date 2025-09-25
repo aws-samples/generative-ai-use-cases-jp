@@ -19,6 +19,10 @@ import {
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import {
+  loadMCPConfig,
+  extractSafeMCPConfig,
+} from '../utils/mcp-config-loader';
 
 export interface AgentCoreRuntimeConfig {
   name: string;
@@ -59,6 +63,10 @@ export class GenericAgentCore extends Construct {
       autoDeleteObjects: true,
     });
 
+    // Load MCP configuration and prepare environment variables
+    const mcpServers = loadMCPConfig();
+    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
+
     // Default configuration for Generic AgentCore Runtime
     this.genericRuntimeConfig = {
       name: `GenericAgentCoreRuntime${env}`,
@@ -69,6 +77,8 @@ export class GenericAgentCore extends Construct {
       serverProtocol: 'HTTP',
       environmentVariables: {
         FILE_BUCKET: this._fileBucket.bucketName,
+        MCP_SERVERS_CONFIG: JSON.stringify(mcpServers),
+        MCP_SERVERS_SAFE_CONFIG: safeMCPConfig,
       },
     };
 
@@ -321,27 +331,12 @@ export class GenericAgentCore extends Construct {
       })
     );
 
-    // S3 File Bucket Access
-    this._fileBucket.grantReadWrite(role);
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'S3BucketAccess',
-        effect: Effect.ALLOW,
-        actions: [
-          's3:GetObject',
-          's3:PutObject',
-          's3:ListBucket',
-          's3:DeleteObject',
-        ],
-        resources: [
-          this._fileBucket.bucketArn,
-          `${this._fileBucket.bucketArn}/*`,
-        ],
-      })
-    );
-
     // Tools
+
+    // S3 File Bucket Access (Write Only)
+    this._fileBucket.grantWrite(role);
+
+    // CodeInterpreter
     role.addToPolicy(
       new PolicyStatement({
         sid: 'Tools',

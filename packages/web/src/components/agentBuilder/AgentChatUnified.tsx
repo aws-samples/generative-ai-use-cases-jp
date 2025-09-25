@@ -1,0 +1,463 @@
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import InputChatContent from '../InputChatContent';
+import ChatMessage from '../ChatMessage';
+import ScrollTopBottom from '../ScrollTopBottom';
+import useFollow from '../../hooks/useFollow';
+import { useAgentCore } from '../../hooks/useAgentCore';
+import { MODELS } from '../../hooks/useModel';
+import useFiles from '../../hooks/useFiles';
+import { FileLimit, AgentConfiguration } from 'generative-ai-use-cases';
+import BedrockIcon from '../../assets/bedrock.svg?react';
+import { PiRobot as RobotIcon, PiPencil as EditIcon } from 'react-icons/pi';
+import ButtonIcon from '../ButtonIcon';
+import Select from '../Select';
+
+// Define file limits for the chat interface
+const fileLimit: FileLimit = {
+  accept: {
+    doc: [
+      '.csv',
+      '.doc',
+      '.docx',
+      '.html',
+      '.md',
+      '.pdf',
+      '.txt',
+      '.xls',
+      '.xlsx',
+      '.yaml',
+      '.json',
+    ],
+    image: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+    video: [],
+  },
+  maxFileCount: 5,
+  maxFileSizeMB: 10,
+  maxImageFileCount: 5,
+  maxImageFileSizeMB: 5,
+  maxVideoFileCount: 0,
+  maxVideoFileSizeMB: 0,
+};
+
+interface AgentChatProps {
+  agent: AgentConfiguration;
+  sessionId?: string;
+  className?: string;
+  showHeader?: boolean;
+  layout?: 'fullscreen' | 'card';
+  showAgentInfo?: boolean;
+  showEditButton?: boolean;
+  onEdit?: () => void;
+  onBack?: () => void;
+  actions?: React.ReactNode;
+}
+
+const AgentChatUnified: React.FC<AgentChatProps> = ({
+  agent,
+  sessionId: providedSessionId,
+  className = '',
+  showHeader = true,
+  layout = 'fullscreen',
+  showAgentInfo = true,
+  showEditButton = false,
+  onEdit,
+  actions,
+}) => {
+  const { t } = useTranslation();
+
+  // Generate session ID if not provided
+  const [sessionId] = useState(() => providedSessionId || uuidv4());
+  const chatId = `agent-chat-${agent.agentId}-${sessionId}`;
+  const { scrollableContainer, setFollowing } = useFollow();
+
+  // AgentCore for chat functionality
+  const {
+    messages: chatMessages,
+    isEmpty: chatIsEmpty,
+    clear: clearChat,
+    loading: chatLoading,
+    invokeAgentRuntime,
+    getGenericRuntime,
+    updateSystemContext,
+    getModelId,
+    setModelId,
+  } = useAgentCore(chatId);
+
+  const [chatContent, setChatContent] = useState('');
+  const [initialized, setInitialized] = useState(false);
+  const [isOver, setIsOver] = useState(false);
+
+  // Get models from MODELS
+  const { modelIds: availableModels, modelDisplayName } = MODELS;
+  const modelId = getModelId();
+
+  // File handling
+  const {
+    clear: clearFiles,
+    uploadFiles,
+    uploadedFiles,
+  } = useFiles(`/agent-chat-${agent.agentId}`);
+
+  // Initialize model ID when agent is loaded
+  useEffect(() => {
+    if (agent && availableModels.length > 0) {
+      const agentModelId = agent.modelId || availableModels[0];
+      setModelId(agentModelId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agent, availableModels]);
+
+  // Initialize chat when component mounts
+  useEffect(() => {
+    if (!initialized && agent) {
+      console.log(
+        'Starting chat with agent:',
+        agent.name,
+        'Model ID:',
+        agent.modelId
+      );
+      console.log(
+        'Code execution enabled in agent:',
+        agent.codeExecutionEnabled
+      );
+
+      // Set the system context to the agent's system prompt
+      const systemPrompt = `${agent.systemPrompt || 'You are a helpful assistant.'}
+
+Agent Name: ${agent.name}
+Agent Description: ${agent.description || 'No description provided'}
+
+Please respond as this agent with the specified behavior and personality.`;
+
+      updateSystemContext(systemPrompt);
+      setInitialized(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agent, initialized]);
+
+  // Accept file types based on model
+  const accept = useMemo(() => {
+    if (!modelId) return [];
+    const feature = MODELS.getModelMetadata(modelId);
+    return [
+      ...(feature.flags.doc ? fileLimit.accept.doc : []),
+      ...(feature.flags.image ? fileLimit.accept.image : []),
+      ...(feature.flags.video ? fileLimit.accept.video : []),
+    ];
+  }, [modelId]);
+
+  // File upload enabled
+  const fileUpload = useMemo(() => {
+    return accept.length > 0;
+  }, [accept]);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!chatContent.trim() || chatLoading) return;
+
+    setFollowing(true);
+
+    try {
+      const genericRuntime = getGenericRuntime();
+      if (!genericRuntime) {
+        throw new Error('No AgentCore runtime available');
+      }
+
+      console.log('Sending message with agent:', agent.name);
+      console.log('Using sessionId:', sessionId);
+      console.log('MCP servers count:', agent.mcpServers?.length || 0);
+      console.log('Code execution enabled:', agent.codeExecutionEnabled);
+
+      // Get uploaded files from the useFiles hook
+      const uploadedFileObjects = uploadedFiles.filter(
+        (file) => !file.errorMessages.length && !file.uploading
+      );
+      const filesToSend =
+        uploadedFileObjects.length > 0
+          ? uploadedFileObjects.map((uploadedFile) => uploadedFile.file)
+          : undefined;
+
+      // Use AgentCore's invokeAgentRuntime with MCP servers
+      invokeAgentRuntime(
+        genericRuntime.arn,
+        sessionId,
+        chatContent,
+        'DEFAULT',
+        filesToSend,
+        'current-user',
+        agent.mcpServers,
+        agent.agentId,
+        agent.modelId,
+        agent.codeExecutionEnabled ?? false
+      );
+
+      setChatContent('');
+      clearFiles();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert(
+        `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`
+      );
+    }
+  }, [
+    chatContent,
+    agent,
+    chatLoading,
+    setFollowing,
+    invokeAgentRuntime,
+    getGenericRuntime,
+    sessionId,
+    uploadedFiles,
+    clearFiles,
+  ]);
+
+  const handleResetChat = useCallback(() => {
+    clearChat();
+    setChatContent('');
+    clearFiles();
+  }, [clearChat, clearFiles]);
+
+  // Handle drag and drop for files
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsOver(false);
+    if (event.dataTransfer.files) {
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
+    }
+  };
+
+  // Render unified header with all controls
+  const renderUnifiedHeader = () => (
+    <div className="flex flex-col gap-2">
+      {/* Main header with navigation, agent info, and actions */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <RobotIcon className="h-8 w-8 text-blue-600" />
+          <div>
+            <div className="text-xl font-semibold">
+              {agent?.name || t('agent_builder.agent_chat')}
+            </div>
+            {agent?.description && (
+              <div className="text-sm text-gray-600">{agent.description}</div>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {showEditButton && onEdit && (
+            <ButtonIcon onClick={onEdit} title={t('common.edit')}>
+              <EditIcon />
+            </ButtonIcon>
+          )}
+          {actions}
+        </div>
+      </div>
+
+      {/* Controls row */}
+      {showAgentInfo && (
+        <div className="flex flex-col items-center justify-center gap-2 md:flex-row print:hidden">
+          {/* Model Selection */}
+          <div className="w-4/5 sm:w-1/2 md:w-fit">
+            <Select
+              value={modelId || agent.modelId}
+              onChange={setModelId}
+              options={availableModels.map((model) => ({
+                value: model,
+                label:
+                  model === agent.modelId
+                    ? `${modelDisplayName(model)} (${t('common.default')})`
+                    : modelDisplayName(model),
+              }))}
+              fullWidth
+              showTags
+            />
+          </div>
+
+          {/* Agent Capabilities */}
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {/* Code Execution - only show when enabled */}
+            {agent.codeExecutionEnabled && (
+              <span className="inline-block rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                {t('agent_builder.code_execution')}
+              </span>
+            )}
+
+            {/* MCP Server List */}
+            {agent.mcpServers &&
+              agent.mcpServers.map((serverName) => (
+                <span
+                  key={serverName}
+                  className="inline-block rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                  {serverName}
+                </span>
+              ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  // Render empty state
+  const renderEmptyState = () => (
+    <div
+      className={`flex ${layout === 'card' ? 'h-full' : 'h-[calc(100vh-13rem)]'} flex-col items-center justify-center ${layout === 'card' ? 'p-8' : ''}`}>
+      {agent ? (
+        <>
+          <RobotIcon className="h-16 w-16 fill-gray-400 text-gray-400" />
+          <p className="mt-4 text-center text-gray-500">
+            {t('agent_builder.start_chatting_with', { name: agent.name })}
+          </p>
+          {agent.description && (
+            <p className="mt-2 text-center text-sm text-gray-400">
+              {agent.description}
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <BedrockIcon className="fill-gray-400" />
+          <p className="mt-4 text-gray-500">
+            {t('agent_builder.loading_agent')}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
+  // Render file drop overlay
+  const renderFileDropOverlay = () =>
+    isOver &&
+    fileUpload && (
+      <div
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`${layout === 'card' ? 'absolute inset-0' : 'fixed bottom-0 left-0 right-0 top-0'} z-[999] bg-slate-300/75 p-10 text-center`}>
+        <div className="flex h-full w-full items-center justify-center outline-dashed">
+          <div className="font-bold">{t('chat.drop_files')}</div>
+        </div>
+      </div>
+    );
+
+  // Render chat messages
+  const renderChatMessages = () =>
+    !chatIsEmpty && (
+      <div
+        ref={scrollableContainer}
+        className={layout === 'card' ? 'h-full overflow-auto p-4' : ''}>
+        {chatMessages.map((message, idx) => (
+          <div key={idx + 1}>
+            {idx === 0 && (
+              <div
+                className={`w-full border-b border-gray-300 ${layout === 'card' ? 'mb-4' : ''}`}></div>
+            )}
+            <ChatMessage
+              idx={idx}
+              chatContent={message}
+              loading={chatLoading && idx === chatMessages.length - 1}
+            />
+            <div
+              className={`w-full border-b border-gray-300 ${layout === 'card' ? 'mt-4' : ''}`}></div>
+          </div>
+        ))}
+      </div>
+    );
+
+  if (layout === 'card') {
+    return (
+      <div
+        className={`rounded-lg border border-gray-200 bg-white shadow-sm ${className}`}>
+        <div
+          onDragOver={fileUpload ? handleDragOver : undefined}
+          className="relative">
+          {/* Agent Header */}
+          {showHeader && (
+            <div className="border-b border-gray-200 p-4">
+              {renderUnifiedHeader()}
+            </div>
+          )}
+
+          {renderFileDropOverlay()}
+
+          {/* Chat Area */}
+          <div className="relative h-[600px]">
+            {chatIsEmpty ? renderEmptyState() : renderChatMessages()}
+
+            {/* Scroll Controls */}
+            <div className="absolute right-4 top-4 z-10">
+              <ScrollTopBottom />
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="border-t border-gray-200 p-4">
+            <InputChatContent
+              content={chatContent}
+              disabled={chatLoading}
+              onChangeContent={setChatContent}
+              resetDisabled={chatIsEmpty}
+              isEmpty={chatIsEmpty}
+              onSend={handleSendMessage}
+              onReset={handleResetChat}
+              fileUpload={fileUpload}
+              fileLimit={fileLimit}
+              accept={accept}
+              fullWidth={true}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fullscreen layout - matches AgentCorePage layout
+  return (
+    <div
+      onDragOver={fileUpload ? handleDragOver : undefined}
+      className={`${!chatIsEmpty ? 'screen:pb-48' : ''} relative ${className}`}>
+      {/* Unified Header */}
+      {showHeader && (
+        <div className="invisible my-0 flex h-0 items-center justify-center lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+          {renderUnifiedHeader()}
+        </div>
+      )}
+
+      {renderFileDropOverlay()}
+
+      {/* Empty State or Chat Messages */}
+      {chatIsEmpty ? renderEmptyState() : renderChatMessages()}
+
+      {/* Scroll Controls */}
+      <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+        <ScrollTopBottom />
+      </div>
+
+      {/* Input Area */}
+      <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
+        <InputChatContent
+          content={chatContent}
+          disabled={chatLoading}
+          onChangeContent={setChatContent}
+          resetDisabled={chatIsEmpty}
+          isEmpty={chatIsEmpty}
+          onSend={handleSendMessage}
+          onReset={handleResetChat}
+          fileUpload={fileUpload}
+          fileLimit={fileLimit}
+          accept={accept}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default AgentChatUnified;

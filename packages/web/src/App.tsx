@@ -46,6 +46,9 @@ const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
+const agentCoreGenericRuntimeEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_GENERIC_RUNTIME !== 'null';
+
 const {
   visionEnabled,
   imageGenModelIds,
@@ -137,6 +140,15 @@ const App: React.FC = () => {
           icon: <PiGraph />,
           display: 'usecase' as const,
           sub: 'Deprecated',
+        }
+      : null,
+    agentCoreGenericRuntimeEnabled
+      ? {
+          label: 'Agent Builder',
+          to: '/agent-builder',
+          icon: <PiRobot />,
+          display: 'usecase' as const,
+          sub: 'Experimental',
         }
       : null,
     agentCoreEnabled

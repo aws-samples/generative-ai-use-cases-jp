@@ -37,6 +37,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_AGENT_CORE_ENABLED: string;
   readonly VITE_APP_AGENT_CORE_GENERIC_RUNTIME: string;
   readonly VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: string;
+  readonly VITE_APP_MCP_SERVERS_CONFIG: string;
 }
 
 interface ImportMeta {

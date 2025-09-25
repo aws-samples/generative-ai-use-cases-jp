@@ -5,8 +5,12 @@ export type AgentCoreConfiguration = {
   arn: string;
 };
 
-// AgentCore Runtime Request (compatible with Strands)
-export type AgentCoreRequest = StrandsRequest;
+// AgentCore Runtime Request (extended from Strands with additional fields)
+export type AgentCoreRequest = StrandsRequest & {
+  mcp_servers?: string[]; // Changed to string array
+  session_id?: string;
+  code_execution_enabled?: boolean;
+};
 
 export type AgentCoreStreamResponse = StrandsStreamEvent;
 

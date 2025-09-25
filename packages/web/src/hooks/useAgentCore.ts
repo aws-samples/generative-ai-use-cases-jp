@@ -1,5 +1,6 @@
 import useChat from './useChat';
-import useAgentCoreApi, { AgentCoreRuntimeRequest } from './useAgentCoreApi';
+import useAgentCoreApi from './useAgentCoreApi';
+import { AgentCoreRuntimeRequest } from 'generative-ai-use-cases';
 import {
   AgentCoreConfiguration,
   UnrecordedMessage,
@@ -42,9 +43,28 @@ const useAgentCore = (id: string) => {
     sessionId: string,
     userPrompt: string,
     qualifier = 'DEFAULT',
-    files?: File[]
+    files?: File[],
+    userId?: string,
+    mcpServers?: string[],
+    agentId?: string,
+    modelId?: string, // Add modelId parameter
+    codeExecutionEnabled?: boolean // Add codeExecutionEnabled parameter
   ) => {
-    const model = findModelByModelId(getModelId());
+    // Use provided modelId or fall back to current model ID
+    const targetModelId = modelId || getModelId();
+    console.log('Target model ID in useAgentCore:', targetModelId);
+
+    if (!targetModelId) {
+      throw new Error('No model ID provided. Please specify a model ID.');
+    }
+
+    const model = findModelByModelId(targetModelId);
+
+    if (!model) {
+      throw new Error(`Model not found for ID: ${targetModelId}`);
+    }
+
+    console.log('Using model:', model);
 
     // Get previous messages for context, excluding:
     // 1. System messages (will be sent as system_prompt)
@@ -79,6 +99,10 @@ const useAgentCore = (id: string) => {
       previousMessages, // Pass the raw messages to be converted in useAgentCoreApi
       model,
       files, // Pass the uploaded files - they will be converted to Strands format in useAgentCoreApi
+      userId,
+      mcpServers,
+      agentId,
+      codeExecutionEnabled,
     };
 
     await postMessage(request);

@@ -32,6 +32,7 @@
     "@aws-sdk/client-bedrock-agentcore": "^3.755.0",
     "@aws-sdk/client-bedrock-agentcore-control": "^3.755.0",
     "@aws-sdk/client-bedrock-runtime": "^3.755.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.755.0",
     "@aws-sdk/client-dynamodb": "^3.755.0",
     "@aws-sdk/client-kendra": "^3.755.0",
     "@aws-sdk/client-lambda": "^3.755.0",
@@ -53,6 +54,7 @@
     "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4",
+    "uuid": "13.0.0",
     "ws": "^8.18.0",
     "zod": "^3.24.1"
   }

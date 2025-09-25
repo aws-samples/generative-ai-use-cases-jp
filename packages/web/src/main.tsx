@@ -27,11 +27,14 @@ import GenerateVideoPage from './pages/GenerateVideoPage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import MeetingMinutesPage from './pages/MeetingMinutesPage';
-import AgentChatPage from './pages/AgentChatPage.tsx';
+import AgentChatPage from './pages/AgentChatPage';
 import FlowChatPage from './pages/FlowChatPage';
 import VoiceChatPage from './pages/VoiceChatPage';
 import McpChatPage from './pages/McpChatPage';
 import AgentCorePage from './pages/AgentCorePage.tsx';
+import AgentBuilderListPage from './pages/agentBuilder/AgentBuilderListPage.tsx';
+import AgentBuilderEditPage from './pages/agentBuilder/AgentBuilderEditPage';
+import AgentBuilderChatPage from './pages/agentBuilder/AgentBuilderChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
@@ -56,6 +59,9 @@ const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
+const agentCoreGenericRuntimeEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_GENERIC_RUNTIME !== 'null';
+
 const {
   visionEnabled,
   imageGenModelIds,
@@ -206,6 +212,30 @@ const routes: RouteObject[] = [
     ? {
         path: '/agent-core',
         element: <AgentCorePage />,
+      }
+    : null,
+  agentCoreGenericRuntimeEnabled
+    ? {
+        path: '/agent-builder',
+        element: <AgentBuilderListPage />,
+      }
+    : null,
+  agentCoreGenericRuntimeEnabled
+    ? {
+        path: '/agent-builder/create',
+        element: <AgentBuilderEditPage />,
+      }
+    : null,
+  agentCoreGenericRuntimeEnabled
+    ? {
+        path: '/agent-builder/:agentId/edit',
+        element: <AgentBuilderEditPage />,
+      }
+    : null,
+  agentCoreGenericRuntimeEnabled
+    ? {
+        path: '/agent-builder/:agentId',
+        element: <AgentBuilderChatPage />,
       }
     : null,
   {

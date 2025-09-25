@@ -325,6 +325,7 @@ const AgentCorePage: React.FC = () => {
             disabled={loading && !writing}
             onChangeContent={setContent}
             resetDisabled={isEmpty}
+            isEmpty={isEmpty}
             onSend={() => {
               if (!loading) {
                 onSend();
