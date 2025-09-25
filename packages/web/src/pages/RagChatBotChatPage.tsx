@@ -272,11 +272,22 @@ const RagChatBotChatPage: React.FC = () => {
 
         // Start polling for conversation updates
         // First do an immediate fetch to get the current state
+        let shouldStartPolling = true;
         try {
           const conversationData = await getConversation(conversation.id);
           const serverMessages = conversationData.messages || [];
           if (serverMessages.length > 0) {
             setMessages(serverMessages);
+
+            const lastServerMessage = serverMessages[serverMessages.length - 1];
+            if (
+              lastServerMessage &&
+              lastServerMessage.role === 'assistant' &&
+              lastServerMessage.content.trim().length > 0
+            ) {
+              shouldStartPolling = false;
+              setSending(false);
+            }
           }
         } catch (fetchError) {
           console.error(
@@ -286,7 +297,11 @@ const RagChatBotChatPage: React.FC = () => {
         }
 
         // Start regular polling
-        startPolling();
+        if (shouldStartPolling) {
+          startPolling();
+        } else {
+          setIsPolling(false);
+        }
       } else {
         // For other errors, show error message but don't add to messages
         console.error('Error sending message:', error);
