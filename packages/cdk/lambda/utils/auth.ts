@@ -36,7 +36,9 @@ function getJwtVerifier(): any {
 
 function getCognitoClient(): CognitoIdentityProviderClient {
   if (!cognitoClient) {
-    cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION! });
+    cognitoClient = new CognitoIdentityProviderClient({
+      region: process.env.AWS_REGION!,
+    });
   }
   return cognitoClient;
 }
@@ -71,7 +73,9 @@ export async function verifyToken(token: string): Promise<any | null> {
  * Get current user attributes from Cognito
  * Used for real-time role verification when token claims might be outdated
  */
-export async function getCurrentUserAttributes(username: string): Promise<{ [key: string]: string } | null> {
+export async function getCurrentUserAttributes(
+  username: string
+): Promise<{ [key: string]: string } | null> {
   if (!USER_POOL_ID || !username) {
     return null;
   }
@@ -107,7 +111,10 @@ export async function getCurrentUserAttributes(username: string): Promise<{ [key
  * Enhanced token verification with real-time role checking
  * Falls back to Cognito attributes when token claims might be outdated
  */
-export async function verifyTokenWithRoleCheck(token: string, requireAdmin?: boolean): Promise<{
+export async function verifyTokenWithRoleCheck(
+  token: string,
+  requireAdmin?: boolean
+): Promise<{
   claims: any;
   currentAttributes: { [key: string]: string } | null;
   isCurrentlyAdmin: boolean;

@@ -58,16 +58,18 @@ const AdminPortal: React.FC = () => {
 
   const refreshUserRole = useCallback(async () => {
     if (checkingRole) return;
-    
+
     setCheckingRole(true);
     try {
       const response = await api.post('/admin/refresh-role');
       const { isAdmin, roleChanged, message } = response.data;
-      
+
       if (roleChanged) {
         if (isAdmin) {
           // User was promoted
-          setError(`${message} Please refresh the page to see your new privileges.`);
+          setError(
+            `${message} Please refresh the page to see your new privileges.`
+          );
           setTimeout(() => {
             window.location.reload();
           }, 3000);
@@ -83,10 +85,19 @@ const AdminPortal: React.FC = () => {
       }
     } catch (refreshError) {
       console.error('Failed to refresh role:', refreshError);
-      if (refreshError && typeof refreshError === 'object' && 'response' in refreshError && 
-          refreshError.response && typeof refreshError.response === 'object' && 'status' in refreshError.response &&
-          (refreshError.response.status === 403 || refreshError.response.status === 409)) {
-        setError('Your admin privileges have been revoked. Redirecting to settings...');
+      if (
+        refreshError &&
+        typeof refreshError === 'object' &&
+        'response' in refreshError &&
+        refreshError.response &&
+        typeof refreshError.response === 'object' &&
+        'status' in refreshError.response &&
+        (refreshError.response.status === 403 ||
+          refreshError.response.status === 409)
+      ) {
+        setError(
+          'Your admin privileges have been revoked. Redirecting to settings...'
+        );
         setTimeout(() => {
           window.location.href = '/settings';
         }, 2000);
@@ -108,11 +119,17 @@ const AdminPortal: React.FC = () => {
         }
       } catch (error) {
         console.error('Failed to check admin status:', error);
-        
+
         // Check if this is a role mismatch error
-        if (error && typeof error === 'object' && 'response' in error &&
-            error.response && typeof error.response === 'object' && 'status' in error.response &&
-            (error.response.status === 403 || error.response.status === 409)) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'response' in error &&
+          error.response &&
+          typeof error.response === 'object' &&
+          'status' in error.response &&
+          (error.response.status === 403 || error.response.status === 409)
+        ) {
           // Try to refresh role status first
           await refreshUserRole();
         } else {
@@ -167,10 +184,15 @@ const AdminPortal: React.FC = () => {
             await fetchAuthSession({ forceRefresh: true });
             setError(null); // Clear any previous errors
             // Show success message for promotion
-            setError(`Congratulations! You have been promoted to admin. Your new privileges are now active.`);
+            setError(
+              `Congratulations! You have been promoted to admin. Your new privileges are now active.`
+            );
             setTimeout(() => setError(null), 5000); // Clear success message after 5 seconds
           } catch (tokenError) {
-            console.error('Failed to refresh auth session after promotion:', tokenError);
+            console.error(
+              'Failed to refresh auth session after promotion:',
+              tokenError
+            );
             setError(t('adminPortal.messages.failedToRefreshSession'));
           } finally {
             setRefreshingToken(false);
@@ -184,7 +206,7 @@ const AdminPortal: React.FC = () => {
             window.dispatchEvent(new Event('focus'));
           }, 1000);
         }
-        
+
         if (response.data.warning === 'SESSION_INVALIDATION_FAILED') {
           setError(
             `Role updated but user sessions remain active. The user "${username}" should be asked to sign out manually for security.`
@@ -193,10 +215,12 @@ const AdminPortal: React.FC = () => {
 
         // Show appropriate success message based on action type
         if (actionType === 'promoted') {
-          setError(`${username} has been promoted to admin. They will have administrative privileges after their next login.`);
+          setError(
+            `${username} has been promoted to admin. They will have administrative privileges after their next login.`
+          );
           setTimeout(() => setError(null), 5000);
         } else if (actionType === 'demoted') {
-          const message = sessionInvalidated 
+          const message = sessionInvalidated
             ? `${username} has been demoted and their admin sessions have been terminated.`
             : `${username} has been demoted to regular user.`;
           setError(message);
@@ -213,18 +237,26 @@ const AdminPortal: React.FC = () => {
       await loadUsers();
     } catch (error) {
       console.error('Failed to update user role:', error);
-      
+
       // Check for specific role mismatch errors
-      if (error && typeof error === 'object' && 'response' in error &&
-          error.response && typeof error.response === 'object' && 'status' in error.response &&
-          error.response.status === 409) {
-        setError('Your admin privileges have been revoked. Redirecting to settings...');
+      if (
+        error &&
+        typeof error === 'object' &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'status' in error.response &&
+        error.response.status === 409
+      ) {
+        setError(
+          'Your admin privileges have been revoked. Redirecting to settings...'
+        );
         setTimeout(() => {
           window.location.href = '/settings';
         }, 2000);
         return;
       }
-      
+
       setError(t('adminPortal.messages.failedToUpdateUserRole'));
 
       // Revert to original value on failure

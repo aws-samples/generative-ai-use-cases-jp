@@ -3,7 +3,7 @@ import {
   CognitoIdentityProviderClient,
   AdminUpdateUserAttributesCommand,
   AdminUserGlobalSignOutCommand,
-  AdminGetUserCommand
+  AdminGetUserCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
   verifyAdminAccessWithUser,
@@ -76,9 +76,10 @@ export const handler = async (
       Username: username,
     });
     const currentUser = await cognitoClient.send(getUserCommand);
-    const currentIsAdmin = currentUser.UserAttributes?.find(
-      attr => attr.Name === 'custom:tenantAdmin'
-    )?.Value === 'true';
+    const currentIsAdmin =
+      currentUser.UserAttributes?.find(
+        (attr) => attr.Name === 'custom:tenantAdmin'
+      )?.Value === 'true';
 
     // Update user role
     try {
@@ -109,16 +110,22 @@ export const handler = async (
           });
           await cognitoClient.send(signOutCommand);
 
-          console.log(`Global sign-out successful for demoted user: ${username}`);
+          console.log(
+            `Global sign-out successful for demoted user: ${username}`
+          );
           sessionInvalidated = true;
         } catch (signOutError) {
-          console.error(`CRITICAL: Role updated but failed to invalidate tokens for ${username}:`, signOutError);
+          console.error(
+            `CRITICAL: Role updated but failed to invalidate tokens for ${username}:`,
+            signOutError
+          );
 
           return {
             statusCode: 200,
             headers: CORS_HEADERS,
             body: JSON.stringify({
-              message: 'User role updated but sessions remain active. User should sign out manually.',
+              message:
+                'User role updated but sessions remain active. User should sign out manually.',
               username,
               tenantAdmin,
               warning: 'SESSION_INVALIDATION_FAILED',
@@ -128,13 +135,17 @@ export const handler = async (
       }
 
       // Determine the action type for better frontend handling
-      const actionType = currentIsAdmin === tenantAdmin
-        ? 'no_change'
-        : tenantAdmin ? 'promoted' : 'demoted';
+      const actionType =
+        currentIsAdmin === tenantAdmin
+          ? 'no_change'
+          : tenantAdmin
+            ? 'promoted'
+            : 'demoted';
 
       let userMessage = 'User role updated successfully';
       if (actionType === 'promoted') {
-        userMessage = 'User has been promoted to admin. They will have administrative privileges on their next session refresh.';
+        userMessage =
+          'User has been promoted to admin. They will have administrative privileges on their next session refresh.';
       } else if (actionType === 'demoted') {
         userMessage = sessionInvalidated
           ? 'User has been demoted to regular user. Their admin sessions have been terminated.'

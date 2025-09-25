@@ -106,7 +106,6 @@ const useMcpApi = (id: string) => {
         let buffer = '';
         let isFirstChunk = true;
 
-         
         while (true) {
           const { done, value } = await reader.read();
 

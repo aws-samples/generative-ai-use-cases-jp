@@ -81,19 +81,19 @@ export async function verifyAdminAccess(
   // Use current admin status from Cognito, not token claim
   if (!isCurrentlyAdmin) {
     // Provide different messages based on token vs current status
-    const message = tokenClaimAdmin 
+    const message = tokenClaimAdmin
       ? 'Admin privileges have been revoked. Please refresh your session.'
       : 'Access denied. Admin privileges required.';
-    
+
     const statusCode = tokenClaimAdmin ? 409 : 403; // 409 for role mismatch, 403 for no privileges
-    
+
     return {
       statusCode,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         message,
         roleChanged: tokenClaimAdmin !== isCurrentlyAdmin,
-        refreshRequired: tokenClaimAdmin && !isCurrentlyAdmin
+        refreshRequired: tokenClaimAdmin && !isCurrentlyAdmin,
       }),
     };
   }
@@ -105,7 +105,6 @@ export async function verifyAdminAccess(
     claims,
   };
 }
-
 
 /**
  * Verify that a user belongs to the same tenant as the admin
