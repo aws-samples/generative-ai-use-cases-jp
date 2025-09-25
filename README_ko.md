@@ -1,3 +1,7 @@
+> [!NOTE]
+> 최신 정보는 [English](<(./README.md)>)를 확인해주세요.
+> Please check the latest information in [English](<(./README.md)>).
+
 <div markdown="1" align="center">
   <h1>Generative AI Use Cases (GenU)</h1>
 
