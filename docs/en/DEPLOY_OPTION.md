@@ -997,9 +997,6 @@ This solution supports the following text generation models:
 "mistral.mistral-small-2402-v1:0",
 "us.mistral.pixtral-large-2502-v1:0",
 "eu.mistral.pixtral-large-2502-v1:0",
-"anthropic.claude-v2:1",
-"anthropic.claude-v2",
-"anthropic.claude-instant-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2",
 "amazon.nova-pro-v1:0",
@@ -1031,11 +1028,8 @@ This solution supports the following image generation models:
 "amazon.nova-canvas-v1:0",
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"stability.sd3-large-v1:0",
 "stability.sd3-5-large-v1:0",
-"stability.stable-image-core-v1:0",
 "stability.stable-image-core-v1:1",
-"stability.stable-image-ultra-v1:0",
 "stability.stable-image-ultra-v1:1",
 "stability.stable-diffusion-xl-v1",
 ```
@@ -1281,11 +1275,8 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
-      'stability.sd3-large-v1:0',
       'stability.sd3-5-large-v1:0',
-      'stability.stable-image-core-v1:0',
       'stability.stable-image-core-v1:1',
-      'stability.stable-image-ultra-v1:0',
       'stability.stable-image-ultra-v1:1',
       'stability.stable-diffusion-xl-v1',
     ],
@@ -1316,11 +1307,8 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],
@@ -1360,11 +1348,8 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],
@@ -1402,11 +1387,8 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],

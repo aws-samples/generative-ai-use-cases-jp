@@ -14,6 +14,7 @@ import {
 
 export interface ClosedNetworkStackProps extends StackProps {
   readonly params: ProcessedStackInput;
+  readonly isSageMakerStudio: boolean;
 }
 
 export class ClosedNetworkStack extends Stack {
@@ -70,6 +71,7 @@ export class ClosedNetworkStack extends Stack {
       subnetIds: closedNetworkSubnetIds,
       hostedZone: closedVpc?.hostedZone,
       certificateArn: closedNetworkCertificateArn,
+      isSageMakerStudio: props.isSageMakerStudio,
     });
 
     const cognitoPrivateProxy = new CognitoPrivateProxy(

@@ -32,7 +32,7 @@
     "@twind/preset-autoprefix": "^1.0.7",
     "@twind/preset-tailwind": "^1.1.4",
     "aws-amplify": "^6.0.23",
-    "axios": "^1.6.8",
+    "axios": "^1.12.0",
     "immer": "^10.0.4",
     "lodash-es": "^4.17.21",
     "react": "18.2.0",
@@ -78,7 +78,7 @@
     "tailwindcss": "^3.3.2",
     "ts-jest": "^29.1.0",
     "typescript": "4.9.5",
-    "vite": "^6.3.5",
+    "vite": "^6.3.6",
     "vite-plugin-svgr": "^4.2.0"
   }
 }
