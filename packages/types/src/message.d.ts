@@ -17,6 +17,7 @@ export type Agent = {
   displayName: string;
   agentId: string;
   aliasId: string;
+  description: string;
 };
 
 export type AgentMap = Record<string, { agentId: string; aliasId: string }>;

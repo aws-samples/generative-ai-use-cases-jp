@@ -3,6 +3,7 @@ import { Model } from './message';
 export type AgentCoreConfiguration = {
   name: string;
   arn: string;
+  description: string;
 };
 
 // AgentCore Runtime Request (extended from Strands with additional fields)

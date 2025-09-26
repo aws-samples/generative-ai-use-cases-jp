@@ -18,11 +18,12 @@ import {
   PiCopy as CloneIcon,
   PiTrash as DeleteIcon,
   PiDotsThreeOutlineFill as MoreIcon,
+  PiGlobe as ExternalIcon,
 } from 'react-icons/pi';
 import { AgentConfiguration } from 'generative-ai-use-cases';
 import useAgentBuilderList from '../../hooks/agentBuilder/useAgentBuilderList';
 
-export type AgentFilter = 'my' | 'favorites' | 'marketplace';
+export type AgentFilter = 'my' | 'favorites' | 'marketplace' | 'external';
 
 const AgentBuilderListPage: React.FC = () => {
   const { t } = useTranslation();
@@ -48,6 +49,10 @@ const AgentBuilderListPage: React.FC = () => {
     isLoadingPublicAgents,
     loadMorePublicAgents,
     canLoadMorePublicAgents,
+    externalAgents,
+    isLoadingExternalAgents,
+    loadMoreExternalAgents,
+    canLoadMoreExternalAgents,
     deleteAgent,
     cloneAgent,
     toggleFavorite,
@@ -77,6 +82,13 @@ const AgentBuilderListPage: React.FC = () => {
           isLoading: isLoadingPublicAgents,
           loadMore: loadMorePublicAgents,
           canLoadMore: canLoadMorePublicAgents,
+        };
+      case 'external':
+        return {
+          agents: externalAgents,
+          isLoading: isLoadingExternalAgents,
+          loadMore: loadMoreExternalAgents,
+          canLoadMore: canLoadMoreExternalAgents,
         };
       default:
         return {
@@ -134,7 +146,19 @@ const AgentBuilderListPage: React.FC = () => {
 
   const handleChat = useCallback(
     (agent: AgentConfiguration) => {
-      navigate(`/agent-builder/${agent.agentId}`);
+      // Check if this is an AgentCore external agent (ARN format)
+      if (agent.agentId.startsWith('arn:')) {
+        navigate(`/agent-core/${encodeURIComponent(agent.agentId)}`);
+      }
+      // Check if this is a Bedrock agent
+      else if (agent.agentId.startsWith('bedrock-agent:')) {
+        const agentName = agent.agentId.replace('bedrock-agent:', '');
+        navigate(`/agent/${agentName}`);
+      }
+      // Regular agent builder agent
+      else {
+        navigate(`/agent-builder/${agent.agentId}`);
+      }
     },
     [navigate]
   );
@@ -202,6 +226,10 @@ const AgentBuilderListPage: React.FC = () => {
         count = publicAgents.length;
         hasMore = canLoadMorePublicAgents;
         break;
+      case 'external':
+        count = externalAgents.length;
+        hasMore = canLoadMoreExternalAgents;
+        break;
       default:
         count = 0;
         hasMore = false;
@@ -212,22 +240,28 @@ const AgentBuilderListPage: React.FC = () => {
 
   const filterTabs = [
     {
-      key: 'my' as AgentFilter,
-      label: t('agent_builder.my_agents'),
-      icon: MyAgentsIcon,
-      count: getTabCount('my'),
-    },
-    {
       key: 'favorites' as AgentFilter,
       label: t('agent_builder.favorites'),
       icon: StarIcon,
       count: getTabCount('favorites'),
     },
     {
+      key: 'my' as AgentFilter,
+      label: t('agent_builder.my_agents'),
+      icon: MyAgentsIcon,
+      count: getTabCount('my'),
+    },
+    {
       key: 'marketplace' as AgentFilter,
       label: t('agent_builder.marketplace'),
       icon: MarketplaceIcon,
       count: getTabCount('marketplace'),
+    },
+    {
+      key: 'external' as AgentFilter,
+      label: t('agent_builder.external'),
+      icon: ExternalIcon,
+      count: getTabCount('external'),
     },
   ];
 
@@ -318,7 +352,9 @@ const AgentBuilderListPage: React.FC = () => {
               ? t('agent_builder.no_agents_yet')
               : currentFilter === 'favorites'
                 ? t('agent_builder.no_favorite_agents_yet')
-                : t('agent_builder.no_public_agents_available')}
+                : currentFilter === 'external'
+                  ? t('agent_builder.no_external_agents_available')
+                  : t('agent_builder.no_public_agents_available')}
           </div>
         )}
 
@@ -361,62 +397,69 @@ const AgentBuilderListPage: React.FC = () => {
               )}
             </div>
             <div className="flex items-center gap-2">
-              <ButtonIcon
-                onClick={() => toggleFavorite(agent.agentId)}
-                className={
-                  agent.isFavorite ? 'text-aws-smile' : 'text-gray-400'
-                }>
-                {agent.isFavorite ? <StarFillIcon /> : <StarIcon />}
-              </ButtonIcon>
+              {/* Hide favorite button for external agents */}
+              {currentFilter !== 'external' && (
+                <ButtonIcon
+                  onClick={() => toggleFavorite(agent.agentId)}
+                  className={
+                    agent.isFavorite ? 'text-aws-smile' : 'text-gray-400'
+                  }>
+                  {agent.isFavorite ? <StarFillIcon /> : <StarIcon />}
+                </ButtonIcon>
+              )}
               {currentFilter === 'my' && (
                 <ButtonIcon onClick={() => handleEdit(agent.agentId)}>
                   <EditIcon />
                 </ButtonIcon>
               )}
 
-              {/* Dropdown Menu */}
-              {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-              <div className="dropdown-container relative">
-                <ButtonIcon
-                  onClick={() => toggleDropdown(agent.agentId)}
-                  className="text-gray-600">
-                  <MoreIcon />
-                </ButtonIcon>
-                {openDropdown === agent.agentId && (
-                  <div
-                    className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-gray-200 bg-white shadow-lg ring-1 ring-black/5"
-                    onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside dropdown
-                  >
-                    <div className="py-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAction(() => handleCloneWithNavigation(agent));
-                        }}
-                        className="flex w-full items-center px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50">
-                        <CloneIcon className="mr-3 h-4 w-4 text-gray-500" />
-                        {t('agent_builder.clone')}
-                      </button>
-                      {currentFilter === 'my' && (
-                        <>
-                          <div className="my-1 h-px bg-gray-100" />
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAction(() =>
-                                handleDeleteAgent(agent.agentId)
-                              );
-                            }}
-                            className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50">
-                            <DeleteIcon className="mr-3 h-4 w-4" />
-                            {t('common.delete')}
-                          </button>
-                        </>
-                      )}
+              {/* Dropdown Menu - Hide for external agents */}
+              {currentFilter !== 'external' && (
+                /* eslint-disable-next-line tailwindcss/no-custom-classname */
+                <div className="dropdown-container relative">
+                  <ButtonIcon
+                    onClick={() => toggleDropdown(agent.agentId)}
+                    className="text-gray-600">
+                    <MoreIcon />
+                  </ButtonIcon>
+                  {openDropdown === agent.agentId && (
+                    <div
+                      className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-gray-200 bg-white shadow-lg ring-1 ring-black/5"
+                      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside dropdown
+                    >
+                      <div className="py-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAction(() =>
+                              handleCloneWithNavigation(agent)
+                            );
+                          }}
+                          className="flex w-full items-center px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50">
+                          <CloneIcon className="mr-3 h-4 w-4 text-gray-500" />
+                          {t('agent_builder.clone')}
+                        </button>
+                        {currentFilter === 'my' && (
+                          <>
+                            <div className="my-1 h-px bg-gray-100" />
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAction(() =>
+                                  handleDeleteAgent(agent.agentId)
+                                );
+                              }}
+                              className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50">
+                              <DeleteIcon className="mr-3 h-4 w-4" />
+                              {t('common.delete')}
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}

@@ -220,7 +220,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       imageGenerationModelIds: api.imageGenerationModelIds,
       videoGenerationModelIds: api.videoGenerationModelIds,
       endpointNames: api.endpointNames,
-      agentNames: api.agentNames,
+      agents: api.agents,
       inlineAgents: params.inlineAgents,
       useCaseBuilderEnabled: params.useCaseBuilderEnabled,
       speechToSpeechNamespace: speechToSpeech.namespace,
@@ -235,6 +235,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         ? {
             name: genericRuntimeName || 'GenericAgentCoreRuntime',
             arn: genericRuntimeArn,
+            description: 'Generic Agent Core Runtime for custom agents',
           }
         : undefined,
       agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
@@ -426,8 +427,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: params.samlCognitoFederatedIdentityProviderName ?? '',
     });
 
-    new CfnOutput(this, 'AgentNames', {
-      value: Buffer.from(JSON.stringify(api.agentNames)).toString('base64'),
+    new CfnOutput(this, 'Agents', {
+      value: Buffer.from(JSON.stringify(api.agents)).toString('base64'),
     });
 
     new CfnOutput(this, 'InlineAgents', {

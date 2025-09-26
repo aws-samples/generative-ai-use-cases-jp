@@ -54,7 +54,7 @@ const {
   imageGenModelIds,
   videoGenModelIds,
   speechToSpeechModelIds,
-  agentNames,
+  agents,
   flowChatEnabled,
 } = MODELS;
 
@@ -123,10 +123,10 @@ const App: React.FC = () => {
         }
       : null,
     ...(agentEnabled && inlineAgents
-      ? agentNames.map((name: string) => {
+      ? agents.map((agent) => {
           return {
-            label: name,
-            to: `/agent/${name}`,
+            label: agent.displayName,
+            to: `/agent/${agent.displayName}`,
             icon: <PiRobot />,
             display: 'usecase' as const,
             sub: 'Agent',
@@ -151,7 +151,8 @@ const App: React.FC = () => {
           sub: 'Experimental',
         }
       : null,
-    agentCoreEnabled
+    // Do not show AgentCore in the drawer if Agent Builder is enabled
+    agentCoreEnabled && !agentCoreGenericRuntimeEnabled
       ? {
           label: t('agent_core.title'),
           to: '/agent-core',

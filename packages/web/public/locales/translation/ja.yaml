@@ -19,6 +19,7 @@ agent_builder:
   arguments_label: 引数
   arguments_placeholder: パッケージ名 引数1 引数2
   basic_information: 基本情報
+  bedrock_agent_description: 特別な機能を持つ事前設定済みのBedrockエージェント
   chat: チャット
   check_back_later_description: 公開エージェントについては後でもう一度確認してください
   clone: クローン
@@ -47,6 +48,9 @@ agent_builder:
   environment_variables: 環境変数
   environment_variables_label: 環境変数
   example_github: GitHub
+  external: 外部
+  external_agent_description: 特別な機能を持つ事前設定済みの外部エージェント
+  external_agents: 外部エージェント
   failed_to_clone_agent: エージェントのクローンに失敗しました
   failed_to_create_agent: エージェントの作成に失敗しました
   failed_to_delete_agent: エージェントの削除に失敗しました
@@ -64,6 +68,7 @@ agent_builder:
   my_agents: マイエージェント
   name: 名前
   no_agents_yet: まだエージェントがありません
+  no_external_agents_available: 利用可能な外部エージェントがありません
   no_favorite_agents_yet: まだお気に入りのエージェントがありません
   no_mcp_servers: MCPサーバーが設定されていません
   no_mcp_servers_available: 現在利用可能なMCPサーバーがありません。

@@ -19,6 +19,7 @@ agent_builder:
   arguments_label: Arguments
   arguments_placeholder: package-name arg1 arg2
   basic_information: Basic Information
+  bedrock_agent_description: Pre-configured Bedrock Agent with specialized capabilities
   chat: chat
   check_back_later_description: Check back later for new public agents
   clone: Clone
@@ -46,6 +47,9 @@ agent_builder:
   environment_variables: Environment Variables
   environment_variables_label: Environment Variables
   example_github: GitHub
+  external: External
+  external_agent_description: Pre-configured external agents with specialized capabilities
+  external_agents: External Agents
   failed_to_clone_agent: Failed to clone agent
   failed_to_create_agent: Failed to create agent
   failed_to_delete_agent: Failed to delete agent
@@ -66,6 +70,7 @@ agent_builder:
   my_agents: My Agents
   name: Name
   no_agents_yet: No agents yet
+  no_external_agents_available: No external agents available
   no_favorite_agents_yet: No favorite agents yet
   no_mcp_servers: No MCP servers configured
   no_mcp_servers_available: No MCP servers are currently available.

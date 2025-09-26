@@ -214,6 +214,12 @@ const routes: RouteObject[] = [
         element: <AgentCorePage />,
       }
     : null,
+  agentCoreEnabled
+    ? {
+        path: '/agent-core/:agentArn',
+        element: <AgentCorePage />,
+      }
+    : null,
   agentCoreGenericRuntimeEnabled
     ? {
         path: '/agent-builder',

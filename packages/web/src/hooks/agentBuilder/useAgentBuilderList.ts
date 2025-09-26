@@ -7,13 +7,18 @@ import {
   CreateAgentRequest,
   UpdateAgentRequest,
   ListAgentsResponse,
+  AgentCoreConfiguration,
 } from 'generative-ai-use-cases';
 
 import useAgentBuilderApi from './useAgentBuilderApi';
+import { useAgentCore } from '../useAgentCore';
+import { MODELS } from '../useModel';
 
 const useAgentBuilderList = () => {
   const { t } = useTranslation();
   const api = useAgentBuilderApi();
+  const { getExternalRuntimes } = useAgentCore('agent-builder-list');
+  const { agents } = MODELS;
 
   // My Agents pagination
   const myAgentsConfig = api.listUserAgentsSWR();
@@ -78,6 +83,58 @@ const useAgentBuilderList = () => {
     publicAgentsSWR.setSize(publicAgentsSWR.size + 1);
   const mutatePublicAgents = publicAgentsSWR.mutate;
 
+  // External Agents (from AgentCore and Bedrock Agents)
+  const externalRuntimes = getExternalRuntimes();
+  const agentCoreAgents: AgentConfiguration[] = externalRuntimes.map(
+    (runtime: AgentCoreConfiguration) => ({
+      agentId: runtime.arn, // Use ARN as unique ID
+      name: runtime.name,
+      description: t('agent_builder.external_agent_description'),
+      systemPrompt: '', // External agents don't have editable system prompts
+      mcpServers: [],
+      modelId: '',
+      codeExecutionEnabled: false,
+      isPublic: false,
+      shareId: undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      tags: ['AgentCore'],
+      starCount: 0,
+      createdBy: 'System',
+      createdByEmail: '',
+      isFavorite: false,
+      isMyAgent: false,
+    })
+  );
+
+  // Bedrock Agents
+  const bedrockAgents: AgentConfiguration[] = agents.map((agent) => ({
+    agentId: `bedrock-agent:${agent.displayName}`, // Use prefixed name as unique ID
+    name: agent.displayName,
+    description:
+      agent.description || t('agent_builder.bedrock_agent_description'),
+    systemPrompt: '', // Bedrock agents don't have editable system prompts
+    mcpServers: [],
+    modelId: agent.displayName,
+    codeExecutionEnabled: false,
+    isPublic: false,
+    shareId: undefined,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    tags: ['Bedrock'],
+    starCount: 0,
+    createdBy: 'System',
+    createdByEmail: '',
+    isFavorite: false,
+    isMyAgent: false,
+  }));
+
+  // Combine all external agents
+  const externalAgents: AgentConfiguration[] = [
+    ...agentCoreAgents,
+    ...bedrockAgents,
+  ];
+
   // Helper function to find agent index across pages
   const findAgentIndex = (
     agentsRaw: ListAgentsResponse[] | undefined,
@@ -116,6 +173,12 @@ const useAgentBuilderList = () => {
     isLoadingPublicAgents,
     loadMorePublicAgents,
     canLoadMorePublicAgents,
+
+    // External Agents
+    externalAgents: externalAgents ?? [],
+    isLoadingExternalAgents: false, // External agents are loaded synchronously
+    loadMoreExternalAgents: () => {}, // No pagination for external agents
+    canLoadMoreExternalAgents: false,
 
     // Agent operations with optimistic updates
     createAgent: async (params: CreateAgentRequest) => {
