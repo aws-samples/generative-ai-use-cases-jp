@@ -18,7 +18,7 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases';
-import { UseCaseBuilder } from '../../construct/use-case-builder';
+import { UseCaseBuilderStack } from '../nested/use-case-builder-stack';
 import { ProcessedStackInput } from '../../stack-input';
 import { allowS3AccessWithSourceIpCondition } from '../../utils/s3-access-policy';
 
@@ -275,9 +275,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       }
     }
 
-    // Usecase builder
+    // Usecase builder (as Nested Stack)
     if (params.useCaseBuilderEnabled) {
-      new UseCaseBuilder(this, 'UseCaseBuilder', {
+      new UseCaseBuilderStack(this, `UseCaseBuilderStack${params.env}`, {
         userPool: auth.userPool,
         api: api.restApi,
         idPool: auth.idPool,
