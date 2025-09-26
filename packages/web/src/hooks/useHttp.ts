@@ -7,18 +7,51 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
 });
 
-// // HTTP Request Preprocessing
+// HTTP Request Preprocessing
 api.interceptors.request.use(async (config) => {
-  // If Authenticated, append ID Token to Request Header
-  const token = (await fetchAuthSession()).tokens?.idToken?.toString();
-  if (token) {
-    config.headers['Authorization'] = token;
+  try {
+    // If Authenticated, append ID Token to Request Header
+    const session = await fetchAuthSession();
+    const token = session.tokens?.idToken?.toString();
+    if (token) {
+      config.headers['Authorization'] = token;
+    }
+  } catch (error) {
+    console.warn('[useHttp] Failed to get auth session:', error);
   }
 
   config.headers['Content-Type'] = 'application/json';
 
   return config;
 });
+
+// HTTP Response Preprocessing - Add retry logic for auth failures
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If we get a 401 and haven't already retried, try to refresh the session
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Try to get a fresh session
+        const session = await fetchAuthSession({ forceRefresh: true });
+        const token = session.tokens?.idToken?.toString();
+
+        if (token) {
+          originalRequest.headers['Authorization'] = token;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.warn('[useHttp] Token refresh failed:', refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 const fetcher = (url: string) => {
   return api.get(url).then((res) => res.data);

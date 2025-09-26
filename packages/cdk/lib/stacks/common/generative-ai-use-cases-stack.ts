@@ -205,7 +205,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
       // Frontend
-      hiddenUseCases: params.hiddenUseCases,
       // Custom Domain
       cert: props.cert,
       hostName: params.hostName,
@@ -403,10 +402,6 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'UseCaseBuilderEnabled', {
       value: params.useCaseBuilderEnabled.toString(),
-    });
-
-    new CfnOutput(this, 'HiddenUseCases', {
-      value: JSON.stringify(params.hiddenUseCases),
     });
 
     new CfnOutput(this, 'SpeechToSpeechNamespace', {

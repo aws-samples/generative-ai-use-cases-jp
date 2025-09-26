@@ -14,8 +14,8 @@
   "devDependencies": {
     "@smithy/types": "^4.3.2",
     "@types/aws-lambda": "^8.10.137",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.5",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.19.17",
     "@types/sanitize-html": "^2.13.0",
     "aws-cdk": "^2.154.1",
     "jest": "^29.7.0",

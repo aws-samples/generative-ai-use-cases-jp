@@ -63,7 +63,7 @@ export const handler = async (
       };
     }
 
-    // Create tenant record
+    // Create tenant record with default use case configuration
     const now = new Date().toISOString();
     const tenant = {
       tenantId,
@@ -77,6 +77,11 @@ export const handler = async (
       metadata: {
         source: 'api-registration',
         registeredVia: 'tenant-stack',
+      },
+      useCaseConfiguration: {
+        hiddenUseCases: {}, // All use cases enabled by default
+        updatedAt: now,
+        updatedBy: 'system',
       },
     };
 

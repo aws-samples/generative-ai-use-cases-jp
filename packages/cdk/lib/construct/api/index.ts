@@ -1,4 +1,4 @@
-import { Stack, CfnOutput } from 'aws-cdk-lib';
+import { Stack, CfnOutput, Duration } from 'aws-cdk-lib';
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
@@ -21,6 +21,7 @@ import {
   AgentMap,
   ModelConfiguration,
   SelfSignUpTenantMapEntry,
+  HiddenUseCases,
 } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
@@ -31,6 +32,8 @@ import {
 import { LitellmProxyServer } from '../litellm-proxy-server';
 import { TenantManager } from '../tenant-manager';
 import { GenericApiProps } from './props';
+import { getBaseEnvironment } from './util';
+import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
 import PredictApi from './predict';
 import OptimizePromptApi from './optimize-prompt';
 import InvokeFlowApi from './invoke-flow';
@@ -312,6 +315,36 @@ export class Api extends Construct {
         exportName: `${Stack.of(this).stackName}-TenantRegApiKeyId`,
       });
     }
+
+    // Tenant-aware use case configuration endpoint
+    const getTenantAwareUseCaseConfigFunction = new NodejsFunction(
+      this,
+      'GetTenantAwareUseCaseConfig',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/getTenantAwareUseCaseConfig.ts',
+        timeout: Duration.minutes(2),
+        bundling: {
+          nodeModules: ['aws-jwt-verify'],
+        },
+        environment: getBaseEnvironment(this, apiProps, {}),
+      }
+    );
+
+    // Grant DynamoDB permissions for tenant data access
+    if (tenantManager?.tenantsTable) {
+      tenantManager.tenantsTable.grantReadData(
+        getTenantAwareUseCaseConfigFunction
+      );
+    }
+
+    // Add endpoint for tenant-aware use case configuration
+    const tenantConfigResource = api.root.addResource('tenant-use-case-config');
+    tenantConfigResource.addMethod(
+      'GET',
+      new LambdaIntegration(getTenantAwareUseCaseConfigFunction),
+      commonAuthorizerProps
+    );
 
     new BedrockChatApi(this, 'BedrockChatAPI', apiProps);
     new ChatApi(this, 'ChatsAPI', apiProps);

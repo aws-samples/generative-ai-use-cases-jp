@@ -33,22 +33,6 @@ const baseStackInputSchema = z.object({
   samlDefaultAuthEnabled: z.boolean().default(false),
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
-  // Frontend
-  hiddenUseCases: z
-    .object({
-      generate: z.boolean().optional(),
-      summarize: z.boolean().optional(),
-      writer: z.boolean().optional(),
-      translate: z.boolean().optional(),
-      webContent: z.boolean().optional(),
-      image: z.boolean().optional(),
-      video: z.boolean().optional(),
-      videoAnalyzer: z.boolean().optional(),
-      diagram: z.boolean().optional(),
-      meetingMinutes: z.boolean().optional(),
-      voiceChat: z.boolean().optional(),
-    })
-    .default({}),
   // API
   modelRegion: z.string().default('us-east-1'),
   modelIds: z

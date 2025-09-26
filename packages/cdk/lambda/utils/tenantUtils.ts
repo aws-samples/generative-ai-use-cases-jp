@@ -18,3 +18,10 @@ export const getTenantId = (event: APIGatewayProxyEvent): string => {
 
   return tenantId;
 };
+
+/**
+ * Alias for getTenantId for consistency with new naming convention
+ */
+export const getUserTenantId = (event: APIGatewayProxyEvent): string => {
+  return getTenantId(event);
+};

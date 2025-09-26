@@ -1,12 +1,14 @@
-import { HiddenUseCases, HiddenUseCasesKeys } from 'generative-ai-use-cases';
-
-const hiddenUseCases: HiddenUseCases = JSON.parse(
-  import.meta.env.VITE_APP_HIDDEN_USE_CASES
-);
+import { HiddenUseCasesKeys } from 'generative-ai-use-cases';
+import useTenantUseCaseConfig from './useTenantUseCaseConfig';
 
 const useUseCases = () => {
+  const { tenantConfig, loading } = useTenantUseCaseConfig();
+
   const enabledSingle = (useCase: HiddenUseCasesKeys): boolean => {
-    return !hiddenUseCases[useCase];
+    if (!tenantConfig?.hiddenUseCases) {
+      return true; // Enable all use cases if no tenant configuration
+    }
+    return !tenantConfig.hiddenUseCases[useCase];
   };
 
   const enabled = (...useCases: HiddenUseCasesKeys[]): boolean => {
@@ -15,6 +17,8 @@ const useUseCases = () => {
 
   return {
     enabled,
+    tenantConfig,
+    loading,
   };
 };
 

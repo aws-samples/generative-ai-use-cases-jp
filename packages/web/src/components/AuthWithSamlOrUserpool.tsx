@@ -7,7 +7,6 @@ import {
   translations,
   useAuthenticator,
 } from '@aws-amplify/ui-react';
-import { Amplify } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import { signInWithRedirect } from 'aws-amplify/auth';
 import { I18n } from 'aws-amplify/utils';
@@ -15,12 +14,8 @@ import { useTranslation } from 'react-i18next';
 
 const selfSignUpEnabled: boolean =
   import.meta.env.VITE_APP_SELF_SIGN_UP_ENABLED === 'true';
-const samlCognitoDomainName: string = import.meta.env
-  .VITE_APP_SAML_COGNITO_DOMAIN_NAME;
 const samlCognitoFederatedIdentityProviderName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
-const speechToSpeechEventApiEndpoint: string = import.meta.env
-  .VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT;
 
 type Props = {
   children: React.ReactNode;
@@ -46,6 +41,11 @@ const AuthWithSamlOrUserpool: React.FC<Props> = (props) => {
     }
   }, [authStatus]);
 
+  useEffect(() => {
+    I18n.putVocabularies(translations);
+    I18n.setLanguage(i18n.language === 'ja' ? 'ja' : 'en');
+  }, [i18n.language]);
+
   const signIn = () => {
     signInWithRedirect({
       provider: {
@@ -53,35 +53,6 @@ const AuthWithSamlOrUserpool: React.FC<Props> = (props) => {
       },
     });
   };
-
-  Amplify.configure({
-    Auth: {
-      Cognito: {
-        userPoolId: import.meta.env.VITE_APP_USER_POOL_ID,
-        userPoolClientId: import.meta.env.VITE_APP_USER_POOL_CLIENT_ID,
-        identityPoolId: import.meta.env.VITE_APP_IDENTITY_POOL_ID,
-        loginWith: {
-          oauth: {
-            domain: samlCognitoDomainName,
-            scopes: ['openid', 'email', 'profile'],
-            redirectSignIn: [window.location.origin],
-            redirectSignOut: [window.location.origin],
-            responseType: 'code',
-          },
-        },
-      },
-    },
-    API: {
-      Events: {
-        endpoint: speechToSpeechEventApiEndpoint,
-        region: process.env.VITE_APP_REGION!,
-        defaultAuthMode: 'userPool',
-      },
-    },
-  });
-
-  I18n.putVocabularies(translations);
-  I18n.setLanguage(i18n.language === 'ja' ? 'ja' : 'en');
 
   return (
     <>

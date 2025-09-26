@@ -5,6 +5,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { HiddenUseCases } from 'generative-ai-use-cases';
 
 // Environment variables
 const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME!;
@@ -31,6 +32,11 @@ export interface Tenant {
   metadata?: Record<string, any>;
   accountId: string;
   roleArn: string;
+  useCaseConfiguration?: {
+    hiddenUseCases: HiddenUseCases;
+    updatedAt: string;
+    updatedBy: string;
+  };
 }
 
 // Request interfaces
@@ -200,4 +206,26 @@ export async function deactivateTenant(tenantId: string): Promise<Tenant> {
     tenantId,
     status: TenantStatus.INACTIVE,
   });
+}
+
+/**
+ * Get tenant use case configuration with fallback to global configuration
+ */
+export async function getTenantUseCaseConfiguration(
+  tenantId: string,
+  globalHiddenUseCases: HiddenUseCases = {}
+): Promise<HiddenUseCases> {
+  try {
+    const tenant = await getTenant(tenantId);
+
+    // Return tenant-specific configuration if it exists, otherwise return global configuration
+    return tenant?.useCaseConfiguration?.hiddenUseCases ?? globalHiddenUseCases;
+  } catch (error) {
+    console.error(
+      `Failed to get use case configuration for tenant ${tenantId}:`,
+      error
+    );
+    // Return global configuration as fallback on error
+    return globalHiddenUseCases;
+  }
 }
