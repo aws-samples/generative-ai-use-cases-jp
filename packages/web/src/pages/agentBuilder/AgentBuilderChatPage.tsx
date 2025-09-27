@@ -78,7 +78,7 @@ const AgentBuilderChatPage: React.FC = () => {
       layout="fullscreen"
       showHeader={true}
       showAgentInfo={true}
-      showEditButton={true}
+      showEditButton={agent.isMyAgent} // Only show edit button if user owns the agent
       onEdit={handleEdit}
       onBack={handleBack}
     />
