@@ -4,11 +4,8 @@ import {
   PolicyStatement,
   Role,
   ServicePrincipal,
-  ManagedPolicy,
 } from 'aws-cdk-lib/aws-iam';
-import { CustomResource, Duration, Stack, RemovalPolicy } from 'aws-cdk-lib';
-import { Provider } from 'aws-cdk-lib/custom-resources';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Stack, RemovalPolicy } from 'aws-cdk-lib';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { DockerImageAsset, Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import {
@@ -16,9 +13,12 @@ import {
   BlockPublicAccess,
   BucketEncryption,
 } from 'aws-cdk-lib/aws-s3';
+import {
+  CfnRuntime,
+  CfnRuntimeEndpoint,
+} from 'aws-cdk-lib/aws-bedrockagentcore';
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
-import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 import {
   loadMCPConfig,
   extractSafeMCPConfig,
@@ -40,15 +40,14 @@ export interface GenericAgentCoreProps {
   env: string;
 }
 
-// UUID for Agent Core Runtime
-const AGENT_CORE_RUNTIME_UUID = 'B8F5E892-3A1C-4D2F-9B7E-6C8A5F9D2E1B';
-
 export class GenericAgentCore extends Construct {
   private _deployedGenericRuntimeArn?: string;
   private _ecrRepository?: Repository;
   private _imageUri?: string;
   private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
   private readonly _fileBucket: Bucket;
+  private _agentCoreRuntime?: CfnRuntime;
+  private _runtimeEndpoint?: CfnRuntimeEndpoint;
 
   constructor(scope: Construct, id: string, props: GenericAgentCoreProps) {
     super(scope, id);
@@ -89,26 +88,31 @@ export class GenericAgentCore extends Construct {
   }
 
   /**
-   * Deploy the generic AgentCore Runtime
+   * Deploy the generic AgentCore Runtime using L1 CDK Construct
    */
   private deployGenericRuntime(): { repository: Repository; imageUri: string } {
     const dockerImageAsset = this.createDockerImageAsset();
-    const { customResourceRole, agentCoreRuntimeRole } = this.createIamRoles();
-    const customResourceProvider =
-      this.createCustomResourceProvider(customResourceRole);
+    const agentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
 
-    const customResource = this.createAgentCoreRuntime(
-      'GenericAgentCoreRuntime',
-      this.genericRuntimeConfig,
-      agentCoreRuntimeRole,
-      customResourceProvider,
-      dockerImageAsset.imageUri
-    );
+    // Create AgentCore Runtime using L1 CDK Construct
+    this._agentCoreRuntime = new CfnRuntime(this, 'GenericAgentCoreRuntimeL1', {
+      agentRuntimeName: this.genericRuntimeConfig.name,
+      agentRuntimeArtifact: {
+        containerConfiguration: {
+          containerUri: dockerImageAsset.imageUri,
+        },
+      },
+      roleArn: agentCoreRuntimeRole.roleArn,
+      networkConfiguration: {
+        networkMode: this.genericRuntimeConfig.networkMode || 'PUBLIC',
+      },
+      protocolConfiguration: this.genericRuntimeConfig.serverProtocol || 'HTTP',
+      environmentVariables: this.genericRuntimeConfig.environmentVariables,
+    });
 
-    // Get the actual runtime ARN and ID from CustomResource response
-    this._deployedGenericRuntimeArn = customResource.getAttString(
-      'AgentCoreRuntimeArn'
-    );
+    // Set the deployed runtime ARN
+    this._deployedGenericRuntimeArn =
+      this._agentCoreRuntime.attrAgentRuntimeArn;
 
     return dockerImageAsset;
   }
@@ -147,58 +151,6 @@ export class GenericAgentCore extends Construct {
   }
 
   /**
-   * Create IAM roles for AgentCore operations
-   */
-  private createIamRoles(): {
-    customResourceRole: Role;
-    agentCoreRuntimeRole: Role;
-  } {
-    const customResourceRole = this.createCustomResourceRole();
-    const agentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
-
-    return { customResourceRole, agentCoreRuntimeRole };
-  }
-
-  /**
-   * Create IAM role for Custom Resource operations
-   */
-  private createCustomResourceRole(): Role {
-    const role = new Role(this, 'AgentCoreCustomResourceRole', {
-      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSLambdaBasicExecutionRole'
-        ),
-      ],
-    });
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'BedrockAgentCorePermissions',
-        effect: Effect.ALLOW,
-        actions: ['bedrock-agentcore:*'],
-        resources: ['*'],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        sid: 'IAMPassRolePermissions',
-        effect: Effect.ALLOW,
-        actions: ['iam:PassRole'],
-        resources: ['*'],
-        conditions: {
-          StringEquals: {
-            'iam:PassedToService': 'bedrock-agentcore.amazonaws.com',
-          },
-        },
-      })
-    );
-
-    return role;
-  }
-
-  /**
    * Create IAM role for AgentCore Runtime execution with comprehensive permissions
    */
   private createAgentCoreRuntimeRole(): Role {
@@ -213,37 +165,34 @@ export class GenericAgentCore extends Construct {
           },
         },
       }),
-      managedPolicies: [
-        ManagedPolicy.fromAwsManagedPolicyName(
-          'service-role/AWSLambdaBasicExecutionRole'
-        ),
-      ],
     });
 
-    // Bedrock
+    const region = Stack.of(this).region;
+    const accountId = Stack.of(this).account;
 
+    // Bedrock Model Invocation
     role.addToPolicy(
       new PolicyStatement({
-        sid: 'BedrockPermissions',
+        sid: 'BedrockModelInvocation',
         effect: Effect.ALLOW,
         actions: [
           'bedrock:InvokeModel',
           'bedrock:InvokeModelWithResponseStream',
         ],
-        resources: ['*'],
+        resources: [
+          'arn:aws:bedrock:*::foundation-model/*',
+          `arn:aws:bedrock:${region}:${accountId}:*`,
+        ],
       })
     );
 
-    // ECR
-
+    // ECR Access
     role.addToPolicy(
       new PolicyStatement({
         sid: 'ECRImageAccess',
         effect: Effect.ALLOW,
         actions: ['ecr:BatchGetImage', 'ecr:GetDownloadUrlForLayer'],
-        resources: [
-          `arn:aws:ecr:${Stack.of(this).region}:${Stack.of(this).account}:repository/*`,
-        ],
+        resources: [`arn:aws:ecr:${region}:${accountId}:repository/*`],
       })
     );
 
@@ -256,24 +205,13 @@ export class GenericAgentCore extends Construct {
       })
     );
 
-    // Logging
-
-    const logGroupArn = `arn:aws:logs:${Stack.of(this).region}:${Stack.of(this).account}:log-group:/aws/bedrock-agentcore/runtimes/*`;
-
+    // CloudWatch Logs
     role.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['logs:DescribeLogStreams', 'logs:CreateLogGroup'],
-        resources: [logGroupArn],
-      })
-    );
-
-    role.addToPolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['logs:DescribeLogGroups'],
         resources: [
-          `arn:aws:logs:${Stack.of(this).region}:${Stack.of(this).account}:log-group:*`,
+          `arn:aws:logs:${region}:${accountId}:log-group:/aws/bedrock-agentcore/runtimes/*`,
         ],
       })
     );
@@ -281,12 +219,22 @@ export class GenericAgentCore extends Construct {
     role.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
-        actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
-        resources: [`${logGroupArn}:log-stream:*`],
+        actions: ['logs:DescribeLogGroups'],
+        resources: [`arn:aws:logs:${region}:${accountId}:log-group:*`],
       })
     );
 
-    // Monitoring
+    role.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['logs:CreateLogStream', 'logs:PutLogEvents'],
+        resources: [
+          `arn:aws:logs:${region}:${accountId}:log-group:/aws/bedrock-agentcore/runtimes/*:log-stream:*`,
+        ],
+      })
+    );
+
+    // X-Ray Tracing
     role.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
@@ -300,6 +248,7 @@ export class GenericAgentCore extends Construct {
       })
     );
 
+    // CloudWatch Metrics
     role.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
@@ -313,8 +262,7 @@ export class GenericAgentCore extends Construct {
       })
     );
 
-    // Workload
-
+    // Workload Identity
     role.addToPolicy(
       new PolicyStatement({
         sid: 'GetAgentAccessToken',
@@ -325,18 +273,16 @@ export class GenericAgentCore extends Construct {
           'bedrock-agentcore:GetWorkloadAccessTokenForUserId',
         ],
         resources: [
-          `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:workload-identity-directory/default`,
-          `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:workload-identity-directory/default/workload-identity/*`,
+          `arn:aws:bedrock-agentcore:${region}:${accountId}:workload-identity-directory/default`,
+          `arn:aws:bedrock-agentcore:${region}:${accountId}:workload-identity-directory/default/workload-identity/*`,
         ],
       })
     );
 
-    // Tools
-
-    // S3 File Bucket Access (Write Only)
+    // S3 File Bucket Access
     this._fileBucket.grantWrite(role);
 
-    // CodeInterpreter
+    // CodeInterpreter Tools
     role.addToPolicy(
       new PolicyStatement({
         sid: 'Tools',
@@ -357,100 +303,6 @@ export class GenericAgentCore extends Construct {
     );
 
     return role;
-  }
-
-  /**
-   * Get or create a singleton NodejsFunction using unique ID pattern
-   */
-  private getOrCreateSingletonFunction(
-    uniqueId: string,
-    functionName: string,
-    entry: string,
-    role: Role
-  ): NodejsFunction {
-    const stack = Stack.of(this);
-    const singletonId = `Singleton-${uniqueId}`;
-
-    // Try to find existing function in the stack scope
-    const existingConstruct = stack.node.tryFindChild(singletonId);
-
-    if (existingConstruct && existingConstruct instanceof NodejsFunction) {
-      // Reuse existing function
-      return existingConstruct;
-    }
-
-    // Create new NodejsFunction
-    return new NodejsFunction(stack, singletonId, {
-      functionName: `${functionName}-${Stack.of(this).stackName}-${uniqueId.slice(0, 8)}`,
-      description: `${functionName} CustomResource Lambda Function (Singleton)`,
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry,
-      handler: 'handler',
-      timeout: Duration.minutes(10),
-      role,
-      environment: {
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      },
-      bundling: {
-        minify: false,
-        target: 'es2020',
-        nodeModules: ['@aws-sdk/client-bedrock-agentcore-control'],
-      },
-    });
-  }
-
-  /**
-   * Create Custom Resource provider with custom singleton logic
-   */
-  private createCustomResourceProvider(customResourceRole: Role): Provider {
-    const lambdaFunction = this.getOrCreateSingletonFunction(
-      AGENT_CORE_RUNTIME_UUID,
-      'AgentCoreRuntime',
-      path.join(
-        __dirname,
-        '../../custom-resources/agent-core-runtime/index.ts'
-      ),
-      customResourceRole
-    );
-
-    return new Provider(this, 'AgentCoreRuntimeProvider', {
-      onEventHandler: lambdaFunction,
-    });
-  }
-
-  /**
-   * Create individual AgentCore Runtime using Custom Resource
-   */
-  private createAgentCoreRuntime(
-    id: string,
-    config: AgentCoreRuntimeConfig,
-    agentCoreRuntimeRole: Role,
-    customResourceProvider: Provider,
-    imageUri: string
-  ): CustomResource {
-    if (!imageUri) {
-      throw new Error(
-        `AgentCore Runtime '${config.name}' requires imageUri to be provided`
-      );
-    }
-
-    const customConfig = { ...config.customRuntimeConfig };
-    customConfig.containerImageUri = imageUri;
-
-    if (config.environmentVariables) {
-      customConfig.environmentVariables = config.environmentVariables;
-    }
-
-    return new CustomResource(this, id, {
-      serviceToken: customResourceProvider.serviceToken,
-      properties: {
-        AgentCoreRuntimeName: config.name,
-        RoleArn: agentCoreRuntimeRole.roleArn,
-        NetworkMode: config.networkMode || 'PUBLIC',
-        ServerProtocol: config.serverProtocol || 'HTTP',
-        CustomConfig: customConfig,
-      },
-    });
   }
 
   /**
