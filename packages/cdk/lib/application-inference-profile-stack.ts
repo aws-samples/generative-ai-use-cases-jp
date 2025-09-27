@@ -29,7 +29,8 @@ export class ApplicationInferenceProfileStack extends Stack {
           modelId.region === currentRegion &&
           !modelId.modelId.startsWith('us.') &&
           !modelId.modelId.startsWith('apac.') &&
-          !modelId.modelId.startsWith('eu.')
+          !modelId.modelId.startsWith('eu.') &&
+          !modelId.modelId.startsWith('global')
         ) {
           const inferenceProfileNamePrefix = modelId.modelId
             .replace(/\./g, '-')

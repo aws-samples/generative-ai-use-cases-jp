@@ -3,11 +3,12 @@
 import json
 import logging
 import traceback
+
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
+
 from src.agent import AgentManager
-from src.utils import create_ws_directory, clean_ws_directory, create_error_response
-from src.types import AgentCoreRequest
+from src.utils import clean_ws_directory, create_error_response, create_ws_directory
 
 # Configure root logger
 logging.basicConfig(
@@ -69,7 +70,7 @@ async def invocations(request: Request):
         agent_session_id = request_data.get("session_id")
         agent_id = request_data.get("agent_id")
         code_execution_enabled = request_data.get("code_execution_enabled", False)
-        
+
         # Validate required fields
         if not model_info:
             return create_error_response("Model information is required")
@@ -105,4 +106,5 @@ async def invocations(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8080, log_level="warning", access_log=False)

@@ -1,0 +1,56 @@
+# This workflow will install Python dependencies and run linting checks
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: ['main']
+    paths: ['packages/cdk/lambda-python/**']
+  pull_request:
+    branches: ['main']
+    paths: ['packages/cdk/lambda-python/**']
+
+jobs:
+  lint:
+    name: 'Python Lint Check'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: 'latest'
+
+      - name: Install dependencies
+        working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
+        run: uv sync --group=lint
+
+      - name: Run ruff check
+        working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
+        run: uv run ruff check --fix .
+
+      - name: Run ruff format
+        working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
+        run: uv run ruff format .
+
+      - name: Check for changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Linting changes detected. Please run 'uv run ruff check --fix .' and 'uv run ruff format .' locally and commit the changes."
+            git diff
+            exit 1
+          fi

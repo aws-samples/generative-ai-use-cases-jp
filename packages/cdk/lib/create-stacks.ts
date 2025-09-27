@@ -86,6 +86,9 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     inferenceProfileStacks
   );
 
+  // GenU Stack
+  const isSageMakerStudio = 'SAGEMAKER_APP_TYPE_LOWERCASE' in process.env;
+
   let closedNetworkStack: ClosedNetworkStack | undefined = undefined;
 
   if (params.closedNetworkMode) {
@@ -98,6 +101,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
           region: params.region,
         },
         params,
+        isSageMakerStudio,
       }
     );
   }
@@ -206,8 +210,6 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     videoBucketRegionMap[region] = videoTmpBucketStack.bucketName;
   }
 
-  // GenU Stack
-  const isSageMakerStudio = 'SAGEMAKER_APP_TYPE_LOWERCASE' in process.env;
   const generativeAiUseCasesStack = new GenerativeAiUseCasesStack(
     app,
     `GenerativeAiUseCasesStack${updatedParams.env}`,

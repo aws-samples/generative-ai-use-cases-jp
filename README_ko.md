@@ -1,3 +1,7 @@
+> [!NOTE]
+> 최신 정보는 [English](<(./README.md)>)를 확인해주세요.
+> Please check the latest information in [English](<(./README.md)>).
+
 <div markdown="1" align="center">
   <h1>Generative AI Use Cases (GenU)</h1>
 
@@ -19,7 +23,7 @@
 
 ## GenU 사용 패턴
 
-여기서는 사용 패턴별로 GenU의 기능과 옵션을 소개합니다. 포괄적인 배포 옵션은 [이 문서](docs/en/DEPLOY_OPTION.md)를 참조하세요.
+여기서는 사용 패턴별로 GenU의 기능과 옵션을 소개합니다. 포괄적인 배포 옵션은 [이 문서](docs/ko/DEPLOY_OPTION.md)를 참조하세요.
 
 > [!TIP]
 > 사용 패턴을 클릭하면 세부 정보를 볼 수 있습니다
@@ -27,7 +31,7 @@
 <details markdown="1">
   <summary><strong><ins>생성형 AI 사용 사례를 경험하고 싶습니다</ins></strong></summary>
 
-GenU는 생성형 AI를 활용한 다양한 표준 사용 사례를 제공합니다. 이러한 사용 사례는 비즈니스 운영에서 생성형 AI를 활용하는 방법에 대한 아이디어의 씨앗 역할을 하거나, 그대로 비즈니스에 직접 적용할 수 있습니다. 앞으로도 더욱 정교한 사용 사례를 지속적으로 추가할 예정입니다. 불필요한 경우 옵션으로 [특정 사용 사례를 숨길](docs/en/DEPLOY_OPTION.md#hiding-specific-use-cases) 수도 있습니다. 다음은 기본적으로 제공되는 사용 사례입니다.
+GenU는 생성형 AI를 활용한 다양한 표준 사용 사례를 제공합니다. 이러한 사용 사례는 비즈니스 운영에서 생성형 AI를 활용하는 방법에 대한 아이디어의 씨앗 역할을 하거나, 그대로 비즈니스에 직접 적용할 수 있습니다. 앞으로도 더욱 정교한 사용 사례를 지속적으로 추가할 예정입니다. 불필요한 경우 옵션으로 [특정 사용 사례를 숨길](docs/ko/DEPLOY_OPTION.md#hiding-specific-use-cases) 수도 있습니다. 다음은 기본적으로 제공되는 사용 사례입니다.
 
   <br/>
   <br/>
@@ -52,8 +56,8 @@ GenU는 생성형 AI를 활용한 다양한 표준 사용 사례를 제공합니
         <td>LLM은 대량의 텍스트를 요약하는 데 뛰어납니다. 단순한 요약을 넘어서, 텍스트를 맥락으로 제공한 후 대화형 형식으로 필요한 정보를 추출할 수도 있습니다. 예를 들어, 계약서를 읽은 후 "XXX의 조건은 무엇인가요?" 또는 "YYY의 금액은 얼마인가요?"와 같은 질문을 할 수 있습니다.</td>
       </tr>
       <tr>
-        <td>회의록</td>
-        <td>오디오 녹음이나 실시간 전사에서 회의록을 자동으로 생성합니다. 프롬프트 엔지니어링 없이도 전사, 신문, FAQ 스타일 중에서 선택할 수 있습니다.</td>
+        <td>회의록 생성</td>
+        <td>오디오 녹음이나 실시간 전사에서 회의록을 자동으로 생성합니다. 프롬프트 엔지니어링 없이도 원문에 가까운 전사, 신문 기사, FAQ 형식 중에서 선택할 수 있습니다.</td>
       </tr>
       <tr>
         <td>글쓰기</td>
@@ -99,32 +103,34 @@ RAG는 LLM이 일반적으로 어려워하는 외부의 최신 정보나 도메�
 RAG는 또한 증거에 기반한 답변만을 허용함으로써 LLM이 "그럴듯하지만 잘못된 정보"를 제공하는 것을 방지하는 효과가 있습니다.
 
 GenU는 RAG Chat 사용 사례를 제공합니다.
-RAG Chat에는 두 가지 유형의 정보 소스를 사용할 수 있습니다: [Amazon Kendra](docs/en/DEPLOY_OPTION.md)와 [Knowledge Base](docs/en/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case).
-Amazon Kendra를 사용할 때는 [수동으로 생성된 S3 버킷이나 Kendra 인덱스를 그대로 사용](docs/en/DEPLOY_OPTION.md#using-an-existing-amazon-kendra-index)할 수 있습니다.
-Knowledge Base를 사용할 때는 [고급 파싱](docs/en/DEPLOY_OPTION.md#enabling-advanced-parsing), [청크 전략 선택](docs/en/DEPLOY_OPTION.md#changing-chunking-strategy), [쿼리 분해](docs/en/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case), [재순위](docs/en/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case)와 같은 고급 RAG 기능을 사용할 수 있습니다.
-Knowledge Base는 또한 [메타데이터 필터 설정](docs/en/DEPLOY_OPTION.md#metadata-filter-configuration)을 허용합니다.
+RAG Chat에는 두 가지 유형의 정보 소스를 사용할 수 있습니다: [Amazon Kendra](docs/ko/DEPLOY_OPTION.md)와 [Knowledge Base](docs/ko/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case).
+Amazon Kendra를 사용할 때는 [수동으로 생성된 S3 버킷이나 Kendra 인덱스를 그대로 사용](docs/ko/DEPLOY_OPTION.md#using-an-existing-amazon-kendra-index)할 수 있습니다.
+Knowledge Base를 사용할 때는 [고급 파싱](docs/ko/DEPLOY_OPTION.md#enabling-advanced-parsing), [청크 전략 선택](docs/ko/DEPLOY_OPTION.md#changing-chunking-strategy), [쿼리 분해](docs/ko/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case), [재순위](docs/ko/DEPLOY_OPTION.md#enabling-rag-chat-knowledge-base-use-case)와 같은 고급 RAG 기능을 사용할 수 있습니다.
+Knowledge Base는 또한 [메타데이터 필터 설정](docs/ko/DEPLOY_OPTION.md#metadata-filter-configuration)을 허용합니다.
 예를 들어, "조직별로 접근 가능한 데이터 소스 전환" 또는 "사용자가 UI에서 필터를 설정할 수 있도록 허용"과 같은 요구사항을 충족할 수 있습니다.
 
-또한 [MCP 채팅을 활성화](docs/en/DEPLOY_OPTION.md#enabling-mcp-chat-use-case)하고 외부 서비스의 MCP 서버를 [packages/cdk/mcp-api/mcp.json](/packages/cdk/mcp-api/mcp.json)에 추가하여 AWS 외부의 데이터를 참조하는 RAG를 구축할 수 있습니다.
+또한 [MCP 채팅을 활성화](docs/ko/DEPLOY_OPTION.md#enabling-mcp-chat-use-case)하고 외부 서비스의 MCP 서버를 [packages/cdk/mcp-api/mcp.json](/packages/cdk/mcp-api/mcp.json)에 추가하여 AWS 외부의 데이터를 참조하는 RAG를 구축할 수 있습니다.
 
 </details>
 
 <details markdown="1">
-  <summary><strong><ins>조직 내에서 사용자 정의 Bedrock Agents 또는 Bedrock Flows를 사용하고 싶습니다</ins></strong></summary>
+  <summary><strong><ins>조직 내에서 사용자 정의 Bedrock Agents 또는 AgentCore 또는 Bedrock Flows를 사용하고 싶습니다</ins></strong></summary>
 
-GenU에서 [에이전트를 활성화](docs/en/DEPLOY_OPTION.md#enabling-agent-chat-use-case)하면 웹 검색 에이전트와 코드 인터프리터 에이전트가 생성됩니다.
+GenU에서 [에이전트를 활성화](docs/ko/DEPLOY_OPTION.md#enabling-agent-chat-use-case)하면 웹 검색 에이전트와 코드 인터프리터 에이전트가 생성됩니다.
 웹 검색 에이전트는 사용자 질문에 답하기 위해 웹에서 정보를 검색합니다. 예를 들어, "AWS GenU란 무엇인가요?"에 답할 수 있습니다.
 코드 인터프리터 에이전트는 사용자 요청에 응답하기 위해 코드를 실행할 수 있습니다. 예를 들어, "더미 데이터로 산점도를 그려주세요"와 같은 요청에 응답할 수 있습니다.
 
 웹 검색 에이전트와 코드 인터프리터 에이전트는 기본적인 에이전트이지만, 비즈니스 요구에 맞춘 더 실용적인 에이전트를 사용하고 싶을 수 있습니다.
-GenU는 수동으로 생성했거나 다른 자산으로 생성한 [에이전트를 가져오는](docs/en/DEPLOY_OPTION.md#adding-manually-created-agents) 기능을 제공합니다.
+GenU는 수동으로 생성했거나 다른 자산으로 생성한 [에이전트를 가져오는](docs/ko/DEPLOY_OPTION.md#adding-manually-created-agents) 기능을 제공합니다.
 
-GenU를 에이전트 활용 플랫폼으로 사용하면 GenU의 [풍부한 보안 옵션](docs/en/DEPLOY_OPTION.md#security-related-settings)과 [SAML 인증](docs/en/DEPLOY_OPTION.md#saml-authentication)을 활용하여 조직 내에 실용적인 에이전트를 확산시킬 수 있습니다.
-또한 [불필요한 표준 사용 사례를 숨기거나](docs/en/DEPLOY_OPTION.md#hiding-specific-use-cases) [에이전트를 인라인으로 표시](docs/en/DEPLOY_OPTION.md#displaying-agents-inline)하여 GenU를 더 에이전트 중심의 플랫폼으로 사용할 수 있습니다.
+GenU를 에이전트 활용 플랫폼으로 사용하면 GenU의 [풍부한 보안 옵션](docs/ko/DEPLOY_OPTION.md#security-related-settings)과 [SAML 인증](docs/ko/DEPLOY_OPTION.md#saml-authentication)을 활용하여 조직 내에 실용적인 에이전트를 확산시킬 수 있습니다.
+또한 [불필요한 표준 사용 사례를 숨기거나](docs/ko/DEPLOY_OPTION.md#hiding-specific-use-cases) [에이전트를 인라인으로 표시](docs/ko/DEPLOY_OPTION.md#displaying-agents-inline)하여 GenU를 더 에이전트 중심의 플랫폼으로 사용할 수 있습니다.
 
-마찬가지로 Bedrock Flows에 대한 [가져오기 기능](docs/en/DEPLOY_OPTION.md#enabling-flow-chat-use-case)이 있으므로 활용해 주세요.
+AgentCore Runtime에 대해서도 마찬가지로 [가져오기 기능](docs/ko/DEPLOY_OPTION.md#enabling-agentcore-use-cases)이 있으므로 활용해 주세요.
 
-또한 [MCP 채팅을 활성화](docs/en/DEPLOY_OPTION.md#enabling-mcp-chat-use-case)하고 외부 MCP 서버를 [packages/cdk/mcp-api/mcp.json](/packages/cdk/mcp-api/mcp.json)에 추가하여 AWS 외부 서비스에서 작업을 수행하는 에이전트를 생성할 수 있습니다.
+마찬가지로 Bedrock Flows에 대한 [가져오기 기능](docs/ko/DEPLOY_OPTION.md#enabling-flow-chat-use-case)이 있으므로 활용해 주세요.
+
+또한 [MCP 채팅을 활성화](docs/ko/DEPLOY_OPTION.md#enabling-mcp-chat-use-case)하고 외부 MCP 서버를 [packages/cdk/mcp-api/mcp.json](/packages/cdk/mcp-api/mcp.json)에 추가하여 AWS 외부 서비스에서 작업을 수행하는 에이전트를 생성할 수 있습니다.
 
 </details>
 
@@ -134,7 +140,7 @@ GenU를 에이전트 활용 플랫폼으로 사용하면 GenU의 [풍부한 보�
 GenU는 자연어로 프롬프트 템플릿을 설명하여 사용자 정의 사용 사례를 생성할 수 있는 "Use Case Builder"라는 기능을 제공합니다.
 프롬프트 템플릿만으로 사용자 정의 사용 사례 화면이 자동으로 생성되므로 GenU 자체에 대한 코드 변경이 필요하지 않습니다.
 생성된 사용 사례는 개인용이 아닌 애플리케이션에 로그인할 수 있는 모든 사용자와 공유할 수 있습니다.
-Use Case Builder는 필요하지 않은 경우 [비활성화](docs/en/DEPLOY_OPTION.md#use-case-builder-configuration)할 수 있습니다.
+Use Case Builder는 필요하지 않은 경우 [비활성화](docs/ko/DEPLOY_OPTION.md#use-case-builder-configuration)할 수 있습니다.
 사용 사례는 .json 파일로 내보내어 제3자와 공유할 수도 있습니다. 사용 사례를 공유할 때는 프롬프트나 사용 예제에 기밀 정보가 포함되지 않도록 주의하세요. 제3자가 공유한 사용 사례는 새 사용 사례 생성 화면에서 .json 파일을 업로드하여 가져올 수 있습니다.
 Use Case Builder에 대한 자세한 내용은 <a href="https://aws.amazon.com/jp/blogs/news/genu-use-cases-builder/">이 블로그</a>를 확인하세요.
 <br/>
@@ -158,7 +164,7 @@ GenU는 OSS이므로 자체 사용 사례를 추가하도록 사용자 정의할
 
 GenU 배포는 [AWS Cloud Development Kit](https://aws.amazon.com/jp/cdk/) (CDK)를 사용합니다. CDK 실행 환경을 준비할 수 없는 경우 다음 배포 방법을 참조하세요:
 
-- [AWS CloudShell을 사용한 배포 방법 (자체 환경 준비가 어려운 경우)](docs/en/DEPLOY_ON_CLOUDSHELL.md)
+- [AWS CloudShell을 사용한 배포 방법 (자체 환경 준비가 어려운 경우)](docs/ko/DEPLOY_ON_CLOUDSHELL.md)
 - 워크샵 ([영어](https://catalog.workshops.aws/generative-ai-use-cases) / [일본어](https://catalog.workshops.aws/generative-ai-use-cases-jp))
 
 먼저 다음 명령을 실행하세요. 모든 명령은 저장소 루트에서 실행해야 합니다.
@@ -189,12 +195,12 @@ npm run cdk:deploy:quick
 
 ## 기타 정보
 
-- [배포 옵션](docs/en/DEPLOY_OPTION.md)
-- [업데이트 방법](docs/en/UPDATE.md)
-- [로컬 개발 환경 설정](docs/en/DEVELOPMENT.md)
-- [리소스 삭제 방법](docs/en/DESTROY.md)
-- [네이티브 앱으로 사용하는 방법](docs/en/PWA.md)
-- [브라우저 확장 프로그램 사용](docs/en/EXTENSION.md)
+- [배포 옵션](docs/ko/DEPLOY_OPTION.md)
+- [업데이트 방법](docs/ko/UPDATE.md)
+- [로컬 개발 환경 설정](docs/ko/DEVELOPMENT.md)
+- [리소스 삭제 방법](docs/ko/DESTROY.md)
+- [네이티브 앱으로 사용하는 방법](docs/ko/PWA.md)
+- [브라우저 확장 프로그램 사용](docs/ko/EXTENSION.md)
 
 ## 비용 추정
 

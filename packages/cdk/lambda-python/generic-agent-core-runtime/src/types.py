@@ -1,8 +1,9 @@
 """Data models for the agent core runtime."""
 
-from strands.types.content import Message
+from typing import Any
+
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional, Union
+from strands.types.content import Message
 
 
 class ModelInfo(BaseModel):
@@ -11,12 +12,11 @@ class ModelInfo(BaseModel):
 
 
 class AgentCoreRequest(BaseModel):
-    """Request model for AgentCore Runtime."""
-    messages: Union[List[Message], List[Dict[str, Any]]] = []
-    system_prompt: Optional[str] = None
-    prompt: Union[str, List[Dict[str, Any]]] = ""
+    messages: list[Message] | list[dict[str, Any]] = []
+    system_prompt: str | None = None
+    prompt: str | list[dict[str, Any]] = ""
     model: ModelInfo = {}
-    user_id: Optional[str] = None  # User identification for MCP isolation
-    mcp_servers: Optional[List[str]] = None  # MCP server names from mcp.json
-    session_id: Optional[str] = None  # Session identifier
-    agent_id: Optional[str] = None  # Agent identifier for logging and tracking
+    user_id: str | None = None  # User identification for MCP isolation
+    mcp_servers: list[str] | None = None  # MCP server names from mcp.json
+    session_id: str | None = None  # Session identifier
+    agent_id: str | None = None  # Agent identifier for logging and tracking

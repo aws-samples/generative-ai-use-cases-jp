@@ -126,6 +126,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       vpc: props.vpc,
       securityGroups,
       apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
+      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
     });
 
     // WAF

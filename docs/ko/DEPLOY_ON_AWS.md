@@ -29,7 +29,7 @@ git clone https://github.com/aws-samples/generative-ai-use-cases
 cd generative-ai-use-cases/
 ```
 
-그런 다음 [generative-ai-use-cases의 README.md](/README.md#デプロイ)의 지침을 따릅니다. 아래는 실행할 명령만 나열한 것입니다.
+그런 다음 [generative-ai-use-cases의 README.md](/README.md#deployment)의 지침을 따릅니다. 아래는 실행할 명령만 나열한 것입니다.
 
 ```bash
 npm ci

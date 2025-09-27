@@ -20,6 +20,10 @@ Options related to closed network mode have the `closedNetwork` prefix. The foll
 | closedNetworkCreateTestEnvironment  | Whether to create a test environment. Created by default. Specify false if not needed. The test environment is created as an EC2 Windows instance and accessed via Fleet Manager. (Detailed procedures described later.)                               |
 | closedNetworkCreateResolverEndpoint | Whether to generate Route53 Resolver Endpoint. Default is true.                                                                                                                                                                                        |
 
+## Architecture
+
+![arch-closed-network.drawio.png](../assets/images/arch-closed-network.drawio.png)
+
 ## Current Limitations
 
 - Deployment must be performed in an environment with internet connectivity. Also, internet connectivity is required when accessing the operation verification environment from the management console.

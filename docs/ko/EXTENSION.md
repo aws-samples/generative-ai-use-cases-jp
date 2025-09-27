@@ -1,3 +1,3 @@
 {%
-    include-markdown "../../browser-extension/README.md"
+    include-markdown "../../browser-extension/README_ko.md"
 %}
