@@ -13,11 +13,14 @@ export type Model = {
   inferenceProfileArn?: string;
 };
 
-export type Agent = {
+export type AgentInfo = {
   displayName: string;
+  description: string;
+};
+
+export type Agent = AgentInfo & {
   agentId: string;
   aliasId: string;
-  description: string;
 };
 
 export type AgentMap = Record<string, { agentId: string; aliasId: string }>;

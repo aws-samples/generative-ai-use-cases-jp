@@ -1,4 +1,4 @@
-import { Model, ModelConfiguration, Agent } from 'generative-ai-use-cases';
+import { Model, ModelConfiguration, AgentInfo } from 'generative-ai-use-cases';
 import {
   CRI_PREFIX_PATTERN,
   modelMetadata,
@@ -88,11 +88,11 @@ const speechToSpeechModelIds: string[] = speechToSpeechModelConfigs.map(
 );
 
 // Try to get agents from new VITE_APP_AGENTS, fallback to old VITE_APP_AGENT_NAMES
-let agents: Agent[] = [];
+let agents: AgentInfo[] = [];
 let agentNames: string[] = [];
 
 try {
-  agents = JSON.parse(import.meta.env.VITE_APP_AGENTS || '[]') as Agent[];
+  agents = JSON.parse(import.meta.env.VITE_APP_AGENTS || '[]') as AgentInfo[];
   agentNames = agents.map((agent) => agent.displayName);
 } catch {
   // Fallback to old format for backward compatibility

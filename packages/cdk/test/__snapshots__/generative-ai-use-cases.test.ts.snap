@@ -4763,7 +4763,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:ef5cacaa28863082910eaf2a2b85d8d1065734a34b0ac2284d8444f397df8cee",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:93a0bc6401c8848c3174de19d2010ba5897f4c44ebd6dd72ac3d3b9364165d52",
             },
           },
         },
@@ -5003,7 +5003,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Value": "true",
     },
     "Agents": {
-      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJhZ2VudElkIjoiJHtUb2tlbltUT0tFTi41NDA0XX0iLCJhbGlhc0lkIjoiJHtUb2tlbltUT0tFTi41NDE0XX0iLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImFnZW50SWQiOiIke1Rva2VuW1RPS0VOLjU0MjBdfSIsImFsaWFzSWQiOiIke1Rva2VuW1RPS0VOLjU0MzBdfSIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
+      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
     },
     "ApiEndpoint": {
       "Value": {
@@ -18484,30 +18484,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
-          "VITE_APP_AGENTS": {
-            "Fn::Join": [
-              "",
-              [
-                "[{"displayName":"SearchEngine","agentId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgent3AF6EC6FAgentIdF3D3B4F6",
-                },
-                "","aliasId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgentAliasD59C2A47AgentAliasId0289A97F",
-                },
-                "","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","agentId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgent98889BFEAgentIdFAC9D557",
-                },
-                "","aliasId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgentAliasB6F54C31AgentAliasIdE516C748",
-                },
-                "","description":"Agent with Code Interpreter Functionality"}]",
-              ],
-            ],
-          },
+          "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {
@@ -26363,7 +26340,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:ef5cacaa28863082910eaf2a2b85d8d1065734a34b0ac2284d8444f397df8cee",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:93a0bc6401c8848c3174de19d2010ba5897f4c44ebd6dd72ac3d3b9364165d52",
             },
           },
         },
@@ -26603,7 +26580,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Value": "true",
     },
     "Agents": {
-      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJhZ2VudElkIjoiJHtUb2tlbltUT0tFTi4xNTA4XX0iLCJhbGlhc0lkIjoiJHtUb2tlbltUT0tFTi4xNTE4XX0iLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImFnZW50SWQiOiIke1Rva2VuW1RPS0VOLjE1MjRdfSIsImFsaWFzSWQiOiIke1Rva2VuW1RPS0VOLjE1MzRdfSIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
+      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
     },
     "ApiEndpoint": {
       "Value": {
@@ -39118,30 +39095,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
-          "VITE_APP_AGENTS": {
-            "Fn::Join": [
-              "",
-              [
-                "[{"displayName":"SearchEngine","agentId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgent3AF6EC6FAgentIdF3D3B4F6",
-                },
-                "","aliasId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgentAliasD59C2A47AgentAliasId0289A97F",
-                },
-                "","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","agentId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgent98889BFEAgentIdFAC9D557",
-                },
-                "","aliasId":"",
-                {
-                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgentAliasB6F54C31AgentAliasIdE516C748",
-                },
-                "","description":"Agent with Code Interpreter Functionality"}]",
-              ],
-            ],
-          },
+          "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {

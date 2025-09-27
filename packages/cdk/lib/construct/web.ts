@@ -21,7 +21,7 @@ import {
   Flow,
   HiddenUseCases,
   ModelConfiguration,
-  Agent,
+  AgentInfo,
 } from 'generative-ai-use-cases';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
@@ -47,7 +47,7 @@ export interface WebProps {
   readonly samlAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
-  readonly agents: Agent[];
+  readonly agents: AgentInfo[];
   readonly inlineAgents: boolean;
   readonly cert?: ICertificate;
   readonly hostName?: string | null;
