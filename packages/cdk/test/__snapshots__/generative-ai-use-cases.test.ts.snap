@@ -2553,7 +2553,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -3086,6 +3086,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -3449,6 +3450,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -3902,7 +3904,7 @@ Automatically detect the language of the user's request and think and answer in 
           ],
         },
         "AutoPrepare": true,
-        "Description": "Search Agent",
+        "Description": "Agent with Web Search Functionality",
         "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced assistant with the ability to search and retrieve information from the web to perform complex research tasks.
@@ -3960,7 +3962,7 @@ Automatically detect the language of the user's request and think and answer in 
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -4173,14 +4175,14 @@ Automatically detect the language of the user's request and think and answer in 
 exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
 {
   "Outputs": {
-    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F": {
+    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
       "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7",
-          "AgentCoreRuntimeArn",
+          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "AgentRuntimeArn",
         ],
       },
     },
@@ -4198,8 +4200,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7",
-          "AgentCoreRuntimeArn",
+          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "AgentRuntimeArn",
         ],
       },
     },
@@ -4273,70 +4275,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "bedrock-agentcore:*",
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "BedrockAgentCorePermissions",
-            },
-            {
-              "Action": "iam:PassRole",
-              "Condition": {
-                "StringEquals": {
-                  "iam:PassedToService": "bedrock-agentcore.amazonaws.com",
-                },
-              },
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "IAMPassRolePermissions",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE",
-        "Roles": [
-          {
-            "Ref": "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "GenericAgentCoreAgentCoreFileBucket0430DA42": {
       "DeletionPolicy": "Delete",
@@ -4437,126 +4375,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventC9CCB51A": {
-      "DependsOn": [
-        "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2",
-        "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (AgentCoreStack/GenericAgentCore/AgentCoreRuntimeProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "Handler": "framework.onEvent",
-        "LoggingConfig": {
-          "ApplicationLogLevel": "FATAL",
-          "LogFormat": "JSON",
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "lambda:InvokeFunction",
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": "lambda:GetFunction",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2",
-        "Roles": [
-          {
-            "Ref": "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "GenericAgentCoreAgentCoreRuntimeRepository6901D0DC": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -4578,8 +4396,11 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
                 "bedrock:InvokeModelWithResponseStream",
               ],
               "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "BedrockPermissions",
+              "Resource": [
+                "arn:aws:bedrock:*::foundation-model/*",
+                "arn:aws:bedrock:us-east-1:123456890123:*",
+              ],
+              "Sid": "BedrockModelInvocation",
             },
             {
               "Action": [
@@ -4734,85 +4555,38 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7": {
-      "DeletionPolicy": "Delete",
+    "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
       "Properties": {
-        "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
-        "CustomConfig": {
-          "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:fb512f99465e5b1c77271c13b48bd585132ba261918026874eeb804a8c651e95",
-          },
-          "environmentVariables": {
-            "FILE_BUCKET": {
-              "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:09e9d19644ea05d6248b1c6513fd48e41f6ab6b39e6ebbeab4b80d8e5c686c83",
             },
-            "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
-            "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
           },
         },
-        "NetworkMode": "PUBLIC",
+        "AgentRuntimeName": "GenericAgentCoreRuntime",
+        "EnvironmentVariables": {
+          "FILE_BUCKET": {
+            "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+          },
+          "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=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"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+        },
+        "NetworkConfiguration": {
+          "NetworkMode": "PUBLIC",
+        },
+        "ProtocolConfiguration": "HTTP",
         "RoleArn": {
           "Fn::GetAtt": [
             "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
             "Arn",
           ],
         },
-        "ServerProtocol": "HTTP",
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventC9CCB51A",
-            "Arn",
-          ],
-        },
       },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805": {
-      "DependsOn": [
-        "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE",
-        "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "AgentCoreRuntime CustomResource Lambda Function (Singleton)",
-        "Environment": {
-          "Variables": {
-            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
-          },
-        },
-        "FunctionName": "AgentCoreRuntime-AgentCoreStack-B8F5E892",
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 600,
-      },
-      "Type": "AWS::Lambda::Function",
+      "Type": "AWS::BedrockAgentCore::Runtime",
     },
   },
   "Rules": {
@@ -5018,7 +4792,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           [
             "{"name":"GenericAgentCoreRuntime","arn":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
             ""}",
           ],
@@ -5028,8 +4802,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
     "AgentEnabled": {
       "Value": "true",
     },
-    "AgentNames": {
-      "Value": "WyJTZWFyY2hFbmdpbmUiLCJDb2RlSW50ZXJwcmV0ZXIiXQ==",
+    "Agents": {
+      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJhZ2VudElkIjoiJHtUb2tlbltUT0tFTi41MzczXX0iLCJhbGlhc0lkIjoiJHtUb2tlbltUT0tFTi41MzgzXX0iLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImFnZW50SWQiOiIke1Rva2VuW1RPS0VOLjUzODldfSIsImFsaWFzSWQiOiIke1Rva2VuW1RPS0VOLjUzOTldfSIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
     },
     "ApiEndpoint": {
       "Value": {
@@ -18451,7 +18225,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                   "",
                   [
                     {
-                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                     },
                     "*",
                   ],
@@ -18490,6 +18264,30 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
+          "VITE_APP_AGENTS": {
+            "Fn::Join": [
+              "",
+              [
+                "[{"displayName":"SearchEngine","agentId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgent3AF6EC6FAgentIdF3D3B4F6",
+                },
+                "","aliasId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgentAliasD59C2A47AgentAliasId0289A97F",
+                },
+                "","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","agentId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgent98889BFEAgentIdFAC9D557",
+                },
+                "","aliasId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgentAliasB6F54C31AgentAliasIdE516C748",
+                },
+                "","description":"Agent with Code Interpreter Functionality"}]",
+              ],
+            ],
+          },
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {
@@ -18498,14 +18296,13 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               [
                 "{"name":"GenericAgentCoreRuntime","arn":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },
-                ""}",
+                "","description":"Generic Agent Core Runtime for custom agents"}",
               ],
             ],
           },
           "VITE_APP_AGENT_ENABLED": "true",
-          "VITE_APP_AGENT_NAMES": "["SearchEngine","CodeInterpreter"]",
           "VITE_APP_API_ENDPOINT": {
             "Fn::Join": [
               "",
@@ -18731,6 +18528,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -19393,7 +19191,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -19550,7 +19348,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -20344,6 +20142,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -24380,7 +24179,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -24913,6 +24712,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -25276,6 +25076,7 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -25683,7 +25484,7 @@ Automatically detect the language of the user's request and think and answer in 
           ],
         },
         "AutoPrepare": true,
-        "Description": "Search Agent",
+        "Description": "Agent with Web Search Functionality",
         "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced assistant with the ability to search and retrieve information from the web to perform complex research tasks.
@@ -25741,7 +25542,7 @@ Automatically detect the language of the user's request and think and answer in 
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -25954,14 +25755,14 @@ Automatically detect the language of the user's request and think and answer in 
 exports[`GenerativeAiUseCases matches the snapshot 4`] = `
 {
   "Outputs": {
-    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F": {
+    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
       "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7",
-          "AgentCoreRuntimeArn",
+          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "AgentRuntimeArn",
         ],
       },
     },
@@ -25979,8 +25780,8 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7",
-          "AgentCoreRuntimeArn",
+          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "AgentRuntimeArn",
         ],
       },
     },
@@ -26054,70 +25855,6 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "bedrock-agentcore:*",
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "BedrockAgentCorePermissions",
-            },
-            {
-              "Action": "iam:PassRole",
-              "Condition": {
-                "StringEquals": {
-                  "iam:PassedToService": "bedrock-agentcore.amazonaws.com",
-                },
-              },
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "IAMPassRolePermissions",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE",
-        "Roles": [
-          {
-            "Ref": "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "GenericAgentCoreAgentCoreFileBucket0430DA42": {
       "DeletionPolicy": "Delete",
@@ -26218,126 +25955,6 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventC9CCB51A": {
-      "DependsOn": [
-        "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2",
-        "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "AWS CDK resource provider framework - onEvent (AgentCoreStack/GenericAgentCore/AgentCoreRuntimeProvider)",
-        "Environment": {
-          "Variables": {
-            "USER_ON_EVENT_FUNCTION_ARN": {
-              "Fn::GetAtt": [
-                "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                "Arn",
-              ],
-            },
-          },
-        },
-        "Handler": "framework.onEvent",
-        "LoggingConfig": {
-          "ApplicationLogLevel": "FATAL",
-          "LogFormat": "JSON",
-        },
-        "Role": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-    },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "lambda:InvokeFunction",
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                          "Arn",
-                        ],
-                      },
-                      ":*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": "lambda:GetFunction",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRoleDefaultPolicyBB9E52E2",
-        "Roles": [
-          {
-            "Ref": "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventServiceRole032FFAFA",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
     "GenericAgentCoreAgentCoreRuntimeRepository6901D0DC": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -26359,8 +25976,11 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
                 "bedrock:InvokeModelWithResponseStream",
               ],
               "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "BedrockPermissions",
+              "Resource": [
+                "arn:aws:bedrock:*::foundation-model/*",
+                "arn:aws:bedrock:us-east-1:123456890123:*",
+              ],
+              "Sid": "BedrockModelInvocation",
             },
             {
               "Action": [
@@ -26515,85 +26135,38 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7": {
-      "DeletionPolicy": "Delete",
+    "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
       "Properties": {
-        "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
-        "CustomConfig": {
-          "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:fb512f99465e5b1c77271c13b48bd585132ba261918026874eeb804a8c651e95",
-          },
-          "environmentVariables": {
-            "FILE_BUCKET": {
-              "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:09e9d19644ea05d6248b1c6513fd48e41f6ab6b39e6ebbeab4b80d8e5c686c83",
             },
-            "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
-            "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
           },
         },
-        "NetworkMode": "PUBLIC",
+        "AgentRuntimeName": "GenericAgentCoreRuntime",
+        "EnvironmentVariables": {
+          "FILE_BUCKET": {
+            "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+          },
+          "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=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"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+        },
+        "NetworkConfiguration": {
+          "NetworkMode": "PUBLIC",
+        },
+        "ProtocolConfiguration": "HTTP",
         "RoleArn": {
           "Fn::GetAtt": [
             "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
             "Arn",
           ],
         },
-        "ServerProtocol": "HTTP",
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreRuntimeProviderframeworkonEventC9CCB51A",
-            "Arn",
-          ],
-        },
       },
-      "Type": "AWS::CloudFormation::CustomResource",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "SingletonB8F5E8923A1C4D2F9B7E6C8A5F9D2E1B1B378805": {
-      "DependsOn": [
-        "GenericAgentCoreAgentCoreCustomResourceRoleDefaultPolicy673FD2FE",
-        "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "AgentCoreRuntime CustomResource Lambda Function (Singleton)",
-        "Environment": {
-          "Variables": {
-            "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1",
-          },
-        },
-        "FunctionName": "AgentCoreRuntime-AgentCoreStack-B8F5E892",
-        "Handler": "index.handler",
-        "Role": {
-          "Fn::GetAtt": [
-            "GenericAgentCoreAgentCoreCustomResourceRoleBDED8F6B",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 600,
-      },
-      "Type": "AWS::Lambda::Function",
+      "Type": "AWS::BedrockAgentCore::Runtime",
     },
   },
   "Rules": {
@@ -26799,7 +26372,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           [
             "{"name":"GenericAgentCoreRuntime","arn":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
             ""}",
           ],
@@ -26809,8 +26382,8 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
     "AgentEnabled": {
       "Value": "true",
     },
-    "AgentNames": {
-      "Value": "WyJTZWFyY2hFbmdpbmUiLCJDb2RlSW50ZXJwcmV0ZXIiXQ==",
+    "Agents": {
+      "Value": "W3siZGlzcGxheU5hbWUiOiJTZWFyY2hFbmdpbmUiLCJhZ2VudElkIjoiJHtUb2tlbltUT0tFTi4xNTAxXX0iLCJhbGlhc0lkIjoiJHtUb2tlbltUT0tFTi4xNTExXX0iLCJkZXNjcmlwdGlvbiI6IkFnZW50IHdpdGggV2ViIFNlYXJjaCBGdW5jdGlvbmFsaXR5In0seyJkaXNwbGF5TmFtZSI6IkNvZGVJbnRlcnByZXRlciIsImFnZW50SWQiOiIke1Rva2VuW1RPS0VOLjE1MTddfSIsImFsaWFzSWQiOiIke1Rva2VuW1RPS0VOLjE1MjddfSIsImRlc2NyaXB0aW9uIjoiQWdlbnQgd2l0aCBDb2RlIEludGVycHJldGVyIEZ1bmN0aW9uYWxpdHkifV0=",
     },
     "ApiEndpoint": {
       "Value": {
@@ -39285,7 +38858,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                   "",
                   [
                     {
-                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                     },
                     "*",
                   ],
@@ -39324,6 +38897,30 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
+          "VITE_APP_AGENTS": {
+            "Fn::Join": [
+              "",
+              [
+                "[{"displayName":"SearchEngine","agentId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgent3AF6EC6FAgentIdF3D3B4F6",
+                },
+                "","aliasId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentSearchAgentAliasD59C2A47AgentAliasId0289A97F",
+                },
+                "","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","agentId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgent98889BFEAgentIdFAC9D557",
+                },
+                "","aliasId":"",
+                {
+                  "Fn::ImportValue": "WebSearchAgentStack:ExportsOutputFnGetAttAgentCodeInterpreterAgentAliasB6F54C31AgentAliasIdE516C748",
+                },
+                "","description":"Agent with Code Interpreter Functionality"}]",
+              ],
+            ],
+          },
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {
@@ -39332,14 +38929,13 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               [
                 "{"name":"GenericAgentCoreRuntime","arn":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeD3EBAAF7AgentCoreRuntimeArn010E372F",
+                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },
-                ""}",
+                "","description":"Generic Agent Core Runtime for custom agents"}",
               ],
             ],
           },
           "VITE_APP_AGENT_ENABLED": "true",
-          "VITE_APP_AGENT_NAMES": "["SearchEngine","CodeInterpreter"]",
           "VITE_APP_API_ENDPOINT": {
             "Fn::Join": [
               "",
@@ -39530,6 +39126,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
@@ -41125,7 +40722,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -41282,7 +40879,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "python3.11",
+        "Runtime": "python3.13",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -42072,6 +41669,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "SourceObjectKeys": [
           "HASH-REPLACED.zip",
         ],
+        "WaitForDistributionInvalidation": true,
       },
       "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
