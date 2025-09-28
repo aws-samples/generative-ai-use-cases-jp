@@ -30,7 +30,7 @@ const AgentBuilderListPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Local state for filters
-  const [currentFilter, setCurrentFilter] = useState<AgentFilter>('my');
+  const [currentFilter, setCurrentFilter] = useState<AgentFilter>('favorites');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);

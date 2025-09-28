@@ -349,14 +349,19 @@ const useAgentBuilderList = () => {
     },
 
     toggleFavorite: async (agentId: string) => {
-      // Find current favorite status
-      const agent = [...(myAgents ?? []), ...(publicAgents ?? [])].find(
-        (a) => a.agentId === agentId
-      );
+      // Find current favorite status from all loaded agents (including favorites)
+      const allLoadedAgents = [
+        ...(myAgents ?? []),
+        ...(publicAgents ?? []),
+        ...(favoriteAgents ?? []),
+      ];
 
-      if (!agent) return;
+      const agent = allLoadedAgents.find((a) => a.agentId === agentId);
 
-      const newFavoriteStatus = !agent.isFavorite;
+      // If agent not found in loaded data, we still allow the operation
+      // The backend will handle the actual toggle logic
+      const currentFavoriteStatus = agent?.isFavorite ?? false;
+      const newFavoriteStatus = !currentFavoriteStatus;
 
       // Optimistic update in my agents and public agents
       const updateFavoriteStatus = (
@@ -378,21 +383,28 @@ const useAgentBuilderList = () => {
       });
 
       // Handle favorites list
-      if (newFavoriteStatus) {
-        // Add to favorites
+      if (newFavoriteStatus && agent) {
+        // Add to favorites (only if we have agent data)
         mutateFavoriteAgents(
           favoriteAgentsRaw
             ? produce(favoriteAgentsRaw, (draft) => {
-                if (draft[0]) {
-                  draft[0].agents.unshift({ ...agent, isFavorite: true });
-                } else {
-                  // Create first page if it doesn't exist
-                  draft.push({
-                    agents: [{ ...agent, isFavorite: true }],
-                    nextToken: undefined,
-                    totalCount: 1,
-                    type: 'favorites',
-                  });
+                // Check if already exists to avoid duplicates
+                const exists = draft.some((page) =>
+                  page.agents.some((a) => a.agentId === agentId)
+                );
+
+                if (!exists) {
+                  if (draft[0]) {
+                    draft[0].agents.unshift({ ...agent, isFavorite: true });
+                  } else {
+                    // Create first page if it doesn't exist
+                    draft.push({
+                      agents: [{ ...agent, isFavorite: true }],
+                      nextToken: undefined,
+                      totalCount: 1,
+                      type: 'favorites',
+                    });
+                  }
                 }
               })
             : [
@@ -421,15 +433,23 @@ const useAgentBuilderList = () => {
       }
 
       try {
-        await api.toggleAgentFavorite(agentId);
+        const result = await api.toggleAgentFavorite(agentId);
+
+        // If the actual result differs from our optimistic update, revalidate
+        if (result.isFavorite !== newFavoriteStatus) {
+          mutateMyAgents();
+          mutateFavoriteAgents();
+          mutatePublicAgents();
+        }
+
+        return result;
       } catch (error) {
         toast.error(t('agent_builder.failed_to_toggle_favorite'));
-        throw error;
-      } finally {
-        // Revalidate all lists
+        // Revert optimistic updates on error
         mutateMyAgents();
         mutateFavoriteAgents();
         mutatePublicAgents();
+        throw error;
       }
     },
 

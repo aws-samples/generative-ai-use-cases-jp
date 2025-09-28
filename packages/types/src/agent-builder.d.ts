@@ -52,6 +52,7 @@ export type AgentInTable = AgentCommon &
 export type AgentAsOutput = AgentInTable & {
   isFavorite?: boolean;
   isMyAgent: boolean;
+  status?: 'available' | 'deleted' | 'private' | 'inaccessible';
 };
 
 // Agent Configuration for API responses

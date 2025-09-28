@@ -1,8 +1,44 @@
 /**
- * Agent Repository - Simplified version
+ * Agent Repository
+ *
+ * DynamoDB Key Design:
+ *
+ * 1. User Agent Records:
+ *    - PK: agent#{userId}
+ *    - SK: agent#{agentId}
+ *    - Purpose: Store user's own agents
+ *    - Access: Direct access by userId + agentId
+ *
+ * 2. Public Agent Records (Denormalized):
+ *    - PK: public-agents
+ *    - SK: public#{agentId}
+ *    - Purpose: Store public agents for discovery/marketplace
+ *    - Access: Query all public agents or get specific public agent
+ *    - Note: Contains full agent data with public-specific keys
+ *
+ * 3. Favorite Records:
+ *    - PK: agent#{userId}
+ *    - SK: favorite#{agentId}
+ *    - Purpose: Track user's favorite agents
+ *    - Access: Query user's favorites or check specific favorite
+ *    - Additional Fields: createdBy (for optimization), createdAt
+ *
+ * Key Benefits:
+ * - Single table design with efficient access patterns
+ * - BatchGetItem optimization for multiple record retrieval
+ * - Denormalized public records for fast marketplace queries
+ * - Favorite records with createdBy for direct agent access
+ *
+ * Access Patterns:
+ * 1. Get user's agents: Query PK=agent#{userId}, SK begins_with agent#
+ * 2. Get public agents: Query PK=public-agents, SK begins_with public#
+ * 3. Get user's favorites: Query PK=agent#{userId}, SK begins_with favorite#
+ * 4. Get specific agent: BatchGet user + public locations
+ * 5. Check favorite status: BatchGet favorite records for specific agents
  */
 
 import {
+  BatchGetCommand,
   DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
@@ -23,53 +59,45 @@ const TABLE_NAME: string = process.env.USECASE_TABLE_NAME!;
 const dynamoDb = new DynamoDBClient({});
 const dynamoDbDocument = DynamoDBDocumentClient.from(dynamoDb);
 
-// Get agent by agentId with userId context
+// Get agent by agentId with userId context (optimized with BatchGetItem)
 const findAgentByAgentId = async (
   agentId: string,
   userId: string
 ): Promise<AgentInTable | null> => {
-  // First, try user's own agent
-  const userAgentResult = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { id: `agent#${userId}`, dataType: `agent#${agentId}` },
+  // Use BatchGetItem to check both locations simultaneously
+  const result = await dynamoDbDocument.send(
+    new BatchGetCommand({
+      RequestItems: {
+        [TABLE_NAME]: {
+          Keys: [
+            { id: `agent#${userId}`, dataType: `agent#${agentId}` },
+            { id: 'public-agents', dataType: `public#${agentId}` },
+          ],
+        },
+      },
     })
   );
-  if (userAgentResult.Item) {
-    const item = userAgentResult.Item;
-    return {
-      ...item,
-      starCount: item.starCount || 0, // Default for backward compatibility
-    } as AgentInTable;
+
+  if (!result.Responses?.[TABLE_NAME]) {
+    return null;
   }
 
-  // If not found, try public agent (with full data)
-  const publicResult = await dynamoDbDocument.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { id: 'public-agents', dataType: `public#${agentId}` },
-    })
-  );
-  if (publicResult.Item) {
-    const record = publicResult.Item;
-    return {
-      id: `agent#${record.createdBy}`,
-      dataType: `agent#${record.agentId}`,
-      agentId: record.agentId,
-      name: record.name,
-      description: record.description,
-      systemPrompt: record.systemPrompt,
-      modelId: record.modelId,
-      mcpServers: record.mcpServers,
-      codeExecutionEnabled: record.codeExecutionEnabled,
-      tags: record.tags,
-      isPublic: record.isPublic,
-      starCount: record.starCount || 0,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
-      createdByEmail: record.createdByEmail,
-      createdBy: record.createdBy,
-    } as AgentInTable;
+  // Prioritize user's own agent over public agent
+  for (const item of result.Responses[TABLE_NAME]) {
+    if (item.id === `agent#${userId}`) {
+      return item as AgentInTable;
+    }
+  }
+
+  // If no user agent found, return public agent with key mapping
+  for (const item of result.Responses[TABLE_NAME]) {
+    if (item.id === 'public-agents') {
+      return {
+        ...item,
+        id: `agent#${item.createdBy}`,
+        dataType: `agent#${item.agentId}`,
+      } as AgentInTable;
+    }
   }
 
   return null;
@@ -79,7 +107,7 @@ const findAgentByAgentId = async (
 const findAgentsByUserId = async (
   userId: string,
   exclusiveStartKey?: string,
-  limit?: number
+  limit: number = 12
 ): Promise<{ agents: AgentInTable[]; lastEvaluatedKey?: string }> => {
   const startKey = exclusiveStartKey
     ? JSON.parse(Buffer.from(exclusiveStartKey, 'base64').toString())
@@ -99,15 +127,12 @@ const findAgentsByUserId = async (
         ':dataTypePrefix': 'agent#',
       },
       ScanIndexForward: true,
-      Limit: limit || 30,
+      Limit: Math.min(limit, 100),
       ExclusiveStartKey: startKey,
     })
   );
 
-  const agents = (result.Items || []).map((item) => ({
-    ...item,
-    starCount: item.starCount || 0, // Default for backward compatibility
-  })) as AgentInTable[];
+  const agents = (result.Items || []) as AgentInTable[];
 
   return {
     agents,
@@ -121,9 +146,9 @@ const findAgentsByUserId = async (
 const findFavoritesByUserId = async (
   userId: string,
   exclusiveStartKey?: string,
-  limit?: number
+  limit: number = 12
 ): Promise<{
-  favorites: Array<{ dataType: string; agentId: string }>;
+  favorites: Array<{ dataType: string; agentId: string; createdBy: string }>;
   lastEvaluatedKey?: string;
 }> => {
   const startKey = exclusiveStartKey
@@ -144,7 +169,7 @@ const findFavoritesByUserId = async (
         ':dataTypePrefix': 'favorite#',
       },
       ScanIndexForward: true,
-      Limit: limit || 20,
+      Limit: Math.min(limit, 100),
       ExclusiveStartKey: startKey,
     })
   );
@@ -152,6 +177,7 @@ const findFavoritesByUserId = async (
   const favorites = (result.Items || []).map((item) => ({
     dataType: item.dataType,
     agentId: item.dataType.replace('favorite#', ''),
+    createdBy: item.createdBy || '',
   }));
 
   return {
@@ -162,73 +188,53 @@ const findFavoritesByUserId = async (
   };
 };
 
-// Get agents by agentIds (optimized for favorites)
-const findAgentsByAgentIds = async (
-  agentIds: string[],
+// Get agents by favorites (optimized with single BatchGetItem)
+const findAgentsByFavorites = async (
+  favorites: Array<{ agentId: string; createdBy: string }>,
   userId: string
 ): Promise<AgentInTable[]> => {
-  if (agentIds.length === 0) return [];
+  if (favorites.length === 0) return [];
 
-  // Get user's own agents first
-  const { agents: userAgents } = await findAgentsByUserId(userId);
-  const userAgentMap = new Map(
-    userAgents.map((agent) => [agent.agentId, agent])
+  // Build all keys for single BatchGetItem call
+  const allKeys = favorites.map(({ agentId, createdBy }) => {
+    if (createdBy === userId) {
+      return { id: `agent#${userId}`, dataType: `agent#${agentId}` };
+    } else {
+      return { id: 'public-agents', dataType: `public#${agentId}` };
+    }
+  });
+
+  // Single BatchGetItem call for all agents
+  const result = await dynamoDbDocument.send(
+    new BatchGetCommand({
+      RequestItems: {
+        [TABLE_NAME]: {
+          Keys: allKeys,
+        },
+      },
+    })
   );
 
-  const foundAgents: AgentInTable[] = [];
-  const publicAgentIds: string[] = [];
+  if (!result.Responses?.[TABLE_NAME]) {
+    return [];
+  }
 
-  // Separate user's own agents from public agents
-  for (const agentId of agentIds) {
-    const userAgent = userAgentMap.get(agentId);
-    if (userAgent) {
-      foundAgents.push(userAgent);
+  // Map results to AgentInTable format
+  const agents = result.Responses[TABLE_NAME].map((item) => {
+    // Check if it's a public agent record (needs key mapping)
+    if (item.id === 'public-agents') {
+      return {
+        ...item,
+        id: `agent#${item.createdBy}`,
+        dataType: `agent#${item.agentId}`,
+      } as AgentInTable;
     } else {
-      publicAgentIds.push(agentId);
+      // User agent record (already in correct format)
+      return item as AgentInTable;
     }
-  }
+  });
 
-  // Get public agents
-  if (publicAgentIds.length > 0) {
-    const publicAgentPromises = publicAgentIds.map(async (agentId) => {
-      const result = await dynamoDbDocument.send(
-        new GetCommand({
-          TableName: TABLE_NAME,
-          Key: { id: 'public-agents', dataType: `public#${agentId}` },
-        })
-      );
-      if (result.Item) {
-        const record = result.Item;
-        return {
-          id: `agent#${record.createdBy}`,
-          dataType: `agent#${record.agentId}`,
-          agentId: record.agentId,
-          name: record.name,
-          description: record.description,
-          systemPrompt: record.systemPrompt,
-          modelId: record.modelId,
-          mcpServers: record.mcpServers,
-          codeExecutionEnabled: record.codeExecutionEnabled,
-          tags: record.tags,
-          isPublic: record.isPublic,
-          starCount: record.starCount || 0,
-          createdAt: record.createdAt,
-          updatedAt: record.updatedAt,
-          createdByEmail: record.createdByEmail,
-          createdBy: record.createdBy,
-        } as AgentInTable;
-      }
-      return null;
-    });
-
-    const publicAgents = (await Promise.all(publicAgentPromises)).filter(
-      (agent): agent is AgentInTable => agent !== null
-    );
-
-    foundAgents.push(...publicAgents);
-  }
-
-  return foundAgents;
+  return agents;
 };
 
 // Manage public agent record
@@ -250,8 +256,8 @@ const managePublicAgentRecord = async (
       new PutCommand({
         TableName: TABLE_NAME,
         Item: {
-          ...agentData, // All agent data except id and dataType
-          ...key, // Public record keys: id: 'public-agents', dataType: 'public#agentId'
+          ...agentData,
+          ...key,
         },
       })
     );
@@ -287,22 +293,9 @@ export const listPublicAgents = async (): Promise<AgentInTable[]> => {
   return (result.Items || []).map(
     (item) =>
       ({
+        ...item,
         id: `agent#${item.createdBy}`,
         dataType: `agent#${item.agentId}`,
-        agentId: item.agentId,
-        name: item.name,
-        description: item.description,
-        systemPrompt: item.systemPrompt,
-        modelId: item.modelId,
-        mcpServers: item.mcpServers,
-        codeExecutionEnabled: item.codeExecutionEnabled,
-        tags: item.tags,
-        isPublic: item.isPublic,
-        starCount: item.starCount || 0,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-        createdByEmail: item.createdByEmail,
-        createdBy: item.createdBy,
       }) as AgentInTable
   );
 };
@@ -455,49 +448,76 @@ export const deleteAgent = async (
 export const listAgentsWithFavorites = async (
   userId: string,
   exclusiveStartKey?: string,
-  limit?: number
+  limit: number = 12
 ): Promise<{
   data: (AgentAsOutput & { isFavorite: boolean })[];
   lastEvaluatedKey?: string;
 }> => {
-  const [agentsResult, favoritesResult] = await Promise.all([
-    findAgentsByUserId(userId, exclusiveStartKey, limit),
-    findFavoritesByUserId(userId),
-  ]);
+  // First get the agents
+  const agentsResult = await findAgentsByUserId(
+    userId,
+    exclusiveStartKey,
+    limit
+  );
 
-  const favoriteIds = new Set(favoritesResult.favorites.map((f) => f.agentId));
+  if (agentsResult.agents.length === 0) {
+    return {
+      data: [],
+      lastEvaluatedKey: agentsResult.lastEvaluatedKey,
+    };
+  }
+
+  // Build favorite keys for the specific agents we retrieved
+  const favoriteKeys = agentsResult.agents.map((agent) => ({
+    id: `agent#${userId}`,
+    dataType: `favorite#${agent.agentId}`,
+  }));
+
+  // BatchGetItem to check favorite status for these specific agents
+  const favoriteResult = await dynamoDbDocument.send(
+    new BatchGetCommand({
+      RequestItems: {
+        [TABLE_NAME]: {
+          Keys: favoriteKeys,
+        },
+      },
+    })
+  );
+
+  // Create a set of favorited agent IDs for quick lookup
+  const favoritedAgentIds = new Set(
+    (favoriteResult.Responses?.[TABLE_NAME] || []).map((item) =>
+      item.dataType.replace('favorite#', '')
+    )
+  );
 
   return {
     data: agentsResult.agents.map((agent) => ({
       ...agent,
       isMyAgent: true,
-      isFavorite: favoriteIds.has(agent.agentId),
+      isFavorite: favoritedAgentIds.has(agent.agentId),
     })),
     lastEvaluatedKey: agentsResult.lastEvaluatedKey,
   };
 };
 
 export const listPublicAgentsWithFavorites = async (
-  userId: string
+  userId: string,
+  limit: number = 50
 ): Promise<(AgentInTable & { isFavorite: boolean; isMyAgent: boolean })[]> => {
-  const [publicAgents, favoritesResult] = await Promise.all([
-    listPublicAgents(),
-    findFavoritesByUserId(userId),
-  ]);
-
-  const favoriteIds = new Set(favoritesResult.favorites.map((f) => f.agentId));
-
-  return publicAgents.map((agent) => ({
-    ...agent,
-    isFavorite: favoriteIds.has(agent.agentId),
-    isMyAgent: agent.createdBy === userId,
-  }));
+  // Use the paginated version with a reasonable default limit
+  const result = await listPublicAgentsWithFavoritesPaginated(
+    userId,
+    undefined,
+    limit
+  );
+  return result.data;
 };
 
 export const listPublicAgentsWithFavoritesPaginated = async (
   userId: string,
   exclusiveStartKey?: string,
-  limit?: number
+  limit: number = 12
 ): Promise<{
   data: (AgentAsOutput & { isFavorite: boolean; isMyAgent: boolean })[];
   lastEvaluatedKey?: string;
@@ -506,55 +526,74 @@ export const listPublicAgentsWithFavoritesPaginated = async (
     ? JSON.parse(Buffer.from(exclusiveStartKey, 'base64').toString())
     : undefined;
 
-  const [publicResult, favoritesResult] = await Promise.all([
-    dynamoDbDocument.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        KeyConditionExpression:
-          '#id = :id AND begins_with(#dataType, :dataTypePrefix)',
-        ExpressionAttributeNames: {
-          '#id': 'id',
-          '#dataType': 'dataType',
-        },
-        ExpressionAttributeValues: {
-          ':id': 'public-agents',
-          ':dataTypePrefix': 'public#',
-        },
-        ScanIndexForward: true,
-        Limit: limit || 12,
-        ExclusiveStartKey: startKey,
-      })
-    ),
-    findFavoritesByUserId(userId),
-  ]);
+  // First get the public agents
+  const publicResult = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression:
+        '#id = :id AND begins_with(#dataType, :dataTypePrefix)',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#dataType': 'dataType',
+      },
+      ExpressionAttributeValues: {
+        ':id': 'public-agents',
+        ':dataTypePrefix': 'public#',
+      },
+      ScanIndexForward: true,
+      Limit: Math.min(limit, 100),
+      ExclusiveStartKey: startKey,
+    })
+  );
 
-  const favoriteIds = new Set(favoritesResult.favorites.map((f) => f.agentId));
   const agents = (publicResult.Items || []).map(
     (item) =>
       ({
+        ...item,
         id: `agent#${item.createdBy}`,
         dataType: `agent#${item.agentId}`,
-        agentId: item.agentId,
-        name: item.name,
-        description: item.description,
-        systemPrompt: item.systemPrompt,
-        modelId: item.modelId,
-        mcpServers: item.mcpServers,
-        codeExecutionEnabled: item.codeExecutionEnabled,
-        tags: item.tags,
-        isPublic: item.isPublic,
-        starCount: item.starCount || 0,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-        createdByEmail: item.createdByEmail,
-        createdBy: item.createdBy,
       }) as AgentInTable
+  );
+
+  if (agents.length === 0) {
+    return {
+      data: [],
+      lastEvaluatedKey: publicResult.LastEvaluatedKey
+        ? Buffer.from(JSON.stringify(publicResult.LastEvaluatedKey)).toString(
+            'base64'
+          )
+        : undefined,
+    };
+  }
+
+  // Build favorite keys for the specific public agents we retrieved
+  const favoriteKeys = agents.map((agent) => ({
+    id: `agent#${userId}`,
+    dataType: `favorite#${agent.agentId}`,
+  }));
+
+  // BatchGetItem to check favorite status for these specific agents
+  const favoriteResult = await dynamoDbDocument.send(
+    new BatchGetCommand({
+      RequestItems: {
+        [TABLE_NAME]: {
+          Keys: favoriteKeys,
+        },
+      },
+    })
+  );
+
+  // Create a set of favorited agent IDs for quick lookup
+  const favoritedAgentIds = new Set(
+    (favoriteResult.Responses?.[TABLE_NAME] || []).map((item) =>
+      item.dataType.replace('favorite#', '')
+    )
   );
 
   return {
     data: agents.map((agent) => ({
       ...agent,
-      isFavorite: favoriteIds.has(agent.agentId),
+      isFavorite: favoritedAgentIds.has(agent.agentId),
       isMyAgent: agent.createdBy === userId,
     })),
     lastEvaluatedKey: publicResult.LastEvaluatedKey
@@ -576,16 +615,56 @@ export const listFavoriteAgents = async (
     limit
   );
 
-  const agentIds = favoritesResult.favorites.map((f) => f.agentId);
-  const agents = await findAgentsByAgentIds(agentIds, userId);
+  const agents = await findAgentsByFavorites(favoritesResult.favorites, userId);
+
+  // Create a map for quick agent lookup
+  const agentMap = new Map(agents.map((agent) => [agent.agentId, agent]));
+
+  // Maintain the order from favorites and include status information
+  const orderedAgents = favoritesResult.favorites.map((favorite) => {
+    const agent = agentMap.get(favorite.agentId);
+
+    if (!agent) {
+      // Agent was deleted - create a placeholder with minimal info
+      return {
+        id: `agent#unknown`,
+        dataType: `agent#${favorite.agentId}`,
+        agentId: favorite.agentId,
+        name: 'Deleted Agent',
+        description: 'This agent has been deleted',
+        systemPrompt: '',
+        modelId: '',
+        mcpServers: [],
+        codeExecutionEnabled: false,
+        tags: [],
+        isPublic: false,
+        starCount: 0,
+        createdAt: '',
+        updatedAt: '',
+        createdBy: favorite.createdBy || '',
+        createdByEmail: '',
+        isMyAgent: false,
+        status: 'deleted' as const,
+      };
+    }
+
+    // Agent exists but check accessibility
+    const isMyAgent = agent.createdBy === userId;
+    let status: 'available' | 'private' = 'available';
+
+    if (!isMyAgent && !agent.isPublic) {
+      status = 'private';
+    }
+
+    return {
+      ...agent,
+      isMyAgent,
+      status,
+    };
+  });
 
   return {
-    data: agents
-      .filter((agent) => agent.createdBy === userId || agent.isPublic)
-      .map((agent) => ({
-        ...agent,
-        isMyAgent: agent.createdBy === userId,
-      })),
+    data: orderedAgents,
     lastEvaluatedKey: favoritesResult.lastEvaluatedKey,
   };
 };
@@ -598,6 +677,8 @@ export const isFavoriteAgent = async (
     new GetCommand({
       TableName: TABLE_NAME,
       Key: { id: `agent#${userId}`, dataType: `favorite#${agentId}` },
+      ProjectionExpression: '#id', // Only need to check existence
+      ExpressionAttributeNames: { '#id': 'id' },
     })
   );
   return !!result.Item;
@@ -608,90 +689,130 @@ export const toggleFavorite = async (
   agentId: string
 ): Promise<{ isFavorite: boolean }> => {
   const key = { id: `agent#${userId}`, dataType: `favorite#${agentId}` };
-  const existing = await dynamoDbDocument.send(
-    new GetCommand({ TableName: TABLE_NAME, Key: key })
+
+  // Use BatchGetItem to get both favorite status and agent info simultaneously
+  const result = await dynamoDbDocument.send(
+    new BatchGetCommand({
+      RequestItems: {
+        [TABLE_NAME]: {
+          Keys: [
+            key,
+            { id: `agent#${userId}`, dataType: `agent#${agentId}` },
+            { id: 'public-agents', dataType: `public#${agentId}` },
+          ],
+        },
+      },
+    })
   );
 
-  // Get the agent to update its star count
-  const agent = await findAgentByAgentId(agentId, userId);
+  const items = result.Responses?.[TABLE_NAME] || [];
+  const existingFavorite = items.find(
+    (item) => item.id === key.id && item.dataType === key.dataType
+  );
+
+  // Find agent (prioritize user's own agent)
+  let agent = items.find(
+    (item) =>
+      item.id === `agent#${userId}` && item.dataType === `agent#${agentId}`
+  );
   if (!agent) {
-    throw new Error(`Agent not found: ${agentId}`);
+    agent = items.find((item) => item.id === 'public-agents');
+    if (agent) {
+      // Map public agent to standard format
+      agent = {
+        ...agent,
+        id: `agent#${agent.createdBy}`,
+        dataType: `agent#${agent.agentId}`,
+      };
+    }
   }
 
-  if (existing.Item) {
-    // Remove from favorites and decrement star count
-    await Promise.all([
+  const updateOperations = [];
+
+  if (existingFavorite) {
+    // Remove from favorites - always allow this operation (even for deleted agents)
+    updateOperations.push(
       dynamoDbDocument.send(
         new DeleteCommand({ TableName: TABLE_NAME, Key: key })
-      ),
-      // Update star count in main agent record
-      dynamoDbDocument.send(
-        new UpdateCommand({
-          TableName: TABLE_NAME,
-          Key: { id: agent.id, dataType: agent.dataType },
-          UpdateExpression: 'ADD starCount :dec',
-          ExpressionAttributeValues: {
-            ':dec': -1,
-          },
-        })
-      ),
-    ]);
+      )
+    );
 
-    // Update public record if agent is public
-    if (agent.isPublic) {
-      await dynamoDbDocument.send(
-        new UpdateCommand({
-          TableName: TABLE_NAME,
-          Key: { id: 'public-agents', dataType: `public#${agentId}` },
-          UpdateExpression: 'ADD starCount :dec',
-          ExpressionAttributeValues: {
-            ':dec': -1,
-          },
-        })
+    // Only update star count if agent still exists
+    if (agent) {
+      updateOperations.push(
+        dynamoDbDocument.send(
+          new UpdateCommand({
+            TableName: TABLE_NAME,
+            Key: { id: agent.id, dataType: agent.dataType },
+            UpdateExpression: 'ADD starCount :dec',
+            ExpressionAttributeValues: { ':dec': -1 },
+          })
+        )
+      );
+
+      // Update public record if agent is public
+      if (agent.isPublic) {
+        updateOperations.push(
+          dynamoDbDocument.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { id: 'public-agents', dataType: `public#${agentId}` },
+              UpdateExpression: 'ADD starCount :dec',
+              ExpressionAttributeValues: { ':dec': -1 },
+            })
+          )
+        );
+      }
+    }
+
+    await Promise.all(updateOperations);
+    return { isFavorite: false };
+  } else {
+    // Cannot add deleted/non-existent agents to favorites
+    if (!agent) {
+      throw new Error(
+        `Cannot add deleted or non-existent agent to favorites: ${agentId}`
       );
     }
 
-    return { isFavorite: false };
-  } else {
     // Add to favorites and increment star count
-    await Promise.all([
+    updateOperations.push(
       dynamoDbDocument.send(
         new PutCommand({
           TableName: TABLE_NAME,
           Item: {
             ...key,
             agentId,
+            createdBy: agent.createdBy,
             createdAt: new Date().toISOString(),
           },
         })
       ),
-      // Update star count in main agent record
       dynamoDbDocument.send(
         new UpdateCommand({
           TableName: TABLE_NAME,
           Key: { id: agent.id, dataType: agent.dataType },
           UpdateExpression: 'ADD starCount :inc',
-          ExpressionAttributeValues: {
-            ':inc': 1,
-          },
+          ExpressionAttributeValues: { ':inc': 1 },
         })
-      ),
-    ]);
+      )
+    );
 
     // Update public record if agent is public
     if (agent.isPublic) {
-      await dynamoDbDocument.send(
-        new UpdateCommand({
-          TableName: TABLE_NAME,
-          Key: { id: 'public-agents', dataType: `public#${agentId}` },
-          UpdateExpression: 'ADD starCount :inc',
-          ExpressionAttributeValues: {
-            ':inc': 1,
-          },
-        })
+      updateOperations.push(
+        dynamoDbDocument.send(
+          new UpdateCommand({
+            TableName: TABLE_NAME,
+            Key: { id: 'public-agents', dataType: `public#${agentId}` },
+            UpdateExpression: 'ADD starCount :inc',
+            ExpressionAttributeValues: { ':inc': 1 },
+          })
+        )
       );
     }
 
+    await Promise.all(updateOperations);
     return { isFavorite: true };
   }
 };

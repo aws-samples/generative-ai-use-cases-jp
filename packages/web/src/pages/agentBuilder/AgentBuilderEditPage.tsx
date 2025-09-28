@@ -7,6 +7,7 @@ import AgentForm, {
 } from '../../components/agentBuilder/AgentForm';
 import AgentTester from '../../components/agentBuilder/AgentTester';
 import { useAgentBuilder } from '../../hooks/agentBuilder/useAgentBuilder';
+import useAgentBuilderList from '../../hooks/agentBuilder/useAgentBuilderList';
 import { PiRobot as RobotIcon, PiArrowLeft as BackIcon } from 'react-icons/pi';
 
 const AgentBuilderEditPage: React.FC = () => {
@@ -14,8 +15,11 @@ const AgentBuilderEditPage: React.FC = () => {
   const { agentId } = useParams<{ agentId?: string }>();
   const navigate = useNavigate();
 
-  const { agent, loading, createAgent, updateAgent, error } =
-    useAgentBuilder(agentId);
+  // Single agent state management (for loading existing agent)
+  const { agent, loading, error } = useAgentBuilder(agentId);
+
+  // List operations (for create/update with optimistic updates)
+  const { createAgent, updateAgent } = useAgentBuilderList();
 
   const isEditMode = Boolean(agentId);
   const [testMode, setTestMode] = useState(false);
