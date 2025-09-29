@@ -51,8 +51,8 @@ class ToolManager:
                 logger.warning(f"MCP configuration file not found at {mcp_config_path}")
                 self.mcp_tools = []
                 return self.mcp_tools
-            
-            with open(mcp_config_path, 'r') as f:
+
+            with open(mcp_config_path) as f:
                 mcp_config = json.load(f)
 
             mcp_servers = mcp_config.get("mcpServers", {})
@@ -96,8 +96,8 @@ class ToolManager:
             if not os.path.exists(mcp_config_path):
                 logger.warning(f"MCP configuration file not found at {mcp_config_path}")
                 return []
-            
-            with open(mcp_config_path, 'r') as f:
+
+            with open(mcp_config_path) as f:
                 mcp_config = json.load(f)
 
             available_servers = mcp_config.get("mcpServers", {})
