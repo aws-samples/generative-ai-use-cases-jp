@@ -25,6 +25,42 @@ import useScreenAudio from '../../hooks/useScreenAudio';
 import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
 import useChatApi from '../../hooks/useChatApi';
 import { MODELS } from '../../hooks/useModel';
+import {
+  updateTranslationSegments,
+  type TranslationSegment,
+} from './MeetingMinutesSegmentSplitter';
+import {
+  generateSystemContext,
+  shouldGenerateContext,
+  getLanguageNameFromCode,
+  getRecentSegmentsContext,
+} from './MeetingMinutesContextGenerator';
+
+const getTranslationTarget = (
+  translationType: string,
+  detectedLanguageCode: string | undefined,
+  primaryLanguage: string,
+  secondaryLanguage: string
+): string => {
+  // For unidirectional translation, always use the target language
+  if (translationType !== 'bidirectional' || !detectedLanguageCode) {
+    return secondaryLanguage;
+  }
+
+  // For bidirectional translation with detected language:
+  // If detected language matches primary language, translate to target language
+  if (detectedLanguageCode === primaryLanguage) {
+    return secondaryLanguage;
+  }
+
+  // If detected language matches target language, translate to primary language
+  if (detectedLanguageCode === secondaryLanguage) {
+    return primaryLanguage;
+  }
+
+  // If detected language doesn't match either configured language, use target language as fallback
+  return secondaryLanguage;
+};
 
 // Real-time transcript segment for chronological integration
 interface RealtimeSegment {
@@ -34,22 +70,24 @@ interface RealtimeSegment {
   endTime: number;
   isPartial: boolean;
   transcripts: Transcript[];
-  translation?: string;
   sessionId: number; // Session identifier for continuity
+  languageCode?: string; // Language code from Transcribe response
+  translationSegments: TranslationSegment[];
 }
 
-interface MeetingMinutesRealtimeProps {
+interface MeetingMinutesRealtimeTranslationProps {
   /** Callback when transcript text changes */
   onTranscriptChange?: (text: string) => void;
 }
 
-const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
-  onTranscriptChange,
-}) => {
-  const { t, i18n } = useTranslation();
+const MeetingMinutesRealtimeTranslation: React.FC<
+  MeetingMinutesRealtimeTranslationProps
+> = ({ onTranscriptChange }) => {
+  const { t } = useTranslation();
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
   const generateSystemContextRef = useRef<(() => Promise<void>) | null>(null);
+  const realtimeSegmentsRef = useRef<RealtimeSegment[]>([]);
 
   // Microphone and screen audio hooks
   const {
@@ -72,21 +110,38 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   } = useScreenAudio();
 
   // Internal state management
-  const [languageCode, setLanguageCode] = useState('auto');
+  const [primaryLanguage, setPrimaryLanguage] = useState('en-US');
   const [speakerLabel, setSpeakerLabel] = useState(false);
   const [maxSpeakers, setMaxSpeakers] = useState(4);
   const [speakers, setSpeakers] = useState('');
   const [enableScreenAudio, setEnableScreenAudio] = useState(false);
   const [enableMicAudio, setEnableMicAudio] = useState(true);
-  const [realtimeSegments, setRealtimeSegments] = useState<RealtimeSegment[]>(
+  const [realtimeSegments, setRealtimeSegmentsState] = useState<
+    RealtimeSegment[]
+  >([]);
+
+  // Helper function to update both state and ref
+  const setRealtimeSegments = useCallback(
+    (
+      updater:
+        | RealtimeSegment[]
+        | ((prev: RealtimeSegment[]) => RealtimeSegment[])
+    ) => {
+      setRealtimeSegmentsState((prev) => {
+        const newSegments =
+          typeof updater === 'function' ? updater(prev) : updater;
+        realtimeSegmentsRef.current = newSegments;
+        return newSegments;
+      });
+    },
     []
   );
 
-  // Translation states
-  const [realtimeTranslationEnabled, setRealtimeTranslationEnabled] =
-    useState(false);
+  // Translation states - Default to enabled for realtime translation tab
+  const realtimeTranslationEnabled = true; // Always enabled in this tab
+  const [translationType, setTranslationType] = useState('unidirectional');
   const [selectedTranslationModel, setSelectedTranslationModel] = useState('');
-  const [selectedTargetLanguage, setSelectedTargetLanguage] = useState('ja-JP');
+  const [secondaryLanguage, setSecondaryLanguage] = useState('ja-JP');
 
   // Context states for translation accuracy improvement
   const [userDefinedContext, setUserDefinedContext] = useState('');
@@ -95,113 +150,188 @@ const MeetingMinutesRealtime: React.FC<MeetingMinutesRealtimeProps> = ({
   // Simple session management
   const [currentSessionId, setCurrentSessionId] = useState(0);
 
+  // Latest request timestamp tracking for race condition handling
+  const [latestRequestTimestamps, setLatestRequestTimestamps] = useState<
+    Map<string, number>
+  >(new Map());
+
   // Translation hook
-  const { availableModels, translate, isTranslating } =
+  const { availableModels, translate, translationInterval } =
     useRealtimeTranslation();
+
+  // Helper function to translate individual sentences
+  const translateSentence = useCallback(
+    async (
+      segment: RealtimeSegment,
+      sentenceIndex: number,
+      translationSegment: TranslationSegment
+    ) => {
+      const requestId = `${segment.resultId}-${sentenceIndex}`;
+      const requestTimestamp = Date.now();
+
+      // Update latest request timestamp for this segment
+      setLatestRequestTimestamps((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(requestId, requestTimestamp);
+        return newMap;
+      });
+
+      // Update translation segment with request timestamp
+      setRealtimeSegments((prev) =>
+        prev.map((seg) => {
+          if (
+            seg.resultId !== segment.resultId ||
+            seg.source !== segment.source
+          ) {
+            return seg;
+          }
+
+          return {
+            ...seg,
+            translationSegments: seg.translationSegments.map((ts, index) => {
+              if (index !== sentenceIndex) {
+                return ts;
+              }
+
+              return {
+                ...ts,
+                requestTimestamp,
+              };
+            }),
+          };
+        })
+      );
+
+      try {
+        // Determine translation target language using helper function
+        const targetLanguage = getTranslationTarget(
+          translationType,
+          segment.languageCode,
+          primaryLanguage,
+          secondaryLanguage
+        );
+
+        const targetLanguageName = getLanguageNameFromCode(targetLanguage);
+
+        // Build combined context for translation
+        const contexts = [];
+        if (userDefinedContext.trim()) {
+          contexts.push(`User-defined context: ${userDefinedContext.trim()}`);
+        }
+        if (systemGeneratedContext.trim()) {
+          contexts.push(
+            `System-generated context: ${systemGeneratedContext.trim()}`
+          );
+        }
+
+        const recentSegmentsText = getRecentSegmentsContext(realtimeSegments);
+        if (recentSegmentsText) {
+          contexts.push(`Recent conversation context: ${recentSegmentsText}`);
+        }
+
+        const combinedContext =
+          contexts.length > 0 ? contexts.join('\n\n') : undefined;
+
+        const translation = await translate(
+          translationSegment.text,
+          selectedTranslationModel,
+          targetLanguageName,
+          combinedContext
+        );
+
+        // Check if this is still the latest request before updating UI
+        const currentLatestTimestamp = latestRequestTimestamps.get(requestId);
+        const isLatestRequest =
+          !currentLatestTimestamp || requestTimestamp >= currentLatestTimestamp;
+
+        // Only update UI if we have a valid translation result and this is the latest request
+        if (isLatestRequest && translation !== null) {
+          // Update translation segment state only if this is the latest request
+          setRealtimeSegments((prev) =>
+            prev.map((seg) => {
+              if (
+                seg.resultId !== segment.resultId ||
+                seg.source !== segment.source
+              ) {
+                return seg;
+              }
+
+              return {
+                ...seg,
+                translationSegments: seg.translationSegments.map(
+                  (ts, index) => {
+                    if (index !== sentenceIndex) {
+                      return ts;
+                    }
+
+                    return {
+                      ...ts,
+                      translation: translation || undefined,
+                      needsTranslation: ts.text !== translationSegment.text,
+                      lastTranslatedText: translationSegment.text,
+                    };
+                  }
+                ),
+              };
+            })
+          );
+        }
+      } catch (error) {
+        // On error, skip UI update (as requested by user)
+        console.error('Failed to translate sentence:', error);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      selectedTranslationModel,
+      secondaryLanguage,
+      userDefinedContext,
+      systemGeneratedContext,
+      translate,
+      setRealtimeSegments,
+      latestRequestTimestamps,
+      setLatestRequestTimestamps,
+      // Note: getLanguageNameFromCode and getRecentSegmentsContext are external functions and stable
+    ]
+  );
 
   // Hook for generating system context
   const { predict } = useChatApi();
 
   // Generate system context based on transcript history
-  const generateSystemContext = useCallback(async () => {
+  const generateSystemContextCallback = useCallback(async () => {
     const currentlyRecording = micRecording || screenRecording;
 
     if (
-      !realtimeTranslationEnabled ||
-      !currentlyRecording ||
-      realtimeSegments.length === 0
+      !shouldGenerateContext(
+        realtimeTranslationEnabled,
+        currentlyRecording,
+        realtimeSegments
+      )
     ) {
       return;
     }
 
-    try {
-      // Get transcript text from recent segments
-      const transcriptText = realtimeSegments
-        .filter(
-          (segment) => !segment.isPartial && segment.transcripts.length > 0
-        )
-        .sort((a, b) => a.startTime - b.startTime)
-        .map((segment) =>
-          segment.transcripts
-            .map((transcript) => transcript.transcript)
-            .join(' ')
-        )
-        .join(' ')
-        .trim();
+    const result = await generateSystemContext(
+      realtimeSegments,
+      secondaryLanguage,
+      predict
+    );
 
-      if (!transcriptText || transcriptText.length < 50) {
-        return;
-      }
-
-      const { modelIds } = MODELS;
-      const firstModelId = modelIds[0];
-
-      if (!firstModelId) {
-        console.error('No models available for system context generation');
-        return;
-      }
-
-      const { findModelByModelId } = await import('../../hooks/useModel');
-      const model = findModelByModelId(firstModelId);
-
-      if (!model) {
-        console.error('Model not found:', firstModelId);
-        return;
-      }
-
-      // Get target language name for context generation
-      const getLanguageNameFromCodeLocal = (languageCode: string): string => {
-        const languageNameMapping: { [key: string]: string } = {
-          'ja-JP': 'Japanese',
-          'en-US': 'English',
-          'zh-CN': 'Chinese',
-          'ko-KR': 'Korean',
-          'th-TH': 'Thai',
-          'vi-VN': 'Vietnamese',
-        };
-        return languageNameMapping[languageCode] || 'Japanese';
-      };
-      const targetLanguageName = getLanguageNameFromCodeLocal(
-        selectedTargetLanguage
-      );
-
-      const systemPrompt = `You are an AI assistant that analyzes meeting transcripts to generate context for translation improvement.
-Based on the provided transcript, generate a brief context (2-3 sentences) about what kind of meeting this is, the main topics being discussed, and any technical terms or domain-specific language being used.
-Focus on information that would help improve translation accuracy.
-Respond in ${targetLanguageName}.`;
-
-      const messages = [
-        {
-          role: 'system' as const,
-          content: systemPrompt,
-        },
-        {
-          role: 'user' as const,
-          content: `Please analyze this meeting transcript and provide context for translation improvement:\n\n${transcriptText}`,
-        },
-      ];
-
-      const result = await predict({
-        model,
-        messages,
-        id: '/meeting-context',
-      });
-
-      setSystemGeneratedContext(result.trim());
-    } catch (error) {
-      console.error('Failed to generate system context:', error);
+    if (result) {
+      setSystemGeneratedContext(result);
     }
   }, [
     realtimeTranslationEnabled,
     micRecording,
     screenRecording,
     realtimeSegments,
-    selectedTargetLanguage,
+    secondaryLanguage,
     predict,
   ]);
 
   // Update ref with latest function
-  generateSystemContextRef.current = generateSystemContext;
+  generateSystemContextRef.current = generateSystemContextCallback;
 
   // Timer for generating system context every minute
   useEffect(() => {
@@ -230,21 +360,6 @@ Respond in ${targetLanguageName}.`;
     };
   }, [realtimeTranslationEnabled, micRecording, screenRecording]);
 
-  // Get context from recent segments for translation
-  const getRecentSegmentsContext = useCallback((): string => {
-    const recentSegments = realtimeSegments
-      .filter((segment) => !segment.isPartial && segment.transcripts.length > 0)
-      .sort((a, b) => a.startTime - b.startTime)
-      .slice(-10); // Get last 10 segments
-
-    return recentSegments
-      .map((segment) =>
-        segment.transcripts.map((transcript) => transcript.transcript).join(' ')
-      )
-      .join(' ')
-      .trim();
-  }, [realtimeSegments]);
-
   // Set default translation model on mount
   useEffect(() => {
     if (!selectedTranslationModel && availableModels.length > 0) {
@@ -272,20 +387,13 @@ Respond in ${targetLanguageName}.`;
     [languageOptions]
   );
 
-  // Convert language code to language name for translation API
-  const getLanguageNameFromCode = useCallback(
-    (languageCode: string): string => {
-      const languageNameMapping: { [key: string]: string } = {
-        'ja-JP': 'Japanese',
-        'en-US': 'English',
-        'zh-CN': 'Chinese',
-        'ko-KR': 'Korean',
-        'th-TH': 'Thai',
-        'vi-VN': 'Vietnamese',
-      };
-      return languageNameMapping[languageCode] || 'Japanese';
-    },
-    []
+  // Translation type options
+  const translationTypeOptions = useMemo(
+    () => [
+      { value: 'unidirectional', label: t('meetingMinutes.unidirectional') },
+      { value: 'bidirectional', label: t('meetingMinutes.bidirectional') },
+    ],
+    [t]
   );
 
   // Speaker mapping
@@ -294,38 +402,6 @@ Respond in ${targetLanguageName}.`;
       speakers.split(',').map((speaker, idx) => [`spk_${idx}`, speaker.trim()])
     );
   }, [speakers]);
-
-  // Map i18n language to transcription language
-  const getTranscriptionLanguageFromSettings = useCallback(
-    (settingsLang: string): string => {
-      const langMapping: { [key: string]: string } = {
-        ja: 'ja-JP',
-        en: 'en-US',
-        zh: 'zh-CN',
-        ko: 'ko-KR',
-        th: 'th-TH',
-        vi: 'vi-VN',
-      };
-      return langMapping[settingsLang] || 'auto';
-    },
-    []
-  );
-
-  // Set language from settings on mount
-  useEffect(() => {
-    if (i18n.resolvedLanguage && languageCode === 'auto') {
-      const mappedLang = getTranscriptionLanguageFromSettings(
-        i18n.resolvedLanguage
-      );
-      if (mappedLang !== 'auto') {
-        setLanguageCode(mappedLang);
-      }
-    }
-  }, [
-    i18n.resolvedLanguage,
-    languageCode,
-    getTranscriptionLanguageFromSettings,
-  ]);
 
   // Helper function to format time in MM:SS format
   const formatTime = useCallback((seconds: number): string => {
@@ -388,40 +464,96 @@ Respond in ${targetLanguageName}.`;
   }, [realtimeText, onTranscriptChange]);
 
   // Real-time integration of raw transcripts
-  const updateRealtimeSegments = useCallback((newSegment: RealtimeSegment) => {
-    setRealtimeSegments((prev) => {
-      const existingIndex = prev.findIndex(
-        (seg) =>
-          seg.resultId === newSegment.resultId &&
-          seg.source === newSegment.source
-      );
+  const updateRealtimeSegments = useCallback(
+    (newSegment: RealtimeSegment) => {
+      setRealtimeSegments((prev) => {
+        const existingIndex = prev.findIndex(
+          (seg) =>
+            seg.resultId === newSegment.resultId &&
+            seg.source === newSegment.source
+        );
 
-      if (existingIndex >= 0) {
-        const updated = [...prev];
-        updated[existingIndex] = newSegment;
-        return updated;
-      } else {
-        return [...prev, newSegment];
-      }
-    });
-  }, []);
+        const currentText = newSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          const currentSegment = updated[existingIndex];
+
+          // Simple overwrite - no complex logic
+          const updatedTranslationSegments = updateTranslationSegments(
+            currentText,
+            newSegment.languageCode,
+            currentSegment.translationSegments
+          );
+
+          updated[existingIndex] = {
+            ...newSegment,
+            translationSegments: updatedTranslationSegments,
+          };
+          return updated;
+        } else {
+          // Use the new updateTranslationSegments function for new segments (with empty existing segments)
+          const translationSegments = updateTranslationSegments(
+            currentText,
+            newSegment.languageCode,
+            [] // Empty existing segments for new segment
+          );
+
+          return [
+            ...prev,
+            {
+              ...newSegment,
+              translationSegments,
+            },
+          ];
+        }
+      });
+    },
+    [setRealtimeSegments]
+  );
 
   // Process microphone raw transcripts
   useEffect(() => {
     if (micRawTranscripts && micRawTranscripts.length > 0) {
-      const latestSegment = micRawTranscripts[micRawTranscripts.length - 1];
-      const segment: RealtimeSegment = {
-        resultId: latestSegment.resultId,
-        source: 'microphone',
-        startTime: latestSegment.startTime,
-        endTime: latestSegment.endTime,
-        isPartial: latestSegment.isPartial,
-        transcripts: latestSegment.transcripts,
-        sessionId: currentSessionId,
-      };
-      updateRealtimeSegments(segment);
+      // Process ALL segments from micRawTranscripts, not just the latest
+      micRawTranscripts.forEach((rawSegment) => {
+        const currentText = rawSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
+        const translationSegments = updateTranslationSegments(
+          currentText,
+          rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          [] // Empty existing segments for new segment
+        );
+
+        const segment: RealtimeSegment = {
+          resultId: rawSegment.resultId,
+          source: 'microphone',
+          startTime: rawSegment.startTime,
+          endTime: rawSegment.endTime,
+          isPartial: rawSegment.isPartial,
+          transcripts: rawSegment.transcripts,
+          sessionId: currentSessionId,
+          languageCode:
+            rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          translationSegments,
+        };
+        updateRealtimeSegments(segment);
+      });
     }
-  }, [micRawTranscripts, updateRealtimeSegments, currentSessionId]);
+  }, [
+    micRawTranscripts,
+    updateRealtimeSegments,
+    currentSessionId,
+    primaryLanguage,
+  ]);
 
   // Process screen audio raw transcripts
   useEffect(() => {
@@ -430,110 +562,78 @@ Respond in ${targetLanguageName}.`;
       screenRawTranscripts &&
       screenRawTranscripts.length > 0
     ) {
-      const latestSegment =
-        screenRawTranscripts[screenRawTranscripts.length - 1];
-      const segment: RealtimeSegment = {
-        resultId: latestSegment.resultId,
-        source: 'screen',
-        startTime: latestSegment.startTime,
-        endTime: latestSegment.endTime,
-        isPartial: latestSegment.isPartial,
-        transcripts: latestSegment.transcripts,
-        sessionId: currentSessionId,
-      };
-      updateRealtimeSegments(segment);
+      // Process ALL segments from screenRawTranscripts, not just the latest
+      screenRawTranscripts.forEach((rawSegment) => {
+        const currentText = rawSegment.transcripts
+          .map((transcript) => transcript.transcript)
+          .join(' ')
+          .trim();
+
+        const translationSegments = updateTranslationSegments(
+          currentText,
+          rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          [] // Empty existing segments for new segment
+        );
+
+        const segment: RealtimeSegment = {
+          resultId: rawSegment.resultId,
+          source: 'screen',
+          startTime: rawSegment.startTime,
+          endTime: rawSegment.endTime,
+          isPartial: rawSegment.isPartial,
+          transcripts: rawSegment.transcripts,
+          sessionId: currentSessionId,
+          languageCode:
+            rawSegment.languageCode ||
+            (primaryLanguage === 'auto' ? undefined : primaryLanguage),
+          translationSegments,
+        };
+        updateRealtimeSegments(segment);
+      });
     }
   }, [
     screenRawTranscripts,
     enableScreenAudio,
     updateRealtimeSegments,
     currentSessionId,
+    primaryLanguage,
   ]);
 
-  // Handle translation for completed segments
+  // Handle interval translation for partial segments
   useEffect(() => {
     if (!realtimeTranslationEnabled || !selectedTranslationModel) {
       return;
     }
 
-    const handleTranslation = async () => {
-      const segmentsNeedingTranslation = realtimeSegments.filter(
-        (segment) =>
-          !segment.isPartial &&
-          !segment.translation &&
-          !isTranslating(segment.resultId, selectedTranslationModel)
-      );
+    const intervalId = setInterval(async () => {
+      const currentSegments = realtimeSegmentsRef.current;
 
-      for (const segment of segmentsNeedingTranslation) {
-        const segmentText = segment.transcripts
-          .map((transcript) => transcript.transcript)
-          .join(' ')
-          .trim();
+      for (const segment of currentSegments) {
+        // Handle translation for all segments (unified approach)
+        const sentencesToTranslate = segment.translationSegments.filter(
+          (translationSegment) =>
+            translationSegment.needsTranslation &&
+            translationSegment.text.trim()
+        );
 
-        if (!segmentText) {
-          continue;
-        }
-
-        try {
-          const targetLanguageName = getLanguageNameFromCode(
-            selectedTargetLanguage
-          );
-
-          // Build combined context for translation
-          const contexts = [];
-          if (userDefinedContext.trim()) {
-            contexts.push(`User-defined context: ${userDefinedContext.trim()}`);
-          }
-          if (systemGeneratedContext.trim()) {
-            contexts.push(
-              `System-generated context: ${systemGeneratedContext.trim()}`
-            );
-          }
-
-          const recentSegmentsText = getRecentSegmentsContext();
-          if (recentSegmentsText) {
-            contexts.push(`Recent conversation context: ${recentSegmentsText}`);
-          }
-
-          const combinedContext =
-            contexts.length > 0 ? contexts.join('\n\n') : undefined;
-
-          const translation = await translate(
-            segment.resultId,
-            segmentText,
-            selectedTranslationModel,
-            targetLanguageName,
-            combinedContext
-          );
-
-          if (translation) {
-            setRealtimeSegments((prev) =>
-              prev.map((seg) =>
-                seg.resultId === segment.resultId &&
-                seg.source === segment.source
-                  ? { ...seg, translation }
-                  : seg
-              )
-            );
-          }
-        } catch (error) {
-          console.error('Failed to translate segment:', error);
+        for (const translationSentence of sentencesToTranslate) {
+          const sentenceIndex =
+            segment.translationSegments.indexOf(translationSentence);
+          // Translate individual sentence (duplicate prevention is now handled inside translateSentence)
+          await translateSentence(segment, sentenceIndex, translationSentence);
         }
       }
-    };
+    }, translationInterval);
 
-    handleTranslation();
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    realtimeSegments,
     realtimeTranslationEnabled,
     selectedTranslationModel,
-    selectedTargetLanguage,
-    getLanguageNameFromCode,
-    isTranslating,
-    translate,
-    getRecentSegmentsContext,
-    systemGeneratedContext,
-    userDefinedContext,
+    translationInterval,
+    // Note: We intentionally omit function dependencies to prevent infinite loop recreation of this useEffect.
+    // The interval function accesses current values through closure, which is acceptable for this use case.
   ]);
 
   // Recording states
@@ -566,6 +666,7 @@ Respond in ${targetLanguageName}.`;
 
     onTranscriptChange?.('');
   }, [
+    setRealtimeSegments,
     stopMicTranscription,
     stopScreenTranscription,
     clearMicTranscripts,
@@ -582,8 +683,24 @@ Respond in ${targetLanguageName}.`;
     clearMicTranscripts();
     clearScreenTranscripts();
 
-    const langCode =
-      languageCode === 'auto' ? undefined : (languageCode as LanguageCode);
+    // For bidirectional translation, use multi-language identification with both languages
+    let langCode: LanguageCode | undefined;
+    let languageOptions: string[] | undefined;
+    let enableMultiLanguage: boolean = false;
+
+    if (translationType === 'bidirectional') {
+      langCode = undefined; // No fixed language code for multi-language
+      languageOptions = [primaryLanguage, secondaryLanguage];
+      enableMultiLanguage = true; // Enable multi-language identification
+    } else {
+      langCode =
+        primaryLanguage === 'auto'
+          ? undefined
+          : (primaryLanguage as LanguageCode);
+      languageOptions =
+        primaryLanguage === 'auto' ? ['en-US', 'ja-JP'] : undefined;
+      enableMultiLanguage = false;
+    }
 
     try {
       let screenStream: MediaStream | null = null;
@@ -592,19 +709,37 @@ Respond in ${targetLanguageName}.`;
       }
 
       if (screenStream) {
-        startTranscriptionWithStream(screenStream, langCode, speakerLabel);
+        startTranscriptionWithStream(
+          screenStream,
+          langCode,
+          speakerLabel,
+          languageOptions,
+          enableMultiLanguage
+        );
       }
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel);
+        startMicTranscription(
+          langCode,
+          speakerLabel,
+          languageOptions,
+          enableMultiLanguage
+        );
       }
     } catch (error) {
       console.error('Failed to start synchronized recording:', error);
       if (enableMicAudio) {
-        startMicTranscription(langCode, speakerLabel);
+        startMicTranscription(
+          langCode,
+          speakerLabel,
+          languageOptions,
+          enableMultiLanguage
+        );
       }
     }
   }, [
-    languageCode,
+    primaryLanguage,
+    secondaryLanguage,
+    translationType,
     speakerLabel,
     startMicTranscription,
     enableScreenAudio,
@@ -618,7 +753,7 @@ Respond in ${targetLanguageName}.`;
 
   return (
     <div>
-      {/* Microphone Input Content */}
+      {/* Realtime Translation Content */}
       <div className="mb-4">
         <div className="p-2">
           <div className="flex justify-center">
@@ -643,7 +778,7 @@ Respond in ${targetLanguageName}.`;
             )}
           </div>
           {!isRecording && (
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <MicAudioToggle
                 enabled={enableMicAudio}
                 onToggle={setEnableMicAudio}
@@ -657,13 +792,6 @@ Respond in ${targetLanguageName}.`;
                   '\n'
                 )}
               />
-              <div className="ml-0.5 mt-2">
-                <Switch
-                  label={t('translate.realtimeTranslation')}
-                  checked={realtimeTranslationEnabled}
-                  onSwitch={setRealtimeTranslationEnabled}
-                />
-              </div>
             </div>
           )}
         </div>
@@ -673,42 +801,55 @@ Respond in ${targetLanguageName}.`;
       {!isRecording && (
         <div className="mb-4 px-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Left column: Transcription language */}
-            <div>
-              <label className="mb-2 block font-bold">
-                {t('meetingMinutes.language')}
-              </label>
-              <Select
-                value={languageCode}
-                onChange={setLanguageCode}
-                options={languageOptions}
-              />
+            {/* Left column: Translation type and model */}
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block font-bold">
+                  {t('meetingMinutes.translation_type')}
+                </label>
+                <Select
+                  value={translationType}
+                  onChange={setTranslationType}
+                  options={translationTypeOptions}
+                />
+              </div>
+              <div>
+                <Select
+                  value={selectedTranslationModel}
+                  onChange={setSelectedTranslationModel}
+                  options={availableModels.map((modelId) => ({
+                    value: modelId,
+                    label: MODELS.modelDisplayName(modelId),
+                  }))}
+                />
+              </div>
             </div>
 
-            {/* Right column: Real-time translation settings (vertically arranged) */}
+            {/* Right column: Languages */}
             {realtimeTranslationEnabled && (
               <div className="space-y-4">
                 <div>
                   <label className="mb-2 block font-bold">
-                    {t('translate.target_language')}
+                    {translationType === 'bidirectional'
+                      ? t('meetingMinutes.language_1')
+                      : t('meetingMinutes.transcription_language')}
                   </label>
                   <Select
-                    value={selectedTargetLanguage}
-                    onChange={setSelectedTargetLanguage}
-                    options={targetLanguageOptions}
+                    value={primaryLanguage}
+                    onChange={setPrimaryLanguage}
+                    options={languageOptions}
                   />
                 </div>
                 <div>
                   <label className="mb-2 block font-bold">
-                    {t('translate.model')}
+                    {translationType === 'bidirectional'
+                      ? t('meetingMinutes.language_2')
+                      : t('meetingMinutes.translation_language')}
                   </label>
                   <Select
-                    value={selectedTranslationModel}
-                    onChange={setSelectedTranslationModel}
-                    options={availableModels.map((modelId) => ({
-                      value: modelId,
-                      label: MODELS.modelDisplayName(modelId),
-                    }))}
+                    value={secondaryLanguage}
+                    onChange={setSecondaryLanguage}
+                    options={targetLanguageOptions}
                   />
                 </div>
               </div>
@@ -872,12 +1013,20 @@ Respond in ${targetLanguageName}.`;
                       speakerMapping={speakerMapping}
                       isPartial={segment.isPartial}
                       formatTime={formatTime}
-                      translation={segment.translation}
-                      isTranslating={isTranslating(
-                        segment.resultId,
-                        selectedTranslationModel
-                      )}
+                      translation={segment.translationSegments
+                        .map((ts) => ts.translation || '')
+                        .join('')}
+                      translationSegments={segment.translationSegments}
+                      isTranslating={false}
                       translationEnabled={realtimeTranslationEnabled}
+                      detectedLanguage={segment.languageCode}
+                      translationTarget={getTranslationTarget(
+                        translationType,
+                        segment.languageCode,
+                        primaryLanguage,
+                        secondaryLanguage
+                      )}
+                      isBidirectional={translationType === 'bidirectional'}
                     />
                   </React.Fragment>
                 );
@@ -889,4 +1038,4 @@ Respond in ${targetLanguageName}.`;
   );
 };
 
-export default MeetingMinutesRealtime;
+export default MeetingMinutesRealtimeTranslation;

@@ -2,6 +2,13 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Transcript } from 'generative-ai-use-cases';
 
+interface TranslationSegment {
+  text: string;
+  needsTranslation: boolean;
+  translation?: string;
+  lastTranslatedText?: string;
+}
+
 interface MeetingMinutesTranscriptSegmentProps {
   startTime: number;
   transcripts: Transcript[];
@@ -9,8 +16,12 @@ interface MeetingMinutesTranscriptSegmentProps {
   isPartial: boolean;
   formatTime: (seconds: number) => string;
   translation?: string;
+  translationSegments?: TranslationSegment[];
   isTranslating?: boolean;
   translationEnabled?: boolean;
+  detectedLanguage?: string;
+  translationTarget?: string;
+  isBidirectional?: boolean;
 }
 
 const MeetingMinutesTranscriptSegment: React.FC<
@@ -22,8 +33,12 @@ const MeetingMinutesTranscriptSegment: React.FC<
   isPartial,
   formatTime,
   translation,
+  translationSegments,
   isTranslating,
   translationEnabled,
+  detectedLanguage,
+  translationTarget,
+  isBidirectional,
 }) => {
   const { t } = useTranslation();
   return (
@@ -57,23 +72,67 @@ const MeetingMinutesTranscriptSegment: React.FC<
       {/* Translation Display */}
       {translationEnabled && (
         <div className="mt-3 border-t border-gray-300 pt-3">
-          {isTranslating ? (
-            <div className="text-sm italic text-gray-500">
-              {t('translate.translating')}
+          {/* Language detection indicator for bidirectional translation */}
+          {isBidirectional && detectedLanguage && (
+            <div className="mb-2 flex gap-2">
+              <span className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-600">
+                {t('translate.detectedLanguage')}
+                {t('common.colon')} {detectedLanguage}
+                {translationTarget && (
+                  <span className="ml-1">
+                    {t('common.arrow')} {translationTarget}
+                  </span>
+                )}
+              </span>
             </div>
-          ) : translation ? (
-            <div className="flex gap-2">
-              <div className="flex shrink-0 items-center gap-2">
-                <span className="text-sm text-gray-500">
-                  {t('translate.translation')}
-                  {t('common.colon')}
-                </span>
-              </div>
-              <div className="flex-1 leading-relaxed text-gray-900">
-                {translation}
-              </div>
-            </div>
-          ) : null}
+          )}
+          {translationSegments ? (
+            // New sentence-based translation display
+            <>
+              {translationSegments.some(
+                (seg) => seg.translation && seg.translation.trim()
+              ) ? (
+                <div className="flex gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {t('translate.translation')}
+                      {t('common.colon')}
+                    </span>
+                  </div>
+                  <div className="flex-1 leading-relaxed text-gray-900">
+                    {translationSegments
+                      .map((seg) => seg.translation || '')
+                      .join('')}
+                  </div>
+                </div>
+              ) : isTranslating ? (
+                <div className="text-sm italic text-gray-500">
+                  {t('translate.translating')}
+                </div>
+              ) : null}
+            </>
+          ) : (
+            // Legacy translation display
+            <>
+              {translation ? (
+                <div className="flex gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-sm text-gray-500">
+                      {t('translate.translation')}
+                      {t('common.colon')}
+                    </span>
+                  </div>
+                  <div className="flex-1 leading-relaxed text-gray-900">
+                    {translation}
+                  </div>
+                </div>
+              ) : isTranslating ? (
+                <div className="text-sm italic text-gray-500">
+                  {t('translate.translating')}
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
       )}
     </div>

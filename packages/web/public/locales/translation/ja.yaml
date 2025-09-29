@@ -138,6 +138,7 @@ chat:
   view_prompt_examples: プロンプト例を見る
 common:
   add: 追加
+  arrow: →
   back: 戻る
   cancel: キャンセル
   clear: クリア
@@ -649,6 +650,7 @@ mcp_chat:
   title: MCP チャット
 meetingMinutes:
   auto_generate: 自動生成
+  bidirectional: 双方向翻訳
   clear_minutes: 議事録をクリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
@@ -666,6 +668,8 @@ meetingMinutes:
   generation_frequency: 生成頻度
   generation_success: 議事録が正常に生成されました
   language: 文字起こし言語
+  language_1: 言語1
+  language_2: 言語2
   language_auto: 自動検出
   language_chinese: 中国語
   language_english: 英語
@@ -691,8 +695,14 @@ meetingMinutes:
   style_newspaper: 新聞
   style_summary: 要約
   style_transcription: 文字起こし
+  target_language: 翻訳言語
   title: 議事録生成
   transcript: 文字起こし
+  transcription_language: 文字起こし言語
+  translation_language: 翻訳言語
+  translation_model: リアルタイム翻訳モデル
+  translation_type: 翻訳方式
+  unidirectional: 片方向翻訳
 model:
   parameters:
     reasoning_budget: 深く考えるトークン数上限
@@ -832,6 +842,7 @@ transcribe:
   stop_recording: 録音を停止する
   supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
   title: 音声認識
+  voice_transcription: 音声文字起こし
 translate:
   additional_context: 追加コンテキスト
   additional_context_placeholder: 追加で考慮してほしい点を入力することができます（カジュアルさ等）
@@ -839,13 +850,13 @@ translate:
   auto_translate: 自動翻訳
   contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
+  detectedLanguage: 検出言語
   enter_text: 入力してください
-  model: リアルタイム翻訳モデル
   realtimeTranslation: リアルタイム翻訳
+  realtime_translation: リアルタイム翻訳
   result_placeholder: 翻訳結果がここに表示されます
   systemGeneratedContext: システム自動コンテキスト
   systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト
-  target_language: リアルタイム翻訳言語
   text_to_translate: 翻訳したい文章
   title: 翻訳
   translating: 翻訳中...

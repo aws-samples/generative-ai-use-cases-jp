@@ -5,9 +5,9 @@ import useTranslationCore from './useTranslationCore';
 const useRealtimeTranslation = () => {
   const { translate } = useTranslationCore();
   const { modelIds, lightModelIds } = MODELS;
-  const [translating, setTranslating] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+
+  // Interval for real-time translation (in milliseconds)
+  const [translationInterval, setTranslationInterval] = useState<number>(2000);
 
   // Get available models with light models prioritized first
   const availableModels = useMemo(() => {
@@ -19,19 +19,14 @@ const useRealtimeTranslation = () => {
 
   const translateRealtime = useCallback(
     async (
-      segmentId: string,
       sentence: string,
       modelId: string,
       targetLanguage: string,
       context?: string
     ): Promise<string | null> => {
-      const translationKey = `${segmentId}-${modelId}`;
-
-      if (translating[translationKey] || !sentence.trim()) {
+      if (!sentence.trim()) {
         return null;
       }
-
-      setTranslating((prev) => ({ ...prev, [translationKey]: true }));
 
       try {
         const translated = await translate(sentence, {
@@ -44,28 +39,25 @@ const useRealtimeTranslation = () => {
       } catch (error) {
         console.error('Translation failed:', error);
         return null;
-      } finally {
-        setTranslating((prev) => {
-          const updated = { ...prev };
-          delete updated[translationKey];
-          return updated;
-        });
       }
     },
-    [translating, translate]
+    [translate]
   );
 
-  const isTranslating = useCallback(
-    (segmentId: string, modelId: string) => {
-      return translating[`${segmentId}-${modelId}`] || false;
+  // Check if text has changed (for diff detection)
+  const hasTextChanged = useCallback(
+    (currentText: string, lastTranslatedText?: string): boolean => {
+      return currentText.trim() !== (lastTranslatedText || '').trim();
     },
-    [translating]
+    []
   );
 
   return {
     availableModels,
     translate: translateRealtime,
-    isTranslating,
+    translationInterval,
+    setTranslationInterval,
+    hasTextChanged,
   };
 };
 
