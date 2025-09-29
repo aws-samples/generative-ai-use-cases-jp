@@ -4409,7 +4409,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       "Export": {
         "Name": "AgentCoreStack-GenericAgentCoreRuntimeName",
       },
-      "Value": "GenericAgentCoreRuntime",
+      "Value": "GenUAgentCoreRuntime",
     },
   },
   "Parameters": {
@@ -4763,17 +4763,15 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:93a0bc6401c8848c3174de19d2010ba5897f4c44ebd6dd72ac3d3b9364165d52",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:00a594e6739c20cbf6cfb80f14644f07e31180a2a588567f334a277cf4259a1a",
             },
           },
         },
-        "AgentRuntimeName": "GenericAgentCoreRuntime",
+        "AgentRuntimeName": "GenUAgentCoreRuntime",
         "EnvironmentVariables": {
           "FILE_BUCKET": {
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
-          "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=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"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
-          "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -4990,7 +4988,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenericAgentCoreRuntime","arn":"",
+            "{"name":"GenUAgentCoreRuntime","arn":"",
             {
               "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
@@ -18491,7 +18489,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenericAgentCoreRuntime","arn":"",
+                "{"name":"GenUAgentCoreRuntime","arn":"",
                 {
                   "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },
@@ -18587,6 +18585,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "VITE_APP_INLINE_AGENTS": "false",
           "VITE_APP_MCP_ENABLED": "false",
           "VITE_APP_MCP_ENDPOINT": "",
+          "VITE_APP_MCP_SERVERS_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
           "VITE_APP_MODEL_IDS": {
             "Fn::Join": [
               "",
@@ -25986,7 +25985,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       "Export": {
         "Name": "AgentCoreStack-GenericAgentCoreRuntimeName",
       },
-      "Value": "GenericAgentCoreRuntime",
+      "Value": "GenUAgentCoreRuntime",
     },
   },
   "Parameters": {
@@ -26340,17 +26339,15 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:93a0bc6401c8848c3174de19d2010ba5897f4c44ebd6dd72ac3d3b9364165d52",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:00a594e6739c20cbf6cfb80f14644f07e31180a2a588567f334a277cf4259a1a",
             },
           },
         },
-        "AgentRuntimeName": "GenericAgentCoreRuntime",
+        "AgentRuntimeName": "GenUAgentCoreRuntime",
         "EnvironmentVariables": {
           "FILE_BUCKET": {
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
-          "MCP_SERVERS_CONFIG": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=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"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
-          "MCP_SERVERS_SAFE_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -26567,7 +26564,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenericAgentCoreRuntime","arn":"",
+            "{"name":"GenUAgentCoreRuntime","arn":"",
             {
               "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
@@ -39102,7 +39099,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenericAgentCoreRuntime","arn":"",
+                "{"name":"GenUAgentCoreRuntime","arn":"",
                 {
                   "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },
@@ -39160,6 +39157,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "VITE_APP_INLINE_AGENTS": "false",
           "VITE_APP_MCP_ENABLED": "false",
           "VITE_APP_MCP_ENDPOINT": "",
+          "VITE_APP_MCP_SERVERS_CONFIG": "{"time":{"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
           "VITE_APP_MODEL_IDS": {
             "Fn::Join": [
               "",

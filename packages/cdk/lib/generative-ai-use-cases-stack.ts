@@ -162,6 +162,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       securityGroups,
     });
 
+    // Load MCP configuration for Web frontend
+    const mcpServers = loadMCPConfig();
+    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
+
     // MCP
     let mcpEndpoint: string | null = null;
     if (params.mcpEnabled) {
@@ -229,6 +233,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
+      mcpServersConfig: safeMCPConfig,
       agentCoreEnabled:
         params.createGenericAgentCoreRuntime ||
         params.agentCoreExternalRuntimes.length > 0,
@@ -484,9 +489,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: JSON.stringify(params.agentCoreExternalRuntimes),
     });
 
-    // Load MCP configuration and add as output
-    const mcpServers = loadMCPConfig();
-    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
     new CfnOutput(this, 'McpServersConfig', {
       value: safeMCPConfig,
     });

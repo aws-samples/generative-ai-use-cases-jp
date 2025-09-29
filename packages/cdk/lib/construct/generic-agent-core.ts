@@ -13,16 +13,9 @@ import {
   BlockPublicAccess,
   BucketEncryption,
 } from 'aws-cdk-lib/aws-s3';
-import {
-  CfnRuntime,
-  CfnRuntimeEndpoint,
-} from 'aws-cdk-lib/aws-bedrockagentcore';
+import { CfnRuntime } from 'aws-cdk-lib/aws-bedrockagentcore';
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
-import {
-  loadMCPConfig,
-  extractSafeMCPConfig,
-} from '../utils/mcp-config-loader';
 
 export interface AgentCoreRuntimeConfig {
   name: string;
@@ -47,7 +40,6 @@ export class GenericAgentCore extends Construct {
   private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
   private readonly _fileBucket: Bucket;
   private _agentCoreRuntime?: CfnRuntime;
-  private _runtimeEndpoint?: CfnRuntimeEndpoint;
 
   constructor(scope: Construct, id: string, props: GenericAgentCoreProps) {
     super(scope, id);
@@ -62,13 +54,9 @@ export class GenericAgentCore extends Construct {
       autoDeleteObjects: true,
     });
 
-    // Load MCP configuration and prepare environment variables
-    const mcpServers = loadMCPConfig();
-    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
-
     // Default configuration for Generic AgentCore Runtime
     this.genericRuntimeConfig = {
-      name: `GenericAgentCoreRuntime${env}`,
+      name: `GenUAgentCoreRuntime${env}`,
       instructions: 'You are a helpful assistant powered by AWS Bedrock.',
       memorySize: 2048,
       dockerPath: 'lambda-python/generic-agent-core-runtime',
@@ -76,8 +64,6 @@ export class GenericAgentCore extends Construct {
       serverProtocol: 'HTTP',
       environmentVariables: {
         FILE_BUCKET: this._fileBucket.bucketName,
-        MCP_SERVERS_CONFIG: JSON.stringify(mcpServers),
-        MCP_SERVERS_SAFE_CONFIG: safeMCPConfig,
       },
     };
 
@@ -154,6 +140,9 @@ export class GenericAgentCore extends Construct {
    * Create IAM role for AgentCore Runtime execution with comprehensive permissions
    */
   private createAgentCoreRuntimeRole(): Role {
+    const region = Stack.of(this).region;
+    const accountId = Stack.of(this).account;
+
     const role = new Role(this, 'AgentCoreRuntimeRole', {
       assumedBy: new ServicePrincipal('bedrock-agentcore.amazonaws.com', {
         conditions: {
@@ -161,14 +150,11 @@ export class GenericAgentCore extends Construct {
             'aws:SourceAccount': Stack.of(this).account,
           },
           ArnLike: {
-            'aws:SourceArn': `arn:aws:bedrock-agentcore:${Stack.of(this).region}:${Stack.of(this).account}:*`,
+            'aws:SourceArn': `arn:aws:bedrock-agentcore:${region}:${accountId}:*`,
           },
         },
       }),
     });
-
-    const region = Stack.of(this).region;
-    const accountId = Stack.of(this).account;
 
     // Bedrock Model Invocation
     role.addToPolicy(

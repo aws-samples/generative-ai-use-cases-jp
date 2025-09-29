@@ -45,14 +45,17 @@ class ToolManager:
             return self.mcp_tools
 
         try:
-            # Load MCP configuration from environment variable
-            mcp_config_str = os.environ.get("MCP_SERVERS_CONFIG")
-            if not mcp_config_str:
-                logger.warning("MCP_SERVERS_CONFIG environment variable not set")
+            # Load MCP configuration from mcp.json file
+            mcp_config_path = "/app/mcp.json"
+            if not os.path.exists(mcp_config_path):
+                logger.warning(f"MCP configuration file not found at {mcp_config_path}")
                 self.mcp_tools = []
                 return self.mcp_tools
+            
+            with open(mcp_config_path, 'r') as f:
+                mcp_config = json.load(f)
 
-            mcp_servers = json.loads(mcp_config_str)
+            mcp_servers = mcp_config.get("mcpServers", {})
             mcp_clients = []
             uv_env = get_uv_environment()
 
@@ -88,13 +91,16 @@ class ToolManager:
             return []
 
         try:
-            # Load MCP configuration from environment variable
-            mcp_config_str = os.environ.get("MCP_SERVERS_CONFIG")
-            if not mcp_config_str:
-                logger.warning("MCP_SERVERS_CONFIG environment variable not set")
+            # Load MCP configuration from mcp.json file
+            mcp_config_path = "/app/mcp.json"
+            if not os.path.exists(mcp_config_path):
+                logger.warning(f"MCP configuration file not found at {mcp_config_path}")
                 return []
+            
+            with open(mcp_config_path, 'r') as f:
+                mcp_config = json.load(f)
 
-            available_servers = json.loads(mcp_config_str)
+            available_servers = mcp_config.get("mcpServers", {})
             mcp_clients = []
             uv_env = get_uv_environment()
 
