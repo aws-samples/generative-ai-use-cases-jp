@@ -30,7 +30,8 @@ export class ApplicationInferenceProfileStack extends Stack {
           !modelId.modelId.startsWith('us.') &&
           !modelId.modelId.startsWith('apac.') &&
           !modelId.modelId.startsWith('eu.') &&
-          !modelId.modelId.startsWith('global')
+          !modelId.modelId.startsWith('global') &&
+          !modelId.modelId.startsWith('jp')
         ) {
           const inferenceProfileNamePrefix = modelId.modelId
             .replace(/\./g, '-')
