@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { verifyAdminAccess, CORS_HEADERS, JWTClaims } from './utils/adminAuth';
-import { verifyToken } from './utils/auth';
+import { verifyToken, verifyTokenWithRoleCheck } from './utils/auth';
 
 export interface AdminStatusResponse {
   isAdmin: boolean;
@@ -14,8 +14,7 @@ export const handler = async (
   console.log('Event:', JSON.stringify(event, null, 2));
 
   try {
-    // For checkAdminStatus, we still need to handle non-admin users
-    // So we verify the token directly instead of using verifyAdminAccess
+    // Extract token
     const token = event.headers.Authorization || event.headers.authorization;
     if (!token) {
       return {
@@ -25,8 +24,9 @@ export const handler = async (
       };
     }
 
-    const claims = (await verifyToken(token)) as JWTClaims | null;
-    if (!claims) {
+    // Use real-time role checking to ensure consistency with other endpoints
+    const verificationResult = await verifyTokenWithRoleCheck(token);
+    if (!verificationResult) {
       return {
         statusCode: 401,
         headers: CORS_HEADERS,
@@ -34,8 +34,8 @@ export const handler = async (
       };
     }
 
+    const { claims, isCurrentlyAdmin } = verificationResult;
     const tenantId = claims['custom:tenant_id'];
-    const isAdmin = claims['custom:tenantAdmin'] === 'true';
     const username = claims['cognito:username'] || claims.username || '';
 
     if (!tenantId) {
@@ -47,13 +47,13 @@ export const handler = async (
     }
 
     const response: AdminStatusResponse = {
-      isAdmin,
+      isAdmin: isCurrentlyAdmin, // Use real-time admin status from Cognito
       tenantId,
       username,
     };
 
     console.log(
-      `Admin status check for user ${username}: isAdmin=${isAdmin}, tenantId=${tenantId}`
+      `Admin status check for user ${username}: isAdmin=${isCurrentlyAdmin}, tenantId=${tenantId}`
     );
 
     return {

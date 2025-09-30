@@ -207,6 +207,18 @@ const AdminPortal: React.FC = () => {
           }, 1000);
         }
 
+        // Broadcast role change event for real-time monitoring
+        window.dispatchEvent(
+          new CustomEvent('user-role-changed', {
+            detail: {
+              username,
+              newRole: isAdmin ? 'admin' : 'user',
+              actionType,
+              sessionInvalidated,
+            },
+          })
+        );
+
         if (response.data.warning === 'SESSION_INVALIDATION_FAILED') {
           setError(
             `Role updated but user sessions remain active. The user "${username}" should be asked to sign out manually for security.`

@@ -15,6 +15,7 @@ adminPortal:
       manualPlaceholder: user1@example.com
       or: or
     errors:
+      adminPrivilegesRevoked: Your admin privileges have been revoked. You can no longer invite users.
       invalidFile: Please select a valid CSV file
       invitationFailed: Failed to invite users
       noEmailsProvided: Please provide at least one email address
@@ -68,8 +69,8 @@ adminPortal:
     actions: Actions
     created: Created
     role: Role
-    user: User
     status: Status
+    user: User
   title: Admin Portal
   userManagement: User Management
 agent:
@@ -854,29 +855,16 @@ ragChatBot:
     copy: Copy
     inputPlaceholder: Type a message...
     instruction: Instruction
-    syncStatus: Sync Status
-    title: ChatBot Chat
     noMessages: No messages
     quickStarters: Quick Starters
     send: Send
     sendError: Failed to send message
+    syncStatus: Sync Status
+    title: ChatBot Chat
   confirmDelete: Are you sure you want to delete this bot?
   createNew: Create New Bot
   delete: Delete
   description: Create, manage, and share AI bots
-  title: RAG ChatBot Management
-  search: Search
-  searchPlaceholder: Search by bot name or description
-  filter: Filter
-  filterAll: All
-  filterPrivate: Private
-  filterPublic: Public
-  filterStarred: Starred
-  scopeFilter: Scope
-  showStarredOnly: Show starred only
-  popularBots: Popular Bots
-  starredOnly: Starred Only
-  myBots: My Bots
   edit:
     add: Add
     back: Back
@@ -886,16 +874,10 @@ ragChatBot:
     description: Description
     displayRetrievedChunks: Display Retrieved Chunks
     editTitle: Edit Bot
-    instruction: Instruction
-    title: Title
     generationParams: Generation Parameters
+    instruction: Instruction
     knowledge: Knowledge Base
     maxTokens: Max Tokens
-    sourceUrls: Source URLs
-    temperature: Temperature
-    topK: Top-K
-    topP: Top-P
-    uploadFiles: Upload Files
     promptCaching: Prompt Caching
     quickStarterExample: Example
     quickStarterTitle: Title
@@ -905,45 +887,64 @@ ragChatBot:
     saveBeforeUpload: Please save the bot before uploading files
     saveFailed: Failed to save
     saving: Saving...
+    sourceUrls: Source URLs
+    temperature: Temperature
+    title: Title
+    topK: Top-K
+    topP: Top-P
+    uploadFiles: Upload Files
   editTitle: Edit
+  filter: Filter
+  filterAll: All
+  filterPrivate: Private
+  filterPublic: Public
+  filterStarred: Starred
   history:
     back: Back
     confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
     confirmDelete: Are you sure you want to delete this conversation?
     daysAgo: '{{days}} days ago'
     deleteSelected: Delete Selected
-    search: Search
-    searchPlaceholder: Search conversations...
-    title: Conversation History
     deselectAll: Deselect All
     hoursAgo: '{{hours}} hours ago'
     lastMessage: Last message
+    messageCount: 'Messages: {{count}}'
     minutesAgo: '{{minutes}} minutes ago'
-    selectAll: Select All
-    selected: '{{count}} selected'
     noConversations: No conversations found
     noDate: No date
     open: Open
+    search: Search
+    searchPlaceholder: Search conversations...
+    selectAll: Select All
+    selected: '{{count}} selected'
     showing: 'Showing {{count}} conversations'
+    title: Conversation History
     untitled: Untitled
     yesterday: Yesterday
-    messageCount: 'Messages: {{count}}'
   lastUsed: Last used
+  myBots: My Bots
   noBots: No bots found
-  viewMore: View More
-  shared: Shared
   organizationPublic: Organization Public
   organizationPublicDescription: Members of your organization can use this bot
+  popularBots: Popular Bots
   private: Private
   privateDescription: Only you can use this bot
+  scopeFilter: Scope
+  search: Search
+  searchPlaceholder: Search by bot name or description
+  shared: Shared
+  title: RAG ChatBot Management
+  showStarredOnly: Show starred only
+  star: Star
+  starredOnly: Starred Only
   syncStatus:
     completed: Sync Complete
     failed: Sync Failed
     syncing: Syncing
-  star: Star
   tenantPublic: Tenant Public
   tenantPublicDescription: Members of your tenant can use this bot
   unstar: Unstar
+  viewMore: View More
 setting:
   ai_items:
     agent_name: Agent Name

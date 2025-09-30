@@ -1,6 +1,6 @@
 import useVersion from '../hooks/useVersion';
 import useUserSetting from '../hooks/useUserSetting';
-import useAdminAuth from '../hooks/useAdminAuth';
+import useRoleMonitor from '../hooks/useRoleMonitor';
 import { Link } from 'react-router-dom';
 import Help from '../components/Help';
 import Alert from '../components/Alert';
@@ -57,7 +57,7 @@ const Setting = () => {
   const { getClosedPullRequests } = useGitHub();
   const { signOut, user: _user } = useAuthenticator();
   const { i18n, t } = useTranslation();
-  const { isAdmin, isLoading: isAdminLoading } = useAdminAuth();
+  const { isAdmin, isLoading: isAdminLoading } = useRoleMonitor({ enabled: false }); // Only check when needed, don't start polling
 
   const hasUpdate = getHasUpdate();
   const closedPullRequests = getClosedPullRequests();

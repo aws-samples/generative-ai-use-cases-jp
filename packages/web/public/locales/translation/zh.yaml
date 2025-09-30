@@ -68,8 +68,8 @@ adminPortal:
     actions: 操作
     created: 创建时间
     role: 角色
-    user: 用户
     status: 状态
+    user: 用户
   title: 管理员门户
   userManagement: 用户管理
 agent:

@@ -68,8 +68,8 @@ adminPortal:
     actions: Hành Động
     created: Ngày Tạo
     role: Vai Trò
-    user: Người Dùng
     status: Trạng Thái
+    user: Người Dùng
   title: Cổng Quản Trị
   userManagement: Quản Lý Người Dùng
 agent:

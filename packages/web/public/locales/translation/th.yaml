@@ -68,8 +68,8 @@ adminPortal:
     actions: การดำเนินการ
     created: วันที่สร้าง
     role: บทบาท
-    user: ผู้ใช้
     status: สถานะ
+    user: ผู้ใช้
   title: พอร์ทัลผู้ดูแลระบบ
   userManagement: การจัดการผู้ใช้
 agent:

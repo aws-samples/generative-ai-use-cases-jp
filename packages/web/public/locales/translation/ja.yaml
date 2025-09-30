@@ -15,6 +15,7 @@ adminPortal:
       manualPlaceholder: user1@example.com
       or: または
     errors:
+      adminPrivilegesRevoked: 管理者権限が取り消されました。ユーザーを招待できません。
       invalidFile: 有効なCSVファイルを選択してください
       invitationFailed: ユーザーの招待に失敗しました
       noEmailsProvided: 少なくとも1つのメールアドレスを提供してください
@@ -68,8 +69,8 @@ adminPortal:
     actions: アクション
     created: 作成日
     role: 役割
-    user: ユーザー
     status: ステータス
+    user: ユーザー
   title: 管理者ポータル
   userManagement: ユーザー管理
 agent:
@@ -696,29 +697,16 @@ ragChatBot:
     copy: コピー
     inputPlaceholder: メッセージを入力...
     instruction: 指示
-    syncStatus: 同期状態
-    title: ChatBot チャット
     noMessages: メッセージがありません
     quickStarters: クイックスタート
     send: 送信
     sendError: メッセージの送信に失敗しました
+    syncStatus: 同期状態
+    title: ChatBot チャット
   confirmDelete: このボットを削除してもよろしいですか？
   createNew: 新規ボット作成
   delete: 削除
   description: AIボットを作成、管理、共有できます
-  title: RAG ChatBot 管理
-  search: 検索
-  searchPlaceholder: ボット名または説明で検索
-  filter: フィルター
-  filterAll: すべて
-  filterPrivate: プライベート
-  filterPublic: パブリック
-  filterStarred: スター付き
-  scopeFilter: 公開範囲
-  showStarredOnly: スター付きのみ表示
-  popularBots: 人気のボット
-  starredOnly: スター付きのみ
-  myBots: マイボット
   edit:
     add: 追加
     back: 戻る
@@ -728,16 +716,10 @@ ragChatBot:
     description: 説明
     displayRetrievedChunks: 取得したチャンクを表示
     editTitle: ボットを編集
-    instruction: 指示
-    title: タイトル
     generationParams: 生成パラメータ
+    instruction: 指示
     knowledge: ナレッジベース
     maxTokens: 最大トークン数
-    sourceUrls: ソースURL
-    temperature: 温度
-    topK: Top-K
-    topP: Top-P
-    uploadFiles: ファイルをアップロード
     promptCaching: プロンプトキャッシング
     quickStarterExample: 例文
     quickStarterTitle: タイトル
@@ -747,45 +729,64 @@ ragChatBot:
     saveBeforeUpload: ファイルをアップロードする前にボットを保存してください
     saveFailed: 保存に失敗しました
     saving: 保存中...
+    sourceUrls: ソースURL
+    temperature: 温度
+    title: タイトル
+    topK: Top-K
+    topP: Top-P
+    uploadFiles: ファイルをアップロード
   editTitle: 編集
+  filter: フィルター
+  filterAll: すべて
+  filterPrivate: プライベート
+  filterPublic: パブリック
+  filterStarred: スター付き
   history:
     back: 戻る
     confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
     confirmDelete: この会話を削除してもよろしいですか？
     daysAgo: '{{days}}日前'
     deleteSelected: 選択した項目を削除
-    search: 検索
-    searchPlaceholder: 会話を検索...
-    title: 会話履歴
     deselectAll: 選択解除
     hoursAgo: '{{hours}}時間前'
     lastMessage: 最終メッセージ
+    messageCount: 'メッセージ数: {{count}}'
     minutesAgo: '{{minutes}}分前'
-    selectAll: すべて選択
-    selected: '{{count}}件選択中'
     noConversations: 会話履歴がありません
     noDate: 日付なし
     open: 開く
+    search: 検索
+    searchPlaceholder: 会話を検索...
+    selectAll: すべて選択
+    selected: '{{count}}件選択中'
     showing: '{{count}}件の会話を表示中'
+    title: 会話履歴
     untitled: 無題
     yesterday: 昨日
-    messageCount: 'メッセージ数: {{count}}'
   lastUsed: 最終使用
+  myBots: マイボット
   noBots: ボットが見つかりません
-  viewMore: もっと見る
-  shared: 共有中
   organizationPublic: 組織内公開
   organizationPublicDescription: 組織内のメンバーが利用できます
+  popularBots: 人気のボット
   private: プライベート
   privateDescription: 自分だけが利用できます
+  scopeFilter: 公開範囲
+  search: 検索
+  searchPlaceholder: ボット名または説明で検索
+  shared: 共有中
+  title: RAG ChatBot 管理
+  showStarredOnly: スター付きのみ表示
+  star: スター
+  starredOnly: スター付きのみ
   syncStatus:
     completed: 同期完了
     failed: 同期失敗
     syncing: 同期中
-  star: スター
   tenantPublic: テナント内公開
   tenantPublicDescription: テナント内のメンバーが利用できます
   unstar: スター解除
+  viewMore: もっと見る
 setting:
   ai_items:
     agent_name: Agent 名

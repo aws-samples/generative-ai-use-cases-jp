@@ -1,7 +1,8 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
-import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import useSWR, { SWRConfiguration } from 'swr';
 import useSWRInfinite from 'swr/infinite';
+import { performLogoutAndReload, isRoleMismatchError } from '../utils/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
@@ -25,7 +26,7 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// HTTP Response Preprocessing - Add retry logic for auth failures
+// HTTP Response Preprocessing - Combined auth failure and role mismatch handling
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -49,10 +50,24 @@ api.interceptors.response.use(
       }
     }
 
+    // Handle role mismatch errors using centralized logic
+    if (isRoleMismatchError(error)) {
+      // Skip role mismatch handling for specific endpoints that should handle their own errors
+      const requestUrl = originalRequest.url || '';
+      if (requestUrl.includes('/validate-domains') || requestUrl.includes('/admin/users/invite')) {
+        return Promise.reject(error);
+      }
+
+      console.log('[useHttp] Role mismatch detected, forcing re-authentication');
+      
+      // Use centralized logout utility
+      await performLogoutAndReload('Role mismatch detected in HTTP interceptor');
+      return; // Don't propagate the error further
+    }
+
     return Promise.reject(error);
   }
 );
-
 const fetcher = (url: string) => {
   return api.get(url).then((res) => res.data);
 };
@@ -64,6 +79,7 @@ const fetcher = (url: string) => {
 const useHttp = () => {
   return {
     api,
+    fetcher,
     /**
      * GET Request
      * Implemented with SWR
@@ -103,9 +119,9 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+      return new Promise<import('axios').AxiosResponse<RES>>((resolve, reject) => {
         api
-          .post<RES, AxiosResponse<RES>, DATA>(url, data, reqConfig)
+          .post<RES, import('axios').AxiosResponse<RES>, DATA>(url, data, reqConfig)
           .then((data) => {
             resolve(data);
           })
@@ -131,9 +147,9 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+      return new Promise<import('axios').AxiosResponse<RES>>((resolve, reject) => {
         api
-          .put<RES, AxiosResponse<RES>, DATA>(url, data)
+          .put<RES, import('axios').AxiosResponse<RES>, DATA>(url, data)
           .then((data) => {
             resolve(data);
           })
@@ -156,9 +172,9 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+      return new Promise<import('axios').AxiosResponse<RES>>((resolve, reject) => {
         api
-          .delete<RES, AxiosResponse<RES>, DATA>(url)
+          .delete<RES, import('axios').AxiosResponse<RES>, DATA>(url)
           .then((data) => {
             resolve(data);
           })
@@ -173,4 +189,50 @@ const useHttp = () => {
   };
 };
 
+const usePagination = <T>(
+  url: string,
+  initialSize = 10,
+  options?: SWRConfiguration,
+  config?: AxiosRequestConfig,
+) => {
+  const swr = useSWRInfinite<T>(
+    (pageIndex) => {
+      const query = `limit=${initialSize}&offset=${initialSize * pageIndex}`;
+      return url.indexOf('?') > 0 ? `${url}&${query}` : `${url}?${query}`;
+    },
+    (requestUrl) => {
+      return api.get(requestUrl, config).then((res) => res.data);
+    },
+    options,
+  );
+
+  return {
+    ...swr,
+    hasMore: (() => {
+      if (!swr.data || swr.data.length === 0) return false;
+      const lastData = swr.data[swr.data.length - 1];
+      return Array.isArray(lastData) && lastData.length === initialSize;
+    })(),
+  };
+};
+
+const useSwrWithFetcher = <T>(url: string, options?: SWRConfiguration) => {
+  return useSWR<T>(url, fetcher, options);
+};
+
+const useSwrWithAPI = <T>(
+  url: string,
+  options?: SWRConfiguration,
+  config?: AxiosRequestConfig,
+) => {
+  return useSWR<T>(
+    url,
+    (requestUrl) => {
+      return api.get(requestUrl, config).then((res) => res.data);
+    },
+    options,
+  );
+};
+
 export default useHttp;
+export { usePagination, useSwrWithFetcher, useSwrWithAPI };
