@@ -3,14 +3,10 @@ import { Construct } from 'constructs';
 import {
   Auth,
   Api,
-  Web,
   Database,
   Rag,
   RagKnowledgeBase,
-  Transcribe,
   CommonWebAcl,
-  SpeechToSpeech,
-  McpApi,
   LitellmProxyServer,
   TenantManager,
 } from '../../construct';
@@ -21,6 +17,14 @@ import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilderStack } from '../nested/use-case-builder-stack';
 import { ProcessedStackInput } from '../../stack-input';
 import { allowS3AccessWithSourceIpCondition } from '../../utils/s3-access-policy';
+import { env } from 'process';
+import { Buffer } from 'buffer';
+import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
+import { RestApi } from 'aws-cdk-lib/aws-apigateway';
+import TranscribeStack from './transcribe-stack';
+import WebStack from './web-stack';
+import SpeechToSpeechStack from './speech-to-speech-stack';
+import McpApiStack from './mcp-api-stack';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -45,6 +49,9 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
 export class GenerativeAiUseCasesStack extends Stack {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
+  public readonly idPool: IdentityPool;
+  public readonly restApi: RestApi;
+  public readonly tenantManager: TenantManager;
 
   constructor(
     scope: Construct,
@@ -52,7 +59,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     props: GenerativeAiUseCasesStackProps
   ) {
     super(scope, id, props);
-    process.env.overrideWarningsEnabled = 'false';
+    env.overrideWarningsEnabled = 'false';
 
     const params = props.params;
 
@@ -145,71 +152,37 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // SpeechToSpeech (for bidirectional communication)
-    const speechToSpeech = new SpeechToSpeech(this, 'SpeechToSpeech', {
-      envSuffix: params.env,
-      api: api.restApi,
-      userPool: auth.userPool,
-      speechToSpeechModelIds: params.speechToSpeechModelIds,
-      crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
-    });
+    const speechToSpeechStack = new SpeechToSpeechStack(
+      this,
+      'SpeechToSpeech',
+      {
+        params: params,
+        api: api,
+        auth: auth,
+      }
+    );
+    const speechToSpeech = speechToSpeechStack.speechToSpeech;
 
     // MCP
     let mcpEndpoint: string | null = null;
     if (params.mcpEnabled) {
-      const mcpApi = new McpApi(this, 'McpApi', {
-        idPool: auth.idPool,
+      const mcpApiStack = new McpApiStack(this, 'McpApi', {
+        auth: auth,
         isSageMakerStudio: props.isSageMakerStudio,
-        fileBucket: api.fileBucket,
+        api: api,
       });
-      mcpEndpoint = mcpApi.endpoint;
+
+      mcpEndpoint = mcpApiStack.mcpApi.endpoint;
     }
 
-    // Web Frontend
-    const selfSignUpEnabledForWeb =
-      params.samlAuthEnabled && !params.samlDefaultAuthEnabled
-        ? false
-        : params.selfSignUpEnabled;
-
-    const web = new Web(this, 'Api', {
-      // Auth
-      userPoolId: auth.userPool.userPoolId,
-      userPoolClientId: auth.client.userPoolClientId,
-      idPoolId: auth.idPool.identityPoolId,
-      selfSignUpEnabled: selfSignUpEnabledForWeb,
-      samlAuthEnabled: params.samlAuthEnabled,
-      samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
-      samlCognitoDomainName: params.samlCognitoDomainName,
-      samlCognitoFederatedIdentityProviderName:
-        params.samlCognitoFederatedIdentityProviderName,
-      // Backend
-      apiEndpointUrl: api.restApi.url,
-      predictStreamFunctionArn: api.predictStreamFunction.functionArn,
-      ragEnabled: params.ragEnabled,
-      ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
-      agentEnabled: params.agentEnabled || params.agents.length > 0,
-      flows: params.flows,
-      flowStreamFunctionArn: api.invokeFlowFunction.functionArn,
-      optimizePromptFunctionArn: api.optimizePromptFunction.functionArn,
+    new WebStack(this, 'Web', {
+      params: params,
+      auth: auth,
+      api: api,
+      speechToSpeech: speechToSpeech,
       webAclId: props.webAclId,
-      modelRegion: api.modelRegion,
-      modelIds: api.modelIds,
-      imageGenerationModelIds: api.imageGenerationModelIds,
-      videoGenerationModelIds: api.videoGenerationModelIds,
-      endpointNames: api.endpointNames,
-      agentNames: api.agentNames,
-      inlineAgents: params.inlineAgents,
-      useCaseBuilderEnabled: params.useCaseBuilderEnabled,
-      speechToSpeechNamespace: speechToSpeech.namespace,
-      speechToSpeechEventApiEndpoint: speechToSpeech.eventApiEndpoint,
-      speechToSpeechModelIds: params.speechToSpeechModelIds,
-      mcpEnabled: params.mcpEnabled,
-      mcpEndpoint,
-      // Frontend
-      // Custom Domain
+      mcpEndpoint: mcpEndpoint,
       cert: props.cert,
-      hostName: params.hostName,
-      domainName: params.domainName,
-      hostedZoneId: params.hostedZoneId,
     });
 
     // RAG
@@ -286,31 +259,22 @@ export class GenerativeAiUseCasesStack extends Stack {
       });
     }
 
-    // Transcribe
-    new Transcribe(this, 'Transcribe', {
+    new TranscribeStack(this, `TranscribeStack${params.env}`, {
+      env: {
+        account: params.account,
+        region: params.region,
+      },
+      params: params,
       userPool: auth.userPool,
       idPool: auth.idPool,
-      api: api.restApi,
-      allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
-      allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
+      restApi: api.restApi,
       tenantManager: tenantManager,
-      environment: params.env,
     });
 
     // Cfn Outputs
     new CfnOutput(this, 'Region', {
       value: this.region,
     });
-
-    if (params.hostName && params.domainName) {
-      new CfnOutput(this, 'WebUrl', {
-        value: `https://${params.hostName}.${params.domainName}`,
-      });
-    } else {
-      new CfnOutput(this, 'WebUrl', {
-        value: `https://${web.distribution.domainName}`,
-      });
-    }
 
     new CfnOutput(this, 'ApiEndpoint', {
       value: api.restApi.url,
