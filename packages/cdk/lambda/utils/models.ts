@@ -961,6 +961,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'eu.anthropic.claude-sonnet-4-5-20250929-v1:0': {
+    defaultParams: CLAUDE_4_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'jp.anthropic.claude-sonnet-4-5-20250929-v1:0': {
     defaultParams: CLAUDE_4_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
