@@ -526,6 +526,7 @@ export const BEDROCK_SPEECH_TO_SPEECH_MODELS = Object.keys(
 // Prompt caching
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
 export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
+  'anthropic.claude-sonnet-4-5-20250929-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-1-20250805-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-20250514-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-sonnet-4-20250514-v1:0': ['messages', 'system', 'tools'],
