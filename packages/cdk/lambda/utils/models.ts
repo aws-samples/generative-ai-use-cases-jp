@@ -112,7 +112,6 @@ const CLAUDE_4_5_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
     maxTokens: 64000,
     temperature: 1,
-    topK: 250,
   },
 };
 
