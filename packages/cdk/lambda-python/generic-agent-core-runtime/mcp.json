@@ -68,7 +68,7 @@
       "args": [
         "-y",
         "mcp-remote",
-        "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
+        "https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"
       ],
       "metadata": {
         "category": "Search",

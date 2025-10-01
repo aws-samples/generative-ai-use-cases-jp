@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import InputChatContent from '../InputChatContent';
 import ChatMessage from '../ChatMessage';
@@ -93,12 +94,13 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   const { modelIds: availableModels, modelDisplayName } = MODELS;
   const modelId = getModelId();
 
-  // File handling
+  // File handling - use location pathname to match InputChatContent
+  const location = useLocation();
   const {
     clear: clearFiles,
     uploadFiles,
     uploadedFiles,
-  } = useFiles(`/agent-chat-${agent.agentId}`);
+  } = useFiles(location.pathname);
 
   // Initialize model ID when agent is loaded
   useEffect(() => {
@@ -239,21 +241,23 @@ Please respond as this agent with the specified behavior and personality.`;
 
   // Render unified header with all controls
   const renderUnifiedHeader = () => (
-    <div className="flex flex-col gap-2">
-      {/* Main header with navigation, agent info, and actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <RobotIcon className="h-8 w-8 text-blue-600" />
-          <div>
-            <div className="text-xl font-semibold">
-              {agent?.name || t('agent_builder.agent_chat')}
-            </div>
-            {agent?.description && (
-              <div className="text-sm text-gray-600">{agent.description}</div>
-            )}
+    <div className="flex flex-col items-center gap-3">
+      {/* Header with title, description and actions */}
+      <div className="flex w-full items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 text-center">
+          {/* Agent Title */}
+          <div className="truncate text-xl font-semibold">
+            {agent?.name || t('agent_builder.agent_chat')}
           </div>
+          {/* Agent Description */}
+          {agent?.description && (
+            <div className="mt-1 break-words text-sm text-gray-600">
+              {agent.description}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-2">
           {showEditButton && onEdit && (
             <ButtonIcon onClick={onEdit} title={t('common.edit')}>
               <EditIcon />
@@ -263,11 +267,11 @@ Please respond as this agent with the specified behavior and personality.`;
         </div>
       </div>
 
-      {/* Controls row */}
+      {/* Controls - all stacked vertically for consistent layout */}
       {showAgentInfo && (
-        <div className="flex flex-col items-center justify-center gap-2 md:flex-row print:hidden">
+        <div className="flex w-full flex-col items-center gap-3 print:hidden">
           {/* Model Selection */}
-          <div className="w-4/5 sm:w-1/2 md:w-fit">
+          <div className="w-full max-w-md">
             <Select
               value={modelId || agent.modelId}
               onChange={setModelId}
@@ -284,24 +288,27 @@ Please respond as this agent with the specified behavior and personality.`;
           </div>
 
           {/* Agent Capabilities */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {/* Code Execution - only show when enabled */}
-            {agent.codeExecutionEnabled && (
-              <span className="inline-block rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                {t('agent_builder.code_execution')}
-              </span>
-            )}
-
-            {/* MCP Server List */}
-            {agent.mcpServers &&
-              agent.mcpServers.map((serverName) => (
-                <span
-                  key={serverName}
-                  className="inline-block rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
-                  {serverName}
+          {(agent.codeExecutionEnabled ||
+            (agent.mcpServers && agent.mcpServers.length > 0)) && (
+            <div className="flex flex-wrap justify-center gap-2">
+              {/* Code Execution - only show when enabled */}
+              {agent.codeExecutionEnabled && (
+                <span className="inline-block rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                  {t('agent_builder.code_execution')}
                 </span>
-              ))}
-          </div>
+              )}
+
+              {/* MCP Server List */}
+              {agent.mcpServers &&
+                agent.mcpServers.map((serverName) => (
+                  <span
+                    key={serverName}
+                    className="inline-block rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                    {serverName}
+                  </span>
+                ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -426,7 +433,7 @@ Please respond as this agent with the specified behavior and personality.`;
       className={`${!chatIsEmpty ? 'screen:pb-48' : ''} relative ${className}`}>
       {/* Unified Header */}
       {showHeader && (
-        <div className="invisible my-0 flex h-0 items-center justify-center lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+        <div className="my-5 flex items-center justify-center print:my-5">
           {renderUnifiedHeader()}
         </div>
       )}
