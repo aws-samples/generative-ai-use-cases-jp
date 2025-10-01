@@ -5,7 +5,7 @@ import {
   SecurityGroup,
   ISubnet,
   SubnetType,
-  SubnetFilter,
+  Subnet,
 } from 'aws-cdk-lib/aws-ec2';
 import { CfnResolverEndpoint } from 'aws-cdk-lib/aws-route53resolver';
 import { Construct } from 'constructs';
@@ -41,15 +41,13 @@ export class Resolver extends Construct {
       'DNS UDP'
     );
 
-    const subnets = props.vpc.selectSubnets(
-      props.subnetIds
-        ? {
-            subnetFilters: [SubnetFilter.byIds(props.subnetIds)],
-          }
-        : {
-            subnetType: SubnetType.PRIVATE_ISOLATED,
-          }
-    ).subnets;
+    const subnets = props.subnetIds
+      ? props.subnetIds.map((subnetId) =>
+          Subnet.fromSubnetId(this, `ResolverSubnet-${subnetId}`, subnetId)
+        )
+      : props.vpc.selectSubnets({
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+        }).subnets;
 
     const ipAddresses: CfnResolverEndpoint.IpAddressRequestProperty[] =
       subnets.map((s: ISubnet) => ({ subnetId: s.subnetId }));
