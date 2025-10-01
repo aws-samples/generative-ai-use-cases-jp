@@ -102,9 +102,7 @@ class ToolManager:
                     break
 
             if not mcp_config_path:
-                logger.warning(
-                    f"MCP configuration file not found in any of: {possible_paths}"
-                )
+                logger.warning(f"MCP configuration file not found in any of: {possible_paths}")
                 return []
 
             logger.info(f"Loading MCP configuration from: {mcp_config_path}")
@@ -140,9 +138,7 @@ class ToolManager:
 
             # Flatten the tools
             dynamic_tools = sum([c.list_tools_sync() for c in mcp_clients], [])
-            logger.info(
-                f"Loaded {len(dynamic_tools)} MCP tools from {len(mcp_clients)} servers"
-            )
+            logger.info(f"Loaded {len(dynamic_tools)} MCP tools from {len(mcp_clients)} servers")
             return dynamic_tools
 
         except Exception as e:
@@ -163,18 +159,14 @@ class ToolManager:
             bucket = os.environ.get("FILE_BUCKET")
             if not bucket:
                 # For local testing, provide a fallback message
-                logger.warning(
-                    "FILE_BUCKET environment variable not set. Using local file path for testing."
-                )
+                logger.warning("FILE_BUCKET environment variable not set. Using local file path for testing.")
                 return f"Local file path (S3 upload skipped): {filepath}"
 
             aws_creds = get_aws_credentials()
             region = aws_creds.get("AWS_REGION", "us-east-1")
 
             if not filepath.startswith(WORKSPACE_DIR):
-                raise ValueError(
-                    f"{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}."
-                )
+                raise ValueError(f"{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}.")
 
             try:
                 filename = os.path.basename(filepath)
@@ -207,9 +199,7 @@ class ToolManager:
 
         return code_interpreter_tools
 
-    def get_tools_with_options(
-        self, code_execution_enabled: bool = False, mcp_servers=None
-    ) -> list[Any]:
+    def get_tools_with_options(self, code_execution_enabled: bool = False, mcp_servers=None) -> list[Any]:
         """
         Get tools with optional code execution and MCP servers.
 
@@ -223,9 +213,7 @@ class ToolManager:
         Returns:
             List of all available tools
         """
-        logger.info(
-            f"get_tools_with_options called with code_execution_enabled={code_execution_enabled}"
-        )
+        logger.info(f"get_tools_with_options called with code_execution_enabled={code_execution_enabled}")
         logger.info(f"mcp_servers parameter: {mcp_servers} (type: {type(mcp_servers)})")
 
         all_tools = []
@@ -241,15 +229,11 @@ class ToolManager:
             mcp_tools = []
         elif isinstance(mcp_servers, list):
             # Load specified MCP servers by name
-            logger.info(
-                f"Loading {len(mcp_servers)} user-specified MCP servers by name"
-            )
+            logger.info(f"Loading {len(mcp_servers)} user-specified MCP servers by name")
             mcp_tools = self.load_mcp_tools_by_names(mcp_servers)
         else:
             # Fallback to default
-            logger.warning(
-                f"Unexpected mcp_servers type: {type(mcp_servers)}, using default"
-            )
+            logger.warning(f"Unexpected mcp_servers type: {type(mcp_servers)}, using default")
             mcp_tools = self.load_mcp_tools()
 
         all_tools.extend(mcp_tools)
@@ -265,8 +249,6 @@ class ToolManager:
             all_tools.extend(code_interpreter_tools)
 
         # Log final tool count
-        logger.info(
-            f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 1, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})"
-        )
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 1, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
 
         return all_tools
