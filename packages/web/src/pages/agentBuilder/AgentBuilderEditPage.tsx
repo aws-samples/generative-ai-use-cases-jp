@@ -23,6 +23,9 @@ const AgentBuilderEditPage: React.FC = () => {
 
   const isEditMode = Boolean(agentId);
   const [testMode, setTestMode] = useState(false);
+  const [currentFormData, setCurrentFormData] = useState<AgentFormData | null>(
+    null
+  );
 
   const handleSave = useCallback(
     async (formData: AgentFormData) => {
@@ -38,7 +41,8 @@ const AgentBuilderEditPage: React.FC = () => {
           tags: formData.tags,
           agentId,
         });
-        navigate('/agent-builder');
+        // Navigate back to agent chat page after editing
+        navigate(`/agent-builder/${agentId}`);
       } else {
         console.log(
           'Creating agent with data:',
@@ -56,6 +60,7 @@ const AgentBuilderEditPage: React.FC = () => {
         });
         if (newAgent) {
           console.log('Created agent:', JSON.stringify(newAgent, null, 2));
+          // Navigate to agent list after creating new agent
           navigate('/agent-builder');
         }
       }
@@ -64,8 +69,18 @@ const AgentBuilderEditPage: React.FC = () => {
   ); // Remove function dependencies
 
   const handleCancel = useCallback(() => {
-    navigate('/agent-builder');
-  }, [navigate]);
+    if (agentId && isEditMode) {
+      // Navigate back to agent chat page when canceling edit
+      navigate(`/agent-builder/${agentId}`);
+    } else {
+      // Navigate to agent list when canceling create
+      navigate('/agent-builder');
+    }
+  }, [navigate, agentId, isEditMode]);
+
+  const handleFormDataChange = useCallback((formData: AgentFormData) => {
+    setCurrentFormData(formData);
+  }, []);
 
   const title = isEditMode
     ? t('agent_builder.edit_agent')
@@ -117,12 +132,12 @@ const AgentBuilderEditPage: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            outlined
-            onClick={() => setTestMode(!testMode)}
-            disabled={!agent && isEditMode}>
-            {t('agent_builder.test')}
-          </Button>
+          {/* Show test button when we have form data or existing agent */}
+          {(currentFormData || agent) && (
+            <Button outlined onClick={() => setTestMode(!testMode)}>
+              {t('agent_builder.test')}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -134,6 +149,7 @@ const AgentBuilderEditPage: React.FC = () => {
             initialData={agent || undefined}
             onSave={handleSave}
             onCancel={handleCancel}
+            onFormDataChange={handleFormDataChange}
             loading={loading}
             error={error || undefined}
             isEditMode={isEditMode}
@@ -141,16 +157,37 @@ const AgentBuilderEditPage: React.FC = () => {
         </div>
 
         {/* Agent Testing */}
-        {testMode && agent && (
+        {testMode && (currentFormData || agent) && (
           <div className="space-y-6">
             <AgentTester
               agent={{
-                ...agent,
-                agentId: agentId || 'temp-id',
-                isPublic: false,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                createdBy: 'current-user',
+                // Use current form data if available, otherwise use existing agent data
+                ...(currentFormData
+                  ? {
+                      agentId: agentId || 'temp-id',
+                      name: currentFormData.name,
+                      description: currentFormData.description,
+                      systemPrompt: currentFormData.systemPrompt,
+                      modelId: currentFormData.modelId,
+                      mcpServers: currentFormData.mcpServers as string[],
+                      codeExecutionEnabled:
+                        currentFormData.codeExecutionEnabled,
+                      isPublic: currentFormData.isPublic,
+                      tags: currentFormData.tags,
+                      isMyAgent: true,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                      createdBy: 'current-user',
+                      starCount: 0,
+                    }
+                  : {
+                      ...agent!,
+                      agentId: agentId || 'temp-id',
+                      isPublic: false,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                      createdBy: 'current-user',
+                    }),
               }}
             />
           </div>

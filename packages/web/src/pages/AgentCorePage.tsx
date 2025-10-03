@@ -72,8 +72,6 @@ const AgentCorePage: React.FC = () => {
   const { pathname } = useLocation();
   const { content, setContent } = useAgentCorePageState();
 
-  // Use agent ARN as ID if provided, otherwise use fixed ID
-  const chatId = agentArn ? `/agent-core/${agentArn}` : '/agent-core';
   const {
     messages,
     isEmpty,
@@ -85,7 +83,7 @@ const AgentCorePage: React.FC = () => {
     getExternalRuntimes,
     getModelId,
     setModelId,
-  } = useAgentCore(chatId);
+  } = useAgentCore(pathname);
 
   const { scrollableContainer, setFollowing } = useFollow();
 

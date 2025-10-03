@@ -69,8 +69,8 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   const { t } = useTranslation();
 
   // Generate session ID if not provided
+  const { pathname } = useLocation();
   const [sessionId] = useState(() => providedSessionId || uuidv4());
-  const chatId = `agent-chat-${agent.agentId}-${sessionId}`;
   const { scrollableContainer, setFollowing } = useFollow();
 
   // AgentCore for chat functionality
@@ -84,7 +84,7 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
     updateSystemContext,
     getModelId,
     setModelId,
-  } = useAgentCore(chatId);
+  } = useAgentCore(pathname);
 
   const [chatContent, setChatContent] = useState('');
   const [initialized, setInitialized] = useState(false);
@@ -94,36 +94,24 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   const { modelIds: availableModels, modelDisplayName } = MODELS;
   const modelId = getModelId();
 
-  // File handling - use location pathname to match InputChatContent
-  const location = useLocation();
-  const {
-    clear: clearFiles,
-    uploadFiles,
-    uploadedFiles,
-  } = useFiles(location.pathname);
+  // File handling
+  const { clear: clearFiles, uploadFiles, uploadedFiles } = useFiles(pathname);
 
   // Initialize model ID when agent is loaded
   useEffect(() => {
     if (agent && availableModels.length > 0) {
       const agentModelId = agent.modelId || availableModels[0];
-      setModelId(agentModelId);
+      const currentModelId = getModelId();
+      if (currentModelId !== agentModelId) {
+        setModelId(agentModelId);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agent, availableModels]);
+  }, [agent, availableModels, getModelId, setModelId]);
 
-  // Initialize chat when component mounts
+  // Initialize system context when component mounts (only once per agent)
   useEffect(() => {
     if (!initialized && agent) {
-      console.log(
-        'Starting chat with agent:',
-        agent.name,
-        'Model ID:',
-        agent.modelId
-      );
-      console.log(
-        'Code execution enabled in agent:',
-        agent.codeExecutionEnabled
-      );
+      console.log('Initializing agent chat:', agent.name);
 
       // Set the system context to the agent's system prompt
       const systemPrompt = `${agent.systemPrompt || 'You are a helpful assistant.'}
@@ -137,7 +125,24 @@ Please respond as this agent with the specified behavior and personality.`;
       setInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agent, initialized]);
+  }, [agent?.agentId, initialized]);
+
+  // Update system context when agent data changes (for real-time updates)
+  useEffect(() => {
+    if (initialized && agent) {
+      console.log('Updating agent context:', agent.name);
+
+      const systemPrompt = `${agent.systemPrompt || 'You are a helpful assistant.'}
+
+Agent Name: ${agent.name}
+Agent Description: ${agent.description || 'No description provided'}
+
+Please respond as this agent with the specified behavior and personality.`;
+
+      updateSystemContext(systemPrompt);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agent?.name, agent?.description, agent?.systemPrompt, initialized]);
 
   // Accept file types based on model
   const accept = useMemo(() => {

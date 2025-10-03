@@ -23,6 +23,7 @@ interface AgentFormProps {
   initialData?: Partial<AgentConfiguration>;
   onSave: (data: AgentFormData) => Promise<void>;
   onCancel: () => void;
+  onFormDataChange?: (data: AgentFormData) => void;
   loading?: boolean;
   error?: string;
   isEditMode?: boolean;
@@ -32,6 +33,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
   initialData,
   onSave,
   onCancel,
+  onFormDataChange,
   loading = false,
   error,
   isEditMode = false,
@@ -80,6 +82,24 @@ const AgentForm: React.FC<AgentFormProps> = ({
       setTagsInput((initialData.tags || []).join(', '));
     }
   }, [initialData, availableModels]);
+
+  // Notify parent component when form data changes
+  useEffect(() => {
+    if (onFormDataChange) {
+      // Parse tags from input for real-time updates
+      const tags = tagsInput
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
+
+      const currentFormData: AgentFormData = {
+        ...formData,
+        tags,
+      };
+
+      onFormDataChange(currentFormData);
+    }
+  }, [formData, tagsInput, onFormDataChange]);
 
   const handleSave = useCallback(async () => {
     try {

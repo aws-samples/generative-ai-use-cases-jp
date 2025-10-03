@@ -369,8 +369,12 @@ const AgentBuilderListPage: React.FC = () => {
                 <div className="line-clamp-1 text-sm font-bold">
                   {agent.name}
                 </div>
-                {agent.isFavorite && (
-                  <StarFillIcon className="text-aws-smile h-4 w-4" />
+                {/* Show star count (total favorites) */}
+                {agent.starCount > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <StarIcon className="h-3 w-3" />
+                    <span>{agent.starCount}</span>
+                  </div>
                 )}
               </div>
               {agent.description && (
