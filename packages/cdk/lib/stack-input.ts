@@ -179,19 +179,33 @@ const baseStackInputSchema = z.object({
 });
 
 // Common Validator with refine
-export const stackInputSchema = baseStackInputSchema.refine(
-  (data) => {
-    // If searchApiKey is provided, searchEngine must also be provided
-    if (data.searchApiKey && !data.searchEngine) {
-      return false;
+export const stackInputSchema = baseStackInputSchema
+  .refine(
+    (data) => {
+      // If searchApiKey is provided, searchEngine must also be provided
+      if (data.searchApiKey && !data.searchEngine) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'searchEngine is required when searchApiKey is provided',
+      path: ['searchEngine'],
     }
-    return true;
-  },
-  {
-    message: 'searchEngine is required when searchApiKey is provided',
-    path: ['searchEngine'],
-  }
-);
+  )
+  .refine(
+    (data) => {
+      // AWS account ID is required for CDK deployment
+      if (!data.account || data.account === '') {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'AWS account ID is required. Set CDK_DEFAULT_ACCOUNT environment variable.',
+      path: ['account'],
+    }
+  );
 
 // schema after conversion
 export const processedStackInputSchema = baseStackInputSchema.extend({

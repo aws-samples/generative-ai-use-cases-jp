@@ -1,0 +1,18 @@
+{
+  "name": "dagger-pipeline",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "ci": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@dagger.io/dagger": "^0.18.19"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2"
+  }
+}
