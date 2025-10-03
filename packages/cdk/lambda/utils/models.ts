@@ -1047,7 +1047,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'us.anthropic.claude-3-7-sonnet-20250219-v1:0': {
-    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_SONNET_4_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -1055,7 +1055,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'eu.anthropic.claude-3-7-sonnet-20250219-v1:0': {
-    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_SONNET_4_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -1063,7 +1063,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'apac.anthropic.claude-3-7-sonnet-20250219-v1:0': {
-    defaultParams: CLAUDE_3_5_DEFAULT_PARAMS,
+    defaultParams: CLAUDE_SONNET_4_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
