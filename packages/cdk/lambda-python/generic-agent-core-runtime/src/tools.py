@@ -93,17 +93,7 @@ class ToolManager:
         try:
             # Load MCP configuration from mcp.json file
             # Try multiple possible paths
-            possible_paths = ["/var/task/mcp.json", "mcp.json", "./mcp.json"]
-
-            mcp_config_path = None
-            for path in possible_paths:
-                if os.path.exists(path):
-                    mcp_config_path = path
-                    break
-
-            if not mcp_config_path:
-                logger.warning(f"MCP configuration file not found in any of: {possible_paths}")
-                return []
+            mcp_config_path = "mcp.json"
 
             logger.info(f"Loading MCP configuration from: {mcp_config_path}")
             with open(mcp_config_path) as f:
