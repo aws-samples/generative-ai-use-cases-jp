@@ -53,6 +53,45 @@ npm run web:dev
 
 正常に実行されれば http://localhost:5173 で起動しますので、ブラウザからアクセスしてみてください。
 
+## Lint とコードスタイル
+
+このプロジェクトでは、コード品質と一貫したスタイルを保つために **ESLint** と **Prettier** を使用しています。
+
+### ESLint の設定
+
+- **設定ファイルの場所**: ESLint の設定は各パッケージディレクトリに配置されています:
+  - `packages/web/.eslintrc.cjs` (フロントエンド)
+  - `packages/cdk/.eslintrc.cjs` (CDK/インフラ)
+  - `browser-extension/.eslintrc.json` (ブラウザ拡張)
+- **ベースルール**: 以下の一般的な設定を拡張しています:
+  - `eslint:recommended`
+  - `plugin:@typescript-eslint/recommended`
+  - `plugin:react-hooks/recommended` (React コード用)
+  - `plugin:tailwindcss/recommended` (フロントエンド用)
+- **主要なルール**:
+  - 未使用のインポート/変数の検出
+  - React Hooks のルール (例: `exhaustive-deps`)
+  - 日本語文字列の検出 (i18n 対応)
+  - YAML のフォーマットとキーのソート
+
+### ESLint の実行
+
+コミット前に以下を実行してください:
+
+```bash
+npm run lint
+```
+
+自動修正を行う場合:
+
+```bash
+npm run web:lint:fix  # フロントエンドコード用
+```
+
+### Pre-commit フック
+
+このリポジトリでは [Husky](https://typicode.github.io/husky) を使用して Git フックを管理しています。`git commit` 時に `lint-staged` 経由で自動的に lint が実行されます。
+
 ## Pull Request を出す場合
 
 バグ修正や機能改善などの Pull Request は歓迎しております :tada:
@@ -72,6 +111,12 @@ npm run web:dev
 ```bash
 git commit -m "xxx" --no-verify
 ```
+
+### レビュー基準
+
+- Lint ルールは**レビュー基準**として使用されます。
+- 不要なレビューサイクルを避けるため、PR を開く前にコードが lint を通過することを確認してください。
+- 一貫したスタイルは可読性を向上させ、コードレビューでのやり取りを減らします。
 
 もしCDK に変更があれば以下のコマンドでスナップショットの確認を行いスナップショットを更新してください。
 

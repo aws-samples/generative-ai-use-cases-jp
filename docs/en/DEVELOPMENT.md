@@ -52,6 +52,45 @@ npm run web:dev
 
 If executed successfully, it will start at http://localhost:5173, so please try accessing it from your browser.
 
+## Linting and Code Style
+
+This project uses **ESLint** and **Prettier** to enforce code quality and consistent style.
+
+### ESLint Configuration
+
+- **Config files**: ESLint configurations are located in each package directory:
+  - `packages/web/.eslintrc.cjs` (Frontend)
+  - `packages/cdk/.eslintrc.cjs` (CDK/Infrastructure)
+  - `browser-extension/.eslintrc.json` (Browser Extension)
+- **Base rules**: We extend commonly used configs:
+  - `eslint:recommended`
+  - `plugin:@typescript-eslint/recommended`
+  - `plugin:react-hooks/recommended` (for React code)
+  - `plugin:tailwindcss/recommended` (for frontend)
+- **Key rules enforced**:
+  - Unused imports/variables
+  - React Hooks rules (e.g., `exhaustive-deps`)
+  - Japanese string detection (i18n compliance)
+  - YAML formatting and key sorting
+
+### Running ESLint
+
+Before committing, run:
+
+```bash
+npm run lint
+```
+
+To automatically fix issues:
+
+```bash
+npm run web:lint:fix  # For frontend code
+```
+
+### Pre-commit Hook
+
+This repository uses [Husky](https://typicode.github.io/husky) for git hooks. Linting runs automatically on `git commit` via `lint-staged`.
+
 ## When Submitting a Pull Request
 
 We welcome Pull Requests for bug fixes and feature improvements :tada:
@@ -71,6 +110,12 @@ If you want to ignore this error and create a Draft PR, add the `--no-verify` op
 ```bash
 git commit -m "xxx" --no-verify
 ```
+
+### Review Standards
+
+- Lint rules are used as **review criteria**.
+- Please ensure your code passes linting before opening a PR to avoid unnecessary review cycles.
+- Consistent style improves readability and reduces back-and-forth in code review.
 
 Also, if there are changes to the CDK, check the snapshots with the following command and update them:
 
