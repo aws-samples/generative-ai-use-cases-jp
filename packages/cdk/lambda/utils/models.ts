@@ -206,6 +206,14 @@ const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
   },
 };
 
+const QWEN_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 32768,
+    temperature: 0.7,
+    topP: 0.9,
+  },
+};
+
 const PALMYRA_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
     maxTokens: 8192,
@@ -1485,6 +1493,38 @@ export const BEDROCK_TEXT_GEN_MODELS: {
   },
   'us.deepseek.r1-v1:0': {
     defaultParams: DEEPSEEK_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'qwen.qwen3-235b-a22b-2507-v1:0': {
+    defaultParams: QWEN_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'qwen.qwen3-32b-v1:0': {
+    defaultParams: QWEN_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'qwen.qwen3-coder-480b-a35b-v1:0': {
+    defaultParams: QWEN_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'qwen.qwen3-coder-30b-a3b-v1:0': {
+    defaultParams: QWEN_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
