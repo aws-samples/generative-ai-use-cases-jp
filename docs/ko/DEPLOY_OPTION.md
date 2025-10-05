@@ -1086,7 +1086,6 @@ const envs: Record<string, Partial<StackInput>> = {
       'apac.amazon.nova-pro-v1:0',
       'apac.amazon.nova-lite-v1:0',
       'apac.amazon.nova-micro-v1:0',
-      { modelId: 'deepseek.v3-v1:0', region: 'us-west-2' },
       { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
       { modelId: 'us.writer.palmyra-x5-v1:0', region: 'us-west-2' },
       {
@@ -1136,10 +1135,6 @@ const envs: Record<string, Partial<StackInput>> = {
       "apac.amazon.nova-pro-v1:0",
       "apac.amazon.nova-lite-v1:0",
       "apac.amazon.nova-micro-v1:0",
-      {
-        "modelId": "deepseek.v3-v1:0",
-        "region": "us-west-2"
-      },
       {
         "modelId": "us.deepseek.r1-v1:0",
         "region": "us-east-1"
