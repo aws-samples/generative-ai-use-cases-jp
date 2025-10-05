@@ -1483,6 +1483,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseOutput: extractConverseOutput,
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
+  'deepseek.v3-v1:0': {
+    defaultParams: DEEPSEEK_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'us.deepseek.r1-v1:0': {
     defaultParams: DEEPSEEK_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,

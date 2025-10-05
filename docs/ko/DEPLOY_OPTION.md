@@ -975,6 +975,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+"deepseek.v3-v1:0",
 "us.deepseek.r1-v1:0",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
@@ -1085,6 +1086,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'apac.amazon.nova-pro-v1:0',
       'apac.amazon.nova-lite-v1:0',
       'apac.amazon.nova-micro-v1:0',
+      { modelId: 'deepseek.v3-v1:0', region: 'us-west-2' },
       { modelId: 'us.deepseek.r1-v1:0', region: 'us-east-1' },
       { modelId: 'us.writer.palmyra-x5-v1:0', region: 'us-west-2' },
       {
@@ -1134,6 +1136,10 @@ const envs: Record<string, Partial<StackInput>> = {
       "apac.amazon.nova-pro-v1:0",
       "apac.amazon.nova-lite-v1:0",
       "apac.amazon.nova-micro-v1:0",
+      {
+        "modelId": "deepseek.v3-v1:0",
+        "region": "us-west-2"
+      },
       {
         "modelId": "us.deepseek.r1-v1:0",
         "region": "us-east-1"
@@ -1341,6 +1347,7 @@ const envs: Record<string, Partial<StackInput>> = {
       'us.anthropic.claude-3-7-sonnet-20250219-v1:0',
       'us.anthropic.claude-3-5-haiku-20241022-v1:0',
       'us.anthropic.claude-3-haiku-20240307-v1:0',
+      'deepseek.v3-v1:0',
       'us.deepseek.r1-v1:0',
       'us.writer.palmyra-x5-v1:0',
       'us.writer.palmyra-x4-v1:0',
@@ -1383,6 +1390,7 @@ const envs: Record<string, Partial<StackInput>> = {
       "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "us.anthropic.claude-3-5-haiku-20241022-v1:0",
       "us.anthropic.claude-3-haiku-20240307-v1:0",
+      "deepseek.v3-v1:0",
       "us.deepseek.r1-v1:0",
       "us.writer.palmyra-x5-v1:0",
       "us.writer.palmyra-x4-v1:0",
