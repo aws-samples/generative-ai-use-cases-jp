@@ -74,6 +74,7 @@ def extract_model_info(model_info: Any) -> tuple[str, str]:
 
     return model_id, region
 
+
 def get_max_iterations() -> int:
     """Get maximum iterations from environment or default to {DEFAULT_MAX_ITERATIONS}"""
     try:

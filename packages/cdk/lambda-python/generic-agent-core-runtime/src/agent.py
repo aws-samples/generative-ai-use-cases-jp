@@ -9,16 +9,19 @@ import boto3
 from strands import Agent as StrandsAgent
 from strands.models import BedrockModel
 
-from .config import extract_model_info, get_system_prompt, get_max_iterations
+from .config import extract_model_info, get_max_iterations, get_system_prompt
 from .tools import ToolManager
 from .types import Message, ModelInfo
 from .utils import process_messages, process_prompt
 
 logger = logging.getLogger(__name__)
 
+
 class IterationLimitExceededError(Exception):
     """Exception raised when iteration limit is exceeded"""
+
     pass
+
 
 class AgentManager:
     """Manages Strands agent creation and execution."""
@@ -37,9 +40,8 @@ class AgentManager:
         if ev.get("start_event_loop"):
             self.iteration_count += 1
             if self.iteration_count > self.max_iterations:
-                raise IterationLimitExceededError(  
-                    f"Event loop reached maximum iteration count ({self.max_iterations}). Please contact the administrator."  
-                )  
+                raise IterationLimitExceededError(f"Event loop reached maximum iteration count ({self.max_iterations}). Please contact the administrator.")
+
     async def process_request_streaming(
         self,
         messages: list[Message] | list[dict[str, Any]],
