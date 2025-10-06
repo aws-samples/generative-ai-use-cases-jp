@@ -34,9 +34,10 @@ class AgentManager:
     def set_session_info(self, session_id: str, trace_id: str):
         """Set session and trace IDs"""
         self.tool_manager.set_session_info(session_id, trace_id)
-        self.iteration_count = 0
 
     def iteration_limit_handler(self, **ev):
+        if ev.get("init_event_loop"):
+            self.iteration_count = 0
         if ev.get("start_event_loop"):
             self.iteration_count += 1
             if self.iteration_count > self.max_iterations:
