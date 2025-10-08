@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 WORKSPACE_DIR = "/tmp/ws"
 
+DEFAULT_MAX_ITERATIONS = 20
+
 FIXED_SYSTEM_PROMPT = f"""## About File Output
 - You are running on AWS Bedrock AgentCore. Therefore, when writing files, always write them under `{WORKSPACE_DIR}`.
 - Similarly, if you need a workspace, please use the `{WORKSPACE_DIR}` directory. Do not ask the user about their current workspace. It's always `{WORKSPACE_DIR}`.
@@ -71,3 +73,12 @@ def extract_model_info(model_info: Any) -> tuple[str, str]:
         region = model_info.get("region", aws_creds.get("AWS_REGION", "us-east-1"))
 
     return model_id, region
+
+
+def get_max_iterations() -> int:
+    """Get maximum iterations from environment or default to {DEFAULT_MAX_ITERATIONS}"""
+    try:
+        return int(os.environ.get("MAX_ITERATIONS", DEFAULT_MAX_ITERATIONS))
+    except ValueError:
+        logger.warning(f"Invalid MAX_ITERATIONS value. Defaulting to {DEFAULT_MAX_ITERATIONS}.")
+        return DEFAULT_MAX_ITERATIONS

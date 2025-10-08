@@ -35,6 +35,11 @@ To send us a pull request, please:
 5. Send us a pull request, answering any default questions in the pull request interface.
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
+For detailed development guidelines including linting and code style requirements, please refer to:
+
+- [DEVELOPMENT.md (English)](docs/en/DEVELOPMENT.md)
+- [DEVELOPMENT.md (日本語)](docs/ja/DEVELOPMENT.md)
+
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
