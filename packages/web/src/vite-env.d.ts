@@ -33,6 +33,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS: string;
   readonly VITE_APP_MCP_ENABLED: string;
   readonly VITE_APP_MCP_ENDPOINT: string;
+  readonly VITE_APP_PPTX_ENABLED: string;
 }
 
 interface ImportMeta {

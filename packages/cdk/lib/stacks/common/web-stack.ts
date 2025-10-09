@@ -61,6 +61,7 @@ class WebStack extends NestedStack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
+      pptxEnabled: params.pptxEnabled,
       // Frontend
       // Custom Domain
       cert: cert,

@@ -206,6 +206,32 @@ export class TenantS3Stack extends cdk.Stack {
       exportName: `${this.stackName}-VideosBucketDomainName`,
     });
 
+    // PPTX Templates Bucket outputs
+    new cdk.CfnOutput(this, 'StackPptxTemplatesBucketArn', {
+      value: this.tenantS3.pptxTemplatesBucket.bucketArn,
+      description: `ARN of the PPTX templates bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-PptxTemplatesBucketArn`,
+    });
+
+    new cdk.CfnOutput(this, 'StackPptxTemplatesBucketName', {
+      value: this.tenantS3.pptxTemplatesBucket.bucketName,
+      description: `Name of the PPTX templates bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-PptxTemplatesBucketName`,
+    });
+
+    // PPTX Outputs Bucket outputs
+    new cdk.CfnOutput(this, 'StackPptxOutputsBucketArn', {
+      value: this.tenantS3.pptxOutputsBucket.bucketArn,
+      description: `ARN of the PPTX outputs bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-PptxOutputsBucketArn`,
+    });
+
+    new cdk.CfnOutput(this, 'StackPptxOutputsBucketName', {
+      value: this.tenantS3.pptxOutputsBucket.bucketName,
+      description: `Name of the PPTX outputs bucket for tenant ${tenantId}`,
+      exportName: `${this.stackName}-PptxOutputsBucketName`,
+    });
+
     // Add tags
     cdk.Tags.of(this).add('TenantId', tenantId.toString());
     cdk.Tags.of(this).add('Environment', environment);
@@ -258,5 +284,19 @@ export class TenantS3Stack extends cdk.Stack {
    */
   public getVideosBucket() {
     return this.tenantS3.videosBucket;
+  }
+
+  /**
+   * Get the PPTX templates bucket
+   */
+  public getPptxTemplatesBucket() {
+    return this.tenantS3.pptxTemplatesBucket;
+  }
+
+  /**
+   * Get the PPTX outputs bucket
+   */
+  public getPptxOutputsBucket() {
+    return this.tenantS3.pptxOutputsBucket;
   }
 }

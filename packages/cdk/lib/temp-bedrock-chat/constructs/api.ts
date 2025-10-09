@@ -51,7 +51,7 @@ export class Api extends Construct {
   constructor(scope: Construct, id: string, props: ApiProps) {
     super(scope, id);
 
-    const { database, corsAllowOrigins: allowOrigins = ['*'] } = props;
+    const { database, corsAllowOrigins: allowOrigins = ['*', 'http://localhost:3000', 'http://localhost:5173', 'https://localhost:3000', 'https://localhost:5173'] } = props;
     const { tableAccessRole } = database;
 
     const usageAnalysisOutputLocation =
@@ -296,7 +296,7 @@ export class Api extends Construct {
     const api = new HttpApi(this, 'Default', {
       description: `Main API for ${Stack.of(this).stackName}`,
       corsPreflight: {
-        allowHeaders: ['*'],
+        allowHeaders: ['*', 'Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token', 'X-Amz-User-Agent'],
         allowMethods: [
           CorsHttpMethod.GET,
           CorsHttpMethod.HEAD,
@@ -308,6 +308,7 @@ export class Api extends Construct {
         ],
         allowOrigins: allowOrigins,
         maxAge: Duration.days(10),
+        allowCredentials: false,
       },
     });
 

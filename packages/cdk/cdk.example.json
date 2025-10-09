@@ -68,6 +68,7 @@
     "agents": [],
     "inlineAgents": false,
     "mcpEnabled": false,
+    "pptxEnabled": false,
     "flows": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

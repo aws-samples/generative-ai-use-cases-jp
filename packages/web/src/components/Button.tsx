@@ -22,7 +22,7 @@ const Button: React.FC<Props> = (props) => {
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       title={props.title}
-      onClick={props.onClick}
+      onClick={props.disabled || props.loading ? undefined : props.onClick}
       disabled={props.disabled || props.loading}>
       {props.loading && <PiSpinnerGap className="mr-2 animate-spin" />}
       {props.children}

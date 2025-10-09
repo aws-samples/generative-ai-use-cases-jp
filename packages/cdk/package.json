@@ -63,6 +63,7 @@
     "effect": "^3.17.13",
     "langchain": "^0.3.31",
     "node-html-parser": "^6.1.13",
+    "pptxgenjs": "^4.0.1",
     "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4",

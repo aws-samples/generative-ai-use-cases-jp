@@ -24,6 +24,7 @@ interface TenantConfig {
     userPoolId: string;
     identityPoolId: string;
     userPoolClientId: string;
+    controlPlaneLambdaRoleArn?: string;
   };
 }
 
@@ -98,6 +99,12 @@ if (tenantConfig.controlPlane) {
   ) {
     app.node.setContext('registrationApiKey', controlPlane.registrationApiKey);
   }
+  if (
+    controlPlane.controlPlaneLambdaRoleArn &&
+    !app.node.getAllContext()['controlPlaneLambdaRoleArn']
+  ) {
+    app.node.setContext('controlPlaneLambdaRoleArn', controlPlane.controlPlaneLambdaRoleArn);
+  }
 }
 
 const tenantId = context.tenantId;
@@ -116,6 +123,7 @@ const params = {
   userPoolId: context.controlPlane?.userPoolId!,
   identityPoolId: context.controlPlane?.identityPoolId!,
   userPoolClientId: context.controlPlane?.userPoolClientId!,
+  pptxEnabled: context.pptxEnabled ?? false,
   enableBedrockChat: true, // Bedrock Chatスタックを有効化
   bedrockRegion:
     context.bedrockRegion ||

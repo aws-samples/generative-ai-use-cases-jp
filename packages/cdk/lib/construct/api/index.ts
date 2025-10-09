@@ -48,6 +48,7 @@ import FileApi from './file';
 import FileBucket from '../file-bucket';
 import ShareApi from './share';
 import AdminApi from './admin';
+import { CentralPptxApi } from './central-pptx';
 
 export interface BackendApiProps {
   // Context Params
@@ -65,6 +66,7 @@ export interface BackendApiProps {
   readonly allowedIpV6AddressRanges?: string[] | null;
   readonly litellmEndpoint?: string | null;
   readonly litellmProxy?: LitellmProxyServer | null;
+  readonly pptxEnabled: boolean;
   readonly environment: string;
   readonly selfSignUpTenantMap?: SelfSignUpTenantMapEntry[] | null;
 
@@ -80,6 +82,7 @@ export interface BackendApiProps {
   readonly guardrailVersion?: string;
   // Tenant Management
   readonly tenantManager?: TenantManager;
+  // PPTX resources moved to per-tenant stacks (no longer in control plane)
 
   // LangChain Credentials
   readonly openai?: {
@@ -100,6 +103,7 @@ export class Api extends Construct {
   readonly agentNames: string[];
   readonly fileBucket: Bucket;
   readonly getFileDownloadSignedUrlFunction: IFunction;
+  readonly centralPptxApi?: CentralPptxApi;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
@@ -363,6 +367,12 @@ export class Api extends Construct {
     new VideoApi(this, 'VideoAPI', apiProps);
     new WebTextApi(this, 'WebTextAPI', apiProps);
     new AdminApi(this, 'AdminAPI', apiProps);
+
+    // Central PPTX API for multi-tenant architecture
+    // Lambda functions dynamically access tenant-specific resources based on Cognito claims
+    if (props.pptxEnabled) {
+      this.centralPptxApi = new CentralPptxApi(this, 'CentralPptxAPI', apiProps);
+    }
 
     // Add ALL methods proxy to Bedrock Chat proxy Lambda
     this.restApi = api;

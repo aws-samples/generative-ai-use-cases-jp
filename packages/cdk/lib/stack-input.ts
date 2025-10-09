@@ -34,6 +34,7 @@ const baseStackInputSchema = z.object({
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
   // API
+  corsAllowOrigins: z.array(z.string()).default(['*']),
   modelRegion: z.string().default('us-east-1'),
   modelIds: z
     .array(
@@ -142,6 +143,8 @@ const baseStackInputSchema = z.object({
   inlineAgents: z.boolean().default(false),
   // MCP
   mcpEnabled: z.boolean().default(false),
+  // PPTX
+  pptxEnabled: z.boolean().default(false),
   // LiteLLM Proxy Server
   litellmProxyEnabled: z.boolean().default(false),
   // Guardrail

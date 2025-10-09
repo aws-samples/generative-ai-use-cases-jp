@@ -776,6 +776,7 @@ navigation:
   home: Home
   imageGeneration: Image Generation
   meetingMinutes: Meeting Minutes
+  pptxGeneration: PPTX Generation
   promptOptimization: Prompt Optimization
   ragChat: RAG Chat
   ragChatBot: RAG ChatBot
@@ -1350,6 +1351,59 @@ useCaseBuilder:
   updateDescription: Update the use case with the above content.
   updateErrorCondition: 'The following conditions must be met:'
   updating: Updating...
+pptx:
+  title: PowerPoint Presentation Generator
+  description: Create professional presentations automatically with AI assistance
+  template:
+    label: Template Selection
+    blank: Blank Template
+    blankDescription: Start with a clean, minimal template
+    noTemplates: No custom templates available
+    public: Public template
+    private: Private template
+  slideCount:
+    label: Number of Slides
+  options:
+    titleSlide: Include Title Slide
+    summarySlide: Include Summary Slide
+  instructions:
+    label: Presentation Instructions
+    placeholder: Enter your presentation topic and requirements here...
+    help: Describe what you want in your presentation. Be specific about the topic, structure, and any special requirements.
+  generation:
+    status: Generation Status
+    generating: Generating presentation...
+    completed: Generation completed successfully
+    failed: Generation failed
+  generate: Generate
+  generating: Generating...
+  download: Download
+  upload:
+    title: Upload Template
+    fileLabel: Template File
+    nameLabel: Template Name
+    namePlaceholder: Enter template name
+    descriptionLabel: Description
+    descriptionPlaceholder: Enter template description
+    tagsLabel: Tags
+    tagsPlaceholder: Enter tags (comma-separated)
+    tagsHelp: Add tags to help categorize your template
+    publicLabel: Make this template public
+    publicHelp: Public templates can be used by all users
+    upload: Upload
+    uploading: Uploading...
+    invalidFileType: Invalid file type. Please select a PowerPoint file (.pptx)
+    fileTooLarge: File is too large. Maximum size is 10MB
+    missingFields: Please fill in all required fields
+    failed: Failed to upload template
+  examples:
+    title: Example Topics
+    business:
+      title: Business Strategy
+      content: Create a presentation about quarterly business review, including market analysis, financial performance, and strategic initiatives for the next quarter.
+    training:
+      title: Product Training
+      content: Develop training materials for new software features, including step-by-step guides, best practices, and troubleshooting tips.
 video:
   aspectRatio: Aspect Ratio
   clear: Clear

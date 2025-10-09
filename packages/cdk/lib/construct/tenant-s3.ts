@@ -51,6 +51,18 @@ export interface TenantS3Props {
   readonly videosBucketBaseName?: string;
 
   /**
+   * Base name for the PPTX templates bucket
+   * @default 'pptx-templates'
+   */
+  readonly pptxTemplatesBucketBaseName?: string;
+
+  /**
+   * Base name for the PPTX outputs bucket
+   * @default 'pptx-outputs'
+   */
+  readonly pptxOutputsBucketBaseName?: string;
+
+  /**
    * Whether to enable versioning on buckets
    * @default true
    */
@@ -90,6 +102,16 @@ export class TenantS3 extends Construct {
   public readonly videosBucket: s3.Bucket;
 
   /**
+   * The PPTX templates bucket for the tenant
+   */
+  public readonly pptxTemplatesBucket: s3.Bucket;
+
+  /**
+   * The PPTX outputs bucket for the tenant
+   */
+  public readonly pptxOutputsBucket: s3.Bucket;
+
+  /**
    * The tenant ID
    */
   public readonly tenantId: string;
@@ -118,6 +140,16 @@ export class TenantS3 extends Construct {
    * Videos bucket name
    */
   public readonly videosBucketName: string;
+
+  /**
+   * PPTX templates bucket name
+   */
+  public readonly pptxTemplatesBucketName: string;
+
+  /**
+   * PPTX outputs bucket name
+   */
+  public readonly pptxOutputsBucketName: string;
 
   constructor(scope: Construct, id: string, props: TenantS3Props) {
     super(scope, id);
@@ -148,6 +180,8 @@ export class TenantS3 extends Construct {
     const transcriptsBucketBaseName =
       props.transcriptsBucketBaseName || 'transcripts';
     const videosBucketBaseName = props.videosBucketBaseName || 'videos';
+    const pptxTemplatesBucketBaseName = props.pptxTemplatesBucketBaseName || 'pptx-templates';
+    const pptxOutputsBucketBaseName = props.pptxOutputsBucketBaseName || 'pptx-outputs';
 
     // Generate unique bucket names
     this.documentsBucketName = this.generateUniqueBucketName(
@@ -172,6 +206,16 @@ export class TenantS3 extends Construct {
     );
     this.videosBucketName = this.generateUniqueBucketName(
       videosBucketBaseName,
+      environment,
+      sanitizedTenantId
+    );
+    this.pptxTemplatesBucketName = this.generateUniqueBucketName(
+      pptxTemplatesBucketBaseName,
+      environment,
+      sanitizedTenantId
+    );
+    this.pptxOutputsBucketName = this.generateUniqueBucketName(
+      pptxOutputsBucketBaseName,
       environment,
       sanitizedTenantId
     );
@@ -271,6 +315,48 @@ export class TenantS3 extends Construct {
       // No CORS needed for videos bucket as it's primarily for backend use
     });
 
+    // Create PPTX templates bucket
+    this.pptxTemplatesBucket = new s3.Bucket(this, 'PptxTemplatesBucket', {
+      bucketName: this.pptxTemplatesBucketName,
+      ...commonBucketProps,
+      autoDeleteObjects: props.removalPolicy,
+    });
+
+    // Add CORS configuration for PPTX templates bucket (needed for file uploads from browser)
+    this.pptxTemplatesBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT, HttpMethods.HEAD, HttpMethods.DELETE],
+      allowedHeaders: ['*'],
+      exposedHeaders: [
+        'ETag',
+        'x-amz-request-id',
+        'x-amz-id-2',
+        'x-amz-checksum-crc32',
+        'x-amz-sdk-checksum-algorithm',
+      ],
+      maxAge: 3000,
+    });
+
+    // Create PPTX outputs bucket
+    this.pptxOutputsBucket = new s3.Bucket(this, 'PptxOutputsBucket', {
+      bucketName: this.pptxOutputsBucketName,
+      ...commonBucketProps,
+      autoDeleteObjects: props.removalPolicy,
+    });
+
+    // Add CORS configuration for PPTX outputs bucket (needed for downloads from browser)
+    this.pptxOutputsBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [HttpMethods.GET, HttpMethods.HEAD],
+      allowedHeaders: ['*'],
+      exposedHeaders: [
+        'ETag',
+        'x-amz-request-id',
+        'x-amz-id-2',
+      ],
+      maxAge: 3000,
+    });
+
     // Add tags to all buckets
     const tags = {
       TenantId: this.tenantId,
@@ -284,6 +370,8 @@ export class TenantS3 extends Construct {
       cdk.Tags.of(this.analyticsBucket).add(key, value);
       cdk.Tags.of(this.transcriptsBucket).add(key, value);
       cdk.Tags.of(this.videosBucket).add(key, value);
+      cdk.Tags.of(this.pptxTemplatesBucket).add(key, value);
+      cdk.Tags.of(this.pptxOutputsBucket).add(key, value);
     });
 
     // Output bucket ARNs and names
@@ -335,6 +423,26 @@ export class TenantS3 extends Construct {
     new cdk.CfnOutput(this, 'VideosBucketName', {
       value: this.videosBucket.bucketName,
       description: `Name of the videos bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'PptxTemplatesBucketArn', {
+      value: this.pptxTemplatesBucket.bucketArn,
+      description: `ARN of the PPTX templates bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'PptxTemplatesBucketName', {
+      value: this.pptxTemplatesBucket.bucketName,
+      description: `Name of the PPTX templates bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'PptxOutputsBucketArn', {
+      value: this.pptxOutputsBucket.bucketArn,
+      description: `ARN of the PPTX outputs bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'PptxOutputsBucketName', {
+      value: this.pptxOutputsBucket.bucketName,
+      description: `Name of the PPTX outputs bucket for tenant ${this.tenantId}`,
     });
   }
 

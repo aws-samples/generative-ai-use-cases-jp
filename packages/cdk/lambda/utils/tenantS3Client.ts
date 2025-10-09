@@ -3,6 +3,7 @@ import { STSClient, AssumeRoleCommand, Credentials } from '@aws-sdk/client-sts';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getTenantCredentials } from './tenantCredentials';
 import { isDefaultTenant } from './tenantS3Utils';
+import { getTenant } from '../tenantManager';
 
 const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID!;
 const MULTI_TENANT_ROLE_ARN = process.env.MULTI_TENANT_ROLE_ARN!;
@@ -53,32 +54,38 @@ export async function createTenantS3Client(
 
 /**
  * Create an S3 client with tenant-isolated credentials for background jobs
- * Uses STS AssumeRole with session tags to maintain ABAC security
+ * Assumes the tenant's role to enable cross-account access
  * For use in background lambdas that don't have API Gateway events
  * NOTE: No caching to ensure proper security isolation
- * @param tenantId - The tenant ID
- * @param tenantRegion - The tenant's region (required for cross-account tenants)
+ * @param tenantId - The tenant ID (region is fetched from tenant metadata)
  */
 export async function createTenantS3ClientForBackgroundJob(
-  tenantId: string,
-  tenantRegion?: string
+  tenantId: string
 ): Promise<S3Client> {
   // Use default credentials for default tenant
   if (isDefaultTenant(tenantId)) {
-    return new S3Client({ region: tenantRegion || process.env.AWS_REGION! });
+    return new S3Client({ region: process.env.AWS_REGION! });
   }
 
-  // Assume multi-tenant role with tenant ID as session tag for ABAC
+  // Get tenant info to get role ARN and region
+  const tenant = await getTenant(tenantId);
+  if (!tenant) {
+    throw new Error(`Tenant ${tenantId} not found`);
+  }
+  if (!tenant.roleArn) {
+    throw new Error(`Tenant ${tenantId} missing roleArn`);
+  }
+  if (!tenant.region) {
+    throw new Error(`Tenant ${tenantId} missing region`);
+  }
+
+  console.log(`Assuming role for tenant ${tenantId}: ${tenant.roleArn}`);
+
+  // Assume tenant role for cross-account access
   try {
     const assumeRoleCommand = new AssumeRoleCommand({
-      RoleArn: MULTI_TENANT_ROLE_ARN,
+      RoleArn: tenant.roleArn,
       RoleSessionName: `BackgroundJob-${tenantId}`,
-      Tags: [
-        {
-          Key: 'TenantID',
-          Value: tenantId,
-        },
-      ],
     });
 
     const response = await stsClient.send(assumeRoleCommand);
@@ -87,7 +94,7 @@ export async function createTenantS3ClientForBackgroundJob(
     }
 
     return new S3Client({
-      region: tenantRegion || process.env.AWS_REGION!,
+      region: tenant.region,
       credentials: {
         accessKeyId: response.Credentials.AccessKeyId!,
         secretAccessKey: response.Credentials.SecretAccessKey!,
@@ -99,8 +106,6 @@ export async function createTenantS3ClientForBackgroundJob(
       `Failed to get tenant-specific S3 client for tenant ${tenantId}:`,
       error
     );
-    // Fall back to default credentials
-    console.warn(`Falling back to default S3 client for tenant: ${tenantId}`);
-    return new S3Client({ region: tenantRegion || process.env.AWS_REGION! });
+    throw new Error(`Cannot access tenant resources: ${error}`);
   }
 }

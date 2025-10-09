@@ -38,7 +38,7 @@ export function extractAccountIdFromRoleArn(roleArn: string): string | null {
  */
 export async function getTenantBucketNameByTenantId(
   tenantId: string,
-  bucketType: 'chat' | 'docs' | 'analytics' | 'transcripts' | 'videos',
+  bucketType: 'chat' | 'docs' | 'analytics' | 'transcripts' | 'videos' | 'pptx-templates' | 'pptx-outputs',
   fallbackBucketName: string,
   accountId: string,
   region: string,

@@ -5,6 +5,8 @@ import {
   Effect,
   FederatedPrincipal,
   PolicyDocument,
+  CompositePrincipal,
+  ArnPrincipal,
 } from 'aws-cdk-lib/aws-iam';
 import { Tags } from 'aws-cdk-lib';
 import { IUserPool } from 'aws-cdk-lib/aws-cognito';
@@ -18,6 +20,11 @@ export interface TenantRoleProps {
   readonly region: string;
   readonly account: string;
   readonly env: string;
+  /**
+   * Optional: ARN of the control plane Lambda execution role
+   * Required for cross-account background job access
+   */
+  readonly controlPlaneLambdaRoleArn?: string;
 }
 
 /**
@@ -34,23 +41,34 @@ export class TenantRole extends Construct {
 
     this.tenantId = props.tenantId;
 
+    // Build trust policy
+    const cognitoFederatedPrincipal = new FederatedPrincipal(
+      'cognito-identity.amazonaws.com',
+      {
+        StringEquals: {
+          'cognito-identity.amazonaws.com:aud':
+            props.identityPool.identityPoolId,
+        },
+        'ForAnyValue:StringLike': {
+          'cognito-identity.amazonaws.com:amr': 'authenticated',
+        },
+      },
+      'sts:AssumeRoleWithWebIdentity'
+    );
+
+    // For cross-account deployments, also trust control plane Lambda role for background jobs
+    const assumedBy = props.controlPlaneLambdaRoleArn
+      ? new CompositePrincipal(
+          cognitoFederatedPrincipal,
+          new ArnPrincipal(props.controlPlaneLambdaRoleArn)
+        )
+      : cognitoFederatedPrincipal;
+
     // Create tenant-specific IAM role
     this.role = new Role(this, `TenantRole`, {
       roleName: `TenantRole-${props.tenantId}`,
       description: `IAM role for tenant ${props.tenantId} - supports both same-account and cross-account access`,
-      assumedBy: new FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: {
-            'cognito-identity.amazonaws.com:aud':
-              props.identityPool.identityPoolId,
-          },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
-          },
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
+      assumedBy,
       inlinePolicies: {
         TenantResourceAccess: new PolicyDocument({
           statements: [
@@ -93,9 +111,14 @@ export class TenantRole extends Construct {
                 'dynamodb:DescribeTimeToLive',
               ],
               resources: [
-                // Allow access to tables with tenant-specific naming pattern
+                // Standard tenant tables pattern (chat, etc.)
                 `arn:aws:dynamodb:${props.region}:${props.account}:table/*${props.env}-tenant-${props.tenantId}`,
                 `arn:aws:dynamodb:${props.region}:${props.account}:table/*${props.env}-tenant-${props.tenantId}/index/*`,
+                // PPTx tables pattern (pptx-templates-{env}-{tenantId}, pptx-generations-{env}-{tenantId})
+                `arn:aws:dynamodb:${props.region}:${props.account}:table/pptx-templates-${props.env}-${props.tenantId}`,
+                `arn:aws:dynamodb:${props.region}:${props.account}:table/pptx-templates-${props.env}-${props.tenantId}/index/*`,
+                `arn:aws:dynamodb:${props.region}:${props.account}:table/pptx-generations-${props.env}-${props.tenantId}`,
+                `arn:aws:dynamodb:${props.region}:${props.account}:table/pptx-generations-${props.env}-${props.tenantId}/index/*`,
               ],
             }),
 

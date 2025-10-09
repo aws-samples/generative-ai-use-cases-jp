@@ -10,8 +10,10 @@
       "registrationApiKey": "YOUR-API-KEY-HERE",
       "userPoolId": "us-east-1_EXAMPLE123",
       "identityPoolId": "us-east-1:12345678-1234-1234-1234-123456789012",
-      "userPoolClientId": "1234567890abcdefghijklmnop"
+      "userPoolClientId": "1234567890abcdefghijklmnop",
+      "controlPlaneLambdaRoleArn": "arn:aws:iam::111111111111:role/CONTROL-PLANE-STACK-CentralPptxApiPptxLambdaRole-XXXXX"
     },
-    "enableAutoDelete": false
+    "enableAutoDelete": false,
+    "pptxEnabled": false
   }
 }

@@ -1,6 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getTenantCredentials } from './tenantCredentials';
+import { isDefaultTenant } from './tenantS3Utils';
+import { getTenant } from '../tenantManager';
+
+const stsClient = new STSClient();
 
 /**
  * Create a DynamoDB client with tenant-isolated credentials from Cognito Identity Pool
@@ -44,5 +49,63 @@ export async function createTenantDynamoDBClient(
     throw new Error(
       `Failed to create tenant-isolated DynamoDB client: ${error}`
     );
+  }
+}
+
+/**
+ * Create a DynamoDB client with tenant-isolated credentials for background jobs
+ * Uses STS AssumeRole to access cross-account tenant resources
+ * For use in background lambdas that don't have API Gateway events
+ * NOTE: No caching to ensure proper security isolation
+ * @param tenantId - The tenant ID
+ */
+export async function createTenantDynamoDBClientForBackgroundJob(
+  tenantId: string
+): Promise<DynamoDBClient> {
+  // Use default credentials for default tenant
+  if (isDefaultTenant(tenantId)) {
+    return new DynamoDBClient({ region: process.env.AWS_REGION! });
+  }
+
+  // Get tenant info to get role ARN and region
+  const tenant = await getTenant(tenantId);
+  if (!tenant) {
+    throw new Error(`Tenant ${tenantId} not found`);
+  }
+  if (!tenant.roleArn) {
+    throw new Error(`Tenant ${tenantId} missing roleArn`);
+  }
+  if (!tenant.region) {
+    throw new Error(`Tenant ${tenantId} missing region`);
+  }
+
+  console.log(`Assuming role for tenant ${tenantId}: ${tenant.roleArn}`);
+
+  // Assume tenant role for cross-account access
+  try {
+    const assumeRoleCommand = new AssumeRoleCommand({
+      RoleArn: tenant.roleArn,
+      RoleSessionName: `BackgroundJob-${tenantId}`,
+    });
+
+    const response = await stsClient.send(assumeRoleCommand);
+    if (!response.Credentials) {
+      throw new Error(`Failed to assume role for tenant: ${tenantId}`);
+    }
+
+    return new DynamoDBClient({
+      region: tenant.region,
+      credentials: {
+        accessKeyId: response.Credentials.AccessKeyId!,
+        secretAccessKey: response.Credentials.SecretAccessKey!,
+        sessionToken: response.Credentials.SessionToken!,
+      },
+    });
+  } catch (error) {
+    console.error(
+      `Failed to get tenant-specific DynamoDB client for tenant ${tenantId}:`,
+      error
+    );
+    throw new Error(`Cannot access tenant resources: ${error}`);
   }
 }

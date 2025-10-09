@@ -3,6 +3,7 @@ import { TenantDynamoDBStack } from './stacks/tenant/tenant-dynamodb-stack';
 import { TenantS3Stack } from './stacks/tenant/tenant-s3-stack';
 import { TenantIAMStack } from './stacks/tenant/tenant-iam-stack';
 import { TenantBedrockChatStack } from './stacks/tenant/tenant-bedrock-chat-stack';
+import { TenantPptxStack } from './stacks/tenant/tenant-pptx-stack';
 
 export interface TenantStackInput {
   account?: string;
@@ -12,6 +13,7 @@ export interface TenantStackInput {
   removalPolicy: boolean;
   bedrockRegion?: string;
   enableBedrockChat?: boolean;
+  pptxEnabled?: boolean;
   userPoolId?: string;
   identityPoolId?: string;
   userPoolClientId?: string;
@@ -83,10 +85,29 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
     );
   }
 
+  // Tenant PPTX Stack (optional)
+  let tenantPptxStack;
+  if (params.pptxEnabled) {
+    tenantPptxStack = new TenantPptxStack(
+      app,
+      `TenantPptxStack${params.environment}-${params.tenantId}`,
+      {
+        env: {
+          account: params.account,
+          region: params.region,
+        },
+        tenantId: params.tenantId,
+        environment: params.environment,
+        removalPolicy: params.removalPolicy,
+      }
+    );
+  }
+
   return {
     tenantIAMStack,
     tenantDynamoDBStack,
     tenantS3Stack,
     tenantBedrockChatStack,
+    tenantPptxStack,
   };
 };

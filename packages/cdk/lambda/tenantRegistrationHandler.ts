@@ -27,6 +27,7 @@ interface TenantRegistrationRequest {
   region: string;
   environment: string;
   roleArn?: string;
+  controlPlaneLambdaRoleArn?: string;
 }
 
 /**
@@ -49,7 +50,7 @@ export const handler = async (
     }
 
     const request: TenantRegistrationRequest = JSON.parse(event.body);
-    const { tenantId, accountId, region, environment, roleArn } = request;
+    const { tenantId, accountId, region, environment, roleArn, controlPlaneLambdaRoleArn } = request;
 
     // Validate required fields
     if (!tenantId || !accountId || !region || !environment) {
@@ -72,6 +73,7 @@ export const handler = async (
       region,
       environment,
       roleArn,
+      controlPlaneLambdaRoleArn,
       createdAt: now,
       updatedAt: now,
       metadata: {

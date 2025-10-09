@@ -60,6 +60,7 @@ export class TenantIAMStack extends cdk.Stack {
     const userPoolId = this.node.tryGetContext('userPoolId');
     const identityPoolId = this.node.tryGetContext('identityPoolId');
     const userPoolClientId = this.node.tryGetContext('userPoolClientId');
+    const controlPlaneLambdaRoleArn = this.node.tryGetContext('controlPlaneLambdaRoleArn');
 
     if (!userPoolId) {
       throw new Error(
@@ -116,6 +117,7 @@ export class TenantIAMStack extends cdk.Stack {
       region: this.region,
       account: this.account,
       env: environment,
+      controlPlaneLambdaRoleArn: controlPlaneLambdaRoleArn,
     });
 
     // Create a Lambda to call the registration API
@@ -173,7 +175,7 @@ export class TenantIAMStack extends cdk.Stack {
         
         exports.handler = async (event, context) => {
           console.log('Event:', JSON.stringify(event, null, 2));
-          
+
           const physicalResourceId = event.PhysicalResourceId || 'tenant-registration-${this.tenantId}';
           
           try {
@@ -192,13 +194,14 @@ export class TenantIAMStack extends cdk.Stack {
             // Handle Create request
             const endpoint = '${registrationApiEndpoint}';
             const apiKey = '${registrationApiKey}';
-            
+
             const data = JSON.stringify({
               tenantId: '${this.tenantId}',
               accountId: '${this.account}',
               region: '${this.region}',
               environment: '${environment}',
               roleArn: '${this.tenantRole.role.roleArn}',
+              controlPlaneLambdaRoleArn: '${controlPlaneLambdaRoleArn || ''}',
             });
             
             console.log('Calling registration API:', endpoint);

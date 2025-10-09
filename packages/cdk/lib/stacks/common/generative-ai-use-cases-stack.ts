@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Auth,
@@ -10,6 +10,8 @@ import {
   LitellmProxyServer,
   TenantManager,
 } from '../../construct';
+import { PptxDb } from '../../construct/pptx-db';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
@@ -82,6 +84,9 @@ export class GenerativeAiUseCasesStack extends Stack {
       enableAutoDelete: params.enableAutoDelete,
     });
 
+    // PPTX resources moved to per-tenant stacks (TenantPptxStack and TenantS3Stack)
+    // Each tenant now has their own isolated PPTX database and S3 buckets
+
     // LiteLLM Proxy Server (must be created before API)
     let litellmEndpoint: string | null = null;
     let litellmProxy: LitellmProxyServer | null = null;
@@ -112,6 +117,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       litellmEndpoint: litellmEndpoint,
       litellmProxy: litellmProxy,
+      pptxEnabled: params.pptxEnabled,
       selfSignUpTenantMap: params.selfSignUpTenantMap,
       userPool: auth.userPool,
       idPool: auth.idPool,
@@ -124,6 +130,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       guardrailVersion: props.guardrailVersion,
       environment: params.env,
       tenantManager: tenantManager,
+      // PPTX resources moved to per-tenant stacks - no longer in control plane
 
       // LangChain Credentials
       openai: params.openai,
@@ -388,6 +395,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: mcpEndpoint ?? '',
     });
 
+    new CfnOutput(this, 'PptxEnabled', {
+      value: params.pptxEnabled.toString(),
+    });
+
     new CfnOutput(this, 'LitellmProxyEnabled', {
       value: params.litellmProxyEnabled.toString(),
     });
@@ -405,6 +416,14 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: tenantManager.registrationLambda.functionArn,
       description: 'ARN of the tenant registration Lambda function',
     });
+
+    if (api.centralPptxApi) {
+      new CfnOutput(this, 'CentralPptxLambdaRoleArn', {
+        value: api.centralPptxApi.pptxLambdaRole.roleArn,
+        description: 'ARN of the central PPTX Lambda execution role for cross-account tenant access',
+        exportName: `${this.stackName}-CentralPptxLambdaRoleArn`,
+      });
+    }
 
     this.userPool = auth.userPool;
     this.userPoolClient = auth.client;
