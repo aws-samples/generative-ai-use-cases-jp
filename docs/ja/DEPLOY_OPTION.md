@@ -965,6 +965,7 @@ const envs: Record<string, Partial<StackInput>> = {
 このソリューションが対応しているテキスト生成モデルは以下です。
 
 ```
+"deepseek.v3-v1:0",
 "anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-haiku-20241022-v1:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",

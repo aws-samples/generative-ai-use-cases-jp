@@ -380,6 +380,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     displayName: 'Command R+',
   },
   // DeepSeek
+  'deepseek.v3-v1:0': {
+    flags: MODEL_FEATURE.TEXT_ONLY,
+    displayName: 'DeepSeek V3.1',
+  },
   'us.deepseek.r1-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_REASONING,
     displayName: 'DeepSeek-R1',

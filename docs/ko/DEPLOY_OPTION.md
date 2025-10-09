@@ -947,6 +947,7 @@ const envs: Record<string, Partial<StackInput>> = {
 이 솔루션은 다음 텍스트 생성 모델을 지원합니다:
 
 ```
+"deepseek.v3-v1:0",
 "anthropic.claude-3-5-sonnet-20241022-v2:0",
 "anthropic.claude-3-5-haiku-20241022-v1:0",
 "anthropic.claude-3-5-sonnet-20240620-v1:0",
