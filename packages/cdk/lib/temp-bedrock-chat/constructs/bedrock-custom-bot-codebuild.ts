@@ -8,6 +8,8 @@ export interface BedrockCustomBotCodebuildProps {
   readonly envPrefix: string;
   readonly bedrockRegion: string;
   readonly sourceBucket: s3.Bucket;
+  readonly openSearchDomainEndpoint: string;
+  readonly openSearchDomainArn: string;
 }
 
 export class BedrockCustomBotCodebuild extends Construct {
@@ -33,13 +35,17 @@ export class BedrockCustomBotCodebuild extends Construct {
         ENV_NAME: { value: props.envName },
         ENV_PREFIX: { value: props.envPrefix },
         BEDROCK_REGION: { value: props.bedrockRegion },
+        OPENSEARCH_DOMAIN_ENDPOINT: {
+          value: props.openSearchDomainEndpoint,
+        },
+        OPENSEARCH_DOMAIN_ARN: { value: props.openSearchDomainArn },
       },
       buildSpec: codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
           install: {
             'runtime-versions': {
-              nodejs: '18',
+              nodejs: '22',
             },
             'on-failure': 'ABORT',
           },
@@ -64,6 +70,34 @@ export class BedrockCustomBotCodebuild extends Construct {
       new iam.PolicyStatement({
         actions: ['sts:AssumeRole'],
         resources: ['arn:aws:iam::*:role/cdk-*'],
+      })
+    );
+
+    // Add permissions for managed OpenSearch.
+    project.role!.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'es:ESHttpPost',
+          'es:ESHttpPut',
+          'es:ESHttpDelete',
+          'es:ESHttpGet',
+          'es:ESHttpHead',
+        ],
+        resources: [`${props.openSearchDomainArn}/*`],
+      })
+    );
+
+    // Add permissions for Bedrock Knowledge Base operations
+    project.role!.addToPrincipalPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'bedrock:CreateKnowledgeBase',
+          'bedrock:DeleteKnowledgeBase',
+          'bedrock:UpdateKnowledgeBase',
+          'bedrock:GetKnowledgeBase',
+          'bedrock:AssociateKnowledgeBaseWithDataSource',
+        ],
+        resources: ['*'],
       })
     );
 

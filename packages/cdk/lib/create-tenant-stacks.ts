@@ -4,7 +4,24 @@ import { TenantS3Stack } from './stacks/tenant/tenant-s3-stack';
 import { TenantIAMStack } from './stacks/tenant/tenant-iam-stack';
 import { TenantBedrockChatStack } from './stacks/tenant/tenant-bedrock-chat-stack';
 import { TenantPptxStack } from './stacks/tenant/tenant-pptx-stack';
+import { TenantVpcStack } from './stacks/tenant/tenant-vpc-stack';
+import { TenantOpenSearchStack } from './stacks/tenant/tenant-opensearch-stack';
+import * as opensearch from 'aws-cdk-lib/aws-opensearchservice';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
+export interface NetworkConfig {
+  vpcCidr: string;
+  maxAzs: number;
+  natGateways: number;
+}
+
+export interface OpenSearchConfig {
+  capacity: opensearch.CapacityConfig;
+  ebsVolumeSize: number;
+  ebsVolumeType: ec2.EbsDeviceVolumeType;
+  availabilityZoneCount: number;
+  automatedSnapshotStartHour: number;
+}
 export interface TenantStackInput {
   account?: string;
   region: string;
@@ -17,6 +34,8 @@ export interface TenantStackInput {
   userPoolId?: string;
   identityPoolId?: string;
   userPoolClientId?: string;
+  openSearchConfig: OpenSearchConfig;
+  networkConfig: NetworkConfig;
 }
 
 export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
@@ -64,6 +83,51 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
     }
   );
 
+  // Tenant VPC Stack (for networking infrastructure)
+  const tenantVpcStack = new TenantVpcStack(
+    app,
+    `TenantVpcStack${params.environment}-${params.tenantId}`,
+    {
+      env: {
+        account: params.account,
+        region: params.region,
+      },
+      tenantId: params.tenantId,
+      environment: params.environment,
+      vpcCidr: params.networkConfig.vpcCidr,
+      maxAzs: params.networkConfig.maxAzs,
+      natGateways: params.networkConfig.natGateways,
+    }
+  );
+
+  // Tenant Managed OpenSearch Stack
+  const tenantOpenSearchStack = new TenantOpenSearchStack(
+    app,
+    `TenantOpenSearchStack${params.environment}-${params.tenantId}`,
+    {
+      env: {
+        account: params.account,
+        region: params.region,
+      },
+      tenantId: params.tenantId,
+      environment: params.environment,
+      vpc: tenantVpcStack.vpc,
+      subnets: tenantVpcStack.privateSubnets,
+      capacity: params.openSearchConfig.capacity,
+      ebsVolumeSize: params.openSearchConfig.ebsVolumeSize,
+      ebsVolumeType: params.openSearchConfig.ebsVolumeType,
+      availabilityZoneCount: params.openSearchConfig.availabilityZoneCount,
+      automatedSnapshotStartHour:
+        params.openSearchConfig.automatedSnapshotStartHour,
+      removalPolicy: params.removalPolicy
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN,
+    }
+  );
+
+  // Add dependency to ensure VPC is created before OpenSearch
+  tenantOpenSearchStack.addDependency(tenantVpcStack);
+
   // Tenant Bedrock Chat Stack (optional)
   let tenantBedrockChatStack;
   if (params.enableBedrockChat) {
@@ -78,11 +142,14 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
         tenantId: params.tenantId,
         environment: params.environment,
         bedrockRegion: params.bedrockRegion || params.region,
+        openSearchDomainEndpoint: tenantOpenSearchStack.domainEndpoint,
+        openSearchDomainArn: tenantOpenSearchStack.domainArn,
         removalPolicy: params.removalPolicy
           ? cdk.RemovalPolicy.DESTROY
           : cdk.RemovalPolicy.RETAIN,
       }
     );
+    tenantBedrockChatStack.addDependency(tenantOpenSearchStack);
   }
 
   // Tenant PPTX Stack (optional)
@@ -107,6 +174,8 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
     tenantIAMStack,
     tenantDynamoDBStack,
     tenantS3Stack,
+    tenantVpcStack,
+    tenantOpenSearchStack,
     tenantBedrockChatStack,
     tenantPptxStack,
   };

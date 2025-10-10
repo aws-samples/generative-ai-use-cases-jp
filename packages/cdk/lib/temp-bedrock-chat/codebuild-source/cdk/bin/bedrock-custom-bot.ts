@@ -4,7 +4,6 @@ import { BedrockCustomBotStack } from '../lib/bedrock-custom-bot-stack';
 import {
   getEmbeddingModel,
   getChunkingStrategy,
-  getAnalyzer,
   getParsingModel,
   getCrowlingScope,
   getCrawlingFilters,
@@ -15,7 +14,6 @@ import {
   CrawlingFilters,
   CrawlingScope,
 } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock/data-sources/web-crawler-data-source';
-import { Analyzer } from '@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/opensearch-vectorindex';
 import { resolveBedrockCustomBotParameters } from '../lib/utils/parameter-models';
 
 const app = new cdk.App();
@@ -46,7 +44,6 @@ interface KnowledgeConfig {
   existingS3Urls: string[];
   sourceUrls: string[];
   instruction?: string;
-  analyzer?: Analyzer | undefined;
 }
 
 interface ChunkingConfig {
@@ -96,9 +93,6 @@ const knowledgeConfig: KnowledgeConfig = {
   existingS3Urls: knowledgeJson.s3_urls.L.map((s3Url: any) => s3Url.S),
   sourceUrls: knowledgeJson.source_urls.L.map((sourceUrl: any) => sourceUrl.S),
   instruction: knowledgeBaseJson.instruction?.S,
-  analyzer: knowledgeBaseJson.open_search.M.analyzer.M
-    ? getAnalyzer(knowledgeBaseJson.open_search.M.analyzer.M)
-    : undefined,
 };
 
 // Extract chunking configuration
@@ -189,7 +183,6 @@ console.log(
       ...knowledgeConfig,
       embeddingsModel: knowledgeConfig.embeddingsModel.toString(),
       parsingModel: knowledgeConfig.parsingModel?.toString(),
-      analyzer: knowledgeConfig.analyzer ? 'configured' : 'undefined',
     },
     null,
     2
@@ -242,7 +235,6 @@ new BedrockCustomBotStack(app, `BrChatKbStack${baseConfig.botId}`, {
   existingS3Urls: knowledgeConfig.existingS3Urls,
   sourceUrls: knowledgeConfig.sourceUrls,
   instruction: knowledgeConfig.instruction,
-  analyzer: knowledgeConfig.analyzer,
 
   // Chunking configuration
   chunkingStrategy: chunkingConfig.chunkingStrategy,

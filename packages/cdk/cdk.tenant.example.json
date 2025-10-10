@@ -14,6 +14,23 @@
       "controlPlaneLambdaRoleArn": "arn:aws:iam::111111111111:role/CONTROL-PLANE-STACK-CentralPptxApiPptxLambdaRole-XXXXX"
     },
     "enableAutoDelete": false,
-    "pptxEnabled": false
+    "pptxEnabled": false,
+    "openSearchConfig": {
+      "capacity": {
+        "dataNodes": 2,
+        "dataNodeInstanceType": "t3.small.search",
+        "masterNodes": 1,
+        "masterNodeInstanceType": "t3.small.search"
+      },
+      "ebsVolumeSize": 100,
+      "ebsVolumeType": "GP3",
+      "availabilityZoneCount": 1,
+      "automatedSnapshotStartHour": 0
+    },
+    "networkConfig": {
+      "vpcCidr": "10.0.0.0/16",
+      "maxAzs": 1,
+      "natGateways": 1
+    }
   }
 }

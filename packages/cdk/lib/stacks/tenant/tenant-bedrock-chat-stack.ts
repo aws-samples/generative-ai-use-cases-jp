@@ -8,7 +8,6 @@ import { Stack, Duration, CfnResource } from 'aws-cdk-lib';
 import { Architecture, Runtime, LayerVersion } from 'aws-cdk-lib/aws-lambda';
 import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 import { Database } from '../../temp-bedrock-chat/constructs/database';
-import { WebSocket } from '../../temp-bedrock-chat/constructs/websocket';
 import { Embedding } from '../../temp-bedrock-chat/constructs/embedding';
 import { UsageAnalysis } from '../../temp-bedrock-chat/constructs/usage-analysis';
 import {
@@ -40,6 +39,18 @@ export interface TenantBedrockChatStackProps extends cdk.StackProps {
    * Bedrockサービスが利用可能なリージョンを指定（例：us-east-1, ap-northeast-1）
    */
   readonly bedrockRegion: string;
+
+  /**
+   * マネージド版OpenSearchドメインエンドポイント
+   * VectorIndexの作成とKnowledge Baseの構築に使用
+   */
+  readonly openSearchDomainEndpoint: string;
+
+  /**
+   * マネージド版OpenSearchドメインARN
+   * IAMロールとポリシーの設定に使用
+   */
+  readonly openSearchDomainArn: string;
 
   /**
    * RAG（Retrieval-Augmented Generation）のレプリカを有効化するかどうか
@@ -466,6 +477,7 @@ export class TenantBedrockChatStack extends cdk.Stack {
         ),
       ],
       destinationBucket: codeBuildSourceBucket,
+      memoryLimit: 1024,
     });
 
     // Knowledge Base構築用のCodeBuildプロジェクトを作成
@@ -477,6 +489,8 @@ export class TenantBedrockChatStack extends cdk.Stack {
         envPrefix,
         bedrockRegion: bedrockRegion,
         sourceBucket: codeBuildSourceBucket,
+        openSearchDomainEndpoint: props.openSearchDomainEndpoint,
+        openSearchDomainArn: props.openSearchDomainArn,
       }
     );
 
@@ -492,6 +506,8 @@ export class TenantBedrockChatStack extends cdk.Stack {
         documentBucket: this.documentBucket,
         bedrockCustomBotProject: bedrockCustomBotCodebuild.project,
         enableRagReplicas: props.enableRagReplicas || false, // レプリカによる高可用性
+        openSearchDomainEndpoint: props.openSearchDomainEndpoint,
+        openSearchDomainArn: props.openSearchDomainArn,
       });
     }
 

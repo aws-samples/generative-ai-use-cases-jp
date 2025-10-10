@@ -2,7 +2,6 @@ import { Construct } from 'constructs';
 import * as path from 'path';
 import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
-// import { ITable } from "aws-cdk-lib/aws-dynamodb";
 import { CfnPipe } from 'aws-cdk-lib/aws-pipes';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
@@ -26,6 +25,8 @@ export interface EmbeddingProps {
   readonly documentBucket: IBucket;
   readonly bedrockCustomBotProject: codebuild.IProject;
   readonly enableRagReplicas: boolean;
+  readonly openSearchDomainEndpoint: string;
+  readonly openSearchDomainArn: string;
 }
 
 export class Embedding extends Construct {
@@ -257,6 +258,15 @@ export class Embedding extends Construct {
           ENABLE_RAG_REPLICAS: {
             type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
             value: props.enableRagReplicas.toString(),
+          },
+          // マネージド版OpenSearchの環境変数をCodeBuildに渡す
+          OPENSEARCH_DOMAIN_ENDPOINT: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: props.openSearchDomainEndpoint,
+          },
+          OPENSEARCH_DOMAIN_ARN: {
+            type: codebuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: props.openSearchDomainArn,
           },
         },
         resultPath: '$.Build',
