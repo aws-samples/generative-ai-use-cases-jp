@@ -206,9 +206,26 @@ const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
   },
 };
 
-const QWEN_DEFAULT_PARAMS: ConverseInferenceParams = {
+// Qwen3 model parameters based on actual AWS Bedrock limits
+const QWEN_16K_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
-    maxTokens: 32768,
+    maxTokens: 16384, // Actual limit for qwen3-32b in Bedrock
+    temperature: 0.7,
+    topP: 0.9,
+  },
+};
+
+const QWEN_64K_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 65536, // Actual limit for qwen3-coder-480b in Bedrock
+    temperature: 0.7,
+    topP: 0.9,
+  },
+};
+
+const QWEN_192K_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 196608, // Actual limit for qwen3-235b and qwen3-coder-30b in Bedrock
     temperature: 0.7,
     topP: 0.9,
   },
@@ -1500,7 +1517,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'qwen.qwen3-235b-a22b-2507-v1:0': {
-    defaultParams: QWEN_DEFAULT_PARAMS,
+    defaultParams: QWEN_192K_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -1508,7 +1525,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'qwen.qwen3-32b-v1:0': {
-    defaultParams: QWEN_DEFAULT_PARAMS,
+    defaultParams: QWEN_16K_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -1516,7 +1533,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'qwen.qwen3-coder-480b-a35b-v1:0': {
-    defaultParams: QWEN_DEFAULT_PARAMS,
+    defaultParams: QWEN_64K_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
@@ -1524,7 +1541,7 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: extractConverseStreamOutput,
   },
   'qwen.qwen3-coder-30b-a3b-v1:0': {
-    defaultParams: QWEN_DEFAULT_PARAMS,
+    defaultParams: QWEN_192K_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,
