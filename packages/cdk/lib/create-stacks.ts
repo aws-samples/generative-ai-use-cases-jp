@@ -174,16 +174,17 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
     : null;
 
   // Agent Core Runtime
-  const agentCoreStack = params.createGenericAgentCoreRuntime
-    ? new AgentCoreStack(app, `AgentCoreStack${params.env}`, {
-        env: {
-          account: params.account,
-          region: params.agentCoreRegion,
-        },
-        params: params,
-        crossRegionReferences: true,
-      })
-    : null;
+  const agentCoreStack =
+    params.createGenericAgentCoreRuntime || params.agentBuilderEnabled
+      ? new AgentCoreStack(app, `AgentCoreStack${params.env}`, {
+          env: {
+            account: params.account,
+            region: params.agentCoreRegion,
+          },
+          params: params,
+          crossRegionReferences: true,
+        })
+      : null;
 
   // Create S3 Bucket for each unique region for StartAsyncInvoke in video generation
   // because the S3 Bucket must be in the same region as Bedrock Runtime

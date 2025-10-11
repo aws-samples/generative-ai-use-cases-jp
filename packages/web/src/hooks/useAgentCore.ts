@@ -18,6 +18,14 @@ const agentCoreGenericRuntime =
       ) as AgentCoreConfiguration | null)
     : null;
 
+// AgentBuilder runtime (deployed by CDK)
+const agentCoreAgentBuilderRuntime =
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME !== 'null'
+    ? (JSON.parse(
+        import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME || 'null'
+      ) as AgentCoreConfiguration | null)
+    : null;
+
 // External runtimes (pre-defined)
 const agentCoreExternalRuntimes = JSON.parse(
   import.meta.env.VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES || '[]'
@@ -111,12 +119,18 @@ const useAgentCore = (id: string) => {
   const isAgentCoreEnabled = () => {
     return (
       agentCoreEnabled &&
-      (!!agentCoreGenericRuntime || agentCoreExternalRuntimes.length > 0)
+      (!!agentCoreGenericRuntime ||
+        !!agentCoreAgentBuilderRuntime ||
+        agentCoreExternalRuntimes.length > 0)
     );
   };
 
   const getGenericRuntime = () => {
     return agentCoreGenericRuntime;
+  };
+
+  const getAgentBuilderRuntime = () => {
+    return agentCoreAgentBuilderRuntime;
   };
 
   const getExternalRuntimes = () => {
@@ -155,6 +169,7 @@ const useAgentCore = (id: string) => {
     invokeAgentRuntime,
     isAgentCoreEnabled,
     getGenericRuntime,
+    getAgentBuilderRuntime,
     getExternalRuntimes,
     getAllAvailableRuntimes,
     getAllAvailableRuntimeArns,

@@ -16,22 +16,39 @@ export class AgentCoreStack extends Stack {
 
     const params = props.params;
 
-    // Deploy Generic AgentCore Runtime if enabled
-    if (params.createGenericAgentCoreRuntime) {
+    // Deploy Generic AgentCore Runtime if either generic or agentBuilder is enabled
+    if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
       this.genericAgentCore = new GenericAgentCore(this, 'GenericAgentCore', {
         env: params.env,
+        createGenericRuntime: params.createGenericAgentCoreRuntime,
+        createAgentBuilderRuntime: params.agentBuilderEnabled,
       });
 
-      // Output the runtime ARN for cross-stack reference
-      new CfnOutput(this, 'GenericAgentCoreRuntimeArn', {
-        value: this.genericAgentCore.deployedGenericRuntimeArn || '',
-        exportName: `${this.stackName}-GenericAgentCoreRuntimeArn`,
-      });
+      // Output the generic runtime ARN for cross-stack reference
+      if (params.createGenericAgentCoreRuntime) {
+        new CfnOutput(this, 'GenericAgentCoreRuntimeArn', {
+          value: this.genericAgentCore.deployedGenericRuntimeArn || '',
+          exportName: `${this.stackName}-GenericAgentCoreRuntimeArn`,
+        });
 
-      new CfnOutput(this, 'GenericAgentCoreRuntimeName', {
-        value: this.genericAgentCore.getGenericRuntimeConfig().name,
-        exportName: `${this.stackName}-GenericAgentCoreRuntimeName`,
-      });
+        new CfnOutput(this, 'GenericAgentCoreRuntimeName', {
+          value: this.genericAgentCore.getGenericRuntimeConfig().name,
+          exportName: `${this.stackName}-GenericAgentCoreRuntimeName`,
+        });
+      }
+
+      // Output the AgentBuilder runtime ARN for cross-stack reference
+      if (params.agentBuilderEnabled) {
+        new CfnOutput(this, 'AgentBuilderAgentCoreRuntimeArn', {
+          value: this.genericAgentCore.deployedAgentBuilderRuntimeArn || '',
+          exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeArn`,
+        });
+
+        new CfnOutput(this, 'AgentBuilderAgentCoreRuntimeName', {
+          value: this.genericAgentCore.getAgentBuilderRuntimeConfig().name,
+          exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeName`,
+        });
+      }
     }
   }
 
@@ -43,10 +60,24 @@ export class AgentCoreStack extends Stack {
   }
 
   /**
+   * Get the deployed AgentBuilder runtime ARN
+   */
+  public get deployedAgentBuilderRuntimeArn(): string | undefined {
+    return this.genericAgentCore?.deployedAgentBuilderRuntimeArn;
+  }
+
+  /**
    * Get the generic runtime configuration
    */
   public getGenericRuntimeConfig() {
     return this.genericAgentCore?.getGenericRuntimeConfig();
+  }
+
+  /**
+   * Get the AgentBuilder runtime configuration
+   */
+  public getAgentBuilderRuntimeConfig() {
+    return this.genericAgentCore?.getAgentBuilderRuntimeConfig();
   }
 
   /**

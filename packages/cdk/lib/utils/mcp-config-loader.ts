@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 
 export interface MCPServerMetadata {
   category?: string;
@@ -19,27 +18,23 @@ export interface MCPConfig {
 }
 
 /**
- * Load MCP configuration from mcp.json file
- * Returns only the server names and metadata for frontend use
+ * Load MCP configuration from specified file path
  */
-export function loadMCPConfig(): Record<string, MCPServerConfig> {
+export function loadMCPConfig(
+  filePath: string
+): Record<string, MCPServerConfig> {
   try {
-    const mcpJsonPath = path.join(
-      __dirname,
-      '../../lambda-python/generic-agent-core-runtime/mcp.json'
-    );
-
-    if (!fs.existsSync(mcpJsonPath)) {
-      console.warn('mcp.json not found, using empty configuration');
+    if (!fs.existsSync(filePath)) {
+      console.warn(
+        `MCP file not found: ${filePath}, using empty configuration`
+      );
       return {};
     }
 
-    const mcpConfig: MCPConfig = JSON.parse(
-      fs.readFileSync(mcpJsonPath, 'utf8')
-    );
+    const mcpConfig: MCPConfig = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     return mcpConfig.mcpServers || {};
   } catch (error) {
-    console.error('Error loading MCP configuration:', error);
+    console.error(`Error loading MCP configuration from ${filePath}:`, error);
     return {};
   }
 }

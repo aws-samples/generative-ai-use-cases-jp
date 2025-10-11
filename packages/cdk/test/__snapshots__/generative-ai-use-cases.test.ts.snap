@@ -4409,7 +4409,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       "Export": {
         "Name": "AgentCoreStack-GenericAgentCoreRuntimeName",
       },
-      "Value": "GenUAgentCoreRuntime",
+      "Value": "GenUGenericRuntime",
     },
   },
   "Parameters": {
@@ -4760,22 +4760,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
     },
     "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
       "Properties": {
-        "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
-        "CustomConfig": {
-          "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:89f9ea87f3ee318598f0b63b57f12a3762e5abe60ad4c925b317d2cf2c737d0d",
-          },
-          "environmentVariables": {
-            "FILE_BUCKET": {
-              "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
             },
           },
         },
-        "AgentRuntimeName": "GenUAgentCoreRuntime",
+        "AgentRuntimeName": "GenUGenericRuntime",
         "EnvironmentVariables": {
           "FILE_BUCKET": {
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
+          "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -4981,6 +4978,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         ],
       },
     },
+    "AgentCoreAgentBuilderRuntime": {
+      "Value": "null",
+    },
     "AgentCoreEnabled": {
       "Value": "true",
     },
@@ -4992,7 +4992,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUAgentCoreRuntime","arn":"",
+            "{"name":"GenUGenericRuntime","arn":"",
             {
               "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
@@ -18493,7 +18493,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUAgentCoreRuntime","arn":"",
+                "{"name":"GenUGenericRuntime","arn":"",
                 {
                   "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },
@@ -25989,7 +25989,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       "Export": {
         "Name": "AgentCoreStack-GenericAgentCoreRuntimeName",
       },
-      "Value": "GenUAgentCoreRuntime",
+      "Value": "GenUGenericRuntime",
     },
   },
   "Parameters": {
@@ -26340,22 +26340,19 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
     },
     "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
       "Properties": {
-        "AgentCoreRuntimeName": "GenericAgentCoreRuntime",
-        "CustomConfig": {
-          "containerImageUri": {
-            "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:89f9ea87f3ee318598f0b63b57f12a3762e5abe60ad4c925b317d2cf2c737d0d",
-          },
-          "environmentVariables": {
-            "FILE_BUCKET": {
-              "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
             },
           },
         },
-        "AgentRuntimeName": "GenUAgentCoreRuntime",
+        "AgentRuntimeName": "GenUGenericRuntime",
         "EnvironmentVariables": {
           "FILE_BUCKET": {
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
+          "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -26561,6 +26558,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         ],
       },
     },
+    "AgentCoreAgentBuilderRuntime": {
+      "Value": "null",
+    },
     "AgentCoreEnabled": {
       "Value": "true",
     },
@@ -26572,7 +26572,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUAgentCoreRuntime","arn":"",
+            "{"name":"GenUGenericRuntime","arn":"",
             {
               "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
             },
@@ -39107,7 +39107,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUAgentCoreRuntime","arn":"",
+                "{"name":"GenUGenericRuntime","arn":"",
                 {
                   "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
                 },

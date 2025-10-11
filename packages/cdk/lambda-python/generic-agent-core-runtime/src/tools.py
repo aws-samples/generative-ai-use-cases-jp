@@ -40,22 +40,29 @@ class ToolManager:
         self.trace_id = trace_id
 
     def load_mcp_tools(self) -> list[Any]:
-        """Load MCP tools from mcp.json"""
+        """Load MCP tools from environment variable or mcp.json file"""
         if self.mcp_tools is not None:
             return self.mcp_tools
 
         try:
-            # Load MCP configuration from mcp.json file
-            mcp_config_path = "mcp.json"
-            if not os.path.exists(mcp_config_path):
-                logger.warning(f"MCP configuration file not found at {mcp_config_path}")
-                self.mcp_tools = []
-                return self.mcp_tools
+            # First try to load from environment variable
+            mcp_servers_env = os.environ.get("MCP_SERVERS")
+            if mcp_servers_env:
+                logger.info("Loading MCP configuration from environment variable")
+                mcp_servers = json.loads(mcp_servers_env)
+            else:
+                # Fallback to mcp.json file
+                logger.info("Loading MCP configuration from mcp.json file")
+                mcp_config_path = "mcp.json"
+                if not os.path.exists(mcp_config_path):
+                    logger.warning(f"MCP configuration file not found at {mcp_config_path}")
+                    self.mcp_tools = []
+                    return self.mcp_tools
 
-            with open(mcp_config_path) as f:
-                mcp_config = json.load(f)
+                with open(mcp_config_path) as f:
+                    mcp_config = json.load(f)
+                mcp_servers = mcp_config.get("mcpServers", {})
 
-            mcp_servers = mcp_config.get("mcpServers", {})
             mcp_clients = []
             uv_env = get_uv_environment()
 
@@ -86,27 +93,32 @@ class ToolManager:
             return self.mcp_tools
 
     def load_mcp_tools_by_names(self, server_names: list[str]) -> list[Any]:
-        """Load MCP tools from environment variable by server names"""
+        """Load MCP tools from environment variable or mcp.json by server names"""
         if not server_names:
             return []
 
         try:
-            # Load MCP configuration from mcp.json file
-            # Try multiple possible paths
-            mcp_config_path = "mcp.json"
+            # First try to load from environment variable
+            mcp_servers_env = os.environ.get("MCP_SERVERS")
+            if mcp_servers_env:
+                logger.info("Loading MCP configuration from environment variable")
+                available_servers = json.loads(mcp_servers_env)
+            else:
+                # Fallback to mcp.json file
+                logger.info("Loading MCP configuration from mcp.json file")
+                mcp_config_path = "mcp.json"
+                logger.info(f"Loading MCP configuration from: {mcp_config_path}")
+                with open(mcp_config_path) as f:
+                    mcp_config = json.load(f)
+                available_servers = mcp_config.get("mcpServers", {})
 
-            logger.info(f"Loading MCP configuration from: {mcp_config_path}")
-            with open(mcp_config_path) as f:
-                mcp_config = json.load(f)
-
-            available_servers = mcp_config.get("mcpServers", {})
             logger.info(f"Found {len(available_servers)} available MCP servers")
             mcp_clients = []
             uv_env = get_uv_environment()
 
             for server_name in server_names:
                 if server_name not in available_servers:
-                    logger.warning(f"MCP server '{server_name}' not found in mcp.json")
+                    logger.warning(f"MCP server '{server_name}' not found in configuration")
                     continue
 
                 server_config = available_servers[server_name]

@@ -80,7 +80,7 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
     clear: clearChat,
     loading: chatLoading,
     invokeAgentRuntime,
-    getGenericRuntime,
+    getAgentBuilderRuntime,
     updateSystemContext,
     getModelId,
     setModelId,
@@ -166,9 +166,9 @@ Please respond as this agent with the specified behavior and personality.`;
     setFollowing(true);
 
     try {
-      const genericRuntime = getGenericRuntime();
-      if (!genericRuntime) {
-        throw new Error('No AgentCore runtime available');
+      const agentBuilderRuntime = getAgentBuilderRuntime();
+      if (!agentBuilderRuntime) {
+        throw new Error('No AgentBuilder runtime available');
       }
 
       console.log('Sending message with agent:', agent.name);
@@ -187,7 +187,7 @@ Please respond as this agent with the specified behavior and personality.`;
 
       // Use AgentCore's invokeAgentRuntime with MCP servers
       invokeAgentRuntime(
-        genericRuntime.arn,
+        agentBuilderRuntime.arn,
         sessionId,
         chatContent,
         'DEFAULT',
@@ -213,7 +213,7 @@ Please respond as this agent with the specified behavior and personality.`;
     chatLoading,
     setFollowing,
     invokeAgentRuntime,
-    getGenericRuntime,
+    getAgentBuilderRuntime,
     sessionId,
     uploadedFiles,
     clearFiles,

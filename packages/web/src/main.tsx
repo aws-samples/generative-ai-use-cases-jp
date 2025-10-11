@@ -58,8 +58,8 @@ const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
-const agentCoreGenericRuntimeEnabled: boolean =
-  import.meta.env.VITE_APP_AGENT_CORE_GENERIC_RUNTIME !== 'null';
+const agentBuilderEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME !== 'null';
 
 const {
   visionEnabled,
@@ -219,25 +219,25 @@ const routes: RouteObject[] = [
         element: <AgentCorePage />,
       }
     : null,
-  agentCoreGenericRuntimeEnabled
+  agentBuilderEnabled
     ? {
         path: '/agent-builder',
         element: <AgentBuilderListPage />,
       }
     : null,
-  agentCoreGenericRuntimeEnabled
+  agentBuilderEnabled
     ? {
         path: '/agent-builder/create',
         element: <AgentBuilderEditPage />,
       }
     : null,
-  agentCoreGenericRuntimeEnabled
+  agentBuilderEnabled
     ? {
         path: '/agent-builder/:agentId/edit',
         element: <AgentBuilderEditPage />,
       }
     : null,
-  agentCoreGenericRuntimeEnabled
+  agentBuilderEnabled
     ? {
         path: '/agent-builder/:agentId',
         element: <AgentBuilderChatPage />,

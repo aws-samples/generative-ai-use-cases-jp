@@ -16,6 +16,7 @@ import {
 import { CfnRuntime } from 'aws-cdk-lib/aws-bedrockagentcore';
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
+import { loadMCPConfig } from '../utils/mcp-config-loader';
 
 export interface AgentCoreRuntimeConfig {
   name: string;
@@ -31,20 +32,38 @@ export interface AgentCoreRuntimeConfig {
 export interface GenericAgentCoreProps {
   // Add any specific configuration props if needed
   env: string;
+  createGenericRuntime?: boolean;
+  createAgentBuilderRuntime?: boolean;
 }
 
 export class GenericAgentCore extends Construct {
   private _deployedGenericRuntimeArn?: string;
+  private _deployedAgentBuilderRuntimeArn?: string;
   private _ecrRepository?: Repository;
   private _imageUri?: string;
   private readonly genericRuntimeConfig: AgentCoreRuntimeConfig;
+  private readonly agentBuilderRuntimeConfig: AgentCoreRuntimeConfig;
   private readonly _fileBucket: Bucket;
-  private _agentCoreRuntime?: CfnRuntime;
+  private _genericAgentCoreRuntime?: CfnRuntime;
+  private _agentBuilderAgentCoreRuntime?: CfnRuntime;
+  private _sharedAgentCoreRuntimeRole?: Role;
 
   constructor(scope: Construct, id: string, props: GenericAgentCoreProps) {
     super(scope, id);
 
-    const { env } = props;
+    const {
+      env,
+      createGenericRuntime = false,
+      createAgentBuilderRuntime = false,
+    } = props;
+
+    // Load MCP configurations from specific paths
+    const genericMcpServers = loadMCPConfig(
+      path.join(__dirname, '../../assets/mcp-configs/generic.json')
+    );
+    const agentBuilderMcpServers = loadMCPConfig(
+      path.join(__dirname, '../../assets/mcp-configs/agent-builder.json')
+    );
 
     // Create dedicated S3 bucket for Agent Core Runtime
     this._fileBucket = new Bucket(this, 'AgentCoreFileBucket', {
@@ -56,7 +75,7 @@ export class GenericAgentCore extends Construct {
 
     // Default configuration for Generic AgentCore Runtime
     this.genericRuntimeConfig = {
-      name: `GenUAgentCoreRuntime${env}`,
+      name: `GenUGenericRuntime${env}`,
       instructions: 'You are a helpful assistant powered by AWS Bedrock.',
       memorySize: 2048,
       dockerPath: 'lambda-python/generic-agent-core-runtime',
@@ -64,43 +83,103 @@ export class GenericAgentCore extends Construct {
       serverProtocol: 'HTTP',
       environmentVariables: {
         FILE_BUCKET: this._fileBucket.bucketName,
+        MCP_SERVERS: JSON.stringify(genericMcpServers),
       },
     };
 
-    // Deploy generic AgentCore Runtime
-    const result = this.deployGenericRuntime();
-    this._ecrRepository = result.repository;
-    this._imageUri = result.imageUri;
+    // Configuration for AgentBuilder AgentCore Runtime
+    this.agentBuilderRuntimeConfig = {
+      name: `GenUAgentBuilderRuntime${env}`,
+      instructions:
+        'You are a helpful assistant for AgentBuilder powered by AWS Bedrock.',
+      memorySize: 2048,
+      dockerPath: 'lambda-python/generic-agent-core-runtime',
+      networkMode: 'PUBLIC',
+      serverProtocol: 'HTTP',
+      environmentVariables: {
+        FILE_BUCKET: this._fileBucket.bucketName,
+        MCP_SERVERS: JSON.stringify(agentBuilderMcpServers),
+      },
+    };
+
+    // Create Docker image asset and shared IAM role only if at least one runtime is needed
+    if (createGenericRuntime || createAgentBuilderRuntime) {
+      const dockerResult = this.createDockerImageAsset();
+      this._ecrRepository = dockerResult.repository;
+      this._imageUri = dockerResult.imageUri;
+
+      // Create shared IAM role
+      this._sharedAgentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
+
+      // Deploy runtimes based on flags
+      if (createGenericRuntime) {
+        this.deployGenericRuntime();
+      }
+      if (createAgentBuilderRuntime) {
+        this.deployAgentBuilderRuntime();
+      }
+    }
   }
 
   /**
    * Deploy the generic AgentCore Runtime using L1 CDK Construct
    */
-  private deployGenericRuntime(): { repository: Repository; imageUri: string } {
-    const dockerImageAsset = this.createDockerImageAsset();
-    const agentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
-
+  private deployGenericRuntime(): void {
     // Create AgentCore Runtime using L1 CDK Construct
-    this._agentCoreRuntime = new CfnRuntime(this, 'GenericAgentCoreRuntimeL1', {
-      agentRuntimeName: this.genericRuntimeConfig.name,
-      agentRuntimeArtifact: {
-        containerConfiguration: {
-          containerUri: dockerImageAsset.imageUri,
+    this._genericAgentCoreRuntime = new CfnRuntime(
+      this,
+      'GenericAgentCoreRuntimeL1',
+      {
+        agentRuntimeName: this.genericRuntimeConfig.name,
+        agentRuntimeArtifact: {
+          containerConfiguration: {
+            containerUri: this._imageUri!,
+          },
         },
-      },
-      roleArn: agentCoreRuntimeRole.roleArn,
-      networkConfiguration: {
-        networkMode: this.genericRuntimeConfig.networkMode || 'PUBLIC',
-      },
-      protocolConfiguration: this.genericRuntimeConfig.serverProtocol || 'HTTP',
-      environmentVariables: this.genericRuntimeConfig.environmentVariables,
-    });
+        roleArn: this._sharedAgentCoreRuntimeRole!.roleArn,
+        networkConfiguration: {
+          networkMode: this.genericRuntimeConfig.networkMode || 'PUBLIC',
+        },
+        protocolConfiguration:
+          this.genericRuntimeConfig.serverProtocol || 'HTTP',
+        environmentVariables: this.genericRuntimeConfig.environmentVariables,
+      }
+    );
 
     // Set the deployed runtime ARN
     this._deployedGenericRuntimeArn =
-      this._agentCoreRuntime.attrAgentRuntimeArn;
+      this._genericAgentCoreRuntime.attrAgentRuntimeArn;
+  }
 
-    return dockerImageAsset;
+  /**
+   * Deploy the AgentBuilder AgentCore Runtime using L1 CDK Construct
+   */
+  private deployAgentBuilderRuntime(): void {
+    // Create AgentCore Runtime using L1 CDK Construct
+    this._agentBuilderAgentCoreRuntime = new CfnRuntime(
+      this,
+      'AgentBuilderAgentCoreRuntimeL1',
+      {
+        agentRuntimeName: this.agentBuilderRuntimeConfig.name,
+        agentRuntimeArtifact: {
+          containerConfiguration: {
+            containerUri: this._imageUri!,
+          },
+        },
+        roleArn: this._sharedAgentCoreRuntimeRole!.roleArn,
+        networkConfiguration: {
+          networkMode: this.agentBuilderRuntimeConfig.networkMode || 'PUBLIC',
+        },
+        protocolConfiguration:
+          this.agentBuilderRuntimeConfig.serverProtocol || 'HTTP',
+        environmentVariables:
+          this.agentBuilderRuntimeConfig.environmentVariables,
+      }
+    );
+
+    // Set the deployed runtime ARN
+    this._deployedAgentBuilderRuntimeArn =
+      this._agentBuilderAgentCoreRuntime.attrAgentRuntimeArn;
   }
 
   /**
@@ -313,10 +392,24 @@ export class GenericAgentCore extends Construct {
   }
 
   /**
+   * Get deployed AgentBuilder runtime ARN
+   */
+  public get deployedAgentBuilderRuntimeArn(): string | undefined {
+    return this._deployedAgentBuilderRuntimeArn;
+  }
+
+  /**
    * Get the generic runtime configuration
    */
   public getGenericRuntimeConfig(): AgentCoreRuntimeConfig {
     return { ...this.genericRuntimeConfig };
+  }
+
+  /**
+   * Get the AgentBuilder runtime configuration
+   */
+  public getAgentBuilderRuntimeConfig(): AgentCoreRuntimeConfig {
+    return { ...this.agentBuilderRuntimeConfig };
   }
 
   /**

@@ -66,6 +66,7 @@ export interface WebProps {
   readonly cognitoIdentityPoolProxyEndpoint?: string;
   readonly agentCoreEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
+  readonly agentCoreAgentBuilderRuntime?: AgentCoreConfiguration;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly agentCoreRegion?: string;
 }
@@ -296,6 +297,9 @@ export class Web extends Construct {
         VITE_APP_AGENT_CORE_ENABLED: props.agentCoreEnabled.toString(),
         VITE_APP_AGENT_CORE_GENERIC_RUNTIME: JSON.stringify(
           props.agentCoreGenericRuntime
+        ),
+        VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME: JSON.stringify(
+          props.agentCoreAgentBuilderRuntime
         ),
         VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: JSON.stringify(
           props.agentCoreExternalRuntimes

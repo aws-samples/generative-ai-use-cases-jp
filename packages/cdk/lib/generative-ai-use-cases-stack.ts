@@ -29,6 +29,7 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
+import * as path from 'path';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -163,7 +164,9 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     // Load MCP configuration for Web frontend
-    const mcpServers = loadMCPConfig();
+    const mcpServers = loadMCPConfig(
+      path.join(__dirname, '../assets/mcp-configs/agent-builder.json')
+    );
     const safeMCPConfig = extractSafeMCPConfig(mcpServers);
 
     // MCP
@@ -182,11 +185,17 @@ export class GenerativeAiUseCasesStack extends Stack {
     // AgentCore Runtime (External runtimes and permissions only)
     let genericRuntimeArn: string | undefined;
     let genericRuntimeName: string | undefined;
+    let agentBuilderRuntimeArn: string | undefined;
+    let agentBuilderRuntimeName: string | undefined;
 
-    // Get generic runtime info from AgentCore stack if it exists
+    // Get runtime info from AgentCore stack if it exists
     if (props.agentCoreStack) {
       genericRuntimeArn = props.agentCoreStack.deployedGenericRuntimeArn;
       genericRuntimeName = props.agentCoreStack.getGenericRuntimeConfig()?.name;
+      agentBuilderRuntimeArn =
+        props.agentCoreStack.deployedAgentBuilderRuntimeArn;
+      agentBuilderRuntimeName =
+        props.agentCoreStack.getAgentBuilderRuntimeConfig()?.name;
     }
 
     // Create AgentCore construct for external runtimes and permissions
@@ -242,6 +251,13 @@ export class GenerativeAiUseCasesStack extends Stack {
             name: genericRuntimeName || 'GenericAgentCoreRuntime',
             arn: genericRuntimeArn,
             description: 'Generic Agent Core Runtime for custom agents',
+          }
+        : undefined,
+      agentCoreAgentBuilderRuntime: agentBuilderRuntimeArn
+        ? {
+            name: agentBuilderRuntimeName || 'AgentBuilderAgentCoreRuntime',
+            arn: agentBuilderRuntimeArn,
+            description: 'Agent Core Runtime for AgentBuilder',
           }
         : undefined,
       agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
@@ -481,6 +497,15 @@ export class GenerativeAiUseCasesStack extends Stack {
         ? JSON.stringify({
             name: genericRuntimeName || 'GenericAgentCoreRuntime',
             arn: genericRuntimeArn,
+          })
+        : 'null',
+    });
+
+    new CfnOutput(this, 'AgentCoreAgentBuilderRuntime', {
+      value: agentBuilderRuntimeArn
+        ? JSON.stringify({
+            name: agentBuilderRuntimeName || 'AgentBuilderAgentCoreRuntime',
+            arn: agentBuilderRuntimeArn,
           })
         : 'null',
     });

@@ -46,8 +46,8 @@ const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
-const agentCoreGenericRuntimeEnabled: boolean =
-  import.meta.env.VITE_APP_AGENT_CORE_GENERIC_RUNTIME !== 'null';
+const agentBuilderEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME !== 'null';
 
 const {
   visionEnabled,
@@ -142,20 +142,19 @@ const App: React.FC = () => {
           sub: 'Deprecated',
         }
       : null,
-    agentCoreGenericRuntimeEnabled
+    agentCoreEnabled
       ? {
-          label: 'Agent Builder',
-          to: '/agent-builder',
+          label: t('agent_core.title'),
+          to: '/agent-core',
           icon: <PiRobot />,
           display: 'usecase' as const,
           sub: 'Experimental',
         }
       : null,
-    // Do not show AgentCore in the drawer if Agent Builder is enabled
-    agentCoreEnabled && !agentCoreGenericRuntimeEnabled
+    agentBuilderEnabled
       ? {
-          label: t('agent_core.title'),
-          to: '/agent-core',
+          label: 'Agent Builder',
+          to: '/agent-builder',
           icon: <PiRobot />,
           display: 'usecase' as const,
           sub: 'Experimental',
