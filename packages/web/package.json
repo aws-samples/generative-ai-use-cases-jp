@@ -36,7 +36,7 @@
     "@types/uuid": "^9.0.8",
     "@uiw/react-md-editor": "^4.0.5",
     "aws-amplify": "^6.3.8",
-    "axios": "^1.6.8",
+    "axios": "^1.12.0",
     "buffer": "^6.0.3",
     "cmdk": "^1.0.4",
     "copy-to-clipboard": "^3.3.3",
