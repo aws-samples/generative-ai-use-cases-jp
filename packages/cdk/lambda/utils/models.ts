@@ -209,7 +209,7 @@ const DEEPSEEK_DEFAULT_PARAMS: ConverseInferenceParams = {
 // Qwen3 model parameters based on actual AWS Bedrock limits
 const QWEN_16K_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
-    maxTokens: 16384, // Actual limit for qwen3-32b in Bedrock
+    maxTokens: 16384,
     temperature: 0.7,
     topP: 0.9,
   },
@@ -217,7 +217,7 @@ const QWEN_16K_DEFAULT_PARAMS: ConverseInferenceParams = {
 
 const QWEN_64K_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
-    maxTokens: 65536, // Actual limit for qwen3-coder-480b in Bedrock
+    maxTokens: 65536,
     temperature: 0.7,
     topP: 0.9,
   },
@@ -225,7 +225,7 @@ const QWEN_64K_DEFAULT_PARAMS: ConverseInferenceParams = {
 
 const QWEN_192K_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
-    maxTokens: 196608, // Actual limit for qwen3-235b and qwen3-coder-30b in Bedrock
+    maxTokens: 196608,
     temperature: 0.7,
     topP: 0.9,
   },
