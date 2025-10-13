@@ -95,7 +95,7 @@ fi
 $deploy_cmd
 
 # Get the url of the deployed CloudFront
-weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
+weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack$env_name --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
 
 echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 echo "Welcome to GenU: $weburl"
