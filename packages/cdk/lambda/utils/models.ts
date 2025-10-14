@@ -31,6 +31,7 @@ import {
   applyAutoCacheToSystem,
 } from './promptCache';
 import { getFormatFromMimeType, getMimeTypeFromFileName } from './media';
+import { convertToSafeFilename } from './fileNameUtils';
 
 // Default Models
 
@@ -403,9 +404,7 @@ const createConverseCommandInput = (
           contentBlocks.push({
             document: {
               format,
-              name: extra.name
-                .split('.')[0]
-                .replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X'), // If the file name contains Japanese, it will cause an error, so convert it
+              name: convertToSafeFilename(extra.name),
               source: {
                 bytes: Buffer.from(extra.source.data, 'base64'),
               },
