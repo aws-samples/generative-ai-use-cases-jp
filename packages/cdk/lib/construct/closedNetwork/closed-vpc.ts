@@ -9,6 +9,7 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
   Transcribe: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE,
   TranscribeStreaming: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE_STREAMING,
   Polly: ec2.InterfaceVpcEndpointAwsService.POLLY,
+  AgentCore: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENTCORE,
   // VPC Endpoints required by app side
   Bedrock: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
   BedrockAgent: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
