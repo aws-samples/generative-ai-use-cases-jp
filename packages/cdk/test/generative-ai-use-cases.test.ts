@@ -49,6 +49,7 @@ describe('GenerativeAiUseCases', () => {
     agents: [],
     flows: [],
     createGenericAgentCoreRuntime: true,
+    agentBuilderEnabled: true,
     agentCoreRegion: 'us-east-1',
     agentCoreExternalRuntimes: [],
     allowedIpV4AddressRanges: null,

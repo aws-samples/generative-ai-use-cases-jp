@@ -199,12 +199,16 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // Create AgentCore construct for external runtimes and permissions
-    if (params.agentCoreExternalRuntimes.length > 0 || genericRuntimeArn) {
+    if (
+      params.agentCoreExternalRuntimes.length > 0 ||
+      genericRuntimeArn ||
+      agentBuilderRuntimeArn
+    ) {
       new AgentCore(this, 'AgentCore', {
         agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
         idPool: auth.idPool,
         genericRuntimeArn,
-        genericRuntimeName,
+        agentBuilderRuntimeArn,
       });
     }
 

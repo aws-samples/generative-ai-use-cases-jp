@@ -4375,6 +4375,34 @@ Automatically detect the language of the user's request and think and answer in 
 exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
 {
   "Outputs": {
+    "AgentBuilderAgentCoreRuntimeArn": {
+      "Export": {
+        "Name": "AgentCoreStack-AgentBuilderAgentCoreRuntimeArn",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "AgentRuntimeArn",
+        ],
+      },
+    },
+    "AgentBuilderAgentCoreRuntimeName": {
+      "Export": {
+        "Name": "AgentCoreStack-AgentBuilderAgentCoreRuntimeName",
+      },
+      "Value": "GenUAgentBuilderRuntime",
+    },
+    "ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075": {
+      "Export": {
+        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "AgentRuntimeArn",
+        ],
+      },
+    },
     "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
       "Export": {
         "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
@@ -4475,6 +4503,39 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560": {
+      "DependsOn": [
+        "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
+        "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+      ],
+      "Properties": {
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+            },
+          },
+        },
+        "AgentRuntimeName": "GenUAgentBuilderRuntime",
+        "EnvironmentVariables": {
+          "FILE_BUCKET": {
+            "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+          },
+          "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+        },
+        "NetworkConfiguration": {
+          "NetworkMode": "PUBLIC",
+        },
+        "ProtocolConfiguration": "HTTP",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::BedrockAgentCore::Runtime",
     },
     "GenericAgentCoreAgentCoreFileBucket0430DA42": {
       "DeletionPolicy": "Delete",
@@ -4983,7 +5044,18 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       },
     },
     "AgentCoreAgentBuilderRuntime": {
-      "Value": "null",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "{"name":"GenUAgentBuilderRuntime","arn":"",
+            {
+              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+            },
+            ""}",
+          ],
+        ],
+      },
     },
     "AgentCoreEnabled": {
       "Value": "true",
@@ -18446,17 +18518,30 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": "bedrock-agentcore:InvokeAgentRuntime",
               "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    {
-                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
-                    },
-                    "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                      },
+                      "*",
+                    ],
                   ],
-                ],
-              },
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                      },
+                      "*",
+                    ],
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -18491,6 +18576,18 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
+          "VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME": {
+            "Fn::Join": [
+              "",
+              [
+                "{"name":"GenUAgentBuilderRuntime","arn":"",
+                {
+                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                },
+                "","description":"Agent Core Runtime for AgentBuilder"}",
+              ],
+            ],
+          },
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {
@@ -25959,6 +26056,34 @@ Automatically detect the language of the user's request and think and answer in 
 exports[`GenerativeAiUseCases matches the snapshot 4`] = `
 {
   "Outputs": {
+    "AgentBuilderAgentCoreRuntimeArn": {
+      "Export": {
+        "Name": "AgentCoreStack-AgentBuilderAgentCoreRuntimeArn",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "AgentRuntimeArn",
+        ],
+      },
+    },
+    "AgentBuilderAgentCoreRuntimeName": {
+      "Export": {
+        "Name": "AgentCoreStack-AgentBuilderAgentCoreRuntimeName",
+      },
+      "Value": "GenUAgentBuilderRuntime",
+    },
+    "ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075": {
+      "Export": {
+        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "AgentRuntimeArn",
+        ],
+      },
+    },
     "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
       "Export": {
         "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
@@ -26059,6 +26184,39 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560": {
+      "DependsOn": [
+        "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
+        "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+      ],
+      "Properties": {
+        "AgentRuntimeArtifact": {
+          "ContainerConfiguration": {
+            "ContainerUri": {
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+            },
+          },
+        },
+        "AgentRuntimeName": "GenUAgentBuilderRuntime",
+        "EnvironmentVariables": {
+          "FILE_BUCKET": {
+            "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+          },
+          "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+        },
+        "NetworkConfiguration": {
+          "NetworkMode": "PUBLIC",
+        },
+        "ProtocolConfiguration": "HTTP",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::BedrockAgentCore::Runtime",
     },
     "GenericAgentCoreAgentCoreFileBucket0430DA42": {
       "DeletionPolicy": "Delete",
@@ -26567,7 +26725,18 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       },
     },
     "AgentCoreAgentBuilderRuntime": {
-      "Value": "null",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "{"name":"GenUAgentBuilderRuntime","arn":"",
+            {
+              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+            },
+            ""}",
+          ],
+        ],
+      },
     },
     "AgentCoreEnabled": {
       "Value": "true",
@@ -39064,17 +39233,30 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": "bedrock-agentcore:InvokeAgentRuntime",
               "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    {
-                      "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
-                    },
-                    "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                      },
+                      "*",
+                    ],
                   ],
-                ],
-              },
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                      },
+                      "*",
+                    ],
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -39109,6 +39291,18 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
+          "VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME": {
+            "Fn::Join": [
+              "",
+              [
+                "{"name":"GenUAgentBuilderRuntime","arn":"",
+                {
+                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                },
+                "","description":"Agent Core Runtime for AgentBuilder"}",
+              ],
+            ],
+          },
           "VITE_APP_AGENT_CORE_ENABLED": "true",
           "VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES": "[]",
           "VITE_APP_AGENT_CORE_GENERIC_RUNTIME": {
