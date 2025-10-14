@@ -4759,6 +4759,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       "Type": "AWS::IAM::Role",
     },
     "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
+      "DependsOn": [
+        "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
+        "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+      ],
       "Properties": {
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
@@ -26339,6 +26343,10 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       "Type": "AWS::IAM::Role",
     },
     "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
+      "DependsOn": [
+        "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
+        "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
+      ],
       "Properties": {
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {

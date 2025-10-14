@@ -145,6 +145,9 @@ export class GenericAgentCore extends Construct {
         environmentVariables: this.genericRuntimeConfig.environmentVariables,
       }
     );
+    this._genericAgentCoreRuntime.node.addDependency(
+      this._sharedAgentCoreRuntimeRole!
+    );
 
     // Set the deployed runtime ARN
     this._deployedGenericRuntimeArn =
@@ -175,6 +178,9 @@ export class GenericAgentCore extends Construct {
         environmentVariables:
           this.agentBuilderRuntimeConfig.environmentVariables,
       }
+    );
+    this._agentBuilderAgentCoreRuntime.node.addDependency(
+      this._sharedAgentCoreRuntimeRole!
     );
 
     // Set the deployed runtime ARN
