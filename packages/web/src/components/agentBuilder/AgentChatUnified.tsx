@@ -48,6 +48,7 @@ interface AgentChatProps {
   className?: string;
   showHeader?: boolean;
   layout?: 'fullscreen' | 'card';
+  hideScrollButtons?: boolean;
   showAgentInfo?: boolean;
   showEditButton?: boolean;
   onEdit?: () => void;
@@ -61,6 +62,7 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   className = '',
   showHeader = true,
   layout = 'fullscreen',
+  hideScrollButtons = false,
   showAgentInfo = true,
   showEditButton = false,
   onEdit,
@@ -405,9 +407,11 @@ Please respond as this agent with the specified behavior and personality.`;
             {chatIsEmpty ? renderEmptyState() : renderChatMessages()}
 
             {/* Scroll Controls */}
-            <div className="absolute right-4 top-4 z-10">
-              <ScrollTopBottom />
-            </div>
+            {!hideScrollButtons && (
+              <div className="absolute right-4 top-4 z-10">
+                <ScrollTopBottom />
+              </div>
+            )}
           </div>
 
           {/* Input Area */}
@@ -449,9 +453,11 @@ Please respond as this agent with the specified behavior and personality.`;
       {chatIsEmpty ? renderEmptyState() : renderChatMessages()}
 
       {/* Scroll Controls */}
-      <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
-        <ScrollTopBottom />
-      </div>
+      {!hideScrollButtons && (
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">

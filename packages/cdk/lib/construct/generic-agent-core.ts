@@ -112,12 +112,8 @@ export class GenericAgentCore extends Construct {
       this._sharedAgentCoreRuntimeRole = this.createAgentCoreRuntimeRole();
 
       // Deploy runtimes based on flags
-      if (createGenericRuntime) {
-        this.deployGenericRuntime();
-      }
-      if (createAgentBuilderRuntime) {
-        this.deployAgentBuilderRuntime();
-      }
+      this.deployGenericRuntime();
+      this.deployAgentBuilderRuntime();
     }
   }
 

@@ -38,6 +38,7 @@ agent_builder:
   description: Description
   description_label: Description
   description_placeholder: Describe what your agent does...
+  description_too_long: Description must be 500 characters or less
   edit_agent: Edit Agent
   enable_code_execution: Enabling code execution
   enter_agent_name: Enter the agent name
@@ -69,6 +70,7 @@ agent_builder:
   model: Model
   my_agents: My Agents
   name: Name
+  name_too_long: Agent name must be 100 characters or less
   no_agents_yet: No agents yet
   no_external_agents_available: No external agents available
   no_favorite_agents_yet: No favorite agents yet

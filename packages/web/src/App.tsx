@@ -47,7 +47,7 @@ const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
 const agentBuilderEnabled: boolean =
-  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME !== 'null';
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED === 'true';
 
 const {
   visionEnabled,

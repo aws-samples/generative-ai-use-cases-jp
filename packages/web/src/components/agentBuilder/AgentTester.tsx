@@ -16,6 +16,7 @@ const AgentTester: React.FC<AgentTesterProps> = ({ agent }) => {
       sessionId={sessionId}
       showHeader={true}
       layout="card"
+      hideScrollButtons={true}
     />
   );
 };

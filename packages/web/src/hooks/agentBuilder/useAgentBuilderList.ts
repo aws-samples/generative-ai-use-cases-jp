@@ -13,6 +13,7 @@ import {
 import useAgentBuilderApi from './useAgentBuilderApi';
 import { useAgentCore } from '../useAgentCore';
 import { MODELS } from '../useModel';
+import { AxiosError } from 'axios';
 
 const useAgentBuilderList = () => {
   const { t } = useTranslation();
@@ -214,6 +215,9 @@ const useAgentBuilderList = () => {
         return response.agent;
       } catch (error) {
         toast.error(t('agent_builder.failed_to_create_agent'));
+        if (error instanceof AxiosError) {
+          toast.error(error?.response?.data?.error);
+        }
         throw error;
       } finally {
         // Revalidate to ensure consistency
@@ -250,6 +254,9 @@ const useAgentBuilderList = () => {
         return response.agent;
       } catch (error) {
         toast.error(t('agent_builder.failed_to_update_agent'));
+        if (error instanceof AxiosError) {
+          toast.error(error?.response?.data?.error);
+        }
         throw error;
       } finally {
         // Revalidate all lists
@@ -291,6 +298,9 @@ const useAgentBuilderList = () => {
         toast.success(t('agent_builder.agent_deleted_successfully'));
       } catch (error) {
         toast.error(t('agent_builder.failed_to_delete_agent'));
+        if (error instanceof AxiosError) {
+          toast.error(error?.response?.data?.error);
+        }
         throw error;
       } finally {
         // Revalidate all lists
@@ -342,6 +352,9 @@ const useAgentBuilderList = () => {
         return clonedAgent.agent;
       } catch (error) {
         toast.error(t('agent_builder.failed_to_clone_agent'));
+        if (error instanceof AxiosError) {
+          toast.error(error?.response?.data?.error);
+        }
         throw error;
       } finally {
         mutateMyAgents();
@@ -445,6 +458,9 @@ const useAgentBuilderList = () => {
         return result;
       } catch (error) {
         toast.error(t('agent_builder.failed_to_toggle_favorite'));
+        if (error instanceof AxiosError) {
+          toast.error(error?.response?.data?.error);
+        }
         // Revert optimistic updates on error
         mutateMyAgents();
         mutateFavoriteAgents();

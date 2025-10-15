@@ -22,7 +22,6 @@ const AgentBuilderEditPage: React.FC = () => {
   const { createAgent, updateAgent } = useAgentBuilderList();
 
   const isEditMode = Boolean(agentId);
-  const [testMode, setTestMode] = useState(false);
   const [currentFormData, setCurrentFormData] = useState<AgentFormData | null>(
     null
   );
@@ -131,14 +130,6 @@ const AgentBuilderEditPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Show test button when we have form data or existing agent */}
-          {(currentFormData || agent) && (
-            <Button outlined onClick={() => setTestMode(!testMode)}>
-              {t('agent_builder.test')}
-            </Button>
-          )}
-        </div>
       </div>
 
       {/* Content */}
@@ -157,7 +148,7 @@ const AgentBuilderEditPage: React.FC = () => {
         </div>
 
         {/* Agent Testing */}
-        {testMode && (currentFormData || agent) && (
+        {(currentFormData || agent) && (
           <div className="space-y-6">
             <AgentTester
               agent={{

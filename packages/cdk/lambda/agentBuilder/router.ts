@@ -61,28 +61,6 @@ export async function routeRequest(
       }
     }
 
-    // Public agents route
-    if (resource === '/agents/public' && httpMethod === 'GET') {
-      return await handleListPublicAgents(userId, exclusiveStartKey, limit);
-    }
-
-    // Import agent route
-    if (resource === '/agents/clone' && httpMethod === 'POST') {
-      const parseResult = validateAndParseRequestBody(body);
-      if (!parseResult.isValid) {
-        return handleError(new Error(parseResult.error!));
-      }
-      return await handleCloneAgent(
-        userId,
-        parseResult.data as CloneAgentRequest
-      );
-    }
-
-    // Favorite agents route
-    if (resource === '/agents/favorites' && httpMethod === 'GET') {
-      return await handleListFavoriteAgents(userId, exclusiveStartKey, limit);
-    }
-
     // Individual agent routes and sub-routes
     if (resource === '/agents/{proxy+}') {
       const pathParts = (pathParameters?.proxy || '').split('/');
@@ -103,6 +81,17 @@ export async function routeRequest(
 
       if (agentId === 'favorites' && httpMethod === 'GET') {
         return await handleListFavoriteAgents(userId, exclusiveStartKey, limit);
+      }
+
+      if (agentId === 'clone' && httpMethod === 'POST') {
+        const parseResult = validateAndParseRequestBody(body);
+        if (!parseResult.isValid) {
+          return handleError(new Error(parseResult.error!));
+        }
+        return await handleCloneAgent(
+          userId,
+          parseResult.data as CloneAgentRequest
+        );
       }
 
       if (agentId === 'import' && httpMethod === 'POST') {

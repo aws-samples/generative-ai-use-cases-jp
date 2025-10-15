@@ -39,6 +39,7 @@ agent_builder:
   description: 説明
   description_label: 説明
   description_placeholder: エージェントの機能を説明してください...
+  description_too_long: 説明は500文字以下である必要があります
   edit_agent: エージェントを編集
   enable_code_execution: コード実行を有効にする
   enter_agent_name: エージェント名を入力
@@ -67,6 +68,7 @@ agent_builder:
   model: モデル
   my_agents: マイエージェント
   name: 名前
+  name_too_long: エージェント名は100文字以下である必要があります
   no_agents_yet: まだエージェントがありません
   no_external_agents_available: 利用可能な外部エージェントがありません
   no_favorite_agents_yet: まだお気に入りのエージェントがありません

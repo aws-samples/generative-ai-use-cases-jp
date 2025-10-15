@@ -117,12 +117,7 @@ const useAgentCore = (id: string) => {
   };
 
   const isAgentCoreEnabled = () => {
-    return (
-      agentCoreEnabled &&
-      (!!agentCoreGenericRuntime ||
-        !!agentCoreAgentBuilderRuntime ||
-        agentCoreExternalRuntimes.length > 0)
-    );
+    return agentCoreEnabled;
   };
 
   const getGenericRuntime = () => {

@@ -40,6 +40,7 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly agents?: Agent[];
   // Agent Core
   readonly createGenericAgentCoreRuntime?: boolean;
+  readonly agentBuilderEnabled?: boolean;
   readonly agentCoreStack?: AgentCoreStack;
   // Video Generation
   readonly videoBucketRegionMap: Record<string, string>;
@@ -257,6 +258,7 @@ export class GenerativeAiUseCasesStack extends Stack {
             description: 'Generic Agent Core Runtime for custom agents',
           }
         : undefined,
+      agentBuilderEnabled: params.agentBuilderEnabled,
       agentCoreAgentBuilderRuntime: agentBuilderRuntimeArn
         ? {
             name: agentBuilderRuntimeName || 'AgentBuilderAgentCoreRuntime',
@@ -353,7 +355,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         api: api.api,
         vpc: props.vpc,
         securityGroups,
-        createGenericAgentCoreRuntime: props.createGenericAgentCoreRuntime,
+        agentBuilderRuntimeArn,
       });
     }
 
@@ -503,6 +505,10 @@ export class GenerativeAiUseCasesStack extends Stack {
             arn: genericRuntimeArn,
           })
         : 'null',
+    });
+
+    new CfnOutput(this, 'AgentCoreAgentBuilderEnabled', {
+      value: params.agentBuilderEnabled.toString(),
     });
 
     new CfnOutput(this, 'AgentCoreAgentBuilderRuntime', {

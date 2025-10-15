@@ -89,6 +89,9 @@ $env:VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT = Extract-Value $stack_output "Co
 $env:VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT = Extract-Value $stack_output "CognitoIdentityPoolProxyEndpoint"
 $env:VITE_APP_AGENT_CORE_ENABLED = Extract-Value $stack_output "AgentCoreEnabled"
 $env:VITE_APP_AGENT_CORE_GENERIC_RUNTIME = Extract-Value $stack_output "AgentCoreGenericRuntime"
+$env:VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED = Extract-Value $stack_output "AgentCoreAgentBuilderEnabled"
+$env:VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME = Extract-Value $stack_output "AgentCoreAgentBuilderRuntime"
 $env:VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES = Extract-Value $stack_output "AgentCoreExternalRuntimes"
+$env:VITE_APP_MCP_SERVERS_CONFIG = Extract-Value $stack_output "McpServersConfig"
 
 npm -w packages/web run dev

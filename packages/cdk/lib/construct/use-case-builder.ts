@@ -21,13 +21,13 @@ export interface UseCaseBuilderProps {
   readonly api: RestApi;
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
-  readonly createGenericAgentCoreRuntime?: boolean;
+  readonly agentBuilderRuntimeArn?: string;
 }
 export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api, createGenericAgentCoreRuntime } = props;
+    const { userPool, api, agentBuilderRuntimeArn } = props;
 
     const useCaseIdIndexName = 'UseCaseIdIndexName';
     const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
@@ -243,7 +243,7 @@ export class UseCaseBuilder extends Construct {
       commonAuthorizerProps
     );
 
-    if (createGenericAgentCoreRuntime) {
+    if (agentBuilderRuntimeArn) {
       // Add Agent Builder related APIs
       const agentBuilderFunction = new NodejsFunction(this, 'AgentBuilder', {
         ...commonProperty,
@@ -276,30 +276,24 @@ export class UseCaseBuilder extends Construct {
       });
       agentBuilderFunction.role?.addToPrincipalPolicy(cognitoPolicyForAgent);
 
-      // Agent Builder API endpoints
+      // Agent Builder API endpoints - all routes handled by proxy+ integration
       const agentsResource = api.root.addResource('agents');
 
-      // GET: /agents
+      // Handle root /agents requests
       agentsResource.addMethod(
-        'GET',
-        new LambdaIntegration(agentBuilderFunction),
-        commonAuthorizerProps
-      );
-
-      // POST: /agents
-      agentsResource.addMethod(
-        'POST',
+        'ANY',
         new LambdaIntegration(agentBuilderFunction),
         commonAuthorizerProps
       );
 
       // All agent sub-routes handled by proxy+ integration
-      const agentResource = agentsResource.addResource('{proxy+}');
-      agentResource.addMethod(
-        'ANY',
-        new LambdaIntegration(agentBuilderFunction),
-        commonAuthorizerProps
-      );
+      agentsResource
+        .addResource('{proxy+}')
+        .addMethod(
+          'ANY',
+          new LambdaIntegration(agentBuilderFunction),
+          commonAuthorizerProps
+        );
     }
   }
 }

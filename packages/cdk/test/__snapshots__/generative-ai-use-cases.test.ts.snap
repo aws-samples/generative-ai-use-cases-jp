@@ -5043,6 +5043,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         ],
       },
     },
+    "AgentCoreAgentBuilderEnabled": {
+      "Value": "true",
+    },
     "AgentCoreAgentBuilderRuntime": {
       "Value": {
         "Fn::Join": [
@@ -5373,7 +5376,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123b4c182070f01d378b2e5ccab86f6b1c4": {
+    "APIApiDeployment3A5021233678b344a6b4ba58b1d38af2f23055cd": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -5381,9 +5384,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "APIApiagentsproxyANY44A4A08E",
         "APIApiagentsproxyOPTIONS65C845F9",
         "APIApiagentsproxy440913A2",
-        "APIApiagentsGETFE9F47E4",
+        "APIApiagentsANY50AC6B55",
         "APIApiagentsOPTIONS064D2F41",
-        "APIApiagentsPOST28B48D5F",
         "APIApiagents70FB378D",
         "APIApichatschatIdDELETE4578D41B",
         "APIApichatschatIdfeedbacksOPTIONS7AB34AA5",
@@ -5536,7 +5538,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123b4c182070f01d378b2e5ccab86f6b1c4",
+          "Ref": "APIApiDeployment3A5021233678b344a6b4ba58b1d38af2f23055cd",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -5646,80 +5648,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::ApiGateway::Resource",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiagentsGETApiPermissionGenerativeAiUseCasesStackAPIApi89219E17GETagents5FFFAEBF": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/",
-              {
-                "Ref": "APIApiDeploymentStageapiCD55D117",
-              },
-              "/GET/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsGETApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17GETagents2809AEEE": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/test-invoke-stage/GET/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsGETFE9F47E4": {
+    "APIApiagentsANY50AC6B55": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
           "Ref": "UseCaseBuilderAuthorizer8C07733E",
         },
-        "HttpMethod": "GET",
+        "HttpMethod": "ANY",
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -5751,6 +5687,72 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
       },
       "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApiagentsANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYagents504D0ECA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UseCaseBuilderAgentBuilderDAB96216",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/agents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApiagentsANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYagents66D9562D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UseCaseBuilderAgentBuilderDAB96216",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/agents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
     "APIApiagentsOPTIONS064D2F41": {
@@ -5793,113 +5795,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
       },
       "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOST28B48D5F": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
-        },
-        "HttpMethod": "POST",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": {
-          "Ref": "APIApiagents70FB378D",
-        },
-        "RestApiId": {
-          "Ref": "APIApiFFA96F67",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOSTApiPermissionGenerativeAiUseCasesStackAPIApi89219E17POSTagentsBB862BB1": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/",
-              {
-                "Ref": "APIApiDeploymentStageapiCD55D117",
-              },
-              "/POST/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOSTApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17POSTagents9F230B2C": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/test-invoke-stage/POST/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
     "APIApiagentsproxy440913A2": {
@@ -18576,6 +18471,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
+          "VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED": "true",
           "VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME": {
             "Fn::Join": [
               "",
@@ -26724,6 +26620,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         ],
       },
     },
+    "AgentCoreAgentBuilderEnabled": {
+      "Value": "true",
+    },
     "AgentCoreAgentBuilderRuntime": {
       "Value": {
         "Fn::Join": [
@@ -27067,7 +26966,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123c1c381eebb266bc52e27b7e87659ddd8": {
+    "APIApiDeployment3A5021237cb8082e91a7c373be8d7f2fb52da028": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -27075,9 +26974,8 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "APIApiagentsproxyANY44A4A08E",
         "APIApiagentsproxyOPTIONS65C845F9",
         "APIApiagentsproxy440913A2",
-        "APIApiagentsGETFE9F47E4",
+        "APIApiagentsANY50AC6B55",
         "APIApiagentsOPTIONS064D2F41",
-        "APIApiagentsPOST28B48D5F",
         "APIApiagents70FB378D",
         "APIApichatschatIdDELETE4578D41B",
         "APIApichatschatIdfeedbacksOPTIONS7AB34AA5",
@@ -27230,7 +27128,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123c1c381eebb266bc52e27b7e87659ddd8",
+          "Ref": "APIApiDeployment3A5021237cb8082e91a7c373be8d7f2fb52da028",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -27310,80 +27208,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::ApiGateway::Resource",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiagentsGETApiPermissionGenerativeAiUseCasesStackAPIApi89219E17GETagents5FFFAEBF": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/",
-              {
-                "Ref": "APIApiDeploymentStageapiCD55D117",
-              },
-              "/GET/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsGETApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17GETagents2809AEEE": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/test-invoke-stage/GET/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsGETFE9F47E4": {
+    "APIApiagentsANY50AC6B55": {
       "DeletionPolicy": "Delete",
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
           "Ref": "UseCaseBuilderAuthorizer8C07733E",
         },
-        "HttpMethod": "GET",
+        "HttpMethod": "ANY",
         "Integration": {
           "IntegrationHttpMethod": "POST",
           "Type": "AWS_PROXY",
@@ -27415,6 +27247,72 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
       },
       "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApiagentsANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYagents504D0ECA": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UseCaseBuilderAgentBuilderDAB96216",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/agents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApiagentsANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYagents66D9562D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "UseCaseBuilderAgentBuilderDAB96216",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/agents",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
     "APIApiagentsOPTIONS064D2F41": {
@@ -27457,113 +27355,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
       },
       "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOST28B48D5F": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
-        },
-        "HttpMethod": "POST",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": {
-          "Ref": "APIApiagents70FB378D",
-        },
-        "RestApiId": {
-          "Ref": "APIApiFFA96F67",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOSTApiPermissionGenerativeAiUseCasesStackAPIApi89219E17POSTagentsBB862BB1": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/",
-              {
-                "Ref": "APIApiDeploymentStageapiCD55D117",
-              },
-              "/POST/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "APIApiagentsPOSTApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17POSTagents9F230B2C": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "Action": "lambda:InvokeFunction",
-        "FunctionName": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
-            "Arn",
-          ],
-        },
-        "Principal": "apigateway.amazonaws.com",
-        "SourceArn": {
-          "Fn::Join": [
-            "",
-            [
-              "arn:",
-              {
-                "Ref": "AWS::Partition",
-              },
-              ":execute-api:us-east-1:123456890123:",
-              {
-                "Ref": "APIApiFFA96F67",
-              },
-              "/test-invoke-stage/POST/agents",
-            ],
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
     "APIApiagentsproxy440913A2": {
@@ -39291,6 +39082,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENTS": "[{"displayName":"SearchEngine","description":"Agent with Web Search Functionality"},{"displayName":"CodeInterpreter","description":"Agent with Code Interpreter Functionality"}]",
+          "VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED": "true",
           "VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME": {
             "Fn::Join": [
               "",
