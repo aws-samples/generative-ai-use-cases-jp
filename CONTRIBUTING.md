@@ -36,6 +36,7 @@ To send us a pull request, please:
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
 For detailed development guidelines including linting and code style requirements, please refer to:
+
 - [DEVELOPMENT.md (English)](docs/en/DEVELOPMENT.md)
 - [DEVELOPMENT.md (日本語)](docs/ja/DEVELOPMENT.md)
 

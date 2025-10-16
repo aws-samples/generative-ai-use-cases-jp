@@ -98,6 +98,22 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Sonnet 4.5',
   },
+  'global.anthropic.claude-haiku-4-5-20251001-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Haiku 4.5',
+  },
+  'us.anthropic.claude-haiku-4-5-20251001-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Haiku 4.5',
+  },
+  'eu.anthropic.claude-haiku-4-5-20251001-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Haiku 4.5',
+  },
+  'jp.anthropic.claude-haiku-4-5-20251001-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Haiku 4.5',
+  },
   'global.anthropic.claude-sonnet-4-20250514-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Sonnet 4',
@@ -548,6 +564,7 @@ export const BEDROCK_SPEECH_TO_SPEECH_MODELS = Object.keys(
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
 export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
   'anthropic.claude-sonnet-4-5-20250929-v1:0': ['messages', 'system', 'tools'],
+  'anthropic.claude-haiku-4-5-20251001-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-1-20250805-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-20250514-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-sonnet-4-20250514-v1:0': ['messages', 'system', 'tools'],
