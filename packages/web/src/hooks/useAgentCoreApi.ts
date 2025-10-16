@@ -134,7 +134,7 @@ const useAgentCoreApi = (id: string) => {
         // Create the request with the exact schema: messages, systemPrompt, prompt, model, and optional fields
         const agentCoreRequest: AgentCoreRequest = {
           messages: strandsMessages,
-          systemPrompt: req.system_prompt || '',
+          system_prompt: req.system_prompt || '',
           prompt: promptBlocks,
           model: {
             type: 'bedrock',

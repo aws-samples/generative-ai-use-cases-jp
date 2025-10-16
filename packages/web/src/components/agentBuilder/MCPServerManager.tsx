@@ -117,7 +117,7 @@ const MCPServerManager: React.FC<MCPServerManagerProps> = ({
         </p>
 
         {/* Search and Filter Controls - Fixed at top */}
-        <div className="sticky top-0 z-10 mb-4 space-y-3 bg-gray-50 pb-3">
+        <div className="sticky top-0 mb-4 space-y-3 bg-gray-50 pb-3">
           {/* Search Input */}
           <div className="relative">
             <PiMagnifyingGlass className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -203,7 +203,7 @@ const MCPServerManager: React.FC<MCPServerManagerProps> = ({
               Object.entries(serversByCategory).map(
                 ([category, categoryServers]) => (
                   <div key={category} className="mb-6 last:mb-0">
-                    <h3 className="sticky top-0 z-20 mb-3 flex items-center gap-2 bg-gray-50 py-2 text-sm font-medium text-gray-700">
+                    <h3 className="sticky top-0 mb-3 flex items-center gap-2 bg-gray-50 py-2 text-sm font-medium text-gray-700">
                       <span>{category}</span>
                       <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
                         {categoryServers.length}

@@ -60,7 +60,7 @@ const AgentBuilderEditPage: React.FC = () => {
         if (newAgent) {
           console.log('Created agent:', JSON.stringify(newAgent, null, 2));
           // Navigate to agent list after creating new agent
-          navigate('/agent-builder');
+          navigate(`/agent-builder/${newAgent.agentId}`);
         }
       }
     },

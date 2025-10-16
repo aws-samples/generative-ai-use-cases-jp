@@ -103,12 +103,10 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   useEffect(() => {
     if (agent && availableModels.length > 0) {
       const agentModelId = agent.modelId || availableModels[0];
-      const currentModelId = getModelId();
-      if (currentModelId !== agentModelId) {
-        setModelId(agentModelId);
-      }
+      setModelId(agentModelId);
     }
-  }, [agent, availableModels, getModelId, setModelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agent?.modelId, availableModels]);
 
   // Initialize system context when component mounts (only once per agent)
   useEffect(() => {
@@ -165,7 +163,9 @@ Please respond as this agent with the specified behavior and personality.`;
   const handleSendMessage = useCallback(async () => {
     if (!chatContent.trim() || chatLoading) return;
 
-    setFollowing(true);
+    if (layout === 'fullscreen') {
+      setFollowing(true);
+    }
 
     try {
       const agentBuilderRuntime = getAgentBuilderRuntime();
@@ -197,7 +197,7 @@ Please respond as this agent with the specified behavior and personality.`;
         'current-user',
         agent.mcpServers,
         agent.agentId,
-        agent.modelId,
+        modelId,
         agent.codeExecutionEnabled ?? false
       );
 
@@ -211,7 +211,9 @@ Please respond as this agent with the specified behavior and personality.`;
     }
   }, [
     chatContent,
+    layout,
     agent,
+    modelId,
     chatLoading,
     setFollowing,
     invokeAgentRuntime,
@@ -280,7 +282,7 @@ Please respond as this agent with the specified behavior and personality.`;
           {/* Model Selection */}
           <div className="w-full max-w-md">
             <Select
-              value={modelId || agent.modelId}
+              value={modelId}
               onChange={setModelId}
               options={availableModels.map((model) => ({
                 value: model,

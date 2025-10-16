@@ -18,7 +18,6 @@ import {
   PiCopy as CloneIcon,
   PiTrash as DeleteIcon,
   PiDotsThreeOutlineFill as MoreIcon,
-  PiGlobe as ExternalIcon,
 } from 'react-icons/pi';
 import { AgentConfiguration } from 'generative-ai-use-cases';
 import useAgentBuilderList from '../../hooks/agentBuilder/useAgentBuilderList';
@@ -256,12 +255,6 @@ const AgentBuilderListPage: React.FC = () => {
       label: t('agent_builder.marketplace'),
       icon: MarketplaceIcon,
       count: getTabCount('marketplace'),
-    },
-    {
-      key: 'external' as AgentFilter,
-      label: t('agent_builder.external'),
-      icon: ExternalIcon,
-      count: getTabCount('external'),
     },
   ];
 

@@ -126,7 +126,7 @@ const findAgentsByUserId = async (
         ':id': `agent#${userId}`,
         ':dataTypePrefix': 'agent#',
       },
-      ScanIndexForward: true,
+      ScanIndexForward: false,
       Limit: Math.min(limit, 100),
       ExclusiveStartKey: startKey,
     })
@@ -168,7 +168,7 @@ const findFavoritesByUserId = async (
         ':id': `agent#${userId}`,
         ':dataTypePrefix': 'favorite#',
       },
-      ScanIndexForward: true,
+      ScanIndexForward: false,
       Limit: Math.min(limit, 100),
       ExclusiveStartKey: startKey,
     })
@@ -540,7 +540,7 @@ export const listPublicAgentsWithFavoritesPaginated = async (
         ':id': 'public-agents',
         ':dataTypePrefix': 'public#',
       },
-      ScanIndexForward: true,
+      ScanIndexForward: false,
       Limit: Math.min(limit, 100),
       ExclusiveStartKey: startKey,
     })

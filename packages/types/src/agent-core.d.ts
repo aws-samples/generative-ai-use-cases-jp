@@ -22,7 +22,7 @@ export type AgentCoreStreamResponse = StrandsStreamEvent;
 
 // Strands Agent(...) parameter
 export type StrandsRequest = {
-  systemPrompt: string;
+  system_prompt: string;
   prompt: StrandsContentBlock[];
   messages: StrandsMessage[];
   model: Model;
