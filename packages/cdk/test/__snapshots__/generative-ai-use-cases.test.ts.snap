@@ -4526,6 +4526,17 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
               "Resource": "*",
               "Sid": "IAMPassRolePermissions",
             },
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringEquals": {
+                  "iam:AWSServiceName": "runtime-identity.bedrock-agentcore.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
+              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -25738,6 +25749,17 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
               "Effect": "Allow",
               "Resource": "*",
               "Sid": "IAMPassRolePermissions",
+            },
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringEquals": {
+                  "iam:AWSServiceName": "runtime-identity.bedrock-agentcore.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
+              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
             },
           ],
           "Version": "2012-10-17",
