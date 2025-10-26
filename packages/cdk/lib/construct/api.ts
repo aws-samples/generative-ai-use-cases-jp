@@ -530,7 +530,13 @@ export class Api extends Construct {
       const bedrockPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         resources: ['*'],
-        actions: ['bedrock:*', 'logs:*'],
+        actions: [
+          'bedrock:*',
+          'logs:*',
+          'aws-marketplace:Subscribe',
+          'aws-marketplace:Unsubscribe',
+          'aws-marketplace:ViewSubscriptions',
+        ],
       });
       predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
