@@ -187,7 +187,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                     <div className="inline-flex gap-1">
                       {t('common.trace')}
                       {props.loading && (
-                        <div className="border-aws-sky size-4 animate-spin rounded-full border-2 border-t-transparent"></div>
+                        <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                       )}
                     </div>
                   </summary>

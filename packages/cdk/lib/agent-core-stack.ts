@@ -24,10 +24,13 @@ export class AgentCoreStack extends Stack {
         createAgentBuilderRuntime: params.agentBuilderEnabled,
       });
 
-      // Output the generic runtime ARN for cross-stack reference
-      if (params.createGenericAgentCoreRuntime) {
+      // Export runtime info for cross-region access via cdk-remote-stack (only if values exist)
+      if (
+        params.createGenericAgentCoreRuntime &&
+        this.genericAgentCore.deployedGenericRuntimeArn
+      ) {
         new CfnOutput(this, 'GenericAgentCoreRuntimeArn', {
-          value: this.genericAgentCore.deployedGenericRuntimeArn || '',
+          value: this.genericAgentCore.deployedGenericRuntimeArn,
           exportName: `${this.stackName}-GenericAgentCoreRuntimeArn`,
         });
 
@@ -37,10 +40,12 @@ export class AgentCoreStack extends Stack {
         });
       }
 
-      // Output the AgentBuilder runtime ARN for cross-stack reference
-      if (params.agentBuilderEnabled) {
+      if (
+        params.agentBuilderEnabled &&
+        this.genericAgentCore.deployedAgentBuilderRuntimeArn
+      ) {
         new CfnOutput(this, 'AgentBuilderAgentCoreRuntimeArn', {
-          value: this.genericAgentCore.deployedAgentBuilderRuntimeArn || '',
+          value: this.genericAgentCore.deployedAgentBuilderRuntimeArn,
           exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeArn`,
         });
 
@@ -49,6 +54,12 @@ export class AgentCoreStack extends Stack {
           exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeName`,
         });
       }
+
+      // Always export file bucket name as it always exists
+      new CfnOutput(this, 'FileBucketName', {
+        value: this.genericAgentCore.fileBucket.bucketName,
+        exportName: `${this.stackName}-FileBucketName`,
+      });
     }
   }
 

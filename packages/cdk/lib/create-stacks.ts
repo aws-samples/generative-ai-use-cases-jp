@@ -173,7 +173,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       })
     : null;
 
-  // Agent Core Runtime
+  // Agent Core Runtime (always create if either feature is enabled)
   const agentCoreStack =
     params.createGenericAgentCoreRuntime || params.agentBuilderEnabled
       ? new AgentCoreStack(app, `AgentCoreStack${params.env}`, {

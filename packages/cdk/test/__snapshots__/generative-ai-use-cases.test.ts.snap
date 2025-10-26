@@ -4392,31 +4392,17 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Value": "GenUAgentBuilderRuntime",
     },
-    "ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075": {
-      "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
-          "AgentRuntimeArn",
-        ],
-      },
-    },
-    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
-      "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
-          "AgentRuntimeArn",
-        ],
-      },
-    },
     "ExportsOutputRefGenericAgentCoreAgentCoreFileBucket0430DA423298A79F": {
       "Export": {
         "Name": "AgentCoreStack:ExportsOutputRefGenericAgentCoreAgentCoreFileBucket0430DA423298A79F",
+      },
+      "Value": {
+        "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+      },
+    },
+    "FileBucketName": {
+      "Export": {
+        "Name": "AgentCoreStack-FileBucketName",
       },
       "Value": {
         "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
@@ -5051,9 +5037,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUAgentBuilderRuntime","arn":"",
+            "{"name":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "AgentBuilderAgentCoreRuntimeName",
+              ],
+            },
+            "","arn":"",
+            {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "AgentBuilderAgentCoreRuntimeArn",
+              ],
             },
             ""}",
           ],
@@ -5071,9 +5067,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUGenericRuntime","arn":"",
+            "{"name":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "GenericAgentCoreRuntimeName",
+              ],
+            },
+            "","arn":"",
+            {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "GenericAgentCoreRuntimeArn",
+              ],
             },
             ""}",
           ],
@@ -5376,7 +5382,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021233678b344a6b4ba58b1d38af2f23055cd": {
+    "APIApiDeployment3A5021234533d7a90339971d4b652d34a0e5b458": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -5538,7 +5544,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021233678b344a6b4ba58b1d38af2f23055cd",
+          "Ref": "APIApiDeployment3A5021234533d7a90339971d4b652d34a0e5b458",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -5653,7 +5659,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
+          "Ref": "AgentBuilderAuthorizerE8188502",
         },
         "HttpMethod": "ANY",
         "Integration": {
@@ -5670,7 +5676,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
+                    "AgentBuilder03642B5C",
                     "Arn",
                   ],
                 },
@@ -5695,7 +5701,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -5730,7 +5736,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -5816,7 +5822,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
+          "Ref": "AgentBuilderAuthorizerE8188502",
         },
         "HttpMethod": "ANY",
         "Integration": {
@@ -5833,7 +5839,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
+                    "AgentBuilder03642B5C",
                     "Arn",
                   ],
                 },
@@ -5858,7 +5864,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -5893,7 +5899,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -18405,6 +18411,222 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
+    "AgentBuilder03642B5C": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentBuilderServiceRoleDefaultPolicy44C33621",
+        "AgentBuilderServiceRole8C5962B5",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "COGNITO_IDP_ENDPOINT": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
+                  },
+                  ".execute-api.us-east-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
+                  },
+                  "/",
+                ],
+              ],
+            },
+            "MODEL_REGION": "us-east-1",
+            "USECASE_ID_INDEX_NAME": "UseCaseIdIndexName",
+            "USECASE_TABLE_NAME": {
+              "Ref": "UseCaseBuilderUseCaseBuilderTable449740F3",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+          },
+        },
+        "Handler": "index.handler",
+        "MemorySize": 1024,
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentBuilderServiceRole8C5962B5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "LambdaSeurityGroup14B5161A",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": [
+            {
+              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet1Subnet2EF6D3F36370B312",
+            },
+            {
+              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet2SubnetB169C8D3D828FC40",
+            },
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderAuthorizerE8188502": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "GenerativeAiUseCasesStackAgentBuilderAuthorizer2ED522E1",
+        "ProviderARNs": [
+          {
+            "Fn::GetAtt": [
+              "AuthUserPool8115E87F",
+              "Arn",
+            ],
+          },
+        ],
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+        "Type": "COGNITO_USER_POOLS",
+      },
+      "Type": "AWS::ApiGateway::Authorizer",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderServiceRole8C5962B5": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderServiceRoleDefaultPolicy44C33621": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "bedrock:*",
+                "logs:*",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "cognito-idp:AdminGetUser",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "AuthUserPool8115E87F",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentBuilderServiceRoleDefaultPolicy44C33621",
+        "Roles": [
+          {
+            "Ref": "AgentBuilderServiceRole8C5962B5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "AgentCoreAgentCoreRuntimePolicyA2A56192": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -18419,7 +18641,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                     "",
                     [
                       {
-                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsDE8C59C9",
+                          "GenericAgentCoreRuntimeArn",
+                        ],
                       },
                       "*",
                     ],
@@ -18430,7 +18655,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                     "",
                     [
                       {
-                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsDE8C59C9",
+                          "AgentBuilderAgentCoreRuntimeArn",
+                        ],
                       },
                       "*",
                     ],
@@ -18445,6 +18673,252 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Roles": [
           {
             "Ref": "AuthIdentityPoolAuthenticatedRole09311B20",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsDE8C59C9": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244",
+            "Arn",
+          ],
+        },
+        "randomString": "0yt50uc3x04a",
+        "regionName": "us-east-1",
+        "stackName": "AgentCoreStack",
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandler51F86461": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B",
+        "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "remote-outputs.on_event",
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.9",
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "cloudformation:DescribeStacks",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B",
+        "Roles": [
+          {
+            "Ref": "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE",
+        "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (GenerativeAiUseCasesStack/AgentCoreRemoteOutputs/MyProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsMyHandler51F86461",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "LoggingConfig": {
+          "ApplicationLogLevel": "FATAL",
+          "LogFormat": "JSON",
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventLogRetention1B283935": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 1,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::LogRetention",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsMyHandler51F86461",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsMyHandler51F86461",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "AgentCoreRemoteOutputsMyHandler51F86461",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE",
+        "Roles": [
+          {
+            "Ref": "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
           },
         ],
       },
@@ -18476,9 +18950,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUAgentBuilderRuntime","arn":"",
+                "{"name":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "AgentBuilderAgentCoreRuntimeName",
+                  ],
+                },
+                "","arn":"",
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "AgentBuilderAgentCoreRuntimeArn",
+                  ],
                 },
                 "","description":"Agent Core Runtime for AgentBuilder"}",
               ],
@@ -18490,9 +18974,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUGenericRuntime","arn":"",
+                "{"name":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "GenericAgentCoreRuntimeName",
+                  ],
+                },
+                "","arn":"",
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "GenericAgentCoreRuntimeArn",
+                  ],
                 },
                 "","description":"Generic Agent Core Runtime for custom agents"}",
               ],
@@ -19817,6 +20311,89 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
       },
       "Type": "AWS::EC2::SecurityGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:PutRetentionPolicy",
+                "logs:DeleteRetentionPolicy",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "Roles": [
+          {
+            "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
     "NodejsBuildCustomResourceHandler25648b212c404f09aa65b6bbb0c446591C4101F8": {
@@ -22132,181 +22709,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderDAB96216": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC",
-        "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "MODEL_REGION": "us-east-1",
-            "USECASE_ID_INDEX_NAME": "UseCaseIdIndexName",
-            "USECASE_TABLE_NAME": {
-              "Ref": "UseCaseBuilderUseCaseBuilderTable449740F3",
-            },
-            "USER_POOL_ID": {
-              "Ref": "AuthUserPool8115E87F",
-            },
-          },
-        },
-        "Handler": "index.handler",
-        "MemorySize": 1024,
-        "Role": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 900,
-        "VpcConfig": {
-          "SecurityGroupIds": [
-            {
-              "Fn::GetAtt": [
-                "LambdaSeurityGroup14B5161A",
-                "GroupId",
-              ],
-            },
-          ],
-          "SubnetIds": [
-            {
-              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet1Subnet2EF6D3F36370B312",
-            },
-            {
-              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet2SubnetB169C8D3D828FC40",
-            },
-          ],
-        },
-      },
-      "Type": "AWS::Lambda::Function",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderServiceRole9C6C40B9": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-                "dynamodb:Query",
-                "dynamodb:GetItem",
-                "dynamodb:Scan",
-                "dynamodb:ConditionCheckItem",
-                "dynamodb:BatchWriteItem",
-                "dynamodb:PutItem",
-                "dynamodb:UpdateItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:DescribeTable",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "UseCaseBuilderUseCaseBuilderTable449740F3",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "UseCaseBuilderUseCaseBuilderTable449740F3",
-                          "Arn",
-                        ],
-                      },
-                      "/index/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "bedrock:*",
-                "logs:*",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "cognito-idp:AdminGetUser",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "AuthUserPool8115E87F",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC",
-        "Roles": [
-          {
-            "Ref": "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
     "UseCaseBuilderAuthorizer8C07733E": {
@@ -25969,31 +26371,17 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Value": "GenUAgentBuilderRuntime",
     },
-    "ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075": {
-      "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
-          "AgentRuntimeArn",
-        ],
-      },
-    },
-    "ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2": {
-      "Export": {
-        "Name": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
-      },
-      "Value": {
-        "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
-          "AgentRuntimeArn",
-        ],
-      },
-    },
     "ExportsOutputRefGenericAgentCoreAgentCoreFileBucket0430DA423298A79F": {
       "Export": {
         "Name": "AgentCoreStack:ExportsOutputRefGenericAgentCoreAgentCoreFileBucket0430DA423298A79F",
+      },
+      "Value": {
+        "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
+      },
+    },
+    "FileBucketName": {
+      "Export": {
+        "Name": "AgentCoreStack-FileBucketName",
       },
       "Value": {
         "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
@@ -26628,9 +27016,19 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUAgentBuilderRuntime","arn":"",
+            "{"name":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "AgentBuilderAgentCoreRuntimeName",
+              ],
+            },
+            "","arn":"",
+            {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "AgentBuilderAgentCoreRuntimeArn",
+              ],
             },
             ""}",
           ],
@@ -26648,9 +27046,19 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Fn::Join": [
           "",
           [
-            "{"name":"GenUGenericRuntime","arn":"",
+            "{"name":"",
             {
-              "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "GenericAgentCoreRuntimeName",
+              ],
+            },
+            "","arn":"",
+            {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsDE8C59C9",
+                "GenericAgentCoreRuntimeArn",
+              ],
             },
             ""}",
           ],
@@ -26966,7 +27374,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021237cb8082e91a7c373be8d7f2fb52da028": {
+    "APIApiDeployment3A5021234db71f4ccf16e49a8440e8926bf1f516": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -27128,7 +27536,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021237cb8082e91a7c373be8d7f2fb52da028",
+          "Ref": "APIApiDeployment3A5021234db71f4ccf16e49a8440e8926bf1f516",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -27213,7 +27621,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
+          "Ref": "AgentBuilderAuthorizerE8188502",
         },
         "HttpMethod": "ANY",
         "Integration": {
@@ -27230,7 +27638,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
+                    "AgentBuilder03642B5C",
                     "Arn",
                   ],
                 },
@@ -27255,7 +27663,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -27290,7 +27698,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -27376,7 +27784,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Properties": {
         "AuthorizationType": "COGNITO_USER_POOLS",
         "AuthorizerId": {
-          "Ref": "UseCaseBuilderAuthorizer8C07733E",
+          "Ref": "AgentBuilderAuthorizerE8188502",
         },
         "HttpMethod": "ANY",
         "Integration": {
@@ -27393,7 +27801,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
                 {
                   "Fn::GetAtt": [
-                    "UseCaseBuilderAgentBuilderDAB96216",
+                    "AgentBuilder03642B5C",
                     "Arn",
                   ],
                 },
@@ -27418,7 +27826,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -27453,7 +27861,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Action": "lambda:InvokeFunction",
         "FunctionName": {
           "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderDAB96216",
+            "AgentBuilder03642B5C",
             "Arn",
           ],
         },
@@ -39016,6 +39424,172 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
+    "AgentBuilder03642B5C": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentBuilderServiceRoleDefaultPolicy44C33621",
+        "AgentBuilderServiceRole8C5962B5",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "MODEL_REGION": "us-east-1",
+            "USECASE_ID_INDEX_NAME": "UseCaseIdIndexName",
+            "USECASE_TABLE_NAME": {
+              "Ref": "UseCaseBuilderUseCaseBuilderTable449740F3",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+          },
+        },
+        "Handler": "index.handler",
+        "MemorySize": 1024,
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentBuilderServiceRole8C5962B5",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderAuthorizerE8188502": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "IdentitySource": "method.request.header.Authorization",
+        "Name": "GenerativeAiUseCasesStackAgentBuilderAuthorizer2ED522E1",
+        "ProviderARNs": [
+          {
+            "Fn::GetAtt": [
+              "AuthUserPool8115E87F",
+              "Arn",
+            ],
+          },
+        ],
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+        "Type": "COGNITO_USER_POOLS",
+      },
+      "Type": "AWS::ApiGateway::Authorizer",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderServiceRole8C5962B5": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentBuilderServiceRoleDefaultPolicy44C33621": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "bedrock:*",
+                "logs:*",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": "cognito-idp:AdminGetUser",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "AuthUserPool8115E87F",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentBuilderServiceRoleDefaultPolicy44C33621",
+        "Roles": [
+          {
+            "Ref": "AgentBuilderServiceRole8C5962B5",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "AgentCoreAgentCoreRuntimePolicyA2A56192": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -39030,7 +39604,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                     "",
                     [
                       {
-                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsDE8C59C9",
+                          "GenericAgentCoreRuntimeArn",
+                        ],
                       },
                       "*",
                     ],
@@ -39041,7 +39618,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                     "",
                     [
                       {
-                        "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsDE8C59C9",
+                          "AgentBuilderAgentCoreRuntimeArn",
+                        ],
                       },
                       "*",
                     ],
@@ -39056,6 +39636,252 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Roles": [
           {
             "Ref": "AuthIdentityPoolAuthenticatedRole09311B20",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsDE8C59C9": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244",
+            "Arn",
+          ],
+        },
+        "randomString": "0eon143y3t9u",
+        "regionName": "us-east-1",
+        "stackName": "AgentCoreStack",
+      },
+      "Type": "AWS::CloudFormation::CustomResource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandler51F86461": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B",
+        "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "remote-outputs.on_event",
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+            "Arn",
+          ],
+        },
+        "Runtime": "python3.9",
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "cloudformation:DescribeStacks",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentCoreRemoteOutputsMyHandlerServiceRoleDefaultPolicy95FB1E7B",
+        "Roles": [
+          {
+            "Ref": "AgentCoreRemoteOutputsMyHandlerServiceRole515D2285",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE",
+        "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Description": "AWS CDK resource provider framework - onEvent (GenerativeAiUseCasesStack/AgentCoreRemoteOutputs/MyProvider)",
+        "Environment": {
+          "Variables": {
+            "USER_ON_EVENT_FUNCTION_ARN": {
+              "Fn::GetAtt": [
+                "AgentCoreRemoteOutputsMyHandler51F86461",
+                "Arn",
+              ],
+            },
+          },
+        },
+        "Handler": "framework.onEvent",
+        "LoggingConfig": {
+          "ApplicationLogLevel": "FATAL",
+          "LogFormat": "JSON",
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventLogRetention1B283935": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "AgentCoreRemoteOutputsMyProviderframeworkonEvent918C4244",
+              },
+            ],
+          ],
+        },
+        "RetentionInDays": 1,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "Custom::LogRetention",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "lambda:InvokeFunction",
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsMyHandler51F86461",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "AgentCoreRemoteOutputsMyHandler51F86461",
+                          "Arn",
+                        ],
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "lambda:GetFunction",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "AgentCoreRemoteOutputsMyHandler51F86461",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRoleDefaultPolicy59F6CBAE",
+        "Roles": [
+          {
+            "Ref": "AgentCoreRemoteOutputsMyProviderframeworkonEventServiceRole230DBF5F",
           },
         ],
       },
@@ -39087,9 +39913,19 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUAgentBuilderRuntime","arn":"",
+                "{"name":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560AgentRuntimeArn43DD9075",
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "AgentBuilderAgentCoreRuntimeName",
+                  ],
+                },
+                "","arn":"",
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "AgentBuilderAgentCoreRuntimeArn",
+                  ],
                 },
                 "","description":"Agent Core Runtime for AgentBuilder"}",
               ],
@@ -39101,9 +39937,19 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Fn::Join": [
               "",
               [
-                "{"name":"GenUGenericRuntime","arn":"",
+                "{"name":"",
                 {
-                  "Fn::ImportValue": "AgentCoreStack:ExportsOutputFnGetAttGenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803AgentRuntimeArn53FA08A2",
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "GenericAgentCoreRuntimeName",
+                  ],
+                },
+                "","arn":"",
+                {
+                  "Fn::GetAtt": [
+                    "AgentCoreRemoteOutputsDE8C59C9",
+                    "GenericAgentCoreRuntimeArn",
+                  ],
                 },
                 "","description":"Generic Agent Core Runtime for custom agents"}",
               ],
@@ -41324,6 +42170,89 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
     },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:PutRetentionPolicy",
+                "logs:DeleteRetentionPolicy",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+        "Roles": [
+          {
+            "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
     "NodejsBuildCustomResourceHandler25648b212c404f09aa65b6bbb0c446591C4101F8": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -43397,151 +44326,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderDAB96216": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC",
-        "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "MODEL_REGION": "us-east-1",
-            "USECASE_ID_INDEX_NAME": "UseCaseIdIndexName",
-            "USECASE_TABLE_NAME": {
-              "Ref": "UseCaseBuilderUseCaseBuilderTable449740F3",
-            },
-            "USER_POOL_ID": {
-              "Ref": "AuthUserPool8115E87F",
-            },
-          },
-        },
-        "Handler": "index.handler",
-        "MemorySize": 1024,
-        "Role": {
-          "Fn::GetAtt": [
-            "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-            "Arn",
-          ],
-        },
-        "Runtime": "nodejs22.x",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderServiceRole9C6C40B9": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-                "dynamodb:Query",
-                "dynamodb:GetItem",
-                "dynamodb:Scan",
-                "dynamodb:ConditionCheckItem",
-                "dynamodb:BatchWriteItem",
-                "dynamodb:PutItem",
-                "dynamodb:UpdateItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:DescribeTable",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "UseCaseBuilderUseCaseBuilderTable449740F3",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "UseCaseBuilderUseCaseBuilderTable449740F3",
-                          "Arn",
-                        ],
-                      },
-                      "/index/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "bedrock:*",
-                "logs:*",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "cognito-idp:AdminGetUser",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "AuthUserPool8115E87F",
-                  "Arn",
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "UseCaseBuilderAgentBuilderServiceRoleDefaultPolicy55D3FBBC",
-        "Roles": [
-          {
-            "Ref": "UseCaseBuilderAgentBuilderServiceRole9C6C40B9",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
     "UseCaseBuilderAuthorizer8C07733E": {

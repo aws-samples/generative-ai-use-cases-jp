@@ -19,6 +19,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
+import { AgentBuilder } from './construct/agent-builder';
 import { ProcessedStackInput } from './stack-input';
 import { allowS3AccessWithSourceIpCondition } from './utils/s3-access-policy';
 import {
@@ -30,6 +31,7 @@ import {
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
 import * as path from 'path';
+import { RemoteOutputs } from 'cdk-remote-stack';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -188,15 +190,27 @@ export class GenerativeAiUseCasesStack extends Stack {
     let genericRuntimeName: string | undefined;
     let agentBuilderRuntimeArn: string | undefined;
     let agentBuilderRuntimeName: string | undefined;
+    let remoteOutputs: RemoteOutputs | undefined;
 
-    // Get runtime info from AgentCore stack if it exists
-    if (props.agentCoreStack) {
-      genericRuntimeArn = props.agentCoreStack.deployedGenericRuntimeArn;
-      genericRuntimeName = props.agentCoreStack.getGenericRuntimeConfig()?.name;
-      agentBuilderRuntimeArn =
-        props.agentCoreStack.deployedAgentBuilderRuntimeArn;
-      agentBuilderRuntimeName =
-        props.agentCoreStack.getAgentBuilderRuntimeConfig()?.name;
+    // Get runtime info from remote AgentCore stack using cdk-remote-stack
+    if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
+      remoteOutputs = new RemoteOutputs(this, 'AgentCoreRemoteOutputs', {
+        stack: props.agentCoreStack!,
+      });
+
+      if (params.createGenericAgentCoreRuntime) {
+        genericRuntimeArn = remoteOutputs.get('GenericAgentCoreRuntimeArn');
+        genericRuntimeName = remoteOutputs.get('GenericAgentCoreRuntimeName');
+      }
+
+      if (params.agentBuilderEnabled) {
+        agentBuilderRuntimeArn = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeArn'
+        );
+        agentBuilderRuntimeName = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeName'
+        );
+      }
     }
 
     // Create AgentCore construct for external runtimes and permissions
@@ -350,13 +364,26 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     // Usecase builder
     if (params.useCaseBuilderEnabled) {
-      new UseCaseBuilder(this, 'UseCaseBuilder', {
+      const useCaseBuilder = new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
         vpc: props.vpc,
         securityGroups,
-        agentBuilderRuntimeArn,
       });
+
+      // Agent Builder (if enabled and runtime is available)
+      if (params.agentBuilderEnabled && agentBuilderRuntimeArn) {
+        new AgentBuilder(this, 'AgentBuilder', {
+          userPool: auth.userPool,
+          api: api.api,
+          vpc: props.vpc,
+          securityGroups,
+          agentBuilderRuntimeArn,
+          useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
+          useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
+          cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
+        });
+      }
     }
 
     // Transcribe

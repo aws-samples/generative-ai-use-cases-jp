@@ -11,7 +11,11 @@ import { MODELS } from '../../hooks/useModel';
 import useFiles from '../../hooks/useFiles';
 import { FileLimit, AgentConfiguration } from 'generative-ai-use-cases';
 import BedrockIcon from '../../assets/bedrock.svg?react';
-import { PiRobot as RobotIcon, PiPencil as EditIcon } from 'react-icons/pi';
+import {
+  PiRobot as RobotIcon,
+  PiPencil as EditIcon,
+  PiArrowLeft as BackIcon,
+} from 'react-icons/pi';
 import ButtonIcon from '../ButtonIcon';
 import Select from '../Select';
 
@@ -66,6 +70,7 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
   showAgentInfo = true,
   showEditButton = false,
   onEdit,
+  onBack,
   actions,
 }) => {
   const { t } = useTranslation();
@@ -123,6 +128,7 @@ Please respond as this agent with the specified behavior and personality.`;
 
       updateSystemContext(systemPrompt);
       setInitialized(true);
+      handleResetChat();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agent?.agentId, initialized]);
@@ -252,7 +258,16 @@ Please respond as this agent with the specified behavior and personality.`;
   const renderUnifiedHeader = () => (
     <div className="flex flex-col items-center gap-3">
       {/* Header with title, description and actions */}
-      <div className="flex w-full items-start justify-between gap-3">
+      <div className="flex items-start justify-center gap-3">
+        {/* Back button positioned absolutely on the left */}
+        {onBack && (
+          <div className="absolute left-5">
+            <ButtonIcon onClick={onBack} title={t('common.back')}>
+              <BackIcon />
+            </ButtonIcon>
+          </div>
+        )}
+
         <div className="min-w-0 flex-1 text-center">
           {/* Agent Title */}
           <div className="truncate text-xl font-semibold">
@@ -265,8 +280,8 @@ Please respond as this agent with the specified behavior and personality.`;
             </div>
           )}
         </div>
-        {/* Actions */}
-        <div className="flex shrink-0 items-center gap-2">
+
+        <div className="right-0 top-0 flex shrink-0 items-center gap-2">
           {showEditButton && onEdit && (
             <ButtonIcon onClick={onEdit} title={t('common.edit')}>
               <EditIcon />
@@ -444,9 +459,7 @@ Please respond as this agent with the specified behavior and personality.`;
       className={`${!chatIsEmpty ? 'screen:pb-48' : ''} relative ${className}`}>
       {/* Unified Header */}
       {showHeader && (
-        <div className="my-5 flex items-center justify-center print:my-5">
-          {renderUnifiedHeader()}
-        </div>
+        <div className="my-5 print:my-5">{renderUnifiedHeader()}</div>
       )}
 
       {renderFileDropOverlay()}

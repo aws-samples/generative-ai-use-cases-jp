@@ -5,8 +5,10 @@ import {
   AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
 
-// Initialize Cognito client
-const cognitoClient = new CognitoIdentityProviderClient({});
+// Initialize Cognito client with VPC endpoint support for closed networks
+const cognitoClient = new CognitoIdentityProviderClient({
+  endpoint: process.env.COGNITO_IDP_ENDPOINT,
+});
 
 /**
  * Extract user ID from API Gateway event

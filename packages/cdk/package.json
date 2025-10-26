@@ -47,6 +47,7 @@
     "aws-amplify": "^6.14.2",
     "aws-cdk-lib": "^2.217.0",
     "aws-jwt-verify": "^4.0.0",
+    "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "node-html-parser": "^6.1.13",
