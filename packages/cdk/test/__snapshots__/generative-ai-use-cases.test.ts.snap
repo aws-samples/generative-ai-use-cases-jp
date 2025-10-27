@@ -4408,7 +4408,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeFEFD60E0",
           "AgentRuntimeArn",
         ],
       },
@@ -4441,7 +4441,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "GenericAgentCoreGenericAgentCoreRuntime041F933D",
           "AgentRuntimeArn",
         ],
       },
@@ -4517,7 +4517,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560": {
+    "GenericAgentCoreAgentBuilderAgentCoreRuntimeFEFD60E0": {
       "DependsOn": [
         "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
         "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
@@ -4526,7 +4526,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
             },
           },
         },
@@ -4649,17 +4649,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "GenericAgentCoreAgentCoreRuntimeRepository6901D0DC": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
-        },
-        "RepositoryName": "lambda-python-generic-agent-core-runtime-agentcorestack",
-      },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Delete",
-    },
     "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841": {
       "Properties": {
         "PolicyDocument": {
@@ -4670,80 +4659,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
                 "bedrock:InvokeModelWithResponseStream",
               ],
               "Effect": "Allow",
-              "Resource": [
-                "arn:aws:bedrock:*::foundation-model/*",
-                "arn:aws:bedrock:us-east-1:123456890123:*",
-              ],
+              "Resource": "*",
               "Sid": "BedrockModelInvocation",
-            },
-            {
-              "Action": [
-                "ecr:BatchGetImage",
-                "ecr:GetDownloadUrlForLayer",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:ecr:us-east-1:123456890123:repository/*",
-              "Sid": "ECRImageAccess",
-            },
-            {
-              "Action": "ecr:GetAuthorizationToken",
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "ECRTokenAccess",
-            },
-            {
-              "Action": [
-                "logs:DescribeLogStreams",
-                "logs:CreateLogGroup",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:/aws/bedrock-agentcore/runtimes/*",
-            },
-            {
-              "Action": "logs:DescribeLogGroups",
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:/aws/bedrock-agentcore/runtimes/*:log-stream:*",
-            },
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "cloudwatch:PutMetricData",
-              "Condition": {
-                "StringEquals": {
-                  "cloudwatch:namespace": "bedrock-agentcore",
-                },
-              },
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "bedrock-agentcore:GetWorkloadAccessToken",
-                "bedrock-agentcore:GetWorkloadAccessTokenForJWT",
-                "bedrock-agentcore:GetWorkloadAccessTokenForUserId",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default",
-                "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default/workload-identity/*",
-              ],
-              "Sid": "GetAgentAccessToken",
             },
             {
               "Action": "iam:CreateServiceLinkedRole",
@@ -4754,7 +4671,23 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
               },
               "Effect": "Allow",
               "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
-              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
+              "Sid": "CreateServiceLinkedRole",
+            },
+            {
+              "Action": [
+                "bedrock-agentcore:CreateCodeInterpreter",
+                "bedrock-agentcore:StartCodeInterpreterSession",
+                "bedrock-agentcore:InvokeCodeInterpreter",
+                "bedrock-agentcore:StopCodeInterpreterSession",
+                "bedrock-agentcore:DeleteCodeInterpreter",
+                "bedrock-agentcore:ListCodeInterpreters",
+                "bedrock-agentcore:GetCodeInterpreter",
+                "bedrock-agentcore:GetCodeInterpreterSession",
+                "bedrock-agentcore:ListCodeInterpreterSessions",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "Tools",
             },
             {
               "Action": [
@@ -4792,19 +4725,28 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             },
             {
               "Action": [
-                "bedrock-agentcore:CreateCodeInterpreter",
-                "bedrock-agentcore:StartCodeInterpreterSession",
-                "bedrock-agentcore:InvokeCodeInterpreter",
-                "bedrock-agentcore:StopCodeInterpreterSession",
-                "bedrock-agentcore:DeleteCodeInterpreter",
-                "bedrock-agentcore:ListCodeInterpreters",
-                "bedrock-agentcore:GetCodeInterpreter",
-                "bedrock-agentcore:GetCodeInterpreterSession",
-                "bedrock-agentcore:ListCodeInterpreterSessions",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
               ],
               "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:us-east-1:123456890123:repository/cdk-hnb659fds-container-assets-123456890123-us-east-1",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
               "Resource": "*",
-              "Sid": "Tools",
             },
           ],
           "Version": "2012-10-17",
@@ -4843,7 +4785,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
+    "GenericAgentCoreGenericAgentCoreRuntime041F933D": {
       "DependsOn": [
         "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
         "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
@@ -4852,7 +4794,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
             },
           },
         },
@@ -18726,7 +18668,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "randomString": "07yn1uvrczc7",
+        "randomString": "0u7jml7c4k5e",
         "regionName": "us-east-1",
         "stackName": "AgentCoreStack",
       },
@@ -26398,7 +26340,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560",
+          "GenericAgentCoreAgentBuilderAgentCoreRuntimeFEFD60E0",
           "AgentRuntimeArn",
         ],
       },
@@ -26431,7 +26373,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Value": {
         "Fn::GetAtt": [
-          "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803",
+          "GenericAgentCoreGenericAgentCoreRuntime041F933D",
           "AgentRuntimeArn",
         ],
       },
@@ -26507,7 +26449,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreAgentBuilderAgentCoreRuntimeL1FCDF7560": {
+    "GenericAgentCoreAgentBuilderAgentCoreRuntimeFEFD60E0": {
       "DependsOn": [
         "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
         "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
@@ -26516,7 +26458,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
             },
           },
         },
@@ -26639,17 +26581,6 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Type": "AWS::S3::BucketPolicy",
     },
-    "GenericAgentCoreAgentCoreRuntimeRepository6901D0DC": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "ImageScanningConfiguration": {
-          "ScanOnPush": true,
-        },
-        "RepositoryName": "lambda-python-generic-agent-core-runtime-agentcorestack",
-      },
-      "Type": "AWS::ECR::Repository",
-      "UpdateReplacePolicy": "Delete",
-    },
     "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841": {
       "Properties": {
         "PolicyDocument": {
@@ -26660,80 +26591,8 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
                 "bedrock:InvokeModelWithResponseStream",
               ],
               "Effect": "Allow",
-              "Resource": [
-                "arn:aws:bedrock:*::foundation-model/*",
-                "arn:aws:bedrock:us-east-1:123456890123:*",
-              ],
+              "Resource": "*",
               "Sid": "BedrockModelInvocation",
-            },
-            {
-              "Action": [
-                "ecr:BatchGetImage",
-                "ecr:GetDownloadUrlForLayer",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:ecr:us-east-1:123456890123:repository/*",
-              "Sid": "ECRImageAccess",
-            },
-            {
-              "Action": "ecr:GetAuthorizationToken",
-              "Effect": "Allow",
-              "Resource": "*",
-              "Sid": "ECRTokenAccess",
-            },
-            {
-              "Action": [
-                "logs:DescribeLogStreams",
-                "logs:CreateLogGroup",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:/aws/bedrock-agentcore/runtimes/*",
-            },
-            {
-              "Action": "logs:DescribeLogGroups",
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:*",
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:logs:us-east-1:123456890123:log-group:/aws/bedrock-agentcore/runtimes/*:log-stream:*",
-            },
-            {
-              "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": "cloudwatch:PutMetricData",
-              "Condition": {
-                "StringEquals": {
-                  "cloudwatch:namespace": "bedrock-agentcore",
-                },
-              },
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "bedrock-agentcore:GetWorkloadAccessToken",
-                "bedrock-agentcore:GetWorkloadAccessTokenForJWT",
-                "bedrock-agentcore:GetWorkloadAccessTokenForUserId",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default",
-                "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default/workload-identity/*",
-              ],
-              "Sid": "GetAgentAccessToken",
             },
             {
               "Action": "iam:CreateServiceLinkedRole",
@@ -26744,7 +26603,23 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
               },
               "Effect": "Allow",
               "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
-              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
+              "Sid": "CreateServiceLinkedRole",
+            },
+            {
+              "Action": [
+                "bedrock-agentcore:CreateCodeInterpreter",
+                "bedrock-agentcore:StartCodeInterpreterSession",
+                "bedrock-agentcore:InvokeCodeInterpreter",
+                "bedrock-agentcore:StopCodeInterpreterSession",
+                "bedrock-agentcore:DeleteCodeInterpreter",
+                "bedrock-agentcore:ListCodeInterpreters",
+                "bedrock-agentcore:GetCodeInterpreter",
+                "bedrock-agentcore:GetCodeInterpreterSession",
+                "bedrock-agentcore:ListCodeInterpreterSessions",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "Tools",
             },
             {
               "Action": [
@@ -26782,19 +26657,28 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             },
             {
               "Action": [
-                "bedrock-agentcore:CreateCodeInterpreter",
-                "bedrock-agentcore:StartCodeInterpreterSession",
-                "bedrock-agentcore:InvokeCodeInterpreter",
-                "bedrock-agentcore:StopCodeInterpreterSession",
-                "bedrock-agentcore:DeleteCodeInterpreter",
-                "bedrock-agentcore:ListCodeInterpreters",
-                "bedrock-agentcore:GetCodeInterpreter",
-                "bedrock-agentcore:GetCodeInterpreterSession",
-                "bedrock-agentcore:ListCodeInterpreterSessions",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
               ],
               "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":ecr:us-east-1:123456890123:repository/cdk-hnb659fds-container-assets-123456890123-us-east-1",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
               "Resource": "*",
-              "Sid": "Tools",
             },
           ],
           "Version": "2012-10-17",
@@ -26833,7 +26717,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
       },
       "Type": "AWS::IAM::Role",
     },
-    "GenericAgentCoreGenericAgentCoreRuntimeL1B2F7F803": {
+    "GenericAgentCoreGenericAgentCoreRuntime041F933D": {
       "DependsOn": [
         "GenericAgentCoreAgentCoreRuntimeRoleDefaultPolicy4E847841",
         "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
@@ -26842,7 +26726,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:23cd6370c79f28caee91d8cb24fbd00769b096cb0a9a0947463ecd4ff3242f87",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
             },
           },
         },
@@ -39700,7 +39584,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "randomString": "0js2kyc4juk",
+        "randomString": "0ari0gcizhyk",
         "regionName": "us-east-1",
         "stackName": "AgentCoreStack",
       },
