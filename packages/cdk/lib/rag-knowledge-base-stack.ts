@@ -145,6 +145,7 @@ export class RagKnowledgeBaseStack extends Stack {
       ragKnowledgeBaseAdvancedParsingModelId,
       ragKnowledgeBaseBinaryVector,
       crossAccountBedrockRoleArn,
+      tagKey,
       tagValue,
     } = props.params;
 
@@ -312,7 +313,7 @@ export class RagKnowledgeBaseStack extends Stack {
       resourceType: 'Custom::ApplyTags',
       properties: {
         tag: {
-          key: TAG_KEY,
+          key: tagKey || TAG_KEY,
           value: tagValue || '', // Pass empty string when tagValue is unset
         },
         collectionId: collection.ref,

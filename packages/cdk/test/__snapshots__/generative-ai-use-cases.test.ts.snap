@@ -404,6 +404,33 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "ClosedVpcVpcEndpointAgentCoreD50ADE6F": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "ClosedVpcSecurityGroup985DC3EC",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.bedrock-agentcore",
+        "SubnetIds": [
+          {
+            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
+          },
+          {
+            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
     "ClosedVpcVpcEndpointApiGateway6200AA11": {
       "Properties": {
         "PrivateDnsEnabled": true,
@@ -889,7 +916,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
         "DefaultActions": [
           {
             "TargetGroupArn": {
-              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
+              "Ref": "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
             },
             "Type": "forward",
           },
@@ -902,7 +929,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
-    "ClosedWebAlbPublicListenerECSGroupB932E848": {
+    "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E": {
       "Properties": {
         "HealthCheckPath": "/healthcheck",
         "Port": 80,
@@ -964,7 +991,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
     },
     "ClosedWebService1F389222": {
       "DependsOn": [
-        "ClosedWebAlbPublicListenerECSGroupB932E848",
+        "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
         "ClosedWebAlbPublicListener2C7784BD",
         "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
         "ClosedWebServiceTaskDefTaskRoleDB198F40",
@@ -991,7 +1018,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "ContainerName": "web",
             "ContainerPort": 8080,
             "TargetGroupArn": {
-              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
+              "Ref": "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
             },
           },
         ],
@@ -4717,6 +4744,17 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
                 "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default/workload-identity/*",
               ],
               "Sid": "GetAgentAccessToken",
+            },
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringEquals": {
+                  "iam:AWSServiceName": "runtime-identity.bedrock-agentcore.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
+              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
             },
             {
               "Action": [
@@ -18688,7 +18726,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "randomString": "0yt50uc3x04a",
+        "randomString": "07yn1uvrczc7",
         "regionName": "us-east-1",
         "stackName": "AgentCoreStack",
       },
@@ -26696,6 +26734,17 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
                 "arn:aws:bedrock-agentcore:us-east-1:123456890123:workload-identity-directory/default/workload-identity/*",
               ],
               "Sid": "GetAgentAccessToken",
+            },
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringEquals": {
+                  "iam:AWSServiceName": "runtime-identity.bedrock-agentcore.amazonaws.com",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:iam::*:role/aws-service-role/runtime-identity.bedrock-agentcore.amazonaws.com/AWSServiceRoleForBedrockAgentCoreRuntimeIdentity",
+              "Sid": "CreateBedrockAgentCoreRuntimeIdentityServiceLinkedRole",
             },
             {
               "Action": [
@@ -39651,7 +39700,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "randomString": "0eon143y3t9u",
+        "randomString": "0js2kyc4juk",
         "regionName": "us-east-1",
         "stackName": "AgentCoreStack",
       },

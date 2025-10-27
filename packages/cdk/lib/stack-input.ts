@@ -188,6 +188,7 @@ const baseStackInputSchema = z.object({
   // Dashboard
   dashboard: z.boolean().default(false),
   // Tag
+  tagKey: z.string().nullish(),
   tagValue: z.string().nullish(),
   // Closed network
   closedNetworkMode: z.boolean().default(false),

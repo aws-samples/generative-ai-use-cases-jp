@@ -804,8 +804,10 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"global.anthropic.claude-haiku-4-5-20251001-v1:0"
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"us.anthropic.claude-haiku-4-5-20251001-v1:0"
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -815,6 +817,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
 "eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
 "eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -827,6 +830,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "jp.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"jp.anthropic.claude-haiku-4-5-20251001-v1:0"
 "us.meta.llama4-maverick-17b-instruct-v1:0",
 "us.meta.llama4-scout-17b-instruct-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
@@ -996,7 +1000,12 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+"deepseek.v3-v1:0",
 "us.deepseek.r1-v1:0",
+"qwen.qwen3-235b-a22b-2507-v1:0",
+"qwen.qwen3-32b-v1:0",
+"qwen.qwen3-coder-480b-a35b-v1:0",
+"qwen.qwen3-coder-30b-a3b-v1:0",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
 "amazon.titan-text-premier-v1:0",
@@ -1808,7 +1817,7 @@ Kendraのインデックスが削除されても、RAG機能はオンのまま�
 
 ### タグを設定する方法
 
-GenU ではコスト管理等に使うためのタグをサポートしています。タグのキー名には、自動で `GenU` `が設定されます。
+GenU ではコスト管理等に使うためのタグをサポートしています。デフォルトでは、タグのキー名に `GenU` が設定されますが、`tagKey` を指定することでカスタムのタグキーを使用できます。
 以下に設定例を示します。
 
 `cdk.json` での設定方法
@@ -1817,6 +1826,7 @@ GenU ではコスト管理等に使うためのタグをサポートしていま
 // cdk.json
   ...
   "context": {
+    "tagKey": "MyProject",  // カスタムのタグキー（省略可能、デフォルトは "GenU"）
     "tagValue": "dev",
     ...
 ```
@@ -1825,6 +1835,7 @@ GenU ではコスト管理等に使うためのタグをサポートしていま
 
 ```typescript
     ...
+    tagKey: "MyProject",   // カスタムのタグキー（省略可能、デフォルトは "GenU"）
     tagValue: "dev",
     ...
 ```

@@ -21,6 +21,7 @@ import {
   BraveSearchResult,
 } from 'generative-ai-use-cases';
 import { streamingChunk } from './streamingChunk';
+import { convertToSafeFilename } from './fileNameUtils';
 import {
   initBedrockAgentClient,
   initBedrockAgentRuntimeClient,
@@ -127,7 +128,7 @@ const bedrockAgentApi: ApiInterface = {
           files: messages
             .flatMap((m: UnrecordedMessage) => {
               return m.extraData?.map((file) => ({
-                name: file.name.replace(/[^a-zA-Z0-9\s\-()[\].]/g, 'X'), // If the file name contains Japanese, it is not recognized, so replace it
+                name: convertToSafeFilename(file.name),
                 source: {
                   sourceType: 'BYTE_CONTENT',
                   byteContent: {

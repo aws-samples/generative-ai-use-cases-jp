@@ -16,6 +16,7 @@
   },
   "context": {
     "env": "",
+    "tagKey": null,
     "tagValue": null,
     "ragEnabled": false,
     "kendraIndexArn": null,

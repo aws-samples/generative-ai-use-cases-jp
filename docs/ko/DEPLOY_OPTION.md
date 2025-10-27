@@ -975,7 +975,12 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+"deepseek.v3-v1:0",
 "us.deepseek.r1-v1:0",
+"qwen.qwen3-235b-a22b-2507-v1:0",
+"qwen.qwen3-32b-v1:0",
+"qwen.qwen3-coder-480b-a35b-v1:0",
+"qwen.qwen3-coder-30b-a3b-v1:0",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
 "amazon.titan-text-premier-v1:0",
@@ -1812,7 +1817,7 @@ Kendra 인덱스가 삭제되어도 RAG 기능은 계속 켜져 있습니다. �
 
 ### 태그 설정 방법
 
-GenU는 비용 관리 및 기타 목적을 위한 태그를 지원합니다. 태그의 키 이름은 자동으로 `GenU`로 설정됩니다. 설정 방법의 예시는 다음과 같습니다:
+GenU는 비용 관리 및 기타 목적을 위한 태그를 지원합니다. 기본적으로 태그의 키 이름은 `GenU`로 설정되지만, `tagKey`를 지정하여 사용자 정의 태그 키를 사용할 수 있습니다. 설정 방법의 예시는 다음과 같습니다:
 
 `cdk.json`에서 설정:
 
@@ -1820,6 +1825,7 @@ GenU는 비용 관리 및 기타 목적을 위한 태그를 지원합니다. 태
 // cdk.json
   ...
   "context": {
+    "tagKey": "MyProject",  // 사용자 정의 태그 키 (선택사항, 기본값은 "GenU")
     "tagValue": "dev",
     ...
 ```
@@ -1828,6 +1834,7 @@ GenU는 비용 관리 및 기타 목적을 위한 태그를 지원합니다. 태
 
 ```typescript
     ...
+    tagKey: "MyProject",   // 사용자 정의 태그 키 (선택사항, 기본값은 "GenU")
     tagValue: "dev",
     ...
 ```

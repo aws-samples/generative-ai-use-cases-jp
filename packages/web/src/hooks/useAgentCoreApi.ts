@@ -28,6 +28,8 @@ const region = import.meta.env.VITE_APP_REGION as string;
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION as string;
 const identityPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID as string;
 const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID as string;
+const cognitoIdentityPoolProxyEndpoint = import.meta.env
+  .VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT;
 
 const useAgentCoreApi = (id: string) => {
   const {
@@ -94,7 +96,12 @@ const useAgentCoreApi = (id: string) => {
         const clientRegion = getRegionFromArn(req.agentRuntimeArn) || region;
 
         // Create the Cognito Identity client
-        const cognito = new CognitoIdentityClient({ region });
+        const cognito = new CognitoIdentityClient({
+          region,
+          ...(cognitoIdentityPoolProxyEndpoint
+            ? { endpoint: cognitoIdentityPoolProxyEndpoint }
+            : {}),
+        });
         const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
         // Create the BedrockAgentCore client with the determined region
