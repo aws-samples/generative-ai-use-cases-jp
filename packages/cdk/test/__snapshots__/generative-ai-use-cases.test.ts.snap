@@ -15257,6 +15257,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -15492,6 +15495,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -16404,6 +16410,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -17089,6 +17098,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -17207,6 +17219,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -17366,6 +17381,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -17621,6 +17639,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -17815,6 +17836,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -36078,6 +36102,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -36283,6 +36310,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -37015,6 +37045,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -37580,6 +37613,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -37668,6 +37704,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -37797,6 +37836,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -38003,6 +38045,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
@@ -38167,6 +38212,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Action": [
                 "bedrock:*",
                 "logs:*",
+                "aws-marketplace:Subscribe",
+                "aws-marketplace:Unsubscribe",
+                "aws-marketplace:ViewSubscriptions",
               ],
               "Effect": "Allow",
               "Resource": "*",
