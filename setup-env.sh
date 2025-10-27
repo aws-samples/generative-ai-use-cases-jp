@@ -40,6 +40,7 @@ export VITE_APP_IMAGE_MODEL_IDS=$(extract_value "$stack_output" ImageGenerateMod
 export VITE_APP_VIDEO_MODEL_IDS=$(extract_value "$stack_output" VideoGenerateModelIds)
 export VITE_APP_ENDPOINT_NAMES=$(extract_value "$stack_output" EndpointNames)
 export VITE_APP_SAMLAUTH_ENABLED=$(extract_value "$stack_output" SamlAuthEnabled)
+export VITE_APP_SAML_DEFAULT_AUTH_ENABLED=$(extract_value "$stack_output" SamlDefaultAuthEnabled)
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=$(extract_value "$stack_output" SamlCognitoDomainName)
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=$(extract_value "$stack_output" SamlCognitoFederatedIdentityProviderName)
 export VITE_APP_AGENT_NAMES=$(extract_value "$stack_output" AgentNames | base64 -d)
