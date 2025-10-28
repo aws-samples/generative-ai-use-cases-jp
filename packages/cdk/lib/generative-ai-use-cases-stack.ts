@@ -249,6 +249,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       webBucket: props.webBucket,
       cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
       cognitoIdentityPoolProxyEndpoint: props.cognitoIdentityPoolProxyEndpoint,
+      // Branding
+      brandingConfig: params.brandingConfig,
     });
 
     // RAG

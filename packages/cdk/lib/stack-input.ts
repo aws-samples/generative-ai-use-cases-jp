@@ -250,6 +250,13 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
   ),
   // Processed agentCoreRegion (null -> modelRegion)
   agentCoreRegion: z.string(),
+  // Branding configuration
+  brandingConfig: z
+    .object({
+      logoPath: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type StackInput = z.infer<typeof stackInputSchema>;

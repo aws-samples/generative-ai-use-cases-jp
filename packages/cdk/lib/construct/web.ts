@@ -66,6 +66,10 @@ export interface WebProps {
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly agentCoreRegion?: string;
+  readonly brandingConfig?: {
+    logoPath?: string;
+    title?: string;
+  };
 }
 
 export class Web extends Construct {
@@ -297,6 +301,8 @@ export class Web extends Construct {
         VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: JSON.stringify(
           props.agentCoreExternalRuntimes
         ),
+        VITE_APP_BRANDING_LOGO_PATH: props.brandingConfig?.logoPath ?? '',
+        VITE_APP_BRANDING_TITLE: props.brandingConfig?.title ?? '',
       },
     });
     // Enhance computing resources

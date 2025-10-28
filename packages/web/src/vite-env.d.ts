@@ -37,6 +37,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_AGENT_CORE_ENABLED: string;
   readonly VITE_APP_AGENT_CORE_GENERIC_RUNTIME: string;
   readonly VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: string;
+  readonly VITE_APP_BRANDING_LOGO_PATH: string;
+  readonly VITE_APP_BRANDING_TITLE: string;
 }
 
 interface ImportMeta {

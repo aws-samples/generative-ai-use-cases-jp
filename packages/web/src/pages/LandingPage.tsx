@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardDemo from '../components/CardDemo';
 import Button from '../components/Button';
@@ -23,6 +23,7 @@ import {
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
+import useBranding from '../hooks/useBranding';
 import {
   AgentPageQueryParams,
   ChatPageQueryParams,
@@ -65,6 +66,27 @@ const LandingPage: React.FC = () => {
   const { enabled } = useUseCases();
   const { setIsShow, init } = useInterUseCases();
   const { t } = useTranslation();
+  const { logoPath, title } = useBranding();
+  const [customLogoUrl, setCustomLogoUrl] = useState<string>('');
+
+  // Load custom logo dynamically
+  useEffect(() => {
+    if (logoPath) {
+      console.log('Loading custom logo:', logoPath);
+      const logoUrl = new URL(`../assets/${logoPath}`, import.meta.url).href;
+      setCustomLogoUrl(logoUrl);
+    } else {
+      setCustomLogoUrl('');
+    }
+  }, [logoPath]);
+
+  // Determine which logo and title to use
+  const displayLogo = customLogoUrl ? (
+    <img src={customLogoUrl} alt={title || 'Logo'} className="mr-5 size-20" />
+  ) : (
+    <AwsIcon className="mr-5 size-20" />
+  );
+  const displayTitle = title || t('landing.title');
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
@@ -282,8 +304,8 @@ const LandingPage: React.FC = () => {
   return (
     <div className="pb-24">
       <div className="bg-aws-squid-ink flex flex-col items-center justify-center px-3 py-5 text-xl font-semibold text-white lg:flex-row">
-        <AwsIcon className="mr-5 size-20" />
-        {t('landing.title')}
+        {displayLogo}
+        {displayTitle}
       </div>
 
       <div className="mx-3 mb-6 mt-5 flex flex-col items-center justify-center text-xs lg:flex-row">
