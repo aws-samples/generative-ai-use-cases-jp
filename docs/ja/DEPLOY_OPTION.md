@@ -1510,6 +1510,38 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+## ブランディングカスタマイズ
+
+ランディングページに表示されるロゴとタイトルをカスタマイズできます。
+
+### 設定方法
+
+1. `packages/cdk/branding.json` にカスタム設定を作成：
+
+```json
+{
+  "logoPath": "your-logo.svg",
+  "title": "カスタムタイトル"
+}
+```
+
+2. カスタムSVGロゴファイルを `packages/web/src/assets/` に配置：
+
+```
+packages/web/src/assets/your-logo.svg
+```
+
+### パラメータ
+
+- `logoPath` (オプション): `packages/web/src/assets/` 内のSVGロゴファイル名
+- `title` (オプション): 表示するカスタムタイトルテキスト
+
+### 注意事項
+
+- `branding.json` が存在しない場合、デフォルトのAWSロゴとタイトルが使用されます
+- カスタムロゴはSVG形式のみサポートされています
+- ロゴは80x80ピクセル（size-20クラス）で表示されます
+
 ## セキュリティ関連設定
 
 ### セルフサインアップを無効化する
