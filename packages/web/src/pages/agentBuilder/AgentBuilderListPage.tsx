@@ -10,7 +10,7 @@ import Skeleton from '../../components/Skeleton';
 import {
   PiPlus as AddIcon,
   PiArrowClockwise as RefreshIcon,
-  PiStorefront as MarketplaceIcon,
+  PiStorefront as PublicIcon,
   PiUser as MyAgentsIcon,
   PiStar as StarIcon,
   PiStarFill as StarFillIcon,
@@ -22,7 +22,7 @@ import {
 import { AgentConfiguration } from 'generative-ai-use-cases';
 import useAgentBuilderList from '../../hooks/agentBuilder/useAgentBuilderList';
 
-export type AgentFilter = 'my' | 'favorites' | 'marketplace' | 'external';
+export type AgentFilter = 'my' | 'favorites' | 'public' | 'external';
 
 const AgentBuilderListPage: React.FC = () => {
   const { t } = useTranslation();
@@ -75,7 +75,7 @@ const AgentBuilderListPage: React.FC = () => {
           loadMore: loadMoreFavoriteAgents,
           canLoadMore: canLoadMoreFavoriteAgents,
         };
-      case 'marketplace':
+      case 'public':
         return {
           agents: publicAgents,
           isLoading: isLoadingPublicAgents,
@@ -221,7 +221,7 @@ const AgentBuilderListPage: React.FC = () => {
         count = favoriteAgents.length;
         hasMore = canLoadMoreFavoriteAgents;
         break;
-      case 'marketplace':
+      case 'public':
         count = publicAgents.length;
         hasMore = canLoadMorePublicAgents;
         break;
@@ -251,10 +251,10 @@ const AgentBuilderListPage: React.FC = () => {
       count: getTabCount('my'),
     },
     {
-      key: 'marketplace' as AgentFilter,
-      label: t('agent_builder.marketplace'),
-      icon: MarketplaceIcon,
-      count: getTabCount('marketplace'),
+      key: 'public' as AgentFilter,
+      label: t('agent_builder.public'),
+      icon: PublicIcon,
+      count: getTabCount('public'),
     },
   ];
 

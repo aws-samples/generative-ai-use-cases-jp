@@ -2,7 +2,7 @@ agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
 agent_builder:
-  add_agents_to_favorites_description: マーケットプレイスからエージェントをお気に入りに追加
+  add_agents_to_favorites_description: 公開からエージェントをお気に入りに追加
   add_mcp_server: MCPサーバーを追加
   add_mcp_server_button: MCPサーバーを追加
   add_mcp_servers_help: 「MCPサーバーを追加」をクリックして、エージェントにツールと機能を追加します
@@ -60,7 +60,6 @@ agent_builder:
   favorites: お気に入り
   filter_by_tag: タグでフィルター
   loading_agent: エージェントを読み込み中...
-  marketplace: マーケットプレイス
   mcp_server_configuration: MCPサーバー設定
   mcp_server_description: エージェントに追加機能を提供するMCPサーバーを選択してください。これらのサーバーはセキュリティのため管理者によって事前設定されています。
   mcp_servers: MCPサーバー
@@ -77,8 +76,9 @@ agent_builder:
   no_mcp_servers_match_filter: 現在のフィルターに一致するMCPサーバーがありません。
   no_mcp_servers_selected: MCPサーバーが選択されていません。エージェントは基本機能のみ利用できます。
   no_public_agents_available: 利用可能な公開エージェントがありません
+  public: 公開エージェント
   public_sharing_description: >-
-    このエージェントを公開マーケットプレイスで利用可能にし、他のユーザーが発見して利用できるようにします。エージェントはすべてのユーザーに表示されますが、オリジナルを変更することはできません。
+    このエージェントを公開し、他のユーザーが発見して利用できるようにします。エージェントはすべてのユーザーに表示されますが、オリジナルを変更することはできません。
   quick_examples: クイック例
   quick_examples_title: クイック例
   search_agents: エージェントを検索...

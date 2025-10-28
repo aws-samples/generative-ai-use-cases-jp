@@ -12,7 +12,7 @@
  * 2. Public Agent Records (Denormalized):
  *    - PK: public-agents
  *    - SK: public#{agentId}
- *    - Purpose: Store public agents for discovery/marketplace
+ *    - Purpose: Store public agents for discovery
  *    - Access: Query all public agents or get specific public agent
  *    - Note: Contains full agent data with public-specific keys
  *
@@ -26,7 +26,7 @@
  * Key Benefits:
  * - Single table design with efficient access patterns
  * - BatchGetItem optimization for multiple record retrieval
- * - Denormalized public records for fast marketplace queries
+ * - Denormalized public records for fast public queries
  * - Favorite records with createdBy for direct agent access
  *
  * Access Patterns:

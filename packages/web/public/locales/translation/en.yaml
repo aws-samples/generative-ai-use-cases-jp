@@ -60,7 +60,6 @@ agent_builder:
   favorites: Favorites
   filter_by_tag: Filter by tag
   loading_agent: Loading agent...
-  marketplace: Marketplace
   mcp_server_configuration: MCP Server Configuration
   mcp_server_description: >-
     Select MCP servers to enable additional capabilities for your agent. These
@@ -79,8 +78,9 @@ agent_builder:
   no_mcp_servers_match_filter: No MCP servers match your current filter.
   no_mcp_servers_selected: No MCP servers selected. Your agent will have basic functionality only.
   no_public_agents_available: No public agents available
+  public: Public Agents
   public_sharing_description: >-
-    Make this agent available on public marketplaces and be discovered and
+    Make this agent available on public agent directories and be discovered and
     available to others. 
 
     The agent is visible to all users, but you cannot modify the original.
