@@ -1,32 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
-import * as fs from 'fs';
-import * as path from 'path';
 import {
   StackInput,
   stackInputSchema,
   ProcessedStackInput,
 } from './lib/stack-input';
 import { ModelConfiguration } from 'generative-ai-use-cases';
-
-// Branding configuration interface
-interface BrandingConfig {
-  logoPath?: string;
-  title?: string;
-}
-
-// Load branding configuration from JSON file
-const loadBrandingConfig = (): BrandingConfig => {
-  const brandingPath = path.join(__dirname, 'branding.json');
-  try {
-    if (fs.existsSync(brandingPath)) {
-      const brandingData = fs.readFileSync(brandingPath, 'utf8');
-      return JSON.parse(brandingData);
-    }
-  } catch (error) {
-    console.warn('Failed to load branding.json, using defaults:', error);
-  }
-  return {};
-};
+import { loadBrandingConfig } from './branding';
 
 // Get parameters from CDK Context
 const getContext = (app: cdk.App): StackInput => {
