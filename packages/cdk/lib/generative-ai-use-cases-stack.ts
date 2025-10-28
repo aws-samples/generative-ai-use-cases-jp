@@ -362,28 +362,34 @@ export class GenerativeAiUseCasesStack extends Stack {
       }
     }
 
-    // Usecase builder
-    if (params.useCaseBuilderEnabled) {
-      const useCaseBuilder = new UseCaseBuilder(this, 'UseCaseBuilder', {
+    // UseCaseBuilder - create only if UseCaseBuilder or AgentBuilder is enabled
+    let useCaseBuilder: UseCaseBuilder | undefined;
+    if (params.useCaseBuilderEnabled || params.agentBuilderEnabled) {
+      useCaseBuilder = new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
         vpc: props.vpc,
         securityGroups,
+        useCaseBuilderEnabled: params.useCaseBuilderEnabled,
       });
+    }
 
-      // Agent Builder (if enabled and runtime is available)
-      if (params.agentBuilderEnabled && agentBuilderRuntimeArn) {
-        new AgentBuilder(this, 'AgentBuilder', {
-          userPool: auth.userPool,
-          api: api.api,
-          vpc: props.vpc,
-          securityGroups,
-          agentBuilderRuntimeArn,
-          useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
-          useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
-          cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
-        });
-      }
+    // Agent Builder (if enabled and runtime is available)
+    if (
+      params.agentBuilderEnabled &&
+      agentBuilderRuntimeArn &&
+      useCaseBuilder
+    ) {
+      new AgentBuilder(this, 'AgentBuilder', {
+        userPool: auth.userPool,
+        api: api.api,
+        vpc: props.vpc,
+        securityGroups,
+        agentBuilderRuntimeArn,
+        useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
+        useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
+        cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
+      });
     }
 
     // Transcribe

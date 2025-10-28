@@ -20,6 +20,7 @@ export interface UseCaseBuilderProps {
   readonly api: RestApi;
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
+  readonly useCaseBuilderEnabled: boolean;
 }
 
 export class UseCaseBuilder extends Construct {
@@ -29,8 +30,9 @@ export class UseCaseBuilder extends Construct {
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api } = props;
+    const { userPool, api, useCaseBuilderEnabled } = props;
 
+    // Always create table for backward compatibility and AgentBuilder dependency
     this.useCaseIdIndexName = 'UseCaseIdIndexName';
     this.useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
       partitionKey: {
@@ -56,6 +58,11 @@ export class UseCaseBuilder extends Construct {
       },
       projectionType: ddb.ProjectionType.ALL,
     });
+
+    // Only create Lambda functions and API endpoints if enabled
+    if (!useCaseBuilderEnabled) {
+      return;
+    }
 
     const commonProperty: NodejsFunctionProps = {
       runtime: LAMBDA_RUNTIME_NODEJS,
