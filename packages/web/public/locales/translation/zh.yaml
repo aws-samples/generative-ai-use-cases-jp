@@ -230,6 +230,11 @@ diagram:
       desc: XY图表表示两个变量之间的关系
       exampleTitle: 睡眠-工作时间示例
       title: XY图表
+dialog:
+  unsavedChanges:
+    leave: 离开
+    message: 如果离开此页面，您输入的内容将丢失。确定要离开吗？
+    title: 未保存的更改
 drawer:
   ai_services: AI 服务
   builder_mode: 构建者模式

@@ -304,6 +304,11 @@ diagram:
       desc: XY chart thể hiện mối quan hệ giữa hai biến
       exampleTitle: Ví dụ thời gian ngủ・làm việc
       title: XY Chart
+dialog:
+  unsavedChanges:
+    leave: Rời khỏi
+    message: Nếu bạn rời khỏi trang này, nội dung đã nhập sẽ bị mất. Bạn có chắc chắn muốn rời khỏi?
+    title: Thay đổi chưa được lưu
 drawer:
   ai_services: Dịch vụ AI
   builder_mode: Chế độ builder

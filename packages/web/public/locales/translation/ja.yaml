@@ -255,6 +255,11 @@ diagram:
       desc: XYチャートは2つの変数間の関係を表現します
       exampleTitle: 睡眠・労働時間例
       title: XYチャート
+dialog:
+  unsavedChanges:
+    leave: 移動する
+    message: このページから移動すると、入力内容が失われます。本当に移動しますか？
+    title: 入力内容が保存されていません
 drawer:
   ai_services: AI サービス
   builder_mode: ビルダーモード

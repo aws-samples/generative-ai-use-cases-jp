@@ -308,6 +308,11 @@ diagram:
       desc: XY charts show relationships between two variables
       exampleTitle: Sleep vs Work Hours Example
       title: XY Chart
+dialog:
+  unsavedChanges:
+    leave: Leave
+    message: If you leave this page, your input will be lost. Are you sure you want to leave?
+    title: Unsaved Changes
 drawer:
   ai_services: AI Services
   builder_mode: Builder Mode
