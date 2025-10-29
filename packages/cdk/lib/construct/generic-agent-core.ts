@@ -196,7 +196,8 @@ export class GenericAgentCore extends Construct {
         ],
         conditions: {
           StringEquals: {
-            'iam:AWSServiceName': 'runtime-identity.bedrock-agentcore.amazonaws.com',
+            'iam:AWSServiceName':
+              'runtime-identity.bedrock-agentcore.amazonaws.com',
           },
         },
       })
