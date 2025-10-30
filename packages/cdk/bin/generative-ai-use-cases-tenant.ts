@@ -43,6 +43,11 @@ interface TenantConfig {
     userPoolClientId: string;
     controlPlaneLambdaRoleArn?: string;
   };
+  ipAccessControl?: {
+    enabled: boolean;
+    allowedIpV4AddressRanges: string[];
+    allowedIpV6AddressRanges: string[];
+  };
 }
 
 let tenantConfig: TenantConfig = {};
@@ -131,6 +136,17 @@ if (!tenantId) {
   );
 }
 
+// Validate IP access control if provided
+if (context.ipAccessControl) {
+  const { validateIpAccessControl } = require('../lib/utils/ip-validation');
+  const validation = validateIpAccessControl(context.ipAccessControl);
+  if (!validation.valid) {
+    throw new Error(
+      `Invalid IP access control configuration:\n${validation.errors.join('\n')}`
+    );
+  }
+}
+
 const params = {
   account: context.account || process.env.CDK_DEFAULT_ACCOUNT,
   region: context.tenantRegion || process.env.CDK_DEFAULT_REGION || 'us-east-1',
@@ -158,6 +174,7 @@ const params = {
       context.openSearchConfig.automatedSnapshotStartHour,
   },
   networkConfig: context.networkConfig,
+  ipAccessControl: context.ipAccessControl,
 };
 
 createTenantStacks(app, params);

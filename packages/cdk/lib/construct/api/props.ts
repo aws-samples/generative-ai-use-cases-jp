@@ -1,6 +1,7 @@
 import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
+  IAuthorizer,
   RestApi,
 } from 'aws-cdk-lib/aws-apigateway';
 import {
@@ -60,7 +61,7 @@ export type GenericApiProps = {
 
   commonAuthorizerProps: {
     authorizationType: AuthorizationType;
-    authorizer: CognitoUserPoolsAuthorizer;
+    authorizer: IAuthorizer;
   };
 
   agentMap: AgentMap;

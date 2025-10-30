@@ -9,6 +9,12 @@ import { Runtime, Code } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { TenantRole } from '../../construct/tenant-role';
 
+export interface IpAccessControlConfig {
+  enabled: boolean;
+  allowedIpV4AddressRanges: string[];
+  allowedIpV6AddressRanges: string[];
+}
+
 export interface TenantIAMStackProps extends cdk.StackProps {
   /**
    * The tenant identifier
@@ -19,6 +25,11 @@ export interface TenantIAMStackProps extends cdk.StackProps {
    * The environment (e.g., dev, staging, prod)
    */
   readonly environment: string;
+
+  /**
+   * IP access control configuration
+   */
+  readonly ipAccessControl?: IpAccessControlConfig;
 
   /**
    * Description for the stack
@@ -202,6 +213,7 @@ export class TenantIAMStack extends cdk.Stack {
               environment: '${environment}',
               roleArn: '${this.tenantRole.role.roleArn}',
               controlPlaneLambdaRoleArn: '${controlPlaneLambdaRoleArn || ''}',
+              ${props?.ipAccessControl ? `ipAccessControl: ${JSON.stringify(props.ipAccessControl)},` : ''}
             });
             
             console.log('Calling registration API:', endpoint);

@@ -25,3 +25,11 @@ export interface TenantUseCaseConfigResponse {
   globalHiddenUseCases?: HiddenUseCases;
   error?: string;
 }
+
+export interface IpAccessControl {
+  enabled: boolean;
+  allowedIpV4AddressRanges: string[];
+  allowedIpV6AddressRanges: string[];
+  updatedAt: string;
+  updatedBy: string;
+}

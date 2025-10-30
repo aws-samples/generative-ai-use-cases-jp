@@ -22,6 +22,12 @@ export interface OpenSearchConfig {
   availabilityZoneCount: number;
   automatedSnapshotStartHour: number;
 }
+export interface IpAccessControlConfig {
+  enabled: boolean;
+  allowedIpV4AddressRanges: string[];
+  allowedIpV6AddressRanges: string[];
+}
+
 export interface TenantStackInput {
   account?: string;
   region: string;
@@ -36,6 +42,7 @@ export interface TenantStackInput {
   userPoolClientId?: string;
   openSearchConfig: OpenSearchConfig;
   networkConfig: NetworkConfig;
+  ipAccessControl?: IpAccessControlConfig;
 }
 
 export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
@@ -51,6 +58,7 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
       },
       tenantId: params.tenantId,
       environment: params.environment,
+      ipAccessControl: params.ipAccessControl,
     }
   );
 
