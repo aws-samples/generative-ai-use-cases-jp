@@ -10,8 +10,6 @@ const useBranding = (): BrandingConfig => {
     const logoPath = import.meta.env.VITE_APP_BRANDING_LOGO_PATH;
     const title = import.meta.env.VITE_APP_BRANDING_TITLE;
 
-    console.log('Branding config:', { logoPath, title });
-
     return {
       logoPath: logoPath || '',
       title: title || '',

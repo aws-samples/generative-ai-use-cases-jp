@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CardDemo from '../components/CardDemo';
 import Button from '../components/Button';
@@ -23,7 +23,7 @@ import {
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
-import useBranding from '../hooks/useBranding';
+
 import {
   AgentPageQueryParams,
   ChatPageQueryParams,
@@ -52,6 +52,8 @@ const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
+const logoPath: string = import.meta.env.VITE_APP_BRANDING_LOGO_PATH || '';
+const brandingTitle: string = import.meta.env.VITE_APP_BRANDING_TITLE || '';
 const {
   imageGenModelIds,
   videoGenModelIds,
@@ -66,27 +68,22 @@ const LandingPage: React.FC = () => {
   const { enabled } = useUseCases();
   const { setIsShow, init } = useInterUseCases();
   const { t } = useTranslation();
-  const { logoPath, title } = useBranding();
-  const [customLogoUrl, setCustomLogoUrl] = useState<string>('');
 
-  // Load custom logo dynamically
-  useEffect(() => {
+  const displayLogo = useMemo(() => {
     if (logoPath) {
-      console.log('Loading custom logo:', logoPath);
       const logoUrl = new URL(`../assets/${logoPath}`, import.meta.url).href;
-      setCustomLogoUrl(logoUrl);
-    } else {
-      setCustomLogoUrl('');
+      return (
+        <img
+          src={logoUrl}
+          alt={brandingTitle || 'Logo'}
+          className="mr-5 size-20"
+        />
+      );
     }
-  }, [logoPath]);
+    return <AwsIcon className="mr-5 size-20" />;
+  }, []);
 
-  // Determine which logo and title to use
-  const displayLogo = customLogoUrl ? (
-    <img src={customLogoUrl} alt={title || 'Logo'} className="mr-5 size-20" />
-  ) : (
-    <AwsIcon className="mr-5 size-20" />
-  );
-  const displayTitle = title || t('landing.title');
+  const displayTitle = brandingTitle || t('landing.title');
 
   const demoChat = () => {
     const params: ChatPageQueryParams = {
