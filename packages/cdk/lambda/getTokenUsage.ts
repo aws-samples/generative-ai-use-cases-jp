@@ -1,5 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { aggregateTokenUsage } from './repository';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,7 +9,7 @@ export const handler = async (
     console.log('Getting token usage statistics', { event });
 
     // Get user ID from Cognito
-    const userId = event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const { startDate, endDate } = event.queryStringParameters || {};
 
     if (!startDate || !endDate) {

@@ -2,7 +2,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import axios, { AxiosRequestConfig } from 'axios';
 import useSWR, { SWRConfiguration } from 'swr';
 import useSWRInfinite from 'swr/infinite';
-import { performLogoutAndReload, isRoleMismatchError } from '../utils/auth';
+import { performLogoutAndReload, isRoleMismatchError, isAuthorizationError } from '../utils/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
@@ -59,9 +59,24 @@ api.interceptors.response.use(
       }
 
       console.log('[useHttp] Role mismatch detected, forcing re-authentication');
-      
+
       // Use centralized logout utility
       await performLogoutAndReload('Role mismatch detected in HTTP interceptor');
+      return; // Don't propagate the error further
+    }
+
+    // Handle authorization errors (including IP restriction violations)
+    if (isAuthorizationError(error)) {
+      // Skip authorization error handling for specific endpoints that should handle their own errors
+      const requestUrl = originalRequest.url || '';
+      if (requestUrl.includes('/validate-domains') || requestUrl.includes('/admin/users/invite')) {
+        return Promise.reject(error);
+      }
+
+      console.log('[useHttp] Authorization failure detected (possibly IP restriction), forcing sign-out');
+
+      // Use centralized logout utility
+      await performLogoutAndReload('IP restriction or authorization failure detected');
       return; // Don't propagate the error further
     }
 

@@ -4,7 +4,7 @@ import {
   Context,
 } from 'aws-lambda';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
-import { getTenantId } from './utils/tenantUtils';
+import { getTenantId, getUsername } from './utils/tenantUtils';
 import { getTenant } from './tenantManager';
 import { getTenantCredentials } from './utils/tenantCredentials';
 
@@ -52,22 +52,59 @@ async function getTenantLambdaArn(tenantId: string): Promise<string> {
 }
 
 /**
- * Extract user information from the Cognito authorizer context
+ * Parse claims from authorizer context
+ * Handles both stringified claims (Lambda Request Authorizer) and direct objects (Cognito User Pools Authorizer)
  */
-function extractUserInfoFromEvent(event: APIGatewayProxyEvent): any {
-  const claims = event.requestContext?.authorizer?.claims;
+function parseClaims(event: APIGatewayProxyEvent): Record<string, string> | null {
+  const claimsValue = event.requestContext?.authorizer?.claims;
 
-  if (!claims) {
-    console.warn('No claims found in authorizer context');
+  if (!claimsValue) {
     return null;
   }
 
+  // If already an object, return it (Cognito User Pools Authorizer format)
+  if (typeof claimsValue === 'object' && !Array.isArray(claimsValue)) {
+    return claimsValue as Record<string, string>;
+  }
+
+  // If string, parse it (Lambda Request Authorizer format - stringified JSON)
+  if (typeof claimsValue === 'string') {
+    try {
+      return JSON.parse(claimsValue) as Record<string, string>;
+    } catch (error) {
+      console.error('Failed to parse claims:', error);
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract user information from the Cognito authorizer context
+ */
+function extractUserInfoFromEvent(event: APIGatewayProxyEvent): any {
+  // Try to get claims from flat context first (Lambda Request Authorizer)
+  const flatContextSub = event.requestContext?.authorizer?.['sub'];
+  const flatContextUsername = event.requestContext?.authorizer?.['cognito:username'];
+  const flatContextEmail = event.requestContext?.authorizer?.['email'];
+  const flatContextGroups = event.requestContext?.authorizer?.['cognito:groups'];
+
+  // Parse claims if they're nested/stringified
+  const claims = parseClaims(event);
+
+  // Use flat context values if available, otherwise fall back to parsed claims
+  const sub = flatContextSub || claims?.['sub'] || 'unknown';
+  const username = getUsername(event); // Use helper function for consistency
+  const email = flatContextEmail || claims?.['email'] || '';
+  const groupsValue = flatContextGroups || claims?.['cognito:groups'] || '';
+
   // Extract user information from Cognito claims
   const userInfo = {
-    id: claims.sub || claims['cognito:username'] || 'unknown',
-    name: claims['cognito:username'] || claims.name || 'unknown',
-    email: claims.email || '',
-    groups: claims['cognito:groups'] ? claims['cognito:groups'].split(',') : [],
+    id: sub || username,
+    name: username,
+    email: email,
+    groups: groupsValue ? (typeof groupsValue === 'string' ? groupsValue.split(',') : groupsValue) : [],
   };
 
   console.log('Extracted user info:', {

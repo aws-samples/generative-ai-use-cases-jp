@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findShareId } from './repository';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const chatId = event.pathParameters!.chatId!;
     const res = await findShareId(userId, chatId, event);
 

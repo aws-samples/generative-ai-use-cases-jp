@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateUseCaseRequest } from 'generative-ai-use-cases';
 import { updateUseCase } from './useCaseBuilderRepository';
+import { getUsername } from '../utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const useCaseId = event.pathParameters!.useCaseId!;
     const req: UpdateUseCaseRequest = JSON.parse(event.body!);
 

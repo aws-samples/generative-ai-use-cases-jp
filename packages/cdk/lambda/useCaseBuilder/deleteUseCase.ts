@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { deleteUseCase } from './useCaseBuilderRepository';
+import { getUsername } from '../utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const useCaseId = event.pathParameters!.useCaseId!;
 
     await deleteUseCase(userId, useCaseId, event);

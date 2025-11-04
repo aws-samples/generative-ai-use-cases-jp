@@ -9,6 +9,7 @@ import {
   GetIdCommand,
   GetOpenIdTokenCommand,
 } from '@aws-sdk/client-cognito-identity';
+import { getTenantId, getUsername } from './tenantUtils';
 
 // Constants for AssumeRole operations
 const MAX_RETRIES = 3;
@@ -24,9 +25,8 @@ export async function assumeRoleWithWebIdentity(
   roleArn: string
 ): Promise<Credentials> {
   // Extract tenant ID and user ID from claims
-  const tenantId =
-    event.requestContext?.authorizer?.claims?.['custom:tenant_id'];
-  const userId = event.requestContext?.authorizer?.claims?.['cognito:username'];
+  const tenantId = getTenantId(event);
+  const userId = getUsername(event);
 
   // Extract User Pool JWT token from Authorization header
   const userPoolToken = event.headers.Authorization;
@@ -166,12 +166,24 @@ export function buildTenantRoleArn(
  * Extract tenant ID from API Gateway event claims
  */
 export function extractTenantId(event: APIGatewayProxyEvent): string {
-  const tenantId =
-    event.requestContext?.authorizer?.claims?.['custom:tenant_id'];
+  const tenantId = getTenantId(event);
 
-  if (!tenantId) {
+  if (!tenantId || tenantId === 'default') {
     throw new Error('Tenant ID not found in JWT claims');
   }
 
   return tenantId;
+}
+
+/**
+ * Extract user ID from API Gateway event claims
+ */
+export function extractUserId(event: APIGatewayProxyEvent): string {
+  const userId = getUsername(event);
+
+  if (!userId || userId === 'unknown') {
+    throw new Error('User ID not found in JWT claims');
+  }
+
+  return userId;
 }

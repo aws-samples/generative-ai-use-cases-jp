@@ -5,6 +5,7 @@ import {
   extractTenantId,
 } from './assumeRoleWithWebIdentity';
 import { getTenant, Tenant } from '../tenantManager';
+import { getUsername } from './tenantUtils';
 
 // Interface for returning both credentials and tenant info
 export interface TenantCredentialsWithInfo {
@@ -41,8 +42,7 @@ export async function getTenantCredentials(
   const tenantId = extractTenantId(event);
 
   // Extract user ID for logging
-  const userId =
-    event.requestContext?.authorizer?.claims?.['cognito:username'] || 'unknown';
+  const userId = getUsername(event);
 
   console.log(
     `Getting tenant credentials for tenant: ${tenantId}, user: ${userId} using AssumeRoleWithWebIdentity`

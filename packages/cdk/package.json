@@ -61,6 +61,7 @@
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "effect": "^3.17.13",
+    "ip-range-check": "^0.2.0",
     "langchain": "^0.3.31",
     "node-html-parser": "^6.1.13",
     "pptxgenjs": "^4.0.1",

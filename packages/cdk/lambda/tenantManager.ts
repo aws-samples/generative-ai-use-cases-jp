@@ -5,7 +5,7 @@ import {
   UpdateItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { HiddenUseCases } from 'generative-ai-use-cases';
+import { HiddenUseCases, IpAccessControl } from 'generative-ai-use-cases';
 
 // Environment variables
 const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME!;
@@ -37,6 +37,7 @@ export interface Tenant {
     updatedAt: string;
     updatedBy: string;
   };
+  ipAccessControl?: IpAccessControl;
 }
 
 // Request interfaces
@@ -47,6 +48,7 @@ interface RegisterTenantRequest {
   metadata?: Record<string, any>;
   accountId: string;
   roleArn: string;
+  ipAccessControl?: IpAccessControl;
 }
 
 interface UpdateTenantRequest {
@@ -56,6 +58,7 @@ interface UpdateTenantRequest {
   metadata?: Record<string, any>;
   accountId?: string;
   roleArn?: string;
+  ipAccessControl?: IpAccessControl;
 }
 
 /**
@@ -99,6 +102,15 @@ export async function registerTenant(
     accountId: request.accountId,
     roleArn: request.roleArn,
   };
+
+  // Add IP access control if provided
+  if (request.ipAccessControl) {
+    tenant.ipAccessControl = {
+      ...request.ipAccessControl,
+      updatedAt: now,
+      updatedBy: 'cdk-deployment',
+    };
+  }
 
   try {
     // Check if tenant already exists
@@ -171,6 +183,17 @@ export async function updateTenant(
       updateExpression.push('#roleArn = :roleArn');
       expressionAttributeNames['#roleArn'] = 'roleArn';
       expressionAttributeValues[':roleArn'] = request.roleArn;
+    }
+
+    // IP access control
+    if (request.ipAccessControl !== undefined) {
+      updateExpression.push('#ipAccessControl = :ipAccessControl');
+      expressionAttributeNames['#ipAccessControl'] = 'ipAccessControl';
+      expressionAttributeValues[':ipAccessControl'] = {
+        ...request.ipAccessControl,
+        updatedAt: now,
+        updatedBy: 'cdk-deployment',
+      };
     }
 
     // Always update updatedAt

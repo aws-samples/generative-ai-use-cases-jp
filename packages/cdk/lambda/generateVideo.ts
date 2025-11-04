@@ -3,13 +3,13 @@ import { GenerateVideoRequest } from 'generative-ai-use-cases';
 import api from './utils/api';
 import { defaultVideoGenerationModel } from './utils/models';
 import { createJob } from './repositoryVideoJob';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const req: GenerateVideoRequest = JSON.parse(event.body!);
     const model = req.model || defaultVideoGenerationModel;
     const invocationArn = await api[model.type].generateVideo(

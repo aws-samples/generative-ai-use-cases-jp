@@ -39,3 +39,43 @@ export const isRoleMismatchError = (error: any): boolean => {
 
   return false;
 };
+
+/**
+ * Checks if an error response indicates an authorization failure
+ * This includes IP restriction violations, general authorization denials, etc.
+ * These errors should trigger automatic sign-out to maintain security
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isAuthorizationError = (error: any): boolean => {
+  // 403 Forbidden - typically indicates authorization failure
+  if (error?.response?.status === 403) {
+    // Extract error message from various possible locations in response
+    const responseData = error.response.data;
+    const errorMessage = (
+      responseData?.message ||
+      responseData?.error ||
+      responseData?.details ||
+      (typeof responseData === 'string' ? responseData : '')
+    ).toLowerCase();
+
+    // Generic authorization error from API Gateway when authorizer returns Deny
+    // This includes IP restriction violations
+    // Using case-insensitive matching for robustness
+    if (
+      errorMessage.includes('not authorized') ||
+      errorMessage.includes('forbidden') ||
+      errorMessage.includes('user is not authorized to access this resource') ||
+      errorMessage === '' // Sometimes API Gateway returns empty message
+    ) {
+      return true;
+    }
+
+    // Catch explicit IP-related messages with word boundaries to avoid false positives
+    // (e.g., "shipping", "equip", "whip" should NOT trigger)
+    if (/(^|\b)ip (restriction|address|not allowed|denied|blocked)(\b|$)/i.test(errorMessage)) {
+      return true;
+    }
+  }
+
+  return false;
+};

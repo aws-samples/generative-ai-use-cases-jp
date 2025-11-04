@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import { listMessages, updateFeedback } from './repository';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -8,8 +9,7 @@ export const handler = async (
   try {
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateFeedbackRequest = JSON.parse(event.body!);
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
 
     // Authorization check: verify that this message belongs to the user's chat
     const messages = await listMessages(chatId, event);

@@ -4,18 +4,21 @@ import {
   CognitoUserPoolsAuthorizer,
   Cors,
   LambdaIntegration,
+  RequestAuthorizer,
   RestApi,
   ResponseType,
   Period,
+  IdentitySource,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
-import { IFunction } from 'aws-cdk-lib/aws-lambda';
+import { IFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { IdentityPool } from 'aws-cdk-lib/aws-cognito-identitypool';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
+import * as path from 'path';
 import {
   Agent,
   AgentMap,
@@ -122,13 +125,36 @@ export class Api extends Construct {
 
     const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
 
-    // API Gateway
-    const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
-      cognitoUserPools: [userPool],
+    // Create Lambda Request Authorizer function
+    const authorizerFunction = new NodejsFunction(this, 'AuthorizerFunction', {
+      entry: path.join(__dirname, '../../../lambda/authorizer.ts'),
+      handler: 'handler',
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      timeout: Duration.seconds(10),
+      environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+      },
+      bundling: {
+        externalModules: ['aws-sdk'],
+      },
+    });
+
+    // Grant read access to Tenants table
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(authorizerFunction);
+    }
+
+    // API Gateway Lambda Request Authorizer
+    const authorizer = new RequestAuthorizer(this, 'Authorizer', {
+      handler: authorizerFunction,
+      identitySources: [IdentitySource.header('Authorization')],
+      resultsCacheTtl: Duration.seconds(0), // Temporarily disabled cache to test
+      authorizerName: 'TenantIpAuthorizer',
     });
 
     const commonAuthorizerProps = {
-      authorizationType: AuthorizationType.COGNITO,
+      authorizationType: AuthorizationType.CUSTOM,
       authorizer,
     };
 

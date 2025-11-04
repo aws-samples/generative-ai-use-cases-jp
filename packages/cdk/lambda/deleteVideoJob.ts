@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { deleteVideoJob } from './repositoryVideoJob';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const createdDate: string = event.pathParameters!.createdDate!;
 
     await deleteVideoJob(userId, createdDate);

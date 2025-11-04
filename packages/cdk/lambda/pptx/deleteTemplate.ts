@@ -1,14 +1,16 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findTemplateById, deleteTemplateById } from './pptxRepository';
+import { getUsername, getTenantId } from '../utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
     // Get user info from Cognito
-    const userId = event.requestContext.authorizer?.claims['cognito:username'];
-    const tenantId = event.requestContext.authorizer?.claims['custom:tenant_id'];
-    const isAdmin = event.requestContext.authorizer?.claims['custom:is_admin'] === 'true';
+    const userId = getUsername(event);
+    const tenantId = getTenantId(event);
+    // Check admin status from flat context (Lambda Request Authorizer)
+    const isAdmin = event.requestContext.authorizer?.['custom:is_admin'] === 'true';
     
     if (!userId || !tenantId) {
       return {

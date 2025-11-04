@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { v4 as uuid4 } from 'uuid';
 import { createTemplate } from './pptxRepository';
+import { getUsername, getTenantId } from '../utils/tenantUtils';
 
 interface CreateTemplateRequest {
   template_name: string;
@@ -14,9 +15,9 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     // Get user info from Cognito
-    const userId = event.requestContext.authorizer?.claims['cognito:username'];
-    const tenantId = event.requestContext.authorizer?.claims['custom:tenant_id'];
-    
+    const userId = getUsername(event);
+    const tenantId = getTenantId(event);
+
     if (!userId || !tenantId) {
       return {
         statusCode: 401,

@@ -131,6 +131,80 @@ npm run cdk:tenant:destroy
 - `environment` (required): Environment name (e.g., dev, staging, prod)
 - `tenantRegion`: AWS region for deployment (default: CDK_DEFAULT_REGION or us-east-1)
 - `enableAutoDelete`: Boolean flag for resource deletion policy (true = DESTROY, false = RETAIN, default: false)
+- `ipAccessControl` (optional): Tenant-specific IP restriction configuration (see below)
+
+### IP Access Control (Optional)
+
+You can configure tenant-specific IP restrictions to limit API access to specific IP address ranges. This provides an additional layer of security beyond the global WAF IP restrictions.
+
+#### Configuration
+
+Add the `ipAccessControl` field to your `cdk.tenant.json`:
+
+```json
+{
+  "context": {
+    "tenantId": "tenant123",
+    "environment": "dev",
+    "tenantRegion": "us-east-1",
+    "ipAccessControl": {
+      "enabled": true,
+      "allowedIpV4AddressRanges": [
+        "203.0.113.0/24",
+        "198.51.100.50/32"
+      ],
+      "allowedIpV6AddressRanges": [
+        "2001:db8::/32"
+      ]
+    }
+  }
+}
+```
+
+#### Options
+
+- `enabled` (boolean, required): Enable or disable IP access control
+  - `true`: Enforce IP restrictions (requires at least one IP range)
+  - `false`: Disable IP restrictions (IP ranges ignored)
+- `allowedIpV4AddressRanges` (array of strings): IPv4 CIDR ranges to allow
+  - Example: `["192.0.2.0/24", "198.51.100.50/32"]`
+  - Empty array allowed if IPv6 ranges are provided
+- `allowedIpV6AddressRanges` (array of strings): IPv6 CIDR ranges to allow
+  - Example: `["2001:db8::/32"]`
+  - Empty array allowed if IPv4 ranges are provided
+
+#### Validation Rules
+
+- If `enabled: true`, at least one IP range (IPv4 or IPv6) must be provided
+- Empty IP ranges with `enabled: true` will cause deployment to fail
+- All IP ranges must be valid CIDR notation
+- Invalid IP ranges will be rejected at deployment time
+
+#### How It Works
+
+1. **Deployment Time**: IP restrictions are validated and stored in the Tenants DynamoDB table
+2. **Runtime**: Lambda Request Authorizer checks each API request:
+   - Verifies JWT token from Cognito
+   - Extracts client IP from `X-Forwarded-For` header
+   - Checks if IP is within allowed ranges
+   - Returns 403 Forbidden if IP is not allowed
+3. **Caching**: Authorization results are cached for 5 minutes to minimize DynamoDB reads
+
+#### Layered Security
+
+IP access control works alongside global WAF restrictions:
+- **Layer 1**: Global WAF IP restrictions (if configured)
+- **Layer 2**: Tenant-specific IP restrictions (via Lambda Authorizer)
+- Both layers must pass for access to be granted
+
+#### Audit Logging
+
+All denied access attempts are logged to CloudWatch with:
+- Tenant ID
+- Username
+- Client IP address
+- Timestamp
+- Allowed IP ranges (for debugging)
 
 ## Tenant DynamoDB Tables
 

@@ -20,7 +20,8 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: StartTranscriptionRequest = JSON.parse(event.body!);
-    const userId = event.requestContext.authorizer!.claims.sub;
+    // Use flat context - Lambda Request Authorizer provides sub at top level
+    const userId = event.requestContext.authorizer!.sub;
     const tenantId = getTenantId(event);
 
     console.log(

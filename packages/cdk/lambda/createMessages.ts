@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CreateMessagesRequest, ExtraData } from 'generative-ai-use-cases';
 import { batchCreateMessages, findChatById } from './repository';
-import { getTenantId } from './utils/tenantUtils';
+import { getTenantId, getUsername } from './utils/tenantUtils';
 import {
   getTenantBucketNameByTenantId,
   extractAccountIdFromRoleArn,
@@ -21,8 +21,7 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: CreateMessagesRequest = JSON.parse(event.body!);
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const chatId = event.pathParameters!.chatId!;
 
     // Extract tenant ID to determine appropriate file upload bucket

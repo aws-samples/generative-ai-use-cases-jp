@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateSystemContextTitleRequest } from 'generative-ai-use-cases';
 import { updateSystemContextTitle } from './repository';
+import { getUsername } from './utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const systemContextId = event.pathParameters!.systemContextId!;
     const req: UpdateSystemContextTitleRequest = JSON.parse(event.body!);
     const systemContext = await updateSystemContextTitle(

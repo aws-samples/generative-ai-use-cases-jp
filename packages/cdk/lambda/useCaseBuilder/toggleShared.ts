@@ -1,13 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { toggleShared } from './useCaseBuilderRepository';
 import { IsShared } from 'generative-ai-use-cases';
+import { getUsername } from '../utils/tenantUtils';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId: string =
-      event.requestContext.authorizer!.claims['cognito:username'];
+    const userId = getUsername(event);
     const useCaseId = event.pathParameters!.useCaseId!;
 
     const isShared: IsShared = await toggleShared(userId, useCaseId, event);
