@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link } from 'react-router-dom';
-import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
+import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX, PiDotsThreeVertical } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
@@ -27,11 +27,14 @@ type Props = BaseProps & {
 const ChatListItem: React.FC<Props> = (props) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const chatId = useMemo(() => {
     return decomposeId(props.chat.chatId) ?? '';
   }, [props.chat.chatId]);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [tempTitle, setTempTitle] = useState('');
 
   useEffect(() => {
@@ -82,13 +85,48 @@ const ChatListItem: React.FC<Props> = (props) => {
     return text.split(regex).map((part, i) => {
       if (words.some((word) => part.toLowerCase() === word.toLowerCase())) {
         return (
-          <span key={i} className="text-aws-smile">
+          <span key={i} className="text-blue-600 font-semibold">
             {part}
           </span>
         );
       }
       return part;
     });
+  }, []);
+
+  // メニューの外側をクリックした時に閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  // 日付のフォーマット
+  const formatDate = useCallback((dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInHours < 24) {
+      return '今日';
+    } else if (diffInDays === 1) {
+      return '1日前';
+    } else if (diffInDays < 7) {
+      return `${diffInDays}日前`;
+    } else {
+      return `${date.getMonth() + 1}/${date.getDate()}`;
+    }
   }, []);
 
   return (
@@ -106,59 +144,54 @@ const ChatListItem: React.FC<Props> = (props) => {
           }}
         />
       )}
-      <Link
-        className={`hover:bg-aws-sky group flex h-8 w-full items-center justify-start rounded p-2 ${
-          props.active && 'bg-aws-sky'
-        } ${props.className}`}
-        to={`/chat/${chatId}`}>
-        <div
-          className={`flex h-8 max-h-5 w-full justify-start overflow-hidden`}>
-          <div className="mr-2">
-            <PiChat />
-          </div>
-          <div className="relative flex-1 text-ellipsis break-all">
-            {editing ? (
-              <input
-                ref={inputRef}
-                type="text"
-                className="max-h-5 w-full bg-transparent p-0 text-sm ring-0"
-                value={tempTitle}
-                onChange={(e) => {
-                  setTempTitle(e.target.value);
-                }}
-              />
-            ) : (
-              <div>{highlightText(props.chat.title, props.highlightWords)}</div>
-            )}
-            {!editing && (
-              <div
-                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute right-0 w-8 bg-gradient-to-l ${props.active ? 'from-aws-sky' : 'from-aws-squid-ink'} `}
-              />
-            )}
-          </div>
-          <div className="flex">
-            {props.active && !editing && (
-              <>
-                <ButtonIcon
-                  onClick={() => {
-                    setEditing(true);
-                  }}>
-                  <PiPencilLine />
-                </ButtonIcon>
-                <ButtonIcon
-                  onClick={() => {
-                    setOpenDialog(true);
-                  }}>
-                  <PiTrash />
-                </ButtonIcon>
-              </>
-            )}
+      <div
+        className="relative w-full"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}>
+        <Link
+          className={`hover:bg-blue-50 group flex w-full flex-col justify-start rounded p-2 ${
+            props.active && 'bg-blue-100'
+          } ${props.className}`}
+          to={`/chat/${chatId}`}
+          onClick={(e) => {
+            // 編集中やメニュー表示中はリンク遷移を無効化
+            if (editing || showMenu) {
+              e.preventDefault();
+            }
+          }}>
+          <div className="flex w-full items-start gap-2">
+            <div className="flex-shrink-0 pt-0.5">
+              <PiChat />
+            </div>
+            <div className="min-w-0 flex-1 overflow-hidden">
+              {editing ? (
+                <input
+                  ref={inputRef}
+                  type="text"
+                  className="w-full bg-transparent p-0 text-sm ring-0"
+                  value={tempTitle}
+                  onChange={(e) => {
+                    setTempTitle(e.target.value);
+                  }}
+                />
+              ) : (
+                <>
+                  <div className="truncate text-sm">
+                    {highlightText(props.chat.title, props.highlightWords)}
+                  </div>
+                  {props.chat.updatedDate && (
+                    <div className="mt-0.5 text-xs text-gray-500">
+                      {formatDate(props.chat.updatedDate)}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
             {editing && (
-              <>
+              <div className="flex flex-shrink-0">
                 <ButtonIcon className="text-base" onClick={updateTitle}>
                   <PiCheck />
                 </ButtonIcon>
-
                 <ButtonIcon
                   className="text-base"
                   onClick={() => {
@@ -166,11 +199,53 @@ const ChatListItem: React.FC<Props> = (props) => {
                   }}>
                   <PiX />
                 </ButtonIcon>
-              </>
+              </div>
+            )}
+            {!editing && (
+              <div
+                className={`flex-shrink-0 ${!isHovered && !showMenu ? 'invisible' : 'visible'}`}
+                ref={menuRef}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}>
+                <ButtonIcon
+                  onClick={() => {
+                    setShowMenu(!showMenu);
+                  }}>
+                  <PiDotsThreeVertical />
+                </ButtonIcon>
+                {showMenu && (
+                  <div className="absolute right-2 top-8 z-10 w-40 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                    <button
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowMenu(false);
+                        setEditing(true);
+                      }}>
+                      <PiPencilLine />
+                      <span>名前を変更</span>
+                    </button>
+                    <button
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowMenu(false);
+                        setOpenDialog(true);
+                      }}>
+                      <PiTrash />
+                      <span>削除</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
     </>
   );
 };

@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import useUserSetting from './useUserSetting';
 
 const TYPING_DELAY = 10;
 
 const useTyping = (typing?: boolean) => {
-  const { settingTypingAnimation } = useUserSetting();
   const [typingTextInput, setTypingTextInput] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
@@ -66,17 +64,13 @@ const useTyping = (typing?: boolean) => {
   ]);
 
   const typingTextOutput = useMemo(() => {
-    if (!settingTypingAnimation) {
-      return typingTextInput;
-    }
-
     if (animating) {
       return typingTextInput.slice(0, currentIndex);
     } else {
       // If animating is false, return typingTextInput as is
       return typingTextInput;
     }
-  }, [typingTextInput, currentIndex, animating, settingTypingAnimation]);
+  }, [typingTextInput, currentIndex, animating]);
 
   return {
     setTypingTextInput,

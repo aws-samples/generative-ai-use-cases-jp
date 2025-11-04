@@ -60,6 +60,38 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [isOpenTrace, setIsOpenTrace] = useState(false);
   const { getFileDownloadSignedUrl } = useFiles(pathname);
 
+  // Format timestamp for display
+  const formattedTimestamp = useMemo(() => {
+    if (!chatContent?.createdDate) return '';
+
+    const timestamp = chatContent.createdDate.split('#')[0];
+    const date = new Date(parseInt(timestamp));
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const isToday = messageDate.getTime() === today.getTime();
+    const isYesterday = messageDate.getTime() === today.getTime() - 86400000;
+
+    const timeStr = date.toLocaleTimeString('ja-JP', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    if (isToday) {
+      return timeStr;
+    } else if (isYesterday) {
+      return `${t('common.yesterday')} ${timeStr}`;
+    } else {
+      const dateStr = date.toLocaleDateString('ja-JP', {
+        month: '2-digit',
+        day: '2-digit'
+      });
+      return `${dateStr} ${timeStr}`;
+    }
+  }, [chatContent?.createdDate, t]);
+
   const { setTypingTextInput, typingTextOutput } = useTyping(
     chatContent?.role === 'assistant' && props.loading
   );
@@ -152,34 +184,53 @@ const ChatMessage: React.FC<Props> = (props) => {
   };
 
   return (
-    <div
-      className={`flex justify-center ${
-        chatContent?.role === 'assistant' || chatContent?.role === 'system'
-          ? 'bg-gray-100/70'
-          : ''
-      }`}>
+    <div className="flex justify-center py-4">
       <div
         className={`${
           props.className ?? ''
-        } flex w-full flex-col justify-between p-3 md:w-11/12 lg:w-5/6 xl:w-4/6`}>
-        <div className="flex w-full">
+        } flex w-full flex-col md:w-11/12 lg:w-5/6 xl:w-4/6`}>
+        <div
+          className={`flex gap-3 ${
+            chatContent?.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+          }`}>
+          {/* Avatar */}
           {chatContent?.role === 'user' && (
-            <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
+            <div className="bg-aws-sky h-min shrink-0 rounded-full p-2 text-xl text-white">
               <PiUserFill />
             </div>
           )}
           {chatContent?.role === 'assistant' && (
-            <div className="bg-aws-ml h-min rounded p-1">
+            <div className="bg-aws-ml h-min shrink-0 rounded-full p-1">
               <BedrockIcon className="size-7 fill-white" />
             </div>
           )}
           {chatContent?.role === 'system' && (
-            <div className="bg-aws-sky h-min rounded p-2 text-xl text-white">
+            <div className="bg-aws-sky h-min shrink-0 rounded-full p-2 text-xl text-white">
               <PiChalkboardTeacher />
             </div>
           )}
 
-          <div className="ml-5 w-full pr-8 lg:pr-14">
+          {/* Message bubble container */}
+          <div className="flex max-w-[80%] flex-col gap-2">
+            {/* Bubble with timestamp */}
+            <div
+              className={`flex items-end gap-2 ${
+                chatContent?.role === 'user' ? 'flex-row' : 'flex-row-reverse'
+              }`}>
+              {/* Timestamp beside bubble */}
+              {formattedTimestamp && (
+                <span className="mb-1 text-xs text-gray-400">
+                  {formattedTimestamp}
+                </span>
+              )}
+
+              {/* Message bubble */}
+              <div
+                className={`rounded-2xl px-4 py-3 ${
+                  chatContent?.role === 'user'
+                    ? 'bg-aws-sky text-white'
+                    : 'bg-gray-100'
+                }`}>
             {chatContent?.trace && (
               <div className="mb-2 rounded border p-2">
                 <details className="cursor-pointer" open={isOpenTrace}>
@@ -293,101 +344,112 @@ const ChatMessage: React.FC<Props> = (props) => {
                 )}
               </div>
             )}
-          </div>
-        </div>
+              </div>
+            </div>
 
-        <div className="mt-1 flex items-start justify-end pr-8 lg:pr-14 print:hidden">
-          {chatContent?.role === 'system' && !props.hideSaveSystemContext && (
-            <ButtonIcon
-              className="text-gray-400"
-              onClick={() => {
-                props.setSaveSystemContext?.(chatContent?.content || '');
-                props.setShowSystemContextModal?.(true);
-              }}>
-              <PiFloppyDisk />
-            </ButtonIcon>
-          )}
-          {chatContent?.role === 'user' && props.editable && (
-            <>
-              {editing ? (
-                <>
-                  <ButtonIcon
-                    onClick={() => {
-                      setEditing(false);
-                    }}>
-                    <PiX className="text-red-500" />
-                  </ButtonIcon>
-                  <ButtonIcon
-                    onClick={() => {
-                      if (props.onCommitEdit) {
-                        setEditing(false);
-                        props.onCommitEdit(editingPrompt);
-                      }
-                    }}>
-                    <PiCheck className="text-green-500" />
-                  </ButtonIcon>
-                </>
-              ) : (
+            {/* Action buttons below the bubble */}
+            <div
+              className={`flex items-center gap-1 print:hidden ${
+                chatContent?.role === 'user' ? 'justify-start' : 'justify-end'
+              }`}>
+              {/* System message save button */}
+              {chatContent?.role === 'system' && !props.hideSaveSystemContext && (
                 <ButtonIcon
+                  className="text-gray-400"
                   onClick={() => {
-                    setEditingPrompt(chatContent?.content ?? '');
-                    setEditing(true);
+                    props.setSaveSystemContext?.(chatContent?.content || '');
+                    props.setShowSystemContextModal?.(true);
                   }}>
-                  <PiNotePencil className="text-gray-400" />
+                  <PiFloppyDisk />
                 </ButtonIcon>
               )}
-            </>
-          )}
-          {chatContent?.role === 'assistant' &&
-            !props.loading &&
-            !props.hideFeedback && (
-              <>
-                {props.allowRetry && (
-                  <ButtonIcon
-                    className="mr-0.5 text-gray-400"
-                    onClick={() => props.retryGeneration?.()}>
-                    <PiArrowClockwise />
-                  </ButtonIcon>
-                )}
-                <ButtonCopy
-                  className="mr-0.5 text-gray-400"
-                  text={chatContent?.content || ''}
-                />
-                {chatContent && (
-                  <>
-                    <ButtonFeedback
-                      className="mx-0.5"
-                      feedback="good"
-                      message={chatContent}
-                      disabled={disabled}
+
+              {/* User message edit buttons */}
+              {chatContent?.role === 'user' && props.editable && (
+                <>
+                  {editing ? (
+                    <>
+                      <ButtonIcon
+                        onClick={() => {
+                          setEditing(false);
+                        }}>
+                        <PiX className="text-red-500" />
+                      </ButtonIcon>
+                      <ButtonIcon
+                        onClick={() => {
+                          if (props.onCommitEdit) {
+                            setEditing(false);
+                            props.onCommitEdit(editingPrompt);
+                          }
+                        }}>
+                        <PiCheck className="text-green-500" />
+                      </ButtonIcon>
+                    </>
+                  ) : (
+                    <ButtonIcon
                       onClick={() => {
-                        handleFeedbackClick('good');
-                      }}
+                        setEditingPrompt(chatContent?.content ?? '');
+                        setEditing(true);
+                      }}>
+                      <PiNotePencil className="text-gray-400" />
+                    </ButtonIcon>
+                  )}
+                </>
+              )}
+
+              {/* Assistant message action buttons */}
+              {chatContent?.role === 'assistant' &&
+                !props.loading &&
+                !props.hideFeedback && (
+                  <>
+                    {props.allowRetry && (
+                      <ButtonIcon
+                        className="mr-0.5 text-gray-400"
+                        onClick={() => props.retryGeneration?.()}>
+                        <PiArrowClockwise />
+                      </ButtonIcon>
+                    )}
+                    <ButtonCopy
+                      className="mr-0.5 text-gray-400"
+                      text={chatContent?.content || ''}
                     />
-                    <ButtonFeedback
-                      className="ml-0.5"
-                      feedback="bad"
-                      message={chatContent}
-                      disabled={disabled}
-                      onClick={() => handleFeedbackClick('bad')}
-                    />
+                    {chatContent && (
+                      <>
+                        <ButtonFeedback
+                          className="mx-0.5"
+                          feedback="good"
+                          message={chatContent}
+                          disabled={disabled}
+                          onClick={() => {
+                            handleFeedbackClick('good');
+                          }}
+                        />
+                        <ButtonFeedback
+                          className="ml-0.5"
+                          feedback="bad"
+                          message={chatContent}
+                          disabled={disabled}
+                          onClick={() => handleFeedbackClick('bad')}
+                        />
+                      </>
+                    )}
                   </>
                 )}
-              </>
-            )}
-        </div>
-        <div>
-          {showFeedbackForm && (
-            <FeedbackForm
-              onSubmit={handleFeedbackFormSubmit}
-              onCancel={handleFeedbackFormCancel}
-            />
-          )}
-          {showThankYouMessage && (
-            <div className="mt-2 rounded-md bg-green-100 p-2 text-center text-green-700">
-              {t('common.feedback_received')}
             </div>
-          )}
+
+            {/* Feedback form and messages */}
+            {showFeedbackForm && (
+              <FeedbackForm
+                onSubmit={handleFeedbackFormSubmit}
+                onCancel={handleFeedbackFormCancel}
+              />
+            )}
+            {showThankYouMessage && (
+              <div className="mt-2 rounded-md bg-green-100 p-2 text-center text-green-700">
+                {t('common.feedback_received')}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

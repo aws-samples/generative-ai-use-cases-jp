@@ -28,4 +28,5 @@ export type ModelConfiguration = {
 export type ModelMetadata = {
   flags: FeatureFlags;
   displayName: string;
+  description?: string;
 };

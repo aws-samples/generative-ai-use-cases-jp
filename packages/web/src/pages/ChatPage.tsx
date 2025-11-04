@@ -3,22 +3,15 @@ import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
-import useSystemContextApi from '../hooks/useSystemContextApi';
 import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
-import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
-import ModalSystemContext from '../components/ModalSystemContext';
 import ExpandableField from '../components/ExpandableField';
-import Switch from '../components/Switch';
-import Select from '../components/Select';
-import ScrollTopBottom from '../components/ScrollTopBottom';
+import ModelSelector from '../components/ModelSelector';
 import useFollow from '../hooks/useFollow';
-import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
-import BedrockIcon from '../assets/bedrock.svg?react';
 import { ChatPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
@@ -27,7 +20,6 @@ import useFiles from '../hooks/useFiles';
 import {
   AdditionalModelRequestFields,
   FileLimit,
-  SystemContext,
 } from 'generative-ai-use-cases';
 import ModelParameters from '../components/ModelParameters';
 import { AcceptedDotExtensions } from '../utils/MediaUtils';
@@ -43,57 +35,26 @@ const fileLimit: FileLimit = {
   maxVideoFileSizeMB: 1000, // 1 GB for S3 input
 };
 
+const FIXED_SYSTEM_CONTEXT = 'あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。';
+
 type StateType = {
   content: string;
-  inputSystemContext: string;
-  saveSystemContext: string;
-  saveSystemContextTitle: string;
   setContent: (c: string) => void;
-  setInputSystemContext: (c: string) => void;
-  setSaveSystemContext: (c: string) => void;
-  setSaveSystemContextTitle: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
     content: '',
-    inputSystemContext: '',
-    saveSystemContext: '',
-    saveSystemContextTitle: '',
     setContent: (s: string) => {
       set(() => ({
         content: s,
-      }));
-    },
-    setInputSystemContext: (s: string) => {
-      set(() => ({
-        inputSystemContext: s,
-      }));
-    },
-    setSaveSystemContext: (s: string) => {
-      set(() => ({
-        saveSystemContext: s,
-      }));
-    },
-    setSaveSystemContextTitle: (s: string) => {
-      set(() => ({
-        saveSystemContextTitle: s,
       }));
     },
   };
 });
 
 const ChatPage: React.FC = () => {
-  const {
-    content,
-    inputSystemContext,
-    saveSystemContext,
-    saveSystemContextTitle,
-    setContent,
-    setInputSystemContext,
-    setSaveSystemContext,
-    setSaveSystemContextTitle,
-  } = useChatPageState();
+  const { content, setContent } = useChatPageState();
   const { pathname, search } = useLocation();
   const {
     clear: clearFiles,
@@ -103,39 +64,30 @@ const ChatPage: React.FC = () => {
   } = useFiles(pathname);
   const { chatId } = useParams();
 
-  const { listSystemContexts, deleteSystemContext, updateSystemContextTitle } =
-    useSystemContextApi();
-  const [systemContextList, setSystemContextList] = useState<SystemContext[]>(
-    []
-  );
-  const { data: systemContextResponse, mutate } = listSystemContexts();
-  useEffect(() => {
-    setSystemContextList(systemContextResponse ? systemContextResponse : []);
-  }, [systemContextResponse, setSystemContextList]);
 
   const {
     getModelId,
     setModelId,
     loading,
     writing,
-    loadingMessages,
     isEmpty,
     messages,
-    rawMessages,
     clear,
     postChat,
     editChat,
     updateSystemContext,
-    updateSystemContextByModel,
-    getCurrentSystemContext,
     retryGeneration,
     forceToStop,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
-  const { createSystemContext } = useSystemContextApi();
   const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
-  const { modelIds: availableModels, modelDisplayName } = MODELS;
+  const {
+    modelIds: availableModels,
+    modelDisplayName,
+    modelMetadata,
+    featuredModelIds,
+  } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
   const prompter = useMemo(() => {
@@ -146,17 +98,14 @@ const ChatPage: React.FC = () => {
   >(undefined);
   const [showSetting, setShowSetting] = useState(false);
   const { t } = useTranslation();
-  const [forceExpandPromptList, setForceExpandPromptList] = useState<
-    number | null
-  >(null);
 
   useEffect(() => {
-    // On the conversation history page, do not change the system prompt even if the model is changed
+    // Set fixed system context
     if (!chatId) {
-      updateSystemContextByModel();
+      updateSystemContext(FIXED_SYSTEM_CONTEXT);
     }
     // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [prompter]);
+  }, [chatId]);
 
   const title = useMemo(() => {
     if (chatId) {
@@ -169,6 +118,7 @@ const ChatPage: React.FC = () => {
   const accept = useMemo(() => {
     if (!modelId) return [];
     const feature = MODELS.modelMetadata[modelId];
+    if (!feature) return [];
     return [
       ...(feature.flags.doc ? fileLimit.accept.doc : []),
       ...(feature.flags.image ? fileLimit.accept.image : []),
@@ -191,7 +141,6 @@ const ChatPage: React.FC = () => {
         updateSystemContext(params.systemContext);
       } else {
         clear();
-        setInputSystemContext(currentSystemContext);
       }
       setContent(params.content ?? '');
       setModelId(
@@ -240,11 +189,6 @@ const ChatPage: React.FC = () => {
     );
   }, [retryGeneration, base64Cache, overrideModelParameters]);
 
-  const onReset = useCallback(() => {
-    clear();
-    setContent('');
-  }, [clear, setContent]);
-
   const onStop = useCallback(() => {
     forceToStop();
   }, [forceToStop]);
@@ -272,7 +216,6 @@ const ChatPage: React.FC = () => {
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
   const [showShareIdModal, setShowShareIdModal] = useState(false);
-  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
   const [isOver, setIsOver] = useState(false);
 
   const onCreateShareId = useCallback(async () => {
@@ -287,29 +230,6 @@ const ChatPage: React.FC = () => {
     }
   }, [chatId, createShareId, reloadShare]);
 
-  const onCreateSystemContext = useCallback(async () => {
-    try {
-      await createSystemContext(saveSystemContextTitle, saveSystemContext);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setShowSystemContextModal(false);
-      setInputSystemContext(saveSystemContext);
-      setSaveSystemContextTitle('');
-      mutate();
-      setSystemContextList(systemContextResponse ?? []);
-    }
-  }, [
-    saveSystemContextTitle,
-    saveSystemContext,
-    systemContextResponse,
-    createSystemContext,
-    setShowSystemContextModal,
-    setInputSystemContext,
-    setSaveSystemContextTitle,
-    mutate,
-    setSystemContextList,
-  ]);
   const onDeleteShareId = useCallback(async () => {
     try {
       setDeletingShareId(true);
@@ -330,71 +250,9 @@ const ChatPage: React.FC = () => {
     }
   }, [share]);
 
-  const [showSystemContext, setShowSystemContext] = useState(false);
-
   const showingMessages = useMemo(() => {
-    if (showSystemContext) {
-      return rawMessages;
-    } else {
-      return messages;
-    }
-  }, [showSystemContext, rawMessages, messages]);
-
-  const currentSystemContext = useMemo(() => {
-    return getCurrentSystemContext();
-  }, [getCurrentSystemContext]);
-
-  useEffect(() => {
-    setInputSystemContext(currentSystemContext);
-  }, [currentSystemContext, setInputSystemContext]);
-
-  const onClickSamplePrompt = useCallback(
-    (params: ChatPageQueryParams) => {
-      setContent(params.content ?? '');
-      updateSystemContext(params.systemContext ?? '');
-    },
-    [setContent, updateSystemContext]
-  );
-
-  const onClickDeleteSystemContext = async (systemContextId: string) => {
-    try {
-      const idx = systemContextList.findIndex(
-        (item) => item.systemContextId === systemContextId
-      );
-      if (idx >= 0) {
-        setSystemContextList(systemContextList.filter((_, i) => i !== idx));
-      }
-      await deleteSystemContext(systemContextId);
-      mutate();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const onClickUpdateSystemContext = async (
-    systemContextId: string,
-    title: string
-  ) => {
-    try {
-      const idx = systemContextList.findIndex(
-        (item) => item.systemContextId === systemContextId
-      );
-      if (idx >= 0) {
-        setSystemContextList(
-          systemContextList.map((item, i) => {
-            if (i === idx) {
-              return { ...item, systemContextTitle: title };
-            }
-            return item;
-          })
-        );
-      }
-      await updateSystemContextTitle(systemContextId, title);
-      mutate();
-    } catch (e) {
-      console.error(e);
-    }
-  };
+    return messages;
+  }, [messages]);
 
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
@@ -418,96 +276,81 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  // Initialize forceExpandPromptList to null when the path changes
-  useEffect(() => {
-    setForceExpandPromptList(null);
-  }, [pathname, setForceExpandPromptList]);
-
   return (
     <>
+      {/* Main Content */}
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
-        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-          {title}
-        </div>
-
+        className="relative min-h-screen flex flex-col">
         {isOver && fileUpload && (
           <div
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className="fixed bottom-0 left-0 right-0 top-0 z-[999] bg-slate-300 p-10 text-center">
-            <div className="flex h-full w-full items-center justify-center outline-dashed">
-              <div className="font-bold">{t('chat.drop_files')}</div>
-            </div>
+            className="flex fixed inset-0 justify-center items-center p-10 z-[999] bg-slate-300 outline-dashed">
+            <p className="font-bold">{t('chat.drop_files')}</p>
           </div>
         )}
 
-        <div className="mt-2 flex w-full items-end justify-center lg:mt-0 print:hidden">
-          <Select
+        {/* Header with Model Selector and Share Button */}
+        <div className="flex items-center gap-4 my-5 print:hidden">
+          {/* Model Selector */}
+          <ModelSelector
+            className="w-80"
             value={modelId}
             onChange={setModelId}
-            options={availableModels.map((m) => {
-              return { value: m, label: modelDisplayName(m) };
+            models={availableModels.map((m) => {
+              return {
+                value: m,
+                label: modelDisplayName(m),
+                description: modelMetadata[m]?.description,
+              };
             })}
+            featuredModelIds={featuredModelIds}
           />
+
+          {/* Spacer */}
+          <div className="flex-1" />
         </div>
 
-        {((isEmpty && !loadingMessages) || loadingMessages) && (
-          <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center gap-y-4">
-            <BedrockIcon
-              className={`fill-gray-400 ${
-                loadingMessages ? 'animate-pulse' : ''
-              }`}
-            />
+        {/* Print-only Title */}
+        <h1 className="hidden print:block text-xl font-semibold my-5">
+          {title}
+        </h1>
 
-            {!loadingMessages && (
-              <Button
-                className="text-sm"
-                outlined
-                onClick={() => {
-                  setForceExpandPromptList(Math.random());
-                }}>
-                {t('chat.view_prompt_examples')}
-              </Button>
-            )}
-          </div>
-        )}
-
-        {!isEmpty && !loadingMessages && (
-          <div className="my-2 flex flex-col items-end pr-3 print:hidden">
-            {chatId && (
-              <div>
-                <button
-                  className="mb-1 flex items-center justify-center text-xs hover:underline"
-                  onClick={() => {
-                    setShowShareIdModal(true);
-                  }}>
-                  <PiShareFatFill className="mr-1" />
-                  {share ? <>{t('chat.sharing')}</> : <>{t('chat.share')}</>}
-                </button>
-              </div>
-            )}
-            <Switch
-              checked={showSystemContext}
-              onSwitch={setShowSystemContext}
-              label={t('chat.show_system_prompt')}
+        {/* Wrapper for messages and input to enable vertical centering when empty */}
+        {isEmpty ? (
+          <div className="flex-1 flex flex-col justify-center">
+            <InputChatContent
+              className="print:hidden mx-auto"
+              content={content}
+              disabled={loading && !writing}
+              onChangeContent={setContent}
+              hideReset={true}
+              onSend={() => {
+                if (!loading) {
+                  onSend();
+                } else {
+                  onStop();
+                }
+              }}
+              fileUpload={fileUpload}
+              fileLimit={fileLimit}
+              accept={accept}
+              setting={setting}
+              onSetting={() => {
+                setShowSetting(true);
+              }}
+              canStop={writing}
             />
           </div>
-        )}
-
-        <div ref={scrollableContainer}>
-          {!isEmpty &&
-            showingMessages.map((chat, idx) => (
-              <div key={showSystemContext ? idx : idx + 1}>
-                {idx === 0 && (
-                  <div className="w-full border-b border-gray-300"></div>
-                )}
+        ) : (
+          <>
+            <div ref={scrollableContainer} className="pb-32">
+              {showingMessages.map((chat, idx) => (
                 <ChatMessage
+                  key={idx + 1}
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
-                  setSaveSystemContext={setSaveSystemContext}
-                  setShowSystemContextModal={setShowSystemContextModal}
                   allowRetry={idx === showingMessages.length - 1}
                   editable={idx === showingMessages.length - 2 && !loading}
                   onCommitEdit={
@@ -517,102 +360,36 @@ const ChatPage: React.FC = () => {
                   }
                   retryGeneration={onRetry}
                 />
-                <div className="w-full border-b border-gray-300"></div>
-              </div>
-            ))}
-        </div>
+              ))}
+            </div>
 
-        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
-          <ScrollTopBottom />
-        </div>
-
-        <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
-          {isEmpty && !loadingMessages && !chatId && (
-            <ExpandableField
-              label={t('chat.system_prompt')}
-              className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
-              <>
-                <div className="absolute -top-2 right-0 mb-2 flex justify-end">
-                  <Button
-                    outlined
-                    className="text-xs"
-                    onClick={() => {
-                      clear();
-                      setInputSystemContext(currentSystemContext);
-                    }}>
-                    {t('chat.initialize')}
-                  </Button>
-                  <Button
-                    outlined
-                    className="ml-1 text-xs"
-                    onClick={() => {
-                      setSaveSystemContext(inputSystemContext);
-                      setShowSystemContextModal(true);
-                    }}>
-                    {t('chat.save')}
-                  </Button>
-                </div>
-
-                <InputChatContent
-                  disableMarginBottom={true}
-                  content={inputSystemContext}
-                  onChangeContent={setInputSystemContext}
-                  fullWidth={true}
-                  resetDisabled={true}
-                  disabled={inputSystemContext === currentSystemContext}
-                  sendIcon={<PiArrowClockwiseBold />}
-                  onSend={() => {
-                    updateSystemContext(inputSystemContext);
-                  }}
-                  hideReset={true}
-                />
-              </>
-            </ExpandableField>
-          )}
-          <InputChatContent
-            content={content}
-            disabled={loading && !writing}
-            onChangeContent={setContent}
-            resetDisabled={!!chatId}
-            onSend={() => {
-              if (!loading) {
-                onSend();
-              } else {
-                onStop();
-              }
-            }}
-            onReset={onReset}
-            fileUpload={fileUpload}
-            fileLimit={fileLimit}
-            accept={accept}
-            setting={setting}
-            onSetting={() => {
-              setShowSetting(true);
-            }}
-            canStop={writing}
-          />
-        </div>
+            <div className="fixed bottom-0 left-0 right-0 bg-white print:hidden">
+              <InputChatContent
+                className="mx-auto my-4"
+                content={content}
+                disabled={loading && !writing}
+                onChangeContent={setContent}
+                hideReset={true}
+                onSend={() => {
+                  if (!loading) {
+                    onSend();
+                  } else {
+                    onStop();
+                  }
+                }}
+                fileUpload={fileUpload}
+                fileLimit={fileLimit}
+                accept={accept}
+                setting={setting}
+                onSetting={() => {
+                  setShowSetting(true);
+                }}
+                canStop={writing}
+              />
+            </div>
+          </>
+        )}
       </div>
-
-      {isEmpty && !loadingMessages && (
-        <PromptList
-          onClick={onClickSamplePrompt}
-          systemContextList={systemContextList as SystemContext[]}
-          onClickDeleteSystemContext={onClickDeleteSystemContext}
-          onClickUpdateSystemContext={onClickUpdateSystemContext}
-          forceExpand={forceExpandPromptList}
-        />
-      )}
-
-      <ModalSystemContext
-        showSystemContextModal={showSystemContextModal}
-        saveSystemContext={saveSystemContext}
-        saveSystemContextTitle={saveSystemContextTitle}
-        setShowSystemContextModal={setShowSystemContextModal}
-        setSaveSystemContext={setSaveSystemContext}
-        setSaveSystemContextTitle={setSaveSystemContextTitle}
-        onCreateSystemContext={onCreateSystemContext}
-      />
 
       <ModalDialog
         isOpen={showShareIdModal}
@@ -620,28 +397,23 @@ const ChatPage: React.FC = () => {
         onClose={() => {
           setShowShareIdModal(false);
         }}>
-        <div className="py-3 text-xs text-gray-600">
-          {share ? (
-            <>{t('chat.delete_link_message')}</>
-          ) : (
-            <>{t('chat.create_link_message')}</>
-          )}
-        </div>
+        <p className="py-3 text-xs text-gray-600">
+          {share ? t('chat.delete_link_message') : t('chat.create_link_message')}
+        </p>
         {shareLink && (
-          <div className="bg-aws-squid-ink my-2 flex flex-row items-center justify-between rounded px-2 py-1 text-white">
-            <div className="break-all text-sm">{shareLink}</div>
+          <div className="flex justify-between items-center py-1 px-2 my-2 text-white rounded bg-aws-squid-ink">
+            <span className="text-sm break-all">{shareLink}</span>
             <ButtonCopy text={shareLink} />
           </div>
         )}
-        <div className="flex justify-end py-3">
+        <div className="flex gap-1 justify-end py-3">
           {share ? (
-            <div className="flex">
+            <>
               <Button
                 onClick={() => {
                   window.open(shareLink!, '_blank', 'noreferrer');
                 }}
                 outlined
-                className="mr-1"
                 loading={deletingShareId}>
                 {t('chat.open_link')}
               </Button>
@@ -651,7 +423,7 @@ const ChatPage: React.FC = () => {
                 className="bg-red-500">
                 {t('chat.delete_link')}
               </Button>
-            </div>
+            </>
           ) : (
             <Button onClick={onCreateShareId} loading={creatingShareId}>
               {t('chat.create_link')}
@@ -670,23 +442,20 @@ const ChatPage: React.FC = () => {
             label={t('chat.model_parameters')}
             className="relative w-full"
             defaultOpened={true}>
-            <div className="">
-              <ModelParameters
-                modelFeatureFlags={MODELS.modelMetadata[modelId].flags}
-                overrideModelParameters={overrideModelParameters}
-                setOverrideModelParameters={setOverrideModelParameters}
-              />
-            </div>
+            <ModelParameters
+              modelFeatureFlags={MODELS.modelMetadata[modelId]?.flags}
+              overrideModelParameters={overrideModelParameters}
+              setOverrideModelParameters={setOverrideModelParameters}
+            />
           </ExpandableField>
         )}
-        <div className="mt-4 flex justify-end">
-          <Button
-            onClick={() => {
-              setShowSetting(false);
-            }}>
-            {t('chat.settings')}
-          </Button>
-        </div>
+        <Button
+          className="mt-4"
+          onClick={() => {
+            setShowSetting(false);
+          }}>
+          {t('chat.settings')}
+        </Button>
       </ModalDialog>
     </>
   );

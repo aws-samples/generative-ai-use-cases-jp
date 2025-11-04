@@ -82,6 +82,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Tùy chọn nâng cao
+  button:
+    newChat: Chat mới
   create_link: Tạo liên kết
   create_link_message: Bằng cách tạo liên kết, bạn sẽ công khai lịch sử cuộc trò chuyện cho tất cả người dùng có thể đăng nhập vào ứng dụng này.
   create_system_prompt: Tạo system prompt
@@ -710,42 +712,6 @@ rag:
   please_refer: Vui lòng tham khảo.
   retrieving: Đang lấy tài liệu tham khảo từ Kendra...
   title: RAG Chat
-setting:
-  ai: Generative AI
-  ai_items:
-    agent_name: Tên Agent
-    image_gen_model: Tên mô hình tạo hình ảnh
-    llm_model: Tên mô hình LLM
-    model_region: Vùng mô hình LLM & tạo hình ảnh
-    video_gen_model: Tên mô hình tạo video
-  config_message: >-
-    Thay đổi cài đặt được thực hiện bằng <0>AWS CDK</0> chứ không phải trên màn hình này. Ngoài ra, nếu xảy ra lỗi khi thực thi trường hợp sử dụng, 
-    hãy chắc chắn kiểm tra xem bạn đã kích hoạt mô hình được chỉ định trong {{region}} .Để biết cách thực hiện từng cách, vui lòng tham khảo 
-    <1>generative-ai-use-cases</1>.
-  items:
-    admin_portal: Cổng Quản Trị
-    admin_portal_checking: Đang kiểm tra quyền...
-    admin_portal_manage_users: Quản Lý Người Dùng
-    agent_enabled: Agent được bật
-    language: Cài đặt ngôn ngữ
-    language_help: Có thể thay đổi ngôn ngữ hiển thị
-    login_status: Trạng thái đăng nhập
-    rag_enabled: RAG (Amazon Kendra) được bật
-    rag_kb_enabled: RAG (Knowledge Base) được bật
-    show_tools: Hiển thị công cụ
-    show_use_case_builder: Hiển thị Use Case Builder
-    typing_animation: Hiệu ứng đánh máy
-    version: Phiên bản
-    version_help: Tham chiếu đến version trong package.json của generative-ai-use-cases
-  recent_updates: Cập nhật gần đây
-  signout: Đăng xuất
-  title: Thông tin cài đặt
-  update:
-    message: >-
-      Có cập nhật trên GitHub. Nếu muốn sử dụng các tính năng mới nhất, vui lòng pull nhánh main của <0>generative-ai-use-cases</0> 
-      và deploy lại.
-  user: Cài đặt người dùng
-  view_all_updates: Xem tất cả cập nhật
 shared:
   contact_admin: Vui lòng liên hệ với quản trị viên.
   error: Lỗi

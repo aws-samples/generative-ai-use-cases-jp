@@ -83,6 +83,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Advanced Options
+  button:
+    newChat: New Chat
   create_link: Create Link
   create_link_message: >-
     By creating a link, you will share the conversation history with all users
@@ -110,6 +112,7 @@ chat:
   title: Chat
   view_prompt_examples: View Prompt Examples
 common:
+  ask_gaixr: Ask GaiXer
   cancel: Cancel
   clear: Clear
   close: Close
@@ -142,6 +145,7 @@ common:
   title: Title
   trace: Trace
   try: Try
+  yesterday: Yesterday
 demo:
   inter_use_cases: Use Case Integration
 diagram:
@@ -788,6 +792,7 @@ navigation:
   videoAnalysis: Video Analysis
   videoGeneration: Video Generation
   voiceChat: Voice Chat
+  useCaseBuilder: Use Case Builder
   webContentExtraction: Web Content Extraction
   writing: Writing
 notfound:
@@ -946,45 +951,6 @@ ragChatBot:
   tenantPublicDescription: Members of your tenant can use this bot
   unstar: Unstar
   viewMore: View More
-setting:
-  ai_items:
-    agent_name: Agent Name
-    image_gen_model: Image Generation Model Name
-    llm_model: LLM Model Name
-    model_region: LLM & Image Generation Model Region
-    video_gen_model: Video Generation Model Name
-  config_message: >-
-    System settings can be changed using <0>AWS CDK</0>, not on this screen. If
-    you encounter errors when running use cases, please make sure you have
-    enabled the specified models in {{region}}. For details on how to do this,
-    please refer to <1>generative-ai-use-cases</1>.
-  items:
-    admin_portal: Admin Portal
-    admin_portal_checking: Checking permissions...
-    admin_portal_manage_users: Manage Users
-    agent_enabled: Agent Enabled
-    language: Language
-    language_help: Change display language
-    login_status: Login status
-    rag_enabled: RAG (Amazon Kendra) Enabled
-    rag_kb_enabled: RAG (Knowledge Base) Enabled
-    show_email: Show Email
-    show_tools: Show Tools
-    show_use_case_builder: Show Use Case Builder
-    stats: Statistics
-    typing_animation: Typing Animation
-    version: Version
-    version_help: Referencing the version in package.json of generative-ai-use-cases
-  recent_updates: Recent Updates
-  signout: Sign Out
-  system: System settings
-  update:
-    message: >-
-      Updates are available on GitHub. If you want to use the latest features,
-      please pull the main branch of <0>generative-ai-use-cases</0> and
-      redeploy.
-  user: User settings
-  view_all_updates: View All Updates
 shared:
   contact_admin: Please contact the administrator.
   error: Error

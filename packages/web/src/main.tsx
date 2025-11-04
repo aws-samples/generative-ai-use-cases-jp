@@ -19,8 +19,6 @@ const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const pptxEnabled: boolean = import.meta.env.VITE_APP_PPTX_ENABLED === 'true';
-const useCaseBuilderEnabled: boolean =
-  import.meta.env.VITE_APP_USE_CASE_BUILDER_ENABLED === 'true';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -42,7 +40,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             inlineAgents={inlineAgents}
             mcpEnabled={mcpEnabled}
             pptxEnabled={pptxEnabled}
-            useCaseBuilderEnabled={useCaseBuilderEnabled}
           />
         </SWRConfig>
         <Toaster />

@@ -437,7 +437,7 @@ const RagChatBotChatPage: React.FC = () => {
       <div className="flex items-center gap-4 border-b bg-white px-4 py-3">
         <Button
           outlined
-          onClick={() => navigate('/rag-chat-bot')}
+          onClick={() => navigate('/chat/assistants')}
           className="flex items-center gap-1">
           <PiArrowLeft />
         </Button>

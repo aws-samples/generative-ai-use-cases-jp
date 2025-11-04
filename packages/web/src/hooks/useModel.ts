@@ -192,10 +192,12 @@ const liteLlmModelMetadata: Record<string, ModelMetadata> = {
   'gemini-2.5-flash': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'Gemini 2.5 Flash',
+    description: '幅広いファイル形式に対応した高速モデル',
   },
   'gemini-2.5-pro': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'Gemini 2.5 Pro',
+    description: '幅広いファイル形式に対応した高性能モデル',
   },
 };
 
@@ -203,22 +205,27 @@ const langchainModelMetadata: Record<string, ModelMetadata> = {
   'openai:gpt-4o': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'GPT 4o',
+    description: 'レガシー モデル',
   },
   'openai:gpt-4o-mini': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'GPT 4o mini',
+    description: '高速な処理が可能な軽量モデル',
   },
   'openai:o3': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'o3',
+    description: '高度な推論を使用する',
   },
   'openai:gpt-4.1': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'GPT 4.1',
+    description: '迅速なコーディングと分析に最適',
   },
   'openai:gpt-5': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'GPT 5',
+    description: '高速な推論能力モデル',
   },
 };
 
@@ -250,6 +257,16 @@ const modelDisplayName = (modelId: string): string => {
   return displayName;
 };
 
+// Featured models to display in the first level of the model selector
+// These should match the actual model IDs available in the system
+// Note: Claude Sonnet 4 model ID should be updated based on the actual Bedrock model ID
+const featuredModelIds: string[] = [
+  // Find Claude Sonnet 4 model (pattern: anthropic.claude-sonnet-4*)
+  bedrockModelIds.find(id => id.includes('claude-sonnet-4')) || '',
+  'openai:gpt-5',
+  'gemini-2.5-pro',
+].filter(id => id !== '');
+
 export const MODELS = {
   modelRegion: modelRegion,
   modelIds: [
@@ -277,4 +294,5 @@ export const MODELS = {
   flowChatEnabled: flows.length > 0,
   speechToSpeechModelIds: speechToSpeechModelIds,
   speechToSpeechModels: speechToSpeechModels,
+  featuredModelIds,
 };

@@ -16,7 +16,7 @@ import {
   AdditionalModelRequestFields,
   Metadata,
 } from 'generative-ai-use-cases';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
 import useChatList from './useChatList';
@@ -24,6 +24,7 @@ import { SWRInfiniteKeyedMutator } from 'swr/infinite';
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
 import useFileApi from './useFileApi';
+import { useSettings } from './useSettings';
 
 type GenerationMode = 'normal' | 'continue' | 'retry' | 'edit';
 
@@ -984,6 +985,18 @@ const useChat = (id: string, chatId?: string) => {
   const { data: chatData, isLoading: isLoadingChat } =
     useChatApi().findChatById(chatId);
   const { mutate: mutateChatList } = useChatList();
+  const { settings } = useSettings();
+
+  // カスタム指示をシステムコンテキストに追加するヘルパー関数
+  const applyCustomInstructions = useCallback(
+    (baseSystemContext: string): string => {
+      if (settings.customizeEnabled && settings.customInstructions.trim()) {
+        return `${baseSystemContext}\n\n${settings.customInstructions}`;
+      }
+      return baseSystemContext;
+    },
+    [settings.customizeEnabled, settings.customInstructions]
+  );
 
   useEffect(() => {
     // In the case of a new chat
@@ -991,6 +1004,17 @@ const useChat = (id: string, chatId?: string) => {
       init(id);
     }
   }, [init, id, chatId]);
+
+  // カスタム指示が変更されたときにシステムコンテキストを更新
+  useEffect(() => {
+    if (!chatId && chats[id]) {
+      const modelId = getModelId(id);
+      const prompter = getPrompter(modelId);
+      const baseSystemContext = prompter.systemContext(id);
+      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      updateSystemContext(id, systemContextWithCustom);
+    }
+  }, [settings.customizeEnabled, settings.customInstructions, applyCustomInstructions, chatId, chats, id, getModelId, updateSystemContext]);
 
   useEffect(() => {
     // In the case of a registered chat
@@ -1022,9 +1046,21 @@ const useChat = (id: string, chatId?: string) => {
     loadingMessages: isLoadingMessage,
     init: () => {
       init(id);
+      // カスタム指示を適用
+      const modelId = getModelId(id);
+      const prompter = getPrompter(modelId);
+      const baseSystemContext = prompter.systemContext(id);
+      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      updateSystemContext(id, systemContextWithCustom);
     },
     clear: () => {
       clear(id);
+      // カスタム指示を適用
+      const modelId = getModelId(id);
+      const prompter = getPrompter(modelId);
+      const baseSystemContext = prompter.systemContext(id);
+      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      updateSystemContext(id, systemContextWithCustom);
     },
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
@@ -1032,7 +1068,9 @@ const useChat = (id: string, chatId?: string) => {
     updateSystemContextByModel: () => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
-      updateSystemContext(id, prompter.systemContext(id));
+      const baseSystemContext = prompter.systemContext(id);
+      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      updateSystemContext(id, systemContextWithCustom);
     },
     getCurrentSystemContext: () => {
       return getCurrentSystemContext(id);

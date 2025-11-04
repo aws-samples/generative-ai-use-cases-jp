@@ -82,6 +82,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高级选项
+  button:
+    newChat: 新聊天
   create_link: 创建链接
   create_link_message: 通过创建链接，您将向所有可以登录此应用程序的用户公开对话历史。
   create_system_prompt: 创建系统提示
@@ -610,32 +612,6 @@ rag:
   please_refer: 请参考。
   retrieving: 正在从Kendra获取参考文档...
   title: RAG聊天
-setting:
-  ai_items:
-    agent_name: Agent名称
-    image_gen_model: 图像生成模型名称
-    llm_model: LLM模型名称
-    model_region: LLM和图像生成模型区域
-    video_gen_model: 视频生成模型名称
-  config_message: >-
-    设置更改不在此屏幕而是在<0>AWS CDK</0>中进行。此外，如果在执行用例时出现错误，
-    请务必确认您是否在{{region}}中启用了指定的模型。有关各种方法， 请参考<1>generative-ai-use-cases</1>。
-  items:
-    admin_portal: 管理门户
-    admin_portal_checking: 检查权限中...
-    admin_portal_manage_users: 管理用户
-    agent_enabled: Agent已启用
-    language: 语言设置
-    language_help: 可以更改显示语言
-    rag_enabled: RAG (Amazon Kendra)已启用
-    rag_kb_enabled: RAG (Knowledge Base)已启用
-    version: 版本
-    version_help: 参考generative-ai-use-cases的package.json中的version
-  recent_updates: 最近更新
-  signout: 退出登录
-  update:
-    message: GitHub上有更新。如果您想使用最新功能，请pull <0>generative-ai-use-cases</0>的main分支 并重新部署。
-  view_all_updates: 查看所有更新
 shared:
   contact_admin: 请联系管理员。
   error: 错误

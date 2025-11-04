@@ -34,6 +34,7 @@ type Props = {
   fileLimit?: FileLimit;
   accept?: string[];
   canStop?: boolean;
+  className?: string;
 } & (
   | {
       hideReset?: false;
@@ -114,16 +115,17 @@ const InputChatContent: React.FC<Props> = (props) => {
     <div
       className={`${
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
-      }`}>
+      } ${props.className ?? ''}`}>
       {props.description && (
         <p className="m-2 whitespace-pre-wrap text-xs text-gray-500">
           {props.description}
         </p>
       )}
       <div
-        className={`relative flex items-end rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+        className={`relative flex flex-col rounded-3xl border border-gray-200 bg-white shadow-sm ${
           props.disableMarginBottom ? '' : 'mb-7'
         }`}>
+        {/* 上半分: テキスト入力エリア */}
         <div className="flex grow flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
             <div className="m-2 flex flex-wrap gap-2">
@@ -184,8 +186,8 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin m-2 -mr-14 bg-transparent`}
-            placeholder={props.placeholder ?? t('common.enter_text')}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin mx-2 my-2 bg-transparent`}
+            placeholder={props.placeholder ?? t('common.ask_gaixr')}
             noBorder
             notItem
             value={props.content}
@@ -194,37 +196,44 @@ const InputChatContent: React.FC<Props> = (props) => {
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
-        <div className="m-2 flex gap-1">
-          {props.fileUpload && (
-            <div className="">
-              <label>
-                <input
-                  hidden
-                  onChange={onChangeFiles}
-                  type="file"
-                  accept={props.accept?.join(',')}
-                  multiple
-                  value={[]}
-                />
-                <div
-                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer'} flex items-center justify-center rounded-xl p-2 align-bottom text-xl text-white`}>
-                  {uploading ? (
-                    <PiSpinnerGap className="animate-spin" />
-                  ) : (
-                    <PiPaperclip />
-                  )}
-                </div>
-              </label>
-            </div>
-          )}
-          {props.setting && (
-            <ButtonSend
-              className=""
-              disabled={loading}
-              onClick={props.onSetting ?? (() => {})}
-              icon={<PiSlidersHorizontal />}
-            />
-          )}
+
+        {/* 下半分: ボタンエリア */}
+        <div className="mx-2 mb-2 flex items-center justify-between pt-2">
+          {/* 左側のボタングループ */}
+          <div className="flex items-center gap-1">
+            {props.fileUpload && (
+              <div className="">
+                <label>
+                  <input
+                    hidden
+                    onChange={onChangeFiles}
+                    type="file"
+                    accept={props.accept?.join(',')}
+                    multiple
+                    value={[]}
+                  />
+                  <div
+                    className={`${uploading ? 'text-gray-300' : 'text-gray-600 cursor-pointer'} flex items-center justify-center rounded-xl p-2 align-bottom text-xl`}>
+                    {uploading ? (
+                      <PiSpinnerGap className="animate-spin" />
+                    ) : (
+                      <PiPaperclip />
+                    )}
+                  </div>
+                </label>
+              </div>
+            )}
+            {props.setting && (
+              <ButtonSend
+                className=""
+                disabled={loading}
+                onClick={props.onSetting ?? (() => {})}
+                icon={<PiSlidersHorizontal />}
+              />
+            )}
+          </div>
+
+          {/* 右側の送信ボタン */}
           <ButtonSend
             className=""
             disabled={disabledSend}

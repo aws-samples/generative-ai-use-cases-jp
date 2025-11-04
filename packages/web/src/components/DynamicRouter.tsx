@@ -3,6 +3,7 @@ import {
   RouterProvider,
   createBrowserRouter,
   RouteObject,
+  Navigate,
 } from 'react-router-dom';
 import { MODELS } from '../hooks/useModel';
 import { optimizePromptEnabled } from '../hooks/useOptimizePrompt';
@@ -11,11 +12,11 @@ import AuthWithUserpool from './AuthWithUserpool';
 import AuthWithSAML from './AuthWithSAML';
 import AuthWithSamlOrUserpool from './AuthWithSamlOrUserpool';
 import App from '../App';
-import UseCaseBuilderRoot from '../UseCaseBuilderRoot';
-import LandingPage from '../pages/LandingPage';
-import Setting from '../pages/Setting';
+import ChatLayout from './ChatLayout';
 import StatPage from '../pages/StatPage';
 import ChatPage from '../pages/ChatPage';
+import AssistantsPage from '../pages/AssistantsPage';
+import AssistantCreatePage from '../pages/AssistantCreatePage';
 import SharedChatPage from '../pages/SharedChatPage';
 import SummarizePage from '../pages/SummarizePage';
 import GenerateTextPage from '../pages/GenerateTextPage';
@@ -42,10 +43,6 @@ import RagChatBotEditPage from '../pages/RagChatBotEditPage';
 import RagChatBotChatPage from '../pages/RagChatBotChatPage';
 import RagChatBotHistoryPage from '../pages/RagChatBotHistoryPage';
 import AdminPortal from '../pages/AdminPortal';
-import UseCaseBuilderEditPage from '../pages/useCaseBuilder/UseCaseBuilderEditPage';
-import UseCaseBuilderExecutePage from '../pages/useCaseBuilder/UseCaseBuilderExecutePage';
-import UseCaseBuilderSamplesPage from '../pages/useCaseBuilder/UseCaseBuilderSamplesPage';
-import UseCaseBuilderMyUseCasePage from '../pages/useCaseBuilder/UseCaseBuilderMyUseCasePage';
 
 interface DynamicRouterProps {
   ragEnabled: boolean;
@@ -56,7 +53,6 @@ interface DynamicRouterProps {
   inlineAgents: boolean;
   mcpEnabled: boolean;
   pptxEnabled: boolean;
-  useCaseBuilderEnabled: boolean;
 }
 
 const DynamicRouter: React.FC<DynamicRouterProps> = ({
@@ -68,7 +64,6 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
   inlineAgents,
   mcpEnabled,
   pptxEnabled,
-  useCaseBuilderEnabled,
 }) => {
   const { enabled, loading } = useUseCases();
   const {
@@ -93,11 +88,7 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
   const routes: RouteObject[] = [
     {
       path: '/',
-      element: <LandingPage />,
-    },
-    {
-      path: '/setting',
-      element: <Setting />,
+      element: <Navigate to="/chat" replace />,
     },
     {
       path: '/stats',
@@ -105,11 +96,25 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
     },
     {
       path: '/chat',
-      element: <ChatPage />,
-    },
-    {
-      path: '/chat/:chatId',
-      element: <ChatPage />,
+      element: <ChatLayout />,
+      children: [
+        {
+          index: true,
+          element: <ChatPage />,
+        },
+        {
+          path: ':chatId',
+          element: <ChatPage />,
+        },
+        {
+          path: 'assistants',
+          element: <AssistantsPage />,
+        },
+        {
+          path: 'assistants/create',
+          element: <AssistantCreatePage />,
+        },
+      ],
     },
     {
       path: '/share/:shareId',
@@ -265,37 +270,6 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
     },
   ].flatMap((r) => (r !== null ? [r] : []));
 
-  const useCaseBuilderRoutes: RouteObject[] = [
-    {
-      path: '/use-case-builder',
-      element: <UseCaseBuilderSamplesPage />,
-    },
-    {
-      path: `/use-case-builder/my-use-case`,
-      element: <UseCaseBuilderMyUseCasePage />,
-    },
-    {
-      path: `/use-case-builder/new`,
-      element: <UseCaseBuilderEditPage />,
-    },
-    {
-      path: `/use-case-builder/edit/:useCaseId`,
-      element: <UseCaseBuilderEditPage />,
-    },
-    {
-      path: `/use-case-builder/execute/:useCaseId`,
-      element: <UseCaseBuilderExecutePage />,
-    },
-    {
-      path: `/use-case-builder/setting`,
-      element: <Setting />,
-    },
-    {
-      path: '*',
-      element: <NotFound />,
-    },
-  ].flatMap((r) => (r !== null ? [r] : []));
-
   const router = createBrowserRouter([
     {
       path: '/',
@@ -316,29 +290,6 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
       ),
       children: routes,
     },
-    ...(useCaseBuilderEnabled
-      ? [
-          {
-            path: '/use-case-builder',
-            element: samlAuthEnabled ? (
-              samlDefaultAuthEnabled ? (
-                <AuthWithSamlOrUserpool>
-                  <UseCaseBuilderRoot />
-                </AuthWithSamlOrUserpool>
-              ) : (
-                <AuthWithSAML>
-                  <UseCaseBuilderRoot />
-                </AuthWithSAML>
-              )
-            ) : (
-              <AuthWithUserpool>
-                <UseCaseBuilderRoot />
-              </AuthWithUserpool>
-            ),
-            children: useCaseBuilderRoutes,
-          },
-        ]
-      : []),
   ]);
 
   return <RouterProvider router={router} />;
