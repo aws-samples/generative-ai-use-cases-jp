@@ -30,6 +30,7 @@ type Props = {
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
+  isEmpty?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
   sendIcon?: React.ReactNode;
@@ -59,7 +60,7 @@ const InputChatContent: React.FC<Props> = (props) => {
   const { t } = useTranslation();
   const { settingSubmitCmdOrCtrlEnter } = useUserSetting();
   const { pathname } = useLocation();
-  const { loading: chatLoading, isEmpty } = useChat(pathname);
+  const { loading: chatLoading, isEmpty: chatIsEmpty } = useChat(pathname);
   const {
     uploadedFiles,
     uploadFiles,
@@ -276,16 +277,18 @@ const InputChatContent: React.FC<Props> = (props) => {
           </div>
         </div>
 
-        {!isEmpty && !props.resetDisabled && !props.hideReset && (
-          <Button
-            className="absolute -top-14 right-0 p-2 text-sm"
-            outlined
-            disabled={loading}
-            onClick={props.onReset}>
-            <PiArrowsCounterClockwise className="mr-2" />
-            {t('common.start_over')}
-          </Button>
-        )}
+        {!(props.isEmpty ?? chatIsEmpty) &&
+          !props.resetDisabled &&
+          !props.hideReset && (
+            <Button
+              className="absolute -top-14 right-0 p-2 text-sm"
+              outlined
+              disabled={loading}
+              onClick={props.onReset}>
+              <PiArrowsCounterClockwise className="mr-2" />
+              {t('common.start_over')}
+            </Button>
+          )}
       </div>
 
       {/* Show keyboard shortcut hint when cmd/ctrl+enter setting is enabled */}

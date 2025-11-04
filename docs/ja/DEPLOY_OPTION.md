@@ -704,6 +704,8 @@ AgentCore で作成したエージェントと連携するユースケースで�
 デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
 
 AgentCore で使用できるデフォルトのエージェントは、[mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json) で定義する MCP サーバーを利用することができます。
+このデフォルトのエージェントは Agent Builder で利用でき、ユーザーは管理者が許可した MCP から任意のエージェントを作成することができます。
+
 デフォルトで定義されている MCP サーバーは、AWS に関連する MCP サーバー及び、現在時刻に関連する MCP サーバーです。
 詳細は[こちら](https://awslabs.github.io/mcp/)のドキュメントをご参照ください。
 MCP サーバーを追加する場合は上述の `mcp.json` に追記してください。

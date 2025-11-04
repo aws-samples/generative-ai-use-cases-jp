@@ -18,6 +18,7 @@ type Props = RowItemProps & {
   fullWidth?: boolean;
   showColorChips?: boolean;
   showTags?: boolean;
+  placeholder?: string;
   onChange: (value: string) => void;
 };
 
@@ -103,14 +104,18 @@ const Select: React.FC<Props> = (props) => {
       <Listbox value={props.value} onChange={props.onChange}>
         <div className="relative">
           <Listbox.Button
-            className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
+            className={`relative cursor-pointer rounded border border-black/30 bg-white py-1.5 pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
             <span className="line-clamp-1">
-              {props.value && (
+              {props.value ? (
                 <OptionContent
                   value={props.value}
                   label={selectedLabel}
                   tags={selectedTags}
                 />
+              ) : (
+                <span className="text-gray-500">
+                  {props.placeholder || 'Select an option'}
+                </span>
               )}
             </span>
 

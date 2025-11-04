@@ -21,6 +21,7 @@ import {
   Flow,
   HiddenUseCases,
   ModelConfiguration,
+  AgentInfo,
 } from 'generative-ai-use-cases';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
@@ -46,7 +47,7 @@ export interface WebProps {
   readonly samlAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
-  readonly agentNames: string[];
+  readonly agents: AgentInfo[];
   readonly inlineAgents: boolean;
   readonly cert?: ICertificate;
   readonly hostName?: string | null;
@@ -59,11 +60,14 @@ export interface WebProps {
   readonly speechToSpeechModelIds: ModelConfiguration[];
   readonly mcpEnabled: boolean;
   readonly mcpEndpoint: string | null;
+  readonly mcpServersConfig?: string;
   readonly webBucket?: s3.Bucket;
   readonly cognitoUserPoolProxyEndpoint?: string;
   readonly cognitoIdentityPoolProxyEndpoint?: string;
   readonly agentCoreEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
+  readonly agentBuilderEnabled: boolean;
+  readonly agentCoreAgentBuilderRuntime?: AgentCoreConfiguration;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly agentCoreRegion?: string;
 }
@@ -273,7 +277,7 @@ export class Web extends Construct {
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',
-        VITE_APP_AGENT_NAMES: JSON.stringify(props.agentNames),
+        VITE_APP_AGENTS: JSON.stringify(props.agents),
         VITE_APP_INLINE_AGENTS: props.inlineAgents.toString(),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),
@@ -286,6 +290,7 @@ export class Web extends Construct {
         ),
         VITE_APP_MCP_ENABLED: props.mcpEnabled.toString(),
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
+        VITE_APP_MCP_SERVERS_CONFIG: props.mcpServersConfig ?? '',
         VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT:
           props.cognitoUserPoolProxyEndpoint ?? '',
         VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT:
@@ -293,6 +298,11 @@ export class Web extends Construct {
         VITE_APP_AGENT_CORE_ENABLED: props.agentCoreEnabled.toString(),
         VITE_APP_AGENT_CORE_GENERIC_RUNTIME: JSON.stringify(
           props.agentCoreGenericRuntime
+        ),
+        VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED:
+          props.agentBuilderEnabled.toString(),
+        VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME: JSON.stringify(
+          props.agentCoreAgentBuilderRuntime
         ),
         VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: JSON.stringify(
           props.agentCoreExternalRuntimes

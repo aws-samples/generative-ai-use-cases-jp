@@ -13,11 +13,13 @@ import {
   McpApi,
   AgentCore,
 } from './construct';
+import { loadMCPConfig, extractSafeMCPConfig } from './utils/mcp-config-loader';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
+import { AgentBuilder } from './construct/agent-builder';
 import { ProcessedStackInput } from './stack-input';
 import { allowS3AccessWithSourceIpCondition } from './utils/s3-access-policy';
 import {
@@ -28,6 +30,8 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
+import * as path from 'path';
+import { RemoteOutputs } from 'cdk-remote-stack';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -37,6 +41,8 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   // Agent
   readonly agents?: Agent[];
   // Agent Core
+  readonly createGenericAgentCoreRuntime?: boolean;
+  readonly agentBuilderEnabled?: boolean;
   readonly agentCoreStack?: AgentCoreStack;
   // Video Generation
   readonly videoBucketRegionMap: Record<string, string>;
@@ -160,6 +166,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       securityGroups,
     });
 
+    // Load MCP configuration for Web frontend
+    const mcpServers = loadMCPConfig(
+      path.join(__dirname, '../assets/mcp-configs/agent-builder.json')
+    );
+    const safeMCPConfig = extractSafeMCPConfig(mcpServers);
+
     // MCP
     let mcpEndpoint: string | null = null;
     if (params.mcpEnabled) {
@@ -176,20 +188,42 @@ export class GenerativeAiUseCasesStack extends Stack {
     // AgentCore Runtime (External runtimes and permissions only)
     let genericRuntimeArn: string | undefined;
     let genericRuntimeName: string | undefined;
+    let agentBuilderRuntimeArn: string | undefined;
+    let agentBuilderRuntimeName: string | undefined;
+    let remoteOutputs: RemoteOutputs | undefined;
 
-    // Get generic runtime info from AgentCore stack if it exists
-    if (props.agentCoreStack) {
-      genericRuntimeArn = props.agentCoreStack.deployedGenericRuntimeArn;
-      genericRuntimeName = props.agentCoreStack.getGenericRuntimeConfig()?.name;
+    // Get runtime info from remote AgentCore stack using cdk-remote-stack
+    if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
+      remoteOutputs = new RemoteOutputs(this, 'AgentCoreRemoteOutputs', {
+        stack: props.agentCoreStack!,
+      });
+
+      if (params.createGenericAgentCoreRuntime) {
+        genericRuntimeArn = remoteOutputs.get('GenericAgentCoreRuntimeArn');
+        genericRuntimeName = remoteOutputs.get('GenericAgentCoreRuntimeName');
+      }
+
+      if (params.agentBuilderEnabled) {
+        agentBuilderRuntimeArn = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeArn'
+        );
+        agentBuilderRuntimeName = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeName'
+        );
+      }
     }
 
     // Create AgentCore construct for external runtimes and permissions
-    if (params.agentCoreExternalRuntimes.length > 0 || genericRuntimeArn) {
+    if (
+      params.agentCoreExternalRuntimes.length > 0 ||
+      genericRuntimeArn ||
+      agentBuilderRuntimeArn
+    ) {
       new AgentCore(this, 'AgentCore', {
         agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
         idPool: auth.idPool,
         genericRuntimeArn,
-        genericRuntimeName,
+        agentBuilderRuntimeArn,
       });
     }
 
@@ -219,7 +253,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       imageGenerationModelIds: api.imageGenerationModelIds,
       videoGenerationModelIds: api.videoGenerationModelIds,
       endpointNames: api.endpointNames,
-      agentNames: api.agentNames,
+      agents: api.agents,
       inlineAgents: params.inlineAgents,
       useCaseBuilderEnabled: params.useCaseBuilderEnabled,
       speechToSpeechNamespace: speechToSpeech.namespace,
@@ -227,6 +261,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       speechToSpeechModelIds: params.speechToSpeechModelIds,
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
+      mcpServersConfig: safeMCPConfig,
       agentCoreEnabled:
         params.createGenericAgentCoreRuntime ||
         params.agentCoreExternalRuntimes.length > 0,
@@ -234,6 +269,15 @@ export class GenerativeAiUseCasesStack extends Stack {
         ? {
             name: genericRuntimeName || 'GenericAgentCoreRuntime',
             arn: genericRuntimeArn,
+            description: 'Generic Agent Core Runtime for custom agents',
+          }
+        : undefined,
+      agentBuilderEnabled: params.agentBuilderEnabled,
+      agentCoreAgentBuilderRuntime: agentBuilderRuntimeArn
+        ? {
+            name: agentBuilderRuntimeName || 'AgentBuilderAgentCoreRuntime',
+            arn: agentBuilderRuntimeArn,
+            description: 'Agent Core Runtime for AgentBuilder',
           }
         : undefined,
       agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
@@ -318,13 +362,33 @@ export class GenerativeAiUseCasesStack extends Stack {
       }
     }
 
-    // Usecase builder
-    if (params.useCaseBuilderEnabled) {
-      new UseCaseBuilder(this, 'UseCaseBuilder', {
+    // UseCaseBuilder - create only if UseCaseBuilder or AgentBuilder is enabled
+    let useCaseBuilder: UseCaseBuilder | undefined;
+    if (params.useCaseBuilderEnabled || params.agentBuilderEnabled) {
+      useCaseBuilder = new UseCaseBuilder(this, 'UseCaseBuilder', {
         userPool: auth.userPool,
         api: api.api,
         vpc: props.vpc,
         securityGroups,
+        useCaseBuilderEnabled: params.useCaseBuilderEnabled,
+      });
+    }
+
+    // Agent Builder (if enabled and runtime is available)
+    if (
+      params.agentBuilderEnabled &&
+      agentBuilderRuntimeArn &&
+      useCaseBuilder
+    ) {
+      new AgentBuilder(this, 'AgentBuilder', {
+        userPool: auth.userPool,
+        api: api.api,
+        vpc: props.vpc,
+        securityGroups,
+        agentBuilderRuntimeArn,
+        useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
+        useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
+        cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
       });
     }
 
@@ -424,8 +488,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: params.samlCognitoFederatedIdentityProviderName ?? '',
     });
 
-    new CfnOutput(this, 'AgentNames', {
-      value: Buffer.from(JSON.stringify(api.agentNames)).toString('base64'),
+    new CfnOutput(this, 'Agents', {
+      value: Buffer.from(JSON.stringify(api.agents)).toString('base64'),
     });
 
     new CfnOutput(this, 'InlineAgents', {
@@ -476,8 +540,25 @@ export class GenerativeAiUseCasesStack extends Stack {
         : 'null',
     });
 
+    new CfnOutput(this, 'AgentCoreAgentBuilderEnabled', {
+      value: params.agentBuilderEnabled.toString(),
+    });
+
+    new CfnOutput(this, 'AgentCoreAgentBuilderRuntime', {
+      value: agentBuilderRuntimeArn
+        ? JSON.stringify({
+            name: agentBuilderRuntimeName || 'AgentBuilderAgentCoreRuntime',
+            arn: agentBuilderRuntimeArn,
+          })
+        : 'null',
+    });
+
     new CfnOutput(this, 'AgentCoreExternalRuntimes', {
       value: JSON.stringify(params.agentCoreExternalRuntimes),
+    });
+
+    new CfnOutput(this, 'McpServersConfig', {
+      value: safeMCPConfig,
     });
 
     this.userPool = auth.userPool;

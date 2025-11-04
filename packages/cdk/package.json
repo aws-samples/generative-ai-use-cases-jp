@@ -9,7 +9,7 @@
     "cdk": "cdk",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
     "lambda-build-dryrun": "tsc --noEmit --skipLibCheck",
-    "postinstall": "npm ci --prefix custom-resources/agent-core-runtime && npm ci --prefix custom-resources/opensearch-index && npm ci --prefix custom-resources/apply-tags && npm ci --prefix fargate-s3-server"
+    "postinstall": "npm ci --prefix custom-resources/opensearch-index && npm ci --prefix custom-resources/apply-tags && npm ci --prefix fargate-s3-server"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.137",
@@ -26,12 +26,13 @@
     "typescript": "~5.4.5"
   },
   "dependencies": {
+    "@aws-cdk/aws-bedrock-agentcore-alpha": "2.221.0-alpha.0",
     "@aws-cdk/aws-lambda-python-alpha": "^2.220.0-alpha.0",
     "@aws-sdk/client-bedrock-agent": "^3.755.0",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.755.0",
     "@aws-sdk/client-bedrock-agentcore": "^3.755.0",
-    "@aws-sdk/client-bedrock-agentcore-control": "^3.755.0",
     "@aws-sdk/client-bedrock-runtime": "^3.755.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.755.0",
     "@aws-sdk/client-dynamodb": "^3.755.0",
     "@aws-sdk/client-kendra": "^3.755.0",
     "@aws-sdk/client-lambda": "^3.755.0",
@@ -45,14 +46,16 @@
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.68.0",
     "@smithy/node-http-handler": "^4.0.4",
     "aws-amplify": "^6.14.2",
-    "aws-cdk-lib": "^2.220.0",
+    "aws-cdk-lib": "^2.221.0",
     "aws-jwt-verify": "^4.0.0",
+    "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.3.0",
     "deploy-time-build": "^0.3.17",
     "node-html-parser": "^6.1.13",
     "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4",
+    "uuid": "13.0.0",
     "ws": "^8.18.0",
     "zod": "^3.24.1"
   }

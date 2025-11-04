@@ -7,18 +7,18 @@ export interface AgentCoreProps {
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly idPool: IdentityPool;
   readonly genericRuntimeArn?: string; // ARN from the separate AgentCore stack
-  readonly genericRuntimeName?: string; // Name from the separate AgentCore stack
+  readonly agentBuilderRuntimeArn?: string; // ARN from the separate AgentCore stack
 }
 
 export class AgentCore extends Construct {
   private readonly _genericRuntimeArn?: string;
-  private readonly _genericRuntimeName?: string;
+  private readonly _agentBuilderRuntimeArn?: string;
 
   constructor(scope: Construct, id: string, props: AgentCoreProps) {
     super(scope, id);
 
     this._genericRuntimeArn = props.genericRuntimeArn;
-    this._genericRuntimeName = props.genericRuntimeName;
+    this._agentBuilderRuntimeArn = props.agentBuilderRuntimeArn;
 
     // Grant invoke permissions to identity pool
     this.grantInvokePermissions(props.idPool, props.agentCoreExternalRuntimes);
@@ -33,6 +33,9 @@ export class AgentCore extends Construct {
   ): void {
     const resources = [
       ...(this._genericRuntimeArn ? [this._genericRuntimeArn + '*'] : []),
+      ...(this._agentBuilderRuntimeArn
+        ? [this._agentBuilderRuntimeArn + '*']
+        : []),
       ...externalRuntimes.map((runtime) => runtime.arn + '*'),
     ];
 

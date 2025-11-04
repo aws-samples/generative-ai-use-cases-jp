@@ -26,7 +26,12 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import { Agent, AgentMap, ModelConfiguration } from 'generative-ai-use-cases';
+import {
+  Agent,
+  AgentInfo,
+  AgentMap,
+  ModelConfiguration,
+} from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
@@ -85,7 +90,7 @@ export class Api extends Construct {
   readonly imageGenerationModelIds: ModelConfiguration[];
   readonly videoGenerationModelIds: ModelConfiguration[];
   readonly endpointNames: ModelConfiguration[];
-  readonly agentNames: string[];
+  readonly agents: AgentInfo[];
   readonly fileBucket: Bucket;
   readonly getFileDownloadSignedUrlFunction: IFunction;
 
@@ -1117,7 +1122,10 @@ export class Api extends Construct {
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.videoGenerationModelIds = videoGenerationModelIds;
     this.endpointNames = endpointNames;
-    this.agentNames = Object.keys(agentMap);
+    this.agents = agents.map((agent) => ({
+      displayName: agent.displayName,
+      description: agent.description,
+    }));
     this.fileBucket = fileBucket;
     this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
   }

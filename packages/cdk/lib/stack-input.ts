@@ -142,11 +142,13 @@ const baseStackInputSchema = z.object({
         displayName: z.string(),
         agentId: z.string(),
         aliasId: z.string(),
+        description: z.string().default(''),
       })
     )
     .default([]),
   inlineAgents: z.boolean().default(false),
   // Agent Core Runtime
+  agentBuilderEnabled: z.boolean().default(false),
   createGenericAgentCoreRuntime: z.boolean().default(false),
   agentCoreRegion: z.string().nullish(),
   agentCoreExternalRuntimes: z
@@ -154,6 +156,7 @@ const baseStackInputSchema = z.object({
       z.object({
         name: z.string(),
         arn: z.string(),
+        description: z.string().default(''),
       })
     )
     .default([]),

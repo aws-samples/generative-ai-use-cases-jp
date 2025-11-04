@@ -186,7 +186,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                   <summary className="text-sm" onClick={toggleOpenTrace}>
                     <div className="inline-flex gap-1">
                       {t('common.trace')}
-                      {props.loading && !chatContent?.content && (
+                      {props.loading && (
                         <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                       )}
                     </div>
@@ -277,18 +277,18 @@ const ChatMessage: React.FC<Props> = (props) => {
                     {chatContent.metadata.usage.inputTokens}
                     <PiArrowDown title="Output tokens" />
                     {chatContent.metadata.usage.outputTokens}
-                    {chatContent.metadata.usage.cacheWriteInputTokens && (
+                    {chatContent.metadata.usage.cacheWriteInputTokens ? (
                       <>
                         <PiCloudArrowUp title="Cache write input tokens" />
                         {chatContent.metadata.usage.cacheWriteInputTokens}
                       </>
-                    )}
-                    {chatContent.metadata.usage.cacheReadInputTokens && (
+                    ) : null}
+                    {chatContent.metadata.usage.cacheReadInputTokens ? (
                       <>
                         <PiCloudArrowDown title="Cache read input tokens" />
                         {chatContent.metadata.usage.cacheReadInputTokens}
                       </>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>

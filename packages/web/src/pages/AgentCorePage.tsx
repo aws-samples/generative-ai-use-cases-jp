@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
@@ -68,12 +68,10 @@ const useAgentCorePageState = create<StateType>((set) => {
 
 const AgentCorePage: React.FC = () => {
   const { t } = useTranslation();
-  const pageTitle = t('agent_core.title', 'AgentCore');
+  const { agentArn } = useParams<{ agentArn?: string }>();
   const { pathname } = useLocation();
   const { content, setContent } = useAgentCorePageState();
 
-  // Use a fixed ID for Agent Core Runtime similar to MCP
-  const fixedId = '/agent-core';
   const {
     messages,
     isEmpty,
@@ -82,15 +80,17 @@ const AgentCorePage: React.FC = () => {
     invokeAgentRuntime,
     getGenericRuntime,
     getAllAvailableRuntimes,
+    getExternalRuntimes,
     getModelId,
     setModelId,
-  } = useAgentCore(fixedId);
+  } = useAgentCore(pathname);
 
   const { scrollableContainer, setFollowing } = useFollow();
 
   // Get runtimes
   const allAvailableRuntimes = getAllAvailableRuntimes();
   const genericRuntime = getGenericRuntime();
+  const externalRuntimes = getExternalRuntimes();
 
   // Get models from MODELS like ChatPage does
   const { modelIds: availableModels, modelDisplayName } = MODELS;
@@ -103,13 +103,18 @@ const AgentCorePage: React.FC = () => {
 
   const { clear: clearFiles, uploadFiles, uploadedFiles } = useFiles(pathname);
 
-  // Set the first available ARN as default if none is selected
+  // Set the ARN from URL parameter or first available ARN as default
   useEffect(() => {
-    if (allAvailableRuntimes.length > 0 && !selectedArn) {
+    if (agentArn) {
+      // If agentArn is provided in URL, use it
+      const decodedArn = decodeURIComponent(agentArn);
+      setSelectedArn(decodedArn);
+    } else if (allAvailableRuntimes.length > 0 && !selectedArn) {
+      // Otherwise, use the first available ARN
       setSelectedArn(allAvailableRuntimes[0].arn);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allAvailableRuntimes]);
+  }, [agentArn, allAvailableRuntimes]);
 
   // Initialize system context and model ID only once on mount
   useEffect(() => {
@@ -211,15 +216,39 @@ const AgentCorePage: React.FC = () => {
 
   // Prepare runtime options
   const runtimeOptions = useMemo(() => {
+    // If agentArn is provided, only show that specific runtime
+    if (agentArn) {
+      const decodedArn = decodeURIComponent(agentArn);
+      const runtime = allAvailableRuntimes.find((r) => r.arn === decodedArn);
+      if (runtime) {
+        const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
+        const isExternal = externalRuntimes.some((r) => r.arn === runtime.arn);
+        return [
+          {
+            value: runtime.arn,
+            label: runtime.name,
+            tags: isGeneric
+              ? ['Generic']
+              : isExternal
+                ? ['External']
+                : undefined,
+          },
+        ];
+      }
+      return [];
+    }
+
+    // Otherwise, show all available runtimes
     return allAvailableRuntimes.map((runtime) => {
       const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
+      const isExternal = externalRuntimes.some((r) => r.arn === runtime.arn);
       return {
         value: runtime.arn,
         label: runtime.name,
-        tags: isGeneric ? ['Generic'] : undefined,
+        tags: isGeneric ? ['Generic'] : isExternal ? ['External'] : undefined,
       };
     });
-  }, [allAvailableRuntimes, genericRuntime]);
+  }, [agentArn, allAvailableRuntimes, genericRuntime, externalRuntimes]);
 
   // Prepare model options
   const modelOptions = useMemo(() => {
@@ -228,6 +257,18 @@ const AgentCorePage: React.FC = () => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableModels]);
+
+  // Calculate page title from runtime options
+  const pageTitle = useMemo(() => {
+    if (agentArn && runtimeOptions.length > 0) {
+      // Find the runtime name from runtimeOptions
+      const runtime = runtimeOptions.find(
+        (option) => option.value === decodeURIComponent(agentArn)
+      );
+      return runtime ? runtime.label : t('agent_core.title', 'AgentCore');
+    }
+    return t('agent_core.title', 'AgentCore');
+  }, [agentArn, runtimeOptions, t]);
 
   const showingMessages = useMemo(() => {
     return messages;
@@ -258,17 +299,19 @@ const AgentCorePage: React.FC = () => {
 
         {/* Selection Controls */}
         <div className="my-2 flex w-full flex-col items-center justify-center gap-x-2 md:flex-row print:hidden">
-          {/* AgentCore Runtime Selection */}
-          <div className="w-4/5 sm:w-1/2 md:w-fit">
-            <Select
-              value={selectedArn}
-              onChange={setSelectedArn}
-              options={runtimeOptions}
-              label={t('agent_core.runtime')}
-              fullWidth
-              showTags
-            />
-          </div>
+          {/* AgentCore Runtime Selection - Hide if specific agent is selected */}
+          {!agentArn && (
+            <div className="w-4/5 sm:w-1/2 md:w-fit">
+              <Select
+                value={selectedArn}
+                onChange={setSelectedArn}
+                options={runtimeOptions}
+                label={t('agent_core.runtime')}
+                fullWidth
+                showTags
+              />
+            </div>
+          )}
           {/* Model Selection */}
           <div className="w-4/5 sm:w-1/2 md:w-fit">
             <Select
@@ -325,6 +368,7 @@ const AgentCorePage: React.FC = () => {
             disabled={loading && !writing}
             onChangeContent={setContent}
             resetDisabled={isEmpty}
+            isEmpty={isEmpty}
             onSend={() => {
               if (!loading) {
                 onSend();
