@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ulid } from 'ulid';
 import {
   PiArrowLeft,
   PiPaperPlaneTilt,
@@ -12,161 +11,43 @@ import {
   PiDownloadSimple,
   PiCopy,
 } from 'react-icons/pi';
-import useBedrockChatApi, {
-  BedrockChatBot,
-  BedrockChatMessage,
-} from '../hooks/useBedrockChatApi';
+import useAssistantApi from '../hooks/useAssistantApi';
+import { Assistant, AssistantMessage } from 'generative-ai-use-cases';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import LoadingWave from '../components/LoadingWave';
 import Markdown from '../components/Markdown';
 
-interface Conversation {
-  id: string;
-  title: string;
-  bot_id: string;
-  messages: BedrockChatMessage[];
-  created_at: string;
-}
-
 const RagChatBotChatPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { botId, conversationId } = useParams<{
+  const { botId } = useParams<{
     botId?: string;
-    conversationId?: string;
   }>();
 
-  const { getBotSummary, getConversation, sendMessage, deleteConversation } =
-    useBedrockChatApi();
+  const { getAssistant, listMessages, createMessage } = useAssistantApi();
 
-  const [bot, setBot] = useState<BedrockChatBot | null>(null);
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<BedrockChatMessage[]>([]);
+  const [bot, setBot] = useState<Assistant | null>(null);
+  const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [showBotInfo, setShowBotInfo] = useState(false);
-  const [isPolling, setIsPolling] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (botId) {
       fetchBot();
+      fetchMessages();
     }
-    if (conversationId) {
-      fetchConversation();
-    } else if (botId) {
-      // Generate a new conversation ID for new chats
-      const newConversationId = ulid();
-      setConversation({
-        id: newConversationId,
-        title: `Chat with Bot ${botId}`,
-        bot_id: botId,
-        messages: [],
-        created_at: new Date().toISOString(),
-      });
-      navigate(`/rag-chat-bot/chat/${botId}/${newConversationId}`, {
-        replace: true,
-      });
-    }
-  }, [botId, conversationId]);
+  }, [botId]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    // Cleanup polling on unmount
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    // Start or stop polling based on isPolling flag
-    if (isPolling && conversationId) {
-      pollingIntervalRef.current = setInterval(async () => {
-        try {
-          const updatedConversation = await getConversation(conversationId);
-          const updatedMessages = updatedConversation.messages || [];
-
-          console.log(
-            'Polling - Updated messages count:',
-            updatedMessages.length
-          );
-
-          // Check for new messages
-          setMessages((prevMessages) => {
-            // Compare message count or check if there's a new assistant message
-            if (updatedMessages.length > prevMessages.length) {
-              console.log(
-                'New messages detected:',
-                updatedMessages.length - prevMessages.length
-              );
-
-              // Check if the last message is from assistant
-              const lastMessage = updatedMessages[updatedMessages.length - 1];
-              if (lastMessage && lastMessage.role === 'assistant') {
-                console.log('Assistant message received, stopping polling');
-                setIsPolling(false);
-                setSending(false);
-              }
-              return updatedMessages;
-            } else if (
-              updatedMessages.length === prevMessages.length &&
-              prevMessages.length > 0
-            ) {
-              // Check if the last message content has changed (for streaming responses)
-              const lastUpdatedMsg =
-                updatedMessages[updatedMessages.length - 1];
-              const lastPrevMsg = prevMessages[prevMessages.length - 1];
-
-              if (
-                lastUpdatedMsg &&
-                lastPrevMsg &&
-                lastUpdatedMsg.id === lastPrevMsg.id &&
-                lastUpdatedMsg.content !== lastPrevMsg.content
-              ) {
-                console.log('Message content updated');
-
-                // Check if it's an assistant message with content
-                if (
-                  lastUpdatedMsg.role === 'assistant' &&
-                  lastUpdatedMsg.content
-                ) {
-                  console.log('Assistant message completed, stopping polling');
-                  setIsPolling(false);
-                  setSending(false);
-                }
-                return updatedMessages;
-              }
-            }
-            return prevMessages;
-          });
-        } catch (error) {
-          console.error('Polling error:', error);
-        }
-      }, 5000);
-    } else if (!isPolling && pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-
-    return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
-    };
-  }, [isPolling, conversationId, getConversation]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -177,137 +58,45 @@ const RagChatBotChatPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const botData = await getBotSummary(botId);
-      setBot(botData as unknown as BedrockChatBot);
+      const assistant = await getAssistant(botId);
+      setBot(assistant);
     } catch (error) {
-      console.error('Failed to fetch bot:', error);
+      console.error('Failed to fetch assistant:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchConversation = async () => {
-    if (!conversationId) return;
+  const fetchMessages = async () => {
+    if (!botId) return;
 
-    setLoading(true);
     try {
-      const conversationData = await getConversation(conversationId);
-      console.log('Fetched conversation data:', conversationData);
-
-      // Update conversation metadata
-      setConversation({
-        id: conversationData.id,
-        title: conversationData.title,
-        bot_id: conversationData.botId || botId || '',
-        messages: conversationData.messages || [],
-        created_at: new Date(conversationData.createTime * 1000).toISOString(),
-      });
-
-      // Update messages array
-      const messages = conversationData.messages || [];
-      console.log('Setting messages:', messages.length);
-      setMessages(messages);
+      const response = await listMessages(botId, { limit: 100 });
+      setMessages(response.messages || []);
     } catch (error) {
-      console.error('Failed to fetch conversation:', error);
-    } finally {
-      setLoading(false);
+      console.error('Failed to fetch messages:', error);
     }
-  };
-
-  const startPolling = () => {
-    setIsPolling(true);
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !conversation) return;
+    if (!inputMessage.trim() || !botId) return;
 
-    const userMessageId = `msg-${Date.now()}`;
-    const userMessage: BedrockChatMessage = {
-      id: userMessageId,
-      content: inputMessage,
-      role: 'user',
-      timestamp: new Date().toISOString(),
-    };
-
-    // Add user message optimistically
-    setMessages((prev) => [...prev, userMessage]);
-    const sentMessage = inputMessage;
+    const userMessageContent = inputMessage;
     setInputMessage('');
     setSending(true);
 
     try {
-      const response = await sendMessage(conversation.id, sentMessage, botId);
+      // Send message and get response
+      await createMessage(botId, { content: userMessageContent });
 
-      // Extract text content from the response
-      const messageData = response.message || response;
-      const messageContent =
-        messageData.content
-          ?.filter((item: any) => item.contentType === 'text')
-          .map((item: any) => item.body)
-          .join('\n') || '';
+      // Refresh messages to get both user and assistant messages
+      await fetchMessages();
 
-      const assistantMessage: BedrockChatMessage = {
-        id:
-          response.messageId || response.message_id || `msg-${Date.now() + 1}`,
-        content: messageContent,
-        role: 'assistant',
-        timestamp: new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
       setSending(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Failed to send message:', error);
-
-      // Check if it's a 504 Gateway Timeout error
-      if (error.response?.status === 504) {
-        console.log('Gateway timeout detected, starting polling...');
-
-        // Remove the optimistically added user message as it will come from the API
-        setMessages((prev) => {
-          // Keep the user message for now, but mark that we're polling
-          // The polling will replace all messages with the server state
-          return prev;
-        });
-
-        // Start polling for conversation updates
-        // First do an immediate fetch to get the current state
-        let shouldStartPolling = true;
-        try {
-          const conversationData = await getConversation(conversation.id);
-          const serverMessages = conversationData.messages || [];
-          if (serverMessages.length > 0) {
-            setMessages(serverMessages);
-
-            const lastServerMessage = serverMessages[serverMessages.length - 1];
-            if (
-              lastServerMessage &&
-              lastServerMessage.role === 'assistant' &&
-              lastServerMessage.content.trim().length > 0
-            ) {
-              shouldStartPolling = false;
-              setSending(false);
-            }
-          }
-        } catch (fetchError) {
-          console.error(
-            'Failed to fetch conversation after timeout:',
-            fetchError
-          );
-        }
-
-        // Start regular polling
-        if (shouldStartPolling) {
-          startPolling();
-        } else {
-          setIsPolling(false);
-        }
-      } else {
-        // For other errors, show error message but don't add to messages
-        console.error('Error sending message:', error);
-        setSending(false);
-        // Could show a toast or alert here instead of adding a system message
-      }
+      setSending(false);
+      alert(t('ragChatBot.chatPage.sendError', 'Failed to send message'));
     } finally {
       inputRef.current?.focus();
     }
@@ -329,26 +118,10 @@ const RagChatBotChatPage: React.FC = () => {
     setIsComposing(false);
   };
 
-  const handleClearConversation = async () => {
-    if (conversation && window.confirm(t('ragChatBot.chatPage.confirmClear'))) {
-      try {
-        await deleteConversation(conversation.id);
-        // Generate a new conversation ID
-        const newConversationId = ulid();
-        setConversation({
-          id: newConversationId,
-          title: `Chat with Bot ${botId}`,
-          bot_id: botId || '',
-          messages: [],
-          created_at: new Date().toISOString(),
-        });
-        setMessages([]);
-        navigate(`/rag-chat-bot/chat/${botId}/${newConversationId}`, {
-          replace: true,
-        });
-      } catch (error) {
-        console.error('Failed to clear conversation:', error);
-      }
+  const handleClearConversation = () => {
+    if (window.confirm(t('ragChatBot.chatPage.confirmClear'))) {
+      // Just clear local messages - server will handle message history
+      setMessages([]);
     }
   };
 
@@ -365,23 +138,18 @@ const RagChatBotChatPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `conversation-${conversation?.id || 'unknown'}.txt`;
+    a.download = `conversation-${botId || 'unknown'}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const renderMessage = (message: BedrockChatMessage) => {
+  const renderMessage = (message: AssistantMessage) => {
     const isUser = message.role === 'user';
     const isAssistant = message.role === 'assistant';
 
-    // Only render user and assistant messages
-    if (message.role !== 'user' && message.role !== 'assistant') {
-      return null;
-    }
-
     return (
       <div
-        key={message.id}
+        key={message.messageId}
         className={`mb-4 flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
         {isAssistant && (
           <div className="shrink-0">
@@ -391,26 +159,49 @@ const RagChatBotChatPage: React.FC = () => {
           </div>
         )}
 
-        <div
-          className={`max-w-[70%] ${
-            isUser
-              ? 'rounded-l-lg rounded-br-lg bg-blue-600 text-white'
-              : 'rounded-r-lg rounded-bl-lg bg-gray-100 text-gray-900'
-          } p-3`}>
-          {isUser ? (
-            <p className="whitespace-pre-wrap">{message.content}</p>
-          ) : (
-            <Markdown>{message.content}</Markdown>
-          )}
+        <div className="flex max-w-[70%] flex-col gap-2">
+          <div
+            className={`${
+              isUser
+                ? 'rounded-l-lg rounded-br-lg bg-blue-600 text-white'
+                : 'rounded-r-lg rounded-bl-lg bg-gray-100 text-gray-900'
+            } p-3`}>
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{message.content}</p>
+            ) : (
+              <Markdown>{message.content}</Markdown>
+            )}
 
-          <div className="mt-2 flex justify-end gap-2">
-            <button
-              onClick={() => handleCopyMessage(message.content)}
-              className="text-xs opacity-60 hover:opacity-100"
-              title={t('ragChatBot.chatPage.copy')}>
-              <PiCopy />
-            </button>
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                onClick={() => handleCopyMessage(message.content)}
+                className="text-xs opacity-60 hover:opacity-100"
+                title={t('ragChatBot.chatPage.copy')}>
+                <PiCopy />
+              </button>
+            </div>
           </div>
+
+          {/* Display sources if available (RAG) */}
+          {isAssistant && message.sources && message.sources.length > 0 && (
+            <div className="rounded bg-gray-50 p-2 text-xs">
+              <div className="mb-1 font-semibold text-gray-700">Sources:</div>
+              {message.sources.map((source, idx) => (
+                <div key={idx} className="mb-1">
+                  <span className="text-gray-600">{source.name}</span>
+                  {source.url && (
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-blue-600 hover:underline">
+                      View
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {isUser && (
@@ -445,7 +236,7 @@ const RagChatBotChatPage: React.FC = () => {
         <div className="flex-1">
           <h1 className="flex items-center gap-2 text-lg font-semibold">
             <PiRobot />
-            {bot?.title || t('ragChatBot.chatPage.title')}
+            {bot?.name || t('ragChatBot.chatPage.title')}
           </h1>
           {bot?.description && (
             <p className="text-sm text-gray-600">{bot.description}</p>
@@ -487,13 +278,16 @@ const RagChatBotChatPage: React.FC = () => {
               {bot.instruction}
             </p>
             <p>
-              <strong>{t('ragChatBot.chatPage.syncStatus')}:</strong>{' '}
-              {bot.syncStatus}
+              <strong>Model:</strong> {bot.modelId}
             </p>
-            {bot.displayRetrievedChunks && (
-              <p className="text-green-600">
-                {t('ragChatBot.chatPage.chunksEnabled')}
-              </p>
+            {bot.ragEnabled && (
+              <>
+                <p>
+                  <strong>{t('ragChatBot.chatPage.syncStatus')}:</strong>{' '}
+                  {bot.syncStatus}
+                </p>
+                <p className="text-green-600">RAG Enabled</p>
+              </>
             )}
           </div>
         </Card>
@@ -506,30 +300,6 @@ const RagChatBotChatPage: React.FC = () => {
             <p className="text-gray-500">
               {t('ragChatBot.chatPage.noMessages')}
             </p>
-            {bot?.conversationQuickStarters &&
-              bot.conversationQuickStarters.length > 0 && (
-                <div className="mt-6">
-                  <p className="mb-3 text-sm text-gray-600">
-                    {t('ragChatBot.chatPage.quickStarters')}
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {bot.conversationQuickStarters.map(
-                      (
-                        starter: { title: string; example: string },
-                        index: number
-                      ) => (
-                        <Button
-                          key={index}
-                          outlined
-                          onClick={() => setInputMessage(starter.example)}
-                          className="text-sm">
-                          {starter.title}
-                        </Button>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
           </div>
         ) : (
           <div>
@@ -560,12 +330,12 @@ const RagChatBotChatPage: React.FC = () => {
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
             placeholder={t('ragChatBot.chatPage.inputPlaceholder')}
-            disabled={sending || !conversation}
+            disabled={sending || !botId}
             className="flex-1 rounded border border-black/30 p-1.5 outline-none"
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || sending || !conversation}
+            disabled={!inputMessage.trim() || sending || !botId}
             className="flex items-center gap-1">
             <PiPaperPlaneTilt />
             {t('ragChatBot.chatPage.send')}

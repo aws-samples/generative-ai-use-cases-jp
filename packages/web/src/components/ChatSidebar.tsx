@@ -4,7 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { PiPlus, PiMagnifyingGlass, PiRobot } from 'react-icons/pi';
 import ChatList from './ChatList';
 import { useTranslation } from 'react-i18next';
-import useBedrockChatApi, { BedrockChatBot } from '../hooks/useBedrockChatApi';
+import useAssistantApi from '../hooks/useAssistantApi';
+import { Assistant } from 'generative-ai-use-cases';
 
 type Props = BaseProps & {
   onNewChat?: () => void;
@@ -14,9 +15,9 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { searchStore } = useBedrockChatApi();
+  const { listAssistants } = useAssistantApi();
 
-  const [featuredAssistants, setFeaturedAssistants] = useState<BedrockChatBot[]>([]);
+  const [featuredAssistants, setFeaturedAssistants] = useState<Assistant[]>([]);
   const [loading, setLoading] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -45,26 +46,16 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
 
     setLoading(true);
     try {
-      const params = {
-        starred: undefined,
-        limit: 50,
-        sort: 'usage' as const,
-      };
-
-      const data = await searchStore(params);
-      // Featured assistants: starred assistants first, then top by usage (max 6)
-      const featured = [
-        ...(data?.filter((a: BedrockChatBot) => a.isStarred) || []),
-        ...(data?.filter((a: BedrockChatBot) => !a.isStarred) || []),
-      ].slice(0, 6);
-      setFeaturedAssistants(featured);
+      const response = await listAssistants({ limit: 6 });
+      // Featured assistants: first 6 assistants
+      setFeaturedAssistants(response.assistants || []);
     } catch (error) {
       console.error('Failed to fetch featured assistants:', error);
       setFeaturedAssistants([]);
     } finally {
       setLoading(false);
     }
-  }, [searchStore]);
+  }, [listAssistants]);
 
   // Fetch featured assistants on mount
   useEffect(() => {
@@ -104,12 +95,12 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
           <div className="mb-2 space-y-1">
             {featuredAssistants.map((assistant) => (
               <button
-                key={assistant.id}
-                onClick={() => handleAssistantClick(assistant.id)}
+                key={assistant.assistantId}
+                onClick={() => handleAssistantClick(assistant.assistantId)}
                 className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-gray-600 transition-colors hover:bg-gray-100"
-                title={assistant.description || assistant.title}>
+                title={assistant.description || assistant.name}>
                 <PiRobot className="flex-shrink-0 text-base text-blue-600" />
-                <span className="truncate">{assistant.title}</span>
+                <span className="truncate">{assistant.name}</span>
               </button>
             ))}
           </div>

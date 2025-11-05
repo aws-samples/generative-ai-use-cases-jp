@@ -40,7 +40,6 @@ import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
 import PredictApi from './predict';
 import OptimizePromptApi from './optimize-prompt';
 import InvokeFlowApi from './invoke-flow';
-import BedrockChatApi from './bedrock-chat';
 import ChatApi from './chats';
 import ImageApi from './image';
 import SystemContextApi from './systemcontexts';
@@ -52,6 +51,7 @@ import FileBucket from '../file-bucket';
 import ShareApi from './share';
 import AdminApi from './admin';
 import { CentralPptxApi } from './central-pptx';
+import AssistantApi from './assistant';
 
 export interface BackendApiProps {
   // Context Params
@@ -79,6 +79,9 @@ export interface BackendApiProps {
   readonly userPoolClient: UserPoolClient;
   readonly table: Table;
   readonly statsTable: Table;
+  readonly assistantTable?: Table;
+  readonly assistantMessagesTable?: Table;
+  readonly assistantIdIndexName?: string;
   readonly knowledgeBaseId?: string;
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
@@ -376,7 +379,6 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
-    new BedrockChatApi(this, 'BedrockChatAPI', apiProps);
     new ChatApi(this, 'ChatsAPI', apiProps);
     const fileApi = new FileApi(this, 'FileAPI', apiProps);
     new ImageApi(this, 'ImageAPI', apiProps);
@@ -398,6 +400,17 @@ export class Api extends Construct {
     // Lambda functions dynamically access tenant-specific resources based on Cognito claims
     if (props.pptxEnabled) {
       this.centralPptxApi = new CentralPptxApi(this, 'CentralPptxAPI', apiProps);
+    }
+
+    // Assistant API for AI assistant management and chat
+    // Uses control plane DynamoDB tables and tenant-specific S3 buckets (via wildcard IAM)
+    if (props.assistantTable && props.assistantMessagesTable && props.assistantIdIndexName) {
+      new AssistantApi(this, 'AssistantAPI', {
+        ...apiProps,
+        assistantTable: props.assistantTable,
+        assistantMessagesTable: props.assistantMessagesTable,
+        assistantIdIndexName: props.assistantIdIndexName,
+      });
     }
 
     // Add ALL methods proxy to Bedrock Chat proxy Lambda

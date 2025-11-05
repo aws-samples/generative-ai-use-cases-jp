@@ -157,7 +157,6 @@ const params = {
   identityPoolId: context.controlPlane?.identityPoolId!,
   userPoolClientId: context.controlPlane?.userPoolClientId!,
   pptxEnabled: context.pptxEnabled ?? false,
-  enableBedrockChat: true, // Bedrock Chatスタックを有効化
   bedrockRegion:
     context.bedrockRegion ||
     context.tenantRegion ||

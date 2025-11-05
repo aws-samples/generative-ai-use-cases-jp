@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PiMagnifyingGlass, PiPlus, PiRobot } from 'react-icons/pi';
-import useBedrockChatApi, { BedrockChatBot } from '../hooks/useBedrockChatApi';
+import useAssistantApi from '../hooks/useAssistantApi';
+import { Assistant } from 'generative-ai-use-cases';
 import LoadingWave from '../components/LoadingWave';
 
 const AssistantsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { searchStore } = useBedrockChatApi();
+  const { listAssistants } = useAssistantApi();
 
-  const [assistants, setAssistants] = useState<BedrockChatBot[]>([]);
+  const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInputValue, setSearchInputValue] = useState('');
@@ -30,17 +31,22 @@ const AssistantsPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const params = {
-        query: searchQuery || undefined,
-        starred: undefined,
-        limit: 50,
-        sort: 'usage' as const,
-      };
-
-      const data = await searchStore(params);
+      const response = await listAssistants({ limit: 100 });
       // Only update state if request wasn't cancelled
       if (!signal.aborted) {
-        setAssistants(data || []);
+        let filtered = response.assistants || [];
+
+        // Client-side search filtering
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          filtered = filtered.filter(
+            (a) =>
+              a.name.toLowerCase().includes(query) ||
+              a.description?.toLowerCase().includes(query)
+          );
+        }
+
+        setAssistants(filtered);
       }
     } catch (error) {
       // Only update state if request wasn't cancelled
@@ -54,7 +60,7 @@ const AssistantsPage: React.FC = () => {
         setLoading(false);
       }
     }
-  }, [searchQuery, searchStore]);
+  }, [searchQuery, listAssistants]);
 
   // Debounce search input
   useEffect(() => {
@@ -87,11 +93,8 @@ const AssistantsPage: React.FC = () => {
     };
   }, []);
 
-  // Featured assistants: starred assistants first, then top by usage (max 6)
-  const featuredAssistants = [
-    ...assistants.filter((a) => a.isStarred),
-    ...assistants.filter((a) => !a.isStarred),
-  ].slice(0, 6);
+  // Featured assistants: first 6
+  const featuredAssistants = assistants.slice(0, 6);
   const allAssistants = assistants;
 
   const handleStartChat = (assistantId: string) => {
@@ -146,7 +149,7 @@ const AssistantsPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {featuredAssistants.map((assistant) => (
                     <AssistantCard
-                      key={assistant.id}
+                      key={assistant.assistantId}
                       assistant={assistant}
                       onStartChat={handleStartChat}
                     />
@@ -164,7 +167,7 @@ const AssistantsPage: React.FC = () => {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {allAssistants.map((assistant) => (
                     <AssistantCard
-                      key={assistant.id}
+                      key={assistant.assistantId}
                       assistant={assistant}
                       onStartChat={handleStartChat}
                     />
@@ -186,7 +189,7 @@ const AssistantsPage: React.FC = () => {
 
 // Assistant Card Component
 interface AssistantCardProps {
-  assistant: BedrockChatBot;
+  assistant: Assistant;
   onStartChat: (assistantId: string) => void;
 }
 
@@ -203,7 +206,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
 
       {/* Name */}
       <h3 className="mb-2 text-lg font-semibold text-gray-900">
-        {assistant.title}
+        {assistant.name}
       </h3>
 
       {/* Description */}
@@ -213,7 +216,7 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
 
       {/* Start Chat Button */}
       <button
-        onClick={() => onStartChat(assistant.id)}
+        onClick={() => onStartChat(assistant.assistantId)}
         className="w-full rounded-lg border border-gray-300 bg-white py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
         チャットを始める
       </button>
