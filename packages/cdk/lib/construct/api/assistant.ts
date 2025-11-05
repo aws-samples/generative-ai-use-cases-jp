@@ -1,27 +1,24 @@
-/**
- * Assistant API Construct
- * Provides endpoints for assistant management and message operations
- *
- * Similar to CentralPptxApi, this uses wildcard IAM permissions to access
- * tenant-specific S3 buckets dynamically based on tenant context.
- */
-
-import { Construct } from 'constructs';
-import { GenericApiProps } from './props';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
-import { Duration, Stack } from 'aws-cdk-lib';
-import { getBaseEnvironment } from './util';
 import { LambdaIntegration } from 'aws-cdk-lib/aws-apigateway';
-import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { Construct } from 'constructs';
+import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
+import { Duration } from 'aws-cdk-lib';
+import { getBaseEnvironment } from './util';
+import {
+  ASSISTANT_TABLE_PREFIX,
+  ASSISTANT_MESSAGES_TABLE_PREFIX,
+} from './const';
+import { GenericApiProps } from './props';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
-export interface AssistantApiProps extends GenericApiProps {
-  readonly assistantTable: Table;
-  readonly assistantMessagesTable: Table;
-  readonly assistantIdIndexName: string;
-}
+export type AssistantApiProps = GenericApiProps;
 
+/**
+ * Assistant API construct with consolidated Lambda handlers
+ * - assistantHandler: Routes all CRUD operations (POST/, GET/, GET/{id}, PUT/{id}, DELETE/{id})
+ * - assistantMessageHandler: Routes message operations (POST/{id}/messages, GET/{id}/messages)
+ */
 class AssistantApi extends Construct {
   constructor(scope: Construct, id: string, props: AssistantApiProps) {
     super(scope, id);
@@ -31,203 +28,224 @@ class AssistantApi extends Construct {
       commonAuthorizerProps,
       assistantTable,
       assistantMessagesTable,
-      assistantIdIndexName,
       tenantManager,
-      bedrockPolicy,
-      environment,
+      fileBucket,
     } = props;
 
-    // Create Lambda function for assistant CRUD operations
+    const assistantResource = api.root.addResource('assistant');
+
+    // Consolidated handler for all assistant CRUD operations
     const assistantHandler = new NodejsFunction(this, 'AssistantHandler', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/assistant/assistantHandler.ts',
-      timeout: Duration.seconds(10),
-      memorySize: 1024,
+      entry: './lambda/assistantHandler.ts',
+      timeout: Duration.minutes(15),
       environment: getBaseEnvironment(this, props, {
-        ASSISTANT_TABLE_NAME: assistantTable.tableName,
-        ASSISTANT_MESSAGES_TABLE_NAME: assistantMessagesTable.tableName,
-        ASSISTANT_ID_INDEX_NAME: assistantIdIndexName,
+        ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
+        DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
+        ASSISTANT_MESSAGES_TABLE_NAME: ASSISTANT_MESSAGES_TABLE_PREFIX,
+        DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME:
+          assistantMessagesTable.tableName,
+        OPENSEARCH_INDEX: 'assistant-docs',
+        ASSISTANT_FILES_BUCKET_NAME: fileBucket?.bucketName || '',
+        TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
       }),
     });
 
-    // Grant DynamoDB permissions
+    // Grant permissions for all CRUD operations
     assistantTable.grantReadWriteData(assistantHandler);
     assistantMessagesTable.grantReadWriteData(assistantHandler);
 
-    // Create common S3 policy for assistant file access
-    const s3ReadPolicy = new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: ['s3:GetObject', 's3:ListBucket'],
-      resources: [
-        `arn:aws:s3:::assistant-files-${environment}-tenant-*`,
-        `arn:aws:s3:::assistant-files-${environment}-tenant-*/*`,
-      ],
-    });
-
-    // Grant S3 permissions
-    assistantHandler.addToRolePolicy(s3ReadPolicy);
-
-    // Grant tenant table access
-    if (tenantManager) {
-      tenantManager.tenantsTable.grantReadData(assistantHandler);
+    // Grant S3 read permissions for document loading (create/update operations)
+    // Used for both legacy S3 URLs and new assistant file uploads
+    if (fileBucket) {
+      fileBucket.grantRead(assistantHandler);
     }
 
-    // Create Lambda function for message operations
-    const assistantMessageHandler = new NodejsFunction(
-      this,
-      'AssistantMessageHandler',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/assistant/assistantMessageHandler.ts',
-        timeout: Duration.seconds(30), // Longer timeout for RAG processing
-        memorySize: 1024,
-        environment: getBaseEnvironment(this, props, {
-          ASSISTANT_TABLE_NAME: assistantTable.tableName,
-          ASSISTANT_MESSAGES_TABLE_NAME: assistantMessagesTable.tableName,
-          ASSISTANT_ID_INDEX_NAME: assistantIdIndexName,
-        }),
-      }
-    );
-
-    // Grant DynamoDB permissions
-    assistantTable.grantReadData(assistantMessageHandler);
-    assistantMessagesTable.grantReadWriteData(assistantMessageHandler);
-
-    // Grant S3 permissions
-    assistantMessageHandler.addToRolePolicy(s3ReadPolicy);
-
-    // Grant Bedrock permissions for message generation
-    if (bedrockPolicy) {
-      assistantMessageHandler.addToRolePolicy(bedrockPolicy);
+    // Grant Bedrock permissions for document embeddings (RAG indexing)
+    if (props.bedrockPolicy) {
+      assistantHandler.addToRolePolicy(props.bedrockPolicy);
     }
 
-    // Grant OpenSearch permissions for RAG (wildcard for all tenant domains)
-    // TODO Phase 2: Restrict to specific tenant OpenSearch domains
-    assistantMessageHandler.addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
+    // Grant OpenSearch permissions for tenant OpenSearch domains (cross-account)
+    assistantHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
         actions: [
           'es:ESHttpGet',
           'es:ESHttpPost',
           'es:ESHttpPut',
           'es:ESHttpDelete',
+          'es:ESHttpHead',
         ],
-        resources: [
-          `arn:aws:es:${Stack.of(this).region}:${Stack.of(this).account}:domain/*`,
-        ],
+        resources: ['*'], // Wildcard needed for multi-tenant cross-account access
       })
     );
 
-    // Grant tenant table access
-    if (tenantManager) {
-      tenantManager.tenantsTable.grantReadData(assistantMessageHandler);
-    }
-
-    // Create Lambda function for file upload URL generation
-    const assistantFileUploadHandler = new NodejsFunction(
+    // Consolidated handler for all message operations
+    const assistantMessageHandler = new NodejsFunction(
       this,
-      'AssistantFileUploadHandler',
+      'AssistantMessageHandler',
       {
         runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/assistant/assistantFileUpload.ts',
-        timeout: Duration.seconds(10),
-        memorySize: 1024,
+        entry: './lambda/assistantMessageHandler.ts',
+        timeout: Duration.minutes(15),
         environment: getBaseEnvironment(this, props, {
-          ASSISTANT_TABLE_NAME: assistantTable.tableName,
+          ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
+          DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
+          ASSISTANT_MESSAGES_TABLE_NAME: ASSISTANT_MESSAGES_TABLE_PREFIX,
+          DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME:
+            assistantMessagesTable.tableName,
+          MODEL_REGION: props.modelRegion,
+          OPENSEARCH_INDEX: 'assistant-docs',
+          TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
         }),
       }
     );
 
-    // Create S3 write policy for file uploads
-    const s3WritePolicy = new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [
-        's3:PutObject',
-        's3:GetObject',
-        's3:DeleteObject',
-        's3:ListBucket',
-      ],
-      resources: [
-        `arn:aws:s3:::assistant-files-${environment}-tenant-*`,
-        `arn:aws:s3:::assistant-files-${environment}-tenant-*/*`,
-      ],
-    });
+    // Grant permissions for message operations
+    assistantTable.grantReadData(assistantMessageHandler);
+    assistantMessagesTable.grantReadWriteData(assistantMessageHandler);
 
-    // Grant S3 permissions
-    assistantFileUploadHandler.addToRolePolicy(s3WritePolicy);
-
-    // Grant tenant table access
-    if (tenantManager) {
-      tenantManager.tenantsTable.grantReadData(assistantFileUploadHandler);
+    // Grant Bedrock permissions for LLM calls
+    if (props.bedrockPolicy) {
+      assistantMessageHandler.addToRolePolicy(props.bedrockPolicy);
     }
 
-    // API: /assistant
-    const assistantResource = api.root.addResource('assistant');
+    // Grant OpenSearch permissions for tenant OpenSearch domains (cross-account)
+    assistantMessageHandler.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'es:ESHttpGet',
+          'es:ESHttpPost',
+          'es:ESHttpPut',
+          'es:ESHttpDelete',
+          'es:ESHttpHead',
+        ],
+        resources: ['*'], // Wildcard needed for multi-tenant cross-account access
+      })
+    );
 
-    // POST: /assistant - Create assistant
+    // API Gateway routes - All route to consolidated handlers
+    // POST: /assistant → assistantHandler (create)
     assistantResource.addMethod(
       'POST',
       new LambdaIntegration(assistantHandler),
       commonAuthorizerProps
     );
 
-    // GET: /assistant - List assistants
+    // GET: /assistant → assistantHandler (list)
     assistantResource.addMethod(
       'GET',
       new LambdaIntegration(assistantHandler),
       commonAuthorizerProps
     );
 
-    // API: /assistant/{assistantId}
     const assistantIdResource = assistantResource.addResource('{assistantId}');
 
-    // GET: /assistant/{assistantId} - Get assistant
+    // GET: /assistant/{assistantId} → assistantHandler (get)
     assistantIdResource.addMethod(
       'GET',
       new LambdaIntegration(assistantHandler),
       commonAuthorizerProps
     );
 
-    // PUT: /assistant/{assistantId} - Update assistant
+    // PUT: /assistant/{assistantId} → assistantHandler (update)
     assistantIdResource.addMethod(
       'PUT',
       new LambdaIntegration(assistantHandler),
       commonAuthorizerProps
     );
 
-    // DELETE: /assistant/{assistantId} - Delete assistant
+    // DELETE: /assistant/{assistantId} → assistantHandler (delete)
     assistantIdResource.addMethod(
       'DELETE',
       new LambdaIntegration(assistantHandler),
       commonAuthorizerProps
     );
 
-    // API: /assistant/{assistantId}/messages
     const messagesResource = assistantIdResource.addResource('messages');
 
-    // POST: /assistant/{assistantId}/messages - Create message
+    // POST: /assistant/{assistantId}/messages → assistantMessageHandler (create message)
     messagesResource.addMethod(
       'POST',
       new LambdaIntegration(assistantMessageHandler),
       commonAuthorizerProps
     );
 
-    // GET: /assistant/{assistantId}/messages - List messages
+    // GET: /assistant/{assistantId}/messages → assistantMessageHandler (list messages)
     messagesResource.addMethod(
       'GET',
       new LambdaIntegration(assistantMessageHandler),
       commonAuthorizerProps
     );
 
-    // API: /assistant/upload-url
-    const uploadUrlResource = assistantResource.addResource('upload-url');
+    // File upload endpoint: POST /assistant/upload-url
+    if (fileBucket) {
+      const uploadHandler = new NodejsFunction(this, 'AssistantFileUploadHandler', {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/assistantFileUpload.ts',
+        timeout: Duration.seconds(30),
+        environment: getBaseEnvironment(this, props, {
+          ASSISTANT_FILES_BUCKET_NAME: fileBucket.bucketName,
+          OPENSEARCH_INDEX: 'assistant-docs',
+          TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+        }),
+      });
 
-    // POST: /assistant/upload-url - Request pre-signed URL
-    uploadUrlResource.addMethod(
-      'POST',
-      new LambdaIntegration(assistantFileUploadHandler),
-      commonAuthorizerProps
-    );
+      // Grant write permissions to upload handler
+      fileBucket.grantPut(uploadHandler);
+
+      // Grant tenant table read permissions for tenant-aware S3 access
+      if (tenantManager) {
+        tenantManager.tenantsTable.grantReadData(uploadHandler);
+      }
+
+      // Grant OpenSearch permissions for document indexing
+      uploadHandler.addToRolePolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: [
+            'es:ESHttpGet',
+            'es:ESHttpPost',
+            'es:ESHttpPut',
+            'es:ESHttpDelete',
+            'es:ESHttpHead',
+          ],
+          resources: ['*'], // Wildcard needed for multi-tenant cross-account access
+        })
+      );
+
+      // Grant Bedrock permissions for document embeddings
+      if (props.bedrockPolicy) {
+        uploadHandler.addToRolePolicy(props.bedrockPolicy);
+      }
+
+      // Create /assistant/upload-url endpoint
+      const uploadUrlResource = assistantResource.addResource('upload-url');
+      uploadUrlResource.addMethod(
+        'POST',
+        new LambdaIntegration(uploadHandler),
+        commonAuthorizerProps
+      );
+    }
+
+    // Grant tenant table read permissions if tenant manager exists
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(assistantHandler);
+      tenantManager.tenantsTable.grantReadData(assistantMessageHandler);
+    }
+
+    // TODO: Add OpenSearch permissions when BotStore is integrated
+    // When a BotStore instance is available, add data access policies:
+    // botstore.addDataAccessPolicy(
+    //   props.envPrefix,
+    //   'AssistantDataAccess',
+    //   assistantHandler.role!,
+    //   ['aoss:DescribeCollectionItems', 'aoss:CreateCollectionItems'],
+    //   ['aoss:WriteDocument', 'aoss:DescribeIndex', 'aoss:CreateIndex']
+    // );
+    // Similarly for assistantMessageHandler
   }
 }
 

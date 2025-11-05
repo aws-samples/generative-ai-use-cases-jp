@@ -1,9 +1,8 @@
 import {
   Assistant,
+  ListAssistantsResponse,
   CreateAssistantRequest,
   UpdateAssistantRequest,
-  ListAssistantsResponse,
-  AssistantSyncStatus,
 } from 'generative-ai-use-cases';
 import * as crypto from 'crypto';
 import {
@@ -13,126 +12,99 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getTenantDynamoDBDocument } from './common';
-import { formatAssistantFromDb } from './assistantCommon';
-
-const ASSISTANT_TABLE_NAME = process.env.ASSISTANT_TABLE_NAME!;
-const ASSISTANT_ID_INDEX_NAME = process.env.ASSISTANT_ID_INDEX_NAME!;
+import {
+  getTenantDynamoDBDocument,
+  executeDynamoDBOperation,
+  getAssistantTableName,
+} from './common';
 
 /**
- * Create a new assistant
+ * Deep clean an object to remove all undefined values recursively
+ * DynamoDB does not allow undefined values in documents
  */
+function removeUndefinedValues(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefinedValues).filter((item) => item !== undefined);
+  }
+
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        const cleanedValue = removeUndefinedValues(value);
+        if (cleanedValue !== undefined) {
+          cleaned[key] = cleanedValue;
+        }
+      }
+    }
+    return cleaned;
+  }
+
+  return obj;
+}
+
 export const createAssistant = async (
   _userId: string,
-  request: CreateAssistantRequest,
+  data: CreateAssistantRequest,
   event: APIGatewayProxyEvent
 ): Promise<Assistant> => {
   const userId = `user#${_userId}`;
   const assistantId = `assistant#${crypto.randomUUID()}`;
-  const now = new Date().toISOString();
+  const now = Date.now().toString();
 
-  // Determine sync status based on knowledge sources
-  const hasKnowledgeSources = request.knowledgeSources && request.knowledgeSources.length > 0;
-  const syncStatus: AssistantSyncStatus = hasKnowledgeSources ? 'RUNNING' : 'SYNCED';
-
-  const item = {
-    userId,
+  const item: Assistant = {
+    id: userId,
     createdDate: now,
     assistantId,
-    name: request.name,
-    description: request.description,
-    instruction: request.instruction,
-    modelId: request.modelId,
-    ragEnabled: request.ragEnabled,
-    syncStatus,
-    knowledgeSources: request.knowledgeSources || [],
-    s3Urls: request.s3Urls || [],
+    userId,
+    name: data.name,
+    description: data.description,
+    instruction: data.instruction,
+    modelId: data.modelId,
+    ragEnabled: data.ragEnabled,
+    syncStatus: 'QUEUED',
+    syncStatusReason: '',
+    knowledgeSources: data.knowledgeSources || [],
+    ...(data.s3Urls && { s3Urls: data.s3Urls }),
     updatedDate: now,
   };
 
+  // Deep clean to remove all undefined values
+  const cleanedItem = removeUndefinedValues(item);
+
   const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
 
   await dynamoDbDocument.send(
     new PutCommand({
-      TableName: ASSISTANT_TABLE_NAME,
-      Item: item,
+      TableName: tableName,
+      Item: cleanedItem,
     })
   );
 
-  // Return formatted assistant without prefixes
-  return {
-    assistantId: assistantId.replace('assistant#', ''),
-    userId: _userId,
-    name: item.name,
-    description: item.description,
-    instruction: item.instruction,
-    modelId: item.modelId,
-    ragEnabled: item.ragEnabled,
-    syncStatus: item.syncStatus,
-    knowledgeSources: item.knowledgeSources,
-    s3Urls: item.s3Urls,
-    createdDate: item.createdDate,
-    updatedDate: item.updatedDate,
-  };
+  return cleanedItem as Assistant;
 };
 
-/**
- * Find an assistant by ID
- */
-export const findAssistantById = async (
-  _userId: string,
-  _assistantId: string,
-  event: APIGatewayProxyEvent
-): Promise<Assistant | null> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
-  const userId = `user#${_userId}`;
-  const assistantId = `assistant#${_assistantId}`;
-
-  // Use GSI to query by assistantId, then filter by userId for tenant isolation
-  const res = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: ASSISTANT_TABLE_NAME,
-      IndexName: ASSISTANT_ID_INDEX_NAME,
-      KeyConditionExpression: '#assistantId = :assistantId',
-      FilterExpression: '#userId = :userId',
-      ExpressionAttributeNames: {
-        '#assistantId': 'assistantId',
-        '#userId': 'userId',
-      },
-      ExpressionAttributeValues: {
-        ':assistantId': assistantId,
-        ':userId': userId,
-      },
-      Limit: 1,
-    })
-  );
-
-  if (!res.Items || res.Items.length === 0) {
-    return null;
-  }
-
-  return formatAssistantFromDb(res.Items[0]);
-};
-
-/**
- * List assistants for a user
- */
 export const listAssistants = async (
   _userId: string,
   event: APIGatewayProxyEvent,
-  limit?: number,
-  exclusiveStartKey?: string
+  _exclusiveStartKey?: string
 ): Promise<ListAssistantsResponse> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
   const userId = `user#${_userId}`;
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
 
-  const parsedStartKey = exclusiveStartKey
-    ? JSON.parse(Buffer.from(exclusiveStartKey, 'base64').toString())
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
 
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: ASSISTANT_TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#userId = :userId',
       ExpressionAttributeNames: {
         '#userId': 'userId',
@@ -140,106 +112,126 @@ export const listAssistants = async (
       ExpressionAttributeValues: {
         ':userId': userId,
       },
-      Limit: limit || 50,
-      ExclusiveStartKey: parsedStartKey,
-      ScanIndexForward: false, // Newest first
+      ScanIndexForward: false,
+      Limit: 100,
+      ExclusiveStartKey: exclusiveStartKey,
     })
   );
 
-  const nextToken = res.LastEvaluatedKey
-    ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
-    : undefined;
-
   return {
-    assistants: (res.Items || []).map(formatAssistantFromDb),
-    nextToken,
+    assistants: res.Items as Assistant[],
+    lastEvaluatedKey: res.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
+      : undefined,
   };
 };
 
-/**
- * Update an assistant
- */
-export const updateAssistant = async (
-  _userId: string,
+export const getAssistant = async (
   _assistantId: string,
-  request: UpdateAssistantRequest,
+  event: APIGatewayProxyEvent
+): Promise<Assistant | null> => {
+  const assistantId = `assistant#${_assistantId}`;
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
+
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: tableName,
+      IndexName: 'AssistantIdIndex',
+      KeyConditionExpression: '#assistantId = :assistantId',
+      ExpressionAttributeNames: {
+        '#assistantId': 'assistantId',
+      },
+      ExpressionAttributeValues: {
+        ':assistantId': assistantId,
+      },
+    })
+  );
+
+  if (!res.Items || res.Items.length === 0) {
+    return null;
+  }
+
+  return res.Items[0] as Assistant;
+};
+
+export const updateAssistant = async (
+  _assistantId: string,
+  _userId: string,
+  updates: UpdateAssistantRequest,
   event: APIGatewayProxyEvent
 ): Promise<Assistant> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
-
-  // First, find the assistant to get its createdDate
-  const existingAssistant = await findAssistantById(_userId, _assistantId, event);
-  if (!existingAssistant) {
-    throw new Error(`Assistant ${_assistantId} not found or access denied`);
-  }
-
+  const assistantId = `assistant#${_assistantId}`;
   const userId = `user#${_userId}`;
 
-  // Build update expression dynamically
+  // First get the assistant to get the createdDate (sort key)
+  const existing = await getAssistant(_assistantId, event);
+  if (!existing) {
+    throw new Error('Assistant not found');
+  }
+
+  // Verify ownership
+  if (existing.userId !== userId) {
+    throw new Error('Unauthorized');
+  }
+
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
+
+  // Build update expression
   const updateExpressions: string[] = [];
   const expressionAttributeNames: Record<string, string> = {};
-  const expressionAttributeValues: Record<string, unknown> = {};
+  const expressionAttributeValues: Record<string, any> = {};
 
-  if (request.name !== undefined) {
+  if (updates.name !== undefined) {
     updateExpressions.push('#name = :name');
     expressionAttributeNames['#name'] = 'name';
-    expressionAttributeValues[':name'] = request.name;
+    expressionAttributeValues[':name'] = updates.name;
   }
-
-  if (request.description !== undefined) {
+  if (updates.description !== undefined) {
     updateExpressions.push('#description = :description');
     expressionAttributeNames['#description'] = 'description';
-    expressionAttributeValues[':description'] = request.description;
+    expressionAttributeValues[':description'] = updates.description;
   }
-
-  if (request.instruction !== undefined) {
+  if (updates.instruction !== undefined) {
     updateExpressions.push('#instruction = :instruction');
     expressionAttributeNames['#instruction'] = 'instruction';
-    expressionAttributeValues[':instruction'] = request.instruction;
+    expressionAttributeValues[':instruction'] = updates.instruction;
   }
-
-  if (request.modelId !== undefined) {
+  if (updates.modelId !== undefined) {
     updateExpressions.push('#modelId = :modelId');
     expressionAttributeNames['#modelId'] = 'modelId';
-    expressionAttributeValues[':modelId'] = request.modelId;
+    expressionAttributeValues[':modelId'] = updates.modelId;
   }
-
-  if (request.ragEnabled !== undefined) {
+  if (updates.ragEnabled !== undefined) {
     updateExpressions.push('#ragEnabled = :ragEnabled');
     expressionAttributeNames['#ragEnabled'] = 'ragEnabled';
-    expressionAttributeValues[':ragEnabled'] = request.ragEnabled;
+    expressionAttributeValues[':ragEnabled'] = updates.ragEnabled;
   }
-
-  if (request.knowledgeSources !== undefined) {
+  if (updates.knowledgeSources !== undefined) {
     updateExpressions.push('#knowledgeSources = :knowledgeSources');
     expressionAttributeNames['#knowledgeSources'] = 'knowledgeSources';
-    expressionAttributeValues[':knowledgeSources'] = request.knowledgeSources;
+    expressionAttributeValues[':knowledgeSources'] = removeUndefinedValues(
+      updates.knowledgeSources
+    );
   }
-
-  if (request.s3Urls !== undefined) {
+  if (updates.s3Urls !== undefined) {
     updateExpressions.push('#s3Urls = :s3Urls');
     expressionAttributeNames['#s3Urls'] = 's3Urls';
-    expressionAttributeValues[':s3Urls'] = request.s3Urls;
+    expressionAttributeValues[':s3Urls'] = updates.s3Urls;
   }
 
   // Always update updatedDate
   updateExpressions.push('#updatedDate = :updatedDate');
   expressionAttributeNames['#updatedDate'] = 'updatedDate';
-  expressionAttributeValues[':updatedDate'] = new Date().toISOString();
-
-  // If knowledge sources or S3 URLs changed, mark as RUNNING for re-indexing
-  if (request.knowledgeSources !== undefined || request.s3Urls !== undefined) {
-    updateExpressions.push('#syncStatus = :syncStatus');
-    expressionAttributeNames['#syncStatus'] = 'syncStatus';
-    expressionAttributeValues[':syncStatus'] = 'RUNNING';
-  }
+  expressionAttributeValues[':updatedDate'] = Date.now().toString();
 
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: ASSISTANT_TABLE_NAME,
+      TableName: tableName,
       Key: {
-        userId,
-        createdDate: existingAssistant.createdDate,
+        userId: existing.id,
+        createdDate: existing.createdDate,
       },
       UpdateExpression: `SET ${updateExpressions.join(', ')}`,
       ExpressionAttributeNames: expressionAttributeNames,
@@ -248,84 +240,159 @@ export const updateAssistant = async (
     })
   );
 
-  return formatAssistantFromDb(res.Attributes!);
+  return res.Attributes as Assistant;
 };
 
 /**
- * Update assistant sync status
+ * Update the status of a specific knowledge source
+ * Used during document ingestion to track per-source progress
+ *
+ * Uses primary key to avoid GSI eventual consistency issues immediately after creation
+ * IMPORTANT: Mutates the assistant.knowledgeSources array to prevent stale updates
  */
-export const updateAssistantSyncStatus = async (
-  _userId: string,
-  _assistantId: string,
-  syncStatus: AssistantSyncStatus,
-  syncStatusReason: string | undefined,
+export const updateKnowledgeSourceStatus = async (
+  assistant: Assistant,
+  sourceId: string,
+  status: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED',
+  error: string | undefined,
   event: APIGatewayProxyEvent
 ): Promise<void> => {
+  // Update the specific knowledge source
+  const updatedSources = (assistant.knowledgeSources || []).map((source) => {
+    if (source.id === sourceId) {
+      const updated: any = { ...source, status };
+      if (error !== undefined) {
+        updated.error = error;
+      }
+      return updated;
+    }
+    return source;
+  });
+
+  // Deep clean to remove all undefined values
+  const cleanedSources = removeUndefinedValues(updatedSources);
+
+  // Save updated sources using primary key (avoids GSI lookup)
   const dynamoDbDocument = await getTenantDynamoDBDocument(event);
-
-  // First, find the assistant to get its createdDate
-  const existingAssistant = await findAssistantById(_userId, _assistantId, event);
-  if (!existingAssistant) {
-    throw new Error(`Assistant ${_assistantId} not found or access denied`);
-  }
-
-  const userId = `user#${_userId}`;
-
-  const updateExpression = syncStatusReason
-    ? 'SET #syncStatus = :syncStatus, #syncStatusReason = :syncStatusReason, #updatedDate = :updatedDate'
-    : 'SET #syncStatus = :syncStatus, #updatedDate = :updatedDate REMOVE #syncStatusReason';
-
-  const expressionAttributeValues: Record<string, unknown> = {
-    ':syncStatus': syncStatus,
-    ':updatedDate': new Date().toISOString(),
-  };
-
-  if (syncStatusReason) {
-    expressionAttributeValues[':syncStatusReason'] = syncStatusReason;
-  }
+  const tableName = getAssistantTableName(event);
 
   await dynamoDbDocument.send(
     new UpdateCommand({
-      TableName: ASSISTANT_TABLE_NAME,
+      TableName: tableName,
       Key: {
-        userId,
-        createdDate: existingAssistant.createdDate,
+        userId: assistant.id,
+        createdDate: assistant.createdDate,
       },
-      UpdateExpression: updateExpression,
+      UpdateExpression:
+        'SET #knowledgeSources = :knowledgeSources, #updatedDate = :updatedDate',
       ExpressionAttributeNames: {
-        '#syncStatus': 'syncStatus',
-        '#syncStatusReason': 'syncStatusReason',
+        '#knowledgeSources': 'knowledgeSources',
         '#updatedDate': 'updatedDate',
       },
-      ExpressionAttributeValues: expressionAttributeValues,
+      ExpressionAttributeValues: {
+        ':knowledgeSources': cleanedSources,
+        ':updatedDate': Date.now().toString(),
+      },
     })
   );
+
+  // Update in-memory object to prevent stale writes on subsequent calls
+  assistant.knowledgeSources = cleanedSources;
 };
 
 /**
- * Delete an assistant
+ * Update the overall sync status of an assistant based on its knowledge sources
+ * Aggregates individual source statuses to determine overall state
  */
-export const deleteAssistant = async (
-  _userId: string,
-  _assistantId: string,
+export const updateAssistantSyncStatus = async (
+  assistant: Assistant,
   event: APIGatewayProxyEvent
 ): Promise<void> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  // Get all knowledge source statuses
+  const sources = assistant.knowledgeSources || [];
 
-  // First, find the assistant to get its createdDate and verify ownership
-  const existingAssistant = await findAssistantById(_userId, _assistantId, event);
-  if (!existingAssistant) {
-    throw new Error(`Assistant ${_assistantId} not found or access denied`);
+  let syncStatus: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED' | 'PARTIAL' = 'QUEUED';
+
+  if (sources.length === 0) {
+    // No sources means no indexing needed
+    syncStatus = 'SUCCEEDED';
+  } else {
+    const statuses = sources.map(s => s.status || 'QUEUED');
+    const hasQueued = statuses.some(s => s === 'QUEUED');
+    const hasSyncing = statuses.some(s => s === 'SYNCING');
+    const hasFailed = statuses.some(s => s === 'FAILED');
+    const hasSucceeded = statuses.some(s => s === 'SUCCEEDED');
+    const allSucceeded = statuses.every(s => s === 'SUCCEEDED');
+    const allFailed = statuses.every(s => s === 'FAILED');
+
+    if (hasQueued || hasSyncing) {
+      syncStatus = 'SYNCING';
+    } else if (allSucceeded) {
+      syncStatus = 'SUCCEEDED';
+    } else if (allFailed) {
+      syncStatus = 'FAILED';
+    } else if (hasSucceeded && hasFailed) {
+      syncStatus = 'PARTIAL';
+    } else {
+      syncStatus = 'FAILED';
+    }
   }
 
+  // Update assistant record
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
+
+  await dynamoDbDocument.send(
+    new UpdateCommand({
+      TableName: tableName,
+      Key: {
+        userId: assistant.id,
+        createdDate: assistant.createdDate,
+      },
+      UpdateExpression: 'SET #syncStatus = :syncStatus, #updatedDate = :updatedDate',
+      ExpressionAttributeNames: {
+        '#syncStatus': 'syncStatus',
+        '#updatedDate': 'updatedDate',
+      },
+      ExpressionAttributeValues: {
+        ':syncStatus': syncStatus,
+        ':updatedDate': Date.now().toString(),
+      },
+    })
+  );
+
+  // Update in-memory object
+  assistant.syncStatus = syncStatus;
+};
+
+export const deleteAssistant = async (
+  _assistantId: string,
+  _userId: string,
+  event: APIGatewayProxyEvent
+): Promise<void> => {
+  const assistantId = `assistant#${_assistantId}`;
   const userId = `user#${_userId}`;
+
+  // First get the assistant to verify ownership and get keys
+  const existing = await getAssistant(_assistantId, event);
+  if (!existing) {
+    throw new Error('Assistant not found');
+  }
+
+  // Verify ownership
+  if (existing.userId !== userId) {
+    throw new Error('Unauthorized');
+  }
+
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantTableName(event);
 
   await dynamoDbDocument.send(
     new DeleteCommand({
-      TableName: ASSISTANT_TABLE_NAME,
+      TableName: tableName,
       Key: {
-        userId,
-        createdDate: existingAssistant.createdDate,
+        userId: existing.id,
+        createdDate: existing.createdDate,
       },
     })
   );

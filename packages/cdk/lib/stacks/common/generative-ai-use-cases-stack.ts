@@ -27,6 +27,7 @@ import TranscribeStack from './transcribe-stack';
 import WebStack from './web-stack';
 import SpeechToSpeechStack from './speech-to-speech-stack';
 import McpApiStack from './mcp-api-stack';
+import AssistantApiStack from './assistant-api-stack';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -126,7 +127,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       statsTable: database.statsTable,
       assistantTable: database.assistantTable,
       assistantMessagesTable: database.assistantMessagesTable,
-      assistantIdIndexName: database.assistantIdIndexName,
       knowledgeBaseId: params.ragKnowledgeBaseId || props.knowledgeBaseId,
       agents: props.agents,
       guardrailIdentify: props.guardrailIdentifier,
@@ -172,6 +172,20 @@ export class GenerativeAiUseCasesStack extends Stack {
       }
     );
     const speechToSpeech = speechToSpeechStack.speechToSpeech;
+
+    // Assistant API (moved to nested stack to reduce main stack resource count)
+    new AssistantApiStack(this, 'AssistantApi', {
+      params: params,
+      api: api,
+      auth: auth,
+      assistantTable: database.assistantTable,
+      assistantMessagesTable: database.assistantMessagesTable,
+      fileBucket: api.fileBucket,
+      tenantManager: tenantManager,
+      videoBucketRegionMap: props.videoBucketRegionMap,
+      guardrailIdentifier: props.guardrailIdentifier,
+      guardrailVersion: props.guardrailVersion,
+    });
 
     // MCP
     let mcpEndpoint: string | null = null;

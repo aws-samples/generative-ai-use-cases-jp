@@ -1,75 +1,37 @@
-/**
- * Assistant Feature Type Definitions
- * Re-implementation of PR #98 assistant feature
- */
+export type KnowledgeSource = {
+  id: string;
+  type: 'file' | 'web';
+  displayName: string;
+  storageKey?: string; // S3 key for files
+  sourceUrl?: string; // Original URL for web
+  status: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED';
+  error?: string;
+};
 
-/**
- * Knowledge source types for RAG
- */
-export type KnowledgeSourceType = 'file' | 'url';
-
-/**
- * Knowledge source for assistant RAG
- */
-export interface KnowledgeSource {
-  sourceType: KnowledgeSourceType;
-  name: string;
-  url?: string;
-  sitemap?: string;
-  recursiveDepth?: number;
-  chunkingStrategy?: {
-    maxTokens: number;
-    overlapPercentage: number;
-  };
-}
-
-/**
- * Assistant synchronization status
- */
-export type AssistantSyncStatus = 'SYNCED' | 'RUNNING' | 'FAILED';
-
-/**
- * Assistant entity
- */
-export interface Assistant {
+export type Assistant = {
+  id: string; // userId - partition key
+  createdDate: string; // sort key
   assistantId: string;
-  userId: string;
+  userId: string; // Duplicate for clarity, same as id
   name: string;
-  description?: string;
+  description: string;
   instruction: string;
   modelId: string;
   ragEnabled: boolean;
-  syncStatus: AssistantSyncStatus;
-  syncStatusReason?: string;
+  syncStatus: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED' | 'PARTIAL';
+  syncStatusReason: string;
   knowledgeSources: KnowledgeSource[];
-  s3Urls: string[];
-  createdDate: string;
-  updatedDate?: string;
-}
+  s3Urls?: string[]; // Deprecated - for backward compatibility during migration
+  updatedDate: string;
+};
 
-/**
- * Message role
- */
-export type AssistantMessageRole = 'user' | 'assistant';
-
-/**
- * Source citation from RAG retrieval
- */
-export interface AssistantMessageSource {
-  name: string;
-  url?: string;
-  excerpt: string;
-  score: number;
-}
-
-/**
- * Assistant message entity
- */
-export interface AssistantMessage {
-  messageId: string;
-  assistantId: string;
+export type AssistantMessage = {
+  id: string; // assistantId - partition key
+  createdDate: string; // Derived from messageId timestamp
+  messageId: string; // sort key: timestamp#uuid
+  assistantId: string; // Duplicate for clarity, same as id
   userId: string;
-  role: AssistantMessageRole;
+  role: 'user' | 'assistant';
   content: string;
   sources?: AssistantMessageSource[];
   metadata?: {
@@ -79,88 +41,49 @@ export interface AssistantMessage {
       totalTokens: number;
     };
   };
-  createdDate: string;
-}
+};
 
-/**
- * Request to create an assistant
- */
-export interface CreateAssistantRequest {
+export type AssistantMessageSource = {
+  sourceId: string;
+  sourceType: 'file' | 'web';
+  content: string;
+  contentType: string;
+  excerpt: string;
+  sourceUrl?: string; // Original URL for web sources
+  storageKey?: string; // S3 key for file sources
+  s3Url?: string; // Deprecated - for backward compatibility
+};
+
+export type CreateAssistantRequest = {
   name: string;
-  description?: string;
+  description: string;
   instruction: string;
   modelId: string;
   ragEnabled: boolean;
   knowledgeSources?: KnowledgeSource[];
-  s3Urls?: string[];
-}
+  s3Urls?: string[]; // Deprecated - for backward compatibility
+};
 
-/**
- * Request to update an assistant
- */
-export interface UpdateAssistantRequest {
+export type UpdateAssistantRequest = {
   name?: string;
   description?: string;
   instruction?: string;
   modelId?: string;
   ragEnabled?: boolean;
   knowledgeSources?: KnowledgeSource[];
-  s3Urls?: string[];
-}
+  s3Urls?: string[]; // Deprecated - for backward compatibility
+};
 
-/**
- * Request to create a message
- */
-export interface CreateAssistantMessageRequest {
+export type CreateAssistantMessageRequest = {
   content: string;
-}
+};
 
-/**
- * Response for listing assistants
- */
-export interface ListAssistantsResponse {
+export type ListAssistantsResponse = {
   assistants: Assistant[];
-  nextToken?: string;
-}
+  lastEvaluatedKey?: string;
+};
 
-/**
- * Query parameters for listing assistants
- */
-export interface ListAssistantsQueryParams {
-  limit?: number;
-  nextToken?: string;
-}
-
-/**
- * Response for listing messages
- */
-export interface ListAssistantMessagesResponse {
+export type ListAssistantMessagesResponse = {
   messages: AssistantMessage[];
-  nextToken?: string;
-}
-
-/**
- * Query parameters for listing messages
- */
-export interface ListAssistantMessagesQueryParams {
-  limit?: number;
-  nextToken?: string;
-}
-
-/**
- * Request for file upload URL
- */
-export interface RequestUploadUrlRequest {
-  fileName: string;
-  fileSize: number;
-  contentType: string;
-}
-
-/**
- * Response with pre-signed upload URL
- */
-export interface RequestUploadUrlResponse {
-  uploadUrl: string;
-  s3Url: string;
-  expiresIn: number;
+  lastEvaluatedKey?: string;
 }

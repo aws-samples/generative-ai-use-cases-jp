@@ -1,218 +1,137 @@
 import {
   AssistantMessage,
-  CreateAssistantMessageRequest,
-  ListAssistantMessagesResponse,
-  AssistantMessageRole,
   AssistantMessageSource,
+  ListAssistantMessagesResponse,
 } from 'generative-ai-use-cases';
 import * as crypto from 'crypto';
 import {
-  DeleteCommand,
   PutCommand,
   QueryCommand,
+  DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getTenantDynamoDBDocument } from './common';
-import { formatMessageFromDb } from './assistantCommon';
+import {
+  getTenantDynamoDBDocument,
+  getAssistantMessagesTableName,
+} from './common';
 
-const ASSISTANT_MESSAGES_TABLE_NAME = process.env.ASSISTANT_MESSAGES_TABLE_NAME!;
-
-/**
- * Create a new assistant message
- */
-export const createAssistantMessage = async (
-  _userId: string,
+export const createMessage = async (
   _assistantId: string,
-  role: AssistantMessageRole,
+  userId: string,
+  role: 'user' | 'assistant',
   content: string,
-  event: APIGatewayProxyEvent,
   sources?: AssistantMessageSource[],
-  metadata?: {
-    usage?: {
-      inputTokens: number;
-      outputTokens: number;
-      totalTokens: number;
-    };
-  }
+  metadata?: AssistantMessage['metadata'],
+  event?: APIGatewayProxyEvent
 ): Promise<AssistantMessage> => {
-  const messageUuid = crypto.randomUUID();
-  const now = new Date().toISOString();
-  const timestamp = Date.now();
-
   const assistantId = `assistant#${_assistantId}`;
-  const messageId = `${timestamp}#${messageUuid}`;
-  const userId = `user#${_userId}`; // Store with prefix for tenant isolation
+  const timestamp = Date.now();
+  const messageId = `${timestamp}#${crypto.randomUUID()}`;
 
-  const item = {
-    assistantId,
+  const item: AssistantMessage = {
+    id: assistantId,
+    createdDate: timestamp.toString(),
     messageId,
+    assistantId,
     userId,
     role,
     content,
     sources,
     metadata,
-    createdDate: now,
   };
 
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event!);
+  const tableName = getAssistantMessagesTableName(event!);
 
   await dynamoDbDocument.send(
     new PutCommand({
-      TableName: ASSISTANT_MESSAGES_TABLE_NAME,
+      TableName: tableName,
       Item: item,
     })
   );
 
-  // Return formatted message without prefixes
-  return {
-    messageId: messageUuid,
-    assistantId: _assistantId,
-    userId: _userId,
-    role,
-    content,
-    sources,
-    metadata,
-    createdDate: now,
-  };
+  return item;
 };
 
-/**
- * List messages for an assistant
- */
-export const listAssistantMessages = async (
-  _userId: string,
+export const listMessages = async (
   _assistantId: string,
   event: APIGatewayProxyEvent,
-  limit?: number,
-  exclusiveStartKey?: string
+  _exclusiveStartKey?: string,
+  limit?: number
 ): Promise<ListAssistantMessagesResponse> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
   const assistantId = `assistant#${_assistantId}`;
-  const userId = `user#${_userId}`;
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantMessagesTableName(event);
 
-  const parsedStartKey = exclusiveStartKey
-    ? JSON.parse(Buffer.from(exclusiveStartKey, 'base64').toString())
+  const exclusiveStartKey = _exclusiveStartKey
+    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
     : undefined;
 
   const res = await dynamoDbDocument.send(
     new QueryCommand({
-      TableName: ASSISTANT_MESSAGES_TABLE_NAME,
+      TableName: tableName,
       KeyConditionExpression: '#assistantId = :assistantId',
-      FilterExpression: '#userId = :userId', // Tenant isolation
       ExpressionAttributeNames: {
         '#assistantId': 'assistantId',
-        '#userId': 'userId',
       },
       ExpressionAttributeValues: {
         ':assistantId': assistantId,
-        ':userId': userId,
       },
-      Limit: limit || 50,
-      ExclusiveStartKey: parsedStartKey,
-      ScanIndexForward: false, // Newest first
+      ScanIndexForward: false,
+      Limit: limit || 100,
+      ExclusiveStartKey: exclusiveStartKey,
     })
   );
 
-  const nextToken = res.LastEvaluatedKey
-    ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
-    : undefined;
-
   return {
-    messages: (res.Items || []).map(formatMessageFromDb),
-    nextToken,
+    messages: res.Items as AssistantMessage[],
+    lastEvaluatedKey: res.LastEvaluatedKey
+      ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
+      : undefined,
   };
 };
 
-/**
- * Get conversation history (last N messages for context)
- */
-export const getConversationHistory = async (
-  _userId: string,
-  _assistantId: string,
-  event: APIGatewayProxyEvent,
-  limit: number = 10
-): Promise<AssistantMessage[]> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
-  const assistantId = `assistant#${_assistantId}`;
-  const userId = `user#${_userId}`;
-
-  const res = await dynamoDbDocument.send(
-    new QueryCommand({
-      TableName: ASSISTANT_MESSAGES_TABLE_NAME,
-      KeyConditionExpression: '#assistantId = :assistantId',
-      FilterExpression: '#userId = :userId', // Tenant isolation
-      ExpressionAttributeNames: {
-        '#assistantId': 'assistantId',
-        '#userId': 'userId',
-      },
-      ExpressionAttributeValues: {
-        ':assistantId': assistantId,
-        ':userId': userId,
-      },
-      Limit: limit,
-      ScanIndexForward: false, // Newest first
-    })
-  );
-
-  const messages = (res.Items || []).map(formatMessageFromDb);
-
-  // Reverse to get chronological order (oldest to newest)
-  return messages.reverse();
-};
-
-/**
- * Delete all messages for an assistant
- */
 export const deleteMessagesForAssistant = async (
-  _userId: string,
   _assistantId: string,
   event: APIGatewayProxyEvent
 ): Promise<void> => {
-  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
   const assistantId = `assistant#${_assistantId}`;
-  const userId = `user#${_userId}`;
+  const dynamoDbDocument = await getTenantDynamoDBDocument(event);
+  const tableName = getAssistantMessagesTableName(event);
 
-  let exclusiveStartKey: Record<string, any> | undefined;
+  // Query all messages for the assistant
+  let exclusiveStartKey: any = undefined;
 
-  // Loop through all pages of results
   do {
-    // Query messages with pagination
     const res = await dynamoDbDocument.send(
       new QueryCommand({
-        TableName: ASSISTANT_MESSAGES_TABLE_NAME,
+        TableName: tableName,
         KeyConditionExpression: '#assistantId = :assistantId',
-        FilterExpression: '#userId = :userId', // Tenant isolation
         ExpressionAttributeNames: {
           '#assistantId': 'assistantId',
-          '#userId': 'userId',
         },
         ExpressionAttributeValues: {
           ':assistantId': assistantId,
-          ':userId': userId,
         },
-        ProjectionExpression: 'assistantId, messageId',
         ExclusiveStartKey: exclusiveStartKey,
       })
     );
 
-    // Delete messages from this page
-    if (res.Items && res.Items.length > 0) {
-      await Promise.all(
-        res.Items.map((item) =>
-          dynamoDbDocument.send(
-            new DeleteCommand({
-              TableName: ASSISTANT_MESSAGES_TABLE_NAME,
-              Key: {
-                assistantId: item.assistantId,
-                messageId: item.messageId,
-              },
-            })
-          )
-        )
-      );
+    // Delete each message
+    if (res.Items) {
+      for (const item of res.Items) {
+        await dynamoDbDocument.send(
+          new DeleteCommand({
+            TableName: tableName,
+            Key: {
+              assistantId: item.assistantId,
+              messageId: item.messageId,
+            },
+          })
+        );
+      }
     }
 
-    // Set up for next page
     exclusiveStartKey = res.LastEvaluatedKey;
   } while (exclusiveStartKey);
 };

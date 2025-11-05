@@ -51,7 +51,6 @@ import FileBucket from '../file-bucket';
 import ShareApi from './share';
 import AdminApi from './admin';
 import { CentralPptxApi } from './central-pptx';
-import AssistantApi from './assistant';
 
 export interface BackendApiProps {
   // Context Params
@@ -79,9 +78,8 @@ export interface BackendApiProps {
   readonly userPoolClient: UserPoolClient;
   readonly table: Table;
   readonly statsTable: Table;
-  readonly assistantTable?: Table;
-  readonly assistantMessagesTable?: Table;
-  readonly assistantIdIndexName?: string;
+  readonly assistantTable: Table;
+  readonly assistantMessagesTable: Table;
   readonly knowledgeBaseId?: string;
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
@@ -402,16 +400,8 @@ export class Api extends Construct {
       this.centralPptxApi = new CentralPptxApi(this, 'CentralPptxAPI', apiProps);
     }
 
-    // Assistant API for AI assistant management and chat
-    // Uses control plane DynamoDB tables and tenant-specific S3 buckets (via wildcard IAM)
-    if (props.assistantTable && props.assistantMessagesTable && props.assistantIdIndexName) {
-      new AssistantApi(this, 'AssistantAPI', {
-        ...apiProps,
-        assistantTable: props.assistantTable,
-        assistantMessagesTable: props.assistantMessagesTable,
-        assistantIdIndexName: props.assistantIdIndexName,
-      });
-    }
+    // Assistant API is now created in AssistantApiStack (nested stack)
+    // to reduce main stack resource count and improve deployment performance
 
     // Add ALL methods proxy to Bedrock Chat proxy Lambda
     this.restApi = api;

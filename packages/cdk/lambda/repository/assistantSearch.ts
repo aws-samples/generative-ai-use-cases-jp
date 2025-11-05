@@ -1,498 +1,263 @@
-/**
- * OpenSearch Repository for Assistant RAG functionality
- * Provides vector store integration for semantic search over knowledge sources
- */
-
+import { OpenSearchVectorStore } from '@langchain/community/vectorstores/opensearch';
+import { BedrockEmbeddings } from '@langchain/community/embeddings/bedrock';
+import { Document } from '@langchain/core/documents';
 import { Client } from '@opensearch-project/opensearch';
 import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws';
-import { OpenSearchVectorStore } from '@langchain/community/vectorstores/opensearch';
-import { BedrockEmbeddings } from '@langchain/aws';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { S3Loader } from '@langchain/community/document_loaders/web/s3';
-import { CheerioWebBaseLoader } from '@langchain/community/document_loaders/web/cheerio';
-import { Document } from '@langchain/core/documents';
-import { defaultProvider } from '@aws-sdk/credential-provider-node';
-import type {
-  AssistantMessageSource,
-  KnowledgeSource,
-  AssistantSyncStatus,
-} from 'generative-ai-use-cases';
+import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall } from '@aws-sdk/util-dynamodb';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { getTenantCredentials } from '../utils/tenantCredentials';
 
-// Environment variables
-const BEDROCK_REGION = process.env.BEDROCK_REGION || process.env.AWS_REGION || 'us-east-1';
-const EMBEDDING_MODEL_ID = process.env.EMBEDDING_MODEL_ID || 'amazon.titan-embed-text-v1';
+// Tenant-aware cache: store vector store per tenant to prevent cross-tenant data leakage
+const vectorStoreCache = new Map<string, OpenSearchVectorStore>();
+let cachedEndpoint: string | null = null;
+let cachedTenantId: string | null = null;
 
-// Cache configuration
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
-
-// Chunking configuration
-const CHUNK_SIZE = 1000;
-const CHUNK_OVERLAP = 200;
-
-// Search configuration
-const DEFAULT_TOP_K = 5;
-const EXCERPT_LENGTH = 200;
+const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION! });
 
 /**
- * Cache entry for vector stores
+ * Extract tenant ID from API Gateway event
  */
-interface VectorStoreCache {
-  store: OpenSearchVectorStore;
-  timestamp: number;
-}
+function getTenantIdFromEvent(event: APIGatewayProxyEvent): string {
+  const tenantId =
+    event.requestContext?.authorizer?.claims?.['custom:tenant_id'] ||
+    event.requestContext?.authorizer?.['custom:tenant_id'] ||
+    process.env.DEFAULT_TENANT_ID ||
+    'default';
 
-/**
- * In-memory cache for vector store instances
- */
-const vectorStoreCache = new Map<string, VectorStoreCache>();
-
-/**
- * Get OpenSearch endpoint for a tenant
- * In production, this would come from tenant configuration
- */
-function getTenantOpenSearchEndpoint(tenantId: string): string {
-  const endpoint = process.env[`OPENSEARCH_ENDPOINT_${tenantId.toUpperCase()}`] ||
-                   process.env.OPENSEARCH_ENDPOINT;
-
-  if (!endpoint) {
-    throw new Error(`OpenSearch endpoint not configured for tenant: ${tenantId}`);
+  if (!tenantId || tenantId === 'default') {
+    console.warn('No tenant ID found in request, using default tenant');
   }
 
-  return endpoint;
+  return tenantId;
 }
 
 /**
- * Create OpenSearch client with tenant-specific credentials
+ * Query tenants table for OpenSearch endpoint
  */
-async function createOpenSearchClient(
-  tenantId: string
-): Promise<Client> {
-  const endpoint = getTenantOpenSearchEndpoint(tenantId);
-  const region = process.env.AWS_REGION || 'us-east-1';
-
-  // Create client with AWS Sigv4 signing
-  const client = new Client({
-    ...AwsSigv4Signer({
-      region,
-      service: 'es',
-      getCredentials: () => {
-        const credentialsProvider = defaultProvider();
-        return credentialsProvider();
-      },
-    }),
-    node: endpoint.startsWith('https://') ? endpoint : `https://${endpoint}`,
-  });
-
-  return client;
-}
-
-/**
- * Get Bedrock embeddings instance
- */
-function getEmbeddings(): BedrockEmbeddings {
-  return new BedrockEmbeddings({
-    region: BEDROCK_REGION,
-    model: EMBEDDING_MODEL_ID,
-  });
-}
-
-/**
- * Generate cache key for vector store
- */
-function getCacheKey(assistantId: string, tenantId: string): string {
-  return `${tenantId}:${assistantId}`;
-}
-
-/**
- * Get index name for an assistant
- */
-function getIndexName(assistantId: string, tenantId: string): string {
-  return `assistant-${tenantId}-${assistantId}`;
-}
-
-/**
- * Check if cache entry is still valid
- */
-function isCacheValid(entry: VectorStoreCache): boolean {
-  return Date.now() - entry.timestamp < CACHE_TTL_MS;
-}
-
-/**
- * Sleep utility for retry logic
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Retry a function with exponential backoff
- */
-async function retry<T>(
-  fn: () => Promise<T>,
-  retries: number = MAX_RETRIES,
-  delay: number = RETRY_DELAY_MS
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries <= 1) {
-      throw error;
-    }
-    console.warn(`Retry attempt remaining: ${retries - 1}`, error);
-    await sleep(delay);
-    return retry(fn, retries - 1, delay * 2);
-  }
-}
-
-/**
- * Initialize or get vector store for an assistant
- */
-export async function getVectorStore(
-  assistantId: string,
-  tenantId: string
-): Promise<OpenSearchVectorStore> {
-  const cacheKey = getCacheKey(assistantId, tenantId);
-
-  // Check cache
-  const cached = vectorStoreCache.get(cacheKey);
-  if (cached && isCacheValid(cached)) {
-    return cached.store;
+async function getOpenSearchEndpoint(tenantId: string): Promise<string> {
+  // Return cached endpoint if tenant hasn't changed
+  if (cachedEndpoint && cachedTenantId === tenantId) {
+    console.log(`Using cached OpenSearch endpoint for tenant ${tenantId}`);
+    return cachedEndpoint;
   }
 
-  // Create new vector store
-  const client = await createOpenSearchClient(tenantId);
-  const embeddings = getEmbeddings();
-  const indexName = getIndexName(assistantId, tenantId);
+  const tenantsTableName = process.env.TENANTS_TABLE_NAME;
 
-  const vectorStore = new OpenSearchVectorStore(embeddings, {
-    client,
-    indexName,
-    vectorFieldName: 'embedding',
-    textFieldName: 'text',
-    metadataFieldName: 'metadata',
-  });
-
-  // Cache the vector store
-  vectorStoreCache.set(cacheKey, {
-    store: vectorStore,
-    timestamp: Date.now(),
-  });
-
-  return vectorStore;
-}
-
-/**
- * Clear cache for an assistant
- */
-function clearCache(assistantId: string, tenantId: string): void {
-  const cacheKey = getCacheKey(assistantId, tenantId);
-  vectorStoreCache.delete(cacheKey);
-}
-
-/**
- * Load documents from S3
- */
-async function loadS3Documents(
-  s3Urls: string[],
-  chunkSize: number,
-  chunkOverlap: number
-): Promise<Document[]> {
-  const documents: Document[] = [];
-
-  for (const s3Url of s3Urls) {
-    try {
-      // Parse S3 URL: s3://bucket/key
-      const match = s3Url.match(/^s3:\/\/([^/]+)\/(.+)$/);
-      if (!match) {
-        console.error(`Invalid S3 URL format: ${s3Url}`);
-        continue;
-      }
-
-      const [, bucket, key] = match;
-
-      // Load document from S3
-      // Note: S3Loader requires unstructured API for some file types
-      // For basic text extraction, use TextLoader or PDFLoader
-      const loader = new S3Loader({
-        bucket,
-        key,
-        unstructuredAPIURL: process.env.UNSTRUCTURED_API_URL || '',
-        unstructuredAPIKey: process.env.UNSTRUCTURED_API_KEY || '',
-      });
-
-      const docs = await retry(() => loader.load());
-
-      // Add source metadata
-      docs.forEach(doc => {
-        doc.metadata.source = s3Url;
-        doc.metadata.sourceType = 'file';
-      });
-
-      documents.push(...docs);
-    } catch (error) {
-      console.error(`Failed to load S3 document: ${s3Url}`, error);
-    }
-  }
-
-  // Split documents into chunks
-  if (documents.length > 0) {
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize,
-      chunkOverlap,
-    });
-
-    return await textSplitter.splitDocuments(documents);
-  }
-
-  return documents;
-}
-
-/**
- * Load documents from web URLs
- */
-async function loadWebDocuments(
-  knowledgeSource: KnowledgeSource,
-  chunkSize: number,
-  chunkOverlap: number
-): Promise<Document[]> {
-  const documents: Document[] = [];
-
-  if (!knowledgeSource.url) {
-    return documents;
+  if (!tenantsTableName) {
+    throw new Error(
+      'TENANTS_TABLE_NAME environment variable is required for multi-tenant OpenSearch access'
+    );
   }
 
   try {
-    // Load web page
-    const loader = new CheerioWebBaseLoader(knowledgeSource.url);
-    const docs = await retry(() => loader.load());
+    console.log(`Retrieving OpenSearch endpoint for tenant ${tenantId} from table ${tenantsTableName}`);
 
-    // Add source metadata
-    docs.forEach(doc => {
-      doc.metadata.source = knowledgeSource.url;
-      doc.metadata.sourceName = knowledgeSource.name;
-      doc.metadata.sourceType = 'url';
-    });
+    const response = await dynamoClient.send(
+      new GetItemCommand({
+        TableName: tenantsTableName,
+        Key: {
+          tenantId: { S: tenantId },
+        },
+      })
+    );
 
-    documents.push(...docs);
-
-    // Handle recursive crawling if specified
-    if (knowledgeSource.recursiveDepth && knowledgeSource.recursiveDepth > 0) {
-      // Note: Basic implementation - in production, would use a proper crawler
-      console.warn('Recursive crawling not fully implemented - only loading specified URL');
+    if (!response.Item) {
+      throw new Error(
+        `Tenant ${tenantId} not found in tenants table. Ensure tenant is registered with OpenSearch configuration.`
+      );
     }
 
-    // Split documents into chunks
-    if (documents.length > 0) {
-      const textSplitter = new RecursiveCharacterTextSplitter({
-        chunkSize,
-        chunkOverlap,
-      });
+    const tenant = unmarshall(response.Item);
+    const endpoint = tenant.openSearchEndpoint;
 
-      return await textSplitter.splitDocuments(documents);
+    if (!endpoint) {
+      throw new Error(
+        `OpenSearch endpoint not configured for tenant ${tenantId}. Please run tenant OpenSearch setup.`
+      );
     }
+
+    // Cache for subsequent calls
+    cachedEndpoint = endpoint;
+    cachedTenantId = tenantId;
+
+    console.log(`Successfully retrieved OpenSearch endpoint for tenant ${tenantId}: ${endpoint}`);
+    return endpoint;
   } catch (error) {
-    console.error(`Failed to load web document: ${knowledgeSource.url}`, error);
-  }
-
-  return documents;
-}
-
-/**
- * Index documents from knowledge sources
- */
-export async function indexKnowledgeSources(
-  assistantId: string,
-  tenantId: string,
-  knowledgeSources: KnowledgeSource[],
-  s3Urls: string[]
-): Promise<{
-  success: boolean;
-  indexedCount: number;
-  errors?: string[];
-}> {
-  const errors: string[] = [];
-  let indexedCount = 0;
-
-  try {
-    // Clear cache to ensure fresh vector store
-    clearCache(assistantId, tenantId);
-
-    // Get vector store
-    const vectorStore = await getVectorStore(assistantId, tenantId);
-
-    // Determine chunking strategy
-    const chunkingStrategy = knowledgeSources[0]?.chunkingStrategy;
-    const chunkSize = chunkingStrategy?.maxTokens || CHUNK_SIZE;
-    const chunkOverlap = chunkingStrategy
-      ? Math.floor(chunkSize * (chunkingStrategy.overlapPercentage / 100))
-      : CHUNK_OVERLAP;
-
-    // Load documents from S3
-    const s3Documents = await loadS3Documents(s3Urls, chunkSize, chunkOverlap);
-
-    // Load documents from web sources
-    const webDocuments: Document[] = [];
-    for (const source of knowledgeSources) {
-      if (source.sourceType === 'url') {
-        const docs = await loadWebDocuments(source, chunkSize, chunkOverlap);
-        webDocuments.push(...docs);
-      }
-    }
-
-    // Combine all documents
-    const allDocuments = [...s3Documents, ...webDocuments];
-
-    if (allDocuments.length === 0) {
-      return {
-        success: true,
-        indexedCount: 0,
-        errors: ['No documents to index'],
-      };
-    }
-
-    // Index documents in batches
-    const batchSize = 100;
-    for (let i = 0; i < allDocuments.length; i += batchSize) {
-      const batch = allDocuments.slice(i, i + batchSize);
-      try {
-        await retry(() => vectorStore.addDocuments(batch));
-        indexedCount += batch.length;
-      } catch (error) {
-        const errorMsg = `Failed to index batch ${i / batchSize + 1}: ${error}`;
-        console.error(errorMsg);
-        errors.push(errorMsg);
-      }
-    }
-
-    return {
-      success: errors.length === 0,
-      indexedCount,
-      errors: errors.length > 0 ? errors : undefined,
-    };
-  } catch (error) {
-    console.error('Failed to index knowledge sources:', error);
-    return {
-      success: false,
-      indexedCount,
-      errors: [`Critical error: ${error}`],
-    };
-  }
-}
-
-/**
- * Search vector store for relevant documents
- */
-export async function searchKnowledgeBase(
-  assistantId: string,
-  tenantId: string,
-  query: string,
-  limit: number = DEFAULT_TOP_K
-): Promise<AssistantMessageSource[]> {
-  try {
-    const vectorStore = await getVectorStore(assistantId, tenantId);
-
-    // Perform similarity search with scores
-    const results = await vectorStore.similaritySearchWithScore(query, limit);
-
-    // Format results as AssistantMessageSource
-    return results.map(([doc, score]) => {
-      // Extract excerpt (first N characters or around query match)
-      const content = doc.pageContent;
-      let excerpt = content.substring(0, EXCERPT_LENGTH);
-      if (content.length > EXCERPT_LENGTH) {
-        excerpt += '...';
-      }
-
-      return {
-        name: doc.metadata.sourceName || doc.metadata.source || 'Unknown',
-        url: doc.metadata.source,
-        excerpt,
-        score: 1 - score, // Convert distance to similarity score
-      };
-    });
-  } catch (error) {
-    console.error('Failed to search knowledge base:', error);
-    return [];
-  }
-}
-
-/**
- * Delete vector store for an assistant
- */
-export async function deleteVectorStore(
-  assistantId: string,
-  tenantId: string
-): Promise<void> {
-  try {
-    // Clear cache
-    clearCache(assistantId, tenantId);
-
-    // Delete index
-    const client = await createOpenSearchClient(tenantId);
-    const indexName = getIndexName(assistantId, tenantId);
-
-    try {
-      await client.indices.delete({ index: indexName });
-      console.log(`Deleted index: ${indexName}`);
-    } catch (error: any) {
-      // Ignore if index doesn't exist
-      if (error.meta?.statusCode !== 404) {
-        throw error;
-      }
-    }
-  } catch (error) {
-    console.error('Failed to delete vector store:', error);
+    console.error(`Failed to retrieve OpenSearch endpoint for tenant ${tenantId}:`, error);
     throw error;
   }
 }
 
 /**
- * Check sync status of knowledge base
+ * Initialize the OpenSearch vector store with AWS credentials
+ * @param event API Gateway event to extract tenant context
  */
-export async function getSyncStatus(
+async function initVectorStore(
+  event: APIGatewayProxyEvent
+): Promise<OpenSearchVectorStore> {
+  const tenantId = getTenantIdFromEvent(event);
+  const indexName = process.env.OPENSEARCH_INDEX || 'assistant-docs';
+  const region = process.env.AWS_REGION || 'us-east-1';
+
+  // Get OpenSearch endpoint from tenants table
+  const endpoint = await getOpenSearchEndpoint(tenantId);
+
+  // Check if we have a cached vector store for this tenant
+  const cachedStore = vectorStoreCache.get(tenantId);
+  if (cachedStore) {
+    console.log(`Using cached vector store for tenant ${tenantId}`);
+    return cachedStore;
+  }
+
+  console.log(`Creating new vector store for tenant ${tenantId}`);
+
+  // Ensure endpoint has https:// protocol
+  const nodeUrl = endpoint.startsWith('http') ? endpoint : `https://${endpoint}`;
+
+  // Get tenant credentials for OpenSearch access
+  const { credentials, tenant } = await getTenantCredentials(event);
+
+  if (!credentials.AccessKeyId || !credentials.SecretAccessKey) {
+    throw new Error('Invalid tenant credentials for OpenSearch access');
+  }
+
+  // Create OpenSearch client with AWS Sigv4 authentication using tenant credentials
+  const client = new Client({
+    ...AwsSigv4Signer({
+      region,
+      service: 'es', // Use 'es' for managed OpenSearch, 'aoss' for OpenSearch Serverless
+      getCredentials: () => Promise.resolve({
+        accessKeyId: credentials.AccessKeyId!,
+        secretAccessKey: credentials.SecretAccessKey!,
+        sessionToken: credentials.SessionToken,
+      }),
+    }),
+    node: nodeUrl,
+  });
+
+  // Initialize embeddings with Bedrock using tenant credentials
+  const embeddings = new BedrockEmbeddings({
+    region,
+    model: 'amazon.titan-embed-text-v2:0',
+    credentials: {
+      accessKeyId: credentials.AccessKeyId!,
+      secretAccessKey: credentials.SecretAccessKey!,
+      sessionToken: credentials.SessionToken,
+    },
+  });
+
+  // Create vector store
+  const newVectorStore = new OpenSearchVectorStore(embeddings, {
+    client,
+    indexName,
+  });
+
+  // Cache the vector store for this tenant
+  vectorStoreCache.set(tenantId, newVectorStore);
+
+  return newVectorStore;
+}
+
+/**
+ * Index documents for an assistant
+ * @param assistantId The assistant ID
+ * @param documents The documents to index
+ * @param event API Gateway event for tenant context
+ */
+export async function indexDocuments(
   assistantId: string,
-  tenantId: string
-): Promise<{
-  status: AssistantSyncStatus;
-  reason?: string;
-  lastSyncDate?: string;
-}> {
+  documents: Document[],
+  event: APIGatewayProxyEvent
+): Promise<void> {
   try {
-    const client = await createOpenSearchClient(tenantId);
-    const indexName = getIndexName(assistantId, tenantId);
+    const store = await initVectorStore(event);
 
-    // Check if index exists
-    const exists = await client.indices.exists({ index: indexName });
+    // Add assistantId to all document metadata
+    const docsWithAssistantId = documents.map((doc) => ({
+      ...doc,
+      metadata: {
+        ...doc.metadata,
+        assistantId,
+      },
+    }));
 
-    if (!exists.body) {
-      return {
-        status: 'FAILED',
-        reason: 'Index does not exist',
-      };
-    }
+    // Add documents to vector store
+    await store.addDocuments(docsWithAssistantId);
 
-    // Get index stats
-    const stats = await client.indices.stats({ index: indexName });
-    const docCount = stats.body._all?.primaries?.docs?.count || 0;
-
-    if (docCount === 0) {
-      return {
-        status: 'FAILED',
-        reason: 'No documents indexed',
-      };
-    }
-
-    return {
-      status: 'SYNCED',
-      lastSyncDate: new Date().toISOString(),
-    };
+    console.log(
+      `Successfully indexed ${documents.length} documents for assistant ${assistantId}`
+    );
   } catch (error) {
-    console.error('Failed to get sync status:', error);
-    return {
-      status: 'FAILED',
-      reason: `Error checking status: ${error}`,
-    };
+    console.error('Error indexing documents:', error);
+    throw error;
+  }
+}
+
+/**
+ * Perform similarity search for relevant documents
+ * @param assistantId The assistant ID to filter by
+ * @param query The search query
+ * @param event API Gateway event for tenant context
+ * @param k The number of results to return
+ * @returns Array of relevant documents
+ */
+export async function similaritySearch(
+  assistantId: string,
+  query: string,
+  event: APIGatewayProxyEvent,
+  k: number = 5
+): Promise<Document[]> {
+  try {
+    const store = await initVectorStore(event);
+
+    // Perform similarity search with metadata filter
+    const results = await store.similaritySearch(query, k, {
+      assistantId,
+    });
+
+    console.log(
+      `Found ${results.length} relevant documents for query: ${query.substring(0, 50)}...`
+    );
+
+    return results;
+  } catch (error) {
+    console.error('Error performing similarity search:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete all documents for an assistant
+ * @param assistantId The assistant ID
+ * @param event API Gateway event for tenant context
+ */
+export async function deleteAssistantDocuments(
+  assistantId: string,
+  event: APIGatewayProxyEvent
+): Promise<void> {
+  try {
+    const store = await initVectorStore(event);
+    const indexName = process.env.OPENSEARCH_INDEX || 'assistant-docs';
+
+    // Get the OpenSearch client
+    const client = (store as any).client as Client;
+
+    // Delete by query - remove all documents with matching assistantId
+    await client.deleteByQuery({
+      index: indexName,
+      body: {
+        query: {
+          term: {
+            'metadata.assistantId': assistantId,
+          },
+        },
+      },
+    });
+
+    console.log(`Deleted all documents for assistant ${assistantId}`);
+  } catch (error) {
+    console.error('Error deleting assistant documents:', error);
+    throw error;
   }
 }
