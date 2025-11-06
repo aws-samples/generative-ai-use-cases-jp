@@ -20,6 +20,7 @@ import {
 import { BucketInfo } from 'generative-ai-use-cases';
 import * as path from 'path';
 import { loadMCPConfig } from '../utils/mcp-config-loader';
+import { SUPPORTED_CACHE_FIELDS } from '@generative-ai-use-cases/common';
 
 export interface AgentCoreRuntimeConfig {
   name: string;
@@ -102,6 +103,7 @@ export class GenericAgentCore extends Construct {
         environmentVariables: {
           FILE_BUCKET: bucketName,
           MCP_SERVERS: JSON.stringify(genericMcpServers),
+          SUPPORTED_CACHE_FIELDS: JSON.stringify(SUPPORTED_CACHE_FIELDS),
         },
       },
       agentBuilder: {
@@ -115,6 +117,7 @@ export class GenericAgentCore extends Construct {
         environmentVariables: {
           FILE_BUCKET: bucketName,
           MCP_SERVERS: JSON.stringify(agentBuilderMcpServers),
+          SUPPORTED_CACHE_FIELDS: JSON.stringify(SUPPORTED_CACHE_FIELDS),
         },
       },
     };

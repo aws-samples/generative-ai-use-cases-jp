@@ -9,7 +9,7 @@ import boto3
 from strands import Agent as StrandsAgent
 from strands.models import BedrockModel
 
-from .config import extract_model_info, get_max_iterations, get_system_prompt
+from .config import extract_model_info, get_max_iterations, get_system_prompt, supports_prompt_cache, supports_tools_cache
 from .tools import ToolManager
 from .types import Message, ModelInfo
 from .utils import (
@@ -81,12 +81,21 @@ class AgentManager:
 
             # Create boto3 session and Bedrock model
             session = boto3.Session(region_name=region)
-            bedrock_model = BedrockModel(
-                model_id=model_id,
-                boto_session=session,
-                cache_prompt="default",
-                cache_tools="default",
-            )
+
+            # Configure caching based on model support (loaded from environment variable)
+            bedrock_model_params = {
+                "model_id": model_id,
+                "boto_session": session,
+            }
+
+            # Only enable caching for officially supported models
+            if supports_prompt_cache(model_id):
+                bedrock_model_params["cache_prompt"] = "default"
+
+                if supports_tools_cache(model_id):
+                    bedrock_model_params["cache_tools"] = "default"
+
+            bedrock_model = BedrockModel(**bedrock_model_params)
 
             # Process messages and prompt using utility functions
             processed_messages = process_messages(messages)

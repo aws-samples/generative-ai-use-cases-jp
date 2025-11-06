@@ -1,7 +1,9 @@
 """Configuration and environment setup for the agent core runtime."""
 
+import json
 import logging
 import os
+import re
 from typing import Any
 
 # Configure root logger
@@ -82,3 +84,34 @@ def get_max_iterations() -> int:
     except ValueError:
         logger.warning(f"Invalid MAX_ITERATIONS value. Defaulting to {DEFAULT_MAX_ITERATIONS}.")
         return DEFAULT_MAX_ITERATIONS
+
+
+# CRI (Cross-Region Inference) prefix pattern
+CRI_PREFIX_PATTERN = re.compile(r"^(global|us|eu|apac|jp)\.")
+
+# Prompt caching configuration
+# Based on: https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
+# Load from environment variable (injected by CDK from TypeScript definition)
+_supported_cache_fields_env = os.environ.get("SUPPORTED_CACHE_FIELDS")
+if _supported_cache_fields_env:
+    SUPPORTED_CACHE_FIELDS: dict[str, list[str]] = json.loads(_supported_cache_fields_env)
+else:
+    # Fallback if environment variable is not set (should not happen in production)
+    logger.warning("SUPPORTED_CACHE_FIELDS not found in environment, using empty fallback")
+    SUPPORTED_CACHE_FIELDS: dict[str, list[str]] = {}
+
+
+def get_supported_cache_fields(model_id: str) -> list[str]:
+    """Get supported cache fields for a model (removes CRI prefix before lookup)"""
+    base_model_id = CRI_PREFIX_PATTERN.sub("", model_id)
+    return SUPPORTED_CACHE_FIELDS.get(base_model_id, [])
+
+
+def supports_prompt_cache(model_id: str) -> bool:
+    """Check if a model supports prompt caching (system or messages)"""
+    return len(get_supported_cache_fields(model_id)) > 0
+
+
+def supports_tools_cache(model_id: str) -> bool:
+    """Check if a model supports tools caching"""
+    return "tools" in get_supported_cache_fields(model_id)
