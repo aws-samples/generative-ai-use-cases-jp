@@ -8,7 +8,8 @@ import { TAG_KEY } from '../consts';
 const app = new cdk.App();
 const params = getParams(app);
 if (params.tagValue) {
-  cdk.Tags.of(app).add(TAG_KEY, params.tagValue, {
+  const tagKey = params.tagKey || TAG_KEY;
+  cdk.Tags.of(app).add(tagKey, params.tagValue, {
     // Exclude OpenSearchServerless Collection from tagging
     excludeResourceTypes: ['AWS::OpenSearchServerless::Collection'],
   });

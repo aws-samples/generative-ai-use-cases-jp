@@ -1,11 +1,112 @@
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
+agent_builder:
+  add_agents_to_favorites_description: 公開からエージェントをお気に入りに追加
+  add_mcp_server: MCPサーバーを追加
+  add_mcp_server_button: MCPサーバーを追加
+  add_mcp_servers_help: 「MCPサーバーを追加」をクリックして、エージェントにツールと機能を追加します
+  add_new_mcp_server: 新しいMCPサーバーを追加
+  agent_chat: エージェントチャット
+  agent_cloned_successfully: エージェント「{{name}}」が正常にクローンされました！
+  agent_created_successfully: エージェントが正常に作成されました
+  agent_deleted_successfully: エージェントが正常に削除されました
+  agent_not_found: エージェントが見つかりません
+  agent_updated_successfully: エージェントが正常に更新されました
+  all_categories: すべて
+  arguments: 引数
+  arguments_help: パッケージ名またはコマンド引数（スペース区切り）
+  arguments_label: 引数
+  arguments_placeholder: パッケージ名 引数1 引数2
+  basic_information: 基本情報
+  bedrock_agent_description: 特別な機能を持つ事前設定済みのBedrockエージェント
+  chat: チャット
+  check_back_later_description: 公開エージェントについては後でもう一度確認してください
+  clone: クローン
+  code_execution: コード実行
+  code_execution_description: >-
+    このエージェントがコードを実行し、スクリプトを実行できるようにします。
+  command: コマンド
+  command_help: セキュリティ上の理由により、'uvx'コマンドのみ許可されています
+  command_label: コマンド
+  command_placeholder: uvx
+  confirm_delete: このエージェントを削除してもよろしいですか？
+  create_agent: エージェントを作成
+  create_first_agent_description: 最初のエージェントを作成して始めましょう
+  create_your_first_agent: 最初のエージェントを作成
+  created_by: 作成者
+  describe_agent: エージェントの機能を説明してください
+  description: 説明
+  description_label: 説明
+  description_placeholder: エージェントの機能を説明してください...
+  description_too_long: 説明は500文字以下である必要があります
+  edit_agent: エージェントを編集
+  enable_code_execution: コード実行を有効にする
+  enter_agent_name: エージェント名を入力
+  enter_system_prompt: エージェントの動作を定義するシステムプロンプトを入力
+  enter_tags_comma_separated: タグをカンマ区切りで入力
+  environment_help: JSON形式の環境変数（オプション）
+  environment_variables: 環境変数
+  environment_variables_label: 環境変数
+  example_github: GitHub
+  external: 外部
+  external_agent_description: 特別な機能を持つ事前設定済みの外部エージェント
+  external_agents: 外部エージェント
+  failed_to_clone_agent: エージェントのクローンに失敗しました
+  failed_to_create_agent: エージェントの作成に失敗しました
+  failed_to_delete_agent: エージェントの削除に失敗しました
+  failed_to_toggle_favorite: お気に入りの切り替えに失敗しました
+  failed_to_update_agent: エージェントの更新に失敗しました
+  favorites: お気に入り
+  filter_by_tag: タグでフィルター
+  loading_agent: エージェントを読み込み中...
+  mcp_server_configuration: MCPサーバー設定
+  mcp_server_description: エージェントに追加機能を提供するMCPサーバーを選択してください。これらのサーバーはセキュリティのため管理者によって事前設定されています。
+  mcp_servers: MCPサーバー
+  mcp_servers_description: MCPサーバーを追加して、エージェントにツールと機能を提供します
+  model: モデル
+  my_agents: マイエージェント
+  name: 名前
+  name_too_long: エージェント名は100文字以下である必要があります
+  no_agents_yet: まだエージェントがありません
+  no_external_agents_available: 利用可能な外部エージェントがありません
+  no_favorite_agents_yet: まだお気に入りのエージェントがありません
+  no_mcp_servers: MCPサーバーが設定されていません
+  no_mcp_servers_available: 現在利用可能なMCPサーバーがありません。
+  no_mcp_servers_match_filter: 現在のフィルターに一致するMCPサーバーがありません。
+  no_mcp_servers_selected: MCPサーバーが選択されていません。エージェントは基本機能のみ利用できます。
+  no_public_agents_available: 利用可能な公開エージェントがありません
+  public: 公開エージェント
+  public_sharing_description: >-
+    このエージェントを公開し、他のユーザーが発見して利用できるようにします。エージェントはすべてのユーザーに表示されますが、オリジナルを変更することはできません。
+  quick_examples: クイック例
+  quick_examples_title: クイック例
+  search_agents: エージェントを検索...
+  search_mcp_servers: MCPサーバーを検索...
+  security_notice: セキュリティ通知
+  security_notice_description: uvxコマンドのみ許可されています。セキュリティのため外部ネットワークアクセスは制限されています。
+  security_restrictions: uvxコマンドのみ許可されています。セキュリティのため外部ネットワークアクセスは制限されています。
+  separate_tags_with_commas: 複数のタグはカンマで区切ってください
+  server_configuration: サーバー設定
+  server_description_placeholder: このサーバーが提供する機能の簡単な説明...
+  server_name: サーバー名
+  server_name_label: サーバー名
+  server_name_placeholder: 例：github-mcp-server
+  share_publicly: 公開で共有
+  showing_results: '{{total}}件中 {{start}}-{{end}}件を表示'
+  start_chatting_with: '{{name}}とのチャットを開始'
+  system_prompt: システムプロンプト
+  tags: タグ
+  test: テスト
+  title: エージェントビルダー
+  tool_settings: ツール設定
+  updated: 更新日
 agent_core:
   model: モデル
   runtime: ランタイム
   start_conversation: AgentCore と会話を始める
   title: AgentCore
+agent_dashboard: {}
 auth:
   loading: 読み込み中...
   login: ログイン
@@ -38,7 +139,9 @@ chat:
   title: チャット
   view_prompt_examples: プロンプト例を見る
 common:
+  add: 追加
   arrow: →
+  back: 戻る
   cancel: キャンセル
   clear: クリア
   close: 閉じる
@@ -46,7 +149,13 @@ common:
   colon: ':'
   complete: 完了
   create: 作成
+  default: デフォルト
   delete: 削除
+  disable: 無効化
+  disabled: 無効
+  edit: 編集
+  enable: 有効化
+  enabled: 有効
   enter_text: 入力してください
   error: エラー
   errorNoSuggestions: 候補が見つかりませんでした。
@@ -54,10 +163,14 @@ common:
   expand: 展開
   export: エクスポート
   feedback_received: フィードバックを受け付けました。ありがとうございます。
+  first_page: 最初のページ
+  form: フォーム
   here: こちら
+  last_page: 最後のページ
   load_more: さらに読み込む
   loading: 読み込み中...
   next: 次
+  next_page: 次のページ
   no_options_found: オプションが見つかりません
   none: ありません
   notAuthenticated: 認証されていません。
@@ -66,6 +179,8 @@ common:
   optional: 任意
   other: その他
   previous: 前
+  previous_page: 前のページ
+  remove: 削除
   required: 必須
   reviewComplete: レビュー完了
   save: 保存
@@ -75,6 +190,7 @@ common:
   title: タイトル
   trace: トレース
   try: 試す
+  update: 更新
 demo:
   inter_use_cases: ユースケース連携
 diagram:
@@ -255,6 +371,11 @@ diagram:
       desc: XYチャートは2つの変数間の関係を表現します
       exampleTitle: 睡眠・労働時間例
       title: XYチャート
+dialog:
+  unsavedChanges:
+    leave: 移動する
+    message: このページから移動すると、入力内容が失われます。本当に移動しますか？
+    title: 入力内容が保存されていません
 drawer:
   ai_services: AI サービス
   builder_mode: ビルダーモード

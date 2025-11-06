@@ -36,11 +36,16 @@ interface TranscriptionSegment {
 interface MeetingMinutesTranscriptionProps {
   /** Callback when transcript text changes */
   onTranscriptChange?: (text: string) => void;
+  /** Callback when recording state changes */
+  onRecordingStateChange?: (state: {
+    micRecording: boolean;
+    screenRecording: boolean;
+  }) => void;
 }
 
 const MeetingMinutesTranscription: React.FC<
   MeetingMinutesTranscriptionProps
-> = ({ onTranscriptChange }) => {
+> = ({ onTranscriptChange, onRecordingStateChange }) => {
   const { t, i18n } = useTranslation();
   const transcriptContainerRef = useRef<HTMLDivElement>(null);
   const isAtBottomRef = useRef<boolean>(true);
@@ -64,6 +69,14 @@ const MeetingMinutesTranscription: React.FC<
     error: screenAudioError,
     rawTranscripts: screenRawTranscripts,
   } = useScreenAudio();
+
+  // Notify parent component of recording state changes
+  useEffect(() => {
+    onRecordingStateChange?.({
+      micRecording,
+      screenRecording,
+    });
+  }, [micRecording, screenRecording, onRecordingStateChange]);
 
   // Internal state management
   const [languageCode, setLanguageCode] = useState('auto');

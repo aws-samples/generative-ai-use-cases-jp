@@ -306,6 +306,11 @@ diagram:
       desc: XY chart แสดงความสัมพันธ์ระหว่างตัวแปรสองตัว
       exampleTitle: ตัวอย่างชั่วโมงนอนเทียบกับชั่วโมงทำงาน
       title: XY Chart
+dialog:
+  unsavedChanges:
+    leave: ออก
+    message: หากคุณออกจากหน้านี้ ข้อมูลที่ป้อนจะสูญหาย คุณแน่ใจหรือไม่ว่าต้องการออก?
+    title: การเปลี่ยนแปลงที่ยังไม่ได้บันทึก
 drawer:
   ai_services: บริการ AI
   builder_mode: Builder Mode

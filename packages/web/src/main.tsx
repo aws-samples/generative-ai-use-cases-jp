@@ -27,11 +27,14 @@ import GenerateVideoPage from './pages/GenerateVideoPage';
 import OptimizePromptPage from './pages/OptimizePromptPage';
 import TranscribePage from './pages/TranscribePage';
 import MeetingMinutesPage from './pages/MeetingMinutesPage';
-import AgentChatPage from './pages/AgentChatPage.tsx';
+import AgentChatPage from './pages/AgentChatPage';
 import FlowChatPage from './pages/FlowChatPage';
 import VoiceChatPage from './pages/VoiceChatPage';
 import McpChatPage from './pages/McpChatPage';
 import AgentCorePage from './pages/AgentCorePage.tsx';
+import AgentBuilderListPage from './pages/agentBuilder/AgentBuilderListPage.tsx';
+import AgentBuilderEditPage from './pages/agentBuilder/AgentBuilderEditPage';
+import AgentBuilderChatPage from './pages/agentBuilder/AgentBuilderChatPage';
 import { MODELS } from './hooks/useModel';
 import { Authenticator } from '@aws-amplify/ui-react';
 import UseCaseBuilderEditPage from './pages/useCaseBuilder/UseCaseBuilderEditPage.tsx';
@@ -52,10 +55,12 @@ const ragKnowledgeBaseEnabled: boolean =
 const samlAuthEnabled: boolean =
   import.meta.env.VITE_APP_SAMLAUTH_ENABLED === 'true';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
-const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
+const agentBuilderEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED === 'true';
+
 const {
   visionEnabled,
   imageGenModelIds,
@@ -178,13 +183,13 @@ const routes: RouteObject[] = [
         element: <RagKnowledgeBasePage />,
       }
     : null,
-  agentEnabled && !inlineAgents
+  agentEnabled
     ? {
         path: '/agent',
         element: <AgentChatPage />,
       }
     : null,
-  agentEnabled && inlineAgents
+  agentEnabled
     ? {
         path: '/agent/:agentName',
         element: <AgentChatPage />,
@@ -206,6 +211,36 @@ const routes: RouteObject[] = [
     ? {
         path: '/agent-core',
         element: <AgentCorePage />,
+      }
+    : null,
+  agentCoreEnabled
+    ? {
+        path: '/agent-core/:agentArn',
+        element: <AgentCorePage />,
+      }
+    : null,
+  agentBuilderEnabled
+    ? {
+        path: '/agent-builder',
+        element: <AgentBuilderListPage />,
+      }
+    : null,
+  agentBuilderEnabled
+    ? {
+        path: '/agent-builder/create',
+        element: <AgentBuilderEditPage />,
+      }
+    : null,
+  agentBuilderEnabled
+    ? {
+        path: '/agent-builder/:agentId/edit',
+        element: <AgentBuilderEditPage />,
+      }
+    : null,
+  agentBuilderEnabled
+    ? {
+        path: '/agent-builder/:agentId',
+        element: <AgentBuilderChatPage />,
       }
     : null,
   {

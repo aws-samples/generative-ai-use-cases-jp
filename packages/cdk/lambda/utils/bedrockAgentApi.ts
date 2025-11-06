@@ -32,10 +32,10 @@ const s3Client = new S3Client({});
 
 // Agent information
 const agentMap: AgentMap = JSON.parse(process.env.AGENT_MAP || '{}');
-type AgentInfo = {
+type AgentConfig = {
   codeInterpreterEnabled: boolean;
 };
-const agentInfoMap: { [aliasId: string]: AgentInfo } = {};
+const agentConfigMap: { [aliasId: string]: AgentConfig } = {};
 
 // Convert s3://<BUCKET>/<PREFIX> to https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX>
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
@@ -60,9 +60,9 @@ const encodeUrlString = (str: string): string => {
   }
 };
 
-const getAgentInfo = async (agentId: string, agentAliasId: string) => {
+const getagentConfig = async (agentId: string, agentAliasId: string) => {
   // Get Agent Info if not cached
-  if (!agentInfoMap[agentAliasId]) {
+  if (!agentConfigMap[agentAliasId]) {
     const bedrockAgentClient = await initBedrockAgentClient({
       region: MODEL_REGION,
     });
@@ -84,13 +84,13 @@ const getAgentInfo = async (agentId: string, agentAliasId: string) => {
       })
     );
     // Cache Agent Info
-    agentInfoMap[agentAliasId] = {
+    agentConfigMap[agentAliasId] = {
       codeInterpreterEnabled: !!actionGroups.actionGroupSummaries?.find(
         (actionGroup) => actionGroup.actionGroupName === 'CodeInterpreterAction'
       ),
     };
   }
-  return agentInfoMap[agentAliasId];
+  return agentConfigMap[agentAliasId];
 };
 
 const bedrockAgentApi: ApiInterface = {
@@ -105,7 +105,7 @@ const bedrockAgentApi: ApiInterface = {
       }
       const agentId = agentMap[model.modelId].agentId;
       const agentAliasId = agentMap[model.modelId].aliasId;
-      const agentInfo = await getAgentInfo(agentId, agentAliasId);
+      const agentConfig = await getagentConfig(agentId, agentAliasId);
 
       // Invoke Agent
       const command = new InvokeAgentCommand({
@@ -136,7 +136,7 @@ const bedrockAgentApi: ApiInterface = {
                     data: Buffer.from(file.source.data, 'base64'),
                   },
                 },
-                useCase: agentInfo.codeInterpreterEnabled
+                useCase: agentConfig.codeInterpreterEnabled
                   ? 'CODE_INTERPRETER'
                   : 'CHAT',
               })) as InputFile[] | undefined;

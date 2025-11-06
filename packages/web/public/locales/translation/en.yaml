@@ -1,11 +1,121 @@
 agent:
   drop_files: Drop files to upload
   title: Agent Chat
+agent_builder:
+  add_agents_to_favorites_description: Add agents to your favorites to see them here
+  add_mcp_server: Add MCP Server
+  add_mcp_server_button: Add MCP Server
+  add_mcp_servers_help: Click "Add MCP Server" to add tools and capabilities to your agent
+  add_new_mcp_server: Add New MCP Server
+  agent_chat: Agent Chat
+  agent_cloned_successfully: Agent "{{name}}" cloned successfully!
+  agent_created_successfully: Agent created successfully
+  agent_deleted_successfully: Agent deleted successfully
+  agent_not_found: Agent Not Found
+  agent_updated_successfully: Agent updated successfully
+  all_categories: All
+  arguments: Arguments
+  arguments_help: Package name or command arguments (space-separated)
+  arguments_label: Arguments
+  arguments_placeholder: package-name arg1 arg2
+  basic_information: Basic Information
+  bedrock_agent_description: Pre-configured Bedrock Agent with specialized capabilities
+  chat: chat
+  check_back_later_description: Check back later for new public agents
+  clone: Clone
+  code_execution: Code execution
+  code_execution_description: Allows this agent to run the code and run the scripts.
+  command: Command
+  command_help: Only 'uvx' command is allowed for security reasons
+  command_label: Command
+  command_placeholder: uvx
+  confirm_delete: Are you sure you want to delete this agent?
+  create_agent: Create Agent
+  create_first_agent_description: Create your first agent to get started
+  create_your_first_agent: Create Your First Agent
+  created_by: Created by
+  describe_agent: Please explain the functions of the agent
+  description: Description
+  description_label: Description
+  description_placeholder: Describe what your agent does...
+  description_too_long: Description must be 500 characters or less
+  edit_agent: Edit Agent
+  enable_code_execution: Enabling code execution
+  enter_agent_name: Enter the agent name
+  enter_system_prompt: Enter a system prompt that defines the agent behavior
+  enter_tags_comma_separated: Enter tags separated by commas
+  environment_help: JSON format environment variables (optional)
+  environment_variables: Environment Variables
+  environment_variables_label: Environment Variables
+  example_github: GitHub
+  external: External
+  external_agent_description: Pre-configured external agents with specialized capabilities
+  external_agents: External Agents
+  failed_to_clone_agent: Failed to clone agent
+  failed_to_create_agent: Failed to create agent
+  failed_to_delete_agent: Failed to delete agent
+  failed_to_load_agents: Failed to load agents
+  failed_to_toggle_favorite: Failed to toggle favorite
+  failed_to_update_agent: Failed to update agent
+  favorites: Favorites
+  filter_by_tag: Filter by tag
+  loading_agent: Loading agent...
+  mcp_server_configuration: MCP Server Configuration
+  mcp_server_description: >-
+    Select MCP servers to enable additional capabilities for your agent. These
+    servers are pre-configured by administrators for security.
+  mcp_servers: MCP Servers
+  mcp_servers_description: Add MCP servers to provide tools and capabilities to your agent
+  model: Model
+  my_agents: My Agents
+  name: Name
+  name_too_long: Agent name must be 100 characters or less
+  no_agents_yet: No agents yet
+  no_external_agents_available: No external agents available
+  no_favorite_agents_yet: No favorite agents yet
+  no_mcp_servers: No MCP servers configured
+  no_mcp_servers_available: No MCP servers are currently available.
+  no_mcp_servers_match_filter: No MCP servers match your current filter.
+  no_mcp_servers_selected: No MCP servers selected. Your agent will have basic functionality only.
+  no_public_agents_available: No public agents available
+  public: Public Agents
+  public_sharing_description: >-
+    Make this agent available on public agent directories and be discovered and
+    available to others. 
+
+    The agent is visible to all users, but you cannot modify the original.
+  quick_examples: Quick Examples
+  quick_examples_title: Quick Examples
+  search_agents: Search agents...
+  search_mcp_servers: Search MCP servers...
+  security_notice: Security Notice
+  security_notice_description: >-
+    Only uvx command is allowed. External network access is restricted for
+    security.
+  security_restrictions: >-
+    Only uvx command is allowed. External network access is restricted for
+    security.
+  separate_tags_with_commas: Separate multiple tags with commas
+  server_configuration: Server Configuration
+  server_description_placeholder: Brief description of what this server provides...
+  server_name: Server Name
+  server_name_label: Server Name
+  server_name_placeholder: e.g., github-mcp-server
+  share_publicly: Share publicly
+  showing_results: Showing {{start}}-{{end}} of {{total}} results
+  start_chatting_with: Start chatting with {{name}}
+  system_prompt: System Prompt
+  tags: Tags
+  test: Test
+  title: Agent Builder
+  tool_settings: Tool Settings
+  updated: Updated date
 agent_core:
   model: Model
   runtime: Runtime
   start_conversation: Start a conversation with AgentCore
   title: AgentCore
+agent_dashboard: {}
 auth:
   loading: Loading...
   login: Login
@@ -40,7 +150,9 @@ chat:
   title: Chat
   view_prompt_examples: View Prompt Examples
 common:
+  add: Add
   arrow: →
+  back: Back
   cancel: Cancel
   clear: Clear
   close: Close
@@ -48,7 +160,13 @@ common:
   colon: ':'
   complete: Complete
   create: Create
+  default: Default
   delete: Delete
+  disable: Disable
+  disabled: Disabled
+  edit: Edit
+  enable: Enable
+  enabled: Enabled
   enter_text: Enter text
   error: An error occurred
   errorNoSuggestions: No suggestions were found.
@@ -56,10 +174,14 @@ common:
   expand: Expand
   export: Export
   feedback_received: Feedback received. Thank you.
+  first_page: First page
+  form: Form
   here: here
+  last_page: Last page
   load_more: Load more
   loading: Loading...
   next: Next
+  next_page: Next page
   no_options_found: No options found
   none: None
   notAuthenticated: You are not authenticated.
@@ -68,6 +190,8 @@ common:
   optional: Optional
   other: Other
   previous: Previous
+  previous_page: Previous page
+  remove: Remove
   required: Required
   reviewComplete: Review completed
   save: Save
@@ -77,6 +201,7 @@ common:
   title: Title
   trace: Trace
   try: Try
+  update: Update
 demo:
   inter_use_cases: Use Case Integration
 diagram:
@@ -308,6 +433,11 @@ diagram:
       desc: XY charts show relationships between two variables
       exampleTitle: Sleep vs Work Hours Example
       title: XY Chart
+dialog:
+  unsavedChanges:
+    leave: Leave
+    message: If you leave this page, your input will be lost. Are you sure you want to leave?
+    title: Unsaved Changes
 drawer:
   ai_services: AI Services
   builder_mode: Builder Mode
@@ -546,7 +676,9 @@ landing:
         Amazon Bedrock.
       title: Agent Chat
     agent_core:
-      description: AgentCore Chat is a feature that utilizes various Agents created with Bedrock AgentCore.
+      description: >-
+        AgentCore Chat is a feature that utilizes various Agents created with
+        Bedrock AgentCore.
       title: AgentCore
     chat:
       description: >-
@@ -888,7 +1020,10 @@ transcribe:
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
   screen_audio_error: Screen Audio Error
-  screen_audio_notice: 'For Windows: Select "Entire Screen" tab and turn ON "Share system audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab audio".<br/>Chrome and Edge work. Firefox does not work.'
+  screen_audio_notice: >-
+    For Windows: Select "Entire Screen" tab and turn ON "Share system
+    audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab
+    audio".<br/>Chrome and Edge work. Firefox does not work.
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)
   speaker_recognition: Speaker recognition
@@ -902,7 +1037,9 @@ translate:
   additional_context_placeholder: You can enter additional points to consider (e.g., casualness, etc.)
   auto_detect_language: Auto detect language
   auto_translate: Auto translate
-  contextHelp: Context information helps improve translation accuracy by providing background information about the meeting.
+  contextHelp: >-
+    Context information helps improve translation accuracy by providing
+    background information about the meeting.
   continue_output: Continue output
   detectedLanguage: Detected Language
   enter_text: Enter text
@@ -916,7 +1053,9 @@ translate:
   translating: Translating...
   translation: Translation
   userDefinedContext: User-defined Context
-  userDefinedContextPlaceholder: 'Enter context to improve translation accuracy (e.g., meeting topic, technical terms, etc.)'
+  userDefinedContextPlaceholder: >-
+    Enter context to improve translation accuracy (e.g., meeting topic,
+    technical terms, etc.)
 useCaseBuilder:
   accessError: Access Error
   addInputExample: Add Input Example

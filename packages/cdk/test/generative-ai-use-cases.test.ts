@@ -49,6 +49,7 @@ describe('GenerativeAiUseCases', () => {
     agents: [],
     flows: [],
     createGenericAgentCoreRuntime: true,
+    agentBuilderEnabled: true,
     agentCoreRegion: 'us-east-1',
     agentCoreExternalRuntimes: [],
     allowedIpV4AddressRanges: null,
@@ -62,6 +63,8 @@ describe('GenerativeAiUseCases', () => {
     guardrailEnabled: true,
     crossAccountBedrockRoleArn: '',
     useCaseBuilderEnabled: true,
+    tagKey: null,
+    tagValue: null,
   };
 
   test('matches the snapshot', () => {
@@ -159,5 +162,51 @@ describe('GenerativeAiUseCases', () => {
     expect(guardrailTemplate.toJSON()).toMatchSnapshot();
     expect(generativeAiUseCasesTemplate.toJSON()).toMatchSnapshot();
     expect(dashboardTemplate.toJSON()).toMatchSnapshot();
+  });
+
+  test('tagKey functionality', () => {
+    // Test with custom tagKey
+    const appWithCustomTag = new cdk.App();
+    const paramsWithCustomTag = processedStackInputSchema.parse({
+      ...stackInput,
+      tagKey: 'CustomTag',
+      tagValue: 'custom-value',
+    });
+
+    const stacksWithCustomTag = createStacks(
+      appWithCustomTag,
+      paramsWithCustomTag
+    );
+
+    // Test without tagKey (should use default)
+    const appWithoutTagKey = new cdk.App();
+    const paramsWithoutTagKey = processedStackInputSchema.parse({
+      ...stackInput,
+      tagKey: null,
+      tagValue: 'default-value',
+    });
+
+    const stacksWithoutTagKey = createStacks(
+      appWithoutTagKey,
+      paramsWithoutTagKey
+    );
+
+    // Assert that both scenarios create stacks successfully
+    expect(stacksWithCustomTag.generativeAiUseCasesStack).toBeDefined();
+    expect(stacksWithoutTagKey.generativeAiUseCasesStack).toBeDefined();
+
+    // Test that RagKnowledgeBaseStack is created properly with custom tagKey
+    if (stacksWithCustomTag.ragKnowledgeBaseStack) {
+      const customTagTemplate = Template.fromStack(
+        stacksWithCustomTag.ragKnowledgeBaseStack
+      );
+      // Check that custom resource uses the custom tag key
+      customTagTemplate.hasResourceProperties('Custom::ApplyTags', {
+        tag: {
+          key: 'CustomTag',
+          value: 'custom-value',
+        },
+      });
+    }
   });
 });
