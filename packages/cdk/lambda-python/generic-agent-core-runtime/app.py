@@ -41,38 +41,56 @@ async def invocations(request: Request):
 
     Expects request with messages, system_prompt, prompt, and model
     """
-    # Get session info from headers
+    # Setup session and workspace
     headers = dict(request.headers)
     session_id = headers.get("x-amzn-bedrock-agentcore-runtime-session-id")
     trace_id = headers.get("x-amzn-trace-id")
-    logger.info(f"New invocation: {session_id} {trace_id}")
-
-    # Set session info in agent manager
     agent_manager.set_session_info(session_id, trace_id)
-
-    # Ensure workspace directory exists
     create_ws_directory()
 
     try:
-        # Read and parse request body
+        # Parse request body
         body = await request.body()
-        body_str = body.decode()
-        request_data = json.loads(body_str)
+        try:
+            request_data = json.loads(body.decode())
+            # Handle AWS Lambda integration format
+            if "input" in request_data and isinstance(request_data["input"], dict):
+                request_data = request_data["input"]
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON: {e}")
+            return create_error_response("Invalid JSON in request body")
 
-        # Handle input field if present (AWS Lambda integration format)
-        if "input" in request_data and isinstance(request_data["input"], dict):
-            request_data = request_data["input"]
-
-        # Extract required fields
+        # Extract fields
         messages = request_data.get("messages", [])
         system_prompt = request_data.get("system_prompt")
         prompt = request_data.get("prompt", [])
         model_info = request_data.get("model", {})
+        user_id = request_data.get("user_id")
+        mcp_servers = request_data.get("mcp_servers")
+        agent_session_id = request_data.get("session_id")
+        agent_id = request_data.get("agent_id")
+        code_execution_enabled = request_data.get("code_execution_enabled", False)
 
-        # Return streaming response
+        # Validate required fields
+        if not model_info:
+            return create_error_response("Model information is required")
+        if not prompt and not messages:
+            return create_error_response("Either prompt or messages is required")
+
+        # Stream response
         async def generate():
             try:
-                async for chunk in agent_manager.process_request_streaming(messages=messages, system_prompt=system_prompt, prompt=prompt, model_info=model_info):
+                async for chunk in agent_manager.process_request_streaming(
+                    messages=messages,
+                    system_prompt=system_prompt,
+                    prompt=prompt,
+                    model_info=model_info,
+                    user_id=user_id,
+                    mcp_servers=mcp_servers,
+                    session_id=agent_session_id or session_id,
+                    agent_id=agent_id,
+                    code_execution_enabled=code_execution_enabled,
+                ):
                     yield chunk
             finally:
                 clean_ws_directory()

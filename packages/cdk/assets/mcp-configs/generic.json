@@ -1,0 +1,79 @@
+{
+  "_comment": "MCP Server Configuration",
+  "_metadata_info": {
+    "description": "Each server can include a 'metadata' object with 'category' and 'description' fields",
+    "category_examples": [
+      "AWS",
+      "AI/ML",
+      "Utility",
+      "Search",
+      "Development",
+      "Other"
+    ]
+  },
+  "mcpServers": {
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time"],
+      "metadata": {
+        "category": "Utility",
+        "description": "Provides current time and date functionality"
+      }
+    },
+    "aws-knowledge-mcp-server": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://knowledge-mcp.global.api.aws"],
+      "metadata": {
+        "category": "AWS",
+        "description": "AWS Knowledge Base MCP server for enterprise knowledge access"
+      }
+    },
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "metadata": {
+        "category": "AWS",
+        "description": "Access AWS documentation and guides"
+      }
+    },
+    "awslabs.cdk-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.cdk-mcp-server@latest"],
+      "metadata": {
+        "category": "AWS",
+        "description": "AWS CDK code generation and assistance"
+      }
+    },
+    "awslabs.aws-diagram-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-diagram-mcp-server@latest"],
+      "metadata": {
+        "category": "AWS",
+        "description": "Generate AWS architecture diagrams"
+      }
+    },
+    "awslabs.nova-canvas-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.nova-canvas-mcp-server@latest"],
+      "env": {
+        "AWS_REGION": "us-east-1"
+      },
+      "metadata": {
+        "category": "AI/ML",
+        "description": "Amazon Nova Canvas image generation"
+      }
+    },
+    "tavily-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"
+      ],
+      "metadata": {
+        "category": "Search",
+        "description": "Web search and research capabilities powered by Tavily"
+      }
+    }
+  }
+}

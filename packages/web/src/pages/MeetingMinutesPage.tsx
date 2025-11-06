@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Card from '../components/Card';
 import {
   PiMicrophoneBold,
@@ -11,6 +11,8 @@ import MeetingMinutesRealtimeTranslation from '../components/MeetingMinutes/Meet
 import MeetingMinutesDirect from '../components/MeetingMinutes/MeetingMinutesDirect';
 import MeetingMinutesFile from '../components/MeetingMinutes/MeetingMinutesFile';
 import MeetingMinutesGeneration from '../components/MeetingMinutes/MeetingMinutesGeneration';
+import NavigationBlockDialog from '../components/NavigationBlockDialog';
+import usePreventNavigation from '../hooks/usePreventNavigation';
 import { useTranslation } from 'react-i18next';
 
 // Types for Meeting Minutes components
@@ -59,6 +61,36 @@ const MeetingMinutesPage: React.FC = () => {
     realtime_translation: '',
   });
 
+  // Recording state management for navigation protection
+  const [transcriptionRecording, setTranscriptionRecording] = useState({
+    micRecording: false,
+    screenRecording: false,
+  });
+  const [realtimeTranslationRecording, setRealtimeTranslationRecording] =
+    useState({
+      micRecording: false,
+      screenRecording: false,
+    });
+
+  // Check if there are unsaved changes (recording in progress)
+  const hasUnsavedChanges = useMemo(() => {
+    if (inputMethod === 'transcription') {
+      return (
+        transcriptionRecording.micRecording ||
+        transcriptionRecording.screenRecording
+      );
+    } else if (inputMethod === 'realtime_translation') {
+      return (
+        realtimeTranslationRecording.micRecording ||
+        realtimeTranslationRecording.screenRecording
+      );
+    }
+    return false;
+  }, [inputMethod, transcriptionRecording, realtimeTranslationRecording]);
+
+  // Prevent navigation when recording
+  const blocker = usePreventNavigation(hasUnsavedChanges);
+
   // Handle transcript changes from components
   const handleTranscriptChange = (method: InputMethod, text: string) => {
     setTranscriptTexts((prev) => ({
@@ -101,6 +133,11 @@ const MeetingMinutesPage: React.FC = () => {
 
   return (
     <div>
+      <NavigationBlockDialog
+        isOpen={blocker.state === 'blocked'}
+        onCancel={() => blocker.reset?.()}
+        onConfirm={() => blocker.proceed?.()}
+      />
       {/* Title Header - Always fixed at top */}
       <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
         {t('meetingMinutes.title')}
@@ -168,6 +205,9 @@ const MeetingMinutesPage: React.FC = () => {
                 }}>
                 <MeetingMinutesTranscription
                   onTranscriptChange={handleTranscriptionTranscriptChange}
+                  onRecordingStateChange={(state) =>
+                    setTranscriptionRecording(state)
+                  }
                 />
               </div>
               <div
@@ -177,6 +217,9 @@ const MeetingMinutesPage: React.FC = () => {
                 }}>
                 <MeetingMinutesRealtimeTranslation
                   onTranscriptChange={handleRealtimeTranslationTranscriptChange}
+                  onRecordingStateChange={(state) =>
+                    setRealtimeTranslationRecording(state)
+                  }
                 />
               </div>
               <div

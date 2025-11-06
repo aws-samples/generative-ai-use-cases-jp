@@ -20,15 +20,21 @@ export interface UseCaseBuilderProps {
   readonly api: RestApi;
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
+  readonly useCaseBuilderEnabled: boolean;
 }
+
 export class UseCaseBuilder extends Construct {
+  public readonly useCaseBuilderTable: ddb.Table;
+  public readonly useCaseIdIndexName: string;
+
   constructor(scope: Construct, id: string, props: UseCaseBuilderProps) {
     super(scope, id);
 
-    const { userPool, api } = props;
+    const { userPool, api, useCaseBuilderEnabled } = props;
 
-    const useCaseIdIndexName = 'UseCaseIdIndexName';
-    const useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
+    // Always create table for backward compatibility and AgentBuilder dependency
+    this.useCaseIdIndexName = 'UseCaseIdIndexName';
+    this.useCaseBuilderTable = new ddb.Table(this, 'UseCaseBuilderTable', {
       partitionKey: {
         name: 'id',
         type: ddb.AttributeType.STRING,
@@ -40,8 +46,8 @@ export class UseCaseBuilder extends Construct {
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
     });
 
-    useCaseBuilderTable.addGlobalSecondaryIndex({
-      indexName: useCaseIdIndexName,
+    this.useCaseBuilderTable.addGlobalSecondaryIndex({
+      indexName: this.useCaseIdIndexName,
       partitionKey: {
         name: 'useCaseId',
         type: ddb.AttributeType.STRING,
@@ -53,12 +59,17 @@ export class UseCaseBuilder extends Construct {
       projectionType: ddb.ProjectionType.ALL,
     });
 
+    // Only create Lambda functions and API endpoints if enabled
+    if (!useCaseBuilderEnabled) {
+      return;
+    }
+
     const commonProperty: NodejsFunctionProps = {
       runtime: LAMBDA_RUNTIME_NODEJS,
       timeout: Duration.minutes(15),
       environment: {
-        USECASE_TABLE_NAME: useCaseBuilderTable.tableName,
-        USECASE_ID_INDEX_NAME: useCaseIdIndexName,
+        USECASE_TABLE_NAME: this.useCaseBuilderTable.tableName,
+        USECASE_ID_INDEX_NAME: this.useCaseIdIndexName,
       },
       vpc: props.vpc,
       securityGroups: props.securityGroups,
@@ -72,7 +83,7 @@ export class UseCaseBuilder extends Construct {
       memorySize: 512,
       entry: `${commonPath}/listUseCases.ts`,
     });
-    useCaseBuilderTable.grantReadData(listUseCasesFunction);
+    this.useCaseBuilderTable.grantReadData(listUseCasesFunction);
 
     const listFavoriteUseCasesFunction = new NodejsFunction(
       this,
@@ -83,48 +94,48 @@ export class UseCaseBuilder extends Construct {
         entry: `${commonPath}/listFavoriteUseCases.ts`,
         environment: {
           ...commonProperty.environment,
-          USECASE_ID_INDEX_NAME: useCaseIdIndexName,
+          USECASE_ID_INDEX_NAME: this.useCaseIdIndexName,
         },
       }
     );
-    useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
+    this.useCaseBuilderTable.grantReadData(listFavoriteUseCasesFunction);
 
     const getUseCaseFunction = new NodejsFunction(this, 'GetUseCase', {
       ...commonProperty,
       memorySize: 512,
       entry: `${commonPath}/getUseCase.ts`,
     });
-    useCaseBuilderTable.grantReadData(getUseCaseFunction);
+    this.useCaseBuilderTable.grantReadData(getUseCaseFunction);
 
     const createUseCaseFunction = new NodejsFunction(this, 'CreateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/createUseCase.ts`,
     });
-    useCaseBuilderTable.grantWriteData(createUseCaseFunction);
+    this.useCaseBuilderTable.grantWriteData(createUseCaseFunction);
 
     const updateUseCaseFunction = new NodejsFunction(this, 'UpdateUseCase', {
       ...commonProperty,
       entry: `${commonPath}/updateUseCase.ts`,
     });
-    useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
+    this.useCaseBuilderTable.grantReadWriteData(updateUseCaseFunction);
 
     const deleteUseCaseFunction = new NodejsFunction(this, 'DeleteUseCase', {
       ...commonProperty,
       entry: `${commonPath}/deleteUseCase.ts`,
     });
-    useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
+    this.useCaseBuilderTable.grantReadWriteData(deleteUseCaseFunction);
 
     const toggleFavoriteFunction = new NodejsFunction(this, 'ToggleFavorite', {
       ...commonProperty,
       entry: `${commonPath}/toggleFavorite.ts`,
     });
-    useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
+    this.useCaseBuilderTable.grantReadWriteData(toggleFavoriteFunction);
 
     const toggleSharedFunction = new NodejsFunction(this, 'ToggleShared', {
       ...commonProperty,
       entry: `${commonPath}/toggleShared.ts`,
     });
-    useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
+    this.useCaseBuilderTable.grantReadWriteData(toggleSharedFunction);
 
     const listRecentlyUsedUseCasesFunction = new NodejsFunction(
       this,
@@ -135,7 +146,7 @@ export class UseCaseBuilder extends Construct {
         entry: `${commonPath}/listRecentlyUsedUseCases.ts`,
       }
     );
-    useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
+    this.useCaseBuilderTable.grantReadData(listRecentlyUsedUseCasesFunction);
 
     const updateRecentlyUsedUseCaseFunction = new NodejsFunction(
       this,
@@ -145,7 +156,9 @@ export class UseCaseBuilder extends Construct {
         entry: `${commonPath}/updateRecentlyUsedUseCase.ts`,
       }
     );
-    useCaseBuilderTable.grantReadWriteData(updateRecentlyUsedUseCaseFunction);
+    this.useCaseBuilderTable.grantReadWriteData(
+      updateRecentlyUsedUseCaseFunction
+    );
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {

@@ -293,6 +293,11 @@ diagram:
       desc: XY 차트는 두 변수 간의 관계를 보여줍니다
       exampleTitle: 수면 vs 근무 시간 예시
       title: XY 차트
+dialog:
+  unsavedChanges:
+    leave: 이동
+    message: 이 페이지를 떠나면 입력한 내용이 손실됩니다. 정말 이동하시겠습니까?
+    title: 저장되지 않은 변경사항
 drawer:
   ai_services: AI 서비스
   builder_mode: 빌더 모드

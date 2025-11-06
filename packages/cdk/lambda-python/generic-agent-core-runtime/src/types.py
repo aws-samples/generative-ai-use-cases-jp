@@ -16,3 +16,7 @@ class AgentCoreRequest(BaseModel):
     system_prompt: str | None = None
     prompt: str | list[dict[str, Any]] = ""
     model: ModelInfo = {}
+    user_id: str | None = None  # User identification for MCP isolation
+    mcp_servers: list[str] | None = None  # MCP server names from mcp.json
+    session_id: str | None = None  # Session identifier
+    agent_id: str | None = None  # Agent identifier for logging and tracking

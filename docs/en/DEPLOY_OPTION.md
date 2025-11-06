@@ -689,6 +689,8 @@ Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runti
 By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
 
 The default agents available in AgentCore can utilize MCP servers defined in [mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json).
+This default agent is available in Agent Builder, and users can create any agent from MCPs that administrators have permitted.
+
 The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
 For details, please refer to the documentation [here](https://awslabs.github.io/mcp/).
 When adding MCP servers, please add them to the aforementioned `mcp.json`.
@@ -1840,7 +1842,7 @@ EventBridge rules are used for scheduling, and Step Functions for process contro
 
 ### How to Set Tags
 
-GenU supports tags for cost management and other purposes. The key name of the tag is automatically set to `GenU` `. Here are examples of how to set them:
+GenU supports tags for cost management and other purposes. By default, the key name of the tag is set to `GenU`, but you can use a custom tag key by specifying `tagKey`. Here are examples of how to set them:
 
 Setting in `cdk.json`:
 
@@ -1848,6 +1850,7 @@ Setting in `cdk.json`:
 // cdk.json
   ...
   "context": {
+    "tagKey": "MyProject",  // Custom tag key (optional, default is "GenU")
     "tagValue": "dev",
     ...
 ```
@@ -1856,6 +1859,7 @@ Setting in `parameter.ts`:
 
 ```typescript
     ...
+    tagKey: "MyProject",   // Custom tag key (optional, default is "GenU")
     tagValue: "dev",
     ...
 ```

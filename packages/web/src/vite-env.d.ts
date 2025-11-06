@@ -36,9 +36,12 @@ interface ImportMetaEnv {
   readonly VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT: string;
   readonly VITE_APP_AGENT_CORE_ENABLED: string;
   readonly VITE_APP_AGENT_CORE_GENERIC_RUNTIME: string;
+  readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED: string;
+  readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME: string;
   readonly VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: string;
   readonly VITE_APP_BRANDING_LOGO_PATH: string;
   readonly VITE_APP_BRANDING_TITLE: string;
+  readonly VITE_APP_MCP_SERVERS_CONFIG: string;
 }
 
 interface ImportMeta {

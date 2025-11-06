@@ -32,7 +32,6 @@
 - 様々なリソースを作成するため、既存の VPC をインポートする場合は可能な限り clean な環境を利用することを推奨します。
 - SAML 連携は利用できません。
 - Voice Chat のユースケースは現状利用できません。
-- AgentCore Chat のユースケースは現状利用できません。
 
 ## 有効な設定ファイルの例
 
@@ -153,6 +152,7 @@ Certificate body には ssl.crt の中身、Certificate private key には ssl.k
 | Amazon Transcribe           | 文字起こし                     | transcribe.\<region>.amazonaws.com                          | エンドポイントは固定                                                                     |
 | Amazon Transcribe Streaming | リアルタイム文字起こし         | transcribestreaming.\<region>.amazonaws.com                 | エンドポイントは固定                                                                     |
 | Amazon Polly                | 文字の読み上げ                 | polly.\<region>.amazonaws.com                               | エンドポイントは固定                                                                     |
+| Bedrock AgentCore Runtime   | AgentCore Runtime の実行       | bedrock-agentcore.\<region>.amazonaws.com                   | エンドポイントは固定                                                                     |
 
 上の表のすべてのエンドポイントのリゾルバー (フォワーダー) として Resolver Endpoint の IP アドレスを指定するように DNS サーバーの設定を変更してください。
 Resolver Endpoint の IP アドレスは、[Route53](https://console.aws.amazon.com/route53resolver) を開き、Inbound endpoints を選択して、作成したエンドポイントをクリックすることで確認できます。
@@ -176,6 +176,7 @@ Resolver Endpoint の IP アドレスは、[Route53](https://console.aws.amazon.
 | Amazon Transcribe           | 文字起こし                     | transcribe.\<region>.amazonaws.com                          | 方法2                 |
 | Amazon Transcribe Streaming | リアルタイム文字起こし         | transcribestreaming.\<region>.amazonaws.com                 | 方法2                 |
 | Amazon Polly                | 文字の読み上げ                 | polly.\<region>.amazonaws.com                               | 方法2                 |
+| Bedrock AgentCore Runtime   | AgentCore Runtime の実行       | bedrock-agentcore.\<region>.amazonaws.com                   | 方法2                 |
 
 - 方法1: [EC2](https://console.aws.amazon.com/ec2/home) の Network Interfaces を開き、「elb」と検索してください。Security group names が ClosedNetworkStack... となっているものが対象の ENI です。Network interface ID をクリックすると Private IPv4 address が確認できます。複数あるため、そのうち 1 つを選択してください。
 - 方法2: [VPC](https://console.aws.amazon.com/vpcconsole/home) の Endpoints を開き、該当するサービス名を探してください。サービス名はエンドポイントを反転させたものです。(ただし API Gateway は ID を省略したものです。) VPC endpoint ID をクリックすると、ページ下部にデプロイされた Subnet と IP アドレスが表示されています。複数あるため、そのうち 1 つを選択してください。

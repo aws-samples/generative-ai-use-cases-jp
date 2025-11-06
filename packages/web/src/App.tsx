@@ -46,12 +46,15 @@ const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
+const agentBuilderEnabled: boolean =
+  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED === 'true';
+
 const {
   visionEnabled,
   imageGenModelIds,
   videoGenModelIds,
   speechToSpeechModelIds,
-  agentNames,
+  agents,
   flowChatEnabled,
 } = MODELS;
 
@@ -120,10 +123,10 @@ const App: React.FC = () => {
         }
       : null,
     ...(agentEnabled && inlineAgents
-      ? agentNames.map((name: string) => {
+      ? agents.map((agent) => {
           return {
-            label: name,
-            to: `/agent/${name}`,
+            label: agent.displayName,
+            to: `/agent/${agent.displayName}`,
             icon: <PiRobot />,
             display: 'usecase' as const,
             sub: 'Agent',
@@ -143,6 +146,15 @@ const App: React.FC = () => {
       ? {
           label: t('agent_core.title'),
           to: '/agent-core',
+          icon: <PiRobot />,
+          display: 'usecase' as const,
+          sub: 'Experimental',
+        }
+      : null,
+    agentBuilderEnabled
+      ? {
+          label: 'Agent Builder',
+          to: '/agent-builder',
           icon: <PiRobot />,
           display: 'usecase' as const,
           sub: 'Experimental',

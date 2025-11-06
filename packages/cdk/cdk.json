@@ -16,6 +16,7 @@
   },
   "context": {
     "env": "",
+    "tagKey": null,
     "tagValue": null,
     "ragEnabled": false,
     "kendraIndexArn": null,
@@ -63,7 +64,9 @@
     "inlineAgents": false,
     "mcpEnabled": false,
     "flows": [],
+    "agentBuilderEnabled": false,
     "createGenericAgentCoreRuntime": false,
+    "agentCoreRegion": null,
     "agentCoreExternalRuntimes": [],
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,

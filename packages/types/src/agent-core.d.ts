@@ -3,10 +3,15 @@ import { Model } from './message';
 export type AgentCoreConfiguration = {
   name: string;
   arn: string;
+  description: string;
 };
 
-// AgentCore Runtime Request (compatible with Strands)
-export type AgentCoreRequest = StrandsRequest;
+// AgentCore Runtime Request (extended from Strands with additional fields)
+export type AgentCoreRequest = StrandsRequest & {
+  mcp_servers?: string[]; // Changed to string array
+  session_id?: string;
+  code_execution_enabled?: boolean;
+};
 
 export type AgentCoreStreamResponse = StrandsStreamEvent;
 
@@ -17,7 +22,7 @@ export type AgentCoreStreamResponse = StrandsStreamEvent;
 
 // Strands Agent(...) parameter
 export type StrandsRequest = {
-  systemPrompt: string;
+  system_prompt: string;
   prompt: StrandsContentBlock[];
   messages: StrandsMessage[];
   model: Model;
