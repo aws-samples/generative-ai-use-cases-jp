@@ -45,10 +45,6 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
       env: params.env,
     });
   }
-
-  // Load branding configuration
-  const brandingConfig = loadBrandingConfig();
-
   // Make the format of modelIds, imageGenerationModelIds consistent
   const convertToModelConfiguration = (
     models: (string | ModelConfiguration)[],
@@ -82,7 +78,7 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
     ),
     // Process agentCoreRegion: null -> modelRegion
     agentCoreRegion: params.agentCoreRegion || params.modelRegion,
-    // Add branding configuration
-    brandingConfig,
+    // Load branding configuration
+    brandingConfig: loadBrandingConfig(),
   };
 };
