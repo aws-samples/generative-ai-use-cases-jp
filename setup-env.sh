@@ -60,3 +60,10 @@ export VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED=$(extract_value "$stack_output"
 export VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME=$(extract_value "$stack_output" AgentCoreAgentBuilderRuntime)
 export VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES=$(extract_value "$stack_output" AgentCoreExternalRuntimes)
 export VITE_APP_MCP_SERVERS_CONFIG=$(extract_value "$stack_output" McpServersConfig)
+if [ -f "packages/cdk/branding.json" ]; then
+    export VITE_APP_BRANDING_LOGO_PATH=$(cat packages/cdk/branding.json | jq -r '.logoPath // ""')
+    export VITE_APP_BRANDING_TITLE=$(cat packages/cdk/branding.json | jq -r '.title // ""')
+else
+    export VITE_APP_BRANDING_LOGO_PATH=""
+    export VITE_APP_BRANDING_TITLE=""
+fi
