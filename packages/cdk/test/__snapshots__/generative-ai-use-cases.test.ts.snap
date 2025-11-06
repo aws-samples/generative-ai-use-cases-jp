@@ -4526,7 +4526,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:69eb434ee242daa7224dd9fb0f5cf9142a71fe81dac805352a11509e5ecff870",
             },
           },
         },
@@ -4536,6 +4536,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -4794,7 +4795,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:69eb434ee242daa7224dd9fb0f5cf9142a71fe81dac805352a11509e5ecff870",
             },
           },
         },
@@ -4804,6 +4805,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -26482,7 +26484,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:69eb434ee242daa7224dd9fb0f5cf9142a71fe81dac805352a11509e5ecff870",
             },
           },
         },
@@ -26492,6 +26494,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -26750,7 +26753,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:8c5a41bdaf8957310132e22107e4c5d5573580cf47ebe99a8c257159a5ba076e",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:69eb434ee242daa7224dd9fb0f5cf9142a71fe81dac805352a11509e5ecff870",
             },
           },
         },
@@ -26760,6 +26763,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_SERVERS": "{"time":{"command":"uvx","args":["mcp-server-time"],"metadata":{"category":"Utility","description":"Provides current time and date functionality"}},"aws-knowledge-mcp-server":{"command":"npx","args":["mcp-remote","https://knowledge-mcp.global.api.aws"],"metadata":{"category":"AWS","description":"AWS Knowledge Base MCP server for enterprise knowledge access"}},"awslabs.aws-documentation-mcp-server":{"command":"uvx","args":["awslabs.aws-documentation-mcp-server@latest"],"metadata":{"category":"AWS","description":"Access AWS documentation and guides"}},"awslabs.cdk-mcp-server":{"command":"uvx","args":["awslabs.cdk-mcp-server@latest"],"metadata":{"category":"AWS","description":"AWS CDK code generation and assistance"}},"awslabs.aws-diagram-mcp-server":{"command":"uvx","args":["awslabs.aws-diagram-mcp-server@latest"],"metadata":{"category":"AWS","description":"Generate AWS architecture diagrams"}},"awslabs.nova-canvas-mcp-server":{"command":"uvx","args":["awslabs.nova-canvas-mcp-server@latest"],"env":{"AWS_REGION":"us-east-1"},"metadata":{"category":"AI/ML","description":"Amazon Nova Canvas image generation"}},"tavily-search":{"command":"npx","args":["-y","mcp-remote","https://mcp.tavily.com/mcp/?tavilyApiKey=<key>"],"metadata":{"category":"Search","description":"Web search and research capabilities powered by Tavily"}}}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
