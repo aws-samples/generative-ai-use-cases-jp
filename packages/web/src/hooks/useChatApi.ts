@@ -18,6 +18,7 @@ import {
   CreateShareIdResponse,
   FindShareIdResponse,
   GetSharedChatResponse,
+  Chat,
 } from 'generative-ai-use-cases';
 import {
   LambdaClient,
@@ -54,15 +55,16 @@ const useChatApi = () => {
       let hasMore = true;
 
       while (hasMore) {
-        const url = exclusiveStartKey
+        const url: string = exclusiveStartKey
           ? `chats?exclusiveStartKey=${exclusiveStartKey}`
           : 'chats';
-        const res = await http.api.get<ListChatsResponse>(url);
+        const res: AxiosResponse<ListChatsResponse> =
+          await http.api.get<ListChatsResponse>(url);
         const chats = res.data.data;
 
         // Delete all chats in this page
         await Promise.all(
-          chats.map((chat) =>
+          chats.map((chat: Chat) =>
             http.delete<void>(`chats/${decomposeId(chat.chatId)}`)
           )
         );
