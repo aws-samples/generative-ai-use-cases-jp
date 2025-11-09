@@ -667,6 +667,12 @@ setting:
     <1>generative-ai-use-cases</1>.
   items:
     agent_enabled: Agent được bật
+    delete_all_chats: Xóa tất cả lịch sử hội thoại
+    delete_all_chats_button: Xóa tất cả lịch sử
+    delete_all_chats_confirmation: Bạn có chắc chắn muốn xóa tất cả lịch sử hội thoại không? Hành động này không thể hoàn tác.
+    delete_all_chats_deleting: Đang xóa...
+    delete_all_chats_failed: Xóa thất bại
+    delete_all_chats_success: Đã xóa tất cả lịch sử hội thoại
     language: Cài đặt ngôn ngữ
     language_help: Có thể thay đổi ngôn ngữ hiển thị
     line_break_enter: Nhấn Enter để xuống dòng

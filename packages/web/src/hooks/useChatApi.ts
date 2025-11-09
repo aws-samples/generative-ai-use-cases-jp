@@ -49,6 +49,28 @@ const useChatApi = () => {
     deleteChat: async (chatId: string) => {
       return http.delete<void>(`chats/${chatId}`);
     },
+    deleteAllChats: async (): Promise<void> => {
+      let exclusiveStartKey: string | undefined = undefined;
+      let hasMore = true;
+
+      while (hasMore) {
+        const url = exclusiveStartKey
+          ? `chats?exclusiveStartKey=${exclusiveStartKey}`
+          : 'chats';
+        const res = await http.api.get<ListChatsResponse>(url);
+        const chats = res.data.data;
+
+        // Delete all chats in this page
+        await Promise.all(
+          chats.map((chat) =>
+            http.delete<void>(`chats/${decomposeId(chat.chatId)}`)
+          )
+        );
+
+        exclusiveStartKey = res.data.lastEvaluatedKey;
+        hasMore = !!exclusiveStartKey;
+      }
+    },
     listChats: () => {
       const getKey = (
         pageIndex: number,

@@ -781,6 +781,12 @@ setting:
     <1>generative-ai-use-cases</1> をご参照ください。
   items:
     agent_enabled: Agent 有効
+    delete_all_chats: すべての会話履歴を削除
+    delete_all_chats_button: 全会話履歴削除
+    delete_all_chats_confirmation: すべての会話履歴を削除しますか？この操作は取り消すことができません。
+    delete_all_chats_deleting: 削除中...
+    delete_all_chats_failed: 削除に失敗しました
+    delete_all_chats_success: すべての会話履歴を削除しました
     language: 言語設定
     language_help: 表示言語を変更できます
     line_break_enter: Enter で改行

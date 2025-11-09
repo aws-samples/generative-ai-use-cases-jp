@@ -689,6 +689,12 @@ setting:
     การตั้งค่าสามารถเปลี่ยนแปลงได้โดยใช้ <0>AWS CDK</0> ไม่ใช่บนหน้าจอนี้ หากคุณพบข้อผิดพลาดเมื่อใช้ use cases โปรดตรวจสอบว่าคุณได้เปิดใช้งานโมเดลที่ระบุใน {{region}} สำหรับรายละเอียดเกี่ยวกับวิธีการทำเช่นนี้ โปรดดูที่ <1>generative-ai-use-cases</1>
   items:
     agent_enabled: เปิดใช้งานตัวแทน
+    delete_all_chats: ลบประวัติการสนทนาทั้งหมด
+    delete_all_chats_button: ลบประวัติทั้งหมด
+    delete_all_chats_confirmation: คุณแน่ใจหรือไม่ว่าต้องการลบประวัติการสนทนาทั้งหมด? การกระทำนี้ไม่สามารถยกเลิกได้
+    delete_all_chats_deleting: กำลังลบ...
+    delete_all_chats_failed: การลบล้มเหลว
+    delete_all_chats_success: ลบประวัติการสนทนาทั้งหมดแล้ว
     language: ภาษา
     language_help: เปลี่ยนภาษาที่แสดง
     line_break_enter: กด Enter เพื่อขึ้นบรรทัดใหม่

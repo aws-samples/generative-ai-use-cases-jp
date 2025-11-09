@@ -563,6 +563,12 @@ setting:
     请务必确认您是否在{{region}}中启用了指定的模型。有关各种方法， 请参考<1>generative-ai-use-cases</1>。
   items:
     agent_enabled: Agent已启用
+    delete_all_chats: 删除所有对话历史
+    delete_all_chats_button: 删除全部历史
+    delete_all_chats_confirmation: 您确定要删除所有对话历史吗？此操作无法撤消。
+    delete_all_chats_deleting: 删除中...
+    delete_all_chats_failed: 删除失败
+    delete_all_chats_success: 已删除所有对话历史
     language: 语言设置
     language_help: 可以更改显示语言
     rag_enabled: RAG (Amazon Kendra)已启用

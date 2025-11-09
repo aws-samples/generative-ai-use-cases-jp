@@ -9,10 +9,12 @@ import { MODELS } from '../hooks/useModel';
 import useGitHub, { PullRequest } from '../hooks/useGitHub';
 import { PiGithubLogoFill, PiArrowSquareOut } from 'react-icons/pi';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { useTranslation, Trans } from 'react-i18next';
 import { supportedLngs } from '../i18n/config';
+import useChatList from '../hooks/useChatList';
+import DialogConfirmDeleteAllChats from '../components/DialogConfirmDeleteAllChats';
 
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
@@ -52,6 +54,8 @@ const Setting = () => {
   const { getClosedPullRequests } = useGitHub();
   const { signOut } = useAuthenticator();
   const { i18n, t } = useTranslation();
+  const { deleteAllChats } = useChatList();
+  const [isDeleteAllDialogOpen, setIsDeleteAllDialogOpen] = useState(false);
 
   const localVersion = getLocalVersion();
   const hasUpdate = getHasUpdate();
@@ -76,6 +80,15 @@ const Setting = () => {
     }
     signOut();
   }, [cache, signOut]);
+
+  const onClickDeleteAllChats = useCallback(async () => {
+    try {
+      await deleteAllChats();
+      setIsDeleteAllDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to delete all chats:', error);
+    }
+  }, [deleteAllChats]);
 
   return (
     <div className="px-12 lg:px-32 xl:px-64">
@@ -167,6 +180,16 @@ const Setting = () => {
               label=""
               onSwitch={setSettingShowEmail}
             />
+          }></SettingItem>
+
+        <SettingItem
+          name={t('setting.items.delete_all_chats')}
+          value={
+            <Button
+              onClick={() => setIsDeleteAllDialogOpen(true)}
+              className="bg-red-500 text-white">
+              {t('setting.items.delete_all_chats_button')}
+            </Button>
           }></SettingItem>
 
         <SettingItem
@@ -281,6 +304,12 @@ const Setting = () => {
           </a>
         </div>
       </div>
+
+      <DialogConfirmDeleteAllChats
+        isOpen={isDeleteAllDialogOpen}
+        onDelete={onClickDeleteAllChats}
+        onClose={() => setIsDeleteAllDialogOpen(false)}
+      />
     </div>
   );
 };

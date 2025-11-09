@@ -955,6 +955,12 @@ setting:
     please refer to <1>generative-ai-use-cases</1>.
   items:
     agent_enabled: Agent Enabled
+    delete_all_chats: Delete All Conversation History
+    delete_all_chats_button: Delete All History
+    delete_all_chats_confirmation: Are you sure you want to delete all conversation history? This action cannot be undone.
+    delete_all_chats_deleting: Deleting...
+    delete_all_chats_failed: Failed to delete
+    delete_all_chats_success: All conversation history has been deleted
     language: Language
     language_help: Change display language
     line_break_enter: Press Enter to create new line

@@ -461,22 +461,28 @@ export const deleteChat = async (
 
   // Delete Messages
   const messageItems = await listMessages(_chatId);
-  await dynamoDbDocument.send(
-    new BatchWriteCommand({
-      RequestItems: {
-        [TABLE_NAME]: messageItems.map((m) => {
-          return {
-            DeleteRequest: {
-              Key: {
-                id: m.id,
-                createdDate: m.createdDate,
+
+  // Split into chunks of 25 (DynamoDB BatchWrite limit)
+  const chunkSize = 25;
+  for (let i = 0; i < messageItems.length; i += chunkSize) {
+    const chunk = messageItems.slice(i, i + chunkSize);
+    await dynamoDbDocument.send(
+      new BatchWriteCommand({
+        RequestItems: {
+          [TABLE_NAME]: chunk.map((m) => {
+            return {
+              DeleteRequest: {
+                Key: {
+                  id: m.id,
+                  createdDate: m.createdDate,
+                },
               },
-            },
-          };
-        }),
-      },
-    })
-  );
+            };
+          }),
+        },
+      })
+    );
+  }
 };
 
 export const updateSystemContextTitle = async (

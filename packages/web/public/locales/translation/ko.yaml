@@ -544,6 +544,12 @@ setting:
     <1>generative-ai-use-cases</1>를 참조하세요.
   items:
     agent_enabled: 에이전트 활성화
+    delete_all_chats: 모든 대화 기록 삭제
+    delete_all_chats_button: 전체 대화 기록 삭제
+    delete_all_chats_confirmation: 모든 대화 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.
+    delete_all_chats_deleting: 삭제 중...
+    delete_all_chats_failed: 삭제에 실패했습니다
+    delete_all_chats_success: 모든 대화 기록이 삭제되었습니다
     language: 언어
     language_help: 표시 언어 변경
     line_break_enter: Enter로 줄바꿈
