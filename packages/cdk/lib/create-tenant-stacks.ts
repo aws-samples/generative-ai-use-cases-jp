@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import { TenantDynamoDBStack } from './stacks/tenant/tenant-dynamodb-stack';
 import { TenantS3Stack } from './stacks/tenant/tenant-s3-stack';
 import { TenantIAMStack } from './stacks/tenant/tenant-iam-stack';
-import { TenantBedrockChatStack } from './stacks/tenant/tenant-bedrock-chat-stack';
 import { TenantPptxStack } from './stacks/tenant/tenant-pptx-stack';
 import { TenantVpcStack } from './stacks/tenant/tenant-vpc-stack';
 import { TenantOpenSearchStack } from './stacks/tenant/tenant-opensearch-stack';
@@ -35,7 +34,6 @@ export interface TenantStackInput {
   environment: string;
   removalPolicy: boolean;
   bedrockRegion?: string;
-  enableBedrockChat?: boolean;
   pptxEnabled?: boolean;
   userPoolId?: string;
   identityPoolId?: string;
@@ -136,30 +134,6 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
   // Add dependency to ensure VPC is created before OpenSearch
   tenantOpenSearchStack.addDependency(tenantVpcStack);
 
-  // Tenant Bedrock Chat Stack (optional)
-  let tenantBedrockChatStack;
-  if (params.enableBedrockChat) {
-    tenantBedrockChatStack = new TenantBedrockChatStack(
-      app,
-      `TenantBedrockChatStack${params.environment}-${params.tenantId}`,
-      {
-        env: {
-          account: params.account,
-          region: params.region,
-        },
-        tenantId: params.tenantId,
-        environment: params.environment,
-        bedrockRegion: params.bedrockRegion || params.region,
-        openSearchDomainEndpoint: tenantOpenSearchStack.domainEndpoint,
-        openSearchDomainArn: tenantOpenSearchStack.domainArn,
-        removalPolicy: params.removalPolicy
-          ? cdk.RemovalPolicy.DESTROY
-          : cdk.RemovalPolicy.RETAIN,
-      }
-    );
-    tenantBedrockChatStack.addDependency(tenantOpenSearchStack);
-  }
-
   // Tenant PPTX Stack (optional)
   let tenantPptxStack;
   if (params.pptxEnabled) {
@@ -184,7 +158,6 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
     tenantS3Stack,
     tenantVpcStack,
     tenantOpenSearchStack,
-    tenantBedrockChatStack,
     tenantPptxStack,
   };
 };

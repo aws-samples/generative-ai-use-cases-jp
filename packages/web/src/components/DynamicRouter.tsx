@@ -16,7 +16,7 @@ import ChatLayout from './ChatLayout';
 import StatPage from '../pages/StatPage';
 import ChatPage from '../pages/ChatPage';
 import AssistantsPage from '../pages/AssistantsPage';
-import AssistantCreatePage from '../pages/AssistantCreatePage';
+import AssistantFormPage from '../pages/AssistantFormPage';
 import SharedChatPage from '../pages/SharedChatPage';
 import SummarizePage from '../pages/SummarizePage';
 import GenerateTextPage from '../pages/GenerateTextPage';
@@ -38,10 +38,8 @@ import McpChatPage from '../pages/McpChatPage';
 import GenerateDiagramPage from '../pages/GenerateDiagramPage';
 import PptxGenerationPage from '../pages/PptxGenerationPage';
 import WriterPage from '../pages/WriterPage';
-import RagChatBotPage from '../pages/RagChatBotPage';
-import RagChatBotEditPage from '../pages/RagChatBotEditPage';
-import RagChatBotChatPage from '../pages/RagChatBotChatPage';
-import RagChatBotHistoryPage from '../pages/RagChatBotHistoryPage';
+import AssistantChatPage from '../pages/AssistantChatPage';
+import AssistantHistoryPage from '../pages/AssistantHistoryPage';
 import AdminPortal from '../pages/AdminPortal';
 
 interface DynamicRouterProps {
@@ -112,7 +110,23 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
         },
         {
           path: 'assistants/create',
-          element: <AssistantCreatePage />,
+          element: <AssistantFormPage />,
+        },
+        {
+          path: 'assistants/edit/:assistantId',
+          element: <AssistantFormPage />,
+        },
+        {
+          path: 'assistants/chat/:assistantId',
+          element: <AssistantChatPage />,
+        },
+        {
+          path: 'assistants/chat/:assistantId/:conversationId',
+          element: <AssistantChatPage />,
+        },
+        {
+          path: 'assistants/history',
+          element: <AssistantHistoryPage />,
         },
       ],
     },
@@ -236,30 +250,6 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
           element: <McpChatPage />,
         }
       : null,
-    {
-      path: '/rag-chat-bot',
-      element: <RagChatBotPage />,
-    },
-    {
-      path: '/rag-chat-bot/create',
-      element: <RagChatBotEditPage />,
-    },
-    {
-      path: '/rag-chat-bot/edit/:botId',
-      element: <RagChatBotEditPage />,
-    },
-    {
-      path: '/rag-chat-bot/chat/:botId',
-      element: <RagChatBotChatPage />,
-    },
-    {
-      path: '/rag-chat-bot/chat/:botId/:conversationId',
-      element: <RagChatBotChatPage />,
-    },
-    {
-      path: '/rag-chat-bot/history',
-      element: <RagChatBotHistoryPage />,
-    },
     {
       path: '/admin',
       element: <AdminPortal />,

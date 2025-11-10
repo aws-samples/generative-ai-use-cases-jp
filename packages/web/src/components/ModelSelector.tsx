@@ -106,7 +106,7 @@ const ModelSelector: React.FC<Props> = ({
                         className={`${
                           active ? 'bg-gray-100' : ''
                         } group flex w-full items-start px-4 py-3 text-left`}>
-                        <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                           {value === model.value && (
                             <PiCheck className="h-5 w-5 text-aws-smile" />
                           )}
@@ -164,7 +164,7 @@ const ModelSelector: React.FC<Props> = ({
                                 close();
                               }}
                               className="group flex w-full items-start px-4 py-3 text-left hover:bg-gray-100">
-                              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                              <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                                 {value === model.value && (
                                   <PiCheck className="h-5 w-5 text-aws-smile" />
                                 )}

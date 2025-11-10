@@ -40,7 +40,6 @@ import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
 import PredictApi from './predict';
 import OptimizePromptApi from './optimize-prompt';
 import InvokeFlowApi from './invoke-flow';
-import BedrockChatApi from './bedrock-chat';
 import ChatApi from './chats';
 import ImageApi from './image';
 import SystemContextApi from './systemcontexts';
@@ -79,6 +78,8 @@ export interface BackendApiProps {
   readonly userPoolClient: UserPoolClient;
   readonly table: Table;
   readonly statsTable: Table;
+  readonly assistantTable: Table;
+  readonly assistantMessagesTable: Table;
   readonly knowledgeBaseId?: string;
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
@@ -376,7 +377,6 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
-    new BedrockChatApi(this, 'BedrockChatAPI', apiProps);
     new ChatApi(this, 'ChatsAPI', apiProps);
     const fileApi = new FileApi(this, 'FileAPI', apiProps);
     new ImageApi(this, 'ImageAPI', apiProps);
@@ -399,6 +399,9 @@ export class Api extends Construct {
     if (props.pptxEnabled) {
       this.centralPptxApi = new CentralPptxApi(this, 'CentralPptxAPI', apiProps);
     }
+
+    // Assistant API is now created in AssistantApiStack (nested stack)
+    // to reduce main stack resource count and improve deployment performance
 
     // Add ALL methods proxy to Bedrock Chat proxy Lambda
     this.restApi = api;

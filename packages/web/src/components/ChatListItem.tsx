@@ -160,7 +160,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             }
           }}>
           <div className="flex w-full items-start gap-2">
-            <div className="flex-shrink-0 pt-0.5">
+            <div className="shrink-0 pt-0.5">
               <PiChat />
             </div>
             <div className="min-w-0 flex-1 overflow-hidden">
@@ -188,7 +188,7 @@ const ChatListItem: React.FC<Props> = (props) => {
               )}
             </div>
             {editing && (
-              <div className="flex flex-shrink-0">
+              <div className="flex shrink-0">
                 <ButtonIcon className="text-base" onClick={updateTitle}>
                   <PiCheck />
                 </ButtonIcon>
@@ -203,7 +203,7 @@ const ChatListItem: React.FC<Props> = (props) => {
             )}
             {!editing && (
               <div
-                className={`flex-shrink-0 ${!isHovered && !showMenu ? 'invisible' : 'visible'}`}
+                className={`shrink-0 ${!isHovered && !showMenu ? 'invisible' : 'visible'}`}
                 ref={menuRef}
                 onClick={(e) => {
                   e.preventDefault();

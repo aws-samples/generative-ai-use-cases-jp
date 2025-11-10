@@ -588,6 +588,38 @@ optimizePrompt:
   input_placeholder: 请直接输入您当前使用的提示。如果输出是英文，请添加"请用中文输出"等指示。
   result_placeholder: 结果将显示在这里
   title: 提示优化
+pptx:
+  description: 使用 AI 辅助自动创建专业演示文稿
+  examples:
+    business:
+      content: 创建关于季度商业评议的演示文稿，包括市场分析、财务业绩和下一季度的战略举措。
+      title: 商业策略
+    title: 示例主题
+    training:
+      content: 为新软件功能开发培训材料，包括分步指南、最佳实践和故障排除提示。
+      title: 产品培训
+  generation:
+    completed: 生成成功完成
+    failed: 生成失败
+    generating: 正在生成演示文稿...
+    status: 生成状态
+  instructions:
+    help: 描述您想要的演示文稿内容。请具体说明主题、结构和任何特殊要求。
+    label: 演示文稿说明
+    placeholder: 在此输入您的演示文稿主题和要求...
+  options:
+    summarySlide: 包含总结幻灯片
+    titleSlide: 包含标题幻灯片
+  slideCount:
+    label: 幻灯片数量
+  template:
+    blank: 空白模板
+    blankDescription: 从简洁的最少模板开始
+    label: 模板选择
+    noTemplates: 没有可用的自定义模板
+    private: 私人模板
+    public: 公共模板
+  title: PowerPoint 演示文稿生成器
 rag:
   can_add_filters: 可以通过自定义添加过滤器。
   errorRetrieval: >-
@@ -858,38 +890,6 @@ useCaseBuilder:
   updateDescription: 更新用例。如果用例已共享且其他用户也在使用，他们的内容也会更新。
   updateErrorCondition: 要更新，请满足以下所有条件。
   updating: 更新中...
-pptx:
-  title: PowerPoint 演示文稿生成器
-  description: 使用 AI 辅助自动创建专业演示文稿
-  template:
-    label: 模板选择
-    blank: 空白模板
-    blankDescription: 从简洁的最少模板开始
-    noTemplates: 没有可用的自定义模板
-    public: 公共模板
-    private: 私人模板
-  slideCount:
-    label: 幻灯片数量
-  options:
-    titleSlide: 包含标题幻灯片
-    summarySlide: 包含总结幻灯片
-  instructions:
-    label: 演示文稿说明
-    placeholder: 在此输入您的演示文稿主题和要求...
-    help: 描述您想要的演示文稿内容。请具体说明主题、结构和任何特殊要求。
-  generation:
-    status: 生成状态
-    generating: 正在生成演示文稿...
-    completed: 生成成功完成
-    failed: 生成失败
-  examples:
-    title: 示例主题
-    business:
-      title: 商业策略
-      content: 创建关于季度商业评议的演示文稿，包括市场分析、财务业绩和下一季度的战略举措。
-    training:
-      title: 产品培训
-      content: 为新软件功能开发培训材料，包括分步指南、最佳实践和故障排除提示。
 video:
   aspectRatio: 宽高比
   clear: 清除

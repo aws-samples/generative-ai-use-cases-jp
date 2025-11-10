@@ -67,7 +67,7 @@ const UserMenu: React.FC = () => {
           {/* User Info Section */}
           <div className="border-b border-gray-200 px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
                 {getInitials()}
               </div>
               <div className="min-w-0 flex-1">

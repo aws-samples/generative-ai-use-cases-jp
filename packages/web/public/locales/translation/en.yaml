@@ -76,6 +76,106 @@ adminPortal:
 agent:
   drop_files: Drop files to upload
   title: Agent Chat
+assistant:
+  all: All
+  allAssistants: All Assistants
+  changeVisibility: Change Visibility
+  chat: Chat
+  chatPage:
+    assistantInfo: Assistant Information
+    chunksEnabled: Chunks display enabled
+    confirmClear: Are you sure you want to clear the conversation?
+    copy: Copy
+    inputPlaceholder: Type a message...
+    instruction: Instruction
+    noMessages: No messages
+    quickStarters: Quick Starters
+    send: Send
+    sendError: Failed to send message
+    syncStatus: Sync Status
+    title: Assistant Chat
+  confirmDelete: Are you sure you want to delete this assistant?
+  createNew: Create New Assistant
+  delete: Delete
+  deleteConfirmation: Are you sure you want to delete "{{assistantName}}"? This action cannot be undone.
+  deleteError: Failed to delete assistant
+  deleteSuccess: Assistant deleted successfully
+  deleteTitle: Delete Assistant
+  deleting: Deleting...
+  description: Create, manage, and share AI assistants
+  edit:
+    add: Add
+    back: Back
+    basicInfo: Basic Information
+    cancel: Cancel
+    createTitle: Create New Assistant
+    description: Description
+    displayRetrievedChunks: Display Retrieved Chunks
+    editTitle: Edit Assistant
+    enableRAG: Enable RAG (Knowledge Base)
+    instruction: Custom Instructions
+    knowledge: Knowledge Base
+    modelId: Model
+    requiredFields: Please fill in required fields
+    save: Save
+    saveBeforeUpload: Please save the assistant before uploading files
+    saveFailed: Failed to save
+    saving: Saving...
+    sourceUrls: Source URLs
+    title: Name
+    uploadFiles: Upload Files
+  editTitle: Edit
+  filter: Filter
+  filterAll: All
+  filterPrivate: Private
+  filterPublic: Public
+  filterStarred: Starred
+  history:
+    back: Back
+    confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
+    confirmDelete: Are you sure you want to delete this conversation?
+    daysAgo: '{{days}} days ago'
+    deleteSelected: Delete Selected
+    deselectAll: Deselect All
+    hoursAgo: '{{hours}} hours ago'
+    lastMessage: Last message
+    messageCount: 'Messages: {{count}}'
+    minutesAgo: '{{minutes}} minutes ago'
+    noConversations: No conversations found
+    noDate: No date
+    open: Open
+    search: Search
+    searchPlaceholder: Search conversations...
+    selectAll: Select All
+    selected: '{{count}} selected'
+    showing: 'Showing {{count}} conversations'
+    title: Conversation History
+    untitled: Untitled
+    yesterday: Yesterday
+  lastUsed: Last used
+  myAssistants: My Assistants
+  noAssistants: No assistants found
+  organizationPublic: Organization Public
+  organizationPublicDescription: Members of your organization can use this assistant
+  popularAssistants: Popular Assistants
+  private: Private
+  privateDescription: Only you can use this assistant
+  scopeFilter: Scope
+  search: Search
+  searchPlaceholder: Search by assistant name or description
+  shared: Shared
+  showStarredOnly: Show starred only
+  star: Star
+  starredOnly: Starred Only
+  syncStatus:
+    completed: Sync Complete
+    failed: Sync Failed
+    syncing: Syncing
+  tenantPublic: Tenant Public
+  tenantPublicDescription: Members of your tenant can use this assistant
+  title: Assistant Management
+  unstar: Unstar
+  viewMore: View More
 auth:
   loading: Loading...
   login: Login
@@ -783,16 +883,15 @@ navigation:
   pptxGeneration: PPTX Generation
   promptOptimization: Prompt Optimization
   ragChat: RAG Chat
-  ragChatBot: RAG ChatBot
   settings: Settings
   speechRecognition: Speech Recognition
   summary: Summary
   textGeneration: Text Generation
   translation: Translation
+  useCaseBuilder: Use Case Builder
   videoAnalysis: Video Analysis
   videoGeneration: Video Generation
   voiceChat: Voice Chat
-  useCaseBuilder: Use Case Builder
   webContentExtraction: Web Content Extraction
   writing: Writing
 notfound:
@@ -805,6 +904,59 @@ optimizePrompt:
     instructions like 'Please output in Japanese'.
   result_placeholder: Results will be displayed here
   title: Prompt Optimization
+pptx:
+  description: Create professional presentations automatically with AI assistance
+  download: Download
+  examples:
+    business:
+      content: Create a presentation about quarterly business review, including market analysis, financial performance, and strategic initiatives for the next quarter.
+      title: Business Strategy
+    title: Example Topics
+    training:
+      content: Develop training materials for new software features, including step-by-step guides, best practices, and troubleshooting tips.
+      title: Product Training
+  generate: Generate
+  generation:
+    completed: Generation completed successfully
+    failed: Generation failed
+    generating: Generating presentation...
+    status: Generation Status
+  instructions:
+    help: Describe what you want in your presentation. Be specific about the topic, structure, and any special requirements.
+    label: Presentation Instructions
+    placeholder: Enter your presentation topic and requirements here...
+  options:
+    summarySlide: Include Summary Slide
+    titleSlide: Include Title Slide
+  slideCount:
+    label: Number of Slides
+  template:
+    blank: Blank Template
+    label: Template Selection
+    blankDescription: Start with a clean, minimal template
+    noTemplates: No custom templates available
+    private: Private template
+    public: Public template
+  title: PowerPoint Presentation Generator
+  generating: Generating...
+  upload:
+    descriptionLabel: Description
+    descriptionPlaceholder: Enter template description
+    failed: Failed to upload template
+    fileLabel: Template File
+    fileTooLarge: File is too large. Maximum size is 10MB
+    invalidFileType: Invalid file type. Please select a PowerPoint file (.pptx)
+    missingFields: Please fill in all required fields
+    nameLabel: Template Name
+    title: Upload Template
+    namePlaceholder: Enter template name
+    publicHelp: Public templates can be used by all users
+    publicLabel: Make this template public
+    tagsHelp: Add tags to help categorize your template
+    tagsLabel: Tags
+    tagsPlaceholder: Enter tags (comma-separated)
+    upload: Upload
+    uploading: Uploading...
 rag:
   can_add_filters: .
   errorRetrieval: >-
@@ -849,108 +1001,6 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
-ragChatBot:
-  all: All
-  allBots: All Bots
-  changeVisibility: Change Visibility
-  chat: Chat
-  chatPage:
-    botInfo: Bot Information
-    chunksEnabled: Chunks display enabled
-    confirmClear: Are you sure you want to clear the conversation?
-    copy: Copy
-    inputPlaceholder: Type a message...
-    instruction: Instruction
-    noMessages: No messages
-    quickStarters: Quick Starters
-    send: Send
-    sendError: Failed to send message
-    syncStatus: Sync Status
-    title: ChatBot Chat
-  confirmDelete: Are you sure you want to delete this bot?
-  createNew: Create New Bot
-  delete: Delete
-  description: Create, manage, and share AI bots
-  edit:
-    add: Add
-    back: Back
-    basicInfo: Basic Information
-    cancel: Cancel
-    createTitle: Create New Bot
-    description: Description
-    displayRetrievedChunks: Display Retrieved Chunks
-    editTitle: Edit Bot
-    generationParams: Generation Parameters
-    instruction: Instruction
-    knowledge: Knowledge Base
-    maxTokens: Max Tokens
-    promptCaching: Prompt Caching
-    quickStarterExample: Example
-    quickStarterTitle: Title
-    quickStarters: Quick Starters
-    requiredFields: Please fill in required fields
-    save: Save
-    saveBeforeUpload: Please save the bot before uploading files
-    saveFailed: Failed to save
-    saving: Saving...
-    sourceUrls: Source URLs
-    temperature: Temperature
-    title: Title
-    topK: Top-K
-    topP: Top-P
-    uploadFiles: Upload Files
-  editTitle: Edit
-  filter: Filter
-  filterAll: All
-  filterPrivate: Private
-  filterPublic: Public
-  filterStarred: Starred
-  history:
-    back: Back
-    confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
-    confirmDelete: Are you sure you want to delete this conversation?
-    daysAgo: '{{days}} days ago'
-    deleteSelected: Delete Selected
-    deselectAll: Deselect All
-    hoursAgo: '{{hours}} hours ago'
-    lastMessage: Last message
-    messageCount: 'Messages: {{count}}'
-    minutesAgo: '{{minutes}} minutes ago'
-    noConversations: No conversations found
-    noDate: No date
-    open: Open
-    search: Search
-    searchPlaceholder: Search conversations...
-    selectAll: Select All
-    selected: '{{count}} selected'
-    showing: 'Showing {{count}} conversations'
-    title: Conversation History
-    untitled: Untitled
-    yesterday: Yesterday
-  lastUsed: Last used
-  myBots: My Bots
-  noBots: No bots found
-  organizationPublic: Organization Public
-  organizationPublicDescription: Members of your organization can use this bot
-  popularBots: Popular Bots
-  private: Private
-  privateDescription: Only you can use this bot
-  scopeFilter: Scope
-  search: Search
-  searchPlaceholder: Search by bot name or description
-  shared: Shared
-  title: RAG ChatBot Management
-  showStarredOnly: Show starred only
-  star: Star
-  starredOnly: Starred Only
-  syncStatus:
-    completed: Sync Complete
-    failed: Sync Failed
-    syncing: Syncing
-  tenantPublic: Tenant Public
-  tenantPublicDescription: Members of your tenant can use this bot
-  unstar: Unstar
-  viewMore: View More
 shared:
   contact_admin: Please contact the administrator.
   error: Error
@@ -1317,59 +1367,6 @@ useCaseBuilder:
   updateDescription: Update the use case with the above content.
   updateErrorCondition: 'The following conditions must be met:'
   updating: Updating...
-pptx:
-  title: PowerPoint Presentation Generator
-  description: Create professional presentations automatically with AI assistance
-  template:
-    label: Template Selection
-    blank: Blank Template
-    blankDescription: Start with a clean, minimal template
-    noTemplates: No custom templates available
-    public: Public template
-    private: Private template
-  slideCount:
-    label: Number of Slides
-  options:
-    titleSlide: Include Title Slide
-    summarySlide: Include Summary Slide
-  instructions:
-    label: Presentation Instructions
-    placeholder: Enter your presentation topic and requirements here...
-    help: Describe what you want in your presentation. Be specific about the topic, structure, and any special requirements.
-  generation:
-    status: Generation Status
-    generating: Generating presentation...
-    completed: Generation completed successfully
-    failed: Generation failed
-  generate: Generate
-  generating: Generating...
-  download: Download
-  upload:
-    title: Upload Template
-    fileLabel: Template File
-    nameLabel: Template Name
-    namePlaceholder: Enter template name
-    descriptionLabel: Description
-    descriptionPlaceholder: Enter template description
-    tagsLabel: Tags
-    tagsPlaceholder: Enter tags (comma-separated)
-    tagsHelp: Add tags to help categorize your template
-    publicLabel: Make this template public
-    publicHelp: Public templates can be used by all users
-    upload: Upload
-    uploading: Uploading...
-    invalidFileType: Invalid file type. Please select a PowerPoint file (.pptx)
-    fileTooLarge: File is too large. Maximum size is 10MB
-    missingFields: Please fill in all required fields
-    failed: Failed to upload template
-  examples:
-    title: Example Topics
-    business:
-      title: Business Strategy
-      content: Create a presentation about quarterly business review, including market analysis, financial performance, and strategic initiatives for the next quarter.
-    training:
-      title: Product Training
-      content: Develop training materials for new software features, including step-by-step guides, best practices, and troubleshooting tips.
 video:
   aspectRatio: Aspect Ratio
   clear: Clear

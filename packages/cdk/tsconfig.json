@@ -29,7 +29,7 @@
     "esModuleInterop": true,
 
     // Type definition file settings
-    "typeRoots": ["../../node_modules/@types"],
+    "typeRoots": ["../../node_modules/@types", "./types"],
     "types": ["jest", "node"]
   },
   // Exclude files and directories

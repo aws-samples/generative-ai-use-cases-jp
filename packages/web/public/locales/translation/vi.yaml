@@ -681,6 +681,38 @@ optimizePrompt:
   input_placeholder: Vui lòng nhập prompt hiện tại đang sử dụng nguyên trạng. Nếu kết quả được xuất ra bằng tiếng Anh, hãy thêm hướng dẫn "Vui lòng xuất ra bằng tiếng Nhật".
   result_placeholder: Kết quả sẽ được hiển thị ở đây
   title: Tối ưu hóa prompt
+pptx:
+  description: Tạo bản trình bày chuyên nghiệp tự động với sự hỗ trợ của AI
+  examples:
+    business:
+      content: Tạo bản trình bày về đánh giá kinh doanh quý, bao gồm phân tích thị trường, hiệu suất tài chính và các sáng kiến chiến lược cho quý tiếp theo.
+      title: Chiến lược kinh doanh
+    title: Chủ đề ví dụ
+    training:
+      content: Phát triển tài liệu đào tạo cho các tính năng phần mềm mới, bao gồm hướng dẫn từng bước, thực hành tốt nhất và mẹo xử lý sự cố.
+      title: Đào tạo sản phẩm
+  generation:
+    completed: Tạo hoàn thành thành công
+    failed: Tạo thất bại
+    generating: Đang tạo bản trình bày...
+    status: Trạng thái tạo
+  instructions:
+    help: Mô tả những gì bạn muốn trong bản trình bày. Hãy cụ thể về chủ đề, cấu trúc và bất kỳ yêu cầu đặc biệt nào.
+    label: Hướng dẫn bản trình bày
+    placeholder: Nhập chủ đề và yêu cầu bản trình bày của bạn tại đây...
+  options:
+    summarySlide: Bao gồm slide tóm tắt
+    titleSlide: Bao gồm slide tiêu đề
+  slideCount:
+    label: Số slide
+  template:
+    blank: Mẫu trắng
+    blankDescription: Bắt đầu với mẫu sạch và tối giản
+    label: Lựa chọn mẫu
+    noTemplates: Không có mẫu tùy chỉnh nào
+    private: Mẫu riêng tư
+    public: Mẫu công khai
+  title: Trình tạo bản trình bày PowerPoint
 rag:
   can_add_filters: có thể thêm bộ lọc bằng cách tùy chỉnh.
   errorRetrieval: >-
@@ -1160,35 +1192,3 @@ writer:
   tutorial: Hướng dẫn
   tutorial_success: Đã tải hướng dẫn
   useAsTextEditor: Sử dụng như editor văn bản
-pptx:
-  title: Trình tạo bản trình bày PowerPoint
-  description: Tạo bản trình bày chuyên nghiệp tự động với sự hỗ trợ của AI
-  template:
-    label: Lựa chọn mẫu
-    blank: Mẫu trắng
-    blankDescription: Bắt đầu với mẫu sạch và tối giản
-    noTemplates: Không có mẫu tùy chỉnh nào
-    public: Mẫu công khai
-    private: Mẫu riêng tư
-  slideCount:
-    label: Số slide
-  options:
-    titleSlide: Bao gồm slide tiêu đề
-    summarySlide: Bao gồm slide tóm tắt
-  instructions:
-    label: Hướng dẫn bản trình bày
-    placeholder: Nhập chủ đề và yêu cầu bản trình bày của bạn tại đây...
-    help: Mô tả những gì bạn muốn trong bản trình bày. Hãy cụ thể về chủ đề, cấu trúc và bất kỳ yêu cầu đặc biệt nào.
-  generation:
-    status: Trạng thái tạo
-    generating: Đang tạo bản trình bày...
-    completed: Tạo hoàn thành thành công
-    failed: Tạo thất bại
-  examples:
-    title: Chủ đề ví dụ
-    business:
-      title: Chiến lược kinh doanh
-      content: Tạo bản trình bày về đánh giá kinh doanh quý, bao gồm phân tích thị trường, hiệu suất tài chính và các sáng kiến chiến lược cho quý tiếp theo.
-    training:
-      title: Đào tạo sản phẩm
-      content: Phát triển tài liệu đào tạo cho các tính năng phần mềm mới, bao gồm hướng dẫn từng bước, thực hành tốt nhất và mẹo xử lý sự cố.

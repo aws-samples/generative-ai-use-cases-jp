@@ -76,6 +76,106 @@ adminPortal:
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
+assistant:
+  all: すべて
+  allAssistants: すべてのアシスタント
+  changeVisibility: 公開設定を変更
+  chat: チャット
+  chatPage:
+    assistantInfo: アシスタント情報
+    chunksEnabled: チャンク表示が有効
+    confirmClear: 会話履歴をクリアしてもよろしいですか？
+    copy: コピー
+    inputPlaceholder: メッセージを入力...
+    instruction: 指示
+    noMessages: メッセージがありません
+    quickStarters: クイックスタート
+    send: 送信
+    sendError: メッセージの送信に失敗しました
+    syncStatus: 同期状態
+    title: アシスタント チャット
+  confirmDelete: このアシスタントを削除してもよろしいですか？
+  createNew: 新規アシスタント作成
+  delete: 削除
+  deleteConfirmation: '"{{assistantName}}" を削除してもよろしいですか？この操作は取り消せません。'
+  deleteError: アシスタントの削除に失敗しました
+  deleteSuccess: アシスタントを削除しました
+  deleteTitle: アシスタントを削除
+  deleting: 削除中...
+  description: AIアシスタントを作成、管理、共有できます
+  edit:
+    add: 追加
+    back: 戻る
+    basicInfo: 基本情報
+    cancel: キャンセル
+    createTitle: 新規アシスタント作成
+    description: 説明
+    displayRetrievedChunks: 取得したチャンクを表示
+    editTitle: アシスタントを編集
+    enableRAG: RAGを有効化（ナレッジベース）
+    instruction: カスタム指示
+    knowledge: ナレッジベース
+    modelId: モデル
+    requiredFields: 必須項目を入力してください
+    save: 保存
+    saveBeforeUpload: ファイルをアップロードする前にアシスタントを保存してください
+    saveFailed: 保存に失敗しました
+    saving: 保存中...
+    sourceUrls: ソースURL
+    title: 名前
+    uploadFiles: ファイルをアップロード
+  editTitle: 編集
+  filter: フィルター
+  filterAll: すべて
+  filterPrivate: プライベート
+  filterPublic: パブリック
+  filterStarred: スター付き
+  history:
+    back: 戻る
+    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
+    confirmDelete: この会話を削除してもよろしいですか？
+    daysAgo: '{{days}}日前'
+    deleteSelected: 選択した項目を削除
+    deselectAll: 選択解除
+    hoursAgo: '{{hours}}時間前'
+    lastMessage: 最終メッセージ
+    messageCount: 'メッセージ数: {{count}}'
+    minutesAgo: '{{minutes}}分前'
+    noConversations: 会話履歴がありません
+    noDate: 日付なし
+    open: 開く
+    search: 検索
+    searchPlaceholder: 会話を検索...
+    selectAll: すべて選択
+    selected: '{{count}}件選択中'
+    showing: '{{count}}件の会話を表示中'
+    title: 会話履歴
+    untitled: 無題
+    yesterday: 昨日
+  lastUsed: 最終使用
+  myAssistants: マイアシスタント
+  noAssistants: アシスタントが見つかりません
+  organizationPublic: 組織内公開
+  organizationPublicDescription: 組織内のメンバーが利用できます
+  popularAssistants: 人気のアシスタント
+  private: プライベート
+  privateDescription: 自分だけが利用できます
+  scopeFilter: 公開範囲
+  search: 検索
+  searchPlaceholder: アシスタント名または説明で検索
+  shared: 共有中
+  showStarredOnly: スター付きのみ表示
+  star: スター
+  starredOnly: スター付きのみ
+  syncStatus:
+    completed: 同期完了
+    failed: 同期失敗
+    syncing: 同期中
+  tenantPublic: テナント内公開
+  tenantPublicDescription: テナント内のメンバーが利用できます
+  title: アシスタント管理
+  unstar: スター解除
+  viewMore: もっと見る
 auth:
   loading: 読み込み中...
   login: ログイン
@@ -644,16 +744,15 @@ navigation:
   pptxGeneration: PPTX 生成
   promptOptimization: プロンプト最適化
   ragChat: RAG チャット
-  ragChatBot: RAG チャットボット
   settings: 設定
   speechRecognition: 音声認識
   summary: 要約
   textGeneration: 文章生成
   translation: 翻訳
+  useCaseBuilder: ユースケースビルダー
   videoAnalysis: 映像分析
   videoGeneration: 動画生成
   voiceChat: 音声チャット
-  useCaseBuilder: ユースケースビルダー
   webContentExtraction: Web コンテンツ抽出
   writing: 執筆
 notfound:
@@ -664,6 +763,59 @@ optimizePrompt:
   input_placeholder: 現在利用中のプロンプトをそのまま入力してください。英語で出力されてしまう場合は「日本語で出力してください」という指示を追加してください。
   result_placeholder: 結果がここに表示されます
   title: プロンプト最適化
+pptx:
+  description: AI の支援を使って専門的なプレゼンテーションを自動作成
+  download: ダウンロード
+  examples:
+    business:
+      content: 四半期ビジネスレビューに関するプレゼンテーションを作成します。市場分析、財務実績、次四半期の戦略的取り組みを含みます。
+      title: ビジネス戦略
+    title: 例のトピック
+    training:
+      content: 新しいソフトウェア機能のトレーニング資料を開発します。ステップバイステップガイド、ベストプラクティス、トラブルシューティングのヒントを含みます。
+      title: 製品トレーニング
+  generate: 生成
+  generation:
+    completed: 生成が正常に完了しました
+    failed: 生成に失敗しました
+    generating: プレゼンテーションを生成中...
+    status: 生成状況
+  instructions:
+    help: プレゼンテーションで求めるものを説明してください。トピック、構成、特別な要件について具体的に記述してください。
+    label: プレゼンテーション指示
+    placeholder: プレゼンテーションのトピックと要件をここに入力してください...
+  options:
+    summarySlide: まとめスライドを含める
+    titleSlide: タイトルスライドを含める
+  slideCount:
+    label: スライド数
+  template:
+    blank: 空白テンプレート
+    label: テンプレート選択
+    blankDescription: クリーンで最小限のテンプレートから開始
+    noTemplates: カスタムテンプレートがありません
+    private: プライベートテンプレート
+    public: パブリックテンプレート
+  title: PowerPoint プレゼンテーション生成
+  generating: 生成中...
+  upload:
+    descriptionLabel: 説明
+    descriptionPlaceholder: テンプレートの説明を入力
+    failed: テンプレートのアップロードに失敗しました
+    fileLabel: テンプレートファイル
+    fileTooLarge: ファイルサイズが大きすぎます。最大サイズは10MBです
+    invalidFileType: 無効なファイル形式です。PowerPointファイル（.pptx）を選択してください
+    missingFields: すべての必須項目を入力してください
+    nameLabel: テンプレート名
+    title: テンプレートをアップロード
+    namePlaceholder: テンプレート名を入力
+    publicHelp: 公開テンプレートは全ユーザーが使用できます
+    publicLabel: このテンプレートを公開する
+    tagsHelp: テンプレートを分類するためのタグを追加
+    tagsLabel: タグ
+    tagsPlaceholder: タグを入力（カンマ区切り）
+    upload: アップロード
+    uploading: アップロード中...
 rag:
   can_add_filters: をカスタマイズすることでフィルターを追加できます。
   errorRetrieval: >-
@@ -691,108 +843,6 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
-ragChatBot:
-  all: すべて
-  allBots: すべてのボット
-  changeVisibility: 公開設定を変更
-  chat: チャット
-  chatPage:
-    botInfo: ボット情報
-    chunksEnabled: チャンク表示が有効
-    confirmClear: 会話履歴をクリアしてもよろしいですか？
-    copy: コピー
-    inputPlaceholder: メッセージを入力...
-    instruction: 指示
-    noMessages: メッセージがありません
-    quickStarters: クイックスタート
-    send: 送信
-    sendError: メッセージの送信に失敗しました
-    syncStatus: 同期状態
-    title: ChatBot チャット
-  confirmDelete: このボットを削除してもよろしいですか？
-  createNew: 新規ボット作成
-  delete: 削除
-  description: AIボットを作成、管理、共有できます
-  edit:
-    add: 追加
-    back: 戻る
-    basicInfo: 基本情報
-    cancel: キャンセル
-    createTitle: 新規ボット作成
-    description: 説明
-    displayRetrievedChunks: 取得したチャンクを表示
-    editTitle: ボットを編集
-    generationParams: 生成パラメータ
-    instruction: 指示
-    knowledge: ナレッジベース
-    maxTokens: 最大トークン数
-    promptCaching: プロンプトキャッシング
-    quickStarterExample: 例文
-    quickStarterTitle: タイトル
-    quickStarters: クイックスタート
-    requiredFields: 必須項目を入力してください
-    save: 保存
-    saveBeforeUpload: ファイルをアップロードする前にボットを保存してください
-    saveFailed: 保存に失敗しました
-    saving: 保存中...
-    sourceUrls: ソースURL
-    temperature: 温度
-    title: タイトル
-    topK: Top-K
-    topP: Top-P
-    uploadFiles: ファイルをアップロード
-  editTitle: 編集
-  filter: フィルター
-  filterAll: すべて
-  filterPrivate: プライベート
-  filterPublic: パブリック
-  filterStarred: スター付き
-  history:
-    back: 戻る
-    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
-    confirmDelete: この会話を削除してもよろしいですか？
-    daysAgo: '{{days}}日前'
-    deleteSelected: 選択した項目を削除
-    deselectAll: 選択解除
-    hoursAgo: '{{hours}}時間前'
-    lastMessage: 最終メッセージ
-    messageCount: 'メッセージ数: {{count}}'
-    minutesAgo: '{{minutes}}分前'
-    noConversations: 会話履歴がありません
-    noDate: 日付なし
-    open: 開く
-    search: 検索
-    searchPlaceholder: 会話を検索...
-    selectAll: すべて選択
-    selected: '{{count}}件選択中'
-    showing: '{{count}}件の会話を表示中'
-    title: 会話履歴
-    untitled: 無題
-    yesterday: 昨日
-  lastUsed: 最終使用
-  myBots: マイボット
-  noBots: ボットが見つかりません
-  organizationPublic: 組織内公開
-  organizationPublicDescription: 組織内のメンバーが利用できます
-  popularBots: 人気のボット
-  private: プライベート
-  privateDescription: 自分だけが利用できます
-  scopeFilter: 公開範囲
-  search: 検索
-  searchPlaceholder: ボット名または説明で検索
-  shared: 共有中
-  title: RAG ChatBot 管理
-  showStarredOnly: スター付きのみ表示
-  star: スター
-  starredOnly: スター付きのみ
-  syncStatus:
-    completed: 同期完了
-    failed: 同期失敗
-    syncing: 同期中
-  tenantPublic: テナント内公開
-  tenantPublicDescription: テナント内のメンバーが利用できます
-  unstar: スター解除
-  viewMore: もっと見る
 shared:
   contact_admin: 管理者に問い合わせてください。
   error: エラー
@@ -1240,56 +1290,3 @@ writer:
   tutorial: チュートリアル
   tutorial_success: チュートリアルを読み込みました
   useAsTextEditor: テキストエディタとして使用する
-pptx:
-  title: PowerPoint プレゼンテーション生成
-  description: AI の支援を使って専門的なプレゼンテーションを自動作成
-  template:
-    label: テンプレート選択
-    blank: 空白テンプレート
-    blankDescription: クリーンで最小限のテンプレートから開始
-    noTemplates: カスタムテンプレートがありません
-    public: パブリックテンプレート
-    private: プライベートテンプレート
-  slideCount:
-    label: スライド数
-  options:
-    titleSlide: タイトルスライドを含める
-    summarySlide: まとめスライドを含める
-  instructions:
-    label: プレゼンテーション指示
-    placeholder: プレゼンテーションのトピックと要件をここに入力してください...
-    help: プレゼンテーションで求めるものを説明してください。トピック、構成、特別な要件について具体的に記述してください。
-  generation:
-    status: 生成状況
-    generating: プレゼンテーションを生成中...
-    completed: 生成が正常に完了しました
-    failed: 生成に失敗しました
-  generate: 生成
-  generating: 生成中...
-  download: ダウンロード
-  upload:
-    title: テンプレートをアップロード
-    fileLabel: テンプレートファイル
-    nameLabel: テンプレート名
-    namePlaceholder: テンプレート名を入力
-    descriptionLabel: 説明
-    descriptionPlaceholder: テンプレートの説明を入力
-    tagsLabel: タグ
-    tagsPlaceholder: タグを入力（カンマ区切り）
-    tagsHelp: テンプレートを分類するためのタグを追加
-    publicLabel: このテンプレートを公開する
-    publicHelp: 公開テンプレートは全ユーザーが使用できます
-    upload: アップロード
-    uploading: アップロード中...
-    invalidFileType: 無効なファイル形式です。PowerPointファイル（.pptx）を選択してください
-    fileTooLarge: ファイルサイズが大きすぎます。最大サイズは10MBです
-    missingFields: すべての必須項目を入力してください
-    failed: テンプレートのアップロードに失敗しました
-  examples:
-    title: 例のトピック
-    business:
-      title: ビジネス戦略
-      content: 四半期ビジネスレビューに関するプレゼンテーションを作成します。市場分析、財務実績、次四半期の戦略的取り組みを含みます。
-    training:
-      title: 製品トレーニング
-      content: 新しいソフトウェア機能のトレーニング資料を開発します。ステップバイステップガイド、ベストプラクティス、トラブルシューティングのヒントを含みます。

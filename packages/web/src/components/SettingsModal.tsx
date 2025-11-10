@@ -29,7 +29,7 @@ const Toggle: React.FC<{
       `}>
       <span
         className={`
-          inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+          inline-block h-4 w-4 rounded-full bg-white transition-transform
           ${checked ? 'translate-x-6' : 'translate-x-1'}
         `}
       />
@@ -122,7 +122,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                     ? 'bg-white text-gray-900'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}>
-                <PiGear className="h-5 w-5 flex-shrink-0 text-gray-500" />
+                <PiGear className="h-5 w-5 shrink-0 text-gray-500" />
                 <span>一般</span>
               </button>
 
@@ -133,7 +133,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                     ? 'bg-white text-gray-900'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}>
-                <PiPencilSimple className="h-5 w-5 flex-shrink-0 text-gray-500" />
+                <PiPencilSimple className="h-5 w-5 shrink-0 text-gray-500" />
                 <span>AIのカスタマイズ</span>
               </button>
             </div>
@@ -208,7 +208,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                       value={settings.customInstructions}
                       onChange={(e) => updateSettings({ customInstructions: e.target.value })}
                       placeholder="動作、スタイル、トーンに関する追加の設定"
-                      className="h-32 w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="h-32 w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       disabled={!settings.customizeEnabled}
                     />
                   </div>

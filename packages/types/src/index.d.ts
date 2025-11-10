@@ -1,4 +1,5 @@
 export * from './agent';
+export * from './assistant';
 export * from './base';
 export * from './message';
 export * from './chat';

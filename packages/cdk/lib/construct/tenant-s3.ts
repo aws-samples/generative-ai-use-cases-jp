@@ -63,6 +63,12 @@ export interface TenantS3Props {
   readonly pptxOutputsBucketBaseName?: string;
 
   /**
+   * Base name for the assistant files bucket
+   * @default 'assistant-files'
+   */
+  readonly assistantFilesBucketBaseName?: string;
+
+  /**
    * Whether to enable versioning on buckets
    * @default true
    */
@@ -112,6 +118,11 @@ export class TenantS3 extends Construct {
   public readonly pptxOutputsBucket: s3.Bucket;
 
   /**
+   * The assistant files bucket for the tenant
+   */
+  public readonly assistantFilesBucket: s3.Bucket;
+
+  /**
    * The tenant ID
    */
   public readonly tenantId: string;
@@ -151,6 +162,11 @@ export class TenantS3 extends Construct {
    */
   public readonly pptxOutputsBucketName: string;
 
+  /**
+   * Assistant files bucket name
+   */
+  public readonly assistantFilesBucketName: string;
+
   constructor(scope: Construct, id: string, props: TenantS3Props) {
     super(scope, id);
 
@@ -182,6 +198,7 @@ export class TenantS3 extends Construct {
     const videosBucketBaseName = props.videosBucketBaseName || 'videos';
     const pptxTemplatesBucketBaseName = props.pptxTemplatesBucketBaseName || 'pptx-templates';
     const pptxOutputsBucketBaseName = props.pptxOutputsBucketBaseName || 'pptx-outputs';
+    const assistantFilesBucketBaseName = props.assistantFilesBucketBaseName || 'assistant-files';
 
     // Generate unique bucket names
     this.documentsBucketName = this.generateUniqueBucketName(
@@ -216,6 +233,11 @@ export class TenantS3 extends Construct {
     );
     this.pptxOutputsBucketName = this.generateUniqueBucketName(
       pptxOutputsBucketBaseName,
+      environment,
+      sanitizedTenantId
+    );
+    this.assistantFilesBucketName = this.generateUniqueBucketName(
+      assistantFilesBucketBaseName,
       environment,
       sanitizedTenantId
     );
@@ -357,6 +379,34 @@ export class TenantS3 extends Construct {
       maxAge: 3000,
     });
 
+    // Create assistant files bucket
+    this.assistantFilesBucket = new s3.Bucket(this, 'AssistantFilesBucket', {
+      bucketName: this.assistantFilesBucketName,
+      ...commonBucketProps,
+      autoDeleteObjects: props.removalPolicy,
+    });
+
+    // Add CORS configuration for assistant files bucket (needed for file uploads from browser)
+    this.assistantFilesBucket.addCorsRule({
+      allowedOrigins: ['*'],
+      allowedMethods: [
+        HttpMethods.GET,
+        HttpMethods.POST,
+        HttpMethods.PUT,
+        HttpMethods.HEAD,
+        HttpMethods.DELETE,
+      ],
+      allowedHeaders: ['*'],
+      exposedHeaders: [
+        'ETag',
+        'x-amz-request-id',
+        'x-amz-id-2',
+        'x-amz-checksum-crc32',
+        'x-amz-sdk-checksum-algorithm',
+      ],
+      maxAge: 3000,
+    });
+
     // Add tags to all buckets
     const tags = {
       TenantId: this.tenantId,
@@ -372,6 +422,7 @@ export class TenantS3 extends Construct {
       cdk.Tags.of(this.videosBucket).add(key, value);
       cdk.Tags.of(this.pptxTemplatesBucket).add(key, value);
       cdk.Tags.of(this.pptxOutputsBucket).add(key, value);
+      cdk.Tags.of(this.assistantFilesBucket).add(key, value);
     });
 
     // Output bucket ARNs and names
@@ -443,6 +494,16 @@ export class TenantS3 extends Construct {
     new cdk.CfnOutput(this, 'PptxOutputsBucketName', {
       value: this.pptxOutputsBucket.bucketName,
       description: `Name of the PPTX outputs bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'AssistantFilesBucketArn', {
+      value: this.assistantFilesBucket.bucketArn,
+      description: `ARN of the assistant files bucket for tenant ${this.tenantId}`,
+    });
+
+    new cdk.CfnOutput(this, 'AssistantFilesBucketName', {
+      value: this.assistantFilesBucket.bucketName,
+      description: `Name of the assistant files bucket for tenant ${this.tenantId}`,
     });
   }
 
