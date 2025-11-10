@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@shopify/eslint-plugin": "50.0.0",
-    "@types/pdf-parse": "^1.1.5",
     "@typescript-eslint/eslint-plugin": "8.44.0",
     "@typescript-eslint/parser": "8.44.0",
     "eslint": "9.35.0",
@@ -61,9 +60,5 @@
   "workspaces": [
     "packages/*",
     "dagger"
-  ],
-  "dependencies": {
-    "@aws-sdk/client-sqs": "^3.922.0",
-    "pdf-parse": "^1.1.1"
-  }
+  ]
 }
