@@ -24,6 +24,7 @@ import {
 import ModelParameters from '../components/ModelParameters';
 import { AcceptedDotExtensions } from '../utils/MediaUtils';
 import { useTranslation } from 'react-i18next';
+import LoadingWave from '../components/LoadingWave';
 
 const fileLimit: FileLimit = {
   accept: AcceptedDotExtensions,
@@ -78,6 +79,7 @@ const ChatPage: React.FC = () => {
     updateSystemContext,
     retryGeneration,
     forceToStop,
+    loadingMessages,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { scrollableContainer, setFollowing } = useFollow();
@@ -318,7 +320,11 @@ const ChatPage: React.FC = () => {
         </h1>
 
         {/* Wrapper for messages and input to enable vertical centering when empty */}
-        {isEmpty ? (
+        {loadingMessages ? (
+          <div className="flex-1 flex flex-col justify-center items-center">
+            <LoadingWave />
+          </div>
+        ) : isEmpty ? (
           <div className="flex-1 flex flex-col justify-center">
             <InputChatContent
               className="print:hidden mx-auto"
