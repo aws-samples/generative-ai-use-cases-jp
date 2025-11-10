@@ -10,10 +10,17 @@ export type SidebarItemProps = BaseProps & {
 const SidebarItem: React.FC<SidebarItemProps> = (props) => {
   const location = useLocation();
 
+  // Check if the current path matches the sidebar item
+  // For root path (/), use exact match. For other paths, check if current path starts with it
+  const isActive =
+    props.to === '/'
+      ? location.pathname === props.to
+      : location.pathname.startsWith(props.to);
+
   return (
     <Link
       className={`hover:bg-aws-sky flex flex-col items-center justify-center rounded p-2 transition-colors ${
-        location.pathname === props.to && 'bg-aws-sky'
+        isActive && 'bg-aws-sky'
       } ${props.className}`}
       to={props.to}
       title={props.label}>
