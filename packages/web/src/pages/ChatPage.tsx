@@ -281,7 +281,7 @@ const ChatPage: React.FC = () => {
       {/* Main Content */}
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className="relative min-h-screen flex flex-col">
+        className="relative h-screen flex flex-col">
         {isOver && fileUpload && (
           <div
             onDragLeave={handleDragLeave}
@@ -345,7 +345,7 @@ const ChatPage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div ref={scrollableContainer} className="pb-32">
+            <div ref={scrollableContainer} className="flex-1 overflow-y-auto">
               {showingMessages.map((chat, idx) => (
                 <ChatMessage
                   key={idx + 1}
@@ -363,7 +363,7 @@ const ChatPage: React.FC = () => {
               ))}
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 bg-white print:hidden">
+            <div className="sticky bottom-0 print:hidden">
               <InputChatContent
                 className="mx-auto my-4"
                 content={content}

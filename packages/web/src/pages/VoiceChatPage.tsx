@@ -82,7 +82,7 @@ const VoiceChatPage: React.FC = () => {
 
   return (
     <>
-      <div className={`${!isEmpty ? 'screen:pb-36' : ''} relative`}>
+      <div className="relative h-screen flex flex-col">
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {t('voiceChat.title')}
         </div>
@@ -137,7 +137,7 @@ const VoiceChatPage: React.FC = () => {
         )}
 
         {!isEmpty && (
-          <div ref={scrollableContainer}>
+          <div ref={scrollableContainer} className="flex-1 overflow-y-auto">
             {showingMessages.map((m, idx) => {
               return (
                 <div key={showSystemPrompt ? idx : idx + 1}>
@@ -166,7 +166,7 @@ const VoiceChatPage: React.FC = () => {
           <ScrollTopBottom />
         </div>
 
-        <div className="fixed bottom-7 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
+        <div className="sticky bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden">
           {!isLoading && !isActive && (
             <ExpandableField
               label={t('chat.system_prompt')}
