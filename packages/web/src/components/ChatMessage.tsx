@@ -226,7 +226,7 @@ const ChatMessage: React.FC<Props> = (props) => {
 
               {/* Message bubble */}
               <div
-                className={`rounded-2xl px-4 py-3 ${
+                className={`rounded-2xl px-4 py-3 overflow-x-auto ${
                   chatContent?.role === 'user'
                     ? 'bg-aws-sky text-white'
                     : 'bg-gray-100'
