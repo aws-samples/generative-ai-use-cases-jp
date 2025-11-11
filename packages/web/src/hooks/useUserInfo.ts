@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import useHttp from './useHttp';
 
 export interface UserInfo {
@@ -25,12 +25,26 @@ const useUserInfo = () => {
         // Get current user from Amplify
         const user = await getCurrentUser();
 
+        // Get email from ID token claims (works for both SAML/OIDC and direct Cognito users)
+        // This avoids the "required scopes" error with fetchUserAttributes for federated users
+        let emailFromToken: string | undefined;
+        try {
+          const session = await fetchAuthSession();
+          const idToken = session.tokens?.idToken;
+          emailFromToken = idToken?.payload?.email as string | undefined;
+        } catch (tokenError) {
+          console.warn('Failed to fetch auth session, falling back to loginId:', tokenError);
+        }
+
+        // Determine email with fallback chain: ID token email → loginId → username
+        const email = emailFromToken || user.signInDetails?.loginId || user.username;
+
         // Get additional info from API if needed
         try {
           const response = await api.get('/admin/status');
           setUserInfo({
             username: user.username,
-            email: user.signInDetails?.loginId || user.username,
+            email,
             tenantId: response.data.tenantId,
             tenantName: response.data.tenantName || response.data.tenantId,
           });
@@ -38,7 +52,7 @@ const useUserInfo = () => {
           // If admin status fails, just use basic user info
           setUserInfo({
             username: user.username,
-            email: user.signInDetails?.loginId || user.username,
+            email,
           });
         }
       } catch (err) {
