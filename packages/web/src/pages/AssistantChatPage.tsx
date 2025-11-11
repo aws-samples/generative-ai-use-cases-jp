@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import {
   PiArrowLeft,
   PiPaperPlaneTilt,
@@ -10,13 +11,20 @@ import {
   PiTrash,
   PiDownloadSimple,
   PiCopy,
+  PiSpinnerGap,
 } from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
-import { Assistant, AssistantMessage } from 'generative-ai-use-cases';
+import { Assistant, AssistantMessage, KnowledgeSource } from 'generative-ai-use-cases';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import LoadingWave from '../components/LoadingWave';
 import Markdown from '../components/Markdown';
+import Alert from '../components/Alert';
+import {
+  getStatusInfo,
+  isSyncBlocking,
+  isStatusFinal,
+} from '../components/assistants/statusMetadata';
 
 const AssistantChatPage: React.FC = () => {
   const { t } = useTranslation();
@@ -38,6 +46,16 @@ const AssistantChatPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Derive status info
+  const statusInfo = useMemo(() => {
+    if (!assistant?.ragEnabled) return null;
+    return getStatusInfo(assistant.syncStatus);
+  }, [assistant]);
+
+  const isBlocked = useMemo(() => {
+    return assistant?.ragEnabled && isSyncBlocking(assistant.syncStatus);
+  }, [assistant]);
+
   useEffect(() => {
     if (assistantId) {
       fetchAssistant();
@@ -48,6 +66,40 @@ const AssistantChatPage: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Polling for assistant with non-final sync status
+  useEffect(() => {
+    if (!assistantId || !assistant?.ragEnabled) {
+      return;
+    }
+
+    if (isStatusFinal(assistant.syncStatus)) {
+      return;
+    }
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const result = await getAssistant(assistantId);
+        setAssistant((prev) => {
+          // Show success toast when transitioning to SUCCEEDED
+          if (
+            prev &&
+            prev.syncStatus !== 'SUCCEEDED' &&
+            result.syncStatus === 'SUCCEEDED'
+          ) {
+            toast.success(t('assistant.chatPage.syncSucceeded'));
+          }
+          return result;
+        });
+      } catch (error) {
+        console.error('Failed to poll assistant status:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [assistantId, assistant, getAssistant, t]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,6 +147,12 @@ const AssistantChatPage: React.FC = () => {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || !assistantId) return;
 
+    // Block sending if sync is in blocking state
+    if (isBlocked) {
+      toast.warning(t('assistant.statusMessage.blocking'));
+      return;
+    }
+
     const userMessageContent = inputMessage;
     setInputMessage('');
     setSending(true);
@@ -110,7 +168,7 @@ const AssistantChatPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to send message:', error);
       setSending(false);
-      alert(t('assistant.chatPage.sendError'));
+      toast.error(t('assistant.chatPage.sendError'));
     } finally {
       inputRef.current?.focus();
     }
@@ -307,6 +365,74 @@ const AssistantChatPage: React.FC = () => {
         </Card>
       )}
 
+      {/* Status Banners */}
+      {assistant?.ragEnabled && statusInfo && (
+        <>
+          {/* QUEUED/SYNCING Banner */}
+          {(assistant.syncStatus === 'QUEUED' ||
+            assistant.syncStatus === 'SYNCING') && (
+            <Alert severity="info" className="m-4">
+              <div className="flex items-start gap-2">
+                <PiSpinnerGap className="mt-0.5 animate-spin text-lg" />
+                <div className="flex-1">
+                  <div className="font-semibold">
+                    {t('assistant.chatPage.syncingAlertTitle')}
+                  </div>
+                  <div className="mt-1 text-xs">
+                    {t('assistant.chatPage.syncingAlertMessage')}
+                  </div>
+                </div>
+              </div>
+            </Alert>
+          )}
+
+          {/* FAILED Banner */}
+          {assistant.syncStatus === 'FAILED' && (
+            <Alert severity="error" className="m-4">
+              <div className="flex-1">
+                <div className="font-semibold">
+                  {t('assistant.chatPage.failedAlertTitle')}
+                </div>
+                <div className="mt-1 text-xs">
+                  {assistant.syncStatusReason ||
+                    t('assistant.statusMessage.failed')}
+                </div>
+                <Button
+                  outlined
+                  onClick={() =>
+                    navigate(`/chat/assistants/edit/${assistant.assistantId}`)
+                  }
+                  className="mt-2 text-xs">
+                  {t('assistant.editTitle')}
+                </Button>
+              </div>
+            </Alert>
+          )}
+
+          {/* PARTIAL Banner */}
+          {assistant.syncStatus === 'PARTIAL' && (
+            <Alert severity="warning" className="m-4">
+              <div className="flex-1">
+                <div className="font-semibold">
+                  {t('assistant.chatPage.partialAlertTitle')}
+                </div>
+                <div className="mt-1 text-xs">
+                  {(() => {
+                    const failedSources = assistant.knowledgeSources?.filter(
+                      (s: KnowledgeSource) => s.status === 'FAILED'
+                    );
+                    const failedCount = failedSources?.length ?? 0;
+                    return failedCount > 0
+                      ? t('assistant.chatPage.partialAlertMessage', { count: failedCount }) + (assistant.syncStatusReason ? ` ${assistant.syncStatusReason}` : '')
+                      : t('assistant.statusMessage.partial');
+                  })()}
+                </div>
+              </div>
+            </Alert>
+          )}
+        </>
+      )}
+
       <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="py-12 text-center">
@@ -343,13 +469,19 @@ const AssistantChatPage: React.FC = () => {
             onKeyDown={handleKeyDown}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
-            placeholder={t('assistant.chatPage.inputPlaceholder')}
-            disabled={sending || !assistantId}
-            className="flex-1 rounded border border-black/30 p-1.5 outline-none"
+            placeholder={
+              isBlocked
+                ? t('assistant.chatPage.syncingPlaceholder')
+                : t('assistant.chatPage.inputPlaceholder')
+            }
+            disabled={sending || !assistantId || isBlocked}
+            className="flex-1 rounded border border-black/30 p-1.5 outline-none disabled:bg-gray-100 disabled:text-gray-500"
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || sending || !assistantId}
+            disabled={
+              !inputMessage.trim() || sending || !assistantId || isBlocked
+            }
             className="flex items-center gap-1">
             <PiPaperPlaneTilt />
             {t('assistant.chatPage.send')}

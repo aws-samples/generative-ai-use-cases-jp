@@ -86,13 +86,20 @@ assistant:
     chunksEnabled: Chunks display enabled
     confirmClear: Are you sure you want to clear the conversation?
     copy: Copy
+    failedAlertTitle: Sync Failed
     inputPlaceholder: Type a message...
     instruction: Instruction
     noMessages: No messages
+    partialAlertMessage: '{{count}} knowledge source(s) failed to sync.'
+    partialAlertTitle: Partial Sync
     quickStarters: Quick Starters
     send: Send
     sendError: Failed to send message
     syncStatus: Sync Status
+    syncSucceeded: Knowledge base sync completed successfully!
+    syncingAlertMessage: The assistant's knowledge base is currently syncing. You'll be able to chat once it's ready. We're refreshing every 5 seconds.
+    syncingAlertTitle: Syncing Knowledge Base
+    syncingPlaceholder: Knowledge base is syncing...
     title: Assistant Chat
   confirmDelete: Are you sure you want to delete this assistant?
   createNew: Create New Assistant
@@ -167,10 +174,21 @@ assistant:
   showStarredOnly: Show starred only
   star: Star
   starredOnly: Starred Only
+  statusMessage:
+    blocking: Knowledge base is syncing. Please wait...
+    failed: Knowledge base sync failed. Please check your sources.
+    partial: Some knowledge sources failed to sync.
+  statusTooltip:
+    failedSources: '{{count}} knowledge source(s) failed to sync'
   syncStatus:
     completed: Sync Complete
-    failed: Sync Failed
+    failed: Failed
+    partial: Partially Synced
+    queued: Queued
+    ragDisabled: RAG Disabled
+    succeeded: Ready
     syncing: Syncing
+    unknown: Unknown
   tenantPublic: Tenant Public
   tenantPublicDescription: Members of your tenant can use this assistant
   title: Assistant Management
@@ -916,6 +934,7 @@ pptx:
       content: Develop training materials for new software features, including step-by-step guides, best practices, and troubleshooting tips.
       title: Product Training
   generate: Generate
+  generating: Generating...
   generation:
     completed: Generation completed successfully
     failed: Generation failed
@@ -932,13 +951,12 @@ pptx:
     label: Number of Slides
   template:
     blank: Blank Template
-    label: Template Selection
     blankDescription: Start with a clean, minimal template
+    label: Template Selection
     noTemplates: No custom templates available
     private: Private template
     public: Public template
   title: PowerPoint Presentation Generator
-  generating: Generating...
   upload:
     descriptionLabel: Description
     descriptionPlaceholder: Enter template description
@@ -948,13 +966,13 @@ pptx:
     invalidFileType: Invalid file type. Please select a PowerPoint file (.pptx)
     missingFields: Please fill in all required fields
     nameLabel: Template Name
-    title: Upload Template
     namePlaceholder: Enter template name
     publicHelp: Public templates can be used by all users
     publicLabel: Make this template public
     tagsHelp: Add tags to help categorize your template
     tagsLabel: Tags
     tagsPlaceholder: Enter tags (comma-separated)
+    title: Upload Template
     upload: Upload
     uploading: Uploading...
 rag:

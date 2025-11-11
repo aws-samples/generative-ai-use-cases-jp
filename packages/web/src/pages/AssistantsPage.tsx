@@ -5,6 +5,9 @@ import { PiMagnifyingGlass, PiPlus, PiRobot, PiPencil } from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
 import { Assistant } from 'generative-ai-use-cases';
 import LoadingWave from '../components/LoadingWave';
+import AssistantStatusTag from '../components/assistants/AssistantStatusTag';
+import Tooltip from '../components/Tooltip';
+import { isSyncBlocking, isStatusFinal } from '../components/assistants/statusMetadata';
 
 const AssistantsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -12,7 +15,7 @@ const AssistantsPage: React.FC = () => {
   const { listAssistants } = useAssistantApi();
 
   const [assistants, setAssistants] = useState<Assistant[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInputValue, setSearchInputValue] = useState('');
   const searchDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(
@@ -21,7 +24,7 @@ const AssistantsPage: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch assistants from API
-  const fetchAssistants = useCallback(async () => {
+  const fetchAssistants = useCallback(async (isPollingRequest = false) => {
     // Cancel previous request if it exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -31,7 +34,11 @@ const AssistantsPage: React.FC = () => {
     abortControllerRef.current = new AbortController();
     const signal = abortControllerRef.current.signal;
 
-    setLoading(true);
+    // Only show loading spinner on initial load, not during polling
+    if (!isPollingRequest) {
+      setIsInitialLoad(true);
+    }
+
     try {
       const response = await listAssistants({ limit: 100 });
       // Only update state if request wasn't cancelled
@@ -58,8 +65,8 @@ const AssistantsPage: React.FC = () => {
       }
     } finally {
       // Only set loading to false if request wasn't cancelled
-      if (!abortControllerRef.current?.signal.aborted) {
-        setLoading(false);
+      if (!abortControllerRef.current?.signal.aborted && !isPollingRequest) {
+        setIsInitialLoad(false);
       }
     }
   }, [searchQuery, listAssistants]);
@@ -95,12 +102,36 @@ const AssistantsPage: React.FC = () => {
     };
   }, []);
 
+  // Polling for assistants with non-final sync status
+  useEffect(() => {
+    const hasNonFinalStatus = assistants.some(
+      (a) => a.ragEnabled && !isStatusFinal(a.syncStatus)
+    );
+
+    if (!hasNonFinalStatus) {
+      return;
+    }
+
+    const pollInterval = setInterval(() => {
+      fetchAssistants(true); // Pass true to indicate this is a polling request
+    }, 10000); // Poll every 10 seconds
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [assistants, fetchAssistants]);
+
   // Featured assistants: first 6
   const featuredAssistants = assistants.slice(0, 6);
   const allAssistants = assistants;
 
-  const handleStartChat = (assistantId: string) => {
-    navigate(`/chat/assistants/chat/${assistantId}`);
+  const handleStartChat = (assistant: Assistant) => {
+    // Block navigation if sync is in blocking state
+    if (assistant.ragEnabled && isSyncBlocking(assistant.syncStatus)) {
+      alert(t('assistant.statusMessage.blocking'));
+      return;
+    }
+    navigate(`/chat/assistants/chat/${assistant.assistantId}`);
   };
 
   const handleEditAssistant = (assistantId: string) => {
@@ -140,7 +171,7 @@ const AssistantsPage: React.FC = () => {
         </div>
 
         {/* Loading State */}
-        {loading ? (
+        {isInitialLoad ? (
           <div className="flex justify-center py-12">
             <LoadingWave />
           </div>
@@ -198,7 +229,7 @@ const AssistantsPage: React.FC = () => {
 // Assistant Card Component
 interface AssistantCardProps {
   assistant: Assistant;
-  onStartChat: (assistantId: string) => void;
+  onStartChat: (assistant: Assistant) => void;
   onEdit: (assistantId: string) => void;
 }
 
@@ -208,16 +239,36 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
   onEdit,
 }) => {
   const { t } = useTranslation();
+  const isBlocked =
+    assistant.ragEnabled && isSyncBlocking(assistant.syncStatus);
+
+  const chatButton = (
+    <button
+      onClick={() => onStartChat(assistant)}
+      disabled={isBlocked}
+      className={`flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium transition-colors ${
+        isBlocked
+          ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+          : 'bg-white text-gray-700 hover:bg-gray-50'
+      }`}>
+      {t('assistant.chat')}
+    </button>
+  );
 
   return (
-    <div className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+    <div className="relative flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+      {/* Status Tag - Top Right */}
+      <div className="absolute right-3 top-3">
+        <AssistantStatusTag assistant={assistant} />
+      </div>
+
       {/* Icon */}
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
         <PiRobot className="text-2xl text-blue-600" />
       </div>
 
       {/* Name */}
-      <h3 className="mb-2 text-lg font-semibold text-gray-900">
+      <h3 className="mb-2 pr-20 text-lg font-semibold text-gray-900">
         {assistant.name}
       </h3>
 
@@ -226,13 +277,24 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
         {assistant.description || t('assistant.description')}
       </p>
 
+      {/* Helper Text for Syncing */}
+      {isBlocked && (
+        <p className="mb-2 text-xs text-gray-500">
+          {t('assistant.statusMessage.blocking')}
+        </p>
+      )}
+
       {/* Action Buttons */}
       <div className="flex gap-2">
-        <button
-          onClick={() => onStartChat(assistant.assistantId)}
-          className="flex-1 rounded-lg border border-gray-300 bg-white py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">
-          {t('assistant.chat')}
-        </button>
+        {isBlocked ? (
+          <Tooltip
+            message={t('assistant.statusMessage.blocking')}
+            position="center">
+            {chatButton}
+          </Tooltip>
+        ) : (
+          chatButton
+        )}
         <button
           onClick={() => onEdit(assistant.assistantId)}
           className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"

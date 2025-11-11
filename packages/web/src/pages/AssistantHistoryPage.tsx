@@ -13,6 +13,9 @@ import { Assistant, AssistantMessage } from 'generative-ai-use-cases';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import LoadingWave from '../components/LoadingWave';
+import AssistantStatusTag from '../components/assistants/AssistantStatusTag';
+import Tooltip from '../components/Tooltip';
+import { isSyncBlocking, isStatusFinal } from '../components/assistants/statusMetadata';
 
 interface AssistantWithMessages {
   assistant: Assistant;
@@ -40,6 +43,49 @@ const AssistantHistoryPage: React.FC = () => {
   useEffect(() => {
     filterAssistants();
   }, [assistants, searchQuery]);
+
+  // Polling for assistants with non-final sync status
+  useEffect(() => {
+    const hasNonFinalStatus = assistants.some(
+      (item) =>
+        item.assistant.ragEnabled && !isStatusFinal(item.assistant.syncStatus)
+    );
+
+    if (!hasNonFinalStatus) {
+      return;
+    }
+
+    const pollInterval = setInterval(async () => {
+      // Lightweight polling: only fetch assistant status, not messages
+      try {
+        const response = await listAssistants({ limit: 100 });
+        setAssistants((prev) =>
+          prev.map((item) => {
+            const updated = response.assistants.find(
+              (a) => a.assistantId === item.assistant.assistantId
+            );
+            if (updated) {
+              return {
+                ...item,
+                assistant: {
+                  ...item.assistant,
+                  syncStatus: updated.syncStatus,
+                  syncStatusReason: updated.syncStatusReason,
+                },
+              };
+            }
+            return item;
+          })
+        );
+      } catch (error) {
+        console.error('Failed to poll assistant statuses:', error);
+      }
+    }, 10000); // Poll every 10 seconds
+
+    return () => {
+      clearInterval(pollInterval);
+    };
+  }, [assistants, listAssistants]);
 
   const fetchAssistantsWithMessages = async () => {
     setLoading(true);
@@ -108,8 +154,13 @@ const AssistantHistoryPage: React.FC = () => {
     setFilteredAssistants(filtered);
   };
 
-  const handleOpenAssistant = (assistantId: string) => {
-    navigate(`/chat/assistants/chat/${assistantId}`);
+  const handleOpenAssistant = (assistant: Assistant) => {
+    // Block navigation if sync is in blocking state
+    if (assistant.ragEnabled && isSyncBlocking(assistant.syncStatus)) {
+      alert(t('assistant.statusMessage.blocking'));
+      return;
+    }
+    navigate(`/chat/assistants/chat/${assistant.assistantId}`);
   };
 
   const formatDate = (dateString?: string) => {
@@ -142,20 +193,42 @@ const AssistantHistoryPage: React.FC = () => {
 
   const renderAssistantCard = (item: AssistantWithMessages) => {
     const { assistant, messageCount, lastMessageAt } = item;
+    const isBlocked =
+      assistant.ragEnabled && isSyncBlocking(assistant.syncStatus);
+
+    const openButton = (
+      <Button
+        outlined
+        disabled={isBlocked}
+        onClick={() => {
+          handleOpenAssistant(assistant);
+        }}
+        className="flex items-center gap-1 text-sm">
+        <PiChatCircleText />
+        {t('assistant.history.open')}
+      </Button>
+    );
 
     return (
       <div
         key={assistant.assistantId}
-        onClick={() => handleOpenAssistant(assistant.assistantId)}
-        className="cursor-pointer">
-        <Card className="mb-4 transition-shadow hover:shadow-lg">
+        onClick={() => handleOpenAssistant(assistant)}
+        className={`cursor-pointer ${isBlocked ? 'cursor-not-allowed opacity-60' : ''}`}>
+        <Card className="relative mb-4 transition-shadow hover:shadow-lg">
+          {/* Status Tag - Top Right */}
+          <div className="absolute right-3 top-3">
+            <AssistantStatusTag assistant={assistant} />
+          </div>
+
           <div className="flex items-start justify-between">
             <div className="flex flex-1 items-start gap-3">
               <PiRobot className="mt-1 text-2xl text-blue-600" />
 
               <div className="flex-1">
                 <div className="mb-1">
-                  <h3 className="text-lg font-semibold">{assistant.name}</h3>
+                  <h3 className="pr-20 text-lg font-semibold">
+                    {assistant.name}
+                  </h3>
                   {assistant.description && (
                     <p className="text-sm text-gray-600">
                       {assistant.description}
@@ -182,19 +255,26 @@ const AssistantHistoryPage: React.FC = () => {
                     })}
                   </span>
                 </div>
+
+                {/* Helper Text for Syncing */}
+                {isBlocked && (
+                  <p className="mt-2 text-xs text-gray-500">
+                    {t('assistant.statusMessage.blocking')}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-              <Button
-                outlined
-                onClick={() => {
-                  handleOpenAssistant(assistant.assistantId);
-                }}
-                className="flex items-center gap-1 text-sm">
-                <PiChatCircleText />
-                {t('assistant.history.open')}
-              </Button>
+              {isBlocked ? (
+                <Tooltip
+                  message={t('assistant.statusMessage.blocking')}
+                  position="left">
+                  {openButton}
+                </Tooltip>
+              ) : (
+                openButton
+              )}
             </div>
           </div>
         </Card>
