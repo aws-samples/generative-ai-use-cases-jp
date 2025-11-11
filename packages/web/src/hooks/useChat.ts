@@ -731,6 +731,15 @@ const useChatState = create<{
       }
 
       initChat(id, messages, chat);
+
+      // Restore model ID from the last assistant message
+      const lastAssistantMessage = messages
+        .filter((m) => m.role === 'assistant' && m.llmType)
+        .pop();
+
+      if (lastAssistantMessage?.llmType) {
+        setModelId(id, lastAssistantMessage.llmType);
+      }
     },
     updateSystemContext: (id: string, systemContext: string) => {
       set((state) => {

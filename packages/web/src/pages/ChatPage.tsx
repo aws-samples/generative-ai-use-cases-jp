@@ -150,11 +150,13 @@ const ChatPage: React.FC = () => {
           ? params.modelId!
           : _modelId
       );
-    } else {
+    } else if (!chatId) {
+      // Only set default model for new chats (when chatId doesn't exist)
+      // For existing chats, the model will be restored from messages
       setModelId(_modelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, setContent, availableModels, pathname]);
+  }, [search, setContent, availableModels, pathname, chatId]);
 
   const onSend = useCallback(() => {
     setFollowing(true);
