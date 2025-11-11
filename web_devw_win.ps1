@@ -75,7 +75,7 @@ $env:VITE_APP_ENDPOINT_NAMES = Extract-Value $stack_output "EndpointNames"
 $env:VITE_APP_SAMLAUTH_ENABLED = Extract-Value $stack_output "SamlAuthEnabled"
 $env:VITE_APP_SAML_COGNITO_DOMAIN_NAME = Extract-Value $stack_output "SamlCognitoDomainName"
 $env:VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME = Extract-Value $stack_output "SamlCognitoFederatedIdentityProviderName"
-$env:VITE_APP_AGENT_NAMES = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($(Extract-Value $stack_output "AgentNames")))
+$env:VITE_APP_AGENTS = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($(Extract-Value $stack_output "Agents")))
 $env:VITE_APP_INLINE_AGENTS = Extract-Value $stack_output "InlineAgents"
 $env:VITE_APP_USE_CASE_BUILDER_ENABLED = Extract-Value $stack_output "UseCaseBuilderEnabled"
 $env:VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN = Extract-Value $stack_output "OptimizePromptFunctionArn"
@@ -93,5 +93,14 @@ $env:VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED = Extract-Value $stack_output "Ag
 $env:VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME = Extract-Value $stack_output "AgentCoreAgentBuilderRuntime"
 $env:VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES = Extract-Value $stack_output "AgentCoreExternalRuntimes"
 $env:VITE_APP_MCP_SERVERS_CONFIG = Extract-Value $stack_output "McpServersConfig"
+
+if (Test-Path "packages/cdk/branding.json") {
+    $branding = Get-Content -Raw -Path "packages/cdk/branding.json" | ConvertFrom-Json
+    $env:VITE_APP_BRANDING_LOGO_PATH = if ($branding.logoPath) { $branding.logoPath } else { "" }
+    $env:VITE_APP_BRANDING_TITLE = if ($branding.title) { $branding.title } else { "" }
+} else {
+    $env:VITE_APP_BRANDING_LOGO_PATH = ""
+    $env:VITE_APP_BRANDING_TITLE = ""
+}
 
 npm -w packages/web run dev
