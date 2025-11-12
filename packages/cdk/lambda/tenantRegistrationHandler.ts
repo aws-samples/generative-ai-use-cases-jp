@@ -21,6 +21,9 @@ interface TenantRegistrationRequest {
   environment: string;
   roleArn?: string;
   controlPlaneLambdaRoleArn?: string;
+  openSearchDomainArn?: string;
+  openSearchEndpoint?: string;
+  openSearchIndexName?: string;
 }
 
 /**
@@ -30,8 +33,6 @@ export const handler = async (
   event: APIGatewayProxyEvent,
   context: Context
 ): Promise<APIGatewayProxyResult> => {
-  console.log('Registration request:', event.body);
-
   try {
     // Parse and validate request
     if (!event.body) {
@@ -43,7 +44,29 @@ export const handler = async (
     }
 
     const request: TenantRegistrationRequest = JSON.parse(event.body);
-    const { tenantId, accountId, region, environment, roleArn, controlPlaneLambdaRoleArn } = request;
+    const {
+      tenantId,
+      accountId,
+      region,
+      environment,
+      roleArn,
+      controlPlaneLambdaRoleArn,
+      openSearchDomainArn,
+      openSearchEndpoint,
+      openSearchIndexName,
+    } = request;
+
+    // Log request without sensitive data
+    console.log('[INFO] Tenant registration request received', {
+      tenantId,
+      region,
+      environment,
+      hasOpenSearchConfig: !!(
+        openSearchDomainArn ||
+        openSearchEndpoint ||
+        openSearchIndexName
+      ),
+    });
 
     // Validate required fields
     if (!tenantId || !accountId || !region || !environment) {
@@ -57,9 +80,66 @@ export const handler = async (
       };
     }
 
+    // Validate OpenSearch configuration - all three fields must be provided together
+    const hasOpenSearchConfig = !!(
+      openSearchDomainArn?.trim() ||
+      openSearchEndpoint?.trim() ||
+      openSearchIndexName?.trim()
+    );
+
+    if (hasOpenSearchConfig) {
+      // All three must be provided and non-empty
+      if (
+        !openSearchDomainArn?.trim() ||
+        !openSearchEndpoint?.trim() ||
+        !openSearchIndexName?.trim()
+      ) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message:
+              'All OpenSearch fields (domainArn, endpoint, indexName) must be provided together',
+          }),
+        };
+      }
+
+      // Validate endpoint is HTTPS and from amazonaws.com
+      if (
+        !openSearchEndpoint.startsWith('https://') ||
+        !openSearchEndpoint.includes('.amazonaws.com')
+      ) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message:
+              'OpenSearch endpoint must be an HTTPS URL from amazonaws.com domain',
+          }),
+        };
+      }
+
+      // Validate that endpoint region matches ARN region
+      const arnMatch = openSearchDomainArn.match(/arn:aws:es:([^:]+):/);
+      const endpointMatch = openSearchEndpoint.match(
+        /\.([^.]+)\.es\.amazonaws\.com/
+      );
+
+      if (arnMatch && endpointMatch && arnMatch[1] !== endpointMatch[1]) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message:
+              'OpenSearch endpoint region must match domain ARN region',
+          }),
+        };
+      }
+    }
+
     // Create tenant record with default use case configuration
     const now = new Date().toISOString();
-    const tenant = {
+    const tenant: Record<string, any> = {
       tenantId,
       status: TenantStatus.PROVISIONING,
       accountId,
@@ -79,6 +159,13 @@ export const handler = async (
         updatedBy: 'system',
       },
     };
+
+    // Add OpenSearch configuration if provided
+    if (hasOpenSearchConfig) {
+      tenant.openSearchDomainArn = openSearchDomainArn;
+      tenant.openSearchEndpoint = openSearchEndpoint;
+      tenant.openSearchIndexName = openSearchIndexName;
+    }
 
     await dynamoClient.send(
       new PutItemCommand({

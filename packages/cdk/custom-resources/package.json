@@ -1,7 +1,11 @@
 {
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.565.0",
+    "@aws-sdk/client-sts": "^3.565.0",
     "@aws-sdk/credential-provider-node": "^3.565.0",
+    "@aws-sdk/credential-providers": "^3.565.0",
+    "@aws-sdk/util-dynamodb": "^3.565.0",
     "@opensearch-project/opensearch": "^3.4.0"
   }
 }

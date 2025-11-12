@@ -128,6 +128,12 @@ if (tenantConfig.controlPlane) {
   ) {
     app.node.setContext('controlPlaneLambdaRoleArn', controlPlane.controlPlaneLambdaRoleArn);
   }
+  if (
+    controlPlane.account &&
+    !app.node.getAllContext()['controlPlaneAccount']
+  ) {
+    app.node.setContext('controlPlaneAccount', controlPlane.account);
+  }
 }
 
 const tenantId = context.tenantId;
@@ -176,7 +182,10 @@ const params = {
   networkConfig: context.networkConfig,
   ipAccessControl: context.ipAccessControl,
   controlPlaneRegion: context.controlPlane?.region,
-  openSearchIndexName: context.controlPlane?.openSearchIndexName || 'assistant-docs',
+  controlPlaneAccount: context.controlPlane?.account,
+  // Use provided table name or construct it based on environment
+  tenantsTableName: context.controlPlane?.tenantsTableName || `Tenants-${context.environment || 'dev'}`,
+  openSearchIndexName: context.openSearchIndexName || 'assistant-docs',
 };
 
 createTenantStacks(app, params);

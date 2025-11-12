@@ -2,6 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import * as opensearch from 'aws-cdk-lib/aws-opensearchservice';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
 export interface TenantOpenSearchStackProps extends cdk.StackProps {
@@ -54,12 +56,16 @@ export interface TenantOpenSearchStackProps extends cdk.StackProps {
    * Removal policy for the domain
    */
   readonly removalPolicy: cdk.RemovalPolicy;
-
   /**
    * The tenant IAM role ARN for accessing OpenSearch
    * This role is assumed by Lambda functions to access tenant-specific resources
    */
   readonly tenantRoleArn: string;
+
+  /**
+   * DynamoDB table name for tenants
+   */
+  readonly tenantsTableName?: string;
 
   /**
    * Control plane region for DynamoDB access
@@ -230,13 +236,17 @@ export class TenantOpenSearchStack extends cdk.Stack {
 
     // Grant access to the domain from CodeBuild role, Tenant role, and Bedrock service
     // Note: Tenant role is used by Lambda functions to access OpenSearch for assistant RAG functionality
+    const principals: iam.IPrincipal[] = [
+      this.opensearchIndexCreationRole,
+      new iam.ServicePrincipal('bedrock.amazonaws.com'),
+    ];
+
+    // Add tenant role
+    principals.push(new iam.ArnPrincipal(props.tenantRoleArn));
+
     const accessPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
-      principals: [
-        this.opensearchIndexCreationRole,
-        new iam.ArnPrincipal(props.tenantRoleArn), // Add tenant role for Lambda access
-        new iam.ServicePrincipal('bedrock.amazonaws.com'),
-      ],
+      principals,
       actions: [
         'es:ESHttpPost',
         'es:ESHttpPut',
@@ -258,6 +268,94 @@ export class TenantOpenSearchStack extends cdk.Stack {
     });
 
     this.domain.addAccessPolicies(describeDomainPolicy);
+
+    // Create custom resource to update tenant record with OpenSearch information
+    // Only create if tenantsTableName is provided
+    if (props.tenantsTableName && props.controlPlaneRegion) {
+      // Get control plane account from context or use current account
+      const controlPlaneAccount = this.node.tryGetContext('controlPlaneAccount');
+      const currentAccount = cdk.Stack.of(this).account;
+
+      // Determine if cross-account access is needed
+      const isCrossAccount = controlPlaneAccount && controlPlaneAccount !== currentAccount;
+
+      // Get or construct the control plane role ARN for cross-account access
+      let controlPlaneRoleArn: string | undefined;
+      if (isCrossAccount) {
+        // Use the role from context or construct the ARN
+        const controlPlaneLambdaRoleArn = this.node.tryGetContext('controlPlaneLambdaRoleArn');
+        if (controlPlaneLambdaRoleArn) {
+          controlPlaneRoleArn = controlPlaneLambdaRoleArn;
+        } else {
+          // Construct a standard role ARN for the control plane
+          // This assumes a role exists in the control plane account that trusts this tenant account
+          controlPlaneRoleArn = `arn:aws:iam::${controlPlaneAccount}:role/TenantAccessRole`;
+        }
+      }
+
+      // Create Lambda function for custom resource
+      const tenantUpdaterLambda = new lambda.SingletonFunction(
+        this,
+        'OpenSearchTenantUpdater',
+        {
+          uuid: '8c3b3f3a-5d9e-4c7a-9f2e-1a8b9c0d1e2f',
+          runtime: lambda.Runtime.NODEJS_22_X,
+          code: lambda.Code.fromAsset('custom-resources'),
+          handler: 'opensearch-tenant-updater.handler',
+          timeout: cdk.Duration.minutes(5),
+          environment: {
+            TENANTS_TABLE_NAME: props.tenantsTableName,
+            CONTROL_PLANE_REGION: props.controlPlaneRegion,
+            CONTROL_PLANE_ACCOUNT: controlPlaneAccount || currentAccount,
+            CONTROL_PLANE_ROLE_ARN: controlPlaneRoleArn || '',
+            DEFAULT_OPENSEARCH_INDEX: props.openSearchIndexName || 'assistant-docs',
+          },
+        }
+      );
+
+      // Grant DynamoDB permissions to the Lambda
+      const tenantsTableArn = `arn:aws:dynamodb:${props.controlPlaneRegion}:${controlPlaneAccount || currentAccount}:table/${props.tenantsTableName}`;
+      const tenantsTable = dynamodb.Table.fromTableArn(
+        this,
+        'TenantsTable',
+        tenantsTableArn
+      );
+
+      // If cross-account, grant STS assume role permission
+      if (isCrossAccount && controlPlaneRoleArn) {
+        tenantUpdaterLambda.addToRolePolicy(
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ['sts:AssumeRole'],
+            resources: [controlPlaneRoleArn],
+          })
+        );
+      } else {
+        // Same account: grant direct DynamoDB access
+        tenantsTable.grantReadWriteData(tenantUpdaterLambda);
+      }
+
+      // Create custom resource
+      const tenantUpdaterResource = new cdk.CustomResource(
+        this,
+        'TenantOpenSearchUpdater',
+        {
+          serviceToken: tenantUpdaterLambda.functionArn,
+          resourceType: 'Custom::TenantOpenSearchUpdater',
+          properties: {
+            tenantId: typeof tenantId === 'string' ? tenantId : (tenantId as cdk.CfnParameter).valueAsString,
+            openSearchDomainArn: this.domain.domainArn,
+            openSearchEndpoint: `https://${this.domain.domainEndpoint}`,
+            openSearchIndexName: props.openSearchIndexName || 'assistant-docs',
+          },
+        }
+      );
+
+      // Ensure custom resource runs after domain is created
+      tenantUpdaterResource.node.addDependency(this.domain);
+
+      console.log(`Created custom resource to update tenant ${tenantId} with OpenSearch info`);
+    }
 
     // Export domain outputs
     new cdk.CfnOutput(this, 'DomainEndpoint', {

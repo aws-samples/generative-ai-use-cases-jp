@@ -38,6 +38,9 @@ export interface Tenant {
     updatedBy: string;
   };
   ipAccessControl?: IpAccessControl;
+  openSearchDomainArn?: string;
+  openSearchEndpoint?: string;
+  openSearchIndexName?: string;
 }
 
 // Request interfaces
@@ -59,6 +62,9 @@ interface UpdateTenantRequest {
   accountId?: string;
   roleArn?: string;
   ipAccessControl?: IpAccessControl;
+  openSearchDomainArn?: string | null;
+  openSearchEndpoint?: string | null;
+  openSearchIndexName?: string | null;
 }
 
 /**
@@ -148,8 +154,52 @@ export async function updateTenant(
       throw new Error(`Tenant ${request.tenantId} not found`);
     }
 
+    // Validate OpenSearch fields - all must be provided together or all must be null/empty for removal
+    const {
+      openSearchDomainArn,
+      openSearchEndpoint,
+      openSearchIndexName,
+    } = request;
+    const hasOpenSearchArn = openSearchDomainArn !== undefined;
+    const hasOpenSearchEndpoint = openSearchEndpoint !== undefined;
+    const hasOpenSearchIndex = openSearchIndexName !== undefined;
+
+    if (hasOpenSearchArn || hasOpenSearchEndpoint || hasOpenSearchIndex) {
+      // If any OpenSearch field is being updated, all three must be provided
+      if (!(hasOpenSearchArn && hasOpenSearchEndpoint && hasOpenSearchIndex)) {
+        throw new Error(
+          'All OpenSearch fields (domainArn, endpoint, indexName) must be updated together'
+        );
+      }
+
+      // If updating (not removing), validate the values
+      if (openSearchDomainArn && openSearchEndpoint && openSearchIndexName) {
+        if (
+          !openSearchEndpoint.startsWith('https://') ||
+          !openSearchEndpoint.includes('.amazonaws.com')
+        ) {
+          throw new Error(
+            'OpenSearch endpoint must be an HTTPS URL from amazonaws.com domain'
+          );
+        }
+
+        // Validate region match
+        const arnMatch = openSearchDomainArn.match(/arn:aws:es:([^:]+):/);
+        const endpointMatch = openSearchEndpoint.match(
+          /\.([^.]+)\.es\.amazonaws\.com/
+        );
+
+        if (arnMatch && endpointMatch && arnMatch[1] !== endpointMatch[1]) {
+          throw new Error(
+            'OpenSearch endpoint region must match domain ARN region'
+          );
+        }
+      }
+    }
+
     const now = new Date().toISOString();
     const updateExpression: string[] = [];
+    const removeExpression: string[] = [];
     const expressionAttributeNames: Record<string, string> = {};
     const expressionAttributeValues: Record<string, any> = {};
 
@@ -196,16 +246,49 @@ export async function updateTenant(
       };
     }
 
+    // OpenSearch fields - handle both update and removal
+    if (hasOpenSearchArn && hasOpenSearchEndpoint && hasOpenSearchIndex) {
+      if (openSearchDomainArn && openSearchEndpoint && openSearchIndexName) {
+        // Update OpenSearch fields
+        updateExpression.push('#openSearchDomainArn = :openSearchDomainArn');
+        updateExpression.push('#openSearchEndpoint = :openSearchEndpoint');
+        updateExpression.push('#openSearchIndexName = :openSearchIndexName');
+        expressionAttributeNames['#openSearchDomainArn'] = 'openSearchDomainArn';
+        expressionAttributeNames['#openSearchEndpoint'] = 'openSearchEndpoint';
+        expressionAttributeNames['#openSearchIndexName'] = 'openSearchIndexName';
+        expressionAttributeValues[':openSearchDomainArn'] = openSearchDomainArn;
+        expressionAttributeValues[':openSearchEndpoint'] = openSearchEndpoint;
+        expressionAttributeValues[':openSearchIndexName'] = openSearchIndexName;
+      } else {
+        // Remove OpenSearch fields (all are null)
+        removeExpression.push('#openSearchDomainArn');
+        removeExpression.push('#openSearchEndpoint');
+        removeExpression.push('#openSearchIndexName');
+        expressionAttributeNames['#openSearchDomainArn'] = 'openSearchDomainArn';
+        expressionAttributeNames['#openSearchEndpoint'] = 'openSearchEndpoint';
+        expressionAttributeNames['#openSearchIndexName'] = 'openSearchIndexName';
+      }
+    }
+
     // Always update updatedAt
     updateExpression.push('#updatedAt = :updatedAt');
     expressionAttributeNames['#updatedAt'] = 'updatedAt';
     expressionAttributeValues[':updatedAt'] = now;
 
+    // Build final update expression
+    let finalUpdateExpression = '';
+    if (updateExpression.length > 0) {
+      finalUpdateExpression = `SET ${updateExpression.join(', ')}`;
+    }
+    if (removeExpression.length > 0) {
+      finalUpdateExpression += ` REMOVE ${removeExpression.join(', ')}`;
+    }
+
     const response = await dynamoClient.send(
       new UpdateItemCommand({
         TableName: TENANTS_TABLE_NAME,
         Key: marshall({ tenantId: request.tenantId }),
-        UpdateExpression: `SET ${updateExpression.join(', ')}`,
+        UpdateExpression: finalUpdateExpression,
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: marshall(expressionAttributeValues),
         ReturnValues: 'ALL_NEW',
