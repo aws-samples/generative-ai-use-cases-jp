@@ -60,6 +60,16 @@ export interface TenantOpenSearchStackProps extends cdk.StackProps {
    * This role is assumed by Lambda functions to access tenant-specific resources
    */
   readonly tenantRoleArn: string;
+
+  /**
+   * Control plane region for DynamoDB access
+   */
+  readonly controlPlaneRegion?: string;
+
+  /**
+   * OpenSearch index name (defaults to 'assistant-docs')
+   */
+  readonly openSearchIndexName?: string;
 }
 
 /**

@@ -5,20 +5,13 @@ import {
 } from 'aws-lambda';
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { TenantStatus } from './tenantManager';
 
 // Environment variables
 const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME!;
 
 // DynamoDB client
 const dynamoClient = new DynamoDBClient({ region: process.env.AWS_REGION! });
-
-// Tenant status enum
-enum TenantStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  PROVISIONING = 'provisioning',
-  ERROR = 'error',
-}
 
 // Request interface
 interface TenantRegistrationRequest {

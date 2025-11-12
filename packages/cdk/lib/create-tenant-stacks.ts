@@ -41,6 +41,8 @@ export interface TenantStackInput {
   openSearchConfig: OpenSearchConfig;
   networkConfig: NetworkConfig;
   ipAccessControl?: IpAccessControlConfig;
+  controlPlaneRegion?: string;
+  openSearchIndexName?: string;
 }
 
 export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
@@ -129,6 +131,8 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.RETAIN,
       tenantRoleArn: tenantIAMStack.tenantRole.role.roleArn,
+      controlPlaneRegion: params.controlPlaneRegion,
+      openSearchIndexName: params.openSearchIndexName,
     }
   );
 

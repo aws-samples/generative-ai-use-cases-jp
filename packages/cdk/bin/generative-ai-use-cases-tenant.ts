@@ -42,6 +42,7 @@ interface TenantConfig {
     identityPoolId: string;
     userPoolClientId: string;
     controlPlaneLambdaRoleArn?: string;
+    openSearchIndexName?: string;
   };
   ipAccessControl?: {
     enabled: boolean;
@@ -174,6 +175,8 @@ const params = {
   },
   networkConfig: context.networkConfig,
   ipAccessControl: context.ipAccessControl,
+  controlPlaneRegion: context.controlPlane?.region,
+  openSearchIndexName: context.controlPlane?.openSearchIndexName || 'assistant-docs',
 };
 
 createTenantStacks(app, params);
