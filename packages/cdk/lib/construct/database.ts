@@ -1,6 +1,5 @@
 import { Construct } from 'constructs';
 import * as ddb from 'aws-cdk-lib/aws-dynamodb';
-import { RemovalPolicy } from 'aws-cdk-lib';
 
 export class Database extends Construct {
   public readonly table: ddb.Table;
@@ -25,7 +24,6 @@ export class Database extends Construct {
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       encryption: ddb.TableEncryption.AWS_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     table.addGlobalSecondaryIndex({
@@ -48,7 +46,6 @@ export class Database extends Construct {
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       encryption: ddb.TableEncryption.AWS_MANAGED,
-      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // Assistant table for storing assistant configurations
@@ -65,7 +62,6 @@ export class Database extends Construct {
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       encryption: ddb.TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
-      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     assistantTable.addGlobalSecondaryIndex({
@@ -90,7 +86,6 @@ export class Database extends Construct {
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       encryption: ddb.TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
-      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.table = table;
