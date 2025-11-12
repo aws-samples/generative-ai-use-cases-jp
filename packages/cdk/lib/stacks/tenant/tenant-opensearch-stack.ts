@@ -54,6 +54,12 @@ export interface TenantOpenSearchStackProps extends cdk.StackProps {
    * Removal policy for the domain
    */
   readonly removalPolicy: cdk.RemovalPolicy;
+
+  /**
+   * The tenant IAM role ARN for accessing OpenSearch
+   * This role is assumed by Lambda functions to access tenant-specific resources
+   */
+  readonly tenantRoleArn: string;
 }
 
 /**
@@ -212,11 +218,13 @@ export class TenantOpenSearchStack extends cdk.Stack {
       })
     );
 
-    // Grant access to the domain from CodeBuild role and Bedrock service
+    // Grant access to the domain from CodeBuild role, Tenant role, and Bedrock service
+    // Note: Tenant role is used by Lambda functions to access OpenSearch for assistant RAG functionality
     const accessPolicy = new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       principals: [
         this.opensearchIndexCreationRole,
+        new iam.ArnPrincipal(props.tenantRoleArn), // Add tenant role for Lambda access
         new iam.ServicePrincipal('bedrock.amazonaws.com'),
       ],
       actions: [

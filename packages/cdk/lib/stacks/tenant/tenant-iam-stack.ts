@@ -46,7 +46,7 @@ export class TenantIAMStack extends cdk.Stack {
   /**
    * The tenant role construct
    */
-  private readonly tenantRole: TenantRole;
+  public readonly tenantRole: TenantRole;
 
   /**
    * The tenant ID

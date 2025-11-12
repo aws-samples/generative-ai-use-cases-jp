@@ -188,9 +188,31 @@ async function handleCreate(
           error
         );
 
-        // Update status to FAILED with error message
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
+        // Update status to FAILED with detailed error message
+        let errorMessage = 'Unknown error';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+
+          // Extract additional details from OpenSearch ResponseError
+          if ('meta' in error && error.meta) {
+            const meta = error.meta as any;
+            if (meta.statusCode) {
+              errorMessage = `${error.message} (HTTP ${meta.statusCode})`;
+            }
+            if (meta.body && meta.body.Message) {
+              // AWS IAM error message format
+              errorMessage += `: ${meta.body.Message}`;
+            } else if (meta.body && meta.body.error) {
+              // OpenSearch error format
+              if (typeof meta.body.error === 'string') {
+                errorMessage += `: ${meta.body.error}`;
+              } else if (meta.body.error.reason) {
+                errorMessage += `: ${meta.body.error.reason}`;
+              }
+            }
+          }
+        }
+
         await updateKnowledgeSourceStatus(
           assistant,
           source.id,

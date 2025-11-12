@@ -128,11 +128,13 @@ export const createTenantStacks = (app: cdk.App, params: TenantStackInput) => {
       removalPolicy: params.removalPolicy
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.RETAIN,
+      tenantRoleArn: tenantIAMStack.tenantRole.role.roleArn,
     }
   );
 
-  // Add dependency to ensure VPC is created before OpenSearch
+  // Add dependencies to ensure IAM and VPC are created before OpenSearch
   tenantOpenSearchStack.addDependency(tenantVpcStack);
+  tenantOpenSearchStack.addDependency(tenantIAMStack);
 
   // Tenant PPTX Stack (optional)
   let tenantPptxStack;
