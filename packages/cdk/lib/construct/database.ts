@@ -24,6 +24,8 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      encryption: ddb.TableEncryption.AWS_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     table.addGlobalSecondaryIndex({
@@ -45,6 +47,8 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      encryption: ddb.TableEncryption.AWS_MANAGED,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     // Assistant table for storing assistant configurations
@@ -59,6 +63,7 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      encryption: ddb.TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });
@@ -83,6 +88,7 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      encryption: ddb.TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
       removalPolicy: RemovalPolicy.DESTROY,
     });

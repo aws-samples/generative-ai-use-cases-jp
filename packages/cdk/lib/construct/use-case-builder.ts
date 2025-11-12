@@ -40,6 +40,7 @@ export class UseCaseBuilder extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+      encryption: ddb.TableEncryption.AWS_MANAGED,
     });
 
     useCaseBuilderTable.addGlobalSecondaryIndex({

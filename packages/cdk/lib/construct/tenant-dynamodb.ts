@@ -148,6 +148,7 @@ export class TenantDynamoDB extends Construct {
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
       removalPolicy: removalPolicy,
     });
 
@@ -179,6 +180,7 @@ export class TenantDynamoDB extends Construct {
           type: dynamodb.AttributeType.STRING,
         },
         billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+        encryption: dynamodb.TableEncryption.AWS_MANAGED,
         removalPolicy: removalPolicy,
       }
     );
@@ -212,6 +214,7 @@ export class TenantDynamoDB extends Construct {
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
       removalPolicy: removalPolicy,
     });
 
@@ -245,6 +248,7 @@ export class TenantDynamoDB extends Construct {
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
       pointInTimeRecovery: true,
       removalPolicy: removalPolicy,
     });
@@ -278,6 +282,7 @@ export class TenantDynamoDB extends Construct {
           type: dynamodb.AttributeType.STRING,
         },
         billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
+        encryption: dynamodb.TableEncryption.AWS_MANAGED,
         pointInTimeRecovery: true,
         removalPolicy: removalPolicy,
       }
@@ -384,6 +389,7 @@ export class TenantDynamoDB extends Construct {
       partitionKey,
       sortKey,
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      encryption: dynamodb.TableEncryption.AWS_MANAGED,
       removalPolicy: removalPolicy,
     });
 
