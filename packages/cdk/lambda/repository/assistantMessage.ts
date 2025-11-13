@@ -55,6 +55,7 @@ export const createMessage = async (
 
 export const listMessages = async (
   _assistantId: string,
+  userId: string,
   event: APIGatewayProxyEvent,
   _exclusiveStartKey?: string,
   limit?: number
@@ -71,11 +72,14 @@ export const listMessages = async (
     new QueryCommand({
       TableName: tableName,
       KeyConditionExpression: '#assistantId = :assistantId',
+      FilterExpression: '#userId = :userId',
       ExpressionAttributeNames: {
         '#assistantId': 'assistantId',
+        '#userId': 'userId',
       },
       ExpressionAttributeValues: {
         ':assistantId': assistantId,
+        ':userId': userId,
       },
       ScanIndexForward: false,
       Limit: limit || 100,

@@ -341,7 +341,7 @@ async function handleListMessages(
     ? parseInt(event.queryStringParameters.limit)
     : undefined;
 
-  const result = await listMessages(assistantId, event, exclusiveStartKey, limit);
+  const result = await listMessages(assistantId, userId, event, exclusiveStartKey, limit);
 
   // Strip prefix from all messages
   const sanitizedResult: ListAssistantMessagesResponse = {
