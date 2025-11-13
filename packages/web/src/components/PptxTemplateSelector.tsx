@@ -36,17 +36,16 @@ const PptxTemplateSelector: React.FC<PptxTemplateSelectorProps> = ({
             ? 'border-aws-smile bg-aws-smile/10'
             : 'border-aws-border hover:border-aws-smile/50'
         }`}
-        onClick={() => onSelectTemplate(null)}
-      >
+        onClick={() => onSelectTemplate(null)}>
         <div className="flex items-center space-x-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100">
             <PiPresentation className="h-5 w-5 text-gray-600" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-medium text-aws-font-color">
+            <h3 className="text-aws-font-color text-sm font-medium">
               {t('pptx.template.blank')}
             </h3>
-            <p className="text-xs text-aws-font-color-secondary">
+            <p className="text-aws-font-color-secondary text-xs">
               {t('pptx.template.blankDescription')}
             </p>
           </div>
@@ -55,9 +54,9 @@ const PptxTemplateSelector: React.FC<PptxTemplateSelectorProps> = ({
 
       {/* Available Templates */}
       {templates.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-aws-border p-6 text-center">
-          <PiPresentation className="mx-auto mb-2 h-8 w-8 text-aws-font-color-secondary" />
-          <p className="text-sm text-aws-font-color-secondary">
+        <div className="border-aws-border rounded-lg border border-dashed p-6 text-center">
+          <PiPresentation className="text-aws-font-color-secondary mx-auto mb-2 h-8 w-8" />
+          <p className="text-aws-font-color-secondary text-sm">
             {t('pptx.template.noTemplates')}
           </p>
         </div>
@@ -71,27 +70,32 @@ const PptxTemplateSelector: React.FC<PptxTemplateSelectorProps> = ({
                   ? 'border-aws-smile bg-aws-smile/10'
                   : 'border-aws-border hover:border-aws-smile/50'
               }`}
-              onClick={() => onSelectTemplate(template)}
-            >
+              onClick={() => onSelectTemplate(template)}>
               <div className="flex items-start space-x-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-aws-smile/10">
-                  <PiPresentation className="h-5 w-5 text-aws-smile" />
+                <div className="bg-aws-smile/10 flex h-10 w-10 items-center justify-center rounded-md">
+                  <PiPresentation className="text-aws-smile h-5 w-5" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-sm font-medium text-aws-font-color truncate">
+                    <h3 className="text-aws-font-color truncate text-sm font-medium">
                       {template.template_name}
                     </h3>
                     <div className="flex items-center space-x-1">
                       {template.is_public ? (
-                        <PiGlobe className="h-3 w-3 text-green-600" title={t('pptx.template.public')} />
+                        <PiGlobe
+                          className="h-3 w-3 text-green-600"
+                          title={t('pptx.template.public')}
+                        />
                       ) : (
-                        <PiUser className="h-3 w-3 text-blue-600" title={t('pptx.template.private')} />
+                        <PiUser
+                          className="h-3 w-3 text-blue-600"
+                          title={t('pptx.template.private')}
+                        />
                       )}
                     </div>
                   </div>
                   {template.template_description && (
-                    <p className="mt-1 text-xs text-aws-font-color-secondary line-clamp-2">
+                    <p className="text-aws-font-color-secondary mt-1 line-clamp-2 text-xs">
                       {template.template_description}
                     </p>
                   )}
@@ -100,13 +104,12 @@ const PptxTemplateSelector: React.FC<PptxTemplateSelectorProps> = ({
                       {template.tags.slice(0, 3).map((tag, index) => (
                         <span
                           key={index}
-                          className="inline-flex rounded-full bg-aws-smile/10 px-2 py-0.5 text-xs font-medium text-aws-smile"
-                        >
+                          className="bg-aws-smile/10 text-aws-smile inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
                           {tag}
                         </span>
                       ))}
                       {template.tags.length > 3 && (
-                        <span className="text-xs text-aws-font-color-secondary">
+                        <span className="text-aws-font-color-secondary text-xs">
                           +{template.tags.length - 3}
                         </span>
                       )}

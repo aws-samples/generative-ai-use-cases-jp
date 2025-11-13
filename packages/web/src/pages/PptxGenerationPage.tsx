@@ -22,13 +22,16 @@ const PptxGenerationPage: React.FC = () => {
 
   // State
   const [instructions, setInstructions] = useState('');
-  const [selectedTemplate /* , setSelectedTemplate */] = useState<PptxTemplate | null>(null); // setSelectedTemplate unused when template selector is hidden
+  const [selectedTemplate /* , setSelectedTemplate */] =
+    useState<PptxTemplate | null>(null); // setSelectedTemplate unused when template selector is hidden
   const [slideCount, setSlideCount] = useState<number>(5);
   const [includeTitleSlide, setIncludeTitleSlide] = useState(true);
   const [includeSummarySlide, setIncludeSummarySlide] = useState(false);
-  const [selectedModelId, setSelectedModelId] = useState<string>('gemini-2.5-flash');
+  const [selectedModelId, setSelectedModelId] =
+    useState<string>('gemini-2.5-flash');
   // const [showTemplateUploader, setShowTemplateUploader] = useState(false); // Unused when template selector is hidden
-  const [currentGeneration, setCurrentGeneration] = useState<PptxGeneration | null>(null);
+  const [currentGeneration, setCurrentGeneration] =
+    useState<PptxGeneration | null>(null);
 
   // Hooks
   const {
@@ -49,8 +52,7 @@ const PptxGenerationPage: React.FC = () => {
 
   // Model utilities
   const { textModels, modelDisplayName } = MODELS;
-  const availableModels = textModels
-    .map(m => m.modelId);
+  const availableModels = textModels.map((m) => m.modelId);
 
   // Load templates on mount - COMMENTED OUT when template selector is hidden
   // useEffect(() => {
@@ -62,17 +64,25 @@ const PptxGenerationPage: React.FC = () => {
   useEffect(() => {
     if (currentGeneration && currentGeneration.status === 'generating') {
       const interval = setInterval(async () => {
-        const status = await checkGenerationStatus(currentGeneration.generation_id);
+        const status = await checkGenerationStatus(
+          currentGeneration.generation_id
+        );
         if (status) {
           // Update current generation with status information
-          setCurrentGeneration(prev => prev ? {
-            ...prev,
-            status: status.status,
-            s3_output_key: status.download_url ? 'completed' : prev.s3_output_key,
-            download_url: status.download_url,
-            error_message: status.error_message,
-            updated_at: new Date().toISOString()
-          } : null);
+          setCurrentGeneration((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: status.status,
+                  s3_output_key: status.download_url
+                    ? 'completed'
+                    : prev.s3_output_key,
+                  download_url: status.download_url,
+                  error_message: status.error_message,
+                  updated_at: new Date().toISOString(),
+                }
+              : null
+          );
           if (status.status !== 'generating') {
             clearInterval(interval);
           }
@@ -135,11 +145,11 @@ const PptxGenerationPage: React.FC = () => {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-aws-smile/10">
-              <PiPresentation className="h-8 w-8 text-aws-smile" />
+            <div className="bg-aws-smile/10 flex h-16 w-16 items-center justify-center rounded-full">
+              <PiPresentation className="text-aws-smile h-8 w-8" />
             </div>
           </div>
-          <h1 className="mb-2 text-3xl font-bold text-aws-font-color">
+          <h1 className="text-aws-font-color mb-2 text-3xl font-bold">
             {t('pptx.title')}
           </h1>
           <p className="text-aws-font-color-secondary">
@@ -149,11 +159,7 @@ const PptxGenerationPage: React.FC = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert
-            severity="error"
-            className="mb-6"
-            title={t('common.error')}
-          >
+          <Alert severity="error" className="mb-6" title={t('common.error')}>
             {error}
           </Alert>
         )}
@@ -186,7 +192,7 @@ const PptxGenerationPage: React.FC = () => {
 
                 {/* Model Selection */}
                 <div>
-                  <label className="mb-3 block text-sm font-medium text-aws-font-color">
+                  <label className="text-aws-font-color mb-3 block text-sm font-medium">
                     AI Model
                   </label>
                   <Select
@@ -194,17 +200,17 @@ const PptxGenerationPage: React.FC = () => {
                     onChange={setSelectedModelId}
                     options={availableModels.map((m) => ({
                       value: m,
-                      label: modelDisplayName(m)
+                      label: modelDisplayName(m),
                     }))}
                   />
-                  <p className="mt-2 text-xs text-aws-font-color-secondary">
+                  <p className="text-aws-font-color-secondary mt-2 text-xs">
                     Select the AI model to generate presentation content
                   </p>
                 </div>
 
                 {/* Slide Count */}
                 <div>
-                  <label className="mb-3 block text-sm font-medium text-aws-font-color">
+                  <label className="text-aws-font-color mb-3 block text-sm font-medium">
                     {t('pptx.slideCount.label')}: {slideCount}
                   </label>
                   <Slider
@@ -215,7 +221,7 @@ const PptxGenerationPage: React.FC = () => {
                     step={1}
                     className="w-full"
                   />
-                  <div className="mt-1 flex justify-between text-xs text-aws-font-color-secondary">
+                  <div className="text-aws-font-color-secondary mt-1 flex justify-between text-xs">
                     <span>1</span>
                     <span>20</span>
                   </div>
@@ -224,7 +230,7 @@ const PptxGenerationPage: React.FC = () => {
                 {/* Options */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-aws-font-color">
+                    <label className="text-aws-font-color text-sm font-medium">
                       {t('pptx.options.titleSlide')}
                     </label>
                     <Switch
@@ -234,7 +240,7 @@ const PptxGenerationPage: React.FC = () => {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-aws-font-color">
+                    <label className="text-aws-font-color text-sm font-medium">
                       {t('pptx.options.summarySlide')}
                     </label>
                     <Switch
@@ -254,7 +260,7 @@ const PptxGenerationPage: React.FC = () => {
               <div className="space-y-6">
                 {/* Instructions Input */}
                 <div>
-                  <label className="mb-3 block text-sm font-medium text-aws-font-color">
+                  <label className="text-aws-font-color mb-3 block text-sm font-medium">
                     {t('pptx.instructions.label')}
                   </label>
                   <Textarea
@@ -264,23 +270,26 @@ const PptxGenerationPage: React.FC = () => {
                     rows={8}
                     className="w-full"
                   />
-                  <p className="mt-2 text-xs text-aws-font-color-secondary">
+                  <p className="text-aws-font-color-secondary mt-2 text-xs">
                     {t('pptx.instructions.help')}
                   </p>
                 </div>
 
                 {/* Generation Status */}
                 {currentGeneration && (
-                  <div className="rounded-lg border border-aws-border p-4">
+                  <div className="border-aws-border rounded-lg border p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium text-aws-font-color">
+                        <h3 className="text-aws-font-color font-medium">
                           {t('pptx.generation.status')}
                         </h3>
-                        <p className="text-sm text-aws-font-color-secondary">
-                          {currentGeneration.status === 'generating' && t('pptx.generation.generating')}
-                          {currentGeneration.status === 'completed' && t('pptx.generation.completed')}
-                          {currentGeneration.status === 'failed' && t('pptx.generation.failed')}
+                        <p className="text-aws-font-color-secondary text-sm">
+                          {currentGeneration.status === 'generating' &&
+                            t('pptx.generation.generating')}
+                          {currentGeneration.status === 'completed' &&
+                            t('pptx.generation.completed')}
+                          {currentGeneration.status === 'failed' &&
+                            t('pptx.generation.failed')}
                         </p>
                         {currentGeneration.error_message && (
                           <p className="mt-1 text-sm text-red-600">
@@ -293,9 +302,7 @@ const PptxGenerationPage: React.FC = () => {
                           <LoadingWave />
                         )}
                         {currentGeneration.status === 'completed' && (
-                          <Button
-                            onClick={handleDownload}
-                          >
+                          <Button onClick={handleDownload}>
                             {t('pptx.download')}
                           </Button>
                         )}
@@ -309,14 +316,13 @@ const PptxGenerationPage: React.FC = () => {
                   onClick={handleGeneratePptx}
                   disabled={isDisabled}
                   loading={isGenerating}
-                  className="w-full"
-                >
+                  className="w-full">
                   {isGenerating ? t('pptx.generating') : t('pptx.generate')}
                 </Button>
 
                 {/* Examples */}
-                <div className="border-t border-aws-border pt-6">
-                  <h3 className="mb-3 text-sm font-medium text-aws-font-color">
+                <div className="border-aws-border border-t pt-6">
+                  <h3 className="text-aws-font-color mb-3 text-sm font-medium">
                     {t('pptx.examples.title')}
                   </h3>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -333,12 +339,11 @@ const PptxGenerationPage: React.FC = () => {
                       <button
                         key={index}
                         onClick={() => setInstructions(example.content)}
-                        className="rounded-lg border border-aws-border p-3 text-left hover:border-aws-smile hover:bg-aws-smile/5"
-                      >
-                        <h4 className="text-sm font-medium text-aws-font-color">
+                        className="border-aws-border hover:border-aws-smile hover:bg-aws-smile/5 rounded-lg border p-3 text-left">
+                        <h4 className="text-aws-font-color text-sm font-medium">
                           {example.title}
                         </h4>
-                        <p className="mt-1 text-xs text-aws-font-color-secondary">
+                        <p className="text-aws-font-color-secondary mt-1 text-xs">
                           {example.content.slice(0, 100)}...
                         </p>
                       </button>

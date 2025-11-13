@@ -17,7 +17,10 @@ import useHttp from './useHttp';
 /**
  * Build query string from parameters
  */
-function buildQueryString(params?: { limit?: number; nextToken?: string }): string {
+function buildQueryString(params?: {
+  limit?: number;
+  nextToken?: string;
+}): string {
   if (!params) return '';
 
   const queryParams = new URLSearchParams();
@@ -79,10 +82,10 @@ const useAssistantApi = () => {
         assistantId: string,
         visibility: 'private' | 'public'
       ): Promise<Assistant> => {
-        const res = await http.put<Assistant, { visibility: 'private' | 'public' }>(
-          `assistant/${assistantId}`,
-          { visibility }
-        );
+        const res = await http.put<
+          Assistant,
+          { visibility: 'private' | 'public' }
+        >(`assistant/${assistantId}`, { visibility });
         return res.data;
       },
 

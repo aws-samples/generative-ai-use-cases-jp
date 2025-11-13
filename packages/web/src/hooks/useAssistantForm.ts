@@ -37,7 +37,10 @@ const getInitialFormData = (
   name: initialData?.name || '',
   description: initialData?.description || '',
   instruction: initialData?.instruction || '',
-  modelId: initialData?.modelId || MODELS.modelIds[0] || 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+  modelId:
+    initialData?.modelId ||
+    MODELS.modelIds[0] ||
+    'anthropic.claude-3-5-sonnet-20241022-v2:0',
   ragEnabled: initialData?.ragEnabled || false,
   visibility: initialData?.visibility || 'private',
   knowledgeSources: initialData?.knowledgeSources || [],
@@ -127,7 +130,9 @@ const useAssistantForm = (
   const deleteFile = useCallback((sourceId: string) => {
     setFormData((prev) => ({
       ...prev,
-      knowledgeSources: prev.knowledgeSources.filter((ks) => ks.id !== sourceId),
+      knowledgeSources: prev.knowledgeSources.filter(
+        (ks) => ks.id !== sourceId
+      ),
     }));
   }, []);
 

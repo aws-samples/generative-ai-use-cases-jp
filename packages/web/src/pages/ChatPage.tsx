@@ -36,7 +36,8 @@ const fileLimit: FileLimit = {
   maxVideoFileSizeMB: 1000, // 1 GB for S3 input
 };
 
-const FIXED_SYSTEM_CONTEXT = 'あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。';
+const FIXED_SYSTEM_CONTEXT =
+  'あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。';
 
 type StateType = {
   content: string;
@@ -64,7 +65,6 @@ const ChatPage: React.FC = () => {
     base64Cache,
   } = useFiles(pathname);
   const { chatId } = useParams();
-
 
   const {
     getModelId,
@@ -285,18 +285,18 @@ const ChatPage: React.FC = () => {
       {/* Main Content */}
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className="relative h-screen flex flex-col px-4 md:px-6 lg:px-8">
+        className="relative flex h-screen flex-col px-4 md:px-6 lg:px-8">
         {isOver && fileUpload && (
           <div
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className="flex fixed inset-0 justify-center items-center p-10 z-[999] bg-slate-300 outline-dashed">
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-300 p-10 outline-dashed">
             <p className="font-bold">{t('chat.drop_files')}</p>
           </div>
         )}
 
         {/* Header with Model Selector and Share Button */}
-        <div className="flex items-center gap-4 my-5 print:hidden">
+        <div className="my-5 flex items-center gap-4 print:hidden">
           {/* Model Selector */}
           <ModelSelector
             className="w-80"
@@ -317,19 +317,19 @@ const ChatPage: React.FC = () => {
         </div>
 
         {/* Print-only Title */}
-        <h1 className="hidden print:block text-xl font-semibold my-5">
+        <h1 className="my-5 hidden text-xl font-semibold print:block">
           {title}
         </h1>
 
         {/* Wrapper for messages and input to enable vertical centering when empty */}
         {loadingMessages ? (
-          <div className="flex-1 flex flex-col justify-center items-center">
+          <div className="flex flex-1 flex-col items-center justify-center">
             <LoadingWave />
           </div>
         ) : isEmpty ? (
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex flex-1 flex-col justify-center">
             <InputChatContent
-              className="print:hidden mx-auto"
+              className="mx-auto print:hidden"
               content={content}
               disabled={loading && !writing}
               onChangeContent={setContent}
@@ -406,15 +406,17 @@ const ChatPage: React.FC = () => {
           setShowShareIdModal(false);
         }}>
         <p className="py-3 text-xs text-gray-600">
-          {share ? t('chat.delete_link_message') : t('chat.create_link_message')}
+          {share
+            ? t('chat.delete_link_message')
+            : t('chat.create_link_message')}
         </p>
         {shareLink && (
-          <div className="flex justify-between items-center py-1 px-2 my-2 text-white rounded bg-aws-squid-ink">
-            <span className="text-sm break-all">{shareLink}</span>
+          <div className="bg-aws-squid-ink my-2 flex items-center justify-between rounded px-2 py-1 text-white">
+            <span className="break-all text-sm">{shareLink}</span>
             <ButtonCopy text={shareLink} />
           </div>
         )}
-        <div className="flex gap-1 justify-end py-3">
+        <div className="flex justify-end gap-1 py-3">
           {share ? (
             <>
               <Button

@@ -32,7 +32,7 @@ interface RoleMonitorConfig {
 
 /**
  * Role monitoring hook that handles admin status checking and role change detection
- * 
+ *
  * Features:
  * - Real-time admin status checking via API
  * - Periodic role monitoring to detect promotion/demotion
@@ -64,87 +64,112 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
   const isCheckingRef = useRef(false);
   const focusDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleRoleMismatch = useCallback(async (reason: string) => {
-    if (state.isRoleChangeDetected) return; // Prevent multiple notifications
+  const handleRoleMismatch = useCallback(
+    async (reason: string) => {
+      if (state.isRoleChangeDetected) return; // Prevent multiple notifications
 
-    setState(prev => ({ ...prev, isRoleChangeDetected: true }));
-    
-    toast.warning('Your permissions have changed. Redirecting to login...');
-    
-    // Small delay to allow toast to show
-    setTimeout(() => {
-      performLogoutAndReload(reason);
-    }, 100);
-  }, [state.isRoleChangeDetected]);
+      setState((prev) => ({ ...prev, isRoleChangeDetected: true }));
 
-  const checkAdminStatus = useCallback(async (isPeriodicCheck = false) => {
-    if (isCheckingRef.current || state.isRoleChangeDetected || !enabled) return;
+      toast.warning('Your permissions have changed. Redirecting to login...');
 
-    isCheckingRef.current = true;
+      // Small delay to allow toast to show
+      setTimeout(() => {
+        performLogoutAndReload(reason);
+      }, 100);
+    },
+    [state.isRoleChangeDetected]
+  );
 
-    try {
-      if (!isPeriodicCheck) {
-        setState(prev => ({ ...prev, isLoading: true, error: null }));
-      }
-
-      // Call admin status endpoint for comprehensive admin info
-      const response = await api.get<AdminStatus>('/admin/status');
-      const isCurrentlyAdmin = response.data.isAdmin || false;
-
-      // Check for demotion (was admin but no longer is)
-      if (lastKnownAdminStatusRef.current === true && isCurrentlyAdmin === false) {
-        await handleRoleMismatch('User demotion detected - was admin, now regular user');
+  const checkAdminStatus = useCallback(
+    async (isPeriodicCheck = false) => {
+      if (isCheckingRef.current || state.isRoleChangeDetected || !enabled)
         return;
-      }
 
-      setState(prev => ({
-        ...prev,
-        isAdmin: isCurrentlyAdmin,
-        isLoading: false,
-        error: null,
-        tenantId: response.data.tenantId || null,
-        username: response.data.username || null,
-      }));
+      isCheckingRef.current = true;
 
-      lastKnownAdminStatusRef.current = isCurrentlyAdmin;
+      try {
+        if (!isPeriodicCheck) {
+          setState((prev) => ({ ...prev, isLoading: true, error: null }));
+        }
 
-      // Start or stop polling based on admin status
-      if (isCurrentlyAdmin && !intervalRef.current) {
-        intervalRef.current = setInterval(() => checkRoleStatus(), pollingInterval);
-      } else if (!isCurrentlyAdmin && intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+        // Call admin status endpoint for comprehensive admin info
+        const response = await api.get<AdminStatus>('/admin/status');
+        const isCurrentlyAdmin = response.data.isAdmin || false;
 
-    } catch (error: any) {
-      // Handle role mismatch errors
-      if (isRoleMismatchError(error)) {
-        if (lastKnownAdminStatusRef.current === true) {
-          await handleRoleMismatch('Role mismatch detected via admin status check');
+        // Check for demotion (was admin but no longer is)
+        if (
+          lastKnownAdminStatusRef.current === true &&
+          isCurrentlyAdmin === false
+        ) {
+          await handleRoleMismatch(
+            'User demotion detected - was admin, now regular user'
+          );
           return;
         }
+
+        setState((prev) => ({
+          ...prev,
+          isAdmin: isCurrentlyAdmin,
+          isLoading: false,
+          error: null,
+          tenantId: response.data.tenantId || null,
+          username: response.data.username || null,
+        }));
+
+        lastKnownAdminStatusRef.current = isCurrentlyAdmin;
+
+        // Start or stop polling based on admin status
+        if (isCurrentlyAdmin && !intervalRef.current) {
+          intervalRef.current = setInterval(
+            () => checkRoleStatus(),
+            pollingInterval
+          );
+        } else if (!isCurrentlyAdmin && intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      } catch (error: any) {
+        // Handle role mismatch errors
+        if (isRoleMismatchError(error)) {
+          if (lastKnownAdminStatusRef.current === true) {
+            await handleRoleMismatch(
+              'Role mismatch detected via admin status check'
+            );
+            return;
+          }
+        }
+
+        // For non-admin users, 403 is expected
+        setState((prev) => ({
+          ...prev,
+          isAdmin: false,
+          isLoading: false,
+          error:
+            error.response?.status === 403
+              ? null
+              : 'Failed to verify admin status',
+          tenantId: null,
+          username: null,
+        }));
+
+        lastKnownAdminStatusRef.current = false;
+
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      } finally {
+        isCheckingRef.current = false;
       }
-
-      // For non-admin users, 403 is expected
-      setState(prev => ({
-        ...prev,
-        isAdmin: false,
-        isLoading: false,
-        error: error.response?.status === 403 ? null : 'Failed to verify admin status',
-        tenantId: null,
-        username: null,
-      }));
-
-      lastKnownAdminStatusRef.current = false;
-
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    } finally {
-      isCheckingRef.current = false;
-    }
-  }, [api, enabled, handleRoleMismatch, pollingInterval, state.isRoleChangeDetected]);
+    },
+    [
+      api,
+      enabled,
+      handleRoleMismatch,
+      pollingInterval,
+      state.isRoleChangeDetected,
+    ]
+  );
 
   const checkRoleStatus = useCallback(async () => {
     if (isCheckingRef.current || state.isRoleChangeDetected || !enabled) return;
@@ -167,7 +192,9 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
         lastKnownAdminStatusRef.current = isAdmin;
 
         if (!isAdmin) {
-          await handleRoleMismatch('User was demoted from admin to regular user');
+          await handleRoleMismatch(
+            'User was demoted from admin to regular user'
+          );
           return;
         }
 
@@ -180,12 +207,19 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
       }
 
       // Fallback: local role change detection
-      if (lastKnownAdminStatusRef.current !== null && lastKnownAdminStatusRef.current !== isAdmin) {
-        console.log(`Local role change detected: ${lastKnownAdminStatusRef.current} -> ${isAdmin}`);
+      if (
+        lastKnownAdminStatusRef.current !== null &&
+        lastKnownAdminStatusRef.current !== isAdmin
+      ) {
+        console.log(
+          `Local role change detected: ${lastKnownAdminStatusRef.current} -> ${isAdmin}`
+        );
         lastKnownAdminStatusRef.current = isAdmin;
 
         if (lastKnownAdminStatusRef.current === true && isAdmin === false) {
-          await handleRoleMismatch('Local detection: User was demoted from admin to regular user');
+          await handleRoleMismatch(
+            'Local detection: User was demoted from admin to regular user'
+          );
           return;
         }
 
@@ -194,12 +228,13 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
           window.location.reload();
         }
       }
-
     } catch (error: any) {
       // Handle 403/409 errors indicating role revocation
       if (error?.response?.status === 403 || error?.response?.status === 409) {
         if (lastKnownAdminStatusRef.current === true) {
-          await handleRoleMismatch('Admin privileges likely revoked (403/409 error)');
+          await handleRoleMismatch(
+            'Admin privileges likely revoked (403/409 error)'
+          );
         }
       }
       // Other errors are logged but don't trigger logout (might be network issues)
@@ -217,7 +252,7 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
       if (focusDebounceRef.current) {
         clearTimeout(focusDebounceRef.current);
       }
-      
+
       focusDebounceRef.current = setTimeout(() => {
         checkAdminStatus(true);
       }, 500); // 500ms debounce

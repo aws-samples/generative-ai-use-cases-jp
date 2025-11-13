@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PiArrowLeft, PiFloppyDisk, PiFile, PiTrash, PiEye, PiLock } from 'react-icons/pi';
+import {
+  PiArrowLeft,
+  PiFloppyDisk,
+  PiFile,
+  PiTrash,
+  PiEye,
+  PiLock,
+} from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
 import useAssistantForm from '../hooks/useAssistantForm';
 import useUserInfo from '../hooks/useUserInfo';
@@ -19,14 +26,20 @@ import ModalDialogDeleteAssistant from '../components/assistants/ModalDialogDele
 
 // Helper function to normalize user IDs for comparison
 const normalizeUserId = (id?: string): string => {
-  return id?.trim().replace(/^user#/i, '').toLowerCase() || '';
+  return (
+    id
+      ?.trim()
+      .replace(/^user#/i, '')
+      .toLowerCase() || ''
+  );
 };
 
 const AssistantFormPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { assistantId } = useParams<{ assistantId?: string }>();
-  const { getAssistant, createAssistant, updateAssistant, deleteAssistant } = useAssistantApi();
+  const { getAssistant, createAssistant, updateAssistant, deleteAssistant } =
+    useAssistantApi();
   const { userInfo } = useUserInfo();
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +48,8 @@ const AssistantFormPage: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [isOwner, setIsOwner] = useState(!assistantId); // True for create mode, false for edit until verified
   const [assistant, setAssistant] = useState<Assistant | null>(null);
-  const [abortController, setAbortController] = useState<AbortController | null>(null);
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
 
   const {
     formData,
@@ -86,7 +100,8 @@ const AssistantFormPage: React.FC = () => {
   useEffect(() => {
     if (assistant && userInfo) {
       const ownerCheck =
-        normalizeUserId(userInfo.username) === normalizeUserId(assistant.userId);
+        normalizeUserId(userInfo.username) ===
+        normalizeUserId(assistant.userId);
       setIsOwner(ownerCheck);
     }
   }, [assistant, userInfo]);
@@ -119,7 +134,12 @@ const AssistantFormPage: React.FC = () => {
       }
       console.error('Failed to fetch assistant:', error);
       // Redirect to assistants page if access is forbidden (403)
-      if (!signal?.aborted && error && typeof error === 'object' && 'response' in error) {
+      if (
+        !signal?.aborted &&
+        error &&
+        typeof error === 'object' &&
+        'response' in error
+      ) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 403) {
           navigate('/chat/assistants');
@@ -147,7 +167,10 @@ const AssistantFormPage: React.FC = () => {
 
     // Ensure userInfo is loaded before allowing save in edit mode
     if (assistantId && !userInfo) {
-      alert(t('assistant.edit.userInfoNotLoaded') || 'User information not loaded. Please try again.');
+      alert(
+        t('assistant.edit.userInfoNotLoaded') ||
+          'User information not loaded. Please try again.'
+      );
       return;
     }
 
@@ -164,14 +187,22 @@ const AssistantFormPage: React.FC = () => {
       };
 
       if (assistantId) {
-        await updateAssistant(assistantId, requestData as UpdateAssistantRequest);
+        await updateAssistant(
+          assistantId,
+          requestData as UpdateAssistantRequest
+        );
         navigate('/chat/assistants');
       } else {
-        const assistant = await createAssistant(requestData as CreateAssistantRequest);
+        const assistant = await createAssistant(
+          requestData as CreateAssistantRequest
+        );
         navigate(`/chat/assistants/chat/${assistant.assistantId}`);
       }
     } catch (error) {
-      console.error(`Failed to ${assistantId ? 'update' : 'create'} assistant:`, error);
+      console.error(
+        `Failed to ${assistantId ? 'update' : 'create'} assistant:`,
+        error
+      );
       alert(t('assistant.edit.saveFailed'));
     } finally {
       setSaving(false);
@@ -225,7 +256,11 @@ const AssistantFormPage: React.FC = () => {
           {t('assistant.edit.back')}
         </Button>
         <h1 className="flex-1 text-2xl font-bold">
-          {t(assistantId ? 'assistant.edit.editTitle' : 'assistant.edit.createTitle')}
+          {t(
+            assistantId
+              ? 'assistant.edit.editTitle'
+              : 'assistant.edit.createTitle'
+          )}
         </h1>
       </div>
 

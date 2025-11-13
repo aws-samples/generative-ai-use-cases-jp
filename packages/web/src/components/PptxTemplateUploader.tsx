@@ -20,7 +20,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  
+
   // Form state
   const [file, setFile] = useState<File | null>(null);
   const [templateName, setTemplateName] = useState('');
@@ -30,33 +30,41 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFileSelect = useCallback((files: FileList) => {
-    if (files.length > 0) {
-      const selectedFile = files[0];
-      
-      // Validate file type
-      if (!selectedFile.name.toLowerCase().endsWith('.pptx') && 
-          !selectedFile.name.toLowerCase().endsWith('.potx')) {
-        setError(t('pptx.upload.invalidFileType'));
-        return;
+  const handleFileSelect = useCallback(
+    (files: FileList) => {
+      if (files.length > 0) {
+        const selectedFile = files[0];
+
+        // Validate file type
+        if (
+          !selectedFile.name.toLowerCase().endsWith('.pptx') &&
+          !selectedFile.name.toLowerCase().endsWith('.potx')
+        ) {
+          setError(t('pptx.upload.invalidFileType'));
+          return;
+        }
+
+        // Validate file size (max 50MB)
+        if (selectedFile.size > 50 * 1024 * 1024) {
+          setError(t('pptx.upload.fileTooLarge'));
+          return;
+        }
+
+        setFile(selectedFile);
+        setError(null);
+
+        // Auto-fill template name from filename
+        if (!templateName) {
+          const nameWithoutExtension = selectedFile.name.replace(
+            /\.[^/.]+$/,
+            ''
+          );
+          setTemplateName(nameWithoutExtension);
+        }
       }
-      
-      // Validate file size (max 50MB)
-      if (selectedFile.size > 50 * 1024 * 1024) {
-        setError(t('pptx.upload.fileTooLarge'));
-        return;
-      }
-      
-      setFile(selectedFile);
-      setError(null);
-      
-      // Auto-fill template name from filename
-      if (!templateName) {
-        const nameWithoutExtension = selectedFile.name.replace(/\.[^/.]+$/, '');
-        setTemplateName(nameWithoutExtension);
-      }
-    }
-  }, [templateName, t]);
+    },
+    [templateName, t]
+  );
 
   const handleUpload = useCallback(async () => {
     if (!file || !templateName.trim()) {
@@ -74,8 +82,8 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
         is_public: isPublic,
         tags: tags
           .split(',')
-          .map(tag => tag.trim())
-          .filter(tag => tag.length > 0),
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0),
       };
 
       await onUpload(file, templateData);
@@ -85,7 +93,16 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
     } finally {
       setIsUploading(false);
     }
-  }, [file, templateName, templateDescription, isPublic, tags, onUpload, onClose, t]);
+  }, [
+    file,
+    templateName,
+    templateDescription,
+    isPublic,
+    tags,
+    onUpload,
+    onClose,
+    t,
+  ]);
 
   const isValid = file && templateName.trim().length > 0;
 
@@ -94,12 +111,11 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
       isOpen={true}
       onClose={onClose}
       title={t('pptx.upload.title')}
-      className="max-w-2xl"
-    >
+      className="max-w-2xl">
       <div className="space-y-6">
         {/* File Upload */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-aws-font-color">
+          <label className="text-aws-font-color mb-2 block text-sm font-medium">
             {t('pptx.upload.fileLabel')}
           </label>
           <FileUploader
@@ -108,20 +124,17 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
             className="w-full"
           />
           {file && (
-            <div className="mt-3 flex items-center space-x-3 rounded-lg border border-aws-border p-3">
-              <PiPresentation className="h-8 w-8 text-aws-smile" />
+            <div className="border-aws-border mt-3 flex items-center space-x-3 rounded-lg border p-3">
+              <PiPresentation className="text-aws-smile h-8 w-8" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-aws-font-color">
+                <p className="text-aws-font-color text-sm font-medium">
                   {file.name}
                 </p>
-                <p className="text-xs text-aws-font-color-secondary">
+                <p className="text-aws-font-color-secondary text-xs">
                   {(file.size / (1024 * 1024)).toFixed(2)} MB
                 </p>
               </div>
-              <ButtonIcon
-                onClick={() => setFile(null)}
-                className="h-6 w-6"
-              >
+              <ButtonIcon onClick={() => setFile(null)} className="h-6 w-6">
                 <PiX />
               </ButtonIcon>
             </div>
@@ -130,7 +143,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
 
         {/* Template Name */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-aws-font-color">
+          <label className="text-aws-font-color mb-2 block text-sm font-medium">
             {t('pptx.upload.nameLabel')} *
           </label>
           <InputText
@@ -142,7 +155,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
 
         {/* Template Description */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-aws-font-color">
+          <label className="text-aws-font-color mb-2 block text-sm font-medium">
             {t('pptx.upload.descriptionLabel')}
           </label>
           <Textarea
@@ -155,7 +168,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
 
         {/* Tags */}
         <div>
-          <label className="mb-2 block text-sm font-medium text-aws-font-color">
+          <label className="text-aws-font-color mb-2 block text-sm font-medium">
             {t('pptx.upload.tagsLabel')}
           </label>
           <InputText
@@ -163,7 +176,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
             onChange={setTags}
             placeholder={t('pptx.upload.tagsPlaceholder')}
           />
-          <p className="mt-1 text-xs text-aws-font-color-secondary">
+          <p className="text-aws-font-color-secondary mt-1 text-xs">
             {t('pptx.upload.tagsHelp')}
           </p>
         </div>
@@ -171,18 +184,14 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
         {/* Public Toggle */}
         <div className="flex items-center justify-between">
           <div>
-            <label className="text-sm font-medium text-aws-font-color">
+            <label className="text-aws-font-color text-sm font-medium">
               {t('pptx.upload.publicLabel')}
             </label>
-            <p className="text-xs text-aws-font-color-secondary">
+            <p className="text-aws-font-color-secondary text-xs">
               {t('pptx.upload.publicHelp')}
             </p>
           </div>
-          <Switch
-            checked={isPublic}
-            onSwitch={setIsPublic}
-            label=""
-          />
+          <Switch checked={isPublic} onSwitch={setIsPublic} label="" />
         </div>
 
         {/* Error Message */}
@@ -194,18 +203,13 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-3">
-          <Button
-            outlined
-            onClick={onClose}
-            disabled={isUploading}
-          >
+          <Button outlined onClick={onClose} disabled={isUploading}>
             {t('common.cancel')}
           </Button>
           <Button
             onClick={handleUpload}
             disabled={!isValid || isUploading}
-            loading={isUploading}
-          >
+            loading={isUploading}>
             {isUploading ? t('pptx.upload.uploading') : t('pptx.upload.upload')}
           </Button>
         </div>

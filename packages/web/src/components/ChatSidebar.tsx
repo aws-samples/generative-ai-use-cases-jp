@@ -78,12 +78,12 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
   };
 
   return (
-    <nav className="bg-gray-50 flex h-screen w-64 flex-col text-sm text-gray-900">
+    <nav className="flex h-screen w-64 flex-col bg-gray-50 text-sm text-gray-900">
       {/* New Chat Button */}
       <div className="border-b border-gray-200 p-3">
         <button
           onClick={handleNewChat}
-          className="hover:bg-blue-700 flex w-full items-center justify-center gap-2 rounded bg-blue-600 text-white p-2 transition-colors">
+          className="flex w-full items-center justify-center gap-2 rounded bg-blue-600 p-2 text-white transition-colors hover:bg-blue-700">
           <PiPlus className="text-lg" />
           <span>{t('chat.button.newChat')}</span>
         </button>
@@ -125,7 +125,7 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
       </div>
 
       {/* Chat History Section */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <div className="px-3 py-2 text-xs font-semibold text-gray-600">
           チャット履歴
         </div>

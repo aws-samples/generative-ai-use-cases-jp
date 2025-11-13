@@ -1020,10 +1020,20 @@ const useChat = (id: string, chatId?: string) => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
       const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      const systemContextWithCustom =
+        applyCustomInstructions(baseSystemContext);
       updateSystemContext(id, systemContextWithCustom);
     }
-  }, [settings.customizeEnabled, settings.customInstructions, applyCustomInstructions, chatId, chats, id, getModelId, updateSystemContext]);
+  }, [
+    settings.customizeEnabled,
+    settings.customInstructions,
+    applyCustomInstructions,
+    chatId,
+    chats,
+    id,
+    getModelId,
+    updateSystemContext,
+  ]);
 
   useEffect(() => {
     // In the case of a registered chat
@@ -1059,7 +1069,8 @@ const useChat = (id: string, chatId?: string) => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
       const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      const systemContextWithCustom =
+        applyCustomInstructions(baseSystemContext);
       updateSystemContext(id, systemContextWithCustom);
     },
     clear: () => {
@@ -1068,7 +1079,8 @@ const useChat = (id: string, chatId?: string) => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
       const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      const systemContextWithCustom =
+        applyCustomInstructions(baseSystemContext);
       updateSystemContext(id, systemContextWithCustom);
     },
     updateSystemContext: (systemContext: string) => {
@@ -1078,7 +1090,8 @@ const useChat = (id: string, chatId?: string) => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
       const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom = applyCustomInstructions(baseSystemContext);
+      const systemContextWithCustom =
+        applyCustomInstructions(baseSystemContext);
       updateSystemContext(id, systemContextWithCustom);
     },
     getCurrentSystemContext: () => {

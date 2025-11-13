@@ -14,7 +14,11 @@ import {
   PiSpinnerGap,
 } from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
-import { Assistant, AssistantMessage, KnowledgeSource } from 'generative-ai-use-cases';
+import {
+  Assistant,
+  AssistantMessage,
+  KnowledgeSource,
+} from 'generative-ai-use-cases';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import LoadingWave from '../components/LoadingWave';
@@ -431,7 +435,12 @@ const AssistantChatPage: React.FC = () => {
                     );
                     const failedCount = failedSources?.length ?? 0;
                     return failedCount > 0
-                      ? t('assistant.chatPage.partialAlertMessage', { count: failedCount }) + (assistant.syncStatusReason ? ` ${assistant.syncStatusReason}` : '')
+                      ? t('assistant.chatPage.partialAlertMessage', {
+                          count: failedCount,
+                        }) +
+                          (assistant.syncStatusReason
+                            ? ` ${assistant.syncStatusReason}`
+                            : '')
                       : t('assistant.statusMessage.partial');
                   })()}
                 </div>

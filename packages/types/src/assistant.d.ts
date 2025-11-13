@@ -119,4 +119,4 @@ export type RequestUploadUrlResponse = {
   uploadUrl: string;
   fileKey: string;
   s3Url?: string; // S3 URL for the uploaded file
-}
+};

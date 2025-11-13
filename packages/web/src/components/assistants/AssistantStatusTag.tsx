@@ -40,7 +40,9 @@ const AssistantStatusTag: React.FC<AssistantStatusTagProps> = ({
       );
       const failedCount = failedSources?.length ?? 0;
       if (failedCount > 0) {
-        return t('assistant.statusTooltip.failedSources', { count: failedCount });
+        return t('assistant.statusTooltip.failedSources', {
+          count: failedCount,
+        });
       }
     }
 

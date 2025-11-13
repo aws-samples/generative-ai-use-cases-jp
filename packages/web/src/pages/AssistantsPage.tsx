@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PiMagnifyingGlass, PiPlus, PiRobot, PiPencil, PiEye, PiLock } from 'react-icons/pi';
+import {
+  PiMagnifyingGlass,
+  PiPlus,
+  PiRobot,
+  PiPencil,
+  PiEye,
+  PiLock,
+} from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
 import useUserInfo from '../hooks/useUserInfo';
 import { Assistant } from 'generative-ai-use-cases';
@@ -9,7 +16,10 @@ import LoadingWave from '../components/LoadingWave';
 import AssistantStatusTag from '../components/assistants/AssistantStatusTag';
 import Tooltip from '../components/Tooltip';
 import ModalDialogVisibilityToggle from '../components/assistants/ModalDialogVisibilityToggle';
-import { isSyncBlocking, isStatusFinal } from '../components/assistants/statusMetadata';
+import {
+  isSyncBlocking,
+  isStatusFinal,
+} from '../components/assistants/statusMetadata';
 
 const AssistantsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -32,52 +42,55 @@ const AssistantsPage: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch assistants from API
-  const fetchAssistants = useCallback(async (isPollingRequest = false) => {
-    // Cancel previous request if it exists
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  const fetchAssistants = useCallback(
+    async (isPollingRequest = false) => {
+      // Cancel previous request if it exists
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
 
-    // Create new AbortController for this request
-    abortControllerRef.current = new AbortController();
-    const signal = abortControllerRef.current.signal;
+      // Create new AbortController for this request
+      abortControllerRef.current = new AbortController();
+      const signal = abortControllerRef.current.signal;
 
-    // Only show loading spinner on initial load, not during polling
-    if (!isPollingRequest) {
-      setIsInitialLoad(true);
-    }
+      // Only show loading spinner on initial load, not during polling
+      if (!isPollingRequest) {
+        setIsInitialLoad(true);
+      }
 
-    try {
-      const response = await listAssistants({ limit: 100 }, signal);
-      // Only update state if request wasn't cancelled
-      if (!signal.aborted) {
-        let filtered = response.assistants || [];
+      try {
+        const response = await listAssistants({ limit: 100 }, signal);
+        // Only update state if request wasn't cancelled
+        if (!signal.aborted) {
+          let filtered = response.assistants || [];
 
-        // Client-side search filtering
-        if (searchQuery) {
-          const query = searchQuery.toLowerCase();
-          filtered = filtered.filter(
-            (a) =>
-              a.name.toLowerCase().includes(query) ||
-              a.description?.toLowerCase().includes(query)
-          );
+          // Client-side search filtering
+          if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filtered = filtered.filter(
+              (a) =>
+                a.name.toLowerCase().includes(query) ||
+                a.description?.toLowerCase().includes(query)
+            );
+          }
+
+          setAssistants(filtered);
         }
-
-        setAssistants(filtered);
+      } catch (error) {
+        // Only update state if request wasn't cancelled (check local signal)
+        if (!signal.aborted) {
+          console.error('Failed to fetch assistants:', error);
+          setAssistants([]);
+        }
+      } finally {
+        // Only set loading to false if request wasn't cancelled (check local signal)
+        if (!signal.aborted && !isPollingRequest) {
+          setIsInitialLoad(false);
+        }
       }
-    } catch (error) {
-      // Only update state if request wasn't cancelled (check local signal)
-      if (!signal.aborted) {
-        console.error('Failed to fetch assistants:', error);
-        setAssistants([]);
-      }
-    } finally {
-      // Only set loading to false if request wasn't cancelled (check local signal)
-      if (!signal.aborted && !isPollingRequest) {
-        setIsInitialLoad(false);
-      }
-    }
-  }, [searchQuery, listAssistants]);
+    },
+    [searchQuery, listAssistants]
+  );
 
   // Debounce search input
   useEffect(() => {
@@ -159,7 +172,10 @@ const AssistantsPage: React.FC = () => {
 
     setIsUpdatingVisibility(true);
     try {
-      const newVisibility = visibilityDialog.assistant.visibility === 'private' ? 'public' : 'private';
+      const newVisibility =
+        visibilityDialog.assistant.visibility === 'private'
+          ? 'public'
+          : 'private';
       const updatedAssistant = await updateAssistantVisibility(
         visibilityDialog.assistant.assistantId,
         newVisibility
@@ -223,51 +239,51 @@ const AssistantsPage: React.FC = () => {
         ) : (
           <>
             {/* Featured Assistants Section */}
-                {featuredAssistants.length > 0 && (
-                  <section className="mb-12">
-                    <h2 className="mb-4 text-sm font-semibold text-gray-600">
-                      {t('assistant.popularAssistants')}
-                    </h2>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {featuredAssistants.map((assistant) => (
-                        <AssistantCard
-                          key={assistant.assistantId}
-                          assistant={assistant}
-                          currentUserId={userInfo?.username}
-                          onStartChat={handleStartChat}
-                          onEdit={handleEditAssistant}
-                          onVisibilityClick={handleVisibilityClick}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                )}
+            {featuredAssistants.length > 0 && (
+              <section className="mb-12">
+                <h2 className="mb-4 text-sm font-semibold text-gray-600">
+                  {t('assistant.popularAssistants')}
+                </h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {featuredAssistants.map((assistant) => (
+                    <AssistantCard
+                      key={assistant.assistantId}
+                      assistant={assistant}
+                      currentUserId={userInfo?.username}
+                      onStartChat={handleStartChat}
+                      onEdit={handleEditAssistant}
+                      onVisibilityClick={handleVisibilityClick}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-                {/* All Assistants Section */}
-                <section>
-                  <h2 className="mb-4 text-sm font-semibold text-gray-600">
-                    {t('assistant.allAssistants')}
-                  </h2>
-                  {allAssistants.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {allAssistants.map((assistant) => (
-                        <AssistantCard
-                          key={assistant.assistantId}
-                          assistant={assistant}
-                          currentUserId={userInfo?.username}
-                          onStartChat={handleStartChat}
-                          onEdit={handleEditAssistant}
-                          onVisibilityClick={handleVisibilityClick}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                      <PiMagnifyingGlass className="mb-4 text-6xl" />
-                      <p>{t('assistant.noAssistants')}</p>
-                    </div>
-                  )}
-                </section>
+            {/* All Assistants Section */}
+            <section>
+              <h2 className="mb-4 text-sm font-semibold text-gray-600">
+                {t('assistant.allAssistants')}
+              </h2>
+              {allAssistants.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {allAssistants.map((assistant) => (
+                    <AssistantCard
+                      key={assistant.assistantId}
+                      assistant={assistant}
+                      currentUserId={userInfo?.username}
+                      onStartChat={handleStartChat}
+                      onEdit={handleEditAssistant}
+                      onVisibilityClick={handleVisibilityClick}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <PiMagnifyingGlass className="mb-4 text-6xl" />
+                  <p>{t('assistant.noAssistants')}</p>
+                </div>
+              )}
+            </section>
           </>
         )}
       </div>

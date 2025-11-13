@@ -15,7 +15,10 @@ import Card from '../components/Card';
 import LoadingWave from '../components/LoadingWave';
 import AssistantStatusTag from '../components/assistants/AssistantStatusTag';
 import Tooltip from '../components/Tooltip';
-import { isSyncBlocking, isStatusFinal } from '../components/assistants/statusMetadata';
+import {
+  isSyncBlocking,
+  isStatusFinal,
+} from '../components/assistants/statusMetadata';
 
 interface AssistantWithMessages {
   assistant: Assistant;
@@ -98,7 +101,8 @@ const AssistantHistoryPage: React.FC = () => {
               limit: 100,
             });
             const messages = messagesResponse.messages || [];
-            const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+            const lastMessage =
+              messages.length > 0 ? messages[messages.length - 1] : null;
 
             return {
               assistant,
@@ -107,7 +111,10 @@ const AssistantHistoryPage: React.FC = () => {
               lastMessageAt: lastMessage?.createdDate,
             };
           } catch (error) {
-            console.error(`Failed to fetch messages for ${assistant.assistantId}:`, error);
+            console.error(
+              `Failed to fetch messages for ${assistant.assistantId}:`,
+              error
+            );
             return {
               assistant,
               messages: [],
@@ -132,8 +139,12 @@ const AssistantHistoryPage: React.FC = () => {
     if (searchQuery) {
       filtered = filtered.filter(
         (item) =>
-          item.assistant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.assistant.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          item.assistant.name
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          item.assistant.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
       );
     }
 
@@ -146,8 +157,12 @@ const AssistantHistoryPage: React.FC = () => {
     };
 
     filtered.sort((a, b) => {
-      const dateA = normalizeTimestamp(a.lastMessageAt || a.assistant.createdDate);
-      const dateB = normalizeTimestamp(b.lastMessageAt || b.assistant.createdDate);
+      const dateA = normalizeTimestamp(
+        a.lastMessageAt || a.assistant.createdDate
+      );
+      const dateB = normalizeTimestamp(
+        b.lastMessageAt || b.assistant.createdDate
+      );
       return dateB - dateA;
     });
 

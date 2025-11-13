@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Select from '@radix-ui/react-select';
-import { PiGear, PiPencilSimple, PiX, PiCaretDown, PiCheck } from 'react-icons/pi';
-import { useSettings, Theme, Language, SendMessageMethod } from '../hooks/useSettings';
+import {
+  PiGear,
+  PiPencilSimple,
+  PiX,
+  PiCaretDown,
+  PiCheck,
+} from 'react-icons/pi';
+import {
+  useSettings,
+  Theme,
+  Language,
+  SendMessageMethod,
+} from '../hooks/useSettings';
 
 interface SettingsModalProps {
   open: boolean;
@@ -22,16 +33,9 @@ const Toggle: React.FC<{
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
-      className={`
-        relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-        ${checked ? 'bg-blue-600' : 'bg-gray-300'}
-        ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-      `}>
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${checked ? 'bg-blue-600' : 'bg-gray-300'} ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'} `}>
       <span
-        className={`
-          inline-block h-4 w-4 rounded-full bg-white transition-transform
-          ${checked ? 'translate-x-6' : 'translate-x-1'}
-        `}
+        className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'} `}
       />
     </button>
   );
@@ -74,9 +78,14 @@ const CustomSelect: React.FC<{
   );
 };
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({
+  open,
+  onOpenChange,
+}) => {
   const { settings, updateSettings } = useSettings();
-  const [activeTab, setActiveTab] = useState<'general' | 'ai-customize'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'ai-customize'>(
+    'general'
+  );
 
   const themeOptions: { value: Theme; label: string }[] = [
     { value: 'light', label: 'ライト' },
@@ -98,8 +107,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 flex h-[600px] w-[800px] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg bg-white shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+        <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/30" />
+        <Dialog.Content className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-[50%] top-[50%] z-50 flex h-[600px] w-[800px] translate-x-[-50%] translate-y-[-50%] overflow-hidden rounded-lg bg-white shadow-lg">
           {/* Left Sidebar - Tabs */}
           <div className="flex w-48 flex-col border-r border-gray-200 bg-gray-50">
             {/* Header */}
@@ -154,20 +163,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                 <div className="space-y-6">
                   {/* Theme Setting */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-900">テーマ</label>
+                    <label className="text-sm font-medium text-gray-900">
+                      テーマ
+                    </label>
                     <CustomSelect
                       value={settings.theme}
-                      onValueChange={(value) => updateSettings({ theme: value as Theme })}
+                      onValueChange={(value) =>
+                        updateSettings({ theme: value as Theme })
+                      }
                       options={themeOptions}
                     />
                   </div>
 
                   {/* Language Setting */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-900">言語</label>
+                    <label className="text-sm font-medium text-gray-900">
+                      言語
+                    </label>
                     <CustomSelect
                       value={settings.language}
-                      onValueChange={(value) => updateSettings({ language: value as Language })}
+                      onValueChange={(value) =>
+                        updateSettings({ language: value as Language })
+                      }
                       options={languageOptions}
                     />
                   </div>
@@ -180,7 +197,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                     <CustomSelect
                       value={settings.sendMessageMethod}
                       onValueChange={(value) =>
-                        updateSettings({ sendMessageMethod: value as SendMessageMethod })
+                        updateSettings({
+                          sendMessageMethod: value as SendMessageMethod,
+                        })
                       }
                       options={sendMessageOptions}
                     />
@@ -197,16 +216,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onOpenChange }) => 
                     </label>
                     <Toggle
                       checked={settings.customizeEnabled}
-                      onCheckedChange={(checked) => updateSettings({ customizeEnabled: checked })}
+                      onCheckedChange={(checked) =>
+                        updateSettings({ customizeEnabled: checked })
+                      }
                     />
                   </div>
 
                   {/* Custom Instructions */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-900">カスタム指示</label>
+                    <label className="text-sm font-medium text-gray-900">
+                      カスタム指示
+                    </label>
                     <textarea
                       value={settings.customInstructions}
-                      onChange={(e) => updateSettings({ customInstructions: e.target.value })}
+                      onChange={(e) =>
+                        updateSettings({ customInstructions: e.target.value })
+                      }
                       placeholder="動作、スタイル、トーンに関する追加の設定"
                       className="h-32 w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       disabled={!settings.customizeEnabled}

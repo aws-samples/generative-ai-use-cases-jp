@@ -24,7 +24,9 @@ const ModalDialogDeleteAssistant: React.FC<Props> = (props) => {
       }}>
       <div className="flex flex-col gap-2">
         <div>
-          {t('assistant.deleteConfirmation', { assistantName: props.assistantName })}
+          {t('assistant.deleteConfirmation', {
+            assistantName: props.assistantName,
+          })}
         </div>
 
         <div className="flex justify-end gap-2">

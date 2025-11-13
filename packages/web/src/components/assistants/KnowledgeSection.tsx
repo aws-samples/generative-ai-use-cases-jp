@@ -108,9 +108,13 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
             .filter((ks) => ks.sourceType === 'file' || ks.type === 'file')
             .map((source) => {
               return (
-                <div key={source.id} className="flex items-center gap-2 text-sm">
+                <div
+                  key={source.id}
+                  className="flex items-center gap-2 text-sm">
                   <PiFile className="text-gray-500" />
-                  <span className="flex-1">{source.displayName || source.name}</span>
+                  <span className="flex-1">
+                    {source.displayName || source.name}
+                  </span>
                   {source.status && (
                     <span
                       className={`text-xs ${

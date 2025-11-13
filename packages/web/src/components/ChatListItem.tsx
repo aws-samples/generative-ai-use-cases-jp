@@ -8,7 +8,14 @@ import React, {
 } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link } from 'react-router-dom';
-import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX, PiDotsThreeVertical } from 'react-icons/pi';
+import {
+  PiChat,
+  PiCheck,
+  PiPencilLine,
+  PiTrash,
+  PiX,
+  PiDotsThreeVertical,
+} from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
@@ -85,7 +92,7 @@ const ChatListItem: React.FC<Props> = (props) => {
     return text.split(regex).map((part, i) => {
       if (words.some((word) => part.toLowerCase() === word.toLowerCase())) {
         return (
-          <span key={i} className="text-blue-600 font-semibold">
+          <span key={i} className="font-semibold text-blue-600">
             {part}
           </span>
         );
@@ -115,7 +122,9 @@ const ChatListItem: React.FC<Props> = (props) => {
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
     const diffInDays = Math.floor(diffInHours / 24);
 
     if (diffInHours < 24) {
@@ -149,7 +158,7 @@ const ChatListItem: React.FC<Props> = (props) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
         <Link
-          className={`hover:bg-blue-50 group flex w-full flex-col justify-start rounded p-2 ${
+          className={`group flex w-full flex-col justify-start rounded p-2 hover:bg-blue-50 ${
             props.active && 'bg-blue-100'
           } ${props.className}`}
           to={`/chat/${chatId}`}

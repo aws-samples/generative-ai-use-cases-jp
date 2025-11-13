@@ -69,14 +69,18 @@ const ChatMessage: React.FC<Props> = (props) => {
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const messageDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
 
     const isToday = messageDate.getTime() === today.getTime();
     const isYesterday = messageDate.getTime() === today.getTime() - 86400000;
 
     const timeStr = date.toLocaleTimeString('ja-JP', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
 
     if (isToday) {
@@ -86,7 +90,7 @@ const ChatMessage: React.FC<Props> = (props) => {
     } else {
       const dateStr = date.toLocaleDateString('ja-JP', {
         month: '2-digit',
-        day: '2-digit'
+        day: '2-digit',
       });
       return `${dateStr} ${timeStr}`;
     }
@@ -226,124 +230,133 @@ const ChatMessage: React.FC<Props> = (props) => {
 
               {/* Message bubble */}
               <div
-                className={`rounded-2xl px-4 py-3 overflow-x-auto ${
+                className={`overflow-x-auto rounded-2xl px-4 py-3 ${
                   chatContent?.role === 'user'
                     ? 'bg-aws-sky text-white'
                     : 'bg-gray-100'
                 }`}>
-            {chatContent?.trace && (
-              <div className="mb-2 rounded border p-2">
-                <details className="cursor-pointer" open={isOpenTrace}>
-                  <summary className="text-sm" onClick={toggleOpenTrace}>
-                    <div className="inline-flex gap-1">
-                      {t('common.trace')}
-                      {props.loading && !chatContent?.content && (
-                        <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                {chatContent?.trace && (
+                  <div className="mb-2 rounded border p-2">
+                    <details className="cursor-pointer" open={isOpenTrace}>
+                      <summary className="text-sm" onClick={toggleOpenTrace}>
+                        <div className="inline-flex gap-1">
+                          {t('common.trace')}
+                          {props.loading && !chatContent?.content && (
+                            <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
+                          )}
+                        </div>
+                      </summary>
+                      <Markdown prefix={`${props.idx}-trace`}>
+                        {chatContent.trace}
+                      </Markdown>
+                    </details>
+
+                    {!isOpenTrace &&
+                      props.loading &&
+                      !chatContent?.content &&
+                      chatContent?.traceInlineMessage && (
+                        <Markdown
+                          className="mt-2"
+                          prefix={`${props.idx}-last-trace`}>
+                          {chatContent.traceInlineMessage}
+                        </Markdown>
                       )}
-                    </div>
-                  </summary>
-                  <Markdown prefix={`${props.idx}-trace`}>
-                    {chatContent.trace}
+                  </div>
+                )}
+
+                {chatContent?.extraData && chatContent.extraData.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    {chatContent.extraData.map((data, idx) => {
+                      if (data.type === 'image') {
+                        return (
+                          <ZoomUpImage
+                            key={idx}
+                            src={signedUrls[idx]}
+                            size="m"
+                            loading={!signedUrls[idx]}
+                          />
+                        );
+                      } else if (data.type === 'file') {
+                        return (
+                          <FileCard
+                            key={idx}
+                            filename={data.name}
+                            url={signedUrls[idx]}
+                            loading={!signedUrls[idx]}
+                            size="m"
+                          />
+                        );
+                      } else if (data.type === 'video') {
+                        return (
+                          <ZoomUpVideo
+                            key={idx}
+                            src={signedUrls[idx]}
+                            size="m"
+                          />
+                        );
+                      }
+                    })}
+                  </div>
+                )}
+                {chatContent?.role === 'user' && (
+                  <>
+                    {editing ? (
+                      <Textarea
+                        value={editingPrompt}
+                        onChange={setEditingPrompt}
+                      />
+                    ) : (
+                      <div className="whitespace-pre-wrap">
+                        {typingTextOutput}
+                      </div>
+                    )}
+                  </>
+                )}
+                {chatContent?.role === 'assistant' && (
+                  <Markdown prefix={`${props.idx}`}>
+                    {typingTextOutput +
+                      `${
+                        props.loading && (chatContent?.content ?? '') !== ''
+                          ? '▍'
+                          : ''
+                      }`}
                   </Markdown>
-                </details>
-
-                {!isOpenTrace &&
-                  props.loading &&
-                  !chatContent?.content &&
-                  chatContent?.traceInlineMessage && (
-                    <Markdown
-                      className="mt-2"
-                      prefix={`${props.idx}-last-trace`}>
-                      {chatContent.traceInlineMessage}
-                    </Markdown>
-                  )}
-              </div>
-            )}
-
-            {chatContent?.extraData && chatContent.extraData.length > 0 && (
-              <div className="mb-2 flex flex-wrap gap-2">
-                {chatContent.extraData.map((data, idx) => {
-                  if (data.type === 'image') {
-                    return (
-                      <ZoomUpImage
-                        key={idx}
-                        src={signedUrls[idx]}
-                        size="m"
-                        loading={!signedUrls[idx]}
-                      />
-                    );
-                  } else if (data.type === 'file') {
-                    return (
-                      <FileCard
-                        key={idx}
-                        filename={data.name}
-                        url={signedUrls[idx]}
-                        loading={!signedUrls[idx]}
-                        size="m"
-                      />
-                    );
-                  } else if (data.type === 'video') {
-                    return (
-                      <ZoomUpVideo key={idx} src={signedUrls[idx]} size="m" />
-                    );
-                  }
-                })}
-              </div>
-            )}
-            {chatContent?.role === 'user' && (
-              <>
-                {editing ? (
-                  <Textarea value={editingPrompt} onChange={setEditingPrompt} />
-                ) : (
+                )}
+                {chatContent?.role === 'system' && (
                   <div className="whitespace-pre-wrap">{typingTextOutput}</div>
                 )}
-              </>
-            )}
-            {chatContent?.role === 'assistant' && (
-              <Markdown prefix={`${props.idx}`}>
-                {typingTextOutput +
-                  `${
-                    props.loading && (chatContent?.content ?? '') !== ''
-                      ? '▍'
-                      : ''
-                  }`}
-              </Markdown>
-            )}
-            {chatContent?.role === 'system' && (
-              <div className="whitespace-pre-wrap">{typingTextOutput}</div>
-            )}
-            {props.loading && (chatContent?.content ?? '') === '' && (
-              /* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */
-              <div className="animate-pulse">▍</div>
-            )}
+                {props.loading && (chatContent?.content ?? '') === '' && (
+                  /* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */
+                  <div className="animate-pulse">▍</div>
+                )}
 
-            {chatContent?.role === 'assistant' && (
-              <div className="mt-2 flex flex-wrap justify-end gap-2">
-                <div className="text-right text-xs text-gray-400 lg:mb-0">
-                  {chatContent?.llmType}
-                </div>
-                {chatContent?.metadata && (
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <PiArrowUp title="Input tokens" />
-                    {chatContent.metadata.usage.inputTokens}
-                    <PiArrowDown title="Output tokens" />
-                    {chatContent.metadata.usage.outputTokens}
-                    {chatContent.metadata.usage.cacheWriteInputTokens && (
-                      <>
-                        <PiCloudArrowUp title="Cache write input tokens" />
-                        {chatContent.metadata.usage.cacheWriteInputTokens}
-                      </>
-                    )}
-                    {chatContent.metadata.usage.cacheReadInputTokens && (
-                      <>
-                        <PiCloudArrowDown title="Cache read input tokens" />
-                        {chatContent.metadata.usage.cacheReadInputTokens}
-                      </>
+                {chatContent?.role === 'assistant' && (
+                  <div className="mt-2 flex flex-wrap justify-end gap-2">
+                    <div className="text-right text-xs text-gray-400 lg:mb-0">
+                      {chatContent?.llmType}
+                    </div>
+                    {chatContent?.metadata && (
+                      <div className="flex items-center gap-1 text-xs text-gray-400">
+                        <PiArrowUp title="Input tokens" />
+                        {chatContent.metadata.usage.inputTokens}
+                        <PiArrowDown title="Output tokens" />
+                        {chatContent.metadata.usage.outputTokens}
+                        {chatContent.metadata.usage.cacheWriteInputTokens && (
+                          <>
+                            <PiCloudArrowUp title="Cache write input tokens" />
+                            {chatContent.metadata.usage.cacheWriteInputTokens}
+                          </>
+                        )}
+                        {chatContent.metadata.usage.cacheReadInputTokens && (
+                          <>
+                            <PiCloudArrowDown title="Cache read input tokens" />
+                            {chatContent.metadata.usage.cacheReadInputTokens}
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
-              </div>
-            )}
               </div>
             </div>
 
@@ -353,16 +366,17 @@ const ChatMessage: React.FC<Props> = (props) => {
                 chatContent?.role === 'user' ? 'justify-start' : 'justify-end'
               }`}>
               {/* System message save button */}
-              {chatContent?.role === 'system' && !props.hideSaveSystemContext && (
-                <ButtonIcon
-                  className="text-gray-400"
-                  onClick={() => {
-                    props.setSaveSystemContext?.(chatContent?.content || '');
-                    props.setShowSystemContextModal?.(true);
-                  }}>
-                  <PiFloppyDisk />
-                </ButtonIcon>
-              )}
+              {chatContent?.role === 'system' &&
+                !props.hideSaveSystemContext && (
+                  <ButtonIcon
+                    className="text-gray-400"
+                    onClick={() => {
+                      props.setSaveSystemContext?.(chatContent?.content || '');
+                      props.setShowSystemContextModal?.(true);
+                    }}>
+                    <PiFloppyDisk />
+                  </ButtonIcon>
+                )}
 
               {/* User message edit buttons */}
               {chatContent?.role === 'user' && props.editable && (

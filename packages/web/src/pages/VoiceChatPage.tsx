@@ -82,7 +82,7 @@ const VoiceChatPage: React.FC = () => {
 
   return (
     <>
-      <div className="relative h-screen flex flex-col">
+      <div className="relative flex h-screen flex-col">
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {t('voiceChat.title')}
         </div>

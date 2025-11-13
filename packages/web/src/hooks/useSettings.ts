@@ -46,12 +46,9 @@ export const useSettings = () => {
     }
   }, [settings]);
 
-  const updateSettings = useCallback(
-    (updates: Partial<Settings>) => {
-      setSettings((prev) => ({ ...prev, ...updates }));
-    },
-    []
-  );
+  const updateSettings = useCallback((updates: Partial<Settings>) => {
+    setSettings((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   const resetSettings = useCallback(() => {
     setSettings(DEFAULT_SETTINGS);

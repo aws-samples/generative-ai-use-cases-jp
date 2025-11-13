@@ -33,11 +33,15 @@ const useUserInfo = () => {
           const idToken = session.tokens?.idToken;
           emailFromToken = idToken?.payload?.email as string | undefined;
         } catch (tokenError) {
-          console.warn('Failed to fetch auth session, falling back to loginId:', tokenError);
+          console.warn(
+            'Failed to fetch auth session, falling back to loginId:',
+            tokenError
+          );
         }
 
         // Determine email with fallback chain: ID token email → loginId → username
-        const email = emailFromToken || user.signInDetails?.loginId || user.username;
+        const email =
+          emailFromToken || user.signInDetails?.loginId || user.username;
 
         // Get additional info from API if needed
         try {

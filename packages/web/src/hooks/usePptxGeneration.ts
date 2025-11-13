@@ -18,7 +18,10 @@ export const usePptxGeneration = () => {
       setError(null);
 
       try {
-        const response = await http.post<PptxGeneration>('pptx/generate', input);
+        const response = await http.post<PptxGeneration>(
+          'pptx/generate',
+          input
+        );
         return response.data;
       } catch (err: any) {
         setError(err.response?.data?.detail || 'Failed to generate PPTX');
@@ -38,7 +41,9 @@ export const usePptxGeneration = () => {
         );
         return response.data ?? null;
       } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to check generation status');
+        setError(
+          err.response?.data?.detail || 'Failed to check generation status'
+        );
         return null;
       }
     },
@@ -51,7 +56,7 @@ export const usePptxGeneration = () => {
         const response = await http.api.get<{ download_url: string }>(
           `pptx/download/${generationId}`
         );
-        
+
         // Open download URL in new tab
         if (response.data?.download_url) {
           window.open(response.data.download_url, '_blank');
@@ -64,7 +69,10 @@ export const usePptxGeneration = () => {
   );
 
   const listGenerations = useCallback(
-    async (limit = 20, offset = 0): Promise<PptxGenerationListResponse | null> => {
+    async (
+      limit = 20,
+      offset = 0
+    ): Promise<PptxGenerationListResponse | null> => {
       try {
         const response = await http.api.get<PptxGenerationListResponse>(
           `pptx/generation?limit=${limit}&offset=${offset}`

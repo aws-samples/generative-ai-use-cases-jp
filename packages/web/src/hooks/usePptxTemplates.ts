@@ -13,7 +13,10 @@ export const usePptxTemplates = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadTemplates = async (includePublic = true, userOnly = false): Promise<void> => {
+  const loadTemplates = async (
+    includePublic = true,
+    userOnly = false
+  ): Promise<void> => {
     setIsLoading(true);
     setError(null);
 
@@ -31,15 +34,21 @@ export const usePptxTemplates = () => {
     }
   };
 
-  const uploadTemplate = async (file: File, templateData: PptxTemplateInput): Promise<boolean> => {
+  const uploadTemplate = async (
+    file: File,
+    templateData: PptxTemplateInput
+  ): Promise<boolean> => {
     setError(null);
 
     try {
       // Normalize Content-Type based on file extension
-      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-      const contentType = fileExtension === '.potx'
-        ? 'application/vnd.openxmlformats-officedocument.presentationml.template'
-        : 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+      const fileExtension = file.name
+        .toLowerCase()
+        .substring(file.name.lastIndexOf('.'));
+      const contentType =
+        fileExtension === '.potx'
+          ? 'application/vnd.openxmlformats-officedocument.presentationml.template'
+          : 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 
       // Step 1: Get presigned URL for upload
       const urlResponse = await http.api.post<PptxPresignedUrl>(
@@ -96,7 +105,7 @@ export const usePptxTemplates = () => {
       await http.api.delete(`pptx/template/${templateId}`);
 
       // Remove from local state
-      setTemplates(prev => prev.filter(t => t.template_id !== templateId));
+      setTemplates((prev) => prev.filter((t) => t.template_id !== templateId));
 
       return true;
     } catch (err: any) {

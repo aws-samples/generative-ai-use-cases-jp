@@ -15,7 +15,8 @@ type Props = BaseProps & {
 
 const ModalDialogVisibilityToggle: React.FC<Props> = (props) => {
   const { t } = useTranslation();
-  const targetVisibility = props.currentVisibility === 'private' ? 'public' : 'private';
+  const targetVisibility =
+    props.currentVisibility === 'private' ? 'public' : 'private';
 
   return (
     <ModalDialog
@@ -26,9 +27,12 @@ const ModalDialogVisibilityToggle: React.FC<Props> = (props) => {
       }}>
       <div className="flex flex-col gap-4">
         <div>
-          {t(`assistant.visibility.confirmToggleTo${targetVisibility === 'public' ? 'Public' : 'Private'}`, {
-            assistantName: props.assistantName,
-          })}
+          {t(
+            `assistant.visibility.confirmToggleTo${targetVisibility === 'public' ? 'Public' : 'Private'}`,
+            {
+              assistantName: props.assistantName,
+            }
+          )}
         </div>
 
         {targetVisibility === 'public' && (
@@ -47,14 +51,18 @@ const ModalDialogVisibilityToggle: React.FC<Props> = (props) => {
             {t('assistant.edit.cancel')}
           </Button>
           <Button
-            className={targetVisibility === 'public' ? 'bg-blue-600' : 'bg-gray-600'}
+            className={
+              targetVisibility === 'public' ? 'bg-blue-600' : 'bg-gray-600'
+            }
             onClick={() => {
               props.onConfirm();
             }}
             disabled={props.isUpdating}>
             {props.isUpdating
               ? t('assistant.visibility.updating')
-              : t(`assistant.visibility.makeIt${targetVisibility === 'public' ? 'Public' : 'Private'}`)}
+              : t(
+                  `assistant.visibility.makeIt${targetVisibility === 'public' ? 'Public' : 'Private'}`
+                )}
           </Button>
         </div>
       </div>
