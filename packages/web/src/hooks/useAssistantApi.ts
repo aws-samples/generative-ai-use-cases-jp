@@ -36,11 +36,12 @@ const useAssistantApi = () => {
   return useMemo(
     () => ({
       listAssistants: async (
-        params?: ListAssistantsQueryParams
+        params?: ListAssistantsQueryParams,
+        signal?: AbortSignal
       ): Promise<ListAssistantsResponse> => {
         const queryString = buildQueryString(params);
         const url = queryString ? `assistant?${queryString}` : 'assistant';
-        const res = await http.api.get<ListAssistantsResponse>(url);
+        const res = await http.api.get<ListAssistantsResponse>(url, { signal });
         return res.data;
       },
 
@@ -72,6 +73,17 @@ const useAssistantApi = () => {
 
       deleteAssistant: async (assistantId: string): Promise<void> => {
         await http.delete<void>(`assistant/${assistantId}`);
+      },
+
+      updateAssistantVisibility: async (
+        assistantId: string,
+        visibility: 'private' | 'public'
+      ): Promise<Assistant> => {
+        const res = await http.put<Assistant, { visibility: 'private' | 'public' }>(
+          `assistant/${assistantId}`,
+          { visibility }
+        );
+        return res.data;
       },
 
       listMessages: async (

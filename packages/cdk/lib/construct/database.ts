@@ -8,6 +8,7 @@ export class Database extends Construct {
   public readonly assistantTable: ddb.Table;
   public readonly assistantMessagesTable: ddb.Table;
   public readonly assistantIdIndexName: string;
+  public readonly tenantVisibilityIndexName: string;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -50,6 +51,7 @@ export class Database extends Construct {
 
     // Assistant table for storing assistant configurations
     const assistantIdIndexName = 'AssistantIdIndex';
+    const tenantVisibilityIndexName = 'TenantVisibilityIndex';
     const assistantTable = new ddb.Table(this, 'AssistantTable', {
       partitionKey: {
         name: 'userId',
@@ -68,6 +70,19 @@ export class Database extends Construct {
       indexName: assistantIdIndexName,
       partitionKey: {
         name: 'assistantId',
+        type: ddb.AttributeType.STRING,
+      },
+      projectionType: ddb.ProjectionType.ALL,
+    });
+
+    assistantTable.addGlobalSecondaryIndex({
+      indexName: tenantVisibilityIndexName,
+      partitionKey: {
+        name: 'tenantId',
+        type: ddb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'createdDate',
         type: ddb.AttributeType.STRING,
       },
       projectionType: ddb.ProjectionType.ALL,
@@ -94,5 +109,6 @@ export class Database extends Construct {
     this.assistantTable = assistantTable;
     this.assistantMessagesTable = assistantMessagesTable;
     this.assistantIdIndexName = assistantIdIndexName;
+    this.tenantVisibilityIndexName = tenantVisibilityIndexName;
   }
 }

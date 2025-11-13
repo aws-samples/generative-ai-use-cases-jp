@@ -115,6 +115,7 @@ assistant:
     back: 戻る
     basicInfo: 基本情報
     cancel: キャンセル
+    close: 閉じる
     createTitle: 新規アシスタント作成
     description: 説明
     displayRetrievedChunks: 取得したチャンクを表示
@@ -123,6 +124,8 @@ assistant:
     instruction: カスタム指示
     knowledge: ナレッジベース
     modelId: モデル
+    readOnlyDescription: このアシスタントを読み取り専用モードで表示しています。編集は所有者のみが可能です。
+    readOnlyMode: 読み取り専用モード
     requiredFields: 必須項目を入力してください
     save: 保存
     saveBeforeUpload: ファイルをアップロードする前にアシスタントを保存してください
@@ -132,7 +135,6 @@ assistant:
     title: 名前
     uploadFiles: ファイルをアップロード
   editTitle: 編集
-  filter: フィルター
   filterAll: すべて
   filterPrivate: プライベート
   filterPublic: パブリック
@@ -163,6 +165,8 @@ assistant:
   myAssistants: マイアシスタント
   noAssistants: アシスタントが見つかりません
   organizationPublic: 組織内公開
+  owner:
+    mine: 自分
   organizationPublicDescription: 組織内のメンバーが利用できます
   popularAssistants: 人気のアシスタント
   private: プライベート
@@ -194,6 +198,19 @@ assistant:
   title: アシスタント管理
   unstar: スター解除
   viewMore: もっと見る
+  visibility:
+    confirmToggleToPrivate: '「{{assistantName}}」をプライベートにしてもよろしいですか？あなただけが利用できるようになります。'
+    confirmToggleToPublic: '「{{assistantName}}」をパブリックにしてもよろしいですか？組織内の全メンバーが利用できるようになります。'
+    label: 公開設定
+    makeItPrivate: プライベートにする
+    makeItPublic: パブリックにする
+    private: プライベート
+    privateDescription: 自分だけが利用できます
+    public: パブリック
+    publicDescription: 組織内のメンバーが利用できます
+    publicWarning: アシスタントをパブリックにすると、組織内の全メンバーが利用できるようになります。指示やナレッジベースに機密情報が含まれていないことを確認してください。
+    toggleTitle: 公開設定を変更
+    updating: 更新中...
 auth:
   loading: 読み込み中...
   login: ログイン

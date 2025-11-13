@@ -8,11 +8,13 @@ import { AssistantFormData } from '../../hooks/useAssistantForm';
 export type BasicInfoFieldsProps = {
   formData: AssistantFormData;
   onChange: (data: AssistantFormData) => void;
+  disabled?: boolean;
 };
 
 const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   formData,
   onChange,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
 
@@ -23,6 +25,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         value={formData.name}
         onChange={(value) => onChange({ ...formData, name: value })}
         required
+        disabled={disabled}
       />
 
       <Textarea
@@ -30,6 +33,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         value={formData.description || ''}
         onChange={(value) => onChange({ ...formData, description: value })}
         rows={3}
+        disabled={disabled}
       />
 
       <Textarea
@@ -38,6 +42,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         onChange={(value) => onChange({ ...formData, instruction: value })}
         rows={6}
         required
+        disabled={disabled}
       />
 
       <div>
@@ -47,7 +52,8 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         <select
           value={formData.modelId}
           onChange={(e) => onChange({ ...formData, modelId: e.target.value })}
-          className="w-full rounded border border-black/30 px-3 py-2 outline-none">
+          disabled={disabled}
+          className="w-full rounded border border-black/30 px-3 py-2 outline-none disabled:cursor-not-allowed disabled:bg-gray-100">
           {MODELS.modelIds.map((modelId) => (
             <option key={modelId} value={modelId}>
               {MODELS.modelDisplayName(modelId)}
@@ -64,7 +70,8 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           onChange={(e) =>
             onChange({ ...formData, ragEnabled: e.target.checked })
           }
-          className="h-4 w-4"
+          disabled={disabled}
+          className="h-4 w-4 disabled:cursor-not-allowed"
         />
         <label htmlFor="ragEnabled" className="text-sm font-medium">
           {t('assistant.edit.enableRAG', 'Enable RAG (Knowledge Base)')}

@@ -17,6 +17,7 @@ import {
   executeDynamoDBOperation,
   getAssistantTableName,
 } from './common';
+import { getTenantId } from '../utils/tenantUtils';
 
 /**
  * Deep clean an object to remove all undefined values recursively
@@ -95,17 +96,30 @@ export const createAssistant = async (
   const userId = `user#${_userId}`;
   const assistantId = `assistant#${crypto.randomUUID()}`;
   const now = Date.now().toString();
+  const tenantId = getTenantId(event);
+
+  // Validate and normalize visibility
+  let visibility: 'private' | 'public' = 'private';
+  if (data.visibility) {
+    const normalizedVisibility = data.visibility.toLowerCase();
+    if (normalizedVisibility !== 'private' && normalizedVisibility !== 'public') {
+      throw new Error(`Invalid visibility value: ${data.visibility}. Must be 'private' or 'public'.`);
+    }
+    visibility = normalizedVisibility as 'private' | 'public';
+  }
 
   const item: Assistant = {
     id: userId,
     createdDate: now,
     assistantId,
     userId,
+    tenantId: `tenant#${tenantId}`,
     name: data.name,
     description: data.description,
     instruction: data.instruction,
     modelId: data.modelId,
     ragEnabled: data.ragEnabled,
+    visibility,
     syncStatus: 'QUEUED',
     syncStatusReason: '',
     knowledgeSources: normalizeKnowledgeSources(data.knowledgeSources),
@@ -132,17 +146,41 @@ export const createAssistant = async (
 export const listAssistants = async (
   _userId: string,
   event: APIGatewayProxyEvent,
-  _exclusiveStartKey?: string
+  _exclusiveStartKey?: string,
+  limit: number = 100
 ): Promise<ListAssistantsResponse> => {
   const userId = `user#${_userId}`;
+  const tenantId = getTenantId(event);
   const dynamoDbDocument = await getTenantDynamoDBDocument(event);
   const tableName = getAssistantTableName(event);
 
-  const exclusiveStartKey = _exclusiveStartKey
-    ? JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString())
-    : undefined;
+  // Parse pagination tokens for both queries
+  // Format: base64({ owned: {...}, public: {...} })
+  let ownedStartKey: any = undefined;
+  let publicStartKey: any = undefined;
 
-  const res = await dynamoDbDocument.send(
+  if (_exclusiveStartKey) {
+    try {
+      const parsed = JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString());
+      // Check for composite format
+      if (parsed.owned !== undefined || parsed.public !== undefined) {
+        ownedStartKey = parsed.owned;
+        publicStartKey = parsed.public;
+      } else {
+        // Reject legacy format to prevent pagination issues
+        throw new Error('Invalid pagination token format');
+      }
+    } catch (e) {
+      throw new Error('Invalid pagination token');
+    }
+  }
+
+  // Fetch more data than limit to ensure we have enough after merging
+  // Use limit * 2 for each source to handle cases where items get filtered out
+  const fetchLimit = limit * 2;
+
+  // Query owned assistants
+  const ownedRes = await dynamoDbDocument.send(
     new QueryCommand({
       TableName: tableName,
       KeyConditionExpression: '#userId = :userId',
@@ -153,22 +191,141 @@ export const listAssistants = async (
         ':userId': userId,
       },
       ScanIndexForward: false,
-      Limit: 100,
-      ExclusiveStartKey: exclusiveStartKey,
+      Limit: fetchLimit,
+      ExclusiveStartKey: ownedStartKey,
     })
   );
 
-  // Ensure knowledge sources have default status for backward compatibility
-  const assistants = (res.Items || []).map((item: any) => ({
-    ...item,
-    knowledgeSources: ensureKnowledgeSourceStatus(item.knowledgeSources),
-  })) as Assistant[];
+  // Query public assistants with loop to handle FilterExpression pagination
+  const publicItems: any[] = [];
+  let currentPublicStartKey = publicStartKey;
+  let publicLastEvaluatedKey: any = undefined;
+
+  // Keep fetching until we have enough items or exhaust results
+  while (publicItems.length < fetchLimit) {
+    const res = await dynamoDbDocument.send(
+      new QueryCommand({
+        TableName: tableName,
+        IndexName: 'TenantVisibilityIndex',
+        KeyConditionExpression: '#tenantId = :tenantId',
+        FilterExpression: '#visibility = :public AND #userId <> :userId',
+        ExpressionAttributeNames: {
+          '#tenantId': 'tenantId',
+          '#visibility': 'visibility',
+          '#userId': 'userId',
+        },
+        ExpressionAttributeValues: {
+          ':tenantId': `tenant#${tenantId}`,
+          ':public': 'public',
+          ':userId': userId,
+        },
+        ScanIndexForward: false,
+        Limit: Math.min(100, fetchLimit * 2), // Cap chunk size
+        ExclusiveStartKey: currentPublicStartKey,
+      })
+    );
+
+    // Add items from this batch
+    if (res.Items && res.Items.length > 0) {
+      publicItems.push(...res.Items);
+    }
+
+    publicLastEvaluatedKey = res.LastEvaluatedKey;
+
+    // Stop if no more results or we have enough
+    if (!res.LastEvaluatedKey || publicItems.length >= fetchLimit) {
+      break;
+    }
+
+    // Continue fetching
+    currentPublicStartKey = res.LastEvaluatedKey;
+  }
+
+  // Merge and deduplicate by assistantId
+  const assistantMap = new Map<string, any>();
+
+  // Track which source each assistant came from for cursor tracking
+  const assistantSources = new Map<string, 'owned' | 'public'>();
+
+  // Add owned assistants first (they take precedence)
+  for (const item of ownedRes.Items || []) {
+    assistantMap.set(item.assistantId, item);
+    assistantSources.set(item.assistantId, 'owned');
+  }
+
+  // Add public assistants (skip if already exists)
+  for (const item of publicItems) {
+    if (!assistantMap.has(item.assistantId)) {
+      assistantMap.set(item.assistantId, item);
+      assistantSources.set(item.assistantId, 'public');
+    }
+  }
+
+  // Convert to array and ensure knowledge sources have default status
+  let assistants = Array.from(assistantMap.values())
+    .map((item: any) => ({
+      ...item,
+      knowledgeSources: ensureKnowledgeSourceStatus(item.knowledgeSources),
+    }))
+    .sort((a, b) => parseInt(b.createdDate) - parseInt(a.createdDate)) as Assistant[];
+
+  // Enforce global limit on merged results
+  assistants = assistants.slice(0, limit);
+
+  // Build cursors based on the LAST ITEM FROM EACH SOURCE that made it into the response
+  let finalOwnedCursor: any = undefined;
+  let finalPublicCursor: any = undefined;
+
+  // Find the last owned and public items in the response
+  for (let i = assistants.length - 1; i >= 0; i--) {
+    const assistant = assistants[i];
+    const source = assistantSources.get(assistant.assistantId);
+
+    if (source === 'owned' && !finalOwnedCursor) {
+      // Found last owned item - build cursor from it
+      finalOwnedCursor = {
+        userId: `user#${_userId}`,
+        createdDate: assistant.createdDate,
+      };
+    }
+
+    if (source === 'public' && !finalPublicCursor) {
+      // Found last public item - build cursor from it
+      finalPublicCursor = {
+        tenantId: assistant.tenantId,
+        createdDate: assistant.createdDate,
+        userId: assistant.id, // id contains userId with prefix
+      };
+    }
+
+    // Stop once we've found both
+    if (finalOwnedCursor && finalPublicCursor) {
+      break;
+    }
+  }
+
+  // If we didn't find any items from a source in the response,
+  // but the source still has more data, use the original LastEvaluatedKey
+  if (!finalOwnedCursor && ownedRes.LastEvaluatedKey) {
+    finalOwnedCursor = ownedRes.LastEvaluatedKey;
+  }
+  if (!finalPublicCursor && publicLastEvaluatedKey && publicItems.length > 0) {
+    finalPublicCursor = publicLastEvaluatedKey;
+  }
+
+  // Build composite pagination token ONLY if either source has more data
+  let nextToken: string | undefined;
+  if (finalOwnedCursor || finalPublicCursor) {
+    const compositeKey = {
+      owned: finalOwnedCursor,
+      public: finalPublicCursor,
+    };
+    nextToken = Buffer.from(JSON.stringify(compositeKey)).toString('base64');
+  }
 
   return {
     assistants,
-    lastEvaluatedKey: res.LastEvaluatedKey
-      ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
-      : undefined,
+    lastEvaluatedKey: nextToken,
   };
 };
 
@@ -262,6 +419,16 @@ export const updateAssistant = async (
     updateExpressions.push('#ragEnabled = :ragEnabled');
     expressionAttributeNames['#ragEnabled'] = 'ragEnabled';
     expressionAttributeValues[':ragEnabled'] = updates.ragEnabled;
+  }
+  if (updates.visibility !== undefined) {
+    // Validate and normalize visibility
+    const normalizedVisibility = updates.visibility.toLowerCase();
+    if (normalizedVisibility !== 'private' && normalizedVisibility !== 'public') {
+      throw new Error(`Invalid visibility value: ${updates.visibility}. Must be 'private' or 'public'.`);
+    }
+    updateExpressions.push('#visibility = :visibility');
+    expressionAttributeNames['#visibility'] = 'visibility';
+    expressionAttributeValues[':visibility'] = normalizedVisibility;
   }
   if (updates.knowledgeSources !== undefined) {
     updateExpressions.push('#knowledgeSources = :knowledgeSources');

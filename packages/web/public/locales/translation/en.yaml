@@ -115,6 +115,7 @@ assistant:
     back: Back
     basicInfo: Basic Information
     cancel: Cancel
+    close: Close
     createTitle: Create New Assistant
     description: Description
     displayRetrievedChunks: Display Retrieved Chunks
@@ -123,6 +124,8 @@ assistant:
     instruction: Custom Instructions
     knowledge: Knowledge Base
     modelId: Model
+    readOnlyDescription: You are viewing this assistant in read-only mode. Only the owner can edit this assistant.
+    readOnlyMode: Read-Only Mode
     requiredFields: Please fill in required fields
     save: Save
     saveBeforeUpload: Please save the assistant before uploading files
@@ -132,7 +135,6 @@ assistant:
     title: Name
     uploadFiles: Upload Files
   editTitle: Edit
-  filter: Filter
   filterAll: All
   filterPrivate: Private
   filterPublic: Public
@@ -163,6 +165,8 @@ assistant:
   myAssistants: My Assistants
   noAssistants: No assistants found
   organizationPublic: Organization Public
+  owner:
+    mine: Mine
   organizationPublicDescription: Members of your organization can use this assistant
   popularAssistants: Popular Assistants
   private: Private
@@ -194,6 +198,19 @@ assistant:
   title: Assistant Management
   unstar: Unstar
   viewMore: View More
+  visibility:
+    confirmToggleToPrivate: 'Are you sure you want to make "{{assistantName}}" private? Only you will be able to use it.'
+    confirmToggleToPublic: 'Are you sure you want to make "{{assistantName}}" public? All organization members will be able to use it.'
+    label: Visibility
+    makeItPrivate: Make it Private
+    makeItPublic: Make it Public
+    private: Private
+    privateDescription: Only you can use this assistant
+    public: Public
+    publicDescription: Members of your organization can use this assistant
+    publicWarning: Making an assistant public will allow all organization members to use it. Make sure the instructions and knowledge base don't contain sensitive information.
+    toggleTitle: Change Visibility
+    updating: Updating...
 auth:
   loading: Loading...
   login: Login

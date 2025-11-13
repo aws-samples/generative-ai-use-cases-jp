@@ -16,6 +16,7 @@ export type KnowledgeSectionProps = {
   onRemoveSource: (index: number) => void;
   onFileUpload: (files: FileList) => Promise<void>;
   onDeleteFile: (sourceId: string) => void;
+  disabled?: boolean;
 };
 
 const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
@@ -28,6 +29,7 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
   onRemoveSource,
   onFileUpload,
   onDeleteFile,
+  disabled = false,
 }) => {
   const { t } = useTranslation();
 
@@ -41,21 +43,25 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
         <label className="mb-2 block text-sm font-medium">
           {t('assistant.edit.sourceUrls')}
         </label>
-        <div className="mb-2 flex gap-2">
-          <InputText
-            value={newUrl}
-            onChange={onNewUrlChange}
-            placeholder="https://example.com"
-            className="flex-1"
-          />
-          <Button
-            onClick={onAddUrl}
-            outlined
-            className="flex items-center gap-1">
-            <PiPlus />
-            {t('assistant.edit.add')}
-          </Button>
-        </div>
+        {!disabled && (
+          <div className="mb-2 flex gap-2">
+            <InputText
+              value={newUrl}
+              onChange={onNewUrlChange}
+              placeholder="https://example.com"
+              className="flex-1"
+              disabled={disabled}
+            />
+            <Button
+              onClick={onAddUrl}
+              outlined
+              disabled={disabled}
+              className="flex items-center gap-1">
+              <PiPlus />
+              {t('assistant.edit.add')}
+            </Button>
+          </div>
+        )}
         <div className="space-y-1">
           {knowledgeSources
             .filter((ks) => ks.sourceType === 'url')
@@ -67,12 +73,14 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
                   className="flex items-center gap-2 text-sm">
                   <PiGlobe className="text-gray-500" />
                   <span className="flex-1">{source.url}</span>
-                  <Button
-                    outlined
-                    className="text-sm"
-                    onClick={() => onRemoveSource(actualIndex)}>
-                    <PiTrash />
-                  </Button>
+                  {!disabled && (
+                    <Button
+                      outlined
+                      className="text-sm"
+                      onClick={() => onRemoveSource(actualIndex)}>
+                      <PiTrash />
+                    </Button>
+                  )}
                 </div>
               );
             })}
@@ -83,13 +91,17 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
         <label className="mb-2 block text-sm font-medium">
           {t('assistant.edit.uploadFiles')}
         </label>
-        <FileUploader
-          onFileSelect={onFileUpload}
-          accept=".pdf,.txt,.doc,.docx,.md"
-          multiple
-        />
-        {uploadingFiles && (
-          <p className="mt-2 text-sm text-blue-600">Uploading files...</p>
+        {!disabled && (
+          <>
+            <FileUploader
+              onFileSelect={onFileUpload}
+              accept=".pdf,.txt,.doc,.docx,.md"
+              multiple
+            />
+            {uploadingFiles && (
+              <p className="mt-2 text-sm text-blue-600">Uploading files...</p>
+            )}
+          </>
         )}
         <div className="mt-2 space-y-1">
           {knowledgeSources
@@ -113,12 +125,14 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
                       {source.status}
                     </span>
                   )}
-                  <Button
-                    outlined
-                    className="text-sm"
-                    onClick={() => onDeleteFile(source.id!)}>
-                    <PiTrash />
-                  </Button>
+                  {!disabled && (
+                    <Button
+                      outlined
+                      className="text-sm"
+                      onClick={() => onDeleteFile(source.id!)}>
+                      <PiTrash />
+                    </Button>
+                  )}
                 </div>
               );
             })}

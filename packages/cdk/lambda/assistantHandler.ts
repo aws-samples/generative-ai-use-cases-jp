@@ -24,6 +24,8 @@ import {
   UpdateAssistantRequest,
   ListAssistantsResponse,
 } from 'generative-ai-use-cases';
+import { getTenantId } from './utils/tenantUtils';
+import { canAccessAssistant } from './utils/assistantAccessControl';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -31,14 +33,17 @@ const headers = {
 };
 
 /**
- * Helper function to strip the "assistant#" prefix from assistantId
- * Internal storage uses "assistant#<uuid>" format, but API returns clean UUID
- * Handles multiple prefixes defensively (e.g., "assistant#assistant#uuid" -> "uuid")
+ * Helper function to normalize assistant data for API responses
+ * - Strips "assistant#" prefix from assistantId
+ * - Strips "user#" prefix from userId and id for anonymity and frontend compatibility
+ * Internal storage uses prefixed format, but API returns clean values
  */
 function stripAssistantPrefix(assistant: Assistant): Assistant {
   return {
     ...assistant,
     assistantId: assistant.assistantId.replace(/^(assistant#)+/, ''),
+    userId: assistant.userId.replace(/^user#/, ''),
+    id: assistant.id.replace(/^user#/, ''), // Normalize partition key duplicate
   };
 }
 
@@ -145,6 +150,12 @@ async function handleCreate(
       // Process each knowledge source individually to track status per-source
       for (const source of body.knowledgeSources) {
       try {
+        // Generate ID server-side if not provided (for backward compatibility and URL sources)
+        if (!source.id) {
+          source.id = crypto.randomUUID();
+          console.log(`Generated ID ${source.id} for knowledge source without ID`);
+        }
+
         console.log(
           `Processing knowledge source ${source.id} (type=${source.type}, storageKey=${source.storageKey}) for assistant ${cleanAssistantId}`
         );
@@ -213,16 +224,18 @@ async function handleCreate(
           }
         }
 
-        await updateKnowledgeSourceStatus(
-          assistant,
-          source.id,
-          'FAILED',
-          errorMessage,
-          event
-        ).catch((statusError) => {
-          // Don't fail if status update fails
-          console.error('Failed to update source status:', statusError);
-        });
+        if (source.id) {
+          await updateKnowledgeSourceStatus(
+            assistant,
+            source.id,
+            'FAILED',
+            errorMessage,
+            event
+          ).catch((statusError) => {
+            // Don't fail if status update fails
+            console.error('Failed to update source status:', statusError);
+          });
+        }
 
         // Don't fail the assistant creation if one source fails
         // Continue processing other sources
@@ -255,23 +268,54 @@ async function handleList(
   userId: string,
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  const exclusiveStartKey = event.queryStringParameters?.exclusiveStartKey;
+  // Read nextToken parameter (aligned with frontend API contract)
+  const nextToken = event.queryStringParameters?.nextToken;
 
-  const result = await listAssistants(userId, event, exclusiveStartKey);
+  // Parse and validate limit parameter
+  let limit = 100; // default
+  if (event.queryStringParameters?.limit) {
+    const parsedLimit = parseInt(event.queryStringParameters.limit, 10);
+    if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          message: 'Invalid limit parameter. Must be between 1 and 100.'
+        }),
+      };
+    }
+    limit = parsedLimit;
+  }
 
-  // Strip prefix from all assistants
-  const sanitizedResult: ListAssistantsResponse = {
-    ...result,
-    assistants: result.assistants.map(stripAssistantPrefix),
-  };
+  try {
+    const result = await listAssistants(userId, event, nextToken, limit);
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(sanitizedResult),
-  };
+    // Strip prefix from all assistants
+    // Provide both lastEvaluatedKey (backward compatibility) and nextToken (new standard)
+    const sanitizedResult: ListAssistantsResponse = {
+      assistants: result.assistants.map(stripAssistantPrefix),
+      lastEvaluatedKey: result.lastEvaluatedKey,
+      nextToken: result.lastEvaluatedKey,
+    };
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(sanitizedResult),
+    };
+  } catch (error: any) {
+    if (error.message === 'Invalid pagination token') {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({
+          message: 'Invalid pagination token. Please start from the beginning.'
+        }),
+      };
+    }
+    throw error;
+  }
 }
-
 /**
  * Handle GET /{assistantId} - Get assistant
  */
@@ -290,12 +334,15 @@ async function handleGet(
     };
   }
 
-  // Verify ownership (userId is stored with 'user#' prefix)
-  if (assistant.userId !== `user#${userId}`) {
+  // Check access: owner OR (public AND same tenant)
+  if (!canAccessAssistant(assistant, userId, event)) {
     return {
       statusCode: 403,
       headers,
-      body: JSON.stringify({ message: 'Forbidden' }),
+      body: JSON.stringify({
+        message: 'Access denied to this assistant',
+        code: 'ASSISTANT_ACCESS_DENIED'
+      }),
     };
   }
 
@@ -339,6 +386,12 @@ async function handleUpdate(
         // Process each knowledge source individually to track status per-source
         for (const source of body.knowledgeSources) {
           try {
+            // Generate ID server-side if not provided (for backward compatibility and URL sources)
+            if (!source.id) {
+              source.id = crypto.randomUUID();
+              console.log(`Generated ID ${source.id} for knowledge source without ID`);
+            }
+
             console.log(
               `Processing knowledge source ${source.id} for assistant ${assistantId}`
             );
@@ -386,9 +439,10 @@ async function handleUpdate(
             // Update status to FAILED with error message
             const errorMessage =
               error instanceof Error ? error.message : 'Unknown error';
+            // source.id is guaranteed to exist at this point (generated above if not provided)
             await updateKnowledgeSourceStatus(
               assistant,
-              source.id,
+              source.id!,
               'FAILED',
               errorMessage,
               event
@@ -437,7 +491,10 @@ async function handleUpdate(
       return {
         statusCode: 403,
         headers,
-        body: JSON.stringify({ message: 'Forbidden' }),
+        body: JSON.stringify({
+          message: 'Access denied to this assistant',
+          code: 'ASSISTANT_ACCESS_DENIED'
+        }),
       };
     }
     throw error;
@@ -487,7 +544,10 @@ async function handleDelete(
       return {
         statusCode: 403,
         headers,
-        body: JSON.stringify({ message: 'Forbidden' }),
+        body: JSON.stringify({
+          message: 'Access denied to this assistant',
+          code: 'ASSISTANT_ACCESS_DENIED'
+        }),
       };
     }
     throw error;

@@ -1,23 +1,31 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PiMagnifyingGlass, PiPlus, PiRobot, PiPencil } from 'react-icons/pi';
+import { PiMagnifyingGlass, PiPlus, PiRobot, PiPencil, PiEye, PiLock } from 'react-icons/pi';
 import useAssistantApi from '../hooks/useAssistantApi';
+import useUserInfo from '../hooks/useUserInfo';
 import { Assistant } from 'generative-ai-use-cases';
 import LoadingWave from '../components/LoadingWave';
 import AssistantStatusTag from '../components/assistants/AssistantStatusTag';
 import Tooltip from '../components/Tooltip';
+import ModalDialogVisibilityToggle from '../components/assistants/ModalDialogVisibilityToggle';
 import { isSyncBlocking, isStatusFinal } from '../components/assistants/statusMetadata';
 
 const AssistantsPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { listAssistants } = useAssistantApi();
+  const { listAssistants, updateAssistantVisibility } = useAssistantApi();
+  const { userInfo } = useUserInfo();
 
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInputValue, setSearchInputValue] = useState('');
+  const [visibilityDialog, setVisibilityDialog] = useState<{
+    isOpen: boolean;
+    assistant: Assistant | null;
+  }>({ isOpen: false, assistant: null });
+  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const searchDebounceTimer = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
@@ -40,7 +48,7 @@ const AssistantsPage: React.FC = () => {
     }
 
     try {
-      const response = await listAssistants({ limit: 100 });
+      const response = await listAssistants({ limit: 100 }, signal);
       // Only update state if request wasn't cancelled
       if (!signal.aborted) {
         let filtered = response.assistants || [];
@@ -58,14 +66,14 @@ const AssistantsPage: React.FC = () => {
         setAssistants(filtered);
       }
     } catch (error) {
-      // Only update state if request wasn't cancelled
-      if (!abortControllerRef.current?.signal.aborted) {
+      // Only update state if request wasn't cancelled (check local signal)
+      if (!signal.aborted) {
         console.error('Failed to fetch assistants:', error);
         setAssistants([]);
       }
     } finally {
-      // Only set loading to false if request wasn't cancelled
-      if (!abortControllerRef.current?.signal.aborted && !isPollingRequest) {
+      // Only set loading to false if request wasn't cancelled (check local signal)
+      if (!signal.aborted && !isPollingRequest) {
         setIsInitialLoad(false);
       }
     }
@@ -88,7 +96,7 @@ const AssistantsPage: React.FC = () => {
     };
   }, [searchInputValue]);
 
-  // Fetch assistants on filter changes
+  // Fetch assistants on search changes
   useEffect(() => {
     fetchAssistants();
   }, [fetchAssistants]);
@@ -142,6 +150,43 @@ const AssistantsPage: React.FC = () => {
     navigate('/chat/assistants/create');
   };
 
+  const handleVisibilityClick = (assistant: Assistant) => {
+    setVisibilityDialog({ isOpen: true, assistant });
+  };
+
+  const handleVisibilityConfirm = async () => {
+    if (!visibilityDialog.assistant) return;
+
+    setIsUpdatingVisibility(true);
+    try {
+      const newVisibility = visibilityDialog.assistant.visibility === 'private' ? 'public' : 'private';
+      const updatedAssistant = await updateAssistantVisibility(
+        visibilityDialog.assistant.assistantId,
+        newVisibility
+      );
+
+      // Update the assistant in the list
+      setAssistants((prev) =>
+        prev.map((a) =>
+          a.assistantId === updatedAssistant.assistantId ? updatedAssistant : a
+        )
+      );
+
+      setVisibilityDialog({ isOpen: false, assistant: null });
+    } catch (error) {
+      console.error('Failed to update visibility:', error);
+      alert(t('assistant.visibility.updateFailed'));
+    } finally {
+      setIsUpdatingVisibility(false);
+    }
+  };
+
+  const handleVisibilityClose = () => {
+    if (!isUpdatingVisibility) {
+      setVisibilityDialog({ isOpen: false, assistant: null });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white p-8">
       {/* Header */}
@@ -178,50 +223,66 @@ const AssistantsPage: React.FC = () => {
         ) : (
           <>
             {/* Featured Assistants Section */}
-            {featuredAssistants.length > 0 && (
-              <section className="mb-12">
-                <h2 className="mb-4 text-sm font-semibold text-gray-600">
-                  {t('assistant.popularAssistants')}
-                </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {featuredAssistants.map((assistant) => (
-                    <AssistantCard
-                      key={assistant.assistantId}
-                      assistant={assistant}
-                      onStartChat={handleStartChat}
-                      onEdit={handleEditAssistant}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
+                {featuredAssistants.length > 0 && (
+                  <section className="mb-12">
+                    <h2 className="mb-4 text-sm font-semibold text-gray-600">
+                      {t('assistant.popularAssistants')}
+                    </h2>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {featuredAssistants.map((assistant) => (
+                        <AssistantCard
+                          key={assistant.assistantId}
+                          assistant={assistant}
+                          currentUserId={userInfo?.username}
+                          onStartChat={handleStartChat}
+                          onEdit={handleEditAssistant}
+                          onVisibilityClick={handleVisibilityClick}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-            {/* All Assistants Section */}
-            <section>
-              <h2 className="mb-4 text-sm font-semibold text-gray-600">
-                {t('assistant.allAssistants')}
-              </h2>
-              {allAssistants.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {allAssistants.map((assistant) => (
-                    <AssistantCard
-                      key={assistant.assistantId}
-                      assistant={assistant}
-                      onStartChat={handleStartChat}
-                      onEdit={handleEditAssistant}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                  <PiMagnifyingGlass className="mb-4 text-6xl" />
-                  <p>{t('assistant.noAssistants')}</p>
-                </div>
-              )}
-            </section>
+                {/* All Assistants Section */}
+                <section>
+                  <h2 className="mb-4 text-sm font-semibold text-gray-600">
+                    {t('assistant.allAssistants')}
+                  </h2>
+                  {allAssistants.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {allAssistants.map((assistant) => (
+                        <AssistantCard
+                          key={assistant.assistantId}
+                          assistant={assistant}
+                          currentUserId={userInfo?.username}
+                          onStartChat={handleStartChat}
+                          onEdit={handleEditAssistant}
+                          onVisibilityClick={handleVisibilityClick}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                      <PiMagnifyingGlass className="mb-4 text-6xl" />
+                      <p>{t('assistant.noAssistants')}</p>
+                    </div>
+                  )}
+                </section>
           </>
         )}
       </div>
+
+      {/* Visibility Toggle Dialog */}
+      {visibilityDialog.assistant && (
+        <ModalDialogVisibilityToggle
+          isOpen={visibilityDialog.isOpen}
+          assistantName={visibilityDialog.assistant.name}
+          currentVisibility={visibilityDialog.assistant.visibility}
+          isUpdating={isUpdatingVisibility}
+          onConfirm={handleVisibilityConfirm}
+          onClose={handleVisibilityClose}
+        />
+      )}
     </div>
   );
 };
@@ -229,18 +290,23 @@ const AssistantsPage: React.FC = () => {
 // Assistant Card Component
 interface AssistantCardProps {
   assistant: Assistant;
+  currentUserId?: string;
   onStartChat: (assistant: Assistant) => void;
   onEdit: (assistantId: string) => void;
+  onVisibilityClick: (assistant: Assistant) => void;
 }
 
 const AssistantCard: React.FC<AssistantCardProps> = ({
   assistant,
+  currentUserId,
   onStartChat,
   onEdit,
+  onVisibilityClick,
 }) => {
   const { t } = useTranslation();
   const isBlocked =
     assistant.ragEnabled && isSyncBlocking(assistant.syncStatus);
+  const isOwner = currentUserId === assistant.userId;
 
   const chatButton = (
     <button
@@ -257,8 +323,20 @@ const AssistantCard: React.FC<AssistantCardProps> = ({
 
   return (
     <div className="relative flex flex-col rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-      {/* Status Tag - Top Right */}
-      <div className="absolute right-3 top-3">
+      {/* Top Right: Visibility Icon (Owner Only) and Status Tag */}
+      <div className="absolute right-3 top-3 flex items-center gap-2">
+        {isOwner && (
+          <button
+            onClick={() => onVisibilityClick(assistant)}
+            className="rounded-full p-1.5 text-gray-600 transition-colors hover:bg-gray-100"
+            title={t(`assistant.visibility.${assistant.visibility}`)}>
+            {assistant.visibility === 'public' ? (
+              <PiEye className="text-lg" />
+            ) : (
+              <PiLock className="text-lg" />
+            )}
+          </button>
+        )}
         <AssistantStatusTag assistant={assistant} />
       </div>
 

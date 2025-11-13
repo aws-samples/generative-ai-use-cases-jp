@@ -267,6 +267,20 @@ export class TenantDynamoDB extends Construct {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // Add TenantVisibilityIndex for querying public assistants by tenant
+    this.assistantTable.addGlobalSecondaryIndex({
+      indexName: 'TenantVisibilityIndex',
+      partitionKey: {
+        name: 'tenantId',
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: 'createdDate',
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // Assistant Messages Table
     this.assistantMessagesTable = new dynamodb.Table(
       this,

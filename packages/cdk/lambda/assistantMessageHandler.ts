@@ -12,6 +12,7 @@ import {
   ConverseCommand,
 } from '@aws-sdk/client-bedrock-runtime';
 import { similaritySearch } from './repository/assistantSearch';
+import { canAccessAssistant } from './utils/assistantAccessControl';
 
 const bedrockClient = new BedrockRuntimeClient({
   region: process.env.MODEL_REGION || process.env.AWS_REGION,
@@ -112,12 +113,15 @@ async function handleCreateMessage(
     };
   }
 
-  // Verify ownership (userId is stored with 'user#' prefix)
-  if (assistant.userId !== `user#${userId}`) {
+  // Check access: owner OR (public AND same tenant)
+  if (!canAccessAssistant(assistant, userId, event)) {
     return {
       statusCode: 403,
       headers,
-      body: JSON.stringify({ message: 'Forbidden' }),
+      body: JSON.stringify({
+        message: 'Access denied to this assistant',
+        code: 'ASSISTANT_ACCESS_DENIED'
+      }),
     };
   }
 
@@ -309,7 +313,7 @@ async function handleListMessages(
   assistantId: string,
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  // Verify ownership
+  // Get assistant and verify access
   const assistant = await getAssistant(assistantId, event);
 
   if (!assistant) {
@@ -320,12 +324,15 @@ async function handleListMessages(
     };
   }
 
-  // Verify ownership (userId is stored with 'user#' prefix)
-  if (assistant.userId !== `user#${userId}`) {
+  // Check access: owner OR (public AND same tenant)
+  if (!canAccessAssistant(assistant, userId, event)) {
     return {
       statusCode: 403,
       headers,
-      body: JSON.stringify({ message: 'Forbidden' }),
+      body: JSON.stringify({
+        message: 'Access denied to this assistant',
+        code: 'ASSISTANT_ACCESS_DENIED'
+      }),
     };
   }
 

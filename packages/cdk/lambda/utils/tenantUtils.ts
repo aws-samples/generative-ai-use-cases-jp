@@ -31,19 +31,34 @@ function parseClaims(event: APIGatewayProxyEvent): Record<string, string> | null
 
 /**
  * Extract tenant ID from the JWT claims in the API Gateway event
+ *
+ * In multi-tenant environments, this should always return a valid tenant ID.
+ * Falls back to DEFAULT_TENANT_ID or 'default' for backwards compatibility
+ * with single-tenant deployments, but logs a warning.
  */
 export const getTenantId = (event: APIGatewayProxyEvent): string => {
   // Try to get tenant ID from authorizer context (Lambda Request Authorizer - flat structure)
   const tenantId =
     event.requestContext?.authorizer?.['custom:tenant_id'] ||
     // Try to get from parsed claims object (Lambda Request Authorizer - nested structure or Cognito User Pools)
-    parseClaims(event)?.['custom:tenant_id'] ||
-    // Fallback to a default tenant for backwards compatibility
-    process.env.DEFAULT_TENANT_ID ||
-    'default';
+    parseClaims(event)?.['custom:tenant_id'];
 
-  if (!tenantId || tenantId === 'default') {
-    console.warn('No tenant ID found in request, using default tenant');
+  if (!tenantId) {
+    // Fallback to default tenant for backwards compatibility with single-tenant deployments
+    const fallbackTenantId = process.env.DEFAULT_TENANT_ID || 'default';
+    console.warn(
+      `[SECURITY WARNING] No tenant ID found in request. Using fallback: ${fallbackTenantId}. ` +
+      `In multi-tenant environments, this could indicate a security issue. ` +
+      `Verify that custom:tenant_id claim is properly set in the JWT token.`
+    );
+    return fallbackTenantId;
+  }
+
+  if (tenantId === 'default') {
+    console.warn(
+      `[SECURITY WARNING] Tenant ID is explicitly set to 'default'. ` +
+      `This may indicate a misconfiguration in multi-tenant environments.`
+    );
   }
 
   return tenantId;

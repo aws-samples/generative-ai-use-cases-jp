@@ -7,6 +7,7 @@ type Props = BaseProps & {
   value: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   onChange?: (value: string) => void;
 };
 
@@ -24,9 +25,10 @@ const InputText: React.FC<Props> = (props) => {
       )}
       <input
         type="text"
-        className="w-full rounded border border-black/30 p-1.5 outline-none"
+        className="w-full rounded border border-black/30 p-1.5 outline-none disabled:cursor-not-allowed disabled:bg-gray-100"
         value={props.value}
         placeholder={props.placeholder || t('common.enter_text')}
+        disabled={props.disabled}
         onChange={(e) => {
           props.onChange ? props.onChange(e.target.value) : null;
         }}

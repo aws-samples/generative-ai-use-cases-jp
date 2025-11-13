@@ -44,19 +44,28 @@ export const isRoleMismatchError = (error: any): boolean => {
  * Checks if an error response indicates an authorization failure
  * This includes IP restriction violations, general authorization denials, etc.
  * These errors should trigger automatic sign-out to maintain security
+ *
+ * IMPORTANT: Resource-level permission denials (e.g., accessing another user's assistant)
+ * should use specific error codes like ASSISTANT_ACCESS_DENIED to avoid triggering sign-out
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isAuthorizationError = (error: any): boolean => {
   // 403 Forbidden - typically indicates authorization failure
   if (error?.response?.status === 403) {
-    // Extract error message from various possible locations in response
+    // Extract error data from response
     const responseData = error.response.data;
+    const errorCode = responseData?.code || '';
     const errorMessage = (
       responseData?.message ||
       responseData?.error ||
       responseData?.details ||
       (typeof responseData === 'string' ? responseData : '')
     ).toLowerCase();
+
+    // Skip resource-level permission denials that have specific error codes
+    if (errorCode === 'ASSISTANT_ACCESS_DENIED') {
+      return false;
+    }
 
     // Generic authorization error from API Gateway when authorizer returns Deny
     // This includes IP restriction violations

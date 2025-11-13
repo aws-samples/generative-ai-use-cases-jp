@@ -9,6 +9,7 @@ export type AssistantFormData = {
   instruction: string;
   modelId: string;
   ragEnabled: boolean;
+  visibility: 'private' | 'public';
   knowledgeSources: KnowledgeSource[];
 };
 
@@ -38,6 +39,7 @@ const getInitialFormData = (
   instruction: initialData?.instruction || '',
   modelId: initialData?.modelId || MODELS.modelIds[0] || 'anthropic.claude-3-5-sonnet-20241022-v2:0',
   ragEnabled: initialData?.ragEnabled || false,
+  visibility: initialData?.visibility || 'private',
   knowledgeSources: initialData?.knowledgeSources || [],
 });
 
