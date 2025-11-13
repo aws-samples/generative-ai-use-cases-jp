@@ -10,7 +10,7 @@ export const handler = async (
     // Get user info from Cognito
     const userId = getUsername(event);
     const tenantId = getTenantId(event);
-    
+
     if (!userId || !tenantId) {
       return {
         statusCode: 401,
@@ -24,7 +24,7 @@ export const handler = async (
 
     // Get generation ID from path parameters
     const generationId = event.pathParameters?.generationId;
-    
+
     if (!generationId) {
       return {
         statusCode: 400,
@@ -38,7 +38,7 @@ export const handler = async (
 
     // Find the generation
     const generation = await findGenerationById(event, generationId);
-    
+
     if (!generation) {
       return {
         statusCode: 404,
@@ -58,7 +58,9 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Not authorized to download this generation' }),
+        body: JSON.stringify({
+          message: 'Not authorized to download this generation',
+        }),
       };
     }
 
@@ -70,14 +72,18 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ 
-          message: 'Generation not completed or no output available' 
+        body: JSON.stringify({
+          message: 'Generation not completed or no output available',
         }),
       };
     }
 
     // Generate download URL
-    const downloadUrl = await getPptxDownloadUrl(event, tenantId, generation.s3OutputKey);
+    const downloadUrl = await getPptxDownloadUrl(
+      event,
+      tenantId,
+      generation.s3OutputKey
+    );
 
     return {
       statusCode: 200,
@@ -87,7 +93,6 @@ export const handler = async (
       },
       body: JSON.stringify({ download_url: downloadUrl }),
     };
-
   } catch (error) {
     console.error('Error getting download URL:', error);
     return {

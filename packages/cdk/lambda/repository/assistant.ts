@@ -52,9 +52,7 @@ function removeUndefinedValues(obj: any): any {
  * Normalize knowledge sources by initializing status to QUEUED and clearing error field
  * This ensures consistent state for new or updated knowledge sources
  */
-function normalizeKnowledgeSources(
-  sources: any[] | undefined
-): any[] {
+function normalizeKnowledgeSources(sources: any[] | undefined): any[] {
   if (!sources) {
     return [];
   }
@@ -74,9 +72,7 @@ function normalizeKnowledgeSources(
  * Ensure knowledge sources have default status for backward compatibility
  * Used when reading existing data that may not have status initialized
  */
-export function ensureKnowledgeSourceStatus(
-  sources: any[] | undefined
-): any[] {
+export function ensureKnowledgeSourceStatus(sources: any[] | undefined): any[] {
   if (!sources) {
     return [];
   }
@@ -102,8 +98,13 @@ export const createAssistant = async (
   let visibility: 'private' | 'public' = 'private';
   if (data.visibility) {
     const normalizedVisibility = data.visibility.toLowerCase();
-    if (normalizedVisibility !== 'private' && normalizedVisibility !== 'public') {
-      throw new Error(`Invalid visibility value: ${data.visibility}. Must be 'private' or 'public'.`);
+    if (
+      normalizedVisibility !== 'private' &&
+      normalizedVisibility !== 'public'
+    ) {
+      throw new Error(
+        `Invalid visibility value: ${data.visibility}. Must be 'private' or 'public'.`
+      );
     }
     visibility = normalizedVisibility as 'private' | 'public';
   }
@@ -161,7 +162,9 @@ export const listAssistants = async (
 
   if (_exclusiveStartKey) {
     try {
-      const parsed = JSON.parse(Buffer.from(_exclusiveStartKey, 'base64').toString());
+      const parsed = JSON.parse(
+        Buffer.from(_exclusiveStartKey, 'base64').toString()
+      );
       // Check for composite format
       if (parsed.owned !== undefined || parsed.public !== undefined) {
         ownedStartKey = parsed.owned;
@@ -267,7 +270,9 @@ export const listAssistants = async (
       ...item,
       knowledgeSources: ensureKnowledgeSourceStatus(item.knowledgeSources),
     }))
-    .sort((a, b) => parseInt(b.createdDate) - parseInt(a.createdDate)) as Assistant[];
+    .sort(
+      (a, b) => parseInt(b.createdDate) - parseInt(a.createdDate)
+    ) as Assistant[];
 
   // Enforce global limit on merged results
   assistants = assistants.slice(0, limit);
@@ -423,8 +428,13 @@ export const updateAssistant = async (
   if (updates.visibility !== undefined) {
     // Validate and normalize visibility
     const normalizedVisibility = updates.visibility.toLowerCase();
-    if (normalizedVisibility !== 'private' && normalizedVisibility !== 'public') {
-      throw new Error(`Invalid visibility value: ${updates.visibility}. Must be 'private' or 'public'.`);
+    if (
+      normalizedVisibility !== 'private' &&
+      normalizedVisibility !== 'public'
+    ) {
+      throw new Error(
+        `Invalid visibility value: ${updates.visibility}. Must be 'private' or 'public'.`
+      );
     }
     updateExpressions.push('#visibility = :visibility');
     expressionAttributeNames['#visibility'] = 'visibility';
@@ -541,19 +551,20 @@ export const updateAssistantSyncStatus = async (
   // Get all knowledge source statuses
   const sources = assistant.knowledgeSources || [];
 
-  let syncStatus: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED' | 'PARTIAL' = 'QUEUED';
+  let syncStatus: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED' | 'PARTIAL' =
+    'QUEUED';
 
   if (sources.length === 0) {
     // No sources means no indexing needed
     syncStatus = 'SUCCEEDED';
   } else {
-    const statuses = sources.map(s => s.status || 'QUEUED');
-    const hasQueued = statuses.some(s => s === 'QUEUED');
-    const hasSyncing = statuses.some(s => s === 'SYNCING');
-    const hasFailed = statuses.some(s => s === 'FAILED');
-    const hasSucceeded = statuses.some(s => s === 'SUCCEEDED');
-    const allSucceeded = statuses.every(s => s === 'SUCCEEDED');
-    const allFailed = statuses.every(s => s === 'FAILED');
+    const statuses = sources.map((s) => s.status || 'QUEUED');
+    const hasQueued = statuses.some((s) => s === 'QUEUED');
+    const hasSyncing = statuses.some((s) => s === 'SYNCING');
+    const hasFailed = statuses.some((s) => s === 'FAILED');
+    const hasSucceeded = statuses.some((s) => s === 'SUCCEEDED');
+    const allSucceeded = statuses.every((s) => s === 'SUCCEEDED');
+    const allFailed = statuses.every((s) => s === 'FAILED');
 
     if (hasQueued || hasSyncing) {
       syncStatus = 'SYNCING';
@@ -579,7 +590,8 @@ export const updateAssistantSyncStatus = async (
         userId: assistant.id,
         createdDate: assistant.createdDate,
       },
-      UpdateExpression: 'SET #syncStatus = :syncStatus, #updatedDate = :updatedDate',
+      UpdateExpression:
+        'SET #syncStatus = :syncStatus, #updatedDate = :updatedDate',
       ExpressionAttributeNames: {
         '#syncStatus': 'syncStatus',
         '#updatedDate': 'updatedDate',

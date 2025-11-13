@@ -56,7 +56,10 @@ export const handler = async (
     }
 
     // Validate required fields
-    if (!templateInput.template_name || templateInput.template_name.trim().length === 0) {
+    if (
+      !templateInput.template_name ||
+      templateInput.template_name.trim().length === 0
+    ) {
       return {
         statusCode: 400,
         headers: {
@@ -74,24 +77,31 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Template name must be 100 characters or less' }),
+        body: JSON.stringify({
+          message: 'Template name must be 100 characters or less',
+        }),
       };
     }
 
-    if (templateInput.template_description && templateInput.template_description.length > 500) {
+    if (
+      templateInput.template_description &&
+      templateInput.template_description.length > 500
+    ) {
       return {
         statusCode: 400,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Template description must be 500 characters or less' }),
+        body: JSON.stringify({
+          message: 'Template description must be 500 characters or less',
+        }),
       };
     }
 
     // Generate template ID and create template
     const templateId = uuid4();
-    
+
     const template = await createTemplate(
       event,
       templateId,
@@ -126,7 +136,6 @@ export const handler = async (
       },
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error creating template:', error);
     return {

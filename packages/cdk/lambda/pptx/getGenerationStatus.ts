@@ -10,7 +10,7 @@ export const handler = async (
     // Get user info from Cognito
     const userId = getUsername(event);
     const tenantId = getTenantId(event);
-    
+
     if (!userId || !tenantId) {
       return {
         statusCode: 401,
@@ -24,7 +24,7 @@ export const handler = async (
 
     // Get generation ID from path parameters
     const generationId = event.pathParameters?.generationId;
-    
+
     if (!generationId) {
       return {
         statusCode: 400,
@@ -38,7 +38,7 @@ export const handler = async (
 
     // Find the generation
     const generation = await findGenerationById(event, generationId);
-    
+
     if (!generation) {
       return {
         statusCode: 404,
@@ -58,7 +58,9 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Not authorized to view this generation' }),
+        body: JSON.stringify({
+          message: 'Not authorized to view this generation',
+        }),
       };
     }
 
@@ -66,7 +68,11 @@ export const handler = async (
     let downloadUrl = null;
     if (generation.status === 'completed' && generation.s3OutputKey) {
       try {
-        downloadUrl = await getPptxDownloadUrl(event, tenantId, generation.s3OutputKey);
+        downloadUrl = await getPptxDownloadUrl(
+          event,
+          tenantId,
+          generation.s3OutputKey
+        );
       } catch (error) {
         console.error('Error generating download URL:', error);
         // Continue without download URL - don't fail the request
@@ -78,7 +84,8 @@ export const handler = async (
       generation_id: generation.generationId,
       status: generation.status,
       progress: undefined, // Could be added later for real-time progress tracking
-      message: generation.status === 'failed' ? generation.errorMessage : undefined,
+      message:
+        generation.status === 'failed' ? generation.errorMessage : undefined,
       download_url: downloadUrl,
       error_message: generation.errorMessage,
     };
@@ -91,7 +98,6 @@ export const handler = async (
       },
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error getting generation status:', error);
     return {

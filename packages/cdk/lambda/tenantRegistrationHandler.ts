@@ -130,8 +130,7 @@ export const handler = async (
           statusCode: 400,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            message:
-              'OpenSearch endpoint region must match domain ARN region',
+            message: 'OpenSearch endpoint region must match domain ARN region',
           }),
         };
       }

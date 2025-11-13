@@ -51,7 +51,9 @@ async function getOpenSearchEndpoint(tenantId: string): Promise<string> {
   }
 
   try {
-    console.log(`Retrieving OpenSearch endpoint for tenant ${tenantId} from table ${tenantsTableName}`);
+    console.log(
+      `Retrieving OpenSearch endpoint for tenant ${tenantId} from table ${tenantsTableName}`
+    );
 
     const response = await dynamoClient.send(
       new GetItemCommand({
@@ -81,10 +83,15 @@ async function getOpenSearchEndpoint(tenantId: string): Promise<string> {
     cachedEndpoint = endpoint;
     cachedTenantId = tenantId;
 
-    console.log(`Successfully retrieved OpenSearch endpoint for tenant ${tenantId}: ${endpoint}`);
+    console.log(
+      `Successfully retrieved OpenSearch endpoint for tenant ${tenantId}: ${endpoint}`
+    );
     return endpoint;
   } catch (error) {
-    console.error(`Failed to retrieve OpenSearch endpoint for tenant ${tenantId}:`, error);
+    console.error(
+      `Failed to retrieve OpenSearch endpoint for tenant ${tenantId}:`,
+      error
+    );
     throw error;
   }
 }
@@ -113,7 +120,9 @@ async function initVectorStore(
   console.log(`Creating new vector store for tenant ${tenantId}`);
 
   // Ensure endpoint has https:// protocol
-  const nodeUrl = endpoint.startsWith('http') ? endpoint : `https://${endpoint}`;
+  const nodeUrl = endpoint.startsWith('http')
+    ? endpoint
+    : `https://${endpoint}`;
 
   // Get tenant credentials for OpenSearch access
   const { credentials, tenant } = await getTenantCredentials(event);
@@ -127,11 +136,12 @@ async function initVectorStore(
     ...AwsSigv4Signer({
       region,
       service: 'es', // Use 'es' for managed OpenSearch, 'aoss' for OpenSearch Serverless
-      getCredentials: () => Promise.resolve({
-        accessKeyId: credentials.AccessKeyId!,
-        secretAccessKey: credentials.SecretAccessKey!,
-        sessionToken: credentials.SessionToken,
-      }),
+      getCredentials: () =>
+        Promise.resolve({
+          accessKeyId: credentials.AccessKeyId!,
+          secretAccessKey: credentials.SecretAccessKey!,
+          sessionToken: credentials.SessionToken,
+        }),
     }),
     node: nodeUrl,
   });

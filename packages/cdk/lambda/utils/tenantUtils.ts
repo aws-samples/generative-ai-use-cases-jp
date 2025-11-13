@@ -4,7 +4,9 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
  * Parse claims from authorizer context
  * Handles both stringified claims (Lambda Request Authorizer) and direct objects (Cognito User Pools Authorizer)
  */
-function parseClaims(event: APIGatewayProxyEvent): Record<string, string> | null {
+function parseClaims(
+  event: APIGatewayProxyEvent
+): Record<string, string> | null {
   const claimsValue = event.requestContext?.authorizer?.claims;
 
   if (!claimsValue) {
@@ -48,8 +50,8 @@ export const getTenantId = (event: APIGatewayProxyEvent): string => {
     const fallbackTenantId = process.env.DEFAULT_TENANT_ID || 'default';
     console.warn(
       `[SECURITY WARNING] No tenant ID found in request. Using fallback: ${fallbackTenantId}. ` +
-      `In multi-tenant environments, this could indicate a security issue. ` +
-      `Verify that custom:tenant_id claim is properly set in the JWT token.`
+        `In multi-tenant environments, this could indicate a security issue. ` +
+        `Verify that custom:tenant_id claim is properly set in the JWT token.`
     );
     return fallbackTenantId;
   }
@@ -57,7 +59,7 @@ export const getTenantId = (event: APIGatewayProxyEvent): string => {
   if (tenantId === 'default') {
     console.warn(
       `[SECURITY WARNING] Tenant ID is explicitly set to 'default'. ` +
-      `This may indicate a misconfiguration in multi-tenant environments.`
+        `This may indicate a misconfiguration in multi-tenant environments.`
     );
   }
 

@@ -205,7 +205,8 @@ export const stackInputSchema = baseStackInputSchema
       return true;
     },
     {
-      message: 'AWS account ID is required. Set CDK_DEFAULT_ACCOUNT environment variable.',
+      message:
+        'AWS account ID is required. Set CDK_DEFAULT_ACCOUNT environment variable.',
       path: ['account'],
     }
   );

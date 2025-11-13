@@ -10,7 +10,10 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
-import { getPptxTemplatesTableName, getPptxGenerationsTableName } from './tenantPptxConfig';
+import {
+  getPptxTemplatesTableName,
+  getPptxGenerationsTableName,
+} from './tenantPptxConfig';
 import { getTenantId } from '../utils/tenantUtils';
 import { createTenantDynamoDBClient } from '../utils/tenantDynamoDBClient';
 
@@ -93,7 +96,9 @@ export async function createTemplate(
   const tenantId = getTenantId(event);
   const docClient = await getTenantDynamoDBDocument(event);
   const now = new Date().toISOString();
-  const ttl = Math.floor((new Date().getTime() + 365 * 24 * 60 * 60 * 1000) / 1000); // 1 year TTL
+  const ttl = Math.floor(
+    (new Date().getTime() + 365 * 24 * 60 * 60 * 1000) / 1000
+  ); // 1 year TTL
 
   const item: PptxTemplate = {
     templateId,
@@ -120,7 +125,10 @@ export async function createTemplate(
   return item;
 }
 
-export async function findTemplateById(event: APIGatewayProxyEvent, templateId: string): Promise<PptxTemplate | null> {
+export async function findTemplateById(
+  event: APIGatewayProxyEvent,
+  templateId: string
+): Promise<PptxTemplate | null> {
   const tenantId = getTenantId(event);
   const docClient = await getTenantDynamoDBDocument(event);
 
@@ -189,11 +197,17 @@ export async function findTemplatesByTenant(
 
   // Apply offset and sort by creation date
   return templates
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
     .slice(offset, offset + limit);
 }
 
-export async function deleteTemplateById(event: APIGatewayProxyEvent, templateId: string): Promise<void> {
+export async function deleteTemplateById(
+  event: APIGatewayProxyEvent,
+  templateId: string
+): Promise<void> {
   const tenantId = getTenantId(event);
   const docClient = await getTenantDynamoDBDocument(event);
 
@@ -224,7 +238,9 @@ export async function createGeneration(
   const tenantId = getTenantId(event);
   const docClient = await getTenantDynamoDBDocument(event);
   const now = new Date().toISOString();
-  const ttl = Math.floor((new Date().getTime() + 7 * 24 * 60 * 60 * 1000) / 1000); // 7 days TTL
+  const ttl = Math.floor(
+    (new Date().getTime() + 7 * 24 * 60 * 60 * 1000) / 1000
+  ); // 7 days TTL
 
   const item: PptxGeneration = {
     generationId,
@@ -249,11 +265,16 @@ export async function createGeneration(
   });
 
   await docClient.send(command);
-  console.log(`Created PPTX generation: ${generationId} for tenant: ${tenantId}`);
+  console.log(
+    `Created PPTX generation: ${generationId} for tenant: ${tenantId}`
+  );
   return item;
 }
 
-export async function findGenerationById(event: APIGatewayProxyEvent, generationId: string): Promise<PptxGeneration | null> {
+export async function findGenerationById(
+  event: APIGatewayProxyEvent,
+  generationId: string
+): Promise<PptxGeneration | null> {
   const tenantId = getTenantId(event);
   const docClient = await getTenantDynamoDBDocument(event);
 
@@ -349,5 +370,7 @@ export async function updateGenerationStatus(
   });
 
   await docClient.send(command);
-  console.log(`Updated generation status: ${generationId} -> ${status} for tenant: ${tenantId}`);
+  console.log(
+    `Updated generation status: ${generationId} -> ${status} for tenant: ${tenantId}`
+  );
 }

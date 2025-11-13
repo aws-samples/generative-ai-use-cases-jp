@@ -1,5 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { generatePresignedUploadUrl, validateFileExtension } from './pptxService';
+import {
+  generatePresignedUploadUrl,
+  validateFileExtension,
+} from './pptxService';
 import { getUsername, getTenantId } from '../utils/tenantUtils';
 
 interface QueryParams {
@@ -28,7 +31,8 @@ export const handler = async (
 
     // Parse query parameters
     const filename = event.queryStringParameters?.filename;
-    const contentType = event.queryStringParameters?.content_type ||
+    const contentType =
+      event.queryStringParameters?.content_type ||
       'application/vnd.openxmlformats-officedocument.presentationml.presentation';
 
     if (!filename) {
@@ -50,7 +54,9 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Only PPTX and POTX files are allowed' }),
+        body: JSON.stringify({
+          message: 'Only PPTX and POTX files are allowed',
+        }),
       };
     }
 
@@ -76,7 +82,6 @@ export const handler = async (
         expires_in: presignedUrl.expiresIn,
       }),
     };
-
   } catch (error) {
     console.error('Error generating upload URL:', error);
     return {

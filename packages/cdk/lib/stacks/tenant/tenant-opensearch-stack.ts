@@ -273,17 +273,22 @@ export class TenantOpenSearchStack extends cdk.Stack {
     // Only create if tenantsTableName is provided
     if (props.tenantsTableName && props.controlPlaneRegion) {
       // Get control plane account from context or use current account
-      const controlPlaneAccount = this.node.tryGetContext('controlPlaneAccount');
+      const controlPlaneAccount = this.node.tryGetContext(
+        'controlPlaneAccount'
+      );
       const currentAccount = cdk.Stack.of(this).account;
 
       // Determine if cross-account access is needed
-      const isCrossAccount = controlPlaneAccount && controlPlaneAccount !== currentAccount;
+      const isCrossAccount =
+        controlPlaneAccount && controlPlaneAccount !== currentAccount;
 
       // Get or construct the control plane role ARN for cross-account access
       let controlPlaneRoleArn: string | undefined;
       if (isCrossAccount) {
         // Use the role from context or construct the ARN
-        const controlPlaneLambdaRoleArn = this.node.tryGetContext('controlPlaneLambdaRoleArn');
+        const controlPlaneLambdaRoleArn = this.node.tryGetContext(
+          'controlPlaneLambdaRoleArn'
+        );
         if (controlPlaneLambdaRoleArn) {
           controlPlaneRoleArn = controlPlaneLambdaRoleArn;
         } else {
@@ -308,7 +313,8 @@ export class TenantOpenSearchStack extends cdk.Stack {
             CONTROL_PLANE_REGION: props.controlPlaneRegion,
             CONTROL_PLANE_ACCOUNT: controlPlaneAccount || currentAccount,
             CONTROL_PLANE_ROLE_ARN: controlPlaneRoleArn || '',
-            DEFAULT_OPENSEARCH_INDEX: props.openSearchIndexName || 'assistant-docs',
+            DEFAULT_OPENSEARCH_INDEX:
+              props.openSearchIndexName || 'assistant-docs',
           },
         }
       );
@@ -343,7 +349,10 @@ export class TenantOpenSearchStack extends cdk.Stack {
           serviceToken: tenantUpdaterLambda.functionArn,
           resourceType: 'Custom::TenantOpenSearchUpdater',
           properties: {
-            tenantId: typeof tenantId === 'string' ? tenantId : (tenantId as cdk.CfnParameter).valueAsString,
+            tenantId:
+              typeof tenantId === 'string'
+                ? tenantId
+                : (tenantId as cdk.CfnParameter).valueAsString,
             openSearchDomainArn: this.domain.domainArn,
             openSearchEndpoint: `https://${this.domain.domainEndpoint}`,
             openSearchIndexName: props.openSearchIndexName || 'assistant-docs',
@@ -354,7 +363,9 @@ export class TenantOpenSearchStack extends cdk.Stack {
       // Ensure custom resource runs after domain is created
       tenantUpdaterResource.node.addDependency(this.domain);
 
-      console.log(`Created custom resource to update tenant ${tenantId} with OpenSearch info`);
+      console.log(
+        `Created custom resource to update tenant ${tenantId} with OpenSearch info`
+      );
     }
 
     // Export domain outputs

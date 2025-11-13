@@ -43,7 +43,9 @@ class PptxApi extends Construct {
     const lambdaRole = new iam.Role(this, 'PptxLambdaRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AWSLambdaBasicExecutionRole'
+        ),
       ],
     });
 
@@ -69,11 +71,15 @@ class PptxApi extends Construct {
     };
 
     // Template Upload URL Lambda
-    const getTemplateUploadUrlLambda = new NodejsFunction(this, 'GetTemplateUploadUrl', {
-      ...commonLambdaProps,
-      entry: './lambda/pptx/getTemplateUploadUrl.ts',
-      handler: 'handler',
-    });
+    const getTemplateUploadUrlLambda = new NodejsFunction(
+      this,
+      'GetTemplateUploadUrl',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptx/getTemplateUploadUrl.ts',
+        handler: 'handler',
+      }
+    );
 
     // Create Template Lambda
     const createTemplateLambda = new NodejsFunction(this, 'CreateTemplate', {
@@ -104,11 +110,15 @@ class PptxApi extends Construct {
     });
 
     // Get Generation Status Lambda
-    const getGenerationStatusLambda = new NodejsFunction(this, 'GetGenerationStatus', {
-      ...commonLambdaProps,
-      entry: './lambda/pptx/getGenerationStatus.ts',
-      handler: 'handler',
-    });
+    const getGenerationStatusLambda = new NodejsFunction(
+      this,
+      'GetGenerationStatus',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptx/getGenerationStatus.ts',
+        handler: 'handler',
+      }
+    );
 
     // List Generations Lambda
     const listGenerationsLambda = new NodejsFunction(this, 'ListGenerations', {
@@ -125,12 +135,16 @@ class PptxApi extends Construct {
     });
 
     // PPTX Generation Worker Lambda (SQS Consumer)
-    const pptxGenerationWorkerLambda = new NodejsFunction(this, 'PptxGenerationWorker', {
-      ...commonLambdaProps,
-      entry: './lambda/pptxGeneration.ts',
-      handler: 'handler',
-      timeout: Duration.minutes(5), // Longer timeout for PPTX generation
-    });
+    const pptxGenerationWorkerLambda = new NodejsFunction(
+      this,
+      'PptxGenerationWorker',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptxGeneration.ts',
+        handler: 'handler',
+        timeout: Duration.minutes(5), // Longer timeout for PPTX generation
+      }
+    );
 
     // Grant SQS consume permissions
     this.generationQueue.grantConsumeMessages(pptxGenerationWorkerLambda);
@@ -146,21 +160,23 @@ class PptxApi extends Construct {
     // Grant S3 permissions to all Lambda functions
     // Note: We can't directly reference buckets since they're tenant-specific,
     // so we grant permissions via the role using bucket names
-    lambdaRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        's3:GetObject',
-        's3:PutObject',
-        's3:DeleteObject',
-        's3:ListBucket',
-      ],
-      resources: [
-        `arn:aws:s3:::${pptxTemplatesBucketName}/*`,
-        `arn:aws:s3:::${pptxTemplatesBucketName}`,
-        `arn:aws:s3:::${pptxOutputsBucketName}/*`,
-        `arn:aws:s3:::${pptxOutputsBucketName}`,
-      ],
-    }));
+    lambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:GetObject',
+          's3:PutObject',
+          's3:DeleteObject',
+          's3:ListBucket',
+        ],
+        resources: [
+          `arn:aws:s3:::${pptxTemplatesBucketName}/*`,
+          `arn:aws:s3:::${pptxTemplatesBucketName}`,
+          `arn:aws:s3:::${pptxOutputsBucketName}/*`,
+          `arn:aws:s3:::${pptxOutputsBucketName}`,
+        ],
+      })
+    );
 
     // API: /pptx
     const pptxRootResource = api.root.addResource('pptx');
@@ -217,7 +233,8 @@ class PptxApi extends Construct {
     );
 
     // GET: /pptx/generation/{generationId}
-    const generationIdResource = generationResource.addResource('{generationId}');
+    const generationIdResource =
+      generationResource.addResource('{generationId}');
     generationIdResource.addMethod(
       'GET',
       new LambdaIntegration(getGenerationStatusLambda),

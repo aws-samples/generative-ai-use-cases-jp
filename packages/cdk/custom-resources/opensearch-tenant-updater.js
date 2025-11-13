@@ -1,4 +1,7 @@
-const { DynamoDBClient, UpdateItemCommand } = require('@aws-sdk/client-dynamodb');
+const {
+  DynamoDBClient,
+  UpdateItemCommand,
+} = require('@aws-sdk/client-dynamodb');
 const { marshall } = require('@aws-sdk/util-dynamodb');
 const { STSClient, AssumeRoleCommand } = require('@aws-sdk/client-sts');
 const { fromTemporaryCredentials } = require('@aws-sdk/credential-providers');
@@ -7,7 +10,8 @@ const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME;
 const CONTROL_PLANE_REGION = process.env.CONTROL_PLANE_REGION;
 const CONTROL_PLANE_ACCOUNT = process.env.CONTROL_PLANE_ACCOUNT;
 const CONTROL_PLANE_ROLE_ARN = process.env.CONTROL_PLANE_ROLE_ARN;
-const DEFAULT_OPENSEARCH_INDEX = process.env.DEFAULT_OPENSEARCH_INDEX || 'assistant-docs';
+const DEFAULT_OPENSEARCH_INDEX =
+  process.env.DEFAULT_OPENSEARCH_INDEX || 'assistant-docs';
 
 // Create DynamoDB client with cross-account credentials if needed
 const createDynamoClient = () => {
@@ -57,13 +61,17 @@ const updateStatus = async (event, status, reason, physicalResourceId) => {
 
 exports.handler = async (event, context) => {
   // For recording failures
-  console.log('OpenSearch Tenant Updater - Event:', JSON.stringify(event, null, 2));
+  console.log(
+    'OpenSearch Tenant Updater - Event:',
+    JSON.stringify(event, null, 2)
+  );
 
   const props = event.ResourceProperties;
   const tenantId = props.tenantId;
   const openSearchDomainArn = props.openSearchDomainArn;
   const openSearchEndpoint = props.openSearchEndpoint;
-  const openSearchIndexName = props.openSearchIndexName || DEFAULT_OPENSEARCH_INDEX;
+  const openSearchIndexName =
+    props.openSearchIndexName || DEFAULT_OPENSEARCH_INDEX;
 
   // Physical resource ID for this custom resource
   const physicalResourceId = `opensearch-tenant-${tenantId}`;
@@ -91,11 +99,14 @@ exports.handler = async (event, context) => {
           throw new Error('openSearchEndpoint must start with https://');
         }
 
-        console.log(`Updating tenant ${tenantId} with OpenSearch configuration:`, {
-          openSearchDomainArn,
-          openSearchEndpoint,
-          openSearchIndexName,
-        });
+        console.log(
+          `Updating tenant ${tenantId} with OpenSearch configuration:`,
+          {
+            openSearchDomainArn,
+            openSearchEndpoint,
+            openSearchIndexName,
+          }
+        );
 
         const now = new Date().toISOString();
 
@@ -121,7 +132,9 @@ exports.handler = async (event, context) => {
           })
         );
 
-        console.log(`Successfully updated tenant ${tenantId} with OpenSearch configuration`);
+        console.log(
+          `Successfully updated tenant ${tenantId} with OpenSearch configuration`
+        );
 
         await updateStatus(
           event,
@@ -133,7 +146,9 @@ exports.handler = async (event, context) => {
 
       case 'Delete':
         // Remove OpenSearch fields from tenant record
-        console.log(`Removing OpenSearch configuration from tenant ${tenantId}`);
+        console.log(
+          `Removing OpenSearch configuration from tenant ${tenantId}`
+        );
 
         const deleteNow = new Date().toISOString();
 
@@ -155,7 +170,9 @@ exports.handler = async (event, context) => {
           })
         );
 
-        console.log(`Successfully removed OpenSearch configuration from tenant ${tenantId}`);
+        console.log(
+          `Successfully removed OpenSearch configuration from tenant ${tenantId}`
+        );
 
         await updateStatus(
           event,

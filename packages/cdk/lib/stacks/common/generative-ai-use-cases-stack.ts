@@ -437,7 +437,8 @@ export class GenerativeAiUseCasesStack extends Stack {
     if (api.centralPptxApi) {
       new CfnOutput(this, 'CentralPptxLambdaRoleArn', {
         value: api.centralPptxApi.pptxLambdaRole.roleArn,
-        description: 'ARN of the central PPTX Lambda execution role for cross-account tenant access',
+        description:
+          'ARN of the central PPTX Lambda execution role for cross-account tenant access',
         exportName: `${this.stackName}-CentralPptxLambdaRoleArn`,
       });
     }

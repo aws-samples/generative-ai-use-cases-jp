@@ -9,10 +9,14 @@ const ENVIRONMENT: string = process.env.ENVIRONMENT!;
 const DEFAULT_TABLE_NAME: string = process.env.DEFAULT_TABLE_NAME!;
 const STATS_TABLE_PREFIX: string = process.env.STATS_TABLE_NAME!;
 const DEFAULT_STATS_TABLE_NAME: string = process.env.DEFAULT_STATS_TABLE_NAME!;
-const ASSISTANT_TABLE_PREFIX: string = process.env.ASSISTANT_TABLE_NAME || 'Assistant';
-const DEFAULT_ASSISTANT_TABLE_NAME: string = process.env.DEFAULT_ASSISTANT_TABLE_NAME || '';
-const ASSISTANT_MESSAGES_TABLE_PREFIX: string = process.env.ASSISTANT_MESSAGES_TABLE_NAME || 'AssistantMessages';
-const DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME: string = process.env.DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME || '';
+const ASSISTANT_TABLE_PREFIX: string =
+  process.env.ASSISTANT_TABLE_NAME || 'Assistant';
+const DEFAULT_ASSISTANT_TABLE_NAME: string =
+  process.env.DEFAULT_ASSISTANT_TABLE_NAME || '';
+const ASSISTANT_MESSAGES_TABLE_PREFIX: string =
+  process.env.ASSISTANT_MESSAGES_TABLE_NAME || 'AssistantMessages';
+const DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME: string =
+  process.env.DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME || '';
 
 /**
  * Get or create a tenant-specific DynamoDB document client
@@ -92,7 +96,9 @@ export function getAssistantTableName(event: APIGatewayProxyEvent): string {
 /**
  * Get tenant-specific assistant messages table name
  */
-export function getAssistantMessagesTableName(event: APIGatewayProxyEvent): string {
+export function getAssistantMessagesTableName(
+  event: APIGatewayProxyEvent
+): string {
   const tenantId = getTenantId(event);
 
   if (!tenantId || tenantId === 'default') {

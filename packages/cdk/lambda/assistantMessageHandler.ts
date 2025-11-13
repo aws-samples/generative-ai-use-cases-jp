@@ -120,7 +120,7 @@ async function handleCreateMessage(
       headers,
       body: JSON.stringify({
         message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED'
+        code: 'ASSISTANT_ACCESS_DENIED',
       }),
     };
   }
@@ -331,7 +331,7 @@ async function handleListMessages(
       headers,
       body: JSON.stringify({
         message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED'
+        code: 'ASSISTANT_ACCESS_DENIED',
       }),
     };
   }
@@ -341,7 +341,13 @@ async function handleListMessages(
     ? parseInt(event.queryStringParameters.limit)
     : undefined;
 
-  const result = await listMessages(assistantId, userId, event, exclusiveStartKey, limit);
+  const result = await listMessages(
+    assistantId,
+    userId,
+    event,
+    exclusiveStartKey,
+    limit
+  );
 
   // Strip prefix from all messages
   const sanitizedResult: ListAssistantMessagesResponse = {

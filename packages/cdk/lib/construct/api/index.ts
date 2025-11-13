@@ -397,7 +397,11 @@ export class Api extends Construct {
     // Central PPTX API for multi-tenant architecture
     // Lambda functions dynamically access tenant-specific resources based on Cognito claims
     if (props.pptxEnabled) {
-      this.centralPptxApi = new CentralPptxApi(this, 'CentralPptxAPI', apiProps);
+      this.centralPptxApi = new CentralPptxApi(
+        this,
+        'CentralPptxAPI',
+        apiProps
+      );
     }
 
     // Assistant API is now created in AssistantApiStack (nested stack)

@@ -43,8 +43,7 @@ class AssistantApi extends Construct {
         ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
         DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
         ASSISTANT_MESSAGES_TABLE_NAME: ASSISTANT_MESSAGES_TABLE_PREFIX,
-        DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME:
-          assistantMessagesTable.tableName,
+        DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME: assistantMessagesTable.tableName,
         OPENSEARCH_INDEX: 'assistant-docs',
         ASSISTANT_FILES_BUCKET_NAME: fileBucket?.bucketName || '',
         TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
@@ -182,16 +181,20 @@ class AssistantApi extends Construct {
 
     // File upload endpoint: POST /assistant/upload-url
     if (fileBucket) {
-      const uploadHandler = new NodejsFunction(this, 'AssistantFileUploadHandler', {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/assistantFileUpload.ts',
-        timeout: Duration.seconds(30),
-        environment: getBaseEnvironment(this, props, {
-          ASSISTANT_FILES_BUCKET_NAME: fileBucket.bucketName,
-          OPENSEARCH_INDEX: 'assistant-docs',
-          TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
-        }),
-      });
+      const uploadHandler = new NodejsFunction(
+        this,
+        'AssistantFileUploadHandler',
+        {
+          runtime: LAMBDA_RUNTIME_NODEJS,
+          entry: './lambda/assistantFileUpload.ts',
+          timeout: Duration.seconds(30),
+          environment: getBaseEnvironment(this, props, {
+            ASSISTANT_FILES_BUCKET_NAME: fileBucket.bucketName,
+            OPENSEARCH_INDEX: 'assistant-docs',
+            TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+          }),
+        }
+      );
 
       // Grant write permissions to upload handler
       fileBucket.grantPut(uploadHandler);

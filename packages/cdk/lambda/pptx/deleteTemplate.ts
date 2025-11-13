@@ -10,8 +10,9 @@ export const handler = async (
     const userId = getUsername(event);
     const tenantId = getTenantId(event);
     // Check admin status from flat context (Lambda Request Authorizer)
-    const isAdmin = event.requestContext.authorizer?.['custom:is_admin'] === 'true';
-    
+    const isAdmin =
+      event.requestContext.authorizer?.['custom:is_admin'] === 'true';
+
     if (!userId || !tenantId) {
       return {
         statusCode: 401,
@@ -25,7 +26,7 @@ export const handler = async (
 
     // Get template ID from path parameters
     const templateId = event.pathParameters?.templateId;
-    
+
     if (!templateId) {
       return {
         statusCode: 400,
@@ -59,7 +60,9 @@ export const handler = async (
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify({ message: 'Not authorized to delete this template' }),
+        body: JSON.stringify({
+          message: 'Not authorized to delete this template',
+        }),
       };
     }
 
@@ -74,7 +77,6 @@ export const handler = async (
       },
       body: JSON.stringify({ message: 'Template deleted successfully' }),
     };
-
   } catch (error) {
     console.error('Error deleting template:', error);
     return {

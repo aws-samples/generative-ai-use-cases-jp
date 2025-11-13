@@ -126,7 +126,10 @@ if (tenantConfig.controlPlane) {
     controlPlane.controlPlaneLambdaRoleArn &&
     !app.node.getAllContext()['controlPlaneLambdaRoleArn']
   ) {
-    app.node.setContext('controlPlaneLambdaRoleArn', controlPlane.controlPlaneLambdaRoleArn);
+    app.node.setContext(
+      'controlPlaneLambdaRoleArn',
+      controlPlane.controlPlaneLambdaRoleArn
+    );
   }
   if (
     controlPlane.account &&
@@ -184,7 +187,9 @@ const params = {
   controlPlaneRegion: context.controlPlane?.region,
   controlPlaneAccount: context.controlPlane?.account,
   // Use provided table name or construct it based on environment
-  tenantsTableName: context.controlPlane?.tenantsTableName || `Tenants-${context.environment || 'dev'}`,
+  tenantsTableName:
+    context.controlPlane?.tenantsTableName ||
+    `Tenants-${context.environment || 'dev'}`,
   openSearchIndexName: context.openSearchIndexName || 'assistant-docs',
 };
 

@@ -71,7 +71,9 @@ export class TenantIAMStack extends cdk.Stack {
     const userPoolId = this.node.tryGetContext('userPoolId');
     const identityPoolId = this.node.tryGetContext('identityPoolId');
     const userPoolClientId = this.node.tryGetContext('userPoolClientId');
-    const controlPlaneLambdaRoleArn = this.node.tryGetContext('controlPlaneLambdaRoleArn');
+    const controlPlaneLambdaRoleArn = this.node.tryGetContext(
+      'controlPlaneLambdaRoleArn'
+    );
 
     if (!userPoolId) {
       throw new Error(

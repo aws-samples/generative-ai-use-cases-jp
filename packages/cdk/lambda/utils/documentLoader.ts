@@ -1,4 +1,8 @@
-import { S3Client, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  GetObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3';
 import { Document } from '@langchain/core/documents';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
@@ -39,7 +43,6 @@ function getContentTypeFromKey(key: string): string | null {
   };
   return contentTypes[ext || ''] || null;
 }
-
 
 /**
  * Chunk documents into smaller pieces for better retrieval
@@ -130,7 +133,9 @@ async function loadDocumentFromFile(
 
     if (isDefault) {
       if (!MANAGED_BUCKET_NAME) {
-        throw new Error('ASSISTANT_FILES_BUCKET_NAME environment variable not set for default tenant');
+        throw new Error(
+          'ASSISTANT_FILES_BUCKET_NAME environment variable not set for default tenant'
+        );
       }
       bucketName = MANAGED_BUCKET_NAME;
       tenantS3Client = new S3Client({});
@@ -143,7 +148,9 @@ async function loadDocumentFromFile(
 
       const tenantAccountId = extractAccountIdFromRoleArn(tenant.roleArn);
       if (!tenantAccountId) {
-        throw new Error(`Cannot extract account ID from role ARN: ${tenant.roleArn}`);
+        throw new Error(
+          `Cannot extract account ID from role ARN: ${tenant.roleArn}`
+        );
       }
 
       const tenantRegion = tenant.region;
@@ -286,7 +293,12 @@ function isBlockedIP(ip: string): boolean {
   if (octets[0] === 192 && octets[1] === 168) return true;
 
   // Broadcast: 255.255.255.255
-  if (octets[0] === 255 && octets[1] === 255 && octets[2] === 255 && octets[3] === 255)
+  if (
+    octets[0] === 255 &&
+    octets[1] === 255 &&
+    octets[2] === 255 &&
+    octets[3] === 255
+  )
     return true;
 
   // This network: 0.0.0.0/8
@@ -321,7 +333,11 @@ async function validateWebUrl(url: string): Promise<{
     const hostname = parsed.hostname.toLowerCase();
 
     // Block localhost and local hostnames
-    if (hostname === 'localhost' || hostname === '[::1]' || hostname === '0.0.0.0') {
+    if (
+      hostname === 'localhost' ||
+      hostname === '[::1]' ||
+      hostname === '0.0.0.0'
+    ) {
       console.error(`Blocked localhost address: ${hostname}`);
       return {
         valid: false,
@@ -340,8 +356,12 @@ async function validateWebUrl(url: string): Promise<{
 
     // Resolve hostname to IPv4 and IPv6 addresses and check them
     try {
-      const ipv4Addresses = await dnsResolve4(hostname).catch(() => [] as string[]);
-      const ipv6Addresses = await dnsResolve6(hostname).catch(() => [] as string[]);
+      const ipv4Addresses = await dnsResolve4(hostname).catch(
+        () => [] as string[]
+      );
+      const ipv6Addresses = await dnsResolve6(hostname).catch(
+        () => [] as string[]
+      );
       const allAddresses = [...ipv4Addresses, ...ipv6Addresses];
 
       console.log(`Resolved ${hostname} to addresses:`, allAddresses);
@@ -514,7 +534,9 @@ async function loadDocumentFromWeb(
 
     if (contentType === 'application/pdf') {
       // Use PDFLoader for binary PDF parsing
-      const blob = new Blob([Buffer.from(content)], { type: 'application/pdf' });
+      const blob = new Blob([Buffer.from(content)], {
+        type: 'application/pdf',
+      });
       const loader = new PDFLoader(blob, {
         splitPages: false, // We handle chunking separately
         parsedItemSeparator: '\n\n',
@@ -571,7 +593,12 @@ export async function loadDocuments(
   const loadPromises = sources.map(async (source) => {
     try {
       if (source.type === 'file' && source.storageKey) {
-        return await loadDocumentFromFile(source.storageKey, source.id, userId, event);
+        return await loadDocumentFromFile(
+          source.storageKey,
+          source.id,
+          userId,
+          event
+        );
       } else if (source.type === 'web' && source.sourceUrl) {
         return await loadDocumentFromWeb(source.sourceUrl, source.id);
       } else {

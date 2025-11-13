@@ -41,70 +41,80 @@ export class CentralPptxApi extends Construct {
     this.pptxLambdaRole = new iam.Role(this, 'PptxLambdaRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'),
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          'service-role/AWSLambdaBasicExecutionRole'
+        ),
       ],
     });
 
     // Grant DynamoDB permissions for all tenant tables (wildcard pattern)
-    this.pptxLambdaRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        'dynamodb:GetItem',
-        'dynamodb:PutItem',
-        'dynamodb:UpdateItem',
-        'dynamodb:DeleteItem',
-        'dynamodb:Query',
-        'dynamodb:Scan',
-      ],
-      resources: [
-        `arn:aws:dynamodb:*:*:table/pptx-templates-${props.environment}-*`,
-        `arn:aws:dynamodb:*:*:table/pptx-templates-${props.environment}-*/index/*`,
-        `arn:aws:dynamodb:*:*:table/pptx-generations-${props.environment}-*`,
-        `arn:aws:dynamodb:*:*:table/pptx-generations-${props.environment}-*/index/*`,
-      ],
-    }));
+    this.pptxLambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'dynamodb:GetItem',
+          'dynamodb:PutItem',
+          'dynamodb:UpdateItem',
+          'dynamodb:DeleteItem',
+          'dynamodb:Query',
+          'dynamodb:Scan',
+        ],
+        resources: [
+          `arn:aws:dynamodb:*:*:table/pptx-templates-${props.environment}-*`,
+          `arn:aws:dynamodb:*:*:table/pptx-templates-${props.environment}-*/index/*`,
+          `arn:aws:dynamodb:*:*:table/pptx-generations-${props.environment}-*`,
+          `arn:aws:dynamodb:*:*:table/pptx-generations-${props.environment}-*/index/*`,
+        ],
+      })
+    );
 
     // Grant S3 permissions for all tenant buckets (wildcard pattern)
     // Pattern matches: {base}-{environment}-tenant-{tenantId}-{hash}
-    this.pptxLambdaRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        's3:GetObject',
-        's3:PutObject',
-        's3:DeleteObject',
-        's3:ListBucket',
-      ],
-      resources: [
-        `arn:aws:s3:::pptx-templates-${props.environment}-tenant-*`,
-        `arn:aws:s3:::pptx-templates-${props.environment}-tenant-*/*`,
-        `arn:aws:s3:::pptx-outputs-${props.environment}-tenant-*`,
-        `arn:aws:s3:::pptx-outputs-${props.environment}-tenant-*/*`,
-      ],
-    }));
+    this.pptxLambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          's3:GetObject',
+          's3:PutObject',
+          's3:DeleteObject',
+          's3:ListBucket',
+        ],
+        resources: [
+          `arn:aws:s3:::pptx-templates-${props.environment}-tenant-*`,
+          `arn:aws:s3:::pptx-templates-${props.environment}-tenant-*/*`,
+          `arn:aws:s3:::pptx-outputs-${props.environment}-tenant-*`,
+          `arn:aws:s3:::pptx-outputs-${props.environment}-tenant-*/*`,
+        ],
+      })
+    );
 
     // Grant SQS permissions
     this.generationQueue.grantSendMessages(this.pptxLambdaRole);
 
     // Grant Bedrock permissions for AI-powered PPTX content generation
-    this.pptxLambdaRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        'bedrock:InvokeModel',
-        'bedrock:InvokeModelWithResponseStream',
-        'bedrock:Converse',
-        'bedrock:ConverseStream',
-        'bedrock:StartAsyncInvoke',
-      ],
-      resources: ['*'], // Bedrock models/inference profiles don't have tenant-specific ARNs
-    }));
+    this.pptxLambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'bedrock:InvokeModel',
+          'bedrock:InvokeModelWithResponseStream',
+          'bedrock:Converse',
+          'bedrock:ConverseStream',
+          'bedrock:StartAsyncInvoke',
+        ],
+        resources: ['*'], // Bedrock models/inference profiles don't have tenant-specific ARNs
+      })
+    );
 
     // Grant STS AssumeRole permissions for cross-account tenant access
     // Allows background jobs to assume TenantRole in tenant accounts
-    this.pptxLambdaRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: ['sts:AssumeRole'],
-      resources: [`arn:aws:iam::*:role/TenantRole-*`],
-    }));
+    this.pptxLambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: ['sts:AssumeRole'],
+        resources: [`arn:aws:iam::*:role/TenantRole-*`],
+      })
+    );
 
     // Common Lambda props
     const commonLambdaProps = {
@@ -114,8 +124,12 @@ export class CentralPptxApi extends Construct {
       environment: getBaseEnvironment(this, props, {
         MODEL_REGION: props.modelRegion,
         MODEL_IDS: JSON.stringify(props.modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(props.imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(props.videoGenerationModelIds),
+        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(
+          props.imageGenerationModelIds
+        ),
+        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(
+          props.videoGenerationModelIds
+        ),
         PPTX_GENERATION_QUEUE: this.generationQueue.queueUrl,
         LITELLM_ENDPOINT: props.litellmEndpoint ?? '',
         // Note: Bucket names are dynamically resolved per-tenant in Lambda code
@@ -126,11 +140,15 @@ export class CentralPptxApi extends Construct {
     };
 
     // Template Upload URL Lambda
-    const getTemplateUploadUrlLambda = new NodejsFunction(this, 'GetTemplateUploadUrl', {
-      ...commonLambdaProps,
-      entry: './lambda/pptx/getTemplateUploadUrl.ts',
-      handler: 'handler',
-    });
+    const getTemplateUploadUrlLambda = new NodejsFunction(
+      this,
+      'GetTemplateUploadUrl',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptx/getTemplateUploadUrl.ts',
+        handler: 'handler',
+      }
+    );
 
     // Create Template Lambda
     const createTemplateLambda = new NodejsFunction(this, 'CreateTemplate', {
@@ -161,11 +179,15 @@ export class CentralPptxApi extends Construct {
     });
 
     // Get Generation Status Lambda
-    const getGenerationStatusLambda = new NodejsFunction(this, 'GetGenerationStatus', {
-      ...commonLambdaProps,
-      entry: './lambda/pptx/getGenerationStatus.ts',
-      handler: 'handler',
-    });
+    const getGenerationStatusLambda = new NodejsFunction(
+      this,
+      'GetGenerationStatus',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptx/getGenerationStatus.ts',
+        handler: 'handler',
+      }
+    );
 
     // List Generations Lambda
     const listGenerationsLambda = new NodejsFunction(this, 'ListGenerations', {
@@ -182,12 +204,16 @@ export class CentralPptxApi extends Construct {
     });
 
     // PPTX Generation Worker Lambda (SQS Consumer)
-    const pptxGenerationWorkerLambda = new NodejsFunction(this, 'PptxGenerationWorker', {
-      ...commonLambdaProps,
-      entry: './lambda/pptxGeneration.ts',
-      handler: 'handler',
-      timeout: Duration.minutes(5), // Longer timeout for PPTX generation
-    });
+    const pptxGenerationWorkerLambda = new NodejsFunction(
+      this,
+      'PptxGenerationWorker',
+      {
+        ...commonLambdaProps,
+        entry: './lambda/pptxGeneration.ts',
+        handler: 'handler',
+        timeout: Duration.minutes(5), // Longer timeout for PPTX generation
+      }
+    );
 
     // Grant SQS consume permissions
     this.generationQueue.grantConsumeMessages(pptxGenerationWorkerLambda);
@@ -255,7 +281,8 @@ export class CentralPptxApi extends Construct {
     );
 
     // GET: /pptx/generation/{generationId}
-    const generationIdResource = generationResource.addResource('{generationId}');
+    const generationIdResource =
+      generationResource.addResource('{generationId}');
     generationIdResource.addMethod(
       'GET',
       new LambdaIntegration(getGenerationStatusLambda),

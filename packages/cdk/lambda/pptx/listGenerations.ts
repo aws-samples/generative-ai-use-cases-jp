@@ -9,7 +9,7 @@ export const handler = async (
     // Get user info from Cognito
     const userId = getUsername(event);
     const tenantId = getTenantId(event);
-    
+
     if (!userId || !tenantId) {
       return {
         statusCode: 401,
@@ -22,8 +22,14 @@ export const handler = async (
     }
 
     // Parse query parameters
-    const limit = Math.min(parseInt(event.queryStringParameters?.limit || '20'), 100);
-    const offset = Math.max(parseInt(event.queryStringParameters?.offset || '0'), 0);
+    const limit = Math.min(
+      parseInt(event.queryStringParameters?.limit || '20'),
+      100
+    );
+    const offset = Math.max(
+      parseInt(event.queryStringParameters?.offset || '0'),
+      0
+    );
 
     // Query generations
     const generations = await findGenerationsByUser(
@@ -39,7 +45,7 @@ export const handler = async (
     }
 
     // Convert to response format
-    const responseGenerations = generations.map(generation => ({
+    const responseGenerations = generations.map((generation) => ({
       generation_id: generation.generationId,
       user_id: generation.userId,
       chat_id: generation.chatId,
@@ -51,7 +57,9 @@ export const handler = async (
       slides: generation.slides,
       created_at: generation.createdAt,
       updated_at: generation.updatedAt,
-      expires_at: generation.ttl ? new Date(generation.ttl * 1000).toISOString() : undefined,
+      expires_at: generation.ttl
+        ? new Date(generation.ttl * 1000).toISOString()
+        : undefined,
     }));
 
     const response = {
@@ -68,7 +76,6 @@ export const handler = async (
       },
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error listing generations:', error);
     return {

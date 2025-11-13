@@ -62,8 +62,7 @@ export const handler = async (
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          message:
-            'Missing required fields: fileName, fileSize, contentType',
+          message: 'Missing required fields: fileName, fileSize, contentType',
         }),
       };
     }

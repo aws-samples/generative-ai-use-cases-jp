@@ -149,97 +149,103 @@ async function handleCreate(
 
       // Process each knowledge source individually to track status per-source
       for (const source of body.knowledgeSources) {
-      try {
-        // Generate ID server-side if not provided (for backward compatibility and URL sources)
-        if (!source.id) {
-          source.id = crypto.randomUUID();
-          console.log(`Generated ID ${source.id} for knowledge source without ID`);
-        }
-
-        console.log(
-          `Processing knowledge source ${source.id} (type=${source.type}, storageKey=${source.storageKey}) for assistant ${cleanAssistantId}`
-        );
-
-        // Update status to SYNCING
-        await updateKnowledgeSourceStatus(
-          assistant,
-          source.id,
-          'SYNCING',
-          undefined,
-          event
-        );
-
-        // Load document for this source
-        const documents = await loadDocuments([source], userId, event);
-
-        // Chunk documents
-        const chunks = await chunkDocuments(documents, 1000, 200);
-
-        // Add metadata
-        const docsWithMetadata = addMetadata(chunks, cleanAssistantId, userId);
-
-        // Index to OpenSearch
-        await indexDocuments(cleanAssistantId, docsWithMetadata, event);
-
-        // Update status to SUCCEEDED
-        await updateKnowledgeSourceStatus(
-          assistant,
-          source.id,
-          'SUCCEEDED',
-          undefined,
-          event
-        );
-
-        console.log(
-          `Successfully ingested knowledge source ${source.id} for assistant ${cleanAssistantId}`
-        );
-      } catch (error) {
-        console.error(
-          `Error ingesting knowledge source ${source.id}:`,
-          error
-        );
-
-        // Update status to FAILED with detailed error message
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-
-          // Extract additional details from OpenSearch ResponseError
-          if ('meta' in error && error.meta) {
-            const meta = error.meta as any;
-            if (meta.statusCode) {
-              errorMessage = `${error.message} (HTTP ${meta.statusCode})`;
-            }
-            if (meta.body && meta.body.Message) {
-              // AWS IAM error message format
-              errorMessage += `: ${meta.body.Message}`;
-            } else if (meta.body && meta.body.error) {
-              // OpenSearch error format
-              if (typeof meta.body.error === 'string') {
-                errorMessage += `: ${meta.body.error}`;
-              } else if (meta.body.error.reason) {
-                errorMessage += `: ${meta.body.error.reason}`;
-              }
-            }
+        try {
+          // Generate ID server-side if not provided (for backward compatibility and URL sources)
+          if (!source.id) {
+            source.id = crypto.randomUUID();
+            console.log(
+              `Generated ID ${source.id} for knowledge source without ID`
+            );
           }
-        }
 
-        if (source.id) {
+          console.log(
+            `Processing knowledge source ${source.id} (type=${source.type}, storageKey=${source.storageKey}) for assistant ${cleanAssistantId}`
+          );
+
+          // Update status to SYNCING
           await updateKnowledgeSourceStatus(
             assistant,
             source.id,
-            'FAILED',
-            errorMessage,
+            'SYNCING',
+            undefined,
             event
-          ).catch((statusError) => {
-            // Don't fail if status update fails
-            console.error('Failed to update source status:', statusError);
-          });
-        }
+          );
 
-        // Don't fail the assistant creation if one source fails
-        // Continue processing other sources
-      }
+          // Load document for this source
+          const documents = await loadDocuments([source], userId, event);
+
+          // Chunk documents
+          const chunks = await chunkDocuments(documents, 1000, 200);
+
+          // Add metadata
+          const docsWithMetadata = addMetadata(
+            chunks,
+            cleanAssistantId,
+            userId
+          );
+
+          // Index to OpenSearch
+          await indexDocuments(cleanAssistantId, docsWithMetadata, event);
+
+          // Update status to SUCCEEDED
+          await updateKnowledgeSourceStatus(
+            assistant,
+            source.id,
+            'SUCCEEDED',
+            undefined,
+            event
+          );
+
+          console.log(
+            `Successfully ingested knowledge source ${source.id} for assistant ${cleanAssistantId}`
+          );
+        } catch (error) {
+          console.error(
+            `Error ingesting knowledge source ${source.id}:`,
+            error
+          );
+
+          // Update status to FAILED with detailed error message
+          let errorMessage = 'Unknown error';
+          if (error instanceof Error) {
+            errorMessage = error.message;
+
+            // Extract additional details from OpenSearch ResponseError
+            if ('meta' in error && error.meta) {
+              const meta = error.meta as any;
+              if (meta.statusCode) {
+                errorMessage = `${error.message} (HTTP ${meta.statusCode})`;
+              }
+              if (meta.body && meta.body.Message) {
+                // AWS IAM error message format
+                errorMessage += `: ${meta.body.Message}`;
+              } else if (meta.body && meta.body.error) {
+                // OpenSearch error format
+                if (typeof meta.body.error === 'string') {
+                  errorMessage += `: ${meta.body.error}`;
+                } else if (meta.body.error.reason) {
+                  errorMessage += `: ${meta.body.error.reason}`;
+                }
+              }
+            }
+          }
+
+          if (source.id) {
+            await updateKnowledgeSourceStatus(
+              assistant,
+              source.id,
+              'FAILED',
+              errorMessage,
+              event
+            ).catch((statusError) => {
+              // Don't fail if status update fails
+              console.error('Failed to update source status:', statusError);
+            });
+          }
+
+          // Don't fail the assistant creation if one source fails
+          // Continue processing other sources
+        }
       }
     } else {
       console.log(
@@ -280,7 +286,7 @@ async function handleList(
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          message: 'Invalid limit parameter. Must be between 1 and 100.'
+          message: 'Invalid limit parameter. Must be between 1 and 100.',
         }),
       };
     }
@@ -309,7 +315,7 @@ async function handleList(
         statusCode: 400,
         headers,
         body: JSON.stringify({
-          message: 'Invalid pagination token. Please start from the beginning.'
+          message: 'Invalid pagination token. Please start from the beginning.',
         }),
       };
     }
@@ -341,7 +347,7 @@ async function handleGet(
       headers,
       body: JSON.stringify({
         message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED'
+        code: 'ASSISTANT_ACCESS_DENIED',
       }),
     };
   }
@@ -389,7 +395,9 @@ async function handleUpdate(
             // Generate ID server-side if not provided (for backward compatibility and URL sources)
             if (!source.id) {
               source.id = crypto.randomUUID();
-              console.log(`Generated ID ${source.id} for knowledge source without ID`);
+              console.log(
+                `Generated ID ${source.id} for knowledge source without ID`
+              );
             }
 
             console.log(
@@ -451,7 +459,8 @@ async function handleUpdate(
               console.error('Failed to update source status:', statusError);
             });
 
-            lastError = error instanceof Error ? error : new Error('Unknown error');
+            lastError =
+              error instanceof Error ? error : new Error('Unknown error');
           }
         }
 
@@ -493,7 +502,7 @@ async function handleUpdate(
         headers,
         body: JSON.stringify({
           message: 'Access denied to this assistant',
-          code: 'ASSISTANT_ACCESS_DENIED'
+          code: 'ASSISTANT_ACCESS_DENIED',
         }),
       };
     }
@@ -519,9 +528,7 @@ async function handleDelete(
     // Delete all indexed documents from OpenSearch
     try {
       await deleteAssistantDocuments(assistantId, event);
-      console.log(
-        `Deleted OpenSearch documents for assistant ${assistantId}`
-      );
+      console.log(`Deleted OpenSearch documents for assistant ${assistantId}`);
     } catch (error) {
       console.error('Error deleting OpenSearch documents:', error);
       // Don't fail the deletion if OpenSearch cleanup fails
@@ -546,7 +553,7 @@ async function handleDelete(
         headers,
         body: JSON.stringify({
           message: 'Access denied to this assistant',
-          code: 'ASSISTANT_ACCESS_DENIED'
+          code: 'ASSISTANT_ACCESS_DENIED',
         }),
       };
     }

@@ -51,9 +51,10 @@ export function validateIpRange(range: string): boolean {
  * @param ranges - Array of IP ranges in CIDR notation
  * @returns Object containing validation status and any errors
  */
-export function validateIpRanges(
-  ranges: string[]
-): { valid: boolean; errors: string[] } {
+export function validateIpRanges(ranges: string[]): {
+  valid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   if (!Array.isArray(ranges)) {
@@ -111,9 +112,7 @@ export function validateIpAccessControl(config: {
   ) {
     const ipv4Validation = validateIpRanges(config.allowedIpV4AddressRanges);
     if (!ipv4Validation.valid) {
-      errors.push(
-        `Invalid IPv4 ranges: ${ipv4Validation.errors.join(', ')}`
-      );
+      errors.push(`Invalid IPv4 ranges: ${ipv4Validation.errors.join(', ')}`);
     }
   }
 
@@ -124,9 +123,7 @@ export function validateIpAccessControl(config: {
   ) {
     const ipv6Validation = validateIpRanges(config.allowedIpV6AddressRanges);
     if (!ipv6Validation.valid) {
-      errors.push(
-        `Invalid IPv6 ranges: ${ipv6Validation.errors.join(', ')}`
-      );
+      errors.push(`Invalid IPv6 ranges: ${ipv6Validation.errors.join(', ')}`);
     }
   }
 

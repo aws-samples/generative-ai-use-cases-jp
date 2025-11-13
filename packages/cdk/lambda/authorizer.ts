@@ -1,4 +1,7 @@
-import { APIGatewayRequestAuthorizerEvent, APIGatewayAuthorizerResult } from 'aws-lambda';
+import {
+  APIGatewayRequestAuthorizerEvent,
+  APIGatewayAuthorizerResult,
+} from 'aws-lambda';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import { DynamoDBClient, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { unmarshall } from '@aws-sdk/util-dynamodb';
@@ -58,7 +61,7 @@ interface AuthorizerClaims {
   'custom:tenant_id': string;
   'custom:tenantAdmin'?: string;
   email?: string;
-  email_verified?: string;  // Must be string for API Gateway
+  email_verified?: string; // Must be string for API Gateway
 }
 
 /**
@@ -73,17 +76,26 @@ export const handler = async (
 
   try {
     // Extract JWT from Authorization header
-    const authHeader = event.headers?.Authorization || event.headers?.authorization;
+    const authHeader =
+      event.headers?.Authorization || event.headers?.authorization;
     if (!authHeader) {
       console.error('Missing Authorization header');
-      return generateDenyPolicy('user', event.methodArn, 'Missing Authorization header');
+      return generateDenyPolicy(
+        'user',
+        event.methodArn,
+        'Missing Authorization header'
+      );
     }
 
     // Extract Bearer token
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) {
       console.error('Invalid Authorization header format');
-      return generateDenyPolicy('user', event.methodArn, 'Invalid Authorization header');
+      return generateDenyPolicy(
+        'user',
+        event.methodArn,
+        'Invalid Authorization header'
+      );
     }
 
     // Verify JWT and extract claims
@@ -93,7 +105,11 @@ export const handler = async (
       console.log('JWT verified successfully');
     } catch (error) {
       console.error('JWT verification failed:', error);
-      return generateDenyPolicy('user', event.methodArn, 'Invalid or expired token');
+      return generateDenyPolicy(
+        'user',
+        event.methodArn,
+        'Invalid or expired token'
+      );
     }
 
     // Extract tenant ID from custom claim
@@ -121,7 +137,11 @@ export const handler = async (
 
       if (!response.Item) {
         console.error(`Tenant not found: ${tenantId}`);
-        return generateDenyPolicy(username, event.methodArn, 'Tenant not found');
+        return generateDenyPolicy(
+          username,
+          event.methodArn,
+          'Tenant not found'
+        );
       }
 
       tenant = unmarshall(response.Item) as Tenant;
@@ -138,10 +158,15 @@ export const handler = async (
     }
 
     // Extract client IP from X-Forwarded-For header (first IP in the list)
-    const xForwardedFor = event.headers?.['X-Forwarded-For'] || event.headers?.['x-forwarded-for'];
+    const xForwardedFor =
+      event.headers?.['X-Forwarded-For'] || event.headers?.['x-forwarded-for'];
     if (!xForwardedFor) {
       console.error('Missing X-Forwarded-For header');
-      return generateDenyPolicy(username, event.methodArn, 'Cannot determine client IP');
+      return generateDenyPolicy(
+        username,
+        event.methodArn,
+        'Cannot determine client IP'
+      );
     }
 
     const clientIp = xForwardedFor.split(',')[0].trim();
@@ -155,7 +180,11 @@ export const handler = async (
 
     if (allowedRanges.length === 0) {
       console.warn('IP access control enabled but no IP ranges configured');
-      return generateDenyPolicy(username, event.methodArn, 'No IP ranges configured');
+      return generateDenyPolicy(
+        username,
+        event.methodArn,
+        'No IP ranges configured'
+      );
     }
 
     const isAllowed = ipRangeCheck(clientIp, allowedRanges);

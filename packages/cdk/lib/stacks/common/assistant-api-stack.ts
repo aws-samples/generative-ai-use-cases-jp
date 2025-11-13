@@ -58,10 +58,7 @@ class AssistantApiStack extends NestedStack {
     const bedrockPolicy = new PolicyStatement({
       effect: Effect.ALLOW,
       resources: ['*'],
-      actions: [
-        'bedrock:InvokeModel',
-        'bedrock:InvokeModelWithResponseStream',
-      ],
+      actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
     });
 
     const assistantApi = new AssistantApi(this, 'AssistantAPI', {
@@ -101,7 +98,10 @@ class AssistantApiStack extends NestedStack {
       api: api.restApi,
       fileBucket,
       commonAuthorizerProps,
-      agentMap: api.agentNames.reduce((acc, name) => ({ ...acc, [name]: { agentId: '', aliasId: '' } }), {}),
+      agentMap: api.agentNames.reduce(
+        (acc, name) => ({ ...acc, [name]: { agentId: '', aliasId: '' } }),
+        {}
+      ),
 
       // Policies
       bedrockPolicy,

@@ -4,11 +4,7 @@ import {
   ListAssistantMessagesResponse,
 } from 'generative-ai-use-cases';
 import * as crypto from 'crypto';
-import {
-  PutCommand,
-  QueryCommand,
-  DeleteCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { PutCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import {
   getTenantDynamoDBDocument,

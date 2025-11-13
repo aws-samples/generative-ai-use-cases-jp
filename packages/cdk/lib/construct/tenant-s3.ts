@@ -196,9 +196,12 @@ export class TenantS3 extends Construct {
     const transcriptsBucketBaseName =
       props.transcriptsBucketBaseName || 'transcripts';
     const videosBucketBaseName = props.videosBucketBaseName || 'videos';
-    const pptxTemplatesBucketBaseName = props.pptxTemplatesBucketBaseName || 'pptx-templates';
-    const pptxOutputsBucketBaseName = props.pptxOutputsBucketBaseName || 'pptx-outputs';
-    const assistantFilesBucketBaseName = props.assistantFilesBucketBaseName || 'assistant-files';
+    const pptxTemplatesBucketBaseName =
+      props.pptxTemplatesBucketBaseName || 'pptx-templates';
+    const pptxOutputsBucketBaseName =
+      props.pptxOutputsBucketBaseName || 'pptx-outputs';
+    const assistantFilesBucketBaseName =
+      props.assistantFilesBucketBaseName || 'assistant-files';
 
     // Generate unique bucket names
     this.documentsBucketName = this.generateUniqueBucketName(
@@ -347,7 +350,13 @@ export class TenantS3 extends Construct {
     // Add CORS configuration for PPTX templates bucket (needed for file uploads from browser)
     this.pptxTemplatesBucket.addCorsRule({
       allowedOrigins: ['*'],
-      allowedMethods: [HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT, HttpMethods.HEAD, HttpMethods.DELETE],
+      allowedMethods: [
+        HttpMethods.GET,
+        HttpMethods.POST,
+        HttpMethods.PUT,
+        HttpMethods.HEAD,
+        HttpMethods.DELETE,
+      ],
       allowedHeaders: ['*'],
       exposedHeaders: [
         'ETag',
@@ -371,11 +380,7 @@ export class TenantS3 extends Construct {
       allowedOrigins: ['*'],
       allowedMethods: [HttpMethods.GET, HttpMethods.HEAD],
       allowedHeaders: ['*'],
-      exposedHeaders: [
-        'ETag',
-        'x-amz-request-id',
-        'x-amz-id-2',
-      ],
+      exposedHeaders: ['ETag', 'x-amz-request-id', 'x-amz-id-2'],
       maxAge: 3000,
     });
 

@@ -2,7 +2,11 @@ import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import PptxGenJS from 'pptxgenjs';
-import { getPptxGenerationsTableName, getPptxTemplatesBucketName, getPptxOutputsBucketName } from './pptx/tenantPptxConfig';
+import {
+  getPptxGenerationsTableName,
+  getPptxTemplatesBucketName,
+  getPptxOutputsBucketName,
+} from './pptx/tenantPptxConfig';
 import { loadTemplate } from './pptx/pptxService';
 import api from './utils/api';
 import { Model } from 'generative-ai-use-cases';
@@ -34,7 +38,10 @@ interface SlideContent {
 }
 
 export const handler = async (event: SQSEvent): Promise<void> => {
-  console.log('Processing PPTX generation requests:', JSON.stringify(event, null, 2));
+  console.log(
+    'Processing PPTX generation requests:',
+    JSON.stringify(event, null, 2)
+  );
 
   for (const record of event.Records) {
     await processGenerationRecord(record);
@@ -53,17 +60,18 @@ async function generateSlideContentWithAI(
     modelId,
     type: modelType,
     ...(modelType === 'bedrock' && {
-      region: process.env.MODEL_REGION || 'us-east-1'
-    })
+      region: process.env.MODEL_REGION || 'us-east-1',
+    }),
   };
 
   const slideCountInstruction = message.slide_count
     ? `Create exactly ${message.slide_count} content slides.`
     : 'Create an appropriate number of content slides (5-10).';
 
-  const titleSlideInstruction = message.include_title_slide !== false
-    ? 'Include a title slide as the first slide.'
-    : 'Do not include a title slide.';
+  const titleSlideInstruction =
+    message.include_title_slide !== false
+      ? 'Include a title slide as the first slide.'
+      : 'Do not include a title slide.';
 
   const summarySlideInstruction = message.include_summary_slide
     ? 'Include a summary slide as the last slide.'
@@ -120,7 +128,10 @@ For the title slide use layout: "title" and put subtitle in content field.`;
       notes: slide.notes,
     }));
   } catch (error) {
-    console.error('AI generation failed, falling back to manual extraction:', error);
+    console.error(
+      'AI generation failed, falling back to manual extraction:',
+      error
+    );
     // Fallback to manual extraction
     return extractSlidesFromInstructions(message);
   }
@@ -131,7 +142,12 @@ async function processGenerationRecord(record: SQSRecord): Promise<void> {
     const message: GenerationMessage = JSON.parse(record.body);
     console.log('Processing generation:', message.generation_id);
 
-    await updateGenerationStatus(message.generation_id, message.user_id, message.tenant_id, 'generating');
+    await updateGenerationStatus(
+      message.generation_id,
+      message.user_id,
+      message.tenant_id,
+      'generating'
+    );
 
     // Extract slide content from instructions using AI if model_id is provided
     const slides = message.model_id
@@ -141,7 +157,10 @@ async function processGenerationRecord(record: SQSRecord): Promise<void> {
     // Load template if provided
     let templateBuffer: Buffer | undefined;
     if (message.template_s3_key) {
-      templateBuffer = await loadTemplate(message.tenant_id, message.template_s3_key);
+      templateBuffer = await loadTemplate(
+        message.tenant_id,
+        message.template_s3_key
+      );
     }
 
     // Generate PPTX
@@ -163,7 +182,6 @@ async function processGenerationRecord(record: SQSRecord): Promise<void> {
     );
 
     console.log('Completed generation:', message.generation_id);
-
   } catch (error) {
     console.error('Failed to process generation:', error);
 
@@ -179,13 +197,17 @@ async function processGenerationRecord(record: SQSRecord): Promise<void> {
   }
 }
 
-function extractSlidesFromInstructions(message: GenerationMessage): SlideContent[] {
+function extractSlidesFromInstructions(
+  message: GenerationMessage
+): SlideContent[] {
   const slides: SlideContent[] = [];
   let currentSlideNumber = 1;
 
   // Add title slide if requested
   if (message.include_title_slide !== false) {
-    const titleLines = message.instructions.split('\n').filter(line => line.trim());
+    const titleLines = message.instructions
+      .split('\n')
+      .filter((line) => line.trim());
     const title = titleLines[0] || 'Presentation';
     const subtitle = titleLines[1] || 'Generated with AI';
 
@@ -208,7 +230,7 @@ function extractSlidesFromInstructions(message: GenerationMessage): SlideContent
     if (!trimmedLine) continue;
 
     // Check if line looks like a slide title
-    const isSlideTitle = 
+    const isSlideTitle =
       trimmedLine.startsWith('#') ||
       (trimmedLine.length < 50 && trimmedLine.endsWith(':')) ||
       trimmedLine.toLowerCase().startsWith('slide ');
@@ -226,7 +248,10 @@ function extractSlidesFromInstructions(message: GenerationMessage): SlideContent
       }
 
       // Start new slide
-      currentSlideTitle = trimmedLine.replace(/^#+\s*/, '').replace(/:$/, '').trim();
+      currentSlideTitle = trimmedLine
+        .replace(/^#+\s*/, '')
+        .replace(/:$/, '')
+        .trim();
       currentSlideContent = [];
     } else {
       // Add to current slide content
@@ -280,7 +305,10 @@ function extractSlidesFromInstructions(message: GenerationMessage): SlideContent
   return slides;
 }
 
-async function generatePptx(slides: SlideContent[], templateBuffer?: Buffer): Promise<Buffer> {
+async function generatePptx(
+  slides: SlideContent[],
+  templateBuffer?: Buffer
+): Promise<Buffer> {
   console.log('Generating PPTX with', slides.length, 'slides');
 
   const pptx = new PptxGenJS();
@@ -289,14 +317,17 @@ async function generatePptx(slides: SlideContent[], templateBuffer?: Buffer): Pr
   if (templateBuffer) {
     // Note: PptxGenJS doesn't directly support loading from buffer
     // In a production environment, you might need to save to temp file first
-    console.log('Template provided but loading from buffer not directly supported');
+    console.log(
+      'Template provided but loading from buffer not directly supported'
+    );
   }
 
   // Configure presentation properties
   pptx.author = 'AI Assistant';
   pptx.company = 'Generated Presentations';
   pptx.subject = 'AI Generated Presentation';
-  pptx.title = slides.find(s => s.layout === 'title')?.title || 'Presentation';
+  pptx.title =
+    slides.find((s) => s.layout === 'title')?.title || 'Presentation';
 
   // Generate slides
   for (const slideData of slides) {
@@ -340,15 +371,18 @@ async function generatePptx(slides: SlideContent[], templateBuffer?: Buffer): Pr
       });
 
       // Split content into bullet points if it contains line breaks
-      const contentLines = slideData.content.split('\n').filter(line => line.trim());
+      const contentLines = slideData.content
+        .split('\n')
+        .filter((line) => line.trim());
 
       if (contentLines.length > 1) {
         // Multi-line content as bullet points
-        const bulletPoints = contentLines.map(line => {
+        const bulletPoints = contentLines.map((line) => {
           const trimmed = line.trim();
-          const text = trimmed.startsWith('•') || trimmed.startsWith('-')
-            ? trimmed.slice(1).trim()
-            : trimmed;
+          const text =
+            trimmed.startsWith('•') || trimmed.startsWith('-')
+              ? trimmed.slice(1).trim()
+              : trimmed;
           return { text };
         });
 
@@ -385,10 +419,16 @@ async function generatePptx(slides: SlideContent[], templateBuffer?: Buffer): Pr
   // Generate the PPTX file as buffer
   const pptxData = await pptx.write({ outputType: 'nodebuffer' });
   // pptxData is guaranteed to be Buffer when outputType is 'nodebuffer'
-  return Buffer.isBuffer(pptxData) ? pptxData : Buffer.from(pptxData as Uint8Array);
+  return Buffer.isBuffer(pptxData)
+    ? pptxData
+    : Buffer.from(pptxData as Uint8Array);
 }
 
-async function uploadPptx(tenantId: string, s3Key: string, buffer: Buffer): Promise<void> {
+async function uploadPptx(
+  tenantId: string,
+  s3Key: string,
+  buffer: Buffer
+): Promise<void> {
   const bucket = await getPptxOutputsBucketName(tenantId);
 
   console.log('Uploading PPTX to:', { bucket, s3Key, tenantId });
@@ -400,7 +440,8 @@ async function uploadPptx(tenantId: string, s3Key: string, buffer: Buffer): Prom
     Bucket: bucket,
     Key: s3Key,
     Body: buffer,
-    ContentType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    ContentType:
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     ContentDisposition: 'attachment; filename="presentation.pptx"',
   });
 
@@ -419,7 +460,8 @@ async function updateGenerationStatus(
   console.log('Updating generation status:', generationId, status);
 
   // Create tenant-specific DynamoDB client for cross-account access
-  const dynamoClient = await createTenantDynamoDBClientForBackgroundJob(tenantId);
+  const dynamoClient =
+    await createTenantDynamoDBClientForBackgroundJob(tenantId);
   const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
   let updateExpression = 'SET #status = :status, updatedAt = :updatedAt';

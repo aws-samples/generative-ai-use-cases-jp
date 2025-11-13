@@ -3,7 +3,11 @@
  * Reuses existing tenant S3 utilities for bucket name generation
  */
 
-import { getTenantBucketNameByTenantId, isDefaultTenant, extractAccountIdFromRoleArn } from '../utils/tenantS3Utils';
+import {
+  getTenantBucketNameByTenantId,
+  isDefaultTenant,
+  extractAccountIdFromRoleArn,
+} from '../utils/tenantS3Utils';
 import { getTenant } from '../tenantManager';
 
 const ENVIRONMENT = process.env.ENVIRONMENT!;
@@ -39,7 +43,9 @@ export function getPptxGenerationsTableName(tenantId: string): string {
  * Uses existing tenant S3 utilities for deterministic bucket name generation
  * Format: {baseName}-{environment}-tenant-{tenantId}-{guidHash}
  */
-export async function getPptxTemplatesBucketName(tenantId: string): Promise<string> {
+export async function getPptxTemplatesBucketName(
+  tenantId: string
+): Promise<string> {
   // For default tenant, use main account ID
   if (isDefaultTenant(tenantId)) {
     return getTenantBucketNameByTenantId(
@@ -66,7 +72,9 @@ export async function getPptxTemplatesBucketName(tenantId: string): Promise<stri
       );
     }
 
-    console.log(`Using tenant account ID for bucket name generation: ${tenantAccountId}`);
+    console.log(
+      `Using tenant account ID for bucket name generation: ${tenantAccountId}`
+    );
 
     return getTenantBucketNameByTenantId(
       tenantId,
@@ -87,7 +95,9 @@ export async function getPptxTemplatesBucketName(tenantId: string): Promise<stri
  * Uses existing tenant S3 utilities for deterministic bucket name generation
  * Format: {baseName}-{environment}-tenant-{tenantId}-{guidHash}
  */
-export async function getPptxOutputsBucketName(tenantId: string): Promise<string> {
+export async function getPptxOutputsBucketName(
+  tenantId: string
+): Promise<string> {
   // For default tenant, use main account ID
   if (isDefaultTenant(tenantId)) {
     return getTenantBucketNameByTenantId(
@@ -114,7 +124,9 @@ export async function getPptxOutputsBucketName(tenantId: string): Promise<string
       );
     }
 
-    console.log(`Using tenant account ID for bucket name generation: ${tenantAccountId}`);
+    console.log(
+      `Using tenant account ID for bucket name generation: ${tenantAccountId}`
+    );
 
     return getTenantBucketNameByTenantId(
       tenantId,

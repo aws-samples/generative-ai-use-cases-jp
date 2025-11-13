@@ -22,10 +22,17 @@ export const handler = async (
     }
 
     // Parse query parameters
-    const includePublic = event.queryStringParameters?.include_public !== 'false';
+    const includePublic =
+      event.queryStringParameters?.include_public !== 'false';
     const userOnly = event.queryStringParameters?.user_only === 'true';
-    const limit = Math.min(parseInt(event.queryStringParameters?.limit || '20'), 100);
-    const offset = Math.max(parseInt(event.queryStringParameters?.offset || '0'), 0);
+    const limit = Math.min(
+      parseInt(event.queryStringParameters?.limit || '20'),
+      100
+    );
+    const offset = Math.max(
+      parseInt(event.queryStringParameters?.offset || '0'),
+      0
+    );
 
     // Query templates
     const templates = await findTemplatesByTenant(
@@ -42,7 +49,7 @@ export const handler = async (
     }
 
     // Convert to response format
-    const responseTemplates = templates.map(template => ({
+    const responseTemplates = templates.map((template) => ({
       template_id: template.templateId,
       tenant_id: template.tenantId,
       user_id: template.userId,
@@ -70,7 +77,6 @@ export const handler = async (
       },
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error listing templates:', error);
     return {

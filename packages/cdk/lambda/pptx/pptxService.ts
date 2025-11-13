@@ -1,10 +1,20 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  GetObjectCommand,
+  PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { v4 as uuid4 } from 'uuid';
-import { getPptxTemplatesBucketName, getPptxOutputsBucketName } from './tenantPptxConfig';
-import { createTenantS3Client, createTenantS3ClientForBackgroundJob } from '../utils/tenantS3Client';
+import {
+  getPptxTemplatesBucketName,
+  getPptxOutputsBucketName,
+} from './tenantPptxConfig';
+import {
+  createTenantS3Client,
+  createTenantS3ClientForBackgroundJob,
+} from '../utils/tenantS3Client';
 import { isDefaultTenant } from '../utils/tenantS3Utils';
 
 // Initialize AWS clients
@@ -44,13 +54,15 @@ export async function generatePresignedUploadUrl(
   fileType: string = 'template'
 ): Promise<PresignedUrlResponse> {
   // Dynamically resolve bucket name based on tenant using existing utilities
-  const bucket = fileType === 'template'
-    ? await getPptxTemplatesBucketName(tenantId)
-    : await getPptxOutputsBucketName(tenantId);
+  const bucket =
+    fileType === 'template'
+      ? await getPptxTemplatesBucketName(tenantId)
+      : await getPptxOutputsBucketName(tenantId);
 
-  const prefix = fileType === 'template'
-    ? `templates/${tenantId}/${userId}`
-    : `outputs/${tenantId}/${userId}`;
+  const prefix =
+    fileType === 'template'
+      ? `templates/${tenantId}/${userId}`
+      : `outputs/${tenantId}/${userId}`;
 
   // Add detailed logging for debugging
   console.log('generatePresignedUploadUrl called:', {
@@ -74,7 +86,9 @@ export async function generatePresignedUploadUrl(
         return s3Client;
       })()
     : await (() => {
-        console.log('Creating tenant-specific S3 client for presigned URL generation');
+        console.log(
+          'Creating tenant-specific S3 client for presigned URL generation'
+        );
         return createTenantS3Client(event);
       })();
 
@@ -127,7 +141,9 @@ export async function getPptxDownloadUrl(
     expiresIn,
   });
 
-  console.log(`Generated presigned URL for download: ${s3Key}, tenant: ${tenantId}`);
+  console.log(
+    `Generated presigned URL for download: ${s3Key}, tenant: ${tenantId}`
+  );
   return presignedUrl;
 }
 
@@ -184,10 +200,15 @@ export async function startPptxGeneration(
   });
 
   const response = await sqsClient.send(command);
-  console.log(`Queued PPTX generation: ${generationId}, Message ID: ${response.MessageId}`);
+  console.log(
+    `Queued PPTX generation: ${generationId}, Message ID: ${response.MessageId}`
+  );
 }
 
-export async function loadTemplate(tenantId: string, s3Key: string): Promise<Buffer> {
+export async function loadTemplate(
+  tenantId: string,
+  s3Key: string
+): Promise<Buffer> {
   const bucket = await getPptxTemplatesBucketName(tenantId);
 
   console.log('Loading template from S3:', { bucket, s3Key, tenantId });

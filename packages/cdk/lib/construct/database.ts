@@ -89,19 +89,23 @@ export class Database extends Construct {
     });
 
     // Assistant messages table for storing conversation history
-    const assistantMessagesTable = new ddb.Table(this, 'AssistantMessagesTable', {
-      partitionKey: {
-        name: 'assistantId',
-        type: ddb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'messageId',
-        type: ddb.AttributeType.STRING,
-      },
-      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-      encryption: ddb.TableEncryption.AWS_MANAGED,
-      pointInTimeRecovery: true,
-    });
+    const assistantMessagesTable = new ddb.Table(
+      this,
+      'AssistantMessagesTable',
+      {
+        partitionKey: {
+          name: 'assistantId',
+          type: ddb.AttributeType.STRING,
+        },
+        sortKey: {
+          name: 'messageId',
+          type: ddb.AttributeType.STRING,
+        },
+        billingMode: ddb.BillingMode.PAY_PER_REQUEST,
+        encryption: ddb.TableEncryption.AWS_MANAGED,
+        pointInTimeRecovery: true,
+      }
+    );
 
     this.table = table;
     this.statsTable = statsTable;

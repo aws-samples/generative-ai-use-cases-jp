@@ -155,11 +155,8 @@ export async function updateTenant(
     }
 
     // Validate OpenSearch fields - all must be provided together or all must be null/empty for removal
-    const {
-      openSearchDomainArn,
-      openSearchEndpoint,
-      openSearchIndexName,
-    } = request;
+    const { openSearchDomainArn, openSearchEndpoint, openSearchIndexName } =
+      request;
     const hasOpenSearchArn = openSearchDomainArn !== undefined;
     const hasOpenSearchEndpoint = openSearchEndpoint !== undefined;
     const hasOpenSearchIndex = openSearchIndexName !== undefined;
@@ -253,9 +250,11 @@ export async function updateTenant(
         updateExpression.push('#openSearchDomainArn = :openSearchDomainArn');
         updateExpression.push('#openSearchEndpoint = :openSearchEndpoint');
         updateExpression.push('#openSearchIndexName = :openSearchIndexName');
-        expressionAttributeNames['#openSearchDomainArn'] = 'openSearchDomainArn';
+        expressionAttributeNames['#openSearchDomainArn'] =
+          'openSearchDomainArn';
         expressionAttributeNames['#openSearchEndpoint'] = 'openSearchEndpoint';
-        expressionAttributeNames['#openSearchIndexName'] = 'openSearchIndexName';
+        expressionAttributeNames['#openSearchIndexName'] =
+          'openSearchIndexName';
         expressionAttributeValues[':openSearchDomainArn'] = openSearchDomainArn;
         expressionAttributeValues[':openSearchEndpoint'] = openSearchEndpoint;
         expressionAttributeValues[':openSearchIndexName'] = openSearchIndexName;
@@ -264,9 +263,11 @@ export async function updateTenant(
         removeExpression.push('#openSearchDomainArn');
         removeExpression.push('#openSearchEndpoint');
         removeExpression.push('#openSearchIndexName');
-        expressionAttributeNames['#openSearchDomainArn'] = 'openSearchDomainArn';
+        expressionAttributeNames['#openSearchDomainArn'] =
+          'openSearchDomainArn';
         expressionAttributeNames['#openSearchEndpoint'] = 'openSearchEndpoint';
-        expressionAttributeNames['#openSearchIndexName'] = 'openSearchIndexName';
+        expressionAttributeNames['#openSearchIndexName'] =
+          'openSearchIndexName';
       }
     }
 

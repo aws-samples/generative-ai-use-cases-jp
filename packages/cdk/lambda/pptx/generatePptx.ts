@@ -1,7 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { v4 as uuid4 } from 'uuid';
 import { createGeneration, findTemplateById } from './pptxRepository';
-import { startPptxGeneration, validateSlideCount, validateInstructions } from './pptxService';
+import {
+  startPptxGeneration,
+  validateSlideCount,
+  validateInstructions,
+} from './pptxService';
 import { getUsername, getTenantId } from '../utils/tenantUtils';
 
 interface GenerateRequest {
@@ -67,7 +71,7 @@ export const handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
-          message: 'Instructions must be between 1 and 5000 characters'
+          message: 'Instructions must be between 1 and 5000 characters',
         }),
       };
     }
@@ -80,7 +84,7 @@ export const handler = async (
           'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
-          message: 'Slide count must be between 1 and 50'
+          message: 'Slide count must be between 1 and 50',
         }),
       };
     }
@@ -101,16 +105,20 @@ export const handler = async (
       }
 
       // Check if user has access to template
-      if (template.isPublic !== 'true' &&
+      if (
+        template.isPublic !== 'true' &&
         template.userId !== userId &&
-        template.tenantId !== tenantId) {
+        template.tenantId !== tenantId
+      ) {
         return {
           statusCode: 403,
           headers: {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
           },
-          body: JSON.stringify({ message: 'Not authorized to use this template' }),
+          body: JSON.stringify({
+            message: 'Not authorized to use this template',
+          }),
         };
       }
     }
@@ -159,7 +167,9 @@ export const handler = async (
       slides: generation.slides,
       created_at: generation.createdAt,
       updated_at: generation.updatedAt,
-      expires_at: generation.ttl ? new Date(generation.ttl * 1000).toISOString() : undefined,
+      expires_at: generation.ttl
+        ? new Date(generation.ttl * 1000).toISOString()
+        : undefined,
     };
 
     return {
@@ -170,7 +180,6 @@ export const handler = async (
       },
       body: JSON.stringify(response),
     };
-
   } catch (error) {
     console.error('Error generating PPTX:', error);
     return {
