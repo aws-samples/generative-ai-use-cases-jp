@@ -30,11 +30,25 @@ export type Assistant = {
   updatedDate: string;
 };
 
+/**
+ * Assistant message stored in DynamoDB
+ * @property id - chatId - partition key (chat#uuid)
+ * @property createdDate - sort key: timestamp#uuid (same as messageId)
+ * @property messageId - timestamp#uuid
+ * @property assistantId - For API response only, not stored
+ * @property chatId - Conversation identifier (chat#uuid), same as id
+ * @property userId - User identifier
+ * @property role - Message role
+ * @property content - Message content
+ * @property [sources] - Optional message sources
+ * @property [metadata] - Optional metadata
+ */
 export type AssistantMessage = {
-  id: string; // assistantId - partition key
-  createdDate: string; // Derived from messageId timestamp
-  messageId: string; // sort key: timestamp#uuid
-  assistantId: string; // Duplicate for clarity, same as id
+  id: string;
+  createdDate: string;
+  messageId: string;
+  assistantId: string;
+  chatId: string;
   userId: string;
   role: 'user' | 'assistant';
   content: string;

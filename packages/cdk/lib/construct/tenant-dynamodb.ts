@@ -66,11 +66,6 @@ export class TenantDynamoDB extends Construct {
   public readonly assistantTable: dynamodb.Table;
 
   /**
-   * The assistant messages table for the tenant
-   */
-  public readonly assistantMessagesTable: dynamodb.Table;
-
-  /**
    * The tenant ID
    */
   public readonly tenantId: string;
@@ -94,11 +89,6 @@ export class TenantDynamoDB extends Construct {
    * Assistant table name
    */
   public readonly assistantTableName: string;
-
-  /**
-   * Assistant messages table name
-   */
-  public readonly assistantMessagesTableName: string;
 
   constructor(scope: Construct, id: string, props: TenantDynamoDBProps) {
     super(scope, id);
@@ -127,7 +117,6 @@ export class TenantDynamoDB extends Construct {
     this.tokenUsageStatsTableName = `${tokenUsageStatsBaseName}-${environment}-tenant-${sanitizedTenantId}`;
     this.useCaseBuilderTableName = `${useCaseBuilderBaseName}-${environment}-tenant-${sanitizedTenantId}`;
     this.assistantTableName = `Assistant-${environment}-tenant-${sanitizedTenantId}`;
-    this.assistantMessagesTableName = `AssistantMessages-${environment}-tenant-${sanitizedTenantId}`;
 
     // Determine removal policy based on environment
     const removalPolicy =
@@ -281,31 +270,6 @@ export class TenantDynamoDB extends Construct {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
-    // Assistant Messages Table
-    this.assistantMessagesTable = new dynamodb.Table(
-      this,
-      'AssistantMessagesTable',
-      {
-        tableName: this.assistantMessagesTableName,
-        partitionKey: {
-          name: 'assistantId',
-          type: dynamodb.AttributeType.STRING,
-        },
-        sortKey: {
-          name: 'messageId',
-          type: dynamodb.AttributeType.STRING,
-        },
-        billingMode: props.billingMode || dynamodb.BillingMode.PAY_PER_REQUEST,
-        encryption: dynamodb.TableEncryption.AWS_MANAGED,
-        pointInTimeRecovery: true,
-        removalPolicy: removalPolicy,
-      }
-    );
-
-    // Add tags to Assistant Messages table
-    cdk.Tags.of(this.assistantMessagesTable).add('TenantId', this.tenantId);
-    cdk.Tags.of(this.assistantMessagesTable).add('Environment', environment);
-
     // Output table ARNs
     new cdk.CfnOutput(this, 'ChatHistoryTableArn', {
       value: this.chatHistoryTable.tableArn,
@@ -348,16 +312,6 @@ export class TenantDynamoDB extends Construct {
     new cdk.CfnOutput(this, 'AssistantTableName', {
       value: this.assistantTable.tableName,
       description: `Name of the assistant table for tenant ${this.tenantId}`,
-    });
-
-    new cdk.CfnOutput(this, 'AssistantMessagesTableArn', {
-      value: this.assistantMessagesTable.tableArn,
-      description: `ARN of the assistant messages table for tenant ${this.tenantId}`,
-    });
-
-    new cdk.CfnOutput(this, 'AssistantMessagesTableName', {
-      value: this.assistantMessagesTable.tableName,
-      description: `Name of the assistant messages table for tenant ${this.tenantId}`,
     });
   }
 

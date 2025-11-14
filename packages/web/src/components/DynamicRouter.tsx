@@ -39,7 +39,6 @@ import GenerateDiagramPage from '../pages/GenerateDiagramPage';
 import PptxGenerationPage from '../pages/PptxGenerationPage';
 import WriterPage from '../pages/WriterPage';
 import AssistantChatPage from '../pages/AssistantChatPage';
-import AssistantHistoryPage from '../pages/AssistantHistoryPage';
 import AdminPortal from '../pages/AdminPortal';
 
 interface DynamicRouterProps {
@@ -123,10 +122,6 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
         {
           path: 'assistants/chat/:assistantId/:conversationId',
           element: <AssistantChatPage />,
-        },
-        {
-          path: 'assistants/history',
-          element: <AssistantHistoryPage />,
         },
       ],
     },

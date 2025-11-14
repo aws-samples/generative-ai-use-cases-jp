@@ -8,7 +8,7 @@ import {
   updateKnowledgeSourceStatus,
   updateAssistantSyncStatus,
 } from './repository/assistant';
-import { deleteMessagesForAssistant } from './repository/assistantMessage';
+import { deleteAllMessagesForAssistant } from './repository/chat';
 import {
   loadDocuments,
   chunkDocuments,
@@ -523,7 +523,7 @@ async function handleDelete(
     await deleteAssistant(assistantId, userId, event);
 
     // Delete all messages after ownership verification
-    await deleteMessagesForAssistant(assistantId, event);
+    await deleteAllMessagesForAssistant(assistantId, event);
 
     // Delete all indexed documents from OpenSearch
     try {

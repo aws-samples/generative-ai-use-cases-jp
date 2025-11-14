@@ -1,6 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import * as crypto from 'crypto';
 import { getAssistant } from './repository/assistant';
-import { createMessage, listMessages } from './repository/assistantMessage';
+import {
+  createAssistantChat,
+  createAssistantMessage,
+  findChatById,
+  listAssistantMessages,
+  updateChatUpdatedDate,
+} from './repository/chat';
 import {
   CreateAssistantMessageRequest,
   AssistantMessage,
@@ -24,15 +31,16 @@ const headers = {
 };
 
 /**
- * Helper function to strip the "assistant#" prefix from assistantId in messages
- * Internal storage uses "assistant#<uuid>" format, but API returns clean UUID
+ * Helper function to add assistantId to messages for API response
+ * Messages are stored without assistantId, but API expects it
  */
-function stripAssistantPrefixFromMessage(
-  message: AssistantMessage
+function addAssistantIdToMessage(
+  message: AssistantMessage,
+  assistantId: string
 ): AssistantMessage {
   return {
     ...message,
-    assistantId: message.assistantId.replace('assistant#', ''),
+    assistantId,
   };
 }
 
@@ -101,6 +109,21 @@ async function handleCreateMessage(
       body: JSON.stringify({ message: 'Missing content' }),
     };
   }
+
+  // Get or create chatId for this conversation
+  // Can come from query params or body, if not provided, create a new conversation
+  const bodyChatId = (
+    body as CreateAssistantMessageRequest & { chatId?: string }
+  ).chatId;
+  let chatId = event.queryStringParameters?.chatId || bodyChatId;
+  const isNewConversation = !chatId;
+
+  if (!chatId) {
+    chatId = crypto.randomUUID();
+  }
+
+  // Remove chat# prefix if present to ensure consistent format
+  const cleanChatId = chatId.replace('chat#', '');
 
   // Get assistant configuration
   const assistant = await getAssistant(assistantId, event);
@@ -176,8 +199,8 @@ async function handleCreateMessage(
   );
 
   // Store user message
-  await createMessage(
-    assistantId,
+  await createAssistantMessage(
+    cleanChatId,
     userId,
     'user',
     body.content,
@@ -185,6 +208,18 @@ async function handleCreateMessage(
     undefined,
     event
   );
+
+  // Create chat history entry only for new conversations
+  // This ensures the assistant conversation appears in the unified chat history
+  if (isNewConversation) {
+    await createAssistantChat(
+      userId,
+      assistantId,
+      cleanChatId,
+      assistant.name,
+      event
+    );
+  }
 
   // RAG context retrieval from OpenSearch when ragEnabled is true
   let ragContext = '';
@@ -288,8 +323,8 @@ async function handleCreateMessage(
   };
 
   // Store assistant response with sources
-  const assistantMessage = await createMessage(
-    assistantId,
+  const assistantMessage = await createAssistantMessage(
+    cleanChatId,
     userId,
     'assistant',
     assistantResponse,
@@ -298,10 +333,19 @@ async function handleCreateMessage(
     event
   );
 
+  // Update the chat's updatedDate to reflect the latest activity
+  const chatRecord = await findChatById(userId, cleanChatId, event);
+  if (chatRecord) {
+    await updateChatUpdatedDate(chatRecord.id, chatRecord.createdDate, event);
+  }
+
   return {
     statusCode: 200,
     headers,
-    body: JSON.stringify(stripAssistantPrefixFromMessage(assistantMessage)),
+    body: JSON.stringify({
+      ...addAssistantIdToMessage(assistantMessage, assistantId),
+      chatId: cleanChatId, // Return chatId to frontend for routing
+    }),
   };
 }
 
@@ -336,23 +380,36 @@ async function handleListMessages(
     };
   }
 
+  const chatId = event.queryStringParameters?.chatId;
+
+  // TODO: 将来的には統合チャット履歴のメッセージ取得に置き換える予定
+  if (!chatId) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ message: 'Missing chatId parameter' }),
+    };
+  }
+
   const exclusiveStartKey = event.queryStringParameters?.exclusiveStartKey;
   const limit = event.queryStringParameters?.limit
     ? parseInt(event.queryStringParameters.limit)
     : undefined;
 
-  const result = await listMessages(
-    assistantId,
+  const result = await listAssistantMessages(
     userId,
+    chatId,
     event,
     exclusiveStartKey,
     limit
   );
 
-  // Strip prefix from all messages
+  // Add assistantId to all messages for API response
   const sanitizedResult: ListAssistantMessagesResponse = {
     ...result,
-    messages: result.messages.map(stripAssistantPrefixFromMessage),
+    messages: result.messages.map((msg) =>
+      addAssistantIdToMessage(msg, assistantId)
+    ),
   };
 
   return {

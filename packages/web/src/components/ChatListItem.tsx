@@ -40,6 +40,16 @@ const ChatListItem: React.FC<Props> = (props) => {
     return decomposeId(props.chat.chatId) ?? '';
   }, [props.chat.chatId]);
 
+  const isAssistantChat = props.chat.conversationType === 'assistant';
+  const linkPath = useMemo(() => {
+    if (isAssistantChat && props.chat.assistantId) {
+      const cleanAssistantId = decomposeId(props.chat.assistantId);
+      // For assistant chats, include the chatId (conversation ID) in the route
+      return `/chat/assistants/chat/${cleanAssistantId}/${chatId}`;
+    }
+    return `/chat/${chatId}`;
+  }, [isAssistantChat, props.chat.assistantId, chatId]);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [tempTitle, setTempTitle] = useState('');
@@ -59,7 +69,7 @@ const ChatListItem: React.FC<Props> = (props) => {
 
   useLayoutEffect(() => {
     if (editing) {
-      const listener = (e: DocumentEventMap['keypress']) => {
+      const listener = (e: KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
 
@@ -120,7 +130,9 @@ const ChatListItem: React.FC<Props> = (props) => {
 
   // 日付のフォーマット
   const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
+    // Parse as timestamp (numeric string) or ISO date string
+    const timestamp = parseInt(dateString, 10);
+    const date = isNaN(timestamp) ? new Date(dateString) : new Date(timestamp);
     const now = new Date();
     const diffInHours = Math.floor(
       (now.getTime() - date.getTime()) / (1000 * 60 * 60)
@@ -161,7 +173,7 @@ const ChatListItem: React.FC<Props> = (props) => {
           className={`group flex w-full flex-col justify-start rounded p-2 hover:bg-blue-50 ${
             props.active && 'bg-blue-100'
           } ${props.className}`}
-          to={`/chat/${chatId}`}
+          to={linkPath}
           onClick={(e) => {
             // 編集中やメニュー表示中はリンク遷移を無効化
             if (editing || showMenu) {

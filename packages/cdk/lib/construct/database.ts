@@ -6,7 +6,6 @@ export class Database extends Construct {
   public readonly statsTable: ddb.Table;
   public readonly feedbackIndexName: string;
   public readonly assistantTable: ddb.Table;
-  public readonly assistantMessagesTable: ddb.Table;
   public readonly assistantIdIndexName: string;
   public readonly tenantVisibilityIndexName: string;
 
@@ -88,30 +87,10 @@ export class Database extends Construct {
       projectionType: ddb.ProjectionType.ALL,
     });
 
-    // Assistant messages table for storing conversation history
-    const assistantMessagesTable = new ddb.Table(
-      this,
-      'AssistantMessagesTable',
-      {
-        partitionKey: {
-          name: 'assistantId',
-          type: ddb.AttributeType.STRING,
-        },
-        sortKey: {
-          name: 'messageId',
-          type: ddb.AttributeType.STRING,
-        },
-        billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-        encryption: ddb.TableEncryption.AWS_MANAGED,
-        pointInTimeRecovery: true,
-      }
-    );
-
     this.table = table;
     this.statsTable = statsTable;
     this.feedbackIndexName = feedbackIndexName;
     this.assistantTable = assistantTable;
-    this.assistantMessagesTable = assistantMessagesTable;
     this.assistantIdIndexName = assistantIdIndexName;
     this.tenantVisibilityIndexName = tenantVisibilityIndexName;
   }

@@ -4,10 +4,7 @@ import { Construct } from 'constructs';
 import { LAMBDA_RUNTIME_NODEJS } from '../../../consts';
 import { Duration } from 'aws-cdk-lib';
 import { getBaseEnvironment } from './util';
-import {
-  ASSISTANT_TABLE_PREFIX,
-  ASSISTANT_MESSAGES_TABLE_PREFIX,
-} from './const';
+import { ASSISTANT_TABLE_PREFIX } from './const';
 import { GenericApiProps } from './props';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -27,7 +24,7 @@ class AssistantApi extends Construct {
       api,
       commonAuthorizerProps,
       assistantTable,
-      assistantMessagesTable,
+      table,
       tenantManager,
       fileBucket,
     } = props;
@@ -42,8 +39,6 @@ class AssistantApi extends Construct {
       environment: getBaseEnvironment(this, props, {
         ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
         DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
-        ASSISTANT_MESSAGES_TABLE_NAME: ASSISTANT_MESSAGES_TABLE_PREFIX,
-        DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME: assistantMessagesTable.tableName,
         OPENSEARCH_INDEX: 'assistant-docs',
         ASSISTANT_FILES_BUCKET_NAME: fileBucket?.bucketName || '',
         TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
@@ -52,7 +47,7 @@ class AssistantApi extends Construct {
 
     // Grant permissions for all CRUD operations
     assistantTable.grantReadWriteData(assistantHandler);
-    assistantMessagesTable.grantReadWriteData(assistantHandler);
+    table.grantReadWriteData(assistantHandler);
 
     // Grant S3 read permissions for document loading (create/update operations)
     // Used for both legacy S3 URLs and new assistant file uploads
@@ -91,9 +86,6 @@ class AssistantApi extends Construct {
         environment: getBaseEnvironment(this, props, {
           ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
           DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
-          ASSISTANT_MESSAGES_TABLE_NAME: ASSISTANT_MESSAGES_TABLE_PREFIX,
-          DEFAULT_ASSISTANT_MESSAGES_TABLE_NAME:
-            assistantMessagesTable.tableName,
           MODEL_REGION: props.modelRegion,
           OPENSEARCH_INDEX: 'assistant-docs',
           TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
@@ -103,7 +95,7 @@ class AssistantApi extends Construct {
 
     // Grant permissions for message operations
     assistantTable.grantReadData(assistantMessageHandler);
-    assistantMessagesTable.grantReadWriteData(assistantMessageHandler);
+    table.grantReadWriteData(assistantMessageHandler);
 
     // Grant Bedrock permissions for LLM calls
     if (props.bedrockPolicy) {

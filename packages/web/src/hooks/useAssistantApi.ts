@@ -20,6 +20,7 @@ import useHttp from './useHttp';
 function buildQueryString(params?: {
   limit?: number;
   nextToken?: string;
+  chatId?: string;
 }): string {
   if (!params) return '';
 
@@ -29,6 +30,9 @@ function buildQueryString(params?: {
   }
   if (params.nextToken) {
     queryParams.append('nextToken', params.nextToken);
+  }
+  if (params.chatId) {
+    queryParams.append('chatId', params.chatId);
   }
   return queryParams.toString();
 }
@@ -91,7 +95,7 @@ const useAssistantApi = () => {
 
       listMessages: async (
         assistantId: string,
-        params?: ListAssistantMessagesQueryParams
+        params?: ListAssistantMessagesQueryParams & { chatId?: string }
       ): Promise<ListAssistantMessagesResponse> => {
         const queryString = buildQueryString(params);
         const url = queryString
@@ -103,12 +107,17 @@ const useAssistantApi = () => {
 
       createMessage: async (
         assistantId: string,
-        request: CreateAssistantMessageRequest
+        request: CreateAssistantMessageRequest & { chatId?: string }
       ): Promise<AssistantMessage> => {
+        // Extract chatId from request if present and add to query params
+        const { chatId, ...messageRequest } = request;
+        const url = chatId
+          ? `assistant/${assistantId}/messages?chatId=${encodeURIComponent(chatId)}`
+          : `assistant/${assistantId}/messages`;
         const res = await http.post<
           AssistantMessage,
           CreateAssistantMessageRequest
-        >(`assistant/${assistantId}/messages`, request);
+        >(url, messageRequest);
         return res.data;
       },
 

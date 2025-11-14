@@ -17,7 +17,7 @@ interface AssistantApiStackProps extends StackProps {
   api: Api;
   auth: Auth;
   assistantTable: Table;
-  assistantMessagesTable: Table;
+  chatHistoryTable: Table;
   fileBucket: Bucket;
   tenantManager?: TenantManager;
   videoBucketRegionMap?: Record<string, string>;
@@ -36,7 +36,7 @@ class AssistantApiStack extends NestedStack {
       api,
       auth,
       assistantTable,
-      assistantMessagesTable,
+      chatHistoryTable,
       fileBucket,
       tenantManager,
       videoBucketRegionMap,
@@ -84,10 +84,9 @@ class AssistantApiStack extends NestedStack {
       userPool: auth.userPool,
       idPool: auth.idPool,
       userPoolClient: auth.client,
-      table: assistantTable, // Use assistant table as main table
+      table: chatHistoryTable,
       statsTable: assistantTable, // Reuse for stats
       assistantTable,
-      assistantMessagesTable,
       knowledgeBaseId: params.ragKnowledgeBaseId || undefined,
       agents: params.agents,
       guardrailIdentify: guardrailIdentifier,

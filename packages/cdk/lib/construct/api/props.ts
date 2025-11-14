@@ -44,7 +44,6 @@ export type GenericApiProps = {
   readonly table: Table;
   readonly statsTable: Table;
   readonly assistantTable: Table;
-  readonly assistantMessagesTable: Table;
   readonly knowledgeBaseId?: string;
   readonly agents?: Agent[];
   readonly guardrailIdentify?: string;
