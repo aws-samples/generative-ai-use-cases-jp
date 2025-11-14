@@ -17,7 +17,7 @@ const LanguageVoiceMapping: Record<string, VoiceId> = {
   de: 'Vicki',
 };
 
-const useSpeach = (language: string) => {
+const useSpeech = (language: string) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [voiceId, setVoiceId] = useState<VoiceId>('Joanna');
@@ -33,7 +33,7 @@ const useSpeach = (language: string) => {
 
   return {
     loading,
-    synthesizeSpeach: async (text: string): Promise<string> => {
+    synthesizeSpeech: async (text: string): Promise<string> => {
       setLoading(true);
 
       const token = (await fetchAuthSession()).tokens?.idToken?.toString();
@@ -87,4 +87,4 @@ const useSpeach = (language: string) => {
   };
 };
 
-export default useSpeach;
+export default useSpeech;
