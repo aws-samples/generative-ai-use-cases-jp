@@ -46,15 +46,12 @@ const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
-const agentBuilderEnabled: boolean =
-  import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED === 'true';
-
 const {
   visionEnabled,
   imageGenModelIds,
   videoGenModelIds,
   speechToSpeechModelIds,
-  agents,
+  agentNames,
   flowChatEnabled,
 } = MODELS;
 
@@ -123,10 +120,10 @@ const App: React.FC = () => {
         }
       : null,
     ...(agentEnabled && inlineAgents
-      ? agents.map((agent) => {
+      ? agentNames.map((name: string) => {
           return {
-            label: agent.displayName,
-            to: `/agent/${agent.displayName}`,
+            label: name,
+            to: `/agent/${name}`,
             icon: <PiRobot />,
             display: 'usecase' as const,
             sub: 'Agent',
@@ -146,15 +143,6 @@ const App: React.FC = () => {
       ? {
           label: t('agent_core.title'),
           to: '/agent-core',
-          icon: <PiRobot />,
-          display: 'usecase' as const,
-          sub: 'Experimental',
-        }
-      : null,
-    agentBuilderEnabled
-      ? {
-          label: 'Agent Builder',
-          to: '/agent-builder',
           icon: <PiRobot />,
           display: 'usecase' as const,
           sub: 'Experimental',
@@ -290,6 +278,25 @@ const App: React.FC = () => {
     }
   }, [pathname, screen, notifyScreen]);
 
+  // Close inter-use-cases demo popup when navigating away from demo pages
+  const { setIsShow: setInterUseCasesShow, useCases } = useInterUseCases();
+  useEffect(() => {
+    // Only check if demo is currently shown and useCases are loaded
+    // Skip if useCases is empty to avoid closing during initialization
+    if (isShow && useCases.length > 0) {
+      const isInDemoFlow = useCases.some((useCase) => {
+        // Normalize paths by ensuring they start with /
+        const useCasePath = useCase.path.startsWith('/') ? useCase.path : `/${useCase.path}`;
+        // Check if current path matches any use case path
+        return pathname === useCasePath || pathname.startsWith(useCasePath + '/');
+      });
+      if (!isInDemoFlow) {
+        setInterUseCasesShow(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, isShow]);
+
   return (
     <div
       className="screen:w-screen screen:h-screen overflow-x-hidden overflow-y-scroll"
@@ -307,7 +314,7 @@ const App: React.FC = () => {
             </button>
           </div>
 
-          {label}
+          {pathname !== '/' ? label : ''}
 
           {/* Dummy block to center the label */}
           <div className="w-10" />
