@@ -2,14 +2,16 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import {
   CognitoIdentityProviderClient,
   ListUsersCommand,
-  AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
 import {
   verifyAdminAccess,
   isAdminContext,
   getAttributeValue,
-  CORS_HEADERS,
 } from './utils/adminAuth';
+import {
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION!,
@@ -87,23 +89,15 @@ export const handler = async (
 
     console.log(`Found ${users.length} users for tenant ${tenantId}`);
 
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        users,
-        totalCount: users.length,
-      }),
-    };
+    return ok200Response({
+      users,
+      totalCount: users.length,
+    });
   } catch (error) {
     console.error('Error listing tenant users:', error);
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to list tenant users',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to list tenant users',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };

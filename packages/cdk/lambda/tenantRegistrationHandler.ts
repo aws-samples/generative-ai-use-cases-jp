@@ -6,6 +6,12 @@ import {
 import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { TenantStatus } from './tenantManager';
+import {
+  badRequest400Response,
+  conflict409Response,
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 // Environment variables
 const TENANTS_TABLE_NAME = process.env.TENANTS_TABLE_NAME!;
@@ -36,11 +42,10 @@ export const handler = async (
   try {
     // Parse and validate request
     if (!event.body) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Request body is required' }),
-      };
+      return badRequest400Response({
+        message: 'Request body is required',
+        error: 'Request body is required',
+      });
     }
 
     const request: TenantRegistrationRequest = JSON.parse(event.body);
@@ -70,14 +75,12 @@ export const handler = async (
 
     // Validate required fields
     if (!tenantId || !accountId || !region || !environment) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error:
-            'Missing required fields: tenantId, accountId, region, environment',
-        }),
-      };
+      return badRequest400Response({
+        message:
+          'Missing required fields: tenantId, accountId, region, environment',
+        error:
+          'Missing required fields: tenantId, accountId, region, environment',
+      });
     }
 
     // Validate OpenSearch configuration - all three fields must be provided together
@@ -94,14 +97,10 @@ export const handler = async (
         !openSearchEndpoint?.trim() ||
         !openSearchIndexName?.trim()
       ) {
-        return {
-          statusCode: 400,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message:
-              'All OpenSearch fields (domainArn, endpoint, indexName) must be provided together',
-          }),
-        };
+        return badRequest400Response({
+          message:
+            'All OpenSearch fields (domainArn, endpoint, indexName) must be provided together',
+        });
       }
 
       // Validate endpoint is HTTPS and from amazonaws.com
@@ -109,14 +108,10 @@ export const handler = async (
         !openSearchEndpoint.startsWith('https://') ||
         !openSearchEndpoint.includes('.amazonaws.com')
       ) {
-        return {
-          statusCode: 400,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message:
-              'OpenSearch endpoint must be an HTTPS URL from amazonaws.com domain',
-          }),
-        };
+        return badRequest400Response({
+          message:
+            'OpenSearch endpoint must be an HTTPS URL from amazonaws.com domain',
+        });
       }
 
       // Validate that endpoint region matches ARN region
@@ -126,13 +121,9 @@ export const handler = async (
       );
 
       if (arnMatch && endpointMatch && arnMatch[1] !== endpointMatch[1]) {
-        return {
-          statusCode: 400,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: 'OpenSearch endpoint region must match domain ARN region',
-          }),
-        };
+        return badRequest400Response({
+          message: 'OpenSearch endpoint region must match domain ARN region',
+        });
       }
     }
 
@@ -176,15 +167,11 @@ export const handler = async (
 
     console.log(`Successfully registered tenant: ${tenantId}`);
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: 'Tenant registered successfully',
-        tenantId,
-        status: TenantStatus.PROVISIONING,
-      }),
-    };
+    return ok200Response({
+      message: 'Tenant registered successfully',
+      tenantId,
+      status: TenantStatus.PROVISIONING,
+    });
   } catch (error) {
     console.error('Error registering tenant:', error);
 
@@ -193,21 +180,15 @@ export const handler = async (
       error instanceof Error &&
       error.name === 'ConditionalCheckFailedException'
     ) {
-      return {
-        statusCode: 409,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          error: 'Tenant already exists',
-        }),
-      };
+      return conflict409Response({
+        message: 'Tenant already exists',
+        error: 'Tenant already exists',
+      });
     }
 
-    return {
-      statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };

@@ -2,6 +2,7 @@ import * as lambda from 'aws-lambda';
 import { RetrieveCommand } from '@aws-sdk/client-bedrock-agent-runtime';
 import { RetrieveKnowledgeBaseRequest } from 'generative-ai-use-cases';
 import { initBedrockAgentRuntimeClient } from './utils/bedrockClient';
+import { badRequest400Response, ok200Response } from './utils/apiResponse';
 
 const KNOWLEDGE_BASE_ID = process.env.KNOWLEDGE_BASE_ID;
 const MODEL_REGION = process.env.MODEL_REGION as string;
@@ -13,14 +14,11 @@ exports.handler = async (
   const query = req.query;
 
   if (!query) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'query is not specified' }),
-    };
+    // TODO: パラメータが他と違うのでとりあえず両方セットしておく
+    return badRequest400Response({
+      message: 'query is not specified',
+      error: 'query is not specified',
+    });
   }
 
   const client = await initBedrockAgentRuntimeClient({ region: MODEL_REGION });
@@ -36,12 +34,5 @@ exports.handler = async (
   });
   const retrieveRes = await client.send(retrieveCommand);
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify(retrieveRes),
-  };
+  return ok200Response(retrieveRes);
 };

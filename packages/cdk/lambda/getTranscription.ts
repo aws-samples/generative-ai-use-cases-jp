@@ -9,6 +9,10 @@ import { getTenantId } from './utils/tenantUtils';
 import { getTenantCredentials } from './utils/tenantCredentials';
 import { createTenantS3Client } from './utils/tenantS3Client';
 import { isDefaultTenant } from './utils/tenantS3Utils';
+import {
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 function parseS3Url(s3Url: string) {
   const url = new URL(s3Url);
@@ -122,35 +126,14 @@ export const handler = async (
         transcripts: transcripts,
       };
 
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify(response),
-      };
+      return ok200Response(response);
     } else {
-      return {
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          status: res.TranscriptionJob?.TranscriptionJobStatus,
-        }),
-      };
+      return ok200Response({
+        status: res.TranscriptionJob?.TranscriptionJobStatus,
+      });
     }
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

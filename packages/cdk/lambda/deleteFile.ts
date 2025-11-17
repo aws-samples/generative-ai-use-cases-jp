@@ -9,6 +9,10 @@ import {
   extractAccountIdFromRoleArn,
 } from './utils/tenantS3Utils';
 import { getTenant } from './tenantManager';
+import {
+  internalServerError500Response,
+  noContent204Response,
+} from './utils/apiResponse';
 
 // Constants
 const DEFAULT_BUCKET_NAME = process.env.BUCKET_NAME!;
@@ -75,23 +79,9 @@ export const handler = async (
 
     await s3Client.send(command);
 
-    return {
-      statusCode: 204,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: '',
-    };
+    return noContent204Response();
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

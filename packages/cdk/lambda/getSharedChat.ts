@@ -1,5 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findUserIdAndChatId, findChatById, listMessages } from './repository';
+import {
+  internalServerError500Response,
+  notFound404Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -9,14 +14,7 @@ export const handler = async (
     const res = await findUserIdAndChatId(shareId, event);
 
     if (res === null) {
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: '',
-      };
+      return notFound404Response();
     }
 
     const userId = res.userId;
@@ -31,26 +29,12 @@ export const handler = async (
     );
     const messages = await listMessages(chatId.split('#')[1], event);
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        chat,
-        messages,
-      }),
-    };
+    return ok200Response({
+      chat,
+      messages,
+    });
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

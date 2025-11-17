@@ -1,6 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { deleteShareId, findUserIdAndChatId } from './repository';
 import { getUsername } from './utils/tenantUtils';
+import {
+  forbidden403Response,
+  internalServerError500Response,
+  noContent204Response,
+  notFound404Response,
+} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -12,14 +18,7 @@ export const handler = async (
     const userIdAndChatId = await findUserIdAndChatId(shareId, event);
 
     if (!userIdAndChatId) {
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({ message: 'Share not found' }),
-      };
+      return notFound404Response({ message: 'Share not found' });
     }
 
     // Get current user ID
@@ -30,38 +29,17 @@ export const handler = async (
 
     // Ownership check
     if (ownerUserId !== currentUserId) {
-      return {
-        statusCode: 403,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          message: 'Forbidden: You do not own this resource',
-        }),
-      };
+      return forbidden403Response({
+        message: 'Forbidden: You do not own this resource',
+      });
     }
 
     // If ownership is verified, proceed with deletion
     await deleteShareId(shareId, event);
 
-    return {
-      statusCode: 204,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: '',
-    };
+    return noContent204Response();
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

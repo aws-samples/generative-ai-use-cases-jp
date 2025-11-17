@@ -1,10 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import {
-  verifyAdminAccess,
-  isAdminContext,
-  CORS_HEADERS,
-} from './utils/adminAuth';
+import { verifyAdminAccess, isAdminContext } from './utils/adminAuth';
 import { SelfSignUpTenantMapEntry } from 'generative-ai-use-cases';
+import {
+  badRequest400Response,
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 // Load tenant map for domain validation
 const TENANT_MAP_STR = process.env.SELF_SIGNUP_TENANT_MAP || '[]';
@@ -67,36 +68,24 @@ export const handler = async (
     try {
       requestBody = JSON.parse(event.body || '{}');
     } catch (error) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Invalid JSON in request body' }),
-      };
+      return badRequest400Response({ message: 'Invalid JSON in request body' });
     }
 
     const { emails } = requestBody;
 
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: 'emails array is required and must not be empty',
-        }),
-      };
+      return badRequest400Response({
+        message: 'emails array is required and must not be empty',
+      });
     }
 
     // Validate all emails
     const invalidEmails = emails.filter((email) => !isValidEmail(email));
     if (invalidEmails.length > 0) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: 'Invalid email addresses found',
-          invalidEmails,
-        }),
-      };
+      return badRequest400Response({
+        message: 'Invalid email addresses found',
+        invalidEmails,
+      });
     }
 
     // Check domain configuration for each email
@@ -119,20 +108,12 @@ export const handler = async (
       `Domain validation results: ${unconfiguredEmails.length} unconfigured out of ${emails.length} total`
     );
 
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: JSON.stringify(response),
-    };
+    return ok200Response(response);
   } catch (error) {
     console.error('Error validating domains:', error);
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to validate domains',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to validate domains',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };

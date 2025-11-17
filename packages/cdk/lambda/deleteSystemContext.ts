@@ -1,6 +1,10 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { deleteSystemContext } from './repository';
 import { getUsername } from './utils/tenantUtils';
+import {
+  internalServerError500Response,
+  noContent204Response,
+} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -10,23 +14,9 @@ export const handler = async (
     const systemContextId = event.pathParameters!.systemContextId!;
     await deleteSystemContext(userId, systemContextId, event);
 
-    return {
-      statusCode: 204,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: '',
-    };
+    return noContent204Response();
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

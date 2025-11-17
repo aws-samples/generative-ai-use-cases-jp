@@ -14,6 +14,10 @@ import {
   isDefaultTenant,
   extractAccountIdFromRoleArn,
 } from './utils/tenantS3Utils';
+import {
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -109,25 +113,11 @@ export const handler = async (
     });
     const res = await transcribeClient.send(command);
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        jobName: res.TranscriptionJob!.TranscriptionJobName,
-      }),
-    };
+    return ok200Response({
+      jobName: res.TranscriptionJob!.TranscriptionJobName,
+    });
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

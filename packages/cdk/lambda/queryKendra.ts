@@ -5,6 +5,7 @@ import {
   QueryCommand,
 } from '@aws-sdk/client-kendra';
 import { QueryKendraRequest } from 'generative-ai-use-cases';
+import { badRequest400Response, ok200Response } from './utils/apiResponse';
 
 const INDEX_ID = process.env.INDEX_ID;
 const LANGUAGE = process.env.LANGUAGE;
@@ -16,14 +17,10 @@ exports.handler = async (
   const query = req.query;
 
   if (!query) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'query is not specified' }),
-    };
+    return badRequest400Response({
+      message: 'query is not specified',
+      error: 'query is not specified',
+    });
   }
 
   // The default language is English, so language settings must be done.
@@ -49,12 +46,5 @@ exports.handler = async (
 
   const queryRes = await kendra.send(queryCommand);
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify(queryRes),
-  };
+  return ok200Response(queryRes);
 };

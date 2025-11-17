@@ -1,6 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getUseCase } from './useCaseBuilderRepository';
 import { getUsername } from '../utils/tenantUtils';
+import {
+  internalServerError500Response,
+  notFound404Response,
+  ok200Response,
+} from '../utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -12,33 +17,12 @@ export const handler = async (
     const useCase = await getUseCase(userId, useCaseId, event);
 
     if (!useCase) {
-      return {
-        statusCode: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({ message: 'Use case not found' }),
-      };
+      return notFound404Response({ message: 'Use case not found' });
     }
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify(useCase),
-    };
+    return ok200Response(useCase);
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

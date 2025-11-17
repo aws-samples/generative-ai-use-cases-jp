@@ -4,7 +4,15 @@ import {
   AdminGetUserCommand,
   AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { verifyToken, verifyTokenWithRoleCheck } from './auth';
+import { verifyTokenWithRoleCheck } from './auth';
+import {
+  badRequest400Response,
+  conflict409Response,
+  forbidden403Response,
+  internalServerError500Response,
+  notFound404Response,
+  unauthorized401Response,
+} from './apiResponse';
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION!,
@@ -32,12 +40,6 @@ export interface TenantUser {
   attributes?: AttributeType[];
 }
 
-export const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-};
-
 /**
  * Verify JWT token and admin status with real-time role checking
  * Handles cases where token claims might be outdated after role changes
@@ -48,21 +50,13 @@ export async function verifyAdminAccess(
   // Extract token
   const token = event.headers.Authorization || event.headers.authorization;
   if (!token) {
-    return {
-      statusCode: 401,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Missing authorization token' }),
-    };
+    return unauthorized401Response({ message: 'Missing authorization token' });
   }
 
   // Verify token with real-time role checking
   const verificationResult = await verifyTokenWithRoleCheck(token, true);
   if (!verificationResult) {
-    return {
-      statusCode: 401,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Invalid token' }),
-    };
+    return unauthorized401Response({ message: 'Invalid token' });
   }
 
   const { claims, isCurrentlyAdmin, tokenClaimAdmin } = verificationResult;
@@ -71,11 +65,7 @@ export async function verifyAdminAccess(
 
   // Check tenant ID
   if (!tenantId) {
-    return {
-      statusCode: 400,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Tenant ID not found in token' }),
-    };
+    return badRequest400Response({ message: 'Tenant ID not found in token' });
   }
 
   // Use current admin status from Cognito, not token claim
@@ -85,17 +75,17 @@ export async function verifyAdminAccess(
       ? 'Admin privileges have been revoked. Please refresh your session.'
       : 'Access denied. Admin privileges required.';
 
-    const statusCode = tokenClaimAdmin ? 409 : 403; // 409 for role mismatch, 403 for no privileges
-
-    return {
-      statusCode,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message,
-        roleChanged: tokenClaimAdmin !== isCurrentlyAdmin,
-        refreshRequired: tokenClaimAdmin && !isCurrentlyAdmin,
-      }),
+    const body = {
+      message,
+      roleChanged: tokenClaimAdmin !== isCurrentlyAdmin,
+      refreshRequired: tokenClaimAdmin && !isCurrentlyAdmin,
     };
+
+    if (tokenClaimAdmin) {
+      return conflict409Response(body);
+    } else {
+      return forbidden403Response(body);
+    }
   }
 
   return {
@@ -122,11 +112,7 @@ export async function verifyTenantMembership(
     const userResponse = await cognitoClient.send(getUserCommand);
 
     if (!userResponse.UserAttributes) {
-      return {
-        statusCode: 404,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'User not found' }),
-      };
+      return notFound404Response({ message: 'User not found' });
     }
 
     // Check if user belongs to the same tenant
@@ -135,13 +121,9 @@ export async function verifyTenantMembership(
     )?.Value;
 
     if (userTenantId !== adminTenantId) {
-      return {
-        statusCode: 403,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: 'Cannot access user from different tenant',
-        }),
-      };
+      return forbidden403Response({
+        message: 'Cannot access user from different tenant',
+      });
     }
 
     return {
@@ -156,21 +138,13 @@ export async function verifyTenantMembership(
     );
 
     if (error instanceof Error && error.name === 'UserNotFoundException') {
-      return {
-        statusCode: 404,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'User not found' }),
-      };
+      return notFound404Response({ message: 'User not found' });
     }
 
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to verify user access',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to verify user access',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }
 

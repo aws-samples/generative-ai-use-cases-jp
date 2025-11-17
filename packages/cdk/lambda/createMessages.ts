@@ -7,6 +7,12 @@ import {
   extractAccountIdFromRoleArn,
 } from './utils/tenantS3Utils';
 import { getTenant } from './tenantManager';
+import {
+  badRequest400Response,
+  forbidden403Response,
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 const FILE_UPLOAD_BUCKET_NAME = process.env.BUCKET_NAME!;
 
@@ -31,16 +37,9 @@ export const handler = async (
     // Authorization check: Verify if the specified chat belongs to the user
     const chat = await findChatById(userId, chatId, event);
     if (chat === null) {
-      return {
-        statusCode: 403,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          message: 'You do not have permission to post messages in the chat.',
-        }),
-      };
+      return forbidden403Response({
+        message: 'You do not have permission to post messages in the chat.',
+      });
     }
 
     // Get tenant information for bucket name generation
@@ -67,16 +66,9 @@ export const handler = async (
         if (message.extraData && message.extraData.length > 0) {
           for (const extra of message.extraData) {
             if (!isValidExtraData(extra, uploadBucketName)) {
-              return {
-                statusCode: 400,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin': '*',
-                },
-                body: JSON.stringify({
-                  message: 'Invalid extraData',
-                }),
-              };
+              return badRequest400Response({
+                message: 'Invalid extraData',
+              });
             }
           }
         }
@@ -90,25 +82,11 @@ export const handler = async (
       event
     );
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        messages,
-      }),
-    };
+    return ok200Response({
+      messages,
+    });
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

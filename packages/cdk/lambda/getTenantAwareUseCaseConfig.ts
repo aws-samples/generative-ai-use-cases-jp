@@ -1,23 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getTenant } from './tenantManager';
 import { getUserTenantId } from './utils/tenantUtils';
-
-/**
- * Helper function to create standardized API Gateway responses
- */
-const createResponse = (
-  statusCode: number,
-  body: any
-): APIGatewayProxyResult => {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    body: JSON.stringify(body),
-  };
-};
+import {
+  badRequest400Response,
+  internalServerError500Response,
+  notFound404Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 /**
  * This endpoint provides tenant-specific use case configuration for the frontend.
@@ -36,7 +25,7 @@ export const handler = async (
     const tenantId = getUserTenantId(event);
     if (!tenantId) {
       console.log('[getTenantAwareUseCaseConfig] No tenant ID found');
-      return createResponse(400, {
+      return badRequest400Response({
         message: 'No tenant ID found in user claims',
       });
     }
@@ -50,7 +39,7 @@ export const handler = async (
 
     if (!tenant) {
       console.log(`[getTenantAwareUseCaseConfig] Tenant ${tenantId} not found`);
-      return createResponse(404, { message: 'Tenant not found' });
+      return notFound404Response({ message: 'Tenant not found' });
     }
 
     const response = {
@@ -59,10 +48,10 @@ export const handler = async (
       source: 'tenant',
     };
 
-    return createResponse(200, response);
+    return ok200Response(response);
   } catch (error) {
     console.error('[getTenantAwareUseCaseConfig] Error:', error);
-    return createResponse(500, {
+    return internalServerError500Response({
       message: 'Failed to get tenant use case configuration',
       error: error instanceof Error ? error.message : 'Unknown error',
     });

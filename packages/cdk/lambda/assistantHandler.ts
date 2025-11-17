@@ -26,11 +26,16 @@ import {
 } from 'generative-ai-use-cases';
 import { getTenantId } from './utils/tenantUtils';
 import { canAccessAssistant } from './utils/assistantAccessControl';
-
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
+import {
+  badRequest400Response,
+  created201Response,
+  forbidden403Response,
+  internalServerError500Response,
+  methodNotAllowed405Response,
+  noContent204Response,
+  notFound404Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 /**
  * Helper function to normalize assistant data for API responses
@@ -79,38 +84,22 @@ export const handler = async (
 
       case 'PUT':
         if (!assistantId) {
-          return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ message: 'Missing assistantId' }),
-          };
+          return badRequest400Response({ message: 'Missing assistantId' });
         }
         return await handleUpdate(userId, assistantId, event);
 
       case 'DELETE':
         if (!assistantId) {
-          return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ message: 'Missing assistantId' }),
-          };
+          return badRequest400Response({ message: 'Missing assistantId' });
         }
         return await handleDelete(userId, assistantId, event);
 
       default:
-        return {
-          statusCode: 405,
-          headers,
-          body: JSON.stringify({ message: 'Method not allowed' }),
-        };
+        return methodNotAllowed405Response({ message: 'Method not allowed' });
     }
   } catch (error) {
     console.error('Error in assistant handler:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };
 
@@ -129,13 +118,9 @@ async function handleCreate(
 
   // Basic validation
   if (!body.name || !body.instruction || !body.modelId) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({
-        message: 'Missing required fields: name, instruction, modelId',
-      }),
-    };
+    return badRequest400Response({
+      message: 'Missing required fields: name, instruction, modelId',
+    });
   }
 
   const assistant = await createAssistant(userId, body, event);
@@ -260,11 +245,7 @@ async function handleCreate(
   }
 
   // Note: updateAssistantSyncStatus updates assistant.syncStatus in memory
-  return {
-    statusCode: 201,
-    headers,
-    body: JSON.stringify(stripAssistantPrefix(assistant)),
-  };
+  return created201Response(stripAssistantPrefix(assistant));
 }
 
 /**
@@ -282,13 +263,9 @@ async function handleList(
   if (event.queryStringParameters?.limit) {
     const parsedLimit = parseInt(event.queryStringParameters.limit, 10);
     if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          message: 'Invalid limit parameter. Must be between 1 and 100.',
-        }),
-      };
+      return badRequest400Response({
+        message: 'Invalid limit parameter. Must be between 1 and 100.',
+      });
     }
     limit = parsedLimit;
   }
@@ -304,20 +281,12 @@ async function handleList(
       nextToken: result.lastEvaluatedKey,
     };
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(sanitizedResult),
-    };
+    return ok200Response(sanitizedResult);
   } catch (error: any) {
     if (error.message === 'Invalid pagination token') {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          message: 'Invalid pagination token. Please start from the beginning.',
-        }),
-      };
+      return badRequest400Response({
+        message: 'Invalid pagination token. Please start from the beginning.',
+      });
     }
     throw error;
   }
@@ -333,30 +302,18 @@ async function handleGet(
   const assistant = await getAssistant(assistantId, event);
 
   if (!assistant) {
-    return {
-      statusCode: 404,
-      headers,
-      body: JSON.stringify({ message: 'Assistant not found' }),
-    };
+    return notFound404Response({ message: 'Assistant not found' });
   }
 
   // Check access: owner OR (public AND same tenant)
   if (!canAccessAssistant(assistant, userId, event)) {
-    return {
-      statusCode: 403,
-      headers,
-      body: JSON.stringify({
-        message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED',
-      }),
-    };
+    return forbidden403Response({
+      message: 'Access denied to this assistant',
+      code: 'ASSISTANT_ACCESS_DENIED',
+    });
   }
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(stripAssistantPrefix(assistant)),
-  };
+  return ok200Response(stripAssistantPrefix(assistant));
 }
 
 /**
@@ -483,28 +440,16 @@ async function handleUpdate(
       }
     }
 
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(stripAssistantPrefix(assistant)),
-    };
+    return ok200Response(stripAssistantPrefix(assistant));
   } catch (error: any) {
     if (error.message === 'Assistant not found') {
-      return {
-        statusCode: 404,
-        headers,
-        body: JSON.stringify({ message: 'Assistant not found' }),
-      };
+      return notFound404Response({ message: 'Assistant not found' });
     }
     if (error.message === 'Unauthorized') {
-      return {
-        statusCode: 403,
-        headers,
-        body: JSON.stringify({
-          message: 'Access denied to this assistant',
-          code: 'ASSISTANT_ACCESS_DENIED',
-        }),
-      };
+      return forbidden403Response({
+        message: 'Access denied to this assistant',
+        code: 'ASSISTANT_ACCESS_DENIED',
+      });
     }
     throw error;
   }
@@ -534,28 +479,16 @@ async function handleDelete(
       // Don't fail the deletion if OpenSearch cleanup fails
     }
 
-    return {
-      statusCode: 204,
-      headers,
-      body: '',
-    };
+    return noContent204Response();
   } catch (error: any) {
     if (error.message === 'Assistant not found') {
-      return {
-        statusCode: 404,
-        headers,
-        body: JSON.stringify({ message: 'Assistant not found' }),
-      };
+      return notFound404Response({ message: 'Assistant not found' });
     }
     if (error.message === 'Unauthorized') {
-      return {
-        statusCode: 403,
-        headers,
-        body: JSON.stringify({
-          message: 'Access denied to this assistant',
-          code: 'ASSISTANT_ACCESS_DENIED',
-        }),
-      };
+      return forbidden403Response({
+        message: 'Access denied to this assistant',
+        code: 'ASSISTANT_ACCESS_DENIED',
+      });
     }
     throw error;
   }

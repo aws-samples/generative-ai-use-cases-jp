@@ -1,6 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { verifyAdminAccess, CORS_HEADERS, JWTClaims } from './utils/adminAuth';
-import { verifyToken, verifyTokenWithRoleCheck } from './utils/auth';
+import { verifyTokenWithRoleCheck } from './utils/auth';
+import {
+  badRequest400Response,
+  internalServerError500Response,
+  ok200Response,
+  unauthorized401Response,
+} from './utils/apiResponse';
 
 export interface AdminStatusResponse {
   isAdmin: boolean;
@@ -17,21 +22,15 @@ export const handler = async (
     // Extract token
     const token = event.headers.Authorization || event.headers.authorization;
     if (!token) {
-      return {
-        statusCode: 401,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Missing authorization token' }),
-      };
+      return unauthorized401Response({
+        message: 'Missing authorization token',
+      });
     }
 
     // Use real-time role checking to ensure consistency with other endpoints
     const verificationResult = await verifyTokenWithRoleCheck(token);
     if (!verificationResult) {
-      return {
-        statusCode: 401,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Invalid token' }),
-      };
+      return unauthorized401Response({ message: 'Invalid token' });
     }
 
     const { claims, isCurrentlyAdmin } = verificationResult;
@@ -39,11 +38,7 @@ export const handler = async (
     const username = claims['cognito:username'] || claims.username || '';
 
     if (!tenantId) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Tenant ID not found in token' }),
-      };
+      return badRequest400Response({ message: 'Tenant ID not found in token' });
     }
 
     const response: AdminStatusResponse = {
@@ -56,20 +51,12 @@ export const handler = async (
       `Admin status check for user ${username}: isAdmin=${isCurrentlyAdmin}, tenantId=${tenantId}`
     );
 
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: JSON.stringify(response),
-    };
+    return ok200Response(response);
   } catch (error) {
     console.error('Error checking admin status:', error);
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to check admin status',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to check admin status',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };

@@ -43,8 +43,17 @@ function createLambdaResponse<TBody>(
  * @param body Response body
  * @returns Lambda response with 200 status code
  */
-export function ok200Response<TBody>(body: TBody): APIGatewayProxyResult {
-  return createLambdaResponse(HttpStatus.Success.OK, body);
+export function ok200Response<TBody>(body?: TBody): APIGatewayProxyResult {
+  if (body === undefined) {
+    // TODO: Remove later
+    return {
+      statusCode: HttpStatus.Success.OK,
+      headers: CORS_HEADERS_JSON,
+      body: '',
+    };
+  } else {
+    return createLambdaResponse(HttpStatus.Success.OK, body);
+  }
 }
 
 /**
@@ -151,9 +160,18 @@ export function forbidden403Response<TError extends BaseError>(
  * @returns Lambda response with 404 status code
  */
 export function notFound404Response<TError extends BaseError>(
-  body: TError
+  body?: TError
 ): APIGatewayProxyResult {
-  return createLambdaResponse(HttpStatus.ClientError.NOT_FOUND, body);
+  if (body === undefined) {
+    // TODO: remove later
+    return {
+      statusCode: HttpStatus.ClientError.NOT_FOUND,
+      headers: CORS_HEADERS_JSON,
+      body: '',
+    };
+  } else {
+    return createLambdaResponse(HttpStatus.ClientError.NOT_FOUND, body);
+  }
 }
 
 /**

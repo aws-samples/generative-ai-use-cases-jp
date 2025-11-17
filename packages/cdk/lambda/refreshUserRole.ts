@@ -1,6 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { verifyTokenWithRoleCheck } from './utils/auth';
-import { CORS_HEADERS } from './utils/adminAuth';
+import {
+  badRequest400Response,
+  internalServerError500Response,
+  ok200Response,
+  unauthorized401Response,
+} from './utils/apiResponse';
 
 export interface RefreshUserRoleResponse {
   isAdmin: boolean;
@@ -19,21 +24,15 @@ export const handler = async (
     // Extract token
     const token = event.headers.Authorization || event.headers.authorization;
     if (!token) {
-      return {
-        statusCode: 401,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Missing authorization token' }),
-      };
+      return unauthorized401Response({
+        message: 'Missing authorization token',
+      });
     }
 
     // Verify token with real-time role checking
     const verificationResult = await verifyTokenWithRoleCheck(token);
     if (!verificationResult) {
-      return {
-        statusCode: 401,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Invalid token' }),
-      };
+      return unauthorized401Response({ message: 'Invalid token' });
     }
 
     const { claims, isCurrentlyAdmin, tokenClaimAdmin } = verificationResult;
@@ -42,11 +41,7 @@ export const handler = async (
 
     // Check tenant ID
     if (!tenantId) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Tenant ID not found in token' }),
-      };
+      return badRequest400Response({ message: 'Tenant ID not found in token' });
     }
 
     const roleChanged = tokenClaimAdmin !== isCurrentlyAdmin;
@@ -70,20 +65,12 @@ export const handler = async (
       `Role refresh for user ${username}: current=${isCurrentlyAdmin}, token=${tokenClaimAdmin}, changed=${roleChanged}`
     );
 
-    return {
-      statusCode: 200,
-      headers: CORS_HEADERS,
-      body: JSON.stringify(response),
-    };
+    return ok200Response(response);
   } catch (error) {
     console.error('Error refreshing user role:', error);
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to refresh role status',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to refresh role status',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };

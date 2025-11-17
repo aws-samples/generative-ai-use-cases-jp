@@ -20,15 +20,19 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 import { similaritySearch } from './repository/assistantSearch';
 import { canAccessAssistant } from './utils/assistantAccessControl';
+import {
+  badRequest400Response,
+  conflict409Response,
+  forbidden403Response,
+  internalServerError500Response,
+  methodNotAllowed405Response,
+  notFound404Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 const bedrockClient = new BedrockRuntimeClient({
   region: process.env.MODEL_REGION || process.env.AWS_REGION,
 });
-
-const headers = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-};
 
 /**
  * Helper function to add assistantId to messages for API response
@@ -60,11 +64,7 @@ export const handler = async (
     const method = event.httpMethod;
 
     if (!assistantId) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ message: 'Missing assistantId' }),
-      };
+      return badRequest400Response({ message: 'Missing assistantId' });
     }
 
     // Route based on HTTP method
@@ -76,19 +76,11 @@ export const handler = async (
         return await handleListMessages(userId, assistantId, event);
 
       default:
-        return {
-          statusCode: 405,
-          headers,
-          body: JSON.stringify({ message: 'Method not allowed' }),
-        };
+        return methodNotAllowed405Response({ message: 'Method not allowed' });
     }
   } catch (error) {
     console.error('Error in assistant message handler:', error);
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };
 
@@ -103,11 +95,7 @@ async function handleCreateMessage(
   const body: CreateAssistantMessageRequest = JSON.parse(event.body || '{}');
 
   if (!body.content) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ message: 'Missing content' }),
-    };
+    return badRequest400Response({ message: 'Missing content' });
   }
 
   // Get or create chatId for this conversation
@@ -129,23 +117,15 @@ async function handleCreateMessage(
   const assistant = await getAssistant(assistantId, event);
 
   if (!assistant) {
-    return {
-      statusCode: 404,
-      headers,
-      body: JSON.stringify({ message: 'Assistant not found' }),
-    };
+    return notFound404Response({ message: 'Assistant not found' });
   }
 
   // Check access: owner OR (public AND same tenant)
   if (!canAccessAssistant(assistant, userId, event)) {
-    return {
-      statusCode: 403,
-      headers,
-      body: JSON.stringify({
-        message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED',
-      }),
-    };
+    return forbidden403Response({
+      message: 'Access denied to this assistant',
+      code: 'ASSISTANT_ACCESS_DENIED',
+    });
   }
 
   // Block chat if RAG is enabled and documents are still being indexed
@@ -163,14 +143,10 @@ async function handleCreateMessage(
       `Chat blocked for assistant ${assistantId}: status is ${assistant.syncStatus}`
     );
 
-    return {
-      statusCode: 409, // Conflict - resource not ready
-      headers,
-      body: JSON.stringify({
-        message: `${statusMessage}. Please wait until indexing completes before chatting.`,
-        syncStatus: assistant.syncStatus,
-      }),
-    };
+    return conflict409Response({
+      message: `${statusMessage}. Please wait until indexing completes before chatting.`,
+      syncStatus: assistant.syncStatus,
+    });
   }
 
   // Warn if RAG failed but allow chat (assistant can still work without RAG)
@@ -185,13 +161,9 @@ async function handleCreateMessage(
     console.error(
       `Assistant ${assistantId} has no instruction/system prompt configured`
     );
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({
-        message: 'Assistant has no system prompt configured',
-      }),
-    };
+    return badRequest400Response({
+      message: 'Assistant has no system prompt configured',
+    });
   }
 
   console.log(
@@ -339,14 +311,10 @@ async function handleCreateMessage(
     await updateChatUpdatedDate(chatRecord.id, chatRecord.createdDate, event);
   }
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify({
-      ...addAssistantIdToMessage(assistantMessage, assistantId),
-      chatId: cleanChatId, // Return chatId to frontend for routing
-    }),
-  };
+  return ok200Response({
+    ...addAssistantIdToMessage(assistantMessage, assistantId),
+    chatId: cleanChatId, // Return chatId to frontend for routing
+  });
 }
 
 /**
@@ -361,34 +329,22 @@ async function handleListMessages(
   const assistant = await getAssistant(assistantId, event);
 
   if (!assistant) {
-    return {
-      statusCode: 404,
-      headers,
-      body: JSON.stringify({ message: 'Assistant not found' }),
-    };
+    return notFound404Response({ message: 'Assistant not found' });
   }
 
   // Check access: owner OR (public AND same tenant)
   if (!canAccessAssistant(assistant, userId, event)) {
-    return {
-      statusCode: 403,
-      headers,
-      body: JSON.stringify({
-        message: 'Access denied to this assistant',
-        code: 'ASSISTANT_ACCESS_DENIED',
-      }),
-    };
+    return forbidden403Response({
+      message: 'Access denied to this assistant',
+      code: 'ASSISTANT_ACCESS_DENIED',
+    });
   }
 
   const chatId = event.queryStringParameters?.chatId;
 
   // TODO: 将来的には統合チャット履歴のメッセージ取得に置き換える予定
   if (!chatId) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ message: 'Missing chatId parameter' }),
-    };
+    return badRequest400Response({ message: 'Missing chatId parameter' });
   }
 
   const exclusiveStartKey = event.queryStringParameters?.exclusiveStartKey;
@@ -412,9 +368,5 @@ async function handleListMessages(
     ),
   };
 
-  return {
-    statusCode: 200,
-    headers,
-    body: JSON.stringify(sanitizedResult),
-  };
+  return ok200Response(sanitizedResult);
 }

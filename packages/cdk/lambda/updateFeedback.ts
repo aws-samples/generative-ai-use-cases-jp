@@ -2,6 +2,11 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import { listMessages, updateFeedback } from './repository';
 import { getUsername } from './utils/tenantUtils';
+import {
+  forbidden403Response,
+  internalServerError500Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -24,38 +29,17 @@ export const handler = async (
       console.warn(
         `Authorization error: User ${userId} attempted to provide feedback on message ${req.createdDate} in chat ${chatId} belonging to another user`
       );
-      return {
-        statusCode: 403,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-        body: JSON.stringify({
-          message:
-            'You do not have permission to provide feedback on this message.',
-        }),
-      };
+      return forbidden403Response({
+        message:
+          'You do not have permission to provide feedback on this message.',
+      });
     }
 
     const message = await updateFeedback(chatId, req, event);
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message }),
-    };
+    return ok200Response({ message });
   } catch (error) {
     console.log(error);
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+    return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };

@@ -7,8 +7,13 @@ import {
 import {
   verifyAdminAccessWithUser,
   isAdminUserResult,
-  CORS_HEADERS,
 } from './utils/adminAuth';
+import {
+  badRequest400Response,
+  internalServerError500Response,
+  notFound404Response,
+  ok200Response,
+} from './utils/apiResponse';
 
 const cognitoClient = new CognitoIdentityProviderClient({
   region: process.env.AWS_REGION!,
@@ -31,31 +36,19 @@ export const handler = async (
     try {
       requestBody = JSON.parse(event.body || '{}');
     } catch (error) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Invalid JSON in request body' }),
-      };
+      return badRequest400Response({ message: 'Invalid JSON in request body' });
     }
 
     const { username, action = 'disable' } = requestBody;
 
     if (!username) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'username is required' }),
-      };
+      return badRequest400Response({ message: 'username is required' });
     }
 
     if (action !== 'disable' && action !== 'delete') {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: 'action must be either "disable" or "delete"',
-        }),
-      };
+      return badRequest400Response({
+        message: 'action must be either "disable" or "delete"',
+      });
     }
 
     // Verify admin access and user membership in same tenant
@@ -68,13 +61,9 @@ export const handler = async (
 
     // Prevent admin from removing themselves
     if (username === admin.username) {
-      return {
-        statusCode: 400,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: 'Cannot remove yourself',
-        }),
-      };
+      return badRequest400Response({
+        message: 'Cannot remove yourself',
+      });
     }
 
     // Perform the user removal action
@@ -97,37 +86,25 @@ export const handler = async (
         console.log(`Successfully disabled user: ${username}`);
       }
 
-      return {
-        statusCode: 200,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({
-          message: `User ${action === 'delete' ? 'deleted' : 'disabled'} successfully`,
-          username,
-          action,
-        }),
-      };
+      return ok200Response({
+        message: `User ${action === 'delete' ? 'deleted' : 'disabled'} successfully`,
+        username,
+        action,
+      });
     } catch (error: unknown) {
       console.error(`Failed to ${action} user ${username}:`, error);
 
       if (error instanceof Error && error.name === 'UserNotFoundException') {
-        return {
-          statusCode: 404,
-          headers: CORS_HEADERS,
-          body: JSON.stringify({ message: 'User not found' }),
-        };
+        return notFound404Response({ message: 'User not found' });
       }
 
       throw error; // Re-throw to be caught by outer catch block
     }
   } catch (error) {
     console.error('Error removing user:', error);
-    return {
-      statusCode: 500,
-      headers: CORS_HEADERS,
-      body: JSON.stringify({
-        message: 'Failed to remove user',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-    };
+    return internalServerError500Response({
+      message: 'Failed to remove user',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 };
