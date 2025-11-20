@@ -828,7 +828,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 > [!WARNING]
-> VPCモードを使用する場合、AgentCore Runtime削除時にセキュリティグループが自動削除されません。AgentCore Runtimeが作成するマネージドENIがセキュリティグループを参照するため、CloudFormationでは削除できません。AgentCore Runtime削除後、マネージドENIが自動削除されるまで待ってから、手動でセキュリティグループを削除してください。削除が必要なセキュリティグループIDはCloudFormationの出力に表示されます。
+> VPC モードを使用する場合、例えば PRIVATE から PUBLIC への変更により AgentCore Runtime 削除時にセキュリティグループが自動削除されません。AgentCore Runtime が作成する AWS マネージドな ENI がセキュリティグループを参照するため、CloudFormation では削除できません。AgentCore Runtime 削除後、マネージド ENI が自動削除されるまで待ってから、手動でセキュリティグループを削除してください。削除が必要なセキュリティグループ ID は CloudFormation の出力に表示されます。
 
 ### 音声チャットユースケースの有効化
 
