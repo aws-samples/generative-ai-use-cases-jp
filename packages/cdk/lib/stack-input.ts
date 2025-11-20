@@ -160,6 +160,10 @@ const baseStackInputSchema = z.object({
       })
     )
     .default([]),
+  // Agent Core Network Configuration
+  agentCoreNetworkType: z.enum(['PUBLIC', 'PRIVATE']).default('PUBLIC'),
+  agentCoreVpcId: z.string().nullish(),
+  agentCoreSubnetIds: z.array(z.string()).nullish(),
   // MCP
   mcpEnabled: z.boolean().default(false),
   // Guardrail
@@ -202,19 +206,38 @@ const baseStackInputSchema = z.object({
 });
 
 // Common Validator with refine
-export const stackInputSchema = baseStackInputSchema.refine(
-  (data) => {
-    // If searchApiKey is provided, searchEngine must also be provided
-    if (data.searchApiKey && !data.searchEngine) {
-      return false;
+export const stackInputSchema = baseStackInputSchema
+  .refine(
+    (data) => {
+      // If searchApiKey is provided, searchEngine must also be provided
+      if (data.searchApiKey && !data.searchEngine) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'searchEngine is required when searchApiKey is provided',
+      path: ['searchEngine'],
     }
-    return true;
-  },
-  {
-    message: 'searchEngine is required when searchApiKey is provided',
-    path: ['searchEngine'],
-  }
-);
+  )
+  .refine(
+    (data) => {
+      // Validate AgentCore network configuration
+      if (data.agentCoreNetworkType === 'PRIVATE') {
+        return (
+          data.agentCoreVpcId &&
+          data.agentCoreSubnetIds &&
+          data.agentCoreSubnetIds.length > 0
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        'VPC ID and Subnet IDs are required when agentCoreNetworkType is PRIVATE',
+      path: ['agentCoreNetworkType'],
+    }
+  );
 
 // schema after conversion
 export const processedStackInputSchema = baseStackInputSchema.extend({

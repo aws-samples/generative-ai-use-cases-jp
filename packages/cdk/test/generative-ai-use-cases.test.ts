@@ -209,4 +209,42 @@ describe('GenerativeAiUseCases', () => {
       });
     }
   });
+
+  test('matches the snapshot (AgentCore with VPC)', () => {
+    const app = new cdk.App();
+
+    const params = processedStackInputSchema.parse({
+      ...stackInput,
+      agentCoreNetworkType: 'PRIVATE',
+      agentCoreVpcId: 'vpc-12345678',
+      agentCoreSubnetIds: ['subnet-12345678', 'subnet-87654321'],
+    });
+
+    const {
+      cloudFrontWafStack,
+      ragKnowledgeBaseStack,
+      agentStack,
+      agentCoreStack,
+      guardrail,
+      generativeAiUseCasesStack,
+      dashboardStack,
+    } = createStacks(app, params);
+
+    // Create Templates
+    if (
+      !cloudFrontWafStack ||
+      !ragKnowledgeBaseStack ||
+      !agentStack ||
+      !agentCoreStack ||
+      !guardrail ||
+      !generativeAiUseCasesStack ||
+      !dashboardStack
+    ) {
+      throw new Error('Not all stacks are created');
+    }
+    const agentCoreTemplate = Template.fromStack(agentCoreStack);
+
+    // Assert
+    expect(agentCoreTemplate.toJSON()).toMatchSnapshot();
+  });
 });

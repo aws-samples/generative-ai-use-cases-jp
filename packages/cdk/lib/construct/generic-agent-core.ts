@@ -5,12 +5,13 @@ import {
   Role,
   ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
-import { Stack, RemovalPolicy } from 'aws-cdk-lib';
+import { Stack, RemovalPolicy, Tags } from 'aws-cdk-lib';
 import {
   Bucket,
   BlockPublicAccess,
   BucketEncryption,
 } from 'aws-cdk-lib/aws-s3';
+import { Subnet, Vpc, SecurityGroup, IVpc, ISubnet } from 'aws-cdk-lib/aws-ec2';
 import {
   Runtime,
   RuntimeNetworkConfiguration,
@@ -37,6 +38,10 @@ export interface GenericAgentCoreProps {
   env: string;
   createGenericRuntime?: boolean;
   createAgentBuilderRuntime?: boolean;
+  agentCoreNetworkType: 'PUBLIC' | 'PRIVATE';
+  agentCoreVpcId?: string | null;
+  agentCoreSubnetIds?: string[] | null;
+  agentCoreEnvironmentVariables?: Record<string, string>;
 }
 
 interface RuntimeResources {
@@ -51,6 +56,10 @@ export class GenericAgentCore extends Construct {
   private readonly agentBuilderRuntimeConfig: AgentCoreRuntimeConfig;
   private readonly resources: RuntimeResources;
 
+  // Security Group ID that requires manual cleanup after AgentCore Runtime deletion
+  // Used for CloudFormation Output to remind users of manual cleanup tasks
+  public readonly retainedSecurityGroupId?: string;
+
   constructor(scope: Construct, id: string, props: GenericAgentCoreProps) {
     super(scope, id);
 
@@ -58,6 +67,9 @@ export class GenericAgentCore extends Construct {
       env,
       createGenericRuntime = false,
       createAgentBuilderRuntime = false,
+      agentCoreNetworkType = 'PUBLIC',
+      agentCoreVpcId = null,
+      agentCoreSubnetIds = null,
     } = props;
 
     // Create bucket first
@@ -68,10 +80,56 @@ export class GenericAgentCore extends Construct {
     this.genericRuntimeConfig = configs.generic;
     this.agentBuilderRuntimeConfig = configs.agentBuilder;
 
+    // Create security group if VPC mode
+    let securityGroup: SecurityGroup | undefined;
+    let vpc: IVpc | undefined;
+    let subnets: ISubnet[] | undefined;
+
+    if (
+      agentCoreNetworkType === 'PRIVATE' &&
+      agentCoreVpcId &&
+      agentCoreSubnetIds
+    ) {
+      vpc = Vpc.fromLookup(this, 'AgentCoreVpc', { vpcId: agentCoreVpcId });
+      subnets = agentCoreSubnetIds.map((subnetId, index) =>
+        Subnet.fromSubnetId(this, `AgentCoreSubnet${index}`, subnetId)
+      );
+      securityGroup = new SecurityGroup(this, 'AgentCoreSecurityGroup', {
+        vpc,
+        description: 'Security group for AgentCore Runtime',
+        allowAllOutbound: true,
+      });
+
+      // Add tags for manual cleanup identification
+      Tags.of(securityGroup).add('ManualCleanupRequired', 'true');
+      Tags.of(securityGroup).add(
+        'CleanupReason',
+        'AgentCore-Managed-ENI-Dependency'
+      );
+      Tags.of(securityGroup).add('CreatedBy', `GenU-${env}`);
+
+      // Retain security group to prevent deletion errors when changing PRIVATE->PUBLIC or removing AgentCore
+      // AgentCore Runtime creates managed ENIs that reference this security group
+      // CloudFormation cannot delete the SG while managed ENIs are using it (even though they're not manually deletable)
+      // The managed ENIs are automatically cleaned up after AgentCore Runtime deletion, but with a time delay
+      // Therefore, this SG must be retained and manually deleted after the managed ENIs are cleaned up
+      //
+      // Note: Custom Resource with ENI monitoring could solve this, but deletion can take up to 1 hour
+      // Since security groups incur no cost, RETAIN is the practical solution for better user experience
+      securityGroup.applyRemovalPolicy(RemovalPolicy.RETAIN);
+
+      // Store SG ID for output
+      this.retainedSecurityGroupId = securityGroup.securityGroupId;
+    }
+
     // Create all resources atomically
     this.resources = this.createResources(
       createGenericRuntime,
-      createAgentBuilderRuntime
+      createAgentBuilderRuntime,
+      agentCoreNetworkType,
+      vpc,
+      subnets,
+      securityGroup
     );
   }
 
@@ -125,7 +183,11 @@ export class GenericAgentCore extends Construct {
 
   private createResources(
     createGeneric: boolean,
-    createAgentBuilder: boolean
+    createAgentBuilder: boolean,
+    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    vpc?: IVpc,
+    subnets?: ISubnet[],
+    securityGroup?: SecurityGroup
   ): RuntimeResources {
     if (!createGeneric && !createAgentBuilder) {
       return { role: this.createExecutionRole() };
@@ -138,7 +200,11 @@ export class GenericAgentCore extends Construct {
       resources.genericRuntime = this.createRuntime(
         'Generic',
         this.genericRuntimeConfig,
-        role
+        role,
+        agentCoreNetworkType,
+        vpc,
+        subnets,
+        securityGroup
       );
     }
 
@@ -146,7 +212,11 @@ export class GenericAgentCore extends Construct {
       resources.agentBuilderRuntime = this.createRuntime(
         'AgentBuilder',
         this.agentBuilderRuntimeConfig,
-        role
+        role,
+        agentCoreNetworkType,
+        vpc,
+        subnets,
+        securityGroup
       );
     }
 
@@ -157,18 +227,52 @@ export class GenericAgentCore extends Construct {
   private createRuntime(
     type: string,
     config: AgentCoreRuntimeConfig,
-    role: Role
+    role: Role,
+    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    vpc?: IVpc,
+    subnets?: ISubnet[],
+    securityGroup?: SecurityGroup
   ): Runtime {
+    const networkConfig = this.createNetworkConfiguration(
+      agentCoreNetworkType,
+      vpc,
+      subnets,
+      securityGroup
+    );
+
     return new Runtime(this, `${type}AgentCoreRuntime`, {
       runtimeName: config.name,
       agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(
         path.join(__dirname, `../../${config.dockerPath}`)
       ),
       executionRole: role,
-      networkConfiguration: RuntimeNetworkConfiguration.usingPublicNetwork(),
+      networkConfiguration: networkConfig,
       protocolConfiguration: ProtocolType.HTTP,
       environmentVariables: config.environmentVariables,
     });
+  }
+
+  private createNetworkConfiguration(
+    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    vpc?: IVpc,
+    subnets?: ISubnet[],
+    securityGroup?: SecurityGroup
+  ): RuntimeNetworkConfiguration {
+    if (agentCoreNetworkType === 'PRIVATE') {
+      if (!vpc || !subnets) {
+        throw new Error(
+          'VPC and Subnets are required for PRIVATE network type'
+        );
+      }
+
+      return RuntimeNetworkConfiguration.usingVpc(this, {
+        vpc,
+        vpcSubnets: { subnets },
+        securityGroups: securityGroup ? [securityGroup] : undefined,
+      });
+    } else {
+      return RuntimeNetworkConfiguration.usingPublicNetwork();
+    }
   }
 
   private createExecutionRole(): Role {

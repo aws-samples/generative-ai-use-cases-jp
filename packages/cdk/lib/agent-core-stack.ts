@@ -22,6 +22,9 @@ export class AgentCoreStack extends Stack {
         env: params.env,
         createGenericRuntime: params.createGenericAgentCoreRuntime,
         createAgentBuilderRuntime: params.agentBuilderEnabled,
+        agentCoreNetworkType: params.agentCoreNetworkType,
+        agentCoreVpcId: params.agentCoreVpcId,
+        agentCoreSubnetIds: params.agentCoreSubnetIds,
       });
 
       // Export runtime info for cross-region access via cdk-remote-stack (only if values exist)
@@ -37,6 +40,15 @@ export class AgentCoreStack extends Stack {
         new CfnOutput(this, 'GenericAgentCoreRuntimeName', {
           value: this.genericAgentCore.getGenericRuntimeConfig().name,
           exportName: `${this.stackName}-GenericAgentCoreRuntimeName`,
+        });
+      }
+
+      // Output retained security group ID for manual cleanup
+      if (this.genericAgentCore.retainedSecurityGroupId) {
+        new CfnOutput(this, 'RetainedSecurityGroupId', {
+          value: this.genericAgentCore.retainedSecurityGroupId,
+          description:
+            'MANUAL CLEANUP REQUIRED: Security Group ID to delete after AgentCore ENI cleanup (check tags: ManualCleanupRequired=true)',
         });
       }
 
