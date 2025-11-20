@@ -9,8 +9,8 @@ import {
 import { getTenant } from './tenantManager';
 import {
   badRequest400Response,
-  forbidden403Response,
   internalServerError500Response,
+  notFound404Response,
   ok200Response,
 } from './utils/apiResponse';
 
@@ -37,8 +37,8 @@ export const handler = async (
     // Authorization check: Verify if the specified chat belongs to the user
     const chat = await findChatById(userId, chatId, event);
     if (chat === null) {
-      return forbidden403Response({
-        message: 'You do not have permission to post messages in the chat.',
+      return notFound404Response({
+        message: 'Chat not found',
       });
     }
 

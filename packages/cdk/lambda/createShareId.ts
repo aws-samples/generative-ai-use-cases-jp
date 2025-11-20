@@ -2,8 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { createShareId, findChatById } from './repository';
 import { getUsername } from './utils/tenantUtils';
 import {
-  forbidden403Response,
   internalServerError500Response,
+  notFound404Response,
   ok200Response,
 } from './utils/apiResponse';
 
@@ -17,8 +17,8 @@ export const handler = async (
     // Authorization check: Verify if the specified chat belongs to the user
     const chat = await findChatById(userId, chatId, event);
     if (chat === null) {
-      return forbidden403Response({
-        message: 'You do not have permission to share this chat.',
+      return notFound404Response({
+        message: 'Chat not found',
       });
     }
 
