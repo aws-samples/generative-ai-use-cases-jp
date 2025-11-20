@@ -769,6 +769,67 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+> [!NOTE]
+> AgentCore ユースケースの設定を有効後に、再度無効化する場合は、`createGenericAgentCoreRuntime: false` にして再デプロイすればAgentCore ユースケースは無効化されますが、`AgentCoreStack` 自体は残ります。マネージメントコンソールを開き、`agentCoreRegion` の CloudFormation から `AgentCoreStack` というスタックを削除することで完全に消去ができます。
+
+#### AgentCore Runtime のネットワーク設定
+
+AgentCore Runtime は以下のネットワークモードで動作できます：
+
+- `PUBLIC` (デフォルト): パブリックネットワークで動作
+- `PRIVATE`: VPC内のプライベートネットワークで動作
+
+ネットワーク設定は、Generic Runtime と AgentBuilder Runtime の両方に適用されます。
+
+**VPCモードの使用場面**:
+
+- AgentCore Runtime から社内システムやプライベートデータベースにアクセスする必要がある場合
+- 例えば、VPC内の他のAWSサービス（RDS、ElastiCache等）と直接通信したい場合
+
+VPC モードを使用する場合は、以下のパラメータを設定してください：
+
+- `agentCoreNetworkType`: `PRIVATE` に設定
+- `agentCoreVpcId`: 使用するVPCのID
+- `agentCoreSubnetIds`: 使用するサブネットのIDリスト
+
+> [!IMPORTANT]
+> **Availability Zone (AZ) サポート**: AgentCore RuntimeはリージョンごとにサポートされているAZが限定されています。サブネットは必ずサポートされているAZ内に配置してください。詳細は[AWS公式ドキュメント](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs)をご確認ください。
+>
+> **インターネットアクセス**: AgentCore Runtime で MCP サーバーのインストールにはインターネットアクセスが必要です。プライベートサブネットが接続先の場合には NAT Gateway への経路を設定してください。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentBuilderEnabled: true,
+    agentCoreNetworkType: 'PRIVATE',
+    agentCoreVpcId: 'vpc-xxxxxxxxx',
+    agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentBuilderEnabled": true,
+    "agentCoreNetworkType": "PRIVATE",
+    "agentCoreVpcId": "vpc-xxxxxxxxx",
+    "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+  }
+}
+```
+
+> [!WARNING]
+> VPCモードを使用する場合、AgentCore Runtime削除時にセキュリティグループが自動削除されません。AgentCore Runtimeが作成するマネージドENIがセキュリティグループを参照するため、CloudFormationでは削除できません。AgentCore Runtime削除後、マネージドENIが自動削除されるまで待ってから、手動でセキュリティグループを削除してください。削除が必要なセキュリティグループIDはCloudFormationの出力に表示されます。
+
 ### 音声チャットユースケースの有効化
 
 > [!NOTE]
