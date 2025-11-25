@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React from 'react';
 import { BaseProps } from '../@types/common';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PiPlus, PiMagnifyingGlass, PiRobot } from 'react-icons/pi';
 import ChatList from './ChatList';
 import { useTranslation } from 'react-i18next';
-import useAssistantApi from '../hooks/useAssistantApi';
-import { Assistant } from 'generative-ai-use-cases';
+import useAssistantList from '../hooks/useAssistantList';
 
 type Props = BaseProps & {
   onNewChat?: () => void;
@@ -15,11 +14,9 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { listAssistants } = useAssistantApi();
 
-  const [featuredAssistants, setFeaturedAssistants] = useState<Assistant[]>([]);
-  const [loading, setLoading] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // SWRキャッシュを利用してアシスタント一覧を取得
+  const { assistants: featuredAssistants, loading } = useAssistantList(6);
 
   const handleNewChat = () => {
     // If already on /chat page, just reset the chat
@@ -33,45 +30,6 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
 
   // Check if assistants page is active
   const isAssistantsActive = location.pathname.startsWith('/chat/assistants');
-
-  // Fetch featured assistants (max 6)
-  const fetchFeaturedAssistants = useCallback(async () => {
-    // Cancel previous request if it exists
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Create new AbortController for this request
-    abortControllerRef.current = new AbortController();
-
-    setLoading(true);
-    try {
-      const response = await listAssistants({ limit: 6 });
-      // Featured assistants: first 6 assistants
-      setFeaturedAssistants(response.assistants || []);
-    } catch (error) {
-      console.error('Failed to fetch featured assistants:', error);
-      setFeaturedAssistants([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [listAssistants]);
-
-  // Fetch featured assistants on mount (but not on assistants list page to avoid duplicate requests)
-  useEffect(() => {
-    // Skip fetching only if we're on the main assistants list page (AssistantsPage will handle it)
-    // Still fetch for edit/chat/history pages
-    const isAssistantsListPage = location.pathname === '/chat/assistants';
-    if (!isAssistantsListPage) {
-      fetchFeaturedAssistants();
-    }
-    // Cleanup AbortController on unmount
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [fetchFeaturedAssistants, location.pathname]);
 
   const handleAssistantClick = (assistantId: string) => {
     navigate(`/chat/assistants/chat/${assistantId}`);
