@@ -198,15 +198,18 @@ export class GenerativeAiUseCasesStack extends Stack {
       mcpEndpoint = mcpApiStack.mcpApi.endpoint;
     }
 
-    new WebStack(this, 'Web', {
-      params: params,
-      auth: auth,
-      api: api,
-      speechToSpeech: speechToSpeech,
-      webAclId: props.webAclId,
-      mcpEndpoint: mcpEndpoint,
-      cert: props.cert,
-    });
+    // Web Frontend (only deploy if useWebUi is true)
+    if (params.useWebUi) {
+      new WebStack(this, 'Web', {
+        params: params,
+        auth: auth,
+        api: api,
+        speechToSpeech: speechToSpeech,
+        webAclId: props.webAclId,
+        mcpEndpoint: mcpEndpoint,
+        cert: props.cert,
+      });
+    }
 
     // RAG
     if (params.ragEnabled) {

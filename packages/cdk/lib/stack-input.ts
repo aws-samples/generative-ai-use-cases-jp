@@ -149,6 +149,8 @@ const baseStackInputSchema = z.object({
   litellmProxyEnabled: z.boolean().default(false),
   // Guardrail
   guardrailEnabled: z.boolean().default(false),
+  // Web UI
+  useWebUi: z.boolean().default(true),
   // Usecase builder
   useCaseBuilderEnabled: z.boolean().default(true),
   // Flows
