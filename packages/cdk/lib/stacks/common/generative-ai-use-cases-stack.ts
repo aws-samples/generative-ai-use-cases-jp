@@ -184,6 +184,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       videoBucketRegionMap: props.videoBucketRegionMap,
       guardrailIdentifier: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
+      litellmEndpoint: litellmEndpoint,
+      litellmProxy: litellmProxy,
     });
 
     // MCP

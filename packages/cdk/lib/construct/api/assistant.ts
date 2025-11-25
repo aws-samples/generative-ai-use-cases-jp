@@ -87,8 +87,19 @@ class AssistantApi extends Construct {
           ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
           DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
           MODEL_REGION: props.modelRegion,
+          MODEL_IDS: JSON.stringify(props.modelIds),
+          IMAGE_GENERATION_MODEL_IDS: JSON.stringify(
+            props.imageGenerationModelIds
+          ),
+          VIDEO_GENERATION_MODEL_IDS: JSON.stringify(
+            props.videoGenerationModelIds
+          ),
           OPENSEARCH_INDEX: 'assistant-docs',
           TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+          LITELLM_ENDPOINT: props.litellmEndpoint ?? '',
+          ...(props.openai?.apiKey
+            ? { OPENAI_API_KEY: props.openai.apiKey }
+            : {}),
         }),
       }
     );
@@ -229,6 +240,11 @@ class AssistantApi extends Construct {
     if (tenantManager) {
       tenantManager.tenantsTable.grantReadData(assistantHandler);
       tenantManager.tenantsTable.grantReadData(assistantMessageHandler);
+    }
+
+    // Grant LiteLLM proxy invocation permissions
+    if (props.litellmProxy) {
+      props.litellmProxy.grantInvokeUrl(assistantMessageHandler);
     }
 
     // TODO: Add OpenSearch permissions when BotStore is integrated

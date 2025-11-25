@@ -13,6 +13,7 @@ import {
   AssistantMessage,
   AssistantMessageSource,
   ListAssistantMessagesResponse,
+  Model,
 } from 'generative-ai-use-cases';
 import {
   BedrockRuntimeClient,
@@ -29,6 +30,8 @@ import {
   notFound404Response,
   ok200Response,
 } from './utils/apiResponse';
+import api from './utils/api';
+import { modelMetadata } from '@generative-ai-use-cases/common';
 
 const bedrockClient = new BedrockRuntimeClient({
   region: process.env.MODEL_REGION || process.env.AWS_REGION,
@@ -263,36 +266,95 @@ async function handleCreateMessage(
     ? `${assistant.instruction}\n\nRelevant context from documents:\n${ragContext}`
     : assistant.instruction;
 
-  // Call Bedrock with assistant configuration
-  const response = await bedrockClient.send(
-    new ConverseCommand({
-      modelId: assistant.modelId,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              text: body.content,
-            },
-          ],
-        },
-      ],
-      system: [
-        {
-          text: systemMessage,
-        },
-      ],
-    })
+  // Determine model type:
+  // - If modelId exists in modelMetadata → bedrock
+  // - If modelId starts with 'openai:' → liteLlm (strip prefix, use LiteLLM proxy which has API keys)
+  // - Otherwise → liteLlm
+  const isOpenAiPrefixed = assistant.modelId.startsWith('openai:');
+  const modelType: 'bedrock' | 'liteLlm' = modelMetadata[assistant.modelId]
+    ? 'bedrock'
+    : 'liteLlm';
+
+  // For openai: prefixed models, strip the prefix since LiteLLM config uses bare model names
+  const effectiveModelId = isOpenAiPrefixed
+    ? assistant.modelId.replace('openai:', '')
+    : assistant.modelId;
+
+  const model: Model = {
+    modelId: effectiveModelId,
+    type: modelType,
+    ...(modelType === 'bedrock' && {
+      region: process.env.MODEL_REGION || 'us-east-1',
+    }),
+  };
+
+  console.log(
+    `Using ${modelType} model: ${effectiveModelId} (original: ${assistant.modelId}) for assistant chat`
   );
 
-  const assistantResponse =
-    response.output?.message?.content?.[0]?.text || 'No response';
-
-  const usage = {
-    inputTokens: response.usage?.inputTokens || 0,
-    outputTokens: response.usage?.outputTokens || 0,
-    totalTokens: response.usage?.totalTokens || 0,
+  // Call LLM with assistant configuration
+  let assistantResponse = '';
+  let usage = {
+    inputTokens: 0,
+    outputTokens: 0,
+    totalTokens: 0,
   };
+
+  if (modelType === 'bedrock') {
+    // Use Bedrock API
+    const response = await bedrockClient.send(
+      new ConverseCommand({
+        modelId: assistant.modelId,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                text: body.content,
+              },
+            ],
+          },
+        ],
+        system: [
+          {
+            text: systemMessage,
+          },
+        ],
+      })
+    );
+
+    assistantResponse =
+      response.output?.message?.content?.[0]?.text || 'No response';
+
+    usage = {
+      inputTokens: response.usage?.inputTokens || 0,
+      outputTokens: response.usage?.outputTokens || 0,
+      totalTokens: response.usage?.totalTokens || 0,
+    };
+  } else {
+    // Use LiteLLM or LangChain API
+    const messages = [
+      {
+        role: 'system' as const,
+        content: systemMessage,
+      },
+      {
+        role: 'user' as const,
+        content: body.content,
+      },
+    ];
+
+    // Route to LiteLLM API (handles both native LiteLLM models and openai: prefixed models)
+    assistantResponse = await api.liteLlm.invoke(model, messages, cleanChatId);
+
+    // LiteLLM/LangChain don't provide detailed usage stats in non-streaming mode
+    // Set basic usage info
+    usage = {
+      inputTokens: 0,
+      outputTokens: 0,
+      totalTokens: 0,
+    };
+  }
 
   // Store assistant response with sources
   const assistantMessage = await createAssistantMessage(

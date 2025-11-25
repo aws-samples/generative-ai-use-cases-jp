@@ -11,6 +11,7 @@ import {
   CognitoUserPoolsAuthorizer,
 } from 'aws-cdk-lib/aws-apigateway';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { LitellmProxyServer } from '../../construct/litellm-proxy-server';
 
 interface AssistantApiStackProps extends StackProps {
   params: ProcessedStackInput;
@@ -23,6 +24,8 @@ interface AssistantApiStackProps extends StackProps {
   videoBucketRegionMap?: Record<string, string>;
   guardrailIdentifier?: string;
   guardrailVersion?: string;
+  litellmEndpoint?: string | null;
+  litellmProxy?: LitellmProxyServer | null;
 }
 
 class AssistantApiStack extends NestedStack {
@@ -42,6 +45,8 @@ class AssistantApiStack extends NestedStack {
       videoBucketRegionMap,
       guardrailIdentifier,
       guardrailVersion,
+      litellmEndpoint,
+      litellmProxy,
     } = props;
 
     // Create authorizer for the nested stack
@@ -75,8 +80,8 @@ class AssistantApiStack extends NestedStack {
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
-      litellmEndpoint: null,
-      litellmProxy: null,
+      litellmEndpoint: litellmEndpoint ?? null,
+      litellmProxy: litellmProxy ?? null,
       environment: params.env,
       selfSignUpTenantMap: params.selfSignUpTenantMap,
 
