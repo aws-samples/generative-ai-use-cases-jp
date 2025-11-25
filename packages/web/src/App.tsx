@@ -83,7 +83,7 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    agentEnabled && !inlineAgents
+    agentEnabled && !inlineAgents && enabled('agent')
       ? {
           label: t('navigation.agentChat'),
           to: '/agent',
@@ -91,7 +91,7 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    ...(agentEnabled && inlineAgents
+    ...(agentEnabled && inlineAgents && enabled('agent')
       ? agentNames.map((name: string) => {
           return {
             label: name,
@@ -101,7 +101,7 @@ const App: React.FC = () => {
           };
         })
       : []),
-    mcpEnabled
+    mcpEnabled && enabled('mcp')
       ? {
           label: t('mcp_chat.title'),
           to: '/mcp',
@@ -213,12 +213,14 @@ const App: React.FC = () => {
           display: 'usecase' as const,
         }
       : null,
-    {
-      label: t('navigation.speechRecognition'),
-      to: '/transcribe',
-      icon: <PiSpeakerHighBold />,
-      display: 'tool' as const,
-    },
+    enabled('transcribe')
+      ? {
+          label: t('navigation.speechRecognition'),
+          to: '/transcribe',
+          icon: <PiSpeakerHighBold />,
+          display: 'tool' as const,
+        }
+      : null,
     optimizePromptEnabled
       ? {
           label: t('navigation.promptOptimization'),

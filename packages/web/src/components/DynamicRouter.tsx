@@ -195,10 +195,12 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
           element: <OptimizePromptPage />,
         }
       : null,
-    {
-      path: '/transcribe',
-      element: <TranscribePage />,
-    },
+    enabled('transcribe')
+      ? {
+          path: '/transcribe',
+          element: <TranscribePage />,
+        }
+      : null,
     {
       path: '/flow-chat',
       element: <FlowChatPage />,
@@ -221,13 +223,13 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
           element: <RagKnowledgeBasePage />,
         }
       : null,
-    agentEnabled && !inlineAgents
+    agentEnabled && !inlineAgents && enabled('agent')
       ? {
           path: '/agent',
           element: <AgentChatPage />,
         }
       : null,
-    agentEnabled && inlineAgents
+    agentEnabled && inlineAgents && enabled('agent')
       ? {
           path: '/agent/:agentName',
           element: <AgentChatPage />,
@@ -239,7 +241,7 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
           element: <VoiceChatPage />,
         }
       : null,
-    mcpEnabled
+    mcpEnabled && enabled('mcp')
       ? {
           path: '/mcp',
           element: <McpChatPage />,
