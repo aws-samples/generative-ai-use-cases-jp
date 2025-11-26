@@ -292,6 +292,36 @@ async function handleCreateMessage(
     `Using ${modelType} model: ${effectiveModelId} (original: ${assistant.modelId}) for assistant chat`
   );
 
+  // Fetch conversation history for existing chats
+  type ConversationMessage = { role: 'user' | 'assistant'; content: string };
+  const conversationHistory: ConversationMessage[] = await (async () => {
+    if (isNewConversation) {
+      return [];
+    }
+    try {
+      const historyResponse = await listAssistantMessages(
+        userId,
+        cleanChatId,
+        event,
+        undefined,
+        100 // Limit history to latest 100 messages
+      );
+      // Convert to message format, excluding the just-added user message
+      // Messages are returned in chronological order (oldest first) - latest 100
+      return (historyResponse.messages || [])
+        .filter((msg) => msg.role === 'user' || msg.role === 'assistant')
+        .slice(0, -1) // Exclude the last message (the one we just added)
+        .map((msg) => ({
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+        }));
+    } catch (historyError) {
+      console.error('Failed to fetch conversation history:', historyError);
+      // Continue without history if fetch fails
+      return [];
+    }
+  })();
+
   // Call LLM with assistant configuration
   let assistantResponse = '';
   let usage = {
@@ -301,20 +331,23 @@ async function handleCreateMessage(
   };
 
   if (modelType === 'bedrock') {
+    // Build messages array with conversation history
+    const bedrockMessages = [
+      ...conversationHistory.map((msg) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: [{ text: msg.content }],
+      })),
+      {
+        role: 'user' as const,
+        content: [{ text: body.content }],
+      },
+    ];
+
     // Use Bedrock API
     const response = await bedrockClient.send(
       new ConverseCommand({
         modelId: assistant.modelId,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                text: body.content,
-              },
-            ],
-          },
-        ],
+        messages: bedrockMessages,
         system: [
           {
             text: systemMessage,
@@ -332,12 +365,13 @@ async function handleCreateMessage(
       totalTokens: response.usage?.totalTokens || 0,
     };
   } else {
-    // Use LiteLLM or LangChain API
+    // Use LiteLLM or LangChain API with conversation history
     const messages = [
       {
         role: 'system' as const,
         content: systemMessage,
       },
+      ...conversationHistory,
       {
         role: 'user' as const,
         content: body.content,

@@ -305,15 +305,20 @@ export const listAssistantMessages = async (
       ':id': chatId,
       ':userId': userId,
     },
-    ScanIndexForward: true,
+    // Use descending order to get the LATEST messages when limit is applied
+    // This ensures long conversations get the most recent context, not oldest
+    ScanIndexForward: false,
     Limit: limit || 100,
     ExclusiveStartKey: exclusiveStartKey,
   };
 
   const res = await dynamoDbDocument.send(new QueryCommand(queryParams));
 
+  // Reverse to return messages in chronological order (oldest first) for LLM
+  const messages = (res.Items as AssistantMessage[]).reverse();
+
   return {
-    messages: res.Items as AssistantMessage[],
+    messages,
     lastEvaluatedKey: res.LastEvaluatedKey
       ? Buffer.from(JSON.stringify(res.LastEvaluatedKey)).toString('base64')
       : undefined,
