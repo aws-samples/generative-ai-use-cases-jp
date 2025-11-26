@@ -331,6 +331,12 @@ export class GenerativeAiUseCasesStack extends Stack {
       value: api.invokeFlowFunction.functionArn,
     });
 
+    new CfnOutput(this, 'AssistantMessageStreamFunctionArn', {
+      value:
+        assistantApiStack.assistantApi.assistantMessageStreamFunction
+          .functionArn,
+    });
+
     new CfnOutput(this, 'Flows', {
       value: Buffer.from(JSON.stringify(params.flows)).toString('base64'),
     });
