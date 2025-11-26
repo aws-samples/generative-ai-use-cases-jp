@@ -29,6 +29,7 @@ export interface WebProps {
   readonly userPoolClientId: string;
   readonly idPoolId: string;
   readonly predictStreamFunctionArn: string;
+  readonly assistantMessageStreamFunctionArn: string;
   readonly ragEnabled: boolean;
   readonly ragKnowledgeBaseEnabled: boolean;
   readonly agentEnabled: boolean;
@@ -235,6 +236,8 @@ export class Web extends Construct {
         VITE_APP_USER_POOL_CLIENT_ID: props.userPoolClientId,
         VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
         VITE_APP_PREDICT_STREAM_FUNCTION_ARN: props.predictStreamFunctionArn,
+        VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN:
+          props.assistantMessageStreamFunctionArn,
         VITE_APP_RAG_ENABLED: props.ragEnabled.toString(),
         VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED:
           props.ragKnowledgeBaseEnabled.toString(),

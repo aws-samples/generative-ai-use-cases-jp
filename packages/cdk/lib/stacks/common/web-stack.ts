@@ -12,14 +12,23 @@ interface WebStackProps extends StackProps {
   readonly webAclId?: string;
   readonly mcpEndpoint: string | null;
   readonly cert?: ICertificate;
+  readonly assistantMessageStreamFunctionArn: string;
 }
 
 class WebStack extends NestedStack {
   constructor(scope: Construct, id: string, props: WebStackProps) {
     super(scope, id, props);
 
-    const { params, auth, api, speechToSpeech, webAclId, mcpEndpoint, cert } =
-      props;
+    const {
+      params,
+      auth,
+      api,
+      speechToSpeech,
+      webAclId,
+      mcpEndpoint,
+      cert,
+      assistantMessageStreamFunctionArn,
+    } = props;
 
     // Web Frontend
     const selfSignUpEnabledForWeb =
@@ -41,6 +50,7 @@ class WebStack extends NestedStack {
       // Backend
       apiEndpointUrl: api.restApi.url,
       predictStreamFunctionArn: api.predictStreamFunction.functionArn,
+      assistantMessageStreamFunctionArn: assistantMessageStreamFunctionArn,
       ragEnabled: params.ragEnabled,
       ragKnowledgeBaseEnabled: params.ragKnowledgeBaseEnabled,
       agentEnabled: params.agentEnabled || params.agents.length > 0,

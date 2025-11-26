@@ -17,6 +17,8 @@ export type AssistantApiProps = GenericApiProps;
  * - assistantMessageHandler: Routes message operations (POST/{id}/messages, GET/{id}/messages)
  */
 class AssistantApi extends Construct {
+  readonly assistantMessageStreamFunction: NodejsFunction;
+
   constructor(scope: Construct, id: string, props: AssistantApiProps) {
     super(scope, id);
 
@@ -27,6 +29,10 @@ class AssistantApi extends Construct {
       table,
       tenantManager,
       fileBucket,
+      idPool,
+      userPool,
+      userPoolClient,
+      modelRegion,
     } = props;
 
     const assistantResource = api.root.addResource('assistant');
@@ -127,6 +133,70 @@ class AssistantApi extends Construct {
         resources: ['*'], // Wildcard needed for multi-tenant cross-account access
       })
     );
+
+    // Streaming handler for assistant messages (direct Lambda invocation)
+    const assistantMessageStreamFunction = new NodejsFunction(
+      this,
+      'AssistantMessageStreamHandler',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/assistantMessageStreamHandler.ts',
+        timeout: Duration.minutes(15),
+        memorySize: 256,
+        environment: getBaseEnvironment(this, props, {
+          ASSISTANT_TABLE_NAME: ASSISTANT_TABLE_PREFIX,
+          DEFAULT_ASSISTANT_TABLE_NAME: assistantTable.tableName,
+          MODEL_REGION: modelRegion,
+          MODEL_IDS: JSON.stringify(props.modelIds),
+          OPENSEARCH_INDEX: 'assistant-docs',
+          USER_POOL_ID: userPool.userPoolId,
+          USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
+          TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+          LITELLM_ENDPOINT: props.litellmEndpoint ?? '',
+        }),
+      }
+    );
+
+    // Grant permissions for streaming handler
+    assistantTable.grantReadData(assistantMessageStreamFunction);
+    table.grantReadWriteData(assistantMessageStreamFunction);
+
+    // Grant Bedrock permissions for LLM streaming calls
+    if (props.bedrockPolicy) {
+      assistantMessageStreamFunction.role?.addToPrincipalPolicy(
+        props.bedrockPolicy
+      );
+    }
+
+    // Grant OpenSearch permissions for RAG retrieval
+    assistantMessageStreamFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          'es:ESHttpGet',
+          'es:ESHttpPost',
+          'es:ESHttpPut',
+          'es:ESHttpDelete',
+          'es:ESHttpHead',
+        ],
+        resources: ['*'],
+      })
+    );
+
+    // Grant invoke permission to authenticated users (for direct Lambda invocation)
+    assistantMessageStreamFunction.grantInvoke(idPool.authenticatedRole);
+
+    // Grant tenant table read permissions
+    if (tenantManager) {
+      tenantManager.tenantsTable.grantReadData(assistantMessageStreamFunction);
+    }
+
+    // Grant LiteLLM proxy invocation permissions for streaming handler
+    if (props.litellmProxy) {
+      props.litellmProxy.grantInvokeUrl(assistantMessageStreamFunction);
+    }
+
+    this.assistantMessageStreamFunction = assistantMessageStreamFunction;
 
     // API Gateway routes - All route to consolidated handlers
     // POST: /assistant → assistantHandler (create)

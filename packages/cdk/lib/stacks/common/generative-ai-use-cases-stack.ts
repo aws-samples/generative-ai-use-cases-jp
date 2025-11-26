@@ -173,7 +173,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     const speechToSpeech = speechToSpeechStack.speechToSpeech;
 
     // Assistant API (moved to nested stack to reduce main stack resource count)
-    new AssistantApiStack(this, 'AssistantApi', {
+    const assistantApiStack = new AssistantApiStack(this, 'AssistantApi', {
       params: params,
       api: api,
       auth: auth,
@@ -210,6 +210,9 @@ export class GenerativeAiUseCasesStack extends Stack {
         webAclId: props.webAclId,
         mcpEndpoint: mcpEndpoint,
         cert: props.cert,
+        assistantMessageStreamFunctionArn:
+          assistantApiStack.assistantApi.assistantMessageStreamFunction
+            .functionArn,
       });
     }
 

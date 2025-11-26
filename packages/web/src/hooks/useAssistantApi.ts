@@ -13,6 +13,13 @@ import {
   UpdateAssistantRequest,
 } from 'generative-ai-use-cases';
 import useHttp from './useHttp';
+import {
+  LambdaClient,
+  InvokeWithResponseStreamCommand,
+} from '@aws-sdk/client-lambda';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
+import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 /**
  * Build query string from parameters
@@ -141,6 +148,69 @@ const useAssistantApi = () => {
             CreateAssistantMessageRequest
           >(url, messageRequest);
           return res.data;
+        },
+
+        // Streaming message creation
+        streamMessage: async function* (
+          assistantId: string,
+          request: CreateAssistantMessageRequest & { chatId?: string }
+        ) {
+          const token = (await fetchAuthSession()).tokens?.idToken?.toString();
+          if (!token) {
+            throw new Error('Not authenticated');
+          }
+
+          const functionArn = import.meta.env
+            .VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN;
+
+          if (!functionArn) {
+            throw new Error(
+              'VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN is not configured'
+            );
+          }
+
+          const region = import.meta.env.VITE_APP_REGION;
+          const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
+          const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
+          const cognito = new CognitoIdentityClient({ region });
+          const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
+          const lambda = new LambdaClient({
+            region,
+            credentials: fromCognitoIdentityPool({
+              client: cognito,
+              identityPoolId: idPoolId,
+              logins: {
+                [providerName]: token,
+              },
+            }),
+          });
+
+          const res = await lambda.send(
+            new InvokeWithResponseStreamCommand({
+              FunctionName: functionArn,
+              Payload: JSON.stringify({
+                assistantId,
+                content: request.content,
+                chatId: request.chatId,
+                idToken: token,
+              }),
+            })
+          );
+
+          const events = res.EventStream!;
+
+          for await (const event of events) {
+            if (event.PayloadChunk) {
+              const chunk = new TextDecoder('utf-8').decode(
+                event.PayloadChunk.Payload
+              );
+              yield chunk;
+            }
+
+            if (event.InvokeComplete) {
+              break;
+            }
+          }
         },
 
         requestUploadUrl: async (
