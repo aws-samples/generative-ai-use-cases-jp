@@ -62,6 +62,7 @@ nav:
           - Update: UPDATE.md
           - Local Development Environment: DEVELOPMENT.md
           - Delete Resources: DESTROY.md
+          - (Optional) Delete with AWS CloudShell: DESTROY_ON_CLOUDSHELL.md
           - Use as a Native App: PWA.md
 
 extra:
@@ -106,6 +107,7 @@ plugins:
             Update: アップデート方法
             Local Development Environment: ローカル開発環境構築手順
             Delete Resources: リソースの削除方法
+            (Optional) Delete with AWS CloudShell: (オプション) AWS CloudShell でリソースを削除する
             Use as a Native App: ネイティブアプリのように利用する方法
         - locale: ko
           name: 한국어
@@ -126,6 +128,7 @@ plugins:
             Update: 업데이트
             Local Development Environment: 로컬 개발 환경
             Delete Resources: 리소스 삭제
+            (Optional) Delete with AWS CloudShell: (선택사항) AWS CloudShell로 리소스 삭제하기
             Use as a Native App: 네이티브 앱처럼 사용하는 방법
 
 hooks:
