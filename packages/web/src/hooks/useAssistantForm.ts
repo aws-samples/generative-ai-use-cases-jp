@@ -46,6 +46,25 @@ const getInitialFormData = (
   knowledgeSources: initialData?.knowledgeSources || [],
 });
 
+/**
+ * Get the correct MIME type for a file based on extension.
+ * Browsers don't always correctly detect MIME types for text files like .md
+ */
+const getContentType = (file: File): string => {
+  if (file.type) return file.type;
+
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    md: 'text/markdown',
+    txt: 'text/plain',
+    pdf: 'application/pdf',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  };
+
+  return mimeTypes[extension || ''] || 'application/octet-stream';
+};
+
 const useAssistantForm = (
   options: UseAssistantFormOptions = {}
 ): UseAssistantFormReturn => {
@@ -85,11 +104,13 @@ const useAssistantForm = (
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           try {
+            const contentType = getContentType(file);
+
             // Request upload URL
             const { uploadUrl, fileKey } = await requestUploadUrl({
               fileName: file.name,
               fileSize: file.size,
-              contentType: file.type,
+              contentType,
             });
 
             // Upload file to S3
@@ -97,7 +118,7 @@ const useAssistantForm = (
               method: 'PUT',
               body: file,
               headers: {
-                'Content-Type': file.type,
+                'Content-Type': contentType,
               },
             });
 
