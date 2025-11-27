@@ -6,7 +6,6 @@ import {
   Metadata,
 } from './message';
 import { Chat } from './chat';
-import { SystemContext } from './systemContext';
 import {
   QueryCommandOutput,
   RetrieveCommandOutput,
@@ -53,18 +52,6 @@ export type FindChatByIdResponse = {
 
 export type ListMessagesResponse = {
   messages: RecordedMessage[];
-};
-
-export type CreateSystemContextRequest = {
-  systemContext: SystemContext;
-};
-
-export type UpdateSystemContextTitleRequest = {
-  title: string;
-};
-
-export type UpdateSystemContextTitleResponse = {
-  systemContext: SystemContext;
 };
 
 export type UpdateFeedbackRequest = {

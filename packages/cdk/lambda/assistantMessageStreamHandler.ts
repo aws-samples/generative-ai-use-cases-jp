@@ -25,6 +25,7 @@ interface AssistantMessageStreamRequest {
   content: string;
   chatId?: string;
   idToken: string;
+  customInstructions?: string;
 }
 
 declare global {
@@ -48,7 +49,13 @@ export const handler = awslambda.streamifyResponse(
   ) => {
     context.callbackWaitsForEmptyEventLoop = false;
 
-    const { assistantId, content, chatId: inputChatId, idToken } = event;
+    const {
+      assistantId,
+      content,
+      chatId: inputChatId,
+      idToken,
+      customInstructions,
+    } = event;
 
     // Extract userId from idToken
     const tokenPayload = JSON.parse(
@@ -267,9 +274,14 @@ export const handler = awslambda.streamifyResponse(
         }
       }
 
-      const systemMessage = ragContext
-        ? `${assistant.instruction}\n\nRelevant context from documents:\n${ragContext}`
+      // Build system message: assistant instruction + custom instructions + RAG context
+      const baseInstruction = customInstructions?.trim()
+        ? `${assistant.instruction}\n\n${customInstructions}`
         : assistant.instruction;
+
+      const systemMessage = ragContext
+        ? `${baseInstruction}\n\nRelevant context from documents:\n${ragContext}`
+        : baseInstruction;
 
       // Determine model type:
       // - If modelId exists in modelMetadata → bedrock

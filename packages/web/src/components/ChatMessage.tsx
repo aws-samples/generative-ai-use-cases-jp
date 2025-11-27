@@ -9,7 +9,6 @@ import ZoomUpVideo from './ZoomUpVideo';
 import {
   PiUserFill,
   PiChalkboardTeacher,
-  PiFloppyDisk,
   PiArrowClockwise,
   PiArrowUp,
   PiArrowDown,
@@ -35,9 +34,6 @@ type Props = BaseProps & {
   chatContent?: ShownMessage;
   loading?: boolean;
   hideFeedback?: boolean;
-  hideSaveSystemContext?: boolean;
-  setSaveSystemContext?: (s: string) => void;
-  setShowSystemContextModal?: (value: boolean) => void;
   allowRetry?: boolean;
   editable?: boolean;
   retryGeneration?: () => void;
@@ -365,19 +361,6 @@ const ChatMessage: React.FC<Props> = (props) => {
               className={`flex items-center gap-1 print:hidden ${
                 chatContent?.role === 'user' ? 'justify-start' : 'justify-end'
               }`}>
-              {/* System message save button */}
-              {chatContent?.role === 'system' &&
-                !props.hideSaveSystemContext && (
-                  <ButtonIcon
-                    className="text-gray-400"
-                    onClick={() => {
-                      props.setSaveSystemContext?.(chatContent?.content || '');
-                      props.setShowSystemContextModal?.(true);
-                    }}>
-                    <PiFloppyDisk />
-                  </ButtonIcon>
-                )}
-
               {/* User message edit buttons */}
               {chatContent?.role === 'user' && props.editable && (
                 <>

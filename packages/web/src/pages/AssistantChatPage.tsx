@@ -35,6 +35,7 @@ import {
 } from '../components/assistants/statusMetadata';
 import { findModelByModelId } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
+import { useSettings } from '../hooks/useSettings';
 
 const AssistantChatPage: React.FC = () => {
   const { t } = useTranslation();
@@ -47,6 +48,7 @@ const AssistantChatPage: React.FC = () => {
   const { getAssistant, listMessages, streamMessage } = useAssistantApi();
   const { predictTitle, updateTitle } = useChatApi();
   const http = useHttp();
+  const { settings } = useSettings();
 
   const [assistant, setAssistant] = useState<Assistant | null>(null);
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
@@ -277,10 +279,17 @@ const AssistantChatPage: React.FC = () => {
     streamBufferRef.current = '';
 
     try {
+      // Get custom instructions if enabled
+      const customInstructions =
+        settings.customizeEnabled && settings.customInstructions.trim()
+          ? settings.customInstructions
+          : undefined;
+
       // Use streaming API
       const stream = streamMessage(assistantId, {
         content: userMessageContent,
         chatId: currentChatId,
+        customInstructions,
       });
 
       for await (const chunk of stream) {

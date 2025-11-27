@@ -153,7 +153,10 @@ const useAssistantApi = () => {
         // Streaming message creation
         streamMessage: async function* (
           assistantId: string,
-          request: CreateAssistantMessageRequest & { chatId?: string }
+          request: CreateAssistantMessageRequest & {
+            chatId?: string;
+            customInstructions?: string;
+          }
         ) {
           const token = (await fetchAuthSession()).tokens?.idToken?.toString();
           if (!token) {
@@ -193,6 +196,7 @@ const useAssistantApi = () => {
                 content: request.content,
                 chatId: request.chatId,
                 idToken: token,
+                customInstructions: request.customInstructions,
               }),
             })
           );

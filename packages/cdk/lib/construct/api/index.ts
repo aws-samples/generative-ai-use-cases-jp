@@ -42,7 +42,6 @@ import OptimizePromptApi from './optimize-prompt';
 import InvokeFlowApi from './invoke-flow';
 import ChatApi from './chats';
 import ImageApi from './image';
-import SystemContextApi from './systemcontexts';
 import TokenUsageApi from './token-usage';
 import VideoApi from './video';
 import WebTextApi from './web-text';
@@ -387,7 +386,6 @@ export class Api extends Construct {
     );
     const predictApi = new PredictApi(this, 'PredictAPI', apiProps);
     new ShareApi(this, 'ShareAPI', apiProps);
-    new SystemContextApi(this, 'SystemContextAPI', apiProps);
     new TokenUsageApi(this, 'TokenUsageAPI', apiProps);
     new VideoApi(this, 'VideoAPI', apiProps);
     new WebTextApi(this, 'WebTextAPI', apiProps);

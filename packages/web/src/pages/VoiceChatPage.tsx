@@ -147,7 +147,6 @@ const VoiceChatPage: React.FC = () => {
                   <ChatMessage
                     chatContent={m}
                     hideFeedback={true}
-                    hideSaveSystemContext={true}
                     loading={
                       m.role === 'assistant' &&
                       idx === showingMessages.length - 1 &&
