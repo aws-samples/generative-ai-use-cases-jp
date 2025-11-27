@@ -2,7 +2,7 @@
 
 ## Overview
 
-Even if you don't have the configuration files used during GenU deployment, you can automatically restore the configuration from the deployed CloudFormation stack and destroy it.
+When deleting GenU, deletion is normally performed based on the deployed environment and configuration files. However, if you don't have these files due to one-click deployment or test deployments, you can quickly delete using this script.
 
 ## Launch CloudShell
 
