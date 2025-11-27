@@ -1,5 +1,11 @@
 import { CfnOutput, NestedStack, StackProps } from 'aws-cdk-lib';
-import { Api, Auth, SpeechToSpeech, Web } from '../../construct';
+import {
+  Api,
+  Auth,
+  SpeechToSpeech,
+  Web,
+  MaintenanceMode,
+} from '../../construct';
 import { ProcessedStackInput } from '../../stack-input';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
 import { Construct } from 'constructs';
@@ -78,6 +84,25 @@ class WebStack extends NestedStack {
       hostName: params.hostName,
       domainName: params.domainName,
       hostedZoneId: params.hostedZoneId,
+    });
+
+    // Task 5.1: Integrate MaintenanceMode construct
+    const maintenanceMode = new MaintenanceMode(this, 'MaintenanceMode', {
+      distribution: web.distribution,
+      environmentSuffix: params.env,
+    });
+
+    // Task 5.1: Add CloudFormation outputs for maintenance mode resources
+    new CfnOutput(this, 'MaintenanceKVSArn', {
+      value: maintenanceMode.kvsArn,
+      description: 'ARN of the KeyValueStore for maintenance mode',
+      exportName: `MaintenanceModeKVSArn-${params.env}`,
+    });
+
+    new CfnOutput(this, 'MaintenanceBucketName', {
+      value: maintenanceMode.maintenanceBucketName,
+      description: 'Name of the S3 bucket for maintenance page assets',
+      exportName: `MaintenanceModeBucketName-${params.env}`,
     });
 
     if (params.hostName && params.domainName) {

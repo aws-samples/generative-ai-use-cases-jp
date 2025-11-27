@@ -15,3 +15,4 @@ export * from './multi-tenant-role';
 export * from './tenant-dynamodb';
 export * from './tenant-manager';
 export * from './tenant-role';
+export * from './maintenance-mode';

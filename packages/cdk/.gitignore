@@ -8,6 +8,7 @@ node_modules
 .cdk.staging
 cdk.out
 !custom-resources/*.js
+!cloudfront-functions/*.js
 
 # Tenant-specific CDK configuration (use cdk.tenant.example.json as template)
 cdk.tenant.json
