@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { create } from 'zustand';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type Language = 'auto' | 'ja' | 'en';
@@ -24,36 +24,57 @@ const DEFAULT_SETTINGS: Settings = {
 
 const STORAGE_KEY = 'app-settings';
 
-export const useSettings = () => {
-  const [settings, setSettings] = useState<Settings>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return { ...DEFAULT_SETTINGS, ...parsed };
-      }
-    } catch (error) {
-      console.error('Failed to load settings:', error);
-    }
+// localStorageから初期値を読み込む
+const loadSettings = (): Settings => {
+  if (typeof localStorage === 'undefined') {
     return DEFAULT_SETTINGS;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.error('Failed to save settings:', error);
+  }
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return { ...DEFAULT_SETTINGS, ...parsed };
     }
-  }, [settings]);
+  } catch (error) {
+    console.error('Failed to load settings:', error);
+  }
+  return DEFAULT_SETTINGS;
+};
 
-  const updateSettings = useCallback((updates: Partial<Settings>) => {
-    setSettings((prev) => ({ ...prev, ...updates }));
-  }, []);
+// localStorageに保存する
+const saveSettings = (settings: Settings) => {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch (error) {
+    console.error('Failed to save settings:', error);
+  }
+};
 
-  const resetSettings = useCallback(() => {
-    setSettings(DEFAULT_SETTINGS);
-  }, []);
+interface SettingsStore {
+  settings: Settings;
+  updateSettings: (updates: Partial<Settings>) => void;
+  resetSettings: () => void;
+}
 
+const useSettingsStore = create<SettingsStore>((set) => ({
+  settings: loadSettings(),
+  updateSettings: (updates) =>
+    set((state) => {
+      const newSettings = { ...state.settings, ...updates };
+      saveSettings(newSettings);
+      return { settings: newSettings };
+    }),
+  resetSettings: () => {
+    saveSettings(DEFAULT_SETTINGS);
+    set({ settings: DEFAULT_SETTINGS });
+  },
+}));
+
+export const useSettings = () => {
+  const { settings, updateSettings, resetSettings } = useSettingsStore();
   return {
     settings,
     updateSettings,

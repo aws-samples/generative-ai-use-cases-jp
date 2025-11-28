@@ -276,8 +276,15 @@ export const handler = awslambda.streamifyResponse(
 
       // Build system message: assistant instruction + custom instructions + RAG context
       const baseInstruction = customInstructions?.trim()
-        ? `${assistant.instruction}\n\n${customInstructions}`
-        : assistant.instruction;
+        ? `<instructions>
+${assistant.instruction}
+</instructions>
+<user_custom_instructions>
+${customInstructions}
+</user_custom_instructions>`
+        : `<instructions>
+${assistant.instruction}
+</instructions>`;
 
       const systemMessage = ragContext
         ? `${baseInstruction}\n\nRelevant context from documents:\n${ragContext}`

@@ -25,6 +25,7 @@ import ModelParameters from '../components/ModelParameters';
 import { AcceptedDotExtensions } from '../utils/MediaUtils';
 import { useTranslation } from 'react-i18next';
 import LoadingWave from '../components/LoadingWave';
+import { useSettings } from '../hooks/useSettings';
 
 const fileLimit: FileLimit = {
   accept: AcceptedDotExtensions,
@@ -100,14 +101,33 @@ const ChatPage: React.FC = () => {
   >(undefined);
   const [showSetting, setShowSetting] = useState(false);
   const { t } = useTranslation();
+  const { settings } = useSettings();
+
+  // カスタム指示を適用したシステムプロンプトを構築
+  const buildSystemPrompt = useCallback(
+    (baseContext: string): string => {
+      if (settings.customizeEnabled && settings.customInstructions.trim()) {
+        return `<instructions>
+${baseContext}
+</instructions>
+<user_custom_instructions>
+${settings.customInstructions}
+</user_custom_instructions>`;
+      }
+      return `<instructions>
+${baseContext}
+</instructions>`;
+    },
+    [settings.customizeEnabled, settings.customInstructions]
+  );
 
   useEffect(() => {
-    // Set fixed system context
+    // Set system context with custom instructions for new chats
     if (!chatId) {
-      updateSystemContext(FIXED_SYSTEM_CONTEXT);
+      updateSystemContext(buildSystemPrompt(FIXED_SYSTEM_CONTEXT));
     }
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [chatId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatId, buildSystemPrompt]);
 
   const title = useMemo(() => {
     if (chatId) {

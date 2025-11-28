@@ -1000,9 +1000,16 @@ const useChat = (id: string, chatId?: string) => {
   const applyCustomInstructions = useCallback(
     (baseSystemContext: string): string => {
       if (settings.customizeEnabled && settings.customInstructions.trim()) {
-        return `${baseSystemContext}\n\n${settings.customInstructions}`;
+        return `<instructions>
+${baseSystemContext}
+</instructions>
+<user_custom_instructions>
+${settings.customInstructions}
+</user_custom_instructions>`;
       }
-      return baseSystemContext;
+      return `<instructions>
+${baseSystemContext}
+</instructions>`;
     },
     [settings.customizeEnabled, settings.customInstructions]
   );

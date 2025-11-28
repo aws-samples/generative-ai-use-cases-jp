@@ -156,6 +156,9 @@ const AssistantChatPage: React.FC = () => {
     if (!assistantId) return;
 
     const targetChatId = chatIdOverride ?? currentChatId;
+    // chatIdがない場合（新規チャット）はAPIを呼び出さない
+    if (!targetChatId) return;
+
     try {
       const response = await listMessages(assistantId, {
         limit: 100,
