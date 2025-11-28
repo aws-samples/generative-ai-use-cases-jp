@@ -22,7 +22,7 @@ export class AgentCoreStack extends Stack {
         env: params.env,
         createGenericRuntime: params.createGenericAgentCoreRuntime,
         createAgentBuilderRuntime: params.agentBuilderEnabled,
-        agentCoreNetworkType: params.agentCoreNetworkType,
+        isAgentCoreNetworkPrivate: params.isAgentCoreNetworkPrivate,
         agentCoreVpcId: params.agentCoreVpcId,
         agentCoreSubnetIds: params.agentCoreSubnetIds,
       });

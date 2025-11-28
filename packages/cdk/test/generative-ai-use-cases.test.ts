@@ -215,9 +215,9 @@ describe('GenerativeAiUseCases', () => {
 
     const params = processedStackInputSchema.parse({
       ...stackInput,
-      agentCoreNetworkType: 'PRIVATE',
       agentCoreVpcId: 'vpc-12345678',
       agentCoreSubnetIds: ['subnet-12345678', 'subnet-87654321'],
+      isAgentCoreNetworkPrivate: true,
     });
 
     const {

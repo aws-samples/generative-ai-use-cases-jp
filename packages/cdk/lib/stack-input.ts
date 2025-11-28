@@ -161,7 +161,6 @@ const baseStackInputSchema = z.object({
     )
     .default([]),
   // Agent Core Network Configuration
-  agentCoreNetworkType: z.enum(['PUBLIC', 'PRIVATE']).default('PUBLIC'),
   agentCoreVpcId: z.string().nullish(),
   agentCoreSubnetIds: z.array(z.string()).nullish(),
   // MCP
@@ -222,20 +221,18 @@ export const stackInputSchema = baseStackInputSchema
   )
   .refine(
     (data) => {
-      // Validate AgentCore network configuration
-      if (data.agentCoreNetworkType === 'PRIVATE') {
-        return (
-          data.agentCoreVpcId &&
-          data.agentCoreSubnetIds &&
-          data.agentCoreSubnetIds.length > 0
-        );
-      }
-      return true;
+      // Validate AgentCore VPC configuration consistency
+      const hasVpcId = !!data.agentCoreVpcId;
+      const hasSubnetIds =
+        data.agentCoreSubnetIds && data.agentCoreSubnetIds.length > 0;
+
+      // Both must be provided or both must be empty
+      return hasVpcId === hasSubnetIds;
     },
     {
       message:
-        'VPC ID and Subnet IDs are required when agentCoreNetworkType is PRIVATE',
-      path: ['agentCoreNetworkType'],
+        'Both VPC ID and Subnet IDs must be provided together for AgentCore network configuration',
+      path: ['agentCoreVpcId'],
     }
   );
 
@@ -277,6 +274,8 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
   ),
   // Processed agentCoreRegion (null -> modelRegion)
   agentCoreRegion: z.string(),
+  // Computed from VPC configuration (computed in parameter.ts)
+  isAgentCoreNetworkPrivate: z.boolean().optional(),
   // Branding configuration
   brandingConfig: z
     .object({

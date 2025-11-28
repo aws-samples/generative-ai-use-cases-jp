@@ -38,7 +38,7 @@ export interface GenericAgentCoreProps {
   env: string;
   createGenericRuntime?: boolean;
   createAgentBuilderRuntime?: boolean;
-  agentCoreNetworkType: 'PUBLIC' | 'PRIVATE';
+  isAgentCoreNetworkPrivate?: boolean;
   agentCoreVpcId?: string | null;
   agentCoreSubnetIds?: string[] | null;
   agentCoreEnvironmentVariables?: Record<string, string>;
@@ -67,7 +67,7 @@ export class GenericAgentCore extends Construct {
       env,
       createGenericRuntime = false,
       createAgentBuilderRuntime = false,
-      agentCoreNetworkType = 'PUBLIC',
+      isAgentCoreNetworkPrivate = false,
       agentCoreVpcId = null,
       agentCoreSubnetIds = null,
     } = props;
@@ -85,11 +85,7 @@ export class GenericAgentCore extends Construct {
     let vpc: IVpc | undefined;
     let subnets: ISubnet[] | undefined;
 
-    if (
-      agentCoreNetworkType === 'PRIVATE' &&
-      agentCoreVpcId &&
-      agentCoreSubnetIds
-    ) {
+    if (isAgentCoreNetworkPrivate && agentCoreVpcId && agentCoreSubnetIds) {
       vpc = Vpc.fromLookup(this, 'AgentCoreVpc', { vpcId: agentCoreVpcId });
       subnets = agentCoreSubnetIds.map((subnetId, index) =>
         Subnet.fromSubnetId(this, `AgentCoreSubnet${index}`, subnetId)
@@ -126,7 +122,7 @@ export class GenericAgentCore extends Construct {
     this.resources = this.createResources(
       createGenericRuntime,
       createAgentBuilderRuntime,
-      agentCoreNetworkType,
+      isAgentCoreNetworkPrivate,
       vpc,
       subnets,
       securityGroup
@@ -184,7 +180,7 @@ export class GenericAgentCore extends Construct {
   private createResources(
     createGeneric: boolean,
     createAgentBuilder: boolean,
-    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    isAgentCoreNetworkPrivate: boolean,
     vpc?: IVpc,
     subnets?: ISubnet[],
     securityGroup?: SecurityGroup
@@ -201,7 +197,7 @@ export class GenericAgentCore extends Construct {
         'Generic',
         this.genericRuntimeConfig,
         role,
-        agentCoreNetworkType,
+        isAgentCoreNetworkPrivate,
         vpc,
         subnets,
         securityGroup
@@ -213,7 +209,7 @@ export class GenericAgentCore extends Construct {
         'AgentBuilder',
         this.agentBuilderRuntimeConfig,
         role,
-        agentCoreNetworkType,
+        isAgentCoreNetworkPrivate,
         vpc,
         subnets,
         securityGroup
@@ -228,13 +224,13 @@ export class GenericAgentCore extends Construct {
     type: string,
     config: AgentCoreRuntimeConfig,
     role: Role,
-    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    isAgentCoreNetworkPrivate: boolean,
     vpc?: IVpc,
     subnets?: ISubnet[],
     securityGroup?: SecurityGroup
   ): Runtime {
     const networkConfig = this.createNetworkConfiguration(
-      agentCoreNetworkType,
+      isAgentCoreNetworkPrivate,
       vpc,
       subnets,
       securityGroup
@@ -253,15 +249,15 @@ export class GenericAgentCore extends Construct {
   }
 
   private createNetworkConfiguration(
-    agentCoreNetworkType: 'PUBLIC' | 'PRIVATE',
+    isAgentCoreNetworkPrivate: boolean,
     vpc?: IVpc,
     subnets?: ISubnet[],
     securityGroup?: SecurityGroup
   ): RuntimeNetworkConfiguration {
-    if (agentCoreNetworkType === 'PRIVATE') {
+    if (isAgentCoreNetworkPrivate) {
       if (!vpc || !subnets) {
         throw new Error(
-          'VPC and Subnets are required for PRIVATE network type'
+          'VPC and Subnets are required for private network configuration'
         );
       }
 

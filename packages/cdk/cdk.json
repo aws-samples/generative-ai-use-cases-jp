@@ -68,7 +68,6 @@
     "createGenericAgentCoreRuntime": false,
     "agentCoreRegion": null,
     "agentCoreExternalRuntimes": [],
-    "agentCoreNetworkType": "PUBLIC",
     "agentCoreVpcId": null,
     "agentCoreSubnetIds": null,
     "allowedIpV4AddressRanges": null,
