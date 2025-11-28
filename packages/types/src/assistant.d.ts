@@ -26,6 +26,7 @@ export type Assistant = {
   syncStatus: 'QUEUED' | 'SYNCING' | 'SUCCEEDED' | 'FAILED' | 'PARTIAL';
   syncStatusReason: string;
   knowledgeSources: KnowledgeSource[];
+  firstQuestions?: string[]; // Quick starter questions for new chats
   s3Urls?: string[]; // Legacy field for backward compatibility
   updatedDate: string;
 };
@@ -83,6 +84,7 @@ export type CreateAssistantRequest = {
   ragEnabled: boolean;
   visibility?: 'private' | 'public'; // Optional, defaults to 'private'
   knowledgeSources?: KnowledgeSource[];
+  firstQuestions?: string[]; // Quick starter questions for new chats
   s3Urls?: string[]; // Legacy field for backward compatibility
 };
 
@@ -94,6 +96,7 @@ export type UpdateAssistantRequest = {
   ragEnabled?: boolean;
   visibility?: 'private' | 'public';
   knowledgeSources?: KnowledgeSource[];
+  firstQuestions?: string[]; // Quick starter questions for new chats
   s3Urls?: string[]; // Legacy field for backward compatibility
 };
 

@@ -124,6 +124,7 @@ export const createAssistant = async (
     syncStatus: 'QUEUED',
     syncStatusReason: '',
     knowledgeSources: normalizeKnowledgeSources(data.knowledgeSources),
+    ...(data.firstQuestions && { firstQuestions: data.firstQuestions }),
     ...(data.s3Urls && { s3Urls: data.s3Urls }),
     updatedDate: now,
   };
@@ -451,6 +452,11 @@ export const updateAssistant = async (
     updateExpressions.push('#s3Urls = :s3Urls');
     expressionAttributeNames['#s3Urls'] = 's3Urls';
     expressionAttributeValues[':s3Urls'] = updates.s3Urls;
+  }
+  if (updates.firstQuestions !== undefined) {
+    updateExpressions.push('#firstQuestions = :firstQuestions');
+    expressionAttributeNames['#firstQuestions'] = 'firstQuestions';
+    expressionAttributeValues[':firstQuestions'] = updates.firstQuestions;
   }
 
   // Always update updatedDate

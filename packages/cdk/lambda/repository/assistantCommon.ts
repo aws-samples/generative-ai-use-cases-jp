@@ -20,6 +20,7 @@ export function formatAssistantFromDb(item: any): any {
     syncStatus: item.syncStatus,
     syncStatusReason: item.syncStatusReason,
     knowledgeSources: ensureKnowledgeSourceStatus(item.knowledgeSources),
+    firstQuestions: item.firstQuestions,
     s3Urls: item.s3Urls || [],
     createdDate: item.createdDate,
     updatedDate: item.updatedDate,
