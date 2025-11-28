@@ -153,6 +153,8 @@ const baseStackInputSchema = z.object({
   useWebUi: z.boolean().default(true),
   // Usecase builder
   useCaseBuilderEnabled: z.boolean().default(true),
+  // Assistant creation restriction
+  assistantCreationRequiresAdmin: z.boolean().default(true),
   // Flows
   flows: z
     .array(

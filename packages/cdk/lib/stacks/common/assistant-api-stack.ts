@@ -76,6 +76,7 @@ class AssistantApiStack extends NestedStack {
       endpointNames: api.endpointNames,
       queryDecompositionEnabled: params.queryDecompositionEnabled,
       rerankingModelId: params.rerankingModelId,
+      assistantCreationRequiresAdmin: params.assistantCreationRequiresAdmin,
       customAgents: params.agents,
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,

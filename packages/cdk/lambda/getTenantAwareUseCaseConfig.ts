@@ -8,9 +8,16 @@ import {
   ok200Response,
 } from './utils/apiResponse';
 
+// Read assistant creation restriction setting from environment
+// This is a global setting configured via cdk.json
+const ASSISTANT_CREATION_REQUIRES_ADMIN =
+  process.env.ASSISTANT_CREATION_REQUIRES_ADMIN !== 'false';
+
 /**
  * This endpoint provides tenant-specific use case configuration for the frontend.
- * It only returns configuration stored in the tenant's database record.
+ * It returns both:
+ * - Configuration stored in the tenant's database record (tenant-specific)
+ * - Global configuration from environment variables (deployment-wide)
  * Unlike the admin endpoint, this doesn't require admin privileges - any authenticated user can access their tenant's configuration.
  */
 export const handler = async (
@@ -45,6 +52,8 @@ export const handler = async (
     const response = {
       tenantId,
       hiddenUseCases: tenant.useCaseConfiguration?.hiddenUseCases || {},
+      // Global configuration from deployment settings
+      assistantCreationRequiresAdmin: ASSISTANT_CREATION_REQUIRES_ADMIN,
       source: 'tenant',
     };
 

@@ -103,13 +103,35 @@ export const handler = async (
   }
 };
 
+// TODO: Update after implementing AuthZ - Currently only tenantAdmin users can create assistants (workaround)
+// Read assistant creation restriction setting from environment
+// When true (default), only tenantAdmin users can create assistants
+// When false, any authenticated user can create assistants
+const ASSISTANT_CREATION_REQUIRES_ADMIN =
+  process.env.ASSISTANT_CREATION_REQUIRES_ADMIN !== 'false';
+
 /**
  * Handle POST / - Create assistant
+ * TODO: Update after implementing AuthZ - Currently only tenantAdmin users can create assistants (workaround)
+ * Authorization is configurable via assistantCreationRequiresAdmin in cdk.json
  */
 async function handleCreate(
   userId: string,
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
+  // TODO: Update after implementing AuthZ - Currently only tenantAdmin users can create assistants (workaround)
+  // Check if admin restriction is enabled (configurable via cdk.json)
+  if (ASSISTANT_CREATION_REQUIRES_ADMIN) {
+    const isTenantAdmin =
+      event.requestContext.authorizer?.claims?.['custom:tenantAdmin'] === 'true';
+    if (!isTenantAdmin) {
+      return forbidden403Response({
+        message: 'Only tenant administrators can create assistants',
+        code: 'TENANT_ADMIN_REQUIRED',
+      });
+    }
+  }
+
   const body: CreateAssistantRequest = JSON.parse(event.body || '{}');
 
   console.log(

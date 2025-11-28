@@ -81,6 +81,7 @@
     "guardrailEnabled": false,
     "crossAccountBedrockRoleArn": "",
     "useCaseBuilderEnabled": true,
+    "assistantCreationRequiresAdmin": true,
     "litellmProxyEnabled": false,
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,

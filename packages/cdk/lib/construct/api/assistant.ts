@@ -48,6 +48,9 @@ class AssistantApi extends Construct {
         OPENSEARCH_INDEX: 'assistant-docs',
         ASSISTANT_FILES_BUCKET_NAME: fileBucket?.bucketName || '',
         TENANTS_TABLE_NAME: tenantManager?.tenantsTable.tableName || '',
+        ASSISTANT_CREATION_REQUIRES_ADMIN: (
+          props.assistantCreationRequiresAdmin ?? true
+        ).toString(),
       }),
     });
 

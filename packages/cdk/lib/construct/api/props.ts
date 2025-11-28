@@ -29,6 +29,7 @@ export type GenericApiProps = {
   readonly endpointNames: string[];
   readonly queryDecompositionEnabled: boolean;
   readonly rerankingModelId?: string | null;
+  readonly assistantCreationRequiresAdmin: boolean;
   readonly customAgents: Agent[];
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly allowedIpV4AddressRanges?: string[] | null;

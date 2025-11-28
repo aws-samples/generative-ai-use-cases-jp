@@ -23,6 +23,8 @@ export interface TenantUseCaseConfigResponse {
   hiddenUseCases: HiddenUseCases;
   source: 'tenant' | 'global' | 'global_fallback';
   globalHiddenUseCases?: HiddenUseCases;
+  // Global configuration from deployment settings
+  assistantCreationRequiresAdmin?: boolean;
   error?: string;
 }
 

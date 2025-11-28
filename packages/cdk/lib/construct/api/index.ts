@@ -61,6 +61,7 @@ export interface BackendApiProps {
   readonly endpointNames: string[];
   readonly queryDecompositionEnabled: boolean;
   readonly rerankingModelId?: string | null;
+  readonly assistantCreationRequiresAdmin: boolean;
   readonly customAgents: Agent[];
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly allowedIpV4AddressRanges?: string[] | null;
@@ -356,7 +357,11 @@ export class Api extends Construct {
         bundling: {
           nodeModules: ['aws-jwt-verify'],
         },
-        environment: getBaseEnvironment(this, apiProps, {}),
+        environment: getBaseEnvironment(this, apiProps, {
+          ASSISTANT_CREATION_REQUIRES_ADMIN: (
+            props.assistantCreationRequiresAdmin ?? true
+          ).toString(),
+        }),
       }
     );
 

@@ -113,6 +113,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       customAgents: params.agents,
       queryDecompositionEnabled: params.queryDecompositionEnabled,
       rerankingModelId: params.rerankingModelId,
+      assistantCreationRequiresAdmin: params.assistantCreationRequiresAdmin,
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
