@@ -214,6 +214,15 @@ export class Auth extends Construct {
       LambdaVersion.V2_0
     );
 
+    // Custom Message Lambda for email customization
+    const customMessageFunction = new NodejsFunction(this, 'CustomMessage', {
+      runtime: LAMBDA_RUNTIME_NODEJS,
+      entry: './lambda/customMessage.ts',
+      timeout: Duration.seconds(5),
+    });
+
+    userPool.addTrigger(UserPoolOperation.CUSTOM_MESSAGE, customMessageFunction);
+
     this.client = client;
     this.userPool = userPool;
     this.idPool = idPool;
