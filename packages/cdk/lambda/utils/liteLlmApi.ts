@@ -1,5 +1,6 @@
 import {
   ApiInterface,
+  ExtraData,
   GenerateImageParams,
   GenerateVideoParams,
   Model,
@@ -11,14 +12,149 @@ import { SignatureV4 } from '@smithy/signature-v4';
 import { HttpRequest } from '@smithy/protocol-http';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { sdkStreamMixin } from '@smithy/util-stream-node';
 
-const createOpenAIChatCompletionMessages = (messages: UnrecordedMessage[]) => {
-  return messages.map((message) => {
-    return {
-      role: message.role,
-      content: message.content,
-    };
+/**
+ * OpenAI互換のimage_url形式のコンテンツブロック
+ */
+interface ImageUrlContentBlock {
+  type: 'image_url';
+  image_url: {
+    url: string;
+  };
+}
+
+/**
+ * テキスト形式のコンテンツブロック
+ */
+interface TextContentBlock {
+  type: 'text';
+  text: string;
+}
+
+/**
+ * OpenAI互換のメッセージコンテンツ型
+ */
+type OpenAIMessageContent =
+  | string
+  | Array<TextContentBlock | ImageUrlContentBlock>;
+
+/**
+ * OpenAI互換のメッセージ型
+ */
+interface OpenAIMessage {
+  role: string;
+  content: OpenAIMessageContent;
+}
+
+/**
+ * S3からファイルを取得してBase64形式で返す
+ */
+const getS3FileAsBase64 = async (extraData: ExtraData): Promise<string> => {
+  const s3Client = new S3Client();
+  const command = new GetObjectCommand({
+    Bucket: process.env.BUCKET_NAME,
+    Key: extraData.source.data,
   });
+
+  const response = await s3Client.send(command);
+  if (!response.Body) {
+    throw new Error('No body in response');
+  }
+
+  const sdkStream = sdkStreamMixin(response.Body);
+  const data = await sdkStream.transformToByteArray();
+  return Buffer.from(data).toString('base64');
+};
+
+/**
+ * ExtraDataからデータを取得
+ */
+const getDataFromExtraData = async (extraData: ExtraData): Promise<string> => {
+  if (extraData.source.type === 's3') {
+    return await getS3FileAsBase64(extraData);
+  }
+  return extraData.source.data;
+};
+
+/**
+ * ExtraDataをOpenAI互換のimage_url形式に変換
+ * LiteLLMが全プロバイダー(OpenAI, Anthropic, Bedrock, Vertex AI等)に正しく変換する
+ */
+const convertExtraDataToContentBlock = async (
+  extraData: ExtraData
+): Promise<ImageUrlContentBlock | TextContentBlock> => {
+  const { type: dataType, source } = extraData;
+  const { type: sourceType, mediaType } = source;
+
+  const data = await getDataFromExtraData(extraData);
+
+  // JSONデータはテキストとして扱う
+  if (sourceType === 'json' || dataType === 'json') {
+    return {
+      type: 'text',
+      text: data,
+    };
+  }
+
+  // 画像、ファイル（PDF等）はimage_url形式で送信
+  // LiteLLMがプロバイダーごとに適切な形式に変換する
+  switch (dataType) {
+    case 'image':
+    case 'file':
+      return {
+        type: 'image_url',
+        image_url: {
+          url: `data:${mediaType};base64,${data}`,
+        },
+      };
+    case 'video':
+      throw new Error('Video input is not supported currently.');
+    default:
+      return {
+        type: 'text',
+        text: data,
+      };
+  }
+};
+
+/**
+ * UnrecordedMessageをOpenAI互換形式に変換
+ * extraDataがある場合はマルチモーダルコンテンツとして構築
+ */
+const createOpenAIChatCompletionMessages = async (
+  messages: UnrecordedMessage[]
+): Promise<OpenAIMessage[]> => {
+  return Promise.all(
+    messages.map(async (message) => {
+      // extraDataがない場合は単純なテキストメッセージ
+      if (!message.extraData || message.extraData.length === 0) {
+        return {
+          role: message.role,
+          content: message.content,
+        };
+      }
+
+      // extraDataがある場合はマルチモーダルコンテンツを構築
+      const contentBlocks: Array<TextContentBlock | ImageUrlContentBlock> = [
+        {
+          type: 'text',
+          text: message.content,
+        },
+      ];
+
+      for (const extra of message.extraData) {
+        const block = await convertExtraDataToContentBlock(extra);
+        contentBlocks.push(block);
+      }
+
+      return {
+        role: message.role,
+        content: contentBlocks,
+      };
+    })
+  );
 };
 
 const convertFinishReason = (
@@ -41,7 +177,7 @@ const convertFinishReason = (
 
 interface ChatCompletionRequest {
   model: string;
-  messages: Array<{ role: string; content: string }>;
+  messages: OpenAIMessage[];
   stream: boolean;
 }
 
@@ -91,7 +227,7 @@ const liteLlmApi: ApiInterface = {
       throw new Error('LITELLM_ENDPOINT environment variable is not set');
     }
 
-    const openAIMessages = createOpenAIChatCompletionMessages(messages);
+    const openAIMessages = await createOpenAIChatCompletionMessages(messages);
     const requestBody = {
       model: model.modelId,
       messages: openAIMessages,
@@ -137,7 +273,7 @@ const liteLlmApi: ApiInterface = {
       throw new Error('LITELLM_ENDPOINT environment variable is not set');
     }
 
-    const openAIMessages = createOpenAIChatCompletionMessages(messages);
+    const openAIMessages = await createOpenAIChatCompletionMessages(messages);
     const requestBody = {
       model: model.modelId,
       messages: openAIMessages,

@@ -15,7 +15,6 @@ import {
   SystemMessage,
   HumanMessage,
   AIMessage,
-  DataContentBlock,
 } from '@langchain/core/messages';
 import { streamingChunk } from './streamingChunk';
 import { StopReason } from '@aws-sdk/client-bedrock-runtime';
@@ -71,14 +70,40 @@ const getTextDataFromExtraData = async (
 };
 
 /**
- * ExtraDataをLangChain用のDataContentBlockに変換する
+ * OpenAI互換のimage_url形式のコンテンツブロック
+ * LiteLLMが全プロバイダー(OpenAI, Anthropic, Bedrock, Vertex AI等)に正しく変換する
+ */
+interface ImageUrlContentBlock {
+  type: 'image_url';
+  image_url: {
+    url: string;
+  };
+}
+
+/**
+ * テキスト形式のコンテンツブロック
+ */
+interface TextContentBlock {
+  type: 'text';
+  text: string;
+}
+
+/**
+ * サポートするコンテンツブロックの型
+ */
+type SupportedContentBlock = ImageUrlContentBlock | TextContentBlock;
+
+/**
+ * ExtraDataをLangChain用のコンテンツブロックに変換する
+ * OpenAI互換のimage_url形式を使用することで、LiteLLMが全プロバイダー
+ * (OpenAI, Anthropic, Bedrock, Vertex AI等)に正しく変換できる
  * @param extraData 対象のデータ
- * @returns LangChain用のDataContentBlock
+ * @returns LangChain用のコンテンツブロック
  */
 const convertExtraData = async (
   extraData: ExtraData
-): Promise<DataContentBlock> => {
-  const { type: dataType, name, source } = extraData;
+): Promise<SupportedContentBlock> => {
+  const { type: dataType, source } = extraData;
   const { type: sourceType, mediaType } = source;
 
   const data = await getTextDataFromExtraData(extraData);
@@ -86,35 +111,30 @@ const convertExtraData = async (
   if (sourceType === 'json') {
     return {
       type: 'text',
-      source_type: 'text',
-      mime_type: mediaType,
       text: data,
     };
   }
 
   switch (dataType) {
     case 'image':
+      // OpenAI互換のimage_url形式を使用（LiteLLMが全プロバイダーに変換）
       return {
-        type: 'image',
-        source_type: 'base64',
-        mime_type: mediaType,
-        data: data,
+        type: 'image_url',
+        image_url: {
+          url: `data:${mediaType};base64,${data}`,
+        },
       };
     case 'file':
+      // ファイルもimage_url形式で送信（PDFなどのドキュメントも対応）
       return {
-        type: 'file',
-        source_type: 'base64',
-        mime_type: mediaType,
-        data: data,
-        metadata: {
-          filename: name,
+        type: 'image_url',
+        image_url: {
+          url: `data:${mediaType};base64,${data}`,
         },
       };
     case 'json':
       return {
         type: 'text',
-        source_type: 'text',
-        mime_type: mediaType,
         text: data,
       };
     case 'video':
