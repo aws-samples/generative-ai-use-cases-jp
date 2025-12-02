@@ -87,13 +87,55 @@ fi
 
 # Determine environment name if not specified
 if [[ -z "$env_name" ]]; then
-    # Try to infer from deployed stack (sorted alphabetically for deterministic behavior)
-    STACK_NAME=$(aws cloudformation list-stacks \
+    # Get all GenU stacks (sorted alphabetically for deterministic behavior)
+    STACK_NAMES=$(aws cloudformation list-stacks \
       --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
       --query 'sort_by(StackSummaries[?starts_with(StackName, `GenerativeAiUseCasesStack`)], &StackName)[].StackName' \
-      --output text | awk '{print $1}')
+      --output text)
     
-    if [[ -n "$STACK_NAME" ]]; then
+    # Count number of stacks
+    STACK_COUNT=$(echo "$STACK_NAMES" | awk 'NF' | wc -w)
+    
+    if [[ $STACK_COUNT -eq 0 ]]; then
+        echo "Error: No GenU stacks found in this account"
+        exit 1
+    elif [[ $STACK_COUNT -gt 1 ]]; then
+        # Multiple stacks - require explicit environment
+        echo ""
+        echo "╔════════════════════════════════════════════════════════════════╗"
+        echo "║  ⚠️  ERROR: Multiple GenU environments detected               ║"
+        echo "╚════════════════════════════════════════════════════════════════╝"
+        echo ""
+        echo "Found $STACK_COUNT GenU deployments in this account:"
+        echo ""
+        
+        # Display all environments
+        IFS=$'\t' read -ra STACK_ARRAY <<< "$STACK_NAMES"
+        for stack in "${STACK_ARRAY[@]}"; do
+            env="${stack#GenerativeAiUseCasesStack}"
+            echo "  • ${env:-default} (Stack: $stack)"
+        done
+        
+        echo ""
+        echo "To prevent accidental deletion, you must explicitly specify"
+        echo "which environment to destroy using the -e flag:"
+        echo ""
+        echo "  ./destroy.sh -e <environment-name>"
+        echo ""
+        echo "Examples:"
+        for stack in "${STACK_ARRAY[@]}"; do
+            env="${stack#GenerativeAiUseCasesStack}"
+            if [[ -z "$env" ]]; then
+                echo "  ./destroy.sh -e \"\""
+            else
+                echo "  ./destroy.sh -e $env"
+            fi
+        done
+        echo ""
+        exit 1
+    else
+        # Single stack - auto-select
+        STACK_NAME=$(echo "$STACK_NAMES" | awk '{print $1}')
         env_name="${STACK_NAME#GenerativeAiUseCasesStack}"
         echo "Detected environment from stack: ${env_name:-default}"
     fi
