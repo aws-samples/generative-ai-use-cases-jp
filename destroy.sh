@@ -3,7 +3,7 @@
 set -e
 
 # Set Node.js memory limit
-export NODE_OPTIONS="--max-old-space-size=1024"
+export NODE_OPTIONS="--max-old-space-size=800"
 
 echo "----------------------------"
 echo "  _____            _    _   "
@@ -87,11 +87,11 @@ fi
 
 # Determine environment name if not specified
 if [[ -z "$env_name" ]]; then
-    # Try to infer from deployed stack
+    # Try to infer from deployed stack (sorted alphabetically for deterministic behavior)
     STACK_NAME=$(aws cloudformation list-stacks \
       --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
-      --query 'StackSummaries[?starts_with(StackName, `GenerativeAiUseCasesStack`)].StackName' \
-      --output text | head -1)
+      --query 'sort_by(StackSummaries[?starts_with(StackName, `GenerativeAiUseCasesStack`)], &StackName)[].StackName' \
+      --output text | awk '{print $1}')
     
     if [[ -n "$STACK_NAME" ]]; then
         env_name="${STACK_NAME#GenerativeAiUseCasesStack}"
