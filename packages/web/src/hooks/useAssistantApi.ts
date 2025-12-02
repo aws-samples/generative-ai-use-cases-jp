@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import {
   Assistant,
   AssistantMessage,
+  Chat,
   CreateAssistantRequest,
   CreateAssistantMessageRequest,
   ListAssistantsQueryParams,
@@ -109,6 +110,20 @@ const useAssistantApi = () => {
 
         deleteAssistant: async (assistantId: string): Promise<void> => {
           await http.delete<void>(`assistant/${assistantId}`);
+        },
+
+        /**
+         * Create a new chat for the assistant
+         * This creates a chat entry with a server-generated chatId
+         */
+        createAssistantChat: async (
+          assistantId: string
+        ): Promise<{ chat: Chat }> => {
+          const res = await http.post<{ chat: Chat }, Record<string, never>>(
+            `assistant/${assistantId}/chat`,
+            {}
+          );
+          return res.data;
         },
 
         updateAssistantVisibility: async (

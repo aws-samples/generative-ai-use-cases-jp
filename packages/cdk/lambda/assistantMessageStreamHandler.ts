@@ -206,7 +206,18 @@ export const handler = awslambda.streamifyResponse(
       );
 
       // Create chat history entry for new conversations
-      if (isNewConversation) {
+      // Check if chat exists when chatId is provided from frontend
+      let shouldCreateChat = isNewConversation;
+      if (!isNewConversation) {
+        const existingChat = await findChatById(
+          userId,
+          cleanChatId,
+          requestContext
+        );
+        shouldCreateChat = !existingChat;
+      }
+
+      if (shouldCreateChat) {
         await createAssistantChat(
           userId,
           assistantId,

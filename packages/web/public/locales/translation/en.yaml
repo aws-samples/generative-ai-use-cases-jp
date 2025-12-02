@@ -86,6 +86,7 @@ assistant:
     chunksEnabled: Chunks display enabled
     confirmClear: Are you sure you want to clear the conversation?
     copy: Copy
+    createChatError: Failed to create chat
     failedAlertTitle: Sync Failed
     inputPlaceholder: Type a message...
     instruction: Instruction

@@ -255,6 +255,14 @@ class AssistantApi extends Construct {
       commonAuthorizerProps
     );
 
+    // POST: /assistant/{assistantId}/chat → assistantMessageHandler (create chat)
+    const chatResource = assistantIdResource.addResource('chat');
+    chatResource.addMethod(
+      'POST',
+      new LambdaIntegration(assistantMessageHandler),
+      commonAuthorizerProps
+    );
+
     // File upload endpoint: POST /assistant/upload-url
     if (fileBucket) {
       const uploadHandler = new NodejsFunction(

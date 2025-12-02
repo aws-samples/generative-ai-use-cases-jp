@@ -24,6 +24,7 @@ import { canAccessAssistant } from './utils/assistantAccessControl';
 import {
   badRequest400Response,
   conflict409Response,
+  created201Response,
   forbidden403Response,
   internalServerError500Response,
   methodNotAllowed405Response,
@@ -52,8 +53,9 @@ function addAssistantIdToMessage(
 }
 
 /**
- * Consolidated handler for assistant message operations
- * Routes based on HTTP method:
+ * Consolidated handler for assistant message and chat operations
+ * Routes based on HTTP method and path:
+ * - POST /{assistantId}/chat → create chat (new)
  * - POST /{assistantId}/messages → create message (with RAG)
  * - GET /{assistantId}/messages → list messages
  */
@@ -70,9 +72,16 @@ export const handler = async (
       return badRequest400Response({ message: 'Missing assistantId' });
     }
 
-    // Route based on HTTP method
+    // Determine if this is a chat or messages endpoint
+    const isChatEndpoint =
+      event.resource?.endsWith('/chat') || event.path?.endsWith('/chat');
+
+    // Route based on HTTP method and path
     switch (method) {
       case 'POST':
+        if (isChatEndpoint) {
+          return await handleCreateChat(userId, assistantId, event);
+        }
         return await handleCreateMessage(userId, assistantId, event);
 
       case 'GET':
@@ -86,6 +95,51 @@ export const handler = async (
     return internalServerError500Response({ message: 'Internal Server Error' });
   }
 };
+
+/**
+ * Handle POST /{assistantId}/chat - Create a new chat for the assistant
+ * This endpoint creates a chat entry in the database with a server-generated chatId
+ */
+async function handleCreateChat(
+  userId: string,
+  assistantId: string,
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+  // Get assistant configuration
+  const assistant = await getAssistant(assistantId, event);
+
+  if (!assistant) {
+    return notFound404Response({ message: 'Assistant not found' });
+  }
+
+  // Check access: owner OR (public AND same tenant)
+  if (!canAccessAssistant(assistant, userId, event)) {
+    return forbidden403Response({
+      message: 'Access denied to this assistant',
+      code: 'ASSISTANT_ACCESS_DENIED',
+    });
+  }
+
+  // Generate a new chatId on the server side
+  const chatId = crypto.randomUUID();
+
+  // Create the chat entry in the database
+  const chat = await createAssistantChat(
+    userId,
+    assistantId,
+    chatId,
+    assistant.name,
+    event
+  );
+
+  // Return the created chat with cleaned chatId (without 'chat#' prefix)
+  return created201Response({
+    chat: {
+      ...chat,
+      chatId: chat.chatId.replace('chat#', ''),
+    },
+  });
+}
 
 /**
  * Handle POST /{assistantId}/messages - Create message with RAG
@@ -186,7 +240,14 @@ async function handleCreateMessage(
 
   // Create chat history entry only for new conversations
   // This ensures the assistant conversation appears in the unified chat history
-  if (isNewConversation) {
+  // Check if chat exists when chatId is provided from frontend
+  let shouldCreateChat = isNewConversation;
+  if (!isNewConversation) {
+    const existingChat = await findChatById(userId, cleanChatId, event);
+    shouldCreateChat = !existingChat;
+  }
+
+  if (shouldCreateChat) {
     await createAssistantChat(
       userId,
       assistantId,
