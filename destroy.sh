@@ -16,6 +16,7 @@ echo "      DESTROY STACKS        "
 echo "----------------------------"
 
 # Process command arguments
+env_name_provided=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -c|--cdk-context)
@@ -28,6 +29,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         -e|--env)
             env_name="$2"
+            env_name_provided=true
             shift 2
             ;;
         -y|--yes)
@@ -86,7 +88,7 @@ if [[ -n "$parameter_file_path" ]]; then
 fi
 
 # Determine environment name if not specified
-if [[ -z "$env_name" ]]; then
+if [[ "$env_name_provided" == false ]]; then
     # Get all GenU stacks (sorted alphabetically for deterministic behavior)
     STACK_NAMES=$(aws cloudformation list-stacks \
       --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
