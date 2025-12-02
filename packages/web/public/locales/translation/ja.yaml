@@ -878,6 +878,16 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
+settings:
+  deleteAccount: アカウント削除
+  deleteAccountButton: アカウントを削除
+  deleteAccountCancel: キャンセル
+  deleteAccountConfirm: 削除する
+  deleteAccountConfirmDescription: この操作は取り消せません。確認のため、以下の情報を入力してください。
+  deleteAccountConfirmTitle: アカウント削除の確認
+  deleteAccountDeleteLabel: 「DELETE」と入力
+  deleteAccountDescription: アカウントを削除すると、すべてのデータが失われます。この操作は取り消せません。
+  deleteAccountEmailLabel: メールアドレスを入力
 shared:
   contact_admin: 管理者に問い合わせてください。
   error: エラー

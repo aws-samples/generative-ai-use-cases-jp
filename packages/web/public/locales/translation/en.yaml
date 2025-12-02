@@ -1036,6 +1036,16 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
+settings:
+  deleteAccount: Delete Account
+  deleteAccountButton: Delete Account
+  deleteAccountCancel: Cancel
+  deleteAccountConfirm: Delete
+  deleteAccountConfirmDescription: This action cannot be undone. Please enter the following to confirm.
+  deleteAccountConfirmTitle: Confirm Account Deletion
+  deleteAccountDeleteLabel: Type "DELETE" to confirm
+  deleteAccountDescription: Deleting your account will permanently remove all your data. This action cannot be undone.
+  deleteAccountEmailLabel: Enter your email address
 shared:
   contact_admin: Please contact the administrator.
   error: Error

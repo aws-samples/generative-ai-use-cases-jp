@@ -7,6 +7,7 @@ import {
   PiX,
   PiCaretDown,
   PiCheck,
+  PiTrash,
 } from 'react-icons/pi';
 import {
   useSettings,
@@ -14,6 +15,11 @@ import {
   Language,
   SendMessageMethod,
 } from '../hooks/useSettings';
+import { useTranslation } from 'react-i18next';
+import useHttp from '../hooks/useHttp';
+import useUserInfo from '../hooks/useUserInfo';
+import { performLogoutAndReload } from '../utils/auth';
+import DialogConfirmDeleteAccount from './DialogConfirmDeleteAccount';
 
 interface SettingsModalProps {
   open: boolean;
@@ -82,10 +88,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   open,
   onOpenChange,
 }) => {
+  const { t } = useTranslation();
   const { settings, updateSettings } = useSettings();
+  const { api } = useHttp();
+  const { userInfo } = useUserInfo();
   const [activeTab, setActiveTab] = useState<'general' | 'ai-customize'>(
     'general'
   );
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await api.delete('/user/account');
+      // After successful deletion, logout and reload
+      await performLogoutAndReload('Account deleted');
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      setIsDeleting(false);
+    }
+  };
 
   const themeOptions: { value: Theme; label: string }[] = [
     { value: 'light', label: 'ライト' },
@@ -204,6 +227,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       options={sendMessageOptions}
                     />
                   </div>
+
+                  {/* Delete Account Section */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-red-600">
+                        {t('settings.deleteAccount')}
+                      </label>
+                      <p className="text-sm text-gray-500">
+                        {t('settings.deleteAccountDescription')}
+                      </p>
+                      <button
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className="mt-2 flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        <PiTrash className="h-4 w-4" />
+                        {t('settings.deleteAccountButton')}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -261,6 +302,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </Dialog.Content>
       </Dialog.Portal>
+
+      {/* Delete Account Confirmation Dialog */}
+      <DialogConfirmDeleteAccount
+        isOpen={isDeleteDialogOpen}
+        userEmail={userInfo?.email || ''}
+        onDelete={handleDeleteAccount}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        isDeleting={isDeleting}
+      />
     </Dialog.Root>
   );
 };
