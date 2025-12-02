@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
@@ -66,6 +66,10 @@ const ChatPage: React.FC = () => {
     base64Cache,
   } = useFiles(pathname);
   const { chatId } = useParams();
+  const navigate = useNavigate();
+
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [createChatError, setCreateChatError] = useState<string | null>(null);
 
   const {
     getModelId,
@@ -75,12 +79,14 @@ const ChatPage: React.FC = () => {
     isEmpty,
     messages,
     clear,
-    postChat,
     editChat,
     updateSystemContext,
     retryGeneration,
     forceToStop,
     loadingMessages,
+    createChatIfNotExist,
+    migrateState,
+    postChatWithId,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
   const { scrollableContainer, setFollowing } = useFollow();
@@ -178,9 +184,42 @@ ${baseContext}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, setContent, availableModels, pathname, chatId]);
 
-  const onSend = useCallback(() => {
+  const onSend = useCallback(async () => {
     setFollowing(true);
-    postChat(
+    setCreateChatError(null);
+
+    let targetPathname = pathname;
+
+    // For new chats, create the chat first and navigate to its URL
+    if (!chatId) {
+      setIsCreatingChat(true);
+      try {
+        const newChatId = await createChatIfNotExist();
+        // Remove 'chat#' prefix from chatId for URL
+        const chatIdForUrl = newChatId.replace(/^chat#/, '');
+        const newPathname = `/chat/${chatIdForUrl}`;
+
+        // Migrate the state to the new path
+        migrateState(newPathname);
+
+        // Navigate to the new chat URL
+        navigate(newPathname, { replace: true });
+
+        // Use the new pathname for postChat
+        targetPathname = newPathname;
+      } catch (error) {
+        setIsCreatingChat(false);
+        setCreateChatError(
+          'チャットの作成に失敗しました。もう一度お試しください。'
+        );
+        return; // Keep the input content and return
+      }
+      setIsCreatingChat(false);
+    }
+
+    // Start LLM inference with the correct pathname
+    postChatWithId(
+      targetPathname,
       prompter.chatPrompt({ content }),
       false,
       undefined,
@@ -196,7 +235,21 @@ ${baseContext}
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, base64Cache, fileUpload, setFollowing, overrideModelParameters]);
+  }, [
+    content,
+    base64Cache,
+    fileUpload,
+    setFollowing,
+    overrideModelParameters,
+    chatId,
+    createChatIfNotExist,
+    migrateState,
+    navigate,
+    prompter,
+    postChatWithId,
+    uploadedFiles,
+    pathname,
+  ]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
@@ -342,22 +395,28 @@ ${baseContext}
         </h1>
 
         {/* Wrapper for messages and input to enable vertical centering when empty */}
-        {loadingMessages ? (
+        {/* Show loading only when fetching existing chat messages (not for just-created chats) */}
+        {loadingMessages && chatId && isEmpty ? (
           <div className="flex flex-1 flex-col items-center justify-center">
             <LoadingWave />
           </div>
         ) : isEmpty ? (
           <div className="flex flex-1 flex-col justify-center">
+            {createChatError && (
+              <div className="mx-auto mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
+                {createChatError}
+              </div>
+            )}
             <InputChatContent
               className="mx-auto print:hidden"
               content={content}
-              disabled={loading && !writing}
+              disabled={(loading && !writing) || isCreatingChat}
               onChangeContent={setContent}
               hideReset={true}
               onSend={() => {
-                if (!loading) {
+                if (!loading && !isCreatingChat) {
                   onSend();
-                } else {
+                } else if (writing) {
                   onStop();
                 }
               }}
@@ -369,6 +428,7 @@ ${baseContext}
                 setShowSetting(true);
               }}
               canStop={writing}
+              isCreatingChat={isCreatingChat}
             />
           </div>
         ) : (
@@ -392,16 +452,21 @@ ${baseContext}
             </div>
 
             <div className="sticky bottom-0 print:hidden">
+              {createChatError && (
+                <div className="mx-auto mb-2 max-w-3xl rounded-md bg-red-50 p-3 text-sm text-red-600">
+                  {createChatError}
+                </div>
+              )}
               <InputChatContent
                 className="mx-auto my-4"
                 content={content}
-                disabled={loading && !writing}
+                disabled={(loading && !writing) || isCreatingChat}
                 onChangeContent={setContent}
                 hideReset={true}
                 onSend={() => {
-                  if (!loading) {
+                  if (!loading && !isCreatingChat) {
                     onSend();
-                  } else {
+                  } else if (writing) {
                     onStop();
                   }
                 }}
@@ -413,6 +478,7 @@ ${baseContext}
                   setShowSetting(true);
                 }}
                 canStop={writing}
+                isCreatingChat={isCreatingChat}
               />
             </div>
           </>

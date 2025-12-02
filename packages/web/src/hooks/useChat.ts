@@ -134,6 +134,7 @@ const useChatState = create<{
   addMessageIdsToUnrecordedMessages: (id: string) => ToBeRecordedMessage[];
   replaceMessages: (id: string, messages: RecordedMessage[]) => void;
   setPredictedTitle: (id: string) => Promise<void>;
+  migrateState: (fromId: string, toId: string) => void;
 }>((set, get) => {
   const {
     createChat,
@@ -705,6 +706,40 @@ const useChatState = create<{
     replaceMessages(id, messages);
   };
 
+  const migrateState = (fromId: string, toId: string) => {
+    set((state) => {
+      const currentChat = state.chats[fromId];
+      if (!currentChat) return state;
+
+      return {
+        chats: produce(state.chats, (draft) => {
+          // Copy state to the new key
+          draft[toId] = { ...currentChat };
+          // Delete the old key
+          delete draft[fromId];
+        }),
+        modelIds: produce(state.modelIds, (draft) => {
+          if (state.modelIds[fromId]) {
+            draft[toId] = state.modelIds[fromId];
+            delete draft[fromId];
+          }
+        }),
+        loading: produce(state.loading, (draft) => {
+          if (state.loading[fromId] !== undefined) {
+            draft[toId] = state.loading[fromId];
+            delete draft[fromId];
+          }
+        }),
+        writing: produce(state.writing, (draft) => {
+          if (state.writing[fromId] !== undefined) {
+            draft[toId] = state.writing[fromId];
+            delete draft[fromId];
+          }
+        }),
+      };
+    });
+  };
+
   return {
     chats: {},
     modelIds: {},
@@ -950,6 +985,7 @@ const useChatState = create<{
     addMessageIdsToUnrecordedMessages,
     replaceMessages,
     setPredictedTitle,
+    migrateState,
   };
 });
 
@@ -988,6 +1024,7 @@ const useChat = (id: string, chatId?: string) => {
     addMessageIdsToUnrecordedMessages,
     replaceMessages,
     setPredictedTitle,
+    migrateState,
   } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
@@ -1044,11 +1081,22 @@ ${baseSystemContext}
 
   useEffect(() => {
     // In the case of a registered chat
-    if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
+    // Skip restore if the chat was just created (state already migrated)
+    // Note: chatId from URL doesn't have 'chat#' prefix, but existingChat.chatId does
+    const existingChat = chats[id]?.chat;
+    const isJustCreated = existingChat?.chatId === `chat#${chatId}`;
+
+    if (
+      !isLoadingMessage &&
+      messagesData &&
+      !isLoadingChat &&
+      chatData &&
+      !isJustCreated
+    ) {
       restore(id, messagesData.messages, chatData.chat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoadingMessage, isLoadingChat]);
+  }, [isLoadingMessage, isLoadingChat, chatId]);
 
   const filteredMessages = useMemo(() => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
@@ -1129,6 +1177,40 @@ ${baseSystemContext}
     ) => {
       post(
         id,
+        content,
+        mutateChatList,
+        ignoreHistory,
+        preProcessInput,
+        postProcessOutput,
+        sessionId,
+        uploadedFiles,
+        extraData,
+        overrideModelType,
+        setSessionId,
+        base64Cache,
+        overrideModelParameters
+      );
+    },
+    postChatWithId: (
+      targetId: string,
+      content: string,
+      ignoreHistory: boolean = false,
+      preProcessInput:
+        | ((message: ShownMessage[]) => ShownMessage[])
+        | undefined = undefined,
+      postProcessOutput: ((message: string) => string) | undefined = undefined,
+      sessionId: string | undefined = undefined,
+      uploadedFiles: UploadedFileType[] | undefined = undefined,
+      extraData: ExtraData[] | undefined = undefined,
+      overrideModelType: Model['type'] | undefined = undefined,
+      setSessionId: (sessionId: string) => void = () => {},
+      base64Cache: Record<string, string> | undefined = undefined,
+      overrideModelParameters:
+        | AdditionalModelRequestFields
+        | undefined = undefined
+    ) => {
+      post(
+        targetId,
         content,
         mutateChatList,
         ignoreHistory,
@@ -1267,6 +1349,9 @@ ${baseSystemContext}
     },
     setPredictedTitle: async () => {
       await setPredictedTitle(id);
+    },
+    migrateState: (newId: string) => {
+      migrateState(id, newId);
     },
   };
 };

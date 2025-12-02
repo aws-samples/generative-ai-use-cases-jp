@@ -35,6 +35,7 @@ type Props = {
   accept?: string[];
   canStop?: boolean;
   className?: string;
+  isCreatingChat?: boolean;
 } & (
   | {
       hideReset?: false;
@@ -236,8 +237,8 @@ const InputChatContent: React.FC<Props> = (props) => {
           {/* 右側の送信ボタン */}
           <ButtonSend
             className=""
-            disabled={disabledSend}
-            loading={loading || uploading}
+            disabled={disabledSend || props.isCreatingChat}
+            loading={loading || uploading || props.isCreatingChat}
             onClick={props.onSend}
             icon={props.sendIcon}
             canStop={props.canStop}
