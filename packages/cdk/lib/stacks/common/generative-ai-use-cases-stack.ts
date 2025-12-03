@@ -74,6 +74,10 @@ export class GenerativeAiUseCasesStack extends Stack {
       selfSignUpTenantMap: params.selfSignUpTenantMap,
       samlAuthEnabled: params.samlAuthEnabled,
       samlDefaultAuthEnabled: params.samlDefaultAuthEnabled,
+      emailServiceName: params.emailServiceName,
+      sendgridApiKey: params.sendgridApiKey,
+      sendgridFromEmail: params.sendgridFromEmail,
+      enableAutoDelete: params.enableAutoDelete,
     });
 
     // Database

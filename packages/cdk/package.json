@@ -27,6 +27,7 @@
   "dependencies": {
     "@aws-cdk/aws-glue-alpha": "^2.189.0-alpha.0",
     "@aws-cdk/aws-lambda-python-alpha": "^2.189.0-alpha.0",
+    "@aws-crypto/client-node": "^4.2.1",
     "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/client-bedrock-agent": "^3.755.0",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.755.0",

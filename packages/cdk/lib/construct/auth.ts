@@ -1,5 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import {
+  CfnUserPool,
   LambdaVersion,
   StringAttribute,
   UserPool,
@@ -16,7 +17,9 @@ import {
   PolicyStatement,
   Role,
   CfnRole,
+  ServicePrincipal,
 } from 'aws-cdk-lib/aws-iam';
+import { Key } from 'aws-cdk-lib/aws-kms';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LAMBDA_RUNTIME_NODEJS, LAMBDA_RUNTIME_PYTHON } from '../../consts';
@@ -30,6 +33,10 @@ export interface AuthProps {
   readonly selfSignUpTenantMap?: SelfSignUpTenantMapEntry[] | null;
   readonly samlAuthEnabled: boolean;
   readonly samlDefaultAuthEnabled: boolean;
+  readonly emailServiceName: string;
+  readonly sendgridApiKey: string;
+  readonly sendgridFromEmail: string;
+  readonly enableAutoDelete?: boolean;
 }
 
 export class Auth extends Construct {
@@ -214,14 +221,62 @@ export class Auth extends Construct {
       LambdaVersion.V2_0
     );
 
-    // Custom Message Lambda for email customization
-    const customMessageFunction = new NodejsFunction(this, 'CustomMessage', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/customMessage.ts',
-      timeout: Duration.seconds(5),
+    // SendGrid Custom Email Sender
+    // Create symmetric KMS key for encrypting email codes (required for custom email sender)
+    // Note: Cognito CustomEmailSender requires a symmetric key, not asymmetric
+    const kmsKey = new Key(this, 'CustomEmailSenderKey', {
+      enableKeyRotation: true,
+      removalPolicy: props.enableAutoDelete
+        ? RemovalPolicy.DESTROY
+        : RemovalPolicy.RETAIN,
+      description: 'KMS key for Cognito custom email sender',
     });
 
-    userPool.addTrigger(UserPoolOperation.CUSTOM_MESSAGE, customMessageFunction);
+    // Allow Cognito to use the key for encryption with CreateGrant
+    kmsKey.addToResourcePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        principals: [new ServicePrincipal('cognito-idp.amazonaws.com')],
+        actions: ['kms:Encrypt', 'kms:CreateGrant', 'kms:DescribeKey'],
+        resources: ['*'],
+      })
+    );
+
+    // SendGrid Custom Email Sender Lambda
+    const sendgridEmailSenderFunction = new NodejsFunction(
+      this,
+      'SendGridEmailSender',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/sendgridCustomEmailSender.ts',
+        timeout: Duration.seconds(30),
+        environment: {
+          SERVICE_NAME: props.emailServiceName,
+          SENDGRID_API_KEY: props.sendgridApiKey,
+          SENDGRID_FROM_EMAIL: props.sendgridFromEmail,
+          KEY_ID: kmsKey.keyId,
+          KEY_ARN: kmsKey.keyArn,
+        },
+      }
+    );
+
+    // Grant KMS decrypt permission to Lambda
+    kmsKey.grant(sendgridEmailSenderFunction, 'kms:Decrypt');
+
+    // Add custom email sender trigger using property overrides
+    // (Direct lambdaConfig assignment doesn't work due to CDK token resolution)
+    const cfnUserPool = userPool.node.defaultChild as CfnUserPool;
+    cfnUserPool.addPropertyOverride('LambdaConfig.CustomEmailSender', {
+      LambdaArn: sendgridEmailSenderFunction.functionArn,
+      LambdaVersion: 'V1_0',
+    });
+    cfnUserPool.addPropertyOverride('LambdaConfig.KMSKeyID', kmsKey.keyArn);
+
+    // Grant Cognito permission to invoke Lambda
+    sendgridEmailSenderFunction.addPermission('CognitoInvoke', {
+      principal: new ServicePrincipal('cognito-idp.amazonaws.com'),
+      sourceArn: userPool.userPoolArn,
+    });
 
     this.client = client;
     this.userPool = userPool;
