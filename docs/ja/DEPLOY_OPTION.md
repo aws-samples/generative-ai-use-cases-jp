@@ -788,9 +788,11 @@ AgentCore Runtime は以下のネットワークモードで動作できます�
 
 VPC モードを使用する場合は、以下のパラメータを設定してください：
 
-- `agentCoreNetworkType`: `PRIVATE` に設定
 - `agentCoreVpcId`: 使用するVPCのID
 - `agentCoreSubnetIds`: 使用するサブネットのIDリスト
+
+> [!NOTE]
+> `agentCoreVpcId`と`agentCoreSubnetIds`を両方設定すると、AgentCore Runtimeはプライベートネットワークモードでデプロイされます。両方とも未設定（`null`）の場合は、パブリックネットワークモードでデプロイされます。
 
 > [!IMPORTANT]
 > **Availability Zone (AZ) サポート**: AgentCore RuntimeはリージョンごとにサポートされているAZが限定されています。サブネットは必ずサポートされているAZ内に配置してください。詳細は[AWS公式ドキュメント](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs)をご確認ください。
@@ -805,7 +807,6 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
     agentBuilderEnabled: true,
-    agentCoreNetworkType: 'PRIVATE',
     agentCoreVpcId: 'vpc-xxxxxxxxx',
     agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
   },
@@ -820,7 +821,6 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "createGenericAgentCoreRuntime": true,
     "agentBuilderEnabled": true,
-    "agentCoreNetworkType": "PRIVATE",
     "agentCoreVpcId": "vpc-xxxxxxxxx",
     "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
   }

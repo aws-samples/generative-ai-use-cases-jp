@@ -773,9 +773,11 @@ Network settings apply to both Generic Runtime and AgentBuilder Runtime.
 
 When using VPC mode, configure the following parameters:
 
-- `agentCoreNetworkType`: Set to `PRIVATE`
 - `agentCoreVpcId`: VPC ID to use
 - `agentCoreSubnetIds`: List of subnet IDs to use
+
+> [!NOTE]
+> When both `agentCoreVpcId` and `agentCoreSubnetIds` are configured, AgentCore Runtime will be deployed in private network mode. If both are left unset (`null`), it will be deployed in public network mode.
 
 > [!IMPORTANT]
 > **Availability Zone (AZ) Support**: AgentCore Runtime has limited supported AZs per region. Subnets must be placed within supported AZs. For details, please refer to the [AWS official documentation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs).
@@ -790,7 +792,6 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
     agentBuilderEnabled: true,
-    agentCoreNetworkType: 'PRIVATE',
     agentCoreVpcId: 'vpc-xxxxxxxxx',
     agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
   },
@@ -805,7 +806,6 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "createGenericAgentCoreRuntime": true,
     "agentBuilderEnabled": true,
-    "agentCoreNetworkType": "PRIVATE",
     "agentCoreVpcId": "vpc-xxxxxxxxx",
     "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
   }

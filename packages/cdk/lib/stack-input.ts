@@ -223,8 +223,9 @@ export const stackInputSchema = baseStackInputSchema
     (data) => {
       // Validate AgentCore VPC configuration consistency
       const hasVpcId = !!data.agentCoreVpcId;
-      const hasSubnetIds =
-        data.agentCoreSubnetIds && data.agentCoreSubnetIds.length > 0;
+      const hasSubnetIds = !!(
+        data.agentCoreSubnetIds && data.agentCoreSubnetIds.length > 0
+      );
 
       // Both must be provided or both must be empty
       return hasVpcId === hasSubnetIds;
