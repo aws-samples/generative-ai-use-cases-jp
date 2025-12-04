@@ -3,7 +3,7 @@
 
 [![](https://img.shields.io/badge/%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88-%E6%9C%80%E6%96%B0-blue)](https://aws-samples.github.io/generative-ai-use-cases/index.html) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/aws-samples/generative-ai-use-cases/blob/main/LICENSE) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/node.js.yml) [![](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml/badge.svg)](https://github.com/aws-samples/generative-ai-use-cases/actions/workflows/browser-extension.yml)
 
-[English](./README.md) | 日本語
+[English](./README.md) | 日本語 | [한국어](./README_ko.md)
 
 生成 AI を安全に業務活用するための、ビジネスユースケース集を備えたアプリケーション実装
 
@@ -220,6 +220,7 @@ GenU をご利用いただく際の、構成と料金試算例を公開してお
 | <a href="https://www.san-a.co.jp/" target="_blank"><img src="./docs/assets/images/cases/san-a_logo.png"></a>                      | **株式会社サンエー** <br/> _Amazon Bedrock を活用することでエンジニアの生産性が劇的に向上し、内製で構築してきた当社特有の環境のクラウドへの移行を加速できました。_ <br/> ・[事例の詳細を見る](./docs/assets/images/cases/san-a_case.png)<br/> ・[事例のページを見る](https://aws.amazon.com/jp/solutions/case-studies/san-a/)                                                                                                                           |
 | <a href="https://onecompath.com/" target="_blank"><img src="./docs/assets/images/cases/onecompath_logo.png"></a>                  | **株式会社ONE COMPATH** <br/> _GenU を活用することで全社生成 AI 基盤構築を短期間で実現できました。企画部門での PoC 開発も可能になりビジネス創出サイクルを高速化、開発部門もより重要なビジネスにリソースを集中させることが可能になりました。_ <br/> ・[事例の詳細を見る](./docs/assets/images/cases/onecompath_case.png)<br/>                                                                                                                            |
 | <a href="https://www.mee.co.jp/" target="_blank"><img src="./docs/assets/images/cases/mee_logo.jpg"></a>                          | **三菱電機エンジニアリング株式会社** <br/> _生成AIの開発未経験のメンバーがサーバーワークスの伴走支援によってGenUを活用し、わずか3カ月でRAGシステムを開発。GenUを参考にしたアーキテクチャ構築により、ヘルプデスク業務のマニュアル検索効率化を実現し、開発の内製化を達成しました。_ <br/> ・[事例の詳細を見る](https://www.serverworks.co.jp/case/mee.html?utm_source=github&utm_medium=external-media&utm_campaign=github_external-media_GenU)<br/>      |
+| <a href="https://www.orbitics.co.jp/" target="_blank"><img src="./docs/assets/images/cases/orbitics_logo.png"></a>                | **Orbitics株式会社** <br/> _驚くほど短期間で開発することができました。獲得した開発技術を様々な事業領域に展開し、組織全体の業務効率化を目指し戦略的に活用していきます。_ <br/> ・[事例の詳細を見る](./docs/assets/images/cases/orbitics_case.png)<br/>                                                                                                                                                                                                   |
 
 活用事例を掲載させて頂ける場合は、[Issue](https://github.com/aws-samples/generative-ai-use-cases/issues)よりご連絡ください。
 
