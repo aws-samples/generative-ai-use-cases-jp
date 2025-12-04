@@ -35,6 +35,7 @@ ${mcpServersInfo ? `- Available MCP Servers (Tools):\n${mcpServersInfo}` : ''}
 3. If MCP servers are available, include how to effectively utilize those tools
 4. Include guidelines for interaction with users
 5. List any constraints or important notes
+6. Write the system prompt in the same language as the Name and Description provided above
 
 Output only the system prompt. No explanations or preambles.`;
 };
