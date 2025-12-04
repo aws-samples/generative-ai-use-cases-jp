@@ -62,12 +62,13 @@ const AgentForm: React.FC<AgentFormProps> = ({
   const [tagsInput, setTagsInput] = useState('');
   const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
 
-  // Load MCP server configs using the shared hook
-  const mcpServerConfigs = useMCPServers();
+  // Load available MCP servers using the shared hook
+  const availableMCPServers = useMCPServers();
 
   // Use the prompt generation hook
   const {
     generatedPrompt,
+    suggestedMCPServers,
     isGenerating,
     generate: generatePrompt,
     cancel: cancelGeneration,
@@ -75,8 +76,7 @@ const AgentForm: React.FC<AgentFormProps> = ({
     modelId: formData.modelId,
     agentName: formData.name,
     agentDescription: formData.description,
-    mcpServers: formData.mcpServers,
-    mcpServerConfigs,
+    availableMCPServers,
   });
 
   // Update systemPrompt when generation produces new content
@@ -85,6 +85,13 @@ const AgentForm: React.FC<AgentFormProps> = ({
       setFormData((prev) => ({ ...prev, systemPrompt: generatedPrompt }));
     }
   }, [generatedPrompt]);
+
+  // Update MCP servers when AI suggests them
+  useEffect(() => {
+    if (suggestedMCPServers.length > 0) {
+      setFormData((prev) => ({ ...prev, mcpServers: suggestedMCPServers }));
+    }
+  }, [suggestedMCPServers]);
 
   // Update formData.modelId when availableModels becomes available
   useEffect(() => {
