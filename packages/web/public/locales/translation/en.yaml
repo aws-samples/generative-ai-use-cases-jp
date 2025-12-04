@@ -60,6 +60,9 @@ agent_builder:
   failed_to_update_agent: Failed to update agent
   favorites: Favorites
   filter_by_tag: Filter by tag
+  generate_short: Generate
+  generate_with_ai: Generate with AI
+  generating_prompt: Generating system prompt...
   loading_agent: Loading agent...
   mcp_server_configuration: MCP Server Configuration
   mcp_server_description: >-
@@ -79,6 +82,9 @@ agent_builder:
   no_mcp_servers_match_filter: No MCP servers match your current filter.
   no_mcp_servers_selected: No MCP servers selected. Your agent will have basic functionality only.
   no_public_agents_available: No public agents available
+  overwrite_confirm: Overwrite
+  overwrite_prompt_message: A system prompt already exists. Do you want to overwrite it with AI-generated prompt?
+  overwrite_prompt_title: Overwrite System Prompt Confirmation
   preview: Preview
   public: Public Agents
   public_sharing_description: >-

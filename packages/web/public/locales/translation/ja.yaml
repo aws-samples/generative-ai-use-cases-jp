@@ -60,6 +60,9 @@ agent_builder:
   failed_to_update_agent: エージェントの更新に失敗しました
   favorites: お気に入り
   filter_by_tag: タグでフィルター
+  generate_short: 生成
+  generate_with_ai: AIにより生成する
+  generating_prompt: システムプロンプトを生成中...
   loading_agent: エージェントを読み込み中...
   mcp_server_configuration: MCPサーバー設定
   mcp_server_description: エージェントに追加機能を提供するMCPサーバーを選択してください。これらのサーバーはセキュリティのため管理者によって事前設定されています。
@@ -77,6 +80,9 @@ agent_builder:
   no_mcp_servers_match_filter: 現在のフィルターに一致するMCPサーバーがありません。
   no_mcp_servers_selected: MCPサーバーが選択されていません。エージェントは基本機能のみ利用できます。
   no_public_agents_available: 利用可能な公開エージェントがありません
+  overwrite_confirm: 上書きする
+  overwrite_prompt_message: すでにシステムプロンプトが入力されています。AIで生成したプロンプトで上書きしますか？
+  overwrite_prompt_title: システムプロンプトの上書き確認
   preview: プレビュー
   public: 公開エージェント
   public_sharing_description: >-
