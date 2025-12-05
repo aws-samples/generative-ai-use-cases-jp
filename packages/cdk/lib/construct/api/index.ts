@@ -1,6 +1,7 @@
 import { Stack, CfnOutput, Duration } from 'aws-cdk-lib';
 import {
   AuthorizationType,
+  CfnRestApi,
   CognitoUserPoolsAuthorizer,
   Cors,
   LambdaIntegration,
@@ -170,6 +171,12 @@ export class Api extends Construct {
       cloudWatchRole: true,
       defaultMethodOptions: commonAuthorizerProps,
     });
+
+    // Set TLS 1.2 security policy
+    const cfnApi = api.node.defaultChild as CfnRestApi;
+    cfnApi.securityPolicy = 'SecurityPolicy_TLS12_2018_EDGE';
+    // TODO: Replace with cfnApi.endpointAccessMode = 'BASIC' after upgrading aws-cdk-lib
+    cfnApi.addPropertyOverride('EndpointAccessMode', 'BASIC');
 
     api.addGatewayResponse('Api4XX', {
       type: ResponseType.DEFAULT_4XX,
