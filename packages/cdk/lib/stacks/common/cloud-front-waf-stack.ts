@@ -26,13 +26,15 @@ export class CloudFrontWafStack extends Stack {
     if (
       params.allowedIpV4AddressRanges ||
       params.allowedIpV6AddressRanges ||
-      params.allowedCountryCodes
+      params.allowedCountryCodes ||
+      params.antiDDoSProtection
     ) {
       const webAcl = new CommonWebAcl(this, `WebAcl${id}`, {
         scope: 'CLOUDFRONT',
         allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
         allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
         allowedCountryCodes: params.allowedCountryCodes,
+        antiDDoSProtection: params.antiDDoSProtection,
       });
 
       new CfnOutput(this, 'WebAclId', {
