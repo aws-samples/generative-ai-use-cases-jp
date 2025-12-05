@@ -1,10 +1,8 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { deleteChat, deleteShareId, findShareId } from './repository';
 import { getUsername } from './utils/tenantUtils';
-import {
-  internalServerError500Response,
-  noContent204Response,
-} from './utils/apiResponse';
+import { noContent204Response } from './utils/apiResponse';
+import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -22,7 +20,6 @@ export const handler = async (
 
     return noContent204Response();
   } catch (error) {
-    console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return handleLambdaError(error);
   }
 };

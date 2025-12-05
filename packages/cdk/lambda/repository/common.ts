@@ -3,6 +3,11 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { getTenantId } from '../utils/tenantUtils';
 import { createTenantDynamoDBClient } from '../utils/tenantDynamoDBClient';
+import {
+  TooManyRequestsError,
+  ServiceUnavailableError,
+  isRateLimitError,
+} from '../utils/errors';
 
 const TABLE_PREFIX: string = process.env.TABLE_NAME!;
 const ENVIRONMENT: string = process.env.ENVIRONMENT!;
@@ -16,7 +21,8 @@ const DEFAULT_ASSISTANT_TABLE_NAME: string =
 
 /**
  * Get or create a tenant-specific DynamoDB document client
- * Falls back to default client if tenant-specific access fails
+ * Throws TooManyRequestsError (429) for rate limit errors
+ * Throws ServiceUnavailableError (503) for other tenant authentication failures
  */
 export async function getTenantDynamoDBDocument(
   event: APIGatewayProxyEvent
@@ -35,12 +41,20 @@ export async function getTenantDynamoDBDocument(
     const dynamoDb = await createTenantDynamoDBClient(event);
     return DynamoDBDocumentClient.from(dynamoDb);
   } catch (error) {
-    console.error(
-      'Failed to assume role for tenant access, falling back to default:',
-      error
+    console.error('Failed to create tenant DynamoDB client:', error);
+
+    // レート制限エラーの場合は 429 を返す
+    if (isRateLimitError(error)) {
+      throw new TooManyRequestsError(
+        'サービスが一時的に混雑しています。しばらく待ってから再試行してください。',
+        30 // 30秒後にリトライ推奨
+      );
+    }
+
+    // その他のエラーは 503 を返す
+    throw new ServiceUnavailableError(
+      'テナント認証に失敗しました。しばらく待ってから再試行してください。'
     );
-    // Fall back to standard DynamoDB client
-    return DynamoDBDocumentClient.from(new DynamoDBClient({}));
   }
 }
 

@@ -2,11 +2,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import { listMessages, updateFeedback } from './repository';
 import { getUsername } from './utils/tenantUtils';
-import {
-  forbidden403Response,
-  internalServerError500Response,
-  ok200Response,
-} from './utils/apiResponse';
+import { forbidden403Response, ok200Response } from './utils/apiResponse';
+import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -39,7 +36,6 @@ export const handler = async (
 
     return ok200Response({ message });
   } catch (error) {
-    console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return handleLambdaError(error);
   }
 };

@@ -9,10 +9,10 @@ import {
 import { getTenant } from './tenantManager';
 import {
   badRequest400Response,
-  internalServerError500Response,
   notFound404Response,
   ok200Response,
 } from './utils/apiResponse';
+import { handleLambdaError } from './utils/errorHandler';
 
 const FILE_UPLOAD_BUCKET_NAME = process.env.BUCKET_NAME!;
 
@@ -86,7 +86,6 @@ export const handler = async (
       messages,
     });
   } catch (error) {
-    console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return handleLambdaError(error);
   }
 };

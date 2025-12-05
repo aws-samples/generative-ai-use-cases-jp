@@ -46,9 +46,7 @@ export async function createTenantDynamoDBClient(
     });
   } catch (error) {
     console.error('Failed to create tenant DynamoDB client:', error);
-    throw new Error(
-      `Failed to create tenant-isolated DynamoDB client: ${error}`
-    );
+    throw error; // 元のエラーをそのまま再スローし、エラータイプ情報を保持
   }
 }
 
