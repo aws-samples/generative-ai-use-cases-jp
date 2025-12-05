@@ -3,18 +3,75 @@ import {
   STSClient,
   AssumeRoleWithWebIdentityCommand,
   Credentials,
+  IDPCommunicationErrorException,
 } from '@aws-sdk/client-sts';
 import {
   CognitoIdentityClient,
   GetIdCommand,
   GetOpenIdTokenCommand,
+  TooManyRequestsException,
+  LimitExceededException,
+  ExternalServiceException,
+  InternalErrorException,
 } from '@aws-sdk/client-cognito-identity';
 import { getTenantId, getUsername } from './tenantUtils';
 
 // Constants for AssumeRole operations
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1000;
+const MAX_RETRIES = 5;
+const BASE_DELAY_MS = 500;
+const MAX_DELAY_MS = 10000;
 const SESSION_DURATION_SECONDS = 3600;
+
+/**
+ * ジッター付き指数バックオフでリトライ間隔を計算
+ * サンダリングハード問題を緩和するためランダム要素を追加
+ */
+function calculateRetryDelay(attempt: number): number {
+  // 指数バックオフ: 500ms, 1000ms, 2000ms, 4000ms, 8000ms (最大10000ms)
+  const exponentialDelay = Math.min(
+    BASE_DELAY_MS * Math.pow(2, attempt - 1),
+    MAX_DELAY_MS
+  );
+  // ジッター: 基本遅延の100%〜150%の範囲でランダム化
+  const jitter = Math.random() * exponentialDelay * 0.5;
+  return Math.floor(exponentialDelay + jitter);
+}
+
+/** ネットワークエラーコード（Node.js SystemError） */
+const RETRYABLE_NETWORK_ERROR_CODES = [
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'ENOTFOUND',
+  'ECONNREFUSED',
+];
+
+/**
+ * リトライ可能なエラーかどうかを判定
+ * AWS SDKの例外クラスを instanceof で型安全に検出
+ */
+function isRetryableError(error: unknown): boolean {
+  // AWS SDK例外クラスによる判定
+  if (
+    error instanceof TooManyRequestsException ||
+    error instanceof LimitExceededException ||
+    error instanceof ExternalServiceException ||
+    error instanceof InternalErrorException ||
+    error instanceof IDPCommunicationErrorException
+  ) {
+    return true;
+  }
+
+  // Node.jsネットワークエラー（SystemError）の判定
+  if (
+    error instanceof Error &&
+    'code' in error &&
+    typeof error.code === 'string'
+  ) {
+    return RETRYABLE_NETWORK_ERROR_CODES.includes(error.code);
+  }
+
+  return false;
+}
 
 /**
  * Assume role using Identity Pool token exchange from Cognito User Pool JWT
@@ -48,8 +105,10 @@ export async function assumeRoleWithWebIdentity(
   );
 
   let lastError: Error | null = null;
+  let lastAttempt = 0;
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    lastAttempt = attempt;
     try {
       const cognitoIdentityClient = new CognitoIdentityClient({ region });
       const stsClient = new STSClient({ region });
@@ -71,7 +130,9 @@ export async function assumeRoleWithWebIdentity(
         throw new Error('Failed to get Identity ID from Identity Pool');
       }
 
-      console.log(`Got Identity ID: ${getIdResponse.IdentityId}`);
+      // Identity IDは機密情報のため、末尾8文字のみログ出力
+      const maskedIdentityId = `...${getIdResponse.IdentityId.slice(-8)}`;
+      console.log(`Got Identity ID: ${maskedIdentityId}`);
 
       // Step 2: Get OpenID token from Identity Pool
       console.log(`Getting OpenID token from Identity Pool`);
@@ -125,30 +186,46 @@ export async function assumeRoleWithWebIdentity(
       return assumeRoleResponse.Credentials;
     } catch (error) {
       lastError = error as Error;
+      const retryable = isRetryableError(error);
+      const willRetry = retryable && attempt < MAX_RETRIES;
+
       console.error(
         `AssumeRoleWithWebIdentity attempt ${attempt} failed for tenant: ${tenantId}, user: ${userId}:`,
         {
           error: error,
-          errorMessage: (error as Error).message,
+          errorName: lastError.name ?? 'Unknown',
+          errorMessage: lastError.message,
           roleArn: roleArn,
           region: process.env.AWS_REGION!,
+          isRetryable: retryable,
+          willRetry: willRetry,
         }
       );
 
-      if (attempt < MAX_RETRIES) {
-        // Exponential backoff
-        console.log(`Retrying in ${RETRY_DELAY_MS * attempt}ms...`);
-        await new Promise((resolve) =>
-          setTimeout(resolve, RETRY_DELAY_MS * attempt)
+      // リトライ不可能なエラーの場合は即座に失敗
+      if (!retryable) {
+        break;
+      }
+
+      if (willRetry) {
+        // ジッター付き指数バックオフ
+        const delay = calculateRetryDelay(attempt);
+        console.log(
+          `Retrying in ${delay}ms (attempt ${attempt}/${MAX_RETRIES})...`
         );
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
 
-  // All retries failed
-  throw new Error(
-    `Failed to assume role after ${MAX_RETRIES} attempts: ${lastError?.message}`
-  );
+  // All retries failed or non-retryable error
+  const finalMessage = isRetryableError(lastError)
+    ? `Failed to assume role after ${MAX_RETRIES} attempts: ${lastError?.message}`
+    : `Failed to assume role (non-retryable error after ${lastAttempt} attempt(s)): ${lastError?.message}`;
+
+  const finalError = new Error(finalMessage);
+  (finalError as Error & { cause?: unknown }).cause = lastError;
+  throw finalError;
 }
 
 /**
