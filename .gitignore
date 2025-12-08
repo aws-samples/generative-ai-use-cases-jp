@@ -11,3 +11,6 @@ site*/
 
 # Deployment Configuration
 packages/cdk/cdk.json
+
+# Devbox
+.devbox

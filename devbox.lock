@@ -1,0 +1,14 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "github:NixOS/nixpkgs/nixpkgs-unstable": {
+      "last_modified": "2025-12-04T13:50:22Z",
+      "resolved": "github:NixOS/nixpkgs/ece6e266caf1effab32eceef0403b797b4330373?lastModified=1764856222"
+    },
+    "nodejs_22": {
+      "plugin_version": "0.0.2",
+      "resolved": "github:NixOS/nixpkgs/ece6e266caf1effab32eceef0403b797b4330373#nodejs_22",
+      "source": "nixpkg"
+    }
+  }
+}

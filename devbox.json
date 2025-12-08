@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json",
+  "packages": [
+    "nodejs_22"
+  ],
+  "_disabled_packages": [
+    "awscli2@latest  // nixpkgs version is outdated, install via brew/pip instead"
+  ],
+  "env": {
+    "DEVBOX_COREPACK_ENABLED": "1"
+  },
+  "shell": {
+    "init_hook": [
+      "echo '🚀 generative-ai-use-cases development environment'",
+      "echo ''",
+      "echo 'Node.js:' $(node --version)",
+      "echo 'npm:' $(npm --version)",
+      "echo ''",
+      "if [ ! -d 'node_modules' ]; then",
+      "  echo '📦 Installing npm dependencies...'",
+      "  npm ci",
+      "fi",
+    ],
+    "scripts": {
+    }
+  }
+}
