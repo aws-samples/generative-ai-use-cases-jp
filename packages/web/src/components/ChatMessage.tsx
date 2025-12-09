@@ -6,6 +6,8 @@ import ButtonFeedback from './ButtonFeedback';
 import ButtonIcon from './ButtonIcon';
 import ZoomUpImage from './ZoomUpImage';
 import ZoomUpVideo from './ZoomUpVideo';
+import CodeInterpreterTrace from './CodeInterpreterTrace';
+import S3UploadTrace from './S3UploadTrace';
 import {
   PiUserFill,
   PiChalkboardTeacher,
@@ -151,6 +153,105 @@ const ChatMessage: React.FC<Props> = (props) => {
     setIsOpenTrace(!isOpenTrace);
   };
 
+  // Parse trace content and render special tool blocks with custom UI
+  const renderTraceContent = (trace: string) => {
+    const codeInterpreterRegex = /```code_interpreter\n([\s\S]*?)\n```/g;
+    const s3UploadRegex =
+      /```upload_file_to_s3_and_retrieve_s3_url\n([\s\S]*?)\n```/g;
+
+    const parts: {
+      type: 'text' | 'code_interpreter' | 's3_upload';
+      content: string;
+      index: number;
+    }[] = [];
+
+    // Find all tool blocks
+    const allMatches: {
+      type: 'code_interpreter' | 's3_upload';
+      match: RegExpExecArray;
+    }[] = [];
+
+    let match;
+    while ((match = codeInterpreterRegex.exec(trace)) !== null) {
+      allMatches.push({ type: 'code_interpreter', match });
+    }
+
+    while ((match = s3UploadRegex.exec(trace)) !== null) {
+      allMatches.push({ type: 's3_upload', match });
+    }
+
+    // Sort matches by index
+    allMatches.sort((a, b) => a.match.index - b.match.index);
+
+    let lastIndex = 0;
+    for (const { type, match } of allMatches) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        const textBefore = trace.substring(lastIndex, match.index);
+        if (textBefore.trim()) {
+          parts.push({
+            type: 'text',
+            content: textBefore,
+            index: lastIndex,
+          });
+        }
+      }
+
+      // Add the tool content
+      parts.push({
+        type,
+        content: match[1],
+        index: match.index,
+      });
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < trace.length) {
+      const remainingText = trace.substring(lastIndex);
+      if (remainingText.trim()) {
+        parts.push({
+          type: 'text',
+          content: remainingText,
+          index: lastIndex,
+        });
+      }
+    }
+
+    // If no tool blocks found, render as normal markdown
+    if (parts.length === 0) {
+      return <Markdown prefix={`${props.idx}-trace`}>{trace}</Markdown>;
+    }
+
+    // Render mixed content
+    return (
+      <div className="space-y-3">
+        {parts.map((part, index) => {
+          if (part.type === 'code_interpreter') {
+            return (
+              <CodeInterpreterTrace
+                key={`code-interpreter-${index}`}
+                input={part.content}
+              />
+            );
+          } else if (part.type === 's3_upload') {
+            return (
+              <S3UploadTrace key={`s3-upload-${index}`} input={part.content} />
+            );
+          } else {
+            return (
+              <Markdown
+                key={`text-${index}`}
+                prefix={`${props.idx}-trace-${index}`}>
+                {part.content}
+              </Markdown>
+            );
+          }
+        })}
+      </div>
+    );
+  };
+
   return (
     <div
       className={`flex justify-center ${
@@ -191,9 +292,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                       )}
                     </div>
                   </summary>
-                  <Markdown prefix={`${props.idx}-trace`}>
-                    {chatContent.trace}
-                  </Markdown>
+                  {renderTraceContent(chatContent.trace)}
                 </details>
 
                 {!isOpenTrace &&

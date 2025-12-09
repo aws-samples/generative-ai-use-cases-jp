@@ -127,6 +127,29 @@ agent_core:
   search_agents: Search agents...
   start_conversation: Start a conversation with AgentCore
   title: AgentCore
+  trace_code_block: '```{{language}}\n{{code}}\n```'
+  trace_code_interpreter: code_interpreter
+  trace_colon: ':'
+  trace_command: Command
+  trace_command_prefix: $
+  trace_description: Description
+  trace_destination: Destination
+  trace_directory: Directory
+  trace_file_content_block: '```\n{{content}}\n```'
+  trace_file_icon: 📄
+  trace_file_path: File Path
+  trace_file_paths: File Paths
+  trace_filename: File Name
+  trace_files_to_remove: Files to Remove
+  trace_folder_icon: 📁
+  trace_language: Language
+  trace_list_marker: •
+  trace_list_sessions: List sessions
+  trace_s3_upload: S3 File Upload
+  trace_session_name: Session Name
+  trace_source_files: Source Files
+  trace_trash_icon: 🗑️
+  trace_unknown_action: Unknown action
 agent_dashboard: {}
 auth:
   loading: Loading...
@@ -200,6 +223,7 @@ common:
   first_page: First page
   form: Form
   here: here
+  hyphen: '-'
   last_page: Last page
   load_more: Load more
   loading: Loading...

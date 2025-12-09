@@ -118,6 +118,29 @@ agent_core:
   search_agents: エージェントを検索...
   start_conversation: AgentCore と会話を始める
   title: AgentCore
+  trace_code_block: '```{{language}}\n{{code}}\n```'
+  trace_code_interpreter: code_interpreter
+  trace_colon: ':'
+  trace_command: コマンド
+  trace_command_prefix: $
+  trace_description: 説明
+  trace_destination: 保存先
+  trace_directory: ディレクトリ
+  trace_file_content_block: '```\n{{content}}\n```'
+  trace_file_icon: 📄
+  trace_file_path: ファイルパス
+  trace_file_paths: ファイルパス
+  trace_filename: ファイル名
+  trace_files_to_remove: 削除ファイル
+  trace_folder_icon: 📁
+  trace_language: 言語
+  trace_list_marker: •
+  trace_list_sessions: セッション一覧を表示
+  trace_s3_upload: S3ファイルアップロード
+  trace_session_name: セッション名
+  trace_source_files: 元ファイル
+  trace_trash_icon: 🗑️
+  trace_unknown_action: 不明なアクション
 agent_dashboard: {}
 auth:
   loading: 読み込み中...
@@ -189,6 +212,7 @@ common:
   first_page: 最初のページ
   form: フォーム
   here: こちら
+  hyphen: '-'
   last_page: 最後のページ
   load_more: さらに読み込む
   loading: 読み込み中...

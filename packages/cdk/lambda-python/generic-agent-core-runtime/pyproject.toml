@@ -22,7 +22,11 @@ lint = [
 
 [tool.ruff]
 target-version = "py313"
-line-length = 500
+line-length = 180
+
+[tool.uv.sources]
+strands-agents-tools = { git = "https://github.com/daisuke-awaji/tools.git", rev = "agentcore-code-interpreter-download-tool" }
+
 
 [tool.ruff.lint]
 select = [
