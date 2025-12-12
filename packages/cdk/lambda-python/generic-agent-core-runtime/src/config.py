@@ -70,7 +70,12 @@ def extract_model_info(model_info: Any) -> tuple[str, str]:
     if isinstance(model_info, str):
         model_id = model_info
         region = aws_creds.get("AWS_REGION", "us-east-1")
+    elif hasattr(model_info, 'modelId'):
+        # Handle pydantic model or object with attributes
+        model_id = getattr(model_info, 'modelId', "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
+        region = getattr(model_info, 'region', aws_creds.get("AWS_REGION", "us-east-1"))
     else:
+        # Handle dict-like object
         model_id = model_info.get("modelId", "us.anthropic.claude-3-5-sonnet-20241022-v2:0")
         region = model_info.get("region", aws_creds.get("AWS_REGION", "us-east-1"))
 

@@ -113,6 +113,35 @@ class AgentManager:
             async for event in agent.stream_async(processed_prompt):
                 if "event" in event:
                     yield json.dumps(event, ensure_ascii=False) + "\n"
+                elif "message" in event:
+                    # Handle message events (including toolResult)
+                    message = event["message"]
+                    role = message.get("role")
+                    
+                    # Process toolResult from user messages
+                    if role == "user":
+                        for content_block in message.get("content", []):
+                            if "toolResult" in content_block:
+                                # Convert toolResult to event format for frontend compatibility
+                                tool_result_event = {
+                                    "event": {
+                                        "contentBlockStart": {
+                                            "start": content_block,
+                                            "contentBlockIndex": 0
+                                        }
+                                    }
+                                }
+                                yield json.dumps(tool_result_event, ensure_ascii=False) + "\n"
+                                
+                                # Also send contentBlockStop to close the block
+                                tool_result_stop_event = {
+                                    "event": {
+                                        "contentBlockStop": {
+                                            "contentBlockIndex": 0
+                                        }
+                                    }
+                                }
+                                yield json.dumps(tool_result_stop_event, ensure_ascii=False) + "\n"
 
         except Exception as e:
             logger.error(f"Error processing agent request: {e}", exc_info=True)
