@@ -1,5 +1,6 @@
 """Utility functions for the agent core runtime."""
 
+import ast
 import base64
 import logging
 import os
@@ -129,3 +130,77 @@ def process_prompt(prompt: str | list[dict[str, Any]]) -> str | list[ContentBloc
     if isinstance(prompt, list):
         return process_content_blocks(prompt)
     return prompt
+
+
+def try_extract_nested_content(text: str) -> list[dict[str, Any]] | None:
+    """
+    Extract content from Python repr format string.
+    
+    Handles cases where tools return ContentBlock-style data as string:
+    "[{'type': 'text', 'text': '...'}]" -> [{"text": "..."}]
+    
+    Args:
+        text: The text to parse
+        
+    Returns:
+        List of normalized content blocks, or None if parsing fails
+    """
+    try:
+        if not text.strip().startswith('[') and not text.strip().startswith('{'):
+            return None
+        
+        # Use ast.literal_eval to safely parse Python literals
+        parsed = ast.literal_eval(text)
+        
+        if not isinstance(parsed, list):
+            parsed = [parsed]
+        
+        normalized = []
+        for item in parsed:
+            if isinstance(item, dict):
+                if item.get('type') == 'text' and 'text' in item:
+                    normalized.append({'text': item['text']})
+                elif 'text' in item:
+                    normalized.append({'text': item['text']})
+                # Future: handle other types like 'image'
+        
+        return normalized if normalized else None
+    except (ValueError, SyntaxError):
+        return None
+
+
+def normalize_tool_result_content(content_block: dict[str, Any]) -> dict[str, Any]:
+    """
+    Normalize toolResult content to extract actual text from Python repr strings.
+    
+    Args:
+        content_block: A content block potentially containing toolResult
+        
+    Returns:
+        Normalized content block
+    """
+    if "toolResult" not in content_block:
+        return content_block
+    
+    tool_result = content_block["toolResult"]
+    if "content" not in tool_result:
+        return content_block
+    
+    normalized_content = []
+    for item in tool_result["content"]:
+        if "text" in item:
+            text = item["text"]
+            extracted = try_extract_nested_content(text)
+            if extracted:
+                normalized_content.extend(extracted)
+            else:
+                normalized_content.append(item)
+        else:
+            normalized_content.append(item)
+    
+    return {
+        "toolResult": {
+            **tool_result,
+            "content": normalized_content
+        }
+    }

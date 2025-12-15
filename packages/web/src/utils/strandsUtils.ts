@@ -368,9 +368,23 @@ const getDocumentMimeType = (
 };
 
 /**
+ * Format tool result content blocks to display text
+ */
+const formatToolResultContent = (content: StrandsContentBlock[]): string => {
+  return content
+    .map((block) => {
+      if ('text' in block && block.text) {
+        return block.text;
+      }
+      return JSON.stringify(block, null, 2);
+    })
+    .join('\n');
+};
+
+/**
  * Content block types for state tracking
  */
-type ContentBlockType = 'text' | 'toolUse' | 'reasoning' | null;
+type ContentBlockType = 'text' | 'toolUse' | 'toolResult' | 'reasoning' | null;
 
 /**
  * Stateful stream processor for Strands events
@@ -422,6 +436,15 @@ export class StrandsStreamProcessor {
           this.currentContentBlockType = 'toolUse';
           this.toolUseBuffer = '';
           return { text: '', trace: `\`\`\`${start.toolUse.name}\n` };
+        } else if ('toolResult' in start && start.toolResult) {
+          this.currentContentBlockType = 'toolResult';
+          const resultContent = formatToolResultContent(
+            start.toolResult.content
+          );
+          return {
+            text: '',
+            trace: `\`\`\`OUTPUT\n${resultContent}\n\`\`\`\n`,
+          };
         }
       }
 
@@ -508,6 +531,10 @@ export class StrandsStreamProcessor {
           const result = { text: '', trace: `\n\`\`\`\n` };
           this.currentContentBlockType = null;
           return result;
+        } else if (this.currentContentBlockType === 'toolResult') {
+          // toolResult is already formatted with complete output in contentBlockStart
+          this.currentContentBlockType = null;
+          return null;
         }
         this.currentContentBlockType = null;
         return null;

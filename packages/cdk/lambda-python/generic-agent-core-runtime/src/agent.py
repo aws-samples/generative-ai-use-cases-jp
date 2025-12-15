@@ -13,6 +13,7 @@ from .config import extract_model_info, get_max_iterations, get_system_prompt, s
 from .tools import ToolManager
 from .types import Message, ModelInfo
 from .utils import (
+    normalize_tool_result_content,
     process_messages,
     process_prompt,
 )
@@ -122,11 +123,14 @@ class AgentManager:
                     if role == "user":
                         for content_block in message.get("content", []):
                             if "toolResult" in content_block:
+                                # Normalize toolResult content to extract actual text from Python repr strings
+                                normalized_block = normalize_tool_result_content(content_block)
+                                
                                 # Convert toolResult to event format for frontend compatibility
                                 tool_result_event = {
                                     "event": {
                                         "contentBlockStart": {
-                                            "start": content_block,
+                                            "start": normalized_block,
                                             "contentBlockIndex": 0
                                         }
                                     }
