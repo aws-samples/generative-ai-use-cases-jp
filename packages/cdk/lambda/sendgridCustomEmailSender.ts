@@ -115,10 +115,11 @@ const createCredentialsBlock = (
 // Sign up confirmation email
 const createSignUpEmail = (
   code: string
-): { subject: string; htmlContent: string } => {
+): { subject: string; htmlContent: string; textContent: string } => {
   const bodyContent = `
-    <h2 style="margin: 0 0 16px 0; color: ${COLORS.primary}; font-size: 20px;">メールアドレスの確認</h2>
+    <h2 style="margin: 0 0 16px 0; color: ${COLORS.primary}; font-size: 20px;">確認コードのご案内</h2>
     <p style="margin: 0 0 16px 0; color: ${COLORS.text}; font-size: 15px; line-height: 1.6;">
+      このメールは、${SERVICE_NAME}に新規登録された方のみにお送りしています。<br><br>
       ${SERVICE_NAME}へのご登録ありがとうございます。<br>
       アカウントを有効にするため、以下の確認コードを入力してください。
     </p>
@@ -129,16 +130,31 @@ const createSignUpEmail = (
     </p>
   `;
 
+  const textContent = `${SERVICE_NAME}
+
+確認コードのご案内
+
+このメールは、${SERVICE_NAME}に新規登録された方のみにお送りしています。
+
+${SERVICE_NAME}へのご登録ありがとうございます。
+アカウントを有効にするため、以下の確認コードを入力してください。
+
+確認コード: ${code}
+
+このコードは24時間有効です。
+心当たりがない場合は、このメールを無視してください。`;
+
   return {
-    subject: `【${SERVICE_NAME}】メールアドレスの確認`,
-    htmlContent: createEmailHtml('メールアドレスの確認', bodyContent),
+    subject: `【${SERVICE_NAME}】ご登録ありがとうございます｜確認コードのご案内`,
+    htmlContent: createEmailHtml('確認コードのご案内', bodyContent),
+    textContent,
   };
 };
 
 // Password reset email
 const createForgotPasswordEmail = (
   code: string
-): { subject: string; htmlContent: string } => {
+): { subject: string; htmlContent: string; textContent: string } => {
   const bodyContent = `
     <h2 style="margin: 0 0 16px 0; color: ${COLORS.primary}; font-size: 20px;">パスワードリセット</h2>
     <p style="margin: 0 0 16px 0; color: ${COLORS.text}; font-size: 15px; line-height: 1.6;">
@@ -152,9 +168,22 @@ const createForgotPasswordEmail = (
     </p>
   `;
 
+  const textContent = `${SERVICE_NAME}
+
+パスワードリセット
+
+パスワードリセットのリクエストを受け付けました。
+以下の確認コードを入力して、新しいパスワードを設定してください。
+
+確認コード: ${code}
+
+このコードは1時間有効です。
+このリクエストに心当たりがない場合は、このメールを無視してください。アカウントのパスワードは変更されません。`;
+
   return {
     subject: `【${SERVICE_NAME}】パスワードリセット`,
     htmlContent: createEmailHtml('パスワードリセット', bodyContent),
+    textContent,
   };
 };
 
@@ -162,7 +191,7 @@ const createForgotPasswordEmail = (
 const createAdminCreateUserEmail = (
   username: string,
   tempPassword: string
-): { subject: string; htmlContent: string } => {
+): { subject: string; htmlContent: string; textContent: string } => {
   const bodyContent = `
     <h2 style="margin: 0 0 16px 0; color: ${COLORS.primary}; font-size: 20px;">アカウント招待</h2>
     <p style="margin: 0 0 16px 0; color: ${COLORS.text}; font-size: 15px; line-height: 1.6;">
@@ -179,9 +208,26 @@ const createAdminCreateUserEmail = (
   const footerNote =
     'このメールは管理者によって送信されました。心当たりがない場合は、システム管理者にお問い合わせください。';
 
+  const textContent = `${SERVICE_NAME}
+
+アカウント招待
+
+${SERVICE_NAME}へ招待されました。
+以下の情報を使用してログインしてください。
+
+ユーザー名（メールアドレス）: ${username}
+仮パスワード: ${tempPassword}
+
+初回ログイン時にパスワードの変更が求められます。
+セキュリティのため、仮パスワードは安全に管理し、ログイン後すぐに変更してください。
+
+---
+このメールは管理者によって送信されました。心当たりがない場合は、システム管理者にお問い合わせください。`;
+
   return {
     subject: `【${SERVICE_NAME}】アカウント招待`,
     htmlContent: createEmailHtml('アカウント招待', bodyContent, footerNote),
+    textContent,
   };
 };
 
@@ -198,13 +244,18 @@ const decryptCode = async (encryptedCode: string): Promise<string> => {
 const sendEmail = async (
   to: string,
   subject: string,
-  htmlContent: string
+  htmlContent: string,
+  textContent: string
 ): Promise<void> => {
+  // SendGrid requires text/plain before text/html for proper multipart email
   const payload = {
     personalizations: [{ to: [{ email: to }] }],
     from: { email: SENDGRID_FROM_EMAIL },
     subject: subject,
-    content: [{ type: 'text/html', value: htmlContent }],
+    content: [
+      { type: 'text/plain', value: textContent },
+      { type: 'text/html', value: htmlContent },
+    ],
   };
 
   const response = await fetch(SENDGRID_API_URL, {
@@ -243,7 +294,11 @@ export const handler: CustomEmailSenderTriggerHandler = async (
 
   const decryptedCode = await decryptCode(encryptedCode);
 
-  let emailContent: { subject: string; htmlContent: string } | null = null;
+  let emailContent: {
+    subject: string;
+    htmlContent: string;
+    textContent: string;
+  } | null = null;
   // Type guard: userAttributes is a StringMap (Record<string, string>) for most trigger sources
   const userAttributes = request.userAttributes as
     | Record<string, string>
@@ -273,7 +328,8 @@ export const handler: CustomEmailSenderTriggerHandler = async (
     await sendEmail(
       recipientEmail,
       emailContent.subject,
-      emailContent.htmlContent
+      emailContent.htmlContent,
+      emailContent.textContent
     );
   }
 
