@@ -29,8 +29,9 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const jobName = event.pathParameters!.jobName;
-    // Use flat context - Lambda Request Authorizer provides sub at top level
-    const userId = event.requestContext.authorizer!.sub;
+    // Cognito User Pools Authorizer provides claims as nested object
+    const userId = (event.requestContext.authorizer!.claims as { sub: string })
+      .sub;
     const tenantId = getTenantId(event);
 
     console.log(
