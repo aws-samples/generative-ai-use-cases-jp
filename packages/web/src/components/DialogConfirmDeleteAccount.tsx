@@ -27,10 +27,12 @@ const DialogConfirmDeleteAccount: React.FC<Props> = (props) => {
   const isValid = emailInput === props.userEmail && deleteInput === 'DELETE';
 
   return (
-    <Dialog.Root open={props.isOpen} onOpenChange={(open: boolean) => !open && props.onClose()}>
+    <Dialog.Root
+      open={props.isOpen}
+      onOpenChange={(open: boolean) => !open && props.onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-[60] w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white p-6 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95">
+        <Dialog.Overlay className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-[60] bg-black/30" />
+        <Dialog.Content className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed left-[50%] top-[50%] z-[60] w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-lg bg-white p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <Dialog.Title className="text-lg font-semibold text-gray-900">
               {t('settings.deleteAccountConfirmTitle')}

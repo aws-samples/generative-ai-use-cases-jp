@@ -23,9 +23,12 @@ export const handler = async (
 
   try {
     // Get token from Authorization header
-    const authHeader = event.headers.Authorization || event.headers.authorization;
+    const authHeader =
+      event.headers.Authorization || event.headers.authorization;
     if (!authHeader) {
-      return unauthorized401Response({ message: 'Authorization header is required' });
+      return unauthorized401Response({
+        message: 'Authorization header is required',
+      });
     }
 
     // Remove 'Bearer ' prefix if present
@@ -41,7 +44,9 @@ export const handler = async (
 
     const username = claims['cognito:username'] || claims.username;
     if (!username) {
-      return unauthorized401Response({ message: 'Username not found in token' });
+      return unauthorized401Response({
+        message: 'Username not found in token',
+      });
     }
 
     // Delete the user from Cognito

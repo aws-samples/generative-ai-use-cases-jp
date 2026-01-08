@@ -123,7 +123,8 @@ async function handleCreate(
   // Check if admin restriction is enabled (configurable via cdk.json)
   if (ASSISTANT_CREATION_REQUIRES_ADMIN) {
     const isTenantAdmin =
-      event.requestContext.authorizer?.claims?.['custom:tenantAdmin'] === 'true';
+      event.requestContext.authorizer?.claims?.['custom:tenantAdmin'] ===
+      'true';
     if (!isTenantAdmin) {
       return forbidden403Response({
         message: 'Only tenant administrators can create assistants',

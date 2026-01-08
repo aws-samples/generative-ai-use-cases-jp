@@ -1,8 +1,8 @@
-import type { Container } from "@dagger.io/dagger";
+import type { Container } from '@dagger.io/dagger';
 
 export async function runLint(container: Container): Promise<Container> {
-  console.log("🔍 Running linting...");
-  console.log("⏭️  Skipping lint (temporarily disabled)");
+  console.log('🔍 Running linting...');
+  console.log('⏭️  Skipping lint (temporarily disabled)');
 
   // Skipped temporarily - too complex to fix immediately
   // const result = container
@@ -13,8 +13,8 @@ export async function runLint(container: Container): Promise<Container> {
 }
 
 export async function runTests(container: Container): Promise<Container> {
-  console.log("🧪 Running tests...");
-  console.log("⏭️  Skipping tests (temporarily disabled)");
+  console.log('🧪 Running tests...');
+  console.log('⏭️  Skipping tests (temporarily disabled)');
 
   // Skipped temporarily - need to fix test failures first
   // const result = container
@@ -25,8 +25,10 @@ export async function runTests(container: Container): Promise<Container> {
   return container;
 }
 
-export async function runQualityChecks(container: Container): Promise<Container> {
-  console.log("✨ Running quality checks...");
+export async function runQualityChecks(
+  container: Container
+): Promise<Container> {
+  console.log('✨ Running quality checks...');
 
   let testContainer = container;
 
@@ -35,8 +37,11 @@ export async function runQualityChecks(container: Container): Promise<Container>
   const testPromise = runTests(container);
 
   // Wait for both to complete
-  const [lintResult, testResult] = await Promise.all([lintPromise, testPromise]);
+  const [lintResult, testResult] = await Promise.all([
+    lintPromise,
+    testPromise,
+  ]);
 
-  console.log("✅ Quality checks completed successfully");
+  console.log('✅ Quality checks completed successfully');
   return testResult;
 }

@@ -170,7 +170,10 @@ ${baseContext}
     // モデルが非対応（Bedrock以外）
     const model = findModelByModelId(modelId);
     if (model && model.type !== 'bedrock') {
-      return { disabled: true, reason: t('chat.web_search_model_not_supported') };
+      return {
+        disabled: true,
+        reason: t('chat.web_search_model_not_supported'),
+      };
     }
     return { disabled: false, reason: '' };
   }, [modelId, t]);

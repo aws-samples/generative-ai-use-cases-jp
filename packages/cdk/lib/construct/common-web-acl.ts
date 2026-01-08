@@ -194,9 +194,7 @@ export class CommonWebAcl extends Construct {
     }
 
     // Default action: block if IP/Geo restriction is enabled, allow if only Anti-DDoS is enabled
-    const defaultAction = hasIpOrGeoRestriction
-      ? { block: {} }
-      : { allow: {} };
+    const defaultAction = hasIpOrGeoRestriction ? { block: {} } : { allow: {} };
 
     const webAcl = new CfnWebACL(this, `WebAcl${id}`, {
       defaultAction,

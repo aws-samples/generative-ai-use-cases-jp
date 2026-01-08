@@ -182,7 +182,9 @@ export async function getTenantCredentials(
       saveToCache(cacheKey, credentials, tenant);
     }
 
-    console.log(`Successfully obtained tenant credentials for tenant: ${tenantId}`);
+    console.log(
+      `Successfully obtained tenant credentials for tenant: ${tenantId}`
+    );
 
     return {
       credentials,

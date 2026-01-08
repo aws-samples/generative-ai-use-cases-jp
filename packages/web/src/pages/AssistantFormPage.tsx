@@ -53,8 +53,7 @@ const AssistantFormPage: React.FC = () => {
   // Determine if user can create assistants based on configuration
   const assistantCreationRequiresAdmin =
     tenantConfig?.assistantCreationRequiresAdmin ?? true;
-  const canCreateAssistant =
-    !assistantCreationRequiresAdmin || isAdmin;
+  const canCreateAssistant = !assistantCreationRequiresAdmin || isAdmin;
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -86,7 +85,13 @@ const AssistantFormPage: React.FC = () => {
     if (configReady && isCreateMode && !canCreateAssistant) {
       navigate('/chat/assistants');
     }
-  }, [isConfigLoading, isAdminLoading, isCreateMode, canCreateAssistant, navigate]);
+  }, [
+    isConfigLoading,
+    isAdminLoading,
+    isCreateMode,
+    canCreateAssistant,
+    navigate,
+  ]);
 
   useEffect(() => {
     // Abort any pending request when assistantId changes
