@@ -72,7 +72,9 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
                   key={actualIndex}
                   className="flex items-center gap-2 text-sm">
                   <PiGlobe className="text-gray-500" />
-                  <span className="flex-1">{source.url}</span>
+                  <span className="flex-1">
+                    {source.sourceUrl || source.url || source.name}
+                  </span>
                   {!disabled && (
                     <Button
                       outlined

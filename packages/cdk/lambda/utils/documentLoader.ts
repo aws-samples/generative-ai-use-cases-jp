@@ -417,8 +417,22 @@ async function fetchWebContent(
 ): Promise<{ content: Buffer; contentType: string }> {
   return new Promise((resolve, reject) => {
     const client = url.startsWith('https:') ? https : http;
+    const parsedUrl = new URL(url);
 
-    const request = client.get(url, (response) => {
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || (url.startsWith('https:') ? 443 : 80),
+      path: parsedUrl.pathname + parsedUrl.search,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (compatible; GenAIUseCases/1.0; +https://github.com/aws-samples/generative-ai-use-cases-jp)',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+      },
+    };
+
+    const request = client.get(options, (response) => {
       // Verify the actual connected socket address (prevent DNS rebinding)
       const remoteAddress = response.socket.remoteAddress;
       if (remoteAddress && isBlockedIP(remoteAddress)) {

@@ -78,9 +78,12 @@ const useAssistantForm = (
   const addKnowledgeUrl = useCallback(() => {
     if (newUrl.trim()) {
       const newSource: KnowledgeSource = {
+        id: crypto.randomUUID(),
+        type: 'web',
         sourceType: 'url',
         name: newUrl,
-        url: newUrl,
+        displayName: newUrl,
+        sourceUrl: newUrl,
       };
       setFormData((prev) => ({
         ...prev,
