@@ -78,6 +78,7 @@ class WebStack extends NestedStack {
       mcpEnabled: params.mcpEnabled,
       mcpEndpoint,
       pptxEnabled: params.pptxEnabled,
+      webSearchEnabled: !!params.searchApiKey && !!params.searchEngine,
       // Frontend
       // Custom Domain
       cert: cert,

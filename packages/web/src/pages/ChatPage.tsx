@@ -13,7 +13,7 @@ import ModelSelector from '../components/ModelSelector';
 import useFollow from '../hooks/useFollow';
 import { create } from 'zustand';
 import { ChatPageQueryParams } from '../@types/navigate';
-import { MODELS } from '../hooks/useModel';
+import { MODELS, findModelByModelId } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
@@ -106,6 +106,8 @@ const ChatPage: React.FC = () => {
     AdditionalModelRequestFields | undefined
   >(undefined);
   const [showSetting, setShowSetting] = useState(false);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [hasRestoredWebSearch, setHasRestoredWebSearch] = useState(false);
   const { t } = useTranslation();
   const { settings } = useSettings();
 
@@ -160,6 +162,19 @@ ${baseContext}
     return MODELS.modelMetadata[modelId]?.flags.reasoning ?? false;
   }, [modelId]);
 
+  const webSearchDisabled = useMemo(() => {
+    // Web検索機能が無効
+    if (!MODELS.webSearchEnabled) {
+      return { disabled: true, reason: t('chat.web_search_not_available') };
+    }
+    // モデルが非対応（Bedrock以外）
+    const model = findModelByModelId(modelId);
+    if (model && model.type !== 'bedrock') {
+      return { disabled: true, reason: t('chat.web_search_model_not_supported') };
+    }
+    return { disabled: false, reason: '' };
+  }, [modelId, t]);
+
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
 
@@ -183,6 +198,31 @@ ${baseContext}
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, setContent, availableModels, pathname, chatId]);
+
+  // chatIdが変わったらWeb検索復元フラグをリセット
+  useEffect(() => {
+    setHasRestoredWebSearch(false);
+    if (!chatId) {
+      setWebSearchEnabled(false);
+    }
+  }, [chatId]);
+
+  // チャット復元時にWeb検索状態を復元（一度だけ）
+  useEffect(() => {
+    if (
+      chatId &&
+      !loadingMessages &&
+      messages.length > 0 &&
+      !hasRestoredWebSearch
+    ) {
+      const lastAssistantMessage = [...messages]
+        .reverse()
+        .find((m) => m.role === 'assistant');
+
+      setWebSearchEnabled(!!lastAssistantMessage?.webSearch);
+      setHasRestoredWebSearch(true);
+    }
+  }, [chatId, loadingMessages, messages, hasRestoredWebSearch]);
 
   const onSend = useCallback(async () => {
     setFollowing(true);
@@ -230,7 +270,8 @@ ${baseContext}
       undefined,
       undefined,
       base64Cache,
-      overrideModelParameters
+      overrideModelParameters,
+      webSearchEnabled
     );
     setContent('');
     clearFiles();
@@ -249,6 +290,7 @@ ${baseContext}
     postChatWithId,
     uploadedFiles,
     pathname,
+    webSearchEnabled,
   ]);
 
   const onRetry = useCallback(() => {
@@ -262,9 +304,10 @@ ${baseContext}
       undefined,
       undefined,
       base64Cache,
-      overrideModelParameters
+      overrideModelParameters,
+      webSearchEnabled
     );
-  }, [retryGeneration, base64Cache, overrideModelParameters]);
+  }, [retryGeneration, base64Cache, overrideModelParameters, webSearchEnabled]);
 
   const onStop = useCallback(() => {
     forceToStop();
@@ -284,10 +327,17 @@ ${baseContext}
         undefined,
         undefined,
         base64Cache,
-        overrideModelParameters
+        overrideModelParameters,
+        webSearchEnabled
       );
     },
-    [editChat, base64Cache, setFollowing, overrideModelParameters]
+    [
+      editChat,
+      base64Cache,
+      setFollowing,
+      overrideModelParameters,
+      webSearchEnabled,
+    ]
   );
 
   const [creatingShareId, setCreatingShareId] = useState(false);
@@ -429,6 +479,11 @@ ${baseContext}
               }}
               canStop={writing}
               isCreatingChat={isCreatingChat}
+              showWebSearchSwitch={true}
+              webSearchEnabled={webSearchEnabled}
+              onWebSearchToggle={setWebSearchEnabled}
+              webSearchDisabled={webSearchDisabled.disabled}
+              webSearchDisabledReason={webSearchDisabled.reason}
             />
           </div>
         ) : (
@@ -479,6 +534,11 @@ ${baseContext}
                 }}
                 canStop={writing}
                 isCreatingChat={isCreatingChat}
+                showWebSearchSwitch={true}
+                webSearchEnabled={webSearchEnabled}
+                onWebSearchToggle={setWebSearchEnabled}
+                webSearchDisabled={webSearchDisabled.disabled}
+                webSearchDisabledReason={webSearchDisabled.reason}
               />
             </div>
           </>

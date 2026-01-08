@@ -11,6 +11,7 @@ import {
   PiPaperclip,
   PiSpinnerGap,
   PiSlidersHorizontal,
+  PiGlobe,
 } from 'react-icons/pi';
 import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
@@ -47,6 +48,12 @@ type Props = {
 ) & {
     setting?: boolean;
     onSetting?: () => void;
+  } & {
+    webSearchEnabled?: boolean;
+    onWebSearchToggle?: (enabled: boolean) => void;
+    showWebSearchSwitch?: boolean;
+    webSearchDisabled?: boolean;
+    webSearchDisabledReason?: string;
   };
 
 const InputChatContent: React.FC<Props> = (props) => {
@@ -231,6 +238,28 @@ const InputChatContent: React.FC<Props> = (props) => {
                 onClick={props.onSetting ?? (() => {})}
                 icon={<PiSlidersHorizontal />}
               />
+            )}
+            {props.showWebSearchSwitch && (
+              <button
+                className={`flex items-center justify-center rounded-xl p-2 text-xl ${
+                  props.webSearchDisabled
+                    ? 'cursor-not-allowed text-gray-300'
+                    : props.webSearchEnabled
+                      ? 'cursor-pointer text-blue-500'
+                      : 'cursor-pointer text-gray-600'
+                }`}
+                title={
+                  props.webSearchDisabled
+                    ? props.webSearchDisabledReason
+                    : t('chat.web_search')
+                }
+                disabled={props.webSearchDisabled}
+                onClick={() =>
+                  !props.webSearchDisabled &&
+                  props.onWebSearchToggle?.(!props.webSearchEnabled)
+                }>
+                <PiGlobe />
+              </button>
             )}
           </div>
 

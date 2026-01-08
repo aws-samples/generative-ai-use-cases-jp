@@ -41,6 +41,8 @@ class PredictApi extends Construct {
       logsPolicy,
       assumeRolePolicy,
       litellmProxy,
+      searchApiKey,
+      searchEngine,
     } = props;
 
     const predictFunction = new NodejsFunction(this, 'Predict', {
@@ -111,6 +113,10 @@ class PredictApi extends Construct {
               TENANTS_TABLE_NAME: tenantManager.tenantsTable.tableName,
             }
           : {}),
+
+        // Web Search Environment Variables
+        SEARCH_API_KEY: searchApiKey ?? '',
+        SEARCH_ENGINE: searchEngine ?? '',
       },
       bundling: {
         nodeModules: [

@@ -186,6 +186,7 @@ export const findModelByModelId = (modelId: string) => {
 };
 
 const searchAgent = agentNames.find((name) => name.includes('Search'));
+const webSearchEnabled = import.meta.env.VITE_APP_WEB_SEARCH_ENABLED === 'true';
 
 // Add metadata for liteLLM models (extended on frontend side)
 const liteLlmModelMetadata: Record<string, ModelMetadata> = {
@@ -290,6 +291,7 @@ export const MODELS = {
   agentModels: agentModels,
   agentEnabled: agentNames.length > 0,
   searchAgent: searchAgent,
+  webSearchEnabled: webSearchEnabled,
   flows,
   flowChatEnabled: flows.length > 0,
   speechToSpeechModelIds: speechToSpeechModelIds,

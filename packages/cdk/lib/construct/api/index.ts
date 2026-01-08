@@ -93,6 +93,10 @@ export interface BackendApiProps {
   readonly openai?: {
     readonly apiKey: string; // OPENAI_API_KEY
   };
+
+  // Web Search
+  readonly searchApiKey?: string | null;
+  readonly searchEngine?: 'Brave' | 'Tavily';
 }
 
 export class Api extends Construct {

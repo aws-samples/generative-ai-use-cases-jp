@@ -1,6 +1,7 @@
 import { SupportedMimeType } from '@generative-ai-use-cases/common';
 import { PrimaryKey } from './base';
 import { AdditionalModelRequestFields } from './text';
+import { WebSearchInfo } from './protocol';
 
 export type Role = 'system' | 'user' | 'assistant';
 
@@ -49,6 +50,7 @@ export type UnrecordedMessage = {
   extraData?: ExtraData[];
   llmType?: string;
   metadata?: Metadata;
+  webSearch?: WebSearchInfo;
 };
 
 export type ExtraData = {
@@ -113,6 +115,7 @@ export type ShownMessage = Partial<PrimaryKey> &
   Partial<MessageAttributes> &
   UnrecordedMessage & {
     traceInlineMessage?: string;
+    webSearch?: WebSearchInfo;
   };
 
 export type DocumentComment = {

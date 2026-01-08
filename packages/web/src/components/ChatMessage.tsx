@@ -17,6 +17,11 @@ import {
   PiNotePencil,
   PiCheck,
   PiX,
+  PiMagnifyingGlass,
+  PiGlobe,
+  PiCaretDown,
+  PiCaretRight,
+  PiWarningCircle,
 } from 'react-icons/pi';
 import { BaseProps } from '../@types/common';
 import { ShownMessage, UpdateFeedbackRequest } from 'generative-ai-use-cases';
@@ -54,6 +59,7 @@ const ChatMessage: React.FC<Props> = (props) => {
   const [editing, setEditing] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState('');
   const [isOpenTrace, setIsOpenTrace] = useState(false);
+  const [isWebSearchExpanded, setIsWebSearchExpanded] = useState(false);
   const { getFileDownloadSignedUrl } = useFiles(pathname);
 
   // Format timestamp for display
@@ -212,6 +218,77 @@ const ChatMessage: React.FC<Props> = (props) => {
 
           {/* Message bubble container */}
           <div className="flex max-w-[80%] flex-col gap-2">
+            {/* Web Search Results (for assistant messages) */}
+            {chatContent?.role === 'assistant' && chatContent?.webSearch && (
+              <div className="mb-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
+                {chatContent.webSearch.status === 'searching' && (
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <div className="size-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                    <PiMagnifyingGlass className="text-lg" />
+                    <span className="text-sm">
+                      {chatContent.webSearch.query
+                        ? t('chat.searching_for', {
+                            query: chatContent.webSearch.query,
+                          })
+                        : t('chat.searching')}
+                    </span>
+                  </div>
+                )}
+                {chatContent.webSearch.status === 'completed' &&
+                  chatContent.webSearch.results && (
+                    <div>
+                      <button
+                        className="flex w-full items-center gap-2 text-left text-sm font-medium text-blue-700"
+                        onClick={() =>
+                          setIsWebSearchExpanded(!isWebSearchExpanded)
+                        }>
+                        {isWebSearchExpanded ? (
+                          <PiCaretDown className="text-lg" />
+                        ) : (
+                          <PiCaretRight className="text-lg" />
+                        )}
+                        <PiGlobe className="text-lg" />
+                        <span>
+                          {t('chat.web_search_results', {
+                            count: chatContent.webSearch.results.length,
+                          })}
+                        </span>
+                      </button>
+                      {isWebSearchExpanded && (
+                        <div className="mt-2 space-y-2 pl-6">
+                          {chatContent.webSearch.results.map((result, idx) => (
+                            <div
+                              key={idx}
+                              className="rounded border border-blue-100 bg-white p-2">
+                              <a
+                                href={result.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium text-blue-600 hover:underline">
+                                {result.title}
+                              </a>
+                              <p className="mt-1 line-clamp-2 text-xs text-gray-600">
+                                {result.content}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                {chatContent.webSearch.status === 'error' && (
+                  <div className="flex items-center gap-2 text-red-600">
+                    <PiWarningCircle className="text-lg" />
+                    <span className="text-sm">
+                      {t('chat.web_search_error', {
+                        error: chatContent.webSearch.error || 'Unknown error',
+                      })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Bubble with timestamp */}
             <div
               className={`flex items-end gap-2 ${

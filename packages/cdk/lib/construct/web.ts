@@ -60,6 +60,7 @@ export interface WebProps {
   readonly mcpEnabled: boolean;
   readonly mcpEndpoint: string | null;
   readonly pptxEnabled: boolean;
+  readonly webSearchEnabled: boolean;
 }
 
 export class Web extends Construct {
@@ -270,6 +271,7 @@ export class Web extends Construct {
         VITE_APP_MCP_ENABLED: props.mcpEnabled.toString(),
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
         VITE_APP_PPTX_ENABLED: props.pptxEnabled.toString(),
+        VITE_APP_WEB_SEARCH_ENABLED: props.webSearchEnabled.toString(),
       },
     });
     // Enhance computing resources

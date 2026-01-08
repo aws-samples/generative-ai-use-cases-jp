@@ -53,4 +53,5 @@ export VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT=$(extract_value "$stack_outp
 export VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS=$(extract_value "$stack_output" SpeechToSpeechModelIds)
 export VITE_APP_MCP_ENABLED=$(extract_value "$stack_output" McpEnabled)
 export VITE_APP_MCP_ENDPOINT=$(extract_value "$stack_output" McpEndpoint)
+export VITE_APP_WEB_SEARCH_ENABLED=$(extract_value "$stack_output" WebSearchEnabled)
 export VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN=$(extract_value "$stack_output" AssistantMessageStreamFunctionArn)

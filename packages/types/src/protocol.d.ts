@@ -19,12 +19,26 @@ import { GenerateImageParams } from './image';
 import { GenerateVideoParams, VideoJob } from './video';
 import { ShareId, UserIdAndChatId } from './share';
 
+export type WebSearchResult = {
+  title: string;
+  url: string;
+  content: string;
+};
+
+export type WebSearchInfo = {
+  status: 'searching' | 'completed' | 'error';
+  query?: string;
+  results?: WebSearchResult[];
+  error?: string;
+};
+
 export type StreamingChunk = {
   text: string;
   trace?: string;
   metadata?: Metadata;
   stopReason?: StopReason | 'error';
   sessionId?: string;
+  webSearch?: WebSearchInfo;
 };
 
 export type Pagination<T> = {
@@ -78,6 +92,7 @@ export type PredictRequest = {
   idToken?: string;
   messages: UnrecordedMessage[];
   id: string;
+  webSearchEnabled?: boolean;
 };
 
 export type PredictResponse = string;

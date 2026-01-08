@@ -166,9 +166,9 @@ assistant:
   myAssistants: My Assistants
   noAssistants: No assistants found
   organizationPublic: Organization Public
+  organizationPublicDescription: Members of your organization can use this assistant
   owner:
     mine: Mine
-  organizationPublicDescription: Members of your organization can use this assistant
   popularAssistants: Popular Assistants
   private: Private
   privateDescription: Only you can use this assistant
@@ -239,6 +239,8 @@ chat:
   save: Save
   saved_system_prompts: Saved System Prompts
   search_by_title: Search by title
+  searching: Searching the web...
+  searching_for: 'Searching for "{{query}}"...'
   settings: Settings
   share: Share
   share_conversation: Share Conversation History
@@ -247,6 +249,11 @@ chat:
   system_prompt: System Prompt
   title: Chat
   view_prompt_examples: View Prompt Examples
+  web_search: Web Search
+  web_search_error: 'Web search error: {{error}}'
+  web_search_model_not_supported: This model does not support web search
+  web_search_not_available: Web search is not available
+  web_search_results: 'Web search results ({{count}})'
 common:
   ask_gaixr: Ask GaiXer
   cancel: Cancel

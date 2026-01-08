@@ -141,6 +141,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
       // LangChain Credentials
       openai: params.openai,
+
+      // Web Search
+      searchApiKey: params.searchApiKey ?? undefined,
+      searchEngine: params.searchEngine ?? undefined,
     });
 
     // WAF
@@ -428,6 +432,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'McpEndpoint', {
       value: mcpEndpoint ?? '',
+    });
+
+    new CfnOutput(this, 'WebSearchEnabled', {
+      value: (!!params.searchApiKey && !!params.searchEngine).toString(),
     });
 
     new CfnOutput(this, 'PptxEnabled', {

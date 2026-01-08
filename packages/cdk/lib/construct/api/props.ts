@@ -75,4 +75,8 @@ export type GenericApiProps = {
   assumeRolePolicy?: PolicyStatement;
 
   selfSignUpTenantMap?: SelfSignUpTenantMapEntry[] | null;
+
+  // Web Search
+  readonly searchApiKey?: string | null;
+  readonly searchEngine?: 'Brave' | 'Tavily';
 };
