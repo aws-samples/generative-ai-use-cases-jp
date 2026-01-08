@@ -62,6 +62,10 @@ module.exports = defineConfig([
       },
     },
     settings: {
+      'import/resolver': {
+        typescript: true,
+        node: true,
+      },
       tailwindcss: {
         whitelist: ['w-', 'h-'],
       },

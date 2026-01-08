@@ -48,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "8.44.0",
     "@typescript-eslint/parser": "8.44.0",
     "eslint": "9.35.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-i18nhelper": "1.0.0",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.20",
