@@ -22,7 +22,9 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "eslint": "9.35.0",
+    "eslint-config-shared": "file:../eslint-config-shared"
   },
   "dependencies": {
     "@aws-cdk/aws-glue-alpha": "^2.189.0-alpha.0",

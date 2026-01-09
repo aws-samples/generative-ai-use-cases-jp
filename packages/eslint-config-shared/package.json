@@ -1,0 +1,23 @@
+{
+  "name": "eslint-config-shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.cjs",
+  "exports": {
+    ".": "./index.cjs",
+    "./base": "./base.cjs",
+    "./yaml": "./yaml.cjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.35.0",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "@typescript-eslint/parser": "8.44.0",
+    "eslint-plugin-i18nhelper": "1.0.0",
+    "eslint-plugin-yml": "1.18.0",
+    "globals": "^15.15.0",
+    "yaml-eslint-parser": "^1.2.3"
+  },
+  "peerDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

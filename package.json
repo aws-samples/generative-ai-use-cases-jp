@@ -3,8 +3,10 @@
   "private": true,
   "version": "4.3.2",
   "scripts": {
-    "lint": "run-s custom-lint:build web:lint cdk:lint cdk:lambda-build-dryrun",
-    "lint:fix": "run-s custom-lint:build web:lint:fix cdk:lint cdk:lambda-build-dryrun",
+    "lint": "run-s custom-lint:build lint:root web:lint cdk:lint cdk:lambda-build-dryrun",
+    "lint:fix": "run-s custom-lint:build lint:root:fix web:lint:fix cdk:lint cdk:lambda-build-dryrun",
+    "lint:root": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:root:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
     "test": "run-s web:test",
     "format": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh ${npm_config_env} && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
@@ -44,16 +46,9 @@
     "pipeline:ci": "npm -w dagger run ci"
   },
   "devDependencies": {
-    "@shopify/eslint-plugin": "50.0.0",
-    "@typescript-eslint/eslint-plugin": "8.44.0",
-    "@typescript-eslint/parser": "8.44.0",
     "eslint": "9.35.0",
-    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-config-shared": "file:packages/eslint-config-shared",
     "eslint-plugin-i18nhelper": "1.0.0",
-    "eslint-plugin-react-hooks": "5.2.0",
-    "eslint-plugin-react-refresh": "0.4.20",
-    "eslint-plugin-tailwindcss": "3.18.2",
-    "eslint-plugin-yml": "1.18.0",
     "npm-run-all": "^4.1.5",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.6.14"

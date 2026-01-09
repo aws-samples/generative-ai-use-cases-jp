@@ -79,6 +79,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@shopify/eslint-plugin": "50.0.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.12",
     "@types/diff-match-patch": "^1.0.5",
@@ -91,6 +92,13 @@
     "@types/react-syntax-highlighter": "^15.5.11",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.19",
+    "eslint": "9.35.0",
+    "eslint-config-shared": "file:../eslint-config-shared",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "eslint-plugin-tailwindcss": "3.18.2",
+    "globals": "^15.15.0",
     "postcss": "^8.4.38",
     "rollup-plugin-visualizer": "^5.10.0",
     "tailwind-scrollbar": "^3.1.0",
