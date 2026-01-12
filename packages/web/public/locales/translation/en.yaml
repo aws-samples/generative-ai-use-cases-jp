@@ -950,7 +950,7 @@ rag:
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
 research:
-  description: Research specialist supporting AWS sales and SAs. Creates detailed research reports using web search and AWS documentation search.
+  description: Conducts various research tasks across industries using web search and creates detailed research reports.
   general_research: General Research
   general_research_desc: Researches information across a wide range of fields and provides comprehensive analysis
   label: Research
@@ -960,7 +960,7 @@ research:
   start_conversation: Start conversation with Research Agent
   technical_research: Technical Research
   technical_research_desc: Conducts detailed technical research and analysis
-  title: Research Agent
+  title: Research
 setting:
   ai_items:
     agent_name: Agent Name

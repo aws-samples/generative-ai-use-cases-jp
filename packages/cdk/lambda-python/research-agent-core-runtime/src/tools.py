@@ -1,10 +1,9 @@
 """Tool management for the research agent core runtime."""
 
-import json
 import logging
 import os
-import random
 from typing import Any, Dict
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -67,74 +66,38 @@ class ToolManager:
     def _inject_api_keys(self, servers: Dict[str, Dict[str, Any]]):
         """Inject API keys from environment variables into MCP server configs"""
         
-        # Brave Search API Keys - Support up to 4 instances for parallel search
-        brave_api_keys = os.getenv("BRAVE_API_KEYS")
-        if brave_api_keys:
-            try:
-                keys = json.loads(brave_api_keys)
-                if keys and isinstance(keys, list):
-                    # Inject keys into brave-search-1 through brave-search-4
-                    for i, server_name in enumerate(["brave-search-1", "brave-search-2", "brave-search-3", "brave-search-4"]):
-                        if server_name in servers and i < len(keys):
-                            if "env" not in servers[server_name]:
-                                servers[server_name]["env"] = {}
-                            servers[server_name]["env"]["BRAVE_API_KEY"] = keys[i]
-                            logger.info(f"Injected Brave API Key {i+1} into {server_name} MCP server")
-                    
-                    # Legacy support for single brave-search server
-                    if "brave-search" in servers:
-                        api_key = random.choice(keys)
-                        if "env" not in servers["brave-search"]:
-                            servers["brave-search"]["env"] = {}
-                        servers["brave-search"]["env"]["BRAVE_API_KEY"] = api_key
-                        logger.info("Injected Brave API Key into brave-search MCP server")
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.warning(f"Failed to parse BRAVE_API_KEYS: {e}")
+        # Brave Search API Key (single key)
+        brave_api_key = os.getenv("BRAVE_API_KEY", "")
+        if brave_api_key:
+            # Inject into brave-search server
+            if "brave-search" in servers:
+                if "env" not in servers["brave-search"]:
+                    servers["brave-search"]["env"] = {}
+                servers["brave-search"]["env"]["BRAVE_API_KEY"] = brave_api_key
+                logger.info("Injected Brave API Key into brave-search MCP server")
         
-        # Tavily API Key
-        tavily_api_keys = os.getenv("TAVILY_API_KEYS")
-        if tavily_api_keys and "tavily-remote-mcp" in servers:
-            try:
-                keys = json.loads(tavily_api_keys)
-                if keys and isinstance(keys, list):
-                    api_key = random.choice(keys)
-                    # Inject into URL args
-                    args = servers["tavily-remote-mcp"].get("args", [])
-                    for i, arg in enumerate(args):
-                        if "tavilyApiKey=" in arg:
-                            args[i] = arg.replace("tavilyApiKey=", f"tavilyApiKey={api_key}")
-                    logger.info("Injected Tavily API Key into tavily-remote-mcp MCP server")
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.warning(f"Failed to parse TAVILY_API_KEYS: {e}")
+        # Tavily API Key (single key)
+        tavily_api_key = os.getenv("TAVILY_API_KEY", "")
+        if tavily_api_key and "tavily-remote-mcp" in servers:
+            # Inject into URL args
+            args = servers["tavily-remote-mcp"].get("args", [])
+            for i, arg in enumerate(args):
+                if "tavilyApiKey=" in arg:
+                    args[i] = arg.replace("tavilyApiKey=", f"tavilyApiKey={tavily_api_key}")
+            logger.info("Injected Tavily API Key into tavily-remote-mcp MCP server")
 
     def _get_default_mcp_config(self) -> Dict[str, Dict[str, Any]]:
         """Get default MCP server configuration"""
         config = {}
         
-        # Brave Search MCP - Support up to 4 instances for parallel search
-        brave_api_keys = os.getenv("BRAVE_API_KEYS")
-        if brave_api_keys:
-            try:
-                keys = json.loads(brave_api_keys)
-                if keys and isinstance(keys, list):
-                    # Create up to 4 Brave Search instances
-                    for i, api_key in enumerate(keys[:4]):
-                        server_name = f"brave-search-{i+1}"
-                        config[server_name] = {
-                            "command": "npx",
-                            "args": ["-y", "@brave/brave-search-mcp-server"],
-                            "env": {"BRAVE_API_KEY": api_key}
-                        }
-                    
-                    # Legacy single instance for backward compatibility
-                    if len(keys) == 1:
-                        config["brave-search"] = {
-                            "command": "npx",
-                            "args": ["-y", "@brave/brave-search-mcp-server"],
-                            "env": {"BRAVE_API_KEY": keys[0]}
-                        }
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.warning(f"Failed to parse BRAVE_API_KEYS: {e}")
+        # Brave Search MCP (single instance)
+        brave_api_key = os.getenv("BRAVE_API_KEY", "")
+        if brave_api_key:
+            config["brave-search"] = {
+                "command": "npx",
+                "args": ["-y", "@brave/brave-search-mcp-server"],
+                "env": {"BRAVE_API_KEY": brave_api_key}
+            }
         
         # AWS Knowledge MCP Server (HTTP direct - no uvx wrapper for better performance)
         config["aws-knowledge-mcp-server"] = {
@@ -148,19 +111,13 @@ class ToolManager:
             "args": ["mcp-server-time"]
         }
         
-        # Tavily Remote MCP (optional)
-        tavily_api_keys = os.getenv("TAVILY_API_KEYS")
-        if tavily_api_keys:
-            try:
-                keys = json.loads(tavily_api_keys)
-                if keys and isinstance(keys, list):
-                    api_key = random.choice(keys)
-                    config["tavily-remote-mcp"] = {
-                        "command": "npx",
-                        "args": ["-y", "mcp-remote", f"https://mcp.tavily.com/mcp/?tavilyApiKey={api_key}"],
-                        "env": {}
-                    }
-            except (json.JSONDecodeError, ValueError) as e:
-                logger.warning(f"Failed to parse TAVILY_API_KEYS: {e}")
+        # Tavily Remote MCP (optional, single key)
+        tavily_api_key = os.getenv("TAVILY_API_KEY", "")
+        if tavily_api_key:
+            config["tavily-remote-mcp"] = {
+                "command": "npx",
+                "args": ["-y", "mcp-remote", f"https://mcp.tavily.com/mcp/?tavilyApiKey={tavily_api_key}"],
+                "env": {}
+            }
         
         return config

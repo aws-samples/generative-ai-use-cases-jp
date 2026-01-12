@@ -22,8 +22,8 @@ import * as path from 'path';
 
 export interface ResearchAgentCoreProps {
   env: string;
-  braveApiKeys?: string[];
-  tavilyApiKeys?: string[];
+  braveApiKey?: string;
+  tavilyApiKey?: string;
   gatewayArns?: string[];
 }
 
@@ -35,7 +35,7 @@ export class ResearchAgentCore extends Construct {
   constructor(scope: Construct, id: string, props: ResearchAgentCoreProps) {
     super(scope, id);
 
-    const { env, braveApiKeys = [], tavilyApiKeys = [], gatewayArns } = props;
+    const { env, braveApiKey = '', tavilyApiKey = '', gatewayArns } = props;
 
     // Create bucket
     this._fileBucket = new Bucket(this, 'ResearchAgentFileBucket', {
@@ -52,13 +52,13 @@ export class ResearchAgentCore extends Construct {
     this.configureRolePermissions(this._role, gatewayArns);
 
     // Create runtime
-    this._runtime = this.createRuntime(env, braveApiKeys, tavilyApiKeys);
+    this._runtime = this.createRuntime(env, braveApiKey, tavilyApiKey);
   }
 
   private createRuntime(
     env: string,
-    propsBraveApiKeys: string[],
-    propsTavilyApiKeys: string[]
+    propsBraveApiKey: string,
+    propsTavilyApiKey: string
   ): Runtime {
     const region = Stack.of(this).region;
 
@@ -69,21 +69,21 @@ export class ResearchAgentCore extends Construct {
       AWS_REGION: region,
     };
 
-    // Add API keys from props or context
-    const braveApiKeys =
-      propsBraveApiKeys.length > 0
-        ? propsBraveApiKeys
-        : this.node.tryGetContext('researchAgentBraveApiKeys') || [];
-    if (Array.isArray(braveApiKeys) && braveApiKeys.length > 0) {
-      environmentVariables.BRAVE_API_KEYS = JSON.stringify(braveApiKeys);
+    // Add API key from props or context
+    const braveApiKey =
+      propsBraveApiKey ||
+      (this.node.tryGetContext('researchAgentBraveApiKey') as string) ||
+      '';
+    if (braveApiKey) {
+      environmentVariables.BRAVE_API_KEY = braveApiKey;
     }
 
-    const tavilyApiKeys =
-      propsTavilyApiKeys.length > 0
-        ? propsTavilyApiKeys
-        : this.node.tryGetContext('researchAgentTavilyApiKeys') || [];
-    if (Array.isArray(tavilyApiKeys) && tavilyApiKeys.length > 0) {
-      environmentVariables.TAVILY_API_KEYS = JSON.stringify(tavilyApiKeys);
+    const tavilyApiKey =
+      propsTavilyApiKey ||
+      (this.node.tryGetContext('researchAgentTavilyApiKey') as string) ||
+      '';
+    if (tavilyApiKey) {
+      environmentVariables.TAVILY_API_KEY = tavilyApiKey;
     }
 
     return new Runtime(this, 'ResearchAgentCoreRuntime', {

@@ -165,8 +165,8 @@ const baseStackInputSchema = z.object({
   researchAgentEnabled: z.boolean().default(false),
   createResearchAgentCoreRuntime: z.boolean().default(false),
   createResearchAgentFargate: z.boolean().default(false),
-  researchAgentBraveApiKeys: z.array(z.string()).default([]),
-  researchAgentTavilyApiKeys: z.array(z.string()).default([]),
+  researchAgentBraveApiKey: z.string().default(''),
+  researchAgentTavilyApiKey: z.string().default(''),
   // MCP
   mcpEnabled: z.boolean().default(false),
   // Guardrail

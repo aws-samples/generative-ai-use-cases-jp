@@ -28,8 +28,8 @@ export class ResearchAgentCoreStack extends Stack {
         'ResearchAgentCore',
         {
           env: params.env,
-          braveApiKeys: params.researchAgentBraveApiKeys,
-          tavilyApiKeys: params.researchAgentTavilyApiKeys,
+          braveApiKey: params.researchAgentBraveApiKey,
+          tavilyApiKey: params.researchAgentTavilyApiKey,
           gatewayArns: params.agentCoreGatewayArns ?? undefined,
         }
       );
