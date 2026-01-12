@@ -1,0 +1,81 @@
+{
+  "_comment": "MCP Server Configuration for Research Agent - Updated for parallel search with 4 API keys (matching vibe-sa-app)",
+  "mcpServers": {
+    "brave-search-1": {
+      "command": "npx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "metadata": {
+        "category": "Search",
+        "description": "Primary web search capabilities powered by Brave Search (API Key 1)"
+      }
+    },
+    "brave-search-2": {
+      "command": "npx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "metadata": {
+        "category": "Search",
+        "description": "Secondary web search capabilities powered by Brave Search (API Key 2)"
+      }
+    },
+    "brave-search-3": {
+      "command": "npx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "metadata": {
+        "category": "Search",
+        "description": "Tertiary web search capabilities powered by Brave Search (API Key 3)"
+      }
+    },
+    "brave-search-4": {
+      "command": "npx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "metadata": {
+        "category": "Search",
+        "description": "Quaternary web search capabilities powered by Brave Search (API Key 4)"
+      }
+    },
+    "aws-knowledge-mcp-server": {
+      "url": "https://knowledge-mcp.global.api.aws",
+      "type": "http",
+      "metadata": {
+        "category": "AWS",
+        "description": "AWS Knowledge Base MCP server for enterprise knowledge access (HTTP direct)"
+      }
+    },
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "metadata": {
+        "category": "AWS",
+        "description": "Access AWS documentation and guides"
+      }
+    },
+    "time-mcp-server": {
+      "command": "uvx",
+      "args": ["mcp-server-time"],
+      "metadata": {
+        "category": "Utility",
+        "description": "Provides current time and date functionality"
+      }
+    },
+    "tavily-remote-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.tavily.com/mcp/?tavilyApiKey="],
+      "metadata": {
+        "category": "Search",
+        "description": "Additional web search and research capabilities powered by Tavily"
+      }
+    }
+  }
+}

@@ -302,6 +302,7 @@ type ContentBlockType = 'text' | 'toolUse' | 'reasoning' | null;
 export class StrandsStreamProcessor {
   private currentContentBlockType: ContentBlockType = null;
   private toolUseBuffer: string = '';
+  private textBuffer: string = ''; // Add text buffer
 
   /**
    * Process a streaming event and return formatted content
@@ -327,7 +328,8 @@ export class StrandsStreamProcessor {
 
         if ('text' in start && start.text) {
           this.currentContentBlockType = 'text';
-          return { text: start.text };
+          this.textBuffer = start.text; // Start buffering
+          return null; // Don't return yet
         } else if ('toolUse' in start && start.toolUse) {
           this.currentContentBlockType = 'toolUse';
           this.toolUseBuffer = '';
@@ -341,7 +343,8 @@ export class StrandsStreamProcessor {
 
         if (delta.text) {
           this.currentContentBlockType = 'text';
-          return { text: delta.text };
+          this.textBuffer += delta.text; // Buffer text
+          return null; // Don't return yet, wait for contentBlockStop
         } else if (delta.toolUse) {
           this.currentContentBlockType = 'toolUse';
           this.toolUseBuffer += delta.toolUse.input;
@@ -355,8 +358,48 @@ export class StrandsStreamProcessor {
       // Handle content block stop event
       if (streamEvent.contentBlockStop) {
         if (this.currentContentBlockType === 'text') {
-          // Close the text block
-          const result = { text: '\n' };
+          // Process buffered text
+          const bufferedText = this.textBuffer;
+          this.textBuffer = '';
+
+          // Check for final_report tags and split content
+          if (
+            bufferedText.includes('<final_report>') &&
+            bufferedText.includes('</final_report>')
+          ) {
+            // Extract final report (inside tags) → chat
+            const reportMatches = bufferedText.match(
+              /<final_report>([\s\S]*?)<\/final_report>/g
+            );
+            let finalReport = '';
+            if (reportMatches) {
+              finalReport = reportMatches
+                .map((m) =>
+                  m.replace('<final_report>', '').replace('</final_report>', '')
+                )
+                .join('\n');
+            }
+
+            // Extract everything else (outside tags) → trace
+            const trace = bufferedText
+              .replace(/<final_report>[\s\S]*?<\/final_report>/g, '')
+              .trim();
+
+            // Return both
+            const result: { text: string; trace?: string } = { text: '' };
+            if (trace) {
+              result.trace = trace;
+            }
+            if (finalReport) {
+              result.text = finalReport;
+            }
+
+            this.currentContentBlockType = null;
+            return result;
+          }
+
+          // No XML tags, return as trace (everything except final_report goes to trace)
+          const result = { text: '', trace: bufferedText };
           this.currentContentBlockType = null;
           return result;
         } else if (this.currentContentBlockType === 'toolUse') {
@@ -430,5 +473,6 @@ export class StrandsStreamProcessor {
   reset(): void {
     this.currentContentBlockType = null;
     this.toolUseBuffer = '';
+    this.textBuffer = '';
   }
 }

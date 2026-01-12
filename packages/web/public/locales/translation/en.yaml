@@ -821,15 +821,9 @@ mcp_chat:
 meetingMinutes:
   auto_generate: Auto Generate
   bidirectional: Bidirectional Translation
-  both_panel: Both Panels
-  clear_minutes: Clear
+  clear_minutes: Clear Minutes
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
-  diagram_flowchart: Flowchart (Meeting Flow)
-  diagram_mindmap: Mindmap (Decisions)
-  diagram_options: Diagram Types to Generate
-  diagram_sequence: Sequence Diagram (Relationships)
-  diagram_timeline: Timeline (Deadlines & Schedule)
   frequency: Generation Frequency
   frequency_10min: Every 10 minutes
   frequency_1min: Every 1 minute
@@ -841,10 +835,7 @@ meetingMinutes:
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_frequency: Generation Frequency
-  generation_panel: Generate Minutes
   generation_success: Meeting minutes generated successfully
-  hide_prompt: ▼ Hide prompt
-  input_source: Input Source
   language: Transcription Language
   language_1: Language 1
   language_2: Language 2
@@ -856,38 +847,31 @@ meetingMinutes:
   language_thai: Thai
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
-  microphone: Microphone
   minutes_placeholder: Minutes will appear here after generation
   model: Meeting Minutes Generation Model
   new_recording_session: New Recording Session
   next_generation: Next Generation
   next_generation_in: 'Next generation in : '
   no_transcript: No Transcript
-  option: Option
   partial_indicator: (...)
   record_transcribe: Record & Transcribe
   screen_audio_error: Screen Audio Error
-  settings: Settings
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
   style_detail: Detail
-  style_diagram: Diagram
   style_faq: FAQ
   style_newspaper: Newspaper
   style_summary: Summary
   style_transcription: Transcription
-  style_whiteboard: Whiteboard
   target_language: Real-time Translation Language
   title: Meeting Minutes Generator
   transcript: Transcript
   transcription_language: Transcription Language
-  transcription_panel: Transcription
   translation_language: Translation Language
   translation_model: Real-time Translation Model
   translation_type: Translation Type
   unidirectional: Unidirectional Translation
-  view_prompt: ▶ View prompt
 model:
   parameters:
     reasoning_budget: Token budget for extended thinking
@@ -965,6 +949,18 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
+research:
+  description: Research specialist supporting AWS sales and SAs. Creates detailed research reports using web search and AWS documentation search.
+  general_research: General Research
+  general_research_desc: Researches information across a wide range of fields and provides comprehensive analysis
+  label: Research
+  mini_research: Quick Research
+  mini_research_desc: Quickly researches key points and provides concise answers
+  select_mode: Select a mode
+  start_conversation: Start conversation with Research Agent
+  technical_research: Technical Research
+  technical_research_desc: Conducts detailed technical research and analysis
+  title: Research Agent
 setting:
   ai_items:
     agent_name: Agent Name

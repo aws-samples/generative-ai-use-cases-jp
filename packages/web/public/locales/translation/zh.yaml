@@ -467,9 +467,7 @@ meetingMinutes:
   generating: 正在生成会议纪要...
   generation_error: 会议纪要生成失败。请重试。
   generation_frequency: 生成频率
-  generation_panel: 生成会议纪要
   generation_success: 会议纪要生成成功
-  hide_prompt: ▼ 隐藏提示词
   language: 语音识别语言
   language_auto: 自动检测
   language_chinese: 中文
@@ -492,16 +490,12 @@ meetingMinutes:
   style: 会议纪要风格
   style_custom: 自定义
   style_detail: 详细
-  style_diagram: 图解
   style_faq: 常见问题
   style_newspaper: 新闻报道
   style_summary: 摘要
   style_transcription: 转录
-  style_whiteboard: 白板
   title: 会议纪要生成器
   transcript: 转录文本
-  transcription_panel: 转录文本
-  view_prompt: ▶ 查看提示词
 model:
   parameters:
     reasoning_budget: 推理预算

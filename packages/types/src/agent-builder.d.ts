@@ -178,6 +178,7 @@ export type AgentCoreRuntimeRequest = {
   sessionId?: string;
   qualifier?: string;
   system_prompt?: string; // Keep this name for backward compatibility with useAgentCore
+  mode?: 'technical-research' | 'mini-research' | 'general-research'; // Research agent mode
   prompt: string; // User prompt as string
   previousMessages?: UnrecordedMessage[]; // Raw messages that will be converted to Strands format
   model: Model;

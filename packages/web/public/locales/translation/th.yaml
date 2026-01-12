@@ -579,9 +579,7 @@ meetingMinutes:
   generating: กำลังสร้างรายงานการประชุม...
   generation_error: ไม่สามารถสร้างรายงานการประชุมได้ กรุณาลองอีกครั้ง
   generation_frequency: ความถี่ในการสร้าง
-  generation_panel: สร้างรายงานการประชุม
   generation_success: สร้างรายงานการประชุมสำเร็จ
-  hide_prompt: ▼ ซ่อนพรอมต์
   language: ภาษาการถอดเสียง
   language_auto: ตรวจจับอัตโนมัติ
   language_chinese: จีน
@@ -604,16 +602,12 @@ meetingMinutes:
   style: รูปแบบรายงานการประชุม
   style_custom: กำหนดเอง
   style_detail: รายละเอียด
-  style_diagram: ไดอะแกรม
   style_faq: คำถามที่พบบ่อย
   style_newspaper: หนังสือพิมพ์
   style_summary: สรุป
   style_transcription: การถอดความ
-  style_whiteboard: ไวท์บอร์ด
   title: ตัวสร้างรายงานการประชุม
   transcript: บันทึกการถอดความ
-  transcription_panel: ถอดความ
-  view_prompt: ▶ ดูพรอมต์
 model:
   parameters:
     reasoning_budget: งบประมาณการให้เหตุผล

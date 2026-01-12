@@ -11,6 +11,11 @@ export const REMOTE_OUTPUT_KEYS = {
   AGENT_BUILDER_AGENT_CORE_RUNTIME_NAME: 'AgentBuilderAgentCoreRuntimeName',
   FILE_BUCKET_NAME: 'FileBucketName',
 
+  // Research Agent Core Stack
+  RESEARCH_AGENT_CORE_RUNTIME_ARN: 'ResearchAgentCoreRuntimeArn',
+  RESEARCH_AGENT_CORE_RUNTIME_NAME: 'ResearchAgentCoreRuntimeName',
+  RESEARCH_AGENT_FILE_BUCKET_NAME: 'ResearchAgentFileBucketName',
+
   // Application Inference Profile Stack
   INFERENCE_PROFILE_ARNS: 'InferenceProfileArns',
 } as const;

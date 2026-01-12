@@ -123,6 +123,10 @@
     "@aws-cdk/aws-kms:aliasNameRef": true,
     "@aws-cdk/aws-autoscaling:generateLaunchTemplateInsteadOfLaunchConfig": true,
     "@aws-cdk/core:includePrefixInUniqueNameGeneration": true,
-    "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true
+    "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true,
+    "researchAgentEnabled": true,
+    "createResearchAgentCoreRuntime": true,
+    "researchAgentBraveApiKeys": [],
+    "researchAgentTavilyApiKeys": []
   }
 }

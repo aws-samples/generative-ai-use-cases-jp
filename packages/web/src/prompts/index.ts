@@ -65,22 +65,18 @@ export type DiagramParams = {
   diagramType?: string;
 };
 
-export type DiagramOption =
-  | 'mindmap' // Decisions and action items
-  | 'flowchart' // Meeting flow and key discussion points
-  | 'timeline' // Timeline of events or deadlines
-  | 'sequence'; // Relationships between topics
+export type DiagramOption = 'mindmap' | 'flowchart' | 'timeline' | 'sequence';
 
 export type MeetingMinutesParams = {
   style:
     | 'transcription'
-    | 'summary'
-    | 'detail'
     | 'newspaper'
     | 'faq'
+    | 'custom'
+    | 'summary'
+    | 'detail'
     | 'diagram'
-    | 'whiteboard'
-    | 'custom';
+    | 'whiteboard';
   customPrompt?: string;
   diagramOptions?: DiagramOption[];
 };
