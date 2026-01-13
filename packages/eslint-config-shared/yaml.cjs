@@ -16,6 +16,11 @@ const yamlConfig = {
   },
 };
 
+const yamlIgnores = {
+  ignores: ['mkdocs.yml'],
+};
+
 module.exports = {
   yamlConfig,
+  yamlIgnores,
 };

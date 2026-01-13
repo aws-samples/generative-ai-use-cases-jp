@@ -36,6 +36,7 @@ const commonIgnores = {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/*.config.ts',
+    '.github',
   ],
 };
 
