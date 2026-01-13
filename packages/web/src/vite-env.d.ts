@@ -35,6 +35,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_MCP_ENABLED: string;
   readonly VITE_APP_MCP_ENDPOINT: string;
   readonly VITE_APP_PPTX_ENABLED: string;
+  readonly VITE_APP_LITELLM_PROXY_ENABLED: string;
 }
 
 interface ImportMeta {
