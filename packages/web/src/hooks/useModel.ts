@@ -204,27 +204,27 @@ const liteLlmModelMetadata: Record<string, ModelMetadata> = {
 
 const langchainModelMetadata: Record<string, ModelMetadata> = {
   'openai:gpt-4o': {
-    flags: { text: true, doc: true, image: true, video: false },
+    flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4o',
     description: 'レガシー モデル',
   },
   'openai:gpt-4o-mini': {
-    flags: { text: true, doc: true, image: true, video: false },
+    flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4o mini',
     description: '高速な処理が可能な軽量モデル',
   },
   'openai:o3': {
-    flags: { text: true, doc: true, image: true, video: false },
+    flags: { text: true, doc: false, image: true, video: false },
     displayName: 'o3',
     description: '高度な推論を使用する',
   },
   'openai:gpt-4.1': {
-    flags: { text: true, doc: true, image: true, video: false },
+    flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4.1',
     description: '迅速なコーディングと分析に最適',
   },
   'openai:gpt-5': {
-    flags: { text: true, doc: true, image: true, video: false },
+    flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 5',
     description: '高速な推論能力モデル',
   },
