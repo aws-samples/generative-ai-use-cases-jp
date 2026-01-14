@@ -219,6 +219,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Advanced Options
+  createChatError: Failed to create chat. Please try again.
+  defaultSystemPrompt: You are a helpful and knowledgeable AI assistant. Please provide accurate and easy-to-understand answers to user questions.
   button:
     newChat: New Chat
   create_link: Create Link
@@ -254,6 +256,12 @@ chat:
   web_search_model_not_supported: This model does not support web search
   web_search_not_available: Web search is not available
   web_search_results: 'Web search results ({{count}})'
+chatList:
+  daysAgo: '{{days}} days ago'
+  delete: Delete
+  oneDayAgo: 1 day ago
+  rename: Rename
+  today: Today
 common:
   ask_gaixr: Ask GaiXer
   cancel: Cancel
@@ -914,6 +922,15 @@ meetingMinutes:
   title: Meeting Minutes Generator
   transcript: Transcript
 model:
+  descriptions:
+    geminiFlash: Fast model with wide file format support
+    geminiPro: High-performance model with wide file format support
+    gpt41: Optimal for quick coding and analysis
+    gpt4o: Legacy model
+    gpt4oMini: Lightweight model capable of fast processing
+    gpt5: High-speed reasoning capability model
+    o3: Uses advanced reasoning
+  otherModels: Other Models
   parameters:
     reasoning: Reasoning
     reasoning_budget: Reasoning Budget
@@ -1047,6 +1064,27 @@ rag:
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
 settings:
+  labels:
+    customInstructions: Custom Instructions
+    enableCustomize: Enable customization
+    language: Language
+    sendMessage: Send Message
+    theme: Theme
+  language:
+    auto: Auto-detect
+    ja: 日本語
+  placeholders:
+    customInstructions: Additional settings for behavior, style, and tone
+  sendMessage:
+    ctrlCmdEnter: Send with Ctrl/⌘+Enter
+    enter: Send with Enter
+  tabs:
+    aiCustomize: AI Customization
+    general: General
+  theme:
+    dark: Dark
+    light: Light
+    system: Follow system settings
   deleteAccount: Delete Account
   deleteAccountButton: Delete Account
   deleteAccountCancel: Cancel

@@ -37,8 +37,7 @@ const fileLimit: FileLimit = {
   maxVideoFileSizeMB: 1000, // 1 GB for S3 input
 };
 
-const FIXED_SYSTEM_CONTEXT =
-  'あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。';
+// System context is loaded from translation file via t('chat.defaultSystemPrompt')
 
 type StateType = {
   content: string;
@@ -132,10 +131,10 @@ ${baseContext}
   useEffect(() => {
     // Set system context with custom instructions for new chats
     if (!chatId) {
-      updateSystemContext(buildSystemPrompt(FIXED_SYSTEM_CONTEXT));
+      updateSystemContext(buildSystemPrompt(t('chat.defaultSystemPrompt')));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatId, buildSystemPrompt]);
+  }, [chatId, buildSystemPrompt, t]);
 
   const title = useMemo(() => {
     if (chatId) {
@@ -252,9 +251,7 @@ ${baseContext}
         targetPathname = newPathname;
       } catch (error) {
         setIsCreatingChat(false);
-        setCreateChatError(
-          'チャットの作成に失敗しました。もう一度お試しください。'
-        );
+        setCreateChatError(t('chat.createChatError'));
         return; // Keep the input content and return
       }
       setIsCreatingChat(false);
@@ -429,10 +426,14 @@ ${baseContext}
             value={modelId}
             onChange={setModelId}
             models={availableModels.map((m) => {
+              const rawDescription = modelMetadata[m]?.description;
+              const description = rawDescription?.startsWith('model.')
+                ? t(rawDescription)
+                : rawDescription;
               return {
                 value: m,
                 label: modelDisplayName(m),
-                description: modelMetadata[m]?.description,
+                description,
               };
             })}
             featuredModelIds={featuredModelIds}

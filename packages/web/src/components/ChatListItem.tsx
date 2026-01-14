@@ -20,6 +20,7 @@ import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
+import { useTranslation } from 'react-i18next';
 
 type Props = BaseProps & {
   active: boolean;
@@ -32,6 +33,7 @@ type Props = BaseProps & {
 };
 
 const ChatListItem: React.FC<Props> = (props) => {
+  const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState(false);
   const [editing, setEditing] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -129,26 +131,31 @@ const ChatListItem: React.FC<Props> = (props) => {
   }, [showMenu]);
 
   // 日付のフォーマット
-  const formatDate = useCallback((dateString: string) => {
-    // Parse as timestamp (numeric string) or ISO date string
-    const timestamp = parseInt(dateString, 10);
-    const date = isNaN(timestamp) ? new Date(dateString) : new Date(timestamp);
-    const now = new Date();
-    const diffInHours = Math.floor(
-      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    );
-    const diffInDays = Math.floor(diffInHours / 24);
+  const formatDate = useCallback(
+    (dateString: string) => {
+      // Parse as timestamp (numeric string) or ISO date string
+      const timestamp = parseInt(dateString, 10);
+      const date = isNaN(timestamp)
+        ? new Date(dateString)
+        : new Date(timestamp);
+      const now = new Date();
+      const diffInHours = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+      );
+      const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInHours < 24) {
-      return '今日';
-    } else if (diffInDays === 1) {
-      return '1日前';
-    } else if (diffInDays < 7) {
-      return `${diffInDays}日前`;
-    } else {
-      return `${date.getMonth() + 1}/${date.getDate()}`;
-    }
-  }, []);
+      if (diffInHours < 24) {
+        return t('chatList.today');
+      } else if (diffInDays === 1) {
+        return t('chatList.oneDayAgo');
+      } else if (diffInDays < 7) {
+        return t('chatList.daysAgo', { days: diffInDays });
+      } else {
+        return `${date.getMonth() + 1}/${date.getDate()}`;
+      }
+    },
+    [t]
+  );
 
   return (
     <>
@@ -247,7 +254,7 @@ const ChatListItem: React.FC<Props> = (props) => {
                         setEditing(true);
                       }}>
                       <PiPencilLine />
-                      <span>名前を変更</span>
+                      <span>{t('chatList.rename')}</span>
                     </button>
                     <button
                       className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
@@ -258,7 +265,7 @@ const ChatListItem: React.FC<Props> = (props) => {
                         setOpenDialog(true);
                       }}>
                       <PiTrash />
-                      <span>削除</span>
+                      <span>{t('chatList.delete')}</span>
                     </button>
                   </div>
                 )}

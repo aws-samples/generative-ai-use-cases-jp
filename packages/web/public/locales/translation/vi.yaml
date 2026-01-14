@@ -82,6 +82,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Tùy chọn nâng cao
+  createChatError: Không thể tạo cuộc trò chuyện. Vui lòng thử lại.
+  defaultSystemPrompt: Bạn là trợ lý AI thân thiện và có kiến thức phong phú. Vui lòng cung cấp câu trả lời chính xác và dễ hiểu cho các câu hỏi của người dùng.
   button:
     newChat: Chat mới
   create_link: Tạo liên kết
@@ -108,6 +110,12 @@ chat:
   system_prompt: System prompt
   title: Chat
   view_prompt_examples: Xem ví dụ prompt
+chatList:
+  daysAgo: '{{days}} ngày trước'
+  delete: Xóa
+  oneDayAgo: 1 ngày trước
+  rename: Đổi tên
+  today: Hôm nay
 common:
   cancel: Hủy
   clear: Xóa
@@ -652,6 +660,15 @@ meetingMinutes:
   title: Trình tạo biên bản cuộc họp
   transcript: Bản chuyển đổi
 model:
+  descriptions:
+    geminiFlash: Mô hình tốc độ cao hỗ trợ nhiều định dạng file
+    geminiPro: Mô hình hiệu suất cao hỗ trợ nhiều định dạng file
+    gpt41: Tối ưu cho việc viết code và phân tích nhanh
+    gpt4o: Mô hình cũ
+    gpt4oMini: Mô hình nhẹ có khả năng xử lý nhanh
+    gpt5: Mô hình có khả năng suy luận tốc độ cao
+    o3: Sử dụng suy luận nâng cao
+  otherModels: Các mô hình khác
   parameters:
     reasoning: Reasoning
     reasoning_budget: Reasoning Budget
@@ -1195,3 +1212,25 @@ writer:
   tutorial: Hướng dẫn
   tutorial_success: Đã tải hướng dẫn
   useAsTextEditor: Sử dụng như editor văn bản
+settings:
+  labels:
+    customInstructions: Hướng dẫn tùy chỉnh
+    enableCustomize: Bật tùy chỉnh
+    language: Ngôn ngữ
+    sendMessage: Gửi tin nhắn
+    theme: Giao diện
+  language:
+    auto: Tự động phát hiện
+    ja: 日本語
+  placeholders:
+    customInstructions: Cài đặt bổ sung cho hành vi, phong cách và giọng điệu
+  sendMessage:
+    ctrlCmdEnter: Gửi bằng Ctrl/⌘+Enter
+    enter: Gửi bằng Enter
+  tabs:
+    aiCustomize: Tùy chỉnh AI
+    general: Tổng quát
+  theme:
+    dark: Tối
+    light: Sáng
+    system: Theo cài đặt hệ thống

@@ -82,6 +82,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: ตัวเลือกขั้นสูง
+  createChatError: ไม่สามารถสร้างแชทได้ กรุณาลองใหม่อีกครั้ง
+  defaultSystemPrompt: คุณเป็นผู้ช่วย AI ที่เป็นมิตรและมีความรู้มาก กรุณาให้คำตอบที่ถูกต้องและเข้าใจง่ายสำหรับคำถามของผู้ใช้
   button:
     newChat: แชทใหม่
   create_link: สร้างลิงก์
@@ -108,6 +110,12 @@ chat:
   system_prompt: System Prompt
   title: Chat
   view_prompt_examples: ดูตัวอย่าง Prompt
+chatList:
+  daysAgo: '{{days}} วันที่แล้ว'
+  delete: ลบ
+  oneDayAgo: 1 วันที่แล้ว
+  rename: เปลี่ยนชื่อ
+  today: วันนี้
 common:
   cancel: ยกเลิก
   clear: ล้าง
@@ -668,6 +676,15 @@ meetingMinutes:
   title: ตัวสร้างรายงานการประชุม
   transcript: บันทึกการถอดความ
 model:
+  descriptions:
+    geminiFlash: โมเดลความเร็วสูงรองรับรูปแบบไฟล์หลากหลาย
+    geminiPro: โมเดลประสิทธิภาพสูงรองรับรูปแบบไฟล์หลากหลาย
+    gpt41: เหมาะสำหรับการเขียนโค้ดและวิเคราะห์อย่างรวดเร็ว
+    gpt4o: โมเดลเวอร์ชันเก่า
+    gpt4oMini: โมเดลน้ำหนักเบาที่ประมวลผลได้รวดเร็ว
+    gpt5: โมเดลความสามารถในการให้เหตุผลความเร็วสูง
+    o3: ใช้การให้เหตุผลขั้นสูง
+  otherModels: โมเดลอื่นๆ
   parameters:
     reasoning: การให้เหตุผล
     reasoning_budget: งบประมาณการให้เหตุผล
@@ -1234,3 +1251,25 @@ writer:
   tutorial: บทเรียน
   tutorial_success: โหลดบทเรียนแล้ว
   useAsTextEditor: ใช้เป็นเครื่องมือแก้ไขข้อความ
+settings:
+  labels:
+    customInstructions: คำสั่งที่กำหนดเอง
+    enableCustomize: เปิดใช้งานการปรับแต่ง
+    language: ภาษา
+    sendMessage: ส่งข้อความ
+    theme: ธีม
+  language:
+    auto: ตรวจจับอัตโนมัติ
+    ja: 日本語
+  placeholders:
+    customInstructions: การตั้งค่าเพิ่มเติมสำหรับพฤติกรรม สไตล์ และโทน
+  sendMessage:
+    ctrlCmdEnter: ส่งด้วย Ctrl/⌘+Enter
+    enter: ส่งด้วย Enter
+  tabs:
+    aiCustomize: ปรับแต่ง AI
+    general: ทั่วไป
+  theme:
+    dark: มืด
+    light: สว่าง
+    system: ตามการตั้งค่าระบบ

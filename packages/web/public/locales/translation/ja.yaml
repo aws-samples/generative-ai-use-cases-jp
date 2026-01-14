@@ -219,6 +219,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高度なオプション
+  createChatError: チャットの作成に失敗しました。もう一度お試しください。
+  defaultSystemPrompt: あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。
   button:
     newChat: 新しいチャット
   create_link: リンクの作成
@@ -252,6 +254,12 @@ chat:
   web_search_model_not_supported: このモデルはWeb検索に対応していません
   web_search_not_available: Web検索は利用できません
   web_search_results: 'Web検索結果 ({{count}}件)'
+chatList:
+  daysAgo: '{{days}}日前'
+  delete: 削除
+  oneDayAgo: 1日前
+  rename: 名前を変更
+  today: 今日
 common:
   ask_gaixr: GaiXerに聞く
   cancel: キャンセル
@@ -775,6 +783,15 @@ meetingMinutes:
   title: 議事録生成
   transcript: 文字起こし
 model:
+  descriptions:
+    geminiFlash: 幅広いファイル形式に対応した高速モデル
+    geminiPro: 幅広いファイル形式に対応した高性能モデル
+    gpt41: 迅速なコーディングと分析に最適
+    gpt4o: レガシー モデル
+    gpt4oMini: 高速な処理が可能な軽量モデル
+    gpt5: 高速な推論能力モデル
+    o3: 高度な推論を使用する
+  otherModels: その他モデル
   parameters:
     reasoning: Reasoning
     reasoning_budget: Reasoning Budget
@@ -889,6 +906,27 @@ rag:
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
 settings:
+  labels:
+    customInstructions: カスタム指示
+    enableCustomize: カスタマイズを有効にする
+    language: 言語
+    sendMessage: メッセージの送信
+    theme: テーマ
+  language:
+    auto: 自動検出
+    ja: 日本語
+  placeholders:
+    customInstructions: 動作、スタイル、トーンに関する追加の設定
+  sendMessage:
+    ctrlCmdEnter: Ctrl/⌘+Enterで送信
+    enter: Enterで送信
+  tabs:
+    aiCustomize: AIのカスタマイズ
+    general: 一般
+  theme:
+    dark: ダーク
+    light: ライト
+    system: システム設定に従う
   deleteAccount: アカウント削除
   deleteAccountButton: アカウントを削除
   deleteAccountCancel: キャンセル

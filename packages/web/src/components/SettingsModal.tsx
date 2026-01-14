@@ -111,20 +111,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const themeOptions: { value: Theme; label: string }[] = [
-    { value: 'light', label: 'ライト' },
-    { value: 'dark', label: 'ダーク' },
-    { value: 'system', label: 'システム設定に従う' },
+    { value: 'light', label: t('settings.theme.light') },
+    { value: 'dark', label: t('settings.theme.dark') },
+    { value: 'system', label: t('settings.theme.system') },
   ];
 
   const languageOptions: { value: Language; label: string }[] = [
-    { value: 'auto', label: '自動検出' },
-    { value: 'ja', label: '日本語' },
+    { value: 'auto', label: t('settings.language.auto') },
+    { value: 'ja', label: t('settings.language.ja') },
     { value: 'en', label: 'English' },
   ];
 
   const sendMessageOptions: { value: SendMessageMethod; label: string }[] = [
-    { value: 'enter', label: 'Enterで送信' },
-    { value: 'ctrl-cmd-enter', label: 'Ctrl/⌘+Enterで送信' },
+    { value: 'enter', label: t('settings.sendMessage.enter') },
+    { value: 'ctrl-cmd-enter', label: t('settings.sendMessage.ctrlCmdEnter') },
   ];
 
   return (
@@ -139,7 +139,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               <Dialog.Close asChild>
                 <button
                   className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200 focus:outline-none"
-                  aria-label="閉じる">
+                  aria-label={t('common.close')}>
                   <PiX className="h-5 w-5 text-gray-500" />
                 </button>
               </Dialog.Close>
@@ -155,7 +155,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}>
                 <PiGear className="h-5 w-5 shrink-0 text-gray-500" />
-                <span>一般</span>
+                <span>{t('settings.tabs.general')}</span>
               </button>
 
               <button
@@ -166,7 +166,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}>
                 <PiPencilSimple className="h-5 w-5 shrink-0 text-gray-500" />
-                <span>AIのカスタマイズ</span>
+                <span>{t('settings.tabs.aiCustomize')}</span>
               </button>
             </div>
           </div>
@@ -176,7 +176,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             {/* Content Header */}
             <div className="flex h-14 items-center border-b border-gray-200 px-6">
               <Dialog.Title className="text-lg font-medium text-gray-900">
-                {activeTab === 'general' ? '一般' : 'AIのカスタマイズ'}
+                {activeTab === 'general'
+                  ? t('settings.tabs.general')
+                  : t('settings.tabs.aiCustomize')}
               </Dialog.Title>
             </div>
 
@@ -187,7 +189,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   {/* Theme Setting */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-900">
-                      テーマ
+                      {t('settings.labels.theme')}
                     </label>
                     <CustomSelect
                       value={settings.theme}
@@ -201,7 +203,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   {/* Language Setting */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-900">
-                      言語
+                      {t('settings.labels.language')}
                     </label>
                     <CustomSelect
                       value={settings.language}
@@ -215,7 +217,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   {/* Send Message Method */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-900">
-                      メッセージの送信
+                      {t('settings.labels.sendMessage')}
                     </label>
                     <CustomSelect
                       value={settings.sendMessageMethod}
@@ -253,7 +255,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   {/* Customize Enabled Toggle */}
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-gray-900">
-                      カスタマイズを有効にする
+                      {t('settings.labels.enableCustomize')}
                     </label>
                     <Toggle
                       checked={settings.customizeEnabled}
@@ -266,14 +268,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   {/* Custom Instructions */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-900">
-                      カスタム指示
+                      {t('settings.labels.customInstructions')}
                     </label>
                     <textarea
                       value={settings.customInstructions}
                       onChange={(e) =>
                         updateSettings({ customInstructions: e.target.value })
                       }
-                      placeholder="動作、スタイル、トーンに関する追加の設定"
+                      placeholder={t(
+                        'settings.placeholders.customInstructions'
+                      )}
                       className="h-32 w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       disabled={!settings.customizeEnabled}
                     />

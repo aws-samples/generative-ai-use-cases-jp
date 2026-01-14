@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useMemo } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { PiCaretDown, PiCheck, PiCaretRight } from 'react-icons/pi';
+import { useTranslation } from 'react-i18next';
 
 export type ModelOption = {
   value: string;
@@ -23,6 +24,7 @@ const ModelSelector: React.FC<Props> = ({
   featuredModelIds,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
   // Get current model display info
@@ -138,7 +140,7 @@ const ModelSelector: React.FC<Props> = ({
                       onClick={handleSubMenuToggle}
                       className="group flex w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100">
                       <span className="font-medium text-gray-900">
-                        その他モデル
+                        {t('model.otherModels')}
                       </span>
                       <PiCaretRight className="h-5 w-5 text-gray-400" />
                     </button>

@@ -82,6 +82,8 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高级选项
+  createChatError: 创建聊天失败。请重试。
+  defaultSystemPrompt: 你是一个乐于助人且知识渊博的AI助手。请为用户的问题提供准确且易于理解的回答。
   button:
     newChat: 新聊天
   create_link: 创建链接
@@ -107,6 +109,12 @@ chat:
   show_system_prompt: 显示系统提示
   system_prompt: 系统提示
   title: 聊天
+chatList:
+  daysAgo: '{{days}}天前'
+  delete: 删除
+  oneDayAgo: 1天前
+  rename: 重命名
+  today: 今天
 common:
   cancel: 取消
   clear: 清除
@@ -558,6 +566,15 @@ meetingMinutes:
   title: 会议纪要生成器
   transcript: 转录文本
 model:
+  descriptions:
+    geminiFlash: 支持多种文件格式的高速模型
+    geminiPro: 支持多种文件格式的高性能模型
+    gpt41: 适合快速编码和分析
+    gpt4o: 旧版模型
+    gpt4oMini: 可快速处理的轻量级模型
+    gpt5: 高速推理能力模型
+    o3: 使用高级推理
+  otherModels: 其他模型
   parameters:
     reasoning: 推理
     reasoning_budget: 推理预算
@@ -1051,3 +1068,25 @@ writer:
   tutorial: 教程
   tutorial_success: 已加载教程
   useAsTextEditor: 作为文本编辑器使用
+settings:
+  labels:
+    customInstructions: 自定义指令
+    enableCustomize: 启用自定义
+    language: 语言
+    sendMessage: 发送消息
+    theme: 主题
+  language:
+    auto: 自动检测
+    ja: 日本語
+  placeholders:
+    customInstructions: 行为、风格和语调的附加设置
+  sendMessage:
+    ctrlCmdEnter: Ctrl/⌘+Enter发送
+    enter: Enter发送
+  tabs:
+    aiCustomize: AI自定义
+    general: 通用
+  theme:
+    dark: 深色
+    light: 浅色
+    system: 跟随系统设置

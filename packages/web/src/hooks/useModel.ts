@@ -195,44 +195,46 @@ const searchAgent = agentNames.find((name) => name.includes('Search'));
 const webSearchEnabled = import.meta.env.VITE_APP_WEB_SEARCH_ENABLED === 'true';
 
 // Add metadata for liteLLM models (extended on frontend side)
+// Note: description values are translation keys - translate them at display time
 const liteLlmModelMetadata: Record<string, ModelMetadata> = {
   'gemini-2.5-flash': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'Gemini 2.5 Flash',
-    description: '幅広いファイル形式に対応した高速モデル',
+    description: 'model.descriptions.geminiFlash',
   },
   'gemini-2.5-pro': {
     flags: { text: true, doc: true, image: true, video: false },
     displayName: 'Gemini 2.5 Pro',
-    description: '幅広いファイル形式に対応した高性能モデル',
+    description: 'model.descriptions.geminiPro',
   },
 };
 
+// Note: description values are translation keys - translate them at display time
 const langchainModelMetadata: Record<string, ModelMetadata> = {
   'openai:gpt-4o': {
     flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4o',
-    description: 'レガシー モデル',
+    description: 'model.descriptions.gpt4o',
   },
   'openai:gpt-4o-mini': {
     flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4o mini',
-    description: '高速な処理が可能な軽量モデル',
+    description: 'model.descriptions.gpt4oMini',
   },
   'openai:o3': {
     flags: { text: true, doc: false, image: true, video: false },
     displayName: 'o3',
-    description: '高度な推論を使用する',
+    description: 'model.descriptions.o3',
   },
   'openai:gpt-4.1': {
     flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 4.1',
-    description: '迅速なコーディングと分析に最適',
+    description: 'model.descriptions.gpt41',
   },
   'openai:gpt-5': {
     flags: { text: true, doc: false, image: true, video: false },
     displayName: 'GPT 5',
-    description: '高速な推論能力モデル',
+    description: 'model.descriptions.gpt5',
   },
 };
 
