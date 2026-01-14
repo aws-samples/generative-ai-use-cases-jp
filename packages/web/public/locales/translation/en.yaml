@@ -888,8 +888,10 @@ meetingMinutes:
   generate_minutes_header: Generate Meeting Minutes
   generated_minutes: Generated Minutes
   generating: Generating minutes...
+  generating_continuation: Generating minutes (continuation {{current}}/{{max}})...
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_success: Meeting minutes generated successfully
+  output_may_be_incomplete: Output may be incomplete due to length limits. Consider splitting the transcript.
   language: Language
   language_auto: Auto Detect
   language_chinese: Chinese
@@ -1094,6 +1096,7 @@ transcribe:
   result_placeholder: Speech recognition results will be displayed here
   screen_audio: Screen Audio
   screen_audio_error: 'Screen Audio Error:'
+  screen_audio_failed_fallback_mic: Failed to capture screen audio. Starting recording with microphone only.
   screen_audio_notice: 'For Windows: Select "Entire Screen" tab and turn ON "Share system audio".<br/>For Mac: Select "Chrome Tab" and turn ON "Also share tab audio".<br/>Chrome and Edge work. Firefox does not work.'
   select_input_method: Please select from microphone input or file upload
   speaker_names: Speaker names (comma separated)

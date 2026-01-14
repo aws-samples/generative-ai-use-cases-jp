@@ -532,8 +532,10 @@ meetingMinutes:
   generate_minutes_header: 生成会议纪要
   generated_minutes: 已生成的会议纪要
   generating: 正在生成会议纪要...
+  generating_continuation: 正在生成会议纪要（继续 {{current}}/{{max}} 次）...
   generation_error: 会议纪要生成失败。请重试。
   generation_success: 会议纪要生成成功
+  output_may_be_incomplete: 由于长度限制，输出可能不完整。请考虑分割转录文本。
   language: 语言
   language_auto: 自动检测
   language_chinese: 中文
@@ -671,6 +673,7 @@ transcribe:
   result_placeholder: 语音识别结果将显示在这里
   screen_audio: 屏幕音频
   screen_audio_error: 屏幕音频错误：
+  screen_audio_failed_fallback_mic: 屏幕音频捕获失败。仅使用麦克风开始录音。
   screen_audio_notice: 'Windows 的情况:选择「整个屏幕」选项卡，并启用「共享系统音频」。<br/>Mac 的情况:选择「Chrome Tab」，并启用「Also share tab audio」。<br/>Chrome 和 Edge 可以使用。Firefox 无法使用。'
   select_input_method: 请选择麦克风输入或文件上传
   speaker_names: 发言人姓名（逗号分隔）

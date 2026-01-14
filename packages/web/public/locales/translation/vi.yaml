@@ -626,8 +626,10 @@ meetingMinutes:
   generate_minutes_header: Tạo biên bản
   generated_minutes: Biên bản đã được tạo
   generating: Đang tạo biên bản...
+  generating_continuation: Đang tạo biên bản (tiếp tục {{current}}/{{max}})...
   generation_error: Không thể tạo biên bản cuộc họp. Vui lòng thử lại.
   generation_success: Tạo biên bản cuộc họp thành công
+  output_may_be_incomplete: Kết quả có thể không đầy đủ do giới hạn độ dài. Hãy xem xét chia nhỏ bản ghi âm.
   language: Ngôn ngữ
   language_auto: Tự động phát hiện
   language_chinese: Tiếng Trung
@@ -771,6 +773,7 @@ transcribe:
   result_placeholder: Kết quả nhận dạng giọng nói sẽ được hiển thị ở đây
   screen_audio: Âm thanh màn hình
   screen_audio_error: 'Lỗi âm thanh màn hình:'
+  screen_audio_failed_fallback_mic: Không thể thu âm thanh màn hình. Bắt đầu ghi âm chỉ với micro.
   screen_audio_notice: 'Đối với Windows: Chọn tab "Toàn bộ màn hình" và bật "Chia sẻ âm thanh hệ thống".<br/>Đối với Mac: Chọn "Chrome Tab" và bật "Also share tab audio".<br/>Chrome và Edge hoạt động. Firefox không hoạt động.'
   select_input_method: Vui lòng chọn từ đầu vào microphone hoặc tải lên tệp
   speaker_names: Tên người nói (phân cách bằng dấu phẩy)

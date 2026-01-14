@@ -749,8 +749,10 @@ meetingMinutes:
   generate_minutes_header: 議事録を生成
   generated_minutes: 生成された議事録
   generating: 議事録生成中...
+  generating_continuation: 議事録生成中（継続 {{current}}/{{max}} 回目）...
   generation_error: 議事録の生成に失敗しました。再試行してください。
   generation_success: 議事録が正常に生成されました
+  output_may_be_incomplete: 出力が長さの制限により不完全な可能性があります。文字起こしを分割することを検討してください。
   language: 言語
   language_auto: 自動検出
   language_chinese: 中国語
@@ -934,6 +936,7 @@ transcribe:
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
   screen_audio_error: 'スクリーン音声エラー:'
+  screen_audio_failed_fallback_mic: スクリーン音声の取得に失敗しました。マイクのみで録音を開始します。
   screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。<br/>Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。<br/>Chrome と Edge は動作します。Firefox は動作しません。'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）

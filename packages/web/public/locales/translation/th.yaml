@@ -642,8 +642,10 @@ meetingMinutes:
   generate_minutes_header: สร้างรายงานการประชุม
   generated_minutes: รายงานการประชุมที่สร้างแล้ว
   generating: กำลังสร้างรายงานการประชุม...
+  generating_continuation: กำลังสร้างรายงานการประชุม (ต่อเนื่อง {{current}}/{{max}})...
   generation_error: ไม่สามารถสร้างรายงานการประชุมได้ กรุณาลองอีกครั้ง
   generation_success: สร้างรายงานการประชุมสำเร็จ
+  output_may_be_incomplete: ผลลัพธ์อาจไม่สมบูรณ์เนื่องจากข้อจำกัดด้านความยาว กรุณาพิจารณาแบ่งการถอดความ
   language: ภาษา
   language_auto: ตรวจจับอัตโนมัติ
   language_chinese: จีน
@@ -797,6 +799,7 @@ transcribe:
   result_placeholder: ข้อความที่แปลงจากเสียงของคุณ
   screen_audio: เสียงหน้าจอ
   screen_audio_error: 'ข้อผิดพลาดเสียงหน้าจอ:'
+  screen_audio_failed_fallback_mic: การจับเสียงหน้าจอล้มเหลว เริ่มบันทึกด้วยไมโครโฟนเท่านั้น
   screen_audio_notice: 'สำหรับ Windows: เลือกแท็บ "หน้าจอทั้งหมด" และเปิด "แชร์เสียงระบบด้วย"<br/>สำหรับ Mac: เลือก "Chrome Tab" และเปิด "Also share tab audio"<br/>Chrome และ Edge ใช้งานได้ Firefox ใช้งานไม่ได้'
   select_input_method: โปรดเลือกจากอินพุตไมโครโฟนหรืออัปโหลดไฟล์
   speaker_names: ชื่อผู้พูด (คั่นด้วยเครื่องหมายจุลภาค)

@@ -285,6 +285,12 @@ const MeetingMinutesPage: React.FC = () => {
   const { modelIds: availableModels, modelDisplayName } = MODELS;
   const [modelId, setModelId] = useState(availableModels[0] || '');
 
+  // Continuation state for long text generation
+  const [continuationInfo, setContinuationInfo] = useState<{
+    attempt: number;
+    maxAttempts: number;
+  } | null>(null);
+
   // Meeting minutes specific hook with external state
   const {
     loading: minutesLoading,
@@ -297,6 +303,49 @@ const MeetingMinutesPage: React.FC = () => {
     setGeneratedMinutes,
     setLastProcessedTranscript,
     setLastGeneratedTime
+  );
+
+  // Common callback handler for generation status updates
+  const handleGenerationStatus = useCallback(
+    (
+      status: 'generating' | 'continuing' | 'success' | 'error',
+      data?: {
+        message?: string;
+        minutes?: string;
+        continuationAttempt?: number;
+        maxContinuationAttempts?: number;
+      }
+    ) => {
+      switch (status) {
+        case 'generating':
+          // Generation started - UI already shows loading state via minutesLoading
+          break;
+        case 'success':
+          setContinuationInfo(null);
+          // Show warning if output may be incomplete (max continuation attempts reached)
+          if (data?.message) {
+            toast.warning(t('meetingMinutes.output_may_be_incomplete'));
+          } else {
+            toast.success(t('meetingMinutes.generation_success'));
+          }
+          break;
+        case 'error':
+          setContinuationInfo(null);
+          // Show detailed error message if available for debugging
+          if (data?.message) {
+            console.error('Generation error details:', data.message);
+          }
+          toast.error(t('meetingMinutes.generation_error'));
+          break;
+        case 'continuing':
+          setContinuationInfo({
+            attempt: data?.continuationAttempt || 0,
+            maxAttempts: data?.maxContinuationAttempts || 5,
+          });
+          break;
+      }
+    },
+    [t]
   );
 
   const speakerMapping = useMemo(() => {
@@ -463,13 +512,8 @@ const MeetingMinutesPage: React.FC = () => {
     ) {
       if (realtimeText !== lastProcessedTranscript && !minutesLoading) {
         shouldGenerateRef.current = false; // Reset the flag
-        generateMinutes(realtimeText, modelId, (status) => {
-          if (status === 'success') {
-            toast.success(t('meetingMinutes.generation_success'));
-          } else if (status === 'error') {
-            toast.error(t('meetingMinutes.generation_error'));
-          }
-        });
+        setContinuationInfo(null);
+        generateMinutes(realtimeText, modelId, handleGenerationStatus);
       } else {
         shouldGenerateRef.current = false; // Reset even if we don't generate
       }
@@ -482,7 +526,7 @@ const MeetingMinutesPage: React.FC = () => {
     minutesLoading,
     generateMinutes,
     modelId,
-    t,
+    handleGenerationStatus,
   ]);
 
   // Auto-generation countdown setup
@@ -598,6 +642,8 @@ const MeetingMinutesPage: React.FC = () => {
       startMicTranscription(langCode, speakerLabel);
     } catch (error) {
       console.error('Failed to start synchronized recording:', error);
+      // Notify user about the fallback
+      toast.warning(t('transcribe.screen_audio_failed_fallback_mic'));
       // Fallback to microphone only if screen preparation fails
       startMicTranscription(langCode, speakerLabel);
     }
@@ -611,6 +657,7 @@ const MeetingMinutesPage: React.FC = () => {
     startTranscriptionWithStream,
     clearMicTranscripts,
     clearScreenTranscripts,
+    t,
   ]);
 
   // Manual generation handler
@@ -625,13 +672,9 @@ const MeetingMinutesPage: React.FC = () => {
     }
 
     if (hasTranscriptText && !minutesLoading) {
-      generateMinutes(currentTranscriptText, modelId, (status) => {
-        if (status === 'success') {
-          toast.success(t('meetingMinutes.generation_success'));
-        } else if (status === 'error') {
-          toast.error(t('meetingMinutes.generation_error'));
-        }
-      });
+      // Reset continuation info at the start
+      setContinuationInfo(null);
+      generateMinutes(currentTranscriptText, modelId, handleGenerationStatus);
     }
   }, [
     hasTranscriptText,
@@ -639,9 +682,10 @@ const MeetingMinutesPage: React.FC = () => {
     minutesLoading,
     modelId,
     generateMinutes,
-    t,
+    handleGenerationStatus,
     minutesStyle,
     customPrompt,
+    t,
   ]);
 
   // Clear minutes only handler
@@ -938,8 +982,7 @@ const MeetingMinutesPage: React.FC = () => {
                     {autoGenerate && countdownSeconds > 0 && (
                       <div className="text-sm text-gray-600">
                         {t('meetingMinutes.next_generation_in')}
-                        {Math.floor(countdownSeconds / 60)}
-                        {t('common.colon')}
+                        {Math.floor(countdownSeconds / 60)}:
                         {(countdownSeconds % 60).toString().padStart(2, '0')}
                       </div>
                     )}
@@ -1085,7 +1128,12 @@ const MeetingMinutesPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <div className="border-aws-sky size-5 animate-spin rounded-full border-4 border-t-transparent"></div>
                   <span className="text-sm text-gray-600">
-                    {t('meetingMinutes.generating')}
+                    {continuationInfo
+                      ? t('meetingMinutes.generating_continuation', {
+                          current: continuationInfo.attempt,
+                          max: continuationInfo.maxAttempts,
+                        })
+                      : t('meetingMinutes.generating')}
                   </span>
                 </div>
               )}
