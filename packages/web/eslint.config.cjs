@@ -43,7 +43,16 @@ module.exports = defineConfig([
         node: true,
       },
       tailwindcss: {
-        whitelist: ['w-', 'h-'],
+        whitelist: [
+          'w-',
+          'h-',
+          'animate-in',
+          'animate-out',
+          'fade-in-.*',
+          'fade-out-.*',
+          'zoom-in-.*',
+          'zoom-out-.*',
+        ],
       },
     },
     rules: {

@@ -12,6 +12,16 @@ export default {
     },
     fontFamily: {
       body: ['"Noto Sans JP"', 'Sarabun'],
+      mono: [
+        'ui-monospace',
+        'SFMono-Regular',
+        'Menlo',
+        'Monaco',
+        'Consolas',
+        '"Liberation Mono"',
+        '"Courier New"',
+        'monospace',
+      ],
     },
     extend: {
       transitionProperty: {
@@ -25,6 +35,8 @@ export default {
         'aws-rind': '#FBD8BF',
         'aws-smile': '#ff9900',
         'aws-font-color': '#232F3E',
+        'aws-font-color-secondary': '#5f6b7a',
+        'aws-border': '#d5dbdb',
         'aws-ml': '#01A88D',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

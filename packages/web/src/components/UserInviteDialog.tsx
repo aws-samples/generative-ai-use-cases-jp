@@ -286,7 +286,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       {/* Backdrop - only show when warning dialog is not open */}
       {!showUnconfiguredWarning && (
         <div
-          className="fixed inset-0 z-50 bg-gray-500 bg-opacity-75 transition-opacity"
+          className="fixed inset-0 z-50 bg-gray-500/75 transition-opacity"
           onClick={handleClose}
         />
       )}
@@ -527,7 +527,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       {showUnconfiguredWarning && (
         <>
           {/* Warning backdrop */}
-          <div className="fixed inset-0 z-[60] bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed inset-0 z-[60] bg-gray-500/75 transition-opacity" />
 
           {/* Warning content container */}
           <div className="fixed inset-0 z-[60] overflow-y-auto">
