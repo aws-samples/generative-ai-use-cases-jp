@@ -5,7 +5,7 @@ const { yamlConfig, commonIgnores } = require('eslint-config-shared');
 module.exports = defineConfig([
   {
     ...yamlConfig,
-    files: ['.github/**/*.{yaml,yml}', 'mkdocs.yml'],
+    ignores: ['.github/**/*.{yaml,yml}', 'mkdocs.yml'],
   },
   {
     ignores: [...commonIgnores.ignores, 'packages/**'],
