@@ -386,6 +386,8 @@ const createConverseCommandInput = (
             },
           } as ContentBlock.ImageMember);
         } else if (extra.type === 'file' && extra.source.type === 'base64') {
+          // PDFの場合はcitationsを有効にして画像ベースPDFのビジョン処理を有効化
+          const isPdf = mimeType === 'application/pdf';
           contentBlocks.push({
             document: {
               format,
@@ -395,6 +397,11 @@ const createConverseCommandInput = (
               source: {
                 bytes: Buffer.from(extra.source.data, 'base64'),
               },
+              ...(isPdf && {
+                citations: {
+                  enabled: true,
+                },
+              }),
             },
           } as ContentBlock.DocumentMember);
         } else if (extra.type === 'video' && extra.source.type === 'base64') {
