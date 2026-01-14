@@ -23,7 +23,6 @@ const typescriptConfig = {
     ...typescriptPlugin.configs.recommended.rules,
     '@typescript-eslint/no-unused-vars': 'off',
     'i18nhelper/no-jp-string': 'warn',
-    'i18nhelper/no-jp-comment': 'warn',
   },
 };
 
