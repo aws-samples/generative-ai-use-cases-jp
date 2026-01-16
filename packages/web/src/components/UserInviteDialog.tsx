@@ -474,6 +474,7 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
                   {!sendEmail && results.summary.successful > 0 && (
                     <div className="mt-3 rounded bg-yellow-50 p-3">
                       <p className="text-sm text-yellow-800">
+                        {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                         <span className="font-semibold">
                           {
                             t('adminPortal.invite.results.warning').split(

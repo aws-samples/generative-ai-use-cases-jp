@@ -980,6 +980,7 @@ const MeetingMinutesPage: React.FC = () => {
                       }}
                     />
                     {autoGenerate && countdownSeconds > 0 && (
+                      // eslint-disable-next-line @shopify/jsx-no-hardcoded-content
                       <div className="text-sm text-gray-600">
                         {t('meetingMinutes.next_generation_in')}
                         {Math.floor(countdownSeconds / 60)}:

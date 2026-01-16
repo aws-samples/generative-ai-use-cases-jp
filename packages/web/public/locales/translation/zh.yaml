@@ -54,6 +54,7 @@ adminPortal:
     noUsersFound: 未找到用户
     refreshingSession: 刷新会话中...
     removeUserConfirmation: '确定要删除用户 {{username}} 吗？此操作无法撤销。'
+    verifyingAdminPrivileges: 正在验证管理员权限...
   roles:
     admin: 管理员
     regularUser: 普通用户
@@ -75,6 +76,20 @@ adminPortal:
 agent:
   drop_files: 拖放文件上传
   title: Agent 聊天
+assistant:
+  chatPage:
+    model: 模型
+    ragEnabled: RAG 已启用
+    sources: 来源
+    view: 查看
+  edit:
+    uploadingFiles: 正在上传文件...
+  history:
+    createdWithDate: '创建日期: {{date}}'
+    lastMessageWithDate: '最后消息: {{date}}'
+  visibility:
+    privateDescriptionWithParens: (仅您可以使用)
+    publicDescriptionWithParens: (组织成员可以使用)
 auth:
   loading: 加载中...
   login: 登录
@@ -82,13 +97,13 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高级选项
-  createChatError: 创建聊天失败。请重试。
-  defaultSystemPrompt: 你是一个乐于助人且知识渊博的AI助手。请为用户的问题提供准确且易于理解的回答。
   button:
     newChat: 新聊天
+  createChatError: 创建聊天失败。请重试。
   create_link: 创建链接
   create_link_message: 通过创建链接，您将向所有可以登录此应用程序的用户公开对话历史。
   create_system_prompt: 创建系统提示
+  defaultSystemPrompt: 你是一个乐于助人且知识渊博的AI助手。请为用户的问题提供准确且易于理解的回答。
   delete_chat_confirmation: 是否删除聊天"{{title}}"？
   delete_confirmation: 删除确认
   delete_link: 删除链接
@@ -115,6 +130,10 @@ chatList:
   oneDayAgo: 1天前
   rename: 重命名
   today: 今天
+chatSidebar:
+  assistants: 助手
+  chatHistory: 聊天记录
+  searchAssistants: 搜索助手
 common:
   cancel: 取消
   clear: 清除
@@ -122,6 +141,7 @@ common:
   complete: 完成
   create: 创建
   delete: 删除
+  ellipsis: '...'
   enter_text: 请输入
   error: 错误
   errorNoSuggestions: 未找到建议。
@@ -148,6 +168,7 @@ common:
   title: 标题
   trace: 跟踪
   try: 尝试
+  unitMB: MB
 demo:
   inter_use_cases: 用例集成
 diagram:
@@ -337,6 +358,7 @@ files:
     mimeMismatch: '{{fileName}} 的文件格式不正确。'
     modelNotSupported: 模型不支持。
     videoCountExceeded: 视频数量不能超过 {{maxCount}} 个。
+  uploadFiles: 上传文件
 flow:
   title: Flow 聊天
 generateImage:
@@ -543,7 +565,6 @@ meetingMinutes:
   generating_continuation: 正在生成会议纪要（继续 {{current}}/{{max}} 次）...
   generation_error: 会议纪要生成失败。请重试。
   generation_success: 会议纪要生成成功
-  output_may_be_incomplete: 由于长度限制，输出可能不完整。请考虑分割转录文本。
   language: 语言
   language_auto: 自动检测
   language_chinese: 中文
@@ -556,6 +577,7 @@ meetingMinutes:
   minutes_placeholder: 生成后会议纪要将显示在这里
   model: 模型
   next_generation_in: '下次生成时间 :'
+  output_may_be_incomplete: 由于长度限制，输出可能不完整。请考虑分割转录文本。
   record_transcribe: 录音和转录
   speech_recognition: 语音识别
   style: 会议纪要风格
@@ -626,15 +648,20 @@ pptx:
     help: 描述您想要的演示文稿内容。请具体说明主题、结构和任何特殊要求。
     label: 演示文稿说明
     placeholder: 在此输入您的演示文稿主题和要求...
+  model:
+    help: 选择用于生成演示文稿内容的 AI 模型
+    label: AI 模型
   options:
     summarySlide: 包含总结幻灯片
     titleSlide: 包含标题幻灯片
   slideCount:
     label: 幻灯片数量
+    labelWithCount: '幻灯片数量: {{count}}'
   template:
     blank: 空白模板
     blankDescription: 从简洁的最少模板开始
     label: 模板选择
+    moreTags: '+{{count}}'
     noTemplates: 没有可用的自定义模板
     private: 私人模板
     public: 公共模板
@@ -663,6 +690,29 @@ rag:
   please_refer: 请参考。
   retrieving: 正在从Kendra获取参考文档...
   title: RAG聊天
+settings:
+  deleteAccountDeletePlaceholder: DELETE
+  labels:
+    customInstructions: 自定义指令
+    enableCustomize: 启用自定义
+    language: 语言
+    sendMessage: 发送消息
+    theme: 主题
+  language:
+    auto: 自动检测
+    ja: 日本語
+  placeholders:
+    customInstructions: 行为、风格和语调的附加设置
+  sendMessage:
+    ctrlCmdEnter: Ctrl/⌘+Enter发送
+    enter: Enter发送
+  tabs:
+    aiCustomize: AI自定义
+    general: 通用
+  theme:
+    dark: 深色
+    light: 浅色
+    system: 跟随系统设置
 shared:
   contact_admin: 请联系管理员。
   error: 错误
@@ -910,6 +960,10 @@ useCaseBuilder:
   updateDescription: 更新用例。如果用例已共享且其他用户也在使用，他们的内容也会更新。
   updateErrorCondition: 要更新，请满足以下所有条件。
   updating: 更新中...
+userMenu:
+  ariaLabel: 用户菜单
+  logout: 退出登录
+  settings: 设置
 video:
   aspectRatio: 宽高比
   clear: 清除
@@ -1068,25 +1122,3 @@ writer:
   tutorial: 教程
   tutorial_success: 已加载教程
   useAsTextEditor: 作为文本编辑器使用
-settings:
-  labels:
-    customInstructions: 自定义指令
-    enableCustomize: 启用自定义
-    language: 语言
-    sendMessage: 发送消息
-    theme: 主题
-  language:
-    auto: 自动检测
-    ja: 日本語
-  placeholders:
-    customInstructions: 行为、风格和语调的附加设置
-  sendMessage:
-    ctrlCmdEnter: Ctrl/⌘+Enter发送
-    enter: Enter发送
-  tabs:
-    aiCustomize: AI自定义
-    general: 通用
-  theme:
-    dark: 深色
-    light: 浅色
-    system: 跟随系统设置

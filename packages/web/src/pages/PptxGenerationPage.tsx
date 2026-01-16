@@ -193,7 +193,7 @@ const PptxGenerationPage: React.FC = () => {
                 {/* Model Selection */}
                 <div>
                   <label className="text-aws-font-color mb-3 block text-sm font-medium">
-                    AI Model
+                    {t('pptx.model.label')}
                   </label>
                   <Select
                     value={selectedModelId}
@@ -204,14 +204,14 @@ const PptxGenerationPage: React.FC = () => {
                     }))}
                   />
                   <p className="text-aws-font-color-secondary mt-2 text-xs">
-                    Select the AI model to generate presentation content
+                    {t('pptx.model.help')}
                   </p>
                 </div>
 
                 {/* Slide Count */}
                 <div>
                   <label className="text-aws-font-color mb-3 block text-sm font-medium">
-                    {t('pptx.slideCount.label')}: {slideCount}
+                    {t('pptx.slideCount.labelWithCount', { count: slideCount })}
                   </label>
                   <Slider
                     value={slideCount}
@@ -222,7 +222,9 @@ const PptxGenerationPage: React.FC = () => {
                     className="w-full"
                   />
                   <div className="text-aws-font-color-secondary mt-1 flex justify-between text-xs">
+                    {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                     <span>1</span>
+                    {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                     <span>20</span>
                   </div>
                 </div>
@@ -344,7 +346,8 @@ const PptxGenerationPage: React.FC = () => {
                           {example.title}
                         </h4>
                         <p className="text-aws-font-color-secondary mt-1 text-xs">
-                          {example.content.slice(0, 100)}...
+                          {example.content.slice(0, 100)}
+                          {t('common.ellipsis')}
                         </p>
                       </button>
                     ))}

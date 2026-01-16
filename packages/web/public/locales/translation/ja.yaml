@@ -55,6 +55,7 @@ adminPortal:
     noUsersFound: ユーザーが見つかりません
     refreshingSession: セッションを更新中...
     removeUserConfirmation: 'ユーザー {{username}} を削除してもよろしいですか？この操作は元に戻せません。'
+    verifyingAdminPrivileges: 管理者権限を確認中...
   roles:
     admin: 管理者
     regularUser: 一般ユーザー
@@ -90,18 +91,22 @@ assistant:
     failedAlertTitle: 同期失敗
     inputPlaceholder: メッセージを入力...
     instruction: 指示
+    model: モデル
     noMessages: メッセージがありません
     partialAlertMessage: '{{count}}個のナレッジソースの同期に失敗しました。'
     partialAlertTitle: 部分的に同期完了
     quickStarters: クイックスタート
+    ragEnabled: RAG 有効
     send: 送信
     sendError: メッセージの送信に失敗しました
+    sources: ソース
     syncStatus: 同期状態
     syncSucceeded: ナレッジベースの同期が正常に完了しました！
     syncingAlertMessage: アシスタントのナレッジベースは現在同期中です。準備ができ次第チャットできるようになります。5秒ごとに更新しています。
     syncingAlertTitle: ナレッジベース同期中
     syncingPlaceholder: ナレッジベースを同期中...
     title: アシスタント チャット
+    view: 表示
   confirmDelete: このアシスタントを削除してもよろしいですか？
   createNew: 新規アシスタント作成
   delete: 削除
@@ -135,6 +140,7 @@ assistant:
     sourceUrls: ソースURL
     title: 名前
     uploadFiles: ファイルをアップロード
+    uploadingFiles: ファイルをアップロード中...
   editTitle: 編集
   filterAll: すべて
   filterPrivate: プライベート
@@ -144,11 +150,13 @@ assistant:
     back: 戻る
     confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
     confirmDelete: この会話を削除してもよろしいですか？
+    createdWithDate: '作成日: {{date}}'
     daysAgo: '{{days}}日前'
     deleteSelected: 選択した項目を削除
     deselectAll: 選択解除
     hoursAgo: '{{hours}}時間前'
     lastMessage: 最終メッセージ
+    lastMessageWithDate: '最終メッセージ: {{date}}'
     messageCount: 'メッセージ数: {{count}}'
     minutesAgo: '{{minutes}}分前'
     noConversations: 会話履歴がありません
@@ -207,8 +215,10 @@ assistant:
     makeItPublic: パブリックにする
     private: プライベート
     privateDescription: 自分だけが利用できます
+    privateDescriptionWithParens: (自分だけが利用できます)
     public: パブリック
     publicDescription: 組織内のメンバーが利用できます
+    publicDescriptionWithParens: (組織内のメンバーが利用できます)
     publicWarning: アシスタントをパブリックにすると、組織内の全メンバーが利用できるようになります。指示やナレッジベースに機密情報が含まれていないことを確認してください。
     toggleTitle: 公開設定を変更
     updating: 更新中...
@@ -219,13 +229,13 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高度なオプション
-  createChatError: チャットの作成に失敗しました。もう一度お試しください。
-  defaultSystemPrompt: あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。
   button:
     newChat: 新しいチャット
+  createChatError: チャットの作成に失敗しました。もう一度お試しください。
   create_link: リンクの作成
   create_link_message: リンクを作成することで、このアプリケーションにログイン可能な全ユーザーに対して会話履歴を公開します。
   create_system_prompt: システムプロンプトの作成
+  defaultSystemPrompt: あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。
   delete_chat_confirmation: チャット「{{title}}」を削除しますか？
   delete_confirmation: 削除確認
   delete_link: リンクの削除
@@ -260,6 +270,10 @@ chatList:
   oneDayAgo: 1日前
   rename: 名前を変更
   today: 今日
+chatSidebar:
+  assistants: アシスタント
+  chatHistory: チャット履歴
+  searchAssistants: アシスタントを探す
 common:
   ask_gaixr: GaiXerに聞く
   cancel: キャンセル
@@ -268,6 +282,7 @@ common:
   complete: 完了
   create: 作成
   delete: 削除
+  ellipsis: '...'
   enter_text: 入力してください
   error: エラー
   errorNoSuggestions: 候補が見つかりませんでした。
@@ -294,6 +309,7 @@ common:
   title: タイトル
   trace: トレース
   try: 試す
+  unitMB: MB
   yesterday: 昨日
 demo:
   inter_use_cases: ユースケース連携
@@ -503,6 +519,7 @@ files:
     mimeMismatch: '{{fileName}} のファイル形式が不正です。'
     modelNotSupported: モデルが対応していません。
     videoCountExceeded: 動画数は {{maxCount}} 個以下にしてください。
+  uploadFiles: ファイルをアップロード
 flow:
   title: Flow チャット
 generateImage:
@@ -760,7 +777,6 @@ meetingMinutes:
   generating_continuation: 議事録生成中（継続 {{current}}/{{max}} 回目）...
   generation_error: 議事録の生成に失敗しました。再試行してください。
   generation_success: 議事録が正常に生成されました
-  output_may_be_incomplete: 出力が長さの制限により不完全な可能性があります。文字起こしを分割することを検討してください。
   language: 言語
   language_auto: 自動検出
   language_chinese: 中国語
@@ -773,6 +789,7 @@ meetingMinutes:
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: モデル
   next_generation_in: '次回生成まで : '
+  output_may_be_incomplete: 出力が長さの制限により不完全な可能性があります。文字起こしを分割することを検討してください。
   record_transcribe: 音声認識
   speech_recognition: 音声認識
   style: 議事録スタイル
@@ -847,15 +864,20 @@ pptx:
     help: プレゼンテーションで求めるものを説明してください。トピック、構成、特別な要件について具体的に記述してください。
     label: プレゼンテーション指示
     placeholder: プレゼンテーションのトピックと要件をここに入力してください...
+  model:
+    help: プレゼンテーションコンテンツを生成するAIモデルを選択してください
+    label: AI モデル
   options:
     summarySlide: まとめスライドを含める
     titleSlide: タイトルスライドを含める
   slideCount:
     label: スライド数
+    labelWithCount: 'スライド数: {{count}}'
   template:
     blank: 空白テンプレート
     blankDescription: クリーンで最小限のテンプレートから開始
     label: テンプレート選択
+    moreTags: '+{{count}}'
     noTemplates: カスタムテンプレートがありません
     private: プライベートテンプレート
     public: パブリックテンプレート
@@ -906,6 +928,16 @@ rag:
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
 settings:
+  deleteAccount: アカウント削除
+  deleteAccountButton: アカウントを削除
+  deleteAccountCancel: キャンセル
+  deleteAccountConfirm: 削除する
+  deleteAccountConfirmDescription: この操作は取り消せません。確認のため、以下の情報を入力してください。
+  deleteAccountConfirmTitle: アカウント削除の確認
+  deleteAccountDeleteLabel: 「DELETE」と入力
+  deleteAccountDeletePlaceholder: DELETE
+  deleteAccountDescription: アカウントを削除すると、すべてのデータが失われます。この操作は取り消せません。
+  deleteAccountEmailLabel: メールアドレスを入力
   labels:
     customInstructions: カスタム指示
     enableCustomize: カスタマイズを有効にする
@@ -927,15 +959,6 @@ settings:
     dark: ダーク
     light: ライト
     system: システム設定に従う
-  deleteAccount: アカウント削除
-  deleteAccountButton: アカウントを削除
-  deleteAccountCancel: キャンセル
-  deleteAccountConfirm: 削除する
-  deleteAccountConfirmDescription: この操作は取り消せません。確認のため、以下の情報を入力してください。
-  deleteAccountConfirmTitle: アカウント削除の確認
-  deleteAccountDeleteLabel: 「DELETE」と入力
-  deleteAccountDescription: アカウントを削除すると、すべてのデータが失われます。この操作は取り消せません。
-  deleteAccountEmailLabel: メールアドレスを入力
 shared:
   contact_admin: 管理者に問い合わせてください。
   error: エラー
@@ -1223,6 +1246,10 @@ useCaseBuilder:
   updateDescription: ユースケースを更新します。ユースケースが共有され他ユーザーも利用している場合、その内容も更新されます。
   updateErrorCondition: 更新するためには、以下条件を全て満たしてください。
   updating: 更新中...
+userMenu:
+  ariaLabel: ユーザーメニュー
+  logout: ログアウト
+  settings: 設定
 video:
   aspectRatio: アスペクト比
   clear: クリア

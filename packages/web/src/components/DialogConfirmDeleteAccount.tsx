@@ -72,7 +72,7 @@ const DialogConfirmDeleteAccount: React.FC<Props> = (props) => {
                 type="text"
                 value={deleteInput}
                 onChange={(e) => setDeleteInput(e.target.value)}
-                placeholder="DELETE"
+                placeholder={t('settings.deleteAccountDeletePlaceholder')}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
                 disabled={props.isDeleting}
               />

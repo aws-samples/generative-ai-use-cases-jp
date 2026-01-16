@@ -254,13 +254,16 @@ const AssistantHistoryPage: React.FC = () => {
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1">
                     <PiCalendar />
-                    Created: {formatDate(assistant.createdDate)}
+                    {t('assistant.history.createdWithDate', {
+                      date: formatDate(assistant.createdDate),
+                    })}
                   </span>
                   {lastMessageAt && (
                     <span className="flex items-center gap-1">
                       <PiClock />
-                      {t('assistant.history.lastMessage')}:{' '}
-                      {formatDate(lastMessageAt)}
+                      {t('assistant.history.lastMessageWithDate', {
+                        date: formatDate(lastMessageAt),
+                      })}
                     </span>
                   )}
                   <span className="flex items-center gap-1">

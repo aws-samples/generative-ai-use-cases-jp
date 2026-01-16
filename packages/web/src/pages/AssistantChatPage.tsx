@@ -496,7 +496,9 @@ const AssistantChatPage: React.FC = () => {
           {/* Display sources if available (RAG) */}
           {isAssistant && message.sources && message.sources.length > 0 && (
             <div className="rounded bg-gray-50 p-2 text-xs">
-              <div className="mb-1 font-semibold text-gray-700">Sources:</div>
+              <div className="mb-1 font-semibold text-gray-700">
+                {t('assistant.chatPage.sources')}
+              </div>
               {message.sources.map((source, idx) => (
                 <div key={idx} className="mb-1">
                   <span className="text-gray-600">{source.name}</span>
@@ -506,7 +508,7 @@ const AssistantChatPage: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="ml-2 text-blue-600 hover:underline">
-                      View
+                      {t('assistant.chatPage.view')}
                     </a>
                   )}
                 </div>
@@ -587,19 +589,25 @@ const AssistantChatPage: React.FC = () => {
           </h3>
           <div className="space-y-1 text-sm">
             <p>
+              {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
               <strong>{t('assistant.chatPage.instruction')}:</strong>{' '}
               {assistant.instruction}
             </p>
             <p>
-              <strong>Model:</strong> {assistant.modelId}
+              {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
+              <strong>{t('assistant.chatPage.model')}:</strong>{' '}
+              {assistant.modelId}
             </p>
             {assistant.ragEnabled && (
               <>
                 <p>
+                  {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
                   <strong>{t('assistant.chatPage.syncStatus')}:</strong>{' '}
                   {assistant.syncStatus}
                 </p>
-                <p className="text-green-600">RAG Enabled</p>
+                <p className="text-green-600">
+                  {t('assistant.chatPage.ragEnabled')}
+                </p>
               </>
             )}
           </div>

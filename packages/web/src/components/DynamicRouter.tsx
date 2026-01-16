@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   RouterProvider,
   createBrowserRouter,
@@ -62,6 +63,7 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
   mcpEnabled,
   pptxEnabled,
 }) => {
+  const { t } = useTranslation();
   const { enabled, loading } = useUseCases();
   const {
     visionEnabled,
@@ -76,7 +78,7 @@ const DynamicRouter: React.FC<DynamicRouterProps> = ({
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
+          <p className="mt-2 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BaseProps } from '../@types/common';
 import { PiUploadSimple } from 'react-icons/pi';
 
@@ -10,6 +11,7 @@ type Props = BaseProps & {
 };
 
 const FileUploader: React.FC<Props> = (props) => {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
@@ -37,7 +39,7 @@ const FileUploader: React.FC<Props> = (props) => {
         onClick={handleClick}
         className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-50">
         <PiUploadSimple />
-        <span>Upload Files</span>
+        <span>{t('files.uploadFiles')}</span>
       </button>
     </div>
   );

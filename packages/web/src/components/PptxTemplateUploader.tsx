@@ -131,7 +131,8 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
                   {file.name}
                 </p>
                 <p className="text-aws-font-color-secondary text-xs">
-                  {(file.size / (1024 * 1024)).toFixed(2)} MB
+                  {(file.size / (1024 * 1024)).toFixed(2)}{' '}
+                  {t('common.unitMB')}
                 </p>
               </div>
               <ButtonIcon onClick={() => setFile(null)} className="h-6 w-6">
@@ -143,6 +144,7 @@ const PptxTemplateUploader: React.FC<PptxTemplateUploaderProps> = ({
 
         {/* Template Name */}
         <div>
+          {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
           <label className="text-aws-font-color mb-2 block text-sm font-medium">
             {t('pptx.upload.nameLabel')} *
           </label>

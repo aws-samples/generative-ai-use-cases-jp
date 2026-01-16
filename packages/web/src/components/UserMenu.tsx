@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import {
   PiGear,
@@ -16,6 +17,7 @@ import { performLogoutAndReload } from '../utils/auth';
 import SettingsModal from './SettingsModal';
 
 const UserMenu: React.FC = () => {
+  const { t } = useTranslation();
   const { userInfo, loading } = useUserInfo();
   const [isOpen, setIsOpen] = useState(false);
   // const [isHelpSubmenuOpen, setIsHelpSubmenuOpen] = useState(false); // Temporarily commented out
@@ -50,7 +52,7 @@ const UserMenu: React.FC = () => {
       <Popover.Trigger asChild>
         <button
           className="flex h-14 w-full items-center justify-center focus:outline-none"
-          aria-label="User menu">
+          aria-label={t('userMenu.ariaLabel')}>
           <div className="text-aws-squid-ink flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold">
             {getInitials()}
           </div>
@@ -158,7 +160,7 @@ const UserMenu: React.FC = () => {
                 setIsOpen(false); // Close the user menu
               }}>
               <PiGear className="h-5 w-5 text-gray-500" />
-              <span>設定</span>
+              <span>{t('userMenu.settings')}</span>
             </button>
 
             {/* Logout */}
@@ -166,7 +168,7 @@ const UserMenu: React.FC = () => {
               className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={handleLogout}>
               <PiSignOut className="h-5 w-5 text-gray-500" />
-              <span>ログアウト</span>
+              <span>{t('userMenu.logout')}</span>
             </button>
           </div>
         </Popover.Content>

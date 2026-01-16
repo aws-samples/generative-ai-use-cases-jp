@@ -110,7 +110,9 @@ const PptxTemplateSelector: React.FC<PptxTemplateSelectorProps> = ({
                       ))}
                       {template.tags.length > 3 && (
                         <span className="text-aws-font-color-secondary text-xs">
-                          +{template.tags.length - 3}
+                          {t('pptx.template.moreTags', {
+                            count: template.tags.length - 3,
+                          })}
                         </span>
                       )}
                     </div>

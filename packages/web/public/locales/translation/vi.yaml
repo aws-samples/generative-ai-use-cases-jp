@@ -54,6 +54,7 @@ adminPortal:
     noUsersFound: Không tìm thấy người dùng
     refreshingSession: Đang làm mới phiên...
     removeUserConfirmation: 'Bạn có chắc chắn muốn xóa người dùng {{username}}? Hành động này không thể hoàn tác.'
+    verifyingAdminPrivileges: Đang xác minh quyền quản trị viên...
   roles:
     admin: Quản Trị Viên
     regularUser: Người Dùng Thường
@@ -75,6 +76,20 @@ adminPortal:
 agent:
   drop_files: Thả file để tải lên
   title: Chat Agent
+assistant:
+  chatPage:
+    model: Mô hình
+    ragEnabled: RAG Đã bật
+    sources: Nguồn
+    view: Xem
+  edit:
+    uploadingFiles: Đang tải lên tập tin...
+  history:
+    createdWithDate: 'Ngày tạo: {{date}}'
+    lastMessageWithDate: 'Tin nhắn cuối: {{date}}'
+  visibility:
+    privateDescriptionWithParens: (Chỉ bạn mới có thể sử dụng)
+    publicDescriptionWithParens: (Thành viên trong tổ chức có thể sử dụng)
 auth:
   loading: Đang tải...
   login: Đăng nhập
@@ -82,13 +97,13 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Tùy chọn nâng cao
-  createChatError: Không thể tạo cuộc trò chuyện. Vui lòng thử lại.
-  defaultSystemPrompt: Bạn là trợ lý AI thân thiện và có kiến thức phong phú. Vui lòng cung cấp câu trả lời chính xác và dễ hiểu cho các câu hỏi của người dùng.
   button:
     newChat: Chat mới
+  createChatError: Không thể tạo cuộc trò chuyện. Vui lòng thử lại.
   create_link: Tạo liên kết
   create_link_message: Bằng cách tạo liên kết, bạn sẽ công khai lịch sử cuộc trò chuyện cho tất cả người dùng có thể đăng nhập vào ứng dụng này.
   create_system_prompt: Tạo system prompt
+  defaultSystemPrompt: Bạn là trợ lý AI thân thiện và có kiến thức phong phú. Vui lòng cung cấp câu trả lời chính xác và dễ hiểu cho các câu hỏi của người dùng.
   delete_chat_confirmation: 'Bạn có muốn xóa cuộc trò chuyện "{{title}}" không?'
   delete_confirmation: Xác nhận xóa
   delete_link: Xóa liên kết
@@ -116,6 +131,10 @@ chatList:
   oneDayAgo: 1 ngày trước
   rename: Đổi tên
   today: Hôm nay
+chatSidebar:
+  assistants: Trợ lý
+  chatHistory: Lịch sử trò chuyện
+  searchAssistants: Tìm kiếm trợ lý
 common:
   cancel: Hủy
   clear: Xóa
@@ -123,6 +142,7 @@ common:
   complete: Hoàn thành
   create: Tạo
   delete: Xóa
+  ellipsis: '...'
   enter_text: Vui lòng nhập
   error: Lỗi
   errorNoSuggestions: Không tìm thấy gợi ý.
@@ -148,6 +168,7 @@ common:
   title: Tiêu đề
   trace: Trace
   try: Thử
+  unitMB: MB
 demo:
   inter_use_cases: Liên kết use case
 diagram:
@@ -410,6 +431,7 @@ files:
     mimeMismatch: 'Định dạng file của {{fileName}} không đúng.'
     modelNotSupported: Mô hình không hỗ trợ.
     videoCountExceeded: Số lượng video phải không quá {{maxCount}} video.
+  uploadFiles: Tải lên tập tin
 flow:
   title: Flow Chat
 generateImage:
@@ -637,7 +659,6 @@ meetingMinutes:
   generating_continuation: Đang tạo biên bản (tiếp tục {{current}}/{{max}})...
   generation_error: Không thể tạo biên bản cuộc họp. Vui lòng thử lại.
   generation_success: Tạo biên bản cuộc họp thành công
-  output_may_be_incomplete: Kết quả có thể không đầy đủ do giới hạn độ dài. Hãy xem xét chia nhỏ bản ghi âm.
   language: Ngôn ngữ
   language_auto: Tự động phát hiện
   language_chinese: Tiếng Trung
@@ -650,6 +671,7 @@ meetingMinutes:
   minutes_placeholder: Biên bản sẽ xuất hiện ở đây sau khi tạo
   model: Mô hình
   next_generation_in: 'Tạo tiếp theo trong : '
+  output_may_be_incomplete: Kết quả có thể không đầy đủ do giới hạn độ dài. Hãy xem xét chia nhỏ bản ghi âm.
   record_transcribe: Ghi âm và chuyển đổi
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
@@ -719,15 +741,20 @@ pptx:
     help: Mô tả những gì bạn muốn trong bản trình bày. Hãy cụ thể về chủ đề, cấu trúc và bất kỳ yêu cầu đặc biệt nào.
     label: Hướng dẫn bản trình bày
     placeholder: Nhập chủ đề và yêu cầu bản trình bày của bạn tại đây...
+  model:
+    help: Chọn mô hình AI để tạo nội dung bản trình bày
+    label: Mô hình AI
   options:
     summarySlide: Bao gồm slide tóm tắt
     titleSlide: Bao gồm slide tiêu đề
   slideCount:
     label: Số slide
+    labelWithCount: 'Số slide: {{count}}'
   template:
     blank: Mẫu trắng
     blankDescription: Bắt đầu với mẫu sạch và tối giản
     label: Lựa chọn mẫu
+    moreTags: '+{{count}}'
     noTemplates: Không có mẫu tùy chỉnh nào
     private: Mẫu riêng tư
     public: Mẫu công khai
@@ -763,6 +790,29 @@ rag:
   please_refer: Vui lòng tham khảo.
   retrieving: Đang lấy tài liệu tham khảo từ Kendra...
   title: RAG Chat
+settings:
+  deleteAccountDeletePlaceholder: DELETE
+  labels:
+    customInstructions: Hướng dẫn tùy chỉnh
+    enableCustomize: Bật tùy chỉnh
+    language: Ngôn ngữ
+    sendMessage: Gửi tin nhắn
+    theme: Giao diện
+  language:
+    auto: Tự động phát hiện
+    ja: 日本語
+  placeholders:
+    customInstructions: Cài đặt bổ sung cho hành vi, phong cách và giọng điệu
+  sendMessage:
+    ctrlCmdEnter: Gửi bằng Ctrl/⌘+Enter
+    enter: Gửi bằng Enter
+  tabs:
+    aiCustomize: Tùy chỉnh AI
+    general: Tổng quát
+  theme:
+    dark: Tối
+    light: Sáng
+    system: Theo cài đặt hệ thống
 shared:
   contact_admin: Vui lòng liên hệ với quản trị viên.
   error: Lỗi
@@ -1050,6 +1100,10 @@ useCaseBuilder:
   updateDescription: Cập nhật trường hợp sử dụng. Nếu trường hợp sử dụng được chia sẻ và người dùng khác cũng đang sử dụng, nội dung đó cũng sẽ được cập nhật.
   updateErrorCondition: Để cập nhật, vui lòng đáp ứng tất cả các điều kiện sau.
   updating: Đang cập nhật...
+userMenu:
+  ariaLabel: Menu người dùng
+  logout: Đăng xuất
+  settings: Cài đặt
 video:
   aspectRatio: Tỷ lệ khung hình
   clear: Xóa
@@ -1212,25 +1266,3 @@ writer:
   tutorial: Hướng dẫn
   tutorial_success: Đã tải hướng dẫn
   useAsTextEditor: Sử dụng như editor văn bản
-settings:
-  labels:
-    customInstructions: Hướng dẫn tùy chỉnh
-    enableCustomize: Bật tùy chỉnh
-    language: Ngôn ngữ
-    sendMessage: Gửi tin nhắn
-    theme: Giao diện
-  language:
-    auto: Tự động phát hiện
-    ja: 日本語
-  placeholders:
-    customInstructions: Cài đặt bổ sung cho hành vi, phong cách và giọng điệu
-  sendMessage:
-    ctrlCmdEnter: Gửi bằng Ctrl/⌘+Enter
-    enter: Gửi bằng Enter
-  tabs:
-    aiCustomize: Tùy chỉnh AI
-    general: Tổng quát
-  theme:
-    dark: Tối
-    light: Sáng
-    system: Theo cài đặt hệ thống

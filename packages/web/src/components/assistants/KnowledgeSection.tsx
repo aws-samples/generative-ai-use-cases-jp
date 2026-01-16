@@ -101,7 +101,9 @@ const KnowledgeSection: React.FC<KnowledgeSectionProps> = ({
               multiple
             />
             {uploadingFiles && (
-              <p className="mt-2 text-sm text-blue-600">Uploading files...</p>
+              <p className="mt-2 text-sm text-blue-600">
+                {t('assistant.edit.uploadingFiles')}
+              </p>
             )}
           </>
         )}

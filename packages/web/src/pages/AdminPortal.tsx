@@ -325,7 +325,11 @@ const AdminPortal: React.FC = () => {
   }
 
   if (checkingRole) {
-    return <LoadingOverlay>Verifying admin privileges...</LoadingOverlay>;
+    return (
+      <LoadingOverlay>
+        {t('adminPortal.messages.verifyingAdminPrivileges')}
+      </LoadingOverlay>
+    );
   }
 
   return (

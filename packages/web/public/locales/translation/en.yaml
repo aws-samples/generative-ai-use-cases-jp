@@ -55,6 +55,7 @@ adminPortal:
     noUsersFound: No users found
     refreshingSession: Refreshing session...
     removeUserConfirmation: 'Are you sure you want to remove user {{username}}? This action cannot be undone.'
+    verifyingAdminPrivileges: Verifying admin privileges...
   roles:
     admin: Admin
     regularUser: Regular User
@@ -90,18 +91,22 @@ assistant:
     failedAlertTitle: Sync Failed
     inputPlaceholder: Type a message...
     instruction: Instruction
+    model: Model
     noMessages: No messages
     partialAlertMessage: '{{count}} knowledge source(s) failed to sync.'
     partialAlertTitle: Partial Sync
     quickStarters: Quick Starters
+    ragEnabled: RAG Enabled
     send: Send
     sendError: Failed to send message
+    sources: Sources
     syncStatus: Sync Status
     syncSucceeded: Knowledge base sync completed successfully!
     syncingAlertMessage: The assistant's knowledge base is currently syncing. You'll be able to chat once it's ready. We're refreshing every 5 seconds.
     syncingAlertTitle: Syncing Knowledge Base
     syncingPlaceholder: Knowledge base is syncing...
     title: Assistant Chat
+    view: View
   confirmDelete: Are you sure you want to delete this assistant?
   createNew: Create New Assistant
   delete: Delete
@@ -135,6 +140,7 @@ assistant:
     sourceUrls: Source URLs
     title: Name
     uploadFiles: Upload Files
+    uploadingFiles: Uploading files...
   editTitle: Edit
   filterAll: All
   filterPrivate: Private
@@ -144,11 +150,13 @@ assistant:
     back: Back
     confirmBulkDelete: 'Are you sure you want to delete {{count}} conversations?'
     confirmDelete: Are you sure you want to delete this conversation?
+    createdWithDate: 'Created: {{date}}'
     daysAgo: '{{days}} days ago'
     deleteSelected: Delete Selected
     deselectAll: Deselect All
     hoursAgo: '{{hours}} hours ago'
     lastMessage: Last message
+    lastMessageWithDate: 'Last message: {{date}}'
     messageCount: 'Messages: {{count}}'
     minutesAgo: '{{minutes}} minutes ago'
     noConversations: No conversations found
@@ -207,8 +215,10 @@ assistant:
     makeItPublic: Make it Public
     private: Private
     privateDescription: Only you can use this assistant
+    privateDescriptionWithParens: (Only you can use this assistant)
     public: Public
     publicDescription: Members of your organization can use this assistant
+    publicDescriptionWithParens: (Members of your organization can use this assistant)
     publicWarning: Making an assistant public will allow all organization members to use it. Make sure the instructions and knowledge base don't contain sensitive information.
     toggleTitle: Change Visibility
     updating: Updating...
@@ -219,15 +229,15 @@ auth:
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: Advanced Options
-  createChatError: Failed to create chat. Please try again.
-  defaultSystemPrompt: You are a helpful and knowledgeable AI assistant. Please provide accurate and easy-to-understand answers to user questions.
   button:
     newChat: New Chat
+  createChatError: Failed to create chat. Please try again.
   create_link: Create Link
   create_link_message: >-
     By creating a link, you will share the conversation history with all users
     who can log in to this application.
   create_system_prompt: Create System Prompt
+  defaultSystemPrompt: You are a helpful and knowledgeable AI assistant. Please provide accurate and easy-to-understand answers to user questions.
   delete_chat_confirmation: Are you sure you want to delete the chat "{{title}}"?
   delete_confirmation: Delete Confirmation
   delete_link: Delete Link
@@ -262,6 +272,10 @@ chatList:
   oneDayAgo: 1 day ago
   rename: Rename
   today: Today
+chatSidebar:
+  assistants: Assistants
+  chatHistory: Chat History
+  searchAssistants: Search Assistants
 common:
   ask_gaixr: Ask GaiXer
   cancel: Cancel
@@ -270,6 +284,7 @@ common:
   complete: Complete
   create: Create
   delete: Delete
+  ellipsis: '...'
   enter_text: Enter text
   error: An error occurred
   errorNoSuggestions: No suggestions were found.
@@ -296,6 +311,7 @@ common:
   title: Title
   trace: Trace
   try: Try
+  unitMB: MB
   yesterday: Yesterday
 demo:
   inter_use_cases: Use Case Integration
@@ -558,6 +574,7 @@ files:
     mimeMismatch: "{{fileName}} has a file type that doesn't match its extension."
     modelNotSupported: This model does not support files.
     videoCountExceeded: Please limit video files to {{maxCount}} or fewer
+  uploadFiles: Upload Files
 flow:
   title: Flow Chat
 generateImage:
@@ -899,7 +916,6 @@ meetingMinutes:
   generating_continuation: Generating minutes (continuation {{current}}/{{max}})...
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_success: Meeting minutes generated successfully
-  output_may_be_incomplete: Output may be incomplete due to length limits. Consider splitting the transcript.
   language: Language
   language_auto: Auto Detect
   language_chinese: Chinese
@@ -912,6 +928,7 @@ meetingMinutes:
   minutes_placeholder: Minutes will appear here after generation
   model: Model
   next_generation_in: 'Next generation in : '
+  output_may_be_incomplete: Output may be incomplete due to length limits. Consider splitting the transcript.
   record_transcribe: Record & Transcribe
   speech_recognition: Speech Recognition
   style: Minutes Style
@@ -988,15 +1005,20 @@ pptx:
     help: Describe what you want in your presentation. Be specific about the topic, structure, and any special requirements.
     label: Presentation Instructions
     placeholder: Enter your presentation topic and requirements here...
+  model:
+    help: Select the AI model to generate presentation content
+    label: AI Model
   options:
     summarySlide: Include Summary Slide
     titleSlide: Include Title Slide
   slideCount:
     label: Number of Slides
+    labelWithCount: 'Number of Slides: {{count}}'
   template:
     blank: Blank Template
     blankDescription: Start with a clean, minimal template
     label: Template Selection
+    moreTags: '+{{count}}'
     noTemplates: No custom templates available
     private: Private template
     public: Public template
@@ -1064,6 +1086,16 @@ rag:
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
 settings:
+  deleteAccount: Delete Account
+  deleteAccountButton: Delete Account
+  deleteAccountCancel: Cancel
+  deleteAccountConfirm: Delete
+  deleteAccountConfirmDescription: This action cannot be undone. Please enter the following to confirm.
+  deleteAccountConfirmTitle: Confirm Account Deletion
+  deleteAccountDeleteLabel: Type "DELETE" to confirm
+  deleteAccountDeletePlaceholder: DELETE
+  deleteAccountDescription: Deleting your account will permanently remove all your data. This action cannot be undone.
+  deleteAccountEmailLabel: Enter your email address
   labels:
     customInstructions: Custom Instructions
     enableCustomize: Enable customization
@@ -1085,15 +1117,6 @@ settings:
     dark: Dark
     light: Light
     system: Follow system settings
-  deleteAccount: Delete Account
-  deleteAccountButton: Delete Account
-  deleteAccountCancel: Cancel
-  deleteAccountConfirm: Delete
-  deleteAccountConfirmDescription: This action cannot be undone. Please enter the following to confirm.
-  deleteAccountConfirmTitle: Confirm Account Deletion
-  deleteAccountDeleteLabel: Type "DELETE" to confirm
-  deleteAccountDescription: Deleting your account will permanently remove all your data. This action cannot be undone.
-  deleteAccountEmailLabel: Enter your email address
 shared:
   contact_admin: Please contact the administrator.
   error: Error
@@ -1461,6 +1484,10 @@ useCaseBuilder:
   updateDescription: Update the use case with the above content.
   updateErrorCondition: 'The following conditions must be met:'
   updating: Updating...
+userMenu:
+  ariaLabel: User menu
+  logout: Log out
+  settings: Settings
 video:
   aspectRatio: Aspect Ratio
   clear: Clear

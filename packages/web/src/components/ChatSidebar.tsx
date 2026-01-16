@@ -50,7 +50,7 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
       {/* Assistants Section */}
       <div className="border-b border-gray-200 p-3">
         <div className="mb-2 text-xs font-semibold text-gray-600">
-          アシスタント
+          {t('chatSidebar.assistants')}
         </div>
 
         {/* Featured Assistants List */}
@@ -78,14 +78,14 @@ const ChatSidebar: React.FC<Props> = ({ onNewChat }) => {
               : 'text-gray-600 hover:bg-gray-100'
           }`}>
           <PiMagnifyingGlass className="text-base" />
-          <span>アシスタントを探す</span>
+          <span>{t('chatSidebar.searchAssistants')}</span>
         </button>
       </div>
 
       {/* Chat History Section */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="px-3 py-2 text-xs font-semibold text-gray-600">
-          チャット履歴
+          {t('chatSidebar.chatHistory')}
         </div>
         <div className="scrollbar-thin scrollbar-thumb-gray-300 flex-1 overflow-y-auto px-2">
           <ChatList searchWords={[]} />

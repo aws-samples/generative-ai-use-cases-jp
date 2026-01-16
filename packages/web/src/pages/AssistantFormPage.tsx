@@ -347,7 +347,7 @@ const AssistantFormPage: React.FC = () => {
                   {t('assistant.visibility.private')}
                 </span>
                 <span className="text-xs text-gray-500">
-                  ({t('assistant.visibility.privateDescription')})
+                  {t('assistant.visibility.privateDescriptionWithParens')}
                 </span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
@@ -369,7 +369,7 @@ const AssistantFormPage: React.FC = () => {
                   {t('assistant.visibility.public')}
                 </span>
                 <span className="text-xs text-gray-500">
-                  ({t('assistant.visibility.publicDescription')})
+                  {t('assistant.visibility.publicDescriptionWithParens')}
                 </span>
               </label>
             </div>
