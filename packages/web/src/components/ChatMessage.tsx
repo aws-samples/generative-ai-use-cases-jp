@@ -375,6 +375,7 @@ const ChatMessage: React.FC<Props> = (props) => {
                   <>
                     {editing ? (
                       <Textarea
+                        className="bg-white text-black"
                         value={editingPrompt}
                         onChange={setEditingPrompt}
                       />
