@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PiX, PiUserPlus, PiEnvelope, PiUpload } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
+import { isAxiosError } from 'axios';
 import Button from './Button';
 import InputText from './InputText';
 import Textarea from './Textarea';
@@ -159,12 +160,16 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       if (onInviteSuccess) {
         onInviteSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to invite users:', error);
-      setError(
-        error.response?.data?.message ||
-          t('adminPortal.invite.errors.invitationFailed')
-      );
+      if (isAxiosError<{ message?: string }>(error)) {
+        setError(
+          error.response?.data?.message ||
+            t('adminPortal.invite.errors.invitationFailed')
+        );
+      } else {
+        setError(t('adminPortal.invite.errors.invitationFailed'));
+      }
     } finally {
       setLoading(false);
     }
@@ -177,26 +182,29 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
       });
 
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to validate domains:', error);
 
       // Provide more specific error messages for domain validation failures
-      if (error.response?.status === 403) {
-        throw new Error(t('adminPortal.invite.errors.noPermission'));
-      } else if (error.response?.status === 409) {
-        throw new Error(t('adminPortal.invite.errors.roleRevoked'));
-      } else if (error.response?.status === 400) {
-        const errorData = error.response?.data;
-        if (errorData?.invalidEmails?.length > 0) {
+      if (isAxiosError<{ invalidEmails?: string[]; message?: string }>(error)) {
+        if (error.response?.status === 403) {
+          throw new Error(t('adminPortal.invite.errors.noPermission'));
+        } else if (error.response?.status === 409) {
+          throw new Error(t('adminPortal.invite.errors.roleRevoked'));
+        } else if (error.response?.status === 400) {
+          const errorData = error.response?.data;
+          const invalidEmails = errorData?.invalidEmails;
+          if (invalidEmails && invalidEmails.length > 0) {
+            throw new Error(
+              t('adminPortal.invite.errors.invalidEmails', {
+                emails: invalidEmails.join(', '),
+              })
+            );
+          }
           throw new Error(
-            t('adminPortal.invite.errors.invalidEmails', {
-              emails: errorData.invalidEmails.join(', '),
-            })
+            errorData?.message || t('adminPortal.invite.errors.invalidRequest')
           );
         }
-        throw new Error(
-          errorData?.message || t('adminPortal.invite.errors.invalidRequest')
-        );
       }
 
       // Let role monitor handle privilege revocation errors to avoid conflicts
@@ -221,41 +229,43 @@ const UserInviteDialog: React.FC<UserInviteDialogProps> = ({
         return;
       }
 
-      try {
-        // First, validate domains
-        const domainValidation = await validateDomains(emails);
+      // First, validate domains
+      const domainValidation = await validateDomains(emails);
 
-        // Store pending invitation
-        setPendingInvitation({ emails, sendEmail });
+      // Store pending invitation
+      setPendingInvitation({ emails, sendEmail });
 
-        if (domainValidation.hasAnyUnconfiguredDomains) {
-          // Show warning before proceeding
-          setUnconfiguredEmails(domainValidation.unconfiguredEmails);
-          setShowUnconfiguredWarning(true);
-          // Don't resume monitoring yet - wait for user decision
-        } else {
-          // No unconfigured domains, proceed directly
-          await performInvitation(emails, sendEmail);
-          // performInvitation will handle resuming
-        }
-      } catch (validationError: any) {
-        throw validationError;
+      if (domainValidation.hasAnyUnconfiguredDomains) {
+        // Show warning before proceeding
+        setUnconfiguredEmails(domainValidation.unconfiguredEmails);
+        setShowUnconfiguredWarning(true);
+        // Don't resume monitoring yet - wait for user decision
+      } else {
+        // No unconfigured domains, proceed directly
+        await performInvitation(emails, sendEmail);
+        // performInvitation will handle resuming
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to prepare invitation:', error);
 
       // Check for specific admin privilege errors and let role monitor handle them
-      if (error.response?.status === 403 || error.response?.status === 409) {
-        // Let the role monitor handle privilege revocation - just close dialog
-        handleClose();
-        return;
+      if (isAxiosError(error)) {
+        if (error.response?.status === 403 || error.response?.status === 409) {
+          // Let the role monitor handle privilege revocation - just close dialog
+          handleClose();
+          return;
+        }
       }
 
       // Use the specific error message if available, otherwise use generic message
-      const errorMessage =
-        error.message ||
-        error.response?.data?.message ||
-        t('adminPortal.invite.errors.invitationFailed');
+      let errorMessage = t('adminPortal.invite.errors.invitationFailed');
+      if (isAxiosError<{ message?: string }>(error)) {
+        errorMessage =
+          error.response?.data?.message ||
+          t('adminPortal.invite.errors.invitationFailed');
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
 
       setError(errorMessage);
     }

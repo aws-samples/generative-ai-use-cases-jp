@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { isAxiosError } from 'axios';
 import useHttp from './useHttp';
 import {
   PptxGeneration,
@@ -23,8 +24,14 @@ export const usePptxGeneration = () => {
           input
         );
         return response.data;
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to generate PPTX');
+      } catch (err: unknown) {
+        if (isAxiosError<{ detail?: string }>(err)) {
+          setError(err.response?.data?.detail || 'Failed to generate PPTX');
+        } else if (err instanceof Error) {
+          setError(err.message || 'Failed to generate PPTX');
+        } else {
+          setError('Failed to generate PPTX');
+        }
         return null;
       } finally {
         setIsGenerating(false);
@@ -40,10 +47,16 @@ export const usePptxGeneration = () => {
           `pptx/generation/${generationId}`
         );
         return response.data ?? null;
-      } catch (err: any) {
-        setError(
-          err.response?.data?.detail || 'Failed to check generation status'
-        );
+      } catch (err: unknown) {
+        if (isAxiosError<{ detail?: string }>(err)) {
+          setError(
+            err.response?.data?.detail || 'Failed to check generation status'
+          );
+        } else if (err instanceof Error) {
+          setError(err.message || 'Failed to check generation status');
+        } else {
+          setError('Failed to check generation status');
+        }
         return null;
       }
     },
@@ -61,8 +74,14 @@ export const usePptxGeneration = () => {
         if (response.data?.download_url) {
           window.open(response.data.download_url, '_blank');
         }
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to download PPTX');
+      } catch (err: unknown) {
+        if (isAxiosError<{ detail?: string }>(err)) {
+          setError(err.response?.data?.detail || 'Failed to download PPTX');
+        } else if (err instanceof Error) {
+          setError(err.message || 'Failed to download PPTX');
+        } else {
+          setError('Failed to download PPTX');
+        }
       }
     },
     [http]
@@ -78,8 +97,14 @@ export const usePptxGeneration = () => {
           `pptx/generation?limit=${limit}&offset=${offset}`
         );
         return response.data ?? null;
-      } catch (err: any) {
-        setError(err.response?.data?.detail || 'Failed to list generations');
+      } catch (err: unknown) {
+        if (isAxiosError<{ detail?: string }>(err)) {
+          setError(err.response?.data?.detail || 'Failed to list generations');
+        } else if (err instanceof Error) {
+          setError(err.message || 'Failed to list generations');
+        } else {
+          setError('Failed to list generations');
+        }
         return null;
       }
     },

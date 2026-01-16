@@ -1,4 +1,5 @@
 import { signOut } from 'aws-amplify/auth';
+import { isAxiosError } from 'axios';
 
 /**
  * Centralized logout utility for handling user authentication termination
@@ -21,16 +22,26 @@ export const performLogoutAndReload = async (
   }
 };
 
+interface RoleMismatchData {
+  roleChanged?: boolean;
+  refreshRequired?: boolean;
+  message?: string;
+}
+
 /**
  * Checks if an error response indicates role mismatch or permission issues
  */
-export const isRoleMismatchError = (error: any): boolean => {
-  if (error?.response?.status === 409) {
-    const responseData = error.response.data;
-    return responseData?.roleChanged && responseData?.refreshRequired;
+export const isRoleMismatchError = (error: unknown): boolean => {
+  if (!isAxiosError<RoleMismatchData>(error)) {
+    return false;
   }
 
-  if (error?.response?.status === 403) {
+  if (error.response?.status === 409) {
+    const responseData = error.response.data;
+    return !!(responseData?.roleChanged && responseData?.refreshRequired);
+  }
+
+  if (error.response?.status === 403) {
     const errorMessage = error.response.data?.message || '';
     return (
       errorMessage.includes('admin') ||
@@ -42,6 +53,13 @@ export const isRoleMismatchError = (error: any): boolean => {
   return false;
 };
 
+interface AuthorizationErrorData {
+  code?: string;
+  message?: string;
+  error?: string;
+  details?: string;
+}
+
 /**
  * Checks if an error response indicates an authorization failure
  * This includes IP restriction violations, general authorization denials, etc.
@@ -50,18 +68,26 @@ export const isRoleMismatchError = (error: any): boolean => {
  * IMPORTANT: Resource-level permission denials (e.g., accessing another user's assistant)
  * should use specific error codes like ASSISTANT_ACCESS_DENIED to avoid triggering sign-out
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isAuthorizationError = (error: any): boolean => {
+export const isAuthorizationError = (error: unknown): boolean => {
+  if (!isAxiosError<AuthorizationErrorData | string>(error)) {
+    return false;
+  }
+
   // 403 Forbidden - typically indicates authorization failure
-  if (error?.response?.status === 403) {
+  if (error.response?.status === 403) {
     // Extract error data from response
     const responseData = error.response.data;
-    const errorCode = responseData?.code || '';
+    const errorCode =
+      typeof responseData === 'object' ? responseData?.code || '' : '';
     const errorMessage = (
-      responseData?.message ||
-      responseData?.error ||
-      responseData?.details ||
-      (typeof responseData === 'string' ? responseData : '')
+      typeof responseData === 'object'
+        ? responseData?.message ||
+          responseData?.error ||
+          responseData?.details ||
+          ''
+        : typeof responseData === 'string'
+          ? responseData
+          : ''
     ).toLowerCase();
 
     // Skip resource-level permission denials that have specific error codes

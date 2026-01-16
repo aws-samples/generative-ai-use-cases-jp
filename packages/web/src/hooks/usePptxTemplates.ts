@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isAxiosError } from 'axios';
 import useHttp from './useHttp';
 import {
   PptxTemplate,
@@ -27,8 +28,14 @@ export const usePptxTemplates = () => {
       if (response.data?.templates) {
         setTemplates(response.data.templates);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load templates');
+    } catch (err: unknown) {
+      if (isAxiosError<{ detail?: string }>(err)) {
+        setError(err.response?.data?.detail || 'Failed to load templates');
+      } else if (err instanceof Error) {
+        setError(err.message || 'Failed to load templates');
+      } else {
+        setError('Failed to load templates');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -92,8 +99,14 @@ export const usePptxTemplates = () => {
       );
 
       return true;
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to upload template');
+    } catch (err: unknown) {
+      if (isAxiosError<{ detail?: string }>(err)) {
+        setError(err.response?.data?.detail || 'Failed to upload template');
+      } else if (err instanceof Error) {
+        setError(err.message || 'Failed to upload template');
+      } else {
+        setError('Failed to upload template');
+      }
       return false;
     }
   };
@@ -108,8 +121,14 @@ export const usePptxTemplates = () => {
       setTemplates((prev) => prev.filter((t) => t.template_id !== templateId));
 
       return true;
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to delete template');
+    } catch (err: unknown) {
+      if (isAxiosError<{ detail?: string }>(err)) {
+        setError(err.response?.data?.detail || 'Failed to delete template');
+      } else if (err instanceof Error) {
+        setError(err.message || 'Failed to delete template');
+      } else {
+        setError('Failed to delete template');
+      }
       return false;
     }
   };
