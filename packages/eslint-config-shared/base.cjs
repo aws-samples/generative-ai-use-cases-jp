@@ -17,6 +17,13 @@ const typescriptConfig = {
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
+    globals: {
+      ...globals.es2020,
+      React: 'readonly',
+      JSX: 'readonly',
+      NodeJS: 'readonly',
+      SignaturePad: 'readonly',
+    },
   },
   rules: {
     ...typescriptPlugin.configs['eslint-recommended'].rules,
