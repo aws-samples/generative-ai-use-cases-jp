@@ -327,7 +327,7 @@ diagram:
   input_placeholder: 生成元の文章を入力してください
   invalid_syntax: 無効な構文
   markdown_edit: マークダウン編集
-  mermaid_syntax: Mermaid の記法はこちら
+  mermaid_syntax: Mermaid の記法は<0>こちら</0>
   model: モデル
   other_diagram_types: 他の図の種類を見る
   png_error: 'PNG出力エラー: '

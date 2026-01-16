@@ -185,7 +185,7 @@ diagram:
   input_placeholder: Vui lòng nhập văn bản nguồn
   invalid_syntax: Cú pháp không hợp lệ
   markdown_edit: Chỉnh sửa markdown
-  mermaid_syntax: Cú pháp Mermaid có thể xem tại đây
+  mermaid_syntax: Cú pháp Mermaid có thể xem <0>tại đây</0>
   model: Mô hình
   other_diagram_types: Xem các loại sơ đồ khác
   png_error: 'Lỗi xuất PNG: '

@@ -329,7 +329,7 @@ diagram:
   input_placeholder: Enter text for diagram generation
   invalid_syntax: Invalid syntax
   markdown_edit: Edit Markdown
-  mermaid_syntax: Mermaid syntax here
+  mermaid_syntax: Mermaid syntax <0>here</0>
   model: Model
   other_diagram_types: View other diagram types
   png_error: 'PNG output error: '

@@ -3,8 +3,7 @@ import { PiPencilLine, PiCheck } from 'react-icons/pi';
 import Markdown from './Markdown';
 import MDEditor from '@uiw/react-md-editor';
 import Button from './Button';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 interface EditableMarkdownProps {
   code: string;
@@ -60,13 +59,18 @@ const EditableMarkdown: React.FC<EditableMarkdownProps> = ({
         </div>
       )}
       <div className="flex justify-end">
-        {t('diagram.mermaid_syntax')}
-        <Link
-          className="text-aws-smile underline"
-          to="https://mermaid.js.org/intro/"
-          target="_blank">
-          {t('common.here')}
-        </Link>
+        <Trans
+          i18nKey="diagram.mermaid_syntax"
+          components={[
+            <a
+              key="mermaid-link"
+              className="text-aws-smile underline"
+              href="https://mermaid.js.org/intro/"
+              target="_blank"
+              rel="noopener noreferrer"
+            />,
+          ]}
+        />
       </div>
     </div>
   );

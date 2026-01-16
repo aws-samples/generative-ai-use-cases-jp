@@ -185,7 +185,7 @@ diagram:
   input_placeholder: 请输入用于生成的文本
   invalid_syntax: 无效语法
   markdown_edit: Markdown编辑
-  mermaid_syntax: Mermaid语法在这里
+  mermaid_syntax: Mermaid语法在<0>这里</0>
   model: 模型
   other_diagram_types: 查看其他图表类型
   png_error: 'PNG输出错误: '

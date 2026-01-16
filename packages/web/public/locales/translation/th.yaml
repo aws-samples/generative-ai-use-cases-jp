@@ -186,7 +186,7 @@ diagram:
   input_placeholder: ป้อนข้อความสำหรับการสร้างแผนภาพ
   invalid_syntax: ไวยากรณ์ไม่ถูกต้อง
   markdown_edit: แก้ไข Markdown
-  mermaid_syntax: ไวยากรณ์ Mermaid ที่นี่
+  mermaid_syntax: ไวยากรณ์ Mermaid <0>ที่นี่</0>
   model: โมเดล
   other_diagram_types: ดูประเภทแผนภาพอื่นๆ
   png_error: 'ข้อผิดพลาดในการสร้าง PNG: '
