@@ -19,9 +19,10 @@
       "if [ ! -d 'node_modules' ]; then",
       "  echo '📦 Installing npm dependencies...'",
       "  npm ci",
+      "  echo '🏗 Building custom ESLint plugin...'",
+      "  npm -w packages/eslint-plugin-i18nhelper run build",
       "fi",
     ],
-    "scripts": {
-    }
+    "scripts": {}
   }
 }
