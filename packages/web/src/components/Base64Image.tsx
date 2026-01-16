@@ -19,7 +19,7 @@ const Base64Image: React.FC<Props> = (props) => {
 
   const onClick = useCallback(() => {
     if (props.clickable) {
-      props.onClick ? props.onClick() : null;
+      props.onClick?.();
     }
   }, [props]);
 

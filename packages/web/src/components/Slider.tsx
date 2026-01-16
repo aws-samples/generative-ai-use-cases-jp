@@ -23,7 +23,7 @@ const Slider: React.FC<Props> = (props) => {
           max={props.max}
           step={props.step || 1}
           onChange={(e) => {
-            props.onChange ? props.onChange(Number(e.target.value)) : null;
+            props.onChange?.(Number(e.target.value));
           }}
         />
         <span className="w-12 text-right text-sm font-medium">

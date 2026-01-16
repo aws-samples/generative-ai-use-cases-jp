@@ -161,6 +161,7 @@ const useRoleMonitor = (config: RoleMonitorConfig = {}) => {
         isCheckingRef.current = false;
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- checkRoleStatus is used inside setInterval callback and doesn't need to trigger checkAdminStatus re-creation
     [
       api,
       enabled,

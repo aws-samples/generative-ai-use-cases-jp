@@ -41,10 +41,12 @@ const AssistantHistoryPage: React.FC = () => {
 
   useEffect(() => {
     fetchAssistantsWithMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run only on mount
   }, []);
 
   useEffect(() => {
     filterAssistants();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filterAssistants is controlled by assistants and searchQuery
   }, [assistants, searchQuery]);
 
   // Polling for assistants with non-final sync status

@@ -93,6 +93,7 @@ const AssistantChatPage: React.FC = () => {
       // Update currentChatId when conversationId changes
       setCurrentChatId(conversationId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAssistant and fetchMessages are intentionally excluded to avoid infinite loops
   }, [assistantId, conversationId]);
 
   useEffect(() => {

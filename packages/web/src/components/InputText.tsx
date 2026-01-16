@@ -30,7 +30,7 @@ const InputText: React.FC<Props> = (props) => {
         placeholder={props.placeholder || t('common.enter_text')}
         disabled={props.disabled}
         onChange={(e) => {
-          props.onChange ? props.onChange(e.target.value) : null;
+          props.onChange?.(e.target.value);
         }}
       />
     </div>
