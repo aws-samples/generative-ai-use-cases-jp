@@ -11,11 +11,14 @@ const reactRefreshPlugin = require('eslint-plugin-react-refresh');
 const tailwindcssPlugin = require('eslint-plugin-tailwindcss');
 const shopifyPlugin = require('@shopify/eslint-plugin');
 
+const webIgnores = {
+  ignores: ['node_modules', 'dist', 'dist-ssr', 'dev-dist'],
+};
+
 module.exports = defineConfig([
   baseConfig,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    ignores: ['node_modules', 'dist', 'dist-ssr', 'dev-dist'],
     plugins: {
       ...typescriptConfig.plugins,
       'react-hooks': reactHooksPlugin,
@@ -70,4 +73,5 @@ module.exports = defineConfig([
   },
   yamlConfig,
   commonIgnores,
+  webIgnores,
 ]);
