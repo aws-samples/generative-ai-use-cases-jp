@@ -9,7 +9,7 @@ const {
 module.exports = defineConfig([
   baseConfig,
   {
-    files: ['**/*.{ts,tsx}', '../common/**/*.{ts,tsx}'],
+    files: ['**/*.{js,ts,tsx}', '../common/**/*.{js,ts,tsx}'],
     ...typescriptConfig,
     languageOptions: {
       ...typescriptConfig.languageOptions,
@@ -26,7 +26,7 @@ module.exports = defineConfig([
   },
   // テストファイル専用の設定（Jestグローバル）
   {
-    files: ['test/**/*.test.ts'],
+    files: ['test/**/*.test.{js,ts}'],
     languageOptions: {
       globals: {
         ...globals.jest, // Jestグローバル (describe, test, expect, jest, beforeEach, afterAll, etc.)
