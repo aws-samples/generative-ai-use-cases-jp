@@ -574,8 +574,8 @@ files:
     mimeMismatch: "{{fileName}} has a file type that doesn't match its extension."
     modelNotSupportDoc: '{{fileName}} cannot be sent because {{modelName}} does not support document files.'
     modelNotSupportImage: '{{fileName}} cannot be sent because {{modelName}} does not support image files.'
-    modelNotSupported: This model does not support files.
     modelNotSupportVideo: '{{fileName}} cannot be sent because {{modelName}} does not support video files.'
+    modelNotSupported: This model does not support files.
     videoCountExceeded: Please limit video files to {{maxCount}} or fewer
   uploadFiles: Upload Files
 flow:

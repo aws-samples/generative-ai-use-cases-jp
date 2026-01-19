@@ -431,8 +431,8 @@ files:
     mimeMismatch: 'Định dạng file của {{fileName}} không đúng.'
     modelNotSupportDoc: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp tài liệu.'
     modelNotSupportImage: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp hình ảnh.'
-    modelNotSupported: Mô hình không hỗ trợ.
     modelNotSupportVideo: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp video.'
+    modelNotSupported: Mô hình không hỗ trợ.
     videoCountExceeded: Số lượng video phải không quá {{maxCount}} video.
   uploadFiles: Tải lên tập tin
 flow:
