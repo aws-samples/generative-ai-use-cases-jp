@@ -21,7 +21,7 @@ const GlobalLayout: React.FC<Props> = (props) => {
       {/* コンテンツエリア */}
       <div
         ref={props.contentRef}
-        className="text-aws-font-color ml-24 flex-1 overflow-x-hidden overflow-y-scroll">
+        className="text-aws-font-color ml-24 flex-1 overflow-x-hidden overflow-y-auto">
         {props.scrollTopAnchor}
         <Outlet />
         {props.scrollBottomAnchor}
