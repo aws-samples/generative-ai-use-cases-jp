@@ -517,7 +517,10 @@ files:
       指定可能な画像ファイルのサイズは {{allowedDimensions}} です (アップロードされた画像のサイズ
       {{uploadedDimension}})
     mimeMismatch: '{{fileName}} のファイル形式が不正です。'
+    modelNotSupportDoc: '{{modelName}} はドキュメントファイルに対応していないため、{{fileName}} を送信できません。'
+    modelNotSupportImage: '{{modelName}} は画像ファイルに対応していないため、{{fileName}} を送信できません。'
     modelNotSupported: モデルが対応していません。
+    modelNotSupportVideo: '{{modelName}} は動画ファイルに対応していないため、{{fileName}} を送信できません。'
     videoCountExceeded: 動画数は {{maxCount}} 個以下にしてください。
   uploadFiles: ファイルをアップロード
 flow:

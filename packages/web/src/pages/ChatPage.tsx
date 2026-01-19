@@ -144,6 +144,16 @@ ${baseContext}
     }
   }, [chatId, getChatTitle, t]);
 
+  const modelFlags = useMemo(() => {
+    if (!modelId) return undefined;
+    const feature = MODELS.modelMetadata[modelId];
+    if (!feature) return undefined;
+    return feature.flags;
+  }, [modelId]);
+  const modelName = useMemo(() => {
+    if (!modelId) return undefined;
+    return MODELS.modelDisplayName(modelId);
+  }, [modelId]);
   const accept = useMemo(() => {
     if (!modelId) return [];
     const feature = MODELS.modelMetadata[modelId];
@@ -399,7 +409,7 @@ ${baseContext}
     setIsOver(false);
     if (event.dataTransfer.files) {
       // Reflect the file and upload it
-      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept, modelFlags, modelName);
     }
   };
 
@@ -477,6 +487,8 @@ ${baseContext}
               fileUpload={fileUpload}
               fileLimit={fileLimit}
               accept={accept}
+              modelFlags={modelFlags}
+              modelName={modelName}
               setting={setting}
               onSetting={() => {
                 setShowSetting(true);
@@ -532,6 +544,8 @@ ${baseContext}
                 fileUpload={fileUpload}
                 fileLimit={fileLimit}
                 accept={accept}
+                modelFlags={modelFlags}
+                modelName={modelName}
                 setting={setting}
                 onSetting={() => {
                   setShowSetting(true);

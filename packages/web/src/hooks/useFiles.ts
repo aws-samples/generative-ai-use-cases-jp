@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import i18next from 'i18next';
 import {
+  AcceptedDotExtensions,
   getFileTypeFromMimeType,
   getMimeTypeFromFileHeader,
   validateMimeTypeAndExtension,
@@ -15,17 +16,27 @@ export const extractBaseURL = (url: string) => {
   return url.split(/[?#]/)[0];
 };
 
+export type ModelFlags = {
+  doc?: boolean;
+  image?: boolean;
+  video?: boolean;
+};
+
 const useFilesState = create<{
   uploadFiles: (
     id: string,
     files: File[],
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => Promise<void>;
   checkFiles: (
     id: string,
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => Promise<void>;
   uploadedFilesDict: Record<string, UploadedFileType[]>;
   errorMessagesDict: Record<string, string[]>;
@@ -33,7 +44,9 @@ const useFilesState = create<{
     id: string,
     fileId: string,
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => Promise<boolean>;
   clear: (id: string) => void;
   base64Cache: Record<string, string>;
@@ -104,11 +117,49 @@ const useFilesState = create<{
     });
   };
 
+  // Helper to determine why a file extension is not accepted
+  const getModelNotSupportedErrorKey = (
+    extension: string,
+    modelFlags?: ModelFlags
+  ): string | null => {
+    if (!modelFlags) return null;
+
+    const dotExt = `.${extension.toLowerCase()}`;
+
+    // Check if extension is a doc type but model doesn't support doc
+    if (
+      !modelFlags.doc &&
+      AcceptedDotExtensions.doc.includes(dotExt)
+    ) {
+      return 'files.error.modelNotSupportDoc';
+    }
+
+    // Check if extension is an image type but model doesn't support image
+    if (
+      !modelFlags.image &&
+      AcceptedDotExtensions.image.includes(dotExt)
+    ) {
+      return 'files.error.modelNotSupportImage';
+    }
+
+    // Check if extension is a video type but model doesn't support video
+    if (
+      !modelFlags.video &&
+      AcceptedDotExtensions.video.includes(dotExt)
+    ) {
+      return 'files.error.modelNotSupportVideo';
+    }
+
+    return null;
+  };
+
   // Validated given uploadedFiles, return updated uploadedFiles (no side effect) and errorMessages
   const validateUploadedFiles = async (
     uploadedFiles: UploadedFileType[],
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => {
     let fileCount = 0;
     let imageFileCount = 0;
@@ -128,12 +179,26 @@ const useFilesState = create<{
         if (accept && accept.length === 0) {
           errorMessages.push(i18next.t('files.error.modelNotSupported'));
         } else if (!isFileExtensionAccepted) {
-          errorMessages.push(
-            i18next.t('files.error.invalidExtension', {
-              fileName: uploadedFile.file.name,
-              acceptedExtensions: accept.join(', '),
-            })
+          // Check if this is due to model not supporting the file type
+          const modelErrorKey = getModelNotSupportedErrorKey(
+            extension,
+            modelFlags
           );
+          if (modelErrorKey && modelName) {
+            errorMessages.push(
+              i18next.t(modelErrorKey, {
+                fileName: uploadedFile.file.name,
+                modelName: modelName,
+              })
+            );
+          } else {
+            errorMessages.push(
+              i18next.t('files.error.invalidExtension', {
+                fileName: uploadedFile.file.name,
+                acceptedExtensions: accept.join(', '),
+              })
+            );
+          }
         } else if (!isMimeTypeValid) {
           errorMessages.push(
             i18next.t('files.error.mimeMismatch', {
@@ -238,14 +303,22 @@ const useFilesState = create<{
   const checkFiles = async (
     id: string,
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => {
     // Get current files
     const currentUploadedFiles = get().uploadedFilesDict[id] ?? [];
 
     // Get updated error messages
     const { uploadedFiles: newUploadedFiles, errorMessages } =
-      await validateUploadedFiles(currentUploadedFiles, fileLimit, accept);
+      await validateUploadedFiles(
+        currentUploadedFiles,
+        fileLimit,
+        accept,
+        modelFlags,
+        modelName
+      );
 
     set(
       produce((state) => {
@@ -260,7 +333,9 @@ const useFilesState = create<{
     id: string,
     files: File[],
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => {
     // Get File
     const currentUploadedFiles = get().uploadedFilesDict[id] ?? [];
@@ -274,7 +349,13 @@ const useFilesState = create<{
 
     // Validate File
     const { uploadedFiles: validatedFiles, errorMessages } =
-      await validateUploadedFiles(newUploadedFiles, fileLimit, accept);
+      await validateUploadedFiles(
+        newUploadedFiles,
+        fileLimit,
+        accept,
+        modelFlags,
+        modelName
+      );
 
     // Update zustand to reflect current status to UI
 
@@ -336,7 +417,9 @@ const useFilesState = create<{
     id: string,
     fileId: string,
     fileLimit: FileLimit,
-    accept: string[]
+    accept: string[],
+    modelFlags?: ModelFlags,
+    modelName?: string
   ) => {
     const findTargetIndex = () =>
       get().uploadedFilesDict[id].findIndex((file) => file.id === fileId);
@@ -368,7 +451,7 @@ const useFilesState = create<{
         );
 
         // Refresh error messages
-        await checkFiles(id, fileLimit, accept);
+        await checkFiles(id, fileLimit, accept, modelFlags, modelName);
 
         return true;
       }
@@ -435,11 +518,20 @@ const useFiles = (id: string) => {
   } = useFilesState();
 
   return {
-    uploadFiles: (files: File[], fileLimit: FileLimit, accept: string[]) =>
-      uploadFiles(id, files, fileLimit, accept),
+    uploadFiles: (
+      files: File[],
+      fileLimit: FileLimit,
+      accept: string[],
+      modelFlags?: ModelFlags,
+      modelName?: string
+    ) => uploadFiles(id, files, fileLimit, accept, modelFlags, modelName),
     checkFiles: useCallback(
-      (fileLimit: FileLimit, accept: string[]) =>
-        checkFiles(id, fileLimit, accept),
+      (
+        fileLimit: FileLimit,
+        accept: string[],
+        modelFlags?: ModelFlags,
+        modelName?: string
+      ) => checkFiles(id, fileLimit, accept, modelFlags, modelName),
       [checkFiles, id]
     ),
     errorMessages: errorMessagesDict[id] ?? [],
@@ -448,8 +540,11 @@ const useFiles = (id: string) => {
     deleteUploadedFile: (
       fileId: string,
       fileLimit: FileLimit,
-      accept: string[]
-    ) => deleteUploadedFile(id, fileId, fileLimit, accept),
+      accept: string[],
+      modelFlags?: ModelFlags,
+      modelName?: string
+    ) =>
+      deleteUploadedFile(id, fileId, fileLimit, accept, modelFlags, modelName),
     uploading:
       uploadedFilesDict[id]?.some((uploadedFile) => uploadedFile.uploading) ??
       false,

@@ -356,7 +356,10 @@ files:
     invalidExtension: '{{fileName}} 是不允许的扩展名。允许的扩展名为 {{acceptedExtensions}}。'
     invalidImageDimension: 可指定的图像文件尺寸为 {{allowedDimensions}}（上传的图像尺寸为 {{uploadedDimension}}）
     mimeMismatch: '{{fileName}} 的文件格式不正确。'
+    modelNotSupportDoc: '无法发送 {{fileName}}，因为 {{modelName}} 不支持文档文件。'
+    modelNotSupportImage: '无法发送 {{fileName}}，因为 {{modelName}} 不支持图像文件。'
     modelNotSupported: 模型不支持。
+    modelNotSupportVideo: '无法发送 {{fileName}}，因为 {{modelName}} 不支持视频文件。'
     videoCountExceeded: 视频数量不能超过 {{maxCount}} 个。
   uploadFiles: 上传文件
 flow:

@@ -433,7 +433,10 @@ files:
     invalidImageDimension: >-
       ขนาดไฟล์รูปภาพที่อนุญาตคือ {{allowedDimensions}} (ขนาดรูปภาพที่อัปโหลดคือ {{uploadedDimension}})
     mimeMismatch: '{{fileName}} มีประเภทไฟล์ที่ไม่ตรงกับนามสกุล'
+    modelNotSupportDoc: 'ไม่สามารถส่ง {{fileName}} ได้เนื่องจาก {{modelName}} ไม่รองรับไฟล์เอกสาร'
+    modelNotSupportImage: 'ไม่สามารถส่ง {{fileName}} ได้เนื่องจาก {{modelName}} ไม่รองรับไฟล์รูปภาพ'
     modelNotSupported: โมเดลนี้ไม่รองรับไฟล์
+    modelNotSupportVideo: 'ไม่สามารถส่ง {{fileName}} ได้เนื่องจาก {{modelName}} ไม่รองรับไฟล์วิดีโอ'
     videoCountExceeded: 'โปรดจำกัดไฟล์วิดีโอไม่เกิน {{maxCount}} ไฟล์'
   uploadFiles: อัปโหลดไฟล์
 flow:

@@ -13,7 +13,7 @@ import {
   PiSlidersHorizontal,
   PiGlobe,
 } from 'react-icons/pi';
-import useFiles from '../hooks/useFiles';
+import useFiles, { ModelFlags } from '../hooks/useFiles';
 import FileCard from './FileCard';
 import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +34,8 @@ type Props = {
   fileUpload?: boolean;
   fileLimit?: FileLimit;
   accept?: string[];
+  modelFlags?: ModelFlags;
+  modelName?: string;
   canStop?: boolean;
   className?: string;
   isCreatingChat?: boolean;
@@ -72,25 +74,25 @@ const InputChatContent: React.FC<Props> = (props) => {
   // When the model is changed, etc., display the error message (do not automatically delete the file)
   useEffect(() => {
     if (props.fileLimit && props.accept) {
-      checkFiles(props.fileLimit, props.accept);
+      checkFiles(props.fileLimit, props.accept, props.modelFlags, props.modelName);
     }
-  }, [checkFiles, props.fileLimit, props.accept]);
+  }, [checkFiles, props.fileLimit, props.accept, props.modelFlags, props.modelName]);
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && props.fileLimit && props.accept) {
       // Reflect the file and upload it
-      uploadFiles(Array.from(files), props.fileLimit, props.accept);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept, props.modelFlags, props.modelName);
     }
   };
 
   const deleteFile = useCallback(
     (fileId: string) => {
       if (props.fileLimit && props.accept) {
-        deleteUploadedFile(fileId, props.fileLimit, props.accept);
+        deleteUploadedFile(fileId, props.fileLimit, props.accept, props.modelFlags, props.modelName);
       }
     },
-    [deleteUploadedFile, props.fileLimit, props.accept]
+    [deleteUploadedFile, props.fileLimit, props.accept, props.modelFlags, props.modelName]
   );
   const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
     const fileList = pasteEvent.clipboardData.items || [];
@@ -99,7 +101,7 @@ const InputChatContent: React.FC<Props> = (props) => {
       .map((file) => file.getAsFile() as File);
     if (files.length > 0 && props.fileLimit && props.accept) {
       // Upload the file
-      uploadFiles(Array.from(files), props.fileLimit, props.accept);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept, props.modelFlags, props.modelName);
       // Since the file name is also pasted when the file is pasted, stop the default behavior
       pasteEvent.preventDefault();
     }

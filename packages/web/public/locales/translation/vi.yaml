@@ -429,7 +429,10 @@ files:
     invalidExtension: '{{fileName}} có đuôi file không được phép. Các đuôi file được phép là {{acceptedExtensions}}.'
     invalidImageDimension: Kích thước file ảnh có thể chỉ định là {{allowedDimensions}} (kích thước ảnh đã tải lên {{uploadedDimension}})
     mimeMismatch: 'Định dạng file của {{fileName}} không đúng.'
+    modelNotSupportDoc: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp tài liệu.'
+    modelNotSupportImage: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp hình ảnh.'
     modelNotSupported: Mô hình không hỗ trợ.
+    modelNotSupportVideo: 'Không thể gửi {{fileName}} vì {{modelName}} không hỗ trợ tệp video.'
     videoCountExceeded: Số lượng video phải không quá {{maxCount}} video.
   uploadFiles: Tải lên tập tin
 flow:
