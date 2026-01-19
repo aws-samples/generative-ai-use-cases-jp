@@ -218,7 +218,7 @@ const liteLlmApi: ApiInterface = {
   invoke: async function (
     model: Model,
     messages: UnrecordedMessage[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     id: string
   ): Promise<string> {
     const litellmEndpoint = process.env.LITELLM_ENDPOINT;
@@ -262,9 +262,9 @@ const liteLlmApi: ApiInterface = {
   invokeStream: async function* (
     model: Model,
     messages: UnrecordedMessage[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     id: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     idToken?: string | undefined
   ): AsyncIterable<string> {
     const litellmEndpoint = process.env.LITELLM_ENDPOINT;
@@ -365,17 +365,15 @@ const liteLlmApi: ApiInterface = {
     }
   },
   generateImage: function (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     model: Model,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     params: GenerateImageParams
   ): Promise<string> {
     throw new Error('Function not implemented.');
   },
   generateVideo: function (
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     model: Model,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     params: GenerateVideoParams
   ): Promise<string> {
     throw new Error('Function not implemented.');

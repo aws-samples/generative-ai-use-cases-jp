@@ -4,7 +4,7 @@
   "version": "4.3.2",
   "scripts": {
     "lint": "run-s custom-lint:build lint:root web:lint cdk:lint cdk:lambda-build-dryrun",
-    "lint:fix": "run-s custom-lint:build lint:root:fix web:lint:fix cdk:lint cdk:lambda-build-dryrun",
+    "lint:fix": "run-s custom-lint:build lint:root:fix web:lint:fix cdk:lint:fix cdk:lambda-build-dryrun",
     "lint:root": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:root:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
     "test": "run-s web:test",
@@ -28,6 +28,7 @@
     "cdk:tenant:destroy": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' destroy --all",
     "cdk:destroy": "npm -w packages/cdk run cdk destroy -- --all",
     "cdk:lint": "npm -w packages/cdk run lint",
+    "cdk:lint:fix": "npm -w packages/cdk run lint:fix",
     "cdk:lambda-build-dryrun": "npm -w packages/cdk run lambda-build-dryrun",
     "cdk:test": "npm -w packages/cdk run test",
     "cdk:test:update-snapshot": "npm -w packages/cdk run test -- --update-snapshot",

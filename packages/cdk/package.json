@@ -8,6 +8,7 @@
     "test:lambda:watch": "jest lambda --watchAll",
     "cdk": "cdk",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0 --fix",
     "lambda-build-dryrun": "tsc --noEmit --skipLibCheck",
     "postinstall": "npm ci --prefix custom-resources"
   },
