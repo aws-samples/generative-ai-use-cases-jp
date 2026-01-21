@@ -3,31 +3,81 @@
 # 期間を指定して、ユーザごとの会話スレッド数をカウントするスクリプト
 #
 # 使用方法:
-#   ./count-user-conversations.sh <テーブル名> <開始日時> <終了日時>
+#   ./count-user-conversations.sh <開始日> <終了日> [スタック名]
 #
 # 例:
-#   ./count-user-conversations.sh GenAiUseCasesStack-DatabaseTableXXXXX 2025-01-01 2025-01-31
-#   ./count-user-conversations.sh GenAiUseCasesStack-DatabaseTableXXXXX "2025-01-01 00:00:00" "2025-01-31 23:59:59"
+#   ./count-user-conversations.sh 2025-01-01 2025-01-31
+#   ./count-user-conversations.sh 2025-01-01 2025-01-31 GenerativeAiUseCasesStack
 #
 # 出力:
 #   ユーザーごとの会話数と合計を表示
+#
+# 必要な権限:
+#   - dynamodb:Scan
+#   - cloudformation:ListStackResources
 #
 
 set -e
 
 # 引数チェック
-if [ $# -lt 3 ]; then
-    echo "使用方法: $0 <テーブル名> <開始日時> <終了日時>"
+if [ $# -lt 2 ]; then
+    echo "使用方法: $0 <開始日> <終了日> [スタック名]"
     echo ""
     echo "例:"
-    echo "  $0 GenAiUseCasesStack-DatabaseTableXXXXX 2025-01-01 2025-01-31"
-    echo "  $0 GenAiUseCasesStack-DatabaseTableXXXXX \"2025-01-01 00:00:00\" \"2025-01-31 23:59:59\""
+    echo "  $0 2025-01-01 2025-01-31"
+    echo "  $0 2025-01-01 2025-01-31 GenerativeAiUseCasesStack"
+    echo ""
+    echo "スタック名を省略した場合、自動検出を試みます。"
     exit 1
 fi
 
-TABLE_NAME="$1"
-START_DATE="$2"
-END_DATE="$3"
+START_DATE="$1"
+END_DATE="$2"
+STACK_NAME="${3:-}"
+
+# テーブル名を自動取得する関数
+get_table_name() {
+    local stack="$1"
+
+    # CloudFormationスタックのリソースからDynamoDBテーブルを検索
+    # Database ConstructのTable（メインテーブル）を取得
+    aws cloudformation list-stack-resources \
+        --stack-name "${stack}" \
+        --query "StackResourceSummaries[?ResourceType=='AWS::DynamoDB::Table' && contains(LogicalResourceId, 'Database') && contains(LogicalResourceId, 'Table') && !contains(LogicalResourceId, 'Stats')].PhysicalResourceId" \
+        --output text 2>/dev/null | head -1
+}
+
+# スタック名が指定されていない場合、自動検出
+if [ -z "$STACK_NAME" ]; then
+    echo "スタック名を自動検出中..."
+
+    # GenerativeAiUseCasesStack で始まるスタックを検索
+    STACK_NAME=$(aws cloudformation list-stacks \
+        --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+        --query "StackSummaries[?starts_with(StackName, 'GenerativeAiUseCasesStack')].StackName" \
+        --output text 2>/dev/null | head -1)
+
+    if [ -z "$STACK_NAME" ]; then
+        echo "エラー: GenerativeAiUseCasesStack が見つかりません。"
+        echo "スタック名を引数で指定してください。"
+        exit 1
+    fi
+
+    echo "検出されたスタック: ${STACK_NAME}"
+fi
+
+# テーブル名を取得
+echo "テーブル名を取得中..."
+TABLE_NAME=$(get_table_name "${STACK_NAME}")
+
+if [ -z "$TABLE_NAME" ]; then
+    echo "エラー: DynamoDBテーブルが見つかりません。"
+    echo "スタック名を確認してください: ${STACK_NAME}"
+    exit 1
+fi
+
+echo "検出されたテーブル: ${TABLE_NAME}"
+echo ""
 
 # 日時をミリ秒UNIXタイムスタンプに変換
 # macOS と Linux の両方に対応
@@ -44,6 +94,7 @@ fi
 echo "=============================================="
 echo "会話スレッド数カウント"
 echo "=============================================="
+echo "スタック名: ${STACK_NAME}"
 echo "テーブル名: ${TABLE_NAME}"
 echo "期間: ${START_DATE} ~ ${END_DATE}"
 echo "タイムスタンプ範囲: ${START_TIMESTAMP} ~ ${END_TIMESTAMP}"
