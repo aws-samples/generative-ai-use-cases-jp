@@ -1,9 +1,6 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, ArnFormat } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {
-  CfnApplicationInferenceProfile,
-  FoundationModel,
-} from 'aws-cdk-lib/aws-bedrock';
+import { CfnApplicationInferenceProfile } from 'aws-cdk-lib/aws-bedrock';
 import { ProcessedStackInput } from './stack-input';
 
 export interface ApplicationInferenceProfileStackProps extends StackProps {
@@ -25,31 +22,31 @@ export class ApplicationInferenceProfileStack extends Stack {
     const createInferenceProfiles = (modelIds: typeof params.modelIds) => {
       for (const modelId of modelIds) {
         // Inference Profile is not supported Cross Region Inference
-        if (
-          modelId.region === currentRegion &&
-          !modelId.modelId.startsWith('us.') &&
-          !modelId.modelId.startsWith('apac.') &&
-          !modelId.modelId.startsWith('eu.') &&
-          !modelId.modelId.startsWith('global') &&
-          !modelId.modelId.startsWith('jp')
-        ) {
+        if (modelId.region === currentRegion) {
           const inferenceProfileNamePrefix = modelId.modelId
             .replace(/\./g, '-')
             .replace(/:/g, '-');
-          const model = FoundationModel.fromFoundationModelId(
-            this,
-            `FoundationModel${inferenceProfileNamePrefix}`,
-            {
-              modelId: modelId.modelId,
-            }
-          );
+          const isCrossRegionProfile =
+            modelId.modelId.startsWith('us.') ||
+            modelId.modelId.startsWith('apac.') ||
+            modelId.modelId.startsWith('eu.') ||
+            modelId.modelId.startsWith('global') ||
+            modelId.modelId.startsWith('jp');
+          const arn = Stack.of(this).formatArn({
+            service: 'bedrock',
+            resource: isCrossRegionProfile
+              ? 'inference-profile'
+              : 'foundation-model',
+            resourceName: modelId.modelId,
+            arnFormat: ArnFormat.SLASH_RESOURCE_NAME,
+          });
           const inferenceProfile = new CfnApplicationInferenceProfile(
             this,
-            `ApplicationInferenceProfile${model.modelId}`,
+            `ApplicationInferenceProfile${modelId.modelId}`,
             {
               inferenceProfileName: `${inferenceProfileNamePrefix}${params.env}`,
               modelSource: {
-                copyFrom: model.modelArn,
+                copyFrom: arn,
               },
             }
           );
