@@ -568,6 +568,46 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### 리서치 에이전트 유스케이스 활성화
+
+리서치 에이전트는 웹 검색 및 AWS 문서 검색을 활용한 고급 리서치 기능을 제공합니다.
+
+#### 전제 조건
+
+- **Brave Search API 키 (필수)**: AWS Marketplace에서 획득
+- **Tavily API 키 (선택 사항)**: 추가 검색 기능을 사용하는 경우
+
+> [!TIP]
+> Brave Search API 키 획득 방법은 [리서치 에이전트 배포 가이드](./DEPLOY_RESEARCH_USECASE.md)를 참조하세요.
+
+#### parameter.ts 설정 예시
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    createResearchAgentCoreRuntime: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // 선택 사항
+  },
+};
+```
+
+#### cdk.json 설정 예시
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "createResearchAgentCoreRuntime": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+자세한 절차는 [리서치 에이전트 배포 가이드](./DEPLOY_RESEARCH_USECASE.md)를 참조하세요.
+
 ### MCP Chat 사용 사례 활성화
 
 > [!WARNING]

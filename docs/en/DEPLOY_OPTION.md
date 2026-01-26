@@ -567,6 +567,46 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### Enabling Research Agent Use Case
+
+The Research Agent provides advanced research capabilities using web search and AWS documentation search.
+
+#### Prerequisites
+
+- **Brave Search API Key (Required)**: Obtain from AWS Marketplace
+- **Tavily API Key (Optional)**: For additional search capabilities
+
+> [!TIP]
+> For instructions on obtaining the Brave Search API key, see the [Research Agent Deployment Guide](./DEPLOY_RESEARCH_USECASE.md).
+
+#### Configuration Example in parameter.ts
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    createResearchAgentCoreRuntime: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // Optional
+  },
+};
+```
+
+#### Configuration Example in cdk.json
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "createResearchAgentCoreRuntime": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+For detailed instructions, see the [Research Agent Deployment Guide](./DEPLOY_RESEARCH_USECASE.md).
+
 ### Enabling MCP Chat Use Case
 
 > [!WARNING]

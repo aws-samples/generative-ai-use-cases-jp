@@ -582,6 +582,46 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### リサーチエージェントユースケースの有効化
+
+リサーチエージェントは、Web 検索や AWS ドキュメント検索を活用した高度なリサーチ機能を提供します。
+
+#### 前提条件
+
+- **Brave Search API キー（必須）**: AWS Marketplace から取得
+- **Tavily API キー（オプション）**: 追加の検索機能を利用する場合
+
+> [!TIP]
+> Brave Search API キーの取得方法については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
+
+#### parameter.ts での設定例
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    createResearchAgentCoreRuntime: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // オプション
+  },
+};
+```
+
+#### cdk.json での設定例
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "createResearchAgentCoreRuntime": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+詳細な手順については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
+
 ### MCP チャットユースケースの有効化
 
 > [!WARNING]
