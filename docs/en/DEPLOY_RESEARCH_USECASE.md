@@ -8,7 +8,7 @@ The Research Agent is an advanced research feature using AWS Bedrock AgentCore R
 
 - **Web Search**: Real-time web search using Brave Search API
 - **AWS Documentation Search**: Information retrieval from official AWS documentation
-- **3 Research Modes**: 
+- **3 Research Modes**:
   - Technical Research - Detailed technical analysis
   - General Research - Business analysis
   - Mini Research - Quick information retrieval

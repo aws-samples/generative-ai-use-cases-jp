@@ -8,7 +8,7 @@
 
 - **웹 검색**: Brave Search API를 사용한 실시간 웹 검색
 - **AWS 문서 검색**: AWS 공식 문서에서 정보 검색
-- **3가지 리서치 모드**: 
+- **3가지 리서치 모드**:
   - Technical Research（기술 조사）- 상세한 기술 분석
   - General Research（일반 조사）- 비즈니스 분석
   - Mini Research（간편 조사）- 신속한 정보 검색

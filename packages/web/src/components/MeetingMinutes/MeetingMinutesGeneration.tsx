@@ -6,49 +6,62 @@ import React, {
   useEffect,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import queryString from 'query-string';
+import { PiGearSix } from 'react-icons/pi';
 import Button from '../Button';
 import ButtonCopy from '../ButtonCopy';
 import ButtonIcon from '../ButtonIcon';
-import Select from '../Select';
-import Switch from '../Switch';
-import Textarea from '../Textarea';
 import Markdown from '../Markdown';
-import { PiPencilLine, PiCaretRight, PiCaretLeft } from 'react-icons/pi';
-import useMeetingMinutes, {
-  MeetingMinutesStyle,
-} from '../../hooks/useMeetingMinutes';
+import MeetingMinutesSettingsModal from './MeetingMinutesSettingsModal';
+import useMeetingMinutes from '../../hooks/useMeetingMinutes';
 import { MODELS } from '../../hooks/useModel';
+import { MeetingMinutesParams, DiagramOption } from '../../prompts';
+import { claudePrompter } from '../../prompts/claude';
 
 interface MeetingMinutesGenerationProps {
   /** Current transcript text to generate minutes from */
   transcriptText: string;
-  /** Whether the panel is collapsed */
-  isCollapsed: boolean;
-  /** Handler for toggle collapse state */
-  onToggleCollapse: () => void;
 }
 
 const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
   transcriptText,
-  isCollapsed,
-  onToggleCollapse,
 }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const shouldGenerateRef = useRef<boolean>(false);
 
+  // Modal state
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   // Internal state management
-  const [minutesStyle, setMinutesStyle] = useState<MeetingMinutesStyle>('faq');
+  const [minutesStyle, setMinutesStyle] =
+    useState<MeetingMinutesParams['style']>('summary');
   const [customPrompt, setCustomPrompt] = useState('');
   const [autoGenerate, setAutoGenerate] = useState(false);
   const [generationFrequency, setGenerationFrequency] = useState(5);
   const [autoGenerateSessionTimestamp] = useState<number | null>(null);
   const [generatedMinutes, setGeneratedMinutes] = useState('');
   const [countdownSeconds, setCountdownSeconds] = useState(0);
+
+  // Diagram options for 'diagram' style
+  const [diagramOptions, setDiagramOptions] = useState<DiagramOption[]>([
+    'mindmap',
+  ]);
+
+  // Toggle diagram option
+  const toggleDiagramOption = useCallback((option: DiagramOption) => {
+    setDiagramOptions((prev) => {
+      if (prev.includes(option)) {
+        // Don't allow removing the last option
+        if (prev.length === 1) {
+          return prev;
+        }
+        return prev.filter((o) => o !== option);
+      } else {
+        return [...prev, option];
+      }
+    });
+  }, []);
 
   // Model selection
   const { modelIds: availableModels, modelDisplayName } = MODELS;
@@ -65,13 +78,29 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     autoGenerateSessionTimestamp,
     setGeneratedMinutes,
     () => {}, // Empty function for setLastProcessedTranscript
-    () => {} // Empty function for setLastGeneratedTime
+    () => {}, // Empty function for setLastGeneratedTime
+    minutesStyle === 'diagram' ? diagramOptions : undefined
   );
 
   // Text existence check
   const hasTranscriptText = useMemo(() => {
     return transcriptText.trim() !== '';
   }, [transcriptText]);
+
+  // Get style label for display
+  const styleLabel = useMemo(() => {
+    const styleOptions: Record<MeetingMinutesParams['style'], string> = {
+      summary: t('meetingMinutes.style_summary'),
+      detail: t('meetingMinutes.style_detail'),
+      faq: t('meetingMinutes.style_faq'),
+      transcription: t('meetingMinutes.style_transcription'),
+      diagram: t('meetingMinutes.style_diagram'),
+      newspaper: t('meetingMinutes.style_newspaper'),
+      whiteboard: t('meetingMinutes.style_whiteboard'),
+      custom: t('meetingMinutes.style_custom'),
+    };
+    return styleOptions[minutesStyle];
+  }, [minutesStyle, t]);
 
   // Watch for generation signal and trigger generation
   useEffect(() => {
@@ -82,13 +111,18 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     ) {
       if (!minutesLoading) {
         shouldGenerateRef.current = false;
-        generateMinutes(transcriptText, modelId, (status) => {
-          if (status === 'success') {
-            toast.success(t('meetingMinutes.generation_success'));
-          } else if (status === 'error') {
-            toast.error(t('meetingMinutes.generation_error'));
-          }
-        });
+        generateMinutes(
+          transcriptText,
+          modelId,
+          (status) => {
+            if (status === 'success') {
+              toast.success(t('meetingMinutes.generation_success'));
+            } else if (status === 'error') {
+              toast.error(t('meetingMinutes.generation_error'));
+            }
+          },
+          generatedMinutes
+        );
       } else {
         shouldGenerateRef.current = false;
       }
@@ -101,6 +135,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     generateMinutes,
     modelId,
     t,
+    generatedMinutes,
   ]);
 
   // Auto-generation countdown setup
@@ -147,13 +182,18 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     }
 
     if (hasTranscriptText && !minutesLoading) {
-      generateMinutes(transcriptText, modelId, (status) => {
-        if (status === 'success') {
-          toast.success(t('meetingMinutes.generation_success'));
-        } else if (status === 'error') {
-          toast.error(t('meetingMinutes.generation_error'));
-        }
-      });
+      generateMinutes(
+        transcriptText,
+        modelId,
+        (status) => {
+          if (status === 'success') {
+            toast.success(t('meetingMinutes.generation_success'));
+          } else if (status === 'error') {
+            toast.error(t('meetingMinutes.generation_error'));
+          }
+        },
+        generatedMinutes
+      );
     }
   }, [
     hasTranscriptText,
@@ -164,6 +204,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     t,
     minutesStyle,
     customPrompt,
+    generatedMinutes,
   ]);
 
   // Clear minutes handler
@@ -171,181 +212,100 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     clearMinutes();
   }, [clearMinutes]);
 
+  // Get system prompt for preview
+  const getSystemPrompt = useCallback(
+    (
+      style: MeetingMinutesParams['style'],
+      customPromptOverride?: string,
+      diagramOptionsOverride?: DiagramOption[]
+    ) => {
+      const params: MeetingMinutesParams = {
+        style,
+        customPrompt: customPromptOverride || customPrompt,
+        diagramOptions: diagramOptionsOverride || diagramOptions,
+      };
+      return claudePrompter.meetingMinutesPrompt(params);
+    },
+    [customPrompt, diagramOptions]
+  );
+
   return (
-    <div
-      className={`overflow-hidden transition-all duration-500 ease-in-out ${
-        isCollapsed ? 'max-h-16' : 'min-h-96'
-      }`}>
-      {isCollapsed ? (
-        // Collapsed UI
-        <div className="p-0 transition-opacity duration-200 lg:p-0">
-          <div className="flex justify-center">
-            <button
-              className="inline-flex items-center rounded-md bg-white px-0.5 py-0.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-              onClick={onToggleCollapse}>
-              <PiCaretLeft className="h-3 w-3 xl:mr-0" />
-            </button>
-          </div>
+    <div className="flex h-full flex-col overflow-hidden">
+      {/* Compact header with settings button and action buttons */}
+      <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <ButtonIcon onClick={() => setIsSettingsOpen(true)}>
+            <PiGearSix className="text-xl" />
+          </ButtonIcon>
+          {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
+          <span
+            onClick={() => setIsSettingsOpen(true)}
+            className="cursor-pointer text-sm text-gray-600">
+            {`${styleLabel} / ${modelDisplayName(modelId)}`}
+          </span>
+          {autoGenerate && countdownSeconds > 0 && (
+            // eslint-disable-next-line @shopify/jsx-no-hardcoded-content
+            <span className="text-sm text-gray-500">
+              {`(${t('meetingMinutes.next_generation')}${t('common.colon')} ${Math.floor(countdownSeconds / 60)}:${(countdownSeconds % 60).toString().padStart(2, '0')})`}
+            </span>
+          )}
         </div>
-      ) : (
-        // Expanded UI
-        <div className="transition-opacity duration-200">
-          {/* Header with collapse button */}
-          <div className="mb-4">
-            <button
-              className="mb-2 flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-              onClick={onToggleCollapse}>
-              <PiCaretRight className="mr-2 h-4 w-4" />
-              {t('common.collapse')}
-            </button>
+        <div className="flex gap-2">
+          <Button
+            disabled={!hasTranscriptText || minutesLoading}
+            onClick={handleManualGeneration}
+            loading={minutesLoading}>
+            {t('meetingMinutes.generate')}
+          </Button>
+          <Button outlined onClick={handleClearMinutes}>
+            {t('meetingMinutes.clear_minutes')}
+          </Button>
+        </div>
+      </div>
+
+      {/* Generated minutes display - now takes most of the space */}
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="mb-2 flex shrink-0 items-center justify-between">
+          <div className="font-bold">
+            {t('meetingMinutes.generated_minutes')}
           </div>
-
-          {/* Meeting Minutes Configuration */}
-          <div className="mb-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block font-bold">
-                  {t('meetingMinutes.style')}
-                </label>
-                <Select
-                  value={minutesStyle}
-                  onChange={(value) =>
-                    setMinutesStyle(value as typeof minutesStyle)
-                  }
-                  options={[
-                    {
-                      value: 'faq',
-                      label: t('meetingMinutes.style_faq'),
-                    },
-                    {
-                      value: 'summary',
-                      label: t('meetingMinutes.style_summary'),
-                    },
-                    {
-                      value: 'detail',
-                      label: t('meetingMinutes.style_detail'),
-                    },
-                    {
-                      value: 'custom',
-                      label: t('meetingMinutes.style_custom'),
-                    },
-                  ]}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block font-bold">
-                  {t('meetingMinutes.model')}
-                </label>
-                <Select
-                  value={modelId}
-                  onChange={setModelId}
-                  options={availableModels.map((id) => ({
-                    value: id,
-                    label: modelDisplayName(id),
-                  }))}
-                />
-              </div>
-            </div>
-
-            {minutesStyle === 'custom' && (
-              <div className="mb-4">
-                <label className="mb-2 block font-bold">
-                  {t('meetingMinutes.custom_prompt')}
-                </label>
-                <Textarea
-                  placeholder={t('meetingMinutes.custom_prompt_placeholder')}
-                  value={customPrompt}
-                  onChange={setCustomPrompt}
-                  maxHeight={80}
-                />
-              </div>
-            )}
-
-            {/* Auto-generation controls */}
-            <div className="mb-4">
-              <Switch
-                label={t('meetingMinutes.auto_generate')}
-                checked={autoGenerate}
-                onSwitch={setAutoGenerate}
-              />
-              {autoGenerate && (
-                <div className="mt-2">
-                  <label className="mb-2 block font-bold">
-                    {t('meetingMinutes.generation_frequency')}
-                  </label>
-                  <Select
-                    value={generationFrequency.toString()}
-                    onChange={(value) => setGenerationFrequency(Number(value))}
-                    options={[
-                      { value: '1', label: t('meetingMinutes.frequency_1min') },
-                      { value: '3', label: t('meetingMinutes.frequency_3min') },
-                      { value: '5', label: t('meetingMinutes.frequency_5min') },
-                      {
-                        value: '10',
-                        label: t('meetingMinutes.frequency_10min'),
-                      },
-                    ]}
-                  />
-                  {countdownSeconds > 0 && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      {t('meetingMinutes.next_generation')}
-                      {t('common.colon')} {Math.floor(countdownSeconds / 60)}
-                      {t('common.colon')}
-                      {(countdownSeconds % 60).toString().padStart(2, '0')}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Generation buttons */}
-          <div className="mb-4 flex gap-2">
-            <Button
-              disabled={!hasTranscriptText || minutesLoading}
-              onClick={handleManualGeneration}
-              loading={minutesLoading}>
-              {t('meetingMinutes.generate')}
-            </Button>
-            <Button outlined onClick={handleClearMinutes}>
-              {t('meetingMinutes.clear_minutes')}
-            </Button>
-          </div>
-
-          {/* Generated minutes display */}
           {generatedMinutes && (
-            <div className="mb-4">
-              <div className="mb-2 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="font-bold">
-                    {t('meetingMinutes.generated_minutes')}
-                  </div>
-                </div>
-                <div className="flex">
-                  <ButtonCopy
-                    text={generatedMinutes}
-                    interUseCasesKey="minutes"
-                  />
-                  <ButtonIcon
-                    onClick={() => {
-                      navigate(
-                        `/edit?${queryString.stringify({
-                          content: generatedMinutes,
-                        })}`
-                      );
-                    }}>
-                    <PiPencilLine />
-                  </ButtonIcon>
-                </div>
-              </div>
-              <div className="max-h-96 overflow-y-auto overflow-x-hidden rounded border border-black/30 p-3">
-                <Markdown>{generatedMinutes}</Markdown>
-              </div>
+            <div className="flex">
+              <ButtonCopy text={generatedMinutes} interUseCasesKey="minutes" />
             </div>
           )}
         </div>
-      )}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded border border-black/30 p-3">
+          {generatedMinutes ? (
+            <Markdown>{generatedMinutes}</Markdown>
+          ) : (
+            <div className="flex h-full items-center justify-center text-gray-400">
+              {t('meetingMinutes.minutes_placeholder')}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Settings Modal */}
+      <MeetingMinutesSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        minutesStyle={minutesStyle}
+        setMinutesStyle={setMinutesStyle}
+        modelId={modelId}
+        setModelId={setModelId}
+        availableModels={availableModels}
+        modelDisplayName={modelDisplayName}
+        customPrompt={customPrompt}
+        setCustomPrompt={setCustomPrompt}
+        diagramOptions={diagramOptions}
+        toggleDiagramOption={toggleDiagramOption}
+        autoGenerate={autoGenerate}
+        setAutoGenerate={setAutoGenerate}
+        generationFrequency={generationFrequency}
+        setGenerationFrequency={setGenerationFrequency}
+        getSystemPrompt={getSystemPrompt}
+      />
     </div>
   );
 };

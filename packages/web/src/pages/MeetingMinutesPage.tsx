@@ -1,10 +1,12 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import Card from '../components/Card';
 import {
   PiMicrophoneBold,
   PiPencilLine,
   PiPaperclip,
   PiTranslateBold,
+  PiFileText,
+  PiColumnsBold,
 } from 'react-icons/pi';
 import MeetingMinutesTranscription from '../components/MeetingMinutes/MeetingMinutesTranscription';
 import MeetingMinutesRealtimeTranslation from '../components/MeetingMinutes/MeetingMinutesRealtimeTranslation';
@@ -47,13 +49,18 @@ export interface CommonTranscriptProps {
   disableClear: boolean;
 }
 
+// Panel type for view toggle
+type ViewPanel = 'transcription' | 'both' | 'generation';
+
 const MeetingMinutesPage: React.FC = () => {
   const { t } = useTranslation();
 
   // State management
   const [inputMethod, setInputMethod] = useState<InputMethod>('transcription');
-  const [isGenerationPanelCollapsed, setIsGenerationPanelCollapsed] =
-    useState(false);
+  // Active panel for view toggle (default: 'both' for desktop)
+  const [activePanel, setActivePanel] = useState<ViewPanel>('both');
+  // Track if screen is large (lg breakpoint: 1024px)
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
   const [transcriptTexts, setTranscriptTexts] = useState({
     transcription: '',
     direct: '',
@@ -123,106 +130,215 @@ const MeetingMinutesPage: React.FC = () => {
     []
   );
 
+  // Memoized callback for recording state changes (prevents infinite loop)
+  const handleTranscriptionRecordingStateChange = useCallback(
+    (state: { micRecording: boolean; screenRecording: boolean }) => {
+      setTranscriptionRecording(state);
+    },
+    []
+  );
+
+  const handleRealtimeTranslationRecordingStateChange = useCallback(
+    (state: { micRecording: boolean; screenRecording: boolean }) => {
+      setRealtimeTranslationRecording(state);
+    },
+    []
+  );
+
   // Get current transcript text
   const currentTranscriptText = transcriptTexts[inputMethod];
 
-  // Toggle generation panel collapse state
-  const toggleGenerationPanelCollapse = () => {
-    setIsGenerationPanelCollapsed(!isGenerationPanelCollapsed);
-  };
+  // Monitor screen size changes for responsive behavior
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsLargeScreen(e.matches);
+      if (!e.matches && activePanel === 'both') {
+        // When screen becomes small and 'both' is selected, switch to 'transcription'
+        setActivePanel('transcription');
+      }
+    };
+
+    // Initial check
+    handleChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [activePanel]);
+
+  // Handle panel selection with screen size consideration
+  const handlePanelChange = useCallback(
+    (panel: ViewPanel) => {
+      if (panel === 'both' && !isLargeScreen) {
+        // On small screens, 'both' is not available, fallback to 'transcription'
+        setActivePanel('transcription');
+      } else {
+        setActivePanel(panel);
+      }
+    },
+    [isLargeScreen]
+  );
 
   return (
-    <div>
+    <div className="flex h-[calc(100vh)] flex-col">
       <NavigationBlockDialog
         isOpen={blocker.state === 'blocked'}
         onCancel={() => blocker.reset?.()}
         onConfirm={() => blocker.proceed?.()}
       />
-      {/* Title Header - Always fixed at top */}
-      <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
-        {t('meetingMinutes.title')}
+      {/* Title Header with Panel Toggle */}
+      <div className="flex shrink-0 items-center justify-between px-4 py-3 lg:py-5">
+        <div className="flex-1" />
+        <h1 className="text-xl font-semibold">{t('meetingMinutes.title')}</h1>
+        <div className="flex flex-1 justify-end">
+          <div className="flex rounded border text-xs font-bold">
+            <div
+              className={`my-1 ml-1 flex cursor-pointer items-center rounded px-2 py-1.5 ${
+                activePanel === 'transcription'
+                  ? 'bg-gray-600 text-white'
+                  : 'text-gray-600'
+              }`}
+              onClick={() => handlePanelChange('transcription')}>
+              <PiMicrophoneBold className="text-base lg:mr-1" />
+              <span className="hidden lg:inline">
+                {t('meetingMinutes.transcription_panel')}
+              </span>
+            </div>
+            {isLargeScreen && (
+              <div
+                className={`my-1 flex cursor-pointer items-center rounded px-2 py-1.5 ${
+                  activePanel === 'both'
+                    ? 'bg-gray-600 text-white'
+                    : 'text-gray-600'
+                }`}
+                onClick={() => handlePanelChange('both')}>
+                <PiColumnsBold className="text-base lg:mr-1" />
+                <span className="hidden lg:inline">
+                  {t('meetingMinutes.both_panel')}
+                </span>
+              </div>
+            )}
+            <div
+              className={`my-1 mr-1 flex cursor-pointer items-center rounded px-2 py-1.5 ${
+                activePanel === 'generation'
+                  ? 'bg-gray-600 text-white'
+                  : 'text-gray-600'
+              }`}
+              onClick={() => handlePanelChange('generation')}>
+              <PiFileText className="text-base lg:mr-1" />
+              <span className="hidden lg:inline">
+                {t('meetingMinutes.generation_panel')}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Main Content Area - Left & Right columns only */}
-      <div className="my-2 grid grid-cols-12 gap-2 lg:flex lg:flex-row lg:gap-2">
+      {/* Main Content Area - Left & Right columns */}
+      <div className="flex min-h-0 flex-1 gap-4 px-4 pb-4">
         {/* Left Column - Tab Content */}
         <div
-          className={`col-span-12 ml-4 transition-all duration-300 ease-in-out lg:ml-4 ${
-            isGenerationPanelCollapsed
-              ? 'lg:flex-[0_0_calc(100%-7rem)]'
-              : 'lg:flex-[0_0_54%]'
+          className={`min-h-0 transition-all duration-300 ease-in-out ${
+            activePanel === 'transcription'
+              ? 'block w-full'
+              : activePanel === 'both'
+                ? 'block w-1/2'
+                : 'hidden'
           }`}>
-          <Card>
+          <Card className="flex h-full flex-col">
             {/* Tab Headers */}
-            <div className="mb-6 flex border-b border-gray-200">
-              <button
-                className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  inputMethod === 'transcription'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setInputMethod('transcription')}>
-                <PiMicrophoneBold className="mr-2 h-4 w-4" />
-                {t('transcribe.voice_transcription')}
-              </button>
-              <button
-                className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  inputMethod === 'realtime_translation'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setInputMethod('realtime_translation')}>
-                <PiTranslateBold className="mr-2 h-4 w-4" />
-                {t('translate.realtime_translation')}
-              </button>
-              <button
-                className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  inputMethod === 'direct'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setInputMethod('direct')}>
-                <PiPencilLine className="mr-2 h-4 w-4" />
-                {t('transcribe.direct_input')}
-              </button>
-              <button
-                className={`flex items-center border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                  inputMethod === 'file'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setInputMethod('file')}>
-                <PiPaperclip className="mr-2 h-4 w-4" />
-                {t('transcribe.file_upload')}
-              </button>
+            <div className="mb-4 shrink-0 border-b border-gray-200">
+              <div className="flex justify-center gap-2 overflow-x-auto sm:justify-start sm:gap-0">
+                <button
+                  className={`flex min-h-[48px] min-w-[48px] items-center justify-center border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:min-w-0 sm:justify-start sm:px-4 sm:py-2 ${
+                    inputMethod === 'transcription'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setInputMethod('transcription')}>
+                  <PiMicrophoneBold className="h-10 w-10 sm:mr-2 sm:h-4 sm:w-4" />
+                  <span className="hidden text-xs sm:inline">
+                    {t('transcribe.voice_transcription')}
+                  </span>
+                </button>
+                <button
+                  className={`flex min-h-[48px] min-w-[48px] items-center justify-center border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:min-w-0 sm:justify-start sm:px-4 sm:py-2 ${
+                    inputMethod === 'realtime_translation'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setInputMethod('realtime_translation')}>
+                  <PiTranslateBold className="h-10 w-10 sm:mr-2 sm:h-4 sm:w-4" />
+                  <span className="hidden text-xs sm:inline">
+                    {t('translate.realtime_translation')}
+                  </span>
+                </button>
+                <button
+                  className={`flex min-h-[48px] min-w-[48px] items-center justify-center border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:min-w-0 sm:justify-start sm:px-4 sm:py-2 ${
+                    inputMethod === 'direct'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setInputMethod('direct')}>
+                  <PiPencilLine className="h-10 w-10 sm:mr-2 sm:h-4 sm:w-4" />
+                  <span className="hidden text-xs sm:inline">
+                    {t('transcribe.direct_input')}
+                  </span>
+                </button>
+                <button
+                  className={`flex min-h-[48px] min-w-[48px] items-center justify-center border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:min-h-0 sm:min-w-0 sm:justify-start sm:px-4 sm:py-2 ${
+                    inputMethod === 'file'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                  onClick={() => setInputMethod('file')}>
+                  <PiPaperclip className="h-10 w-10 sm:mr-2 sm:h-4 sm:w-4" />
+                  <span className="hidden text-xs sm:inline">
+                    {t('transcribe.file_upload')}
+                  </span>
+                </button>
+              </div>
+              {/* Mobile: Show selected tab label below icons */}
+              <div className="mt-4 pb-4 text-center text-sm font-medium text-blue-600 sm:hidden">
+                {inputMethod === 'transcription' &&
+                  t('transcribe.voice_transcription')}
+                {inputMethod === 'realtime_translation' &&
+                  t('translate.realtime_translation')}
+                {inputMethod === 'direct' && t('transcribe.direct_input')}
+                {inputMethod === 'file' && t('transcribe.file_upload')}
+              </div>
             </div>
 
             {/* Tab Content - Self-contained components */}
-            <div>
+            <div className="min-h-0 flex-1 overflow-y-auto">
               <div
+                className="h-full"
                 style={{
                   display: inputMethod === 'transcription' ? 'block' : 'none',
                 }}>
                 <MeetingMinutesTranscription
                   onTranscriptChange={handleTranscriptionTranscriptChange}
-                  onRecordingStateChange={(state) =>
-                    setTranscriptionRecording(state)
+                  onRecordingStateChange={
+                    handleTranscriptionRecordingStateChange
                   }
                 />
               </div>
               <div
+                className="h-full"
                 style={{
                   display:
                     inputMethod === 'realtime_translation' ? 'block' : 'none',
                 }}>
                 <MeetingMinutesRealtimeTranslation
                   onTranscriptChange={handleRealtimeTranslationTranscriptChange}
-                  onRecordingStateChange={(state) =>
-                    setRealtimeTranslationRecording(state)
+                  onRecordingStateChange={
+                    handleRealtimeTranslationRecordingStateChange
                   }
                 />
               </div>
               <div
+                className="h-full"
                 style={{
                   display: inputMethod === 'direct' ? 'block' : 'none',
                 }}>
@@ -231,6 +347,7 @@ const MeetingMinutesPage: React.FC = () => {
                 />
               </div>
               <div
+                className="h-full"
                 style={{ display: inputMethod === 'file' ? 'block' : 'none' }}>
                 <MeetingMinutesFile
                   onTranscriptChange={handleFileTranscriptChange}
@@ -242,17 +359,15 @@ const MeetingMinutesPage: React.FC = () => {
 
         {/* Right Column - Generation Panel */}
         <div
-          className={`col-span-12 my-2 ml-4 transition-all duration-500 ease-in-out lg:my-0 lg:ml-0 lg:mr-4 ${
-            isGenerationPanelCollapsed
-              ? 'lg:flex-[0_0_4em] xl:flex-[0_0_4em] 2xl:flex-[0_0_5em]'
-              : 'lg:flex-[0_0_42%] xl:flex-[0_0_43%] 2xl:flex-[0_0_44%]'
+          className={`min-h-0 transition-all duration-300 ease-in-out ${
+            activePanel === 'generation'
+              ? 'block w-full'
+              : activePanel === 'both'
+                ? 'block w-1/2'
+                : 'hidden'
           }`}>
-          <Card>
-            <MeetingMinutesGeneration
-              transcriptText={currentTranscriptText}
-              isCollapsed={isGenerationPanelCollapsed}
-              onToggleCollapse={toggleGenerationPanelCollapse}
-            />
+          <Card className="flex h-full flex-col">
+            <MeetingMinutesGeneration transcriptText={currentTranscriptText} />
           </Card>
         </div>
       </div>

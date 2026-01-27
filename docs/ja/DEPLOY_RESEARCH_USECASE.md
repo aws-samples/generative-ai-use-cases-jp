@@ -8,7 +8,7 @@
 
 - **Web 検索**: Brave Search API を使用したリアルタイム Web 検索
 - **AWS ドキュメント検索**: AWS 公式ドキュメントからの情報取得
-- **3つのリサーチモード**: 
+- **3つのリサーチモード**:
   - Technical Research（技術調査）- 詳細な技術分析
   - General Research（一般調査）- ビジネス分析
   - Mini Research（簡易調査）- 迅速な情報取得

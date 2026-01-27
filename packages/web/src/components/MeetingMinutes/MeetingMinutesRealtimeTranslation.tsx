@@ -8,18 +8,11 @@ import React, {
 import { useTranslation } from 'react-i18next';
 import { LanguageCode } from '@aws-sdk/client-transcribe-streaming';
 import { Transcript } from 'generative-ai-use-cases';
-import Button from '../Button';
-import ButtonCopy from '../ButtonCopy';
-import ButtonSendToUseCase from '../ButtonSendToUseCase';
 import Select from '../Select';
-import Switch from '../Switch';
-import RangeSlider from '../RangeSlider';
-import ExpandableField from '../ExpandableField';
 import Textarea from '../Textarea';
-import ScreenAudioToggle from '../ScreenAudioToggle';
-import MicAudioToggle from '../MicAudioToggle';
 import MeetingMinutesTranscriptSegment from './MeetingMinutesTranscriptSegment';
-import { PiStopCircleBold, PiMicrophoneBold } from 'react-icons/pi';
+import MeetingMinutesSettingsPanel from './MeetingMinutesSettingsPanel';
+import MeetingMinutesControlButtons from './MeetingMinutesControlButtons';
 import useMicrophone from '../../hooks/useMicrophone';
 import useScreenAudio from '../../hooks/useScreenAudio';
 import useRealtimeTranslation from '../../hooks/useRealtimeTranslation';
@@ -652,20 +645,6 @@ const MeetingMinutesRealtimeTranslation: React.FC<
   // Recording states
   const isRecording = micRecording || screenRecording;
 
-  // Calculate responsive transcript container height
-  const getTranscriptHeight = useCallback(() => {
-    const baseClasses =
-      'w-full overflow-y-auto rounded border border-black/30 p-1.5 min-h-64';
-
-    if (isRecording) {
-      // Recording: Settings hidden, more space available
-      return `${baseClasses} max-h-72 sm:max-h-80 lg:max-h-[60vh]`;
-    } else {
-      // Not recording: Settings visible, less space available
-      return `${baseClasses} max-h-56 sm:max-h-64 lg:max-h-[30vh]`;
-    }
-  }, [isRecording]);
-
   // Clear function
   const handleClear = useCallback(() => {
     setRealtimeSegments([]);
@@ -764,220 +743,154 @@ const MeetingMinutesRealtimeTranslation: React.FC<
     clearScreenTranscripts,
   ]);
 
+  // Stop transcription
+  const handleStopRecording = useCallback(() => {
+    stopMicTranscription();
+    stopScreenTranscription();
+  }, [stopMicTranscription, stopScreenTranscription]);
+
   return (
-    <div>
-      {/* Realtime Translation Content */}
-      <div className="mb-4">
-        <div className="p-2">
-          <div className="flex justify-center">
-            {isRecording ? (
-              <Button
-                className="h-10"
-                onClick={() => {
-                  stopMicTranscription();
-                  stopScreenTranscription();
-                }}>
-                <PiStopCircleBold className="mr-2 h-5 w-5" />
-                {t('transcribe.stop_recording')}
-              </Button>
-            ) : (
-              <Button
-                className="h-10"
-                onClick={onClickExecStartTranscription}
-                outlined={true}>
-                <PiMicrophoneBold className="mr-2 h-5 w-5" />
-                {t('transcribe.start_recording')}
-              </Button>
-            )}
-          </div>
-          {!isRecording && (
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <MicAudioToggle
-                enabled={enableMicAudio}
-                onToggle={setEnableMicAudio}
-              />
-              <ScreenAudioToggle
-                enabled={enableScreenAudio}
-                onToggle={setEnableScreenAudio}
-                isSupported={isScreenAudioSupported}
-                noticeText={t('transcribe.screen_audio_notice').replace(
-                  /<br\/>/g,
-                  '\n'
-                )}
+    <div className="flex h-full flex-col">
+      {/* Settings Panel */}
+      <MeetingMinutesSettingsPanel
+        isRecording={isRecording}
+        enableMicAudio={enableMicAudio}
+        setEnableMicAudio={setEnableMicAudio}
+        enableScreenAudio={enableScreenAudio}
+        setEnableScreenAudio={setEnableScreenAudio}
+        speakerLabel={speakerLabel}
+        setSpeakerLabel={setSpeakerLabel}
+        maxSpeakers={maxSpeakers}
+        setMaxSpeakers={setMaxSpeakers}
+        speakers={speakers}
+        setSpeakers={setSpeakers}>
+        {/* Translation-specific settings */}
+
+        {/* Languages */}
+        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex items-center gap-4">
+            <div className="flex h-9 w-28 shrink-0 items-center text-sm text-gray-600">
+              {translationType === 'bidirectional'
+                ? t('meetingMinutes.language_1')
+                : t('meetingMinutes.transcription_language')}
+            </div>
+            <div>
+              <Select
+                value={primaryLanguage}
+                onChange={setPrimaryLanguage}
+                options={languageOptions}
+                fullWidth
+                notItem
               />
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Language Selection and Translation Settings */}
-      {!isRecording && (
-        <div className="mb-4 px-2">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Left column: Translation type and model */}
-            <div className="space-y-4">
-              <div>
-                <label className="mb-2 block font-bold">
-                  {t('meetingMinutes.translation_type')}
-                </label>
-                <Select
-                  value={translationType}
-                  onChange={setTranslationType}
-                  options={translationTypeOptions}
-                />
-              </div>
-              <div>
-                <Select
-                  value={selectedTranslationModel}
-                  onChange={setSelectedTranslationModel}
-                  options={availableModels.map((modelId) => ({
-                    value: modelId,
-                    label: MODELS.modelDisplayName(modelId),
-                  }))}
-                />
-              </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex h-9 w-28 shrink-0 items-center text-sm text-gray-600 sm:w-auto">
+              {translationType === 'bidirectional'
+                ? t('meetingMinutes.language_2')
+                : t('meetingMinutes.translation_language')}
             </div>
-
-            {/* Right column: Languages */}
-            {realtimeTranslationEnabled && (
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block font-bold">
-                    {translationType === 'bidirectional'
-                      ? t('meetingMinutes.language_1')
-                      : t('meetingMinutes.transcription_language')}
-                  </label>
-                  <Select
-                    value={primaryLanguage}
-                    onChange={setPrimaryLanguage}
-                    options={languageOptions}
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block font-bold">
-                    {translationType === 'bidirectional'
-                      ? t('meetingMinutes.language_2')
-                      : t('meetingMinutes.translation_language')}
-                  </label>
-                  <Select
-                    value={secondaryLanguage}
-                    onChange={setSecondaryLanguage}
-                    options={targetLanguageOptions}
-                  />
-                </div>
-              </div>
-            )}
+            <div>
+              <Select
+                value={secondaryLanguage}
+                onChange={setSecondaryLanguage}
+                options={targetLanguageOptions}
+                fullWidth
+                notItem
+              />
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Translation Type */}
+        <div className="mb-3 flex items-center gap-4">
+          <div className="flex h-9 w-28 shrink-0 items-center text-sm text-gray-600">
+            {t('meetingMinutes.translation_type')}
+          </div>
+          <div>
+            <Select
+              value={translationType}
+              onChange={setTranslationType}
+              options={translationTypeOptions}
+              fullWidth
+              notItem
+            />
+          </div>
+        </div>
+
+        {/* Translation Model */}
+        <div className="flex items-center gap-4">
+          <div className="flex h-9 w-28 shrink-0 items-center text-sm text-gray-600">
+            {t('meetingMinutes.translation_model')}
+          </div>
+          <div>
+            <Select
+              value={selectedTranslationModel}
+              onChange={setSelectedTranslationModel}
+              options={availableModels.map((modelId) => ({
+                value: modelId,
+                label: MODELS.modelDisplayName(modelId),
+              }))}
+              fullWidth
+              notItem
+            />
+          </div>
+        </div>
+      </MeetingMinutesSettingsPanel>
 
       {/* Translation Context - Only show when real-time translation is ON and recording */}
       {realtimeTranslationEnabled && isRecording && (
-        <div className="mb-4 px-2">
-          <div className="mb-2">
-            <h3 className="text-sm font-bold text-gray-700">
-              {t('translate.contextHelp')}
-            </h3>
+        <div className="mb-4 shrink-0 rounded-lg border border-gray-200 p-4">
+          <div className="mb-3 text-sm font-bold text-gray-700">
+            {t('translate.contextHelp')}
           </div>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {/* User-defined Context */}
             <div>
-              <label className="mb-2 block text-sm font-medium">
+              <label className="mb-1 block text-sm text-gray-600">
                 {t('translate.userDefinedContext')}
               </label>
               <Textarea
+                className="h-20 w-full text-sm"
                 placeholder={t('translate.userDefinedContextPlaceholder')}
                 value={userDefinedContext}
                 onChange={setUserDefinedContext}
-                rows={3}
-                maxHeight={80} // About 3 lines
               />
             </div>
-
-            {/* System-generated Context */}
             <div>
-              <label className="mb-2 block text-sm font-medium">
+              <label className="mb-1 block text-sm text-gray-600">
                 {t('translate.systemGeneratedContext')}
               </label>
               <Textarea
+                className="h-20 w-full text-sm"
                 placeholder={t('translate.systemGeneratedContextPlaceholder')}
                 value={systemGeneratedContext}
-                onChange={() => {}} // Read-only
-                rows={3}
-                maxHeight={80} // About 3 lines
-                disabled={true}
+                onChange={setSystemGeneratedContext}
               />
             </div>
           </div>
         </div>
-      )}
-
-      {/* Speaker Recognition Parameters */}
-      {!isRecording && (
-        <ExpandableField
-          label={t('common.other')}
-          className="mb-4"
-          notItem={true}>
-          <div className="grid grid-cols-2 gap-2 pt-2">
-            <Switch
-              label={t('transcribe.speaker_recognition')}
-              checked={speakerLabel}
-              onSwitch={setSpeakerLabel}
-            />
-            {speakerLabel && (
-              <RangeSlider
-                className=""
-                label={t('transcribe.max_speakers')}
-                min={2}
-                max={10}
-                value={maxSpeakers}
-                onChange={setMaxSpeakers}
-                help={t('transcribe.max_speakers_help')}
-              />
-            )}
-          </div>
-          {speakerLabel && (
-            <div className="mt-2">
-              <Textarea
-                placeholder={t('transcribe.speaker_names')}
-                value={speakers}
-                onChange={setSpeakers}
-              />
-            </div>
-          )}
-        </ExpandableField>
       )}
 
       {/* Screen Audio Error Display */}
       {screenAudioError && (
-        <div className="mb-4 mt-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="mb-3 shrink-0 rounded-md bg-red-50 p-3 text-sm text-red-700">
           <strong>{t('meetingMinutes.screen_audio_error')}</strong>
           {t('common.colon')} {screenAudioError}
         </div>
       )}
 
-      {/* Clear Button */}
-      <div className="flex justify-end gap-3">
-        <Button
-          outlined
-          disabled={!hasTranscriptText && !isRecording}
-          onClick={handleClear}>
-          {t('common.clear')}
-        </Button>
-      </div>
-
       {/* Transcript Panel */}
-      <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between">
+      <div className="flex min-h-0 flex-1 flex-col">
+        <div className="mb-2 flex shrink-0 items-center justify-between">
           <div className="font-bold">{t('meetingMinutes.transcript')}</div>
-          {hasTranscriptText && (
-            <div className="flex">
-              <ButtonCopy
-                text={realtimeText}
-                interUseCasesKey="transcript"></ButtonCopy>
-              <ButtonSendToUseCase text={realtimeText} />
-            </div>
-          )}
+          <MeetingMinutesControlButtons
+            isRecording={isRecording}
+            hasTranscriptText={hasTranscriptText}
+            transcriptText={realtimeText}
+            onStartRecording={onClickExecStartTranscription}
+            onStopRecording={handleStopRecording}
+            onClear={handleClear}
+          />
         </div>
         <div
           ref={transcriptContainerRef}
@@ -988,10 +901,12 @@ const MeetingMinutesRealtimeTranslation: React.FC<
             const isAtBottom = distanceFromBottom < 80; // About 3-4 lines tolerance
             isAtBottomRef.current = isAtBottom;
           }}
-          className={getTranscriptHeight()}>
-          {realtimeSegments.length === 0 ? (
-            <div className="py-8 text-center text-gray-500">
-              {t('transcribe.result_placeholder')}
+          className="relative min-h-0 flex-1 overflow-y-auto rounded border border-black/30 p-1.5">
+          {realtimeSegments.length === 0 && !isRecording ? (
+            <div className="flex h-full flex-col items-center justify-center py-8">
+              <div className="text-center text-gray-400">
+                {t('transcribe.result_placeholder')}
+              </div>
             </div>
           ) : (
             [...realtimeSegments]
@@ -1007,6 +922,14 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                   index > 0 ? sortedSegments[index - 1] : null;
                 const isNewSession =
                   prevSegment && segment.sessionId !== prevSegment.sessionId;
+
+                // Find the translation target for this segment
+                const translationTarget = getTranslationTarget(
+                  translationType,
+                  segment.languageCode,
+                  primaryLanguage,
+                  secondaryLanguage
+                );
 
                 return (
                   <React.Fragment
@@ -1026,19 +949,19 @@ const MeetingMinutesRealtimeTranslation: React.FC<
                       speakerMapping={speakerMapping}
                       isPartial={segment.isPartial}
                       formatTime={formatTime}
-                      translation={segment.translationSegments
-                        .map((ts) => ts.translation || '')
-                        .join('')}
+                      translation={
+                        segment.translationSegments
+                          .map((ts) => ts.translation)
+                          .filter(Boolean)
+                          .join(' ') || ''
+                      }
                       translationSegments={segment.translationSegments}
-                      isTranslating={false}
+                      isTranslating={segment.translationSegments.some(
+                        (ts) => ts.needsTranslation && !ts.translation
+                      )}
                       translationEnabled={realtimeTranslationEnabled}
                       detectedLanguage={segment.languageCode}
-                      translationTarget={getTranslationTarget(
-                        translationType,
-                        segment.languageCode,
-                        primaryLanguage,
-                        secondaryLanguage
-                      )}
+                      translationTarget={translationTarget}
                       isBidirectional={translationType === 'bidirectional'}
                     />
                   </React.Fragment>
