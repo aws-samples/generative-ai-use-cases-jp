@@ -233,22 +233,23 @@ export const convertFromStrandsFormat = (
     // Extract extra data from non-text content blocks
     const extraData: ExtraData[] = [];
     for (const block of message.content) {
-      if ('image' in block) {
+      if ('image' in block && block.image.source) {
         extraData.push({
           type: 'image',
+          name: 'image', // Default name for images
           source: {
             type: 'base64',
             mediaType: `image/${block.image.format}`,
             data: block.image.source.bytes,
           },
         });
-      } else if ('document' in block) {
+      } else if ('document' in block && block.document.source) {
         extraData.push({
           type: 'file',
-          name: block.document.name,
+          name: block.document.name || 'document',
           source: {
             type: 'base64',
-            mediaType: getDocumentMimeType(block.document.format),
+            mediaType: getDocumentMimeType(block.document.format || 'txt'),
             data: block.document.source.bytes,
           },
         });
@@ -402,7 +403,7 @@ export class StrandsStreamProcessor {
 
               // Extract everything else (outside tags) → trace
               const trace = bufferedText
-                .replace(/<final_report>[\s\S]*?)<\/final_report>/g, '')
+                .replace(/<final_report>[\s\S]*?<\/final_report>/g, '')
                 .trim();
 
               // Return both
