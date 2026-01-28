@@ -106,16 +106,6 @@ const convertExtraDataToStrandsContentBlock = (
         },
       };
 
-    case 'video':
-      return {
-        video: {
-          format: getVideoFormatFromMimeType(data.source.mediaType),
-          source: {
-            bytes: base64Data,
-          },
-        },
-      };
-
     default:
       console.warn('Unsupported extraData type:', data.type);
       return null;
@@ -123,108 +113,87 @@ const convertExtraDataToStrandsContentBlock = (
 };
 
 /**
- * Extract image format from MIME type
+ * Get image format from MIME type
  */
 const getImageFormatFromMimeType = (
-  mimeType: string
-): 'png' | 'jpeg' | 'gif' | 'webp' | undefined => {
-  const formatMap: Record<string, 'png' | 'jpeg' | 'gif' | 'webp'> = {
-    'image/png': 'png',
-    'image/jpeg': 'jpeg',
-    'image/jpg': 'jpeg',
-    'image/gif': 'gif',
-    'image/webp': 'webp',
-  };
-  return formatMap[mimeType.toLowerCase()];
+  mimeType?: string
+): 'png' | 'jpeg' | 'gif' | 'webp' => {
+  if (!mimeType) return 'png';
+
+  if (mimeType.includes('jpeg') || mimeType.includes('jpg')) return 'jpeg';
+  if (mimeType.includes('gif')) return 'gif';
+  if (mimeType.includes('webp')) return 'webp';
+  return 'png';
 };
 
 /**
- * Extract document format from MIME type
+ * Get document format from MIME type
  */
 const getDocumentFormatFromMimeType = (
-  mimeType: string
-):
-  | 'pdf'
-  | 'csv'
-  | 'doc'
-  | 'docx'
-  | 'xls'
-  | 'xlsx'
-  | 'html'
-  | 'txt'
-  | 'md'
-  | undefined => {
-  const formatMap: Record<
-    string,
-    'pdf' | 'csv' | 'doc' | 'docx' | 'xls' | 'xlsx' | 'html' | 'txt' | 'md'
-  > = {
-    'application/pdf': 'pdf',
-    'text/csv': 'csv',
-    'application/msword': 'doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-      'docx',
-    'application/vnd.ms-excel': 'xls',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
-    'text/html': 'html',
-    'text/plain': 'txt',
-    'text/markdown': 'md',
-  };
-  return formatMap[mimeType.toLowerCase()];
+  mimeType?: string
+): 'pdf' | 'csv' | 'doc' | 'docx' | 'xls' | 'xlsx' | 'html' | 'txt' | 'md' => {
+  if (!mimeType) return 'txt';
+
+  if (mimeType.includes('pdf')) return 'pdf';
+  if (mimeType.includes('csv')) return 'csv';
+  if (mimeType.includes('msword') || mimeType.includes('.document'))
+    return 'doc';
+  if (
+    mimeType.includes('wordprocessingml') ||
+    mimeType.includes(
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+  )
+    return 'docx';
+  if (mimeType.includes('ms-excel') || mimeType.includes('.sheet'))
+    return 'xls';
+  if (
+    mimeType.includes('spreadsheetml') ||
+    mimeType.includes(
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+  )
+    return 'xlsx';
+  if (mimeType.includes('html')) return 'html';
+  if (mimeType.includes('markdown')) return 'md';
+  return 'txt';
 };
 
 /**
- * Extract video format from MIME type
- */
-const getVideoFormatFromMimeType = (
-  mimeType: string
-):
-  | 'flv'
-  | 'mkv'
-  | 'mov'
-  | 'mpeg'
-  | 'mpg'
-  | 'mp4'
-  | 'three_gp'
-  | 'webm'
-  | 'wmv'
-  | undefined => {
-  const formatMap: Record<
-    string,
-    'flv' | 'mkv' | 'mov' | 'mpeg' | 'mpg' | 'mp4' | 'three_gp' | 'webm' | 'wmv'
-  > = {
-    'video/x-flv': 'flv',
-    'video/x-matroska': 'mkv',
-    'video/quicktime': 'mov',
-    'video/mpeg': 'mpeg',
-    'video/mp4': 'mp4',
-    'video/3gpp': 'three_gp',
-    'video/webm': 'webm',
-    'video/x-ms-wmv': 'wmv',
-  };
-  return formatMap[mimeType.toLowerCase()];
-};
-
-/**
- * Convert File objects to Strands content blocks
+ * Convert uploaded files to Strands content blocks
  */
 export const convertFilesToStrandsContentBlocks = async (
   files: File[]
 ): Promise<StrandsContentBlock[]> => {
-  console.log('convertFilesToStrandsContentBlocks', files);
   const contentBlocks: StrandsContentBlock[] = [];
 
   for (const file of files) {
     try {
       const base64Data = await fileToBase64(file);
-      const contentBlock = await convertFileToStrandsContentBlock(
-        file,
-        base64Data
-      );
-      if (contentBlock) {
-        contentBlocks.push(contentBlock);
+
+      // Determine if it's an image or document
+      if (file.type.startsWith('image/')) {
+        contentBlocks.push({
+          image: {
+            format: getImageFormatFromMimeType(file.type),
+            source: {
+              bytes: base64Data,
+            },
+          },
+        });
+      } else {
+        contentBlocks.push({
+          document: {
+            format: getDocumentFormatFromMimeType(file.type),
+            name: file.name,
+            source: {
+              bytes: base64Data,
+            },
+          },
+        });
       }
     } catch (error) {
-      console.error('Error converting file to Strands content block:', error);
+      console.error(`Error converting file ${file.name}:`, error);
     }
   }
 
@@ -232,16 +201,16 @@ export const convertFilesToStrandsContentBlocks = async (
 };
 
 /**
- * Convert a single File to base64 string
+ * Convert File to base64 string
  */
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      // Remove the data URL prefix (e.g., "data:image/png;base64,")
-      const base64Data = result.split(',')[1];
-      resolve(base64Data);
+      // Remove data URL prefix (e.g., "data:image/png;base64,")
+      const base64 = result.split(',')[1];
+      resolve(base64);
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
@@ -249,46 +218,78 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 /**
- * Convert a single File to Strands content block
+ * Convert Strands messages back to GenU format
  */
-const convertFileToStrandsContentBlock = async (
-  file: File,
-  base64Data: string
-): Promise<StrandsContentBlock | null> => {
-  const mimeType = file.type;
-  const fileName = file.name.replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X');
+export const convertFromStrandsFormat = (
+  messages: StrandsMessage[]
+): UnrecordedMessage[] => {
+  return messages.map((message) => {
+    // Extract text content from content blocks
+    const textContent = message.content
+      .filter((block) => 'text' in block)
+      .map((block) => ('text' in block ? block.text : ''))
+      .join('\n');
 
-  // Determine file type based on MIME type
-  if (mimeType.startsWith('image/')) {
+    // Extract extra data from non-text content blocks
+    const extraData: ExtraData[] = [];
+    for (const block of message.content) {
+      if ('image' in block) {
+        extraData.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            mediaType: `image/${block.image.format}`,
+            data: block.image.source.bytes,
+          },
+        });
+      } else if ('document' in block) {
+        extraData.push({
+          type: 'file',
+          name: block.document.name,
+          source: {
+            type: 'base64',
+            mediaType: getDocumentMimeType(block.document.format),
+            data: block.document.source.bytes,
+          },
+        });
+      }
+    }
+
     return {
-      image: {
-        format: getImageFormatFromMimeType(mimeType),
-        source: {
-          bytes: base64Data,
-        },
-      },
+      role: message.role,
+      content: textContent,
+      extraData: extraData.length > 0 ? extraData : undefined,
     };
-  } else if (mimeType.startsWith('video/')) {
-    return {
-      video: {
-        format: getVideoFormatFromMimeType(mimeType),
-        source: {
-          bytes: base64Data,
-        },
-      },
-    };
-  } else {
-    // Treat as document
-    return {
-      document: {
-        format: getDocumentFormatFromMimeType(mimeType),
-        name: fileName,
-        source: {
-          bytes: base64Data,
-        },
-      },
-    };
-  }
+  });
+};
+
+/**
+ * Get MIME type from document format
+ */
+const getDocumentMimeType = (
+  format:
+    | 'pdf'
+    | 'csv'
+    | 'doc'
+    | 'docx'
+    | 'xls'
+    | 'xlsx'
+    | 'html'
+    | 'txt'
+    | 'md'
+): string => {
+  const mimeTypes: Record<string, string> = {
+    pdf: 'application/pdf',
+    csv: 'text/csv',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    html: 'text/html',
+    txt: 'text/plain',
+    md: 'text/markdown',
+  };
+  return mimeTypes[format] || 'application/octet-stream';
 };
 
 /**
@@ -302,6 +303,15 @@ type ContentBlockType = 'text' | 'toolUse' | 'reasoning' | null;
 export class StrandsStreamProcessor {
   private currentContentBlockType: ContentBlockType = null;
   private toolUseBuffer: string = '';
+  private textBuffer: string = ''; // Text buffer for research agent
+  private isResearchAgent: boolean = false; // Flag to identify research agent
+
+  /**
+   * Set whether this is a research agent request
+   */
+  setResearchAgent(isResearch: boolean): void {
+    this.isResearchAgent = isResearch;
+  }
 
   /**
    * Process a streaming event and return formatted content
@@ -327,6 +337,11 @@ export class StrandsStreamProcessor {
 
         if ('text' in start && start.text) {
           this.currentContentBlockType = 'text';
+          // For research agent, buffer text to process <final_report> tags
+          if (this.isResearchAgent) {
+            this.textBuffer = start.text;
+            return null; // Don't return yet, wait for contentBlockStop
+          }
           return { text: start.text };
         } else if ('toolUse' in start && start.toolUse) {
           this.currentContentBlockType = 'toolUse';
@@ -341,6 +356,11 @@ export class StrandsStreamProcessor {
 
         if (delta.text) {
           this.currentContentBlockType = 'text';
+          // For research agent, buffer text to process <final_report> tags
+          if (this.isResearchAgent) {
+            this.textBuffer += delta.text;
+            return null; // Don't return yet, wait for contentBlockStop
+          }
           return { text: delta.text };
         } else if (delta.toolUse) {
           this.currentContentBlockType = 'toolUse';
@@ -355,7 +375,56 @@ export class StrandsStreamProcessor {
       // Handle content block stop event
       if (streamEvent.contentBlockStop) {
         if (this.currentContentBlockType === 'text') {
-          // Close the text block
+          // For research agent, process buffered text for <final_report> tags
+          if (this.isResearchAgent) {
+            const bufferedText = this.textBuffer;
+            this.textBuffer = '';
+
+            // Check for final_report tags and split content
+            if (
+              bufferedText.includes('<final_report>') &&
+              bufferedText.includes('</final_report>')
+            ) {
+              // Extract final report (inside tags) → chat
+              const reportMatches = bufferedText.match(
+                /<final_report>([\s\S]*?)<\/final_report>/g
+              );
+              let finalReport = '';
+              if (reportMatches) {
+                finalReport = reportMatches
+                  .map((m) =>
+                    m
+                      .replace('<final_report>', '')
+                      .replace('</final_report>', '')
+                  )
+                  .join('\n');
+              }
+
+              // Extract everything else (outside tags) → trace
+              const trace = bufferedText
+                .replace(/<final_report>[\s\S]*?)<\/final_report>/g, '')
+                .trim();
+
+              // Return both
+              const result: { text: string; trace?: string } = { text: '' };
+              if (trace) {
+                result.trace = trace;
+              }
+              if (finalReport) {
+                result.text = finalReport;
+              }
+
+              this.currentContentBlockType = null;
+              return result;
+            }
+
+            // No XML tags for research agent, return as trace
+            const result = { text: '', trace: bufferedText };
+            this.currentContentBlockType = null;
+            return result;
+          }
+
+          // For non-research agents, return text normally
           const result = { text: '\n' };
           this.currentContentBlockType = null;
           return result;
@@ -419,7 +488,7 @@ export class StrandsStreamProcessor {
 
       return null;
     } catch (error) {
-      console.error('Error processing stream event:', error);
+      console.error('Error processing Strands event:', error);
       return null;
     }
   }
@@ -430,5 +499,6 @@ export class StrandsStreamProcessor {
   reset(): void {
     this.currentContentBlockType = null;
     this.toolUseBuffer = '';
+    this.textBuffer = '';
   }
 }
