@@ -354,8 +354,10 @@ export class GenerativeAiUseCasesStack extends Stack {
         new RagKnowledgeBase(this, 'RagKnowledgeBase', {
           modelRegion: params.modelRegion,
           crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
+          cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
           knowledgeBaseId: knowledgeBaseId,
           userPool: auth.userPool,
+          userPoolClientId: auth.client.userPoolClientId,
           api: api.api,
           vpc: props.vpc,
           securityGroups,
