@@ -756,6 +756,20 @@ useCaseBuilder:
       {{retrieveKnowledgeBase}} 或 {{retrieveKnowledgeBase:标签}}。
       {{retrieveKnowledgeBase}} 需要另一个用于输入搜索查询的占位符({{text}})。 它们必须具有相同的标签。 
       要使用此功能，GenU中必须启用RAG聊天(Knowledge Base)。 如果未启用，请联系管理员。
+
+
+      您可以指定元数据过滤器来缩小搜索结果范围。
+      写为 {{retrieveKnowledgeBase:标签:过滤器}}。
+      过滤器以 key=value 格式指定，多个过滤器用逗号分隔。
+
+
+      支持的运算符:
+      = (等于), != (不等于), > (大于), < (小于), >= (大于等于), <= (小于等于),
+      ~= (包含字符串), ^= (以...开头), @ (在...中), !@ (不在...中)
+
+
+      对于数组条件，使用 @ 并用 | 分隔值。
+      例如: {{retrieveKnowledgeBase:问题:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
     retrieveKnowledgeBaseExample:
       prompt: |-
         您是一个回答用户问题的AI助手。
@@ -771,6 +785,21 @@ useCaseBuilder:
         {{text:问题}}
         </问题>
       title: 简单RAG
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        您是一个回答用户问题的AI助手。
+        请阅读以下信息。
+
+        <信息>
+        {{retrieveKnowledgeBase:问题:category=AWS,year>2020}}
+        </信息>
+
+        参考上述信息，回答以下问题。
+
+        <问题>
+        {{text:问题}}
+        </问题>
+      title: 带过滤器的RAG
     selectPlaceholderDescription: >-
       {{select}} 是用于定义选择框的占位符。 {{select}} 不能省略标签和选项。 必须按照 {{select:标签:选项1,选项2}}
       格式编写。 选项以逗号分隔定义。如果不想显示标签，可以使用 {{select::选项1,选项2}} 这样的空字符标签。(空字符标签与无标签不同。)

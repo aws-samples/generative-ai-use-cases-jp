@@ -919,6 +919,20 @@ useCaseBuilder:
       เหล่านี้ต้องมีป้ายกำกับเดียวกัน
       ในการใช้คุณสมบัตินี้ ต้องเปิดใช้งาน RAG chat (Knowledge Base) ใน GenU
       หากไม่ได้เปิดใช้งาน โปรดติดต่อผู้ดูแลระบบ
+
+
+      คุณสามารถระบุตัวกรองข้อมูลเมตาเพื่อจำกัดผลการค้นหา
+      เขียนเป็น {{retrieveKnowledgeBase:label:filter}}
+      ตัวกรองระบุในรูปแบบ key=value และคั่นตัวกรองหลายตัวด้วยเครื่องหมายจุลภาค
+
+
+      ตัวดำเนินการที่รองรับ:
+      = (เท่ากับ), != (ไม่เท่ากับ), > (มากกว่า), < (น้อยกว่า), >= (มากกว่าหรือเท่ากับ), <= (น้อยกว่าหรือเท่ากับ),
+      ~= (มีสตริง), ^= (เริ่มต้นด้วย), @ (อยู่ใน), !@ (ไม่อยู่ใน)
+
+
+      สำหรับเงื่อนไขอาร์เรย์ ใช้ @ และคั่นค่าด้วย |
+      ตัวอย่าง: {{retrieveKnowledgeBase:คำถาม:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
     retrieveKnowledgeBaseExample:
       prompt: |-
         คุณเป็นผู้ช่วย AI ที่ตอบคำถามของผู้ใช้
@@ -934,6 +948,21 @@ useCaseBuilder:
         {{text:คำถาม}}
         </Question>
       title: RAG อย่างง่าย
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        คุณเป็นผู้ช่วย AI ที่ตอบคำถามของผู้ใช้
+        โปรดอ่านข้อมูลต่อไปนี้:
+
+        <Information>
+        {{retrieveKnowledgeBase:คำถาม:category=AWS,year>2020}}
+        </Information>
+
+        จากข้อมูลข้างต้น โปรดตอบคำถามต่อไปนี้:
+
+        <Question>
+        {{text:คำถาม}}
+        </Question>
+      title: RAG พร้อมตัวกรอง
     selectPlaceholderDescription: |-
       คุณเป็นผู้เชี่ยวชาญที่มีความเชี่ยวชาญในบริการ AWS
 

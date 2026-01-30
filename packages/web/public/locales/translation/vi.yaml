@@ -897,6 +897,20 @@ useCaseBuilder:
       Chúng phải có cùng nhãn. 
       Để sử dụng chức năng này, RAG chat (Knowledge Base) phải được bật trong GenU.
       Nếu chưa được bật, vui lòng liên hệ với quản trị viên.
+
+
+      Bạn có thể chỉ định bộ lọc metadata để thu hẹp kết quả tìm kiếm.
+      Viết như {{retrieveKnowledgeBase:nhãn:bộ lọc}}.
+      Bộ lọc được chỉ định theo định dạng key=value, nhiều bộ lọc được phân cách bằng dấu phẩy.
+
+
+      Các toán tử được hỗ trợ:
+      = (bằng), != (không bằng), > (lớn hơn), < (nhỏ hơn), >= (lớn hơn hoặc bằng), <= (nhỏ hơn hoặc bằng),
+      ~= (chứa chuỗi), ^= (bắt đầu bằng), @ (trong), !@ (không trong)
+
+
+      Đối với điều kiện mảng, sử dụng @ và phân cách giá trị bằng |.
+      Ví dụ: {{retrieveKnowledgeBase:Câu hỏi:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
     retrieveKnowledgeBaseExample:
       prompt: |-
         Bạn là AI assistant trả lời câu hỏi của người dùng.
@@ -912,6 +926,21 @@ useCaseBuilder:
         {{text:Câu hỏi}}
         </questions>
       title: RAG đơn giản
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        Bạn là AI assistant trả lời câu hỏi của người dùng.
+        Vui lòng đọc thông tin sau.
+
+        <information>
+        {{retrieveKnowledgeBase:Câu hỏi:category=AWS,year>2020}}
+        </information>
+
+        Dựa trên thông tin trên, vui lòng trả lời câu hỏi sau.
+
+        <questions>
+        {{text:Câu hỏi}}
+        </questions>
+      title: RAG với bộ lọc
     selectPlaceholderDescription: >-
       {{select}} là placeholder để định nghĩa selectbox.
       {{select}} không thể bỏ qua nhãn và tùy chọn.
