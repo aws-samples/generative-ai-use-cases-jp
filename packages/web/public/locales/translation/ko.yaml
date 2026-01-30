@@ -429,7 +429,9 @@ meetingMinutes:
   generating: 회의록 생성 중...
   generation_error: 회의록 생성에 실패했습니다. 다시 시도해주세요.
   generation_frequency: 생성 빈도
+  generation_panel: 회의록 생성
   generation_success: 회의록이 성공적으로 생성되었습니다
+  hide_prompt: ▼ 프롬프트 숨기기
   language: 전사 언어
   language_auto: 자동 감지
   language_chinese: 중국어
@@ -452,12 +454,16 @@ meetingMinutes:
   style: 회의록 스타일
   style_custom: 사용자 정의
   style_detail: 세부사항
+  style_diagram: 다이어그램
   style_faq: FAQ
   style_newspaper: 신문
   style_summary: 요약
   style_transcription: 전사
+  style_whiteboard: 화이트보드
   title: 회의록 생성기
   transcript: 전사
+  transcription_panel: 전사
+  view_prompt: ▶ 프롬프트 보기
 model:
   parameters:
     reasoning: 추론
@@ -531,6 +537,18 @@ rag:
   please_refer: .
   retrieving: Kendra에서 참조 문서를 검색하는 중...
   title: RAG 채팅
+research:
+  description: 웹 검색을 활용하여 산업 전반에 걸친 다양한 연구 작업을 수행하고 상세한 연구 보고서를 작성합니다.
+  general_research: 일반 조사
+  general_research_desc: 광범위한 분야의 정보를 조사하고 종합적인 분석을 제공합니다
+  label: 리서치
+  mini_research: 빠른 조사
+  mini_research_desc: 핵심 사항을 빠르게 조사하고 간결한 답변을 제공합니다
+  select_mode: 모드를 선택하세요
+  start_conversation: 리서치 에이전트와 대화 시작
+  technical_research: 기술 조사
+  technical_research_desc: 상세한 기술 조사 및 분석을 수행합니다
+  title: 리서치
 setting:
   ai_items:
     agent_name: 에이전트 이름

@@ -33,18 +33,16 @@ class ToolManager:
             Dict of MCP server configurations with API keys injected
         """
         if isinstance(mcp_servers, list) and len(mcp_servers) == 0:
-            logger.info("Empty MCP servers list provided, skipping MCP tools")
             return {}
         
         # Load from MCP_CONFIG_PATH or use default
         mcp_config_path = os.environ.get("MCP_CONFIG_PATH")
+        
         if mcp_config_path and os.path.exists(mcp_config_path):
-            logger.info(f"Loading MCP configuration from {mcp_config_path}")
             with open(mcp_config_path) as f:
                 mcp_config = json.load(f)
             available_servers = mcp_config.get("mcpServers", {})
         else:
-            # Use default configuration
             available_servers = self._get_default_mcp_config()
         
         # Inject API keys from environment variables
@@ -57,34 +55,29 @@ class ToolManager:
                 for name, config in available_servers.items()
                 if name in mcp_servers
             }
-            logger.info(f"Filtered to {len(filtered_servers)} requested MCP servers")
             return filtered_servers
         
-        logger.info(f"Loaded {len(available_servers)} MCP servers")
         return available_servers
 
     def _inject_api_keys(self, servers: Dict[str, Dict[str, Any]]):
         """Inject API keys from environment variables into MCP server configs"""
         
-        # Brave Search API Key (single key)
+        # Brave Search API Key - inject into all brave-search-* servers
         brave_api_key = os.getenv("BRAVE_API_KEY", "")
         if brave_api_key:
-            # Inject into brave-search server
-            if "brave-search" in servers:
-                if "env" not in servers["brave-search"]:
-                    servers["brave-search"]["env"] = {}
-                servers["brave-search"]["env"]["BRAVE_API_KEY"] = brave_api_key
-                logger.info("Injected Brave API Key into brave-search MCP server")
+            for server_name in servers.keys():
+                if server_name.startswith("brave-search"):
+                    if "env" not in servers[server_name]:
+                        servers[server_name]["env"] = {}
+                    servers[server_name]["env"]["BRAVE_API_KEY"] = brave_api_key
         
-        # Tavily API Key (single key)
+        # Tavily API Key
         tavily_api_key = os.getenv("TAVILY_API_KEY", "")
         if tavily_api_key and "tavily-remote-mcp" in servers:
-            # Inject into URL args
             args = servers["tavily-remote-mcp"].get("args", [])
             for i, arg in enumerate(args):
-                if "tavilyApiKey=" in arg:
+                if isinstance(arg, str) and "tavilyApiKey=" in arg:
                     args[i] = arg.replace("tavilyApiKey=", f"tavilyApiKey={tavily_api_key}")
-            logger.info("Injected Tavily API Key into tavily-remote-mcp MCP server")
 
     def _get_default_mcp_config(self) -> Dict[str, Dict[str, Any]]:
         """Get default MCP server configuration"""

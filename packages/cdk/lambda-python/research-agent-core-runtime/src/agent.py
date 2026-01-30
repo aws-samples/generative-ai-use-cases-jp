@@ -100,23 +100,10 @@ class AgentManager:
                 model=model_id,
                 system_prompt=mode_system_prompt,
                 max_turns=200,
-                permission_mode="acceptEdits",
+                permission_mode="default",  # Use default mode - allows tool execution
                 mcp_servers=mcp_config,
                 allowed_tools=[
-                    # Brave Search MCP servers (multiple instances for parallel search)
-                    "mcp__brave-search-1__brave_web_search",
-                    "mcp__brave-search-1__brave_local_search",
-                    "mcp__brave-search-1__brave_video_search",
-                    "mcp__brave-search-1__brave_image_search",
-                    "mcp__brave-search-1__brave_news_search",
-                    "mcp__brave-search-1__brave_summarizer",
-                    "mcp__brave-search-2__brave_web_search",
-                    "mcp__brave-search-2__brave_local_search",
-                    "mcp__brave-search-2__brave_video_search",
-                    "mcp__brave-search-2__brave_image_search",
-                    "mcp__brave-search-2__brave_news_search",
-                    "mcp__brave-search-2__brave_summarizer",
-                    # Legacy single Brave Search server (backward compatibility)
+                    # Brave Search MCP server (single instance)
                     "mcp__brave-search__brave_web_search",
                     "mcp__brave-search__brave_local_search",
                     "mcp__brave-search__brave_video_search",
@@ -136,9 +123,10 @@ class AgentManager:
                     "mcp__time-mcp-server__get_datetime",
                     "mcp__time-mcp-server__convert_time",
                     "mcp__time-mcp-server__get_current_unix_timestamp",
-                    # Tavily search
-                    "mcp__tavily-remote-mcp__search",
-                    "mcp__tavily-remote-mcp__extract",
+                    # Tavily search - correct tool names
+                    "mcp__tavily-remote-mcp__tavily_search",
+                    "mcp__tavily-remote-mcp__tavily_extract",
+                    "mcp__tavily-remote-mcp__tavily_crawl",
                     # Built-in tools
                     "Task",
                     "TodoWrite",

@@ -666,9 +666,15 @@ mcp_chat:
 meetingMinutes:
   auto_generate: 自動生成
   bidirectional: 双方向翻訳
-  clear_minutes: 議事録をクリア
+  both_panel: 両方表示
+  clear_minutes: クリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
+  diagram_flowchart: フローチャート（会議の流れ）
+  diagram_mindmap: マインドマップ（決定事項）
+  diagram_options: 生成する図の種類
+  diagram_sequence: シーケンス図（関係性）
+  diagram_timeline: タイムライン（期限・スケジュール）
   frequency: 生成頻度
   frequency_10min: 10分ごと
   frequency_1min: 1分ごと
@@ -681,7 +687,10 @@ meetingMinutes:
   generating: 議事録生成中...
   generation_error: 議事録の生成に失敗しました。再試行してください。
   generation_frequency: 生成頻度
+  generation_panel: 議事録生成
   generation_success: 議事録が正常に生成されました
+  hide_prompt: ▼ プロンプトを非表示
+  input_source: 入力ソース
   language: 文字起こし言語
   language_1: 言語1
   language_2: 言語2
@@ -693,31 +702,38 @@ meetingMinutes:
   language_thai: タイ語
   language_vietnamese: ベトナム語
   last_generated: 最後の生成時刻 {{time}}
+  microphone: マイク
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: 議事録生成モデル
   new_recording_session: 新しい録音セッション
   next_generation: 次回生成
   next_generation_in: '次回生成まで : '
   no_transcript: 文字起こしがありません
+  option: オプション
   partial_indicator: (...)
   record_transcribe: 音声認識
   screen_audio_error: スクリーン音声エラー
+  settings: 設定
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
   style_detail: 詳細
+  style_diagram: 図解
   style_faq: 質疑応答
   style_newspaper: 新聞
   style_summary: 要約
   style_transcription: 文字起こし
+  style_whiteboard: ホワイトボード
   target_language: 翻訳言語
   title: 議事録生成
   transcript: 文字起こし
   transcription_language: 文字起こし言語
+  transcription_panel: 文字起こし
   translation_language: 翻訳言語
-  translation_model: リアルタイム翻訳モデル
+  translation_model: 翻訳モデル
   translation_type: 翻訳方式
   unidirectional: 片方向翻訳
+  view_prompt: ▶ プロンプトを表示
 model:
   parameters:
     reasoning_budget: 深く考えるトークン数上限
@@ -867,7 +883,7 @@ transcribe:
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
   screen_audio_error: スクリーン音声エラー
-  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。<br/>Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。<br/>Chrome と Edge は動作します。Firefox は動作しません。'
+  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。Chrome と Edge は動作します。Firefox は動作しません。'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
   speaker_recognition: 話者認識
@@ -886,7 +902,7 @@ translate:
   detectedLanguage: 検出言語
   enter_text: 入力してください
   realtimeTranslation: リアルタイム翻訳
-  realtime_translation: リアルタイム翻訳
+  realtime_translation: 翻訳
   result_placeholder: 翻訳結果がここに表示されます
   systemGeneratedContext: システム自動コンテキスト
   systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト

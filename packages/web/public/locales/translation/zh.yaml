@@ -467,7 +467,9 @@ meetingMinutes:
   generating: 正在生成会议纪要...
   generation_error: 会议纪要生成失败。请重试。
   generation_frequency: 生成频率
+  generation_panel: 生成会议纪要
   generation_success: 会议纪要生成成功
+  hide_prompt: ▼ 隐藏提示词
   language: 语音识别语言
   language_auto: 自动检测
   language_chinese: 中文
@@ -490,12 +492,16 @@ meetingMinutes:
   style: 会议纪要风格
   style_custom: 自定义
   style_detail: 详细
+  style_diagram: 图解
   style_faq: 常见问题
   style_newspaper: 新闻报道
   style_summary: 摘要
   style_transcription: 转录
+  style_whiteboard: 白板
   title: 会议纪要生成器
   transcript: 转录文本
+  transcription_panel: 转录文本
+  view_prompt: ▶ 查看提示词
 model:
   parameters:
     reasoning_budget: 推理预算
@@ -551,6 +557,18 @@ rag:
   please_refer: 请参考。
   retrieving: 正在从Kendra获取参考文档...
   title: RAG聊天
+research:
+  description: 使用网络搜索进行跨行业的各种研究任务，并创建详细的研究报告。
+  general_research: 一般调查
+  general_research_desc: 调查广泛领域的信息并提供综合分析
+  label: 研究
+  mini_research: 快速调查
+  mini_research_desc: 快速调查要点并提供简洁的答案
+  select_mode: 选择模式
+  start_conversation: 开始与研究代理对话
+  technical_research: 技术调查
+  technical_research_desc: 进行详细的技术调查和分析
+  title: 研究
 setting:
   ai_items:
     agent_name: Agent名称

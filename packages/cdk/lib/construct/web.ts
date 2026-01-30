@@ -257,9 +257,9 @@ export class Web extends Construct {
       destinationBucket: webBucket,
       distribution: distribution,
       outputSourceDirectory: './packages/web/dist',
-      buildCommands: ['npm ci', 'npm run web:build'], // Updated for Fargate research agent v2
+      buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
-        NODE_OPTIONS: '--max-old-space-size=4096', // Memory for CodeBuild at deployment (Fargate v2)
+        NODE_OPTIONS: '--max-old-space-size=4096',
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,

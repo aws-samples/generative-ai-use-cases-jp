@@ -607,6 +607,11 @@ const envs: Record<string, Partial<StackInput>> = {
 };
 ```
 
+**設定パラメータの説明**:
+
+- `researchAgentEnabled`: Web UIでリサーチエージェント機能を表示
+- `createResearchAgentCoreRuntime`: Bedrock AgentCore Runtimeを作成（通常は両方`true`）
+
 #### cdk.json での設定例
 
 ```json
