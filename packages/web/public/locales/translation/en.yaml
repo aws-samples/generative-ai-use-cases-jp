@@ -1153,6 +1153,8 @@ useCaseBuilder:
   error:
     duplicate_select_options: '{{select:{{label}}}} contains duplicate options.'
     empty_select_options: '{{select:{{label}}}} contains empty options.'
+    invalid_kb_filter: >-
+      Invalid filter syntax for {{retrieveKnowledgeBase{{label}}}}: {{error}}
     missing_kb_text_form: >-
       Please include a form {{text{{label}}}} in the prompt template to input
       the search query for Knowledge Base.
@@ -1168,6 +1170,7 @@ useCaseBuilder:
     rag_knowledge_base_not_enabled: >-
       {{retrieveKnowledgeBase}} is specified in the prompt template, but RAG
       Chat (Knowledge Base) is not enabled in GenU.
+    retrieve_knowledge_base_failed: Failed to retrieve from Knowledge Base.
   favorites: Favorites
   fileUploadDescription: Users can upload files for the LLM to reference the content.
   fileUploadDisabled: Disable file upload

@@ -29,7 +29,9 @@ import {
   getItemsFromPlaceholders,
   getTextFormItemsFromItems,
   getTextFormUniqueLabels,
+  validateKBFilter,
 } from '../../utils/UseCaseBuilderUtils';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import useRagKnowledgeBaseApi from '../../hooks/useRagKnowledgeBaseApi';
 import useRagApi from '../../hooks/useRagApi';
 import useFiles from '../../hooks/useFiles';
@@ -268,6 +270,19 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           })
         );
       }
+
+      // Validate filter syntax
+      if (item.options) {
+        const filterValidation = validateKBFilter(item.options);
+        if (!filterValidation.valid) {
+          tmpErrorMessages.push(
+            t('useCaseBuilder.error.invalid_kb_filter', {
+              label: item.label === NOLABEL ? '' : ':' + item.label,
+              error: filterValidation.error,
+            })
+          );
+        }
+      }
     }
 
     for (const item of selectItems) {
@@ -354,9 +369,29 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
           }
         } else if (item.inputType === 'retrieveKnowledgeBase') {
           if (ragKnowledgeBaseEnabled && values[item.label].length > 0) {
-            const res = await retrieveKnowledgeBase(values[item.label]);
-            const resJson = JSON.stringify(res.data.retrievalResults);
-            prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+            try {
+              // Get idToken for dynamic filters
+              const idToken = (
+                await fetchAuthSession()
+              ).tokens?.idToken?.toString();
+              const res = await retrieveKnowledgeBase(
+                values[item.label],
+                item.options, // Filter string
+                idToken
+              );
+              const resJson = JSON.stringify(res.data.retrievalResults);
+              prompt = prompt.replace(new RegExp(placeholder, 'g'), resJson);
+            } catch (e) {
+              const axiosError = e as {
+                response?: { data?: { error?: string } };
+              };
+              const errorMsg =
+                axiosError?.response?.data?.error ||
+                t('useCaseBuilder.error.retrieve_knowledge_base_failed');
+              setErrorMessages((prev) => [...prev, errorMsg]);
+              setLoading(false);
+              return;
+            }
           } else {
             prompt = prompt.replace(new RegExp(placeholder, 'g'), '');
           }
@@ -388,6 +423,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
     retrieveKnowledgeBase,
     setText,
     uploadedFiles,
+    t,
   ]);
 
   // Reset

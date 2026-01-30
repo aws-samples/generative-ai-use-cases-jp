@@ -37,12 +37,22 @@ export const getItemsFromPlaceholders = (
         let label: string;
         let options: string | undefined = undefined;
 
-        // Currently, only select allows options
+        // select and retrieveKnowledgeBase allow options
         if (inputType === 'select') {
           if (labels.length >= 2) {
             const [tmpLabel, ...tmpOptions] = labels;
             label = tmpLabel;
             options = tmpOptions.join(':');
+          } else {
+            label = labels[0] ?? NOLABEL;
+          }
+        } else if (inputType === 'retrieveKnowledgeBase') {
+          // retrieveKnowledgeBase supports filter as options
+          // Format: {{retrieveKnowledgeBase:label:filter}}
+          // e.g., {{retrieveKnowledgeBase:query:category=AWS,year>2020}}
+          if (labels.length >= 2) {
+            label = labels[0];
+            options = labels.slice(1).join(':'); // Filter part (may contain ':')
           } else {
             label = labels[0] ?? NOLABEL;
           }
@@ -82,4 +92,92 @@ export const getTextFormUniqueLabels = (items: BuilderItem[]): string[] => {
       return self.findIndex((e) => e.label === elem.label) === idx;
     })
     .map((item) => item.label);
+};
+
+// Supported operators for Knowledge Base filter
+// = : equals, != : notEquals, > : greaterThan, < : lessThan
+// >= : greaterThanOrEquals, <= : lessThanOrEquals
+// ~= : stringContains, ^= : startsWith
+// @ : in (values separated by |), !@ : notIn
+const KB_FILTER_OPERATORS = [
+  '>=',
+  '<=',
+  '!=',
+  '~=',
+  '^=',
+  '!@',
+  '=',
+  '>',
+  '<',
+  '@',
+] as const;
+
+export type KBFilterValidationResult = {
+  valid: boolean;
+  error?: string;
+};
+
+/**
+ * Validate Knowledge Base filter syntax (frontend pre-check)
+ * @param filterStr Filter string (e.g., "category=AWS,year>2020")
+ * @returns Validation result with error message if invalid
+ */
+export const validateKBFilter = (
+  filterStr: string | undefined
+): KBFilterValidationResult => {
+  if (!filterStr || filterStr.trim() === '') {
+    return { valid: true };
+  }
+
+  const conditions = filterStr.split(',');
+
+  for (const condition of conditions) {
+    const trimmed = condition.trim();
+    if (trimmed === '') {
+      return { valid: false, error: 'Empty condition found' };
+    }
+
+    // Find the operator
+    let foundOperator: string | undefined;
+    let operatorIndex = -1;
+
+    for (const op of KB_FILTER_OPERATORS) {
+      const idx = trimmed.indexOf(op);
+      if (idx > 0) {
+        foundOperator = op;
+        operatorIndex = idx;
+        break;
+      }
+    }
+
+    if (!foundOperator || operatorIndex <= 0) {
+      return {
+        valid: false,
+        error: `Invalid condition: '${trimmed}'. Expected format: key=value`,
+      };
+    }
+
+    const key = trimmed.substring(0, operatorIndex).trim();
+    const value = trimmed
+      .substring(operatorIndex + foundOperator.length)
+      .trim();
+
+    if (key === '') {
+      return { valid: false, error: `Empty key in condition: '${trimmed}'` };
+    }
+
+    if (value === '') {
+      return { valid: false, error: `Empty value in condition: '${trimmed}'` };
+    }
+
+    // For @ and !@ operators, values should be separated by |
+    if (
+      (foundOperator === '@' || foundOperator === '!@') &&
+      !value.includes('|')
+    ) {
+      // Single value is also allowed for in/notIn
+    }
+  }
+
+  return { valid: true };
 };

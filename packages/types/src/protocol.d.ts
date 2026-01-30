@@ -129,6 +129,8 @@ export type RetrieveKendraResponse = RetrieveCommandOutput;
 
 export type RetrieveKnowledgeBaseRequest = {
   query: string;
+  filter?: string; // Simple format filter (e.g., "category=AWS,year>2020")
+  idToken?: string; // For dynamic filters based on Cognito groups
 };
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;

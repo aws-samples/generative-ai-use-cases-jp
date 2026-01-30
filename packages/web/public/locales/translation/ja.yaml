@@ -948,6 +948,8 @@ useCaseBuilder:
   error:
     duplicate_select_options: '{{select:{{label}}}} に重複したオプションが含まれています。'
     empty_select_options: '{{select:{{label}}}} に空のオプションが含まれています。'
+    invalid_kb_filter: >-
+      {{retrieveKnowledgeBase{{label}}}} のフィルター構文が無効です: {{error}}
     missing_kb_text_form: >-
       Knowledge Base の検索クエリを入力するためのフォーム {{text{{label}}}}
       をプロンプテンプレートに内に記述してください。
@@ -959,6 +961,7 @@ useCaseBuilder:
     rag_knowledge_base_not_enabled: >-
       プロンプトテンプレート内で {{retrieveKnowledgeBase}} が指定されていますが GenU で RAG チャット
       (Knowledge Base) が有効になっていません。
+    retrieve_knowledge_base_failed: Knowledge Base からの検索に失敗しました。
   favorites: お気に入り
   fileUploadDescription: 添付可能なファイルはモデルによって異なります
   fileUploadDisabled: ファイルは添付できません
