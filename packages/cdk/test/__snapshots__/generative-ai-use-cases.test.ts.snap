@@ -21035,6 +21035,32 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
             },
             "MODEL_REGION": "us-east-1",
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "AuthUserPoolclientA74673A9",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+            "USER_POOL_PROXY_ENDPOINT": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
+                  },
+                  ".execute-api.us-east-1.",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  {
+                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
+                  },
+                  "/",
+                ],
+              ],
+            },
           },
         },
         "Handler": "index.handler",
@@ -42823,6 +42849,13 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
             },
             "MODEL_REGION": "us-east-1",
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "AuthUserPoolclientA74673A9",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+            "USER_POOL_PROXY_ENDPOINT": "",
           },
         },
         "Handler": "index.handler",
