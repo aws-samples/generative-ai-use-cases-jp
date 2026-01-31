@@ -606,6 +606,15 @@ summarize:
   result_placeholder: 요약된 텍스트가 여기에 표시됩니다
   text_to_summarize: 요약할 텍스트
   title: 요약
+svg:
+  download_as_png: PNG로 다운로드
+  download_as_svg: SVG로 다운로드
+  invalid_syntax: 잘못된 SVG 구문
+  png_error: 'PNG 출력 오류: '
+  preview_alt: SVG 미리보기
+  show_code: 코드 표시
+  show_preview: 미리보기 표시
+  svg_error: 'SVG 출력 오류: '
 transcribe:
   detailed_parameters: 세부 매개변수
   direct_input: 직접 입력

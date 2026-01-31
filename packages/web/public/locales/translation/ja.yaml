@@ -859,6 +859,15 @@ summarize:
   result_placeholder: 要約された文章がここに表示されます
   text_to_summarize: 要約したい文章
   title: 要約
+svg:
+  download_as_png: PNGとしてダウンロード
+  download_as_svg: SVGとしてダウンロード
+  invalid_syntax: 無効なSVG構文
+  png_error: 'PNG出力エラー: '
+  preview_alt: SVGプレビュー
+  show_code: コードを表示
+  show_preview: プレビューを表示
+  svg_error: 'SVG出力エラー: '
 transcribe:
   detailed_parameters: 詳細なパラメータ
   direct_input: 直接入力

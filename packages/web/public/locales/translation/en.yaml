@@ -1036,6 +1036,15 @@ summarize:
   result_placeholder: Summarized text will be displayed here
   text_to_summarize: Text to summarize
   title: Summarize
+svg:
+  download_as_png: Download as PNG
+  download_as_svg: Download as SVG
+  invalid_syntax: Invalid SVG syntax
+  png_error: 'PNG output error: '
+  preview_alt: SVG Preview
+  show_code: Show Code
+  show_preview: Show Preview
+  svg_error: 'SVG output error: '
 transcribe:
   detailed_parameters: Detailed parameters
   direct_input: Direct Input
