@@ -3,6 +3,5 @@ __pycache__/
 *$py.class
 .venv/
 .uv/
-uv.lock
 .env
 .env.local
