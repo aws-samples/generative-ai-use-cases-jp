@@ -72,6 +72,10 @@
     "agentCoreRegion": null,
     "agentCoreExternalRuntimes": [],
     "agentCoreGatewayArns": [],
+    "researchAgentEnabled": false,
+    "createResearchAgentCoreRuntime": false,
+    "researchAgentBraveApiKey": "",
+    "researchAgentTavilyApiKey": "",
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
     "allowedCountryCodes": null,
@@ -123,10 +127,6 @@
     "@aws-cdk/aws-kms:aliasNameRef": true,
     "@aws-cdk/aws-autoscaling:generateLaunchTemplateInsteadOfLaunchConfig": true,
     "@aws-cdk/core:includePrefixInUniqueNameGeneration": true,
-    "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true,
-    "researchAgentEnabled": false,
-    "createResearchAgentCoreRuntime": false,
-    "researchAgentBraveApiKey": "",
-    "researchAgentTavilyApiKey": ""
+    "@aws-cdk/aws-opensearchservice:enableOpensearchMultiAzWithStandby": true
   }
 }
