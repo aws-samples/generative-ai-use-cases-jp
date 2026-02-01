@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Auth,
@@ -89,6 +89,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       const agentRemoteOutputs = new RemoteOutputs(this, 'AgentRemoteOutputs', {
         stack: props.agentStack,
         alwaysUpdate: true,
+        timeout: Duration.seconds(600),
       });
       agentsJson = agentRemoteOutputs.get(REMOTE_OUTPUT_KEYS.AGENTS);
     }
@@ -104,6 +105,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
       const remoteOutputs = new RemoteOutputs(this, 'AgentCoreRemoteOutputs', {
         stack: props.agentCoreStack!,
+        timeout: Duration.seconds(600),
       });
 
       if (params.createGenericAgentCoreRuntime) {
@@ -128,6 +130,7 @@ export class GenerativeAiUseCasesStack extends Stack {
         'ResearchAgentCoreRemoteOutputs',
         {
           stack: props.researchAgentCoreStack!,
+          timeout: Duration.seconds(600),
         }
       );
 
