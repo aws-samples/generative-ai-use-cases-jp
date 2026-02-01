@@ -77,7 +77,6 @@ Brave の API キーが表示されます。このキーをコピーして安全
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY', // 取得した API キー
     researchAgentTavilyApiKey: '', // オプション
   },
@@ -86,8 +85,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 **設定パラメータの説明**:
 
-- `researchAgentEnabled`: Web UIでリサーチエージェント機能を表示
-- `createResearchAgentCoreRuntime`: Bedrock AgentCore Runtimeを作成（通常は両方`true`）
+- `researchAgentEnabled`: リサーチエージェント機能を有効化（Web UI表示 + Bedrock AgentCore Runtime作成）
 
 ### cdk.json を使用する場合
 
@@ -97,7 +95,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }

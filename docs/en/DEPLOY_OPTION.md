@@ -585,7 +585,6 @@ The Research Agent provides advanced research capabilities using web search and 
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
     researchAgentTavilyApiKey: '', // Optional
   },
@@ -598,7 +597,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }

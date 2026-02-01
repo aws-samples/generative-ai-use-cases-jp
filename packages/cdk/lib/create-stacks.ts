@@ -214,7 +214,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       : null;
 
   // Research Agent Core Runtime
-  const researchAgentCoreStack = params.createResearchAgentCoreRuntime
+  const researchAgentCoreStack = params.researchAgentEnabled
     ? new ResearchAgentCoreStack(app, `ResearchAgentCoreStack${params.env}`, {
         env: {
           account: params.account,
@@ -273,7 +273,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       agentBuilderEnabled: params.agentBuilderEnabled,
       agentCoreStack: agentCoreStack || undefined,
       // Research Agent Core
-      createResearchAgentCoreRuntime: params.createResearchAgentCoreRuntime,
+      researchAgentEnabled: params.researchAgentEnabled,
       researchAgentCoreStack: researchAgentCoreStack || undefined,
       // Video Generation
       videoBucketRegionMap,

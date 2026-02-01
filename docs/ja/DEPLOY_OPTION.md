@@ -600,7 +600,6 @@ const envs: Record<string, Partial<StackInput>> = {
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
     researchAgentTavilyApiKey: '', // オプション
   },
@@ -609,8 +608,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 **設定パラメータの説明**:
 
-- `researchAgentEnabled`: Web UIでリサーチエージェント機能を表示
-- `createResearchAgentCoreRuntime`: Bedrock AgentCore Runtimeを作成（通常は両方`true`）
+- `researchAgentEnabled`: リサーチエージェント機能を有効化（Web UI表示 + Bedrock AgentCore Runtime作成）
 
 #### cdk.json での設定例
 
@@ -618,7 +616,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }

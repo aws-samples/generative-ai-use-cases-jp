@@ -163,7 +163,6 @@ const baseStackInputSchema = z.object({
     .default([]),
   // Research Agent Core Runtime
   researchAgentEnabled: z.boolean().default(false),
-  createResearchAgentCoreRuntime: z.boolean().default(false),
   createResearchAgentFargate: z.boolean().default(false),
   researchAgentBraveApiKey: z.string().default(''),
   researchAgentTavilyApiKey: z.string().default(''),

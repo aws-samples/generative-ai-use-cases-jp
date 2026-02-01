@@ -77,7 +77,6 @@ Brave API 키가 표시됩니다. 이 키를 복사하여 안전하게 보관하
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY', // 획득한 API 키
     researchAgentTavilyApiKey: '', // 선택 사항
   },
@@ -92,7 +91,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }

@@ -22,7 +22,7 @@ export class ResearchAgentCoreStack extends Stack {
     const params = props.params;
 
     // Deploy Research AgentCore Runtime if enabled
-    if (params.createResearchAgentCoreRuntime) {
+    if (params.researchAgentEnabled) {
       this.researchAgentCore = new ResearchAgentCore(
         this,
         'ResearchAgentCore',

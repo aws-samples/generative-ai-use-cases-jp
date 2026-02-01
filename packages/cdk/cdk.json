@@ -73,7 +73,6 @@
     "agentCoreExternalRuntimes": [],
     "agentCoreGatewayArns": [],
     "researchAgentEnabled": false,
-    "createResearchAgentCoreRuntime": false,
     "researchAgentBraveApiKey": "",
     "researchAgentTavilyApiKey": "",
     "allowedIpV4AddressRanges": null,

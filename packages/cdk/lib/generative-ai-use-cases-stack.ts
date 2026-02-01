@@ -46,7 +46,7 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly agentBuilderEnabled?: boolean;
   readonly agentCoreStack?: AgentCoreStack;
   // Research Agent Core
-  readonly createResearchAgentCoreRuntime?: boolean;
+  readonly researchAgentEnabled?: boolean;
   readonly researchAgentCoreStack?: ResearchAgentCoreStack;
   // Video Generation
   readonly videoBucketRegionMap: Record<string, string>;
@@ -122,7 +122,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     }
 
     // Get runtime info from remote Research AgentCore stack
-    if (params.createResearchAgentCoreRuntime) {
+    if (params.researchAgentEnabled) {
       const researchRemoteOutputs = new RemoteOutputs(
         this,
         'ResearchAgentCoreRemoteOutputs',

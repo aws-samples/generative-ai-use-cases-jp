@@ -77,7 +77,6 @@ Edit `packages/cdk/parameter.ts`:
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY', // Obtained API key
     researchAgentTavilyApiKey: '', // Optional
   },
@@ -92,7 +91,6 @@ Edit `packages/cdk/cdk.json`:
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }

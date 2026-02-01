@@ -586,7 +586,6 @@ const envs: Record<string, Partial<StackInput>> = {
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     researchAgentEnabled: true,
-    createResearchAgentCoreRuntime: true,
     researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
     researchAgentTavilyApiKey: '', // 선택 사항
   },
@@ -599,7 +598,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "researchAgentEnabled": true,
-    "createResearchAgentCoreRuntime": true,
     "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
     "researchAgentTavilyApiKey": ""
   }
