@@ -62,8 +62,6 @@ export interface WebProps {
   readonly mcpEndpoint: string | null;
   readonly mcpServersConfig?: string;
   readonly webBucket?: s3.Bucket;
-  readonly cognitoUserPoolProxyEndpoint?: string;
-  readonly cognitoIdentityPoolProxyEndpoint?: string;
   readonly agentCoreEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
   readonly agentBuilderEnabled: boolean;
@@ -298,10 +296,6 @@ export class Web extends Construct {
         VITE_APP_MCP_ENABLED: props.mcpEnabled.toString(),
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
         VITE_APP_MCP_SERVERS_CONFIG: props.mcpServersConfig ?? '',
-        VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT:
-          props.cognitoUserPoolProxyEndpoint ?? '',
-        VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT:
-          props.cognitoIdentityPoolProxyEndpoint ?? '',
         VITE_APP_AGENT_CORE_ENABLED: props.agentCoreEnabled.toString(),
         VITE_APP_AGENT_CORE_GENERIC_RUNTIME: JSON.stringify(
           props.agentCoreGenericRuntime

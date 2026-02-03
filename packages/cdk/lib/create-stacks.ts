@@ -290,10 +290,6 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       vpc: closedNetworkStack?.vpc,
       apiGatewayVpcEndpoint: closedNetworkStack?.apiGatewayVpcEndpoint,
       webBucket: closedNetworkStack?.webBucket,
-      cognitoUserPoolProxyEndpoint:
-        closedNetworkStack?.cognitoUserPoolProxyApi?.url ?? '',
-      cognitoIdentityPoolProxyEndpoint:
-        closedNetworkStack?.cognitoIdPoolProxyApi?.url ?? '',
     }
   );
 

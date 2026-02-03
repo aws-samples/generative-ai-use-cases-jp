@@ -4,7 +4,8 @@
 また、GenU のメインのコンピューティングリソースである AWS Lambda と他の AWS サービス (Amazon DynamoDB や Amazon S3、Amazon Bedrock など) 間の通信も VPC 内で完結します。アーキテクチャ上の変更点は以下です。
 
 - Amazon CloudFront は利用せず、Web の静的ファイルは Application Load Balancer と ECS Fargate でサーブします。
-- Amazon Cognito へは Amazon API Gateway を経由してアクセスします。
+- Amazon Cognito へは VPC Endpoint (PrivateLink) 経由でアクセスします。
+- Amazon S3 の署名付き URL へのアクセスも VPC Endpoint (Interface Endpoint) 経由で行います。
 - Lambda 関数から他サービスへの通信は VPC Endpoint 経由で行います。
 
 閉域モードに関するオプションは `closedNetwork` プレフィックスがついています。以下がオプション一覧です。
@@ -142,17 +143,18 @@ Certificate body には ssl.crt の中身、Certificate private key には ssl.k
 
 クライアントから名前解決が必要なエンドポイントは以下の通りです。`<>` で囲まれた箇所は実際の値に置き換えが必要です。
 
-| サービス名                  | 役割                           | エンドポイント                                              | エンドポイントの確認方法                                                                 |
-| --------------------------- | ------------------------------ | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Application Load Balancer   | Web 静的ファイルのサーバー     | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | ClosedNetworkStack の出力の WebUrl で確認                                                |
-| API Gateway                 | メインの API                   | \<xxx>.execute-api.\<region>.amazonaws.com                  | **GenerativeAiUseCasesStack** の出力の ApiEndpoint で確認                                |
-| API Gateway                 | Cognito User Pool の proxy     | \<yyy>.execute-api.\<region>.amazonaws.com                  | ClosedNetworkStack の出力の CognitoPrivateProxyCognitoUserPoolProxyApiEndpoint... で確認 |
-| API Gateway                 | Cognito Identity Pool の proxy | \<zzz>.execute-api.\<region>.amazonaws.com                  | ClosedNetworkStack の出力の CognitoPrivateProxyCognitoIdPoolProxyApiEndpoint... で確認   |
-| AWS Lambda                  | ストリーミング出力             | lambda.\<region>.amazonaws.com                              | エンドポイントは固定                                                                     |
-| Amazon Transcribe           | 文字起こし                     | transcribe.\<region>.amazonaws.com                          | エンドポイントは固定                                                                     |
-| Amazon Transcribe Streaming | リアルタイム文字起こし         | transcribestreaming.\<region>.amazonaws.com                 | エンドポイントは固定                                                                     |
-| Amazon Polly                | 文字の読み上げ                 | polly.\<region>.amazonaws.com                               | エンドポイントは固定                                                                     |
-| Bedrock AgentCore Runtime   | AgentCore Runtime の実行       | bedrock-agentcore.\<region>.amazonaws.com                   | エンドポイントは固定                                                                     |
+| サービス名                  | 役割                       | エンドポイント                                              | エンドポイントの確認方法                                  |
+| --------------------------- | -------------------------- | ----------------------------------------------------------- | --------------------------------------------------------- |
+| Application Load Balancer   | Web 静的ファイルのサーバー | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | ClosedNetworkStack の出力の WebUrl で確認                 |
+| API Gateway                 | メインの API               | \<xxx>.execute-api.\<region>.amazonaws.com                  | **GenerativeAiUseCasesStack** の出力の ApiEndpoint で確認 |
+| Cognito User Pool           | 認証                       | cognito-idp.\<region>.amazonaws.com                         | エンドポイントは固定                                      |
+| Cognito Identity Pool       | 一時認証情報の取得         | cognito-identity.\<region>.amazonaws.com                    | エンドポイントは固定                                      |
+| Amazon S3                   | 署名付き URL               | s3.\<region>.amazonaws.com                                  | エンドポイントは固定                                      |
+| AWS Lambda                  | ストリーミング出力         | lambda.\<region>.amazonaws.com                              | エンドポイントは固定                                      |
+| Amazon Transcribe           | 文字起こし                 | transcribe.\<region>.amazonaws.com                          | エンドポイントは固定                                      |
+| Amazon Transcribe Streaming | リアルタイム文字起こし     | transcribestreaming.\<region>.amazonaws.com                 | エンドポイントは固定                                      |
+| Amazon Polly                | 文字の読み上げ             | polly.\<region>.amazonaws.com                               | エンドポイントは固定                                      |
+| Bedrock AgentCore Runtime   | AgentCore Runtime の実行   | bedrock-agentcore.\<region>.amazonaws.com                   | エンドポイントは固定                                      |
 
 上の表のすべてのエンドポイントのリゾルバー (フォワーダー) として Resolver Endpoint の IP アドレスを指定するように DNS サーバーの設定を変更してください。
 Resolver Endpoint の IP アドレスは、[Route53](https://console.aws.amazon.com/route53resolver) を開き、Inbound endpoints を選択して、作成したエンドポイントをクリックすることで確認できます。
@@ -166,17 +168,18 @@ Resolver Endpoint の IP アドレスは、[Route53](https://console.aws.amazon.
 ただし、それらの IP アドレスは変更される可能性があり、かつ単一の IP アドレスしか指定できず冗長性もないため、あくまで動作検証にのみ利用してください。
 設定が必要なエンドポイントと IP アドレスの確認方法を以下にまとめます。
 
-| サービス名                  | 役割                           | エンドポイント                                              | IP アドレスの確認方法 |
-| --------------------------- | ------------------------------ | ----------------------------------------------------------- | --------------------- |
-| Application Load Balancer   | Web 静的ファイルのサーバー     | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | 方法1                 |
-| API Gateway                 | メインの API                   | \<xxx>.execute-api.\<region>.amazonaws.com                  | 方法2                 |
-| API Gateway                 | Cognito User Pool の proxy     | \<yyy>.execute-api.\<region>.amazonaws.com                  | 方法2                 |
-| API Gateway                 | Cognito Identity Pool の proxy | \<zzz>.execute-api.\<region>.amazonaws.com                  | 方法2                 |
-| AWS Lambda                  | ストリーミング出力             | lambda.\<region>.amazonaws.com                              | 方法2                 |
-| Amazon Transcribe           | 文字起こし                     | transcribe.\<region>.amazonaws.com                          | 方法2                 |
-| Amazon Transcribe Streaming | リアルタイム文字起こし         | transcribestreaming.\<region>.amazonaws.com                 | 方法2                 |
-| Amazon Polly                | 文字の読み上げ                 | polly.\<region>.amazonaws.com                               | 方法2                 |
-| Bedrock AgentCore Runtime   | AgentCore Runtime の実行       | bedrock-agentcore.\<region>.amazonaws.com                   | 方法2                 |
+| サービス名                  | 役割                       | エンドポイント                                              | IP アドレスの確認方法 |
+| --------------------------- | -------------------------- | ----------------------------------------------------------- | --------------------- |
+| Application Load Balancer   | Web 静的ファイルのサーバー | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | 方法1                 |
+| API Gateway                 | メインの API               | \<xxx>.execute-api.\<region>.amazonaws.com                  | 方法2                 |
+| Cognito User Pool           | 認証                       | cognito-idp.\<region>.amazonaws.com                         | 方法2                 |
+| Cognito Identity Pool       | 一時認証情報の取得         | cognito-identity.\<region>.amazonaws.com                    | 方法2                 |
+| Amazon S3                   | 署名付き URL               | s3.\<region>.amazonaws.com                                  | 方法2                 |
+| AWS Lambda                  | ストリーミング出力         | lambda.\<region>.amazonaws.com                              | 方法2                 |
+| Amazon Transcribe           | 文字起こし                 | transcribe.\<region>.amazonaws.com                          | 方法2                 |
+| Amazon Transcribe Streaming | リアルタイム文字起こし     | transcribestreaming.\<region>.amazonaws.com                 | 方法2                 |
+| Amazon Polly                | 文字の読み上げ             | polly.\<region>.amazonaws.com                               | 方法2                 |
+| Bedrock AgentCore Runtime   | AgentCore Runtime の実行   | bedrock-agentcore.\<region>.amazonaws.com                   | 方法2                 |
 
 - 方法1: [EC2](https://console.aws.amazon.com/ec2/home) の Network Interfaces を開き、「elb」と検索してください。Security group names が ClosedNetworkStack... となっているものが対象の ENI です。Network interface ID をクリックすると Private IPv4 address が確認できます。複数あるため、そのうち 1 つを選択してください。
 - 方法2: [VPC](https://console.aws.amazon.com/vpcconsole/home) の Endpoints を開き、該当するサービス名を探してください。サービス名はエンドポイントを反転させたものです。(ただし API Gateway は ID を省略したものです。) VPC endpoint ID をクリックすると、ページ下部にデプロイされた Subnet と IP アドレスが表示されています。複数あるため、そのうち 1 つを選択してください。

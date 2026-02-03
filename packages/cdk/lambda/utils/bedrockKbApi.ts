@@ -139,6 +139,33 @@ const bedrockKbApi: ApiInterface = {
       // Get explicit filters (async since it may require idToken verification)
       const explicitFilters = await getExplicitFilters(messages, idToken);
 
+      // Extract system context from messages
+      const systemMessage = messages.find((msg) => msg.role === 'system');
+      const userSystemContext = systemMessage?.content || '';
+
+      // Citation suffix (required for RAG to work properly)
+      const citationSuffix = `
+
+The current time is $current_time$.
+
+Here are the search results in numbered order:
+$search_results$
+
+$output_format_instructions$`;
+
+      // Build generation configuration with prompt template
+      const generationConfiguration = userSystemContext
+        ? {
+            promptTemplate: {
+              textPromptTemplate:
+                userSystemContext
+                  .replace(/\$search_results\$/g, '')
+                  .replace(/\$output_format_instructions\$/g, '')
+                  .trim() + citationSuffix,
+            },
+          }
+        : undefined;
+
       // Invoke
       const command = new RetrieveAndGenerateStreamCommand({
         input: {
@@ -150,6 +177,7 @@ const bedrockKbApi: ApiInterface = {
           knowledgeBaseConfiguration: {
             knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
             modelArn: model.modelId,
+            generationConfiguration,
             retrievalConfiguration: {
               vectorSearchConfiguration: {
                 // Filter
@@ -169,6 +197,7 @@ const bedrockKbApi: ApiInterface = {
       const client = await initBedrockAgentRuntimeClient({
         region: MODEL_REGION,
       });
+
       const res = await client.send(command);
 
       if (res.sessionId) {
@@ -204,10 +233,12 @@ const bedrockKbApi: ApiInterface = {
           });
           currentPosition = newPosition;
         } else if (streamChunk.citation?.citation) {
+          const citation = streamChunk.citation.citation;
+
           // Move the buffer to the Citation end
           const newPosition =
-            (streamChunk.citation.citation.generatedResponsePart
-              ?.textResponsePart?.span?.end || 0) + 1;
+            (citation.generatedResponsePart?.textResponsePart?.span?.end || 0) +
+            1;
           if (newPosition <= buffer.length) {
             yield streamingChunk({
               text: buffer.slice(currentPosition, newPosition),
@@ -216,8 +247,7 @@ const bedrockKbApi: ApiInterface = {
           }
 
           // Insert Reference
-          for (const ref of streamChunk.citation.citation.retrievedReferences ||
-            []) {
+          for (const ref of citation.retrievedReferences || []) {
             // Get S3 URI and convert to URL
             const s3Uri = ref?.location?.s3Location?.uri || '';
             if (!s3Uri) continue;

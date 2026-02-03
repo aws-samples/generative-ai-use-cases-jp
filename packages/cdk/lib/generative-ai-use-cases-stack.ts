@@ -63,8 +63,6 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
-  readonly cognitoUserPoolProxyEndpoint?: string;
-  readonly cognitoIdentityPoolProxyEndpoint?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -200,7 +198,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       vpc: props.vpc,
       securityGroups,
       apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
-      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
     });
 
     // WAF
@@ -347,8 +344,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: params.hostedZoneId,
       // Closed network
       webBucket: props.webBucket,
-      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
-      cognitoIdentityPoolProxyEndpoint: props.cognitoIdentityPoolProxyEndpoint,
       // Branding
       brandingConfig: params.brandingConfig,
     });
@@ -446,7 +441,6 @@ export class GenerativeAiUseCasesStack extends Stack {
         agentBuilderRuntimeArn,
         useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
         useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
-        cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
       });
     }
 

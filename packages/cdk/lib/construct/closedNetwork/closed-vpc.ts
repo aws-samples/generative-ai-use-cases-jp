@@ -10,6 +10,11 @@ const VPC_ENDPOINTS: Record<string, ec2.InterfaceVpcEndpointAwsService> = {
   TranscribeStreaming: ec2.InterfaceVpcEndpointAwsService.TRANSCRIBE_STREAMING,
   Polly: ec2.InterfaceVpcEndpointAwsService.POLLY,
   AgentCore: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENTCORE,
+  // Cognito VPC Endpoints (Private Link)
+  CognitoIdp: ec2.InterfaceVpcEndpointAwsService.COGNITO_IDP,
+  CognitoIdentity: new ec2.InterfaceVpcEndpointAwsService('cognito-identity'),
+  // S3 Interface Endpoint (for presigned URL access from frontend)
+  S3: ec2.InterfaceVpcEndpointAwsService.S3,
   // VPC Endpoints required by app side
   Bedrock: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
   BedrockAgent: ec2.InterfaceVpcEndpointAwsService.BEDROCK_AGENT_RUNTIME,
