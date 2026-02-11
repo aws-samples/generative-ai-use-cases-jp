@@ -21,7 +21,7 @@
     "ci:test": "run-s \" test --ci --reporters=\"default\" --reporters=\"github-actions\" \""
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.6",
+    "@aws-amplify/ui-react": "^6.14.0",
     "@aws-sdk/client-cognito-identity": "^3.540.0",
     "@aws-sdk/client-lambda": "^3.540.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.540.0",
