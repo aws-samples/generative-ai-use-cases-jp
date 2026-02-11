@@ -169,6 +169,7 @@ const App: React.FC = () => {
           to: '/research',
           icon: <PiMagnifyingGlass />,
           display: 'usecase' as const,
+          sub: 'Experimental',
         }
       : null,
     flowChatEnabled
