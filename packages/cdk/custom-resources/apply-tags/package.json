@@ -1,6 +1,6 @@
 {
   "private": true,
   "dependencies": {
-    "@aws-sdk/client-opensearchserverless": "^3.840.0"
+    "@aws-sdk/client-opensearchserverless": "^3.981.0"
   }
 }
