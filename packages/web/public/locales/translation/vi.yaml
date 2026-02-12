@@ -582,7 +582,16 @@ meetingMinutes:
   next_generation_in: 'Tạo tiếp theo trong : '
   no_transcript: Không có bản chuyển đổi
   partial_indicator: (...)
+  prompt_title_placeholder: Nhập tên cho lời nhắc này...
   record_transcribe: Ghi âm và chuyển đổi
+  save_as_prompt: Lưu làm lời nhắc tùy chỉnh
+  saved_prompt_body: Nội dung lời nhắc
+  saved_prompt_created: Đã lưu lời nhắc tùy chỉnh
+  saved_prompt_delete_confirm: Xóa lời nhắc này?
+  saved_prompt_deleted: Đã xóa lời nhắc tùy chỉnh
+  saved_prompt_prefix: ★
+  saved_prompt_title: Tiêu đề lời nhắc
+  saved_prompt_updated: Đã cập nhật lời nhắc tùy chỉnh
   screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản

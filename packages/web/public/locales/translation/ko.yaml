@@ -448,7 +448,16 @@ meetingMinutes:
   next_generation_in: '다음 생성까지: '
   no_transcript: 전사 없음
   partial_indicator: (...)
+  prompt_title_placeholder: 프롬프트 이름을 입력하세요...
   record_transcribe: 녹음 및 전사
+  save_as_prompt: 사용자 정의 프롬프트로 저장
+  saved_prompt_body: 프롬프트 내용
+  saved_prompt_created: 사용자 정의 프롬프트가 저장되었습니다
+  saved_prompt_delete_confirm: 이 프롬프트를 삭제하시겠습니까?
+  saved_prompt_deleted: 사용자 정의 프롬프트가 삭제되었습니다
+  saved_prompt_prefix: ★
+  saved_prompt_title: 프롬프트 제목
+  saved_prompt_updated: 사용자 정의 프롬프트가 업데이트되었습니다
   screen_audio_error: 화면 오디오 오류
   speech_recognition: 음성 인식
   style: 회의록 스타일

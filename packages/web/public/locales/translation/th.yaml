@@ -598,7 +598,16 @@ meetingMinutes:
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   no_transcript: ไม่มีบันทึกการถอดความ
   partial_indicator: (...)
+  prompt_title_placeholder: ป้อนชื่อสำหรับพรอมต์นี้...
   record_transcribe: บันทึกและถอดความ
+  save_as_prompt: บันทึกเป็นพรอมต์แบบกำหนดเอง
+  saved_prompt_body: เนื้อหาพรอมต์
+  saved_prompt_created: บันทึกพรอมต์แบบกำหนดเองแล้ว
+  saved_prompt_delete_confirm: ลบพรอมต์นี้หรือไม่?
+  saved_prompt_deleted: ลบพรอมต์แบบกำหนดเองแล้ว
+  saved_prompt_prefix: ★
+  saved_prompt_title: ชื่อพรอมต์
+  saved_prompt_updated: อัปเดตพรอมต์แบบกำหนดเองแล้ว
   screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   speech_recognition: การรู้จำเสียงพูด
   style: รูปแบบรายงานการประชุม

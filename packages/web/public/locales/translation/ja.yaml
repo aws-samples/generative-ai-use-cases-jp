@@ -711,7 +711,16 @@ meetingMinutes:
   no_transcript: 文字起こしがありません
   option: オプション
   partial_indicator: (...)
+  prompt_title_placeholder: プロンプトの名前を入力してください...
   record_transcribe: 音声認識
+  save_as_prompt: カスタムプロンプトとして保存
+  saved_prompt_body: プロンプト内容
+  saved_prompt_created: カスタムプロンプトを保存しました
+  saved_prompt_delete_confirm: このプロンプトを削除しますか？
+  saved_prompt_deleted: カスタムプロンプトを削除しました
+  saved_prompt_prefix: ★
+  saved_prompt_title: プロンプトタイトル
+  saved_prompt_updated: カスタムプロンプトを更新しました
   screen_audio_error: スクリーン音声エラー
   settings: 設定
   speech_recognition: 音声認識

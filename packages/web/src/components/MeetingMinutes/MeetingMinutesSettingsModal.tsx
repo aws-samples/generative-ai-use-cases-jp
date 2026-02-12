@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiAbacus } from 'react-icons/bi';
 import { FaTimeline } from 'react-icons/fa6';
@@ -11,6 +11,8 @@ import Select from '../Select';
 import Switch from '../Switch';
 import Textarea from '../Textarea';
 import { MeetingMinutesParams, DiagramOption } from '../../prompts';
+import { MinutesCustomPrompt } from 'generative-ai-use-cases';
+import { decomposeId } from '../../utils/ChatUtils';
 import { IconType } from 'react-icons';
 
 interface DiagramOptionInfo {
@@ -107,6 +109,11 @@ interface MeetingMinutesSettingsModalProps {
     customPrompt?: string,
     diagramOptions?: DiagramOption[]
   ) => string;
+  // Saved custom prompts
+  savedPrompts: MinutesCustomPrompt[] | undefined;
+  onCreatePrompt: (title: string, body: string) => Promise<void>;
+  onUpdatePrompt: (id: string, title: string, body: string) => Promise<void>;
+  onDeletePrompt: (id: string) => Promise<void>;
 }
 
 const MeetingMinutesSettingsModal: React.FC<
@@ -129,8 +136,141 @@ const MeetingMinutesSettingsModal: React.FC<
   generationFrequency,
   setGenerationFrequency,
   getSystemPrompt,
+  savedPrompts,
+  onCreatePrompt,
+  onUpdatePrompt,
+  onDeletePrompt,
 }) => {
   const { t } = useTranslation();
+
+  // Save prompt UI state
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveTitle, setSaveTitle] = useState('');
+  const [isSaveLoading, setIsSaveLoading] = useState(false);
+
+  // Edit saved prompt UI state
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Find the currently selected saved prompt
+  const selectedSavedPrompt = useMemo(() => {
+    if (!minutesStyle.startsWith('savedPrompt:') || !savedPrompts) {
+      return null;
+    }
+    const promptId = minutesStyle.replace('savedPrompt:', '');
+    return (
+      savedPrompts.find((p) => {
+        const decomposed = decomposeId(p.minutesCustomPromptId);
+        return decomposed === promptId;
+      }) || null
+    );
+  }, [minutesStyle, savedPrompts]);
+
+  // Initialize edit fields when a saved prompt is selected
+  useEffect(() => {
+    if (selectedSavedPrompt) {
+      setEditTitle(selectedSavedPrompt.minutesCustomPromptTitle);
+      setEditBody(selectedSavedPrompt.minutesCustomPromptBody);
+    }
+    setShowDeleteConfirm(false);
+  }, [selectedSavedPrompt]);
+
+  // Reset save form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsSaving(false);
+      setSaveTitle('');
+      setShowDeleteConfirm(false);
+    }
+  }, [isOpen]);
+
+  // Build style options including saved prompts
+  const styleOptions = useMemo(() => {
+    const builtinOptions = [
+      {
+        value: 'summary',
+        label: t('meetingMinutes.style_summary'),
+      },
+      {
+        value: 'detail',
+        label: t('meetingMinutes.style_detail'),
+      },
+      {
+        value: 'faq',
+        label: t('meetingMinutes.style_faq'),
+      },
+      {
+        value: 'transcription',
+        label: t('meetingMinutes.style_transcription'),
+      },
+      {
+        value: 'diagram',
+        label: t('meetingMinutes.style_diagram'),
+      },
+      {
+        value: 'whiteboard',
+        label: t('meetingMinutes.style_whiteboard'),
+      },
+      {
+        value: 'newspaper',
+        label: t('meetingMinutes.style_newspaper'),
+      },
+      {
+        value: 'custom',
+        label: t('meetingMinutes.style_custom'),
+      },
+    ];
+
+    const savedOptions = (savedPrompts || []).map((p) => ({
+      value: `savedPrompt:${decomposeId(p.minutesCustomPromptId)}`,
+      label: `${t('meetingMinutes.saved_prompt_prefix')} ${p.minutesCustomPromptTitle}`,
+    }));
+
+    return [...builtinOptions, ...savedOptions];
+  }, [savedPrompts, t]);
+
+  const handleSave = async () => {
+    if (!saveTitle.trim() || !customPrompt.trim()) return;
+    setIsSaveLoading(true);
+    try {
+      await onCreatePrompt(saveTitle.trim(), customPrompt.trim());
+      setIsSaving(false);
+      setSaveTitle('');
+    } finally {
+      setIsSaveLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedSavedPrompt || !editTitle.trim() || !editBody.trim()) return;
+    setIsUpdateLoading(true);
+    try {
+      await onUpdatePrompt(
+        selectedSavedPrompt.minutesCustomPromptId,
+        editTitle.trim(),
+        editBody.trim()
+      );
+    } finally {
+      setIsUpdateLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedSavedPrompt) return;
+    setIsDeleteLoading(true);
+    try {
+      await onDeletePrompt(selectedSavedPrompt.minutesCustomPromptId);
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleteLoading(false);
+    }
+  };
+
+  const isSavedPromptSelected = minutesStyle.startsWith('savedPrompt:');
+  const isBuiltinStyle = !isSavedPromptSelected && minutesStyle !== 'custom';
 
   return (
     <ModalDialog
@@ -150,40 +290,7 @@ const MeetingMinutesSettingsModal: React.FC<
               onChange={(value) =>
                 setMinutesStyle(value as MeetingMinutesParams['style'])
               }
-              options={[
-                {
-                  value: 'summary',
-                  label: t('meetingMinutes.style_summary'),
-                },
-                {
-                  value: 'detail',
-                  label: t('meetingMinutes.style_detail'),
-                },
-                {
-                  value: 'faq',
-                  label: t('meetingMinutes.style_faq'),
-                },
-                {
-                  value: 'transcription',
-                  label: t('meetingMinutes.style_transcription'),
-                },
-                {
-                  value: 'diagram',
-                  label: t('meetingMinutes.style_diagram'),
-                },
-                {
-                  value: 'whiteboard',
-                  label: t('meetingMinutes.style_whiteboard'),
-                },
-                {
-                  value: 'newspaper',
-                  label: t('meetingMinutes.style_newspaper'),
-                },
-                {
-                  value: 'custom',
-                  label: t('meetingMinutes.style_custom'),
-                },
-              ]}
+              options={styleOptions}
             />
           </div>
 
@@ -203,8 +310,8 @@ const MeetingMinutesSettingsModal: React.FC<
           </div>
         </div>
 
-        {/* System prompt preview (when style is not 'custom') */}
-        {minutesStyle !== 'custom' && (
+        {/* System prompt preview (when style is a built-in type) */}
+        {isBuiltinStyle && (
           <div className="mt-2">
             <details className="group">
               <summary className="cursor-pointer list-none text-xs text-gray-500 hover:text-gray-700">
@@ -236,6 +343,107 @@ const MeetingMinutesSettingsModal: React.FC<
               onChange={setCustomPrompt}
               maxHeight={120}
             />
+            {/* Save as prompt button */}
+            {customPrompt.trim() !== '' && (
+              <div className="mt-2">
+                {!isSaving ? (
+                  <Button
+                    outlined
+                    onClick={() => setIsSaving(true)}
+                    className="text-sm">
+                    {t('meetingMinutes.save_as_prompt')}
+                  </Button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={saveTitle}
+                      onChange={(e) => setSaveTitle(e.target.value)}
+                      placeholder={t('meetingMinutes.prompt_title_placeholder')}
+                      className="flex-1 rounded border border-black/30 px-2 py-1 text-sm"
+                    />
+                    <Button
+                      onClick={handleSave}
+                      disabled={!saveTitle.trim()}
+                      loading={isSaveLoading}
+                      className="text-sm">
+                      {t('common.save')}
+                    </Button>
+                    <Button
+                      outlined
+                      onClick={() => {
+                        setIsSaving(false);
+                        setSaveTitle('');
+                      }}
+                      className="text-sm">
+                      {t('common.cancel')}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Saved prompt editing (when a saved prompt is selected) */}
+        {isSavedPromptSelected && selectedSavedPrompt && (
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-sm font-bold">
+                {t('meetingMinutes.saved_prompt_title')}
+              </label>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="w-full rounded border border-black/30 px-2 py-1 text-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-bold">
+                {t('meetingMinutes.saved_prompt_body')}
+              </label>
+              <Textarea
+                value={editBody}
+                onChange={setEditBody}
+                maxHeight={120}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleUpdate}
+                disabled={!editTitle.trim() || !editBody.trim()}
+                loading={isUpdateLoading}
+                className="text-sm">
+                {t('common.save')}
+              </Button>
+              {!showDeleteConfirm ? (
+                <Button
+                  outlined
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-sm">
+                  {t('common.delete')}
+                </Button>
+              ) : (
+                <>
+                  <span className="flex items-center text-sm text-red-600">
+                    {t('meetingMinutes.saved_prompt_delete_confirm')}
+                  </span>
+                  <Button
+                    onClick={handleDelete}
+                    loading={isDeleteLoading}
+                    className="text-sm">
+                    {t('common.delete')}
+                  </Button>
+                  <Button
+                    outlined
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="text-sm">
+                    {t('common.cancel')}
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
 

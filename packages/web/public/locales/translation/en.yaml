@@ -865,7 +865,16 @@ meetingMinutes:
   no_transcript: No Transcript
   option: Option
   partial_indicator: (...)
+  prompt_title_placeholder: Enter a name for this prompt...
   record_transcribe: Record & Transcribe
+  save_as_prompt: Save as Custom Prompt
+  saved_prompt_body: Prompt Content
+  saved_prompt_created: Custom prompt saved
+  saved_prompt_delete_confirm: Delete this prompt?
+  saved_prompt_deleted: Custom prompt deleted
+  saved_prompt_prefix: ★
+  saved_prompt_title: Prompt Title
+  saved_prompt_updated: Custom prompt updated
   screen_audio_error: Screen Audio Error
   settings: Settings
   speech_recognition: Speech Recognition

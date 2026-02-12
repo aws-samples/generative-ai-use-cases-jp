@@ -5,6 +5,7 @@ import {
   ShareId,
   UserIdAndChatId,
   SystemContext,
+  MinutesCustomPrompt,
   UpdateFeedbackRequest,
   ListChatsResponse,
   TokenUsageStats,
@@ -521,6 +522,129 @@ export const deleteSystemContext = async (
       Key: {
         id: systemContext?.id,
         createdDate: systemContext?.createdDate,
+      },
+    })
+  );
+};
+
+export const findMinutesCustomPromptById = async (
+  _userId: string,
+  _minutesCustomPromptId: string
+): Promise<MinutesCustomPrompt | null> => {
+  const userId = `minutesCustomPrompt#${_userId}`;
+  const minutesCustomPromptId = `minutesCustomPrompt#${_minutesCustomPromptId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      FilterExpression: '#minutesCustomPromptId = :minutesCustomPromptId',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+        '#minutesCustomPromptId': 'minutesCustomPromptId',
+      },
+      ExpressionAttributeValues: {
+        ':id': userId,
+        ':minutesCustomPromptId': minutesCustomPromptId,
+      },
+    })
+  );
+
+  if (!res.Items || res.Items.length === 0) {
+    return null;
+  } else {
+    return res.Items[0] as MinutesCustomPrompt;
+  }
+};
+
+export const listMinutesCustomPrompts = async (
+  _userId: string
+): Promise<MinutesCustomPrompt[]> => {
+  const userId = `minutesCustomPrompt#${_userId}`;
+  const res = await dynamoDbDocument.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      KeyConditionExpression: '#id = :id',
+      ExpressionAttributeNames: {
+        '#id': 'id',
+      },
+      ExpressionAttributeValues: {
+        ':id': userId,
+      },
+      ScanIndexForward: false,
+    })
+  );
+  return res.Items as MinutesCustomPrompt[];
+};
+
+export const createMinutesCustomPrompt = async (
+  _userId: string,
+  title: string,
+  body: string
+): Promise<MinutesCustomPrompt> => {
+  const userId = `minutesCustomPrompt#${_userId}`;
+  const minutesCustomPromptId = `minutesCustomPrompt#${crypto.randomUUID()}`;
+  const item = {
+    id: userId,
+    createdDate: `${Date.now()}`,
+    minutesCustomPromptId: minutesCustomPromptId,
+    minutesCustomPromptTitle: title,
+    minutesCustomPromptBody: body,
+  };
+
+  await dynamoDbDocument.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: item,
+    })
+  );
+
+  return item;
+};
+
+export const updateMinutesCustomPrompt = async (
+  _userId: string,
+  _minutesCustomPromptId: string,
+  title: string,
+  body: string
+): Promise<MinutesCustomPrompt> => {
+  const prompt = await findMinutesCustomPromptById(
+    _userId,
+    _minutesCustomPromptId
+  );
+  const res = await dynamoDbDocument.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: prompt?.id,
+        createdDate: prompt?.createdDate,
+      },
+      UpdateExpression:
+        'set minutesCustomPromptTitle = :title, minutesCustomPromptBody = :body',
+      ExpressionAttributeValues: {
+        ':title': title,
+        ':body': body,
+      },
+      ReturnValues: 'ALL_NEW',
+    })
+  );
+
+  return res.Attributes as MinutesCustomPrompt;
+};
+
+export const deleteMinutesCustomPrompt = async (
+  _userId: string,
+  _minutesCustomPromptId: string
+): Promise<void> => {
+  const prompt = await findMinutesCustomPromptById(
+    _userId,
+    _minutesCustomPromptId
+  );
+  await dynamoDbDocument.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: {
+        id: prompt?.id,
+        createdDate: prompt?.createdDate,
       },
     })
   );

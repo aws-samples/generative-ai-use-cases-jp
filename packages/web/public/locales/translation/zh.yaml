@@ -486,7 +486,16 @@ meetingMinutes:
   next_generation_in: '下次生成时间 :'
   no_transcript: 无转录文本
   partial_indicator: (...)
+  prompt_title_placeholder: 输入此提示的名称...
   record_transcribe: 录音和转录
+  save_as_prompt: 保存为自定义提示
+  saved_prompt_body: 提示内容
+  saved_prompt_created: 自定义提示已保存
+  saved_prompt_delete_confirm: 删除此提示？
+  saved_prompt_deleted: 自定义提示已删除
+  saved_prompt_prefix: ★
+  saved_prompt_title: 提示标题
+  saved_prompt_updated: 自定义提示已更新
   screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别
   style: 会议纪要风格

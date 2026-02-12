@@ -791,6 +791,70 @@ export class Api extends Construct {
     );
     table.grantReadWriteData(deleteSystemContextFunction);
 
+    const listMinutesCustomPromptsFunction = new NodejsFunction(
+      this,
+      'ListMinutesCustomPrompts',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/listMinutesCustomPrompts.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantReadData(listMinutesCustomPromptsFunction);
+
+    const createMinutesCustomPromptFunction = new NodejsFunction(
+      this,
+      'CreateMinutesCustomPrompt',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/createMinutesCustomPrompt.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantWriteData(createMinutesCustomPromptFunction);
+
+    const updateMinutesCustomPromptFunction = new NodejsFunction(
+      this,
+      'UpdateMinutesCustomPrompt',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/updateMinutesCustomPrompt.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantReadWriteData(updateMinutesCustomPromptFunction);
+
+    const deleteMinutesCustomPromptFunction = new NodejsFunction(
+      this,
+      'DeleteMinutesCustomPrompt',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/deleteMinutesCustomPrompt.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantReadWriteData(deleteMinutesCustomPromptFunction);
+
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteFile.ts',
@@ -985,6 +1049,41 @@ export class Api extends Construct {
     systemContextTitleResource.addMethod(
       'PUT',
       new LambdaIntegration(updateSystemContextTitleFunction),
+      commonAuthorizerProps
+    );
+
+    const minutesCustomPromptsResource = api.root.addResource(
+      'minutes-custom-prompts'
+    );
+
+    // POST: /minutes-custom-prompts
+    minutesCustomPromptsResource.addMethod(
+      'POST',
+      new LambdaIntegration(createMinutesCustomPromptFunction),
+      commonAuthorizerProps
+    );
+
+    // GET: /minutes-custom-prompts
+    minutesCustomPromptsResource.addMethod(
+      'GET',
+      new LambdaIntegration(listMinutesCustomPromptsFunction),
+      commonAuthorizerProps
+    );
+
+    const minutesCustomPromptResource =
+      minutesCustomPromptsResource.addResource('{minutesCustomPromptId}');
+
+    // PUT: /minutes-custom-prompts/{minutesCustomPromptId}
+    minutesCustomPromptResource.addMethod(
+      'PUT',
+      new LambdaIntegration(updateMinutesCustomPromptFunction),
+      commonAuthorizerProps
+    );
+
+    // DELETE: /minutes-custom-prompts/{minutesCustomPromptId}
+    minutesCustomPromptResource.addMethod(
+      'DELETE',
+      new LambdaIntegration(deleteMinutesCustomPromptFunction),
       commonAuthorizerProps
     );
 
