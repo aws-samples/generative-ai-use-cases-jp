@@ -16,6 +16,7 @@ type Props = RowItemProps & {
   maxHeight?: number;
   disabled?: boolean;
   required?: boolean;
+  resizable?: boolean;
   onEnter?: () => void;
   onChange: (value: string) => void;
   onPaste?: (pasteEvent: React.ClipboardEvent) => void;
@@ -30,7 +31,7 @@ const Textarea: React.FC<Props> = (props) => {
   const maxHeight = props.maxHeight || MAX_HEIGHT;
 
   useLayoutEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || props.resizable) return;
     // Reset the height to auto to calculate the scroll height
     ref.current.style.height = 'auto';
     ref.current.style.overflowY = 'hidden';
@@ -46,7 +47,7 @@ const Textarea: React.FC<Props> = (props) => {
     const isMax = maxHeight > 0 && scrollHeight > maxHeight;
     ref.current.style.height = (isMax ? maxHeight : scrollHeight) + 'px';
     ref.current.style.overflowY = isMax ? 'auto' : 'hidden';
-  }, [props.value, maxHeight]);
+  }, [props.value, props.resizable, maxHeight]);
 
   return (
     <RowItem notItem={props.notItem}>
@@ -72,10 +73,10 @@ const Textarea: React.FC<Props> = (props) => {
         ref={ref}
         className={`${
           props.className ?? ''
-        } w-full resize-none rounded p-1.5 outline-none ${
+        } w-full ${props.resizable ? 'resize-y' : 'resize-none'} rounded p-1.5 outline-none ${
           props.noBorder ? 'border-0 focus:ring-0 ' : 'border border-black/30'
         } ${props.disabled ? 'bg-gray-200 ' : ''}`}
-        rows={props.rows ?? 1}
+        rows={props.rows ?? (props.resizable ? 5 : 1)}
         placeholder={props.placeholder || t('common.enter_text')}
         value={props.value}
         onKeyDown={(e) => {

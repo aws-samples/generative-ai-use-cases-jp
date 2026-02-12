@@ -341,7 +341,7 @@ const MeetingMinutesSettingsModal: React.FC<
               placeholder={t('meetingMinutes.custom_prompt_placeholder')}
               value={customPrompt}
               onChange={setCustomPrompt}
-              maxHeight={120}
+              resizable
             />
             {/* Save as prompt button */}
             {customPrompt.trim() !== '' && (
@@ -403,11 +403,7 @@ const MeetingMinutesSettingsModal: React.FC<
               <label className="mb-1 block text-sm font-bold">
                 {t('meetingMinutes.saved_prompt_body')}
               </label>
-              <Textarea
-                value={editBody}
-                onChange={setEditBody}
-                maxHeight={120}
-              />
+              <Textarea value={editBody} onChange={setEditBody} resizable />
             </div>
             <div className="flex gap-2">
               <Button
