@@ -27,17 +27,27 @@ export const SUPPORTED_REGIONS = [
 export const SUPPORTED_MODELS = [
   'amazon.nova-lite-v1:0',
   'amazon.nova-micro-v1:0',
+  'amazon.nova-premier-v1:0',
   'amazon.nova-pro-v1:0',
   'amazon.titan-text-premier-v1:0',
   'anthropic.claude-3-haiku-20240307-v1:0',
   'anthropic.claude-3-opus-20240229-v1:0',
   'anthropic.claude-3-sonnet-20240229-v1:0',
   'anthropic.claude-3-5-haiku-20241022-v1:0',
-  'anthropic.claude-3-5-sonnet-20241022-v2:0',
   'anthropic.claude-3-5-sonnet-20240620-v1:0',
+  'anthropic.claude-3-5-sonnet-20241022-v2:0',
+  'anthropic.claude-3-7-sonnet-20250219-v1:0',
+  'anthropic.claude-opus-4-20250514-v1:0',
+  'anthropic.claude-sonnet-4-20250514-v1:0',
+  'deepseek.r1-v1:0',
   'meta.llama3-70b-instruct-v1:0',
   'meta.llama3-1-70b-instruct-v1:0',
+  'meta.llama3-2-11b-instruct-v1:0',
+  'meta.llama3-3-70b-instruct-v1:0',
+  'meta.llama4-maverick-17b-instruct-v1:0',
+  'meta.llama4-scout-17b-instruct-v1:0',
   'mistral.mistral-large-2402-v1:0',
+  'mistral.mistral-large-2407-v1:0',
 ];
 
 const modelRegion = import.meta.env.VITE_APP_MODEL_REGION;

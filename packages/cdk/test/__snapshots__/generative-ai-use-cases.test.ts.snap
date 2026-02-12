@@ -1196,7 +1196,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             ],
             "Essential": true,
             "Image": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:f42c9250931c270e4dbe045bdf1556d0f4363901fa75fc81605cf456a556646a",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
             "LogConfiguration": {
               "LogDriver": "awslogs",
@@ -3868,7 +3868,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -4257,7 +4257,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -25699,7 +25699,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -26088,7 +26088,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },

@@ -21,7 +21,7 @@
     "ci:test": "run-s \" test --ci --reporters=\"default\" --reporters=\"github-actions\" \""
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.6",
+    "@aws-amplify/ui-react": "^6.14.0",
     "@aws-sdk/client-cognito-identity": "^3.540.0",
     "@aws-sdk/client-lambda": "^3.540.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.540.0",
@@ -32,9 +32,9 @@
     "@twind/preset-autoprefix": "^1.0.7",
     "@twind/preset-tailwind": "^1.1.4",
     "aws-amplify": "^6.0.23",
-    "axios": "^1.12.0",
+    "axios": "^1.13.5",
     "immer": "^10.0.4",
-    "lodash-es": "^4.17.21",
+    "lodash-es": "^4.17.23",
     "react": "18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

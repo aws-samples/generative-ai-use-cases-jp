@@ -39,6 +39,7 @@ import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
 import { useLocation } from 'react-router-dom';
 
 import { MermaidWithToggle } from './Mermaid/MermaidWithToggle';
+import { SvgWithToggle } from './Svg/SvgWithToggle';
 
 SyntaxHighlighter.registerLanguage('bash', bash);
 SyntaxHighlighter.registerLanguage('c', c);
@@ -133,24 +134,45 @@ const ImageRenderer = (props: any) => {
   return <img id={props.id} src={src} />;
 };
 
-// PreRenderer to skip <pre> tag for mermaid code blocks
-// This prevents the dark prose background from appearing around mermaid diagrams
+// PreRenderer to skip <pre> tag for mermaid and SVG code blocks
+// This prevents the dark prose background from appearing around these diagrams
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PreRenderer = (props: any) => {
   const { children } = props;
 
-  // Check if children is a code element with 'language-mermaid' class
+  // Check if children is a code element with 'language-mermaid' or SVG-related class
   if (React.isValidElement(children)) {
-    const childProps = children.props as { className?: string };
+    const childProps = children.props as {
+      className?: string;
+      children?: string;
+    };
     const className = childProps?.className || '';
+    const codeContent = String(childProps?.children || '').trim();
+
+    // Skip <pre> tag for mermaid
     if (className.includes('language-mermaid')) {
-      // Skip <pre> tag for mermaid - return children directly
+      return <>{children}</>;
+    }
+
+    // Skip <pre> tag for SVG (when language is svg, or xml/html with SVG content)
+    if (
+      className.includes('language-svg') ||
+      ((className.includes('language-xml') ||
+        className.includes('language-html')) &&
+        (codeContent.startsWith('<svg') || codeContent.startsWith('<?xml')))
+    ) {
       return <>{children}</>;
     }
   }
 
   // For other code blocks, render normal <pre> tag
   return <pre {...props}>{children}</pre>;
+};
+
+// Helper function to check if code is SVG
+const isSvgCode = (code: string): boolean => {
+  const trimmed = code.trim();
+  return trimmed.startsWith('<svg') || trimmed.startsWith('<?xml');
 };
 
 const CodeRenderer = memo(
@@ -164,6 +186,15 @@ const CodeRenderer = memo(
     // Use not-prose to prevent prose styles from affecting the diagram container
     if (language === 'mermaid') {
       return <MermaidWithToggle code={codeText} />;
+    }
+
+    // Render SVG code with toggle (when language is svg, xml, or html and content is SVG)
+    if (
+      (language === 'svg' ||
+        ((language === 'xml' || language === 'html') && isSvgCode(codeText))) &&
+      isSvgCode(codeText)
+    ) {
+      return <SvgWithToggle code={codeText} />;
     }
 
     return (
