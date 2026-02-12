@@ -20,6 +20,7 @@ import {
   PolicyDocument,
   PolicyStatement,
 } from 'aws-cdk-lib/aws-iam';
+import { ApiLambdaNestedStack } from './api-lambda-nested-stack';
 import {
   BlockPublicAccess,
   Bucket,
@@ -568,108 +569,14 @@ export class Api extends Construct {
       );
     }
 
-    const createChatFunction = new NodejsFunction(this, 'CreateChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
+    // Move CRUD Lambda functions to NestedStack to avoid CloudFormation resource limit
+    const lambdaStack = new ApiLambdaNestedStack(this, 'ApiLambdas', {
+      table,
+      statsTable: props.statsTable,
+      fileBucket,
       vpc,
       securityGroups,
     });
-    table.grantWriteData(createChatFunction);
-
-    const deleteChatFunction = new NodejsFunction(this, 'DeleteChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(deleteChatFunction);
-
-    const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createMessages.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-        STATS_TABLE_NAME: props.statsTable.tableName,
-        BUCKET_NAME: fileBucket.bucketName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(createMessagesFunction);
-    props.statsTable.grantReadWriteData(createMessagesFunction);
-
-    const updateChatTitleFunction = new NodejsFunction(
-      this,
-      'UpdateChatTitle',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/updateTitle.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(updateChatTitleFunction);
-
-    const listChatsFunction = new NodejsFunction(this, 'ListChats', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/listChats.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(listChatsFunction);
-
-    const findChatbyIdFunction = new NodejsFunction(this, 'FindChatbyId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/findChatById.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(findChatbyIdFunction);
-
-    const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/listMessages.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(listMessagesFunction);
-
-    const updateFeedbackFunction = new NodejsFunction(this, 'UpdateFeedback', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/updateFeedback.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(updateFeedbackFunction);
 
     const getWebTextFunction = new NodejsFunction(this, 'GetWebText', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -678,182 +585,6 @@ export class Api extends Construct {
       vpc,
       securityGroups,
     });
-
-    const createShareId = new NodejsFunction(this, 'CreateShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(createShareId);
-
-    const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/getSharedChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(getSharedChat);
-
-    const findShareId = new NodejsFunction(this, 'FindShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/findShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(findShareId);
-
-    const deleteShareId = new NodejsFunction(this, 'DeleteShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(deleteShareId);
-
-    const listSystemContextsFunction = new NodejsFunction(
-      this,
-      'ListSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/listSystemContexts.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadData(listSystemContextsFunction);
-
-    const createSystemContextFunction = new NodejsFunction(
-      this,
-      'CreateSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/createSystemContext.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantWriteData(createSystemContextFunction);
-
-    const updateSystemContextTitleFunction = new NodejsFunction(
-      this,
-      'UpdateSystemContextTitle',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/updateSystemContextTitle.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(updateSystemContextTitleFunction);
-
-    const deleteSystemContextFunction = new NodejsFunction(
-      this,
-      'DeleteSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/deleteSystemContext.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(deleteSystemContextFunction);
-
-    const listMinutesCustomPromptsFunction = new NodejsFunction(
-      this,
-      'ListMinutesCustomPrompts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/listMinutesCustomPrompts.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadData(listMinutesCustomPromptsFunction);
-
-    const createMinutesCustomPromptFunction = new NodejsFunction(
-      this,
-      'CreateMinutesCustomPrompt',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/createMinutesCustomPrompt.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantWriteData(createMinutesCustomPromptFunction);
-
-    const updateMinutesCustomPromptFunction = new NodejsFunction(
-      this,
-      'UpdateMinutesCustomPrompt',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/updateMinutesCustomPrompt.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(updateMinutesCustomPromptFunction);
-
-    const deleteMinutesCustomPromptFunction = new NodejsFunction(
-      this,
-      'DeleteMinutesCustomPrompt',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/deleteMinutesCustomPrompt.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(deleteMinutesCustomPromptFunction);
 
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
       runtime: LAMBDA_RUNTIME_NODEJS,
@@ -964,14 +695,14 @@ export class Api extends Construct {
     // POST: /chats
     chatsResource.addMethod(
       'POST',
-      new LambdaIntegration(createChatFunction),
+      new LambdaIntegration(lambdaStack.createChatFunction),
       commonAuthorizerProps
     );
 
     // GET: /chats
     chatsResource.addMethod(
       'GET',
-      new LambdaIntegration(listChatsFunction),
+      new LambdaIntegration(lambdaStack.listChatsFunction),
       commonAuthorizerProps
     );
 
@@ -980,14 +711,14 @@ export class Api extends Construct {
     // GET: /chats/{chatId}
     chatResource.addMethod(
       'GET',
-      new LambdaIntegration(findChatbyIdFunction),
+      new LambdaIntegration(lambdaStack.findChatbyIdFunction),
       commonAuthorizerProps
     );
 
     // DELETE: /chats/{chatId}
     chatResource.addMethod(
       'DELETE',
-      new LambdaIntegration(deleteChatFunction),
+      new LambdaIntegration(lambdaStack.deleteChatFunction),
       commonAuthorizerProps
     );
 
@@ -996,7 +727,7 @@ export class Api extends Construct {
     // PUT: /chats/{chatId}/title
     titleResource.addMethod(
       'PUT',
-      new LambdaIntegration(updateChatTitleFunction),
+      new LambdaIntegration(lambdaStack.updateChatTitleFunction),
       commonAuthorizerProps
     );
 
@@ -1005,14 +736,14 @@ export class Api extends Construct {
     // GET: /chats/{chatId}/messages
     messagesResource.addMethod(
       'GET',
-      new LambdaIntegration(listMessagesFunction),
+      new LambdaIntegration(lambdaStack.listMessagesFunction),
       commonAuthorizerProps
     );
 
     // POST: /chats/{chatId}/messages
     messagesResource.addMethod(
       'POST',
-      new LambdaIntegration(createMessagesFunction),
+      new LambdaIntegration(lambdaStack.createMessagesFunction),
       commonAuthorizerProps
     );
 
@@ -1021,14 +752,14 @@ export class Api extends Construct {
     // POST: /systemcontexts
     systemContextsResource.addMethod(
       'POST',
-      new LambdaIntegration(createSystemContextFunction),
+      new LambdaIntegration(lambdaStack.createSystemContextFunction),
       commonAuthorizerProps
     );
 
     // GET: /systemcontexts
     systemContextsResource.addMethod(
       'GET',
-      new LambdaIntegration(listSystemContextsFunction),
+      new LambdaIntegration(lambdaStack.listSystemContextsFunction),
       commonAuthorizerProps
     );
 
@@ -1038,7 +769,7 @@ export class Api extends Construct {
     // DELETE: /systemcontexts/{systemContextId}
     systemContextResource.addMethod(
       'DELETE',
-      new LambdaIntegration(deleteSystemContextFunction),
+      new LambdaIntegration(lambdaStack.deleteSystemContextFunction),
       commonAuthorizerProps
     );
 
@@ -1048,7 +779,7 @@ export class Api extends Construct {
     // PUT: /systemcontexts/{systemContextId}/title
     systemContextTitleResource.addMethod(
       'PUT',
-      new LambdaIntegration(updateSystemContextTitleFunction),
+      new LambdaIntegration(lambdaStack.updateSystemContextTitleFunction),
       commonAuthorizerProps
     );
 
@@ -1059,14 +790,14 @@ export class Api extends Construct {
     // POST: /minutes-custom-prompts
     minutesCustomPromptsResource.addMethod(
       'POST',
-      new LambdaIntegration(createMinutesCustomPromptFunction),
+      new LambdaIntegration(lambdaStack.createMinutesCustomPromptFunction),
       commonAuthorizerProps
     );
 
     // GET: /minutes-custom-prompts
     minutesCustomPromptsResource.addMethod(
       'GET',
-      new LambdaIntegration(listMinutesCustomPromptsFunction),
+      new LambdaIntegration(lambdaStack.listMinutesCustomPromptsFunction),
       commonAuthorizerProps
     );
 
@@ -1076,14 +807,14 @@ export class Api extends Construct {
     // PUT: /minutes-custom-prompts/{minutesCustomPromptId}
     minutesCustomPromptResource.addMethod(
       'PUT',
-      new LambdaIntegration(updateMinutesCustomPromptFunction),
+      new LambdaIntegration(lambdaStack.updateMinutesCustomPromptFunction),
       commonAuthorizerProps
     );
 
     // DELETE: /minutes-custom-prompts/{minutesCustomPromptId}
     minutesCustomPromptResource.addMethod(
       'DELETE',
-      new LambdaIntegration(deleteMinutesCustomPromptFunction),
+      new LambdaIntegration(lambdaStack.deleteMinutesCustomPromptFunction),
       commonAuthorizerProps
     );
 
@@ -1092,7 +823,7 @@ export class Api extends Construct {
     // POST: /chats/{chatId}/feedbacks
     feedbacksResource.addMethod(
       'POST',
-      new LambdaIntegration(updateFeedbackFunction),
+      new LambdaIntegration(lambdaStack.updateFeedbackFunction),
       commonAuthorizerProps
     );
 
@@ -1143,13 +874,13 @@ export class Api extends Construct {
     // GET: /shares/chat/{chatId}
     shareChatIdResource.addMethod(
       'GET',
-      new LambdaIntegration(findShareId),
+      new LambdaIntegration(lambdaStack.findShareIdFunction),
       commonAuthorizerProps
     );
     // POST: /shares/chat/{chatId}
     shareChatIdResource.addMethod(
       'POST',
-      new LambdaIntegration(createShareId),
+      new LambdaIntegration(lambdaStack.createShareIdFunction),
       commonAuthorizerProps
     );
     const shareShareIdResource = shareResource
@@ -1158,13 +889,13 @@ export class Api extends Construct {
     // GET: /shares/share/{shareId}
     shareShareIdResource.addMethod(
       'GET',
-      new LambdaIntegration(getSharedChat),
+      new LambdaIntegration(lambdaStack.getSharedChatFunction),
       commonAuthorizerProps
     );
     // DELETE: /shares/share/{shareId}
     shareShareIdResource.addMethod(
       'DELETE',
-      new LambdaIntegration(deleteShareId),
+      new LambdaIntegration(lambdaStack.deleteShareIdFunction),
       commonAuthorizerProps
     );
 
