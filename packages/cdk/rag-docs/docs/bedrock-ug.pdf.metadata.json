@@ -1,6 +1,7 @@
 {
   "metadataAttributes": {
     "group": ["IT"],
+    "department": "engineering",
     "year": 2024,
     "tag": ["AWS", "Amazon Bedrock"],
     "category": "AWS",

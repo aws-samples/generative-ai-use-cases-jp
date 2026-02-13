@@ -371,10 +371,71 @@ S3 バケット内にアップロードした RAG 用のファイルが存在す
 
 フィルターの設定は [packages/common/src/custom/rag-knowledge-base.ts](/packages/common/src/custom/rag-knowledge-base.ts) で行えます。必要に応じてカスタマイズしてご利用ください。
 
-- `dynamicFilters` : 動的にアプリケーション側でフィルタを作成して適用します。（例: ユーザーの部署などの属性に応じてフィルタを作成して適用する）現状 Claude Sonnet ３.5 のみ対応しています。（クォータによりスロットリングが発生することがあります）Cognito Group や SAML IdP の Group を Attribute にマッピングして利用することも可能です。（詳細は [Microsoft Entra ID と SAML 連携](./SAML_WITH_ENTRA_ID.md) を参照）
-- `implicitFilters` : 指定されている場合は LLM がユーザーの質問に応じて指定されたメタデータに対してフィルタを作成して適用します。 (例: ユーザーの質問に含まれる年をフィルターに指定して、その年のデータのみを検索する) 空配列の場合はフィルタは適用されません。
+- `dynamicFilters` : 動的にアプリケーション側でフィルタを作成して適用します。（例: ユーザーの部署などの属性に応じてフィルタを作成して適用する）Cognito Group や SAML IdP の Group を Attribute にマッピングして利用することも可能です。（詳細は [Microsoft Entra ID と SAML 連携](./SAML_WITH_ENTRA_ID.md) を参照）また、Cognito のカスタム属性を利用した ABAC（属性ベースアクセス制御）によるフィルタリングにも対応しています。（後述の「ABAC によるメタデータフィルタ」を参照）
+- `implicitFilters` : 指定されている場合は LLM がユーザーの質問に応じて指定されたメタデータに対してフィルタを作成して適用します。 (例: ユーザーの質問に含まれる年をフィルターに指定して、その年のデータのみを検索する) 空配列の場合はフィルタは適用されません。現状 Claude Sonnet 3.5 のみ対応しています。（クォータによりスロットリングが発生することがあります）
 - `hiddenStaticExplicitFilters` : アプリケーションレベルで適用したいフィルタを適用します。（例: データの分類が秘密のデータは除外する）
 - `userDefinedExplicitFilters` : アプリケーションの UI にて表示されるフィルターを定義します。
+
+#### ABAC (Attribute-Based Access Control) によるメタデータフィルタ
+
+Cognito User Pool のカスタム属性を利用して、ユーザーの属性に基づいたドキュメントのアクセス制御（ABAC）を実現できます。`dynamicFilters` の Example 3 に ABAC のサンプルが用意されています。
+
+**設定手順:**
+
+1. **Cognito User Pool にカスタム属性を追加**
+
+   Cognito User Pool のスキーマにカスタム属性（例: `custom:department`）を追加します。AWS マネジメントコンソールの Cognito User Pool 設定画面から「サインアップエクスペリエンス」>「カスタム属性」で追加できます。
+
+2. **ユーザーにカスタム属性の値を設定**
+
+   各ユーザーに対してカスタム属性の値を設定します（例: `custom:department` = `engineering`）。
+
+3. **ドキュメントのメタデータを設定**
+
+   S3 にアップロードするドキュメントの metadata.json に対応するキーと値を設定します。
+
+   ```json
+   {
+     "metadataAttributes": {
+       "department": "engineering"
+     }
+   }
+   ```
+
+4. **`getDynamicFilters` のコメントアウトを解除**
+
+   [packages/common/src/custom/rag-knowledge-base.ts](/packages/common/src/custom/rag-knowledge-base.ts) の Example 3 のコメントアウトを解除し、必要に応じてカスタマイズします。
+
+> **Note:** Cognito Group による制御（Example 1）と ABAC による制御（Example 3）は、それぞれ独立して利用可能です。ユースケースに応じてどちらかを選択してください。
+
+#### S3 プレフィックスによるメタデータフィルタ
+
+S3 のオブジェクトプレフィックス（フォルダ構造）を利用して、ドキュメントのアクセス制御を行うことも可能です。Bedrock Knowledge Base は `x-amz-bedrock-kb-source-uri` というメタデータ属性を自動生成しており、これをフィルタキーとして利用できます。`dynamicFilters` の Example 4 にサンプルが用意されています。
+
+**前提条件:**
+- ベクトルストアに OpenSearch Serverless を使用していること（`startsWith` フィルタは OpenSearch Serverless でのみサポート）
+
+**設定手順:**
+
+1. **S3 バケット内のドキュメントをプレフィックスで整理**
+
+   部署やチームごとにプレフィックスを分けてドキュメントを配置します。
+
+   ```
+   s3://BUCKET_NAME/docs/engineering/report.pdf
+   s3://BUCKET_NAME/docs/sales/proposal.pdf
+   s3://BUCKET_NAME/docs/hr/policy.pdf
+   ```
+
+2. **Cognito ユーザーにカスタム属性を設定**
+
+   各ユーザーに対してアクセスを許可するプレフィックスに対応する属性を設定します（例: `custom:department` = `engineering`）。
+
+3. **`getDynamicFilters` の Example 4 のコメントアウトを解除**
+
+   [packages/common/src/custom/rag-knowledge-base.ts](/packages/common/src/custom/rag-knowledge-base.ts) の Example 4 のコメントアウトを解除し、必要に応じてカスタマイズします。
+
+> **Note:** この方式では metadata.json へのメタデータ追加は不要です。`x-amz-bedrock-kb-source-uri` は Knowledge Base が自動的に生成するフィルタ用属性です。
 
 ### Agent チャットユースケースの有効化
 

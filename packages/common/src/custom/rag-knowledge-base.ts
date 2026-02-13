@@ -50,6 +50,40 @@ export const getDynamicFilters = (
   // };
   // dynamicFilters.push(groupFilter);
 
+  // Example 3: ABAC - Filter by custom Cognito attribute (e.g., department)
+  // Apply the filter by the custom Cognito attribute for ABAC (Attribute-Based Access Control)
+  // You need to add a custom attribute to the Cognito User Pool schema beforehand
+  // and set the attribute value for each user.
+  // See: https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
+
+  // const department = idTokenPayload['custom:department'] as string;
+  // if (!department) throw new Error('custom:department is not set'); // If the attribute is not set, it will not be accessible and an error will be thrown
+  // const departmentFilter: RetrievalFilter = {
+  //   equals: {
+  //     key: 'department',
+  //     value: department,
+  //   },
+  // };
+  // dynamicFilters.push(departmentFilter);
+
+  // Example 4: Filter by S3 object prefix using x-amz-bedrock-kb-source-uri
+  // This auto-created metadata attribute contains the S3 URI of the source document.
+  // By using the startsWith filter (supported on OpenSearch Serverless), you can restrict
+  // retrieval to documents stored under a specific S3 prefix based on user attributes.
+  // Note: You need to set the DATA_SOURCE_BUCKET_NAME environment variable in the Lambda function.
+  // See: https://docs.aws.amazon.com/bedrock/latest/userguide/kb-multimodal-test-and-query.html
+
+  // const department = idTokenPayload['custom:department'] as string;
+  // if (!department) throw new Error('custom:department is not set');
+  // const bucketName = process.env.DATA_SOURCE_BUCKET_NAME;
+  // const prefixFilter: RetrievalFilter = {
+  //   startsWith: {
+  //     key: 'x-amz-bedrock-kb-source-uri',
+  //     value: `s3://${bucketName}/docs/${department}/`,
+  //   },
+  // };
+  // dynamicFilters.push(prefixFilter);
+
   return dynamicFilters;
 };
 

@@ -64,6 +64,7 @@ export interface BackendApiProps {
   readonly table: Table;
   readonly statsTable: Table;
   readonly knowledgeBaseId?: string;
+  readonly knowledgeBaseDataSourceBucketName?: string;
   readonly agents?: string;
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
@@ -207,6 +208,8 @@ export class Api extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         KNOWLEDGE_BASE_ID: knowledgeBaseId ?? '',
+        DATA_SOURCE_BUCKET_NAME:
+          props.knowledgeBaseDataSourceBucketName ?? '',
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
           : {}),
