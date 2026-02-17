@@ -26,26 +26,86 @@ import { initBedrockAgentRuntimeClient } from './bedrockClient';
 
 const MODEL_REGION = process.env.MODEL_REGION as string;
 
+// Build a human-readable short label from a URL
+// e.g. "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/2036.htm"
+//   -> "nta.go.jp/.../shotoku/2036.htm"
+const shortenUrl = (rawUrl: string, maxLen = 60): string => {
+  try {
+    const u = new URL(rawUrl);
+    const host = u.hostname.replace(/^www\./, '');
+    const path = decodeURIComponent(u.pathname).replace(/\/$/, '');
+    const full = `${host}${path}`;
+    if (full.length <= maxLen) return full;
+    const segments = path.split('/').filter(Boolean);
+    const tail = segments.slice(-2).join('/');
+    const short = `${host}/.../${tail}`;
+    return short.length <= maxLen ? short : `${host}/.../${segments.at(-1)}`;
+  } catch {
+    return rawUrl;
+  }
+};
+
 // Convert s3://<BUCKET>/<PREFIX> to https://s3.<REGION>.amazonaws.com/<BUCKET>/<PREFIX>
 const convertS3UriToUrl = (s3Uri: string, region: string): string => {
   const result = /^s3:\/\/(?<bucketName>.+?)\/(?<prefix>.+)/.exec(s3Uri);
-  if (result) {
-    const groups = result?.groups as {
-      bucketName: string;
-      prefix: string;
-    };
-    return `https://s3.${region}.amazonaws.com/${groups.bucketName}/${groups.prefix}`;
-  }
-  return '';
+  if (!result) return '';
+  const { bucketName, prefix } = result.groups as {
+    bucketName: string;
+    prefix: string;
+  };
+  return `https://s3.${region}.amazonaws.com/${bucketName}/${prefix}`;
 };
 
-// Encode a string to URL
-const encodeUrlString = (str: string): string => {
+// Resolve source URL from a retrieved reference
+const resolveSourceUrl = (ref: RetrievedReference): string | undefined => {
+  const region = process.env.MODEL_REGION || '';
+  if (ref?.location?.s3Location?.uri) {
+    return convertS3UriToUrl(ref.location.s3Location.uri, region);
+  }
+  if (ref?.location?.webLocation?.url) {
+    return ref.location.webLocation.url;
+  }
+  // Fallback: x-amz-bedrock-kb-source-uri metadata
+  const sourceUri = ref?.metadata?.['x-amz-bedrock-kb-source-uri'] as
+    | string
+    | undefined;
+  if (!sourceUri) return undefined;
+  return sourceUri.startsWith('s3://')
+    ? convertS3UriToUrl(sourceUri, region)
+    : sourceUri;
+};
+
+// Resolve display title from a retrieved reference
+const resolveDisplayTitle = (ref: RetrievedReference, url: string): string => {
+  const metadataTitle =
+    (ref?.metadata?.['title'] as string | undefined) ||
+    (ref?.metadata?.['x-amz-bedrock-kb-document-title'] as string | undefined);
+  if (metadataTitle) return metadataTitle;
+
+  const isWebSource = !ref?.location?.s3Location?.uri;
+  return isWebSource
+    ? shortenUrl(url)
+    : url
+        .split('/')
+        .pop()
+        ?.split('?')[0]
+        ?.replace(/\.(html?|pdf)$/i, '') || url;
+};
+
+// Build reference URL with encoding and page anchor
+const buildRefUrl = (
+  ref: RetrievedReference,
+  url: string,
+  pageNumber?: string
+): string => {
+  const isWebSource = !ref?.location?.s3Location?.uri;
+  if (isWebSource) return url;
+  const fileName = url.split('/').pop() || '';
   try {
-    return encodeURIComponent(str);
-  } catch (e) {
-    console.error('Failed to URL-encode string:', e);
-    return str;
+    const encoded = encodeURIComponent(fileName);
+    return `${url.replace(fileName, encoded)}${pageNumber ? `#page=${pageNumber}` : ''}`;
+  } catch {
+    return url;
   }
 };
 
@@ -67,39 +127,27 @@ const getExplicitFilters = async (
   messages: UnrecordedMessage[],
   idToken?: string
 ): Promise<RetrievalFilter | undefined> => {
-  // Check id token valid
   const payload = await verifyToken(idToken || '');
-  if (!payload) {
-    return undefined;
-  }
+  if (!payload) return undefined;
 
-  // ===== Dynamic Filter =====
   const dynamicFilters: RetrievalFilter[] = getDynamicFilters(payload);
 
-  // ===== Get User Defined Explicit Filters =====
   let userDefinedExplicitFilters: RetrievalFilter[] = [];
   const lastMessage = messages[messages.length - 1];
-  if (lastMessage && lastMessage.extraData) {
+  if (lastMessage?.extraData) {
     userDefinedExplicitFilters = lastMessage.extraData
       .filter((extra) => extra.type === 'json')
       .map((extra) => JSON.parse(extra.source.data) as RetrievalFilter);
   }
 
-  // Return aggregated filters
   const aggregatedFilters: RetrievalFilter[] = [
     ...hiddenStaticExplicitFilters,
     ...dynamicFilters,
     ...userDefinedExplicitFilters,
   ];
-  if (aggregatedFilters.length === 0) {
-    return undefined;
-  } else if (aggregatedFilters.length === 1) {
-    return aggregatedFilters[0];
-  } else {
-    return {
-      andAll: aggregatedFilters,
-    };
-  }
+  if (aggregatedFilters.length === 0) return undefined;
+  if (aggregatedFilters.length === 1) return aggregatedFilters[0];
+  return { andAll: aggregatedFilters };
 };
 
 const getRerankingConfig = ():
@@ -136,10 +184,8 @@ const bedrockKbApi: ApiInterface = {
     idToken?: string
   ) {
     try {
-      // Get explicit filters (async since it may require idToken verification)
       const explicitFilters = await getExplicitFilters(messages, idToken);
 
-      // Extract system context from messages
       const systemMessage = messages.find((msg) => msg.role === 'system');
       const userSystemContext = systemMessage?.content || '';
 
@@ -153,7 +199,6 @@ $search_results$
 
 $output_format_instructions$`;
 
-      // Build generation configuration with prompt template
       const generationConfiguration = userSystemContext
         ? {
             promptTemplate: {
@@ -166,7 +211,6 @@ $output_format_instructions$`;
           }
         : undefined;
 
-      // Invoke
       const command = new RetrieveAndGenerateStreamCommand({
         input: {
           text: messages[messages.length - 1].content,
@@ -180,15 +224,11 @@ $output_format_instructions$`;
             generationConfiguration,
             retrievalConfiguration: {
               vectorSearchConfiguration: {
-                // Filter
                 filter: explicitFilters,
-                // Implicit Filter
                 implicitFilterConfiguration: getImplicitFilters(),
-                // Rerank
                 rerankingConfiguration: getRerankingConfig(),
               },
             },
-            // Query Splitting
             orchestrationConfiguration: getOrchestrationConfig(),
           },
         },
@@ -204,99 +244,79 @@ $output_format_instructions$`;
         yield streamingChunk({ text: '', sessionId: res.sessionId });
       }
 
-      if (!res.stream) {
-        return;
-      }
+      if (!res.stream) return;
 
-      // Store Reference
+      // Track unique sources for footnote references
       const sources: {
         [key: string]: {
           refId: number;
           ref: RetrievedReference;
-          fileName: string;
+          displayTitle: string;
           pageNumber?: string;
         };
       } = {};
 
-      // Citation may be passed a few characters after, so provide a buffer of 10 characters to insert Citation.
+      // Buffer to handle citation insertion (citations may arrive slightly after text)
       let buffer = '';
       let currentPosition = 0;
 
       for await (const streamChunk of res.stream) {
-        // Chunk
         if (streamChunk.output?.text) {
-          const body = streamChunk.output?.text;
-          buffer += body;
+          buffer += streamChunk.output.text;
           const newPosition = Math.max(0, currentPosition, buffer.length - 10);
           yield streamingChunk({
             text: buffer.slice(currentPosition, newPosition),
           });
           currentPosition = newPosition;
-        } else if (streamChunk.citation?.citation) {
-          const citation = streamChunk.citation.citation;
+        } else if (streamChunk.citation) {
+          const citation = streamChunk.citation;
 
-          // Move the buffer to the Citation end
-          const newPosition =
-            (citation.generatedResponsePart?.textResponsePart?.span?.end || 0) +
-            1;
-          if (newPosition <= buffer.length) {
+          // Advance buffer to citation span end
+          const spanEnd =
+            citation.generatedResponsePart?.textResponsePart?.span?.end ?? 0;
+          const newPosition = spanEnd + 1;
+          if (newPosition <= buffer.length && newPosition > currentPosition) {
             yield streamingChunk({
               text: buffer.slice(currentPosition, newPosition),
             });
             currentPosition = newPosition;
           }
 
-          // Insert Reference
+          // Insert inline reference numbers
           for (const ref of citation.retrievedReferences || []) {
-            // Get S3 URI and convert to URL
-            const s3Uri = ref?.location?.s3Location?.uri || '';
-            if (!s3Uri) continue;
-            const url = convertS3UriToUrl(
-              s3Uri,
-              process.env.MODEL_REGION || ''
-            );
+            const url = resolveSourceUrl(ref);
+            if (!url) continue;
 
-            // Get page number
             const pageNumber = ref?.metadata?.[
               'x-amz-bedrock-kb-document-page-number'
             ] as string | undefined;
+            const refUrl = buildRefUrl(ref, url, pageNumber);
 
-            // Get File name
-            const fileName = url.split('/').pop() || '';
-            const encodedFileName = encodeUrlString(fileName);
-
-            // Build URL including page number for PDF
-            const refUrl = `${url.replace(fileName, encodedFileName)}${pageNumber ? `#page=${pageNumber}` : ''}`;
-
-            // If the data source is unique, add Reference
             if (sources[refUrl] === undefined) {
               sources[refUrl] = {
                 refId: Object.keys(sources).length,
-                ref: ref,
-                fileName: fileName,
-                pageNumber: pageNumber,
+                ref,
+                displayTitle: resolveDisplayTitle(ref, url),
+                pageNumber,
               };
             }
-            // Add Reference number
-            const body = `[^${sources[refUrl].refId}]`;
-            yield streamingChunk({ text: body });
+            yield streamingChunk({ text: `[^${sources[refUrl].refId}]` });
           }
         }
       }
-      // Output to the end
+
+      // Flush remaining buffer
       if (buffer.length > currentPosition) {
         yield streamingChunk({ text: buffer.slice(currentPosition) });
-        currentPosition = buffer.length;
       }
-      // Add Reference at the end
-      for (const [url, { refId, ref, fileName, pageNumber }] of Object.entries(
+
+      // Append footnote definitions
+      for (const [url, { refId, displayTitle, pageNumber }] of Object.entries(
         sources
       )) {
-        const referenceText = `\n[^${refId}]: [${ref.metadata?.['title'] || fileName}${
-          pageNumber ? `(${pageNumber} page)` : ''
-        }](${url})`;
-
-        yield streamingChunk({ text: referenceText });
+        yield streamingChunk({
+          text: `\n[^${refId}]: [${displayTitle}${pageNumber ? `(${pageNumber} page)` : ''}](${url})`,
+        });
       }
     } catch (e) {
       if (
