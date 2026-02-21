@@ -391,6 +391,12 @@ drawer:
   generative_ai: (生成 AI)
   tools: ツール
   use_cases: ユースケース
+error:
+  streamingError:
+    ACCESS_DENIED: 選択されたモデルが有効化されていません。Amazon Bedrock コンソールでモデルを有効化してください。
+    PAYLOAD_TOO_LARGE: 添付ファイルのサイズが大きすぎます。ファイルサイズまたは添付数を減らして再度お試しください。
+    THROTTLING: サーバーが混み合っています。しばらく待ってから再度お試しください。
+    UNKNOWN_ERROR: エラーが発生しました。再度お試しいただくか、管理者にお問い合わせください。
 feedback:
   additional_feedback: 他にフィードバックがありましたら、入力してください。(任意)
   reason_error: 理由を選択してください。

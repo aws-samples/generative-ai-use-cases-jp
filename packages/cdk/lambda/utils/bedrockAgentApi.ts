@@ -388,27 +388,27 @@ const bedrockAgentApi: ApiInterface = {
         }
       }
     } catch (e) {
+      console.error(e);
       if (
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
         yield streamingChunk({
-          text: 'The server is currently experiencing high access. Please try again later.',
+          text: '',
           stopReason: 'error',
+          errorCode: 'THROTTLING',
         });
       } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
-          text: `The selected model is not enabled. Please enable the model in the [Bedrock console Model Access screen](${modelAccessURL}).`,
+          text: '',
           stopReason: 'error',
+          errorCode: 'ACCESS_DENIED',
         });
       } else {
-        console.error(e);
         yield streamingChunk({
-          text:
-            'An error occurred. Please report the following error to the administrator.\n' +
-            e,
+          text: '',
           stopReason: 'error',
+          errorCode: 'UNKNOWN_ERROR',
         });
       }
     }

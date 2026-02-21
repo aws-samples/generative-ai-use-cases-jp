@@ -316,6 +316,12 @@ drawer:
   generative_ai: (Generative AI)
   tools: Công cụ
   use_cases: Use case
+error:
+  streamingError:
+    ACCESS_DENIED: The selected model is not enabled. Please enable the model in the Amazon Bedrock console.
+    PAYLOAD_TOO_LARGE: The attached file is too large. Please reduce the file size or number of attachments and try again.
+    THROTTLING: The server is currently experiencing high traffic. Please try again later.
+    UNKNOWN_ERROR: An error occurred. Please try again or contact the administrator.
 feedback:
   additional_feedback: Nếu bạn có phản hồi khác, vui lòng nhập. (tùy chọn)
   reason_error: Vui lòng chọn lý do.

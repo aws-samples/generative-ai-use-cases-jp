@@ -153,10 +153,23 @@ const useChatApi = () => {
       // Append idToken to req
       req.idToken = token;
 
+      const payload = JSON.stringify(req);
+
+      // Lambda request payload limit is 6MB (6,291,456 bytes)
+      const LAMBDA_PAYLOAD_LIMIT = 6_291_456;
+      const payloadSize = new Blob([payload]).size;
+      if (payloadSize > LAMBDA_PAYLOAD_LIMIT) {
+        const error = new Error(
+          `Payload size ${payloadSize} bytes exceeds Lambda limit of ${LAMBDA_PAYLOAD_LIMIT} bytes`
+        );
+        error.name = 'PayloadTooLargeError';
+        throw error;
+      }
+
       const res = await lambda.send(
         new InvokeWithResponseStreamCommand({
           FunctionName: import.meta.env.VITE_APP_PREDICT_STREAM_FUNCTION_ARN,
-          Payload: JSON.stringify(req),
+          Payload: payload,
         })
       );
       const events = res.EventStream!;

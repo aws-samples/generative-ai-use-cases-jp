@@ -26,6 +26,7 @@ export type StreamingChunk = {
   metadata?: Metadata;
   stopReason?: StopReason | 'error';
   sessionId?: string;
+  errorCode?: string;
 };
 
 export type Pagination<T> = {
