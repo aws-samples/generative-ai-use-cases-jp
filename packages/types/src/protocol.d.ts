@@ -20,13 +20,18 @@ import { GenerateImageParams } from './image';
 import { GenerateVideoParams, VideoJob } from './video';
 import { ShareId, UserIdAndChatId } from './share';
 
+export type StreamingErrorCode =
+  | 'THROTTLING'
+  | 'ACCESS_DENIED'
+  | 'UNKNOWN_ERROR';
+
 export type StreamingChunk = {
   text: string;
   trace?: string;
   metadata?: Metadata;
   stopReason?: StopReason | 'error';
   sessionId?: string;
-  errorCode?: string;
+  errorCode?: StreamingErrorCode;
 };
 
 export type Pagination<T> = {

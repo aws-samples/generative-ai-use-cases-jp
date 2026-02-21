@@ -307,10 +307,10 @@ drawer:
   use_cases: 사용 사례
 error:
   streamingError:
-    ACCESS_DENIED: The selected model is not enabled. Please enable the model in the Amazon Bedrock console.
-    PAYLOAD_TOO_LARGE: The attached file is too large. Please reduce the file size or number of attachments and try again.
-    THROTTLING: The server is currently experiencing high traffic. Please try again later.
-    UNKNOWN_ERROR: An error occurred. Please try again or contact the administrator.
+    ACCESS_DENIED: 선택한 모델이 활성화되어 있지 않습니다. Amazon Bedrock 콘솔에서 모델을 활성화해 주세요.
+    PAYLOAD_TOO_LARGE: 첨부 파일의 크기가 너무 큽니다. 파일 크기 또는 첨부 파일 수를 줄이고 다시 시도해 주세요.
+    THROTTLING: 서버에 트래픽이 집중되고 있습니다. 잠시 후 다시 시도해 주세요.
+    UNKNOWN_ERROR: 오류가 발생했습니다. 다시 시도하거나 관리자에게 문의해 주세요.
 feedback:
   additional_feedback: 추가 피드백이 있으시면 여기에 입력해주세요. (선택사항)
   reason_error: 이유를 선택해주세요.

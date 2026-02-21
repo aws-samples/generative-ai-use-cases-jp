@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import i18next from 'i18next';
 import {
   StreamingChunk,
+  StreamingErrorCode,
   ShownMessage,
   RecordedMessage,
   UnrecordedMessage,
@@ -73,7 +74,7 @@ const useChatState = create<{
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
     overrideModelParameters: AdditionalModelRequestFields | undefined
-  ) => void;
+  ) => Promise<boolean | undefined>;
   edit: (
     id: string,
     content: string,
@@ -534,7 +535,9 @@ const useChatState = create<{
     // Reset the stop reason
     updateStopReason(id, '');
 
-    let lastErrorCode: string | undefined;
+    let lastErrorCode: StreamingErrorCode | undefined;
+    // Save original assistant message before retry reset for error recovery (deep copy to avoid Immer frozen state issues)
+    let savedAssistantMessage: ShownMessage | undefined;
 
     try {
       const chatMessages = get().chats[id].messages;
@@ -568,6 +571,8 @@ const useChatState = create<{
 
       // In the case of retrying, set the last assistant's message to blank
       if (generationMode === 'retry') {
+        const messages = get().chats[id].messages;
+        savedAssistantMessage = structuredClone(messages[messages.length - 1]);
         set((state) => {
           const newChats = produce(state.chats, (draft) => {
             const oldAssistantMessage = draft[id].messages.pop()!;
@@ -736,8 +741,6 @@ const useChatState = create<{
         });
       }
 
-      setLoading(id, false);
-
       // If Bedrock returned an error via streaming, throw to handle in catch block
       const currentStopReason = getStopReason(id);
       if (currentStopReason === 'error') {
@@ -787,6 +790,7 @@ const useChatState = create<{
       });
 
       replaceMessages(id, messages);
+      return true;
     } catch (e) {
       console.error(e);
       setWriting(id, false);
@@ -796,8 +800,16 @@ const useChatState = create<{
         // normal: Remove user + assistant messages added by post() to restore pre-send state
         popMessage(id); // assistant
         popMessage(id); // user
+      } else if (generationMode === 'retry' && savedAssistantMessage) {
+        // retry: Restore the original assistant message that was reset to blank
+        set((state) => ({
+          chats: produce(state.chats, (draft) => {
+            draft[id].messages.pop();
+            draft[id].messages.push(savedAssistantMessage!);
+          }),
+        }));
       }
-      // edit/retry/continue: Don't modify messages
+      // edit/continue: Don't modify messages
       // - The conversation is already saved in DDB, so it can be restored by reloading
       // - The user can also retry
 
@@ -817,6 +829,7 @@ const useChatState = create<{
         : i18next.t(fallbackKey);
 
       toast.error(message);
+      return false;
     } finally {
       setLoading(id, false);
     }
@@ -948,7 +961,7 @@ const useChatState = create<{
         };
       });
 
-      await generateMessage(
+      return await generateMessage(
         'normal',
         id,
         mutateListChat,
@@ -1167,7 +1180,7 @@ const useChat = (id: string, chatId?: string) => {
         | AdditionalModelRequestFields
         | undefined = undefined
     ) => {
-      post(
+      return post(
         id,
         content,
         mutateChatList,

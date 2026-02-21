@@ -319,10 +319,10 @@ drawer:
   use_cases: Use cases
 error:
   streamingError:
-    ACCESS_DENIED: The selected model is not enabled. Please enable the model in the Amazon Bedrock console.
-    PAYLOAD_TOO_LARGE: The attached file is too large. Please reduce the file size or number of attachments and try again.
-    THROTTLING: The server is currently experiencing high traffic. Please try again later.
-    UNKNOWN_ERROR: An error occurred. Please try again or contact the administrator.
+    ACCESS_DENIED: โมเดลที่เลือกยังไม่ได้เปิดใช้งาน กรุณาเปิดใช้งานโมเดลในคอนโซล Amazon Bedrock
+    PAYLOAD_TOO_LARGE: ไฟล์แนบมีขนาดใหญ่เกินไป กรุณาลดขนาดไฟล์หรือจำนวนไฟล์แนบแล้วลองใหม่อีกครั้ง
+    THROTTLING: เซิร์ฟเวอร์มีการใช้งานหนาแน่นในขณะนี้ กรุณาลองใหม่อีกครั้งในภายหลัง
+    UNKNOWN_ERROR: เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ
 feedback:
   additional_feedback: หากคุณมีข้อเสนอแนะเพิ่มเติม โปรดป้อนที่นี่ (ไม่บังคับ)
   reason_error: โปรดเลือกเหตุผล
