@@ -23,6 +23,7 @@ import {
 import { streamingChunk } from './streamingChunk';
 import { verifyToken } from './auth';
 import { initBedrockAgentRuntimeClient } from './bedrockClient';
+import { getInferenceProfileArn } from './models';
 
 const MODEL_REGION = process.env.MODEL_REGION as string;
 
@@ -139,6 +140,10 @@ const bedrockKbApi: ApiInterface = {
       // Get explicit filters (async since it may require idToken verification)
       const explicitFilters = await getExplicitFilters(messages, idToken);
 
+      // クロスリージョン推論プロファイルIDをARNに変換
+      const modelIdOrArn =
+        getInferenceProfileArn(model.modelId) || model.modelId;
+
       // Invoke
       const command = new RetrieveAndGenerateStreamCommand({
         input: {
@@ -149,7 +154,7 @@ const bedrockKbApi: ApiInterface = {
           type: 'KNOWLEDGE_BASE',
           knowledgeBaseConfiguration: {
             knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
-            modelArn: model.modelId,
+            modelArn: modelIdOrArn,
             retrievalConfiguration: {
               vectorSearchConfiguration: {
                 // Filter
