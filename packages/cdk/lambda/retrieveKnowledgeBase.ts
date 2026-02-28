@@ -10,173 +10,22 @@ import {
   getDynamicFilters,
 } from '@generative-ai-use-cases/common';
 import { verifyToken } from './utils/auth';
+import { parseSimpleFilter, aggregateFilters } from './utils/kbFilterParser';
 
 const KNOWLEDGE_BASE_ID = process.env.KNOWLEDGE_BASE_ID;
 const MODEL_REGION = process.env.MODEL_REGION as string;
 
-// Supported operators for simple filter format
-// = : equals, != : notEquals, > : greaterThan, < : lessThan
-// >= : greaterThanOrEquals, <= : lessThanOrEquals
-// ~= : stringContains, ^= : startsWith
-// @ : in (values separated by |), !@ : notIn
-const OPERATORS = [
-  { symbol: '>=', name: 'greaterThanOrEquals' },
-  { symbol: '<=', name: 'lessThanOrEquals' },
-  { symbol: '!=', name: 'notEquals' },
-  { symbol: '~=', name: 'stringContains' },
-  { symbol: '^=', name: 'startsWith' },
-  { symbol: '!@', name: 'notIn' },
-  { symbol: '=', name: 'equals' },
-  { symbol: '>', name: 'greaterThan' },
-  { symbol: '<', name: 'lessThan' },
-  { symbol: '@', name: 'in' },
-] as const;
-
-type OperatorName = (typeof OPERATORS)[number]['name'];
-
 /**
- * Parse a simple filter string into RetrievalFilter array
- * @param filterStr Filter string (e.g., "category=AWS,year>2020")
- * @returns Array of RetrievalFilter
- * @throws Error if filter syntax is invalid
- */
-const parseSimpleFilter = (filterStr: string): RetrievalFilter[] => {
-  if (!filterStr || filterStr.trim() === '') {
-    return [];
-  }
-
-  const filters: RetrievalFilter[] = [];
-  const conditions = filterStr.split(',');
-
-  for (const condition of conditions) {
-    const trimmed = condition.trim();
-    if (trimmed === '') {
-      throw new Error('Empty condition found');
-    }
-
-    // Find the operator
-    let foundOperator: (typeof OPERATORS)[number] | undefined;
-    let operatorIndex = -1;
-
-    for (const op of OPERATORS) {
-      const idx = trimmed.indexOf(op.symbol);
-      if (idx > 0) {
-        foundOperator = op;
-        operatorIndex = idx;
-        break;
-      }
-    }
-
-    if (!foundOperator || operatorIndex <= 0) {
-      throw new Error(
-        `Invalid condition: '${trimmed}'. Expected format: key=value`
-      );
-    }
-
-    const key = trimmed.substring(0, operatorIndex).trim();
-    const valueStr = trimmed
-      .substring(operatorIndex + foundOperator.symbol.length)
-      .trim();
-
-    if (key === '') {
-      throw new Error(`Empty key in condition: '${trimmed}'`);
-    }
-
-    if (valueStr === '') {
-      throw new Error(`Empty value in condition: '${trimmed}'`);
-    }
-
-    // Build the filter based on operator
-    const filter = buildFilter(key, valueStr, foundOperator.name);
-    filters.push(filter);
-  }
-
-  return filters;
-};
-
-/**
- * Build a RetrievalFilter from key, value, and operator
- * Note: Using 'as unknown as RetrievalFilter' due to AWS SDK's complex union type
- */
-const buildFilter = (
-  key: string,
-  valueStr: string,
-  operatorName: OperatorName
-): RetrievalFilter => {
-  // For 'in' and 'notIn', values are separated by |
-  if (operatorName === 'in' || operatorName === 'notIn') {
-    const values = valueStr.split('|').map((v) => v.trim());
-    return {
-      [operatorName]: {
-        key,
-        value: values,
-      },
-    } as unknown as RetrievalFilter;
-  }
-
-  // For numeric operators, try to parse as number
-  if (
-    operatorName === 'greaterThan' ||
-    operatorName === 'lessThan' ||
-    operatorName === 'greaterThanOrEquals' ||
-    operatorName === 'lessThanOrEquals'
-  ) {
-    const numValue = Number(valueStr);
-    if (isNaN(numValue)) {
-      throw new Error(
-        `Invalid value type: '${valueStr}' is not a number for operator '${operatorName}'`
-      );
-    }
-    return {
-      [operatorName]: {
-        key,
-        value: numValue,
-      },
-    } as unknown as RetrievalFilter;
-  }
-
-  // For equals/notEquals, try to parse as number or boolean, otherwise use string
-  if (operatorName === 'equals' || operatorName === 'notEquals') {
-    let value: string | number | boolean = valueStr;
-
-    // Try to parse as number
-    const numValue = Number(valueStr);
-    if (!isNaN(numValue)) {
-      value = numValue;
-    } else if (valueStr.toLowerCase() === 'true') {
-      value = true;
-    } else if (valueStr.toLowerCase() === 'false') {
-      value = false;
-    }
-
-    return {
-      [operatorName]: {
-        key,
-        value,
-      },
-    } as unknown as RetrievalFilter;
-  }
-
-  // For string operators (stringContains, startsWith)
-  return {
-    [operatorName]: {
-      key,
-      value: valueStr,
-    },
-  } as unknown as RetrievalFilter;
-};
-
-/**
- * Get aggregated explicit filters from various sources
+ * 各種フィルタソースからExplicit Filterを集約する
  */
 const getExplicitFilters = async (
   filterStr?: string,
   idToken?: string
 ): Promise<RetrievalFilter | undefined> => {
-  // Parse user-provided filter
+  // ユーザー指定フィルタをパース
   const userFilters = filterStr ? parseSimpleFilter(filterStr) : [];
 
-  // Get dynamic filters from idToken
+  // IDトークンからDynamic Filterを生成
   let dynamicFilters: RetrievalFilter[] = [];
   if (idToken) {
     try {
@@ -186,26 +35,16 @@ const getExplicitFilters = async (
       }
     } catch (e) {
       console.warn('Failed to verify token for dynamic filters:', e);
-      // Continue without dynamic filters
+      // Dynamic Filterなしで続行
     }
   }
 
-  // Aggregate all filters
-  const aggregatedFilters: RetrievalFilter[] = [
-    ...hiddenStaticExplicitFilters,
-    ...dynamicFilters,
-    ...userFilters,
-  ];
-
-  if (aggregatedFilters.length === 0) {
-    return undefined;
-  } else if (aggregatedFilters.length === 1) {
-    return aggregatedFilters[0];
-  } else {
-    return {
-      andAll: aggregatedFilters,
-    };
-  }
+  // 全フィルタを集約: hiddenStatic → dynamic → user の順
+  return aggregateFilters(
+    hiddenStaticExplicitFilters,
+    dynamicFilters,
+    userFilters
+  );
 };
 
 exports.handler = async (
@@ -228,7 +67,7 @@ exports.handler = async (
       };
     }
 
-    // Parse and validate filter
+    // フィルタのパースとバリデーション
     let explicitFilters: RetrievalFilter | undefined;
     try {
       explicitFilters = await getExplicitFilters(filter, idToken);

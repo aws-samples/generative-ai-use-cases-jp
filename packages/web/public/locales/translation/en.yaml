@@ -1293,6 +1293,11 @@ useCaseBuilder:
 
       For array conditions, use @ and separate values with |.
       Example: {{retrieveKnowledgeBase:Question:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      Limitations:
+      - Values cannot contain commas (,) as they conflict with condition separators.
+      - Numeric-looking strings are automatically converted to numbers (e.g., "007" → 7). Use ~= or ^= if you need to keep them as strings.
     retrieveKnowledgeBaseExample:
       prompt: |-
         You are an AI assistant that answers user questions.

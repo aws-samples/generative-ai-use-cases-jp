@@ -911,6 +911,11 @@ useCaseBuilder:
 
       Đối với điều kiện mảng, sử dụng @ và phân cách giá trị bằng |.
       Ví dụ: {{retrieveKnowledgeBase:Câu hỏi:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      Lưu ý:
+      - Giá trị không được chứa dấu phẩy (,) (vì xung đột với ký tự phân cách điều kiện)
+      - Chuỗi trông giống số sẽ tự động được chuyển đổi thành số (ví dụ: "007" → 7). Nếu muốn xử lý như chuỗi, hãy sử dụng ~= hoặc ^=
     retrieveKnowledgeBaseExample:
       prompt: |-
         Bạn là AI assistant trả lời câu hỏi của người dùng.

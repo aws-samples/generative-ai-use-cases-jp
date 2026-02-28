@@ -770,6 +770,11 @@ useCaseBuilder:
 
       배열 조건의 경우 @를 사용하고 값은 |로 구분합니다.
       예: {{retrieveKnowledgeBase:질문:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      주의사항:
+      - 값에 쉼표(,)를 포함할 수 없습니다 (조건 구분자와 충돌하기 때문)
+      - 숫자처럼 보이는 문자열은 자동으로 숫자로 변환됩니다 (예: "007" → 7). 문자열로 처리하려면 ~= 또는 ^=를 사용하세요
     retrieveKnowledgeBaseExample:
       prompt: |-
         사용자의 질문에 답변하는 AI 어시스턴트입니다.

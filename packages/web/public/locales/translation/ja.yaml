@@ -1052,6 +1052,11 @@ useCaseBuilder:
 
       配列条件には @ を使用し、値は | で区切ります。
       例: {{retrieveKnowledgeBase:質問:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      注意事項:
+      - 値にカンマ(,)を含めることはできません（条件区切りと衝突するため）
+      - 数値に見える文字列は自動的に数値に変換されます（例: "007" → 7）。文字列として扱いたい場合は ~= や ^= を使用してください
     retrieveKnowledgeBaseExample:
       prompt: |-
         あなたは、ユーザーの質問に答える AI アシスタントです。

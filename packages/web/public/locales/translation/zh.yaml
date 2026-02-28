@@ -770,6 +770,11 @@ useCaseBuilder:
 
       对于数组条件，使用 @ 并用 | 分隔值。
       例如: {{retrieveKnowledgeBase:问题:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      注意事项:
+      - 值中不能包含逗号(,)（因为逗号用于分隔条件）
+      - 看起来像数字的字符串会自动转换为数字（例如: "007" → 7）。如果需要保持为字符串，请使用 ~= 或 ^=
     retrieveKnowledgeBaseExample:
       prompt: |-
         您是一个回答用户问题的AI助手。

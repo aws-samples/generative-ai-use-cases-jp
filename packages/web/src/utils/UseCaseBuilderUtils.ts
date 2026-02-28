@@ -118,9 +118,14 @@ export type KBFilterValidationResult = {
 };
 
 /**
- * Validate Knowledge Base filter syntax (frontend pre-check)
- * @param filterStr Filter string (e.g., "category=AWS,year>2020")
- * @returns Validation result with error message if invalid
+ * Knowledge Baseフィルタ構文のバリデーション（フロントエンド事前チェック）
+ * @param filterStr フィルタ文字列 (例: "category=AWS,year>2020")
+ * @returns バリデーション結果。無効な場合はエラーメッセージを含む
+ *
+ * 既知の制限事項:
+ * - 値にカンマ(,)を含めることはできない（条件区切りと衝突するため）
+ * - 数値に見える文字列はバックエンドで自動的に数値に変換される（例: "007" → 7）
+ *   文字列として保持したい場合はstringContains(~=)やstartsWith(^=)を使用すること
  */
 export const validateKBFilter = (
   filterStr: string | undefined
