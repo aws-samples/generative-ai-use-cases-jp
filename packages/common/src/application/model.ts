@@ -40,6 +40,14 @@ const MODEL_FEATURE: Record<string, FeatureFlags> = {
     video: false,
     reasoning: true,
   },
+  TEXT_DOC_IMAGE_ADAPTIVE_THINKING: {
+    text: true,
+    doc: true,
+    image: true,
+    video: false,
+    reasoning: true,
+    adaptiveThinking: true,
+  },
   TEXT_DOC_IMAGE_VIDEO: { text: true, doc: true, image: true, video: true },
   IMAGE_GEN: { image_gen: true },
   VIDEO_GEN: { video_gen: true },
@@ -89,6 +97,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     },
     displayName: 'Claude 3 Haiku',
   },
+  'us.anthropic.claude-opus-4-5-20251101-v1:0': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
+    displayName: 'Claude Opus 4.5',
+  },
   'us.anthropic.claude-opus-4-1-20250805-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Opus 4.1',
@@ -96,6 +108,42 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   'us.anthropic.claude-opus-4-20250514-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Opus 4',
+  },
+  'global.anthropic.claude-opus-4-6-v1': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Opus 4.6',
+  },
+  'us.anthropic.claude-opus-4-6-v1': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Opus 4.6',
+  },
+  'au.anthropic.claude-opus-4-6-v1': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Opus 4.6',
+  },
+  'eu.anthropic.claude-opus-4-6-v1': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Opus 4.6',
+  },
+  'global.anthropic.claude-sonnet-4-6': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Sonnet 4.6',
+  },
+  'us.anthropic.claude-sonnet-4-6': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Sonnet 4.6',
+  },
+  'eu.anthropic.claude-sonnet-4-6': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Sonnet 4.6',
+  },
+  'au.anthropic.claude-sonnet-4-6': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Sonnet 4.6',
+  },
+  'jp.anthropic.claude-sonnet-4-6': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
+    displayName: 'Claude Sonnet 4.6',
   },
   'global.anthropic.claude-opus-4-5-20251101-v1:0': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
@@ -647,6 +695,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
   // === Speech to Speech ===
 
   // Amazon
+  'amazon.nova-2-sonic-v1:0': {
+    flags: MODEL_FEATURE.SPEECH_TO_SPEECH,
+    displayName: 'Nova 2 Sonic',
+  },
   'amazon.nova-sonic-v1:0': {
     flags: MODEL_FEATURE.SPEECH_TO_SPEECH,
     displayName: 'Nova Sonic',
@@ -675,6 +727,8 @@ export const BEDROCK_SPEECH_TO_SPEECH_MODELS = Object.keys(
 // Prompt caching
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
 export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
+  'anthropic.claude-opus-4-6-v1': ['messages', 'system', 'tools'],
+  'anthropic.claude-sonnet-4-6': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-5-20251101-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-sonnet-4-5-20250929-v1:0': ['messages', 'system', 'tools'],
   'anthropic.claude-haiku-4-5-20251001-v1:0': ['messages', 'system', 'tools'],
@@ -690,4 +744,4 @@ export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
   'amazon.nova-2-lite-v1:0': ['messages', 'system'],
 };
 
-export const CRI_PREFIX_PATTERN = /^(global|us|eu|apac|jp)\./;
+export const CRI_PREFIX_PATTERN = /^(global|us|eu|apac|jp|au)\./;

@@ -1,8 +1,8 @@
 name: GenU AutoDeploy
 
 on:
-  pull_request:
-    types: [labeled, closed]
+  pull_request_target:
+    types: [labeled, synchronize, closed]
 
 permissions:
   id-token: write
@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   deploy:
-    if: github.event.label.name == 'auto-deploy'
+    if: >-
+      (github.event.action == 'labeled' && github.event.label.name == 'auto-deploy') ||
+      (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
@@ -27,8 +29,8 @@ jobs:
           hide-cloudwatch-logs: true
           env-vars-for-codebuild: |
             PR_NUMBER,
-            GITHUB_HEAD_REF,
-            GITHUB_REPOSITORY
+            HEAD_REF,
+            HEAD_REPOSITORY
           buildspec-override: |
             version: 0.2
             phases:
@@ -37,7 +39,7 @@ jobs:
                   nodejs: 20
                 commands:
                   - echo "Cloning repository..."
-                  - git clone --branch ${GITHUB_HEAD_REF} https://github.com/${GITHUB_REPOSITORY}.git /tmp/source
+                  - git clone --branch ${HEAD_REF} https://github.com/${HEAD_REPOSITORY}.git /tmp/source
                   - cd /tmp/source
                   - echo "Node.js version:"
                   - node --version
@@ -62,7 +64,7 @@ jobs:
                   - PR_URL="https://github.com/${GITHUB_REPOSITORY}/pull/${PR_NUMBER}"
                   - DEPLOY_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S JST')
                   - DEPLOY_STATUS="Success"
-                  - printf '{"ENV_NAME":"pr-%s","PR_NUMBER":"%s","BRANCH_NAME":"%s","GENU_URL":"%s","PR_URL":"%s","DEPLOY_STATUS":"%s","DEPLOY_TIMESTAMP":"%s"}' "${PR_NUMBER}" "${PR_NUMBER}" "${GITHUB_HEAD_REF}" "${GENU_URL}" "${PR_URL}" "${DEPLOY_STATUS}" "${DEPLOY_TIMESTAMP}" > /tmp/lambda-payload.json
+                  - printf '{"ENV_NAME":"pr-%s","PR_NUMBER":"%s","BRANCH_NAME":"%s","GENU_URL":"%s","PR_URL":"%s","DEPLOY_STATUS":"%s","DEPLOY_TIMESTAMP":"%s"}' "${PR_NUMBER}" "${PR_NUMBER}" "${HEAD_REF}" "${GENU_URL}" "${PR_URL}" "${DEPLOY_STATUS}" "${DEPLOY_TIMESTAMP}" > /tmp/lambda-payload.json
                   - cat /tmp/lambda-payload.json
                   - echo "Sending Slack notification..."
                   - aws lambda invoke --function-name GenUSlackNotification --region ap-northeast-1 --cli-binary-format raw-in-base64-out --payload file:///tmp/lambda-payload.json /tmp/lambda-response.json
@@ -70,8 +72,8 @@ jobs:
                   - echo "Slack notification sent successfully"
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          GITHUB_HEAD_REF: ${{ github.head_ref }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
 
   cleanup:
     if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')

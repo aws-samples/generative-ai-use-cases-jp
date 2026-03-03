@@ -31,9 +31,14 @@ module.exports = {
       return printer(modifiedValue, config, indentation, depth, refs);
     }
 
-    // Handle zip file strings
+    // Handle zip file strings and docker image hashes
     if (typeof value === 'string') {
-      return `"${value.replace(/([A-Fa-f0-9]{64}.zip)/, 'HASH-REPLACED.zip')}"`;
+      return `"${value
+        .replace(/([A-Fa-f0-9]{64}.zip)/, 'HASH-REPLACED.zip')
+        .replace(
+          /(container-assets-\d+-[^:]+:)[A-Fa-f0-9]{64}/,
+          '$1HASH-REPLACED'
+        )}"`;
     }
 
     return printer(value, config, indentation, depth, refs);

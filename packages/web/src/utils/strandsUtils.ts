@@ -292,6 +292,82 @@ const convertFileToStrandsContentBlock = async (
 };
 
 /**
+ * Convert Strands messages back to GenU format
+ */
+export const convertFromStrandsFormat = (
+  messages: StrandsMessage[]
+): UnrecordedMessage[] => {
+  return messages.map((message) => {
+    // Extract text content from content blocks
+    const textContent = message.content
+      .filter((block) => 'text' in block)
+      .map((block) => ('text' in block ? block.text : ''))
+      .join('\n');
+
+    // Extract extra data from non-text content blocks
+    const extraData: ExtraData[] = [];
+    for (const block of message.content) {
+      if ('image' in block && block.image.source) {
+        extraData.push({
+          type: 'image',
+          name: 'image', // Default name for images
+          source: {
+            type: 'base64',
+            mediaType: `image/${block.image.format}`,
+            data: block.image.source.bytes,
+          },
+        });
+      } else if ('document' in block && block.document.source) {
+        extraData.push({
+          type: 'file',
+          name: block.document.name || 'document',
+          source: {
+            type: 'base64',
+            mediaType: getDocumentMimeType(block.document.format || 'txt'),
+            data: block.document.source.bytes,
+          },
+        });
+      }
+    }
+
+    return {
+      role: message.role,
+      content: textContent,
+      extraData: extraData.length > 0 ? extraData : undefined,
+    };
+  });
+};
+
+/**
+ * Get MIME type from document format
+ */
+const getDocumentMimeType = (
+  format:
+    | 'pdf'
+    | 'csv'
+    | 'doc'
+    | 'docx'
+    | 'xls'
+    | 'xlsx'
+    | 'html'
+    | 'txt'
+    | 'md'
+): string => {
+  const mimeTypes: Record<string, string> = {
+    pdf: 'application/pdf',
+    csv: 'text/csv',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    html: 'text/html',
+    txt: 'text/plain',
+    md: 'text/markdown',
+  };
+  return mimeTypes[format] || 'application/octet-stream';
+};
+
+/**
  * Content block types for state tracking
  */
 type ContentBlockType = 'text' | 'toolUse' | 'reasoning' | null;
@@ -302,6 +378,15 @@ type ContentBlockType = 'text' | 'toolUse' | 'reasoning' | null;
 export class StrandsStreamProcessor {
   private currentContentBlockType: ContentBlockType = null;
   private toolUseBuffer: string = '';
+  private textBuffer: string = ''; // Text buffer for research agent
+  private isResearchAgent: boolean = false; // Flag to identify research agent
+
+  /**
+   * Set whether this is a research agent request
+   */
+  setResearchAgent(isResearch: boolean): void {
+    this.isResearchAgent = isResearch;
+  }
 
   /**
    * Process a streaming event and return formatted content
@@ -327,6 +412,11 @@ export class StrandsStreamProcessor {
 
         if ('text' in start && start.text) {
           this.currentContentBlockType = 'text';
+          // For research agent, buffer text to process <final_report> tags
+          if (this.isResearchAgent) {
+            this.textBuffer = start.text;
+            return null; // Don't return yet, wait for contentBlockStop
+          }
           return { text: start.text };
         } else if ('toolUse' in start && start.toolUse) {
           this.currentContentBlockType = 'toolUse';
@@ -341,6 +431,11 @@ export class StrandsStreamProcessor {
 
         if (delta.text) {
           this.currentContentBlockType = 'text';
+          // For research agent, buffer text to process <final_report> tags
+          if (this.isResearchAgent) {
+            this.textBuffer += delta.text;
+            return null; // Don't return yet, wait for contentBlockStop
+          }
           return { text: delta.text };
         } else if (delta.toolUse) {
           this.currentContentBlockType = 'toolUse';
@@ -355,7 +450,56 @@ export class StrandsStreamProcessor {
       // Handle content block stop event
       if (streamEvent.contentBlockStop) {
         if (this.currentContentBlockType === 'text') {
-          // Close the text block
+          // For research agent, process buffered text for <final_report> tags
+          if (this.isResearchAgent) {
+            const bufferedText = this.textBuffer;
+            this.textBuffer = '';
+
+            // Check for final_report tags and split content
+            if (
+              bufferedText.includes('<final_report>') &&
+              bufferedText.includes('</final_report>')
+            ) {
+              // Extract final report (inside tags) → chat
+              const reportMatches = bufferedText.match(
+                /<final_report>([\s\S]*?)<\/final_report>/g
+              );
+              let finalReport = '';
+              if (reportMatches) {
+                finalReport = reportMatches
+                  .map((m) =>
+                    m
+                      .replace('<final_report>', '')
+                      .replace('</final_report>', '')
+                  )
+                  .join('\n');
+              }
+
+              // Extract everything else (outside tags) → trace
+              const trace = bufferedText
+                .replace(/<final_report>[\s\S]*?<\/final_report>/g, '')
+                .trim();
+
+              // Return both
+              const result: { text: string; trace?: string } = { text: '' };
+              if (trace) {
+                result.trace = trace;
+              }
+              if (finalReport) {
+                result.text = finalReport;
+              }
+
+              this.currentContentBlockType = null;
+              return result;
+            }
+
+            // No XML tags for research agent, return as trace
+            const result = { text: '', trace: bufferedText };
+            this.currentContentBlockType = null;
+            return result;
+          }
+
+          // For non-research agents, return text normally
           const result = { text: '\n' };
           this.currentContentBlockType = null;
           return result;
@@ -419,7 +563,7 @@ export class StrandsStreamProcessor {
 
       return null;
     } catch (error) {
-      console.error('Error processing stream event:', error);
+      console.error('Error processing Strands event:', error);
       return null;
     }
   }
@@ -430,5 +574,6 @@ export class StrandsStreamProcessor {
   reset(): void {
     this.currentContentBlockType = null;
     this.toolUseBuffer = '';
+    this.textBuffer = '';
   }
 }

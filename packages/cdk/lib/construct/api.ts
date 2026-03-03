@@ -72,7 +72,6 @@ export interface BackendApiProps {
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
-  readonly cognitoUserPoolProxyEndpoint?: string;
 }
 
 export class Api extends Construct {
@@ -199,7 +198,6 @@ export class Api extends Construct {
       environment: {
         USER_POOL_ID: userPool.userPoolId,
         USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-        USER_POOL_PROXY_ENDPOINT: props.cognitoUserPoolProxyEndpoint ?? '',
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
@@ -793,6 +791,22 @@ export class Api extends Construct {
     );
     table.grantReadWriteData(deleteSystemContextFunction);
 
+    const meetingMinutesCustomPromptFunction = new NodejsFunction(
+      this,
+      'MeetingMinutesCustomPrompt',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/meetingMinutes/minutesCustomPrompt.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantReadWriteData(meetingMinutesCustomPromptFunction);
+
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteFile.ts',
@@ -987,6 +1001,31 @@ export class Api extends Construct {
     systemContextTitleResource.addMethod(
       'PUT',
       new LambdaIntegration(updateSystemContextTitleFunction),
+      commonAuthorizerProps
+    );
+
+    const meetingMinutesCustomPromptIntegration = new LambdaIntegration(
+      meetingMinutesCustomPromptFunction
+    );
+
+    const meetingMinutesResource = api.root.addResource('meeting-minutes');
+    const meetingMinutesCustomPromptsResource =
+      meetingMinutesResource.addResource('custom-prompts');
+
+    // ANY: /meeting-minutes/custom-prompts (GET, POST)
+    meetingMinutesCustomPromptsResource.addMethod(
+      'ANY',
+      meetingMinutesCustomPromptIntegration,
+      commonAuthorizerProps
+    );
+
+    const meetingMinutesCustomPromptResource =
+      meetingMinutesCustomPromptsResource.addResource('{id}');
+
+    // ANY: /meeting-minutes/custom-prompts/{id} (PUT, DELETE)
+    meetingMinutesCustomPromptResource.addMethod(
+      'ANY',
+      meetingMinutesCustomPromptIntegration,
       commonAuthorizerProps
     );
 

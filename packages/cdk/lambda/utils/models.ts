@@ -148,6 +148,20 @@ const CLAUDE_OPUS_4_5_DEFAULT_PARAMS: ConverseInferenceParams = {
   },
 };
 
+const CLAUDE_OPUS_4_6_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 128000,
+    temperature: 1,
+  },
+};
+
+const CLAUDE_SONNET_4_6_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 64000,
+    temperature: 1,
+  },
+};
+
 const CLAUDE_3_5_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
     maxTokens: 8192,
@@ -536,7 +550,8 @@ const createConverseCommandInput = (
 
   if (
     modelMetadata[model.modelId].flags.reasoning &&
-    model.modelParameters?.reasoningConfig?.type === 'enabled'
+    (model.modelParameters?.reasoningConfig?.type === 'enabled' ||
+      model.modelParameters?.reasoningConfig?.type === 'adaptive')
   ) {
     converseCommandInput.inferenceConfig = {
       ...params.inferenceConfig,
@@ -544,13 +559,26 @@ const createConverseCommandInput = (
       topP: undefined, // reasoning does not require topP
       maxTokens: params.inferenceConfig?.maxTokens,
     };
-    converseCommandInput.additionalModelRequestFields = {
-      reasoning_config: {
-        type: model.modelParameters?.reasoningConfig?.type,
-        budget_tokens:
-          model.modelParameters?.reasoningConfig?.budgetTokens || 0,
-      },
-    };
+
+    if (model.modelParameters?.reasoningConfig?.type === 'adaptive') {
+      // Adaptive thinking (Claude Opus 4.6+)
+      // https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-adaptive-thinking.html
+      converseCommandInput.additionalModelRequestFields = {
+        thinking: { type: 'adaptive' },
+        output_config: {
+          effort: model.modelParameters?.reasoningConfig?.effort || 'high',
+        },
+      };
+    } else {
+      // Extended thinking (legacy: Claude 3.7 Sonnet, Claude 4/4.1/4.5)
+      converseCommandInput.additionalModelRequestFields = {
+        reasoning_config: {
+          type: model.modelParameters?.reasoningConfig?.type,
+          budget_tokens:
+            model.modelParameters?.reasoningConfig?.budgetTokens || 0,
+        },
+      };
+    }
   }
 
   return converseCommandInput;
@@ -996,6 +1024,86 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: (body: ConverseStreamOutput) => StreamingChunk;
   };
 } = {
+  'global.anthropic.claude-opus-4-6-v1': {
+    defaultParams: CLAUDE_OPUS_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'us.anthropic.claude-opus-4-6-v1': {
+    defaultParams: CLAUDE_OPUS_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'au.anthropic.claude-opus-4-6-v1': {
+    defaultParams: CLAUDE_OPUS_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'eu.anthropic.claude-opus-4-6-v1': {
+    defaultParams: CLAUDE_OPUS_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'global.anthropic.claude-sonnet-4-6': {
+    defaultParams: CLAUDE_SONNET_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'us.anthropic.claude-sonnet-4-6': {
+    defaultParams: CLAUDE_SONNET_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'eu.anthropic.claude-sonnet-4-6': {
+    defaultParams: CLAUDE_SONNET_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'au.anthropic.claude-sonnet-4-6': {
+    defaultParams: CLAUDE_SONNET_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'jp.anthropic.claude-sonnet-4-6': {
+    defaultParams: CLAUDE_SONNET_4_6_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'us.anthropic.claude-opus-4-5-20251101-v1:0': {
+    defaultParams: CLAUDE_OPUS_4_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'us.anthropic.claude-opus-4-1-20250805-v1:0': {
     defaultParams: CLAUDE_OPUS_4_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,

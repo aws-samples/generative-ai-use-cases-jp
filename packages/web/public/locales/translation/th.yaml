@@ -598,7 +598,16 @@ meetingMinutes:
   next_generation_in: 'สร้างครั้งถัดไปใน : '
   no_transcript: ไม่มีบันทึกการถอดความ
   partial_indicator: (...)
+  prompt_title_placeholder: ป้อนชื่อสำหรับพรอมต์นี้...
   record_transcribe: บันทึกและถอดความ
+  save_as_prompt: บันทึกเป็นพรอมต์แบบกำหนดเอง
+  saved_prompt_body: เนื้อหาพรอมต์
+  saved_prompt_created: บันทึกพรอมต์แบบกำหนดเองแล้ว
+  saved_prompt_delete_confirm: ลบพรอมต์นี้หรือไม่?
+  saved_prompt_deleted: ลบพรอมต์แบบกำหนดเองแล้ว
+  saved_prompt_prefix: ★
+  saved_prompt_title: ชื่อพรอมต์
+  saved_prompt_updated: อัปเดตพรอมต์แบบกำหนดเองแล้ว
   screen_audio_error: ข้อผิดพลาดเสียงหน้าจอ
   speech_recognition: การรู้จำเสียงพูด
   style: รูปแบบรายงานการประชุม
@@ -617,6 +626,7 @@ meetingMinutes:
 model:
   parameters:
     reasoning_budget: งบประมาณการให้เหตุผล
+    reasoning_effort: ระดับการคิด
 navigation:
   agentChat: Agent Chat
   chat: Chat
@@ -684,6 +694,18 @@ rag:
   please_refer: .
   retrieving: กำลังค้นคืนเอกสารอ้างอิงจาก Kendra...
   title: RAG Chat
+research:
+  description: ดำเนินการงานวิจัยที่หลากหลายในอุตสาหกรรมต่างๆ โดยใช้การค้นหาเว็บและสร้างรายงานการวิจัยโดยละเอียด
+  general_research: การวิจัยทั่วไป
+  general_research_desc: วิจัยข้อมูลในหลากหลายสาขาและให้การวิเคราะห์ที่ครอบคลุม
+  label: การวิจัย
+  mini_research: การวิจัยด่วน
+  mini_research_desc: วิจัยประเด็นสำคัญอย่างรวดเร็วและให้คำตอบที่กระชับ
+  select_mode: เลือกโหมด
+  start_conversation: เริ่มการสนทนากับ Research Agent
+  technical_research: การวิจัยทางเทคนิค
+  technical_research_desc: ดำเนินการวิจัยและวิเคราะห์ทางเทคนิคโดยละเอียด
+  title: การวิจัย
 setting:
   ai_items:
     agent_name: Agent Name

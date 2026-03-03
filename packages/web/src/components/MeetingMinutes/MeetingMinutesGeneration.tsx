@@ -14,9 +14,11 @@ import ButtonIcon from '../ButtonIcon';
 import Markdown from '../Markdown';
 import MeetingMinutesSettingsModal from './MeetingMinutesSettingsModal';
 import useMeetingMinutes from '../../hooks/useMeetingMinutes';
+import useMeetingMinutesCustomPromptApi from '../../hooks/useMeetingMinutesCustomPromptApi';
 import { MODELS } from '../../hooks/useModel';
 import { MeetingMinutesParams, DiagramOption } from '../../prompts';
 import { claudePrompter } from '../../prompts/claude';
+import { decomposeId } from '../../utils/ChatUtils';
 
 interface MeetingMinutesGenerationProps {
   /** Current transcript text to generate minutes from */
@@ -48,6 +50,24 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     'mindmap',
   ]);
 
+  // Saved custom prompts
+  const meetingMinutesCustomPromptApi = useMeetingMinutesCustomPromptApi();
+  const { data: savedPrompts, mutate: mutateSavedPrompts } =
+    meetingMinutesCustomPromptApi.listMeetingMinutesCustomPrompts();
+
+  // Resolve effective custom prompt for saved prompts
+  const effectiveCustomPrompt = useMemo(() => {
+    if (minutesStyle.startsWith('savedPrompt:') && savedPrompts) {
+      const promptId = minutesStyle.replace('savedPrompt:', '');
+      const found = savedPrompts.find((p) => {
+        const decomposed = decomposeId(p.meetingMinutesCustomPromptId);
+        return decomposed === promptId;
+      });
+      return found?.meetingMinutesCustomPromptBody || '';
+    }
+    return customPrompt;
+  }, [minutesStyle, savedPrompts, customPrompt]);
+
   // Toggle diagram option
   const toggleDiagramOption = useCallback((option: DiagramOption) => {
     setDiagramOptions((prev) => {
@@ -74,7 +94,7 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     clearMinutes,
   } = useMeetingMinutes(
     minutesStyle,
-    customPrompt,
+    effectiveCustomPrompt,
     autoGenerateSessionTimestamp,
     setGeneratedMinutes,
     () => {}, // Empty function for setLastProcessedTranscript
@@ -89,7 +109,17 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
 
   // Get style label for display
   const styleLabel = useMemo(() => {
-    const styleOptions: Record<MeetingMinutesParams['style'], string> = {
+    if (minutesStyle.startsWith('savedPrompt:') && savedPrompts) {
+      const promptId = minutesStyle.replace('savedPrompt:', '');
+      const found = savedPrompts.find((p) => {
+        const decomposed = decomposeId(p.meetingMinutesCustomPromptId);
+        return decomposed === promptId;
+      });
+      if (found) {
+        return `${t('meetingMinutes.saved_prompt_prefix')} ${found.meetingMinutesCustomPromptTitle}`;
+      }
+    }
+    const builtinStyles: Record<string, string> = {
       summary: t('meetingMinutes.style_summary'),
       detail: t('meetingMinutes.style_detail'),
       faq: t('meetingMinutes.style_faq'),
@@ -99,8 +129,54 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
       whiteboard: t('meetingMinutes.style_whiteboard'),
       custom: t('meetingMinutes.style_custom'),
     };
-    return styleOptions[minutesStyle];
-  }, [minutesStyle, t]);
+    return builtinStyles[minutesStyle] || minutesStyle;
+  }, [minutesStyle, savedPrompts, t]);
+
+  // CRUD handlers for saved prompts
+  const handleCreatePrompt = useCallback(
+    async (title: string, body: string) => {
+      await meetingMinutesCustomPromptApi.createMeetingMinutesCustomPrompt(
+        title,
+        body
+      );
+      await mutateSavedPrompts();
+      toast.success(t('meetingMinutes.saved_prompt_created'));
+    },
+    [meetingMinutesCustomPromptApi, mutateSavedPrompts, t]
+  );
+
+  const handleUpdatePrompt = useCallback(
+    async (id: string, title: string, body: string) => {
+      await meetingMinutesCustomPromptApi.updateMeetingMinutesCustomPrompt(
+        id,
+        title,
+        body
+      );
+      await mutateSavedPrompts();
+      toast.success(t('meetingMinutes.saved_prompt_updated'));
+    },
+    [meetingMinutesCustomPromptApi, mutateSavedPrompts, t]
+  );
+
+  const handleDeletePrompt = useCallback(
+    async (id: string) => {
+      await meetingMinutesCustomPromptApi.deleteMeetingMinutesCustomPrompt(id);
+      await mutateSavedPrompts();
+      // Fall back to 'custom' style, preserving the prompt body
+      if (minutesStyle.startsWith('savedPrompt:')) {
+        setCustomPrompt(effectiveCustomPrompt);
+        setMinutesStyle('custom');
+      }
+      toast.success(t('meetingMinutes.saved_prompt_deleted'));
+    },
+    [
+      meetingMinutesCustomPromptApi,
+      mutateSavedPrompts,
+      minutesStyle,
+      effectiveCustomPrompt,
+      t,
+    ]
+  );
 
   // Watch for generation signal and trigger generation
   useEffect(() => {
@@ -305,6 +381,10 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
         generationFrequency={generationFrequency}
         setGenerationFrequency={setGenerationFrequency}
         getSystemPrompt={getSystemPrompt}
+        savedPrompts={savedPrompts}
+        onCreatePrompt={handleCreatePrompt}
+        onUpdatePrompt={handleUpdatePrompt}
+        onDeletePrompt={handleDeletePrompt}
       />
     </div>
   );

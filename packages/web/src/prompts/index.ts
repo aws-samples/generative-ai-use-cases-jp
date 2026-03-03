@@ -80,7 +80,8 @@ export type MeetingMinutesParams = {
     | 'faq'
     | 'diagram'
     | 'whiteboard'
-    | 'custom';
+    | 'custom'
+    | `savedPrompt:${string}`;
   customPrompt?: string;
   diagramOptions?: DiagramOption[];
 };

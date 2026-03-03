@@ -6,6 +6,7 @@ export type FeatureFlags = {
   image?: boolean;
   video?: boolean;
   reasoning?: boolean;
+  adaptiveThinking?: boolean;
 
   image_gen?: boolean;
   video_gen?: boolean;

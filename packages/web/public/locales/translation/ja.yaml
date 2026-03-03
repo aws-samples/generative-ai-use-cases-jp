@@ -711,7 +711,16 @@ meetingMinutes:
   no_transcript: 文字起こしがありません
   option: オプション
   partial_indicator: (...)
+  prompt_title_placeholder: プロンプトの名前を入力してください...
   record_transcribe: 音声認識
+  save_as_prompt: カスタムプロンプトとして保存
+  saved_prompt_body: プロンプト内容
+  saved_prompt_created: カスタムプロンプトを保存しました
+  saved_prompt_delete_confirm: このプロンプトを削除しますか？
+  saved_prompt_deleted: カスタムプロンプトを削除しました
+  saved_prompt_prefix: ★
+  saved_prompt_title: プロンプトタイトル
+  saved_prompt_updated: カスタムプロンプトを更新しました
   screen_audio_error: スクリーン音声エラー
   settings: 設定
   speech_recognition: 音声認識
@@ -737,6 +746,7 @@ meetingMinutes:
 model:
   parameters:
     reasoning_budget: 深く考えるトークン数上限
+    reasoning_effort: 思考の深さ (Effort)
 navigation:
   agentChat: Agent チャット
   chat: チャット
@@ -792,6 +802,18 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
+research:
+  description: 業種・業界問わず様々なリサーチタスクを Web 検索を駆使して実施し、詳細な調査レポートを作成します。
+  general_research: 一般調査
+  general_research_desc: 幅広い分野の情報を調査し、総合的な分析を提供します
+  label: リサーチ
+  mini_research: クイック調査
+  mini_research_desc: 短時間で要点を調査し、簡潔な回答を提供します
+  select_mode: モードを選択してください
+  start_conversation: リサーチエージェントと会話を開始
+  technical_research: 技術調査
+  technical_research_desc: 詳細な技術調査と分析を実施します
+  title: リサーチ
 setting:
   ai_items:
     agent_name: Agent 名
@@ -859,6 +881,15 @@ summarize:
   result_placeholder: 要約された文章がここに表示されます
   text_to_summarize: 要約したい文章
   title: 要約
+svg:
+  download_as_png: PNGとしてダウンロード
+  download_as_svg: SVGとしてダウンロード
+  invalid_syntax: 無効なSVG構文
+  png_error: 'PNG出力エラー: '
+  preview_alt: SVGプレビュー
+  show_code: コードを表示
+  show_preview: プレビューを表示
+  svg_error: 'SVG出力エラー: '
 transcribe:
   detailed_parameters: 詳細なパラメータ
   direct_input: 直接入力

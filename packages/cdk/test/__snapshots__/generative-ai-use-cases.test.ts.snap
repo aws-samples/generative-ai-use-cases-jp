@@ -27,50 +27,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
         ],
       },
     },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiEndpointB14E563C": {
-      "Value": {
-        "Fn::Join": [
-          "",
-          [
-            "https://",
-            {
-              "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-            },
-            ".execute-api.us-east-1.",
-            {
-              "Ref": "AWS::URLSuffix",
-            },
-            "/",
-            {
-              "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF7892673",
-            },
-            "/",
-          ],
-        ],
-      },
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiEndpoint941ECBCB": {
-      "Value": {
-        "Fn::Join": [
-          "",
-          [
-            "https://",
-            {
-              "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-            },
-            ".execute-api.us-east-1.",
-            {
-              "Ref": "AWS::URLSuffix",
-            },
-            "/",
-            {
-              "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5",
-            },
-            "/",
-          ],
-        ],
-      },
-    },
     "ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47": {
       "Export": {
         "Name": "ClosedNetworkStack:ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47",
@@ -120,38 +76,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Value": {
         "Ref": "ClosedWebWebBucket6C6180EC",
-      },
-    },
-    "ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApi29D893997F7F25A2": {
-      "Export": {
-        "Name": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApi29D893997F7F25A2",
-      },
-      "Value": {
-        "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-      },
-    },
-    "ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF789267346799973": {
-      "Export": {
-        "Name": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF789267346799973",
-      },
-      "Value": {
-        "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF7892673",
-      },
-    },
-    "ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B": {
-      "Export": {
-        "Name": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
-      },
-      "Value": {
-        "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-      },
-    },
-    "ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B": {
-      "Export": {
-        "Name": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
-      },
-      "Value": {
-        "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5",
       },
     },
     "ResolverId": {
@@ -566,6 +490,60 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::EC2::VPCEndpoint",
     },
+    "ClosedVpcVpcEndpointCognitoIdentity3DD7C9A4": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "ClosedVpcSecurityGroup985DC3EC",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.cognito-identity",
+        "SubnetIds": [
+          {
+            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
+          },
+          {
+            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "ClosedVpcVpcEndpointCognitoIdp4111825D": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "ClosedVpcSecurityGroup985DC3EC",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.cognito-idp",
+        "SubnetIds": [
+          {
+            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
+          },
+          {
+            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
     "ClosedVpcVpcEndpointEcr015769B4": {
       "Properties": {
         "PrivateDnsEnabled": true,
@@ -686,6 +664,33 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
           },
         ],
         "ServiceName": "com.amazonaws.us-east-1.polly",
+        "SubnetIds": [
+          {
+            "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
+          },
+          {
+            "Ref": "ClosedVpcisolatedSubnet2SubnetB169C8D3",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "ClosedVpcC15583C9",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "ClosedVpcVpcEndpointS30E0F8882": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "ClosedVpcSecurityGroup985DC3EC",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": "com.amazonaws.us-east-1.s3",
         "SubnetIds": [
           {
             "Ref": "ClosedVpcisolatedSubnet1Subnet2EF6D3F3",
@@ -916,7 +921,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
         "DefaultActions": [
           {
             "TargetGroupArn": {
-              "Ref": "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
+              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
             },
             "Type": "forward",
           },
@@ -929,7 +934,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
       },
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
-    "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E": {
+    "ClosedWebAlbPublicListenerECSGroupB932E848": {
       "Properties": {
         "HealthCheckPath": "/healthcheck",
         "Port": 80,
@@ -991,7 +996,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
     },
     "ClosedWebService1F389222": {
       "DependsOn": [
-        "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
+        "ClosedWebAlbPublicListenerECSGroupB932E848",
         "ClosedWebAlbPublicListener2C7784BD",
         "ClosedWebServiceTaskDefTaskRoleDefaultPolicy11809144",
         "ClosedWebServiceTaskDefTaskRoleDB198F40",
@@ -1018,7 +1023,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "ContainerName": "web",
             "ContainerPort": 8080,
             "TargetGroupArn": {
-              "Ref": "ClosedWebAlbPublicListenerECSPrivateGroupB9DFF67E",
+              "Ref": "ClosedWebAlbPublicListenerECSGroupB932E848",
             },
           },
         ],
@@ -1191,7 +1196,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             ],
             "Essential": true,
             "Image": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:4ff5bc499469dec4d3db7984d1d848ce5c1bf39b794b5a2bf86cb6c8b17bee80",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
             "LogConfiguration": {
               "LogDriver": "awslogs",
@@ -1407,10 +1412,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
-          {
-            "Key": "aws-cdk:cr-owned:656af005",
-            "Value": "true",
-          },
         ],
       },
       "Type": "AWS::S3::Bucket",
@@ -1520,648 +1521,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
         },
       },
       "Type": "AWS::S3::BucketPolicy",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399": {
-      "Properties": {
-        "EndpointConfiguration": {
-          "Types": [
-            "PRIVATE",
-          ],
-          "VpcEndpointIds": [
-            {
-              "Ref": "ClosedVpcVpcEndpointApiGateway6200AA11",
-            },
-          ],
-        },
-        "Name": "GenU Cognito ID Pool Proxy API",
-        "Policy": {
-          "Statement": [
-            {
-              "Action": "execute-api:Invoke",
-              "Condition": {
-                "StringNotEquals": {
-                  "aws:SourceVpce": {
-                    "Ref": "ClosedVpcVpcEndpointApiGateway6200AA11",
-                  },
-                },
-              },
-              "Effect": "Deny",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": "execute-api:/*",
-            },
-            {
-              "Action": "execute-api:Invoke",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": "execute-api:/*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::ApiGateway::RestApi",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiAccount085E0E94": {
-      "DeletionPolicy": "Retain",
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-      ],
-      "Properties": {
-        "CloudWatchRoleArn": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoIdPoolProxyApiCloudWatchRole96031FD0",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiCloudWatchRole96031FD0": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "apigateway.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiDeploymentE3A3456Dc0e8ebfc951475ad78678c9d506574db": {
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoIdPoolProxyApiOPTIONS3BB922AD",
-        "CognitoPrivateProxyCognitoIdPoolProxyApiPOSTA5AA1C45",
-      ],
-      "Metadata": {
-        "aws:cdk:do-not-refactor": true,
-      },
-      "Properties": {
-        "Description": "Automatically created by the RestApi construct",
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-        },
-      },
-      "Type": "AWS::ApiGateway::Deployment",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF7892673": {
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoIdPoolProxyApiAccount085E0E94",
-      ],
-      "Properties": {
-        "DeploymentId": {
-          "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApiDeploymentE3A3456Dc0e8ebfc951475ad78678c9d506574db",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-        },
-        "StageName": "prod",
-      },
-      "Type": "AWS::ApiGateway::Stage",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiOPTIONS3BB922AD": {
-      "Properties": {
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": {
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "204",
-            },
-          ],
-          "RequestTemplates": {
-            "application/json": "{ statusCode: 200 }",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "204",
-          },
-        ],
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-            "RootResourceId",
-          ],
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoIdPoolProxyApiPOSTA5AA1C45": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "POST",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,Cache-Control,X-Amz-Target,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "200",
-            },
-          ],
-          "PassthroughBehavior": "WHEN_NO_MATCH",
-          "RequestParameters": {
-            "integration.request.header.Authorization": "method.request.header.Authorization",
-            "integration.request.header.Content-Type": "method.request.header.Content-Type",
-            "integration.request.header.X-Amz-Target": "method.request.header.X-Amz-Target",
-            "integration.request.header.X-Amz-User-Agent": "method.request.header.X-Amz-User-Agent",
-          },
-          "Type": "HTTP_PROXY",
-          "Uri": "https://cognito-identity.us-east-1.amazonaws.com",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "200",
-          },
-        ],
-        "RequestParameters": {
-          "method.request.header.Authorization": false,
-          "method.request.header.Content-Type": false,
-          "method.request.header.X-Amz-Target": false,
-          "method.request.header.X-Amz-User-Agent": false,
-        },
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-            "RootResourceId",
-          ],
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoIdPoolProxyApi29D89399",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1": {
-      "Properties": {
-        "EndpointConfiguration": {
-          "Types": [
-            "PRIVATE",
-          ],
-          "VpcEndpointIds": [
-            {
-              "Ref": "ClosedVpcVpcEndpointApiGateway6200AA11",
-            },
-          ],
-        },
-        "Name": "GenU Cognito UserPool Proxy API",
-        "Policy": {
-          "Statement": [
-            {
-              "Action": "execute-api:Invoke",
-              "Condition": {
-                "StringNotEquals": {
-                  "aws:SourceVpce": {
-                    "Ref": "ClosedVpcVpcEndpointApiGateway6200AA11",
-                  },
-                },
-              },
-              "Effect": "Deny",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": "execute-api:/*",
-            },
-            {
-              "Action": "execute-api:Invoke",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "*",
-              },
-              "Resource": "execute-api:/*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-      },
-      "Type": "AWS::ApiGateway::RestApi",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiAccount8D7130CF": {
-      "DeletionPolicy": "Retain",
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-      ],
-      "Properties": {
-        "CloudWatchRoleArn": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoUserPoolProxyApiCloudWatchRole13ECA7CB",
-            "Arn",
-          ],
-        },
-      },
-      "Type": "AWS::ApiGateway::Account",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiCloudWatchRole13ECA7CB": {
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "apigateway.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Retain",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC1b5bb02dcd4261d6e44e76aa0863f6287": {
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonGET21D71187",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonOPTIONSA2D13B9E",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownOPTIONSB9A49912",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdOPTIONSC878F5C3",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiOPTIONSCE339C8F",
-        "CognitoPrivateProxyCognitoUserPoolProxyApiPOST0CAE9A7C",
-      ],
-      "Metadata": {
-        "aws:cdk:do-not-refactor": true,
-      },
-      "Properties": {
-        "Description": "Automatically created by the RestApi construct",
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Deployment",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5": {
-      "DependsOn": [
-        "CognitoPrivateProxyCognitoUserPoolProxyApiAccount8D7130CF",
-      ],
-      "Properties": {
-        "DeploymentId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiDeployment11D70EC1b5bb02dcd4261d6e44e76aa0863f6287",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-        "StageName": "prod",
-      },
-      "Type": "AWS::ApiGateway::Stage",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiOPTIONSCE339C8F": {
-      "Properties": {
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": {
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "204",
-            },
-          ],
-          "RequestTemplates": {
-            "application/json": "{ statusCode: 200 }",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "204",
-          },
-        ],
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-            "RootResourceId",
-          ],
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiPOST0CAE9A7C": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "POST",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization,Cache-Control,X-Amz-Target,X-Amz-User-Agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "200",
-            },
-          ],
-          "PassthroughBehavior": "WHEN_NO_MATCH",
-          "RequestParameters": {
-            "integration.request.header.Authorization": "method.request.header.Authorization",
-            "integration.request.header.Content-Type": "method.request.header.Content-Type",
-            "integration.request.header.X-Amz-Target": "method.request.header.X-Amz-Target",
-            "integration.request.header.X-Amz-User-Agent": "method.request.header.X-Amz-User-Agent",
-          },
-          "Type": "HTTP_PROXY",
-          "Uri": "https://cognito-idp.us-east-1.amazonaws.com",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "200",
-          },
-        ],
-        "RequestParameters": {
-          "method.request.header.Authorization": false,
-          "method.request.header.Content-Type": false,
-          "method.request.header.X-Amz-Target": false,
-          "method.request.header.X-Amz-User-Agent": false,
-        },
-        "ResourceId": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-            "RootResourceId",
-          ],
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608": {
-      "Properties": {
-        "ParentId": {
-          "Fn::GetAtt": [
-            "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-            "RootResourceId",
-          ],
-        },
-        "PathPart": "{userPoolId}",
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdOPTIONSC878F5C3": {
-      "Properties": {
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": {
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "204",
-            },
-          ],
-          "RequestTemplates": {
-            "application/json": "{ statusCode: 200 }",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "204",
-          },
-        ],
-        "ResourceId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE": {
-      "Properties": {
-        "ParentId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolId5D61C608",
-        },
-        "PathPart": ".well-known",
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownOPTIONSB9A49912": {
-      "Properties": {
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": {
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "204",
-            },
-          ],
-          "RequestTemplates": {
-            "application/json": "{ statusCode: 200 }",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "204",
-          },
-        ],
-        "ResourceId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238": {
-      "Properties": {
-        "ParentId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownCE432EBE",
-        },
-        "PathPart": "jwks.json",
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Resource",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonGET21D71187": {
-      "Properties": {
-        "AuthorizationType": "NONE",
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "GET",
-          "IntegrationResponses": [
-            {
-              "StatusCode": "200",
-            },
-          ],
-          "RequestParameters": {
-            "integration.request.path.userPoolId": "method.request.path.userPoolId",
-          },
-          "Type": "HTTP",
-          "Uri": "https://cognito-idp.us-east-1.amazonaws.com/{userPoolId}/.well-known/jwks.json",
-        },
-        "MethodResponses": [
-          {
-            "StatusCode": "200",
-          },
-        ],
-        "RequestParameters": {
-          "method.request.path.userPoolId": true,
-        },
-        "ResourceId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-    },
-    "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonOPTIONSA2D13B9E": {
-      "Properties": {
-        "ApiKeyRequired": false,
-        "AuthorizationType": "NONE",
-        "HttpMethod": "OPTIONS",
-        "Integration": {
-          "IntegrationResponses": [
-            {
-              "ResponseParameters": {
-                "method.response.header.Access-Control-Allow-Headers": "'amz-sdk-invocation-id,amz-sdk-request,cache-control,content-type,x-amz-target,x-amz-user-agent'",
-                "method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'",
-              },
-              "StatusCode": "204",
-            },
-          ],
-          "RequestTemplates": {
-            "application/json": "{ statusCode: 200 }",
-          },
-          "Type": "MOCK",
-        },
-        "MethodResponses": [
-          {
-            "ResponseParameters": {
-              "method.response.header.Access-Control-Allow-Headers": true,
-              "method.response.header.Access-Control-Allow-Methods": true,
-              "method.response.header.Access-Control-Allow-Origin": true,
-            },
-            "StatusCode": "204",
-          },
-        ],
-        "ResourceId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApiuserPoolIdwellknownjwksjsonD9640238",
-        },
-        "RestApiId": {
-          "Ref": "CognitoPrivateProxyCognitoUserPoolProxyApi818B53B1",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
     },
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
       "DependsOn": [
@@ -3553,6 +2912,36 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
       "Type": "Custom::OssIndex",
       "UpdateReplacePolicy": "Delete",
     },
+    "WebCrawlerDataSource": {
+      "Properties": {
+        "DataSourceConfiguration": {
+          "Type": "WEB",
+          "WebConfiguration": {
+            "CrawlerConfiguration": {
+              "CrawlerLimits": {
+                "MaxPages": 100,
+                "RateLimit": 300,
+              },
+              "Scope": "HOST_ONLY",
+            },
+            "SourceConfiguration": {
+              "UrlConfiguration": {
+                "SeedUrls": [
+                  {
+                    "Url": "https://aws-samples.github.io/generative-ai-use-cases/en/",
+                  },
+                ],
+              },
+            },
+          },
+        },
+        "KnowledgeBaseId": {
+          "Ref": "KnowledgeBase",
+        },
+        "Name": "web-crawler-data-source",
+      },
+      "Type": "AWS::Bedrock::DataSource",
+    },
   },
   "Rules": {
     "CheckBootstrapVersion": {
@@ -4505,7 +3894,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -4515,7 +3904,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/agent-builder/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -4894,7 +4283,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -4904,7 +4293,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/generic/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -5214,6 +4603,11 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "Ref": "AuthUserPoolclientA74673A9",
       },
     },
+    "FileBucketName": {
+      "Value": {
+        "Ref": "APIFileBucket8FB29855",
+      },
+    },
     "Flows": {
       "Value": "W10=",
     },
@@ -5419,7 +4813,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021234533d7a90339971d4b652d34a0e5b458": {
+    "APIApiDeployment3A502123677abf0a15820c6513302ec82e604a8d": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -5462,6 +4856,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "APIApiimagegenerate70662BCD",
         "APIApiimageOPTIONSA57099DB",
         "APIApiimage6FBCA1DF",
+        "APIApimeetingminutescustompromptsidANY52BC144A",
+        "APIApimeetingminutescustompromptsidOPTIONS5F023E7C",
+        "APIApimeetingminutescustompromptsid06E18295",
+        "APIApimeetingminutescustompromptsANYE6832501",
+        "APIApimeetingminutescustompromptsOPTIONS4DF82839",
+        "APIApimeetingminutescustomprompts5F46E76F",
+        "APIApimeetingminutesOPTIONSAE8DC0E7",
+        "APIApimeetingminutesE9413A2D",
         "APIApiOPTIONSE134DC36",
         "APIApipredictOPTIONS9065A8D6",
         "APIApipredictPOST376D7D2E",
@@ -5581,7 +4983,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021234533d7a90339971d4b652d34a0e5b458",
+          "Ref": "APIApiDeployment3A502123677abf0a15820c6513302ec82e604a8d",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -7856,6 +7258,391 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIApimeetingminutesE9413A2D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "APIApiFFA96F67",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "meeting-minutes",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutesOPTIONSAE8DC0E7": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutesE9413A2D",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustomprompts5F46E76F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApimeetingminutesE9413A2D",
+        },
+        "PathPart": "custom-prompts",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustomprompts97A1F0B6": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/meeting-minutes/custom-prompts",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustomprompts846A6265": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/meeting-minutes/custom-prompts",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYE6832501": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIMeetingMinutesCustomPromptD242CECB",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsOPTIONS4DF82839": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsid06E18295": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "PathPart": "{id}",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANY52BC144A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIMeetingMinutesCustomPromptD242CECB",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustompromptsid06E18295",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustompromptsid0B50B6C9": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/meeting-minutes/custom-prompts/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustompromptsid07691C07": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/meeting-minutes/custom-prompts/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidOPTIONS5F023E7C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustompromptsid06E18295",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIApipredict6CA3C413": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -13666,8 +13453,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -13704,9 +13489,36 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             },
             {
               "Action": [
-                "dynamodb:BatchGetItem",
                 "dynamodb:GetRecords",
                 "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -13716,6 +13528,19 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DatabaseStatsTable9C709761",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -13840,8 +13665,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -13851,6 +13674,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -14135,8 +13987,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -14146,6 +13996,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -14416,8 +14295,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -14427,6 +14304,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -14567,8 +14473,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -14578,6 +14482,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -15019,13 +14952,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -15166,13 +15126,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -15886,13 +15873,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -16180,8 +16194,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -16214,14 +16226,54 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             },
             {
               "Action": [
-                "dynamodb:BatchGetItem",
                 "dynamodb:GetRecords",
                 "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DatabaseStatsTable9C709761",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -16553,13 +16605,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -16700,13 +16779,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -16847,13 +16953,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -17020,8 +17153,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -17031,6 +17162,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -17104,6 +17264,184 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptD242CECB": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5",
+        "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "DatabaseTableF104A135",
+            },
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+        "VpcConfig": {
+          "SecurityGroupIds": [
+            {
+              "Fn::GetAtt": [
+                "LambdaSeurityGroup14B5161A",
+                "GroupId",
+              ],
+            },
+          ],
+          "SubnetIds": [
+            {
+              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet1Subnet2EF6D3F36370B312",
+            },
+            {
+              "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedVpcisolatedSubnet2SubnetB169C8D3D828FC40",
+            },
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5",
+        "Roles": [
+          {
+            "Ref": "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptServiceRoleE996AECF": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
     "APIOptimizePromptFunctionC14E6D1B": {
@@ -17397,26 +17735,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             },
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
-            },
-            "USER_POOL_PROXY_ENDPOINT": {
-              "Fn::Join": [
-                "",
-                [
-                  "https://",
-                  {
-                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
-                  },
-                  ".execute-api.us-east-1.",
-                  {
-                    "Ref": "AWS::URLSuffix",
-                  },
-                  "/",
-                  {
-                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
-                  },
-                  "/",
-                ],
-              ],
             },
             "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
@@ -17830,8 +18148,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -17841,6 +18157,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -17981,8 +18326,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -17992,6 +18335,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -18132,8 +18504,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -18143,6 +18513,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -18194,26 +18593,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
         "Environment": {
           "Variables": {
-            "COGNITO_IDP_ENDPOINT": {
-              "Fn::Join": [
-                "",
-                [
-                  "https://",
-                  {
-                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
-                  },
-                  ".execute-api.us-east-1.",
-                  {
-                    "Ref": "AWS::URLSuffix",
-                  },
-                  "/",
-                  {
-                    "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
-                  },
-                  "/",
-                ],
-              ],
-            },
             "MODEL_REGION": "us-east-1",
             "USECASE_ID_INDEX_NAME": "UseCaseIdIndexName",
             "USECASE_TABLE_NAME": {
@@ -18330,8 +18709,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -18341,6 +18718,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -18484,6 +18890,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
@@ -18730,6 +19137,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
@@ -18943,6 +19351,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
     },
     "ApiBuildWeb746ABF13": {
       "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "ApiBuildWebProjectRoleDefaultPolicyEA537DDE",
+        "ApiBuildWebProjectRole8A770CFE",
+      ],
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
@@ -18950,6 +19362,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
+        "assetBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "buildCommands": [
           "npm ci",
           "npm run web:build",
@@ -18957,7 +19370,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "codeBuildProjectName": {
           "Ref": "ApiBuildWebProjectDF2CE9D0",
         },
-        "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
+        "destinationBucketName": {
+          "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedWebWebBucket6C6180EC94FAE0A6",
+        },
+        "destinationKeyPrefix": "/",
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED": "true",
@@ -19036,46 +19452,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Agents",
             ],
           },
-          "VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT": {
-            "Fn::Join": [
-              "",
-              [
-                "https://",
-                {
-                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApi29D893997F7F25A2",
-                },
-                ".execute-api.us-east-1.",
-                {
-                  "Ref": "AWS::URLSuffix",
-                },
-                "/",
-                {
-                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoIdPoolProxyApiDeploymentStageprodF789267346799973",
-                },
-                "/",
-              ],
-            ],
-          },
-          "VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT": {
-            "Fn::Join": [
-              "",
-              [
-                "https://",
-                {
-                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApi818B53B11EFC652B",
-                },
-                ".execute-api.us-east-1.",
-                {
-                  "Ref": "AWS::URLSuffix",
-                },
-                "/",
-                {
-                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefCognitoPrivateProxyCognitoUserPoolProxyApiDeploymentStageprod0C2BA9A5793BEF8B",
-                },
-                "/",
-              ],
-            ],
-          },
           "VITE_APP_CUSTOM_AGENTS_JSON": "[]",
           "VITE_APP_ENDPOINT_NAMES": "[]",
           "VITE_APP_FLOWS": "[]",
@@ -19111,6 +19487,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
           "VITE_APP_REGION": "us-east-1",
+          "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
           "VITE_APP_SAML_COGNITO_DOMAIN_NAME": "",
           "VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME": "",
@@ -19154,54 +19531,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "workingDirectory": "..",
       },
       "Type": "Custom::CDKNodejsBuild",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "ApiBuildWebDeployAwsCliLayer187512BE": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "ApiBuildWeb746ABF13",
-      ],
-      "Properties": {
-        "Content": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "/opt/awscli/aws",
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "ApiBuildWebDeployCustomResource512MiBE7E7D353": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "ApiBuildWeb746ABF13",
-      ],
-      "Properties": {
-        "DestinationBucketName": {
-          "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputRefClosedWebWebBucket6C6180EC94FAE0A6",
-        },
-        "OutputObjectKeys": true,
-        "Prune": true,
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB6723FB92",
-            "Arn",
-          ],
-        },
-        "SourceBucketNames": [
-          "cdk-hnb659fds-assets-123456890123-us-east-1",
-        ],
-        "SourceObjectKeys": [
-          {
-            "Fn::GetAtt": [
-              "ApiBuildWeb746ABF13",
-              "destinationObjectKey",
-            ],
-          },
-        ],
-        "WaitForDistributionInvalidation": true,
-      },
-      "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
     },
     "ApiBuildWebProjectDF2CE9D0": {
@@ -19249,15 +19578,15 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "ls -la",
         "cd \\"$current_dir\\"",
         "cd \\"$outputSourceDirectory\\"",
-        "zip -r output.zip ./",
-        "aws s3 cp output.zip \\"s3://$destinationBucketName/$destinationObjectKey\\"",
-        "\\nif [[ $outputEnvFile == \\"true\\" ]]\\nthen\\n  # Split the comma-separated string into an array\\n  for var_name in \${envNames//,/ }\\n  do\\n      echo \\"Element: $var_name\\"\\n      var_value=\\"\${!var_name}\\"\\n      echo \\"$var_name=$var_value\\" >> tmp.env\\n  done\\n\\n  aws s3 cp tmp.env \\"s3://$destinationBucketName/$envFileKey\\"\\nfi\\n              "
+        "aws s3 sync . \\"s3://$destinationBucketName/$destinationKeyPrefix\\" --delete",
+        "\\nif [[ -n \\"$distributionId\\" ]]\\nthen\\nINVALIDATION_OUTPUT=$(aws cloudfront create-invalidation --distribution-id \\"$distributionId\\" --paths \\"$distributionPath\\" --output json)\\nINVALIDATION_ID=$(echo \\"$INVALIDATION_OUTPUT\\" | jq -r '.Invalidation.Id')\\naws cloudfront wait invalidation-completed --distribution-id \\"$distributionId\\" --id \\"$INVALIDATION_ID\\"\\nfi\\n",
+        "\\nif [[ $outputEnvFile == \\"true\\" ]]\\nthen\\n  # Split the comma-separated string into an array\\n  for var_name in \${envNames//,/ }\\n  do\\n      echo \\"Element: $var_name\\"\\n      var_value=\\"\${!var_name}\\"\\n      echo \\"$var_name=$var_value\\" >> tmp.env\\n  done\\n\\n  aws s3 cp tmp.env \\"s3://$assetBucketName/$envFileKey\\"\\nfi\\n              "
       ]
     },
     "post_build": {
       "commands": [
         "echo Build completed on \`date\`",
-        "\\nSTATUS='SUCCESS'\\nif [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ] # Test if the build is failing\\nthen\\nSTATUS='FAILED'\\nREASON=\\"NodejsBuild failed. See CloudWatch Log stream for the detailed reason: \\nhttps://$AWS_REGION.console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#logsV2:log-groups/log-group/\\\\$252Faws\\\\$252Fcodebuild\\\\$252F$projectName/log-events/$CODEBUILD_LOG_PATH\\"\\nfi\\ncat <<EOF > payload.json\\n{\\n  \\"StackId\\": \\"$stackId\\",\\n  \\"RequestId\\": \\"$requestId\\",\\n  \\"LogicalResourceId\\":\\"$logicalResourceId\\",\\n  \\"PhysicalResourceId\\": \\"$logicalResourceId\\",\\n  \\"Status\\": \\"$STATUS\\",\\n  \\"Reason\\": \\"$REASON\\",\\n  \\"Data\\": {\\n    \\"destinationObjectKey\\": \\"$destinationObjectKey\\",\\n    \\"envFileKey\\": \\"$envFileKey\\"\\n  }\\n}\\nEOF\\ncurl -v -i -X PUT -H 'Content-Type:' -d \\"@payload.json\\" \\"$responseURL\\"\\n              "
+        "\\nSTATUS='SUCCESS'\\nif [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ] # Test if the build is failing\\nthen\\nSTATUS='FAILED'\\nREASON=\\"NodejsBuild failed. See CloudWatch Log stream for the detailed reason: \\nhttps://$AWS_REGION.console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#logsV2:log-groups/log-group/\\\\$252Faws\\\\$252Fcodebuild\\\\$252F$projectName/log-events/$CODEBUILD_LOG_PATH\\"\\nfi\\ncat <<EOF > payload.json\\n{\\n  \\"StackId\\": \\"$stackId\\",\\n  \\"RequestId\\": \\"$requestId\\",\\n  \\"LogicalResourceId\\":\\"$logicalResourceId\\",\\n  \\"PhysicalResourceId\\": \\"$logicalResourceId\\",\\n  \\"Status\\": \\"$STATUS\\",\\n  \\"Reason\\": \\"$REASON\\",\\n  \\"Data\\": {\\n    \\"envFileKey\\": \\"$envFileKey\\"\\n  }\\n}\\nEOF\\ncurl -i -X PUT -H 'Content-Type:' -d \\"@payload.json\\" \\"$responseURL\\"\\n              "
       ]
     }
   }
@@ -19364,37 +19693,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "s3:GetObject*",
                 "s3:GetBucket*",
                 "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1",
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
                 "s3:DeleteObject*",
                 "s3:PutObject",
                 "s3:PutObjectLegalHold",
@@ -19402,6 +19700,30 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "s3:PutObjectTagging",
                 "s3:PutObjectVersionTagging",
                 "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47",
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -19990,157 +20312,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB6723FB92": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726",
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
-          },
-        },
-        "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "ApiBuildWebDeployAwsCliLayer187512BE",
-          },
-        ],
-        "MemorySize": 512,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-            "Arn",
-          ],
-        },
-        "Runtime": "python3.13",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1",
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47",
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::ImportValue": "ClosedNetworkStack:ExportsOutputFnGetAttClosedWebWebBucket6C6180ECArn51D7CA47",
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726",
-        "Roles": [
-          {
-            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-      "UpdateReplacePolicy": "Delete",
-    },
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -20394,7 +20565,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Timeout": 300,
       },
       "Type": "AWS::Lambda::Function",
@@ -22964,8 +23135,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -22975,6 +23144,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23072,13 +23270,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23266,13 +23491,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23415,13 +23667,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23564,13 +23843,40 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23712,8 +24018,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -23723,6 +24027,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -23864,8 +24197,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -23875,6 +24206,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -24016,8 +24376,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -24027,6 +24385,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -24168,8 +24555,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -24179,6 +24564,35 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -25535,6 +25949,36 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
       "Type": "Custom::OssIndex",
       "UpdateReplacePolicy": "Delete",
     },
+    "WebCrawlerDataSource": {
+      "Properties": {
+        "DataSourceConfiguration": {
+          "Type": "WEB",
+          "WebConfiguration": {
+            "CrawlerConfiguration": {
+              "CrawlerLimits": {
+                "MaxPages": 100,
+                "RateLimit": 300,
+              },
+              "Scope": "HOST_ONLY",
+            },
+            "SourceConfiguration": {
+              "UrlConfiguration": {
+                "SeedUrls": [
+                  {
+                    "Url": "https://aws-samples.github.io/generative-ai-use-cases/en/",
+                  },
+                ],
+              },
+            },
+          },
+        },
+        "KnowledgeBaseId": {
+          "Ref": "KnowledgeBase",
+        },
+        "Name": "web-crawler-data-source",
+      },
+      "Type": "AWS::Bedrock::DataSource",
+    },
   },
   "Rules": {
     "CheckBootstrapVersion": {
@@ -26441,7 +26885,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -26451,7 +26895,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/agent-builder/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -26830,7 +27274,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
         "AgentRuntimeArtifact": {
           "ContainerConfiguration": {
             "ContainerUri": {
-              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:269f4f4a951791e332d743bff1e6d6850b8c4702c14f0c17086d0fb9a616a782",
+              "Fn::Sub": "123456890123.dkr.ecr.us-east-1.\${AWS::URLSuffix}/cdk-hnb659fds-container-assets-123456890123-us-east-1:HASH-REPLACED",
             },
           },
         },
@@ -26840,7 +27284,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/generic/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "NetworkConfiguration": {
           "NetworkMode": "PUBLIC",
@@ -27150,6 +27594,11 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Ref": "AuthUserPoolclientA74673A9",
       },
     },
+    "FileBucketName": {
+      "Value": {
+        "Ref": "APIFileBucket8FB29855",
+      },
+    },
     "Flows": {
       "Value": "W10=",
     },
@@ -27368,7 +27817,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021234db71f4ccf16e49a8440e8926bf1f516": {
+    "APIApiDeployment3A502123be7d91bf5fd3da07772343d3d13ce264": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -27411,6 +27860,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "APIApiimagegenerate70662BCD",
         "APIApiimageOPTIONSA57099DB",
         "APIApiimage6FBCA1DF",
+        "APIApimeetingminutescustompromptsidANY52BC144A",
+        "APIApimeetingminutescustompromptsidOPTIONS5F023E7C",
+        "APIApimeetingminutescustompromptsid06E18295",
+        "APIApimeetingminutescustompromptsANYE6832501",
+        "APIApimeetingminutescustompromptsOPTIONS4DF82839",
+        "APIApimeetingminutescustomprompts5F46E76F",
+        "APIApimeetingminutesOPTIONSAE8DC0E7",
+        "APIApimeetingminutesE9413A2D",
         "APIApiOPTIONSE134DC36",
         "APIApipredictOPTIONS9065A8D6",
         "APIApipredictPOST376D7D2E",
@@ -27530,7 +27987,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021234db71f4ccf16e49a8440e8926bf1f516",
+          "Ref": "APIApiDeployment3A502123be7d91bf5fd3da07772343d3d13ce264",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -29775,6 +30232,391 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::Lambda::Permission",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIApimeetingminutesE9413A2D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "APIApiFFA96F67",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "meeting-minutes",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutesOPTIONSAE8DC0E7": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutesE9413A2D",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustomprompts5F46E76F": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApimeetingminutesE9413A2D",
+        },
+        "PathPart": "custom-prompts",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustomprompts97A1F0B6": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/meeting-minutes/custom-prompts",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustomprompts846A6265": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/meeting-minutes/custom-prompts",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsANYE6832501": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIMeetingMinutesCustomPromptD242CECB",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsOPTIONS4DF82839": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsid06E18295": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ParentId": {
+          "Ref": "APIApimeetingminutescustomprompts5F46E76F",
+        },
+        "PathPart": "{id}",
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANY52BC144A": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIMeetingMinutesCustomPromptD242CECB",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustompromptsid06E18295",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANYApiPermissionGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustompromptsid0B50B6C9": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/",
+              {
+                "Ref": "APIApiDeploymentStageapiCD55D117",
+              },
+              "/*/meeting-minutes/custom-prompts/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidANYApiPermissionTestGenerativeAiUseCasesStackAPIApi89219E17ANYmeetingminutescustompromptsid07691C07": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptD242CECB",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:123456890123:",
+              {
+                "Ref": "APIApiFFA96F67",
+              },
+              "/test-invoke-stage/*/meeting-minutes/custom-prompts/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApimeetingminutescustompromptsidOPTIONS5F023E7C": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "APIApimeetingminutescustompromptsid06E18295",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIApipredict6CA3C413": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -35495,8 +36337,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -35533,9 +36373,36 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             },
             {
               "Action": [
-                "dynamodb:BatchGetItem",
                 "dynamodb:GetRecords",
                 "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -35545,6 +36412,19 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DatabaseStatsTable9C709761",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -35639,8 +36519,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -35650,6 +36528,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -35874,8 +36781,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -35885,6 +36790,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -36095,8 +37029,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -36106,6 +37038,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -36216,8 +37177,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -36227,6 +37186,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -36608,13 +37596,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -36725,13 +37740,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -37325,13 +38367,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -37559,8 +38628,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -37593,14 +38660,54 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             },
             {
               "Action": [
-                "dynamodb:BatchGetItem",
                 "dynamodb:GetRecords",
                 "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DatabaseStatsTable9C709761",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": {
@@ -37842,13 +38949,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -37959,13 +39093,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -38076,13 +39237,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -38219,8 +39407,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -38230,6 +39416,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -38303,6 +39518,154 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         ],
       },
       "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptD242CECB": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5",
+        "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
+          "S3Key": "HASH-REPLACED.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "TABLE_NAME": {
+              "Ref": "DatabaseTableF104A135",
+            },
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 900,
+      },
+      "Type": "AWS::Lambda::Function",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "APIMeetingMinutesCustomPromptServiceRoleDefaultPolicy02FCBCD5",
+        "Roles": [
+          {
+            "Ref": "APIMeetingMinutesCustomPromptServiceRoleE996AECF",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIMeetingMinutesCustomPromptServiceRoleE996AECF": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
     "APIOptimizePromptFunctionC14E6D1B": {
@@ -38537,7 +39900,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "USER_POOL_ID": {
               "Ref": "AuthUserPool8115E87F",
             },
-            "USER_POOL_PROXY_ENDPOINT": "",
             "VIDEO_GENERATION_MODEL_IDS": "[{"modelId":"amazon.nova-reel-v1:0","region":"us-east-1"}]",
           },
         },
@@ -38860,8 +40222,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -38871,6 +40231,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -38981,8 +40370,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -38992,6 +40379,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -39102,8 +40518,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -39113,6 +40527,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseTableF104A135",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "DatabaseTableF104A135",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -39250,8 +40693,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -39261,6 +40702,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -39404,6 +40874,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
@@ -39650,6 +41121,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
@@ -39863,6 +41335,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
     },
     "ApiBuildWeb746ABF13": {
       "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "ApiBuildWebProjectRoleDefaultPolicyEA537DDE",
+        "ApiBuildWebProjectRole8A770CFE",
+      ],
       "Properties": {
         "ServiceToken": {
           "Fn::GetAtt": [
@@ -39870,6 +41346,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
+        "assetBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
         "buildCommands": [
           "npm ci",
           "npm run web:build",
@@ -39877,7 +41354,13 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "codeBuildProjectName": {
           "Ref": "ApiBuildWebProjectDF2CE9D0",
         },
-        "destinationBucketName": "cdk-hnb659fds-assets-123456890123-us-east-1",
+        "destinationBucketName": {
+          "Ref": "ApiWebS3Bucket26EF98D6",
+        },
+        "destinationKeyPrefix": "/",
+        "distributionId": {
+          "Ref": "ApiWebCloudFrontDistributionA115FBC3",
+        },
         "environment": {
           "NODE_OPTIONS": "--max-old-space-size=4096",
           "VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED": "true",
@@ -39956,8 +41439,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Agents",
             ],
           },
-          "VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT": "",
-          "VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT": "",
           "VITE_APP_CUSTOM_AGENTS_JSON": "[]",
           "VITE_APP_ENDPOINT_NAMES": "[]",
           "VITE_APP_FLOWS": "[]",
@@ -39993,6 +41474,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
           "VITE_APP_REGION": "us-east-1",
+          "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
           "VITE_APP_SAML_COGNITO_DOMAIN_NAME": "",
           "VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME": "",
@@ -40036,57 +41518,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "workingDirectory": "..",
       },
       "Type": "Custom::CDKNodejsBuild",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "ApiBuildWebDeployAwsCliLayer187512BE": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "ApiBuildWeb746ABF13",
-      ],
-      "Properties": {
-        "Content": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "/opt/awscli/aws",
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "ApiBuildWebDeployCustomResource512MiBE7E7D353": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "ApiBuildWeb746ABF13",
-      ],
-      "Properties": {
-        "DestinationBucketName": {
-          "Ref": "ApiWebS3Bucket26EF98D6",
-        },
-        "DistributionId": {
-          "Ref": "ApiWebCloudFrontDistributionA115FBC3",
-        },
-        "OutputObjectKeys": true,
-        "Prune": true,
-        "ServiceToken": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB6723FB92",
-            "Arn",
-          ],
-        },
-        "SourceBucketNames": [
-          "cdk-hnb659fds-assets-123456890123-us-east-1",
-        ],
-        "SourceObjectKeys": [
-          {
-            "Fn::GetAtt": [
-              "ApiBuildWeb746ABF13",
-              "destinationObjectKey",
-            ],
-          },
-        ],
-        "WaitForDistributionInvalidation": true,
-      },
-      "Type": "Custom::CDKBucketDeployment",
       "UpdateReplacePolicy": "Delete",
     },
     "ApiBuildWebProjectDF2CE9D0": {
@@ -40134,15 +41565,15 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "ls -la",
         "cd \\"$current_dir\\"",
         "cd \\"$outputSourceDirectory\\"",
-        "zip -r output.zip ./",
-        "aws s3 cp output.zip \\"s3://$destinationBucketName/$destinationObjectKey\\"",
-        "\\nif [[ $outputEnvFile == \\"true\\" ]]\\nthen\\n  # Split the comma-separated string into an array\\n  for var_name in \${envNames//,/ }\\n  do\\n      echo \\"Element: $var_name\\"\\n      var_value=\\"\${!var_name}\\"\\n      echo \\"$var_name=$var_value\\" >> tmp.env\\n  done\\n\\n  aws s3 cp tmp.env \\"s3://$destinationBucketName/$envFileKey\\"\\nfi\\n              "
+        "aws s3 sync . \\"s3://$destinationBucketName/$destinationKeyPrefix\\" --delete",
+        "\\nif [[ -n \\"$distributionId\\" ]]\\nthen\\nINVALIDATION_OUTPUT=$(aws cloudfront create-invalidation --distribution-id \\"$distributionId\\" --paths \\"$distributionPath\\" --output json)\\nINVALIDATION_ID=$(echo \\"$INVALIDATION_OUTPUT\\" | jq -r '.Invalidation.Id')\\naws cloudfront wait invalidation-completed --distribution-id \\"$distributionId\\" --id \\"$INVALIDATION_ID\\"\\nfi\\n",
+        "\\nif [[ $outputEnvFile == \\"true\\" ]]\\nthen\\n  # Split the comma-separated string into an array\\n  for var_name in \${envNames//,/ }\\n  do\\n      echo \\"Element: $var_name\\"\\n      var_value=\\"\${!var_name}\\"\\n      echo \\"$var_name=$var_value\\" >> tmp.env\\n  done\\n\\n  aws s3 cp tmp.env \\"s3://$assetBucketName/$envFileKey\\"\\nfi\\n              "
       ]
     },
     "post_build": {
       "commands": [
         "echo Build completed on \`date\`",
-        "\\nSTATUS='SUCCESS'\\nif [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ] # Test if the build is failing\\nthen\\nSTATUS='FAILED'\\nREASON=\\"NodejsBuild failed. See CloudWatch Log stream for the detailed reason: \\nhttps://$AWS_REGION.console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#logsV2:log-groups/log-group/\\\\$252Faws\\\\$252Fcodebuild\\\\$252F$projectName/log-events/$CODEBUILD_LOG_PATH\\"\\nfi\\ncat <<EOF > payload.json\\n{\\n  \\"StackId\\": \\"$stackId\\",\\n  \\"RequestId\\": \\"$requestId\\",\\n  \\"LogicalResourceId\\":\\"$logicalResourceId\\",\\n  \\"PhysicalResourceId\\": \\"$logicalResourceId\\",\\n  \\"Status\\": \\"$STATUS\\",\\n  \\"Reason\\": \\"$REASON\\",\\n  \\"Data\\": {\\n    \\"destinationObjectKey\\": \\"$destinationObjectKey\\",\\n    \\"envFileKey\\": \\"$envFileKey\\"\\n  }\\n}\\nEOF\\ncurl -v -i -X PUT -H 'Content-Type:' -d \\"@payload.json\\" \\"$responseURL\\"\\n              "
+        "\\nSTATUS='SUCCESS'\\nif [ $CODEBUILD_BUILD_SUCCEEDING -ne 1 ] # Test if the build is failing\\nthen\\nSTATUS='FAILED'\\nREASON=\\"NodejsBuild failed. See CloudWatch Log stream for the detailed reason: \\nhttps://$AWS_REGION.console.aws.amazon.com/cloudwatch/home?region=$AWS_REGION#logsV2:log-groups/log-group/\\\\$252Faws\\\\$252Fcodebuild\\\\$252F$projectName/log-events/$CODEBUILD_LOG_PATH\\"\\nfi\\ncat <<EOF > payload.json\\n{\\n  \\"StackId\\": \\"$stackId\\",\\n  \\"RequestId\\": \\"$requestId\\",\\n  \\"LogicalResourceId\\":\\"$logicalResourceId\\",\\n  \\"PhysicalResourceId\\": \\"$logicalResourceId\\",\\n  \\"Status\\": \\"$STATUS\\",\\n  \\"Reason\\": \\"$REASON\\",\\n  \\"Data\\": {\\n    \\"envFileKey\\": \\"$envFileKey\\"\\n  }\\n}\\nEOF\\ncurl -i -X PUT -H 'Content-Type:' -d \\"@payload.json\\" \\"$responseURL\\"\\n              "
       ]
     }
   }
@@ -40249,37 +41680,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "s3:GetObject*",
                 "s3:GetBucket*",
                 "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1",
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
                 "s3:DeleteObject*",
                 "s3:PutObject",
                 "s3:PutObjectLegalHold",
@@ -40287,6 +41687,58 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "s3:PutObjectTagging",
                 "s3:PutObjectVersionTagging",
                 "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "ApiWebS3Bucket26EF98D6",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "ApiWebS3Bucket26EF98D6",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "cloudfront:GetInvalidation",
+                "cloudfront:CreateInvalidation",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":cloudfront::123456890123:distribution/",
+                    {
+                      "Ref": "ApiWebCloudFrontDistributionA115FBC3",
+                    },
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -40894,10 +42346,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "Tags": [
           {
             "Key": "aws-cdk:auto-delete-objects",
-            "Value": "true",
-          },
-          {
-            "Key": "aws-cdk:cr-owned:656af005",
             "Value": "true",
           },
         ],
@@ -41808,171 +43256,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Policy",
       "UpdateReplacePolicy": "Delete",
     },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiB6723FB92": {
-      "DeletionPolicy": "Delete",
-      "DependsOn": [
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726",
-        "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-      ],
-      "Properties": {
-        "Code": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Environment": {
-          "Variables": {
-            "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",
-          },
-        },
-        "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "ApiBuildWebDeployAwsCliLayer187512BE",
-          },
-        ],
-        "MemorySize": 512,
-        "Role": {
-          "Fn::GetAtt": [
-            "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-            "Arn",
-          ],
-        },
-        "Runtime": "python3.13",
-        "Timeout": 900,
-      },
-      "Type": "AWS::Lambda::Function",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-      "UpdateReplacePolicy": "Delete",
-    },
-    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1",
-                    ],
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:",
-                      {
-                        "Ref": "AWS::Partition",
-                      },
-                      ":s3:::cdk-hnb659fds-assets-123456890123-us-east-1/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "s3:GetObject*",
-                "s3:GetBucket*",
-                "s3:List*",
-                "s3:DeleteObject*",
-                "s3:PutObject",
-                "s3:PutObjectLegalHold",
-                "s3:PutObjectRetention",
-                "s3:PutObjectTagging",
-                "s3:PutObjectVersionTagging",
-                "s3:Abort*",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "ApiWebS3Bucket26EF98D6",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      {
-                        "Fn::GetAtt": [
-                          "ApiWebS3Bucket26EF98D6",
-                          "Arn",
-                        ],
-                      },
-                      "/*",
-                    ],
-                  ],
-                },
-              ],
-            },
-            {
-              "Action": [
-                "cloudfront:GetInvalidation",
-                "cloudfront:CreateInvalidation",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleDefaultPolicy96C3E726",
-        "Roles": [
-          {
-            "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C512MiBServiceRoleBA21DBC1",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-      "UpdateReplacePolicy": "Delete",
-    },
     "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -42208,7 +43491,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Timeout": 300,
       },
       "Type": "AWS::Lambda::Function",
@@ -44459,8 +45742,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -44470,6 +45751,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -44549,13 +45859,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -44701,13 +46038,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -44820,13 +46184,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -44939,13 +46330,40 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
                 "dynamodb:ConditionCheckItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -45057,8 +46475,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -45068,6 +46484,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -45179,8 +46624,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -45190,6 +46633,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -45301,8 +46773,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -45312,6 +46782,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [
@@ -45423,8 +46922,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             {
               "Action": [
                 "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
                 "dynamodb:Query",
                 "dynamodb:GetItem",
                 "dynamodb:Scan",
@@ -45434,6 +46931,35 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:UpdateItem",
                 "dynamodb:DeleteItem",
                 "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UseCaseBuilderUseCaseBuilderTable449740F3",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::GetAtt": [
+                          "UseCaseBuilderUseCaseBuilderTable449740F3",
+                          "Arn",
+                        ],
+                      },
+                      "/index/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
               "Resource": [

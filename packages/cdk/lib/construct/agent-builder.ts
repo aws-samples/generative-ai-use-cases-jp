@@ -24,7 +24,6 @@ export interface AgentBuilderProps {
   readonly agentBuilderRuntimeArn: string;
   readonly useCaseBuilderTable: ddb.Table;
   readonly useCaseIdIndexName: string;
-  readonly cognitoUserPoolProxyEndpoint?: string;
 }
 
 export class AgentBuilder extends Construct {
@@ -53,9 +52,6 @@ export class AgentBuilder extends Construct {
         ...commonProperty.environment,
         MODEL_REGION: process.env.MODEL_REGION || 'us-east-1',
         USER_POOL_ID: userPool.userPoolId,
-        ...(props.cognitoUserPoolProxyEndpoint && {
-          COGNITO_IDP_ENDPOINT: props.cognitoUserPoolProxyEndpoint,
-        }),
       },
       bundling: {
         nodeModules: ['@aws-sdk/client-bedrock-runtime'],

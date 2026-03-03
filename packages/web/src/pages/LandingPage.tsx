@@ -20,6 +20,7 @@ import {
   PiPenNib,
   PiMicrophoneBold,
   PiGraph,
+  PiMagnifyingGlass,
 } from 'react-icons/pi';
 import AwsIcon from '../assets/aws.svg?react';
 import useInterUseCases from '../hooks/useInterUseCases';
@@ -51,6 +52,8 @@ const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
 const inlineAgents: boolean = import.meta.env.VITE_APP_INLINE_AGENTS === 'true';
+const researchAgentEnabled: boolean =
+  import.meta.env.VITE_APP_RESEARCH_AGENT_ENABLED === 'true';
 const mcpEnabled: boolean = import.meta.env.VITE_APP_MCP_ENABLED === 'true';
 const logoPath: string = import.meta.env.VITE_APP_BRANDING_LOGO_PATH || '';
 const brandingTitle: string = import.meta.env.VITE_APP_BRANDING_TITLE || '';
@@ -121,6 +124,10 @@ const LandingPage: React.FC = () => {
 
   const demoAgentCore = () => {
     navigate(`/agent-core`);
+  };
+
+  const demoResearch = () => {
+    navigate(`/research`);
   };
 
   const demoMcp = () => {
@@ -355,6 +362,14 @@ const LandingPage: React.FC = () => {
             onClickDemo={demoAgentCore}
             icon={<PiRobot />}
             description={t('landing.use_cases.agent_core.description')}
+          />
+        )}
+        {researchAgentEnabled && (
+          <CardDemo
+            label={t('research.title')}
+            onClickDemo={demoResearch}
+            icon={<PiMagnifyingGlass />}
+            description={t('research.description')}
           />
         )}
         {mcpEnabled && (

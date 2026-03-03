@@ -5,10 +5,8 @@ import {
   AttributeType,
 } from '@aws-sdk/client-cognito-identity-provider';
 
-// Initialize Cognito client with VPC endpoint support for closed networks
-const cognitoClient = new CognitoIdentityProviderClient({
-  endpoint: process.env.COGNITO_IDP_ENDPOINT,
-});
+// VPC Endpoint with Private DNS enabled will automatically resolve to the correct endpoint
+const cognitoClient = new CognitoIdentityProviderClient({});
 
 /**
  * Extract user ID from API Gateway event

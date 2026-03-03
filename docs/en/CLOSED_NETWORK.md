@@ -148,6 +148,7 @@ The endpoints that require name resolution from clients are as follows. Parts en
 | API Gateway                 | Main API                    | \<xxx>.execute-api.\<region>.amazonaws.com                   | Check with ApiEndpoint output of **GenerativeAiUseCasesStack**                                |
 | API Gateway                 | Cognito User Pool proxy     | \<yyy>.execute-api.\<region>.amazonaws.com                   | Check with CognitoPrivateProxyCognitoUserPoolProxyApiEndpoint... output of ClosedNetworkStack |
 | API Gateway                 | Cognito Identity Pool proxy | \<zzz>.execute-api.\<region>.amazonaws.com                   | Check with CognitoPrivateProxyCognitoIdPoolProxyApiEndpoint... output of ClosedNetworkStack   |
+| Amazon S3                   | Signed URLs                 | s3.\<region>.amazonaws.com                                   | Endpoint is fixed                                                                             |
 | AWS Lambda                  | Streaming output            | lambda.\<region>.amazonaws.com                               | Endpoint is fixed                                                                             |
 | Amazon Transcribe           | Speech-to-text              | transcribe.\<region>.amazonaws.com                           | Endpoint is fixed                                                                             |
 | Amazon Transcribe Streaming | Real-time speech-to-text    | transcribestreaming.\<region>.amazonaws.com                  | Endpoint is fixed                                                                             |
@@ -171,6 +172,7 @@ The following summarizes the endpoints that need configuration and how to check 
 | API Gateway                 | Main API                    | \<xxx>.execute-api.\<region>.amazonaws.com                   | Method 2                |
 | API Gateway                 | Cognito User Pool proxy     | \<yyy>.execute-api.\<region>.amazonaws.com                   | Method 2                |
 | API Gateway                 | Cognito Identity Pool proxy | \<zzz>.execute-api.\<region>.amazonaws.com                   | Method 2                |
+| Amazon S3                   | Signed URLs                 | \<S3 bucket name>.s3.\<region>.amazonaws.com                 | Method 2                |
 | AWS Lambda                  | Streaming output            | lambda.\<region>.amazonaws.com                               | Method 2                |
 | Amazon Transcribe           | Speech-to-text              | transcribe.\<region>.amazonaws.com                           | Method 2                |
 | Amazon Transcribe Streaming | Real-time speech-to-text    | transcribestreaming.\<region>.amazonaws.com                  | Method 2                |

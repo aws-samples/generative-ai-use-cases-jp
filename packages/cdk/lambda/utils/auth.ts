@@ -8,12 +8,9 @@ export const verifyToken = async (
     const region = process.env.AWS_REGION!;
     const userPoolId = process.env.USER_POOL_ID!;
     const clientId = process.env.USER_POOL_CLIENT_ID!;
-    const proxyEndpoint = process.env.USER_POOL_PROXY_ENDPOINT!;
 
-    const jwksUri =
-      proxyEndpoint.length > 0
-        ? `${proxyEndpoint}${userPoolId}/.well-known/jwks.json`
-        : `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`;
+    // VPC Endpoint with Private DNS enabled will automatically resolve to the correct endpoint
+    const jwksUri = `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`;
 
     const verifier = JwtRsaVerifier.create({
       issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,

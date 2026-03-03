@@ -43,8 +43,9 @@ export const useMeetingMinutes = (
       try {
         const prompter = getPrompter(modelId);
 
+        const isSavedPrompt = minutesStyle.startsWith('savedPrompt:');
         const promptContent =
-          minutesStyle === 'custom' && customPrompt
+          (minutesStyle === 'custom' || isSavedPrompt) && customPrompt
             ? customPrompt
             : prompter.meetingMinutesPrompt({
                 style: minutesStyle,

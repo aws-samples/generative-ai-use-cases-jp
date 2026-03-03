@@ -1,0 +1,49 @@
+{
+  "_comment": "MCP Server Configuration for Research Agent",
+  "mcpServers": {
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@brave/brave-search-mcp-server"],
+      "env": {
+        "BRAVE_API_KEY": ""
+      },
+      "metadata": {
+        "category": "Search",
+        "description": "Web search capabilities powered by Brave Search"
+      }
+    },
+    "aws-knowledge-mcp-server": {
+      "url": "https://knowledge-mcp.global.api.aws",
+      "type": "http",
+      "metadata": {
+        "category": "AWS",
+        "description": "AWS Knowledge Base MCP server for enterprise knowledge access (HTTP direct)"
+      }
+    },
+    "awslabs.aws-documentation-mcp-server": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"],
+      "metadata": {
+        "category": "AWS",
+        "description": "Access AWS documentation and guides"
+      }
+    },
+    "time-mcp-server": {
+      "command": "uvx",
+      "args": ["mcp-server-time"],
+      "metadata": {
+        "category": "Utility",
+        "description": "Provides current time and date functionality"
+      }
+    },
+    "tavily-remote-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.tavily.com/mcp/?tavilyApiKey="],
+      "env": {},
+      "metadata": {
+        "category": "Search",
+        "description": "Additional web search and research capabilities powered by Tavily"
+      }
+    }
+  }
+}

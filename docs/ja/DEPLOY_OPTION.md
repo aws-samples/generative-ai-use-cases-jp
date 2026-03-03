@@ -246,9 +246,10 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
 1. generative-ai-use-cases-jp をクリック
-1. s3-data-source を選択肢、Sync をクリック
+1. s3-data-source を選択し、Sync をクリック
+1. web-crawler-data-source を選択し、Sync をクリック
 
-Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
+それぞれの Status が Available になれば完了です。S3 に保存されているファイルおよび Web Crawler で取得したウェブページが取り込まれ、Knowledge Base から検索できます。
 
 > [!NOTE]
 > RAG チャット (Knowledge Base) の設定を有効後に、再度無効化する場合は、`ragKnowledgeBaseEnabled: false` にして再デプロイすれば RAG チャット (Knowledge Base) は無効化されますが、`RagKnowledgeBaseStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `RagKnowledgeBaseStack` というスタックを削除することで完全に消去ができます。
@@ -351,7 +352,7 @@ chunkingConfiguration: {
 
 RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
 S3 バケット内にアップロードした RAG 用のファイルが存在する場合は、退避したあとに再度アップロードしてください。
-また、前述した手順に従い Data source を再度 Sync してください。
+また、前述した手順に従い Data source (s3-data-source, web-crawler-data-source) を再度 Sync してください。
 
 #### OpenSearch Service の Index をマネージメントコンソールで確認する方法
 
@@ -581,6 +582,48 @@ const envs: Record<string, Partial<StackInput>> = {
   }
 }
 ```
+
+### リサーチエージェントユースケースの有効化
+
+リサーチエージェントは、Web 検索や AWS ドキュメント検索を活用した高度なリサーチ機能を提供します。
+
+#### 前提条件
+
+- **Brave Search API キー（必須）**: AWS Marketplace から取得
+- **Tavily API キー（オプション）**: 追加の検索機能を利用する場合
+
+> [!TIP]
+> Brave Search API キーの取得方法については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
+
+#### parameter.ts での設定例
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // オプション
+  },
+};
+```
+
+**設定パラメータの説明**:
+
+- `researchAgentEnabled`: リサーチエージェント機能を有効化（Web UI表示 + Bedrock AgentCore Runtime作成）
+
+#### cdk.json での設定例
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+詳細な手順については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
 
 ### MCP チャットユースケースの有効化
 
@@ -857,10 +900,14 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-haiku-4-5-20251001-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
@@ -871,6 +918,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -1028,7 +1077,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 `parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds`, `speechToSpeechModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` と `videoGenerationModelIds` と `speechToSpeechModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu|apac}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu|apac}` と一致している必要があります。
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{global|us|eu|apac|jp|au}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{global|us|eu|apac|jp|au}` と一致している必要があります。
 
 (例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
@@ -1041,9 +1090,13 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -1054,6 +1107,10 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"au.anthropic.claude-opus-4-6-v1",
+"au.anthropic.claude-sonnet-4-6",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
 "eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",

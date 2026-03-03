@@ -187,13 +187,36 @@ const ChatPage: React.FC = () => {
   const reasoning = useMemo(() => {
     return MODELS.getModelMetadata(modelId).flags.reasoning ?? false;
   }, [modelId]);
+  const adaptiveThinking = useMemo(() => {
+    return MODELS.getModelMetadata(modelId).flags.adaptiveThinking ?? false;
+  }, [modelId]);
   const reasoningEnabled = useMemo(() => {
-    return overrideModelParameters.reasoningConfig.type === 'enabled';
+    return (
+      overrideModelParameters.reasoningConfig.type === 'enabled' ||
+      overrideModelParameters.reasoningConfig.type === 'adaptive'
+    );
   }, [overrideModelParameters]);
   // Currently, the settings modal is only used with the reasoning option
   const setting = useMemo(() => {
     return reasoning;
   }, [reasoning]);
+
+  // When model changes, update reasoning type if reasoning is already enabled
+  useEffect(() => {
+    if (reasoningEnabled) {
+      const newType = adaptiveThinking ? 'adaptive' : 'enabled';
+      if (overrideModelParameters.reasoningConfig.type !== newType) {
+        setOverrideModelParameters({
+          ...overrideModelParameters,
+          reasoningConfig: {
+            ...overrideModelParameters.reasoningConfig,
+            type: newType,
+          },
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adaptiveThinking]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -417,14 +440,29 @@ const ChatPage: React.FC = () => {
   };
 
   const onReasoningSwitched = useCallback(() => {
-    setOverrideModelParameters({
-      ...overrideModelParameters,
-      reasoningConfig: {
-        type: reasoningEnabled ? 'disabled' : 'enabled',
-        budgetTokens: overrideModelParameters.reasoningConfig.budgetTokens,
-      },
-    });
-  }, [reasoningEnabled, overrideModelParameters, setOverrideModelParameters]);
+    if (reasoningEnabled) {
+      setOverrideModelParameters({
+        ...overrideModelParameters,
+        reasoningConfig: {
+          ...overrideModelParameters.reasoningConfig,
+          type: 'disabled',
+        },
+      });
+    } else {
+      setOverrideModelParameters({
+        ...overrideModelParameters,
+        reasoningConfig: {
+          ...overrideModelParameters.reasoningConfig,
+          type: adaptiveThinking ? 'adaptive' : 'enabled',
+        },
+      });
+    }
+  }, [
+    reasoningEnabled,
+    adaptiveThinking,
+    overrideModelParameters,
+    setOverrideModelParameters,
+  ]);
 
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
