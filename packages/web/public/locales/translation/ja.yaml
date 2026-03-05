@@ -979,6 +979,8 @@ useCaseBuilder:
   error:
     duplicate_select_options: '{{select:{{label}}}} に重複したオプションが含まれています。'
     empty_select_options: '{{select:{{label}}}} に空のオプションが含まれています。'
+    invalid_kb_filter: >-
+      {{retrieveKnowledgeBase{{label}}}} のフィルター構文が無効です: {{error}}
     missing_kb_text_form: >-
       Knowledge Base の検索クエリを入力するためのフォーム {{text{{label}}}}
       をプロンプテンプレートに内に記述してください。
@@ -990,6 +992,7 @@ useCaseBuilder:
     rag_knowledge_base_not_enabled: >-
       プロンプトテンプレート内で {{retrieveKnowledgeBase}} が指定されていますが GenU で RAG チャット
       (Knowledge Base) が有効になっていません。
+    retrieve_knowledge_base_failed: Knowledge Base からの検索に失敗しました。
   favorites: お気に入り
   fileUploadDescription: 添付可能なファイルはモデルによって異なります
   fileUploadDisabled: ファイルは添付できません
@@ -1066,6 +1069,25 @@ useCaseBuilder:
       は検索クエリを入力するための placeholder ({{text}}) が別に必要です。 それらは同一ラベルである必要があります。 
       この機能を利用するためには、GenU で RAG チャット (Knowledge Base) が有効になっている必要があります。
       有効化されていない場合は管理者に問い合わせてください。
+
+
+      メタデータフィルターを指定して検索対象を絞り込むことができます。
+      {{retrieveKnowledgeBase:ラベル:フィルター}} のように記述します。
+      フィルターは key=value 形式で指定し、複数のフィルターはカンマで区切ります。
+
+
+      対応している演算子:
+      = (等価), != (非等価), > (より大きい), < (より小さい), >= (以上), <= (以下),
+      ~= (部分一致), ^= (前方一致), @ (含まれる), !@ (含まれない)
+
+
+      配列条件には @ を使用し、値は | で区切ります。
+      例: {{retrieveKnowledgeBase:質問:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      注意事項:
+      - 値にカンマ(,)を含めることはできません（条件区切りと衝突するため）
+      - 数値に見える文字列は自動的に数値に変換されます（例: "007" → 7）。文字列として扱いたい場合は ~= や ^= を使用してください
     retrieveKnowledgeBaseExample:
       prompt: |-
         あなたは、ユーザーの質問に答える AI アシスタントです。
@@ -1081,6 +1103,21 @@ useCaseBuilder:
         {{text:質問}}
         </質問>
       title: シンプルな RAG
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        あなたは、ユーザーの質問に答える AI アシスタントです。
+        以下の情報を読み込んでください。
+
+        <情報>
+        {{retrieveKnowledgeBase:質問:category=AWS,year>2020}}
+        </情報>
+
+        上の情報を参考に、以下の質問に答えてください。
+
+        <質問>
+        {{text:質問}}
+        </質問>
+      title: フィルター付き RAG
     selectPlaceholderDescription: >-
       {{select}} はセレクトボックスを定義するための placeholder です。 {{select}}
       はラベルとオプションを省略できません。 必ず {{select:ラベル:選択肢1,選択肢2}} のように記述します。

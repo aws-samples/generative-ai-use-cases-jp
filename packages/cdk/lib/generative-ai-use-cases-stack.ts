@@ -63,6 +63,8 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
+  // Cognito User Pool Proxy Endpoint (for closed network)
+  readonly cognitoUserPoolProxyEndpoint?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -391,8 +393,10 @@ export class GenerativeAiUseCasesStack extends Stack {
         new RagKnowledgeBase(this, 'RagKnowledgeBase', {
           modelRegion: params.modelRegion,
           crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
+          cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
           knowledgeBaseId: knowledgeBaseId,
           userPool: auth.userPool,
+          userPoolClientId: auth.client.userPoolClientId,
           api: api.api,
           vpc: props.vpc,
           securityGroups,

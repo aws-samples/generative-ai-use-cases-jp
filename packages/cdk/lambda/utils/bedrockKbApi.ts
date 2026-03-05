@@ -23,6 +23,7 @@ import {
 import { streamingChunk } from './streamingChunk';
 import { verifyToken } from './auth';
 import { initBedrockAgentRuntimeClient } from './bedrockClient';
+import { getInferenceProfileArn } from './models';
 
 const MODEL_REGION = process.env.MODEL_REGION as string;
 
@@ -211,6 +212,10 @@ $output_format_instructions$`;
           }
         : undefined;
 
+      // Convert cross-region inference profile ID to ARN
+      const modelIdOrArn =
+        getInferenceProfileArn(model.modelId) || model.modelId;
+
       const command = new RetrieveAndGenerateStreamCommand({
         input: {
           text: messages[messages.length - 1].content,
@@ -220,7 +225,7 @@ $output_format_instructions$`;
           type: 'KNOWLEDGE_BASE',
           knowledgeBaseConfiguration: {
             knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
-            modelArn: model.modelId,
+            modelArn: modelIdOrArn,
             generationConfiguration,
             retrievalConfiguration: {
               vectorSearchConfiguration: {

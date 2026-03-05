@@ -1184,6 +1184,8 @@ useCaseBuilder:
   error:
     duplicate_select_options: '{{select:{{label}}}} contains duplicate options.'
     empty_select_options: '{{select:{{label}}}} contains empty options.'
+    invalid_kb_filter: >-
+      Invalid filter syntax for {{retrieveKnowledgeBase{{label}}}}: {{error}}
     missing_kb_text_form: >-
       Please include a form {{text{{label}}}} in the prompt template to input
       the search query for Knowledge Base.
@@ -1199,6 +1201,7 @@ useCaseBuilder:
     rag_knowledge_base_not_enabled: >-
       {{retrieveKnowledgeBase}} is specified in the prompt template, but RAG
       Chat (Knowledge Base) is not enabled in GenU.
+    retrieve_knowledge_base_failed: Failed to retrieve from Knowledge Base.
   favorites: Favorites
   fileUploadDescription: Users can upload files for the LLM to reference the content.
   fileUploadDisabled: Disable file upload
@@ -1307,6 +1310,25 @@ useCaseBuilder:
       entering the search query. These must have the same label. To use this
       feature, RAG chat (Knowledge Base) must be enabled in GenU. If it is not
       enabled, please contact the administrator.
+
+
+      You can specify metadata filters to narrow down the search results.
+      Write as {{retrieveKnowledgeBase:label:filter}}.
+      Filters are specified in key=value format, and multiple filters are separated by commas.
+
+
+      Supported operators:
+      = (equals), != (notEquals), > (greaterThan), < (lessThan), >= (greaterThanOrEquals), <= (lessThanOrEquals),
+      ~= (stringContains), ^= (startsWith), @ (in), !@ (notIn)
+
+
+      For array conditions, use @ and separate values with |.
+      Example: {{retrieveKnowledgeBase:Question:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      Limitations:
+      - Values cannot contain commas (,) as they conflict with condition separators.
+      - Numeric-looking strings are automatically converted to numbers (e.g., "007" → 7). Use ~= or ^= if you need to keep them as strings.
     retrieveKnowledgeBaseExample:
       prompt: |-
         You are an AI assistant that answers user questions.
@@ -1322,6 +1344,21 @@ useCaseBuilder:
         {{text:Question}}
         </Question>
       title: Simple RAG
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        You are an AI assistant that answers user questions.
+        Please read the following information:
+
+        <Information>
+        {{retrieveKnowledgeBase:Question:category=AWS,year>2020}}
+        </Information>
+
+        Based on the above information, please answer the following question:
+
+        <Question>
+        {{text:Question}}
+        </Question>
+      title: RAG with Filter
     selectPlaceholderDescription: |-
       You are a specialist with expertise in AWS services.
 

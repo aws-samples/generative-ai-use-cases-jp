@@ -723,6 +723,140 @@ useCaseBuilder:
   fileUploadDescription: 사용자가 LLM이 내용을 참조할 수 있도록 파일을 업로드할 수 있습니다.
   fileUploadDisabled: 파일 업로드 비활성화
   fileUploadEnabled: 파일 업로드 활성화
+  help:
+    emailReplyExample: 이메일 답장
+    emailReplyPrompt: |-
+      다음 이메일에 대한 적절한 답장을 작성해주세요.
+
+      <이메일>
+      {{text:이메일}}
+      </이메일>
+    example: 예시
+    formPlaceholderDescription: >-
+      {{form}}은 고정된 텍스트를 위한 플레이스홀더입니다.
+      {{form}} 또는 {{form:레이블}}로 작성합니다.
+      {{form}}은 프롬프트 템플릿에 정적 텍스트를 포함합니다.
+      HTML <input> 태그가 생성되지만 사용자는 편집할 수 없습니다.
+    formPlaceholderExample:
+      prompt: |-
+        다음 조건에 따라 {항목}의 슬로건을 만들어주세요.
+        {{form:항목:GenU}}
+
+        - 30자 이내
+        - 친근한 어조
+      title: 슬로건
+    placeholder: 플레이스홀더
+    placeholderDescription: >-
+      프롬프트 템플릿에 플레이스홀더를 정의하여 사용자 입력을 받을 수 있습니다.
+      {{플레이스홀더 유형:레이블}}처럼 이중 중괄호로 묶고 콜론으로 구분합니다.
+      레이블을 생략하면 {{text}}처럼 됩니다.
+      빈 레이블을 지정하려면 {{text:}}처럼 작성하며, 이는 빈 레이블로 취급됩니다.
+      (빈 레이블과 레이블 없음은 다릅니다.)
+    placeholderList: 플레이스홀더 목록
+    promptTemplateDescription: >-
+      유스케이스 빌더에서 프롬프트 템플릿을 설정하여 유스케이스를 생성합니다.
+      프롬프트 템플릿에 플레이스홀더를 정의하면 사용자 입력을 받는 양식이 생성되고,
+      입력을 플레이스홀더에 삽입하여 LLM에 전송합니다.
+    promptTemplateTitle: 프롬프트 템플릿이란?
+    retrieveKendraDescription: >-
+      {{retrieveKendra}}는 Amazon Kendra에서 검색한 결과를 프롬프트 템플릿에 삽입합니다.
+      {{retrieveKendra}} 또는 {{retrieveKendra:레이블}}로 작성합니다.
+      {{retrieveKendra}}는 검색 쿼리를 입력하기 위한 별도의 플레이스홀더({{text}})가 필요합니다.
+      동일한 레이블이어야 합니다.
+      이 기능을 사용하려면 GenU에서 RAG 채팅(Amazon Kendra)이 활성화되어 있어야 합니다.
+      활성화되지 않은 경우 관리자에게 문의하세요.
+    retrieveKendraExample:
+      prompt: |-
+        사용자의 질문에 답변하는 AI 어시스턴트입니다.
+        다음 정보를 읽어주세요.
+
+        <정보>
+        {{retrieveKendra:질문}}
+        </정보>
+
+        위 정보를 참고하여 다음 질문에 답변해주세요.
+
+        <질문>
+        {{text:질문}}
+        </질문>
+      title: 간단한 RAG
+    retrieveKnowledgeBaseDescription: >-
+      {{retrieveKnowledgeBase}}는 Knowledge Base에서 검색한 결과를 프롬프트 템플릿에 삽입합니다.
+      {{retrieveKnowledgeBase}} 또는 {{retrieveKnowledgeBase:레이블}}로 작성합니다.
+      {{retrieveKnowledgeBase}}는 검색 쿼리를 입력하기 위한 별도의 플레이스홀더({{text}})가 필요합니다.
+      동일한 레이블이어야 합니다.
+      이 기능을 사용하려면 GenU에서 RAG 채팅(Knowledge Base)이 활성화되어 있어야 합니다.
+      활성화되지 않은 경우 관리자에게 문의하세요.
+
+
+      메타데이터 필터를 지정하여 검색 결과를 좁힐 수 있습니다.
+      {{retrieveKnowledgeBase:레이블:필터}}로 작성합니다.
+      필터는 key=value 형식으로 지정하며, 여러 필터는 쉼표로 구분합니다.
+
+
+      지원되는 연산자:
+      = (같음), != (같지 않음), > (보다 큼), < (보다 작음), >= (크거나 같음), <= (작거나 같음),
+      ~= (문자열 포함), ^= (시작함), @ (포함됨), !@ (포함되지 않음)
+
+
+      배열 조건의 경우 @를 사용하고 값은 |로 구분합니다.
+      예: {{retrieveKnowledgeBase:질문:category=AWS,year>2020,tag@AWS|Bedrock|SageMaker}}
+
+
+      주의사항:
+      - 값에 쉼표(,)를 포함할 수 없습니다 (조건 구분자와 충돌하기 때문)
+      - 숫자처럼 보이는 문자열은 자동으로 숫자로 변환됩니다 (예: "007" → 7). 문자열로 처리하려면 ~= 또는 ^=를 사용하세요
+    retrieveKnowledgeBaseExample:
+      prompt: |-
+        사용자의 질문에 답변하는 AI 어시스턴트입니다.
+        다음 정보를 읽어주세요.
+
+        <정보>
+        {{retrieveKnowledgeBase:질문}}
+        </정보>
+
+        위 정보를 참고하여 다음 질문에 답변해주세요.
+
+        <질문>
+        {{text:질문}}
+        </질문>
+      title: 간단한 RAG
+    retrieveKnowledgeBaseFilterExample:
+      prompt: |-
+        사용자의 질문에 답변하는 AI 어시스턴트입니다.
+        다음 정보를 읽어주세요.
+
+        <정보>
+        {{retrieveKnowledgeBase:질문:category=AWS,year>2020}}
+        </정보>
+
+        위 정보를 참고하여 다음 질문에 답변해주세요.
+
+        <질문>
+        {{text:질문}}
+        </질문>
+      title: 필터가 있는 RAG
+    selectPlaceholderDescription: >-
+      {{select}}는 셀렉트박스를 정의하기 위한 플레이스홀더입니다.
+      {{select}}는 레이블과 옵션을 생략할 수 없습니다.
+      {{select:레이블:옵션1,옵션2}}처럼 반드시 작성해야 합니다.
+      옵션은 쉼표로 구분하여 정의합니다.
+      레이블을 표시하지 않으려면 {{select::옵션1,옵션2}}처럼 빈 레이블을 사용합니다.
+      (빈 레이블과 레이블 없음은 다릅니다.)
+    selectPlaceholderExample:
+      prompt: |-
+        AWS 서비스에 대해 잘 알고 있는 전문가입니다.
+
+        다음 서비스에 대한 질문에 답변해주세요.
+        {{select:AWS 서비스:Amazon Bedrock,Amazon S3,AWS Lambda}}
+
+        질문은 다음과 같습니다.
+        {{text:질문}}
+      title: AWS 서비스 질문
+    textPlaceholderDescription: >-
+      {{text}}는 가장 기본적인 플레이스홀더입니다.
+      {{text}} 또는 {{text:레이블}}로 작성합니다.
+      {{text}}는 텍스트 입력을 받는 양식을 생성하고 입력된 값을 그대로 프롬프트 템플릿에 삽입합니다.
   helpTitle: 도움말
   inputExamples: 입력 예시
   invalidFileType: 잘못된 파일 형식입니다. JSON 파일을 선택해주세요.

@@ -16,10 +16,12 @@ export interface RagKnowledgeBaseProps {
   // Context Params
   readonly modelRegion: string;
   readonly crossAccountBedrockRoleArn?: string | null;
+  readonly cognitoUserPoolProxyEndpoint?: string;
 
   // Resource
   readonly knowledgeBaseId: string;
   readonly userPool: UserPool;
+  readonly userPoolClientId: string;
   readonly api: RestApi;
 
   // Closed network
@@ -41,6 +43,10 @@ export class RagKnowledgeBase extends Construct {
         KNOWLEDGE_BASE_ID: props.knowledgeBaseId,
         MODEL_REGION: modelRegion,
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
+        // For dynamic filters (verifyToken)
+        USER_POOL_ID: props.userPool.userPoolId,
+        USER_POOL_CLIENT_ID: props.userPoolClientId,
+        USER_POOL_PROXY_ENDPOINT: props.cognitoUserPoolProxyEndpoint ?? '',
       },
       vpc: props.vpc,
       securityGroups: props.securityGroups,

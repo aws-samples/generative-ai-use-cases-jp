@@ -147,6 +147,14 @@ const UseCaseBuilderHelp = () => {
                   'useCaseBuilder.help.retrieveKnowledgeBaseExample.prompt'
                 )}
               />
+              <PromptSample
+                title={t(
+                  'useCaseBuilder.help.retrieveKnowledgeBaseFilterExample.title'
+                )}
+                prompt={t(
+                  'useCaseBuilder.help.retrieveKnowledgeBaseFilterExample.prompt'
+                )}
+              />
             </div>
           </div>
         </div>

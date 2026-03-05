@@ -21206,6 +21206,13 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
               "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
             },
             "MODEL_REGION": "us-east-1",
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "AuthUserPoolclientA74673A9",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+            "USER_POOL_PROXY_ENDPOINT": "",
           },
         },
         "Handler": "index.handler",
@@ -44106,6 +44113,13 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
               "Fn::ImportValue": "RagKnowledgeBaseStack:ExportsOutputRefKnowledgeBaseD054384B",
             },
             "MODEL_REGION": "us-east-1",
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "AuthUserPoolclientA74673A9",
+            },
+            "USER_POOL_ID": {
+              "Ref": "AuthUserPool8115E87F",
+            },
+            "USER_POOL_PROXY_ENDPOINT": "",
           },
         },
         "Handler": "index.handler",
