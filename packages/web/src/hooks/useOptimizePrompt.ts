@@ -5,7 +5,6 @@ import {
   InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { OptimizePromptRequest } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
@@ -72,14 +71,11 @@ const useOptimizePrompt = () => {
       const region = import.meta.env.VITE_APP_REGION;
       const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
       const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
-      const cognito = new CognitoIdentityClient({
-        region,
-      });
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
       const lambda = new LambdaClient({
         region,
         credentials: fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: token,

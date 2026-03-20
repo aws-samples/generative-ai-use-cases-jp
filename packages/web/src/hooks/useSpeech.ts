@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { Polly, SynthesizeSpeechCommand, VoiceId } from '@aws-sdk/client-polly';
 import { useTranslation } from 'react-i18next';
 
@@ -46,15 +45,12 @@ const useSpeech = (language: string) => {
       const region = import.meta.env.VITE_APP_REGION;
       const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
       const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
-      const cognito = new CognitoIdentityClient({
-        region,
-      });
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
       const polly = new Polly({
         region,
         credentials: fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: token,

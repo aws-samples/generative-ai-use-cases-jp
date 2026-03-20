@@ -9,7 +9,6 @@ import { useState, useEffect, useMemo } from 'react';
 import update from 'immutability-helper';
 import { Buffer } from 'buffer';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { Transcript } from 'generative-ai-use-cases';
 
@@ -26,9 +25,6 @@ const pcmEncodeChunk = (chunk: Buffer) => {
 };
 
 const region = import.meta.env.VITE_APP_REGION;
-const cognito = new CognitoIdentityClient({
-  region,
-});
 const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
 const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
 const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
@@ -93,7 +89,7 @@ const useMicrophone = () => {
       const transcribe = new TranscribeStreamingClient({
         region,
         credentials: fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: token,

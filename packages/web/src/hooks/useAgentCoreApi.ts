@@ -8,7 +8,6 @@ import {
 } from '@aws-sdk/client-bedrock-agentcore';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import {
   AgentCoreRequest,
   Model,
@@ -110,17 +109,13 @@ const useAgentCoreApi = (id: string) => {
 
         const clientRegion = getRegionFromArn(req.agentRuntimeArn) || region;
 
-        // Create the Cognito Identity client
-        const cognito = new CognitoIdentityClient({
-          region,
-        });
         const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
         // Create the BedrockAgentCore client with the determined region
         const client = new BedrockAgentCoreClient({
           region: clientRegion,
           credentials: fromCognitoIdentityPool({
-            client: cognito,
+            clientConfig: { region },
             identityPoolId,
             logins: {
               [providerName]: token,

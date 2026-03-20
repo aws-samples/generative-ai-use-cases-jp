@@ -6,7 +6,6 @@ import { HttpRequest } from '@aws-sdk/protocol-http';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import { StreamingChunk, McpRequest, Model } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
 
@@ -71,12 +70,9 @@ const useMcpApi = (id: string) => {
         const region = import.meta.env.VITE_APP_REGION;
         const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
         const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
-        const cognito = new CognitoIdentityClient({
-          region,
-        });
         const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
         const credentialProvider = fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: token,
