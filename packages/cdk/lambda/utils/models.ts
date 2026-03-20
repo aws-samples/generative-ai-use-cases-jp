@@ -805,7 +805,8 @@ const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
           (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
           ', ' +
           params.stylePreset,
-        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
+        negativeText:
+          params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
         images: [params.initImage],
         similarityStrength: Math.max(params.imageStrength || 0.2, 0.2), // Min 0.2
       },
@@ -819,7 +820,8 @@ const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
           (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
           ', ' +
           params.stylePreset,
-        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
+        negativeText:
+          params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
         image: params.initImage,
         maskImage: params.maskImage,
         maskPrompt: params.maskPrompt,
@@ -834,7 +836,8 @@ const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
           (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
           ', ' +
           params.stylePreset,
-        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
+        negativeText:
+          params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
         image: params.initImage,
         maskImage: params.maskImage,
         maskPrompt: params.maskPrompt,
@@ -850,7 +853,8 @@ const createBodyImageAmazonGeneralImage = (params: GenerateImageParams) => {
           (params.textPrompt.find((x) => x.weight > 0)?.text || '') +
           ', ' +
           params.stylePreset,
-        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
+        negativeText:
+          params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
       },
       imageGenerationConfig: imageGenerationConfig,
     };
@@ -869,7 +873,8 @@ const createBodyImageAmazonAdvancedImage = (params: GenerateImageParams) => {
       taskType: 'COLOR_GUIDED_GENERATION',
       colorGuidedGenerationParams: {
         text: params.textPrompt.find((x) => x.weight > 0)?.text || '',
-        negativeText: params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
+        negativeText:
+          params.textPrompt.find((x) => x.weight < 0)?.text || undefined,
         referenceImage: params.initImage,
         colors: params.colors!,
       },

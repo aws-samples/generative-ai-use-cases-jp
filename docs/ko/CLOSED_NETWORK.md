@@ -169,7 +169,7 @@ Resolver 엔드포인트의 IP 주소는 [Route53](https://console.aws.amazon.co
 | API Gateway                 | 메인 API                     | \<xxx>.execute-api.\<region>.amazonaws.com                          | 방법 2            |
 | API Gateway                 | Cognito User Pool 프록시     | \<yyy>.execute-api.\<region>.amazonaws.com                          | 방법 2            |
 | API Gateway                 | Cognito Identity Pool 프록시 | \<zzz>.execute-api.\<region>.amazonaws.com                          | 방법 2            |
-| Amazon S3                   | 서명된 URL                   | \<S3 버킷 이름>.s3.\<region>.amazonaws.com                         | 방법 2            |
+| Amazon S3                   | 서명된 URL                   | \<S3 버킷 이름>.s3.\<region>.amazonaws.com                          | 방법 2            |
 | AWS Lambda                  | 스트리밍 출력                | lambda.\<region>.amazonaws.com                                      | 방법 2            |
 | Amazon Transcribe           | 음성-텍스트 변환             | transcribe.\<region>.amazonaws.com                                  | 방법 2            |
 | Amazon Transcribe Streaming | 실시간 음성-텍스트 변환      | transcribestreaming.\<region>.amazonaws.com                         | 방법 2            |
