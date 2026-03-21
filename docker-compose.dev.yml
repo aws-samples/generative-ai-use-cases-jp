@@ -1,0 +1,107 @@
+services:
+  api:
+    build:
+      context: packages/cdk
+      dockerfile: lambda/api/Dockerfile.dev
+    ports:
+      - '8080:8080'
+    environment:
+      - PORT=8080
+      - AWS_REGION=us-west-2
+      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - NODE_ENV=development
+      - MODEL_REGION
+      - MODEL_IDS
+      - IMAGE_GENERATION_MODEL_IDS
+      - VIDEO_GENERATION_MODEL_IDS
+      - SPEECH_TO_SPEECH_MODEL_IDS
+      - TABLE_NAME
+      - STATS_TABLE_NAME
+      - BUCKET_NAME
+      - AUDIO_BUCKET_NAME
+      - TRANSCRIPT_BUCKET_NAME
+      - USER_POOL_ID
+      - USER_POOL_CLIENT_ID
+      - USER_POOL_PROXY_ENDPOINT
+      - BUILTIN_AGENTS_JSON
+      - CUSTOM_AGENTS_JSON
+      - CROSS_ACCOUNT_BEDROCK_ROLE_ARN
+      - KNOWLEDGE_BASE_ID
+      - INDEX_ID
+      - LANGUAGE
+      - USECASE_TABLE_NAME
+      - USECASE_ID_INDEX_NAME
+      - VIDEO_BUCKET_REGION_MAP
+      - QUERY_DECOMPOSITION_ENABLED
+      - RERANKING_MODEL_ID
+      - SPEECH_TO_SPEECH_TASK_FUNCTION_ARN
+    volumes:
+      - .:/workspace
+      - ~/.aws:/root/.aws:ro
+    working_dir: /workspace/packages/cdk
+    command: sh -c "npx tsx watch lambda/api/index.ts"
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile.dev
+    ports:
+      - '5173:5173'
+    environment:
+      - VITE_APP_VERSION=dev
+      - VITE_APP_API_ENDPOINT=http://localhost:8080
+      - VITE_APP_REGION
+      - VITE_APP_USER_POOL_ID
+      - VITE_APP_USER_POOL_CLIENT_ID
+      - VITE_APP_IDENTITY_POOL_ID
+      - VITE_APP_PREDICT_STREAM_FUNCTION_ARN
+      - VITE_APP_RAG_ENABLED
+      - VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED
+      - VITE_APP_AGENT_ENABLED
+      - VITE_APP_FLOW_STREAM_FUNCTION_ARN
+      - VITE_APP_FLOWS
+      - VITE_APP_SELF_SIGN_UP_ENABLED
+      - VITE_APP_MODEL_REGION
+      - VITE_APP_MODEL_IDS
+      - VITE_APP_IMAGE_MODEL_IDS
+      - VITE_APP_VIDEO_MODEL_IDS
+      - VITE_APP_ENDPOINT_NAMES
+      - VITE_APP_SAMLAUTH_ENABLED
+      - VITE_APP_SAML_COGNITO_DOMAIN_NAME
+      - VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME
+      - VITE_APP_BUILTIN_AGENTS_JSON
+      - VITE_APP_CUSTOM_AGENTS_JSON
+      - VITE_APP_INLINE_AGENTS
+      - VITE_APP_USE_CASE_BUILDER_ENABLED
+      - VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN
+      - VITE_APP_HIDDEN_USE_CASES
+      - VITE_APP_SPEECH_TO_SPEECH_NAMESPACE
+      - VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT
+      - VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS
+      - VITE_APP_MCP_ENABLED
+      - VITE_APP_MCP_ENDPOINT
+      - VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT
+      - VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT
+      - VITE_APP_AGENT_CORE_ENABLED
+      - VITE_APP_AGENT_CORE_GENERIC_RUNTIME
+      - VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED
+      - VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME
+      - VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES
+      - VITE_APP_BRANDING_LOGO_PATH
+      - VITE_APP_BRANDING_TITLE
+      - VITE_APP_MCP_SERVERS_CONFIG
+    volumes:
+      # Mount workspace packages as directories
+      - ./packages/web:/workspace/packages/web
+      - ./packages/common:/workspace/packages/common
+      - ./packages/types:/workspace/packages/types
+      # Protect container's node_modules from host
+      - /workspace/node_modules
+      - /workspace/packages/web/node_modules
+      - /workspace/packages/common/node_modules
+      - /workspace/packages/types/node_modules
+    depends_on:
+      - api

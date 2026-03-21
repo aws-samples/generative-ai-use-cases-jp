@@ -29,3 +29,7 @@ export type VideoJob = PrimaryKey & {
   prompt: string;
   params: string;
 };
+
+export interface CopyVideoJobParams {
+  job: VideoJob;
+}

@@ -1,0 +1,18 @@
+FROM node:22-alpine
+
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /workspace
+
+# Copy package files for all workspaces (for npm ci hoisting)
+COPY package.json package-lock.json ./
+COPY packages/web/package.json ./packages/web/
+COPY packages/cdk/package.json ./packages/cdk/
+COPY packages/common/package.json ./packages/common/
+COPY packages/types/package.json ./packages/types/
+
+RUN npm ci --ignore-scripts
+
+EXPOSE 5173
+
+CMD ["npm", "run", "-w", "packages/web", "dev", "--", "--host", "0.0.0.0"]

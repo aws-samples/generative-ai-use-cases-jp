@@ -7,3 +7,8 @@ node_modules
 .cdk.staging
 cdk.out
 !custom-resources/**/*.js
+
+# Pre-built Lambda functions
+lambda-dist
+lambda-build/node_modules
+lambda-layer

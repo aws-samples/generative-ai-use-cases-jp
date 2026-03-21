@@ -8,16 +8,7 @@ import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
 import * as stepfunctionsTasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
-import { UserPool } from 'aws-cdk-lib/aws-cognito';
-import { Duration, Token, Arn, RemovalPolicy } from 'aws-cdk-lib';
-import {
-  AuthorizationType,
-  CognitoUserPoolsAuthorizer,
-  LambdaIntegration,
-  RestApi,
-} from 'aws-cdk-lib/aws-apigateway';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { Arn, RemovalPolicy } from 'aws-cdk-lib';
 import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 const KENDRA_STATE_CFN_PARAMETER_NAME = 'kendraState';
@@ -32,9 +23,8 @@ export interface RagProps {
   readonly kendraIndexScheduleCreateCron?: IndexScheduleCron | null;
   readonly kendraIndexScheduleDeleteCron?: IndexScheduleCron | null;
 
-  // Resource
-  readonly userPool: UserPool;
-  readonly api: RestApi;
+  // For Kendra Index creation
+  readonly userPoolProviderUrl?: string;
 
   // Closed network
   readonly vpc?: IVpc;
@@ -129,6 +119,8 @@ class KendraDataSourceWithCfnParameter extends kendra.CfnDataSource {
  */
 export class Rag extends Construct {
   public readonly dataSourceBucketName?: string;
+  public readonly kendraIndexId: string;
+  public readonly kendraIndexLanguage: string;
 
   constructor(scope: Construct, id: string, props: RagProps) {
     super(scope, id);
@@ -143,17 +135,18 @@ export class Rag extends Construct {
       kendraIndexScheduleDeleteCron,
     } = props;
 
-    let kendraIndexArn: string;
+    this.kendraIndexLanguage = kendraIndexLanguage;
+
     let kendraIndexId: string;
     let dataSourceBucket: s3.IBucket | null = null;
 
     if (kendraIndexArnInCdkContext) {
       // Use existing Kendra Index
-      kendraIndexArn = kendraIndexArnInCdkContext!;
       kendraIndexId = Arn.extractResourceName(
         kendraIndexArnInCdkContext,
         'index'
       );
+      this.kendraIndexId = kendraIndexId;
       // If you use existing S3 data source, generate object from bucket name
       if (kendraDataSourceBucketName) {
         dataSourceBucket = s3.Bucket.fromBucketName(
@@ -231,16 +224,18 @@ export class Rag extends Construct {
         userContextPolicy: 'USER_TOKEN',
 
         // Set information about the Cognito used for authorization
-        userTokenConfigurations: [
-          {
-            jwtTokenTypeConfiguration: {
-              keyLocation: 'URL',
-              userNameAttributeField: 'cognito:username',
-              groupAttributeField: 'cognito:groups',
-              url: `${props.userPool.userPoolProviderUrl}/.well-known/jwks.json`,
-            },
-          },
-        ],
+        userTokenConfigurations: props.userPoolProviderUrl
+          ? [
+              {
+                jwtTokenTypeConfiguration: {
+                  keyLocation: 'URL',
+                  userNameAttributeField: 'cognito:username',
+                  groupAttributeField: 'cognito:groups',
+                  url: `${props.userPoolProviderUrl}/.well-known/jwks.json`,
+                },
+              },
+            ]
+          : undefined,
       };
 
       let kendraIsOnCfnCondition;
@@ -277,13 +272,13 @@ export class Rag extends Construct {
         );
         index.cfnOptions.condition = kendraIsOnCfnCondition; // According to Cfn Parameter, turn on/off resources
 
-        kendraIndexArn = index.attrArn;
         kendraIndexId = index.attrId;
+        this.kendraIndexId = kendraIndexId;
       } else {
         index = new kendra.CfnIndex(this, 'KendraIndex', indexProps);
 
-        kendraIndexArn = Token.asString(index.getAtt('Arn'));
         kendraIndexId = index.ref;
+        this.kendraIndexId = kendraIndexId;
       }
 
       const s3DataSourceRole = new iam.Role(this, 'DataSourceRole', {
@@ -529,81 +524,6 @@ export class Rag extends Construct {
         }
       }
     }
-
-    // Add RAG related APIs
-    // Lambda
-    const queryFunction = new NodejsFunction(this, 'Query', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/queryKendra.ts',
-      timeout: Duration.minutes(15),
-      bundling: {
-        // Use new Kendra features, so explicitly bundle AWS SDK
-        externalModules: [],
-      },
-      environment: {
-        INDEX_ID: kendraIndexId,
-        LANGUAGE: kendraIndexLanguage,
-      },
-      vpc: props.vpc,
-      securityGroups: props.securityGroups,
-    });
-    queryFunction.role?.addToPrincipalPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [kendraIndexArn],
-        actions: ['kendra:Query'],
-      })
-    );
-
-    const retrieveFunction = new NodejsFunction(this, 'Retrieve', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/retrieveKendra.ts',
-      timeout: Duration.minutes(15),
-      bundling: {
-        // Use new Kendra features, so explicitly bundle AWS SDK
-        externalModules: [],
-      },
-      environment: {
-        INDEX_ID: kendraIndexId,
-        LANGUAGE: kendraIndexLanguage,
-      },
-      vpc: props.vpc,
-      securityGroups: props.securityGroups,
-    });
-    retrieveFunction.role?.addToPrincipalPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [kendraIndexArn],
-        actions: ['kendra:Retrieve'],
-      })
-    );
-
-    // API Gateway
-    const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
-      cognitoUserPools: [props.userPool],
-    });
-
-    const commonAuthorizerProps = {
-      authorizationType: AuthorizationType.COGNITO,
-      authorizer,
-    };
-    const ragResource = props.api.root.addResource('rag');
-
-    const queryResource = ragResource.addResource('query');
-    // POST: /rag/query
-    queryResource.addMethod(
-      'POST',
-      new LambdaIntegration(queryFunction),
-      commonAuthorizerProps
-    );
-
-    const retrieveResource = ragResource.addResource('retrieve');
-    // POST: /rag/retrieve
-    retrieveResource.addMethod(
-      'POST',
-      new LambdaIntegration(retrieveFunction),
-      commonAuthorizerProps
-    );
 
     this.dataSourceBucketName = dataSourceBucket?.bucketName;
   }

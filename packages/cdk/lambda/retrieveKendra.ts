@@ -9,7 +9,7 @@ import { RetrieveKendraRequest } from 'generative-ai-use-cases';
 const INDEX_ID = process.env.INDEX_ID;
 const LANGUAGE = process.env.LANGUAGE;
 
-exports.handler = async (
+export const handler = async (
   event: lambda.APIGatewayProxyEvent
 ): Promise<lambda.APIGatewayProxyResult> => {
   const req = JSON.parse(event.body!) as RetrieveKendraRequest;

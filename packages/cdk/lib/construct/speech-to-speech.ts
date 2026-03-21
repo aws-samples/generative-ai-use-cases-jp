@@ -2,7 +2,6 @@ import { Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as appsync from 'aws-cdk-lib/aws-appsync';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as agw from 'aws-cdk-lib/aws-apigateway';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { ModelConfiguration } from 'generative-ai-use-cases';
@@ -13,7 +12,6 @@ import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 export interface SpeechToSpeechProps {
   readonly envSuffix: string;
   readonly userPool: cognito.UserPool;
-  readonly api: agw.RestApi;
   readonly speechToSpeechModelIds: ModelConfiguration[];
   readonly crossAccountBedrockRoleArn?: string | null;
   readonly vpc?: IVpc;
@@ -23,6 +21,7 @@ export interface SpeechToSpeechProps {
 export class SpeechToSpeech extends Construct {
   public readonly namespace: string;
   public readonly eventApiEndpoint: string;
+  public readonly speechToSpeechTaskFunctionArn: string;
 
   constructor(scope: Construct, id: string, props: SpeechToSpeechProps) {
     super(scope, id);
@@ -82,9 +81,6 @@ export class SpeechToSpeech extends Construct {
         SPEECH_TO_SPEECH_MODEL_IDS: JSON.stringify(speechToSpeechModelIds),
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: props.crossAccountBedrockRoleArn ?? '',
       },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-      },
       memorySize: 512,
       vpc: props.vpc,
       securityGroups: props.securityGroups,
@@ -116,46 +112,8 @@ export class SpeechToSpeech extends Construct {
       speechToSpeechTask.role?.addToPrincipalPolicy(assumeRolePolicy);
     }
 
-    const startSpeechToSpeechSession = new NodejsFunction(
-      this,
-      'StartSession',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/startSpeechToSpeechSession.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          SPEECH_TO_SPEECH_TASK_FUNCTION_ARN: speechToSpeechTask.functionArn,
-          SPEECH_TO_SPEECH_MODEL_IDS: JSON.stringify(speechToSpeechModelIds),
-        },
-        bundling: {
-          nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-        },
-        vpc: props.vpc,
-        securityGroups: props.securityGroups,
-      }
-    );
-
-    speechToSpeechTask.grantInvoke(startSpeechToSpeechSession);
-
-    const authorizer = new agw.CognitoUserPoolsAuthorizer(this, 'Authorizer', {
-      cognitoUserPools: [props.userPool],
-    });
-
-    const commonAuthorizerProps = {
-      authorizationType: agw.AuthorizationType.COGNITO,
-      authorizer,
-    };
-
-    const speechToSpeechResource =
-      props.api.root.addResource('speech-to-speech');
-
-    speechToSpeechResource.addMethod(
-      'POST',
-      new agw.LambdaIntegration(startSpeechToSpeechSession),
-      commonAuthorizerProps
-    );
-
     this.namespace = channelNamespaceName;
     this.eventApiEndpoint = eventApiEndpoint;
+    this.speechToSpeechTaskFunctionArn = speechToSpeechTask.functionArn;
   }
 }

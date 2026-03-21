@@ -24,6 +24,8 @@
     "cdk:test": "npm -w packages/cdk run test",
     "cdk:test:update-snapshot": "npm -w packages/cdk run test -- --update-snapshot",
     "cdk:test:e2e": "source ./setup-env.sh ${npm_config_env} && ./scripts/run-e2e-tests.sh",
+    "dev:docker": "source ./setup-env.sh ${npm_config_env} && docker compose -f docker-compose.dev.yml up --build",
+    "dev:docker:stop": "docker compose -f docker-compose.dev.yml down",
     "extension:ci": "cd browser-extension && npm ci",
     "extension:dev": "cd browser-extension && npm run dev",
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",

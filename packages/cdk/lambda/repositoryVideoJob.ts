@@ -10,12 +10,12 @@ import {
   VideoJob,
   ListVideoJobsResponse,
   GenerateVideoRequest,
+  CopyVideoJobParams,
 } from 'generative-ai-use-cases';
 import {
   GetAsyncInvokeCommand,
   ValidationException,
 } from '@aws-sdk/client-bedrock-runtime';
-import { CopyVideoJobParams } from './copyVideoJob';
 import {
   LambdaClient,
   InvokeCommand,

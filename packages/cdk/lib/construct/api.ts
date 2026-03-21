@@ -7,9 +7,10 @@ import {
   RestApi,
   ResponseType,
   EndpointType,
+  MethodOptions,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
-import { IFunction } from 'aws-cdk-lib/aws-lambda';
+import { LayerVersion, ILayerVersion, Code } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -40,9 +41,9 @@ import {
   IVpc,
   ISecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
+import * as path from 'path';
 
 export interface BackendApiProps {
-  // Context Params
   readonly modelRegion: string;
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
@@ -53,11 +54,6 @@ export interface BackendApiProps {
   readonly rerankingModelId?: string | null;
   readonly customAgents: Agent[];
   readonly crossAccountBedrockRoleArn?: string | null;
-  readonly allowedIpV4AddressRanges?: string[] | null;
-  readonly allowedIpV6AddressRanges?: string[] | null;
-  readonly additionalS3Buckets?: Bucket[];
-
-  // Resource
   readonly userPool: UserPool;
   readonly idPool: IdentityPool;
   readonly userPoolClient: UserPoolClient;
@@ -67,11 +63,30 @@ export interface BackendApiProps {
   readonly agents?: string;
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
-
-  // Closed network
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
+  // RAG
+  readonly kendraIndexId?: string;
+  readonly kendraIndexLanguage?: string;
+  readonly knowledgeBaseDataSourceBucketName?: string;
+  readonly dataSourceBucketName?: string;
+  // Use Case Builder / Agent Builder
+  readonly useCaseBuilderTable?: Table;
+  readonly useCaseIdIndexName?: string;
+  readonly agentBuilderRuntimeArn?: string;
+  // Transcribe
+  readonly audioBucket?: Bucket;
+  readonly transcriptBucket?: Bucket;
+  // Speech to Speech
+  readonly speechToSpeechTaskFunctionArn?: string;
+  readonly speechToSpeechModelIds?: ModelConfiguration[];
+  // IP restrictions
+  readonly allowedIpV4AddressRanges?: string[];
+  readonly allowedIpV6AddressRanges?: string[];
+  readonly additionalS3Buckets?: Bucket[];
+  // CORS
+  readonly webUrl?: string;
 }
 
 export class Api extends Construct {
@@ -79,6 +94,7 @@ export class Api extends Construct {
   readonly predictStreamFunction: NodejsFunction;
   readonly invokeFlowFunction: NodejsFunction;
   readonly optimizePromptFunction: NodejsFunction;
+  readonly apiHandler: NodejsFunction;
   readonly modelRegion: string;
   readonly modelIds: ModelConfiguration[];
   readonly imageGenerationModelIds: ModelConfiguration[];
@@ -86,7 +102,6 @@ export class Api extends Construct {
   readonly endpointNames: ModelConfiguration[];
   readonly agents: AgentInfo[];
   readonly fileBucket: Bucket;
-  readonly getFileDownloadSignedUrlFunction: IFunction;
 
   constructor(scope: Construct, id: string, props: BackendApiProps) {
     super(scope, id);
@@ -109,7 +124,7 @@ export class Api extends Construct {
       securityGroups,
       apiGatewayVpcEndpoint,
     } = props;
-    // Pass both agents sources as separate JSON strings to Lambda
+
     const builtinAgentsJson = props.agents || '[]';
     const customAgentsJson = JSON.stringify(props.customAgents);
 
@@ -136,7 +151,6 @@ export class Api extends Construct {
       throw new Error(`Unsupported Model Name: ${rerankingModelId}`);
     }
 
-    // We don't support using the same model ID accross multiple regions
     const duplicateModelIds = new Set(
       [...modelIds, ...imageGenerationModelIds, ...videoGenerationModelIds]
         .map((m) => m.modelId)
@@ -149,7 +163,7 @@ export class Api extends Construct {
       );
     }
 
-    // S3 (File Bucket)
+    // S3 File Bucket
     const fileBucket = new Bucket(this, 'FileBucket', {
       encryption: BucketEncryption.S3_MANAGED,
       removalPolicy: RemovalPolicy.DESTROY,
@@ -165,33 +179,180 @@ export class Api extends Construct {
       maxAge: 3000,
     });
 
-    // Lambda
-    const predictFunction = new NodejsFunction(this, 'Predict', {
+    // Lambda Layer for Bedrock SDK
+    const bedrockSdkLayer = new LayerVersion(this, 'BedrockSdkLayer', {
+      compatibleRuntimes: [LAMBDA_RUNTIME_NODEJS],
+      code: Code.fromAsset(path.join(__dirname, '../../lambda-layer')),
+      description: 'Bedrock SDK Layer',
+    });
+
+    // Lambda Web Adapter Layer
+    const lwaLayer: ILayerVersion = LayerVersion.fromLayerVersionArn(
+      this,
+      'LwaLayer',
+      `arn:aws:lambda:${Stack.of(this).region}:753240598075:layer:LambdaAdapterLayerX86:25`
+    );
+
+    // API Handler (Express Monolith)
+    const apiHandler = new NodejsFunction(this, 'ApiHandler', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/predict.ts',
+      layers: [bedrockSdkLayer, lwaLayer],
+      entry: './lambda/api/index.ts',
+      handler: 'run.sh',
       timeout: Duration.minutes(15),
+      memorySize: 1024,
+      bundling: {
+        commandHooks: {
+          beforeBundling: () => [],
+          beforeInstall: () => [],
+          afterBundling: (inputDir: string, outputDir: string) => [
+            `cp ${inputDir}/packages/cdk/lambda/api/run.sh ${outputDir}/run.sh && chmod +x ${outputDir}/run.sh`,
+          ],
+        },
+      },
       environment: {
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
+        PORT: '8080',
+        USER_POOL_ID: userPool.userPoolId,
+        USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
+        BUILTIN_AGENTS_JSON: builtinAgentsJson,
+        CUSTOM_AGENTS_JSON: customAgentsJson,
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
+        BUCKET_NAME: fileBucket.bucketName,
+        TABLE_NAME: table.tableName,
+        STATS_TABLE_NAME: props.statsTable.tableName,
+        KNOWLEDGE_BASE_ID: knowledgeBaseId ?? '',
+        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
+        QUERY_DECOMPOSITION_ENABLED: JSON.stringify(queryDecompositionEnabled),
+        RERANKING_MODEL_ID: rerankingModelId ?? '',
+        // RAG Kendra
+        INDEX_ID: props.kendraIndexId ?? '',
+        LANGUAGE: props.kendraIndexLanguage ?? 'ja',
+        // Use Case Builder / Agent Builder
+        USECASE_TABLE_NAME: props.useCaseBuilderTable?.tableName ?? '',
+        USECASE_ID_INDEX_NAME: props.useCaseIdIndexName ?? '',
+        // Transcribe
+        AUDIO_BUCKET_NAME: props.audioBucket?.bucketName ?? '',
+        TRANSCRIPT_BUCKET_NAME: props.transcriptBucket?.bucketName ?? '',
+        // Speech to Speech
+        SPEECH_TO_SPEECH_TASK_FUNCTION_ARN:
+          props.speechToSpeechTaskFunctionArn ?? '',
+        SPEECH_TO_SPEECH_MODEL_IDS: JSON.stringify(
+          props.speechToSpeechModelIds ?? []
+        ),
         ...(props.guardrailIdentify
           ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
           : {}),
         ...(props.guardrailVersion
           ? { GUARDRAIL_VERSION: props.guardrailVersion }
           : {}),
-      },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
+        // CORS allowed origins
+        ALLOWED_ORIGINS: props.webUrl || '*',
       },
       vpc,
       securityGroups,
     });
 
+    this.apiHandler = apiHandler;
+
+    table.grantReadWriteData(apiHandler);
+    props.statsTable.grantReadWriteData(apiHandler);
+    fileBucket.grantReadWrite(apiHandler);
+
+    // Grant DynamoDB access for Use Case Builder table
+    if (props.useCaseBuilderTable) {
+      props.useCaseBuilderTable.grantReadWriteData(apiHandler);
+    }
+
+    // Grant S3 access for Transcribe buckets
+    if (props.audioBucket && apiHandler.role) {
+      props.audioBucket.grantReadWrite(apiHandler);
+      // Add IP restrictions for audio bucket
+      allowS3AccessWithSourceIpCondition(
+        props.audioBucket.bucketName,
+        apiHandler.role,
+        'write',
+        {
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
+        }
+      );
+    }
+    if (props.transcriptBucket && apiHandler.role) {
+      props.transcriptBucket.grantReadWrite(apiHandler);
+      // Add IP restrictions for transcript bucket
+      allowS3AccessWithSourceIpCondition(
+        props.transcriptBucket.bucketName,
+        apiHandler.role,
+        'read',
+        {
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
+        }
+      );
+    }
+
+    // Grant Transcribe permissions
+    apiHandler.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+          'transcribe:StartTranscriptionJob',
+          'transcribe:GetTranscriptionJob',
+          'transcribe:ListTranscriptionJobs',
+        ],
+        resources: ['*'],
+      })
+    );
+
+    // Grant Lambda invoke permission for Speech to Speech
+    if (props.speechToSpeechTaskFunctionArn) {
+      apiHandler.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: ['lambda:InvokeFunction'],
+          resources: [props.speechToSpeechTaskFunctionArn],
+        })
+      );
+    }
+
+    // Grant Cognito permissions for Agent Builder
+    apiHandler.role?.addToPrincipalPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: [userPool.userPoolArn],
+        actions: ['cognito-idp:AdminGetUser'],
+      })
+    );
+
+    // Grant S3 access for video buckets
+    for (const region of Object.keys(props.videoBucketRegionMap)) {
+      const bucketName = props.videoBucketRegionMap[region];
+      apiHandler.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            's3:PutObject',
+            's3:GetObject',
+            's3:DeleteObject',
+            's3:ListBucket',
+          ],
+          resources: [
+            `arn:aws:s3:::${bucketName}`,
+            `arn:aws:s3:::${bucketName}/*`,
+          ],
+        })
+      );
+    }
+
+    // Lambda functions for direct invocation (not via API Gateway)
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: LAMBDA_RUNTIME_NODEJS,
+      layers: [bedrockSdkLayer],
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       memorySize: 256,
@@ -216,31 +377,17 @@ export class Api extends Construct {
         QUERY_DECOMPOSITION_ENABLED: JSON.stringify(queryDecompositionEnabled),
         RERANKING_MODEL_ID: rerankingModelId ?? '',
       },
-      bundling: {
-        nodeModules: [
-          '@aws-sdk/client-bedrock-runtime',
-          '@aws-sdk/client-bedrock-agent-runtime',
-          // The default version of client-sagemaker-runtime does not support StreamingResponse, so specify the version in package.json for bundling
-          '@aws-sdk/client-sagemaker-runtime',
-        ],
-      },
       vpc,
       securityGroups,
     });
     fileBucket.grantReadWrite(predictStreamFunction);
     predictStreamFunction.grantInvoke(idPool.authenticatedRole);
 
-    // Add Flow Lambda Function
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
       runtime: LAMBDA_RUNTIME_NODEJS,
+      layers: [bedrockSdkLayer],
       entry: './lambda/invokeFlow.ts',
       timeout: Duration.minutes(15),
-      bundling: {
-        nodeModules: [
-          '@aws-sdk/client-bedrock-runtime',
-          '@aws-sdk/client-bedrock-agent-runtime',
-        ],
-      },
       environment: {
         MODEL_REGION: modelRegion,
       },
@@ -249,88 +396,9 @@ export class Api extends Construct {
     });
     invokeFlowFunction.grantInvoke(idPool.authenticatedRole);
 
-    const predictTitleFunction = new NodejsFunction(this, 'PredictTitle', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/predictTitle.ts',
-      timeout: Duration.minutes(15),
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-      },
-      environment: {
-        TABLE_NAME: table.tableName,
-        MODEL_REGION: modelRegion,
-        MODEL_IDS: JSON.stringify(modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
-        ...(props.guardrailIdentify
-          ? { GUARDRAIL_IDENTIFIER: props.guardrailIdentify }
-          : {}),
-        ...(props.guardrailVersion
-          ? { GUARDRAIL_VERSION: props.guardrailVersion }
-          : {}),
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantWriteData(predictTitleFunction);
-
-    const generateImageFunction = new NodejsFunction(this, 'GenerateImage', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/generateImage.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        MODEL_REGION: modelRegion,
-        MODEL_IDS: JSON.stringify(modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
-      },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-      },
-      vpc,
-      securityGroups,
-    });
-
-    const generateVideoFunction = new NodejsFunction(this, 'GenerateVideo', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/generateVideo.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        MODEL_REGION: modelRegion,
-        MODEL_IDS: JSON.stringify(modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        VIDEO_BUCKET_OWNER: Stack.of(this).account,
-        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
-        BUCKET_NAME: fileBucket.bucketName,
-        TABLE_NAME: table.tableName,
-      },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-      },
-      vpc,
-      securityGroups,
-    });
-    for (const region of Object.keys(props.videoBucketRegionMap)) {
-      const bucketName = props.videoBucketRegionMap[region];
-      generateVideoFunction.role?.addToPrincipalPolicy(
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: ['s3:PutObject'],
-          resources: [
-            `arn:aws:s3:::${bucketName}`,
-            `arn:aws:s3:::${bucketName}/*`,
-          ],
-        })
-      );
-    }
-    table.grantWriteData(generateVideoFunction);
-
     const copyVideoJob = new NodejsFunction(this, 'CopyVideoJob', {
       runtime: LAMBDA_RUNTIME_NODEJS,
+      layers: [bedrockSdkLayer],
       entry: './lambda/copyVideoJob.ts',
       timeout: Duration.minutes(15),
       memorySize: 512,
@@ -343,9 +411,6 @@ export class Api extends Construct {
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         TABLE_NAME: table.tableName,
-      },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
       },
       vpc,
       securityGroups,
@@ -366,55 +431,14 @@ export class Api extends Construct {
     fileBucket.grantWrite(copyVideoJob);
     table.grantWriteData(copyVideoJob);
 
-    const listVideoJobs = new NodejsFunction(this, 'ListVideoJobs', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/listVideoJobs.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        MODEL_REGION: modelRegion,
-        MODEL_IDS: JSON.stringify(modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        VIDEO_BUCKET_REGION_MAP: JSON.stringify(props.videoBucketRegionMap),
-        CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
-        BUCKET_NAME: fileBucket.bucketName,
-        TABLE_NAME: table.tableName,
-        COPY_VIDEO_JOB_FUNCTION_ARN: copyVideoJob.functionArn,
-      },
-      bundling: {
-        nodeModules: ['@aws-sdk/client-bedrock-runtime'],
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(listVideoJobs);
-    copyVideoJob.grantInvoke(listVideoJobs);
-
-    const deleteVideoJob = new NodejsFunction(this, 'DeleteVideoJob', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteVideoJob.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        MODEL_IDS: JSON.stringify(modelIds),
-        IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
-        VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantWriteData(deleteVideoJob);
-
     const optimizePromptFunction = new NodejsFunction(
       this,
       'OptimizePromptFunction',
       {
         runtime: LAMBDA_RUNTIME_NODEJS,
+        layers: [bedrockSdkLayer],
         entry: './lambda/optimizePrompt.ts',
         timeout: Duration.minutes(15),
-        bundling: {
-          nodeModules: ['@aws-sdk/client-bedrock-agent-runtime'],
-        },
         environment: {
           MODEL_REGION: modelRegion,
         },
@@ -424,97 +448,94 @@ export class Api extends Construct {
     );
     optimizePromptFunction.grantInvoke(idPool.authenticatedRole);
 
-    const getSignedUrlFunction = new NodejsFunction(this, 'GetSignedUrl', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/getFileUploadSignedUrl.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        BUCKET_NAME: fileBucket.bucketName,
-      },
-      vpc,
-      securityGroups,
-    });
-    // Grant S3 write permissions with source IP condition
-    if (getSignedUrlFunction.role) {
+    // Grant S3 permissions to apiHandler with IP restrictions
+    if (apiHandler.role) {
       allowS3AccessWithSourceIpCondition(
         fileBucket.bucketName,
-        getSignedUrlFunction.role,
+        apiHandler.role,
         'write',
         {
-          ipv4: props.allowedIpV4AddressRanges,
-          ipv6: props.allowedIpV6AddressRanges,
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
         }
       );
-    }
-
-    const getFileDownloadSignedUrlFunction = new NodejsFunction(
-      this,
-      'GetFileDownloadSignedUrlFunction',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/getFileDownloadSignedUrl.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
-          MODEL_REGION: modelRegion,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    // Grant S3 read permissions with source IP condition
-    if (getFileDownloadSignedUrlFunction.role) {
-      // Default bucket permissions
       allowS3AccessWithSourceIpCondition(
         fileBucket.bucketName,
-        getFileDownloadSignedUrlFunction.role,
+        apiHandler.role,
         'read',
         {
-          ipv4: props.allowedIpV4AddressRanges,
-          ipv6: props.allowedIpV6AddressRanges,
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
         }
       );
-
-      // Additional buckets permissions (AgentCore, external buckets, etc.)
+      // Additional buckets permissions
       if (props.additionalS3Buckets) {
         props.additionalS3Buckets.forEach((bucket) => {
           allowS3AccessWithSourceIpCondition(
             bucket.bucketName,
-            getFileDownloadSignedUrlFunction.role!,
+            apiHandler.role!,
             'read',
             {
-              ipv4: props.allowedIpV4AddressRanges,
-              ipv6: props.allowedIpV6AddressRanges,
+              ipv4: props.allowedIpV4AddressRanges || [],
+              ipv6: props.allowedIpV6AddressRanges || [],
             }
           );
         });
       }
     }
 
-    // If SageMaker Endpoint exists, grant permission
     if (endpointNames.length > 0) {
-      // SageMaker Policy
       const sagemakerPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['sagemaker:DescribeEndpoint', 'sagemaker:InvokeEndpoint'],
         resources: endpointNames.map(
           (endpointName) =>
-            `arn:aws:sagemaker:${endpointName.region}:${
-              Stack.of(this).account
-            }:endpoint/${endpointName.modelId}`
+            `arn:aws:sagemaker:${endpointName.region}:${Stack.of(this).account}:endpoint/${endpointName.modelId}`
         ),
       });
-      predictFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
+      apiHandler.role?.addToPrincipalPolicy(sagemakerPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-      predictTitleFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-      generateImageFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-      generateVideoFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
-      listVideoJobs.role?.addToPrincipalPolicy(sagemakerPolicy);
       invokeFlowFunction.role?.addToPrincipalPolicy(sagemakerPolicy);
     }
 
-    // Bedrock is always granted permission
-    // Bedrock Policy
+    // Grant Kendra permissions if Kendra Index ID is provided
+    if (props.kendraIndexId) {
+      const kendraIndexArn = `arn:aws:kendra:${Stack.of(this).region}:${Stack.of(this).account}:index/${props.kendraIndexId}`;
+      apiHandler.role?.addToPrincipalPolicy(
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          resources: [kendraIndexArn],
+          actions: ['kendra:Query', 'kendra:Retrieve'],
+        })
+      );
+    }
+
+    // Allow downloading files from Knowledge Base data source bucket
+    if (props.knowledgeBaseDataSourceBucketName && apiHandler.role) {
+      allowS3AccessWithSourceIpCondition(
+        props.knowledgeBaseDataSourceBucketName,
+        apiHandler.role,
+        'read',
+        {
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
+        }
+      );
+    }
+
+    // Allow downloading files from RAG data source bucket
+    if (props.dataSourceBucketName && apiHandler.role) {
+      allowS3AccessWithSourceIpCondition(
+        props.dataSourceBucketName,
+        apiHandler.role,
+        'read',
+        {
+          ipv4: props.allowedIpV4AddressRanges || [],
+          ipv6: props.allowedIpV6AddressRanges || [],
+        }
+      );
+    }
+
     if (
       typeof crossAccountBedrockRoleArn !== 'string' ||
       crossAccountBedrockRoleArn === ''
@@ -530,16 +551,11 @@ export class Api extends Construct {
           'aws-marketplace:ViewSubscriptions',
         ],
       });
+      apiHandler.role?.addToPrincipalPolicy(bedrockPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      predictFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      predictTitleFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      generateImageFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      generateVideoFunction.role?.addToPrincipalPolicy(bedrockPolicy);
-      listVideoJobs.role?.addToPrincipalPolicy(bedrockPolicy);
       invokeFlowFunction.role?.addToPrincipalPolicy(bedrockPolicy);
       optimizePromptFunction.role?.addToPrincipalPolicy(bedrockPolicy);
     } else {
-      // Policy for when crossAccountBedrockRoleArn is specified
       const logsPolicy = new PolicyStatement({
         effect: Effect.ALLOW,
         actions: ['logs:*'],
@@ -550,295 +566,18 @@ export class Api extends Construct {
         actions: ['sts:AssumeRole'],
         resources: [crossAccountBedrockRoleArn],
       });
+      apiHandler.role?.addToPrincipalPolicy(logsPolicy);
+      apiHandler.role?.addToPrincipalPolicy(assumeRolePolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(logsPolicy);
-      predictFunction.role?.addToPrincipalPolicy(logsPolicy);
-      predictTitleFunction.role?.addToPrincipalPolicy(logsPolicy);
-      generateImageFunction.role?.addToPrincipalPolicy(logsPolicy);
-      generateVideoFunction.role?.addToPrincipalPolicy(logsPolicy);
-      listVideoJobs.role?.addToPrincipalPolicy(logsPolicy);
       predictStreamFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      predictFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      predictTitleFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      generateImageFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      generateVideoFunction.role?.addToPrincipalPolicy(assumeRolePolicy);
-      listVideoJobs.role?.addToPrincipalPolicy(assumeRolePolicy);
-      // To get pre-signed URL from S3 in different account
-      getFileDownloadSignedUrlFunction.role?.addToPrincipalPolicy(
-        assumeRolePolicy
-      );
     }
-
-    const createChatFunction = new NodejsFunction(this, 'CreateChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantWriteData(createChatFunction);
-
-    const deleteChatFunction = new NodejsFunction(this, 'DeleteChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(deleteChatFunction);
-
-    const createMessagesFunction = new NodejsFunction(this, 'CreateMessages', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createMessages.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-        STATS_TABLE_NAME: props.statsTable.tableName,
-        BUCKET_NAME: fileBucket.bucketName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(createMessagesFunction);
-    props.statsTable.grantReadWriteData(createMessagesFunction);
-
-    const updateChatTitleFunction = new NodejsFunction(
-      this,
-      'UpdateChatTitle',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/updateTitle.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(updateChatTitleFunction);
-
-    const listChatsFunction = new NodejsFunction(this, 'ListChats', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/listChats.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(listChatsFunction);
-
-    const findChatbyIdFunction = new NodejsFunction(this, 'FindChatbyId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/findChatById.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(findChatbyIdFunction);
-
-    const listMessagesFunction = new NodejsFunction(this, 'ListMessages', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/listMessages.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(listMessagesFunction);
-
-    const updateFeedbackFunction = new NodejsFunction(this, 'UpdateFeedback', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/updateFeedback.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(updateFeedbackFunction);
-
-    const getWebTextFunction = new NodejsFunction(this, 'GetWebText', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/getWebText.ts',
-      timeout: Duration.minutes(15),
-      vpc,
-      securityGroups,
-    });
-
-    const createShareId = new NodejsFunction(this, 'CreateShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/createShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(createShareId);
-
-    const getSharedChat = new NodejsFunction(this, 'GetSharedChat', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/getSharedChat.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(getSharedChat);
-
-    const findShareId = new NodejsFunction(this, 'FindShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/findShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(findShareId);
-
-    const deleteShareId = new NodejsFunction(this, 'DeleteShareId', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteShareId.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        TABLE_NAME: table.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadWriteData(deleteShareId);
-
-    const listSystemContextsFunction = new NodejsFunction(
-      this,
-      'ListSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/listSystemContexts.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadData(listSystemContextsFunction);
-
-    const createSystemContextFunction = new NodejsFunction(
-      this,
-      'CreateSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/createSystemContext.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantWriteData(createSystemContextFunction);
-
-    const updateSystemContextTitleFunction = new NodejsFunction(
-      this,
-      'UpdateSystemContextTitle',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/updateSystemContextTitle.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(updateSystemContextTitleFunction);
-
-    const deleteSystemContextFunction = new NodejsFunction(
-      this,
-      'DeleteSystemContexts',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/deleteSystemContext.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(deleteSystemContextFunction);
-
-    const meetingMinutesCustomPromptFunction = new NodejsFunction(
-      this,
-      'MeetingMinutesCustomPrompt',
-      {
-        runtime: LAMBDA_RUNTIME_NODEJS,
-        entry: './lambda/meetingMinutes/minutesCustomPrompt.ts',
-        timeout: Duration.minutes(15),
-        environment: {
-          TABLE_NAME: table.tableName,
-        },
-        vpc,
-        securityGroups,
-      }
-    );
-    table.grantReadWriteData(meetingMinutesCustomPromptFunction);
-
-    const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/deleteFile.ts',
-      timeout: Duration.minutes(15),
-      environment: {
-        BUCKET_NAME: fileBucket.bucketName,
-      },
-      vpc,
-      securityGroups,
-    });
-    fileBucket.grantDelete(deleteFileFunction);
-
-    // Lambda function for getting token usage
-    const getTokenUsageFunction = new NodejsFunction(this, 'GetTokenUsage', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      entry: './lambda/getTokenUsage.ts',
-      environment: {
-        TABLE_NAME: table.tableName,
-        STATS_TABLE_NAME: props.statsTable.tableName,
-      },
-      vpc,
-      securityGroups,
-    });
-    table.grantReadData(getTokenUsageFunction);
-    props.statsTable.grantReadData(getTokenUsageFunction);
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {
       cognitoUserPools: [userPool],
     });
 
-    const commonAuthorizerProps = {
+    const commonAuthorizerProps: Partial<MethodOptions> = {
       authorizationType: AuthorizationType.COGNITO,
       authorizer,
     };
@@ -850,9 +589,9 @@ export class Api extends Construct {
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS,
+        allowCredentials: true,
       },
       cloudWatchRole: true,
-      defaultMethodOptions: commonAuthorizerProps,
       endpointConfiguration: vpc
         ? {
             types: [EndpointType.PRIVATE],
@@ -880,266 +619,36 @@ export class Api extends Construct {
         : undefined,
     });
 
+    const errorHeaders = {
+      'Access-Control-Allow-Origin': "'*'",
+      'Access-Control-Allow-Methods': "'*'",
+      'Access-Control-Allow-Credentials': "'true'",
+      'Cache-Control': "'no-cache, no-store, must-revalidate'",
+    };
+
     api.addGatewayResponse('Api4XX', {
       type: ResponseType.DEFAULT_4XX,
-      responseHeaders: {
-        'Access-Control-Allow-Origin': "'*'",
-      },
+      responseHeaders: errorHeaders,
     });
 
     api.addGatewayResponse('Api5XX', {
       type: ResponseType.DEFAULT_5XX,
-      responseHeaders: {
-        'Access-Control-Allow-Origin': "'*'",
-      },
+      responseHeaders: errorHeaders,
     });
 
-    const predictResource = api.root.addResource('predict');
+    const lambdaIntegration = new LambdaIntegration(apiHandler, {
+      proxy: true,
+    });
 
-    // POST: /predict
-    predictResource.addMethod(
-      'POST',
-      new LambdaIntegration(predictFunction),
-      commonAuthorizerProps
-    );
+    api.root.addProxy({
+      defaultIntegration: lambdaIntegration,
+      defaultMethodOptions: commonAuthorizerProps,
+    });
 
-    // POST: /predict/title
-    const predictTitleResource = predictResource.addResource('title');
-    predictTitleResource.addMethod(
-      'POST',
-      new LambdaIntegration(predictTitleFunction),
-      commonAuthorizerProps
-    );
-
-    const chatsResource = api.root.addResource('chats');
-
-    // POST: /chats
-    chatsResource.addMethod(
-      'POST',
-      new LambdaIntegration(createChatFunction),
-      commonAuthorizerProps
-    );
-
-    // GET: /chats
-    chatsResource.addMethod(
-      'GET',
-      new LambdaIntegration(listChatsFunction),
-      commonAuthorizerProps
-    );
-
-    const chatResource = chatsResource.addResource('{chatId}');
-
-    // GET: /chats/{chatId}
-    chatResource.addMethod(
-      'GET',
-      new LambdaIntegration(findChatbyIdFunction),
-      commonAuthorizerProps
-    );
-
-    // DELETE: /chats/{chatId}
-    chatResource.addMethod(
-      'DELETE',
-      new LambdaIntegration(deleteChatFunction),
-      commonAuthorizerProps
-    );
-
-    const titleResource = chatResource.addResource('title');
-
-    // PUT: /chats/{chatId}/title
-    titleResource.addMethod(
-      'PUT',
-      new LambdaIntegration(updateChatTitleFunction),
-      commonAuthorizerProps
-    );
-
-    const messagesResource = chatResource.addResource('messages');
-
-    // GET: /chats/{chatId}/messages
-    messagesResource.addMethod(
-      'GET',
-      new LambdaIntegration(listMessagesFunction),
-      commonAuthorizerProps
-    );
-
-    // POST: /chats/{chatId}/messages
-    messagesResource.addMethod(
-      'POST',
-      new LambdaIntegration(createMessagesFunction),
-      commonAuthorizerProps
-    );
-
-    const systemContextsResource = api.root.addResource('systemcontexts');
-
-    // POST: /systemcontexts
-    systemContextsResource.addMethod(
-      'POST',
-      new LambdaIntegration(createSystemContextFunction),
-      commonAuthorizerProps
-    );
-
-    // GET: /systemcontexts
-    systemContextsResource.addMethod(
-      'GET',
-      new LambdaIntegration(listSystemContextsFunction),
-      commonAuthorizerProps
-    );
-
-    const systemContextResource =
-      systemContextsResource.addResource('{systemContextId}');
-
-    // DELETE: /systemcontexts/{systemContextId}
-    systemContextResource.addMethod(
-      'DELETE',
-      new LambdaIntegration(deleteSystemContextFunction),
-      commonAuthorizerProps
-    );
-
-    const systemContextTitleResource =
-      systemContextResource.addResource('title');
-
-    // PUT: /systemcontexts/{systemContextId}/title
-    systemContextTitleResource.addMethod(
-      'PUT',
-      new LambdaIntegration(updateSystemContextTitleFunction),
-      commonAuthorizerProps
-    );
-
-    const meetingMinutesCustomPromptIntegration = new LambdaIntegration(
-      meetingMinutesCustomPromptFunction
-    );
-
-    const meetingMinutesResource = api.root.addResource('meeting-minutes');
-    const meetingMinutesCustomPromptsResource =
-      meetingMinutesResource.addResource('custom-prompts');
-
-    // ANY: /meeting-minutes/custom-prompts (GET, POST)
-    meetingMinutesCustomPromptsResource.addMethod(
-      'ANY',
-      meetingMinutesCustomPromptIntegration,
-      commonAuthorizerProps
-    );
-
-    const meetingMinutesCustomPromptResource =
-      meetingMinutesCustomPromptsResource.addResource('{id}');
-
-    // ANY: /meeting-minutes/custom-prompts/{id} (PUT, DELETE)
-    meetingMinutesCustomPromptResource.addMethod(
-      'ANY',
-      meetingMinutesCustomPromptIntegration,
-      commonAuthorizerProps
-    );
-
-    const feedbacksResource = chatResource.addResource('feedbacks');
-
-    // POST: /chats/{chatId}/feedbacks
-    feedbacksResource.addMethod(
-      'POST',
-      new LambdaIntegration(updateFeedbackFunction),
-      commonAuthorizerProps
-    );
-
-    const imageResource = api.root.addResource('image');
-    const imageGenerateResource = imageResource.addResource('generate');
-    // POST: /image/generate
-    imageGenerateResource.addMethod(
-      'POST',
-      new LambdaIntegration(generateImageFunction),
-      commonAuthorizerProps
-    );
-
-    const videoResource = api.root.addResource('video');
-    const videoGenerateResource = videoResource.addResource('generate');
-    // POST: /video/generate
-    videoGenerateResource.addMethod(
-      'POST',
-      new LambdaIntegration(generateVideoFunction),
-      commonAuthorizerProps
-    );
-    // GET: /video/generate
-    videoGenerateResource.addMethod(
-      'GET',
-      new LambdaIntegration(listVideoJobs),
-      commonAuthorizerProps
-    );
-    const videoJobResource = videoGenerateResource.addResource('{createdDate}');
-    // DELETE: /video/generate/{createdDate}
-    videoJobResource.addMethod(
-      'DELETE',
-      new LambdaIntegration(deleteVideoJob),
-      commonAuthorizerProps
-    );
-
-    // Used in the web content extraction use case
-    const webTextResource = api.root.addResource('web-text');
-    // GET: /web-text
-    webTextResource.addMethod(
-      'GET',
-      new LambdaIntegration(getWebTextFunction),
-      commonAuthorizerProps
-    );
-
-    const shareResource = api.root.addResource('shares');
-    const shareChatIdResource = shareResource
-      .addResource('chat')
-      .addResource('{chatId}');
-    // GET: /shares/chat/{chatId}
-    shareChatIdResource.addMethod(
-      'GET',
-      new LambdaIntegration(findShareId),
-      commonAuthorizerProps
-    );
-    // POST: /shares/chat/{chatId}
-    shareChatIdResource.addMethod(
-      'POST',
-      new LambdaIntegration(createShareId),
-      commonAuthorizerProps
-    );
-    const shareShareIdResource = shareResource
-      .addResource('share')
-      .addResource('{shareId}');
-    // GET: /shares/share/{shareId}
-    shareShareIdResource.addMethod(
-      'GET',
-      new LambdaIntegration(getSharedChat),
-      commonAuthorizerProps
-    );
-    // DELETE: /shares/share/{shareId}
-    shareShareIdResource.addMethod(
-      'DELETE',
-      new LambdaIntegration(deleteShareId),
-      commonAuthorizerProps
-    );
-
-    const fileResource = api.root.addResource('file');
-    const urlResource = fileResource.addResource('url');
-    // POST: /file/url
-    urlResource.addMethod(
-      'POST',
-      new LambdaIntegration(getSignedUrlFunction),
-      commonAuthorizerProps
-    );
-    // Get: /file/url
-    urlResource.addMethod(
-      'GET',
-      new LambdaIntegration(getFileDownloadSignedUrlFunction),
-      commonAuthorizerProps
-    );
-    // DELETE: /file/{fileName}
-    fileResource
-      .addResource('{fileName}')
-      .addMethod(
-        'DELETE',
-        new LambdaIntegration(deleteFileFunction),
-        commonAuthorizerProps
-      );
-
-    // GET: /token-usage
-    const tokenUsageResource = api.root.addResource('token-usage');
-    tokenUsageResource.addMethod(
-      'GET',
-      new LambdaIntegration(getTokenUsageFunction),
-      commonAuthorizerProps
-    );
+    // Bump this version to force a new API Gateway deployment
+    // when route configuration changes are not automatically detected.
+    const API_DEPLOYMENT_VERSION = 'v2';
+    api.latestDeployment?.addToLogicalId(API_DEPLOYMENT_VERSION);
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;
@@ -1150,9 +659,7 @@ export class Api extends Construct {
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.videoGenerationModelIds = videoGenerationModelIds;
     this.endpointNames = endpointNames;
-    // Don't create this.agents - frontend will combine remoteAgentsJson and customAgentsJson
     this.agents = [];
     this.fileBucket = fileBucket;
-    this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
   }
 }

@@ -6,7 +6,7 @@ import { initBedrockAgentRuntimeClient } from './utils/bedrockClient';
 const KNOWLEDGE_BASE_ID = process.env.KNOWLEDGE_BASE_ID;
 const MODEL_REGION = process.env.MODEL_REGION as string;
 
-exports.handler = async (
+export const handler = async (
   event: lambda.APIGatewayProxyEvent
 ): Promise<lambda.APIGatewayProxyResult> => {
   const req = JSON.parse(event.body!) as RetrieveKnowledgeBaseRequest;

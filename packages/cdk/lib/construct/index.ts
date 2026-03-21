@@ -6,7 +6,7 @@ export * from './rag';
 export * from './transcribe';
 export * from './common-web-acl';
 export * from './agent';
-export * from './rag-knowledge-base';
+export * from './use-case-builder';
 export * from './guardrail';
 export * from './speech-to-speech';
 export * from './mcp-api';
