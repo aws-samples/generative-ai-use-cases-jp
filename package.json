@@ -14,6 +14,7 @@
     "web:lint": "npm -w packages/web run lint",
     "web:lint:fix": "npm -w packages/web run lint:fix",
     "web:test": "npm -w packages/web run test",
+    "cdk:build": "npm -w packages/cdk run build",
     "cdk:deploy": "npm -w packages/cdk run cdk deploy -- --all",
     "cdk:deploy:quick": "npm -w packages/cdk run cdk deploy -- --all --asset-parallelism --asset-prebuild=false --concurrency 3 --method=direct --require-approval never --force",
     "cdk:deploy:quick:hotswap": "npm -w packages/cdk run cdk deploy -- --all --asset-parallelism --asset-prebuild=false --concurrency 3 --method=direct --require-approval never --force --hotswap",
