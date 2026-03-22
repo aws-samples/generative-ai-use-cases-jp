@@ -5046,9 +5046,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
         "Handler": "run.sh",
         "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
           "arn:aws:lambda:us-east-1:753240598075:layer:LambdaAdapterLayerX86:25",
         ],
         "MemorySize": 1024,
@@ -6020,21 +6017,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::ApiGateway::Authorizer",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIBedrockSdkLayerDAE895D3": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "CompatibleRuntimes": [
-          "nodejs22.x",
-        ],
-        "Content": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "Bedrock SDK Layer",
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-      "UpdateReplacePolicy": "Delete",
-    },
     "APICopyVideoJobB772026B": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -6074,11 +6056,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
@@ -6443,11 +6420,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "Role": {
           "Fn::GetAtt": [
             "APIInvokeFlowServiceRole61C02E4B",
@@ -6569,11 +6541,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "Role": {
           "Fn::GetAtt": [
             "APIOptimizePromptFunctionServiceRole408208AA",
@@ -6724,11 +6691,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "MemorySize": 256,
         "Role": {
           "Fn::GetAtt": [
@@ -13243,9 +13205,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
         "Handler": "run.sh",
         "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
           "arn:aws:lambda:us-east-1:753240598075:layer:LambdaAdapterLayerX86:25",
         ],
         "MemorySize": 1024,
@@ -14187,21 +14146,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::ApiGateway::Authorizer",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIBedrockSdkLayerDAE895D3": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "CompatibleRuntimes": [
-          "nodejs22.x",
-        ],
-        "Content": {
-          "S3Bucket": "cdk-hnb659fds-assets-123456890123-us-east-1",
-          "S3Key": "HASH-REPLACED.zip",
-        },
-        "Description": "Bedrock SDK Layer",
-      },
-      "Type": "AWS::Lambda::LayerVersion",
-      "UpdateReplacePolicy": "Delete",
-    },
     "APICopyVideoJobB772026B": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -14241,11 +14185,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "MemorySize": 512,
         "Role": {
           "Fn::GetAtt": [
@@ -14580,11 +14519,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "Role": {
           "Fn::GetAtt": [
             "APIInvokeFlowServiceRole61C02E4B",
@@ -14676,11 +14610,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "Role": {
           "Fn::GetAtt": [
             "APIOptimizePromptFunctionServiceRole408208AA",
@@ -14801,11 +14730,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         },
         "Handler": "index.handler",
-        "Layers": [
-          {
-            "Ref": "APIBedrockSdkLayerDAE895D3",
-          },
-        ],
         "MemorySize": 256,
         "Role": {
           "Fn::GetAtt": [

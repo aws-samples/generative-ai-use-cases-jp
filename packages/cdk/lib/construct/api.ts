@@ -10,7 +10,7 @@ import {
   MethodOptions,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
-import { LayerVersion, ILayerVersion, Code } from 'aws-cdk-lib/aws-lambda';
+import { LayerVersion, ILayerVersion } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
@@ -41,7 +41,6 @@ import {
   IVpc,
   ISecurityGroup,
 } from 'aws-cdk-lib/aws-ec2';
-import * as path from 'path';
 
 export interface BackendApiProps {
   readonly modelRegion: string;
@@ -179,12 +178,16 @@ export class Api extends Construct {
       maxAge: 3000,
     });
 
-    // Lambda Layer for Bedrock SDK
-    const bedrockSdkLayer = new LayerVersion(this, 'BedrockSdkLayer', {
-      compatibleRuntimes: [LAMBDA_RUNTIME_NODEJS],
-      code: Code.fromAsset(path.join(__dirname, '../../lambda-layer')),
-      description: 'Bedrock SDK Layer',
-    });
+    // Bedrock SDK modules to bundle into Lambda functions
+    // These are newer than the Lambda runtime's built-in SDK
+    const bedrockSdkModules = [
+      '@aws-sdk/client-bedrock-runtime',
+      '@aws-sdk/client-bedrock-agent-runtime',
+      '@aws-sdk/client-sagemaker-runtime',
+    ];
+    const bedrockSdkBundling = {
+      nodeModules: bedrockSdkModules,
+    };
 
     // Lambda Web Adapter Layer
     const lwaLayer: ILayerVersion = LayerVersion.fromLayerVersionArn(
@@ -196,12 +199,13 @@ export class Api extends Construct {
     // API Handler (Express Monolith)
     const apiHandler = new NodejsFunction(this, 'ApiHandler', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      layers: [bedrockSdkLayer, lwaLayer],
+      layers: [lwaLayer],
       entry: './lambda/api/index.ts',
       handler: 'run.sh',
       timeout: Duration.minutes(15),
       memorySize: 1024,
       bundling: {
+        ...bedrockSdkBundling,
         commandHooks: {
           beforeBundling: () => [],
           beforeInstall: () => [],
@@ -352,7 +356,7 @@ export class Api extends Construct {
     // Lambda functions for direct invocation (not via API Gateway)
     const predictStreamFunction = new NodejsFunction(this, 'PredictStream', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      layers: [bedrockSdkLayer],
+      bundling: bedrockSdkBundling,
       entry: './lambda/predictStream.ts',
       timeout: Duration.minutes(15),
       memorySize: 256,
@@ -385,7 +389,7 @@ export class Api extends Construct {
 
     const invokeFlowFunction = new NodejsFunction(this, 'InvokeFlow', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      layers: [bedrockSdkLayer],
+      bundling: bedrockSdkBundling,
       entry: './lambda/invokeFlow.ts',
       timeout: Duration.minutes(15),
       environment: {
@@ -398,7 +402,7 @@ export class Api extends Construct {
 
     const copyVideoJob = new NodejsFunction(this, 'CopyVideoJob', {
       runtime: LAMBDA_RUNTIME_NODEJS,
-      layers: [bedrockSdkLayer],
+      bundling: bedrockSdkBundling,
       entry: './lambda/copyVideoJob.ts',
       timeout: Duration.minutes(15),
       memorySize: 512,
@@ -436,7 +440,7 @@ export class Api extends Construct {
       'OptimizePromptFunction',
       {
         runtime: LAMBDA_RUNTIME_NODEJS,
-        layers: [bedrockSdkLayer],
+        bundling: bedrockSdkBundling,
         entry: './lambda/optimizePrompt.ts',
         timeout: Duration.minutes(15),
         environment: {

@@ -1,3 +1,6 @@
+// Temporal Adapter to preserve lambda handler API GatewayProxyEvent
+// TODO: refactor each handler and remove this adapter
+
 import { Request, Response } from 'express';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
