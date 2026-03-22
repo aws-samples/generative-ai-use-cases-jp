@@ -51,19 +51,32 @@ import agent_core_specific_library
 # 単純なAPI処理をPythonで実装
 ```
 
+#### Lambda関数のアーキテクチャ
+
+API Gateway 配下の API は Express Monolith（Lambda Web Adapter）に集約し、クライアントから直接 invoke される Lambda は個別関数として定義する。
+
+```typescript
+// ✅ 現在のアーキテクチャ
+// API Gateway 経由 → Express Monolith (1つの Lambda)
+//   lambda/api/index.ts       - Express エントリーポイント
+//   lambda/api/routes/*.ts    - ルート定義
+//   lambda/*.ts               - ビジネスロジック（API単位でファイル作成）
+
+// クライアント直接 invoke → 個別 Lambda
+//   lambda/predictStream.ts   - ストリーミング予測
+//   lambda/invokeFlow.ts      - Bedrock Flow 呼び出し
+//   lambda/copyVideoJob.ts    - 動画コピージョブ
+//   lambda/optimizePrompt.ts  - プロンプト最適化
+```
+
 #### Lambda関数のファイル分割単位
 
 ```typescript
-// ✅ 良い例 - Web API単位で分割
-// lambda/createChat.ts - チャット作成API
-// lambda/deleteChat.ts - チャット削除API
-// lambda/listChats.ts - チャット一覧取得API
-
-// ❌ 悪い例 - 機能単位で1つのファイルにまとめる
-// lambda/chatHandler.ts - チャット関連の全API処理
-export const createChatHandler = async () => {};
-export const deleteChatHandler = async () => {};
-export const listChatsHandler = async () => {};
+// ✅ 良い例 - ビジネスロジックはAPI単位で分割
+// lambda/createChat.ts - チャット作成
+// lambda/deleteChat.ts - チャット削除
+// lambda/listChats.ts - チャット一覧取得
+// → api/routes/chats.ts でルーティング
 
 // ❌ 悪い例 - 過度に細かく分割
 // lambda/validateChatInput.ts - バリデーションのみ
@@ -85,17 +98,41 @@ export const listChatsHandler = async () => {};
 ##### 基本設定
 
 ```typescript
+// Express Monolith（API Gateway 経由の全 API を処理）
+const apiHandler = new NodejsFunction(this, 'ApiHandler', {
+  runtime: LAMBDA_RUNTIME_NODEJS,
+  layers: [lwaLayer],                          // Lambda Web Adapter
+  entry: './lambda/api/index.ts',
+  handler: 'run.sh',
+  timeout: Duration.minutes(15),
+  memorySize: 1024,
+  bundling: {
+    nodeModules: ['@aws-sdk/client-bedrock-runtime', ...],
+    commandHooks: {
+      beforeBundling: () => [],
+      beforeInstall: () => [],
+      afterBundling: (inputDir: string, outputDir: string) => [
+        `cp ${inputDir}/packages/cdk/lambda/api/run.sh ${outputDir}/run.sh && chmod +x ${outputDir}/run.sh`,
+      ],
+    },
+  },
+  environment: {
+    AWS_LAMBDA_EXEC_WRAPPER: '/opt/bootstrap',
+    PORT: '8080',
+    // ... 環境変数
+  },
+});
+
+// 直接 invoke 用の個別 Lambda
 const functionName = new NodejsFunction(this, 'LogicalId', {
   runtime: LAMBDA_RUNTIME_NODEJS, // 必須: 定数を使用
   entry: './lambda/functionName.ts', // 必須: ファイルパス
   timeout: Duration.minutes(15), // 必須: 15分固定
   environment: {
     // 必要な環境変数のみ
-    // 設定ルール参照
   },
   bundling: {
-    // 外部モジュールがある場合のみ
-    nodeModules: ['module-name'],
+    nodeModules: ['module-name'],  // 必要な外部モジュール
   },
 });
 ```

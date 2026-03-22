@@ -2,14 +2,33 @@
 
 ## Lambda関数 (TypeScript)
 
-### 1. ファイル構成
+### 1. アーキテクチャ概要
 
-**概要**: API単位でファイルを分割し、共通処理とデータアクセス層を適切に分離する
+**概要**: API Gateway 配下の API は Express Monolith（Lambda Web Adapter）に集約し、クライアントから直接 invoke される Lambda は個別関数として定義する
+
+#### Lambda 構成
+
+- **Express Monolith (`api/`)**: API Gateway 経由の全 API を1つの Lambda で処理。Lambda Web Adapter (LWA) を使用して Express アプリを Lambda 上で実行する
+- **個別 Lambda**: クライアント（Cognito Identity Pool）から直接 invoke される関数（`predictStream.ts`, `invokeFlow.ts`, `copyVideoJob.ts`, `optimizePrompt.ts` 等）
+
+### 2. ファイル構成
+
+**概要**: Express Monolith のルーティングは `api/routes/` で管理し、ビジネスロジックは既存のハンドラーファイルに実装する
 
 ```
 packages/cdk/lambda/
-├── *.ts                             # API単位でファイル作成（ファイル名はAPIの役割を表現）
+├── api/                             # Express Monolith（API Gateway 経由の API）
+│   ├── index.ts                     # Express アプリのエントリーポイント
+│   ├── run.sh                       # LWA 起動スクリプト
+│   └── routes/                      # ルート定義
+│       ├── helpers.ts               # 暫定アダプター（後述）
+│       ├── chats.ts                 # /chats ルート
+│       ├── predict.ts               # /predict ルート
+│       └── ...                      # 機能別ルートファイル
+├── *.ts                             # ビジネスロジック（API単位でファイル作成）
 │                                    # 例: createChat.ts, deleteChat.ts, listMessages.ts
+├── predictStream.ts                 # 直接 invoke 用 Lambda
+├── invokeFlow.ts                    # 直接 invoke 用 Lambda
 ├── repository.ts                    # データアクセス層（メイン）
 ├── repositoryVideoJob.ts            # 特定機能用データアクセス層
 ├── useCaseBuilder/                  # 機能別ディレクトリ
@@ -28,13 +47,33 @@ packages/cdk/lambda/
 
 #### ファイル分割ルール
 
-- **API単位**: 1つのエンドポイントに対して1つのファイル（ファイル名でAPIの役割を表現）
+- **ビジネスロジック**: API単位で `lambda/` 直下にファイル作成（ファイル名でAPIの役割を表現）
+- **ルート定義**: `api/routes/` 配下に機能別ルートファイルを作成
 - **大きな機能単位**: メイン機能と独立して開発可能な場合はフォルダ分離
   - 独立性の基準: 独自に開発を進められ、独立して起動可能なレベル
   - 例: useCaseBuilder/ - Use Case Builder機能一式
   - utils等の共通機能は引き続き共有する
 - **データアクセス層**: repository.tsで一元管理、機能別に必要な場合のみ分離
 - **共通処理**: utils/配下に外部サービス別に分割
+
+#### 暫定アダプター（helpers.ts）について
+
+現在、既存のハンドラー（`APIGatewayProxyEvent` ベース）を Express ルートに接続するため、`api/routes/helpers.ts` の `wrapHandler` で暫定的にアダプターを使用している。今後、各ハンドラーを Express ネイティブ（`req/res`）に段階的にリファクタリングし、このアダプターを廃止する予定。
+
+```typescript
+// 現状（暫定）: wrapHandler で既存ハンドラーをラップ
+import { handler as createChatHandler } from '../../createChat';
+import { wrapHandler } from './helpers';
+
+router.post('/', wrapHandler(createChatHandler));
+
+// 将来（目標）: Express ネイティブなルートハンドラー
+router.post('/', async (req: Request, res: Response) => {
+  const userId = getUserId(req);
+  const result = await createChat(userId, req.body);
+  res.json(result);
+});
+```
 
 #### フォルダ分離の判断基準
 
@@ -57,11 +96,34 @@ chat/
 └── list.ts
 ```
 
-### 2. Lambda関数の基本構造
+### 3. Lambda関数の基本構造
 
-**概要**: APIGatewayProxyEventを受け取り、適切なレスポンスを返す標準的な構造を使用する
+**概要**: Express Monolith 内のルートハンドラーと、直接 invoke 用の個別 Lambda ハンドラーの2パターンがある
 
-#### ハンドラー関数
+#### Express ルートハンドラー（API Gateway 経由）
+
+現在は暫定アダプター経由で既存ハンドラーを使用しているが、新規実装やリファクタリング時は Express ネイティブで実装する。
+
+```typescript
+// ✅ 良い例 - Express ネイティブなルートハンドラー（目標形式）
+import { Router, Request, Response } from 'express';
+
+export const router = Router();
+
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const userId =
+      req.apiGateway.event.requestContext.authorizer.claims['cognito:username'];
+    const result = await businessLogic(userId, req.body);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+```
+
+#### 直接 invoke 用 Lambda ハンドラー
 
 ```typescript
 // ✅ 良い例 - 標準的なハンドラー構造
@@ -71,14 +133,10 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // ユーザー認証情報の取得
     const userId: string =
       event.requestContext.authorizer!.claims['cognito:username'];
-
-    // ビジネスロジック実行
     const result = await businessLogic(userId, event.body);
 
-    // 成功レスポンス
     return {
       statusCode: 200,
       headers: {
@@ -99,6 +157,7 @@ export const handler = async (
     };
   }
 };
+};
 
 // ❌ 悪い例 - 型定義なし、エラーハンドリングなし
 export const handler = async (event: any) => {
@@ -107,7 +166,7 @@ export const handler = async (event: any) => {
 };
 ```
 
-### 3. 環境変数の使用
+### 4. 環境変数の使用
 
 **概要**: 環境変数は型安全に取得し、必須項目は起動時にチェックする
 
@@ -123,7 +182,7 @@ const KNOWLEDGE_BASE_ID: string | undefined = process.env.KNOWLEDGE_BASE_ID;
 const tableName = process.env.TABLE_NAME;
 ```
 
-### 4. データアクセス層
+### 5. データアクセス層
 
 **概要**: repository.tsでデータアクセスを一元管理し、ビジネスロジックと分離する。DynamoDBの効率的なクエリパターンを使用する
 
@@ -205,7 +264,7 @@ export const getChatsWithMessages = async (userId: string) => {
 - **バッチ処理**: BatchGetCommand、BatchWriteCommandを活用
 - **分離**: repository.tsでデータアクセスロジックを集約
 
-### 5. 外部API呼び出し
+### 6. 外部API呼び出し
 
 **概要**: utils配下にAPI別のファイルを作成し、エラーハンドリングを適切に行う
 
@@ -241,7 +300,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 };
 ```
 
-### 6. エラーハンドリング
+### 7. エラーハンドリング
 
 **概要**: try-catchで例外を捕捉し、適切なHTTPステータスコードとエラーメッセージを返す
 
@@ -366,7 +425,7 @@ catch (error) {
 450: // 独自のエラーコード
 ```
 
-### 7. 型定義
+### 8. 型定義
 
 **概要**: バックエンドとフロントエンドで共有する型定義は`packages/types/src`内に定義し、APIスキーマは`protocol.d.ts`で管理する
 
@@ -397,7 +456,7 @@ catch (error) {
 - **独自型**: 必要最小限に留め、既存型との重複を避ける
 - **禁止**: any型の使用、型なしでの実装
 
-### 8. ログ出力
+### 9. ログ出力
 
 **概要**: console.logを使用し、適切なログレベルで出力する
 
@@ -421,7 +480,7 @@ console.log(
 console.log('User credentials:', event.headers.authorization);
 ```
 
-### 9. 非同期処理
+### 10. 非同期処理
 
 **概要**: async/awaitを使用し、Promise.allで並列処理を活用する
 
@@ -446,7 +505,7 @@ const userData = await getUserData(userId);
 const chatHistory = await getChatHistory(chatId);
 ```
 
-### 10. 認可処理
+### 11. 認可処理
 
 **概要**: userIdを取得してデータアクセスを制御し、ユーザーが自分のデータのみにアクセスできるようにする
 
