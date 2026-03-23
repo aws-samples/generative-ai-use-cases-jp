@@ -308,6 +308,7 @@ export class Api extends Construct {
           'transcribe:StartTranscriptionJob',
           'transcribe:GetTranscriptionJob',
           'transcribe:ListTranscriptionJobs',
+          'transcribe:TagResource',
         ],
         resources: ['*'],
       })
