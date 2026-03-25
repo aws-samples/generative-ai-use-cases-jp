@@ -19,6 +19,7 @@ export interface AuthProps {
   readonly allowedIpV6AddressRanges?: string[] | null;
   readonly allowedSignUpEmailDomains?: string[] | null;
   readonly samlAuthEnabled: boolean;
+  readonly samlAuthPasswordFallbackEnabled: boolean;
 }
 
 export class Auth extends Construct {

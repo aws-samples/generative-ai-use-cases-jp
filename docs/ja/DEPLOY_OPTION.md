@@ -1871,6 +1871,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 - samlAuthEnabled : `true` にすることで、SAML 専用の認証画面に切り替わります。Cognito user pools を利用した従来の認証機能は利用できなくなります。
+- samlAuthPasswordFallbackEnabled : `samlAuthEnabled: true` の場合のみ有効です。`true` にすることで、SAML ログインに加えてメールアドレスとパスワードによるログインが可能になります（デフォルトは `false`）。パスワードログイン画面へは `?auth=password` クエリパラメータを付与した URL から直接アクセスできます。
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 

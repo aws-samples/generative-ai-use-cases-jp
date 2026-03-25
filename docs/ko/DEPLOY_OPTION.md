@@ -1739,6 +1739,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 - samlAuthEnabled: `true`로 설정하면 SAML 전용 인증 화면으로 전환됩니다. Cognito 사용자 풀을 사용한 기존 인증은 더 이상 사용할 수 없습니다.
+- samlAuthPasswordFallbackEnabled: `samlAuthEnabled: true`일 때만 유효합니다. `true`로 설정하면 SAML 로그인에 더해 이메일 주소와 비밀번호로 로그인이 가능해집니다(기본값은 `false`). 비밀번호 로그인 화면에는 `?auth=password` 쿼리 파라미터를 붙인 URL로 직접 접근할 수 있습니다.
 - samlCognitoDomainName: Cognito의 App integration에 설정할 Cognito 도메인 이름을 지정합니다.
 - samlCognitoFederatedIdentityProviderName: Cognito의 Sign-in experience에 설정할 Identity Provider 이름을 지정합니다.
 

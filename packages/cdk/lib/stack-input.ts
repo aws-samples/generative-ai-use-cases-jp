@@ -11,6 +11,7 @@ const baseStackInputSchema = z.object({
   selfSignUpEnabled: z.boolean().default(true),
   allowedSignUpEmailDomains: z.array(z.string()).nullish(),
   samlAuthEnabled: z.boolean().default(false),
+  samlAuthPasswordFallbackEnabled: z.boolean().default(false),
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
   // Frontend
@@ -208,19 +209,34 @@ const baseStackInputSchema = z.object({
 });
 
 // Common Validator with refine
-export const stackInputSchema = baseStackInputSchema.refine(
-  (data) => {
-    // If searchApiKey is provided, searchEngine must also be provided
-    if (data.searchApiKey && !data.searchEngine) {
-      return false;
+export const stackInputSchema = baseStackInputSchema
+  .refine(
+    (data) => {
+      // If searchApiKey is provided, searchEngine must also be provided
+      if (data.searchApiKey && !data.searchEngine) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'searchEngine is required when searchApiKey is provided',
+      path: ['searchEngine'],
     }
-    return true;
-  },
-  {
-    message: 'searchEngine is required when searchApiKey is provided',
-    path: ['searchEngine'],
-  }
-);
+  )
+  .refine(
+    (data) => {
+      // samlAuthPasswordFallbackEnabled requires samlAuthEnabled to be true
+      if (data.samlAuthPasswordFallbackEnabled && !data.samlAuthEnabled) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        'samlAuthPasswordFallbackEnabled requires samlAuthEnabled to be true',
+      path: ['samlAuthPasswordFallbackEnabled'],
+    }
+  );
 
 // schema after conversion
 export const processedStackInputSchema = baseStackInputSchema.extend({

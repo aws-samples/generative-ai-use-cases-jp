@@ -2,6 +2,7 @@ agent:
   drop_files: วางไฟล์เพื่ออัปโหลด
   title: Agent Chat
 auth:
+  emailLogin: เข้าสู่ระบบด้วยรหัสผ่าน
   loading: กำลังโหลด...
   login: เข้าสู่ระบบ
   title: Generative AI Use Cases on AWS

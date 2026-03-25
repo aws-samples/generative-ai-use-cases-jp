@@ -5,6 +5,7 @@ agent_core:
   start_conversation: AgentCore와 대화 시작
   title: AgentCore
 auth:
+  emailLogin: 비밀번호로 로그인
   loading: 로딩 중...
   login: 로그인
   title: AWS 생성형 AI 사용 사례

@@ -159,6 +159,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
       allowedSignUpEmailDomains: params.allowedSignUpEmailDomains,
       samlAuthEnabled: params.samlAuthEnabled,
+      samlAuthPasswordFallbackEnabled: params.samlAuthPasswordFallbackEnabled,
     });
 
     // Database
@@ -280,6 +281,7 @@ export class GenerativeAiUseCasesStack extends Stack {
       selfSignUpEnabled: params.selfSignUpEnabled,
       samlAuthEnabled: params.samlAuthEnabled,
       samlCognitoDomainName: params.samlCognitoDomainName,
+      samlAuthPasswordFallbackEnabled: params.samlAuthPasswordFallbackEnabled,
       samlCognitoFederatedIdentityProviderName:
         params.samlCognitoFederatedIdentityProviderName,
       // Backend

@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Text, Loader, useAuthenticator } from '@aws-amplify/ui-react';
+import {
+  Authenticator,
+  Button,
+  Text,
+  Loader,
+  useAuthenticator,
+} from '@aws-amplify/ui-react';
 import { Amplify } from 'aws-amplify';
 import '@aws-amplify/ui-react/styles.css';
 import { signInWithRedirect } from 'aws-amplify/auth';
 import { useTranslation } from 'react-i18next';
+import { PiArrowLeft } from 'react-icons/pi';
 
 const samlCognitoDomainName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_DOMAIN_NAME;
 const samlCognitoFederatedIdentityProviderName: string = import.meta.env
   .VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
+const samlAuthPasswordFallbackEnabled: boolean =
+  import.meta.env.VITE_APP_SAML_AUTH_PASSWORD_FALLBACK_ENABLED === 'true';
 const speechToSpeechEventApiEndpoint: string = import.meta.env
   .VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT;
 
@@ -22,6 +31,10 @@ const AuthWithSAML: React.FC<Props> = (props) => {
 
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const searchParams = new URLSearchParams(window.location.search);
+  const [showEmailLogin, setShowEmailLogin] = useState(
+    samlAuthPasswordFallbackEnabled && searchParams.get('auth') === 'password'
+  );
 
   useEffect(() => {
     // Verify the authentication status
@@ -81,13 +94,45 @@ const AuthWithSAML: React.FC<Props> = (props) => {
         </div>
       ) : !authenticated ? (
         <div className="grid grid-cols-1 justify-items-center gap-4">
-          <Text className="mt-12 text-center text-3xl">{t('auth.title')}</Text>
-          <Button
-            variation="primary"
-            onClick={() => signIn()}
-            className="mt-6 w-60">
-            {t('auth.login')}
-          </Button>
+          {showEmailLogin ? (
+            <Authenticator
+              hideSignUp={true}
+              components={{
+                Header: () => (
+                  <div className="text-aws-font-color mb-5 mt-10 flex flex-col items-center gap-2 text-3xl">
+                    {t('auth.title')}
+                    <Button
+                      size="small"
+                      variation="link"
+                      onClick={() => setShowEmailLogin(false)}>
+                      <PiArrowLeft /> {t('auth.login')}
+                    </Button>
+                  </div>
+                ),
+              }}>
+              {props.children}
+            </Authenticator>
+          ) : (
+            <>
+              <Text className="mt-12 text-center text-3xl">
+                {t('auth.title')}
+              </Text>
+              <Button
+                variation="primary"
+                onClick={() => signIn()}
+                className="mt-6 w-60">
+                {t('auth.login')}
+              </Button>
+              {samlAuthPasswordFallbackEnabled && (
+                <Button
+                  variation="link"
+                  onClick={() => setShowEmailLogin(true)}
+                  className="w-60">
+                  {t('auth.emailLogin')}
+                </Button>
+              )}
+            </>
+          )}
         </div>
       ) : (
         <>{props.children}</>

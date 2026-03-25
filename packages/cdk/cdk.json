@@ -37,6 +37,7 @@
     "selfSignUpEnabled": true,
     "allowedSignUpEmailDomains": null,
     "samlAuthEnabled": false,
+    "samlAuthPasswordFallbackEnabled": false,
     "samlCognitoDomainName": "",
     "samlCognitoFederatedIdentityProviderName": "",
     "hiddenUseCases": {},

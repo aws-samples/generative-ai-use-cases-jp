@@ -125,6 +125,7 @@ agent_core:
   title: AgentCore
 agent_dashboard: {}
 auth:
+  emailLogin: Sign in with Password
   loading: Loading...
   login: Login
   title: Generative AI Use Cases on AWS

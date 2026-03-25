@@ -1860,6 +1860,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 - samlAuthEnabled: Setting to `true` switches to a SAML-specific authentication screen. The conventional authentication using Cognito user pools will no longer be available.
+- samlAuthPasswordFallbackEnabled: This setting is only effective when `samlAuthEnabled: true`. Setting to `true` allows login with an email address and password in addition to SAML login (default is `false`). The password login screen can be directly accessed via a URL with the `?auth=password` query parameter.
 - samlCognitoDomainName: Specify the Cognito Domain name to be set in Cognito's App integration.
 - samlCognitoFederatedIdentityProviderName: Specify the Identity Provider name to be set in Cognito's Sign-in experience.
 

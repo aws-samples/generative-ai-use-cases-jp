@@ -46,6 +46,7 @@ export interface WebProps {
   readonly samlAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
+  readonly samlAuthPasswordFallbackEnabled: boolean;
   readonly builtinAgentsJson: string;
   readonly customAgentsJson: string;
   readonly inlineAgents: boolean;
@@ -281,6 +282,8 @@ export class Web extends Construct {
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',
+        VITE_APP_SAML_AUTH_PASSWORD_FALLBACK_ENABLED:
+          props.samlAuthPasswordFallbackEnabled.toString(),
         VITE_APP_BUILTIN_AGENTS_JSON: props.builtinAgentsJson,
         VITE_APP_CUSTOM_AGENTS_JSON: props.customAgentsJson,
         VITE_APP_INLINE_AGENTS: props.inlineAgents.toString(),

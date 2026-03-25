@@ -2,6 +2,7 @@ agent:
   drop_files: Thả file để tải lên
   title: Chat Agent
 auth:
+  emailLogin: Đăng nhập bằng mật khẩu
   loading: Đang tải...
   login: Đăng nhập
   title: Generative AI Use Cases on AWS

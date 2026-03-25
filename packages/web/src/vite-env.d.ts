@@ -22,6 +22,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_SAMLAUTH_ENABLED: string;
   readonly VITE_APP_SAML_COGNITO_DOMAIN_NAME: string;
   readonly VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: string;
+  readonly VITE_APP_SAML_AUTH_PASSWORD_FALLBACK_ENABLED: string;
   readonly VITE_APP_BUILTIN_AGENTS_JSON: string;
   readonly VITE_APP_CUSTOM_AGENTS_JSON: string;
   readonly VITE_APP_INLINE_AGENTS: string;

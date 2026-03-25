@@ -2,6 +2,7 @@ agent:
   drop_files: 拖放文件上传
   title: Agent 聊天
 auth:
+  emailLogin: 使用密码登录
   loading: 加载中...
   login: 登录
   title: Generative AI Use Cases on AWS
