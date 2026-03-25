@@ -25,15 +25,10 @@ export const wrapHandler =
   ) =>
   async (req: Request, res: Response) => {
     try {
-      const event = {
-        requestContext: (req as RequestWithApiGateway)?.apiGateway?.event
-          ?.requestContext,
-        httpMethod: req.method,
-        pathParameters: pathParamsFn?.(req) ?? null,
-        queryStringParameters: req.query as Record<string, string>,
-        body:
-          typeof req.body === 'string' ? req.body : JSON.stringify(req.body),
-      } as APIGatewayProxyEvent;
+      const event = createEvent(
+        req,
+        pathParamsFn?.(req) ?? {}
+      ) as APIGatewayProxyEvent;
 
       const result = await handler(event);
 
