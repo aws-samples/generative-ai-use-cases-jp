@@ -13,6 +13,7 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
       - NODE_ENV=development
+      - ALLOWED_ORIGINS=http://localhost:5173
       - MODEL_REGION
       - MODEL_IDS
       - IMAGE_GENERATION_MODEL_IDS

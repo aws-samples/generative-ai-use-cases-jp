@@ -193,7 +193,7 @@ export class Api extends Construct {
     const lwaLayer: ILayerVersion = LayerVersion.fromLayerVersionArn(
       this,
       'LwaLayer',
-      `arn:aws:lambda:${Stack.of(this).region}:753240598075:layer:LambdaAdapterLayerX86:25`
+      `arn:aws:lambda:${Stack.of(this).region}:753240598075:layer:LambdaAdapterLayerX86:27`
     );
 
     // API Handler (Express Monolith)
