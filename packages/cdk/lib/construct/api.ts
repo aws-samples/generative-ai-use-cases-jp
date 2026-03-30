@@ -8,6 +8,7 @@ import {
   ResponseType,
   EndpointType,
   MethodOptions,
+  Deployment,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { LayerVersion, ILayerVersion } from 'aws-cdk-lib/aws-lambda';
@@ -650,10 +651,11 @@ export class Api extends Construct {
       defaultMethodOptions: commonAuthorizerProps,
     });
 
-    // Bump this version to force a new API Gateway deployment
-    // when route configuration changes are not automatically detected.
+    // Force a new API Gateway deployment.
+    // Bump this version when route configuration changes.
     const API_DEPLOYMENT_VERSION = 'v2';
-    api.latestDeployment?.addToLogicalId(API_DEPLOYMENT_VERSION);
+    const deployment = new Deployment(this, 'ApiDeployment', { api });
+    deployment.addToLogicalId(API_DEPLOYMENT_VERSION);
 
     this.api = api;
     this.predictStreamFunction = predictStreamFunction;

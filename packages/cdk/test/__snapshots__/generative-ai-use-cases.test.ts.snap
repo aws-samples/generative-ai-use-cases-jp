@@ -4879,7 +4879,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021236b906780ccca4de51b9f08d42fd4ce4f": {
+    "APIApiDeployment3A5021230cc758de8f792d3333896ca90b96aad7": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -4902,6 +4902,25 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::ApiGateway::Deployment",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIApiDeployment5C507F9A8d85e17fc6fc2afbdf7c63a2a0b99969": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIApiproxyANYB1864AFB",
+        "APIApiproxyOPTIONS5F15CE47",
+        "APIApiANY19147CC6",
+        "APIApiOPTIONSE134DC36",
+      ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
+      "Properties": {
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIApiDeploymentStageapiCD55D117": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -4909,7 +4928,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021236b906780ccca4de51b9f08d42fd4ce4f",
+          "Ref": "APIApiDeployment3A5021230cc758de8f792d3333896ca90b96aad7",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -13056,7 +13075,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021230dde4b07743e805f661174d43fc68f6c": {
+    "APIApiDeployment3A50212388ddbe71c413f6432b42455d113dc9ce": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -13079,6 +13098,25 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::ApiGateway::Deployment",
       "UpdateReplacePolicy": "Delete",
     },
+    "APIApiDeployment5C507F9A4364d2621e990b66011932c0fc6322c3": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "APIApiproxyANYB1864AFB",
+        "APIApiproxyOPTIONS5F15CE47",
+        "APIApiANY19147CC6",
+        "APIApiOPTIONSE134DC36",
+      ],
+      "Metadata": {
+        "aws:cdk:do-not-refactor": true,
+      },
+      "Properties": {
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+      "UpdateReplacePolicy": "Delete",
+    },
     "APIApiDeploymentStageapiCD55D117": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
@@ -13086,7 +13124,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021230dde4b07743e805f661174d43fc68f6c",
+          "Ref": "APIApiDeployment3A50212388ddbe71c413f6432b42455d113dc9ce",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
