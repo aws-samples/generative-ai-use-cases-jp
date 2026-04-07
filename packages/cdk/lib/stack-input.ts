@@ -27,6 +27,7 @@ const baseStackInputSchema = z.object({
       diagram: z.boolean().optional(),
       meetingMinutes: z.boolean().optional(),
       voiceChat: z.boolean().optional(),
+      transcribe: z.boolean().optional(),
     })
     .default({}),
   // API
