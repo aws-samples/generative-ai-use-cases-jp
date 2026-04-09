@@ -255,6 +255,39 @@ class ToolManager:
 
         return concat_files
 
+    def get_web_fetch_tool(self):
+        """Get the web fetch tool"""
+
+        @tool
+        def web_fetch(url: str, max_chars: int = 50000) -> str:
+            """Fetch text content from a URL. Useful for reading web pages, documentation, or API responses.
+
+            Args:
+                url: The URL to fetch.
+                max_chars: Maximum characters to return (default 50000).
+            """
+            import urllib.request
+
+            req = urllib.request.Request(url, headers={"User-Agent": "GenU-AgentCore/1.0"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                content_type = resp.headers.get("Content-Type", "")
+                raw = resp.read().decode("utf-8", errors="replace")
+
+            # Strip HTML tags for readability if HTML
+            if "html" in content_type:
+                import re
+
+                raw = re.sub(r"<script[^>]*>.*?</script>", "", raw, flags=re.DOTALL)
+                raw = re.sub(r"<style[^>]*>.*?</style>", "", raw, flags=re.DOTALL)
+                raw = re.sub(r"<[^>]+>", " ", raw)
+                raw = re.sub(r"\s+", " ", raw).strip()
+
+            if len(raw) > max_chars:
+                raw = raw[:max_chars] + f"\n\n[Truncated at {max_chars} chars]"
+            return raw
+
+        return web_fetch
+
     def get_code_interpreter_tool(self) -> list[Any]:
         """Get code interpreter tool if available"""
         code_interpreter_tools = []
@@ -328,9 +361,11 @@ class ToolManager:
         upload_tool = self.get_upload_tool()
         file_write_tool = self.get_file_write_tool()
         concat_tool = self.get_concat_files_tool()
+        web_fetch_tool = self.get_web_fetch_tool()
         all_tools.append(upload_tool)
         all_tools.append(file_write_tool)
         all_tools.append(concat_tool)
+        all_tools.append(web_fetch_tool)
 
         # Add code interpreter tools if enabled
         code_interpreter_tools = []
@@ -339,6 +374,6 @@ class ToolManager:
             all_tools.extend(code_interpreter_tools)
 
         # Log final tool count
-        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 3, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 4, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
 
         return all_tools
