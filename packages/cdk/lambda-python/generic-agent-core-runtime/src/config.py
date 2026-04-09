@@ -22,6 +22,7 @@ FIXED_SYSTEM_PROMPT = f"""## About File Output
 - Similarly, if you need a workspace, please use the `{WORKSPACE_DIR}` directory. Do not ask the user about their current workspace. It's always `{WORKSPACE_DIR}`.
 - Also, users cannot directly access files written under `{WORKSPACE_DIR}`. So when submitting these files to users, *always upload them to S3 using the `upload_file_to_s3_and_retrieve_s3_url` tool and provide the S3 URL*. The S3 URL must be included in the final output.
 - If the output file is an image file, the S3 URL output must be in Markdown format.
+- For all other file types (e.g. .pptx, .csv, .pdf), the S3 URL must also be in Markdown link format: `[filename](S3_URL)`. This enables the UI to generate a download link.
 """
 
 
