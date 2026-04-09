@@ -13530,12 +13530,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:DescribeTable",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
             {
               "Action": [
@@ -13543,12 +13545,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -16263,12 +16267,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:DescribeTable",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
             {
               "Action": [
@@ -16276,12 +16282,14 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -36389,12 +36397,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:DescribeTable",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
             {
               "Action": [
@@ -36402,12 +36412,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
@@ -38672,12 +38684,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:DescribeTable",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
             {
               "Action": [
@@ -38685,12 +38699,14 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 "dynamodb:GetShardIterator",
               ],
               "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "DatabaseStatsTable9C709761",
-                  "Arn",
-                ],
-              },
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "DatabaseStatsTable9C709761",
+                    "Arn",
+                  ],
+                },
+              ],
             },
           ],
           "Version": "2012-10-17",
