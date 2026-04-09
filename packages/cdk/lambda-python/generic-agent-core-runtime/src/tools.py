@@ -195,24 +195,40 @@ class ToolManager:
         """Get the file write tool scoped to WORKSPACE_DIR"""
 
         @tool
-        def write_file(filepath: str, content: str, mode: str = "create") -> str:
-            """Write content to a file under /tmp/ws.
+        def write_file(filepath: str, content: str, mode: str = "create", old_str: str = "", new_str: str = "") -> str:
+            """Write, append, or edit a file under /tmp/ws.
 
             Args:
                 filepath: Path to the file (must be under /tmp/ws).
-                content: Text content to write.
-                mode: "create" to create/overwrite, "append" to append.
+                content: Text content to write (for create/append modes).
+                mode: "create" to create/overwrite, "append" to append, "str_replace" to replace text.
+                old_str: Text to find (required for str_replace mode). Must match exactly once.
+                new_str: Replacement text (for str_replace mode). Empty string to delete.
             """
             filepath = os.path.normpath(filepath)
             if not filepath.startswith(WORKSPACE_DIR):
-                raise ValueError(
-                    f"Path must be under {WORKSPACE_DIR}. Got: {filepath}"
-                )
+                raise ValueError(f"Path must be under {WORKSPACE_DIR}. Got: {filepath}")
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
-            flag = "a" if mode == "append" else "w"
-            with open(filepath, flag, encoding="utf-8") as f:
-                f.write(content)
-            return f"Wrote {len(content)} chars to {filepath} (mode={mode})"
+
+            if mode == "str_replace":
+                if not old_str:
+                    raise ValueError("old_str is required for str_replace mode")
+                with open(filepath, "r", encoding="utf-8") as f:
+                    text = f.read()
+                count = text.count(old_str)
+                if count == 0:
+                    raise ValueError(f"old_str not found in {filepath}")
+                if count > 1:
+                    raise ValueError(f"old_str found {count} times in {filepath}. Must be unique.")
+                text = text.replace(old_str, new_str, 1)
+                with open(filepath, "w", encoding="utf-8") as f:
+                    f.write(text)
+                return f"Replaced in {filepath}"
+            else:
+                flag = "a" if mode == "append" else "w"
+                with open(filepath, flag, encoding="utf-8") as f:
+                    f.write(content)
+                return f"Wrote {len(content)} chars to {filepath} (mode={mode})"
 
         return write_file
 
