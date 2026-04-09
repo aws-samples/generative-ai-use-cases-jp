@@ -727,7 +727,7 @@ This is a use case for integrating with agents created in AgentCore. (Experiment
 Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
 By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
 
-Setting `agentCoreCodeInterpreterEnabled` to `true` enables Code Interpreter in AgentCore Chat. Enable this when MCP tools require local file read/write operations.
+Setting `agentCoreCodeInterpreterEnabled` to `true` enables Code Interpreter in AgentCore Chat. This allows the agent to execute Python code and shell commands within a sandboxed environment. Note that the Code Interpreter sandbox is isolated from the host filesystem — files created in the sandbox are not accessible to MCP tools, and vice versa.
 
 The default agents available in AgentCore can use MCP servers defined in [generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json).
 
