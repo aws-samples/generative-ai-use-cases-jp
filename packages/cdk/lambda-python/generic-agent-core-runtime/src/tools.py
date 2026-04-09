@@ -213,7 +213,7 @@ class ToolManager:
             if mode == "str_replace":
                 if not old_str:
                     raise ValueError("old_str is required for str_replace mode")
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     text = f.read()
                 count = text.count(old_str)
                 if count == 0:
