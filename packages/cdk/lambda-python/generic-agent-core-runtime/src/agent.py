@@ -75,6 +75,12 @@ class AgentManager:
             tools = self.tool_manager.get_tools_with_options(code_execution_enabled=code_execution_enabled, mcp_servers=mcp_servers)
             logger.info(f"Loaded {len(tools)} tools (code execution: {code_execution_enabled})")
 
+            # Inject MCP Server Instructions into system prompt
+            mcp_instructions = self.tool_manager.get_mcp_instructions()
+            if mcp_instructions:
+                combined_system_prompt += f"\n\n## MCP Server Instructions\n\n{mcp_instructions}"
+                logger.info(f"Injected MCP Server Instructions ({len(mcp_instructions)} chars) into system prompt")
+
             # Log agent info
             if agent_id:
                 logger.debug(f"Processing agent: {agent_id}")

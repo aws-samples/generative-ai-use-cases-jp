@@ -51,6 +51,7 @@ class ToolManager:
 
     def __init__(self):
         self.mcp_tools = None
+        self.mcp_instructions: list[str] = []
         self.session_id = None
         self.trace_id = None
 
@@ -89,6 +90,13 @@ class ToolManager:
 
             # Flatten the tools
             self.mcp_tools = sum([c.list_tools_sync() for c in mcp_clients], [])
+
+            # Collect server instructions from MCP servers
+            for client in mcp_clients:
+                if hasattr(client, "server_instructions") and client.server_instructions:
+                    logger.info(f"Collected server instructions ({len(client.server_instructions)} chars)")
+                    self.mcp_instructions.append(client.server_instructions)
+
             logger.info(f"Loaded {len(self.mcp_tools)} MCP tools")
             return self.mcp_tools
 
@@ -131,6 +139,13 @@ class ToolManager:
 
             # Flatten the tools
             dynamic_tools = sum([c.list_tools_sync() for c in mcp_clients], [])
+
+            # Collect server instructions from dynamically loaded MCP servers
+            for client in mcp_clients:
+                if hasattr(client, "server_instructions") and client.server_instructions:
+                    logger.info(f"Collected server instructions ({len(client.server_instructions)} chars)")
+                    self.mcp_instructions.append(client.server_instructions)
+
             logger.info(f"Loaded {len(dynamic_tools)} MCP tools from {len(mcp_clients)} servers")
             return dynamic_tools
 
@@ -191,6 +206,20 @@ class ToolManager:
                 logger.warning(f"Failed to initialize AgentCoreCodeInterpreter: {e}")
 
         return code_interpreter_tools
+
+    def get_mcp_instructions(self) -> str:
+        """Return collected MCP Server Instructions as a single string.
+
+        Server Instructions are provided by MCP servers during initialization
+        to guide the LLM on how to use their tools effectively.
+        See: https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle#initialization
+
+        Returns:
+            Combined instructions from all connected MCP servers, or empty string if none.
+        """
+        if not self.mcp_instructions:
+            return ""
+        return "\n\n---\n\n".join(inst.strip() for inst in self.mcp_instructions)
 
     def get_tools_with_options(self, code_execution_enabled: bool = False, mcp_servers=None) -> list[Any]:
         """
