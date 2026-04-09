@@ -191,6 +191,31 @@ class ToolManager:
 
         return upload_file_to_s3_and_retrieve_s3_url
 
+    def get_file_write_tool(self):
+        """Get the file write tool scoped to WORKSPACE_DIR"""
+
+        @tool
+        def write_file(filepath: str, content: str, mode: str = "create") -> str:
+            """Write content to a file under /tmp/ws.
+
+            Args:
+                filepath: Path to the file (must be under /tmp/ws).
+                content: Text content to write.
+                mode: "create" to create/overwrite, "append" to append.
+            """
+            filepath = os.path.normpath(filepath)
+            if not filepath.startswith(WORKSPACE_DIR):
+                raise ValueError(
+                    f"Path must be under {WORKSPACE_DIR}. Got: {filepath}"
+                )
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            flag = "a" if mode == "append" else "w"
+            with open(filepath, flag, encoding="utf-8") as f:
+                f.write(content)
+            return f"Wrote {len(content)} chars to {filepath} (mode={mode})"
+
+        return write_file
+
     def get_code_interpreter_tool(self) -> list[Any]:
         """Get code interpreter tool if available"""
         code_interpreter_tools = []
@@ -262,7 +287,9 @@ class ToolManager:
 
         # Add built-in tools (always included)
         upload_tool = self.get_upload_tool()
+        file_write_tool = self.get_file_write_tool()
         all_tools.append(upload_tool)
+        all_tools.append(file_write_tool)
 
         # Add code interpreter tools if enabled
         code_interpreter_tools = []
@@ -271,6 +298,6 @@ class ToolManager:
             all_tools.extend(code_interpreter_tools)
 
         # Log final tool count
-        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 1, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 2, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
 
         return all_tools
