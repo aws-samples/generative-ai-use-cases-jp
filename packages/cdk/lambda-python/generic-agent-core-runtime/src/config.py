@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 WORKSPACE_DIR = "/tmp/ws"
 
-DEFAULT_MAX_ITERATIONS = 20
+DEFAULT_MAX_ITERATIONS = 100
 
 FIXED_SYSTEM_PROMPT = f"""## About File Output
 - You are running on AWS Bedrock AgentCore. Therefore, when writing files, always write them under `{WORKSPACE_DIR}`.
