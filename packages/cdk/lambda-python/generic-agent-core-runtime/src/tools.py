@@ -249,7 +249,7 @@ class ToolManager:
                     raise ValueError(f"Path must be under {WORKSPACE_DIR}. Got: {p}")
             with open(os.path.normpath(destination), "w", encoding="utf-8") as out:
                 for p in source_paths:
-                    with open(os.path.normpath(p), "r", encoding="utf-8") as f:
+                    with open(os.path.normpath(p), encoding="utf-8") as f:
                         out.write(f.read())
             return f"Concatenated {len(source_paths)} files into {destination}"
 
