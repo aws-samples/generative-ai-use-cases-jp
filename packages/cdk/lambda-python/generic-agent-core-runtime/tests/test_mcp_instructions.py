@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from src.tools import ToolManager
 
 
@@ -40,14 +38,13 @@ class TestToolManagerInstructions:
     @patch("src.tools.os.environ.get")
     @patch("src.tools.os.path.exists")
     @patch("builtins.open")
-    def test_load_mcp_tools_collects_instructions(
-        self, mock_open, mock_exists, mock_env_get, mock_create
-    ):
+    def test_load_mcp_tools_collects_instructions(self, mock_open, mock_exists, mock_env_get, mock_create):
         """Verify load_mcp_tools collects server_instructions from MCPClients."""
         mock_env_get.return_value = "/tmp/mcp.json"
         mock_exists.return_value = True
 
         import json
+
         mcp_config = {"mcpServers": {"test-server": {"command": "echo", "args": []}}}
         mock_open.return_value.__enter__ = lambda s: s
         mock_open.return_value.__exit__ = MagicMock(return_value=False)
@@ -68,14 +65,13 @@ class TestToolManagerInstructions:
     @patch("src.tools.os.environ.get")
     @patch("src.tools.os.path.exists")
     @patch("builtins.open")
-    def test_load_mcp_tools_skips_none_instructions(
-        self, mock_open, mock_exists, mock_env_get, mock_create
-    ):
+    def test_load_mcp_tools_skips_none_instructions(self, mock_open, mock_exists, mock_env_get, mock_create):
         """Verify load_mcp_tools skips servers without instructions."""
         mock_env_get.return_value = "/tmp/mcp.json"
         mock_exists.return_value = True
 
         import json
+
         mcp_config = {"mcpServers": {"no-inst": {"command": "echo", "args": []}}}
         mock_open.return_value.__enter__ = lambda s: s
         mock_open.return_value.__exit__ = MagicMock(return_value=False)
