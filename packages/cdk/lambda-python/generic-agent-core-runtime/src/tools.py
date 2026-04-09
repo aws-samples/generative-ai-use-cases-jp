@@ -275,11 +275,31 @@ class ToolManager:
 
             # Strip HTML tags for readability if HTML
             if "html" in content_type:
+                from html.parser import HTMLParser
+
+                class _TextExtractor(HTMLParser):
+                    def __init__(self):
+                        super().__init__()
+                        self._parts: list[str] = []
+                        self._skip = False
+
+                    def handle_starttag(self, tag, attrs):
+                        if tag in ("script", "style"):
+                            self._skip = True
+
+                    def handle_endtag(self, tag):
+                        if tag in ("script", "style"):
+                            self._skip = False
+
+                    def handle_data(self, data):
+                        if not self._skip:
+                            self._parts.append(data)
+
+                extractor = _TextExtractor()
+                extractor.feed(raw)
+                raw = " ".join(extractor._parts)
                 import re
 
-                raw = re.sub(r"<script[^>]*>.*?</script>", "", raw, flags=re.DOTALL)
-                raw = re.sub(r"<style[^>]*>.*?</style>", "", raw, flags=re.DOTALL)
-                raw = re.sub(r"<[^>]+>", " ", raw)
                 raw = re.sub(r"\s+", " ", raw).strip()
 
             if len(raw) > max_chars:
