@@ -232,6 +232,29 @@ class ToolManager:
 
         return write_file
 
+    def get_concat_files_tool(self):
+        """Get the file concatenation tool scoped to WORKSPACE_DIR"""
+
+        @tool
+        def concat_files(source_paths: list[str], destination: str) -> str:
+            """Concatenate multiple files into one. All paths must be under /tmp/ws.
+
+            Args:
+                source_paths: List of file paths to concatenate in order.
+                destination: Output file path.
+            """
+            for p in source_paths + [destination]:
+                normed = os.path.normpath(p)
+                if not normed.startswith(WORKSPACE_DIR):
+                    raise ValueError(f"Path must be under {WORKSPACE_DIR}. Got: {p}")
+            with open(os.path.normpath(destination), "w", encoding="utf-8") as out:
+                for p in source_paths:
+                    with open(os.path.normpath(p), "r", encoding="utf-8") as f:
+                        out.write(f.read())
+            return f"Concatenated {len(source_paths)} files into {destination}"
+
+        return concat_files
+
     def get_code_interpreter_tool(self) -> list[Any]:
         """Get code interpreter tool if available"""
         code_interpreter_tools = []
@@ -304,8 +327,10 @@ class ToolManager:
         # Add built-in tools (always included)
         upload_tool = self.get_upload_tool()
         file_write_tool = self.get_file_write_tool()
+        concat_tool = self.get_concat_files_tool()
         all_tools.append(upload_tool)
         all_tools.append(file_write_tool)
+        all_tools.append(concat_tool)
 
         # Add code interpreter tools if enabled
         code_interpreter_tools = []
@@ -314,6 +339,6 @@ class ToolManager:
             all_tools.extend(code_interpreter_tools)
 
         # Log final tool count
-        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 2, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 3, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
 
         return all_tools
