@@ -11,6 +11,7 @@ import {
   BlockPublicAccess,
   BucketEncryption,
 } from 'aws-cdk-lib/aws-s3';
+import { Platform } from 'aws-cdk-lib/aws-ecr-assets';
 import {
   Runtime,
   RuntimeNetworkConfiguration,
@@ -101,6 +102,7 @@ export class GenericAgentCore extends Construct {
           FILE_BUCKET: bucketName,
           MCP_CONFIG_PATH: '/var/task/mcp-configs/generic/mcp.json',
           SUPPORTED_CACHE_FIELDS: JSON.stringify(SUPPORTED_CACHE_FIELDS),
+          MAX_ITERATIONS: '100',
         },
       },
       agentBuilder: {
@@ -159,7 +161,8 @@ export class GenericAgentCore extends Construct {
     return new Runtime(this, `${type}AgentCoreRuntime`, {
       runtimeName: config.name,
       agentRuntimeArtifact: AgentRuntimeArtifact.fromAsset(
-        path.join(__dirname, `../../${config.dockerPath}`)
+        path.join(__dirname, `../../${config.dockerPath}`),
+        { platform: Platform.LINUX_ARM64 }
       ),
       executionRole: role,
       networkConfiguration: RuntimeNetworkConfiguration.usingPublicNetwork(),
