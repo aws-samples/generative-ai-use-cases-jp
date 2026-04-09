@@ -41,6 +41,9 @@ const fileLimit: FileLimit = {
   maxVideoFileSizeMB: 0,
 };
 
+const agentCoreCodeInterpreterEnabled =
+  import.meta.env.VITE_APP_AGENT_CORE_CODE_INTERPRETER_ENABLED === 'true';
+
 // State management with zustand
 type StateType = {
   content: string;
@@ -162,7 +165,12 @@ const AgentCorePage: React.FC = () => {
         sessionId,
         content,
         'DEFAULT',
-        filesToSend
+        filesToSend,
+        undefined, // userId
+        undefined, // mcpServers
+        undefined, // agentId
+        undefined, // modelId
+        agentCoreCodeInterpreterEnabled
       );
       setContent('');
       clearFiles();

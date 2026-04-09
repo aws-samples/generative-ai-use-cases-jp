@@ -63,6 +63,7 @@ export interface WebProps {
   readonly mcpServersConfig?: string;
   readonly webBucket?: s3.Bucket;
   readonly agentCoreEnabled: boolean;
+  readonly agentCoreCodeInterpreterEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
   readonly agentBuilderEnabled: boolean;
   readonly agentCoreAgentBuilderRuntime?: AgentCoreConfiguration;
@@ -297,6 +298,8 @@ export class Web extends Construct {
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
         VITE_APP_MCP_SERVERS_CONFIG: props.mcpServersConfig ?? '',
         VITE_APP_AGENT_CORE_ENABLED: props.agentCoreEnabled.toString(),
+        VITE_APP_AGENT_CORE_CODE_INTERPRETER_ENABLED:
+          props.agentCoreCodeInterpreterEnabled.toString(),
         VITE_APP_AGENT_CORE_GENERIC_RUNTIME: JSON.stringify(
           props.agentCoreGenericRuntime
         ),

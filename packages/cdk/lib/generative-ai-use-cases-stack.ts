@@ -310,6 +310,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       agentCoreEnabled:
         params.createGenericAgentCoreRuntime ||
         params.agentCoreExternalRuntimes.length > 0,
+      agentCoreCodeInterpreterEnabled:
+        params.agentCoreCodeInterpreterEnabled,
       agentCoreGenericRuntime: genericRuntimeArn
         ? {
             name: genericRuntimeName || 'GenericAgentCoreRuntime',

@@ -150,6 +150,7 @@ const baseStackInputSchema = z.object({
   // Agent Core Runtime
   agentBuilderEnabled: z.boolean().default(false),
   createGenericAgentCoreRuntime: z.boolean().default(false),
+  agentCoreCodeInterpreterEnabled: z.boolean().default(false),
   agentCoreRegion: z.string().nullish(),
   agentCoreGatewayArns: z.array(z.string()).nullish(),
   agentCoreExternalRuntimes: z
