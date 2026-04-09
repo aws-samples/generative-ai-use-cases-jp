@@ -727,6 +727,8 @@ This is a use case for integrating with agents created in AgentCore. (Experiment
 Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
 By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
 
+Setting `agentCoreCodeInterpreterEnabled` to `true` enables Code Interpreter in AgentCore Chat. Enable this when MCP tools require local file read/write operations.
+
 The default agents available in AgentCore can use MCP servers defined in [generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json).
 
 The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
@@ -766,6 +768,7 @@ To enable the AgentCore use case, the `docker` command must be executable.
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
+    agentCoreCodeInterpreterEnabled: true,
     agentCoreRegion: 'us-west-2',
     agentCoreGatewayArns: [
       'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
@@ -788,6 +791,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "createGenericAgentCoreRuntime": true,
+    "agentCoreCodeInterpreterEnabled": true,
     "agentCoreRegion": "us-west-2",
     "agentCoreGatewayArns": [
       "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"

@@ -746,7 +746,7 @@ AgentCore で作成したエージェントと連携するユースケースで�
 `createGenericAgentCoreRuntime` を有効化するとデフォルトの AgentCore Runtime がデプロイされます。
 デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
 
-`agentCoreCodeInterpreterEnabled` を `true` にすると、AgentCore チャットで Code Interpreter が有効になります。MCP ツールがローカルファイルの読み書きを必要とする場合（例: プレゼンテーション生成ツール）に有効化してください。
+`agentCoreCodeInterpreterEnabled` を `true` にすると、AgentCore チャットで Code Interpreter が有効になります。MCP ツールがローカルファイルの読み書きを必要とする場合に有効化してください。
 
 AgentCore で使用できるデフォルトのエージェントは、[generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json) で定義する MCP サーバーを利用することができます。
 
