@@ -763,7 +763,7 @@ export class Api extends Construct {
     // --- Routes from Transcribe Construct (v5) ---
     const transcribe = api.root.addResource('transcribe');
     transcribe.addResource('start').addMethod('POST');
-    transcribe.addResource('url').addMethod('GET');
+    transcribe.addResource('url').addMethod('POST');
     transcribe.addResource('result').addResource('{jobName}').addMethod('GET');
 
     // --- Routes from SpeechToSpeech Construct (v5) ---

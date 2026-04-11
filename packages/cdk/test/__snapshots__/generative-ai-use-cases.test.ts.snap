@@ -4933,7 +4933,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A5021234a670ea66ad6935eff2143946029baa5": {
+    "APIApiDeployment3A5021234ccb38c64f8b52284eca40c90194c2a0": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -5048,8 +5048,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "APIApitranscribestartOPTIONSFA1C7723",
         "APIApitranscribestartPOSTC6AF1C94",
         "APIApitranscribestartB105DFD0",
-        "APIApitranscribeurlGETD05997D9",
         "APIApitranscribeurlOPTIONS6B7DF1F0",
+        "APIApitranscribeurlPOSTFBEEA27D",
         "APIApitranscribeurlAA281183",
         "APIApiusecasesuseCaseIdDELETE1F3AB356",
         "APIApiusecasesuseCaseIdfavoriteOPTIONS0F973203",
@@ -5176,8 +5176,8 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         "APIApitranscriberesultOPTIONS36EC9D59",
         "APIApitranscribestartOPTIONSFA1C7723",
         "APIApitranscribestartPOSTC6AF1C94",
-        "APIApitranscribeurlGETD05997D9",
         "APIApitranscribeurlOPTIONS6B7DF1F0",
+        "APIApitranscribeurlPOSTFBEEA27D",
         "APIApiusecasesuseCaseIdDELETE1F3AB356",
         "APIApiusecasesuseCaseIdfavoriteOPTIONS0F973203",
         "APIApiusecasesuseCaseIdfavoritePUT21685F6D",
@@ -5222,7 +5222,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A5021234a670ea66ad6935eff2143946029baa5",
+          "Ref": "APIApiDeployment3A5021234ccb38c64f8b52284eca40c90194c2a0",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -9738,47 +9738,6 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       "Type": "AWS::ApiGateway::Resource",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApitranscribeurlGETD05997D9": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId": {
-          "Ref": "APIAuthorizer9DCC037B",
-        },
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "APIApiHandler18BC61F9",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": {
-          "Ref": "APIApitranscribeurlAA281183",
-        },
-        "RestApiId": {
-          "Ref": "APIApiFFA96F67",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
     "APIApitranscribeurlOPTIONS6B7DF1F0": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -9813,6 +9772,47 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "StatusCode": "204",
           },
         ],
+        "ResourceId": {
+          "Ref": "APIApitranscribeurlAA281183",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApitranscribeurlPOSTFBEEA27D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIApiHandler18BC61F9",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
         "ResourceId": {
           "Ref": "APIApitranscribeurlAA281183",
         },
@@ -18157,7 +18157,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123fe4e3bb96b7b93b592620c276b236bde": {
+    "APIApiDeployment3A502123b9c345b79c5ed2dfa950cd06d0fd39e3": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -18272,8 +18272,8 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "APIApitranscribestartOPTIONSFA1C7723",
         "APIApitranscribestartPOSTC6AF1C94",
         "APIApitranscribestartB105DFD0",
-        "APIApitranscribeurlGETD05997D9",
         "APIApitranscribeurlOPTIONS6B7DF1F0",
+        "APIApitranscribeurlPOSTFBEEA27D",
         "APIApitranscribeurlAA281183",
         "APIApiusecasesuseCaseIdDELETE1F3AB356",
         "APIApiusecasesuseCaseIdfavoriteOPTIONS0F973203",
@@ -18400,8 +18400,8 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         "APIApitranscriberesultOPTIONS36EC9D59",
         "APIApitranscribestartOPTIONSFA1C7723",
         "APIApitranscribestartPOSTC6AF1C94",
-        "APIApitranscribeurlGETD05997D9",
         "APIApitranscribeurlOPTIONS6B7DF1F0",
+        "APIApitranscribeurlPOSTFBEEA27D",
         "APIApiusecasesuseCaseIdDELETE1F3AB356",
         "APIApiusecasesuseCaseIdfavoriteOPTIONS0F973203",
         "APIApiusecasesuseCaseIdfavoritePUT21685F6D",
@@ -18446,7 +18446,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123fe4e3bb96b7b93b592620c276b236bde",
+          "Ref": "APIApiDeployment3A502123b9c345b79c5ed2dfa950cd06d0fd39e3",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
@@ -22915,47 +22915,6 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "Type": "AWS::ApiGateway::Resource",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApitranscribeurlGETD05997D9": {
-      "DeletionPolicy": "Delete",
-      "Properties": {
-        "AuthorizationType": "COGNITO_USER_POOLS",
-        "AuthorizerId": {
-          "Ref": "APIAuthorizer9DCC037B",
-        },
-        "HttpMethod": "GET",
-        "Integration": {
-          "IntegrationHttpMethod": "POST",
-          "Type": "AWS_PROXY",
-          "Uri": {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
-                {
-                  "Fn::GetAtt": [
-                    "APIApiHandler18BC61F9",
-                    "Arn",
-                  ],
-                },
-                "/invocations",
-              ],
-            ],
-          },
-        },
-        "ResourceId": {
-          "Ref": "APIApitranscribeurlAA281183",
-        },
-        "RestApiId": {
-          "Ref": "APIApiFFA96F67",
-        },
-      },
-      "Type": "AWS::ApiGateway::Method",
-      "UpdateReplacePolicy": "Delete",
-    },
     "APIApitranscribeurlOPTIONS6B7DF1F0": {
       "DeletionPolicy": "Delete",
       "Properties": {
@@ -22990,6 +22949,47 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "StatusCode": "204",
           },
         ],
+        "ResourceId": {
+          "Ref": "APIApitranscribeurlAA281183",
+        },
+        "RestApiId": {
+          "Ref": "APIApiFFA96F67",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "APIApitranscribeurlPOSTFBEEA27D": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "AuthorizationType": "COGNITO_USER_POOLS",
+        "AuthorizerId": {
+          "Ref": "APIAuthorizer9DCC037B",
+        },
+        "HttpMethod": "POST",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "APIApiHandler18BC61F9",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
         "ResourceId": {
           "Ref": "APIApitranscribeurlAA281183",
         },
