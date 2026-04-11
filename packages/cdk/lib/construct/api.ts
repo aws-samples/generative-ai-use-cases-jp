@@ -3,12 +3,12 @@ import {
   AuthorizationType,
   CognitoUserPoolsAuthorizer,
   Cors,
+  Deployment,
   LambdaIntegration,
   RestApi,
   ResponseType,
   EndpointType,
   MethodOptions,
-  Deployment,
 } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 import { LayerVersion, ILayerVersion } from 'aws-cdk-lib/aws-lambda';
@@ -588,10 +588,19 @@ export class Api extends Construct {
       authorizer,
     };
 
+    const lambdaIntegration = new LambdaIntegration(apiHandler, {
+      proxy: true,
+      // Use a single wildcard permission instead of per-method permissions
+      // to avoid exceeding the Lambda resource policy size limit (20KB).
+      scopePermissionToMethod: false,
+    });
+
     const api = new RestApi(this, 'Api', {
       deployOptions: {
         stageName: 'api',
       },
+      defaultIntegration: lambdaIntegration,
+      defaultMethodOptions: commonAuthorizerProps,
       defaultCorsPreflightOptions: {
         allowOrigins: Cors.ALL_ORIGINS,
         allowMethods: Cors.ALL_METHODS,
@@ -642,10 +651,125 @@ export class Api extends Construct {
       responseHeaders: errorHeaders,
     });
 
-    const lambdaIntegration = new LambdaIntegration(apiHandler, {
-      proxy: true,
-    });
+    // =========================================================================
+    // Compatibility routes for v5 → v5 (monolith) migration
+    // =========================================================================
+    // v5 previously defined individual API Gateway Resources/Methods across
+    // multiple Constructs, each backed by its own Lambda. The monolith
+    // replaces all Lambdas with a single apiHandler, but we must preserve
+    // the same Resource/Method structure so CloudFormation only updates
+    // Integration URIs (mutable) instead of adding/deleting Resources.
+    // Without this, CloudFormation's UPDATE_CLEANUP ordering causes a Two
+    // Phase Deploy where the Deployment snapshot is taken before old routes
+    // are deleted.
+    //
+    // All methods inherit defaultIntegration and defaultMethodOptions from
+    // RestApi. scopePermissionToMethod: false avoids the 20KB Lambda policy
+    // size limit by using a single wildcard permission.
+    //
+    // See:
+    //   https://github.com/aws/aws-cdk/issues/14660
+    //   https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues/623
+    //
+    // TODO: Remove in v6. Replace with just addProxy().
+    // =========================================================================
 
+    // --- Api Construct (v5) ---
+    const predict = api.root.addResource('predict');
+    predict.addMethod('POST');
+    predict.addResource('title').addMethod('POST');
+
+    const chats = api.root.addResource('chats');
+    chats.addMethod('POST');
+    chats.addMethod('GET');
+    const chat = chats.addResource('{chatId}');
+    chat.addMethod('GET');
+    chat.addMethod('DELETE');
+    chat.addResource('title').addMethod('PUT');
+    const messages = chat.addResource('messages');
+    messages.addMethod('GET');
+    messages.addMethod('POST');
+    chat.addResource('feedbacks').addMethod('POST');
+
+    const systemcontexts = api.root.addResource('systemcontexts');
+    systemcontexts.addMethod('POST');
+    systemcontexts.addMethod('GET');
+    const systemcontext = systemcontexts.addResource('{systemContextId}');
+    systemcontext.addMethod('DELETE');
+    systemcontext.addResource('title').addMethod('PUT');
+
+    const mm = api.root.addResource('meeting-minutes');
+    const cp = mm.addResource('custom-prompts');
+    cp.addMethod('ANY');
+    cp.addResource('{id}').addMethod('ANY');
+
+    const image = api.root.addResource('image');
+    image.addResource('generate').addMethod('POST');
+
+    const video = api.root.addResource('video');
+    const videoGen = video.addResource('generate');
+    videoGen.addMethod('POST');
+    videoGen.addMethod('GET');
+    videoGen.addResource('{createdDate}').addMethod('DELETE');
+
+    api.root.addResource('web-text').addMethod('GET');
+
+    const shares = api.root.addResource('shares');
+    const shareChatId = shares.addResource('chat').addResource('{chatId}');
+    shareChatId.addMethod('GET');
+    shareChatId.addMethod('POST');
+    const shareShareId = shares.addResource('share').addResource('{shareId}');
+    shareShareId.addMethod('GET');
+    shareShareId.addMethod('DELETE');
+
+    const file = api.root.addResource('file');
+    const fileUrl = file.addResource('url');
+    fileUrl.addMethod('POST');
+    fileUrl.addMethod('GET');
+    file.addResource('{fileName}').addMethod('DELETE');
+
+    api.root.addResource('token-usage').addMethod('GET');
+
+    // --- Routes from Rag Construct (v5) ---
+    const rag = api.root.addResource('rag');
+    rag.addResource('query').addMethod('POST');
+    rag.addResource('retrieve').addMethod('POST');
+
+    // --- Routes from RagKnowledgeBase Construct (v5) ---
+    const ragKb = api.root.addResource('rag-knowledge-base');
+    ragKb.addResource('retrieve').addMethod('POST');
+
+    // --- Routes from UseCaseBuilder Construct (v5) ---
+    const usecases = api.root.addResource('usecases');
+    usecases.addMethod('POST');
+    usecases.addMethod('GET');
+    const favoriteUseCase = usecases.addResource('favorite');
+    favoriteUseCase.addMethod('GET');
+    const usecase = usecases.addResource('{useCaseId}');
+    usecase.addMethod('GET');
+    usecase.addMethod('PUT');
+    usecase.addMethod('DELETE');
+    usecase.addResource('favorite').addMethod('PUT');
+    usecase.addResource('shared').addMethod('PUT');
+    const recentUseCases = usecases.addResource('recent');
+    recentUseCases.addMethod('GET');
+    recentUseCases.addResource('{useCaseId}').addMethod('PUT');
+
+    // --- Routes from AgentBuilder Construct (v5) ---
+    const agents = api.root.addResource('agents');
+    agents.addMethod('ANY');
+    agents.addResource('{proxy+}').addMethod('ANY');
+
+    // --- Routes from Transcribe Construct (v5) ---
+    const transcribe = api.root.addResource('transcribe');
+    transcribe.addResource('start').addMethod('POST');
+    transcribe.addResource('url').addMethod('GET');
+    transcribe.addResource('result').addResource('{jobName}').addMethod('GET');
+
+    // --- Routes from SpeechToSpeech Construct (v5) ---
+    api.root.addResource('speech-to-speech').addMethod('POST');
+
+    // Catch-all for any new routes added in the monolith
     api.root.addProxy({
       defaultIntegration: lambdaIntegration,
       defaultMethodOptions: commonAuthorizerProps,
