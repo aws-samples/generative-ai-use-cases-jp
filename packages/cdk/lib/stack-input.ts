@@ -133,6 +133,9 @@ const baseStackInputSchema = z.object({
   rerankingModelId: z.string().nullish(),
   // Agent
   agentEnabled: z.boolean().default(false),
+  agentFoundationModel: z
+    .string()
+    .default('global.anthropic.claude-sonnet-4-6'),
   searchAgentEnabled: z.boolean().default(false),
   searchApiKey: z.string().nullish(),
   searchEngine: z.enum(['Brave', 'Tavily']).default('Brave'),

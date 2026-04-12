@@ -3402,7 +3402,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
         },
         "AutoPrepare": true,
         "Description": "Code Interpreter",
-        "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "FoundationModel": "global.anthropic.claude-sonnet-4-6",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced AI agent with the ability to execute code, generate charts, and perform complex data analysis. 
 Your main function is to solve problems and meet user requests by utilizing these capabilities.
@@ -3515,7 +3515,7 @@ Automatically detect the language of the user's request and think and answer in 
         },
         "AutoPrepare": true,
         "Description": "Agent with Web Search Functionality",
-        "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "FoundationModel": "global.anthropic.claude-sonnet-4-6",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced assistant with the ability to search and retrieve information from the web to perform complex research tasks.
 Your main function is to solve problems and meet user requests by utilizing these capabilities.
@@ -26375,7 +26375,7 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
         },
         "AutoPrepare": true,
         "Description": "Code Interpreter",
-        "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "FoundationModel": "global.anthropic.claude-sonnet-4-6",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced AI agent with the ability to execute code, generate charts, and perform complex data analysis. 
 Your main function is to solve problems and meet user requests by utilizing these capabilities.
@@ -26488,7 +26488,7 @@ Automatically detect the language of the user's request and think and answer in 
         },
         "AutoPrepare": true,
         "Description": "Agent with Web Search Functionality",
-        "FoundationModel": "us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        "FoundationModel": "global.anthropic.claude-sonnet-4-6",
         "IdleSessionTTLInSeconds": 3600,
         "Instruction": "You are an advanced assistant with the ability to search and retrieve information from the web to perform complex research tasks.
 Your main function is to solve problems and meet user requests by utilizing these capabilities.

@@ -59,6 +59,7 @@
     "speechToSpeechModelIds": ["amazon.nova-sonic-v1:0"],
     "endpointNames": [],
     "agentEnabled": false,
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6",
     "searchAgentEnabled": false,
     "searchEngine": "Brave",
     "searchApiKey": "",
