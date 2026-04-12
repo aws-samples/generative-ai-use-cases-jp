@@ -417,6 +417,34 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+#### エージェントの基盤モデルのカスタマイズ
+
+Code Interpreter および検索エージェントで使用する基盤モデルをカスタマイズできます。デフォルトでは `global.anthropic.claude-sonnet-4-6` が使用されます。
+
+- `agentFoundationModel` : エージェントで利用するモデルを指定してください。Bedrock Agent がサポートするモデルのみ利用可能です。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
+  }
+}
+```
+
 #### 検索エージェントのデプロイ
 
 API と連携し最新情報を参照して回答する Agent を作成します。Agent のカスタマイズを行い他のアクションを追加できるほか、複数の Agent を作成し切り替えることが可能です。
