@@ -402,6 +402,34 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+#### Customizing Agent Foundation Model
+
+You can customize the foundation model used by Code Interpreter and Search Agent. By default, `global.anthropic.claude-sonnet-4-6` is used.
+
+- `agentFoundationModel` : Specify the model to use for agents. Only models supported by Bedrock Agent are available.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
+  }
+}
+```
+
 #### Deploying Search Agent
 
 Creates an Agent that connects to APIs to reference the latest information for responses. You can customize the Agent to add other actions and create multiple Agents to switch between.

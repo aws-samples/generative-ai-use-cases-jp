@@ -403,6 +403,34 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+#### 에이전트 기반 모델 사용자 정의
+
+Code Interpreter 및 Search Agent에서 사용하는 기반 모델을 사용자 정의할 수 있습니다. 기본적으로 `global.anthropic.claude-sonnet-4-6`이 사용됩니다.
+
+- `agentFoundationModel` : 에이전트에 사용할 모델을 지정합니다. Bedrock Agent가 지원하는 모델만 사용할 수 있습니다.
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
+  }
+}
+```
+
 #### Search Agent 배포
 
 API에 연결하여 최신 정보를 참조하여 응답하는 Agent를 생성합니다. Agent를 사용자 정의하여 다른 작업을 추가하고 여러 Agent를 생성하여 전환할 수 있습니다.
