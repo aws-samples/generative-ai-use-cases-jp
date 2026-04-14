@@ -3088,6 +3088,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 300,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -3131,6 +3137,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
             "CidrIp": "0.0.0.0/0",
             "Description": "Allow all outbound traffic by default",
             "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
         "VpcId": {
@@ -3177,6 +3189,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -3245,6 +3263,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
             "PolicyName": "BedrockAgentBedrockModelPolicy",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -3267,6 +3291,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 3`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -3440,6 +3468,9 @@ Your goal is to provide support that is accurate and useful by utilizing the uni
 Always strive to provide the most practical and effective solutions to user requests.
 
 Automatically detect the language of the user's request and think and answer in the same language.",
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::Bedrock::Agent",
     },
@@ -3451,6 +3482,9 @@ Automatically detect the language of the user's request and think and answer in 
             "AgentCodeInterpreterAgent98889BFE",
             "AgentId",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::Bedrock::AgentAlias",
@@ -3530,6 +3564,9 @@ Your main characteristics and instructions are as follows.
 - Multiple searches are possible. You can search up to 5 times.
 
 Automatically detect the language of the user's request and think and answer in the same language.",
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::Bedrock::Agent",
     },
@@ -3541,6 +3578,9 @@ Automatically detect the language of the user's request and think and answer in 
             "AgentSearchAgent3AF6EC6F",
             "AgentId",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::Bedrock::AgentAlias",
@@ -3573,6 +3613,12 @@ Automatically detect the language of the user's request and think and answer in 
           ],
         },
         "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -3603,6 +3649,12 @@ Automatically detect the language of the user's request and think and answer in 
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -3916,6 +3968,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Arn",
           ],
         },
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
     },
@@ -3938,6 +3993,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -4271,6 +4330,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -4304,6 +4369,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
             "Arn",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
@@ -4809,11 +4877,17 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123677abf0a15820c6513302ec82e604a8d": {
+    "APIApiDeployment3A502123ae51556c67e52bef6b371bc775c8ddd7": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -4983,12 +5057,18 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123677abf0a15820c6513302ec82e604a8d",
+          "Ref": "APIApiDeployment3A502123ae51556c67e52bef6b371bc775c8ddd7",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
         },
         "StageName": "api",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::ApiGateway::Stage",
       "UpdateReplacePolicy": "Delete",
@@ -5027,6 +5107,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::ApiGateway::RestApi",
       "UpdateReplacePolicy": "Delete",
@@ -13016,6 +13102,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13197,6 +13289,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -13227,6 +13325,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13289,6 +13393,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -13377,6 +13487,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13439,6 +13555,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -13593,6 +13715,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13655,6 +13783,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -13771,6 +13905,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13833,6 +13973,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -13915,6 +14061,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -13977,6 +14129,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -14093,6 +14251,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -14155,6 +14319,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -14223,6 +14393,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -14285,6 +14461,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -14401,6 +14583,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -14463,6 +14651,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -14582,6 +14776,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -14644,6 +14844,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -14738,6 +14944,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -14880,6 +15090,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -14942,6 +15158,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15054,6 +15276,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -15116,6 +15344,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15230,6 +15464,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -15292,6 +15532,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15374,6 +15620,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -15436,6 +15688,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15557,6 +15815,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -15619,6 +15883,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15801,6 +16071,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -15863,6 +16139,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -15975,6 +16257,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16037,6 +16325,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -16123,6 +16417,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "VpcConfig": {
           "SecurityGroupIds": [
             {
@@ -16184,6 +16484,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -16322,6 +16628,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16386,6 +16698,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -16414,6 +16732,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16478,6 +16802,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -16537,6 +16867,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16599,6 +16935,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -16711,6 +17053,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16773,6 +17121,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -16885,6 +17239,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -16947,6 +17307,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -17085,6 +17451,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17147,6 +17519,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -17300,6 +17678,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17448,6 +17832,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -17476,6 +17866,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17538,6 +17934,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -17605,6 +18007,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17667,6 +18075,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -17756,6 +18170,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17818,6 +18238,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -17925,6 +18351,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -17987,6 +18419,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18080,6 +18518,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -18142,6 +18586,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18258,6 +18708,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -18320,6 +18776,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18436,6 +18898,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -18498,6 +18966,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18620,6 +19094,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -18703,6 +19183,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18898,6 +19384,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
@@ -18930,6 +19422,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -18993,6 +19491,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -19050,6 +19554,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -19145,6 +19655,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
@@ -19177,6 +19693,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -19240,6 +19762,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -19351,6 +19879,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -19601,6 +20135,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
 }",
           "Type": "NO_SOURCE",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::CodeBuild::Project",
       "UpdateReplacePolicy": "Delete",
@@ -19620,6 +20160,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -19837,6 +20383,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "ServerSideTokenCheck": true,
           },
         ],
+        "IdentityPoolTags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::Cognito::IdentityPool",
       "UpdateReplacePolicy": "Delete",
@@ -19884,6 +20436,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -20059,6 +20617,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -20118,6 +20682,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         },
         "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolTags": {
+          "app": "genu",
+        },
         "UsernameAttributes": [
           "email",
         ],
@@ -20193,6 +20760,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -20225,6 +20798,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -20404,6 +20983,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "KeyType": "RANGE",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -20450,6 +21035,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "KeyType": "RANGE",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -20463,6 +21054,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "CidrIp": "0.0.0.0/0",
             "Description": "Allow all outbound traffic by default",
             "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
         "VpcId": {
@@ -20491,6 +21088,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -20523,6 +21126,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -20574,6 +21183,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 300,
       },
       "Type": "AWS::Lambda::Function",
@@ -20606,6 +21221,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -20688,6 +21309,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -20837,6 +21462,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
         "Tags": [
           {
+            "Key": "app",
+            "Value": "genu",
+          },
+          {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
@@ -20971,6 +21600,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -21091,6 +21726,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "UserContextPolicy": "USER_TOKEN",
         "UserTokenConfigurations": [
           {
@@ -21146,6 +21787,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/CloudWatchLogsFullAccess",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -21224,6 +21871,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -21286,6 +21939,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -21352,6 +22011,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -21444,6 +22109,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -21475,6 +22146,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -21567,6 +22244,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -21601,6 +22284,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Type": "S3",
       },
       "Type": "AWS::Kendra::DataSource",
@@ -21635,6 +22324,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
         ],
         "Scope": "REGIONAL",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "VisibilityConfig": {
           "CloudWatchMetricsEnabled": true,
           "MetricName": "WebAcl-GenerativeAiUseCasesStackRegionalWaf2D5714A0",
@@ -21676,6 +22371,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
         },
         "HandlerConfigs": {},
         "Name": "speech-to-speech",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::AppSync::ChannelNamespace",
       "UpdateReplacePolicy": "Delete",
@@ -21724,6 +22425,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Name": "SpeechToSpeech",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::AppSync::Api",
       "UpdateReplacePolicy": "Delete",
@@ -21758,6 +22465,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -21866,6 +22579,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -21912,6 +22631,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -21974,6 +22699,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -22087,6 +22818,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -22250,6 +22985,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -22312,6 +23053,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -22388,6 +23135,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -22505,6 +23258,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -22558,6 +23317,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -22709,6 +23474,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -22751,6 +23522,10 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -22896,6 +23671,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -22958,6 +23739,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -23041,6 +23828,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23103,6 +23896,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -23221,6 +24020,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23365,6 +24170,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -23397,6 +24208,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23459,6 +24276,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -23573,6 +24396,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23635,6 +24464,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -23749,6 +24584,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23811,6 +24652,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -23924,6 +24771,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -23986,6 +24839,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -24103,6 +24962,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -24165,6 +25030,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -24282,6 +25153,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -24344,6 +25221,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -24461,6 +25344,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
         "VpcConfig": {
           "SecurityGroupIds": [
@@ -24523,6 +25412,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -24657,6 +25552,12 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           {
             "AttributeName": "dataType",
             "KeyType": "RANGE",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -26107,6 +27008,12 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 300,
       },
       "Type": "AWS::Lambda::Function",
@@ -26150,6 +27057,12 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -26218,6 +27131,12 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
             "PolicyName": "BedrockAgentBedrockModelPolicy",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -26240,6 +27159,10 @@ exports[`GenerativeAiUseCases matches the snapshot 3`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -26413,6 +27336,9 @@ Your goal is to provide support that is accurate and useful by utilizing the uni
 Always strive to provide the most practical and effective solutions to user requests.
 
 Automatically detect the language of the user's request and think and answer in the same language.",
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::Bedrock::Agent",
     },
@@ -26424,6 +27350,9 @@ Automatically detect the language of the user's request and think and answer in 
             "AgentCodeInterpreterAgent98889BFE",
             "AgentId",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::Bedrock::AgentAlias",
@@ -26503,6 +27432,9 @@ Your main characteristics and instructions are as follows.
 - Multiple searches are possible. You can search up to 5 times.
 
 Automatically detect the language of the user's request and think and answer in the same language.",
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::Bedrock::Agent",
     },
@@ -26514,6 +27446,9 @@ Automatically detect the language of the user's request and think and answer in 
             "AgentSearchAgent3AF6EC6F",
             "AgentId",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::Bedrock::AgentAlias",
@@ -26546,6 +27481,12 @@ Automatically detect the language of the user's request and think and answer in 
           ],
         },
         "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -26576,6 +27517,12 @@ Automatically detect the language of the user's request and think and answer in 
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -26889,6 +27836,9 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Arn",
           ],
         },
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
     },
@@ -26911,6 +27861,10 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -27244,6 +28198,12 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -27277,6 +28237,9 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
             "Arn",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
@@ -27795,11 +28758,17 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
     },
-    "APIApiDeployment3A502123be7d91bf5fd3da07772343d3d13ce264": {
+    "APIApiDeployment3A5021233c3da1d97028155f24a4182a8cfc1c18": {
       "DeletionPolicy": "Delete",
       "DependsOn": [
         "APIApiApi4XXDCF913C8",
@@ -27969,12 +28938,18 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       ],
       "Properties": {
         "DeploymentId": {
-          "Ref": "APIApiDeployment3A502123be7d91bf5fd3da07772343d3d13ce264",
+          "Ref": "APIApiDeployment3A5021233c3da1d97028155f24a4182a8cfc1c18",
         },
         "RestApiId": {
           "Ref": "APIApiFFA96F67",
         },
         "StageName": "api",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::ApiGateway::Stage",
       "UpdateReplacePolicy": "Delete",
@@ -27983,6 +28958,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
       "DeletionPolicy": "Delete",
       "Properties": {
         "Name": "Api",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::ApiGateway::RestApi",
       "UpdateReplacePolicy": "Delete",
@@ -35972,6 +36953,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36123,6 +37110,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -36153,6 +37146,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36185,6 +37184,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36273,6 +37278,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36305,6 +37316,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36459,6 +37476,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36491,6 +37514,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36607,6 +37636,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36639,6 +37674,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36721,6 +37762,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36753,6 +37800,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36869,6 +37922,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -36901,6 +37960,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -36969,6 +38034,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37001,6 +38072,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37117,6 +38194,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37149,6 +38232,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37268,6 +38357,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37300,6 +38395,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37394,6 +38495,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -37536,6 +38641,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37568,6 +38679,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37680,6 +38797,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37712,6 +38835,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37826,6 +38955,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37858,6 +38993,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -37940,6 +39081,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -37972,6 +39119,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38093,6 +39246,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38125,6 +39284,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38307,6 +39472,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38339,6 +39510,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38451,6 +39628,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38483,6 +39666,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38569,6 +39758,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::Lambda::Function",
       "UpdateReplacePolicy": "Delete",
@@ -38600,6 +39795,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38738,6 +39939,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38772,6 +39979,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -38800,6 +40013,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38832,6 +40051,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -38893,6 +40118,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -38925,6 +40156,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39037,6 +40274,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39069,6 +40312,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39181,6 +40430,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39213,6 +40468,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39351,6 +40612,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39383,6 +40650,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39536,6 +40809,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39654,6 +40933,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -39682,6 +40967,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39714,6 +41005,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39781,6 +41078,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39813,6 +41116,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -39902,6 +41211,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -39934,6 +41249,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40041,6 +41362,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40073,6 +41400,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40166,6 +41499,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40198,6 +41537,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40314,6 +41659,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40346,6 +41697,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40462,6 +41819,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40494,6 +41857,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40616,6 +41985,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -40669,6 +42044,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40864,6 +42245,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
@@ -40896,6 +42283,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -40959,6 +42352,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -41016,6 +42415,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -41111,6 +42516,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "python3.9",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 600,
       },
       "Type": "AWS::Lambda::Function",
@@ -41143,6 +42554,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -41206,6 +42623,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -41317,6 +42740,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -41570,6 +42999,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
 }",
           "Type": "NO_SOURCE",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::CodeBuild::Project",
       "UpdateReplacePolicy": "Delete",
@@ -41589,6 +43024,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -41912,6 +43353,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Fn::ImportValue": "CloudFrontWafStack:ExportsOutputFnGetAttWebAclCloudFrontWafStackWebAclWebAclCloudFrontWafStackAC643995Arn2B4CD922",
           },
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::CloudFront::Distribution",
       "UpdateReplacePolicy": "Delete",
@@ -42005,6 +43452,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -42191,6 +43642,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
         "Tags": [
           {
+            "Key": "app",
+            "Value": "genu",
+          },
+          {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
@@ -42334,6 +43789,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -42580,6 +44039,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
         "Tags": [
           {
+            "Key": "app",
+            "Value": "genu",
+          },
+          {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
@@ -42763,6 +44226,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "ServerSideTokenCheck": true,
           },
         ],
+        "IdentityPoolTags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::Cognito::IdentityPool",
       "UpdateReplacePolicy": "Delete",
@@ -42810,6 +44279,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -42985,6 +44460,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -43044,6 +44525,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         },
         "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UserPoolTags": {
+          "app": "genu",
+        },
         "UsernameAttributes": [
           "email",
         ],
@@ -43119,6 +44603,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "python3.13",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -43151,6 +44641,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -43330,6 +44826,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "KeyType": "RANGE",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -43376,6 +44878,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "KeyType": "RANGE",
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Delete",
@@ -43399,6 +44907,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -43431,6 +44945,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -43482,6 +45002,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 300,
       },
       "Type": "AWS::Lambda::Function",
@@ -43514,6 +45040,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -43596,6 +45128,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -43745,6 +45281,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
         "Tags": [
           {
+            "Key": "app",
+            "Value": "genu",
+          },
+          {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
           },
@@ -43879,6 +45419,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -43999,6 +45545,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "UserContextPolicy": "USER_TOKEN",
         "UserTokenConfigurations": [
           {
@@ -44054,6 +45606,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/CloudWatchLogsFullAccess",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -44132,6 +45690,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -44164,6 +45728,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -44230,6 +45800,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -44292,6 +45868,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -44323,6 +45905,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -44385,6 +45973,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -44419,6 +46013,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Type": "S3",
       },
       "Type": "AWS::Kendra::DataSource",
@@ -44453,6 +46053,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
         ],
         "Scope": "REGIONAL",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "VisibilityConfig": {
           "CloudWatchMetricsEnabled": true,
           "MetricName": "WebAcl-GenerativeAiUseCasesStackRegionalWaf2D5714A0",
@@ -44494,6 +46100,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
         },
         "HandlerConfigs": {},
         "Name": "speech-to-speech",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::AppSync::ChannelNamespace",
       "UpdateReplacePolicy": "Delete",
@@ -44542,6 +46154,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Name": "SpeechToSpeech",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::AppSync::Api",
       "UpdateReplacePolicy": "Delete",
@@ -44576,6 +46194,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -44654,6 +46278,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -44700,6 +46330,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -44732,6 +46368,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -44845,6 +46487,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -45008,6 +46654,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45040,6 +46692,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -45116,6 +46774,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45203,6 +46867,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -45256,6 +46926,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45377,6 +47053,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -45419,6 +47101,10 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -45564,6 +47250,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45596,6 +47288,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -45679,6 +47377,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45711,6 +47415,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -45829,6 +47539,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -45943,6 +47659,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             ],
           },
         ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
       "UpdateReplacePolicy": "Delete",
@@ -45975,6 +47697,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46007,6 +47735,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46121,6 +47855,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46153,6 +47893,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46267,6 +48013,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46299,6 +48051,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46412,6 +48170,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46444,6 +48208,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46561,6 +48331,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46593,6 +48369,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46710,6 +48492,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46742,6 +48530,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -46859,6 +48653,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           ],
         },
         "Runtime": "nodejs22.x",
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -46891,6 +48691,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
               ],
             ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
@@ -47025,6 +48831,12 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           {
             "AttributeName": "dataType",
             "KeyType": "RANGE",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
           },
         ],
       },
