@@ -16,19 +16,19 @@ from typing import List
 from uuid import uuid4
 
 UV_ENV = {
-    'UV_NO_CACHE': '1',
-    'UV_PYTHON': '/usr/local/bin/python',
-    'UV_TOOL_DIR': '/tmp/.uv/tool',
-    'UV_TOOL_BIN_DIR': '/tmp/.uv/tool/bin',
-    'UV_PROJECT_ENVIRONMENT': '/tmp/.venv',
-    'npm_config_cache': '/tmp/.npm',
-    'AWS_REGION': os.environ['AWS_REGION'],
-    'AWS_ACCESS_KEY_ID': os.environ['AWS_ACCESS_KEY_ID'],
-    'AWS_SECRET_ACCESS_KEY': os.environ['AWS_SECRET_ACCESS_KEY'],
-    'AWS_SESSION_TOKEN': os.environ['AWS_SESSION_TOKEN'],
+    "UV_NO_CACHE": "1",
+    "UV_PYTHON": "/usr/local/bin/python",
+    "UV_TOOL_DIR": "/tmp/.uv/tool",
+    "UV_TOOL_BIN_DIR": "/tmp/.uv/tool/bin",
+    "UV_PROJECT_ENVIRONMENT": "/tmp/.venv",
+    "npm_config_cache": "/tmp/.npm",
+    "AWS_REGION": os.environ["AWS_REGION"],
+    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
+    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
+    "AWS_SESSION_TOKEN": os.environ["AWS_SESSION_TOKEN"],
 }
 
-WORKSPACE_DIR = '/tmp/ws'
+WORKSPACE_DIR = "/tmp/ws"
 
 FIXED_SYSTEM_PROMPT = f"""## About File Output
 - You are running on AWS Lambda. Therefore, when writing files, always write them under `{WORKSPACE_DIR}`.
@@ -37,59 +37,66 @@ FIXED_SYSTEM_PROMPT = f"""## About File Output
 - If the output file is an image file, the S3 URL output must be in Markdown format.
 """
 
+
 def stream_chunk(text, trace):
-    return json.dumps({ 'text': text, 'trace': trace}, ensure_ascii=False) + '\n'
+    return json.dumps({"text": text, "trace": trace}, ensure_ascii=False) + "\n"
+
 
 def is_message(event):
-    return 'message' in event
+    return "message" in event
+
 
 def is_assistant(event):
-    return event['message']['role'] == 'assistant'
+    return event["message"]["role"] == "assistant"
+
 
 def extract_text(event):
-    contents = event['message']['content']
+    contents = event["message"]["content"]
 
     for c in contents:
-        if 'text' in c:
-            return c['text']
+        if "text" in c:
+            return c["text"]
     return None
+
 
 def extract_tool_use(event):
-    contents = event['message']['content']
+    contents = event["message"]["content"]
 
     for c in contents:
-        if 'toolUse' in c:
-            tool_use = c['toolUse']
-            return {
-                'name': tool_use['name'],
-                'input': tool_use['input']
-            }
+        if "toolUse" in c:
+            tool_use = c["toolUse"]
+            return {"name": tool_use["name"], "input": tool_use["input"]}
     return None
 
-def extract_tool_result(event):
-    res = ''
 
-    contents = event['message']['content']
+def extract_tool_result(event):
+    res = ""
+
+    contents = event["message"]["content"]
 
     for c in contents:
-        if 'toolResult' in c:
-            res_contents = c['toolResult']['content']
+        if "toolResult" in c:
+            res_contents = c["toolResult"]["content"]
 
             for t in res_contents:
-                if 'text' in t:
-                    res += t['text']
+                if "text" in t:
+                    res += t["text"]
     return res
+
 
 def create_session_id():
     return str(uuid4())
 
+
 def create_ws_directory():
-    logging.info('Create ws directory')
+    logging.info("Create ws directory")
     pathlib.Path(WORKSPACE_DIR).mkdir(exist_ok=True)
 
+
 def clean_ws_directory():
-    logging.info('Clean ws directory...')
+    logging.info("Clean ws directory...")
     shutil.rmtree(WORKSPACE_DIR)
+
 
 @tool
 def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
@@ -100,36 +107,43 @@ def upload_file_to_s3_and_retrieve_s3_url(filepath: str) -> str:
     """
     global session_id
 
-    bucket = os.environ['FILE_BUCKET']
-    region = os.environ['AWS_REGION']
+    bucket = os.environ["FILE_BUCKET"]
+    region = os.environ["AWS_REGION"]
 
     if not filepath.startswith(WORKSPACE_DIR):
-        raise ValueError(f'{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}.')
+        raise ValueError(
+            f"{filepath} does not appear to be a file under the {WORKSPACE_DIR} directory. Files to be uploaded must exist under {WORKSPACE_DIR}."
+        )
 
     filename = os.path.basename(filepath)
-    key = f'mcp/{session_id}/{filename}'
+    key = f"mcp/{session_id}/{filename}"
 
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
     s3.upload_file(filepath, bucket, key)
 
-    return f'https://{bucket}.s3.{region}.amazonaws.com/{key}'
+    return f"https://{bucket}.s3.{region}.amazonaws.com/{key}"
+
 
 app = FastAPI()
 
 # Shared MCP clients
 app.mcp_tools = None
 
-@app.get('/')
+
+@app.get("/")
 async def healthcheck():
     return Response(status_code=status.HTTP_200_OK)
+
 
 class UnrecordedMessage(BaseModel):
     role: str
     content: str
 
+
 class Model(BaseModel):
     modelId: str
     region: str
+
 
 class StreamingRequest(BaseModel):
     systemPrompt: str
@@ -137,44 +151,53 @@ class StreamingRequest(BaseModel):
     messages: List[UnrecordedMessage]
     model: Model
 
+
 def convert_unrecorded_message_to_strands_messages(messages: List[UnrecordedMessage]):
-    return list(map(lambda m: { 'role': m.role, 'content': [{ 'text': m.content }] }, messages))
+    return list(
+        map(lambda m: {"role": m.role, "content": [{"text": m.content}]}, messages)
+    )
+
 
 def safe_parse_mcp_json():
     res = []
 
-    with open('mcp.json', 'r') as f:
+    with open("mcp.json", "r") as f:
         mcp_json = json.loads(f.read())
 
-        if 'mcpServers' not in mcp_json:
-            raise Exception('mcpServers not defined in mcp.json')
+        if "mcpServers" not in mcp_json:
+            raise Exception("mcpServers not defined in mcp.json")
 
-        mcp_servers = mcp_json['mcpServers']
+        mcp_servers = mcp_json["mcpServers"]
         mcp_server_names = mcp_servers.keys()
 
         for server_name in mcp_server_names:
             server = mcp_servers[server_name]
-            res.append({
-                'command': server['command'],
-                'args': server['args'] if 'args' in server else [],
-                'env': server['env'] if 'env' in server else {},
-            })
+            res.append(
+                {
+                    "command": server["command"],
+                    "args": server["args"] if "args" in server else [],
+                    "env": server["env"] if "env" in server else {},
+                }
+            )
 
     return res
+
 
 def make_mcp_client(server):
     def spawn():
         return stdio_client(
             StdioServerParameters(
-                command=server['command'],
-                args=server['args'],
+                command=server["command"],
+                args=server["args"],
                 env={
                     **UV_ENV,
-                    **server['env'],
+                    **server["env"],
                 },
             )
         )
+
     return MCPClient(spawn)
+
 
 def load_mcp_tools():
     mcp_servers = safe_parse_mcp_json()
@@ -188,7 +211,8 @@ def load_mcp_tools():
 
     app.mcp_tools = mcp_tools
 
-@app.post('/streaming')
+
+@app.post("/streaming")
 async def streaming(request: StreamingRequest):
     if app.mcp_tools is None:
         load_mcp_tools()
@@ -198,7 +222,7 @@ async def streaming(request: StreamingRequest):
 
         session_id = create_session_id()
 
-        logging.info(f'New session {session_id}')
+        logging.info(f"New session {session_id}")
 
         create_ws_directory()
 
@@ -207,12 +231,11 @@ async def streaming(request: StreamingRequest):
         )
 
         bedrock_model = BedrockModel(
-            model_id=request.model.modelId,
-            boto_session=session
+            model_id=request.model.modelId, boto_session=session
         )
 
         agent = Agent(
-            system_prompt=f'{request.systemPrompt}\n{FIXED_SYSTEM_PROMPT}',
+            system_prompt=f"{request.systemPrompt}\n{FIXED_SYSTEM_PROMPT}",
             messages=convert_unrecorded_message_to_strands_messages(request.messages),
             model=bedrock_model,
             tools=app.mcp_tools + [upload_file_to_s3_and_retrieve_s3_url],
@@ -226,30 +249,35 @@ async def streaming(request: StreamingRequest):
                     tool_use = extract_tool_use(event)
 
                     if text is not None and tool_use is not None:
-                        yield stream_chunk('', f'{text}\n')
-                        yield stream_chunk('', f'```\n{tool_use["name"]}: {tool_use["input"]}\n```\n')
+                        yield stream_chunk("", f"{text}\n")
+                        yield stream_chunk(
+                            "", f"```\n{tool_use['name']}: {tool_use['input']}\n```\n"
+                        )
                     elif text is not None:
                         yield stream_chunk(text, None)
                     else:
-                        yield stream_chunk('', f'```\n{tool_use["name"]}: {tool_use["input"]}\n```\n')
+                        yield stream_chunk(
+                            "", f"```\n{tool_use['name']}: {tool_use['input']}\n```\n"
+                        )
                 else:
                     tool_result = extract_tool_result(event)
                     if len(tool_result) > 200:
-                        tool_result = tool_result[:200] + '...'
-                    yield stream_chunk('', f'```\n{tool_result}\n```\n')
+                        tool_result = tool_result[:200] + "..."
+                    yield stream_chunk("", f"```\n{tool_result}\n```\n")
 
         clean_ws_directory()
 
     return StreamingResponse(
         generate(),
-        media_type='text/event-stream',
+        media_type="text/event-stream",
     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    uvicorn.run(app, host='0.0.0.0', port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

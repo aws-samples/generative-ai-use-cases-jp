@@ -32,7 +32,6 @@ const ModalSystemContext: React.FC<Props> = (props) => {
           placeholder={t('common.enter_text')}
           value={props.saveSystemContextTitle}
           onChange={props.setSaveSystemContextTitle}
-          maxHeight={-1}
           className="text-aws-font-color"
         />
 

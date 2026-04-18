@@ -8,7 +8,12 @@ import AgentForm, {
 import AgentTester from '../../components/agentBuilder/AgentTester';
 import { useAgentBuilder } from '../../hooks/agentBuilder/useAgentBuilder';
 import useAgentBuilderList from '../../hooks/agentBuilder/useAgentBuilderList';
-import { PiRobot as RobotIcon, PiArrowLeft as BackIcon } from 'react-icons/pi';
+import {
+  PiRobot as RobotIcon,
+  PiArrowLeft as BackIcon,
+  PiPencilSimple,
+  PiEye,
+} from 'react-icons/pi';
 
 const AgentBuilderEditPage: React.FC = () => {
   const { t } = useTranslation();
@@ -25,6 +30,9 @@ const AgentBuilderEditPage: React.FC = () => {
   const [currentFormData, setCurrentFormData] = useState<AgentFormData | null>(
     null
   );
+
+  // View toggle state for responsive layout
+  const [activeView, setActiveView] = useState<'editor' | 'preview'>('editor');
 
   const handleSave = useCallback(
     async (formData: AgentFormData) => {
@@ -118,24 +126,55 @@ const AgentBuilderEditPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8">
+    <div className="w-full px-8 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button outlined onClick={handleCancel}>
-            <BackIcon className="mr-2 h-4 w-4" />
-            {t('common.back')}
+            <BackIcon className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t('common.back')}</span>
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
           </div>
         </div>
+
+        {/* View Toggle for small screens - aligned with title on right */}
+        <div className="lg:hidden">
+          <div className="flex rounded border text-xs font-bold">
+            <div
+              className={`my-1 ml-1 flex cursor-pointer items-center rounded px-2 py-1 ${
+                activeView === 'editor'
+                  ? 'bg-gray-600 text-white'
+                  : 'text-gray-600'
+              }`}
+              onClick={() => setActiveView('editor')}>
+              <PiPencilSimple className="text-base sm:mr-1" />
+              <span className="hidden sm:inline">
+                {t('agent_builder.editor')}
+              </span>
+            </div>
+            <div
+              className={`my-1 mr-1 flex cursor-pointer items-center rounded px-2 py-1 ${
+                activeView === 'preview'
+                  ? 'bg-gray-600 text-white'
+                  : 'text-gray-600'
+              }`}
+              onClick={() => setActiveView('preview')}>
+              <PiEye className="text-base sm:mr-1" />
+              <span className="hidden sm:inline">
+                {t('agent_builder.preview')}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
+      {/* Content - Large screens: side-by-side, Small screens: toggle view */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* Agent Configuration */}
-        <div className="space-y-6">
+        {/* Agent Configuration - Always visible on large screens, toggle on small */}
+        <div
+          className={`space-y-6 ${activeView !== 'editor' ? 'hidden lg:block' : ''}`}>
           <AgentForm
             initialData={agent || undefined}
             onSave={handleSave}
@@ -147,9 +186,10 @@ const AgentBuilderEditPage: React.FC = () => {
           />
         </div>
 
-        {/* Agent Testing */}
+        {/* Agent Testing - Always visible on large screens, toggle on small */}
         {(currentFormData || agent) && (
-          <div className="space-y-6">
+          <div
+            className={`space-y-6 ${activeView !== 'preview' ? 'hidden lg:block' : ''}`}>
             <AgentTester
               agent={{
                 // Use current form data if available, otherwise use existing agent data

@@ -200,13 +200,16 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   }, [selectItems, values, setValue]);
 
   useEffect(() => {
-    setModelId(
-      availableModels.includes(props.modelId ?? '')
-        ? props.modelId!
-        : availableModels[0]
-    );
+    const targetModelId =
+      props.fixedModelId || props.modelId || availableModels[0];
+
+    if (availableModels.includes(targetModelId)) {
+      setModelId(targetModelId);
+    } else {
+      setModelId(availableModels[0]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableModels, props.modelId, pathname]);
+  }, [availableModels, props.modelId, props.fixedModelId, pathname]);
 
   useEffect(() => {
     setTypingTextInput(text);

@@ -316,6 +316,12 @@ drawer:
   generative_ai: (Generative AI)
   tools: Công cụ
   use_cases: Use case
+error:
+  streamingError:
+    ACCESS_DENIED: Mô hình được chọn chưa được kích hoạt. Vui lòng kích hoạt mô hình trong bảng điều khiển Amazon Bedrock.
+    PAYLOAD_TOO_LARGE: Tệp đính kèm quá lớn. Vui lòng giảm kích thước tệp hoặc số lượng tệp đính kèm và thử lại.
+    THROTTLING: Máy chủ hiện đang có lưu lượng truy cập cao. Vui lòng thử lại sau.
+    UNKNOWN_ERROR: Đã xảy ra lỗi. Vui lòng thử lại hoặc liên hệ quản trị viên.
 feedback:
   additional_feedback: Nếu bạn có phản hồi khác, vui lòng nhập. (tùy chọn)
   reason_error: Vui lòng chọn lý do.
@@ -563,7 +569,9 @@ meetingMinutes:
   generating: Đang tạo biên bản...
   generation_error: Không thể tạo biên bản cuộc họp. Vui lòng thử lại.
   generation_frequency: Tần suất tạo
+  generation_panel: Tạo biên bản họp
   generation_success: Tạo biên bản cuộc họp thành công
+  hide_prompt: ▼ Ẩn prompt
   language: Ngôn ngữ phiên âm
   language_auto: Tự động phát hiện
   language_chinese: Tiếng Trung
@@ -580,21 +588,35 @@ meetingMinutes:
   next_generation_in: 'Tạo tiếp theo trong : '
   no_transcript: Không có bản chuyển đổi
   partial_indicator: (...)
+  prompt_title_placeholder: Nhập tên cho lời nhắc này...
   record_transcribe: Ghi âm và chuyển đổi
+  save_as_prompt: Lưu làm lời nhắc tùy chỉnh
+  saved_prompt_body: Nội dung lời nhắc
+  saved_prompt_created: Đã lưu lời nhắc tùy chỉnh
+  saved_prompt_delete_confirm: Xóa lời nhắc này?
+  saved_prompt_deleted: Đã xóa lời nhắc tùy chỉnh
+  saved_prompt_prefix: ★
+  saved_prompt_title: Tiêu đề lời nhắc
+  saved_prompt_updated: Đã cập nhật lời nhắc tùy chỉnh
   screen_audio_error: Lỗi âm thanh màn hình
   speech_recognition: Nhận dạng giọng nói
   style: Kiểu biên bản
   style_custom: Tùy chỉnh
   style_detail: Chi tiết
+  style_diagram: Sơ đồ
   style_faq: FAQ
   style_newspaper: Báo chí
   style_summary: Tóm tắt
   style_transcription: Chuyển đổi
+  style_whiteboard: Bảng trắng
   title: Trình tạo biên bản cuộc họp
   transcript: Bản chuyển đổi
+  transcription_panel: Phiên âm
+  view_prompt: ▶ Xem prompt
 model:
   parameters:
     reasoning_budget: Token budget for extended thinking
+    reasoning_effort: Thinking effort level
 navigation:
   agentChat: Agent Chat
   chat: Chat
@@ -653,6 +675,18 @@ rag:
   please_refer: Vui lòng tham khảo.
   retrieving: Đang lấy tài liệu tham khảo từ Kendra...
   title: RAG Chat
+research:
+  description: Thực hiện các nhiệm vụ nghiên cứu đa dạng trên các ngành công nghiệp bằng cách sử dụng tìm kiếm web và tạo báo cáo nghiên cứu chi tiết.
+  general_research: Nghiên cứu chung
+  general_research_desc: Nghiên cứu thông tin trên nhiều lĩnh vực và cung cấp phân tích toàn diện
+  label: Nghiên cứu
+  mini_research: Nghiên cứu nhanh
+  mini_research_desc: Nghiên cứu nhanh các điểm chính và cung cấp câu trả lời ngắn gọn
+  select_mode: Chọn chế độ
+  start_conversation: Bắt đầu trò chuyện với Research Agent
+  technical_research: Nghiên cứu kỹ thuật
+  technical_research_desc: Thực hiện nghiên cứu và phân tích kỹ thuật chi tiết
+  title: Nghiên cứu
 setting:
   ai: Generative AI
   ai_items:

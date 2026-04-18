@@ -19,6 +19,12 @@ import {
 import { GenerateImageParams } from './image';
 import { GenerateVideoParams, VideoJob } from './video';
 import { ShareId, UserIdAndChatId } from './share';
+import { MeetingMinutesCustomPrompt } from './meetingMinutesCustomPrompt';
+
+export type StreamingErrorCode =
+  | 'THROTTLING'
+  | 'ACCESS_DENIED'
+  | 'UNKNOWN_ERROR';
 
 export type StreamingChunk = {
   text: string;
@@ -26,6 +32,7 @@ export type StreamingChunk = {
   metadata?: Metadata;
   stopReason?: StopReason | 'error';
   sessionId?: string;
+  errorCode?: StreamingErrorCode;
 };
 
 export type Pagination<T> = {
@@ -225,4 +232,18 @@ export type GetFileUploadSignedUrlResponse = string;
 
 export type UploadFileRequest = {
   file: File;
+};
+
+export type CreateMeetingMinutesCustomPromptRequest = {
+  meetingMinutesCustomPromptTitle: string;
+  meetingMinutesCustomPromptBody: string;
+};
+
+export type UpdateMeetingMinutesCustomPromptRequest = {
+  meetingMinutesCustomPromptTitle: string;
+  meetingMinutesCustomPromptBody: string;
+};
+
+export type UpdateMeetingMinutesCustomPromptResponse = {
+  meetingMinutesCustomPrompt: MeetingMinutesCustomPrompt;
 };

@@ -21,8 +21,9 @@ export type UsecaseConverseInferenceParams = {
 
 export type AdditionalModelRequestFields = {
   reasoningConfig: {
-    type: 'enabled' | 'disabled';
+    type: 'enabled' | 'disabled' | 'adaptive';
     budgetTokens: number;
+    effort?: 'max' | 'high' | 'medium' | 'low';
   };
 };
 

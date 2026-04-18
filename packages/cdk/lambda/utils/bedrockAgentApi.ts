@@ -30,8 +30,35 @@ import {
 const MODEL_REGION = process.env.MODEL_REGION as string;
 const s3Client = new S3Client({});
 
-// Agent information
-const agentMap: AgentMap = JSON.parse(process.env.AGENT_MAP || '{}');
+// Agent information - create AgentMap from both agent sources at runtime
+const createAgentMap = (): AgentMap => {
+  try {
+    const builtinAgentsJson = process.env.BUILTIN_AGENTS_JSON || '[]';
+    const customAgentsJson = process.env.CUSTOM_AGENTS_JSON || '[]';
+
+    const builtinAgents = JSON.parse(builtinAgentsJson);
+    const customAgents = JSON.parse(customAgentsJson);
+    const allAgents = [...builtinAgents, ...customAgents];
+
+    const agentMap: AgentMap = {};
+
+    for (const agent of allAgents) {
+      if (agent.displayName && agent.agentId) {
+        agentMap[agent.displayName] = {
+          agentId: agent.agentId,
+          aliasId: agent.aliasId,
+        };
+      }
+    }
+
+    return agentMap;
+  } catch (error) {
+    console.warn('Failed to parse agents JSON:', error);
+    return {};
+  }
+};
+
+const agentMap: AgentMap = createAgentMap();
 type AgentConfig = {
   codeInterpreterEnabled: boolean;
 };
@@ -361,27 +388,27 @@ const bedrockAgentApi: ApiInterface = {
         }
       }
     } catch (e) {
+      console.error(e);
       if (
         e instanceof ThrottlingException ||
         e instanceof ServiceQuotaExceededException
       ) {
         yield streamingChunk({
-          text: 'The server is currently experiencing high access. Please try again later.',
+          text: '',
           stopReason: 'error',
+          errorCode: 'THROTTLING',
         });
       } else if (e instanceof DependencyFailedException) {
-        const modelAccessURL = `https://${process.env.MODEL_REGION}.console.aws.amazon.com/bedrock/home?region=${process.env.MODEL_REGION}#/modelaccess`;
         yield streamingChunk({
-          text: `The selected model is not enabled. Please enable the model in the [Bedrock console Model Access screen](${modelAccessURL}).`,
+          text: '',
           stopReason: 'error',
+          errorCode: 'ACCESS_DENIED',
         });
       } else {
-        console.error(e);
         yield streamingChunk({
-          text:
-            'An error occurred. Please report the following error to the administrator.\n' +
-            e,
+          text: '',
           stopReason: 'error',
+          errorCode: 'UNKNOWN_ERROR',
         });
       }
     }

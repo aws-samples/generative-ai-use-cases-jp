@@ -11,7 +11,7 @@ import {
   HeadersReferrerPolicy,
   IDistribution,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { NodejsBuild } from 'deploy-time-build';
+import { NodejsBuild } from '@cdklabs/deploy-time-build';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -21,7 +21,6 @@ import {
   Flow,
   HiddenUseCases,
   ModelConfiguration,
-  AgentInfo,
 } from 'generative-ai-use-cases';
 import { ComputeType } from 'aws-cdk-lib/aws-codebuild';
 
@@ -47,7 +46,8 @@ export interface WebProps {
   readonly samlAuthEnabled: boolean;
   readonly samlCognitoDomainName?: string | null;
   readonly samlCognitoFederatedIdentityProviderName?: string | null;
-  readonly agents: AgentInfo[];
+  readonly builtinAgentsJson: string;
+  readonly customAgentsJson: string;
   readonly inlineAgents: boolean;
   readonly cert?: ICertificate;
   readonly hostName?: string | null;
@@ -62,14 +62,14 @@ export interface WebProps {
   readonly mcpEndpoint: string | null;
   readonly mcpServersConfig?: string;
   readonly webBucket?: s3.Bucket;
-  readonly cognitoUserPoolProxyEndpoint?: string;
-  readonly cognitoIdentityPoolProxyEndpoint?: string;
   readonly agentCoreEnabled: boolean;
   readonly agentCoreGenericRuntime?: AgentCoreConfiguration;
   readonly agentBuilderEnabled: boolean;
   readonly agentCoreAgentBuilderRuntime?: AgentCoreConfiguration;
   readonly agentCoreExternalRuntimes: AgentCoreConfiguration[];
   readonly agentCoreRegion?: string;
+  readonly researchAgentEnabled: boolean;
+  readonly researchAgentRuntime?: AgentCoreConfiguration;
   readonly brandingConfig?: {
     logoPath?: string;
     title?: string;
@@ -257,7 +257,7 @@ export class Web extends Construct {
       outputSourceDirectory: './packages/web/dist',
       buildCommands: ['npm ci', 'npm run web:build'],
       buildEnvironment: {
-        NODE_OPTIONS: '--max-old-space-size=4096', // Memory for CodeBuild at deployment
+        NODE_OPTIONS: '--max-old-space-size=4096',
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
         VITE_APP_USER_POOL_ID: props.userPoolId,
@@ -281,7 +281,8 @@ export class Web extends Construct {
         VITE_APP_SAML_COGNITO_DOMAIN_NAME: props.samlCognitoDomainName ?? '',
         VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME:
           props.samlCognitoFederatedIdentityProviderName ?? '',
-        VITE_APP_AGENTS: JSON.stringify(props.agents),
+        VITE_APP_BUILTIN_AGENTS_JSON: props.builtinAgentsJson,
+        VITE_APP_CUSTOM_AGENTS_JSON: props.customAgentsJson,
         VITE_APP_INLINE_AGENTS: props.inlineAgents.toString(),
         VITE_APP_USE_CASE_BUILDER_ENABLED:
           props.useCaseBuilderEnabled.toString(),
@@ -295,10 +296,6 @@ export class Web extends Construct {
         VITE_APP_MCP_ENABLED: props.mcpEnabled.toString(),
         VITE_APP_MCP_ENDPOINT: props.mcpEndpoint ?? '',
         VITE_APP_MCP_SERVERS_CONFIG: props.mcpServersConfig ?? '',
-        VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT:
-          props.cognitoUserPoolProxyEndpoint ?? '',
-        VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT:
-          props.cognitoIdentityPoolProxyEndpoint ?? '',
         VITE_APP_AGENT_CORE_ENABLED: props.agentCoreEnabled.toString(),
         VITE_APP_AGENT_CORE_GENERIC_RUNTIME: JSON.stringify(
           props.agentCoreGenericRuntime
@@ -310,6 +307,10 @@ export class Web extends Construct {
         ),
         VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: JSON.stringify(
           props.agentCoreExternalRuntimes
+        ),
+        VITE_APP_RESEARCH_AGENT_ENABLED: props.researchAgentEnabled.toString(),
+        VITE_APP_RESEARCH_AGENT_RUNTIME: JSON.stringify(
+          props.researchAgentRuntime
         ),
         VITE_APP_BRANDING_LOGO_PATH: props.brandingConfig?.logoPath ?? '',
         VITE_APP_BRANDING_TITLE: props.brandingConfig?.title ?? '',

@@ -246,9 +246,10 @@ npx -w packages/cdk cdk bootstrap --region us-east-1
 
 1. [Knowledge Base のコンソール画面](https://console.aws.amazon.com/bedrock/home#/knowledge-bases) を開く
 1. generative-ai-use-cases-jp をクリック
-1. s3-data-source を選択肢、Sync をクリック
+1. s3-data-source を選択し、Sync をクリック
+1. web-crawler-data-source を選択し、Sync をクリック
 
-Status が Available になれば完了です。S3 に保存されているファイルが取り込まれており、Knowledge Base から検索できます。
+それぞれの Status が Available になれば完了です。S3 に保存されているファイルおよび Web Crawler で取得したウェブページが取り込まれ、Knowledge Base から検索できます。
 
 > [!NOTE]
 > RAG チャット (Knowledge Base) の設定を有効後に、再度無効化する場合は、`ragKnowledgeBaseEnabled: false` にして再デプロイすれば RAG チャット (Knowledge Base) は無効化されますが、`RagKnowledgeBaseStack` 自体は残ります。マネージメントコンソールを開き、modelRegion の CloudFormation から `RagKnowledgeBaseStack` というスタックを削除することで完全に消去ができます。
@@ -351,7 +352,7 @@ chunkingConfiguration: {
 
 RagKnowledgeBaseStack の削除に伴い、**RAG チャット用の S3 バケットや格納されている RAG 用のファイルが削除**されます。
 S3 バケット内にアップロードした RAG 用のファイルが存在する場合は、退避したあとに再度アップロードしてください。
-また、前述した手順に従い Data source を再度 Sync してください。
+また、前述した手順に従い Data source (s3-data-source, web-crawler-data-source) を再度 Sync してください。
 
 #### OpenSearch Service の Index をマネージメントコンソールで確認する方法
 
@@ -412,6 +413,34 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "agentEnabled": true
+  }
+}
+```
+
+#### エージェントの基盤モデルのカスタマイズ
+
+Code Interpreter および検索エージェントで使用する基盤モデルをカスタマイズできます。デフォルトでは `global.anthropic.claude-sonnet-4-6` が使用されます。
+
+- `agentFoundationModel` : エージェントで利用するモデルを指定してください。Bedrock Agent がサポートするモデルのみ利用可能です。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
   }
 }
 ```
@@ -582,6 +611,48 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### リサーチエージェントユースケースの有効化
+
+リサーチエージェントは、Web 検索や AWS ドキュメント検索を活用した高度なリサーチ機能を提供します。
+
+#### 前提条件
+
+- **Brave Search API キー（必須）**: AWS Marketplace から取得
+- **Tavily API キー（オプション）**: 追加の検索機能を利用する場合
+
+> [!TIP]
+> Brave Search API キーの取得方法については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
+
+#### parameter.ts での設定例
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // オプション
+  },
+};
+```
+
+**設定パラメータの説明**:
+
+- `researchAgentEnabled`: リサーチエージェント機能を有効化（Web UI表示 + Bedrock AgentCore Runtime作成）
+
+#### cdk.json での設定例
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+詳細な手順については、[リサーチエージェントデプロイガイド](./DEPLOY_RESEARCH_USECASE.md)を参照してください。
+
 ### MCP チャットユースケースの有効化
 
 > [!WARNING]
@@ -703,15 +774,18 @@ AgentCore で作成したエージェントと連携するユースケースで�
 `createGenericAgentCoreRuntime` を有効化するとデフォルトの AgentCore Runtime がデプロイされます。
 デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
 
-AgentCore で使用できるデフォルトのエージェントは、[mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json) で定義する MCP サーバーを利用することができます。
-このデフォルトのエージェントは Agent Builder で利用でき、ユーザーは管理者が許可した MCP から任意のエージェントを作成することができます。
+AgentCore で使用できるデフォルトのエージェントは、[generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json) で定義する MCP サーバーを利用することができます。
 
 デフォルトで定義されている MCP サーバーは、AWS に関連する MCP サーバー及び、現在時刻に関連する MCP サーバーです。
 詳細は[こちら](https://awslabs.github.io/mcp/)のドキュメントをご参照ください。
-MCP サーバーを追加する場合は上述の `mcp.json` に追記してください。
-ただし、`uvx` 以外で起動する MCP サーバーは Dockefile の書き換え等開発が必要です。
+MCP サーバーを追加する場合は上述の `generic/mcp.json` に追記してください。
 
 `agentCoreExternalRuntimes` で外部で作成した AgentCore Runtime を利用することが可能です。
+
+AgentCore Runtime から AWS 外部のサービスにアクセスする場合、AgentCore Gateway を使用します。
+`agentCoreGatewayArns` に Gateway の ARN を指定することで、最小権限の原則に従った IAM ポリシーが設定されます。
+設定後、MCP 設定で `mcp-proxy-for-aws` を使用してエンドポイントを指定します。
+詳細は [mcp-proxy-for-aws のドキュメント](https://github.com/aws/mcp-proxy-for-aws)を参照してください。
 
 AgentCore ユースケースを有効化するためには、`docker` コマンドが実行可能である必要があります。
 
@@ -740,6 +814,9 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
     agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
     agentCoreExternalRuntimes: [
       {
         name: 'AgentCore1',
@@ -759,6 +836,9 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "createGenericAgentCoreRuntime": true,
     "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ],
     "agentCoreExternalRuntimes": [
       {
         "name": "AgentCore1",
@@ -806,7 +886,6 @@ VPC モードを使用する場合は、以下のパラメータを設定して�
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
-    agentBuilderEnabled: true,
     agentCoreVpcId: 'vpc-xxxxxxxxx',
     agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
   },
@@ -820,7 +899,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "createGenericAgentCoreRuntime": true,
-    "agentBuilderEnabled": true,
     "agentCoreVpcId": "vpc-xxxxxxxxx",
     "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
   }
@@ -829,6 +907,51 @@ const envs: Record<string, Partial<StackInput>> = {
 
 > [!WARNING]
 > VPC モードを使用する場合、例えば PRIVATE から PUBLIC への変更により AgentCore Runtime 削除時にセキュリティグループが自動削除されません。AgentCore Runtime が作成する AWS マネージドな ENI がセキュリティグループを参照するため、CloudFormation では削除できません。AgentCore Runtime 削除後、マネージド ENI が自動削除されるまで待ってから、手動でセキュリティグループを削除してください。削除が必要なセキュリティグループ ID は CloudFormation の出力に表示されます。
+
+### AgentBuilder ユースケースの有効化
+
+ユーザーがシステムプロンプトと任意の MCP を設定することでユースケースごとの Agent を自由に作成できるユースケースです。(Experimental: 予告なく破壊的変更を行うことがあります)
+
+AgentCore ユースケースと同様に [agent-builder/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/agent-builder/mcp.json) にて管理者側で MCP を事前に登録します。管理者が登録したものからユーザーが好きな MCP を選択式で利用できます。
+
+`agentBuilderEnabled` を有効化すると Agent Builder 向けの AgentCore Runtime がデプロイされます。
+デフォルトでは `modelRegion` にデプロイされますが、`agentCoreRegion` を指定し上書きすることが可能です。
+
+AWS 外部のサービスにアクセスする場合、AgentCore Gateway を使用します。
+`agentCoreGatewayArns` に Gateway の ARN を指定することで、最小権限の原則に従った IAM ポリシーが設定されます。
+設定後、MCP 設定で `mcp-proxy-for-aws` を使用してエンドポイントを指定します。
+詳細は [mcp-proxy-for-aws のドキュメント](https://github.com/aws/mcp-proxy-for-aws)を参照してください。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentBuilderEnabled: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "agentBuilderEnabled": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ]
+  }
+}
+```
 
 ### 音声チャットユースケースの有効化
 
@@ -864,10 +987,14 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
-"global.anthropic.claude-haiku-4-5-20251001-v1:0"
+"global.anthropic.claude-haiku-4-5-20251001-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
@@ -878,6 +1005,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -892,11 +1021,13 @@ const envs: Record<string, Partial<StackInput>> = {
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "jp.anthropic.claude-sonnet-4-5-20250929-v1:0",
-"jp.anthropic.claude-haiku-4-5-20251001-v1:0"
+"jp.anthropic.claude-haiku-4-5-20251001-v1:0",
+"qwen.qwen3-vl-235b-a22b",
 "us.meta.llama4-maverick-17b-instruct-v1:0",
 "us.meta.llama4-scout-17b-instruct-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"mistral.magistral-small-2509",
 "us.mistral.pixtral-large-2502-v1:0",
 "eu.mistral.pixtral-large-2502-v1:0",
 "amazon.nova-pro-v1:0",
@@ -904,10 +1035,17 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.amazon.nova-premier-v1:0",
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "apac.amazon.nova-pro-v1:0",
-"apac.amazon.nova-lite-v1:0"
+"apac.amazon.nova-lite-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 これらのいずれかが `modelIds` に定義されている必要があります。
@@ -1026,7 +1164,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 `parameter.ts` もしくは `cdk.json` の `modelRegion`, `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds`, `speechToSpeechModelIds` でモデルとモデルのリージョンを指定します。`modelIds` と `imageGenerationModelIds` と `videoGenerationModelIds` と `speechToSpeechModelIds` は指定したリージョンで利用できるモデルの中から利用したいモデルのリストで指定してください。AWS ドキュメントに、[モデルの一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)と[リージョン別のモデルサポート一覧](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html)があります。
 
-また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{us|eu|apac}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{us|eu|apac}` と一致している必要があります。
+また、[cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html)のモデルに対応しています。cross-region inference のモデルは `{global|us|eu|apac|jp|au}.{model-provider}.{model-name}` で表されるモデルで、設定した modelRegion で指定したリージョンの `{global|us|eu|apac|jp|au}` と一致している必要があります。
 
 (例) `modelRegion` が `us-east-1` の場合、`us.anthropic.claude-3-5-sonnet-20240620-v1:0` は OK だが、`eu.anthropic.claude-3-5-sonnet-20240620-v1:0` は NG です。
 
@@ -1039,9 +1177,13 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -1052,6 +1194,10 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"au.anthropic.claude-opus-4-6-v1",
+"au.anthropic.claude-sonnet-4-6",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
 "eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -1069,6 +1215,8 @@ const envs: Record<string, Partial<StackInput>> = {
 "qwen.qwen3-32b-v1:0",
 "qwen.qwen3-coder-480b-a35b-v1:0",
 "qwen.qwen3-coder-30b-a3b-v1:0",
+"qwen.qwen3-next-80b-a3b",
+"qwen.qwen3-vl-235b-a22b",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
 "amazon.titan-text-premier-v1:0",
@@ -1093,6 +1241,11 @@ const envs: Record<string, Partial<StackInput>> = {
 "eu.mistral.pixtral-large-2502-v1:0",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2",
+"mistral.mistral-large-3-675b-instruct",
+"mistral.ministral-3-3b-instruct",
+"mistral.ministral-3-8b-instruct",
+"mistral.ministral-3-14b-instruct",
+"mistral.magistral-small-2509",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
 "amazon.nova-micro-v1:0",
@@ -1100,14 +1253,24 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
 "us.amazon.nova-micro-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "eu.amazon.nova-micro-v1:0",
 "apac.amazon.nova-pro-v1:0",
 "apac.amazon.nova-lite-v1:0",
 "apac.amazon.nova-micro-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
 "openai.gpt-oss-120b-1:0",
-"openai.gpt-oss-20b-1:0"
+"openai.gpt-oss-20b-1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"minimax.minimax-m2",
+"moonshot.kimi-k2-thinking",
+"nvidia.nemotron-nano-9b-v2",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 このソリューションが対応している speech-to-speech モデルは以下です。

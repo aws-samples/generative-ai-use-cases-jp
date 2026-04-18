@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import boto3
@@ -26,6 +27,25 @@ except ImportError as e:
 logger = logging.getLogger(__name__)
 
 
+def _create_mcp_client(server_name: str, server_config: dict, uv_env: dict) -> tuple[str, MCPClient | None]:
+    """Create and start an MCP client (for parallel execution)"""
+    try:
+        client = MCPClient(
+            lambda: stdio_client(
+                StdioServerParameters(
+                    command=server_config["command"],
+                    args=server_config.get("args", []),
+                    env={**uv_env, **server_config.get("env", {})},
+                )
+            )
+        )
+        client.start()
+        return server_name, client
+    except Exception as e:
+        logger.error(f"Error creating MCP client for {server_name}: {e}")
+        return server_name, None
+
+
 class ToolManager:
     """Manages tools including MCP tools and built-in tools."""
 
@@ -45,42 +65,27 @@ class ToolManager:
             return self.mcp_tools
 
         try:
-            # First try to load from environment variable
-            mcp_servers_env = os.environ.get("MCP_SERVERS")
-            if mcp_servers_env:
-                logger.info("Loading MCP configuration from environment variable")
-                mcp_servers = json.loads(mcp_servers_env)
-            else:
-                # Fallback to mcp.json file
-                logger.info("Loading MCP configuration from mcp.json file")
-                mcp_config_path = "mcp.json"
-                if not os.path.exists(mcp_config_path):
-                    logger.warning(f"MCP configuration file not found at {mcp_config_path}")
-                    self.mcp_tools = []
-                    return self.mcp_tools
+            # Log UV environment configuration
+            uv_env = get_uv_environment()
 
+            # Load from MCP_CONFIG_PATH
+            mcp_config_path = os.environ.get("MCP_CONFIG_PATH")
+            if mcp_config_path and os.path.exists(mcp_config_path):
+                logger.info(f"Loading MCP configuration from {mcp_config_path}")
                 with open(mcp_config_path) as f:
                     mcp_config = json.load(f)
                 mcp_servers = mcp_config.get("mcpServers", {})
+            else:
+                return []
 
             mcp_clients = []
-            uv_env = get_uv_environment()
 
-            for server_name, server in mcp_servers.items():
-                try:
-                    client = MCPClient(
-                        lambda server=server: stdio_client(
-                            StdioServerParameters(
-                                command=server["command"],
-                                args=server.get("args", []),
-                                env={**uv_env, **server.get("env", {})},
-                            )
-                        )
-                    )
-                    client.start()
-                    mcp_clients.append(client)
-                except Exception as e:
-                    logger.error(f"Error creating MCP client for {server_name}: {e}")
+            with ThreadPoolExecutor() as executor:
+                futures = [executor.submit(_create_mcp_client, name, config, uv_env) for name, config in mcp_servers.items()]
+                for future in futures:
+                    name, client = future.result()
+                    if client:
+                        mcp_clients.append(client)
 
             # Flatten the tools
             self.mcp_tools = sum([c.list_tools_sync() for c in mcp_clients], [])
@@ -98,45 +103,31 @@ class ToolManager:
             return []
 
         try:
-            # First try to load from environment variable
-            mcp_servers_env = os.environ.get("MCP_SERVERS")
-            if mcp_servers_env:
-                logger.info("Loading MCP configuration from environment variable")
-                available_servers = json.loads(mcp_servers_env)
-            else:
-                # Fallback to mcp.json file
-                logger.info("Loading MCP configuration from mcp.json file")
-                mcp_config_path = "mcp.json"
-                logger.info(f"Loading MCP configuration from: {mcp_config_path}")
+            # Log UV environment configuration
+            uv_env = get_uv_environment()
+
+            # Load from MCP_CONFIG_PATH
+            mcp_config_path = os.environ.get("MCP_CONFIG_PATH")
+            if mcp_config_path and os.path.exists(mcp_config_path):
+                logger.info(f"Loading MCP configuration from {mcp_config_path}")
                 with open(mcp_config_path) as f:
                     mcp_config = json.load(f)
                 available_servers = mcp_config.get("mcpServers", {})
+            else:
+                return []
 
             logger.info(f"Found {len(available_servers)} available MCP servers")
             mcp_clients = []
-            uv_env = get_uv_environment()
 
-            for server_name in server_names:
-                if server_name not in available_servers:
-                    logger.warning(f"MCP server '{server_name}' not found in configuration")
-                    continue
+            servers_to_load = {name: available_servers[name] for name in server_names if name in available_servers}
 
-                server_config = available_servers[server_name]
-                try:
-                    client = MCPClient(
-                        lambda server=server_config: stdio_client(
-                            StdioServerParameters(
-                                command=server["command"],
-                                args=server.get("args", []),
-                                env={**uv_env, **server.get("env", {})},
-                            )
-                        )
-                    )
-                    client.start()
-                    mcp_clients.append(client)
-                    logger.info(f"Successfully loaded MCP server: {server_name}")
-                except Exception as e:
-                    logger.error(f"Error creating MCP client for {server_name}: {e}")
+            with ThreadPoolExecutor() as executor:
+                futures = [executor.submit(_create_mcp_client, name, config, uv_env) for name, config in servers_to_load.items()]
+                for future in futures:
+                    name, client = future.result()
+                    if client:
+                        mcp_clients.append(client)
+                        logger.info(f"Successfully loaded MCP server: {name}")
 
             # Flatten the tools
             dynamic_tools = sum([c.list_tools_sync() for c in mcp_clients], [])

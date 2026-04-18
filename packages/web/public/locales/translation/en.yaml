@@ -40,6 +40,7 @@ agent_builder:
   description_placeholder: Describe what your agent does...
   description_too_long: Description must be 500 characters or less
   edit_agent: Edit Agent
+  editor: Editor
   enable_code_execution: Enabling code execution
   enter_agent_name: Enter the agent name
   enter_system_prompt: Enter a system prompt that defines the agent behavior
@@ -59,6 +60,9 @@ agent_builder:
   failed_to_update_agent: Failed to update agent
   favorites: Favorites
   filter_by_tag: Filter by tag
+  generate_short: Generate
+  generate_with_ai: Generate with AI
+  generating_prompt: Generating system prompt...
   loading_agent: Loading agent...
   mcp_server_configuration: MCP Server Configuration
   mcp_server_description: >-
@@ -78,6 +82,10 @@ agent_builder:
   no_mcp_servers_match_filter: No MCP servers match your current filter.
   no_mcp_servers_selected: No MCP servers selected. Your agent will have basic functionality only.
   no_public_agents_available: No public agents available
+  overwrite_confirm: Overwrite
+  overwrite_prompt_message: A system prompt already exists. Do you want to overwrite it with AI-generated prompt?
+  overwrite_prompt_title: Overwrite System Prompt Confirmation
+  preview: Preview
   public: Public Agents
   public_sharing_description: >-
     Make this agent available on public agent directories and be discovered and
@@ -445,6 +453,12 @@ drawer:
   generative_ai: Generative AI
   tools: Tools
   use_cases: Use Cases
+error:
+  streamingError:
+    ACCESS_DENIED: The selected model is not enabled. Please enable the model in the Amazon Bedrock console.
+    PAYLOAD_TOO_LARGE: The attached file is too large. Please reduce the file size or number of attachments and try again.
+    THROTTLING: The server is currently experiencing high traffic. Please try again later.
+    UNKNOWN_ERROR: An error occurred. Please try again or contact the administrator.
 feedback:
   additional_feedback: If you have any additional feedback, please enter it here. (optional)
   reason_error: Please select a reason.
@@ -813,9 +827,15 @@ mcp_chat:
 meetingMinutes:
   auto_generate: Auto Generate
   bidirectional: Bidirectional Translation
-  clear_minutes: Clear Minutes
+  both_panel: Both Panels
+  clear_minutes: Clear
   custom_prompt: Custom Prompt
   custom_prompt_placeholder: Enter your custom prompt for generating meeting minutes...
+  diagram_flowchart: Flowchart (Meeting Flow)
+  diagram_mindmap: Mindmap (Decisions)
+  diagram_options: Diagram Types to Generate
+  diagram_sequence: Sequence Diagram (Relationships)
+  diagram_timeline: Timeline (Deadlines & Schedule)
   frequency: Generation Frequency
   frequency_10min: Every 10 minutes
   frequency_1min: Every 1 minute
@@ -827,7 +847,10 @@ meetingMinutes:
   generating: Generating minutes...
   generation_error: Failed to generate meeting minutes. Please try again.
   generation_frequency: Generation Frequency
+  generation_panel: Generate Minutes
   generation_success: Meeting minutes generated successfully
+  hide_prompt: ▼ Hide prompt
+  input_source: Input Source
   language: Transcription Language
   language_1: Language 1
   language_2: Language 2
@@ -839,34 +862,51 @@ meetingMinutes:
   language_thai: Thai
   language_vietnamese: Vietnamese
   last_generated: Last generated {{time}}
+  microphone: Microphone
   minutes_placeholder: Minutes will appear here after generation
   model: Meeting Minutes Generation Model
   new_recording_session: New Recording Session
   next_generation: Next Generation
   next_generation_in: 'Next generation in : '
   no_transcript: No Transcript
+  option: Option
   partial_indicator: (...)
+  prompt_title_placeholder: Enter a name for this prompt...
   record_transcribe: Record & Transcribe
+  save_as_prompt: Save as Custom Prompt
+  saved_prompt_body: Prompt Content
+  saved_prompt_created: Custom prompt saved
+  saved_prompt_delete_confirm: Delete this prompt?
+  saved_prompt_deleted: Custom prompt deleted
+  saved_prompt_prefix: ★
+  saved_prompt_title: Prompt Title
+  saved_prompt_updated: Custom prompt updated
   screen_audio_error: Screen Audio Error
+  settings: Settings
   speech_recognition: Speech Recognition
   style: Minutes Style
   style_custom: Custom
   style_detail: Detail
+  style_diagram: Diagram
   style_faq: FAQ
   style_newspaper: Newspaper
   style_summary: Summary
   style_transcription: Transcription
+  style_whiteboard: Whiteboard
   target_language: Real-time Translation Language
   title: Meeting Minutes Generator
   transcript: Transcript
   transcription_language: Transcription Language
+  transcription_panel: Transcription
   translation_language: Translation Language
   translation_model: Real-time Translation Model
   translation_type: Translation Type
   unidirectional: Unidirectional Translation
+  view_prompt: ▶ View prompt
 model:
   parameters:
     reasoning_budget: Token budget for extended thinking
+    reasoning_effort: Thinking effort level
 navigation:
   agentChat: Agent Chat
   chat: Chat
@@ -941,6 +981,18 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
+research:
+  description: Conducts various research tasks across industries using web search and creates detailed research reports.
+  general_research: General Research
+  general_research_desc: Researches information across a wide range of fields and provides comprehensive analysis
+  label: Research
+  mini_research: Quick Research
+  mini_research_desc: Quickly researches key points and provides concise answers
+  select_mode: Select a mode
+  start_conversation: Start conversation with Research Agent
+  technical_research: Technical Research
+  technical_research_desc: Conducts detailed technical research and analysis
+  title: Research
 setting:
   ai_items:
     agent_name: Agent Name
@@ -1012,6 +1064,15 @@ summarize:
   result_placeholder: Summarized text will be displayed here
   text_to_summarize: Text to summarize
   title: Summarize
+svg:
+  download_as_png: Download as PNG
+  download_as_svg: Download as SVG
+  invalid_syntax: Invalid SVG syntax
+  png_error: 'PNG output error: '
+  preview_alt: SVG Preview
+  show_code: Show Code
+  show_preview: Show Preview
+  svg_error: 'SVG output error: '
 transcribe:
   detailed_parameters: Detailed parameters
   direct_input: Direct Input

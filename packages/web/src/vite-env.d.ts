@@ -22,7 +22,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_SAMLAUTH_ENABLED: string;
   readonly VITE_APP_SAML_COGNITO_DOMAIN_NAME: string;
   readonly VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: string;
-  readonly VITE_APP_AGENT_NAMES: string;
+  readonly VITE_APP_BUILTIN_AGENTS_JSON: string;
+  readonly VITE_APP_CUSTOM_AGENTS_JSON: string;
   readonly VITE_APP_INLINE_AGENTS: string;
   readonly VITE_APP_USE_CASE_BUILDER_ENABLED: string;
   readonly VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN: string;
@@ -32,13 +33,15 @@ interface ImportMetaEnv {
   readonly VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS: string;
   readonly VITE_APP_MCP_ENABLED: string;
   readonly VITE_APP_MCP_ENDPOINT: string;
-  readonly VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT: string;
-  readonly VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT: string;
   readonly VITE_APP_AGENT_CORE_ENABLED: string;
   readonly VITE_APP_AGENT_CORE_GENERIC_RUNTIME: string;
   readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED: string;
   readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME: string;
   readonly VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: string;
+  readonly VITE_APP_RESEARCH_AGENT_ENABLED: string;
+  readonly VITE_APP_RESEARCH_AGENT_RUNTIME: string;
+  readonly VITE_APP_RESEARCH_AGENT_FARGATE_ENABLED: string;
+  readonly VITE_APP_RESEARCH_AGENT_FARGATE_ENDPOINT: string;
   readonly VITE_APP_BRANDING_LOGO_PATH: string;
   readonly VITE_APP_BRANDING_TITLE: string;
   readonly VITE_APP_MCP_SERVERS_CONFIG: string;

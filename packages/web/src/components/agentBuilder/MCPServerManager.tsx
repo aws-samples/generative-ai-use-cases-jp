@@ -2,35 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiInfo, PiMagnifyingGlass, PiX } from 'react-icons/pi';
 import { AvailableMCPServer } from 'generative-ai-use-cases';
+import useMCPServers from '../../hooks/useMCPServers';
 
 interface MCPServerManagerProps {
   servers: string[];
   onChange: (servers: string[]) => void;
 }
-
-// Load MCP servers from environment variable
-const loadMCPServersFromEnv = (): AvailableMCPServer[] => {
-  try {
-    const mcpConfig = import.meta.env.VITE_APP_MCP_SERVERS_CONFIG;
-    if (!mcpConfig) {
-      console.warn('VITE_APP_MCP_SERVERS_CONFIG not found, using fallback');
-      return [];
-    }
-
-    const parsedConfig = JSON.parse(mcpConfig);
-    return Object.keys(parsedConfig).map((serverName) => {
-      const metadata = parsedConfig[serverName]?.metadata || {};
-      return {
-        name: serverName,
-        description: metadata.description || `MCP server: ${serverName}`,
-        category: metadata.category || 'Other',
-      };
-    });
-  } catch (error) {
-    console.error('Error parsing MCP servers config:', error);
-    return [];
-  }
-};
 
 const MCPServerManager: React.FC<MCPServerManagerProps> = ({
   servers,
@@ -43,8 +20,8 @@ const MCPServerManager: React.FC<MCPServerManagerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Load available MCP servers from environment
-  const AVAILABLE_MCP_SERVERS = useMemo(() => loadMCPServersFromEnv(), []);
+  // Load available MCP servers from environment using the shared hook
+  const AVAILABLE_MCP_SERVERS = useMCPServers();
 
   // Initialize selected servers from props
   useEffect(() => {

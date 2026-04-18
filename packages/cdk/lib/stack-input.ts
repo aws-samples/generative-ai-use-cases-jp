@@ -27,6 +27,7 @@ const baseStackInputSchema = z.object({
       diagram: z.boolean().optional(),
       meetingMinutes: z.boolean().optional(),
       voiceChat: z.boolean().optional(),
+      transcribe: z.boolean().optional(),
     })
     .default({}),
   // API
@@ -133,6 +134,9 @@ const baseStackInputSchema = z.object({
   rerankingModelId: z.string().nullish(),
   // Agent
   agentEnabled: z.boolean().default(false),
+  agentFoundationModel: z
+    .string()
+    .default('global.anthropic.claude-sonnet-4-6'),
   searchAgentEnabled: z.boolean().default(false),
   searchApiKey: z.string().nullish(),
   searchEngine: z.enum(['Brave', 'Tavily']).default('Brave'),
@@ -151,6 +155,7 @@ const baseStackInputSchema = z.object({
   agentBuilderEnabled: z.boolean().default(false),
   createGenericAgentCoreRuntime: z.boolean().default(false),
   agentCoreRegion: z.string().nullish(),
+  agentCoreGatewayArns: z.array(z.string()).nullish(),
   agentCoreExternalRuntimes: z
     .array(
       z.object({
@@ -163,6 +168,11 @@ const baseStackInputSchema = z.object({
   // Agent Core Network Configuration
   agentCoreVpcId: z.string().nullish(),
   agentCoreSubnetIds: z.array(z.string()).nullish(),
+  // Research Agent Core Runtime
+  researchAgentEnabled: z.boolean().default(false),
+  createResearchAgentFargate: z.boolean().default(false),
+  researchAgentBraveApiKey: z.string().default(''),
+  researchAgentTavilyApiKey: z.string().default(''),
   // MCP
   mcpEnabled: z.boolean().default(false),
   // Guardrail

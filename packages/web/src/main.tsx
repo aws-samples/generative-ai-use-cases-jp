@@ -32,6 +32,7 @@ import FlowChatPage from './pages/FlowChatPage';
 import VoiceChatPage from './pages/VoiceChatPage';
 import McpChatPage from './pages/McpChatPage';
 import AgentCorePage from './pages/AgentCorePage.tsx';
+import ResearchAgentPage from './pages/ResearchAgentPage.tsx';
 import AgentBuilderListPage from './pages/agentBuilder/AgentBuilderListPage.tsx';
 import AgentBuilderEditPage from './pages/agentBuilder/AgentBuilderEditPage';
 import AgentBuilderChatPage from './pages/agentBuilder/AgentBuilderChatPage';
@@ -60,6 +61,8 @@ const agentCoreEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_ENABLED === 'true';
 const agentBuilderEnabled: boolean =
   import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED === 'true';
+const researchAgentEnabled: boolean =
+  import.meta.env.VITE_APP_RESEARCH_AGENT_ENABLED === 'true';
 
 const {
   visionEnabled,
@@ -217,6 +220,12 @@ const routes: RouteObject[] = [
     ? {
         path: '/agent-core/:agentArn',
         element: <AgentCorePage />,
+      }
+    : null,
+  researchAgentEnabled
+    ? {
+        path: '/research',
+        element: <ResearchAgentPage />,
       }
     : null,
   agentBuilderEnabled

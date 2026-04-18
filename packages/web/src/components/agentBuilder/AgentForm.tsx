@@ -1,19 +1,24 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../Button';
+import ButtonIcon from '../ButtonIcon';
 import InputText from '../InputText';
 import Textarea from '../Textarea';
 import Select from '../Select';
 import MCPServerManager from './MCPServerManager';
+import ModalDialog from '../ModalDialog';
 import { MODELS } from '../../hooks/useModel';
 import { AgentConfiguration } from 'generative-ai-use-cases';
+import usePromptGeneration from '../../hooks/usePromptGeneration';
+import useMCPServers from '../../hooks/useMCPServers';
+import { PiSparkle, PiStop } from 'react-icons/pi';
 
 export interface AgentFormData {
   name: string;
   description: string;
   systemPrompt: string;
   modelId: string;
-  mcpServers: string[]; // Changed to string array
+  mcpServers: string[];
   codeExecutionEnabled: boolean;
   isPublic: boolean;
   tags: string[];
@@ -55,6 +60,38 @@ const AgentForm: React.FC<AgentFormProps> = ({
   });
 
   const [tagsInput, setTagsInput] = useState('');
+  const [showOverwriteDialog, setShowOverwriteDialog] = useState(false);
+
+  // Load available MCP servers using the shared hook
+  const availableMCPServers = useMCPServers();
+
+  // Use the prompt generation hook
+  const {
+    generatedPrompt,
+    suggestedMCPServers,
+    isGenerating,
+    generate: generatePrompt,
+    cancel: cancelGeneration,
+  } = usePromptGeneration({
+    modelId: formData.modelId,
+    agentName: formData.name,
+    agentDescription: formData.description,
+    availableMCPServers,
+  });
+
+  // Update systemPrompt when generation produces new content
+  useEffect(() => {
+    if (generatedPrompt) {
+      setFormData((prev) => ({ ...prev, systemPrompt: generatedPrompt }));
+    }
+  }, [generatedPrompt]);
+
+  // Update MCP servers when AI suggests them
+  useEffect(() => {
+    if (suggestedMCPServers.length > 0) {
+      setFormData((prev) => ({ ...prev, mcpServers: suggestedMCPServers }));
+    }
+  }, [suggestedMCPServers]);
 
   // Update formData.modelId when availableModels becomes available
   useEffect(() => {
@@ -86,7 +123,6 @@ const AgentForm: React.FC<AgentFormProps> = ({
   // Notify parent component when form data changes
   useEffect(() => {
     if (onFormDataChange) {
-      // Parse tags from input for real-time updates
       const tags = tagsInput
         .split(',')
         .map((tag) => tag.trim())
@@ -103,7 +139,6 @@ const AgentForm: React.FC<AgentFormProps> = ({
 
   const handleSave = useCallback(async () => {
     try {
-      // Parse tags from input
       const tags = tagsInput
         .split(',')
         .map((tag) => tag.trim())
@@ -115,10 +150,33 @@ const AgentForm: React.FC<AgentFormProps> = ({
       };
 
       await onSave(agentData);
-    } catch (error) {
-      console.error('Error saving agent:', error);
+    } catch (err) {
+      console.error('Error saving agent:', err);
     }
   }, [formData, tagsInput, onSave]);
+
+  const handleGenerateClick = useCallback(() => {
+    if (formData.systemPrompt.trim()) {
+      setShowOverwriteDialog(true);
+    } else {
+      setFormData((prev) => ({ ...prev, systemPrompt: '' }));
+      generatePrompt();
+    }
+  }, [formData.systemPrompt, generatePrompt]);
+
+  const handleConfirmOverwrite = useCallback(() => {
+    setShowOverwriteDialog(false);
+    setFormData((prev) => ({ ...prev, systemPrompt: '' }));
+    generatePrompt();
+  }, [generatePrompt]);
+
+  const handleCancelGeneration = useCallback(() => {
+    cancelGeneration();
+  }, [cancelGeneration]);
+
+  // Check if generate button should be disabled
+  const isGenerateDisabled =
+    !formData.name.trim() || !formData.description.trim() || loading;
 
   const isFormValid =
     formData.name && formData.systemPrompt && formData.modelId;
@@ -202,10 +260,33 @@ const AgentForm: React.FC<AgentFormProps> = ({
 
       {/* System Prompt */}
       <div className="rounded-lg border bg-white p-6">
-        {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
-        <h2 className="mb-4 text-lg font-semibold">
-          {t('agent_builder.system_prompt')} {'*'}
-        </h2>
+        <div className="mb-4 flex items-center justify-between">
+          {/* eslint-disable-next-line @shopify/jsx-no-hardcoded-content */}
+          <h2 className="text-lg font-semibold">
+            {t('agent_builder.system_prompt')} {'*'}
+          </h2>
+          <div className="flex items-center gap-2">
+            {isGenerating ? (
+              <ButtonIcon onClick={handleCancelGeneration}>
+                <PiStop className="text-red-500" />
+              </ButtonIcon>
+            ) : (
+              <Button
+                onClick={handleGenerateClick}
+                outlined
+                disabled={isGenerateDisabled || isGenerating}
+                className="flex items-center gap-1 text-sm">
+                <PiSparkle />
+                <span className="hidden sm:inline">
+                  {t('agent_builder.generate_with_ai')}
+                </span>
+                <span className="sm:hidden">
+                  {t('agent_builder.generate_short')}
+                </span>
+              </Button>
+            )}
+          </div>
+        </div>
 
         <Textarea
           value={formData.systemPrompt}
@@ -214,8 +295,34 @@ const AgentForm: React.FC<AgentFormProps> = ({
           }
           placeholder={t('agent_builder.enter_system_prompt')}
           rows={12}
+          disabled={isGenerating || loading}
         />
+        {isGenerating && (
+          <p className="mt-2 text-sm text-gray-500">
+            {t('agent_builder.generating_prompt')}
+          </p>
+        )}
       </div>
+
+      {/* Overwrite Confirmation Dialog */}
+      <ModalDialog
+        isOpen={showOverwriteDialog}
+        title={t('agent_builder.overwrite_prompt_title')}
+        onClose={() => setShowOverwriteDialog(false)}>
+        <div className="space-y-4">
+          <p className="text-gray-700">
+            {t('agent_builder.overwrite_prompt_message')}
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button outlined onClick={() => setShowOverwriteDialog(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleConfirmOverwrite}>
+              {t('agent_builder.overwrite_confirm')}
+            </Button>
+          </div>
+        </div>
+      </ModalDialog>
 
       {/* MCP Server Configuration */}
       <div className="rounded-lg border bg-white p-6">
@@ -288,10 +395,12 @@ const AgentForm: React.FC<AgentFormProps> = ({
 
       {/* Form Actions */}
       <div className="flex justify-end gap-3">
-        <Button outlined onClick={onCancel}>
+        <Button outlined onClick={onCancel} disabled={isGenerating}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={handleSave} disabled={loading || !isFormValid}>
+        <Button
+          onClick={handleSave}
+          disabled={loading || !isFormValid || isGenerating}>
           {isEditMode ? t('common.update') : t('common.create')}
         </Button>
       </div>

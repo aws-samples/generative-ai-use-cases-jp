@@ -14,15 +14,19 @@ ENV UV_PROJECT_ENVIRONMENT=/tmp/.venv
 RUN apt-get update -y && apt-get install curl nodejs npm graphviz -y
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
+# Pre-install mcp-remote for faster startup
+RUN npm install -g mcp-remote
+
 # Copy dependency files
 COPY pyproject.toml .python-version uv.lock ./
-
 # Install Python dependencies
 RUN uv sync
 
 # Copy application files
 COPY app.py ./
 COPY src/ ./src/
+COPY mcp-configs ./mcp-configs
+
 
 # Expose port 8080 as required by AgentCore
 EXPOSE 8080

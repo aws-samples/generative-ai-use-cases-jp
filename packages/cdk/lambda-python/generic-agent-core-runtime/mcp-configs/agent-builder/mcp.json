@@ -74,6 +74,17 @@
         "category": "Search",
         "description": "Web search and research capabilities powered by Tavily"
       }
+    },
+    "tavily-gateway": {
+      "command": "uvx",
+      "args": [
+        "mcp-proxy-for-aws",
+        "https://<your-gateway-id>.gateway.bedrock-agentcore.<region>.amazonaws.com/mcp"
+      ],
+      "metadata": {
+        "category": "Search",
+        "description": "Web search and research capabilities powered by Tavily"
+      }
     }
   }
 }

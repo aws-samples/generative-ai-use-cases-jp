@@ -26,12 +26,7 @@ import {
   BucketEncryption,
   HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
-import {
-  Agent,
-  AgentInfo,
-  AgentMap,
-  ModelConfiguration,
-} from 'generative-ai-use-cases';
+import { Agent, AgentInfo, ModelConfiguration } from 'generative-ai-use-cases';
 import {
   BEDROCK_IMAGE_GEN_MODELS,
   BEDROCK_VIDEO_GEN_MODELS,
@@ -69,7 +64,7 @@ export interface BackendApiProps {
   readonly table: Table;
   readonly statsTable: Table;
   readonly knowledgeBaseId?: string;
-  readonly agents?: Agent[];
+  readonly agents?: string;
   readonly guardrailIdentify?: string;
   readonly guardrailVersion?: string;
 
@@ -77,7 +72,6 @@ export interface BackendApiProps {
   readonly vpc?: IVpc;
   readonly securityGroups?: ISecurityGroup[];
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
-  readonly cognitoUserPoolProxyEndpoint?: string;
 }
 
 export class Api extends Construct {
@@ -115,7 +109,9 @@ export class Api extends Construct {
       securityGroups,
       apiGatewayVpcEndpoint,
     } = props;
-    const agents: Agent[] = [...(props.agents ?? []), ...props.customAgents];
+    // Pass both agents sources as separate JSON strings to Lambda
+    const builtinAgentsJson = props.agents || '[]';
+    const customAgentsJson = JSON.stringify(props.customAgents);
 
     // Validate Model Names
     for (const model of modelIds) {
@@ -151,15 +147,6 @@ export class Api extends Construct {
         'Duplicate model IDs detected. Using the same model ID multiple times is not supported:\n' +
           [...duplicateModelIds].map((s) => `- ${s}\n`).join('\n')
       );
-    }
-
-    // Agent Map
-    const agentMap: AgentMap = {};
-    for (const agent of agents) {
-      agentMap[agent.displayName] = {
-        agentId: agent.agentId,
-        aliasId: agent.aliasId,
-      };
     }
 
     // S3 (File Bucket)
@@ -211,12 +198,12 @@ export class Api extends Construct {
       environment: {
         USER_POOL_ID: userPool.userPoolId,
         USER_POOL_CLIENT_ID: userPoolClient.userPoolClientId,
-        USER_POOL_PROXY_ENDPOINT: props.cognitoUserPoolProxyEndpoint ?? '',
         MODEL_REGION: modelRegion,
         MODEL_IDS: JSON.stringify(modelIds),
         IMAGE_GENERATION_MODEL_IDS: JSON.stringify(imageGenerationModelIds),
         VIDEO_GENERATION_MODEL_IDS: JSON.stringify(videoGenerationModelIds),
-        AGENT_MAP: JSON.stringify(agentMap),
+        BUILTIN_AGENTS_JSON: builtinAgentsJson,
+        CUSTOM_AGENTS_JSON: customAgentsJson,
         CROSS_ACCOUNT_BEDROCK_ROLE_ARN: crossAccountBedrockRoleArn ?? '',
         BUCKET_NAME: fileBucket.bucketName,
         KNOWLEDGE_BASE_ID: knowledgeBaseId ?? '',
@@ -804,6 +791,22 @@ export class Api extends Construct {
     );
     table.grantReadWriteData(deleteSystemContextFunction);
 
+    const meetingMinutesCustomPromptFunction = new NodejsFunction(
+      this,
+      'MeetingMinutesCustomPrompt',
+      {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        entry: './lambda/meetingMinutes/minutesCustomPrompt.ts',
+        timeout: Duration.minutes(15),
+        environment: {
+          TABLE_NAME: table.tableName,
+        },
+        vpc,
+        securityGroups,
+      }
+    );
+    table.grantReadWriteData(meetingMinutesCustomPromptFunction);
+
     const deleteFileFunction = new NodejsFunction(this, 'DeleteFileFunction', {
       runtime: LAMBDA_RUNTIME_NODEJS,
       entry: './lambda/deleteFile.ts',
@@ -1001,6 +1004,31 @@ export class Api extends Construct {
       commonAuthorizerProps
     );
 
+    const meetingMinutesCustomPromptIntegration = new LambdaIntegration(
+      meetingMinutesCustomPromptFunction
+    );
+
+    const meetingMinutesResource = api.root.addResource('meeting-minutes');
+    const meetingMinutesCustomPromptsResource =
+      meetingMinutesResource.addResource('custom-prompts');
+
+    // ANY: /meeting-minutes/custom-prompts (GET, POST)
+    meetingMinutesCustomPromptsResource.addMethod(
+      'ANY',
+      meetingMinutesCustomPromptIntegration,
+      commonAuthorizerProps
+    );
+
+    const meetingMinutesCustomPromptResource =
+      meetingMinutesCustomPromptsResource.addResource('{id}');
+
+    // ANY: /meeting-minutes/custom-prompts/{id} (PUT, DELETE)
+    meetingMinutesCustomPromptResource.addMethod(
+      'ANY',
+      meetingMinutesCustomPromptIntegration,
+      commonAuthorizerProps
+    );
+
     const feedbacksResource = chatResource.addResource('feedbacks');
 
     // POST: /chats/{chatId}/feedbacks
@@ -1122,10 +1150,8 @@ export class Api extends Construct {
     this.imageGenerationModelIds = imageGenerationModelIds;
     this.videoGenerationModelIds = videoGenerationModelIds;
     this.endpointNames = endpointNames;
-    this.agents = agents.map((agent) => ({
-      displayName: agent.displayName,
-      description: agent.description,
-    }));
+    // Don't create this.agents - frontend will combine remoteAgentsJson and customAgentsJson
+    this.agents = [];
     this.fileBucket = fileBucket;
     this.getFileDownloadSignedUrlFunction = getFileDownloadSignedUrlFunction;
   }

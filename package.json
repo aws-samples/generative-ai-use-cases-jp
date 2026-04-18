@@ -1,7 +1,7 @@
 {
   "name": "generative-ai-use-cases",
   "private": true,
-  "version": "5.3.0",
+  "version": "5.4.0",
   "scripts": {
     "lint": "run-s custom-lint:build root:lint web:lint:fix cdk:lint cdk:lambda-build-dryrun",
     "test": "run-s web:test",
@@ -23,6 +23,7 @@
     "cdk:lambda-build-dryrun": "npm -w packages/cdk run lambda-build-dryrun",
     "cdk:test": "npm -w packages/cdk run test",
     "cdk:test:update-snapshot": "npm -w packages/cdk run test -- --update-snapshot",
+    "cdk:test:e2e": "source ./setup-env.sh ${npm_config_env} && ./scripts/run-e2e-tests.sh",
     "extension:ci": "cd browser-extension && npm ci",
     "extension:dev": "cd browser-extension && npm run dev",
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",
@@ -36,6 +37,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "amazon-cognito-identity-js": "^6.3.16",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.1",
     "npm-run-all": "^4.1.5",
@@ -48,5 +50,9 @@
     "**/*": [
       "sh -c 'npm run lint'"
     ]
+  },
+  "dependencies": {
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   }
 }

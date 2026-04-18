@@ -13,14 +13,13 @@ const usePredict = () => {
       const region = settings?.region;
       const userPoolId = settings?.userPoolId;
       const idPoolId = settings?.identityPoolId ?? '';
-      const cognito = new CognitoIdentityClient({ region });
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
       const session = await fetchAuthSession();
       const lambda = new LambdaClient({
         region,
         credentials: fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: session.tokens?.idToken?.toString() ?? '',

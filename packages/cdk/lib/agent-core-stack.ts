@@ -3,13 +3,14 @@ import { Construct } from 'constructs';
 import { GenericAgentCore } from './construct/generic-agent-core';
 import { ProcessedStackInput } from './stack-input';
 import { BucketInfo } from 'generative-ai-use-cases';
+import { REMOTE_OUTPUT_KEYS } from './remote-output-keys';
 
 export interface AgentCoreStackProps extends StackProps {
   readonly params: ProcessedStackInput;
 }
 
 export class AgentCoreStack extends Stack {
-  public readonly genericAgentCore?: GenericAgentCore;
+  public genericAgentCore?: GenericAgentCore;
 
   constructor(scope: Construct, id: string, props: AgentCoreStackProps) {
     super(scope, id, props);
@@ -25,6 +26,7 @@ export class AgentCoreStack extends Stack {
         isAgentCoreNetworkPrivate: params.isAgentCoreNetworkPrivate,
         agentCoreVpcId: params.agentCoreVpcId,
         agentCoreSubnetIds: params.agentCoreSubnetIds,
+        gatewayArns: params.agentCoreGatewayArns ?? undefined,
       });
 
       // Export runtime info for cross-region access via cdk-remote-stack (only if values exist)
@@ -32,15 +34,17 @@ export class AgentCoreStack extends Stack {
         params.createGenericAgentCoreRuntime &&
         this.genericAgentCore.deployedGenericRuntimeArn
       ) {
-        new CfnOutput(this, 'GenericAgentCoreRuntimeArn', {
+        new CfnOutput(this, REMOTE_OUTPUT_KEYS.GENERIC_AGENT_CORE_RUNTIME_ARN, {
           value: this.genericAgentCore.deployedGenericRuntimeArn,
-          exportName: `${this.stackName}-GenericAgentCoreRuntimeArn`,
         });
 
-        new CfnOutput(this, 'GenericAgentCoreRuntimeName', {
-          value: this.genericAgentCore.getGenericRuntimeConfig().name,
-          exportName: `${this.stackName}-GenericAgentCoreRuntimeName`,
-        });
+        new CfnOutput(
+          this,
+          REMOTE_OUTPUT_KEYS.GENERIC_AGENT_CORE_RUNTIME_NAME,
+          {
+            value: this.genericAgentCore.getGenericRuntimeConfig().name,
+          }
+        );
       }
 
       // Output retained security group ID for manual cleanup
@@ -56,21 +60,26 @@ export class AgentCoreStack extends Stack {
         params.agentBuilderEnabled &&
         this.genericAgentCore.deployedAgentBuilderRuntimeArn
       ) {
-        new CfnOutput(this, 'AgentBuilderAgentCoreRuntimeArn', {
-          value: this.genericAgentCore.deployedAgentBuilderRuntimeArn,
-          exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeArn`,
-        });
+        new CfnOutput(
+          this,
+          REMOTE_OUTPUT_KEYS.AGENT_BUILDER_AGENT_CORE_RUNTIME_ARN,
+          {
+            value: this.genericAgentCore.deployedAgentBuilderRuntimeArn,
+          }
+        );
 
-        new CfnOutput(this, 'AgentBuilderAgentCoreRuntimeName', {
-          value: this.genericAgentCore.getAgentBuilderRuntimeConfig().name,
-          exportName: `${this.stackName}-AgentBuilderAgentCoreRuntimeName`,
-        });
+        new CfnOutput(
+          this,
+          REMOTE_OUTPUT_KEYS.AGENT_BUILDER_AGENT_CORE_RUNTIME_NAME,
+          {
+            value: this.genericAgentCore.getAgentBuilderRuntimeConfig().name,
+          }
+        );
       }
 
       // Always export file bucket name as it always exists
-      new CfnOutput(this, 'FileBucketName', {
+      new CfnOutput(this, REMOTE_OUTPUT_KEYS.FILE_BUCKET_NAME, {
         value: this.genericAgentCore.fileBucket.bucketName,
-        exportName: `${this.stackName}-FileBucketName`,
       });
     }
   }

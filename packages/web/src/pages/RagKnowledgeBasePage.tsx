@@ -1,38 +1,50 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import InputChatContent from '../components/InputChatContent';
-import { create } from 'zustand';
-import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
+import InputChatContent from '../components/InputChatContent';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
-import useFollow from '../hooks/useFollow';
 import ScrollTopBottom from '../components/ScrollTopBottom';
+import ExpandableField from '../components/ExpandableField';
+import KbFilter from '../components/KbFilter';
+import ModalDialog from '../components/ModalDialog';
+import ModalSystemContext from '../components/ModalSystemContext';
+import Button from '../components/Button';
+import Switch from '../components/Switch';
+import PromptList from '../components/PromptList';
+import useChat from '../hooks/useChat';
+import useFollow from '../hooks/useFollow';
+import useSystemContextApi from '../hooks/useSystemContextApi';
+import { PiArrowClockwiseBold } from 'react-icons/pi';
+import { create } from 'zustand';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import { RagPageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 import { getPrompter } from '../prompts';
-import ExpandableField from '../components/ExpandableField';
 import { userDefinedExplicitFilters } from '@generative-ai-use-cases/common';
 import { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import { RetrievalFilterLabel } from '../components/KbFilter';
-import KbFilter from '../components/KbFilter';
 import {
   ExplicitFilterConfiguration,
   ExtraData,
+  SystemContext,
 } from 'generative-ai-use-cases';
 import { Option, SelectValue } from '../components/FilterSelect';
-import ModalDialog from '../components/ModalDialog';
-import Button from '../components/Button';
 import { useTranslation } from 'react-i18next';
 
 type StateType = {
   sessionId: string | undefined;
   content: string;
   filters: (RetrievalFilterLabel | null)[];
+  inputSystemContext: string;
+  saveSystemContext: string;
+  saveSystemContextTitle: string;
   setSessionId: (c: string | undefined) => void;
   setContent: (c: string) => void;
   setFilters: (f: (RetrievalFilterLabel | null)[]) => void;
+  setInputSystemContext: (c: string) => void;
+  setSaveSystemContext: (c: string) => void;
+  setSaveSystemContextTitle: (c: string) => void;
 };
 
 const useRagKnowledgeBasePageState = create<StateType>((set) => {
@@ -40,6 +52,9 @@ const useRagKnowledgeBasePageState = create<StateType>((set) => {
     sessionId: undefined, // Set initial value to null because RetrieveAndGenerate does not allow sessionId to be specified on the app side
     content: '',
     filters: userDefinedExplicitFilters.map(() => null),
+    inputSystemContext: '',
+    saveSystemContext: '',
+    saveSystemContextTitle: '',
     setSessionId: (s: string | undefined) => {
       set(() => ({
         sessionId: s,
@@ -55,13 +70,40 @@ const useRagKnowledgeBasePageState = create<StateType>((set) => {
         filters: f,
       }));
     },
+    setInputSystemContext: (s: string) => {
+      set(() => ({
+        inputSystemContext: s,
+      }));
+    },
+    setSaveSystemContext: (s: string) => {
+      set(() => ({
+        saveSystemContext: s,
+      }));
+    },
+    setSaveSystemContextTitle: (s: string) => {
+      set(() => ({
+        saveSystemContextTitle: s,
+      }));
+    },
   };
 });
 
 const RagKnowledgeBasePage: React.FC = () => {
   const { t } = useTranslation();
-  const { sessionId, content, filters, setContent, setFilters, setSessionId } =
-    useRagKnowledgeBasePageState();
+  const {
+    sessionId,
+    content,
+    filters,
+    inputSystemContext,
+    saveSystemContext,
+    saveSystemContextTitle,
+    setContent,
+    setFilters,
+    setSessionId,
+    setInputSystemContext,
+    setSaveSystemContext,
+    setSaveSystemContextTitle,
+  } = useRagKnowledgeBasePageState();
   const { pathname, search } = useLocation();
   const {
     getModelId,
@@ -70,10 +112,13 @@ const RagKnowledgeBasePage: React.FC = () => {
     writing,
     isEmpty,
     messages,
+    rawMessages,
     clear,
     postChat,
     editChat,
+    updateSystemContext,
     updateSystemContextByModel,
+    getCurrentSystemContext,
     retryGeneration,
     forceToStop,
   } = useChat(pathname);
@@ -84,7 +129,24 @@ const RagKnowledgeBasePage: React.FC = () => {
     return getPrompter(modelId);
   }, [modelId]);
 
+  const {
+    listSystemContexts,
+    deleteSystemContext,
+    updateSystemContextTitle,
+    createSystemContext,
+  } = useSystemContextApi();
+  const [systemContextList, setSystemContextList] = useState<SystemContext[]>(
+    []
+  );
+  const { data: systemContextResponse, mutate } = listSystemContexts();
+
+  useEffect(() => {
+    setSystemContextList(systemContextResponse ? systemContextResponse : []);
+  }, [systemContextResponse, setSystemContextList]);
+
   const [showSetting, setShowSetting] = useState(false);
+  const [showSystemContext, setShowSystemContext] = useState(false);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
 
   const RetrievalFilterLabelToRetrievalFilter = (
     f: RetrievalFilterLabel | null,
@@ -124,6 +186,22 @@ const RagKnowledgeBasePage: React.FC = () => {
     updateSystemContextByModel();
     // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [prompter]);
+
+  const currentSystemContext = useMemo(() => {
+    return getCurrentSystemContext();
+  }, [getCurrentSystemContext]);
+
+  useEffect(() => {
+    setInputSystemContext(currentSystemContext);
+  }, [currentSystemContext, setInputSystemContext]);
+
+  const showingMessages = useMemo(() => {
+    if (showSystemContext) {
+      return rawMessages;
+    } else {
+      return messages;
+    }
+  }, [showSystemContext, rawMessages, messages]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -238,6 +316,80 @@ const RagKnowledgeBasePage: React.FC = () => {
     setSessionId(undefined);
   }, [forceToStop, setSessionId]);
 
+  const onCreateSystemContext = useCallback(async () => {
+    try {
+      await createSystemContext(saveSystemContextTitle, saveSystemContext);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSystemContextModal(false);
+      setInputSystemContext(saveSystemContext);
+      setSaveSystemContextTitle('');
+      mutate();
+      setSystemContextList(systemContextResponse ?? []);
+    }
+  }, [
+    createSystemContext,
+    saveSystemContextTitle,
+    saveSystemContext,
+    systemContextResponse,
+    setShowSystemContextModal,
+    setInputSystemContext,
+    setSaveSystemContextTitle,
+    mutate,
+    setSystemContextList,
+  ]);
+
+  const onClickDeleteSystemContext = async (systemContextId: string) => {
+    try {
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
+      );
+      if (idx >= 0) {
+        setSystemContextList(systemContextList.filter((_, i) => i !== idx));
+      }
+      await deleteSystemContext(systemContextId);
+      mutate();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onClickUpdateSystemContext = async (
+    systemContextId: string,
+    title: string
+  ) => {
+    try {
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
+      );
+      if (idx >= 0) {
+        setSystemContextList(
+          systemContextList.map((item, i) => {
+            if (i === idx) {
+              return { ...item, systemContextTitle: title };
+            }
+            return item;
+          })
+        );
+      }
+      await updateSystemContextTitle(systemContextId, title);
+      mutate();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onClickSamplePrompt = useCallback(
+    (params: RagPageQueryParams) => {
+      setContent(params.content ?? '');
+      if (params.systemContext) {
+        updateSystemContext(params.systemContext);
+      }
+    },
+    [setContent, updateSystemContext]
+  );
+
   return (
     <>
       <div className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
@@ -261,19 +413,36 @@ const RagKnowledgeBasePage: React.FC = () => {
           </div>
         )}
 
+        {!isEmpty && (
+          <div className="my-2 flex flex-col items-end pr-3 print:hidden">
+            <Switch
+              checked={showSystemContext}
+              onSwitch={setShowSystemContext}
+              label={t('chat.show_system_prompt')}
+            />
+          </div>
+        )}
+
         <div ref={scrollableContainer}>
-          {messages.map((chat, idx) => (
-            <div key={idx}>
+          {showingMessages.map((chat, idx) => (
+            <div key={showSystemContext ? idx : idx + 1}>
+              {idx === 0 && (
+                <div className="w-full border-b border-gray-300"></div>
+              )}
               <ChatMessage
                 idx={idx}
                 chatContent={chat}
-                loading={loading && idx === messages.length - 1}
-                allowRetry={idx === messages.length - 1}
+                loading={loading && idx === showingMessages.length - 1}
+                allowRetry={idx === showingMessages.length - 1}
                 retryGeneration={onRetry}
-                editable={idx === messages.length - 2 && !loading}
+                editable={idx === showingMessages.length - 2 && !loading}
                 onCommitEdit={
-                  idx === messages.length - 2 && !loading ? onEdit : undefined
+                  idx === showingMessages.length - 2 && !loading
+                    ? onEdit
+                    : undefined
                 }
+                setSaveSystemContext={setSaveSystemContext}
+                setShowSystemContextModal={setShowSystemContextModal}
               />
               <div className="w-full border-b border-gray-300"></div>
             </div>
@@ -286,6 +455,48 @@ const RagKnowledgeBasePage: React.FC = () => {
 
         <div
           className={`fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden`}>
+          {isEmpty && (
+            <ExpandableField
+              label={t('chat.system_prompt')}
+              className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
+              <>
+                <div className="absolute -top-2 right-0 mb-2 flex justify-end">
+                  <Button
+                    outlined
+                    className="text-xs"
+                    onClick={() => {
+                      clear();
+                      setInputSystemContext(currentSystemContext);
+                    }}>
+                    {t('chat.initialize')}
+                  </Button>
+                  <Button
+                    outlined
+                    className="ml-1 text-xs"
+                    onClick={() => {
+                      setSaveSystemContext(inputSystemContext);
+                      setShowSystemContextModal(true);
+                    }}>
+                    {t('chat.save')}
+                  </Button>
+                </div>
+
+                <InputChatContent
+                  disableMarginBottom={true}
+                  content={inputSystemContext}
+                  onChangeContent={setInputSystemContext}
+                  fullWidth={true}
+                  resetDisabled={true}
+                  disabled={inputSystemContext === currentSystemContext}
+                  sendIcon={<PiArrowClockwiseBold />}
+                  onSend={() => {
+                    updateSystemContext(inputSystemContext);
+                  }}
+                  hideReset={true}
+                />
+              </>
+            </ExpandableField>
+          )}
           <InputChatContent
             content={content}
             disabled={loading && !writing}
@@ -360,6 +571,26 @@ const RagKnowledgeBasePage: React.FC = () => {
           </Button>
         </div>
       </ModalDialog>
+
+      {isEmpty && (
+        <PromptList
+          onClick={onClickSamplePrompt}
+          systemContextList={systemContextList as SystemContext[]}
+          onClickDeleteSystemContext={onClickDeleteSystemContext}
+          onClickUpdateSystemContext={onClickUpdateSystemContext}
+          forceExpand={null}
+        />
+      )}
+
+      <ModalSystemContext
+        showSystemContextModal={showSystemContextModal}
+        saveSystemContext={saveSystemContext}
+        saveSystemContextTitle={saveSystemContextTitle}
+        setShowSystemContextModal={setShowSystemContextModal}
+        setSaveSystemContext={setSaveSystemContext}
+        setSaveSystemContextTitle={setSaveSystemContextTitle}
+        onCreateSystemContext={onCreateSystemContext}
+      />
     </>
   );
 };

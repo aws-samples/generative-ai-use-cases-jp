@@ -1,7 +1,10 @@
 import { produce } from 'immer';
 import { create } from 'zustand';
+import { toast } from 'sonner';
+import i18next from 'i18next';
 import {
   StreamingChunk,
+  StreamingErrorCode,
   ShownMessage,
   RecordedMessage,
   UnrecordedMessage,
@@ -71,7 +74,7 @@ const useChatState = create<{
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
     overrideModelParameters: AdditionalModelRequestFields | undefined
-  ) => void;
+  ) => Promise<boolean | undefined>;
   edit: (
     id: string,
     content: string,
@@ -468,6 +471,19 @@ const useChatState = create<{
     });
   };
 
+  const popMessage = (id: string): ShownMessage | undefined => {
+    let ret: ShownMessage | undefined;
+    set((state) => {
+      ret = state.chats[id].messages[state.chats[id].messages.length - 1];
+      return {
+        chats: produce(state.chats, (draft) => {
+          draft[id].messages.pop();
+        }),
+      };
+    });
+    return ret;
+  };
+
   const generateMessage = async (
     generationMode: GenerationMode,
     id: string,
@@ -519,246 +535,304 @@ const useChatState = create<{
     // Reset the stop reason
     updateStopReason(id, '');
 
-    const chatMessages = get().chats[id].messages;
+    let lastErrorCode: StreamingErrorCode | undefined;
+    // Save original assistant message before retry reset for error recovery (deep copy to avoid Immer frozen state issues)
+    let savedAssistantMessage: ShownMessage | undefined;
 
-    // The second argument of slice
-    // - In the case of continuing to output, undefined (to the end)
-    // - Otherwise, -1 (Assistant's message is cut)
-    const sliceEndIndex = generationMode === 'continue' ? undefined : -1;
+    try {
+      const chatMessages = get().chats[id].messages;
 
-    // The last message is an assistant's message, so exclude it
-    // If ignoreHistory is set, only the last conversation is reflected (cost reduction)
-    let inputMessages = ignoreHistory
-      ? [chatMessages[0], ...chatMessages.slice(-2, sliceEndIndex)]
-      : chatMessages.slice(0, sliceEndIndex);
+      // The second argument of slice
+      // - In the case of continuing to output, undefined (to the end)
+      // - Otherwise, -1 (Assistant's message is cut)
+      const sliceEndIndex = generationMode === 'continue' ? undefined : -1;
 
-    // If the assistant's message ends with trailing whitespace in the case of continuing to output, the following error occurs
-    // final assistant content cannot end with trailing whitespace
-    // Assistant's message is trimmed of trailing whitespace
-    if (generationMode === 'continue') {
-      inputMessages = inputMessages.map((m: UnrecordedMessage, i: number) => {
-        if (i === inputMessages.length - 1) {
+      // The last message is an assistant's message, so exclude it
+      // If ignoreHistory is set, only the last conversation is reflected (cost reduction)
+      let inputMessages = ignoreHistory
+        ? [chatMessages[0], ...chatMessages.slice(-2, sliceEndIndex)]
+        : chatMessages.slice(0, sliceEndIndex);
+
+      // If the assistant's message ends with trailing whitespace in the case of continuing to output, the following error occurs
+      // final assistant content cannot end with trailing whitespace
+      // Assistant's message is trimmed of trailing whitespace
+      if (generationMode === 'continue') {
+        inputMessages = inputMessages.map((m: UnrecordedMessage, i: number) => {
+          if (i === inputMessages.length - 1) {
+            return {
+              ...m,
+              content: m.content.trimEnd(),
+            };
+          } else {
+            return m;
+          }
+        });
+      }
+
+      // In the case of retrying, set the last assistant's message to blank
+      if (generationMode === 'retry') {
+        const messages = get().chats[id].messages;
+        savedAssistantMessage = structuredClone(messages[messages.length - 1]);
+        set((state) => {
+          const newChats = produce(state.chats, (draft) => {
+            const oldAssistantMessage = draft[id].messages.pop()!;
+            const newAssistantMessage: UnrecordedMessage = {
+              ...oldAssistantMessage,
+              content: ' ', // If it is empty, re-rendering is not performed, so blank
+              trace: '',
+              extraData: [],
+            };
+            draft[id].messages.push(newAssistantMessage);
+          });
           return {
-            ...m,
-            content: m.content.trimEnd(),
+            chats: newChats,
           };
-        } else {
-          return m;
-        }
-      });
-    }
-
-    // In the case of retrying, set the last assistant's message to blank
-    if (generationMode === 'retry') {
-      set((state) => {
-        const newChats = produce(state.chats, (draft) => {
-          const oldAssistantMessage = draft[id].messages.pop()!;
-          const newAssistantMessage: UnrecordedMessage = {
-            ...oldAssistantMessage,
-            content: ' ', // If it is empty, re-rendering is not performed, so blank
-            trace: '',
-            extraData: [],
-          };
-          draft[id].messages.push(newAssistantMessage);
         });
-        return {
-          chats: newChats,
-        };
-      });
-    }
+      }
 
-    // Preprocessing of messages (example: deletion of footnote from log)
-    if (preProcessInput) {
-      inputMessages = preProcessInput(inputMessages);
-    }
+      // Preprocessing of messages (example: deletion of footnote from log)
+      if (preProcessInput) {
+        inputMessages = preProcessInput(inputMessages);
+      }
 
-    // Request to LLM
-    const formattedMessages = formatMessageProperties(
-      inputMessages,
-      uploadedFiles,
-      extraData,
-      base64Cache
-    );
+      // Request to LLM
+      const formattedMessages = formatMessageProperties(
+        inputMessages,
+        uploadedFiles,
+        extraData,
+        base64Cache
+      );
 
-    const stream = predictStream(
-      {
-        model: model,
-        messages: formattedMessages,
-        id: id,
-      },
-      false
-    );
+      const stream = predictStream(
+        {
+          model: model,
+          messages: formattedMessages,
+          id: id,
+        },
+        false
+      );
 
-    const splitByNewlineBinary = (data: Uint8Array): Uint8Array[] => {
-      const newline = 0x0a; // '\n'
-      const result: Uint8Array[] = [];
+      const splitByNewlineBinary = (data: Uint8Array): Uint8Array[] => {
+        const newline = 0x0a; // '\n'
+        const result: Uint8Array[] = [];
 
-      let start = 0;
+        let start = 0;
 
-      for (let i = 0; i <= data.length; i++) {
-        if (i === data.length || data[i] === newline) {
-          result.push(data.slice(start, i));
-          start = i + 1;
+        for (let i = 0; i <= data.length; i++) {
+          if (i === data.length || data[i] === newline) {
+            result.push(data.slice(start, i));
+            start = i + 1;
+          }
         }
-      }
 
-      return result;
-    };
+        return result;
+      };
 
-    // Update the assistant's message
-    let tmpChunk = '';
-    let tmpBuffer: Uint8Array = new Uint8Array([]);
+      // Update the assistant's message
+      let tmpChunk = '';
+      let tmpBuffer: Uint8Array = new Uint8Array([]);
 
-    for await (const chunk of stream) {
-      if (get().chats[id].forcedStop) {
-        updateStopReason(id, 'forcedStop');
-        setForcedStop(id, false);
-        break;
-      }
+      for await (const chunk of stream) {
+        if (get().chats[id].forcedStop) {
+          updateStopReason(id, 'forcedStop');
+          setForcedStop(id, false);
+          break;
+        }
 
-      if (!get().writing[id]) {
-        setWriting(id, true);
-      }
+        if (!get().writing[id]) {
+          setWriting(id, true);
+        }
 
-      const chunks = splitByNewlineBinary(chunk as Uint8Array);
+        const chunks = splitByNewlineBinary(chunk as Uint8Array);
 
-      for (const c of chunks) {
-        if (c && c.length > 0) {
-          let payload: StreamingChunk;
+        for (const c of chunks) {
+          if (c && c.length > 0) {
+            let payload: StreamingChunk;
 
-          try {
-            if (tmpBuffer.length === 0) {
-              payload = JSON.parse(
-                new TextDecoder('utf-8').decode(c)
-              ) as StreamingChunk;
-            } else {
-              payload = JSON.parse(
-                new TextDecoder('utf-8').decode(
-                  new Uint8Array([...tmpBuffer, ...c])
-                )
-              ) as StreamingChunk;
-              tmpBuffer = new Uint8Array([]);
+            try {
+              if (tmpBuffer.length === 0) {
+                payload = JSON.parse(
+                  new TextDecoder('utf-8').decode(c)
+                ) as StreamingChunk;
+              } else {
+                payload = JSON.parse(
+                  new TextDecoder('utf-8').decode(
+                    new Uint8Array([...tmpBuffer, ...c])
+                  )
+                ) as StreamingChunk;
+                tmpBuffer = new Uint8Array([]);
+              }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (e: any) {
+              console.warn(e);
+              tmpBuffer = new Uint8Array([...tmpBuffer, ...c]);
+              continue;
             }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } catch (e: any) {
-            console.warn(e);
-            tmpBuffer = new Uint8Array([...tmpBuffer, ...c]);
-            continue;
-          }
 
-          if (payload.text.length > 0) {
-            tmpChunk += payload.text;
-          }
+            if (payload.text.length > 0) {
+              tmpChunk += payload.text;
+            }
 
-          if (payload.stopReason && payload.stopReason.length > 0) {
-            updateStopReason(id, payload.stopReason);
-          }
+            if (payload.stopReason && payload.stopReason.length > 0) {
+              updateStopReason(id, payload.stopReason);
+            }
 
-          // Trace
-          if (payload.trace) {
-            addChunkToAssistantMessage(id, '', payload.trace, model);
-          }
+            if (payload.errorCode) {
+              lastErrorCode = payload.errorCode;
+            }
 
-          // Metadata
-          if (payload.metadata) {
-            addChunkToAssistantMessage(
-              id,
-              '',
-              undefined,
-              model,
-              payload.metadata
-            );
-          }
+            // Trace
+            if (payload.trace) {
+              addChunkToAssistantMessage(id, '', payload.trace, model);
+            }
 
-          // SessionId
-          if (payload.sessionId) {
-            setSessionId(payload.sessionId);
+            // Metadata
+            if (payload.metadata) {
+              addChunkToAssistantMessage(
+                id,
+                '',
+                undefined,
+                model,
+                payload.metadata
+              );
+            }
+
+            // SessionId
+            if (payload.sessionId) {
+              setSessionId(payload.sessionId);
+            }
           }
+        }
+
+        // Process chunks of 10 characters or more
+        // If not buffered, the following error occurs
+        // Maximum update depth exceeded
+        if (tmpChunk.length >= 10) {
+          addChunkToAssistantMessage(id, tmpChunk, undefined, model);
+          tmpChunk = '';
         }
       }
 
-      // Process chunks of 10 characters or more
-      // If not buffered, the following error occurs
-      // Maximum update depth exceeded
-      if (tmpChunk.length >= 10) {
+      // If there is a string left in tmpChunk, process it
+      if (tmpChunk.length > 0) {
         addChunkToAssistantMessage(id, tmpChunk, undefined, model);
-        tmpChunk = '';
       }
-    }
 
-    // If there is a string left in tmpChunk, process it
-    if (tmpChunk.length > 0) {
-      addChunkToAssistantMessage(id, tmpChunk, undefined, model);
-    }
+      setWriting(id, false);
 
-    setWriting(id, false);
-
-    // Postprocessing of messages (example: addition of footnote)
-    if (postProcessOutput) {
-      set((state) => {
-        const newChats = produce(state.chats, (draft) => {
-          const oldAssistantMessage = draft[id].messages.pop()!;
-          const newAssistantMessage: UnrecordedMessage = {
-            ...oldAssistantMessage,
-            role: 'assistant',
-            content: postProcessOutput(oldAssistantMessage.content),
-            trace: oldAssistantMessage.trace,
-            llmType: model?.modelId,
-            metadata: oldAssistantMessage.metadata,
+      // Postprocessing of messages (example: addition of footnote)
+      if (postProcessOutput) {
+        set((state) => {
+          const newChats = produce(state.chats, (draft) => {
+            const oldAssistantMessage = draft[id].messages.pop()!;
+            const newAssistantMessage: UnrecordedMessage = {
+              ...oldAssistantMessage,
+              role: 'assistant',
+              content: postProcessOutput(oldAssistantMessage.content),
+              trace: oldAssistantMessage.trace,
+              llmType: model?.modelId,
+              metadata: oldAssistantMessage.metadata,
+            };
+            draft[id].messages.push(newAssistantMessage);
+          });
+          return {
+            chats: newChats,
           };
-          draft[id].messages.push(newAssistantMessage);
         });
-        return {
-          chats: newChats,
-        };
+      }
+
+      // If Bedrock returned an error via streaming, throw to handle in catch block
+      const currentStopReason = getStopReason(id);
+      if (currentStopReason === 'error') {
+        throw new Error(lastErrorCode || 'UNKNOWN_ERROR');
+      }
+
+      const chatId = await createChatIfNotExist(id);
+
+      setPredictedTitle(id).then(() => {
+        mutateListChat();
       });
+
+      const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
+
+      // In the case of editting, update the last user's message
+      if (generationMode === 'edit') {
+        const lastUserMessage: ShownMessage =
+          get().chats[id].messages[get().chats[id].messages.length - 2];
+        const updatedUserMessage: ToBeRecordedMessage = {
+          createdDate: lastUserMessage.createdDate!,
+          messageId: lastUserMessage.messageId!,
+          usecase: lastUserMessage.usecase!,
+          ...lastUserMessage,
+        };
+        toBeRecordedMessages.push(updatedUserMessage);
+      }
+
+      // In the case of continuing to output, retrying, or editing, update the last assistant's message
+      if (
+        generationMode === 'continue' ||
+        generationMode === 'retry' ||
+        generationMode == 'edit'
+      ) {
+        const lastAssistantMessage: ShownMessage =
+          get().chats[id].messages[get().chats[id].messages.length - 1];
+        const updatedAssistantMessage: ToBeRecordedMessage = {
+          createdDate: lastAssistantMessage.createdDate!,
+          messageId: lastAssistantMessage.messageId!,
+          usecase: lastAssistantMessage.usecase!,
+          ...lastAssistantMessage,
+        };
+        toBeRecordedMessages.push(updatedAssistantMessage);
+      }
+
+      const { messages } = await createMessages(chatId, {
+        messages: toBeRecordedMessages,
+      });
+
+      replaceMessages(id, messages);
+      return true;
+    } catch (e) {
+      console.error(e);
+      setWriting(id, false);
+
+      // Mode-specific error recovery
+      if (generationMode === 'normal') {
+        // normal: Remove user + assistant messages added by post() to restore pre-send state
+        popMessage(id); // assistant
+        popMessage(id); // user
+      } else if (generationMode === 'retry' && savedAssistantMessage) {
+        // retry: Restore the original assistant message that was reset to blank
+        set((state) => ({
+          chats: produce(state.chats, (draft) => {
+            draft[id].messages.pop();
+            draft[id].messages.push(savedAssistantMessage!);
+          }),
+        }));
+      }
+      // edit/continue: Don't modify messages
+      // - The conversation is already saved in DDB, so it can be restored by reloading
+      // - The user can also retry
+
+      // Detect Lambda payload too large error
+      const isPayloadTooLarge =
+        e instanceof Error && e.name === 'PayloadTooLargeError';
+
+      // Show localized error message via toast
+      const errorCode = isPayloadTooLarge
+        ? 'PAYLOAD_TOO_LARGE'
+        : lastErrorCode || (e instanceof Error ? e.message : '');
+      const i18nKey = `error.streamingError.${errorCode}`;
+      const fallbackKey = 'error.streamingError.UNKNOWN_ERROR';
+
+      const message = i18next.exists(i18nKey)
+        ? i18next.t(i18nKey)
+        : i18next.t(fallbackKey);
+
+      toast.error(message);
+      return false;
+    } finally {
+      setLoading(id, false);
     }
-
-    setLoading(id, false);
-
-    const chatId = await createChatIfNotExist(id);
-
-    setPredictedTitle(id).then(() => {
-      mutateListChat();
-    });
-
-    const toBeRecordedMessages = addMessageIdsToUnrecordedMessages(id);
-
-    // In the case of editting, update the last user's message
-    if (generationMode === 'edit') {
-      const lastUserMessage: ShownMessage =
-        get().chats[id].messages[get().chats[id].messages.length - 2];
-      const updatedUserMessage: ToBeRecordedMessage = {
-        createdDate: lastUserMessage.createdDate!,
-        messageId: lastUserMessage.messageId!,
-        usecase: lastUserMessage.usecase!,
-        ...lastUserMessage,
-      };
-      toBeRecordedMessages.push(updatedUserMessage);
-    }
-
-    // In the case of continuing to output, retrying, or editing, update the last assistant's message
-    if (
-      generationMode === 'continue' ||
-      generationMode === 'retry' ||
-      generationMode == 'edit'
-    ) {
-      const lastAssistantMessage: ShownMessage =
-        get().chats[id].messages[get().chats[id].messages.length - 1];
-      const updatedAssistantMessage: ToBeRecordedMessage = {
-        createdDate: lastAssistantMessage.createdDate!,
-        messageId: lastAssistantMessage.messageId!,
-        usecase: lastAssistantMessage.usecase!,
-        ...lastAssistantMessage,
-      };
-      toBeRecordedMessages.push(updatedAssistantMessage);
-    }
-
-    const { messages } = await createMessages(chatId, {
-      messages: toBeRecordedMessages,
-    });
-
-    replaceMessages(id, messages);
   };
 
   return {
@@ -829,18 +903,7 @@ const useChatState = create<{
         };
       });
     },
-    popMessage: (id: string) => {
-      let ret: ShownMessage | undefined;
-      set((state) => {
-        ret = state.chats[id].messages[state.chats[id].messages.length - 1];
-        return {
-          chats: produce(state.chats, (draft) => {
-            draft[id].messages.pop();
-          }),
-        };
-      });
-      return ret;
-    },
+    popMessage,
     post: async (
       id: string,
       content: string,
@@ -898,7 +961,7 @@ const useChatState = create<{
         };
       });
 
-      await generateMessage(
+      return await generateMessage(
         'normal',
         id,
         mutateListChat,
@@ -1117,7 +1180,7 @@ const useChat = (id: string, chatId?: string) => {
         | AdditionalModelRequestFields
         | undefined = undefined
     ) => {
-      post(
+      return post(
         id,
         content,
         mutateChatList,

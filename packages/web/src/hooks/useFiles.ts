@@ -120,11 +120,16 @@ const useFilesState = create<{
         const errorMessages: string[] = [];
         const extension = uploadedFile.file.name.split('.').pop() as string;
 
-        // Validate file extension and MIME type
-        const isFileExtensionAccepted = accept.includes(`.${extension}`);
+        // Validate file extension and MIME type (case-insensitive)
+        const isFileExtensionAccepted = accept.includes(
+          `.${extension.toLowerCase()}`
+        );
         const isMimeTypeValid =
           uploadedFile.mimeType &&
-          validateMimeTypeAndExtension(uploadedFile.mimeType, extension);
+          validateMimeTypeAndExtension(
+            uploadedFile.mimeType,
+            extension.toLowerCase()
+          );
         if (accept && accept.length === 0) {
           errorMessages.push(i18next.t('files.error.modelNotSupported'));
         } else if (!isFileExtensionAccepted) {

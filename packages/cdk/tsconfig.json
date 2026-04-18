@@ -31,7 +31,6 @@
     "skipLibCheck": true,
 
     // Type definition file settings
-    "typeRoots": ["../../node_modules/@types"],
     "types": ["jest", "node"]
   },
   // Exclude files and directories

@@ -45,6 +45,7 @@ export type GenerateTextPageQueryParams = BaseQueryParams & {
 
 export type RagPageQueryParams = BaseQueryParams & {
   content?: string;
+  systemContext?: string;
 };
 
 export type AgentPageQueryParams = BaseQueryParams & {

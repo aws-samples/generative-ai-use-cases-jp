@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
   Auth,
@@ -17,7 +17,6 @@ import { loadMCPConfig, extractSafeMCPConfig } from './utils/mcp-config-loader';
 import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import { ICertificate } from 'aws-cdk-lib/aws-certificatemanager';
-import { Agent } from 'generative-ai-use-cases';
 import { UseCaseBuilder } from './construct/use-case-builder';
 import { AgentBuilder } from './construct/agent-builder';
 import { ProcessedStackInput } from './stack-input';
@@ -30,8 +29,10 @@ import {
 } from 'aws-cdk-lib/aws-ec2';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
+import { ResearchAgentCoreStack } from './research-agent-core-stack';
 import * as path from 'path';
 import { RemoteOutputs } from 'cdk-remote-stack';
+import { REMOTE_OUTPUT_KEYS } from './remote-output-keys';
 
 export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly params: ProcessedStackInput;
@@ -39,11 +40,14 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly knowledgeBaseId?: string;
   readonly knowledgeBaseDataSourceBucketName?: string;
   // Agent
-  readonly agents?: Agent[];
+  readonly agentStack?: Stack;
   // Agent Core
   readonly createGenericAgentCoreRuntime?: boolean;
   readonly agentBuilderEnabled?: boolean;
   readonly agentCoreStack?: AgentCoreStack;
+  // Research Agent Core
+  readonly researchAgentEnabled?: boolean;
+  readonly researchAgentCoreStack?: ResearchAgentCoreStack;
   // Video Generation
   readonly videoBucketRegionMap: Record<string, string>;
   // Guardrail
@@ -59,8 +63,6 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
-  readonly cognitoUserPoolProxyEndpoint?: string;
-  readonly cognitoIdentityPoolProxyEndpoint?: string;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -76,6 +78,67 @@ export class GenerativeAiUseCasesStack extends Stack {
     process.env.overrideWarningsEnabled = 'false';
 
     const params = props.params;
+
+    // Get values from other stacks using RemoteOutputs
+    let agentsJson: string | undefined;
+
+    // Agent RemoteOutputs
+    if (params.agentEnabled && props.agentStack) {
+      const agentRemoteOutputs = new RemoteOutputs(this, 'AgentRemoteOutputs', {
+        stack: props.agentStack,
+        alwaysUpdate: true,
+        timeout: Duration.seconds(600),
+      });
+      agentsJson = agentRemoteOutputs.get(REMOTE_OUTPUT_KEYS.AGENTS);
+    }
+
+    let genericRuntimeArn: string | undefined;
+    let genericRuntimeName: string | undefined;
+    let agentBuilderRuntimeArn: string | undefined;
+    let agentBuilderRuntimeName: string | undefined;
+    let researchRuntimeArn: string | undefined;
+    let researchRuntimeName: string | undefined;
+
+    // Get runtime info from remote AgentCore stack using cdk-remote-stack
+    if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
+      const remoteOutputs = new RemoteOutputs(this, 'AgentCoreRemoteOutputs', {
+        stack: props.agentCoreStack!,
+        timeout: Duration.seconds(600),
+      });
+
+      if (params.createGenericAgentCoreRuntime) {
+        genericRuntimeArn = remoteOutputs.get('GenericAgentCoreRuntimeArn');
+        genericRuntimeName = remoteOutputs.get('GenericAgentCoreRuntimeName');
+      }
+
+      if (params.agentBuilderEnabled) {
+        agentBuilderRuntimeArn = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeArn'
+        );
+        agentBuilderRuntimeName = remoteOutputs.get(
+          'AgentBuilderAgentCoreRuntimeName'
+        );
+      }
+    }
+
+    // Get runtime info from remote Research AgentCore stack
+    if (params.researchAgentEnabled) {
+      const researchRemoteOutputs = new RemoteOutputs(
+        this,
+        'ResearchAgentCoreRemoteOutputs',
+        {
+          stack: props.researchAgentCoreStack!,
+          timeout: Duration.seconds(600),
+        }
+      );
+
+      researchRuntimeArn = researchRemoteOutputs.get(
+        REMOTE_OUTPUT_KEYS.RESEARCH_AGENT_CORE_RUNTIME_ARN
+      );
+      researchRuntimeName = researchRemoteOutputs.get(
+        REMOTE_OUTPUT_KEYS.RESEARCH_AGENT_CORE_RUNTIME_NAME
+      );
+    }
 
     // Common security group for saving ENI in Closed network mode
     let securityGroups: ISecurityGroup[] | undefined = undefined;
@@ -115,22 +178,26 @@ export class GenerativeAiUseCasesStack extends Stack {
       crossAccountBedrockRoleArn: params.crossAccountBedrockRoleArn,
       allowedIpV4AddressRanges: params.allowedIpV4AddressRanges,
       allowedIpV6AddressRanges: params.allowedIpV6AddressRanges,
-      additionalS3Buckets: props.agentCoreStack?.fileBucket
-        ? [props.agentCoreStack.fileBucket]
-        : undefined,
+      additionalS3Buckets: [
+        ...(props.agentCoreStack?.fileBucket
+          ? [props.agentCoreStack.fileBucket]
+          : []),
+        ...(props.researchAgentCoreStack?.fileBucket
+          ? [props.researchAgentCoreStack.fileBucket]
+          : []),
+      ].filter(Boolean),
       userPool: auth.userPool,
       idPool: auth.idPool,
       userPoolClient: auth.client,
       table: database.table,
       statsTable: database.statsTable,
       knowledgeBaseId: params.ragKnowledgeBaseId || props.knowledgeBaseId,
-      agents: props.agents,
+      agents: agentsJson,
       guardrailIdentify: props.guardrailIdentifier,
       guardrailVersion: props.guardrailVersion,
       vpc: props.vpc,
       securityGroups,
       apiGatewayVpcEndpoint: props.apiGatewayVpcEndpoint,
-      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
     });
 
     // WAF
@@ -168,7 +235,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     // Load MCP configuration for Web frontend
     const mcpServers = loadMCPConfig(
-      path.join(__dirname, '../assets/mcp-configs/agent-builder.json')
+      path.join(
+        __dirname,
+        '../lambda-python/generic-agent-core-runtime/mcp-configs/agent-builder/mcp.json'
+      )
     );
     const safeMCPConfig = extractSafeMCPConfig(mcpServers);
 
@@ -185,45 +255,19 @@ export class GenerativeAiUseCasesStack extends Stack {
       mcpEndpoint = mcpApi.endpoint;
     }
 
-    // AgentCore Runtime (External runtimes and permissions only)
-    let genericRuntimeArn: string | undefined;
-    let genericRuntimeName: string | undefined;
-    let agentBuilderRuntimeArn: string | undefined;
-    let agentBuilderRuntimeName: string | undefined;
-    let remoteOutputs: RemoteOutputs | undefined;
-
-    // Get runtime info from remote AgentCore stack using cdk-remote-stack
-    if (params.createGenericAgentCoreRuntime || params.agentBuilderEnabled) {
-      remoteOutputs = new RemoteOutputs(this, 'AgentCoreRemoteOutputs', {
-        stack: props.agentCoreStack!,
-      });
-
-      if (params.createGenericAgentCoreRuntime) {
-        genericRuntimeArn = remoteOutputs.get('GenericAgentCoreRuntimeArn');
-        genericRuntimeName = remoteOutputs.get('GenericAgentCoreRuntimeName');
-      }
-
-      if (params.agentBuilderEnabled) {
-        agentBuilderRuntimeArn = remoteOutputs.get(
-          'AgentBuilderAgentCoreRuntimeArn'
-        );
-        agentBuilderRuntimeName = remoteOutputs.get(
-          'AgentBuilderAgentCoreRuntimeName'
-        );
-      }
-    }
-
     // Create AgentCore construct for external runtimes and permissions
     if (
       params.agentCoreExternalRuntimes.length > 0 ||
       genericRuntimeArn ||
-      agentBuilderRuntimeArn
+      agentBuilderRuntimeArn ||
+      researchRuntimeArn
     ) {
       new AgentCore(this, 'AgentCore', {
         agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
         idPool: auth.idPool,
         genericRuntimeArn,
         agentBuilderRuntimeArn,
+        researchRuntimeArn,
       });
     }
 
@@ -253,7 +297,8 @@ export class GenerativeAiUseCasesStack extends Stack {
       imageGenerationModelIds: api.imageGenerationModelIds,
       videoGenerationModelIds: api.videoGenerationModelIds,
       endpointNames: api.endpointNames,
-      agents: api.agents,
+      builtinAgentsJson: agentsJson || '[]',
+      customAgentsJson: JSON.stringify(params.agents),
       inlineAgents: params.inlineAgents,
       useCaseBuilderEnabled: params.useCaseBuilderEnabled,
       speechToSpeechNamespace: speechToSpeech.namespace,
@@ -282,6 +327,14 @@ export class GenerativeAiUseCasesStack extends Stack {
         : undefined,
       agentCoreExternalRuntimes: params.agentCoreExternalRuntimes,
       agentCoreRegion: params.agentCoreRegion,
+      researchAgentEnabled: params.researchAgentEnabled,
+      researchAgentRuntime: researchRuntimeArn
+        ? {
+            name: researchRuntimeName || 'ResearchAgentCoreRuntime',
+            arn: researchRuntimeArn,
+            description: 'Research Agent Core Runtime with Claude Agent SDK',
+          }
+        : undefined,
       // Frontend
       hiddenUseCases: params.hiddenUseCases,
       // Custom Domain
@@ -291,8 +344,6 @@ export class GenerativeAiUseCasesStack extends Stack {
       hostedZoneId: params.hostedZoneId,
       // Closed network
       webBucket: props.webBucket,
-      cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
-      cognitoIdentityPoolProxyEndpoint: props.cognitoIdentityPoolProxyEndpoint,
       // Branding
       brandingConfig: params.brandingConfig,
     });
@@ -390,7 +441,6 @@ export class GenerativeAiUseCasesStack extends Stack {
         agentBuilderRuntimeArn,
         useCaseBuilderTable: useCaseBuilder.useCaseBuilderTable,
         useCaseIdIndexName: useCaseBuilder.useCaseIdIndexName,
-        cognitoUserPoolProxyEndpoint: props.cognitoUserPoolProxyEndpoint,
       });
     }
 
@@ -416,6 +466,10 @@ export class GenerativeAiUseCasesStack extends Stack {
 
     new CfnOutput(this, 'ApiEndpoint', {
       value: api.api.url,
+    });
+
+    new CfnOutput(this, 'FileBucketName', {
+      value: api.fileBucket.bucketName,
     });
 
     new CfnOutput(this, 'UserPoolId', { value: auth.userPool.userPoolId });

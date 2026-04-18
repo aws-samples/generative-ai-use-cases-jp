@@ -10,6 +10,7 @@ export type HiddenUseCases = {
   diagram?: boolean;
   meetingMinutes?: boolean;
   voiceChat?: boolean;
+  transcribe?: boolean;
 };
 
 export type HiddenUseCasesKeys = keyof HiddenUseCases;

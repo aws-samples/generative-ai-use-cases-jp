@@ -96,7 +96,7 @@ export const useSpeechToSpeech = () => {
     audioRecorder.addEventListener(
       'onAudioRecorded',
       (audioData: Int16Array) => {
-        const base64Data = arrayBufferToBase64(audioData.buffer);
+        const base64Data = arrayBufferToBase64(audioData.buffer as ArrayBuffer);
         audioInputQueue.current.push(base64Data);
       }
     );

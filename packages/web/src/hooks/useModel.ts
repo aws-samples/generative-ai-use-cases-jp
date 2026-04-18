@@ -87,26 +87,24 @@ const speechToSpeechModelIds: string[] = speechToSpeechModelConfigs.map(
   (model) => model.modelId
 );
 
-// Try to get agents from new VITE_APP_AGENTS, fallback to old VITE_APP_AGENT_NAMES
+// Combine builtin and custom agents
 let agents: AgentInfo[] = [];
 let agentNames: string[] = [];
 
 try {
-  agents = JSON.parse(import.meta.env.VITE_APP_AGENTS || '[]') as AgentInfo[];
-  agentNames = agents.map((agent) => agent.displayName);
-} catch {
-  // Fallback to old format for backward compatibility
-  agentNames = JSON.parse(import.meta.env.VITE_APP_AGENT_NAMES || '[]')
-    .map((name: string) => name.trim())
-    .filter((name: string) => name);
+  const builtinAgentsJson =
+    import.meta.env.VITE_APP_BUILTIN_AGENTS_JSON || '[]';
+  const customAgentsJson = import.meta.env.VITE_APP_CUSTOM_AGENTS_JSON || '[]';
 
-  // Convert old format to new format
-  agents = agentNames.map((name) => ({
-    displayName: name,
-    agentId: name,
-    aliasId: '',
-    description: '',
-  }));
+  const builtinAgents = JSON.parse(builtinAgentsJson) as AgentInfo[];
+  const customAgents = JSON.parse(customAgentsJson) as AgentInfo[];
+
+  agents = [...builtinAgents, ...customAgents];
+  agentNames = agents.map((agent) => agent.displayName);
+} catch (error) {
+  console.warn('Failed to parse agents JSON:', error);
+  agents = [];
+  agentNames = [];
 }
 
 const getFlows = () => {

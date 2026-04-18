@@ -49,8 +49,20 @@ export interface IndexScheduleCron {
 }
 
 class KendraIndexWithCfnParameter extends kendra.CfnIndex {
-  attrId: string;
-  attrArn: string;
+  private _attrId: string;
+  public get attrId(): string {
+    return this._attrId;
+  }
+  public set attrId(value: string) {
+    this._attrId = value;
+  }
+  private _attrArn: string;
+  public get attrArn(): string {
+    return this._attrArn;
+  }
+  public set attrArn(value: string) {
+    this._attrArn = value;
+  }
 
   constructor(
     scope: Construct,
@@ -75,8 +87,20 @@ class KendraIndexWithCfnParameter extends kendra.CfnIndex {
 }
 
 class KendraDataSourceWithCfnParameter extends kendra.CfnDataSource {
-  attrId: string;
-  attrArn: string;
+  private _attrId: string;
+  public get attrId(): string {
+    return this._attrId;
+  }
+  public set attrId(value: string) {
+    this._attrId = value;
+  }
+  private _attrArn: string;
+  public get attrArn(): string {
+    return this._attrArn;
+  }
+  public set attrArn(value: string) {
+    this._attrArn = value;
+  }
 
   constructor(
     scope: Construct,

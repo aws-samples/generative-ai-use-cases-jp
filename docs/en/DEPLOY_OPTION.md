@@ -245,8 +245,9 @@ After deployment is complete, follow these steps to sync the Knowledge Base Data
 1. Open the [Knowledge Base console](https://console.aws.amazon.com/bedrock/home#/knowledge-bases)
 2. Click on generative-ai-use-cases-jp
 3. Select s3-data-source and click Sync
+4. Select web-crawler-data-source and click Sync
 
-When the Status becomes Available, the process is complete. Files stored in S3 have been ingested and can be searched through the Knowledge Base.
+When the Status of each data source becomes Available, the process is complete. Files stored in S3 and web pages fetched by the Web Crawler have been ingested and can be searched through the Knowledge Base.
 
 > [!NOTE]
 > After enabling RAG Chat (Knowledge Base), if you want to disable it again, set `ragKnowledgeBaseEnabled: false` and redeploy. This will disable RAG Chat (Knowledge Base), but the `RagKnowledgeBaseStack` itself will remain. To completely remove it, open the management console and delete the `RagKnowledgeBaseStack` stack from CloudFormation in the modelRegion.
@@ -336,7 +337,7 @@ To apply changes, follow these steps to delete and recreate the existing Knowled
 
 With the deletion of RagKnowledgeBaseStack, **the S3 bucket for RAG chat and the RAG files stored in it will be deleted**.
 If you have uploaded RAG files to the S3 bucket, back them up and upload them again after redeployment.
-Also, follow the previously mentioned steps to sync the Data source again.
+Also, follow the previously mentioned steps to sync the Data sources (s3-data-source, web-crawler-data-source) again.
 
 #### How to check OpenSearch Service Index in the management console
 
@@ -397,6 +398,34 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "agentEnabled": true
+  }
+}
+```
+
+#### Customizing Agent Foundation Model
+
+You can customize the foundation model used by Code Interpreter and Search Agent. By default, `global.anthropic.claude-sonnet-4-6` is used.
+
+- `agentFoundationModel` : Specify the model to use for agents. Only models supported by Bedrock Agent are available.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
   }
 }
 ```
@@ -567,6 +596,44 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### Enabling Research Agent Use Case
+
+The Research Agent provides advanced research capabilities using web search and AWS documentation search.
+
+#### Prerequisites
+
+- **Brave Search API Key (Required)**: Obtain from AWS Marketplace
+- **Tavily API Key (Optional)**: For additional search capabilities
+
+> [!TIP]
+> For instructions on obtaining the Brave Search API key, see the [Research Agent Deployment Guide](./DEPLOY_RESEARCH_USECASE.md).
+
+#### Configuration Example in parameter.ts
+
+```typescript
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    researchAgentEnabled: true,
+    researchAgentBraveApiKey: 'YOUR_BRAVE_API_KEY',
+    researchAgentTavilyApiKey: '', // Optional
+  },
+};
+```
+
+#### Configuration Example in cdk.json
+
+```json
+{
+  "context": {
+    "researchAgentEnabled": true,
+    "researchAgentBraveApiKey": "YOUR_BRAVE_API_KEY",
+    "researchAgentTavilyApiKey": ""
+  }
+}
+```
+
+For detailed instructions, see the [Research Agent Deployment Guide](./DEPLOY_RESEARCH_USECASE.md).
+
 ### Enabling MCP Chat Use Case
 
 > [!WARNING]
@@ -681,41 +748,44 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
-### Enabling AgentCore Use Cases
+### Enabling AgentCore Use Case
 
 This is a use case for integrating with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
 
 Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
-By default, it is deployed to the `modelRegion`, but you can override this by specifying `agentCoreRegion`.
+By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
 
-The default agents available in AgentCore can utilize MCP servers defined in [mcp.json](https://github.com/aws-samples/generative-ai-use-cases/blob/main/packages/cdk/lambda-python/generic-agent-core-runtime/mcp.json).
-This default agent is available in Agent Builder, and users can create any agent from MCPs that administrators have permitted.
+The default agents available in AgentCore can use MCP servers defined in [generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json).
 
 The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
-For details, please refer to the documentation [here](https://awslabs.github.io/mcp/).
-When adding MCP servers, please add them to the aforementioned `mcp.json`.
-However, MCP servers that start with methods other than `uvx` require development work such as rewriting the Dockerfile.
+For more details, please refer to [this documentation](https://awslabs.github.io/mcp/).
+To add MCP servers, add them to the aforementioned `generic/mcp.json`.
 
-With `agentCoreExternalRuntimes`, you can use externally created AgentCore Runtimes.
+You can use externally created AgentCore Runtimes with `agentCoreExternalRuntimes`.
 
-To enable AgentCore use cases, the `docker` command must be executable.
+When accessing services outside AWS from AgentCore Runtime, use AgentCore Gateway.
+By specifying the Gateway ARN in `agentCoreGatewayArns`, an IAM policy following the principle of least privilege will be configured.
+After configuration, use `mcp-proxy-for-aws` in the MCP settings to specify the endpoint.
+For details, refer to the [mcp-proxy-for-aws documentation](https://github.com/aws/mcp-proxy-for-aws).
+
+To enable the AgentCore use case, the `docker` command must be executable.
 
 > [!WARNING]
-> On Linux machines using x86_64 CPUs (Intel, AMD, etc.), run the following command before cdk deployment:
+> On Linux machines using x86_64 CPUs (Intel, AMD, etc.), execute the following command before deploying:
 >
 > ```
 > docker run --privileged --rm tonistiigi/binfmt --install arm64
 > ```
 >
-> If you do not run the above command, the following error will occur:  
-> During the deployment process, ARM-based container images used by AgentCore Runtime are built. When building ARM container images on x86_64 CPUs, errors occur due to CPU architecture differences.
+> If you do not execute the above command, the following error will occur.
+> During the deployment process, ARM-based container images used by AgentCore Runtime are built. When building ARM container images on x86_64 CPUs, errors occur due to differences in CPU architecture.
 >
 > ```
 > ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
 > AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
 > ```
 >
-> Running this command makes temporary configuration changes to the host Linux Kernel. It registers QEMU emulator custom handlers in Binary Format Miscellaneous (binfmt_misc), enabling ARM container image builds. The configuration returns to its original state after reboot, so the command must be re-executed before re-deployments.
+> Executing this command makes temporary configuration changes to the host's Linux Kernel. By registering QEMU custom handlers in Binary Format Miscellaneous (binfmt_misc), ARM container images can be built. The configuration reverts after a reboot, so re-execution is required when deploying again.
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
@@ -725,6 +795,9 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
     agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
     agentCoreExternalRuntimes: [
       {
         name: 'AgentCore1',
@@ -744,6 +817,9 @@ const envs: Record<string, Partial<StackInput>> = {
   "context": {
     "createGenericAgentCoreRuntime": true,
     "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ],
     "agentCoreExternalRuntimes": [
       {
         "name": "AgentCore1",
@@ -791,7 +867,6 @@ When using VPC mode, configure the following parameters:
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     createGenericAgentCoreRuntime: true,
-    agentBuilderEnabled: true,
     agentCoreVpcId: 'vpc-xxxxxxxxx',
     agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
   },
@@ -805,7 +880,6 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "createGenericAgentCoreRuntime": true,
-    "agentBuilderEnabled": true,
     "agentCoreVpcId": "vpc-xxxxxxxxx",
     "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
   }
@@ -814,6 +888,51 @@ const envs: Record<string, Partial<StackInput>> = {
 
 > [!WARNING]
 > When using VPC mode, security groups are not automatically deleted when AgentCore Runtime is deleted due to changes such as from PRIVATE to PUBLIC. This is because AWS-managed ENIs created by AgentCore Runtime reference the security groups, making them undeletable by CloudFormation. After deleting AgentCore Runtime, wait for the managed ENIs to be automatically deleted, then manually delete the security groups. The security group IDs that need to be deleted are displayed in the CloudFormation outputs.
+
+### Enabling AgentBuilder Use Case
+
+This is a use case where users can freely create Agents for each use case by configuring system prompts and arbitrary MCPs. (Experimental: Breaking changes may be made without notice)
+
+Similar to the AgentCore use case, administrators pre-register MCPs in [agent-builder/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/agent-builder/mcp.json). Users can selectively use their preferred MCPs from those registered by administrators.
+
+Enabling `agentBuilderEnabled` will deploy the AgentCore Runtime for Agent Builder.
+By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
+
+When accessing services outside AWS, use AgentCore Gateway.
+By specifying the Gateway ARN in `agentCoreGatewayArns`, an IAM policy following the principle of least privilege will be configured.
+After configuration, use `mcp-proxy-for-aws` in the MCP settings to specify the endpoint.
+For details, refer to the [mcp-proxy-for-aws documentation](https://github.com/aws/mcp-proxy-for-aws).
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentBuilderEnabled: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "agentBuilderEnabled": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ]
+  }
+}
+```
 
 ### Enabling Voice Chat Use Case
 
@@ -849,10 +968,14 @@ As of 2025/03, the multimodal models are:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
-"global.anthropic.claude-haiku-4-5-20251001-v1:0"
+"global.anthropic.claude-haiku-4-5-20251001-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
@@ -863,6 +986,8 @@ As of 2025/03, the multimodal models are:
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -877,11 +1002,13 @@ As of 2025/03, the multimodal models are:
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
 "jp.anthropic.claude-sonnet-4-5-20250929-v1:0",
-"jp.anthropic.claude-haiku-4-5-20251001-v1:0"
+"jp.anthropic.claude-haiku-4-5-20251001-v1:0",
+"qwen.qwen3-vl-235b-a22b",
 "us.meta.llama4-maverick-17b-instruct-v1:0",
 "us.meta.llama4-scout-17b-instruct-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"mistral.magistral-small-2509",
 "us.mistral.pixtral-large-2502-v1:0",
 "eu.mistral.pixtral-large-2502-v1:0",
 "amazon.nova-pro-v1:0",
@@ -889,10 +1016,17 @@ As of 2025/03, the multimodal models are:
 "us.amazon.nova-premier-v1:0",
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "apac.amazon.nova-pro-v1:0",
-"apac.amazon.nova-lite-v1:0"
+"apac.amazon.nova-lite-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 At least one of these must be defined in `modelIds`.
@@ -1011,7 +1145,7 @@ const envs: Record<string, Partial<StackInput>> = {
 
 Specify the model region and models in `parameter.ts` or `cdk.json` using `modelRegion`, `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds`, and `speechToSpeechModelIds`. For `modelIds`, `imageGenerationModelIds`, `videoGenerationModelIds`, and `speechToSpeechModelIds`, specify a list of models you want to use from those available in the specified region. AWS documentation provides a [list of models](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html) and [model support by region](https://docs.aws.amazon.com/bedrock/latest/userguide/models-regions.html).
 
-The solution also supports [cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html) models. Cross-region inference models are represented as `{us|eu|apac}.{model-provider}.{model-name}` and must match the `{us|eu|apac}` prefix with the region specified in modelRegion.
+The solution also supports [cross-region inference](https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference-support.html) models. Cross-region inference models are represented as `{global|us|eu|apac|jp|au}.{model-provider}.{model-name}` and must match the `{global|us|eu|apac|jp|au}` prefix with the region specified in modelRegion.
 
 (Example) If `modelRegion` is `us-east-1`, `us.anthropic.claude-3-5-sonnet-20240620-v1:0` is OK, but `eu.anthropic.claude-3-5-sonnet-20240620-v1:0` is not.
 
@@ -1024,9 +1158,13 @@ This solution supports the following text generation models:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
@@ -1037,6 +1175,10 @@ This solution supports the following text generation models:
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"au.anthropic.claude-opus-4-6-v1",
+"au.anthropic.claude-sonnet-4-6",
+"eu.anthropic.claude-opus-4-6-v1",
+"eu.anthropic.claude-sonnet-4-6",
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
 "eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -1054,6 +1196,8 @@ This solution supports the following text generation models:
 "qwen.qwen3-32b-v1:0",
 "qwen.qwen3-coder-480b-a35b-v1:0",
 "qwen.qwen3-coder-30b-a3b-v1:0",
+"qwen.qwen3-next-80b-a3b",
+"qwen.qwen3-vl-235b-a22b",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
 "amazon.titan-text-premier-v1:0",
@@ -1078,6 +1222,11 @@ This solution supports the following text generation models:
 "eu.mistral.pixtral-large-2502-v1:0",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2",
+"mistral.mistral-large-3-675b-instruct",
+"mistral.ministral-3-3b-instruct",
+"mistral.ministral-3-8b-instruct",
+"mistral.ministral-3-14b-instruct",
+"mistral.magistral-small-2509",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
 "amazon.nova-micro-v1:0",
@@ -1085,14 +1234,24 @@ This solution supports the following text generation models:
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
 "us.amazon.nova-micro-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "eu.amazon.nova-micro-v1:0",
 "apac.amazon.nova-pro-v1:0",
 "apac.amazon.nova-lite-v1:0",
 "apac.amazon.nova-micro-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
 "openai.gpt-oss-120b-1:0",
-"openai.gpt-oss-20b-1:0"
+"openai.gpt-oss-20b-1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"minimax.minimax-m2",
+"moonshot.kimi-k2-thinking",
+"nvidia.nemotron-nano-9b-v2",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 This solution supports the following speech-to-speech models:

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  research-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - BRAVE_API_KEYS=${BRAVE_API_KEYS:-[]}
+      - TAVILY_API_KEYS=${TAVILY_API_KEYS:-[]}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+      - MCP_CONFIG_PATH=/var/task/mcp-configs/mcp.json
+      - MAX_ITERATIONS=200
+    volumes:
+      - ~/.aws:/root/.aws:ro

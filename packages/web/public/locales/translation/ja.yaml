@@ -41,6 +41,7 @@ agent_builder:
   description_placeholder: エージェントの機能を説明してください...
   description_too_long: 説明は500文字以下である必要があります
   edit_agent: エージェントを編集
+  editor: エディター
   enable_code_execution: コード実行を有効にする
   enter_agent_name: エージェント名を入力
   enter_system_prompt: エージェントの動作を定義するシステムプロンプトを入力
@@ -59,6 +60,9 @@ agent_builder:
   failed_to_update_agent: エージェントの更新に失敗しました
   favorites: お気に入り
   filter_by_tag: タグでフィルター
+  generate_short: 生成
+  generate_with_ai: AIにより生成する
+  generating_prompt: システムプロンプトを生成中...
   loading_agent: エージェントを読み込み中...
   mcp_server_configuration: MCPサーバー設定
   mcp_server_description: エージェントに追加機能を提供するMCPサーバーを選択してください。これらのサーバーはセキュリティのため管理者によって事前設定されています。
@@ -76,6 +80,10 @@ agent_builder:
   no_mcp_servers_match_filter: 現在のフィルターに一致するMCPサーバーがありません。
   no_mcp_servers_selected: MCPサーバーが選択されていません。エージェントは基本機能のみ利用できます。
   no_public_agents_available: 利用可能な公開エージェントがありません
+  overwrite_confirm: 上書きする
+  overwrite_prompt_message: すでにシステムプロンプトが入力されています。AIで生成したプロンプトで上書きしますか？
+  overwrite_prompt_title: システムプロンプトの上書き確認
+  preview: プレビュー
   public: 公開エージェント
   public_sharing_description: >-
     このエージェントを公開し、他のユーザーが発見して利用できるようにします。エージェントはすべてのユーザーに表示されますが、オリジナルを変更することはできません。
@@ -383,6 +391,12 @@ drawer:
   generative_ai: (生成 AI)
   tools: ツール
   use_cases: ユースケース
+error:
+  streamingError:
+    ACCESS_DENIED: 選択されたモデルが有効化されていません。Amazon Bedrock コンソールでモデルを有効化してください。
+    PAYLOAD_TOO_LARGE: 添付ファイルのサイズが大きすぎます。ファイルサイズまたは添付数を減らして再度お試しください。
+    THROTTLING: サーバーが混み合っています。しばらく待ってから再度お試しください。
+    UNKNOWN_ERROR: エラーが発生しました。再度お試しいただくか、管理者にお問い合わせください。
 feedback:
   additional_feedback: 他にフィードバックがありましたら、入力してください。(任意)
   reason_error: 理由を選択してください。
@@ -658,9 +672,15 @@ mcp_chat:
 meetingMinutes:
   auto_generate: 自動生成
   bidirectional: 双方向翻訳
-  clear_minutes: 議事録をクリア
+  both_panel: 両方表示
+  clear_minutes: クリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
+  diagram_flowchart: フローチャート（会議の流れ）
+  diagram_mindmap: マインドマップ（決定事項）
+  diagram_options: 生成する図の種類
+  diagram_sequence: シーケンス図（関係性）
+  diagram_timeline: タイムライン（期限・スケジュール）
   frequency: 生成頻度
   frequency_10min: 10分ごと
   frequency_1min: 1分ごと
@@ -673,7 +693,10 @@ meetingMinutes:
   generating: 議事録生成中...
   generation_error: 議事録の生成に失敗しました。再試行してください。
   generation_frequency: 生成頻度
+  generation_panel: 議事録生成
   generation_success: 議事録が正常に生成されました
+  hide_prompt: ▼ プロンプトを非表示
+  input_source: 入力ソース
   language: 文字起こし言語
   language_1: 言語1
   language_2: 言語2
@@ -685,34 +708,51 @@ meetingMinutes:
   language_thai: タイ語
   language_vietnamese: ベトナム語
   last_generated: 最後の生成時刻 {{time}}
+  microphone: マイク
   minutes_placeholder: 生成後にここに議事録が表示されます
   model: 議事録生成モデル
   new_recording_session: 新しい録音セッション
   next_generation: 次回生成
   next_generation_in: '次回生成まで : '
   no_transcript: 文字起こしがありません
+  option: オプション
   partial_indicator: (...)
+  prompt_title_placeholder: プロンプトの名前を入力してください...
   record_transcribe: 音声認識
+  save_as_prompt: カスタムプロンプトとして保存
+  saved_prompt_body: プロンプト内容
+  saved_prompt_created: カスタムプロンプトを保存しました
+  saved_prompt_delete_confirm: このプロンプトを削除しますか？
+  saved_prompt_deleted: カスタムプロンプトを削除しました
+  saved_prompt_prefix: ★
+  saved_prompt_title: プロンプトタイトル
+  saved_prompt_updated: カスタムプロンプトを更新しました
   screen_audio_error: スクリーン音声エラー
+  settings: 設定
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
   style_detail: 詳細
+  style_diagram: 図解
   style_faq: 質疑応答
   style_newspaper: 新聞
   style_summary: 要約
   style_transcription: 文字起こし
+  style_whiteboard: ホワイトボード
   target_language: 翻訳言語
   title: 議事録生成
   transcript: 文字起こし
   transcription_language: 文字起こし言語
+  transcription_panel: 文字起こし
   translation_language: 翻訳言語
-  translation_model: リアルタイム翻訳モデル
+  translation_model: 翻訳モデル
   translation_type: 翻訳方式
   unidirectional: 片方向翻訳
+  view_prompt: ▶ プロンプトを表示
 model:
   parameters:
     reasoning_budget: 深く考えるトークン数上限
+    reasoning_effort: 思考の深さ (Effort)
 navigation:
   agentChat: Agent チャット
   chat: チャット
@@ -768,6 +808,18 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
+research:
+  description: 業種・業界問わず様々なリサーチタスクを Web 検索を駆使して実施し、詳細な調査レポートを作成します。
+  general_research: 一般調査
+  general_research_desc: 幅広い分野の情報を調査し、総合的な分析を提供します
+  label: リサーチ
+  mini_research: クイック調査
+  mini_research_desc: 短時間で要点を調査し、簡潔な回答を提供します
+  select_mode: モードを選択してください
+  start_conversation: リサーチエージェントと会話を開始
+  technical_research: 技術調査
+  technical_research_desc: 詳細な技術調査と分析を実施します
+  title: リサーチ
 setting:
   ai_items:
     agent_name: Agent 名
@@ -835,6 +887,15 @@ summarize:
   result_placeholder: 要約された文章がここに表示されます
   text_to_summarize: 要約したい文章
   title: 要約
+svg:
+  download_as_png: PNGとしてダウンロード
+  download_as_svg: SVGとしてダウンロード
+  invalid_syntax: 無効なSVG構文
+  png_error: 'PNG出力エラー: '
+  preview_alt: SVGプレビュー
+  show_code: コードを表示
+  show_preview: プレビューを表示
+  svg_error: 'SVG出力エラー: '
 transcribe:
   detailed_parameters: 詳細なパラメータ
   direct_input: 直接入力
@@ -847,7 +908,7 @@ transcribe:
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
   screen_audio_error: スクリーン音声エラー
-  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。<br/>Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。<br/>Chrome と Edge は動作します。Firefox は動作しません。'
+  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。Chrome と Edge は動作します。Firefox は動作しません。'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
   speaker_recognition: 話者認識
@@ -866,7 +927,7 @@ translate:
   detectedLanguage: 検出言語
   enter_text: 入力してください
   realtimeTranslation: リアルタイム翻訳
-  realtime_translation: リアルタイム翻訳
+  realtime_translation: 翻訳
   result_placeholder: 翻訳結果がここに表示されます
   systemGeneratedContext: システム自動コンテキスト
   systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト

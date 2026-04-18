@@ -24,6 +24,10 @@ app.get('{*key}', async (req: Request, res: Response) => {
     key = key.substring(1);
   }
 
+  if (!key) {
+    key = 'index.html';
+  }
+
   try {
     const headCommand = new HeadObjectCommand({
       Bucket: BUCKET,

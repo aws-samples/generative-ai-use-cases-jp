@@ -241,6 +241,12 @@ drawer:
   generative_ai: (生成式 AI)
   tools: 工具
   use_cases: 用例
+error:
+  streamingError:
+    ACCESS_DENIED: 所选模型尚未启用。请在 Amazon Bedrock 控制台中启用该模型。
+    PAYLOAD_TOO_LARGE: 附件文件过大。请减小文件大小或附件数量后重试。
+    THROTTLING: 服务器当前流量较高。请稍后重试。
+    UNKNOWN_ERROR: 发生错误。请重试或联系管理员。
 feedback:
   additional_feedback: 如果您有其他反馈，请输入。(可选)
   reason_error: 请选择原因。
@@ -467,7 +473,9 @@ meetingMinutes:
   generating: 正在生成会议纪要...
   generation_error: 会议纪要生成失败。请重试。
   generation_frequency: 生成频率
+  generation_panel: 生成会议纪要
   generation_success: 会议纪要生成成功
+  hide_prompt: ▼ 隐藏提示词
   language: 语音识别语言
   language_auto: 自动检测
   language_chinese: 中文
@@ -484,21 +492,35 @@ meetingMinutes:
   next_generation_in: '下次生成时间 :'
   no_transcript: 无转录文本
   partial_indicator: (...)
+  prompt_title_placeholder: 输入此提示的名称...
   record_transcribe: 录音和转录
+  save_as_prompt: 保存为自定义提示
+  saved_prompt_body: 提示内容
+  saved_prompt_created: 自定义提示已保存
+  saved_prompt_delete_confirm: 删除此提示？
+  saved_prompt_deleted: 自定义提示已删除
+  saved_prompt_prefix: ★
+  saved_prompt_title: 提示标题
+  saved_prompt_updated: 自定义提示已更新
   screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别
   style: 会议纪要风格
   style_custom: 自定义
   style_detail: 详细
+  style_diagram: 图解
   style_faq: 常见问题
   style_newspaper: 新闻报道
   style_summary: 摘要
   style_transcription: 转录
+  style_whiteboard: 白板
   title: 会议纪要生成器
   transcript: 转录文本
+  transcription_panel: 转录文本
+  view_prompt: ▶ 查看提示词
 model:
   parameters:
     reasoning_budget: 推理预算
+    reasoning_effort: 思考深度
 navigation:
   agentChat: Agent聊天
   chat: 聊天
@@ -551,6 +573,18 @@ rag:
   please_refer: 请参考。
   retrieving: 正在从Kendra获取参考文档...
   title: RAG聊天
+research:
+  description: 使用网络搜索进行跨行业的各种研究任务，并创建详细的研究报告。
+  general_research: 一般调查
+  general_research_desc: 调查广泛领域的信息并提供综合分析
+  label: 研究
+  mini_research: 快速调查
+  mini_research_desc: 快速调查要点并提供简洁的答案
+  select_mode: 选择模式
+  start_conversation: 开始与研究代理对话
+  technical_research: 技术调查
+  technical_research_desc: 进行详细的技术调查和分析
+  title: 研究
 setting:
   ai_items:
     agent_name: Agent名称

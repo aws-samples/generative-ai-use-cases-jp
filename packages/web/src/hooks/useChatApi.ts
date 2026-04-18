@@ -25,7 +25,6 @@ import {
   InvokeWithResponseStreamCommand,
 } from '@aws-sdk/client-lambda';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
-import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 import useHttp from '../hooks/useHttp';
 import { decomposeId } from '../utils/ChatUtils';
 import { AxiosResponse } from 'axios';
@@ -130,14 +129,6 @@ const useChatApi = () => {
       const region = import.meta.env.VITE_APP_REGION;
       const userPoolId = import.meta.env.VITE_APP_USER_POOL_ID;
       const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
-      const cognitoIdentityPoolProxyEndpoint = import.meta.env
-        .VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT;
-      const cognito = new CognitoIdentityClient({
-        region,
-        ...(cognitoIdentityPoolProxyEndpoint
-          ? { endpoint: cognitoIdentityPoolProxyEndpoint }
-          : {}),
-      });
       const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
       const lambda = new LambdaClient({
         region,
@@ -147,7 +138,7 @@ const useChatApi = () => {
           connectionTimeout: 10000,
         },
         credentials: fromCognitoIdentityPool({
-          client: cognito,
+          clientConfig: { region },
           identityPoolId: idPoolId,
           logins: {
             [providerName]: token,
@@ -158,10 +149,23 @@ const useChatApi = () => {
       // Append idToken to req
       req.idToken = token;
 
+      const payload = JSON.stringify(req);
+
+      // Lambda request payload limit is 6MB (6,291,456 bytes)
+      const LAMBDA_PAYLOAD_LIMIT = 6_291_456;
+      const payloadSize = new Blob([payload]).size;
+      if (payloadSize > LAMBDA_PAYLOAD_LIMIT) {
+        const error = new Error(
+          `Payload size ${payloadSize} bytes exceeds Lambda limit of ${LAMBDA_PAYLOAD_LIMIT} bytes`
+        );
+        error.name = 'PayloadTooLargeError';
+        throw error;
+      }
+
       const res = await lambda.send(
         new InvokeWithResponseStreamCommand({
           FunctionName: import.meta.env.VITE_APP_PREDICT_STREAM_FUNCTION_ARN,
-          Payload: JSON.stringify(req),
+          Payload: payload,
         })
       );
       const events = res.EventStream!;

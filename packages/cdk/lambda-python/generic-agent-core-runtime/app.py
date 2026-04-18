@@ -99,9 +99,8 @@ async def invocations(request: Request):
     except Exception as e:
         logger.error(f"Error processing request: {e}")
         logger.error(traceback.format_exc())
-        return create_error_response(str(e))
-    finally:
         clean_ws_directory()
+        return create_error_response(str(e))
 
 
 if __name__ == "__main__":

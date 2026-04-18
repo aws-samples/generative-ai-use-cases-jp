@@ -496,6 +496,33 @@ export class RagKnowledgeBaseStack extends Stack {
       name: 's3-data-source',
     });
 
+    // Web Crawler Data Source (GenU documentation site as sample)
+    new bedrock.CfnDataSource(this, 'WebCrawlerDataSource', {
+      dataSourceConfiguration: {
+        type: 'WEB',
+        webConfiguration: {
+          sourceConfiguration: {
+            urlConfiguration: {
+              seedUrls: [
+                {
+                  url: 'https://aws-samples.github.io/generative-ai-use-cases/en/',
+                },
+              ],
+            },
+          },
+          crawlerConfiguration: {
+            crawlerLimits: {
+              rateLimit: 300,
+              maxPages: 100,
+            },
+            scope: 'HOST_ONLY',
+          },
+        },
+      },
+      knowledgeBaseId: knowledgeBase.ref,
+      name: 'web-crawler-data-source',
+    });
+
     knowledgeBase.addDependency(collection);
     knowledgeBase.node.addDependency(ossIndex.customResource);
 

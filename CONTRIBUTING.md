@@ -40,6 +40,16 @@ For detailed development guidelines including linting and code style requirement
 - [DEVELOPMENT.md (English)](docs/en/DEVELOPMENT.md)
 - [DEVELOPMENT.md (日本語)](docs/ja/DEVELOPMENT.md)
 
+## Coding Standards
+
+When contributing code, please follow the coding standards for each package:
+
+- **CDK Infrastructure**: [packages/cdk/CODING_RULES.md](packages/cdk/CODING_RULES.md)
+- **Backend API (Lambda)**: [packages/cdk/lambda/CODING_RULES.md](packages/cdk/lambda/CODING_RULES.md)
+- **Frontend (React)**: [packages/web/CODING_RULES.md](packages/web/CODING_RULES.md)
+
+These coding standards ensure consistency, maintainability, and quality across the codebase. Please review the relevant coding rules before making changes to ensure your contributions align with the project's standards.
+
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
