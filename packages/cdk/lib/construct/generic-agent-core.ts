@@ -40,7 +40,6 @@ export interface GenericAgentCoreProps {
   isAgentCoreNetworkPrivate?: boolean;
   agentCoreVpcId?: string | null;
   agentCoreSubnetIds?: string[] | null;
-  agentCoreEnvironmentVariables?: Record<string, string>;
   gatewayArns?: string[];
 }
 
@@ -106,7 +105,7 @@ export class GenericAgentCore extends Construct {
         'CleanupReason',
         'AgentCore-Managed-ENI-Dependency'
       );
-      Tags.of(securityGroup).add('CreatedBy', `GenU-${env}`);
+      Tags.of(securityGroup).add('CreatedBy', env ? `GenU-${env}` : 'GenU');
 
       // Retain security group to prevent deletion errors when changing PRIVATE->PUBLIC or removing AgentCore
       // AgentCore Runtime creates managed ENIs that reference this security group

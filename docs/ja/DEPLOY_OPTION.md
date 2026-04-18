@@ -877,7 +877,7 @@ VPC モードを使用する場合は、以下のパラメータを設定して�
 > [!IMPORTANT]
 > **Availability Zone (AZ) サポート**: AgentCore RuntimeはリージョンごとにサポートされているAZが限定されています。サブネットは必ずサポートされているAZ内に配置してください。詳細は[AWS公式ドキュメント](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs)をご確認ください。
 >
-> **インターネットアクセス**: AgentCore Runtime で MCP サーバーのインストールにはインターネットアクセスが必要です。プライベートサブネットが接続先の場合には NAT Gateway への経路を設定してください。
+> **インターネットアクセス**: AgentCore Runtime で MCP サーバーのインストールにはインターネットアクセスが必要です。プライベートサブネットが接続先の場合には NAT Gateway 等のインターネット到達経路を設定してください。
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 

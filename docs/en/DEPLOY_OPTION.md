@@ -887,7 +887,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ```
 
 > [!WARNING]
-> When using VPC mode, security groups are not automatically deleted when AgentCore Runtime is deleted due to changes such as from PRIVATE to PUBLIC. This is because AWS-managed ENIs created by AgentCore Runtime reference the security groups, making them undeletable by CloudFormation. After deleting AgentCore Runtime, wait for the managed ENIs to be automatically deleted, then manually delete the security groups. The security group IDs that need to be deleted are displayed in the CloudFormation outputs.
+> When using VPC mode, security groups are not automatically deleted when AgentCore Runtime is deleted due to changes such as from PRIVATE to PUBLIC. This is because AWS-managed ENIs created by AgentCore Runtime reference the security groups, making them undeletable by CloudFormation. After deleting AgentCore Runtime, wait for the managed ENIs to be automatically deleted, then manually delete the security groups. The security group IDs that need to be deleted are displayed in the CloudFormation outputs. Note: if the initial deployment fails (e.g., unsupported AZ), the security group may also remain and need to be cleaned up manually.
 
 ### Enabling AgentBuilder Use Case
 

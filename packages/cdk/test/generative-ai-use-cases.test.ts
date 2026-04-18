@@ -1,6 +1,10 @@
 import { Template } from 'aws-cdk-lib/assertions';
 import * as cdk from 'aws-cdk-lib';
-import { processedStackInputSchema, StackInput } from '../lib/stack-input';
+import {
+  processedStackInputSchema,
+  stackInputSchema,
+  StackInput,
+} from '../lib/stack-input';
 import { createStacks } from '../lib/create-stacks';
 import {
   BUNDLING_STACKS,
@@ -230,11 +234,20 @@ describe('GenerativeAiUseCases', () => {
   test('matches the snapshot (AgentCore with VPC)', () => {
     const app = new cdk.App();
 
-    const params = processedStackInputSchema.parse({
+    // Simulate parameter.ts computed: isAgentCoreNetworkPrivate is derived
+    // from VPC/Subnet being both provided. Do not set it manually here.
+    const vpcInput = {
       ...stackInput,
       agentCoreVpcId: 'vpc-12345678',
       agentCoreSubnetIds: ['subnet-12345678', 'subnet-87654321'],
-      isAgentCoreNetworkPrivate: true,
+    };
+    const params = processedStackInputSchema.parse({
+      ...vpcInput,
+      isAgentCoreNetworkPrivate: !!(
+        vpcInput.agentCoreVpcId &&
+        vpcInput.agentCoreSubnetIds &&
+        vpcInput.agentCoreSubnetIds.length > 0
+      ),
     });
 
     const {
@@ -263,5 +276,43 @@ describe('GenerativeAiUseCases', () => {
 
     // Assert
     expect(agentCoreTemplate.toJSON()).toMatchSnapshot();
+  });
+
+  test('AgentCore VPC config requires both vpcId and subnetIds', () => {
+    // Only vpcId is provided -> must fail
+    expect(() =>
+      stackInputSchema.parse({
+        ...stackInput,
+        agentCoreVpcId: 'vpc-12345678',
+        agentCoreSubnetIds: null,
+      })
+    ).toThrow();
+
+    // Only subnetIds is provided -> must fail
+    expect(() =>
+      stackInputSchema.parse({
+        ...stackInput,
+        agentCoreVpcId: null,
+        agentCoreSubnetIds: ['subnet-12345678'],
+      })
+    ).toThrow();
+
+    // Both provided -> must pass
+    expect(() =>
+      stackInputSchema.parse({
+        ...stackInput,
+        agentCoreVpcId: 'vpc-12345678',
+        agentCoreSubnetIds: ['subnet-12345678'],
+      })
+    ).not.toThrow();
+
+    // Neither provided -> must pass (PUBLIC mode)
+    expect(() =>
+      stackInputSchema.parse({
+        ...stackInput,
+        agentCoreVpcId: null,
+        agentCoreSubnetIds: null,
+      })
+    ).not.toThrow();
   });
 });
