@@ -157,6 +157,9 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
             "Arn",
           ],
         },
+        "Tags": {
+          "app": "genu",
+        },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
     },
@@ -179,6 +182,10 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
           "RestrictPublicBuckets": true,
         },
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "aws-cdk:auto-delete-objects",
             "Value": "true",
@@ -512,6 +519,12 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
           ],
           "Version": "2012-10-17",
         },
+        "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
+        ],
       },
       "Type": "AWS::IAM::Role",
     },
@@ -527,6 +540,10 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
           },
         ],
         "Tags": [
+          {
+            "Key": "app",
+            "Value": "genu",
+          },
           {
             "Key": "CleanupReason",
             "Value": "AgentCore-Managed-ENI-Dependency",
@@ -589,6 +606,9 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
             "GenericAgentCoreAgentCoreRuntimeRoleF34B80EA",
             "Arn",
           ],
+        },
+        "Tags": {
+          "app": "genu",
         },
       },
       "Type": "AWS::BedrockAgentCore::Runtime",
