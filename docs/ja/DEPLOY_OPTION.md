@@ -417,6 +417,34 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+#### エージェントの基盤モデルのカスタマイズ
+
+Code Interpreter および検索エージェントで使用する基盤モデルをカスタマイズできます。デフォルトでは `global.anthropic.claude-sonnet-4-6` が使用されます。
+
+- `agentFoundationModel` : エージェントで利用するモデルを指定してください。Bedrock Agent がサポートするモデルのみ利用可能です。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
+  }
+}
+```
+
 #### 検索エージェントのデプロイ
 
 API と連携し最新情報を参照して回答する Agent を作成します。Agent のカスタマイズを行い他のアクションを追加できるほか、複数の Agent を作成し切り替えることが可能です。
@@ -820,6 +848,65 @@ const envs: Record<string, Partial<StackInput>> = {
   }
 }
 ```
+
+> [!NOTE]
+> AgentCore ユースケースの設定を有効後に、再度無効化する場合は、`createGenericAgentCoreRuntime: false` にして再デプロイすればAgentCore ユースケースは無効化されますが、`AgentCoreStack` 自体は残ります。マネージメントコンソールを開き、`agentCoreRegion` の CloudFormation から `AgentCoreStack` というスタックを削除することで完全に消去ができます。
+
+#### AgentCore Runtime のネットワーク設定
+
+AgentCore Runtime は以下のネットワークモードで動作できます：
+
+- `PUBLIC` (デフォルト): パブリックネットワークで動作
+- `PRIVATE`: VPC内のプライベートネットワークで動作
+
+ネットワーク設定は、Generic Runtime と AgentBuilder Runtime の両方に適用されます。
+
+**VPCモードの使用場面**:
+
+- AgentCore Runtime から社内システムやプライベートデータベースにアクセスする必要がある場合
+- 例えば、VPC内の他のAWSサービス（RDS、ElastiCache等）と直接通信したい場合
+
+VPC モードを使用する場合は、以下のパラメータを設定してください：
+
+- `agentCoreVpcId`: 使用するVPCのID
+- `agentCoreSubnetIds`: 使用するサブネットのIDリスト
+
+> [!NOTE]
+> `agentCoreVpcId`と`agentCoreSubnetIds`を両方設定すると、AgentCore Runtimeはプライベートネットワークモードでデプロイされます。両方とも未設定（`null`）の場合は、パブリックネットワークモードでデプロイされます。
+
+> [!IMPORTANT]
+> **Availability Zone (AZ) サポート**: AgentCore RuntimeはリージョンごとにサポートされているAZが限定されています。サブネットは必ずサポートされているAZ内に配置してください。詳細は[AWS公式ドキュメント](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs)をご確認ください。
+>
+> **インターネットアクセス**: AgentCore Runtime で MCP サーバーのインストールにはインターネットアクセスが必要です。プライベートサブネットが接続先の場合には NAT Gateway 等のインターネット到達経路を設定してください。
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreVpcId: 'vpc-xxxxxxxxx',
+    agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreVpcId": "vpc-xxxxxxxxx",
+    "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+  }
+}
+```
+
+> [!WARNING]
+> VPC モードを使用する場合、例えば PRIVATE から PUBLIC への変更により AgentCore Runtime 削除時にセキュリティグループが自動削除されません。AgentCore Runtime が作成する AWS マネージドな ENI がセキュリティグループを参照するため、CloudFormation では削除できません。AgentCore Runtime 削除後、マネージド ENI が自動削除されるまで待ってから、手動でセキュリティグループを削除してください。削除が必要なセキュリティグループ ID は CloudFormation の出力に表示されます。
 
 ### AgentBuilder ユースケースの有効化
 

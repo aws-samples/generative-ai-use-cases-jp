@@ -23,6 +23,9 @@ export class AgentCoreStack extends Stack {
         env: params.env,
         createGenericRuntime: params.createGenericAgentCoreRuntime,
         createAgentBuilderRuntime: params.agentBuilderEnabled,
+        isAgentCoreNetworkPrivate: params.isAgentCoreNetworkPrivate,
+        agentCoreVpcId: params.agentCoreVpcId,
+        agentCoreSubnetIds: params.agentCoreSubnetIds,
         gatewayArns: params.agentCoreGatewayArns ?? undefined,
       });
 
@@ -42,6 +45,15 @@ export class AgentCoreStack extends Stack {
             value: this.genericAgentCore.getGenericRuntimeConfig().name,
           }
         );
+      }
+
+      // Output retained security group ID for manual cleanup
+      if (this.genericAgentCore.retainedSecurityGroupId) {
+        new CfnOutput(this, 'RetainedSecurityGroupId', {
+          value: this.genericAgentCore.retainedSecurityGroupId,
+          description:
+            'MANUAL CLEANUP REQUIRED: Security Group ID to delete after AgentCore ENI cleanup (check tags: ManualCleanupRequired=true)',
+        });
       }
 
       if (

@@ -15,6 +15,7 @@ import MeetingMinutesFile from '../components/MeetingMinutes/MeetingMinutesFile'
 import MeetingMinutesGeneration from '../components/MeetingMinutes/MeetingMinutesGeneration';
 import NavigationBlockDialog from '../components/NavigationBlockDialog';
 import usePreventNavigation from '../hooks/usePreventNavigation';
+import useWakeLock from '../hooks/useWakeLock';
 import { useTranslation } from 'react-i18next';
 
 // Types for Meeting Minutes components
@@ -97,6 +98,17 @@ const MeetingMinutesPage: React.FC = () => {
 
   // Prevent navigation when recording
   const blocker = usePreventNavigation(hasUnsavedChanges);
+
+  // Prevent screen sleep while any recording is active
+  const isAnyRecording = useMemo(() => {
+    return (
+      transcriptionRecording.micRecording ||
+      transcriptionRecording.screenRecording ||
+      realtimeTranslationRecording.micRecording ||
+      realtimeTranslationRecording.screenRecording
+    );
+  }, [transcriptionRecording, realtimeTranslationRecording]);
+  useWakeLock(isAnyRecording);
 
   // Handle transcript changes from components
   const handleTranscriptChange = (method: InputMethod, text: string) => {

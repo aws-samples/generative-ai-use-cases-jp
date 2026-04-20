@@ -15,11 +15,4 @@ export const REMOTE_OUTPUT_KEYS = {
   RESEARCH_AGENT_CORE_RUNTIME_ARN: 'ResearchAgentCoreRuntimeArn',
   RESEARCH_AGENT_CORE_RUNTIME_NAME: 'ResearchAgentCoreRuntimeName',
   RESEARCH_AGENT_FILE_BUCKET_NAME: 'ResearchAgentFileBucketName',
-
-  // Application Inference Profile Stack
-  INFERENCE_PROFILE_ARNS: 'InferenceProfileArns',
 } as const;
-
-// No longer needed - inference profiles are now in a single JSON output
-// export const getInferenceProfileOutputKey = (sanitizedModelId: string) =>
-//   `InferenceProfile-${sanitizedModelId}-Arn`;

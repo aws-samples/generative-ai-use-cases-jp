@@ -157,7 +157,11 @@ class AgentManager:
             ) + "\n"
 
             yield json.dumps(
-                {"event": {"metadata": {"usage": {"inputTokens": 0, "outputTokens": 0, "totalTokens": 0}}}},
+                {"event": {"metadata": {"usage": {
+                    "inputTokens": converter.total_input_tokens,
+                    "outputTokens": converter.total_output_tokens,
+                    "totalTokens": converter.total_input_tokens + converter.total_output_tokens,
+                }}}},
                 ensure_ascii=False,
             ) + "\n"
 

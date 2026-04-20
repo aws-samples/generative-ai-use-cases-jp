@@ -402,6 +402,34 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+#### Customizing Agent Foundation Model
+
+You can customize the foundation model used by Code Interpreter and Search Agent. By default, `global.anthropic.claude-sonnet-4-6` is used.
+
+- `agentFoundationModel` : Specify the model to use for agents. Only models supported by Bedrock Agent are available.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentFoundationModel: 'global.anthropic.claude-sonnet-4-6',
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "agentFoundationModel": "global.anthropic.claude-sonnet-4-6"
+  }
+}
+```
+
 #### Deploying Search Agent
 
 Creates an Agent that connects to APIs to reference the latest information for responses. You can customize the Agent to add other actions and create multiple Agents to switch between.
@@ -801,6 +829,65 @@ const envs: Record<string, Partial<StackInput>> = {
   }
 }
 ```
+
+> [!NOTE]
+> After enabling AgentCore use case settings, if you want to disable them again, you can disable the AgentCore use case by setting `createGenericAgentCoreRuntime: false` and redeploying, but the `AgentCoreStack` itself will remain. You can completely remove it by opening the Management Console and deleting the `AgentCoreStack` stack from CloudFormation in the `agentCoreRegion`.
+
+#### AgentCore Runtime Network Configuration
+
+AgentCore Runtime can operate in the following network modes:
+
+- `PUBLIC` (default): Operates on public network
+- `PRIVATE`: Operates on private network within VPC
+
+Network settings apply to both Generic Runtime and AgentBuilder Runtime.
+
+**Use cases for VPC mode**:
+
+- When AgentCore Runtime needs to access internal systems or private databases
+- For example, when you want to communicate directly with other AWS services (RDS, ElastiCache, etc.) within the VPC
+
+When using VPC mode, configure the following parameters:
+
+- `agentCoreVpcId`: VPC ID to use
+- `agentCoreSubnetIds`: List of subnet IDs to use
+
+> [!NOTE]
+> When both `agentCoreVpcId` and `agentCoreSubnetIds` are configured, AgentCore Runtime will be deployed in private network mode. If both are left unset (`null`), it will be deployed in public network mode.
+
+> [!IMPORTANT]
+> **Availability Zone (AZ) Support**: AgentCore Runtime has limited supported AZs per region. Subnets must be placed within supported AZs. For details, please refer to the [AWS official documentation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agentcore-vpc.html#agentcore-supported-azs).
+>
+> **Internet Access**: AgentCore Runtime requires internet access for MCP server installation. If connecting to private subnets, configure routes to NAT Gateway.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreVpcId: 'vpc-xxxxxxxxx',
+    agentCoreSubnetIds: ['subnet-xxxxxxxxx', 'subnet-yyyyyyyyy'],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreVpcId": "vpc-xxxxxxxxx",
+    "agentCoreSubnetIds": ["subnet-xxxxxxxxx", "subnet-yyyyyyyyy"]
+  }
+}
+```
+
+> [!WARNING]
+> When using VPC mode, security groups are not automatically deleted when AgentCore Runtime is deleted due to changes such as from PRIVATE to PUBLIC. This is because AWS-managed ENIs created by AgentCore Runtime reference the security groups, making them undeletable by CloudFormation. After deleting AgentCore Runtime, wait for the managed ENIs to be automatically deleted, then manually delete the security groups. The security group IDs that need to be deleted are displayed in the CloudFormation outputs. Note: if the initial deployment fails (e.g., unsupported AZ), the security group may also remain and need to be cleaned up manually.
 
 ### Enabling AgentBuilder Use Case
 

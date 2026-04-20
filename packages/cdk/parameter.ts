@@ -78,6 +78,12 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
     ),
     // Process agentCoreRegion: null -> modelRegion
     agentCoreRegion: params.agentCoreRegion || params.modelRegion,
+    // Compute isAgentCoreNetworkPrivate from VPC configuration
+    isAgentCoreNetworkPrivate: !!(
+      params.agentCoreVpcId &&
+      params.agentCoreSubnetIds &&
+      params.agentCoreSubnetIds.length > 0
+    ),
     // Load branding configuration
     brandingConfig: loadBrandingConfig(),
   };

@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { PiGearSix } from 'react-icons/pi';
+import { PiGearSix, PiDownloadSimple } from 'react-icons/pi';
 import Button from '../Button';
 import ButtonCopy from '../ButtonCopy';
 import ButtonIcon from '../ButtonIcon';
@@ -305,6 +305,23 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
     [customPrompt, diagramOptions]
   );
 
+  // Download minutes as markdown file
+  const handleDownload = useCallback(() => {
+    if (!generatedMinutes) return;
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const filename = `${now.getFullYear().toString().slice(2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}-meeting-minutes.md`;
+    const blob = new Blob([generatedMinutes], {
+      type: 'text/markdown;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [generatedMinutes]);
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Compact header with settings button and action buttons */}
@@ -346,8 +363,11 @@ const MeetingMinutesGeneration: React.FC<MeetingMinutesGenerationProps> = ({
             {t('meetingMinutes.generated_minutes')}
           </div>
           {generatedMinutes && (
-            <div className="flex">
+            <div className="flex gap-1">
               <ButtonCopy text={generatedMinutes} interUseCasesKey="minutes" />
+              <ButtonIcon onClick={handleDownload}>
+                <PiDownloadSimple className="text-xl" />
+              </ButtonIcon>
             </div>
           )}
         </div>

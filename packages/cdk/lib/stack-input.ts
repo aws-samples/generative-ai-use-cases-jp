@@ -27,6 +27,7 @@ const baseStackInputSchema = z.object({
       diagram: z.boolean().optional(),
       meetingMinutes: z.boolean().optional(),
       voiceChat: z.boolean().optional(),
+      transcribe: z.boolean().optional(),
     })
     .default({}),
   // API
@@ -133,6 +134,9 @@ const baseStackInputSchema = z.object({
   rerankingModelId: z.string().nullish(),
   // Agent
   agentEnabled: z.boolean().default(false),
+  agentFoundationModel: z
+    .string()
+    .default('global.anthropic.claude-sonnet-4-6'),
   searchAgentEnabled: z.boolean().default(false),
   searchApiKey: z.string().nullish(),
   searchEngine: z.enum(['Brave', 'Tavily']).default('Brave'),
@@ -161,6 +165,9 @@ const baseStackInputSchema = z.object({
       })
     )
     .default([]),
+  // Agent Core Network Configuration
+  agentCoreVpcId: z.string().nullish(),
+  agentCoreSubnetIds: z.array(z.string()).nullish(),
   // Research Agent Core Runtime
   researchAgentEnabled: z.boolean().default(false),
   createResearchAgentFargate: z.boolean().default(false),
@@ -208,19 +215,37 @@ const baseStackInputSchema = z.object({
 });
 
 // Common Validator with refine
-export const stackInputSchema = baseStackInputSchema.refine(
-  (data) => {
-    // If searchApiKey is provided, searchEngine must also be provided
-    if (data.searchApiKey && !data.searchEngine) {
-      return false;
+export const stackInputSchema = baseStackInputSchema
+  .refine(
+    (data) => {
+      // If searchApiKey is provided, searchEngine must also be provided
+      if (data.searchApiKey && !data.searchEngine) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'searchEngine is required when searchApiKey is provided',
+      path: ['searchEngine'],
     }
-    return true;
-  },
-  {
-    message: 'searchEngine is required when searchApiKey is provided',
-    path: ['searchEngine'],
-  }
-);
+  )
+  .refine(
+    (data) => {
+      // Validate AgentCore VPC configuration consistency
+      const hasVpcId = !!data.agentCoreVpcId;
+      const hasSubnetIds = !!(
+        data.agentCoreSubnetIds && data.agentCoreSubnetIds.length > 0
+      );
+
+      // Both must be provided or both must be empty
+      return hasVpcId === hasSubnetIds;
+    },
+    {
+      message:
+        'Both VPC ID and Subnet IDs must be provided together for AgentCore network configuration',
+      path: ['agentCoreVpcId'],
+    }
+  );
 
 // schema after conversion
 export const processedStackInputSchema = baseStackInputSchema.extend({
@@ -228,28 +253,24 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
     z.object({
       modelId: z.string(),
       region: z.string(),
-      inferenceProfileArn: z.string().optional(),
     })
   ),
   imageGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
-      inferenceProfileArn: z.string().optional(),
     })
   ),
   videoGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
-      inferenceProfileArn: z.string().optional(),
     })
   ),
   speechToSpeechModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
-      inferenceProfileArn: z.string().optional(),
     })
   ),
   endpointNames: z.array(
@@ -260,6 +281,8 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
   ),
   // Processed agentCoreRegion (null -> modelRegion)
   agentCoreRegion: z.string(),
+  // Computed from VPC configuration (computed in parameter.ts)
+  isAgentCoreNetworkPrivate: z.boolean().optional(),
   // Branding configuration
   brandingConfig: z
     .object({
