@@ -1810,6 +1810,48 @@ const envs: Record<string, Partial<StackInput>> = {
 - samlCognitoDomainName: Specify the Cognito Domain name to be set in Cognito's App integration.
 - samlCognitoFederatedIdentityProviderName: Specify the Identity Provider name to be set in Cognito's Sign-in experience.
 
+### MFA (Multi-Factor Authentication)
+
+You can enable email-based MFA for Cognito user pool authentication. When MFA is enabled, users must enter a verification code sent to their registered email address after entering their password.
+
+> [!NOTE]
+> MFA uses Amazon SES to send verification code emails. Before enabling MFA, you must verify the sender domain or email address in SES, and ensure SES is out of the sandbox (or that destination addresses are verified). Specify the verified sender address in `mfaFromEmail`.
+
+> [!WARNING]
+> When MFA is enabled, the "Forgot Password?" link on the sign-in screen is hidden. This is because Cognito cannot use the same email address for both MFA verification codes and password reset emails simultaneously. Password resets must be performed by an administrator via the Cognito service screen in the AWS Management Console.
+
+Set `mfaEnabled` to `true` and specify the SES-verified sender address in `mfaFromEmail`. (Default is `false`)
+
+- mfaEnabled: Set to `true` to require email MFA for all users. (Default: `false`)
+- mfaFromEmail: Sender email address for MFA verification codes. Must be verified in Amazon SES.
+- mfaReplyToEmail: Reply-to email address for MFA emails. (Default: `null`)
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    mfaEnabled: true,
+    mfaFromEmail: 'no-reply@your-domain.com',
+    mfaReplyToEmail: null,
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "mfaEnabled": true,
+    "mfaFromEmail": "no-reply@your-domain.com",
+    "mfaReplyToEmail": null
+  }
+}
+```
+
 ### Guardrails
 
 When using the Converse API (i.e., generative AI models that produce text output), guardrails can be applied. To configure this, change `guardrailEnabled` to `true` and redeploy.

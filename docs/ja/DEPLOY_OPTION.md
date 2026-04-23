@@ -1817,6 +1817,48 @@ const envs: Record<string, Partial<StackInput>> = {
 - samlCognitoDomainName : Cognito の App integration で設定する Cognito Domain 名を指定します。
 - samlCognitoFederatedIdentityProviderName : Cognito の Sign-in experience で設定する Identity Provider の名前を指定します。
 
+### MFA（多要素認証）
+
+Cognito ユーザープール認証にメールベースの MFA を有効化できます。MFA を有効にすると、ユーザーはパスワード入力後に登録済みのメールアドレスへ送信された認証コードの入力が求められます。
+
+> [!NOTE]
+> MFA の認証コードメール送信には Amazon SES を使用します。MFA を有効化する前に、SES で送信元ドメインまたはメールアドレスを検証済みにし、SES のサンドボックスを解除（または宛先アドレスを検証済み）にする必要があります。検証済みの送信元アドレスを `mfaFromEmail` に指定してください。
+
+> [!WARNING]
+> MFA を有効にした場合、ログイン画面の「パスワードを忘れましたか？」リンクは非表示になります。これは Cognito が MFA 認証コードとパスワードリセットに同じメールアドレスを同時に使用できないためです。パスワードのリセットは管理者がAWSマネジメントコンソールの Cognito サービス画面から行う必要があります。
+
+`mfaEnabled` を `true` に設定し、SES で検証済みの送信元アドレスを `mfaFromEmail` に指定します。（デフォルトは `false`）
+
+- mfaEnabled : `true` にすることで、全ユーザーにメール MFA を必須化します。（デフォルト: `false`）
+- mfaFromEmail : MFA 認証コードの送信元メールアドレス。Amazon SES で検証済みである必要があります。
+- mfaReplyToEmail : MFA メールの Reply-To アドレス。（デフォルト: `null`）
+
+**[parameter.ts](/packages/cdk/parameter.ts) を編集**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    mfaEnabled: true,
+    mfaFromEmail: 'no-reply@your-domain.com',
+    mfaReplyToEmail: null,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) を編集**
+
+```json
+// cdk.json
+{
+  "context": {
+    "mfaEnabled": true,
+    "mfaFromEmail": "no-reply@your-domain.com",
+    "mfaReplyToEmail": null
+  }
+}
+```
+
 ### ガードレール
 
 Converse API を使う(=テキスト出力を行う生成 AI モデル)場合はガードレールを適用させることが可能です。設定するには `guardrailEnabled` を `true` に変更しデプロイしなおします。

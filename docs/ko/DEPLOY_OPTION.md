@@ -1703,6 +1703,48 @@ const envs: Record<string, Partial<StackInput>> = {
 - samlCognitoDomainName: Cognito의 App integration에 설정할 Cognito 도메인 이름을 지정합니다.
 - samlCognitoFederatedIdentityProviderName: Cognito의 Sign-in experience에 설정할 Identity Provider 이름을 지정합니다.
 
+### MFA (다단계 인증)
+
+Cognito 사용자 풀 인증에 이메일 기반 MFA를 활성화할 수 있습니다. MFA를 활성화하면 사용자는 비밀번호 입력 후 등록된 이메일 주소로 전송된 인증 코드를 입력해야 합니다.
+
+> [!NOTE]
+> MFA는 인증 코드 이메일 발송에 Amazon SES를 사용합니다. MFA를 활성화하기 전에 SES에서 발신자 도메인 또는 이메일 주소를 검증하고, SES 샌드박스를 해제(또는 수신 주소를 검증)해야 합니다. 검증된 발신자 주소를 `mfaFromEmail`에 지정하세요.
+
+> [!WARNING]
+> MFA를 활성화하면 로그인 화면의 "비밀번호를 잊으셨나요?" 링크가 숨겨집니다. 이는 Cognito가 MFA 인증 코드와 비밀번호 재설정에 동일한 이메일 주소를 동시에 사용할 수 없기 때문입니다. 비밀번호 재설정은 관리자가 AWS Management Console의 Cognito 서비스 화면에서 수행해야 합니다.
+
+`mfaEnabled`를 `true`로 설정하고 SES에서 검증된 발신자 주소를 `mfaFromEmail`에 지정합니다. (기본값: `false`)
+
+- mfaEnabled: `true`로 설정하면 모든 사용자에게 이메일 MFA가 필수화됩니다. (기본값: `false`)
+- mfaFromEmail: MFA 인증 코드의 발신자 이메일 주소. Amazon SES에서 검증되어야 합니다.
+- mfaReplyToEmail: MFA 이메일의 Reply-To 주소. (기본값: `null`)
+
+**[parameter.ts](/packages/cdk/parameter.ts) 편집**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    mfaEnabled: true,
+    mfaFromEmail: 'no-reply@your-domain.com',
+    mfaReplyToEmail: null,
+  },
+};
+```
+
+**[packages/cdk/cdk.json](/packages/cdk/cdk.json) 편집**
+
+```json
+// cdk.json
+{
+  "context": {
+    "mfaEnabled": true,
+    "mfaFromEmail": "no-reply@your-domain.com",
+    "mfaReplyToEmail": null
+  }
+}
+```
+
 ### 가드레일
 
 Converse API를 사용할 때 (즉, 텍스트 출력을 생성하는 생성형 AI 모델) 가드레일을 적용할 수 있습니다. 이를 구성하려면 `guardrailEnabled`를 `true`로 변경하고 재배포합니다.
