@@ -34,8 +34,7 @@ describe('GenerativeAiUseCases', () => {
     samlAuthEnabled: false,
     samlCognitoDomainName: '',
     samlCognitoFederatedIdentityProviderName: '',
-    mfaEnabled: true,
-    mfaFromEmail: 'no-reply@example.com',
+    mfaEnabled: false,
     mfaReplyToEmail: null,
     modelRegion: 'us-east-1',
     modelIds: [
@@ -178,6 +177,41 @@ describe('GenerativeAiUseCases', () => {
     expect(guardrailTemplate.toJSON()).toMatchSnapshot();
     expect(generativeAiUseCasesTemplate.toJSON()).toMatchSnapshot();
     expect(dashboardTemplate.toJSON()).toMatchSnapshot();
+  });
+
+  test('matches the snapshot (mfa enabled)', () => {
+    const app = new cdk.App({
+      context: appContext,
+    });
+
+    const params = processedStackInputSchema.parse({
+      ...stackInput,
+      mfaEnabled: true,
+      mfaFromEmail: 'no-reply@example.com',
+    });
+
+    const { cloudFrontWafStack, ragKnowledgeBaseStack, agentStack, agentCoreStack, guardrailStack, generativeAiUseCasesStack, dashboardStack } =
+      createStacks(app, params);
+
+    if (
+      !cloudFrontWafStack ||
+      !ragKnowledgeBaseStack ||
+      !agentStack ||
+      !agentCoreStack ||
+      !guardrailStack ||
+      !generativeAiUseCasesStack ||
+      !dashboardStack
+    ) {
+      throw new Error('Not all stacks are created');
+    }
+
+    expect(Template.fromStack(cloudFrontWafStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(ragKnowledgeBaseStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(agentStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(agentCoreStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(guardrailStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(generativeAiUseCasesStack).toJSON()).toMatchSnapshot();
+    expect(Template.fromStack(dashboardStack).toJSON()).toMatchSnapshot();
   });
 
   test('tagKey functionality', () => {
