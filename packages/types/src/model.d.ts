@@ -7,6 +7,7 @@ export type FeatureFlags = {
   video?: boolean;
   reasoning?: boolean;
   adaptiveThinking?: boolean;
+  noSamplingParams?: boolean;
 
   image_gen?: boolean;
   video_gen?: boolean;

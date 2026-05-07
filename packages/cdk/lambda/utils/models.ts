@@ -137,6 +137,12 @@ const CLAUDE_OPUS_4_6_DEFAULT_PARAMS: ConverseInferenceParams = {
   },
 };
 
+const CLAUDE_OPUS_4_7_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 128000,
+  },
+};
+
 const CLAUDE_SONNET_4_6_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
     maxTokens: 64000,
@@ -504,7 +510,9 @@ const createConverseCommandInput = (
     modelId: model.modelId,
     messages: conversationWithCache,
     system: systemContextWithCache,
-    inferenceConfig: params.inferenceConfig,
+    inferenceConfig: modelMetadata[model.modelId].flags.noSamplingParams
+      ? { maxTokens: params.inferenceConfig?.maxTokens }
+      : params.inferenceConfig,
     guardrailConfig,
   };
 
@@ -513,9 +521,10 @@ const createConverseCommandInput = (
     (model.modelParameters?.reasoningConfig?.type === 'enabled' ||
       model.modelParameters?.reasoningConfig?.type === 'adaptive')
   ) {
+    const noSampling = modelMetadata[model.modelId].flags.noSamplingParams;
     converseCommandInput.inferenceConfig = {
       ...params.inferenceConfig,
-      temperature: 1, // reasoning requires temperature to be 1
+      temperature: noSampling ? undefined : 1, // reasoning requires temperature to be 1, but some models don't support it
       topP: undefined, // reasoning does not require topP
       maxTokens: params.inferenceConfig?.maxTokens,
     };
@@ -989,6 +998,22 @@ export const BEDROCK_TEXT_GEN_MODELS: {
     extractConverseStreamOutput: (body: ConverseStreamOutput) => StreamingChunk;
   };
 } = {
+  'global.anthropic.claude-opus-4-7': {
+    defaultParams: CLAUDE_OPUS_4_7_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'us.anthropic.claude-opus-4-7': {
+    defaultParams: CLAUDE_OPUS_4_7_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
   'global.anthropic.claude-opus-4-6-v1': {
     defaultParams: CLAUDE_OPUS_4_6_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
