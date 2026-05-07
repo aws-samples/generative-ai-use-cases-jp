@@ -126,6 +126,14 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
     displayName: 'Claude Opus 4.7',
   },
+  'eu.anthropic.claude-opus-4-7': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.7',
+  },
+  'jp.anthropic.claude-opus-4-7': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.7',
+  },
   'global.anthropic.claude-opus-4-6-v1': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
     displayName: 'Claude Opus 4.6',
