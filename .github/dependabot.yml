@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      timezone: 'Asia/Tokyo'
+    target-branch: 'develop'
+    open-pull-requests-limit: 5
+    labels:
+      - 'dependencies'
+      - 'security'
+    groups:
+      aws-sdk:
+        patterns:
+          - '@aws-sdk/*'
+          - '@smithy/*'
+          - 'aws-cdk-lib'
+          - '@aws-cdk/*'
+          - '@aws-solutions-constructs/*'
+          - '@aws-amplify/*'
+          - 'aws-amplify'
