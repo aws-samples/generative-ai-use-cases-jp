@@ -31,7 +31,7 @@ import { TranslatePageQueryParams } from '../@types/navigate';
 import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
-import useSpeach from '../hooks/useSpeach';
+import useSpeech from '../hooks/useSpeech';
 import { useTranslation } from 'react-i18next';
 
 const languages = ['en', 'ja', 'zh', 'ko', 'fr', 'es', 'de', 'th', 'vi'];
@@ -125,7 +125,7 @@ const TranslatePage: React.FC = () => {
   const stopReason = getStopReason();
   const [auto, setAuto] = useLocalStorageBoolean('Auto_Translate', true);
   const [audio, setAudioInput] = useState(false); // Audio input flag
-  const { synthesizeSpeach, loading: speachIsLoading } = useSpeach(language);
+  const { synthesizeSpeech, loading: speechIsLoading } = useSpeech(language);
 
   useEffect(() => {
     updateSystemContextByModel();
@@ -257,18 +257,18 @@ const TranslatePage: React.FC = () => {
   }, []);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isSpeachPlaying, setIsSpeachPlaying] = useState(false);
+  const [isSpeechPlaying, setIsSpeechPlaying] = useState(false);
 
-  const handleSpeachEnded = useCallback(() => {
-    setIsSpeachPlaying(false);
-  }, [setIsSpeachPlaying]);
+  const handleSpeechEnded = useCallback(() => {
+    setIsSpeechPlaying(false);
+  }, [setIsSpeechPlaying]);
 
-  const startOrStopSpeach = useCallback(async () => {
-    if (speachIsLoading) return;
+  const startOrStopSpeech = useCallback(async () => {
+    if (speechIsLoading) return;
 
     // If it is playing, stop it
-    if (isSpeachPlaying && audioRef.current) {
-      setIsSpeachPlaying(false);
+    if (isSpeechPlaying && audioRef.current) {
+      setIsSpeechPlaying(false);
 
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -276,22 +276,22 @@ const TranslatePage: React.FC = () => {
       return;
     }
 
-    setIsSpeachPlaying(true);
+    setIsSpeechPlaying(true);
 
-    const speachUrl = await synthesizeSpeach(translatedSentence);
-    const audio = new Audio(speachUrl!);
+    const speechUrl = await synthesizeSpeech(translatedSentence);
+    const audio = new Audio(speechUrl!);
 
     audioRef.current = audio;
-    audio.addEventListener('ended', handleSpeachEnded);
+    audio.addEventListener('ended', handleSpeechEnded);
     audio.play();
   }, [
     translatedSentence,
-    synthesizeSpeach,
+    synthesizeSpeech,
     audioRef,
-    setIsSpeachPlaying,
-    isSpeachPlaying,
-    handleSpeachEnded,
-    speachIsLoading,
+    setIsSpeechPlaying,
+    isSpeechPlaying,
+    handleSpeechEnded,
+    speechIsLoading,
   ]);
 
   return (
@@ -381,8 +381,8 @@ const TranslatePage: React.FC = () => {
                   </div>
                 )}
                 <div className="flex w-full justify-end">
-                  <ButtonIcon onClick={startOrStopSpeach}>
-                    {isSpeachPlaying ? (
+                  <ButtonIcon onClick={startOrStopSpeech}>
+                    {isSpeechPlaying ? (
                       <PiSpeakerSimpleHighFill />
                     ) : (
                       <PiSpeakerSimpleHigh />

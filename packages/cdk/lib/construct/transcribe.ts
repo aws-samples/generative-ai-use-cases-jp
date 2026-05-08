@@ -17,8 +17,8 @@ import {
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import { allowS3AccessWithSourceIpCondition } from '../utils/s3-access-policy';
-import { LAMBDA_RUNTIME_NODEJS, DEFAULT_TENANT_ID } from '../../consts';
-import { TenantManager } from './tenant-manager';
+import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
+import { ISecurityGroup, IVpc } from 'aws-cdk-lib/aws-ec2';
 
 export interface TranscribeProps {
   readonly userPool: UserPool;
@@ -26,29 +26,13 @@ export interface TranscribeProps {
   readonly api: RestApi;
   readonly allowedIpV4AddressRanges?: string[] | null;
   readonly allowedIpV6AddressRanges?: string[] | null;
-  readonly tenantManager?: TenantManager;
-  readonly environment: string;
+  readonly vpc?: IVpc;
+  readonly securityGroups?: ISecurityGroup[];
 }
 
 export class Transcribe extends Construct {
   constructor(scope: Construct, id: string, props: TranscribeProps) {
     super(scope, id);
-
-    // Common environment variables for tenant-aware functions
-    const commonEnvVars = {
-      DEFAULT_TENANT_ID: DEFAULT_TENANT_ID,
-      IDENTITY_POOL_ID: props.idPool.identityPoolId,
-      USER_POOL_ID: props.userPool.userPoolId,
-      AWS_ACCOUNT_ID:
-        this.node.tryGetContext('aws:cdk:lookup:account-id') ||
-        process.env.CDK_DEFAULT_ACCOUNT!,
-      ENVIRONMENT: props.environment!,
-      ...(props.tenantManager
-        ? {
-            TENANTS_TABLE_NAME: props.tenantManager.tenantsTable.tableName,
-          }
-        : {}),
-    };
 
     const audioBucket = new Bucket(this, 'AudioBucket', {
       encryption: BucketEncryption.S3_MANAGED,
@@ -78,9 +62,10 @@ export class Transcribe extends Construct {
       entry: './lambda/getFileUploadSignedUrl.ts',
       timeout: Duration.minutes(15),
       environment: {
-        ...commonEnvVars,
         BUCKET_NAME: audioBucket.bucketName,
       },
+      vpc: props.vpc,
+      securityGroups: props.securityGroups,
     });
     if (getSignedUrlFunction.role) {
       allowS3AccessWithSourceIpCondition(
@@ -94,38 +79,6 @@ export class Transcribe extends Construct {
       );
     }
 
-    // Grant DynamoDB read permissions if tenant manager is configured
-    if (props.tenantManager) {
-      props.tenantManager.tenantsTable.grantReadData(getSignedUrlFunction);
-    }
-
-    // Common policies for transcription functions
-    const commonPolicies = [
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: ['transcribe:*'],
-        resources: ['*'],
-      }),
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        actions: [
-          'sts:AssumeRoleWithWebIdentity',
-          'cognito-identity:GetId',
-          'cognito-identity:GetOpenIdToken',
-        ],
-        resources: ['*'],
-      }),
-      ...(props.tenantManager
-        ? [
-            new PolicyStatement({
-              effect: Effect.ALLOW,
-              actions: ['dynamodb:GetItem'],
-              resources: [props.tenantManager.tenantsTable.tableArn],
-            }),
-          ]
-        : []),
-    ];
-
     const startTranscriptionFunction = new NodejsFunction(
       this,
       'StartTranscription',
@@ -134,20 +87,21 @@ export class Transcribe extends Construct {
         entry: './lambda/startTranscription.ts',
         timeout: Duration.minutes(15),
         environment: {
-          ...commonEnvVars,
           TRANSCRIPT_BUCKET_NAME: transcriptBucket.bucketName,
         },
-        initialPolicy: commonPolicies,
+        initialPolicy: [
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['transcribe:*'],
+            resources: ['*'],
+          }),
+        ],
+        vpc: props.vpc,
+        securityGroups: props.securityGroups,
       }
     );
     audioBucket.grantRead(startTranscriptionFunction);
     transcriptBucket.grantWrite(startTranscriptionFunction);
-    // Grant DynamoDB read permissions if tenant manager is configured
-    if (props.tenantManager) {
-      props.tenantManager.tenantsTable.grantReadData(
-        startTranscriptionFunction
-      );
-    }
 
     const getTranscriptionFunction = new NodejsFunction(
       this,
@@ -156,15 +110,18 @@ export class Transcribe extends Construct {
         runtime: LAMBDA_RUNTIME_NODEJS,
         entry: './lambda/getTranscription.ts',
         timeout: Duration.minutes(15),
-        environment: commonEnvVars,
-        initialPolicy: commonPolicies,
+        initialPolicy: [
+          new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: ['transcribe:*'],
+            resources: ['*'],
+          }),
+        ],
+        vpc: props.vpc,
+        securityGroups: props.securityGroups,
       }
     );
     transcriptBucket.grantRead(getTranscriptionFunction);
-    // Grant DynamoDB read permissions if tenant manager is configured
-    if (props.tenantManager) {
-      props.tenantManager.tenantsTable.grantReadData(getTranscriptionFunction);
-    }
 
     // API Gateway
     const authorizer = new CognitoUserPoolsAuthorizer(this, 'Authorizer', {

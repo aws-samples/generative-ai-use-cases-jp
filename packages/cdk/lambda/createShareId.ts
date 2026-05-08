@@ -1,32 +1,48 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { createShareId, findChatById } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import {
-  internalServerError500Response,
-  notFound404Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
 
     // Authorization check: Verify if the specified chat belongs to the user
-    const chat = await findChatById(userId, chatId, event);
+    const chat = await findChatById(userId, chatId);
     if (chat === null) {
-      return notFound404Response({
-        message: 'Chat not found',
-      });
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          message: 'You do not have permission to share this chat.',
+        }),
+      };
     }
 
-    const response = await createShareId(userId, chatId, event);
+    const response = await createShareId(userId, chatId);
 
-    return ok200Response(response);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(response),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

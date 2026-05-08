@@ -6,35 +6,30 @@ const baseStackInputSchema = z.object({
   region: z.string().default(process.env.CDK_DEFAULT_REGION ?? 'us-east-1'),
   env: z.string().default(''),
   anonymousUsageTracking: z.boolean().default(true),
-  enableAutoDelete: z.boolean().default(false),
 
   // Auth
   selfSignUpEnabled: z.boolean().default(true),
-  selfSignUpTenantMap: z
-    .array(
-      z
-        .object({
-          tenantId: z.string().min(1, 'Tenant ID cannot be empty'),
-          domains: z.array(z.string().toLowerCase()).optional(),
-          emails: z.array(z.string().email().toLowerCase()).optional(),
-        })
-        .refine(
-          (data) =>
-            (data.domains && data.domains.length > 0) ||
-            (data.emails && data.emails.length > 0),
-          {
-            message:
-              'Each tenant map entry must have at least one domain or email',
-          }
-        )
-    )
-    .nullish(),
+  allowedSignUpEmailDomains: z.array(z.string()).nullish(),
   samlAuthEnabled: z.boolean().default(false),
-  samlDefaultAuthEnabled: z.boolean().default(false),
   samlCognitoDomainName: z.string().nullish(),
   samlCognitoFederatedIdentityProviderName: z.string().nullish(),
+  // Frontend
+  hiddenUseCases: z
+    .object({
+      generate: z.boolean().optional(),
+      summarize: z.boolean().optional(),
+      writer: z.boolean().optional(),
+      translate: z.boolean().optional(),
+      webContent: z.boolean().optional(),
+      image: z.boolean().optional(),
+      video: z.boolean().optional(),
+      videoAnalyzer: z.boolean().optional(),
+      diagram: z.boolean().optional(),
+      meetingMinutes: z.boolean().optional(),
+      voiceChat: z.boolean().optional(),
+    })
+    .default({}),
   // API
-  corsAllowOrigins: z.array(z.string()).default(['*']),
   modelRegion: z.string().default('us-east-1'),
   modelIds: z
     .array(
@@ -90,7 +85,17 @@ const baseStackInputSchema = z.object({
       ])
     )
     .default(['amazon.nova-sonic-v1:0']),
-  endpointNames: z.array(z.string()).default([]),
+  endpointNames: z
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          modelId: z.string(),
+          region: z.string(),
+        }),
+      ])
+    )
+    .default([]),
   crossAccountBedrockRoleArn: z.string().nullish(),
   // RAG
   ragEnabled: z.boolean().default(false),
@@ -137,24 +142,31 @@ const baseStackInputSchema = z.object({
         displayName: z.string(),
         agentId: z.string(),
         aliasId: z.string(),
+        description: z.string().default(''),
       })
     )
     .default([]),
   inlineAgents: z.boolean().default(false),
+  // Agent Core Runtime
+  agentBuilderEnabled: z.boolean().default(false),
+  createGenericAgentCoreRuntime: z.boolean().default(false),
+  agentCoreRegion: z.string().nullish(),
+  agentCoreGatewayArns: z.array(z.string()).nullish(),
+  agentCoreExternalRuntimes: z
+    .array(
+      z.object({
+        name: z.string(),
+        arn: z.string(),
+        description: z.string().default(''),
+      })
+    )
+    .default([]),
   // MCP
   mcpEnabled: z.boolean().default(false),
-  // PPTX
-  pptxEnabled: z.boolean().default(false),
-  // LiteLLM Proxy Server
-  litellmProxyEnabled: z.boolean().default(false),
   // Guardrail
   guardrailEnabled: z.boolean().default(false),
-  // Web UI
-  useWebUi: z.boolean().default(true),
   // Usecase builder
   useCaseBuilderEnabled: z.boolean().default(true),
-  // Assistant creation restriction
-  assistantCreationRequiresAdmin: z.boolean().default(true),
   // Flows
   flows: z
     .array(
@@ -170,56 +182,40 @@ const baseStackInputSchema = z.object({
   allowedIpV4AddressRanges: z.array(z.string()).nullish(),
   allowedIpV6AddressRanges: z.array(z.string()).nullish(),
   allowedCountryCodes: z.array(z.string()).nullish(),
-  antiDDoSProtection: z.boolean().default(false),
   // Custom Domain
   hostName: z.string().nullish(),
   domainName: z.string().nullish(),
   hostedZoneId: z.string().nullish(),
   // Dashboard
   dashboard: z.boolean().default(false),
-
-  // Email Service (SendGrid)
-  emailServiceName: z.string().default('GenU'),
-  sendgridApiKey: z.string(),
-  sendgridFromEmail: z.string().email(),
-
-  // LangChain
-  openai: z
-    .object({
-      apiKey: z.string(),
-    })
-    .optional(),
+  // Tag
+  tagKey: z.string().nullish(),
+  tagValue: z.string().nullish(),
+  // Closed network
+  closedNetworkMode: z.boolean().default(false),
+  closedNetworkVpcIpv4Cidr: z.string().default('10.0.0.0/16'),
+  closedNetworkVpcId: z.string().nullish(),
+  closedNetworkSubnetIds: z.array(z.string()).nullish(),
+  closedNetworkCertificateArn: z.string().nullish(),
+  closedNetworkDomainName: z.string().nullish(),
+  closedNetworkCreateTestEnvironment: z.boolean().default(true),
+  closedNetworkCreateResolverEndpoint: z.boolean().default(true),
 });
 
 // Common Validator with refine
-export const stackInputSchema = baseStackInputSchema
-  .refine(
-    (data) => {
-      // If searchApiKey is provided, searchEngine must also be provided
-      if (data.searchApiKey && !data.searchEngine) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'searchEngine is required when searchApiKey is provided',
-      path: ['searchEngine'],
+export const stackInputSchema = baseStackInputSchema.refine(
+  (data) => {
+    // If searchApiKey is provided, searchEngine must also be provided
+    if (data.searchApiKey && !data.searchEngine) {
+      return false;
     }
-  )
-  .refine(
-    (data) => {
-      // AWS account ID is required for CDK deployment
-      if (!data.account || data.account === '') {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        'AWS account ID is required. Set CDK_DEFAULT_ACCOUNT environment variable.',
-      path: ['account'],
-    }
-  );
+    return true;
+  },
+  {
+    message: 'searchEngine is required when searchApiKey is provided',
+    path: ['searchEngine'],
+  }
+);
 
 // schema after conversion
 export const processedStackInputSchema = baseStackInputSchema.extend({
@@ -227,26 +223,45 @@ export const processedStackInputSchema = baseStackInputSchema.extend({
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   imageGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   videoGenerationModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
   speechToSpeechModelIds: z.array(
     z.object({
       modelId: z.string(),
       region: z.string(),
+      inferenceProfileArn: z.string().optional(),
     })
   ),
+  endpointNames: z.array(
+    z.object({
+      modelId: z.string(),
+      region: z.string(),
+    })
+  ),
+  // Processed agentCoreRegion (null -> modelRegion)
+  agentCoreRegion: z.string(),
+  // Branding configuration
+  brandingConfig: z
+    .object({
+      logoPath: z.string().optional(),
+      title: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type StackInput = z.infer<typeof stackInputSchema>;

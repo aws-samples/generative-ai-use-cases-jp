@@ -1,14 +1,11 @@
 {
   "name": "generative-ai-use-cases",
   "private": true,
-  "version": "4.3.2",
+  "version": "5.4.0",
   "scripts": {
-    "lint": "run-s custom-lint:build lint:root web:lint cdk:lint cdk:lambda-build-dryrun",
-    "lint:fix": "run-s custom-lint:build lint:root:fix web:lint:fix cdk:lint:fix cdk:lambda-build-dryrun",
-    "lint:root": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "lint:root:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
+    "lint": "run-s custom-lint:build root:lint web:lint:fix cdk:lint cdk:lambda-build-dryrun",
     "test": "run-s web:test",
-    "format": "npx prettier --write .",
+    "root:lint": "npx prettier --write .",
     "web:devw": "source ./setup-env.sh ${npm_config_env} && VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
     "web:devww": "powershell ./web_devw_win.ps1",
     "web:dev": "VITE_APP_VERSION=${npm_package_version} npm -w packages/web run dev",
@@ -20,19 +17,12 @@
     "cdk:deploy": "npm -w packages/cdk run cdk deploy -- --all",
     "cdk:deploy:quick": "npm -w packages/cdk run cdk deploy -- --all --asset-parallelism --asset-prebuild=false --concurrency 3 --method=direct --require-approval never --force",
     "cdk:deploy:quick:hotswap": "npm -w packages/cdk run cdk deploy -- --all --asset-parallelism --asset-prebuild=false --concurrency 3 --method=direct --require-approval never --force --hotswap",
-    "cdk:deploy:synth": "npm -w packages/cdk run cdk synth -- --all",
-    "cdk:tenant:deploy": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' deploy --all",
-    "cdk:tenant:list": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' list",
-    "cdk:tenant:synth": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' synth",
-    "cdk:tenant:diff": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' diff",
-    "cdk:tenant:destroy": "npm -w packages/cdk run cdk -- --app 'npx ts-node --prefer-ts-exts bin/generative-ai-use-cases-tenant.ts' destroy --all",
+    "cdk:diff": "npm -w packages/cdk run cdk diff -- --all",
     "cdk:destroy": "npm -w packages/cdk run cdk destroy -- --all",
     "cdk:lint": "npm -w packages/cdk run lint",
-    "cdk:lint:fix": "npm -w packages/cdk run lint:fix",
     "cdk:lambda-build-dryrun": "npm -w packages/cdk run lambda-build-dryrun",
     "cdk:test": "npm -w packages/cdk run test",
     "cdk:test:update-snapshot": "npm -w packages/cdk run test -- --update-snapshot",
-    "cdk:watch": "npm -w packages/cdk run cdk watch",
     "extension:ci": "cd browser-extension && npm ci",
     "extension:dev": "cd browser-extension && npm run dev",
     "extension:devw": "source ./setup-env.sh && cd browser-extension && npm run dev",
@@ -43,19 +33,24 @@
     "docs:dev": "mkdocs serve",
     "docs:build": "mkdocs build",
     "docs:gh-deploy": "mkdocs gh-deploy --",
-    "pipeline:dev": "npm -w dagger run dev",
-    "pipeline:ci": "npm -w dagger run ci"
+    "prepare": "husky"
   },
   "devDependencies": {
-    "eslint": "9.35.0",
-    "eslint-config-shared": "file:packages/eslint-config-shared",
-    "eslint-plugin-i18nhelper": "1.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "3.6.2",
-    "prettier-plugin-tailwindcss": "0.6.14"
+    "prettier": "^3.2.5"
   },
   "workspaces": [
-    "packages/*",
-    "dagger"
-  ]
+    "packages/*"
+  ],
+  "lint-staged": {
+    "**/*": [
+      "sh -c 'npm run lint'"
+    ]
+  },
+  "dependencies": {
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
+  }
 }

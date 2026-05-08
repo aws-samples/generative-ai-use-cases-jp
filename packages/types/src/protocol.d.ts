@@ -6,6 +6,7 @@ import {
   Metadata,
 } from './message';
 import { Chat } from './chat';
+import { SystemContext } from './systemContext';
 import {
   QueryCommandOutput,
   RetrieveCommandOutput,
@@ -19,26 +20,12 @@ import { GenerateImageParams } from './image';
 import { GenerateVideoParams, VideoJob } from './video';
 import { ShareId, UserIdAndChatId } from './share';
 
-export type WebSearchResult = {
-  title: string;
-  url: string;
-  content: string;
-};
-
-export type WebSearchInfo = {
-  status: 'searching' | 'completed' | 'error';
-  query?: string;
-  results?: WebSearchResult[];
-  error?: string;
-};
-
 export type StreamingChunk = {
   text: string;
   trace?: string;
   metadata?: Metadata;
   stopReason?: StopReason | 'error';
   sessionId?: string;
-  webSearch?: WebSearchInfo;
 };
 
 export type Pagination<T> = {
@@ -68,6 +55,18 @@ export type ListMessagesResponse = {
   messages: RecordedMessage[];
 };
 
+export type CreateSystemContextRequest = {
+  systemContext: SystemContext;
+};
+
+export type UpdateSystemContextTitleRequest = {
+  title: string;
+};
+
+export type UpdateSystemContextTitleResponse = {
+  systemContext: SystemContext;
+};
+
 export type UpdateFeedbackRequest = {
   createdDate: string;
   feedback: string;
@@ -92,7 +91,6 @@ export type PredictRequest = {
   idToken?: string;
   messages: UnrecordedMessage[];
   id: string;
-  webSearchEnabled?: boolean;
 };
 
 export type PredictResponse = string;
@@ -135,7 +133,12 @@ export type RetrieveKnowledgeBaseRequest = {
 
 export type RetrieveKnowledgeBaseResponse = RetrieveCommandOutputKnowledgeBase;
 
-export type S3Type = 'default' | 'knowledgeBase';
+export type S3Type = 'default' | 'knowledgeBase' | 'agentcore';
+
+export type BucketInfo = {
+  bucketName: string;
+  region: string;
+};
 
 export type GetFileDownloadSignedUrlRequest = {
   bucketName: string;

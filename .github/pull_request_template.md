@@ -1,13 +1,14 @@
-## 変更の概要
+## Description of Changes
 
-<!-- どのような変更を行ったかを書く -->
+Please explain the changes in detail.
+If there is any impact on existing users (compatibility, degradation, breaking changes, etc.), be sure to include it in the explanation.
 
-## 申し送り事項
+## Checklist
 
-<!-- レビュワーに伝えておきたい事柄等を書く（Draftの理由など） -->
+- [ ] Modified relevant documentation
+- [ ] Verified operation in local environment
+- [ ] Executed `npm run cdk:test` and if there are snapshot differences, execute `npm run cdk:test:update-snapshot` to update snapshots
 
-## Checklist（レビュワー用）
+## Related Issues
 
-- [ ] `npm run lint`でエラーが出ない
-- [ ] TypeScriptのビルドで型エラーが出ない
-- [ ] 手元でフォーマットした際に差分が出ない
+Please list related issues as much as possible.

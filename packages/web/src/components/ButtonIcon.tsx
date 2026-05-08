@@ -23,7 +23,7 @@ const ButtonIcon: React.FC<Props> = (props) => {
     <button
       className={`${
         props.className ?? ''
-      } flex items-center justify-center rounded-full p-1 text-xl ${
+      } flex items-center justify-center rounded-full p-1 text-xl hover:shadow ${
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       onClick={onClick}

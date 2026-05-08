@@ -5,9 +5,6 @@ export class Database extends Construct {
   public readonly table: ddb.Table;
   public readonly statsTable: ddb.Table;
   public readonly feedbackIndexName: string;
-  public readonly assistantTable: ddb.Table;
-  public readonly assistantIdIndexName: string;
-  public readonly tenantVisibilityIndexName: string;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -23,7 +20,6 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-      encryption: ddb.TableEncryption.AWS_MANAGED,
     });
 
     table.addGlobalSecondaryIndex({
@@ -45,53 +41,10 @@ export class Database extends Construct {
         type: ddb.AttributeType.STRING,
       },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-      encryption: ddb.TableEncryption.AWS_MANAGED,
-    });
-
-    // Assistant table for storing assistant configurations
-    const assistantIdIndexName = 'AssistantIdIndex';
-    const tenantVisibilityIndexName = 'TenantVisibilityIndex';
-    const assistantTable = new ddb.Table(this, 'AssistantTable', {
-      partitionKey: {
-        name: 'userId',
-        type: ddb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'createdDate',
-        type: ddb.AttributeType.STRING,
-      },
-      billingMode: ddb.BillingMode.PAY_PER_REQUEST,
-      encryption: ddb.TableEncryption.AWS_MANAGED,
-      pointInTimeRecovery: true,
-    });
-
-    assistantTable.addGlobalSecondaryIndex({
-      indexName: assistantIdIndexName,
-      partitionKey: {
-        name: 'assistantId',
-        type: ddb.AttributeType.STRING,
-      },
-      projectionType: ddb.ProjectionType.ALL,
-    });
-
-    assistantTable.addGlobalSecondaryIndex({
-      indexName: tenantVisibilityIndexName,
-      partitionKey: {
-        name: 'tenantId',
-        type: ddb.AttributeType.STRING,
-      },
-      sortKey: {
-        name: 'createdDate',
-        type: ddb.AttributeType.STRING,
-      },
-      projectionType: ddb.ProjectionType.ALL,
     });
 
     this.table = table;
     this.statsTable = statsTable;
     this.feedbackIndexName = feedbackIndexName;
-    this.assistantTable = assistantTable;
-    this.assistantIdIndexName = assistantIdIndexName;
-    this.tenantVisibilityIndexName = tenantVisibilityIndexName;
   }
 }

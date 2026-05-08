@@ -1,109 +1,15 @@
-adminPortal:
-  actions:
-    remove: 删除
-  invite:
-    actions:
-      cancel: 取消
-      close: 关闭
-      inviting: 邀请中...
-      sendInvitations: 发送邀请
-    bulkMode:
-      csvFormat: 'CSV格式: 第一列为邮箱。示例: john@example.com,张三,销售部'
-      csvSelected: '已选择: {{filename}}'
-      csvUpload: CSV文件上传
-      manualEntry: 手动输入（每行一个邮箱）
-      manualPlaceholder: user1@example.com
-      or: 或
-    errors:
-      invalidFile: 请选择有效的CSV文件
-      invitationFailed: 邀请用户失败
-      noEmailsProvided: 请提供至少一个邮箱地址
-      tooManyEmails: 一次最多只能邀请100个用户
-    mode:
-      bulk: 批量邀请
-      single: 单个用户
-    options:
-      noSendEmailHelp: 您需要手动与用户分享登录凭据
-      sendEmail: 自动发送邀请邮件
-      sendEmailHelp: 用户将收到包含登录说明的邮件
-    results:
-      failed: '✗ {{error}}'
-      invited: ✓ 已邀请
-      summary: '总计: {{total}} | 成功: {{successful}} | 失败: {{failed}}'
-      title: 邀请结果
-      warning: '重要: 由于自动邮件已禁用，您需要手动与受邀用户分享临时密码。'
-    singleUser:
-      emailLabel: 邮箱地址
-      emailPlaceholder: user@example.com
-    title: 邀请用户
-    unconfiguredDomain:
-      affectedUsers: 域名未配置的用户：
-      cancel: 取消
-      message: 以下电子邮件地址的域名尚未配置为允许自助注册。这些用户在受邀后需要管理员协助才能访问系统。
-      proceedAnyway: 仍然继续
-      title: 域名配置警告
-  inviteUsers: 邀请用户
-  manageTenant: '管理租户用户: {{tenantId}}'
-  messages:
-    failedToCheckAdminStatus: 验证管理员状态失败
-    failedToLoadUsers: 加载用户失败
-    failedToRefreshSession: 刷新认证会话失败
-    failedToRemoveUser: 删除用户失败
-    failedToUpdateUserRole: 更新用户角色失败
-    loading: 加载中...
-    noUsersFound: 未找到用户
-    refreshingSession: 刷新会话中...
-    removeUserConfirmation: '确定要删除用户 {{username}} 吗？此操作无法撤销。'
-    verifyingAdminPrivileges: 正在验证管理员权限...
-  roles:
-    admin: 管理员
-    regularUser: 普通用户
-  stats:
-    admins: 管理员
-    disabledUsers: 禁用用户
-    regularUsers: 普通用户
-    totalUsers: 总用户数
-  status:
-    disabled: 已禁用
-  table:
-    actions: 操作
-    created: 创建时间
-    role: 角色
-    status: 状态
-    user: 用户
-  title: 管理员门户
-  userManagement: 用户管理
 agent:
   drop_files: 拖放文件上传
   title: Agent 聊天
-assistant:
-  chatPage:
-    model: 模型
-    ragEnabled: RAG 已启用
-    sources: 来源
-    view: 查看
-  edit:
-    uploadingFiles: 正在上传文件...
-  history:
-    createdWithDate: '创建日期: {{date}}'
-    lastMessageWithDate: '最后消息: {{date}}'
-  visibility:
-    privateDescriptionWithParens: (仅您可以使用)
-    publicDescriptionWithParens: (组织成员可以使用)
 auth:
   loading: 加载中...
   login: 登录
-  loginWith: '使用 {{provider}} 登录'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高级选项
-  button:
-    newChat: 新聊天
-  createChatError: 创建聊天失败。请重试。
   create_link: 创建链接
   create_link_message: 通过创建链接，您将向所有可以登录此应用程序的用户公开对话历史。
   create_system_prompt: 创建系统提示
-  defaultSystemPrompt: 你是一个乐于助人且知识渊博的AI助手。请为用户的问题提供准确且易于理解的回答。
   delete_chat_confirmation: 是否删除聊天"{{title}}"？
   delete_confirmation: 删除确认
   delete_link: 删除链接
@@ -111,7 +17,6 @@ chat:
   drop_files: 请拖放文件
   history: 对话历史
   initialize: 初始化
-  model_parameters: 模型参数
   open_link: 打开链接
   prompt_examples: 提示示例
   save: 保存
@@ -124,28 +29,20 @@ chat:
   show_system_prompt: 显示系统提示
   system_prompt: 系统提示
   title: 聊天
-chatList:
-  daysAgo: '{{days}}天前'
-  delete: 删除
-  oneDayAgo: 1天前
-  rename: 重命名
-  today: 今天
-chatSidebar:
-  assistants: 助手
-  chatHistory: 聊天记录
-  searchAssistants: 搜索助手
 common:
   cancel: 取消
   clear: 清除
   close: 关闭
+  collapse: 折叠
+  colon: ':'
   complete: 完成
   create: 创建
   delete: 删除
-  ellipsis: '...'
   enter_text: 请输入
   error: 错误
   errorNoSuggestions: 未找到建议。
   execute: 执行
+  expand: 展开
   export: 导出
   feedback_received: 已收到反馈。谢谢。
   here: 这里
@@ -158,6 +55,7 @@ common:
   not_available: 无法获取
   not_selected: 未选择
   optional: 可选
+  other: 其他
   previous: 上一步
   required: 必填
   reviewComplete: 审核完成
@@ -168,7 +66,6 @@ common:
   title: 标题
   trace: 跟踪
   try: 尝试
-  unitMB: MB
 demo:
   inter_use_cases: 用例集成
 diagram:
@@ -185,7 +82,7 @@ diagram:
   input_placeholder: 请输入用于生成的文本
   invalid_syntax: 无效语法
   markdown_edit: Markdown编辑
-  mermaid_syntax: Mermaid语法在<0>这里</0>
+  mermaid_syntax: Mermaid语法在这里
   model: 模型
   other_diagram_types: 查看其他图表类型
   png_error: 'PNG输出错误: '
@@ -333,6 +230,11 @@ diagram:
       desc: XY图表表示两个变量之间的关系
       exampleTitle: 睡眠-工作时间示例
       title: XY图表
+dialog:
+  unsavedChanges:
+    leave: 离开
+    message: 如果离开此页面，您输入的内容将丢失。确定要离开吗？
+    title: 未保存的更改
 drawer:
   ai_services: AI 服务
   builder_mode: 构建者模式
@@ -356,12 +258,8 @@ files:
     invalidExtension: '{{fileName}} 是不允许的扩展名。允许的扩展名为 {{acceptedExtensions}}。'
     invalidImageDimension: 可指定的图像文件尺寸为 {{allowedDimensions}}（上传的图像尺寸为 {{uploadedDimension}}）
     mimeMismatch: '{{fileName}} 的文件格式不正确。'
-    modelNotSupportDoc: '无法发送 {{fileName}}，因为 {{modelName}} 不支持文档文件。'
-    modelNotSupportImage: '无法发送 {{fileName}}，因为 {{modelName}} 不支持图像文件。'
-    modelNotSupportVideo: '无法发送 {{fileName}}，因为 {{modelName}} 不支持视频文件。'
     modelNotSupported: 模型不支持。
     videoCountExceeded: 视频数量不能超过 {{maxCount}} 个。
-  uploadFiles: 上传文件
 flow:
   title: Flow 聊天
 generateImage:
@@ -555,20 +453,24 @@ language:
   zh: 中文
 meetingMinutes:
   auto_generate: 自动生成
+  clear_minutes: 清除会议纪要
   custom_prompt: 自定义提示
   custom_prompt_placeholder: 输入用于生成会议纪要的自定义提示...
   frequency: 生成频率
   frequency_10min: 每10分钟
   frequency_1min: 每分钟
+  frequency_3min: 每3分钟
   frequency_5min: 每5分钟
   generate: 生成
   generate_minutes_header: 生成会议纪要
   generated_minutes: 已生成的会议纪要
   generating: 正在生成会议纪要...
-  generating_continuation: 正在生成会议纪要（继续 {{current}}/{{max}} 次）...
   generation_error: 会议纪要生成失败。请重试。
+  generation_frequency: 生成频率
+  generation_panel: 生成会议纪要
   generation_success: 会议纪要生成成功
-  language: 语言
+  hide_prompt: ▼ 隐藏提示词
+  language: 语音识别语言
   language_auto: 自动检测
   language_chinese: 中文
   language_english: 英语
@@ -578,30 +480,30 @@ meetingMinutes:
   language_vietnamese: 越南语
   last_generated: 最后生成时间 {{time}}
   minutes_placeholder: 生成后会议纪要将显示在这里
-  model: 模型
+  model: 会议纪要生成模型
+  new_recording_session: 新录音会话
+  next_generation: 下次生成
   next_generation_in: '下次生成时间 :'
-  output_may_be_incomplete: 由于长度限制，输出可能不完整。请考虑分割转录文本。
+  no_transcript: 无转录文本
+  partial_indicator: (...)
   record_transcribe: 录音和转录
+  screen_audio_error: 屏幕音频错误
   speech_recognition: 语音识别
   style: 会议纪要风格
   style_custom: 自定义
+  style_detail: 详细
+  style_diagram: 图解
   style_faq: 常见问题
   style_newspaper: 新闻报道
+  style_summary: 摘要
   style_transcription: 转录
+  style_whiteboard: 白板
   title: 会议纪要生成器
   transcript: 转录文本
+  transcription_panel: 转录文本
+  view_prompt: ▶ 查看提示词
 model:
-  descriptions:
-    geminiFlash: 支持多种文件格式的高速模型
-    geminiPro: 支持多种文件格式的高性能模型
-    gpt41: 适合快速编码和分析
-    gpt4o: 旧版模型
-    gpt4oMini: 可快速处理的轻量级模型
-    gpt5: 高速推理能力模型
-    o3: 使用高级推理
-  otherModels: 其他模型
   parameters:
-    reasoning: 推理
     reasoning_budget: 推理预算
 navigation:
   agentChat: Agent聊天
@@ -611,7 +513,6 @@ navigation:
   home: 首页
   imageGeneration: 图像生成
   meetingMinutes: 会议纪要
-  pptxGeneration: PPTX 生成
   promptOptimization: 提示优化
   ragChat: RAG聊天
   settings: 设置
@@ -632,43 +533,6 @@ optimizePrompt:
   input_placeholder: 请直接输入您当前使用的提示。如果输出是英文，请添加"请用中文输出"等指示。
   result_placeholder: 结果将显示在这里
   title: 提示优化
-pptx:
-  description: 使用 AI 辅助自动创建专业演示文稿
-  examples:
-    business:
-      content: 创建关于季度商业评议的演示文稿，包括市场分析、财务业绩和下一季度的战略举措。
-      title: 商业策略
-    title: 示例主题
-    training:
-      content: 为新软件功能开发培训材料，包括分步指南、最佳实践和故障排除提示。
-      title: 产品培训
-  generation:
-    completed: 生成成功完成
-    failed: 生成失败
-    generating: 正在生成演示文稿...
-    status: 生成状态
-  instructions:
-    help: 描述您想要的演示文稿内容。请具体说明主题、结构和任何特殊要求。
-    label: 演示文稿说明
-    placeholder: 在此输入您的演示文稿主题和要求...
-  model:
-    help: 选择用于生成演示文稿内容的 AI 模型
-    label: AI 模型
-  options:
-    summarySlide: 包含总结幻灯片
-    titleSlide: 包含标题幻灯片
-  slideCount:
-    label: 幻灯片数量
-    labelWithCount: '幻灯片数量: {{count}}'
-  template:
-    blank: 空白模板
-    blankDescription: 从简洁的最少模板开始
-    label: 模板选择
-    moreTags: '+{{count}}'
-    noTemplates: 没有可用的自定义模板
-    private: 私人模板
-    public: 公共模板
-  title: PowerPoint 演示文稿生成器
 rag:
   can_add_filters: 可以通过自定义添加过滤器。
   errorRetrieval: >-
@@ -693,29 +557,35 @@ rag:
   please_refer: 请参考。
   retrieving: 正在从Kendra获取参考文档...
   title: RAG聊天
-settings:
-  deleteAccountDeletePlaceholder: DELETE
-  labels:
-    customInstructions: 自定义指令
-    enableCustomize: 启用自定义
-    language: 语言
-    sendMessage: 发送消息
-    theme: 主题
-  language:
-    auto: 自动检测
-    ja: 日本語
-  placeholders:
-    customInstructions: 行为、风格和语调的附加设置
-  sendMessage:
-    ctrlCmdEnter: Ctrl/⌘+Enter发送
-    enter: Enter发送
-  tabs:
-    aiCustomize: AI自定义
-    general: 通用
-  theme:
-    dark: 深色
-    light: 浅色
-    system: 跟随系统设置
+setting:
+  ai_items:
+    agent_name: Agent名称
+    image_gen_model: 图像生成模型名称
+    llm_model: LLM模型名称
+    model_region: LLM和图像生成模型区域
+    video_gen_model: 视频生成模型名称
+  config_message: >-
+    设置更改不在此屏幕而是在<0>AWS CDK</0>中进行。此外，如果在执行用例时出现错误，
+    请务必确认您是否在{{region}}中启用了指定的模型。有关各种方法， 请参考<1>generative-ai-use-cases</1>。
+  items:
+    agent_enabled: Agent已启用
+    delete_all_chats: 删除所有对话历史
+    delete_all_chats_button: 删除全部历史
+    delete_all_chats_confirmation: 您确定要删除所有对话历史吗？此操作无法撤消。
+    delete_all_chats_deleting: 删除中...
+    delete_all_chats_failed: 删除失败
+    delete_all_chats_success: 已删除所有对话历史
+    language: 语言设置
+    language_help: 可以更改显示语言
+    rag_enabled: RAG (Amazon Kendra)已启用
+    rag_kb_enabled: RAG (Knowledge Base)已启用
+    version: 版本
+    version_help: 参考generative-ai-use-cases的package.json中的version
+  recent_updates: 最近更新
+  signout: 退出登录
+  update:
+    message: GitHub上有更新。如果您想使用最新功能，请pull <0>generative-ai-use-cases</0>的main分支 并重新部署。
+  view_all_updates: 查看所有更新
 shared:
   contact_admin: 请联系管理员。
   error: 错误
@@ -743,7 +613,6 @@ transcribe:
   result_placeholder: 语音识别结果将显示在这里
   screen_audio: 屏幕音频
   screen_audio_error: 屏幕音频错误：
-  screen_audio_failed_fallback_mic: 屏幕音频捕获失败。仅使用麦克风开始录音。
   screen_audio_notice: 'Windows 的情况:选择「整个屏幕」选项卡，并启用「共享系统音频」。<br/>Mac 的情况:选择「Chrome Tab」，并启用「Also share tab audio」。<br/>Chrome 和 Edge 可以使用。Firefox 无法使用。'
   select_input_method: 请选择麦克风输入或文件上传
   speaker_names: 发言人姓名（逗号分隔）
@@ -757,11 +626,21 @@ translate:
   additional_context_placeholder: 您可以输入希望额外考虑的点（如随意程度等）
   auto_detect_language: 自动检测语言
   auto_translate: 自动翻译
+  contextHelp: 上下文信息通过提供会议背景信息来帮助提高翻译准确性。
   continue_output: 继续输出
   enter_text: 请输入
+  model: 实时翻译模型
+  realtimeTranslation: 实时翻译
   result_placeholder: 翻译结果将显示在这里
+  systemGeneratedContext: 系统生成上下文
+  systemGeneratedContextPlaceholder: 基于会议内容自动生成的上下文
+  target_language: 实时翻译语言
   text_to_translate: 要翻译的文本
   title: 翻译
+  translating: 翻译中...
+  translation: 翻译
+  userDefinedContext: 用户定义上下文
+  userDefinedContextPlaceholder: 输入上下文以提高翻译准确性（例如：会议主题、专业术语等）
 useCaseBuilder:
   accessError: 访问错误
   addInputExample: 添加输入示例
@@ -963,10 +842,6 @@ useCaseBuilder:
   updateDescription: 更新用例。如果用例已共享且其他用户也在使用，他们的内容也会更新。
   updateErrorCondition: 要更新，请满足以下所有条件。
   updating: 更新中...
-userMenu:
-  ariaLabel: 用户菜单
-  logout: 退出登录
-  settings: 设置
 video:
   aspectRatio: 宽高比
   clear: 清除
@@ -1036,8 +911,6 @@ videoAnalyzer:
 voiceChat:
   close: 结束会话
   default_system_prompt: 您是一个AI助手。
-  experimental_warning: 语音聊天仍处于实验阶段。架构等可能在未来发生变化。对话历史不会保存。仅支持英语。
-  experimental_warning_title: 关于语音聊天
   im_listening: 请说话
   start: 开始会话
   title: 语音聊天

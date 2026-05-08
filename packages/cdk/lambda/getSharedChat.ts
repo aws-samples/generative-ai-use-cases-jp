@@ -1,20 +1,22 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findUserIdAndChatId, findChatById, listMessages } from './repository';
-import {
-  internalServerError500Response,
-  notFound404Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
     const shareId = event.pathParameters!.shareId!;
-    const res = await findUserIdAndChatId(shareId, event);
+    const res = await findUserIdAndChatId(shareId);
 
     if (res === null) {
-      return notFound404Response();
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: '',
+      };
     }
 
     const userId = res.userId;
@@ -24,17 +26,30 @@ export const handler = async (
       // SAML authentication includes # in userId
       // Example: user#EntraID_hogehoge.com#EXT#@hogehoge.onmicrosoft.com
       userId.split('#').slice(1).join('#'),
-      chatId.split('#')[1],
-      event
+      chatId.split('#')[1]
     );
-    const messages = await listMessages(chatId.split('#')[1], event);
+    const messages = await listMessages(chatId.split('#')[1]);
 
-    return ok200Response({
-      chat,
-      messages,
-    });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        chat,
+        messages,
+      }),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

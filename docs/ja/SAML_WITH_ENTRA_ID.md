@@ -171,8 +171,7 @@ Save changes を押します。
 
 これで設定が完了したため、cdk.json の値を変更します。
 
-- samlAuthEnabled : `true` を指定します。SAML 認証が有効になります。`samlDefaultAuthEnabled` が `false` の場合、Cognito user pools を利用した従来の認証機能は利用できなくなります。
-- samlDefaultAuthEnabled : `true` に設定すると、SAML 認証が有効な場合でも、ログイン画面で従来の Cognito user pools 認証を選択できます。
+- samlAuthEnabled : `true` を指定します。SAML 専用の認証画面に切り替わり、Cognito user pools を利用した従来の認証機能は利用できなくなります。
 - samlCognitoDomainName : [「Cognito の設定 : Domain設定」](#cognito-の設定--domain-設定) で指定した Cognito Domain 名を入力します。
 - samlCognitoFederatedIdentityProviderName : [「Cognito の設定 : Federation」](#cognito-の設定--federation) で設定した Identity Provider の名前を入力します。
 
@@ -180,7 +179,6 @@ Save changes を押します。
   "context": {
 　　 <省略>
     "samlAuthEnabled": true,
-    "samlDefaultAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "EntraID",
 ```

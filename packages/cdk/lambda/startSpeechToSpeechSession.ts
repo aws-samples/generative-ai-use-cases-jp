@@ -4,10 +4,6 @@ import {
   InvokeCommand,
   InvocationType,
 } from '@aws-sdk/client-lambda';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -24,9 +20,23 @@ export const handler = async (
       })
     );
 
-    return ok200Response({ channel });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ channel }),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

@@ -1,256 +1,143 @@
-adminPortal:
-  actions:
-    remove: 削除
-  invite:
-    actions:
-      cancel: キャンセル
-      close: 閉じる
-      inviting: 招待中...
-      sendInvitations: 招待を送信
-    bulkMode:
-      csvFormat: 'CSVフォーマット: 最初の列にメール。例: john@example.com,John Doe,営業部'
-      csvSelected: '選択済み: {{filename}}'
-      csvUpload: CSVファイルアップロード
-      manualEntry: 手動入力（1行に1つのメール）
-      manualPlaceholder: user1@example.com
-      or: または
-    errors:
-      adminPrivilegesRevoked: 管理者権限が取り消されました。ユーザーを招待できません。
-      invalidFile: 有効なCSVファイルを選択してください
-      invitationFailed: ユーザーの招待に失敗しました
-      noEmailsProvided: 少なくとも1つのメールアドレスを提供してください
-      tooManyEmails: 一度に招待できるユーザーは最大100人です
-    mode:
-      bulk: 一括招待
-      single: 単一ユーザー
-    options:
-      noSendEmailHelp: ログイン認証情報をユーザーと手動で共有する必要があります
-      sendEmail: 招待メールを自動送信する
-      sendEmailHelp: ユーザーはログイン手順を含むメールを受信します
-    results:
-      failed: '✗ {{error}}'
-      invited: ✓ 招待済み
-      summary: '合計: {{total}} | 成功: {{successful}} | 失敗: {{failed}}'
-      title: 招待結果
-      warning: '重要: 自動メールが無効になっているため、一時パスワードを招待されたユーザーと手動で共有する必要があります。'
-    singleUser:
-      emailLabel: メールアドレス
-      emailPlaceholder: user@example.com
-    title: ユーザーを招待
-    unconfiguredDomain:
-      affectedUsers: '未設定ドメインのユーザー:'
-      cancel: キャンセル
-      message: 以下のメールアドレスのドメインは自動サインアップ用に設定されていません。これらのユーザーは招待後にシステムにアクセスするために管理者の支援が必要になります。
-      proceedAnyway: とにかく続行
-      title: ドメイン設定警告
-  inviteUsers: ユーザーを招待
-  manageTenant: 'テナントのユーザーを管理: {{tenantId}}'
-  messages:
-    failedToCheckAdminStatus: 管理者ステータスの確認に失敗しました
-    failedToLoadUsers: ユーザーの読み込みに失敗しました
-    failedToRefreshSession: 認証セッションの更新に失敗しました
-    failedToRemoveUser: ユーザーの削除に失敗しました
-    failedToUpdateUserRole: ユーザーの役割更新に失敗しました
-    loading: 読み込み中...
-    noUsersFound: ユーザーが見つかりません
-    refreshingSession: セッションを更新中...
-    removeUserConfirmation: 'ユーザー {{username}} を削除してもよろしいですか？この操作は元に戻せません。'
-    verifyingAdminPrivileges: 管理者権限を確認中...
-  roles:
-    admin: 管理者
-    regularUser: 一般ユーザー
-  stats:
-    admins: 管理者
-    disabledUsers: 無効ユーザー
-    regularUsers: 一般ユーザー
-    totalUsers: 総ユーザー数
-  status:
-    disabled: 無効
-  table:
-    actions: アクション
-    created: 作成日
-    role: 役割
-    status: ステータス
-    user: ユーザー
-  title: 管理者ポータル
-  userManagement: ユーザー管理
 agent:
   drop_files: ファイルをドロップしてアップロード
   title: Agent チャット
-assistant:
-  all: すべて
-  allAssistants: すべてのアシスタント
-  changeVisibility: 公開設定を変更
+agent_builder:
+  add_agents_to_favorites_description: 公開からエージェントをお気に入りに追加
+  add_mcp_server: MCPサーバーを追加
+  add_mcp_server_button: MCPサーバーを追加
+  add_mcp_servers_help: 「MCPサーバーを追加」をクリックして、エージェントにツールと機能を追加します
+  add_new_mcp_server: 新しいMCPサーバーを追加
+  agent_chat: エージェントチャット
+  agent_cloned_successfully: エージェント「{{name}}」が正常にクローンされました！
+  agent_created_successfully: エージェントが正常に作成されました
+  agent_deleted_successfully: エージェントが正常に削除されました
+  agent_not_found: エージェントが見つかりません
+  agent_updated_successfully: エージェントが正常に更新されました
+  all_categories: すべて
+  arguments: 引数
+  arguments_help: パッケージ名またはコマンド引数（スペース区切り）
+  arguments_label: 引数
+  arguments_placeholder: パッケージ名 引数1 引数2
+  basic_information: 基本情報
+  bedrock_agent_description: 特別な機能を持つ事前設定済みのBedrockエージェント
   chat: チャット
-  chatPage:
-    assistantInfo: アシスタント情報
-    chunksEnabled: チャンク表示が有効
-    confirmClear: 会話履歴をクリアしてもよろしいですか？
-    copy: コピー
-    createChatError: チャットの作成に失敗しました
-    failedAlertTitle: 同期失敗
-    inputPlaceholder: メッセージを入力...
-    instruction: 指示
-    model: モデル
-    noMessages: メッセージがありません
-    partialAlertMessage: '{{count}}個のナレッジソースの同期に失敗しました。'
-    partialAlertTitle: 部分的に同期完了
-    quickStarters: クイックスタート
-    ragEnabled: RAG 有効
-    send: 送信
-    sendError: メッセージの送信に失敗しました
-    sources: ソース
-    syncStatus: 同期状態
-    syncSucceeded: ナレッジベースの同期が正常に完了しました！
-    syncingAlertMessage: アシスタントのナレッジベースは現在同期中です。準備ができ次第チャットできるようになります。5秒ごとに更新しています。
-    syncingAlertTitle: ナレッジベース同期中
-    syncingPlaceholder: ナレッジベースを同期中...
-    title: アシスタント チャット
-    view: 表示
-  confirmDelete: このアシスタントを削除してもよろしいですか？
-  createNew: 新規アシスタント作成
-  delete: 削除
-  deleteConfirmation: '"{{assistantName}}" を削除してもよろしいですか？この操作は取り消せません。'
-  deleteError: アシスタントの削除に失敗しました
-  deleteSuccess: アシスタントを削除しました
-  deleteTitle: アシスタントを削除
-  deleting: 削除中...
-  description: AIアシスタントを作成、管理、共有できます
-  edit:
-    add: 追加
-    back: 戻る
-    basicInfo: 基本情報
-    cancel: キャンセル
-    close: 閉じる
-    createTitle: 新規アシスタント作成
-    description: 説明
-    displayRetrievedChunks: 取得したチャンクを表示
-    editTitle: アシスタントを編集
-    enableRAG: RAGを有効化（ナレッジベース）
-    instruction: カスタム指示
-    knowledge: ナレッジベース
-    modelId: モデル
-    readOnlyDescription: このアシスタントを読み取り専用モードで表示しています。編集は所有者のみが可能です。
-    readOnlyMode: 読み取り専用モード
-    requiredFields: 必須項目を入力してください
-    save: 保存
-    saveBeforeUpload: ファイルをアップロードする前にアシスタントを保存してください
-    saveFailed: 保存に失敗しました
-    saving: 保存中...
-    sourceUrls: ソースURL
-    title: 名前
-    uploadFiles: ファイルをアップロード
-    uploadingFiles: ファイルをアップロード中...
-  editTitle: 編集
-  filterAll: すべて
-  filterPrivate: プライベート
-  filterPublic: パブリック
-  filterStarred: スター付き
-  history:
-    back: 戻る
-    confirmBulkDelete: '{{count}}件の会話を削除してもよろしいですか？'
-    confirmDelete: この会話を削除してもよろしいですか？
-    createdWithDate: '作成日: {{date}}'
-    daysAgo: '{{days}}日前'
-    deleteSelected: 選択した項目を削除
-    deselectAll: 選択解除
-    hoursAgo: '{{hours}}時間前'
-    lastMessage: 最終メッセージ
-    lastMessageWithDate: '最終メッセージ: {{date}}'
-    messageCount: 'メッセージ数: {{count}}'
-    minutesAgo: '{{minutes}}分前'
-    noConversations: 会話履歴がありません
-    noDate: 日付なし
-    open: 開く
-    search: 検索
-    searchPlaceholder: 会話を検索...
-    selectAll: すべて選択
-    selected: '{{count}}件選択中'
-    showing: '{{count}}件の会話を表示中'
-    title: 会話履歴
-    untitled: 無題
-    yesterday: 昨日
-  lastUsed: 最終使用
-  myAssistants: マイアシスタント
-  noAssistants: アシスタントが見つかりません
-  organizationPublic: 組織内公開
-  organizationPublicDescription: 組織内のメンバーが利用できます
-  owner:
-    mine: 自分
-  popularAssistants: 人気のアシスタント
-  private: プライベート
-  privateDescription: 自分だけが利用できます
-  scopeFilter: 公開範囲
-  search: 検索
-  searchPlaceholder: アシスタント名または説明で検索
-  shared: 共有中
-  showStarredOnly: スター付きのみ表示
-  star: スター
-  starredOnly: スター付きのみ
-  statusMessage:
-    blocking: ナレッジベースを同期中です。お待ちください...
-    failed: ナレッジベースの同期に失敗しました。ソースを確認してください。
-    partial: 一部のナレッジソースの同期に失敗しました。
-  statusTooltip:
-    failedSources: '{{count}}個のナレッジソースの同期に失敗しました'
-  syncStatus:
-    completed: 同期完了
-    failed: 失敗
-    partial: 部分的に同期完了
-    queued: 待機中
-    ragDisabled: RAG 無効
-    succeeded: 準備完了
-    syncing: 同期中
-    unknown: 不明
-  tenantPublic: テナント内公開
-  tenantPublicDescription: テナント内のメンバーが利用できます
-  title: アシスタント管理
-  unstar: スター解除
-  viewMore: もっと見る
-  visibility:
-    confirmToggleToPrivate: '「{{assistantName}}」をプライベートにしてもよろしいですか？あなただけが利用できるようになります。'
-    confirmToggleToPublic: '「{{assistantName}}」をパブリックにしてもよろしいですか？組織内の全メンバーが利用できるようになります。'
-    label: 公開設定
-    makeItPrivate: プライベートにする
-    makeItPublic: パブリックにする
-    private: プライベート
-    privateDescription: 自分だけが利用できます
-    privateDescriptionWithParens: (自分だけが利用できます)
-    public: パブリック
-    publicDescription: 組織内のメンバーが利用できます
-    publicDescriptionWithParens: (組織内のメンバーが利用できます)
-    publicWarning: アシスタントをパブリックにすると、組織内の全メンバーが利用できるようになります。指示やナレッジベースに機密情報が含まれていないことを確認してください。
-    toggleTitle: 公開設定を変更
-    updating: 更新中...
+  check_back_later_description: 公開エージェントについては後でもう一度確認してください
+  clone: クローン
+  code_execution: コード実行
+  code_execution_description: >-
+    このエージェントがコードを実行し、スクリプトを実行できるようにします。
+  command: コマンド
+  command_help: セキュリティ上の理由により、'uvx'コマンドのみ許可されています
+  command_label: コマンド
+  command_placeholder: uvx
+  confirm_delete: このエージェントを削除してもよろしいですか？
+  create_agent: エージェントを作成
+  create_first_agent_description: 最初のエージェントを作成して始めましょう
+  create_your_first_agent: 最初のエージェントを作成
+  created_by: 作成者
+  describe_agent: エージェントの機能を説明してください
+  description: 説明
+  description_label: 説明
+  description_placeholder: エージェントの機能を説明してください...
+  description_too_long: 説明は500文字以下である必要があります
+  edit_agent: エージェントを編集
+  editor: エディター
+  enable_code_execution: コード実行を有効にする
+  enter_agent_name: エージェント名を入力
+  enter_system_prompt: エージェントの動作を定義するシステムプロンプトを入力
+  enter_tags_comma_separated: タグをカンマ区切りで入力
+  environment_help: JSON形式の環境変数（オプション）
+  environment_variables: 環境変数
+  environment_variables_label: 環境変数
+  example_github: GitHub
+  external: 外部
+  external_agent_description: 特別な機能を持つ事前設定済みの外部エージェント
+  external_agents: 外部エージェント
+  failed_to_clone_agent: エージェントのクローンに失敗しました
+  failed_to_create_agent: エージェントの作成に失敗しました
+  failed_to_delete_agent: エージェントの削除に失敗しました
+  failed_to_toggle_favorite: お気に入りの切り替えに失敗しました
+  failed_to_update_agent: エージェントの更新に失敗しました
+  favorites: お気に入り
+  filter_by_tag: タグでフィルター
+  generate_short: 生成
+  generate_with_ai: AIにより生成する
+  generating_prompt: システムプロンプトを生成中...
+  loading_agent: エージェントを読み込み中...
+  mcp_server_configuration: MCPサーバー設定
+  mcp_server_description: エージェントに追加機能を提供するMCPサーバーを選択してください。これらのサーバーはセキュリティのため管理者によって事前設定されています。
+  mcp_servers: MCPサーバー
+  mcp_servers_description: MCPサーバーを追加して、エージェントにツールと機能を提供します
+  model: モデル
+  my_agents: マイエージェント
+  name: 名前
+  name_too_long: エージェント名は100文字以下である必要があります
+  no_agents_yet: まだエージェントがありません
+  no_external_agents_available: 利用可能な外部エージェントがありません
+  no_favorite_agents_yet: まだお気に入りのエージェントがありません
+  no_mcp_servers: MCPサーバーが設定されていません
+  no_mcp_servers_available: 現在利用可能なMCPサーバーがありません。
+  no_mcp_servers_match_filter: 現在のフィルターに一致するMCPサーバーがありません。
+  no_mcp_servers_selected: MCPサーバーが選択されていません。エージェントは基本機能のみ利用できます。
+  no_public_agents_available: 利用可能な公開エージェントがありません
+  overwrite_confirm: 上書きする
+  overwrite_prompt_message: すでにシステムプロンプトが入力されています。AIで生成したプロンプトで上書きしますか？
+  overwrite_prompt_title: システムプロンプトの上書き確認
+  preview: プレビュー
+  public: 公開エージェント
+  public_sharing_description: >-
+    このエージェントを公開し、他のユーザーが発見して利用できるようにします。エージェントはすべてのユーザーに表示されますが、オリジナルを変更することはできません。
+  quick_examples: クイック例
+  quick_examples_title: クイック例
+  search_agents: エージェントを検索...
+  search_mcp_servers: MCPサーバーを検索...
+  security_notice: セキュリティ通知
+  security_notice_description: uvxコマンドのみ許可されています。セキュリティのため外部ネットワークアクセスは制限されています。
+  security_restrictions: uvxコマンドのみ許可されています。セキュリティのため外部ネットワークアクセスは制限されています。
+  separate_tags_with_commas: 複数のタグはカンマで区切ってください
+  server_configuration: サーバー設定
+  server_description_placeholder: このサーバーが提供する機能の簡単な説明...
+  server_name: サーバー名
+  server_name_label: サーバー名
+  server_name_placeholder: 例：github-mcp-server
+  share_publicly: 公開で共有
+  showing_results: '{{total}}件中 {{start}}-{{end}}件を表示'
+  start_chatting_with: '{{name}}とのチャットを開始'
+  system_prompt: システムプロンプト
+  tags: タグ
+  test: テスト
+  title: エージェントビルダー
+  tool_settings: ツール設定
+  updated: 更新日
+agent_core:
+  model: モデル
+  runtime: ランタイム
+  start_conversation: AgentCore と会話を始める
+  title: AgentCore
+agent_dashboard: {}
 auth:
   loading: 読み込み中...
   login: ログイン
-  loginWith: '{{provider}}でログイン'
   title: Generative AI Use Cases on AWS
 chat:
   advanced_options: 高度なオプション
-  button:
-    newChat: 新しいチャット
-  createChatError: チャットの作成に失敗しました。もう一度お試しください。
   create_link: リンクの作成
   create_link_message: リンクを作成することで、このアプリケーションにログイン可能な全ユーザーに対して会話履歴を公開します。
   create_system_prompt: システムプロンプトの作成
-  defaultSystemPrompt: あなたは親切で知識豊富なAIアシスタントです。ユーザーの質問に対して、正確で分かりやすい回答を提供してください。
   delete_chat_confirmation: チャット「{{title}}」を削除しますか？
   delete_confirmation: 削除確認
   delete_link: リンクの削除
   delete_link_message: リンクを削除することで、会話履歴の公開を停止できます。
   drop_files: ファイルをドロップしてください
+  hint_cmd_enter: ⌘ + Enter で送信
+  hint_ctrl_enter: Ctrl + Enter で送信
   history: 会話履歴
   initialize: 初期化
-  model_parameters: モデルパラメータ
   open_link: リンクを開く
   prompt_examples: プロンプト例
   save: 保存
   saved_system_prompts: 保存したシステムプロンプト
   search_by_title: 件名で検索
-  searching: Web検索中...
-  searching_for: '"{{query}}" を検索中...'
   settings: 設定
   share: シェアする
   share_conversation: 会話履歴のシェア
@@ -259,47 +146,49 @@ chat:
   system_prompt: システムプロンプト
   title: チャット
   view_prompt_examples: プロンプト例を見る
-  web_search: Web検索
-  web_search_error: 'Web検索エラー: {{error}}'
-  web_search_model_not_supported: このモデルはWeb検索に対応していません
-  web_search_not_available: Web検索は利用できません
-  web_search_results: 'Web検索結果 ({{count}}件)'
-chatList:
-  daysAgo: '{{days}}日前'
-  delete: 削除
-  oneDayAgo: 1日前
-  rename: 名前を変更
-  today: 今日
-chatSidebar:
-  assistants: アシスタント
-  chatHistory: チャット履歴
-  searchAssistants: アシスタントを探す
 common:
-  ask_gaixr: GaiXerに聞く
+  add: 追加
+  arrow: →
+  back: 戻る
   cancel: キャンセル
   clear: クリア
   close: 閉じる
+  collapse: 折りたたみ
+  colon: ':'
   complete: 完了
   create: 作成
+  default: デフォルト
   delete: 削除
-  ellipsis: '...'
+  disable: 無効化
+  disabled: 無効
+  edit: 編集
+  enable: 有効化
+  enabled: 有効
   enter_text: 入力してください
   error: エラー
   errorNoSuggestions: 候補が見つかりませんでした。
   execute: 実行
+  expand: 展開
   export: エクスポート
   feedback_received: フィードバックを受け付けました。ありがとうございます。
+  first_page: 最初のページ
+  form: フォーム
   here: こちら
+  last_page: 最後のページ
   load_more: さらに読み込む
   loading: 読み込み中...
   next: 次
+  next_page: 次のページ
   no_options_found: オプションが見つかりません
   none: ありません
   notAuthenticated: 認証されていません。
   not_available: 取得できませんでした
   not_selected: 選択されていません
   optional: 任意
+  other: その他
   previous: 前
+  previous_page: 前のページ
+  remove: 削除
   required: 必須
   reviewComplete: レビュー完了
   save: 保存
@@ -309,8 +198,7 @@ common:
   title: タイトル
   trace: トレース
   try: 試す
-  unitMB: MB
-  yesterday: 昨日
+  update: 更新
 demo:
   inter_use_cases: ユースケース連携
 diagram:
@@ -327,7 +215,7 @@ diagram:
   input_placeholder: 生成元の文章を入力してください
   invalid_syntax: 無効な構文
   markdown_edit: マークダウン編集
-  mermaid_syntax: Mermaid の記法は<0>こちら</0>
+  mermaid_syntax: Mermaid の記法はこちら
   model: モデル
   other_diagram_types: 他の図の種類を見る
   png_error: 'PNG出力エラー: '
@@ -491,6 +379,11 @@ diagram:
       desc: XYチャートは2つの変数間の関係を表現します
       exampleTitle: 睡眠・労働時間例
       title: XYチャート
+dialog:
+  unsavedChanges:
+    leave: 移動する
+    message: このページから移動すると、入力内容が失われます。本当に移動しますか？
+    title: 入力内容が保存されていません
 drawer:
   ai_services: AI サービス
   builder_mode: ビルダーモード
@@ -517,12 +410,8 @@ files:
       指定可能な画像ファイルのサイズは {{allowedDimensions}} です (アップロードされた画像のサイズ
       {{uploadedDimension}})
     mimeMismatch: '{{fileName}} のファイル形式が不正です。'
-    modelNotSupportDoc: '{{modelName}} はドキュメントファイルに対応していないため、{{fileName}} を送信できません。'
-    modelNotSupportImage: '{{modelName}} は画像ファイルに対応していないため、{{fileName}} を送信できません。'
-    modelNotSupportVideo: '{{modelName}} は動画ファイルに対応していないため、{{fileName}} を送信できません。'
     modelNotSupported: モデルが対応していません。
     videoCountExceeded: 動画数は {{maxCount}} 個以下にしてください。
-  uploadFiles: ファイルをアップロード
 flow:
   title: Flow チャット
 generateImage:
@@ -599,10 +488,15 @@ generateText:
   result_placeholder: 生成された文章がここに表示されます
   source_info: 文章の元になる情報
   title: 文章生成
+inputs:
+  attachment: 添付ファイル
+  reasoning: 深く考える
+  setting: 設定
 landing:
   alert:
     description: >-
-      こちらは SA が内部デモのために利用する環境です。カスタマーにデモをする場合は、原則自分の AWS アカウントにデプロイしたものを利用してください。カスタマーのデータの入力や業務利用をしてはいけません。
+      こちらは SA が内部デモのために利用する環境です。カスタマーにデモをする場合は、原則自分の AWS
+      アカウントにデプロイしたものを利用してください。カスタマーのデータの入力や業務利用をしてはいけません。
     title: GenU デモ環境について
   demo:
     agent:
@@ -629,8 +523,7 @@ landing:
         スマホ広告のデザイン案を出力してください。
         可愛い、おしゃれ、使いやすい、POPカルチャー、親しみやすい、若者向け、音楽、写真、流行のスマホ、背景が街
     mcp:
-      content: >-
-        Amazon Bedrock のセキュリティについて調べてください。ユーザーの入力はモデルの学習に使われますか？
+      content: Amazon Bedrock のセキュリティについて調べてください。ユーザーの入力はモデルの学習に使われますか？
     rag:
       content: Claude のパラメータを説明し、その設定方法も教えてください。
     summarize:
@@ -663,6 +556,9 @@ landing:
         Agent チャットユースケースでは Agents for Amazon Bedrock を利用してアクションを実行させたり、Knowledge
         Bases for Amazon Bedrock のベクトルデータベースを参照することが可能です。
       title: Agent チャット
+    agent_core:
+      description: AgentCore チャットは Bedrock AgentCore で作成したさまざまな Agent を利用する機能です
+      title: AgentCore
     chat:
       description: >-
         LLM
@@ -690,7 +586,9 @@ landing:
       title: 画像生成
     mcp_chat:
       description: >-
-        MCP チャットは  Model Context Protocol (MCP) を通じて、Bedrock の LLM モデルと外部データや外部ツールをシームレスに連携させるチャット機能です。mcp.json を編集することで、自由にツールを追加できます。MCP のエージェントとして Strands Agents を活用しています。
+        MCP チャットは  Model Context Protocol (MCP) を通じて、Bedrock の LLM
+        モデルと外部データや外部ツールをシームレスに連携させるチャット機能です。mcp.json を編集することで、自由にツールを追加できます。MCP
+        のエージェントとして Strands Agents を活用しています。
       title: MCP チャット
     meeting-minutes:
       description: >-
@@ -767,20 +665,35 @@ mcp_chat:
   title: MCP チャット
 meetingMinutes:
   auto_generate: 自動生成
+  bidirectional: 双方向翻訳
+  both_panel: 両方表示
+  clear_minutes: クリア
   custom_prompt: カスタムプロンプト
   custom_prompt_placeholder: 議事録生成用のカスタムプロンプトを入力してください...
+  diagram_flowchart: フローチャート（会議の流れ）
+  diagram_mindmap: マインドマップ（決定事項）
+  diagram_options: 生成する図の種類
+  diagram_sequence: シーケンス図（関係性）
+  diagram_timeline: タイムライン（期限・スケジュール）
   frequency: 生成頻度
   frequency_10min: 10分ごと
   frequency_1min: 1分ごと
+  frequency_3min: 3分ごと
   frequency_5min: 5分ごと
   generate: 生成
+  generate_minutes: 議事録を生成
   generate_minutes_header: 議事録を生成
   generated_minutes: 生成された議事録
   generating: 議事録生成中...
-  generating_continuation: 議事録生成中（継続 {{current}}/{{max}} 回目）...
   generation_error: 議事録の生成に失敗しました。再試行してください。
+  generation_frequency: 生成頻度
+  generation_panel: 議事録生成
   generation_success: 議事録が正常に生成されました
-  language: 言語
+  hide_prompt: ▼ プロンプトを非表示
+  input_source: 入力ソース
+  language: 文字起こし言語
+  language_1: 言語1
+  language_2: 言語2
   language_auto: 自動検出
   language_chinese: 中国語
   language_english: 英語
@@ -789,32 +702,41 @@ meetingMinutes:
   language_thai: タイ語
   language_vietnamese: ベトナム語
   last_generated: 最後の生成時刻 {{time}}
+  microphone: マイク
   minutes_placeholder: 生成後にここに議事録が表示されます
-  model: モデル
+  model: 議事録生成モデル
+  new_recording_session: 新しい録音セッション
+  next_generation: 次回生成
   next_generation_in: '次回生成まで : '
-  output_may_be_incomplete: 出力が長さの制限により不完全な可能性があります。文字起こしを分割することを検討してください。
+  no_transcript: 文字起こしがありません
+  option: オプション
+  partial_indicator: (...)
   record_transcribe: 音声認識
+  screen_audio_error: スクリーン音声エラー
+  settings: 設定
   speech_recognition: 音声認識
   style: 議事録スタイル
   style_custom: カスタム
+  style_detail: 詳細
+  style_diagram: 図解
   style_faq: 質疑応答
   style_newspaper: 新聞
+  style_summary: 要約
   style_transcription: 文字起こし
+  style_whiteboard: ホワイトボード
+  target_language: 翻訳言語
   title: 議事録生成
   transcript: 文字起こし
+  transcription_language: 文字起こし言語
+  transcription_panel: 文字起こし
+  translation_language: 翻訳言語
+  translation_model: 翻訳モデル
+  translation_type: 翻訳方式
+  unidirectional: 片方向翻訳
+  view_prompt: ▶ プロンプトを表示
 model:
-  descriptions:
-    geminiFlash: 幅広いファイル形式に対応した高速モデル
-    geminiPro: 幅広いファイル形式に対応した高性能モデル
-    gpt41: 迅速なコーディングと分析に最適
-    gpt4o: レガシー モデル
-    gpt4oMini: 高速な処理が可能な軽量モデル
-    gpt5: 高速な推論能力モデル
-    o3: 高度な推論を使用する
-  otherModels: その他モデル
   parameters:
-    reasoning: Reasoning
-    reasoning_budget: Reasoning Budget
+    reasoning_budget: 深く考えるトークン数上限
 navigation:
   agentChat: Agent チャット
   chat: チャット
@@ -823,7 +745,6 @@ navigation:
   home: ホーム
   imageGeneration: 画像生成
   meetingMinutes: 議事録生成
-  pptxGeneration: PPTX 生成
   promptOptimization: プロンプト最適化
   ragChat: RAG チャット
   settings: 設定
@@ -831,7 +752,6 @@ navigation:
   summary: 要約
   textGeneration: 文章生成
   translation: 翻訳
-  useCaseBuilder: ユースケースビルダー
   videoAnalysis: 映像分析
   videoGeneration: 動画生成
   voiceChat: 音声チャット
@@ -845,64 +765,6 @@ optimizePrompt:
   input_placeholder: 現在利用中のプロンプトをそのまま入力してください。英語で出力されてしまう場合は「日本語で出力してください」という指示を追加してください。
   result_placeholder: 結果がここに表示されます
   title: プロンプト最適化
-pptx:
-  description: AI の支援を使って専門的なプレゼンテーションを自動作成
-  download: ダウンロード
-  examples:
-    business:
-      content: 四半期ビジネスレビューに関するプレゼンテーションを作成します。市場分析、財務実績、次四半期の戦略的取り組みを含みます。
-      title: ビジネス戦略
-    title: 例のトピック
-    training:
-      content: 新しいソフトウェア機能のトレーニング資料を開発します。ステップバイステップガイド、ベストプラクティス、トラブルシューティングのヒントを含みます。
-      title: 製品トレーニング
-  generate: 生成
-  generating: 生成中...
-  generation:
-    completed: 生成が正常に完了しました
-    failed: 生成に失敗しました
-    generating: プレゼンテーションを生成中...
-    status: 生成状況
-  instructions:
-    help: プレゼンテーションで求めるものを説明してください。トピック、構成、特別な要件について具体的に記述してください。
-    label: プレゼンテーション指示
-    placeholder: プレゼンテーションのトピックと要件をここに入力してください...
-  model:
-    help: プレゼンテーションコンテンツを生成するAIモデルを選択してください
-    label: AI モデル
-  options:
-    summarySlide: まとめスライドを含める
-    titleSlide: タイトルスライドを含める
-  slideCount:
-    label: スライド数
-    labelWithCount: 'スライド数: {{count}}'
-  template:
-    blank: 空白テンプレート
-    blankDescription: クリーンで最小限のテンプレートから開始
-    label: テンプレート選択
-    moreTags: '+{{count}}'
-    noTemplates: カスタムテンプレートがありません
-    private: プライベートテンプレート
-    public: パブリックテンプレート
-  title: PowerPoint プレゼンテーション生成
-  upload:
-    descriptionLabel: 説明
-    descriptionPlaceholder: テンプレートの説明を入力
-    failed: テンプレートのアップロードに失敗しました
-    fileLabel: テンプレートファイル
-    fileTooLarge: ファイルサイズが大きすぎます。最大サイズは10MBです
-    invalidFileType: 無効なファイル形式です。PowerPointファイル（.pptx）を選択してください
-    missingFields: すべての必須項目を入力してください
-    nameLabel: テンプレート名
-    namePlaceholder: テンプレート名を入力
-    publicHelp: 公開テンプレートは全ユーザーが使用できます
-    publicLabel: このテンプレートを公開する
-    tagsHelp: テンプレートを分類するためのタグを追加
-    tagsLabel: タグ
-    tagsPlaceholder: タグを入力（カンマ区切り）
-    title: テンプレートをアップロード
-    upload: アップロード
-    uploading: アップロード中...
 rag:
   can_add_filters: をカスタマイズすることでフィルターを追加できます。
   errorRetrieval: >-
@@ -930,38 +792,47 @@ rag:
   please_refer: をご参照ください。
   retrieving: Kendra から参考ドキュメントを取得しています...
   title: RAG チャット
-settings:
-  deleteAccount: アカウント削除
-  deleteAccountButton: アカウントを削除
-  deleteAccountCancel: キャンセル
-  deleteAccountConfirm: 削除する
-  deleteAccountConfirmDescription: この操作は取り消せません。確認のため、以下の情報を入力してください。
-  deleteAccountConfirmTitle: アカウント削除の確認
-  deleteAccountDeleteLabel: 「DELETE」と入力
-  deleteAccountDeletePlaceholder: DELETE
-  deleteAccountDescription: アカウントを削除すると、すべてのデータが失われます。この操作は取り消せません。
-  deleteAccountEmailLabel: メールアドレスを入力
-  labels:
-    customInstructions: カスタム指示
-    enableCustomize: カスタマイズを有効にする
-    language: 言語
-    sendMessage: メッセージの送信
-    theme: テーマ
-  language:
-    auto: 自動検出
-    ja: 日本語
-  placeholders:
-    customInstructions: 動作、スタイル、トーンに関する追加の設定
-  sendMessage:
-    ctrlCmdEnter: Ctrl/⌘+Enterで送信
-    enter: Enterで送信
-  tabs:
-    aiCustomize: AIのカスタマイズ
-    general: 一般
-  theme:
-    dark: ダーク
-    light: ライト
-    system: システム設定に従う
+setting:
+  ai_items:
+    agent_name: Agent 名
+    image_gen_model: 画像生成 モデル名
+    llm_model: LLM モデル名
+    model_region: LLM & 画像生成 モデルリージョン
+    video_gen_model: 動画生成 モデル名
+  config_message: >-
+    システム設定の変更はこの画面ではなく <0>AWS CDK</0> で行います。 また、ユースケース実行時にエラーになる場合は、必ず
+    {{region}} にて指定したモデルを有効化しているか確認してください。それぞれのやり方については
+    <1>generative-ai-use-cases</1> をご参照ください。
+  items:
+    agent_enabled: Agent 有効
+    delete_all_chats: すべての会話履歴を削除
+    delete_all_chats_button: 全会話履歴削除
+    delete_all_chats_confirmation: すべての会話履歴を削除しますか？この操作は取り消すことができません。
+    delete_all_chats_deleting: 削除中...
+    delete_all_chats_failed: 削除に失敗しました
+    delete_all_chats_success: すべての会話履歴を削除しました
+    language: 言語設定
+    language_help: 表示言語を変更できます
+    line_break_enter: Enter で改行
+    login_status: ログイン状態
+    rag_enabled: RAG (Amazon Kendra) 有効
+    rag_kb_enabled: RAG (Knowledge Base) 有効
+    show_email: メールアドレスの表示
+    show_tools: ツールの表示
+    show_use_case_builder: ユースケースビルダーの表示
+    stats: 利用統計
+    typing_animation: タイピングアニメーション
+    version: バージョン
+    version_help: generative-ai-use-cases の package.json の version を参照しています
+  recent_updates: 最近のアップデート
+  signout: サインアウト
+  system: システム設定
+  update:
+    message: >-
+      GitHub にアップデートがあります。最新の機能を利用したい場合は <0>generative-ai-use-cases</0> の main
+      ブランチを pull して再度デプロイしてください。
+  user: ユーザー設定
+  view_all_updates: 全てのアップデートを見る
 shared:
   contact_admin: 管理者に問い合わせてください。
   error: エラー
@@ -999,9 +870,8 @@ transcribe:
   mic_input: マイク入力
   result_placeholder: 音声認識結果がここに表示されます
   screen_audio: スクリーン音声
-  screen_audio_error: 'スクリーン音声エラー:'
-  screen_audio_failed_fallback_mic: スクリーン音声の取得に失敗しました。マイクのみで録音を開始します。
-  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。<br/>Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。<br/>Chrome と Edge は動作します。Firefox は動作しません。'
+  screen_audio_error: スクリーン音声エラー
+  screen_audio_notice: 'Windows の場合:「画面全体」タブより、「システム音声も共有する」を ON にしてください。Mac の場合:「Chrome Tab」から、「Also share tab audio」を ON にしてください。Chrome と Edge は動作します。Firefox は動作しません。'
   select_input_method: マイク入力 or ファイルアップロードから選択してください
   speaker_names: 話し手の名前（カンマ区切り）
   speaker_recognition: 話者認識
@@ -1009,16 +879,27 @@ transcribe:
   stop_recording: 録音を停止する
   supported_files: mp3, mp4, wav, flac, ogg, amr, webm, m4a ファイルが利用可能です
   title: 音声認識
+  voice_transcription: 音声文字起こし
 translate:
   additional_context: 追加コンテキスト
   additional_context_placeholder: 追加で考慮してほしい点を入力することができます（カジュアルさ等）
   auto_detect_language: 言語を自動検出
   auto_translate: 自動翻訳
+  contextHelp: コンテキスト情報は会議の背景情報を提供することで翻訳精度を向上させます。
   continue_output: 続きを出力
+  detectedLanguage: 検出言語
   enter_text: 入力してください
+  realtimeTranslation: リアルタイム翻訳
+  realtime_translation: 翻訳
   result_placeholder: 翻訳結果がここに表示されます
+  systemGeneratedContext: システム自動コンテキスト
+  systemGeneratedContextPlaceholder: 会議内容に基づいて自動生成されたコンテキスト
   text_to_translate: 翻訳したい文章
   title: 翻訳
+  translating: 翻訳中...
+  translation: 翻訳
+  userDefinedContext: ユーザー定義コンテキスト
+  userDefinedContextPlaceholder: 翻訳精度向上のためのコンテキストを入力（会議の話題、専門用語など）
 useCaseBuilder:
   accessError: アクセスエラー
   addInputExample: 入力例を追加
@@ -1249,10 +1130,6 @@ useCaseBuilder:
   updateDescription: ユースケースを更新します。ユースケースが共有され他ユーザーも利用している場合、その内容も更新されます。
   updateErrorCondition: 更新するためには、以下条件を全て満たしてください。
   updating: 更新中...
-userMenu:
-  ariaLabel: ユーザーメニュー
-  logout: ログアウト
-  settings: 設定
 video:
   aspectRatio: アスペクト比
   clear: クリア
@@ -1322,8 +1199,6 @@ videoAnalyzer:
 voiceChat:
   close: セッションを終了する
   default_system_prompt: You are an AI assistant.
-  experimental_warning: 音声チャットはまだ実験的な段階です。アーキテクチャ等は今後変更される可能性があります。会話履歴は保存されません。対応言語は英語のみです。
-  experimental_warning_title: 音声チャットについて
   im_listening: 発言してください
   start: セッションを始める
   title: 音声チャット

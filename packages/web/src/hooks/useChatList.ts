@@ -4,7 +4,12 @@ import { Chat } from 'generative-ai-use-cases';
 import usePagination from './usePagination';
 
 const useChatList = () => {
-  const { listChats, deleteChat: deleteChatApi, updateTitle } = useChatApi();
+  const {
+    listChats,
+    deleteChat: deleteChatApi,
+    deleteAllChats: deleteAllChatsApi,
+    updateTitle,
+  } = useChatApi();
   const {
     data,
     flattenData: chats,
@@ -36,6 +41,26 @@ const useChatList = () => {
     );
 
     return deleteChatApi(chatId).finally(() => {
+      mutate();
+    });
+  };
+
+  const deleteAllChats = async () => {
+    // Clear all chats from cache optimistically
+    mutate(
+      produce(data, (draft) => {
+        if (data && draft) {
+          for (const d in data) {
+            draft[d].data = [];
+          }
+        }
+      }),
+      {
+        revalidate: false,
+      }
+    );
+
+    return deleteAllChatsApi().finally(() => {
       mutate();
     });
   };
@@ -83,6 +108,7 @@ const useChatList = () => {
     mutate,
     updateChatTitle,
     deleteChat,
+    deleteAllChats,
     getChatTitle,
     canLoadMore,
     loadMore,

@@ -1,23 +1,33 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { updateRecentlyUsedUseCase } from './useCaseBuilderRepository';
-import { getUsername } from '../utils/tenantUtils';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from '../utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const useCaseId = event.pathParameters!.useCaseId!;
 
-    await updateRecentlyUsedUseCase(userId, useCaseId, event);
+    await updateRecentlyUsedUseCase(userId, useCaseId);
 
-    return ok200Response();
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: '',
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

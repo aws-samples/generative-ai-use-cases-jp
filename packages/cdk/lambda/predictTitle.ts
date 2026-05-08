@@ -6,10 +6,6 @@ import {
 import { setChatTitle } from './repository';
 import api from './utils/api';
 import { defaultModel } from './utils/models';
-import {
-  internalServerError500Response,
-  ok200PlainTextResponse,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -45,11 +41,25 @@ export const handler = async (
         '$2'
       ) ?? '';
 
-    await setChatTitle(req.chat.id, req.chat.createdDate, title, event);
+    await setChatTitle(req.chat.id, req.chat.createdDate, title);
 
-    return ok200PlainTextResponse(title);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: title,
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

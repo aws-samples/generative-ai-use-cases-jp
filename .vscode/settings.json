@@ -11,12 +11,5 @@
   ],
   "i18n-ally.namespace": true,
   "i18n-ally.pathMatcher": "{namespace}/{locale}.{ext}",
-  "i18n-ally.defaultNamespace": "translation",
-  "editor.formatOnSave": true,
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "i18n-ally.defaultNamespace": "translation"
 }

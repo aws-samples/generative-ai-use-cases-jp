@@ -1,27 +1,43 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findShareId } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import {
-  internalServerError500Response,
-  noContent204Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const res = await findShareId(userId, chatId, event);
+    const res = await findShareId(userId, chatId);
 
     if (res === null) {
-      return noContent204Response();
+      return {
+        statusCode: 204,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: '',
+      };
     }
 
-    return ok200Response(res);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(res),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

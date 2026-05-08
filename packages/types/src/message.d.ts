@@ -1,26 +1,24 @@
 import { SupportedMimeType } from '@generative-ai-use-cases/common';
 import { PrimaryKey } from './base';
 import { AdditionalModelRequestFields } from './text';
-import { WebSearchInfo } from './protocol';
 
 export type Role = 'system' | 'user' | 'assistant';
 
 export type Model = {
-  type:
-    | 'bedrock'
-    | 'bedrockAgent'
-    | 'bedrockKb'
-    | 'sagemaker'
-    | 'liteLlm'
-    | 'langchain';
+  type: 'bedrock' | 'bedrockAgent' | 'bedrockKb' | 'sagemaker';
   modelId: string;
   modelParameters?: AdditionalModelRequestFields;
   sessionId?: string;
   region?: string;
+  inferenceProfileArn?: string;
 };
 
-export type Agent = {
+export type AgentInfo = {
   displayName: string;
+  description: string;
+};
+
+export type Agent = AgentInfo & {
   agentId: string;
   aliasId: string;
 };
@@ -50,7 +48,6 @@ export type UnrecordedMessage = {
   extraData?: ExtraData[];
   llmType?: string;
   metadata?: Metadata;
-  webSearch?: WebSearchInfo;
 };
 
 export type ExtraData = {
@@ -115,7 +112,6 @@ export type ShownMessage = Partial<PrimaryKey> &
   Partial<MessageAttributes> &
   UnrecordedMessage & {
     traceInlineMessage?: string;
-    webSearch?: WebSearchInfo;
   };
 
 export type DocumentComment = {

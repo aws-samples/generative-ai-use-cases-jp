@@ -3,17 +3,13 @@ import { GenerateVideoRequest } from 'generative-ai-use-cases';
 import api from './utils/api';
 import { defaultVideoGenerationModel } from './utils/models';
 import { createJob } from './repositoryVideoJob';
-import { getUsername } from './utils/tenantUtils';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const req: GenerateVideoRequest = JSON.parse(event.body!);
     const model = req.model || defaultVideoGenerationModel;
     const invocationArn = await api[model.type].generateVideo(
@@ -23,11 +19,23 @@ export const handler = async (
 
     const res = await createJob(userId, invocationArn, req);
 
-    return ok200Response(res);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(res),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({
-      message: (error as Error).message,
-    });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: (error as Error).message }),
+    };
   }
 };

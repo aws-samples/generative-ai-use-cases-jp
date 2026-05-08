@@ -8,6 +8,7 @@ export const noJpComment: TSESLint.RuleModule<'noJpComment', []> = {
     type: 'suggestion',
     docs: {
       description: 'Check if there is no JP in comments.',
+      recommended: 'recommended',
     },
     messages: {
       noJpComment:

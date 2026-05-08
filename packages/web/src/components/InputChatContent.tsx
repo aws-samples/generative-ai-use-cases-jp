@@ -1,22 +1,26 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import ButtonSend from './ButtonSend';
+import ButtonToggle from './ButtonToggle';
 import Textarea from './Textarea';
 import ZoomUpImage from './ZoomUpImage';
 import ZoomUpVideo from './ZoomUpVideo';
 import useChat from '../hooks/useChat';
 import { useLocation } from 'react-router-dom';
 import Button from './Button';
+import ButtonIcon from './ButtonIcon';
 import {
   PiArrowsCounterClockwise,
   PiPaperclip,
   PiSpinnerGap,
   PiSlidersHorizontal,
-  PiGlobe,
+  PiClockCountdownLight,
 } from 'react-icons/pi';
-import useFiles, { ModelFlags } from '../hooks/useFiles';
+import useFiles from '../hooks/useFiles';
 import FileCard from './FileCard';
 import { FileLimit } from 'generative-ai-use-cases';
 import { useTranslation } from 'react-i18next';
+import useUserSetting from '../hooks/useUserSetting';
+import Tooltip from './Tooltip';
 
 type Props = {
   content: string;
@@ -26,6 +30,7 @@ type Props = {
   fullWidth?: boolean;
   resetDisabled?: boolean;
   loading?: boolean;
+  isEmpty?: boolean;
   onChangeContent: (content: string) => void;
   onSend: () => void;
   sendIcon?: React.ReactNode;
@@ -34,11 +39,10 @@ type Props = {
   fileUpload?: boolean;
   fileLimit?: FileLimit;
   accept?: string[];
-  modelFlags?: ModelFlags;
-  modelName?: string;
   canStop?: boolean;
-  className?: string;
-  isCreatingChat?: boolean;
+  reasoning?: boolean;
+  onReasoningSwitched?: () => void;
+  reasoningEnabled?: boolean;
 } & (
   | {
       hideReset?: false;
@@ -50,18 +54,13 @@ type Props = {
 ) & {
     setting?: boolean;
     onSetting?: () => void;
-  } & {
-    webSearchEnabled?: boolean;
-    onWebSearchToggle?: (enabled: boolean) => void;
-    showWebSearchSwitch?: boolean;
-    webSearchDisabled?: boolean;
-    webSearchDisabledReason?: string;
   };
 
 const InputChatContent: React.FC<Props> = (props) => {
   const { t } = useTranslation();
+  const { settingSubmitCmdOrCtrlEnter } = useUserSetting();
   const { pathname } = useLocation();
-  const { loading: chatLoading, isEmpty } = useChat(pathname);
+  const { loading: chatLoading, isEmpty: chatIsEmpty } = useChat(pathname);
   const {
     uploadedFiles,
     uploadFiles,
@@ -74,25 +73,25 @@ const InputChatContent: React.FC<Props> = (props) => {
   // When the model is changed, etc., display the error message (do not automatically delete the file)
   useEffect(() => {
     if (props.fileLimit && props.accept) {
-      checkFiles(props.fileLimit, props.accept, props.modelFlags, props.modelName);
+      checkFiles(props.fileLimit, props.accept);
     }
-  }, [checkFiles, props.fileLimit, props.accept, props.modelFlags, props.modelName]);
+  }, [checkFiles, props.fileLimit, props.accept]);
 
   const onChangeFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && props.fileLimit && props.accept) {
       // Reflect the file and upload it
-      uploadFiles(Array.from(files), props.fileLimit, props.accept, props.modelFlags, props.modelName);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept);
     }
   };
 
   const deleteFile = useCallback(
     (fileId: string) => {
       if (props.fileLimit && props.accept) {
-        deleteUploadedFile(fileId, props.fileLimit, props.accept, props.modelFlags, props.modelName);
+        deleteUploadedFile(fileId, props.fileLimit, props.accept);
       }
     },
-    [deleteUploadedFile, props.fileLimit, props.accept, props.modelFlags, props.modelName]
+    [deleteUploadedFile, props.fileLimit, props.accept]
   );
   const handlePaste = async (pasteEvent: React.ClipboardEvent) => {
     const fileList = pasteEvent.clipboardData.items || [];
@@ -101,7 +100,7 @@ const InputChatContent: React.FC<Props> = (props) => {
       .map((file) => file.getAsFile() as File);
     if (files.length > 0 && props.fileLimit && props.accept) {
       // Upload the file
-      uploadFiles(Array.from(files), props.fileLimit, props.accept, props.modelFlags, props.modelName);
+      uploadFiles(Array.from(files), props.fileLimit, props.accept);
       // Since the file name is also pasted when the file is pasted, stop the default behavior
       pasteEvent.preventDefault();
     }
@@ -125,20 +124,23 @@ const InputChatContent: React.FC<Props> = (props) => {
     <div
       className={`${
         props.fullWidth ? 'w-full' : 'w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6'
-      } ${props.className ?? ''}`}>
+      }`}>
       {props.description && (
         <p className="m-2 whitespace-pre-wrap text-xs text-gray-500">
           {props.description}
         </p>
       )}
       <div
-        className={`relative flex flex-col rounded-3xl border border-gray-200 bg-white shadow-sm ${
-          props.disableMarginBottom ? '' : 'mb-7'
+        className={`relative flex flex-col rounded-xl border border-black/10 bg-gray-100 shadow-[0_0_30px_1px] shadow-gray-400/40 ${
+          props.disableMarginBottom
+            ? ''
+            : settingSubmitCmdOrCtrlEnter
+              ? 'mb-2'
+              : 'mb-7'
         }`}>
-        {/* 上半分: テキスト入力エリア */}
         <div className="flex grow flex-col">
           {props.fileUpload && uploadedFiles.length > 0 && (
-            <div className="m-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 p-2">
               {uploadedFiles.map((uploadedFile, idx) => {
                 if (uploadedFile.type === 'image') {
                   return (
@@ -196,8 +198,8 @@ const InputChatContent: React.FC<Props> = (props) => {
             </div>
           )}
           <Textarea
-            className={`scrollbar-thumb-gray-200 scrollbar-thin mx-2 my-2 bg-transparent`}
-            placeholder={props.placeholder ?? t('common.ask_gaixr')}
+            className={`scrollbar-thumb-gray-200 scrollbar-thin -mr-14 bg-transparent p-4`}
+            placeholder={props.placeholder ?? t('common.enter_text')}
             noBorder
             notItem
             value={props.content}
@@ -206,87 +208,97 @@ const InputChatContent: React.FC<Props> = (props) => {
             onEnter={disabledSend ? undefined : props.onSend}
           />
         </div>
-
-        {/* 下半分: ボタンエリア */}
-        <div className="mx-2 mb-2 flex items-center justify-between pt-2">
-          {/* 左側のボタングループ */}
-          <div className="flex items-center gap-1">
+        <div className="m-2 flex justify-between gap-1">
+          <div className="flex gap-x-1">
             {props.fileUpload && (
-              <div className="">
-                <label>
-                  <input
-                    hidden
-                    onChange={onChangeFiles}
-                    type="file"
-                    accept={props.accept?.join(',')}
-                    multiple
-                    value={[]}
-                  />
-                  <div
-                    className={`${uploading ? 'text-gray-300' : 'cursor-pointer text-gray-600'} flex items-center justify-center rounded-xl p-2 align-bottom text-xl`}>
-                    {uploading ? (
-                      <PiSpinnerGap className="animate-spin" />
-                    ) : (
-                      <PiPaperclip />
-                    )}
-                  </div>
-                </label>
-              </div>
+              <Tooltip
+                message={t('inputs.attachment')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <div className="">
+                  <label>
+                    <input
+                      hidden
+                      onChange={onChangeFiles}
+                      type="file"
+                      accept={props.accept?.join(',')}
+                      multiple
+                      value={[]}
+                    />
+                    <div
+                      className={`${uploading ? 'bg-gray-300' : 'cursor-pointer bg-white '} ${uploadedFiles.length > 0 ? 'text-aws-smile border-aws-smile' : 'border-gray-400 text-gray-400'} flex items-center justify-center rounded-xl border p-2 align-bottom text-xl`}>
+                      {uploading ? (
+                        <PiSpinnerGap className="animate-spin" />
+                      ) : (
+                        <PiPaperclip />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </Tooltip>
             )}
-            {props.setting && (
-              <ButtonSend
-                className=""
-                disabled={loading}
-                onClick={props.onSetting ?? (() => {})}
-                icon={<PiSlidersHorizontal />}
-              />
-            )}
-            {props.showWebSearchSwitch && (
-              <button
-                className={`flex items-center justify-center rounded-xl p-2 text-xl ${
-                  props.webSearchDisabled
-                    ? 'cursor-not-allowed text-gray-300'
-                    : props.webSearchEnabled
-                      ? 'cursor-pointer text-blue-500'
-                      : 'cursor-pointer text-gray-600'
-                }`}
-                title={
-                  props.webSearchDisabled
-                    ? props.webSearchDisabledReason
-                    : t('chat.web_search')
-                }
-                disabled={props.webSearchDisabled}
-                onClick={() =>
-                  !props.webSearchDisabled &&
-                  props.onWebSearchToggle?.(!props.webSearchEnabled)
-                }>
-                <PiGlobe />
-              </button>
+            {props.reasoning && (
+              <Tooltip
+                message={t('inputs.reasoning')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <ButtonToggle
+                  onSwitch={props.onReasoningSwitched ?? (() => {})}
+                  icon={<PiClockCountdownLight />}
+                  isEnabled={!!props.reasoningEnabled}
+                />
+              </Tooltip>
             )}
           </div>
-
-          {/* 右側の送信ボタン */}
-          <ButtonSend
-            className=""
-            disabled={disabledSend || props.isCreatingChat}
-            loading={loading || uploading || props.isCreatingChat}
-            onClick={props.onSend}
-            icon={props.sendIcon}
-            canStop={props.canStop}
-          />
+          <div className="flex items-center gap-x-2">
+            {props.setting && (
+              <Tooltip
+                message={t('inputs.setting')}
+                position="center"
+                topPosition="-top-16"
+                nowrap>
+                <ButtonIcon
+                  onClick={props.onSetting ?? (() => {})}
+                  className="text-gray-500">
+                  <PiSlidersHorizontal />
+                </ButtonIcon>
+              </Tooltip>
+            )}
+            <ButtonSend
+              className=""
+              disabled={disabledSend}
+              loading={loading || uploading}
+              onClick={props.onSend}
+              icon={props.sendIcon}
+              canStop={props.canStop}
+            />
+          </div>
         </div>
 
-        {!isEmpty && !props.resetDisabled && !props.hideReset && (
-          <Button
-            className="absolute -top-14 right-0 p-2 text-sm"
-            outlined
-            disabled={loading}
-            onClick={props.onReset}>
-            <PiArrowsCounterClockwise className="mr-2" />
-            {t('common.start_over')}
-          </Button>
-        )}
+        {!(props.isEmpty ?? chatIsEmpty) &&
+          !props.resetDisabled &&
+          !props.hideReset && (
+            <Button
+              className="absolute -top-14 right-0 p-2 text-sm"
+              outlined
+              disabled={loading}
+              onClick={props.onReset}>
+              <PiArrowsCounterClockwise className="mr-2" />
+              {t('common.start_over')}
+            </Button>
+          )}
       </div>
+
+      {/* Show keyboard shortcut hint when cmd/ctrl+enter setting is enabled */}
+      {settingSubmitCmdOrCtrlEnter && (
+        <div className="mb-2 text-right text-xs text-gray-500">
+          {navigator.platform.toLowerCase().includes('mac')
+            ? t('chat.hint_cmd_enter')
+            : t('chat.hint_ctrl_enter')}
+        </div>
+      )}
     </div>
   );
 };

@@ -153,7 +153,7 @@ const AgentChatPage: React.FC = () => {
     setContent('');
     clearFiles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, setFollowing]);
+  }, [content, setFollowing, uploadedFiles]);
 
   const onRetry = useCallback(() => {
     retryGeneration(
@@ -234,7 +234,7 @@ const AgentChatPage: React.FC = () => {
     <>
       <div
         onDragOver={handleDragOver}
-        className="relative flex h-screen flex-col">
+        className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {title}
         </div>
@@ -272,7 +272,7 @@ const AgentChatPage: React.FC = () => {
           </div>
         )}
 
-        <div ref={scrollableContainer} className="flex-1 overflow-y-auto">
+        <div ref={scrollableContainer}>
           {!isEmpty &&
             showingMessages.map((chat, idx) => (
               <div key={idx + 1}>
@@ -301,7 +301,7 @@ const AgentChatPage: React.FC = () => {
           <ScrollTopBottom />
         </div>
 
-        <div className="sticky bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden">
+        <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           <InputChatContent
             content={content}
             disabled={loading && !writing}

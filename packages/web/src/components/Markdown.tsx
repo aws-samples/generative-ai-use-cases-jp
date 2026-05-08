@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState, memo } from 'react';
+import React, { useEffect, useMemo, useState, memo } from 'react';
 import { BaseProps } from '../@types/common';
 import { default as ReactMarkdown } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import remarkBreaks from 'remark-breaks';
 import ButtonCopy from './ButtonCopy';
 import useRagFile from '../hooks/useRagFile';
 import { PiSpinnerGap } from 'react-icons/pi';
 import useFileApi from '../hooks/useFileApi';
+import 'katex/dist/katex.min.css';
 
 // Reduce bundle size by registering only the languages used in the project
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -35,6 +38,8 @@ import xmlDoc from 'react-syntax-highlighter/dist/esm/languages/prism/xml-doc';
 import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
 import { useLocation } from 'react-router-dom';
 
+import { MermaidWithToggle } from './Mermaid/MermaidWithToggle';
+
 SyntaxHighlighter.registerLanguage('bash', bash);
 SyntaxHighlighter.registerLanguage('c', c);
 SyntaxHighlighter.registerLanguage('cpp', cpp);
@@ -57,6 +62,9 @@ SyntaxHighlighter.registerLanguage('typescript', typescript);
 SyntaxHighlighter.registerLanguage('tsx', tsx);
 SyntaxHighlighter.registerLanguage('xml-doc', xmlDoc);
 SyntaxHighlighter.registerLanguage('yaml', yaml);
+
+// Re-export MermaidWithToggle for backward compatibility
+export { MermaidWithToggle };
 
 type Props = BaseProps & {
   children: string;
@@ -125,12 +133,39 @@ const ImageRenderer = (props: any) => {
   return <img id={props.id} src={src} />;
 };
 
+// PreRenderer to skip <pre> tag for mermaid code blocks
+// This prevents the dark prose background from appearing around mermaid diagrams
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const PreRenderer = (props: any) => {
+  const { children } = props;
+
+  // Check if children is a code element with 'language-mermaid' class
+  if (React.isValidElement(children)) {
+    const childProps = children.props as { className?: string };
+    const className = childProps?.className || '';
+    if (className.includes('language-mermaid')) {
+      // Skip <pre> tag for mermaid - return children directly
+      return <>{children}</>;
+    }
+  }
+
+  // For other code blocks, render normal <pre> tag
+  return <pre {...props}>{children}</pre>;
+};
+
 const CodeRenderer = memo(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: any) => {
     const language = /language-(\w+)/.exec(props.className || '')?.[1];
     const codeText = String(props.children).replace(/\n$/, '');
     const isCodeBlock = codeText.includes('\n');
+
+    // Render Mermaid diagrams with toggle
+    // Use not-prose to prevent prose styles from affecting the diagram container
+    if (language === 'mermaid') {
+      return <MermaidWithToggle code={codeText} />;
+    }
+
     return (
       <>
         {language ? (
@@ -181,7 +216,8 @@ const Markdown = memo(({ className, prefix, children }: Props) => {
     <ReactMarkdown
       className={`${className ?? ''} prose max-w-full`}
       children={children}
-      remarkPlugins={[remarkGfm, remarkBreaks]}
+      remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+      rehypePlugins={[rehypeKatex]}
       remarkRehypeOptions={{ clobberPrefix: prefix }}
       components={{
         a: LinkRenderer,
@@ -189,6 +225,7 @@ const Markdown = memo(({ className, prefix, children }: Props) => {
         sup: ({ children }) => (
           <sup className="m-0.5 rounded-full bg-gray-200 px-1">{children}</sup>
         ),
+        pre: PreRenderer,
         code: CodeRenderer,
       }}
     />

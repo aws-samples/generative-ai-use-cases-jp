@@ -21,7 +21,7 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-type CommandDialogProps = DialogProps;
+interface CommandDialogProps extends DialogProps {}
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
@@ -40,7 +40,7 @@ const CommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div className="flex items-center px-4" cmdk-input-wrapper="">
-    <PiMagicWand className="mr-2 h-4 w-4 shrink-0 text-purple-500" />
+    <PiMagicWand className="mr-2 h-4 w-4 shrink-0 text-purple-500 " />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(

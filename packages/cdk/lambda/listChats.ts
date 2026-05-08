@@ -1,19 +1,32 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { listChats } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import { ok200Response } from './utils/apiResponse';
-import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const exclusiveStartKey = event?.queryStringParameters?.exclusiveStartKey;
-    const res = await listChats(userId, event, exclusiveStartKey);
+    const res = await listChats(userId, exclusiveStartKey);
 
-    return ok200Response(res);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(res),
+    };
   } catch (error) {
-    return handleLambdaError(error);
+    console.log(error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

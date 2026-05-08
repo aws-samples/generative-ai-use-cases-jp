@@ -13,7 +13,6 @@ import ExpandableField from '../components/ExpandableField';
 import Button from '../components/Button';
 import InputChatContent from '../components/InputChatContent';
 import ScrollTopBottom from '../components/ScrollTopBottom';
-import Alert from '../components/Alert.tsx';
 import Select from '../components/Select';
 import useFollow from '../hooks/useFollow';
 import BedrockIcon from '../assets/bedrock.svg?react';
@@ -82,7 +81,7 @@ const VoiceChatPage: React.FC = () => {
 
   return (
     <>
-      <div className="relative flex h-screen flex-col">
+      <div className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
         <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
           {t('voiceChat.title')}
         </div>
@@ -101,12 +100,6 @@ const VoiceChatPage: React.FC = () => {
 
         {isEmpty && !isLoading && !isActive && (
           <div className="flex h-[calc(100vh-9rem)] flex-col items-center justify-center">
-            <Alert
-              title={t('voiceChat.experimental_warning_title')}
-              severity="warning"
-              className="w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
-              {t('voiceChat.experimental_warning')}
-            </Alert>
             <div className="relative flex h-full flex-col items-center justify-center">
               <BedrockIcon className="fill-gray-400" />
             </div>
@@ -137,7 +130,7 @@ const VoiceChatPage: React.FC = () => {
         )}
 
         {!isEmpty && (
-          <div ref={scrollableContainer} className="flex-1 overflow-y-auto">
+          <div ref={scrollableContainer}>
             {showingMessages.map((m, idx) => {
               return (
                 <div key={showSystemPrompt ? idx : idx + 1}>
@@ -147,6 +140,7 @@ const VoiceChatPage: React.FC = () => {
                   <ChatMessage
                     chatContent={m}
                     hideFeedback={true}
+                    hideSaveSystemContext={true}
                     loading={
                       m.role === 'assistant' &&
                       idx === showingMessages.length - 1 &&
@@ -165,7 +159,7 @@ const VoiceChatPage: React.FC = () => {
           <ScrollTopBottom />
         </div>
 
-        <div className="sticky bottom-0 z-0 flex w-full flex-col items-center justify-center print:hidden">
+        <div className="fixed bottom-7 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
           {!isLoading && !isActive && (
             <ExpandableField
               label={t('chat.system_prompt')}

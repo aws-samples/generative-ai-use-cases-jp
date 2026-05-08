@@ -1,9 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import useChatApi from '../hooks/useChatApi';
+import useSystemContextApi from '../hooks/useSystemContextApi';
 import ChatMessage from '../components/ChatMessage';
 import BedrockIcon from '../assets/bedrock.svg?react';
 import ScrollTopBottom from '../components/ScrollTopBottom';
+import ModalSystemContext from '../components/ModalSystemContext';
 import { useTranslation } from 'react-i18next';
 
 const SharedChatPage: React.FC = () => {
@@ -11,6 +13,10 @@ const SharedChatPage: React.FC = () => {
   const { shareId } = useParams();
   const { getSharedChat } = useChatApi();
   const { data: chatAndMessages, isLoading, error } = getSharedChat(shareId!);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
+  const [saveSystemContext, setSaveSystemContext] = useState('');
+  const [saveSystemContextTitle, setSaveSystemContextTitle] = useState('');
+  const { createSystemContext } = useSystemContextApi();
 
   const title = useMemo(() => {
     if (chatAndMessages) {
@@ -41,6 +47,23 @@ const SharedChatPage: React.FC = () => {
       return messages;
     }
   }, [showSystemContext, rawMessages, messages]);
+
+  const onCreateSystemContext = useCallback(async () => {
+    try {
+      await createSystemContext(saveSystemContextTitle, saveSystemContext);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSystemContextModal(false);
+      setSaveSystemContextTitle('');
+    }
+  }, [
+    createSystemContext,
+    setShowSystemContextModal,
+    setSaveSystemContextTitle,
+    saveSystemContextTitle,
+    saveSystemContext,
+  ]);
 
   return (
     <>
@@ -84,6 +107,8 @@ const SharedChatPage: React.FC = () => {
                   chatContent={chat}
                   loading={isLoading && idx === showingMessages.length - 1}
                   hideFeedback={true}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
                 />
                 <div className="w-full border-b border-gray-300"></div>
               </div>
@@ -92,6 +117,16 @@ const SharedChatPage: React.FC = () => {
             <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
               <ScrollTopBottom />
             </div>
+
+            <ModalSystemContext
+              showSystemContextModal={showSystemContextModal}
+              saveSystemContext={saveSystemContext}
+              saveSystemContextTitle={saveSystemContextTitle}
+              setShowSystemContextModal={setShowSystemContextModal}
+              setSaveSystemContext={setSaveSystemContext}
+              setSaveSystemContextTitle={setSaveSystemContextTitle}
+              onCreateSystemContext={onCreateSystemContext}
+            />
           </>
         )}
 

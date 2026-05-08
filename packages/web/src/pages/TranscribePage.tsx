@@ -205,7 +205,9 @@ const TranscribePage: React.FC = () => {
                 {t('transcribe.file_upload')}
               </label>
               <input
-                className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500 file:px-4 file:py-2.5 file:text-white focus:outline-none"
+                className="border-aws-font-color/20 block h-10 w-full cursor-pointer rounded-lg border
+                text-sm text-gray-900 file:mr-4 file:cursor-pointer file:border-0 file:bg-gray-500
+                file:px-4 file:py-2.5 file:text-white focus:outline-none"
                 onChange={onChangeFile}
                 aria-describedby="file_input_help"
                 id="file_input"

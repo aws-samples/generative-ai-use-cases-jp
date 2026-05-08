@@ -16,7 +16,7 @@ export const supportedLngs = {
   th: 'ไทย',
   zh: '中文',
   vi: 'Tiếng Việt',
-  // ko: '한국어',
+  ko: '한국어',
 };
 
 i18n

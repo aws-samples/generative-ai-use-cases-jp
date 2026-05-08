@@ -6,13 +6,13 @@ export class ObjectExt {
 
   static checkArgument(condition, message) {
     if (!condition) {
-      throw new TypeError(message);
+      throw TypeError(message);
     }
   }
 
   static checkExists(obj, message) {
-    if (!ObjectExt.exists(obj)) {
-      throw new TypeError(message);
+    if (ObjectsExt.exists(obj)) {
+      throw TypeError(message);
     }
   }
 }

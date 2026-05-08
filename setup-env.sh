@@ -40,10 +40,9 @@ export VITE_APP_IMAGE_MODEL_IDS=$(extract_value "$stack_output" ImageGenerateMod
 export VITE_APP_VIDEO_MODEL_IDS=$(extract_value "$stack_output" VideoGenerateModelIds)
 export VITE_APP_ENDPOINT_NAMES=$(extract_value "$stack_output" EndpointNames)
 export VITE_APP_SAMLAUTH_ENABLED=$(extract_value "$stack_output" SamlAuthEnabled)
-export VITE_APP_SAML_DEFAULT_AUTH_ENABLED=$(extract_value "$stack_output" SamlDefaultAuthEnabled)
 export VITE_APP_SAML_COGNITO_DOMAIN_NAME=$(extract_value "$stack_output" SamlCognitoDomainName)
 export VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME=$(extract_value "$stack_output" SamlCognitoFederatedIdentityProviderName)
-export VITE_APP_AGENT_NAMES=$(extract_value "$stack_output" AgentNames | base64 -d)
+export VITE_APP_AGENTS=$(extract_value "$stack_output" Agents | base64 -d)
 export VITE_APP_INLINE_AGENTS=$(extract_value "$stack_output" InlineAgents)
 export VITE_APP_USE_CASE_BUILDER_ENABLED=$(extract_value "$stack_output" UseCaseBuilderEnabled)
 export VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN=$(extract_value "$stack_output" OptimizePromptFunctionArn)
@@ -53,7 +52,18 @@ export VITE_APP_SPEECH_TO_SPEECH_EVENT_API_ENDPOINT=$(extract_value "$stack_outp
 export VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS=$(extract_value "$stack_output" SpeechToSpeechModelIds)
 export VITE_APP_MCP_ENABLED=$(extract_value "$stack_output" McpEnabled)
 export VITE_APP_MCP_ENDPOINT=$(extract_value "$stack_output" McpEndpoint)
-export VITE_APP_WEB_SEARCH_ENABLED=$(extract_value "$stack_output" WebSearchEnabled)
-export VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN=$(extract_value "$stack_output" AssistantMessageStreamFunctionArn)
-export VITE_APP_LITELLM_PROXY_ENABLED=$(extract_value "$stack_output" LitellmProxyEnabled)
-export VITE_APP_LITELLM_PROXY_ENDPOINT=$(extract_value "$stack_output" LitellmProxyEndpoint)
+export VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT=$(extract_value "$stack_output" CognitoUserPoolProxyEndpoint)
+export VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT=$(extract_value "$stack_output" CognitoIdentityPoolProxyEndpoint)
+export VITE_APP_AGENT_CORE_ENABLED=$(extract_value "$stack_output" AgentCoreEnabled)
+export VITE_APP_AGENT_CORE_GENERIC_RUNTIME=$(extract_value "$stack_output" AgentCoreGenericRuntime)
+export VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED=$(extract_value "$stack_output" AgentCoreAgentBuilderEnabled)
+export VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME=$(extract_value "$stack_output" AgentCoreAgentBuilderRuntime)
+export VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES=$(extract_value "$stack_output" AgentCoreExternalRuntimes)
+export VITE_APP_MCP_SERVERS_CONFIG=$(extract_value "$stack_output" McpServersConfig)
+if [ -f "packages/cdk/branding.json" ]; then
+    export VITE_APP_BRANDING_LOGO_PATH=$(cat packages/cdk/branding.json | jq -r '.logoPath // ""')
+    export VITE_APP_BRANDING_TITLE=$(cat packages/cdk/branding.json | jq -r '.title // ""')
+else
+    export VITE_APP_BRANDING_LOGO_PATH=""
+    export VITE_APP_BRANDING_TITLE=""
+fi

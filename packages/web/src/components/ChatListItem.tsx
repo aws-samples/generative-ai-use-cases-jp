@@ -8,19 +8,11 @@ import React, {
 } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link } from 'react-router-dom';
-import {
-  PiChat,
-  PiCheck,
-  PiPencilLine,
-  PiTrash,
-  PiX,
-  PiDotsThreeVertical,
-} from 'react-icons/pi';
+import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
-import { useTranslation } from 'react-i18next';
 
 type Props = BaseProps & {
   active: boolean;
@@ -33,27 +25,13 @@ type Props = BaseProps & {
 };
 
 const ChatListItem: React.FC<Props> = (props) => {
-  const { t } = useTranslation();
   const [openDialog, setOpenDialog] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const chatId = useMemo(() => {
     return decomposeId(props.chat.chatId) ?? '';
   }, [props.chat.chatId]);
 
-  const isAssistantChat = props.chat.conversationType === 'assistant';
-  const linkPath = useMemo(() => {
-    if (isAssistantChat && props.chat.assistantId) {
-      const cleanAssistantId = decomposeId(props.chat.assistantId);
-      // For assistant chats, include the chatId (conversation ID) in the route
-      return `/chat/assistants/chat/${cleanAssistantId}/${chatId}`;
-    }
-    return `/chat/${chatId}`;
-  }, [isAssistantChat, props.chat.assistantId, chatId]);
-
   const inputRef = useRef<HTMLInputElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const [tempTitle, setTempTitle] = useState('');
 
   useEffect(() => {
@@ -71,7 +49,7 @@ const ChatListItem: React.FC<Props> = (props) => {
 
   useLayoutEffect(() => {
     if (editing) {
-      const listener = (e: KeyboardEvent) => {
+      const listener = (e: DocumentEventMap['keypress']) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
 
@@ -104,7 +82,7 @@ const ChatListItem: React.FC<Props> = (props) => {
     return text.split(regex).map((part, i) => {
       if (words.some((word) => part.toLowerCase() === word.toLowerCase())) {
         return (
-          <span key={i} className="font-semibold text-blue-600">
+          <span key={i} className="text-aws-smile">
             {part}
           </span>
         );
@@ -112,50 +90,6 @@ const ChatListItem: React.FC<Props> = (props) => {
       return part;
     });
   }, []);
-
-  // メニューの外側をクリックした時に閉じる
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowMenu(false);
-      }
-    };
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showMenu]);
-
-  // 日付のフォーマット
-  const formatDate = useCallback(
-    (dateString: string) => {
-      // Parse as timestamp (numeric string) or ISO date string
-      const timestamp = parseInt(dateString, 10);
-      const date = isNaN(timestamp)
-        ? new Date(dateString)
-        : new Date(timestamp);
-      const now = new Date();
-      const diffInHours = Math.floor(
-        (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-      );
-      const diffInDays = Math.floor(diffInHours / 24);
-
-      if (diffInHours < 24) {
-        return t('chatList.today');
-      } else if (diffInDays === 1) {
-        return t('chatList.oneDayAgo');
-      } else if (diffInDays < 7) {
-        return t('chatList.daysAgo', { days: diffInDays });
-      } else {
-        return `${date.getMonth() + 1}/${date.getDate()}`;
-      }
-    },
-    [t]
-  );
 
   return (
     <>
@@ -172,54 +106,62 @@ const ChatListItem: React.FC<Props> = (props) => {
           }}
         />
       )}
-      <div
-        className="relative w-full"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}>
-        <Link
-          className={`group flex w-full flex-col justify-start rounded p-2 hover:bg-blue-50 ${
-            props.active && 'bg-blue-100'
-          } ${props.className}`}
-          to={linkPath}
-          onClick={(e) => {
-            // 編集中やメニュー表示中はリンク遷移を無効化
-            if (editing || showMenu) {
-              e.preventDefault();
-            }
-          }}>
-          <div className="flex w-full items-start gap-2">
-            <div className="shrink-0 pt-0.5">
-              <PiChat />
-            </div>
-            <div className="min-w-0 flex-1 overflow-hidden">
-              {editing ? (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="w-full bg-transparent p-0 text-sm ring-0"
-                  value={tempTitle}
-                  onChange={(e) => {
-                    setTempTitle(e.target.value);
-                  }}
-                />
-              ) : (
-                <>
-                  <div className="truncate text-sm">
-                    {highlightText(props.chat.title, props.highlightWords)}
-                  </div>
-                  {props.chat.updatedDate && (
-                    <div className="mt-0.5 text-xs text-gray-500">
-                      {formatDate(props.chat.updatedDate)}
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+      <Link
+        className={`hover:bg-aws-sky group flex h-8 w-full items-center justify-start rounded p-2  ${
+          props.active && 'bg-aws-sky'
+        }
+          ${props.className}`}
+        to={`/chat/${chatId}`}>
+        <div
+          className={`flex h-8 max-h-5 w-full justify-start overflow-hidden`}>
+          <div className="mr-2 ">
+            <PiChat />
+          </div>
+          <div className="relative flex-1 text-ellipsis break-all">
+            {editing ? (
+              <input
+                ref={inputRef}
+                type="text"
+                className="max-h-5 w-full bg-transparent p-0 text-sm ring-0"
+                value={tempTitle}
+                onChange={(e) => {
+                  setTempTitle(e.target.value);
+                }}
+              />
+            ) : (
+              <div>{highlightText(props.chat.title, props.highlightWords)}</div>
+            )}
+            {!editing && (
+              <div
+                className={`group-hover:from-aws-sky group-hover:to-aws-sky/40 absolute right-0 w-8 bg-gradient-to-l
+            ${props.active ? 'from-aws-sky' : 'from-aws-squid-ink'}
+            `}
+              />
+            )}
+          </div>
+          <div className="flex">
+            {props.active && !editing && (
+              <>
+                <ButtonIcon
+                  onClick={() => {
+                    setEditing(true);
+                  }}>
+                  <PiPencilLine />
+                </ButtonIcon>
+                <ButtonIcon
+                  onClick={() => {
+                    setOpenDialog(true);
+                  }}>
+                  <PiTrash />
+                </ButtonIcon>
+              </>
+            )}
             {editing && (
-              <div className="flex shrink-0">
+              <>
                 <ButtonIcon className="text-base" onClick={updateTitle}>
                   <PiCheck />
                 </ButtonIcon>
+
                 <ButtonIcon
                   className="text-base"
                   onClick={() => {
@@ -227,53 +169,11 @@ const ChatListItem: React.FC<Props> = (props) => {
                   }}>
                   <PiX />
                 </ButtonIcon>
-              </div>
-            )}
-            {!editing && (
-              <div
-                className={`shrink-0 ${!isHovered && !showMenu ? 'invisible' : 'visible'}`}
-                ref={menuRef}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}>
-                <ButtonIcon
-                  onClick={() => {
-                    setShowMenu(!showMenu);
-                  }}>
-                  <PiDotsThreeVertical />
-                </ButtonIcon>
-                {showMenu && (
-                  <div className="absolute right-2 top-8 z-10 w-40 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
-                    <button
-                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowMenu(false);
-                        setEditing(true);
-                      }}>
-                      <PiPencilLine />
-                      <span>{t('chatList.rename')}</span>
-                    </button>
-                    <button
-                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowMenu(false);
-                        setOpenDialog(true);
-                      }}>
-                      <PiTrash />
-                      <span>{t('chatList.delete')}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              </>
             )}
           </div>
-        </Link>
-      </div>
+        </div>
+      </Link>
     </>
   );
 };

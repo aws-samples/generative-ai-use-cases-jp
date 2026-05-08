@@ -2,6 +2,9 @@
 
 set -e
 
+# Set Node.js memory limit to 1.5GB (1536MB)
+export NODE_OPTIONS="--max-old-space-size=1536"
+
 echo "--------------------------"
 echo "  _____            _    _ "
 echo " / ____|          | |  | |"
@@ -92,7 +95,7 @@ fi
 $deploy_cmd
 
 # Get the url of the deployed CloudFront
-weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
+weburl=`aws cloudformation describe-stacks --stack-name GenerativeAiUseCasesStack$env_name --output json | jq -r ".Stacks[0].Outputs[] | select(.OutputKey==\"WebUrl\") | .OutputValue"`
 
 echo "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
 echo "Welcome to GenU: $weburl"

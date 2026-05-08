@@ -5,14 +5,6 @@ import {
 } from '@aws-sdk/client-transcribe';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { GetTranscriptionResponse, Transcript } from 'generative-ai-use-cases';
-import { getTenantId } from './utils/tenantUtils';
-import { getTenantCredentials } from './utils/tenantCredentials';
-import { createTenantS3Client } from './utils/tenantS3Client';
-import { isDefaultTenant } from './utils/tenantS3Utils';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 function parseS3Url(s3Url: string) {
   const url = new URL(s3Url);
@@ -28,54 +20,31 @@ export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
+    const transcribeClient = new TranscribeClient({});
+    const s3Client = new S3Client({});
     const jobName = event.pathParameters!.jobName;
-    // Cognito User Pools Authorizer provides claims as nested object
-    const userId = (event.requestContext.authorizer!.claims as { sub: string })
-      .sub;
-    const tenantId = getTenantId(event);
-
-    console.log(
-      `Getting transcription for tenant: ${tenantId}, user: ${userId}, job: ${jobName}`
-    );
-
-    // Get tenant-specific clients
-    const { transcribeClient, s3Client } = await (async () => {
-      if (isDefaultTenant(tenantId)) {
-        return {
-          transcribeClient: new TranscribeClient({}),
-          s3Client: new S3Client({}),
-        };
-      }
-
-      console.log(`Creating tenant-specific clients for tenant: ${tenantId}`);
-
-      // Use existing utility for tenant S3 client creation
-      const s3Client = await createTenantS3Client(event);
-
-      // Get tenant credentials for Transcribe client
-      const { credentials, tenant } = await getTenantCredentials(event);
-
-      return {
-        transcribeClient: new TranscribeClient({
-          credentials: {
-            accessKeyId: credentials.AccessKeyId!,
-            secretAccessKey: credentials.SecretAccessKey!,
-            sessionToken: credentials.SessionToken,
-          },
-          region: tenant.region,
-        }),
-        s3Client,
-      };
-    })();
+    const userId = event.requestContext.authorizer!.claims.sub;
 
     const command = new GetTranscriptionJobCommand({
       TranscriptionJobName: jobName,
     });
     const res = await transcribeClient.send(command);
 
-    // With AssumeRoleWithWebIdentity and IAM policies, access control is handled automatically
-    // If this code executes, the user has permission to access this transcription job
-    // The tenant isolation is enforced by IAM policies, not application-level checks
+    if (
+      // Return Forbidden error if the user who started the job is different
+      res.TranscriptionJob?.Tags!.find(
+        (tag) => tag.Key === 'userId' && tag.Value !== userId
+      )
+    ) {
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
+    }
 
     if (res.TranscriptionJob?.TranscriptionJobStatus === 'COMPLETED') {
       const { bucket, key } = parseS3Url(
@@ -127,14 +96,35 @@ export const handler = async (
         transcripts: transcripts,
       };
 
-      return ok200Response(response);
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify(response),
+      };
     } else {
-      return ok200Response({
-        status: res.TranscriptionJob?.TranscriptionJobStatus,
-      });
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          status: res.TranscriptionJob?.TranscriptionJobStatus,
+        }),
+      };
     }
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

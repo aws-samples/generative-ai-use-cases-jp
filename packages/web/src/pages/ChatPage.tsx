@@ -1,31 +1,37 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
 import useChatApi from '../hooks/useChatApi';
+import useSystemContextApi from '../hooks/useSystemContextApi';
 import useChatList from '../hooks/useChatList';
 import ChatMessage from '../components/ChatMessage';
+import PromptList from '../components/PromptList';
 import Button from '../components/Button';
 import ButtonCopy from '../components/ButtonCopy';
 import ModalDialog from '../components/ModalDialog';
+import ModalSystemContext from '../components/ModalSystemContext';
 import ExpandableField from '../components/ExpandableField';
-import ModelSelector from '../components/ModelSelector';
+import Switch from '../components/Switch';
+import Select from '../components/Select';
+import ScrollTopBottom from '../components/ScrollTopBottom';
 import useFollow from '../hooks/useFollow';
+import { PiArrowClockwiseBold, PiShareFatFill } from 'react-icons/pi';
 import { create } from 'zustand';
+import BedrockIcon from '../assets/bedrock.svg?react';
 import { ChatPageQueryParams } from '../@types/navigate';
-import { MODELS, findModelByModelId } from '../hooks/useModel';
+import { MODELS } from '../hooks/useModel';
 import { getPrompter } from '../prompts';
 import queryString from 'query-string';
 import useFiles from '../hooks/useFiles';
 import {
   AdditionalModelRequestFields,
   FileLimit,
+  SystemContext,
 } from 'generative-ai-use-cases';
 import ModelParameters from '../components/ModelParameters';
 import { AcceptedDotExtensions } from '../utils/MediaUtils';
 import { useTranslation } from 'react-i18next';
-import LoadingWave from '../components/LoadingWave';
-import { useSettings } from '../hooks/useSettings';
 
 const fileLimit: FileLimit = {
   accept: AcceptedDotExtensions,
@@ -37,26 +43,59 @@ const fileLimit: FileLimit = {
   maxVideoFileSizeMB: 1000, // 1 GB for S3 input
 };
 
-// System context is loaded from translation file via t('chat.defaultSystemPrompt')
-
 type StateType = {
   content: string;
+  inputSystemContext: string;
+  saveSystemContext: string;
+  saveSystemContextTitle: string;
   setContent: (c: string) => void;
+  setInputSystemContext: (c: string) => void;
+  setSaveSystemContext: (c: string) => void;
+  setSaveSystemContextTitle: (c: string) => void;
 };
 
 const useChatPageState = create<StateType>((set) => {
   return {
     content: '',
+    inputSystemContext: '',
+    saveSystemContext: '',
+    saveSystemContextTitle: '',
     setContent: (s: string) => {
       set(() => ({
         content: s,
       }));
     },
+    setInputSystemContext: (s: string) => {
+      set(() => ({
+        inputSystemContext: s,
+      }));
+    },
+    setSaveSystemContext: (s: string) => {
+      set(() => ({
+        saveSystemContext: s,
+      }));
+    },
+    setSaveSystemContextTitle: (s: string) => {
+      set(() => ({
+        saveSystemContextTitle: s,
+      }));
+    },
   };
 });
 
+const DEFAULT_REASONING_BUDGET = 4096; // Claude 3.7 Sonnet recommended minimum value
+
 const ChatPage: React.FC = () => {
-  const { content, setContent } = useChatPageState();
+  const {
+    content,
+    inputSystemContext,
+    saveSystemContext,
+    saveSystemContextTitle,
+    setContent,
+    setInputSystemContext,
+    setSaveSystemContext,
+    setSaveSystemContextTitle,
+  } = useChatPageState();
   const { pathname, search } = useLocation();
   const {
     clear: clearFiles,
@@ -65,76 +104,65 @@ const ChatPage: React.FC = () => {
     base64Cache,
   } = useFiles(pathname);
   const { chatId } = useParams();
-  const navigate = useNavigate();
 
-  const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const [createChatError, setCreateChatError] = useState<string | null>(null);
+  const { listSystemContexts, deleteSystemContext, updateSystemContextTitle } =
+    useSystemContextApi();
+  const [systemContextList, setSystemContextList] = useState<SystemContext[]>(
+    []
+  );
+  const { data: systemContextResponse, mutate } = listSystemContexts();
+  useEffect(() => {
+    setSystemContextList(systemContextResponse ? systemContextResponse : []);
+  }, [systemContextResponse, setSystemContextList]);
 
   const {
     getModelId,
     setModelId,
     loading,
     writing,
+    loadingMessages,
     isEmpty,
     messages,
+    rawMessages,
     clear,
+    postChat,
     editChat,
     updateSystemContext,
+    updateSystemContextByModel,
+    getCurrentSystemContext,
     retryGeneration,
     forceToStop,
-    loadingMessages,
-    createChatIfNotExist,
-    migrateState,
-    postChatWithId,
   } = useChat(pathname, chatId);
   const { createShareId, findShareId, deleteShareId } = useChatApi();
+  const { createSystemContext } = useSystemContextApi();
   const { scrollableContainer, setFollowing } = useFollow();
   const { getChatTitle } = useChatList();
-  const {
-    modelIds: availableModels,
-    modelDisplayName,
-    modelMetadata,
-    featuredModelIds,
-  } = MODELS;
+  const { allModelIds: availableModels, modelDisplayName } = MODELS;
   const { data: share, mutate: reloadShare } = findShareId(chatId);
   const modelId = getModelId();
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, [modelId]);
-  const [overrideModelParameters, setOverrideModelParameters] = useState<
-    AdditionalModelRequestFields | undefined
-  >(undefined);
+  const [overrideModelParameters, setOverrideModelParameters] =
+    useState<AdditionalModelRequestFields>({
+      reasoningConfig: {
+        type: 'disabled',
+        budgetTokens: DEFAULT_REASONING_BUDGET,
+      },
+    });
   const [showSetting, setShowSetting] = useState(false);
-  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
-  const [hasRestoredWebSearch, setHasRestoredWebSearch] = useState(false);
   const { t } = useTranslation();
-  const { settings } = useSettings();
-
-  // カスタム指示を適用したシステムプロンプトを構築
-  const buildSystemPrompt = useCallback(
-    (baseContext: string): string => {
-      if (settings.customizeEnabled && settings.customInstructions.trim()) {
-        return `<instructions>
-${baseContext}
-</instructions>
-<user_custom_instructions>
-${settings.customInstructions}
-</user_custom_instructions>`;
-      }
-      return `<instructions>
-${baseContext}
-</instructions>`;
-    },
-    [settings.customizeEnabled, settings.customInstructions]
-  );
+  const [forceExpandPromptList, setForceExpandPromptList] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
-    // Set system context with custom instructions for new chats
+    // On the conversation history page, do not change the system prompt even if the model is changed
     if (!chatId) {
-      updateSystemContext(buildSystemPrompt(t('chat.defaultSystemPrompt')));
+      updateSystemContextByModel();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatId, buildSystemPrompt, t]);
+    // eslint-disable-next-line  react-hooks/exhaustive-deps
+  }, [prompter]);
 
   const title = useMemo(() => {
     if (chatId) {
@@ -144,20 +172,9 @@ ${baseContext}
     }
   }, [chatId, getChatTitle, t]);
 
-  const modelFlags = useMemo(() => {
-    if (!modelId) return undefined;
-    const feature = MODELS.modelMetadata[modelId];
-    if (!feature) return undefined;
-    return feature.flags;
-  }, [modelId]);
-  const modelName = useMemo(() => {
-    if (!modelId) return undefined;
-    return MODELS.modelDisplayName(modelId);
-  }, [modelId]);
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId];
-    if (!feature) return [];
+    const feature = MODELS.getModelMetadata(modelId);
     return [
       ...(feature.flags.doc ? fileLimit.accept.doc : []),
       ...(feature.flags.image ? fileLimit.accept.image : []),
@@ -167,25 +184,16 @@ ${baseContext}
   const fileUpload = useMemo(() => {
     return accept.length > 0;
   }, [accept]);
-  const setting = useMemo(() => {
-    return MODELS.modelMetadata[modelId]?.flags.reasoning ?? false;
+  const reasoning = useMemo(() => {
+    return MODELS.getModelMetadata(modelId).flags.reasoning ?? false;
   }, [modelId]);
-
-  const webSearchDisabled = useMemo(() => {
-    // Web検索機能が無効
-    if (!MODELS.webSearchEnabled) {
-      return { disabled: true, reason: t('chat.web_search_not_available') };
-    }
-    // モデルが非対応（Bedrock以外）
-    const model = findModelByModelId(modelId);
-    if (model && model.type !== 'bedrock') {
-      return {
-        disabled: true,
-        reason: t('chat.web_search_model_not_supported'),
-      };
-    }
-    return { disabled: false, reason: '' };
-  }, [modelId, t]);
+  const reasoningEnabled = useMemo(() => {
+    return overrideModelParameters.reasoningConfig.type === 'enabled';
+  }, [overrideModelParameters]);
+  // Currently, the settings modal is only used with the reasoning option
+  const setting = useMemo(() => {
+    return reasoning;
+  }, [reasoning]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -196,6 +204,7 @@ ${baseContext}
         updateSystemContext(params.systemContext);
       } else {
         clear();
+        setInputSystemContext(currentSystemContext);
       }
       setContent(params.content ?? '');
       setModelId(
@@ -203,73 +212,15 @@ ${baseContext}
           ? params.modelId!
           : _modelId
       );
-    } else if (!chatId) {
-      // Only set default model for new chats (when chatId doesn't exist)
-      // For existing chats, the model will be restored from messages
+    } else {
       setModelId(_modelId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, setContent, availableModels, pathname, chatId]);
+  }, [search, setContent, availableModels, pathname]);
 
-  // chatIdが変わったらWeb検索復元フラグをリセット
-  useEffect(() => {
-    setHasRestoredWebSearch(false);
-    if (!chatId) {
-      setWebSearchEnabled(false);
-    }
-  }, [chatId]);
-
-  // チャット復元時にWeb検索状態を復元（一度だけ）
-  useEffect(() => {
-    if (
-      chatId &&
-      !loadingMessages &&
-      messages.length > 0 &&
-      !hasRestoredWebSearch
-    ) {
-      const lastAssistantMessage = [...messages]
-        .reverse()
-        .find((m) => m.role === 'assistant');
-
-      setWebSearchEnabled(!!lastAssistantMessage?.webSearch);
-      setHasRestoredWebSearch(true);
-    }
-  }, [chatId, loadingMessages, messages, hasRestoredWebSearch]);
-
-  const onSend = useCallback(async () => {
+  const onSend = useCallback(() => {
     setFollowing(true);
-    setCreateChatError(null);
-
-    let targetPathname = pathname;
-
-    // For new chats, create the chat first and navigate to its URL
-    if (!chatId) {
-      setIsCreatingChat(true);
-      try {
-        const newChatId = await createChatIfNotExist();
-        // Remove 'chat#' prefix from chatId for URL
-        const chatIdForUrl = newChatId.replace(/^chat#/, '');
-        const newPathname = `/chat/${chatIdForUrl}`;
-
-        // Migrate the state to the new path
-        migrateState(newPathname);
-
-        // Navigate to the new chat URL
-        navigate(newPathname, { replace: true });
-
-        // Use the new pathname for postChat
-        targetPathname = newPathname;
-      } catch (error) {
-        setIsCreatingChat(false);
-        setCreateChatError(t('chat.createChatError'));
-        return; // Keep the input content and return
-      }
-      setIsCreatingChat(false);
-    }
-
-    // Start LLM inference with the correct pathname
-    postChatWithId(
-      targetPathname,
+    postChat(
       prompter.chatPrompt({ content }),
       false,
       undefined,
@@ -280,8 +231,7 @@ ${baseContext}
       undefined,
       undefined,
       base64Cache,
-      overrideModelParameters,
-      webSearchEnabled
+      overrideModelParameters
     );
     setContent('');
     clearFiles();
@@ -292,15 +242,7 @@ ${baseContext}
     fileUpload,
     setFollowing,
     overrideModelParameters,
-    chatId,
-    createChatIfNotExist,
-    migrateState,
-    navigate,
-    prompter,
-    postChatWithId,
     uploadedFiles,
-    pathname,
-    webSearchEnabled,
   ]);
 
   const onRetry = useCallback(() => {
@@ -314,10 +256,14 @@ ${baseContext}
       undefined,
       undefined,
       base64Cache,
-      overrideModelParameters,
-      webSearchEnabled
+      overrideModelParameters
     );
-  }, [retryGeneration, base64Cache, overrideModelParameters, webSearchEnabled]);
+  }, [retryGeneration, base64Cache, overrideModelParameters]);
+
+  const onReset = useCallback(() => {
+    clear();
+    setContent('');
+  }, [clear, setContent]);
 
   const onStop = useCallback(() => {
     forceToStop();
@@ -337,22 +283,16 @@ ${baseContext}
         undefined,
         undefined,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
-    [
-      editChat,
-      base64Cache,
-      setFollowing,
-      overrideModelParameters,
-      webSearchEnabled,
-    ]
+    [editChat, base64Cache, setFollowing, overrideModelParameters]
   );
 
   const [creatingShareId, setCreatingShareId] = useState(false);
   const [deletingShareId, setDeletingShareId] = useState(false);
   const [showShareIdModal, setShowShareIdModal] = useState(false);
+  const [showSystemContextModal, setShowSystemContextModal] = useState(false);
   const [isOver, setIsOver] = useState(false);
 
   const onCreateShareId = useCallback(async () => {
@@ -367,6 +307,29 @@ ${baseContext}
     }
   }, [chatId, createShareId, reloadShare]);
 
+  const onCreateSystemContext = useCallback(async () => {
+    try {
+      await createSystemContext(saveSystemContextTitle, saveSystemContext);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setShowSystemContextModal(false);
+      setInputSystemContext(saveSystemContext);
+      setSaveSystemContextTitle('');
+      mutate();
+      setSystemContextList(systemContextResponse ?? []);
+    }
+  }, [
+    saveSystemContextTitle,
+    saveSystemContext,
+    systemContextResponse,
+    createSystemContext,
+    setShowSystemContextModal,
+    setInputSystemContext,
+    setSaveSystemContextTitle,
+    mutate,
+    setSystemContextList,
+  ]);
   const onDeleteShareId = useCallback(async () => {
     try {
       setDeletingShareId(true);
@@ -387,9 +350,81 @@ ${baseContext}
     }
   }, [share]);
 
+  const [showSystemContext, setShowSystemContext] = useState(false);
+
   const showingMessages = useMemo(() => {
-    return messages;
-  }, [messages]);
+    if (showSystemContext) {
+      return rawMessages;
+    } else {
+      return messages;
+    }
+  }, [showSystemContext, rawMessages, messages]);
+
+  const currentSystemContext = useMemo(() => {
+    return getCurrentSystemContext();
+  }, [getCurrentSystemContext]);
+
+  useEffect(() => {
+    setInputSystemContext(currentSystemContext);
+  }, [currentSystemContext, setInputSystemContext]);
+
+  const onClickSamplePrompt = useCallback(
+    (params: ChatPageQueryParams) => {
+      setContent(params.content ?? '');
+      updateSystemContext(params.systemContext ?? '');
+    },
+    [setContent, updateSystemContext]
+  );
+
+  const onClickDeleteSystemContext = async (systemContextId: string) => {
+    try {
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
+      );
+      if (idx >= 0) {
+        setSystemContextList(systemContextList.filter((_, i) => i !== idx));
+      }
+      await deleteSystemContext(systemContextId);
+      mutate();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onClickUpdateSystemContext = async (
+    systemContextId: string,
+    title: string
+  ) => {
+    try {
+      const idx = systemContextList.findIndex(
+        (item) => item.systemContextId === systemContextId
+      );
+      if (idx >= 0) {
+        setSystemContextList(
+          systemContextList.map((item, i) => {
+            if (i === idx) {
+              return { ...item, systemContextTitle: title };
+            }
+            return item;
+          })
+        );
+      }
+      await updateSystemContextTitle(systemContextId, title);
+      mutate();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const onReasoningSwitched = useCallback(() => {
+    setOverrideModelParameters({
+      ...overrideModelParameters,
+      reasoningConfig: {
+        type: reasoningEnabled ? 'disabled' : 'enabled',
+        budgetTokens: overrideModelParameters.reasoningConfig.budgetTokens,
+      },
+    });
+  }, [reasoningEnabled, overrideModelParameters, setOverrideModelParameters]);
 
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
@@ -409,107 +444,100 @@ ${baseContext}
     setIsOver(false);
     if (event.dataTransfer.files) {
       // Reflect the file and upload it
-      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept, modelFlags, modelName);
+      uploadFiles(Array.from(event.dataTransfer.files), fileLimit, accept);
     }
   };
 
+  // Initialize forceExpandPromptList to null when the path changes
+  useEffect(() => {
+    setForceExpandPromptList(null);
+  }, [pathname, setForceExpandPromptList]);
+
   return (
     <>
-      {/* Main Content */}
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
-        className="relative flex h-screen flex-col px-4 md:px-6 lg:px-8">
+        className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
+        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+          {title}
+        </div>
+
         {isOver && fileUpload && (
           <div
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-300 p-10 outline-dashed">
-            <p className="font-bold">{t('chat.drop_files')}</p>
+            className="fixed bottom-0 left-0 right-0 top-0 z-[999] bg-slate-300 p-10 text-center">
+            <div className="flex h-full w-full items-center justify-center outline-dashed">
+              <div className="font-bold">{t('chat.drop_files')}</div>
+            </div>
           </div>
         )}
 
-        {/* Header with Model Selector and Share Button */}
-        <div className="my-5 flex items-center gap-4 print:hidden">
-          {/* Model Selector */}
-          <ModelSelector
-            className="w-80"
+        <div className="mt-2 flex w-full items-end justify-center lg:mt-0 print:hidden">
+          <Select
             value={modelId}
             onChange={setModelId}
-            models={availableModels.map((m) => {
-              const rawDescription = modelMetadata[m]?.description;
-              const description = rawDescription?.startsWith('model.')
-                ? t(rawDescription)
-                : rawDescription;
-              return {
-                value: m,
-                label: modelDisplayName(m),
-                description,
-              };
+            options={availableModels.map((m) => {
+              return { value: m, label: modelDisplayName(m) };
             })}
-            featuredModelIds={featuredModelIds}
           />
-
-          {/* Spacer */}
-          <div className="flex-1" />
         </div>
 
-        {/* Print-only Title */}
-        <h1 className="my-5 hidden text-xl font-semibold print:block">
-          {title}
-        </h1>
+        {((isEmpty && !loadingMessages) || loadingMessages) && (
+          <div className="relative flex h-[calc(100vh-13rem)] flex-col items-center justify-center gap-y-4">
+            <BedrockIcon
+              className={`fill-gray-400 ${
+                loadingMessages ? 'animate-pulse' : ''
+              }`}
+            />
 
-        {/* Wrapper for messages and input to enable vertical centering when empty */}
-        {/* Show loading only when fetching existing chat messages (not for just-created chats) */}
-        {loadingMessages && chatId && isEmpty ? (
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <LoadingWave />
+            {!loadingMessages && (
+              <Button
+                className="text-sm"
+                outlined
+                onClick={() => {
+                  setForceExpandPromptList(Math.random());
+                }}>
+                {t('chat.view_prompt_examples')}
+              </Button>
+            )}
           </div>
-        ) : isEmpty ? (
-          <div className="flex flex-1 flex-col justify-center">
-            {createChatError && (
-              <div className="mx-auto mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
-                {createChatError}
+        )}
+
+        {!isEmpty && !loadingMessages && (
+          <div className="my-2 flex flex-col items-end pr-3 print:hidden">
+            {chatId && (
+              <div>
+                <button
+                  className="mb-1 flex items-center justify-center text-xs hover:underline"
+                  onClick={() => {
+                    setShowShareIdModal(true);
+                  }}>
+                  <PiShareFatFill className="mr-1" />
+                  {share ? <>{t('chat.sharing')}</> : <>{t('chat.share')}</>}
+                </button>
               </div>
             )}
-            <InputChatContent
-              className="mx-auto print:hidden"
-              content={content}
-              disabled={(loading && !writing) || isCreatingChat}
-              onChangeContent={setContent}
-              hideReset={true}
-              onSend={() => {
-                if (!loading && !isCreatingChat) {
-                  onSend();
-                } else if (writing) {
-                  onStop();
-                }
-              }}
-              fileUpload={fileUpload}
-              fileLimit={fileLimit}
-              accept={accept}
-              modelFlags={modelFlags}
-              modelName={modelName}
-              setting={setting}
-              onSetting={() => {
-                setShowSetting(true);
-              }}
-              canStop={writing}
-              isCreatingChat={isCreatingChat}
-              showWebSearchSwitch={true}
-              webSearchEnabled={webSearchEnabled}
-              onWebSearchToggle={setWebSearchEnabled}
-              webSearchDisabled={webSearchDisabled.disabled}
-              webSearchDisabledReason={webSearchDisabled.reason}
+            <Switch
+              checked={showSystemContext}
+              onSwitch={setShowSystemContext}
+              label={t('chat.show_system_prompt')}
             />
           </div>
-        ) : (
-          <>
-            <div ref={scrollableContainer} className="flex-1 overflow-y-auto">
-              {showingMessages.map((chat, idx) => (
+        )}
+
+        <div ref={scrollableContainer}>
+          {!isEmpty &&
+            showingMessages.map((chat, idx) => (
+              <div key={showSystemContext ? idx : idx + 1}>
+                {idx === 0 && (
+                  <div className="w-full border-b border-gray-300"></div>
+                )}
                 <ChatMessage
-                  key={idx + 1}
                   chatContent={chat}
                   loading={loading && idx === showingMessages.length - 1}
+                  setSaveSystemContext={setSaveSystemContext}
+                  setShowSystemContextModal={setShowSystemContextModal}
                   allowRetry={idx === showingMessages.length - 1}
                   editable={idx === showingMessages.length - 2 && !loading}
                   onCommitEdit={
@@ -519,49 +547,105 @@ ${baseContext}
                   }
                   retryGeneration={onRetry}
                 />
-              ))}
-            </div>
+                <div className="w-full border-b border-gray-300"></div>
+              </div>
+            ))}
+        </div>
 
-            <div className="sticky bottom-0 print:hidden">
-              {createChatError && (
-                <div className="mx-auto mb-2 max-w-3xl rounded-md bg-red-50 p-3 text-sm text-red-600">
-                  {createChatError}
+        <div className="fixed right-4 top-[calc(50vh-2rem)] z-0 lg:right-8">
+          <ScrollTopBottom />
+        </div>
+
+        <div className="fixed bottom-0 z-0 flex w-full flex-col items-center justify-center lg:pr-64 print:hidden">
+          {isEmpty && !loadingMessages && !chatId && (
+            <ExpandableField
+              label={t('chat.system_prompt')}
+              className="relative w-11/12 md:w-10/12 lg:w-4/6 xl:w-3/6">
+              <>
+                <div className="absolute -top-2 right-0 mb-2 flex justify-end">
+                  <Button
+                    outlined
+                    className="text-xs"
+                    onClick={() => {
+                      clear();
+                      setInputSystemContext(currentSystemContext);
+                    }}>
+                    {t('chat.initialize')}
+                  </Button>
+                  <Button
+                    outlined
+                    className="ml-1 text-xs"
+                    onClick={() => {
+                      setSaveSystemContext(inputSystemContext);
+                      setShowSystemContextModal(true);
+                    }}>
+                    {t('chat.save')}
+                  </Button>
                 </div>
-              )}
-              <InputChatContent
-                className="mx-auto my-4"
-                content={content}
-                disabled={(loading && !writing) || isCreatingChat}
-                onChangeContent={setContent}
-                hideReset={true}
-                onSend={() => {
-                  if (!loading && !isCreatingChat) {
-                    onSend();
-                  } else if (writing) {
-                    onStop();
-                  }
-                }}
-                fileUpload={fileUpload}
-                fileLimit={fileLimit}
-                accept={accept}
-                modelFlags={modelFlags}
-                modelName={modelName}
-                setting={setting}
-                onSetting={() => {
-                  setShowSetting(true);
-                }}
-                canStop={writing}
-                isCreatingChat={isCreatingChat}
-                showWebSearchSwitch={true}
-                webSearchEnabled={webSearchEnabled}
-                onWebSearchToggle={setWebSearchEnabled}
-                webSearchDisabled={webSearchDisabled.disabled}
-                webSearchDisabledReason={webSearchDisabled.reason}
-              />
-            </div>
-          </>
-        )}
+
+                <InputChatContent
+                  disableMarginBottom={true}
+                  content={inputSystemContext}
+                  onChangeContent={setInputSystemContext}
+                  fullWidth={true}
+                  resetDisabled={true}
+                  disabled={inputSystemContext === currentSystemContext}
+                  sendIcon={<PiArrowClockwiseBold />}
+                  onSend={() => {
+                    updateSystemContext(inputSystemContext);
+                  }}
+                  hideReset={true}
+                />
+              </>
+            </ExpandableField>
+          )}
+          <InputChatContent
+            content={content}
+            disabled={loading && !writing}
+            onChangeContent={setContent}
+            resetDisabled={!!chatId}
+            onSend={() => {
+              if (!loading) {
+                onSend();
+              } else {
+                onStop();
+              }
+            }}
+            onReset={onReset}
+            fileUpload={fileUpload}
+            fileLimit={fileLimit}
+            accept={accept}
+            reasoning={reasoning}
+            onReasoningSwitched={onReasoningSwitched}
+            reasoningEnabled={reasoningEnabled}
+            setting={setting}
+            onSetting={() => {
+              setShowSetting(true);
+            }}
+            canStop={writing}
+          />
+        </div>
       </div>
+
+      {isEmpty && !loadingMessages && (
+        <PromptList
+          onClick={onClickSamplePrompt}
+          systemContextList={systemContextList as SystemContext[]}
+          onClickDeleteSystemContext={onClickDeleteSystemContext}
+          onClickUpdateSystemContext={onClickUpdateSystemContext}
+          forceExpand={forceExpandPromptList}
+        />
+      )}
+
+      <ModalSystemContext
+        showSystemContextModal={showSystemContextModal}
+        saveSystemContext={saveSystemContext}
+        saveSystemContextTitle={saveSystemContextTitle}
+        setShowSystemContextModal={setShowSystemContextModal}
+        setSaveSystemContext={setSaveSystemContext}
+        setSaveSystemContextTitle={setSaveSystemContextTitle}
+        onCreateSystemContext={onCreateSystemContext}
+      />
 
       <ModalDialog
         isOpen={showShareIdModal}
@@ -569,25 +653,28 @@ ${baseContext}
         onClose={() => {
           setShowShareIdModal(false);
         }}>
-        <p className="py-3 text-xs text-gray-600">
-          {share
-            ? t('chat.delete_link_message')
-            : t('chat.create_link_message')}
-        </p>
+        <div className="py-3 text-xs text-gray-600">
+          {share ? (
+            <>{t('chat.delete_link_message')}</>
+          ) : (
+            <>{t('chat.create_link_message')}</>
+          )}
+        </div>
         {shareLink && (
-          <div className="bg-aws-squid-ink my-2 flex items-center justify-between rounded px-2 py-1 text-white">
-            <span className="break-all text-sm">{shareLink}</span>
+          <div className="bg-aws-squid-ink my-2 flex flex-row items-center justify-between rounded px-2 py-1 text-white">
+            <div className="break-all text-sm">{shareLink}</div>
             <ButtonCopy text={shareLink} />
           </div>
         )}
-        <div className="flex justify-end gap-1 py-3">
+        <div className="flex justify-end py-3">
           {share ? (
-            <>
+            <div className="flex">
               <Button
                 onClick={() => {
                   window.open(shareLink!, '_blank', 'noreferrer');
                 }}
                 outlined
+                className="mr-1"
                 loading={deletingShareId}>
                 {t('chat.open_link')}
               </Button>
@@ -597,7 +684,7 @@ ${baseContext}
                 className="bg-red-500">
                 {t('chat.delete_link')}
               </Button>
-            </>
+            </div>
           ) : (
             <Button onClick={onCreateShareId} loading={creatingShareId}>
               {t('chat.create_link')}
@@ -612,24 +699,22 @@ ${baseContext}
         }}
         title={t('chat.advanced_options')}>
         {setting && (
-          <ExpandableField
-            label={t('chat.model_parameters')}
-            className="relative w-full"
-            defaultOpened={true}>
+          <div className="">
             <ModelParameters
-              modelFeatureFlags={MODELS.modelMetadata[modelId]?.flags}
+              modelFeatureFlags={MODELS.getModelMetadata(modelId).flags}
               overrideModelParameters={overrideModelParameters}
               setOverrideModelParameters={setOverrideModelParameters}
             />
-          </ExpandableField>
+          </div>
         )}
-        <Button
-          className="mt-4"
-          onClick={() => {
-            setShowSetting(false);
-          }}>
-          {t('chat.settings')}
-        </Button>
+        <div className="mt-4 flex justify-end">
+          <Button
+            onClick={() => {
+              setShowSetting(false);
+            }}>
+            {t('chat.settings')}
+          </Button>
+        </div>
       </ModalDialog>
     </>
   );

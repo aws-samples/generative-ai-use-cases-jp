@@ -1,33 +1,52 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateTitleRequest } from 'generative-ai-use-cases';
 import { findChatById, setChatTitle } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import { notFound404Response, ok200Response } from './utils/apiResponse';
-import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateTitleRequest = JSON.parse(event.body!);
 
-    const chatItem = await findChatById(userId, chatId, event);
+    const chatItem = await findChatById(userId, chatId);
 
     if (!chatItem) {
-      return notFound404Response();
+      return {
+        statusCode: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: '',
+      };
     }
 
     const updatedChat = await setChatTitle(
       chatItem?.id,
       chatItem?.createdDate,
-      req.title,
-      event
+      req.title
     );
 
-    return ok200Response({ chat: updatedChat });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ chat: updatedChat }),
+    };
   } catch (error) {
-    return handleLambdaError(error);
+    console.log(error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

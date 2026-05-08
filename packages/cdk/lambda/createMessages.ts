@@ -1,18 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CreateMessagesRequest, ExtraData } from 'generative-ai-use-cases';
 import { batchCreateMessages, findChatById } from './repository';
-import { getTenantId, getUsername } from './utils/tenantUtils';
-import {
-  getTenantBucketNameByTenantId,
-  extractAccountIdFromRoleArn,
-} from './utils/tenantS3Utils';
-import { getTenant } from './tenantManager';
-import {
-  badRequest400Response,
-  notFound404Response,
-  ok200Response,
-} from './utils/apiResponse';
-import { handleLambdaError } from './utils/errorHandler';
 
 const FILE_UPLOAD_BUCKET_NAME = process.env.BUCKET_NAME!;
 
@@ -27,65 +15,67 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: CreateMessagesRequest = JSON.parse(event.body!);
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
 
-    // Extract tenant ID to determine appropriate file upload bucket
-    const tenantId = getTenantId(event);
-    console.log(`Processing create messages request for tenant: ${tenantId}`);
-
     // Authorization check: Verify if the specified chat belongs to the user
-    const chat = await findChatById(userId, chatId, event);
+    const chat = await findChatById(userId, chatId);
     if (chat === null) {
-      return notFound404Response({
-        message: 'Chat not found',
-      });
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          message: 'You do not have permission to post messages in the chat.',
+        }),
+      };
     }
-
-    // Get tenant information for bucket name generation
-    const tenant = await getTenant(tenantId);
-    const tenantAccountId = tenant?.roleArn
-      ? extractAccountIdFromRoleArn(tenant.roleArn)
-      : undefined;
-    const tenantRegion = tenant?.region || process.env.AWS_REGION!;
-    const tenantEnvironment = tenant?.environment || process.env.ENVIRONMENT!;
-
-    // Get appropriate upload bucket for validation (tenant-specific or fallback)
-    const uploadBucketName = await getTenantBucketNameByTenantId(
-      tenantId,
-      'chat',
-      FILE_UPLOAD_BUCKET_NAME,
-      tenantAccountId || process.env.AWS_ACCOUNT_ID!,
-      tenantRegion,
-      tenantEnvironment
-    );
-    console.log(`Using upload bucket for validation: ${uploadBucketName}`);
 
     if (req.messages) {
       for (const message of req.messages) {
         if (message.extraData && message.extraData.length > 0) {
           for (const extra of message.extraData) {
-            if (!isValidExtraData(extra, uploadBucketName)) {
-              return badRequest400Response({
-                message: 'Invalid extraData',
-              });
+            if (!isValidExtraData(extra, FILE_UPLOAD_BUCKET_NAME)) {
+              return {
+                statusCode: 400,
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                },
+                body: JSON.stringify({
+                  message: 'Invalid extraData',
+                }),
+              };
             }
           }
         }
       }
     }
 
-    const messages = await batchCreateMessages(
-      req.messages,
-      userId,
-      chatId,
-      event
-    );
+    const messages = await batchCreateMessages(req.messages, userId, chatId);
 
-    return ok200Response({
-      messages,
-    });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        messages,
+      }),
+    };
   } catch (error) {
-    return handleLambdaError(error);
+    console.log(error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

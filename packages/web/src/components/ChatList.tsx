@@ -52,7 +52,7 @@ const ChatList: React.FC<Props> = (props) => {
       <div
         className={`${
           props.className ?? ''
-        } flex flex-col items-start gap-0.5`}>
+        } flex flex-col items-start gap-0.5 overflow-x-hidden`}>
         {searchedChats.map((chat) => {
           const _chatId = decomposeId(chat.chatId);
           return (

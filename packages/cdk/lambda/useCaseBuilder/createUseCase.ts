@@ -1,23 +1,33 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { CreateUseCaseRequest } from 'generative-ai-use-cases';
 import { createUseCase } from './useCaseBuilderRepository';
-import { getUsername } from '../utils/tenantUtils';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from '../utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
     const req: CreateUseCaseRequest = JSON.parse(event.body!);
-    const userId = getUsername(event);
-    const useCase = await createUseCase(userId, req, event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
+    const useCase = await createUseCase(userId, req);
 
-    return ok200Response(useCase);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(useCase),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

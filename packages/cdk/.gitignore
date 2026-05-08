@@ -1,5 +1,4 @@
 *.js
-!jest.config.js
 *.d.ts
 node_modules
 **/__pycache__/**
@@ -7,8 +6,4 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-!custom-resources/*.js
-!cloudfront-functions/*.js
-
-# Tenant-specific CDK configuration (use cdk.tenant.example.json as template)
-cdk.tenant.json
+!custom-resources/**/*.js

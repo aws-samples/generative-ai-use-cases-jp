@@ -1,9 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { UpdateFeedbackRequest } from 'generative-ai-use-cases';
 import { listMessages, updateFeedback } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import { forbidden403Response, ok200Response } from './utils/apiResponse';
-import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -11,10 +8,11 @@ export const handler = async (
   try {
     const chatId = event.pathParameters!.chatId!;
     const req: UpdateFeedbackRequest = JSON.parse(event.body!);
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
 
     // Authorization check: verify that this message belongs to the user's chat
-    const messages = await listMessages(chatId, event);
+    const messages = await listMessages(chatId);
 
     // Find a message that matches the createdDate (message ID) in the request
     const targetMessage = messages.find(
@@ -26,16 +24,38 @@ export const handler = async (
       console.warn(
         `Authorization error: User ${userId} attempted to provide feedback on message ${req.createdDate} in chat ${chatId} belonging to another user`
       );
-      return forbidden403Response({
-        message:
-          'You do not have permission to provide feedback on this message.',
-      });
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({
+          message:
+            'You do not have permission to provide feedback on this message.',
+        }),
+      };
     }
 
-    const message = await updateFeedback(chatId, req, event);
+    const message = await updateFeedback(chatId, req);
 
-    return ok200Response({ message });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message }),
+    };
   } catch (error) {
-    return handleLambdaError(error);
+    console.log(error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

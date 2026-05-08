@@ -1,27 +1,47 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { findChatById, listMessages } from './repository';
-import { getUsername } from './utils/tenantUtils';
-import { notFound404Response, ok200Response } from './utils/apiResponse';
-import { handleLambdaError } from './utils/errorHandler';
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   try {
-    const userId = getUsername(event);
+    const userId: string =
+      event.requestContext.authorizer!.claims['cognito:username'];
     const chatId = event.pathParameters!.chatId!;
-    const chat = await findChatById(userId, chatId, event);
+    const chat = await findChatById(userId, chatId);
 
     if (chat === null) {
-      return notFound404Response({ message: 'Chat not found' });
+      return {
+        statusCode: 403,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ message: 'Forbidden' }),
+      };
     }
 
-    const messages = await listMessages(chatId, event);
+    const messages = await listMessages(chatId);
 
-    return ok200Response({
-      messages,
-    });
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({
+        messages,
+      }),
+    };
   } catch (error) {
-    return handleLambdaError(error);
+    console.log(error);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

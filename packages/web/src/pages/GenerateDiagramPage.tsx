@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -10,7 +10,7 @@ import { MODELS } from '../hooks/useModel';
 import queryString from 'query-string';
 import useDiagram from '../hooks/useDiagram';
 import { DiagramPageQueryParams } from '../@types/navigate';
-import Markdown from '../components/Markdown';
+import { MermaidWithToggle } from '../components/Markdown';
 import { RiRobot2Line, RiMindMap } from 'react-icons/ri';
 import { BiAbacus } from 'react-icons/bi';
 import { BsDiagram3 } from 'react-icons/bs';
@@ -31,8 +31,6 @@ import {
   TbMathSymbols,
 } from 'react-icons/tb';
 import { useTranslation } from 'react-i18next';
-
-const DiagramRenderer = lazy(() => import('../components/DiagramRenderer'));
 
 type StateType = {
   content: string;
@@ -461,7 +459,8 @@ const GenerateDiagramPage: React.FC = () => {
   }> = ({ option, isSelected, onClick }) => (
     <button
       onClick={() => onClick(option.id)}
-      className={`min-h-[155px] w-[calc(25%)] min-w-[110px] max-w-[130px] flex-col rounded-lg border px-1 hover:bg-blue-50 ${isSelected ? 'border-blue-600 bg-blue-100' : 'border-gray-500 bg-white'}`}>
+      className={`min-h-[155px] w-[calc(25%)] min-w-[110px] max-w-[130px] flex-col rounded-lg border px-1 hover:bg-blue-50
+        ${isSelected ? 'border-blue-600 bg-blue-100' : 'border-gray-500 bg-white'}`}>
       <div className="text-2xl">
         {React.createElement(option.icon, {
           size: '1.5rem',
@@ -649,22 +648,13 @@ const GenerateDiagramPage: React.FC = () => {
                       {DiagramData[diagramType as keyof typeof DiagramData]
                         ?.title || t('diagram.chart')}
                     </h3>
-                    {loading ? (
-                      <div className="p-3">
-                        <Markdown>
-                          {['```mermaid', diagramCode, '```'].join('\n')}
-                        </Markdown>
-                      </div>
-                    ) : (
-                      <div className="p-3">
-                        <Suspense fallback={<div>{t('common.loading')}</div>}>
-                          <DiagramRenderer
-                            code={diagramCode}
-                            handleMarkdownChange={handleMarkdownChange}
-                          />
-                        </Suspense>
-                      </div>
-                    )}
+                    <div className="p-3">
+                      <MermaidWithToggle
+                        code={diagramCode}
+                        editable={!loading}
+                        onCodeChange={handleMarkdownChange}
+                      />
+                    </div>
                   </div>
                 )}
 

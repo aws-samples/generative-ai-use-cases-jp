@@ -3,30 +3,27 @@ import {
   InvokeEndpointCommand,
   InvokeEndpointWithResponseStreamCommand,
 } from '@aws-sdk/client-sagemaker-runtime';
-import { generatePrompt } from './prompter';
 import { ApiInterface, UnrecordedMessage } from 'generative-ai-use-cases';
-import { getSageMakerModelTemplate } from './models';
 import { streamingChunk } from './streamingChunk';
 
 const client = new SageMakerRuntimeClient({
   region: process.env.MODEL_REGION,
 });
 
-const TGI_DEFAULT_PARAMS = {
-  max_new_tokens: 512,
-  return_full_text: false,
-  do_sample: true,
-  temperature: 0.3,
-};
-
 const createBodyText = (
   model: string,
   messages: UnrecordedMessage[],
   stream: boolean
 ): string => {
+  // Convert messages to the format expected by SageMaker endpoint
+  const formattedMessages = messages.map((message) => ({
+    role: message.role,
+    content: message.content,
+  }));
+
   return JSON.stringify({
-    inputs: generatePrompt(getSageMakerModelTemplate(model), messages),
-    parameters: TGI_DEFAULT_PARAMS,
+    messages: formattedMessages,
+    max_tokens: 4096,
     stream: stream,
   });
 };
@@ -40,7 +37,8 @@ const sagemakerApi: ApiInterface = {
       Accept: 'application/json',
     });
     const data = await client.send(command);
-    return JSON.parse(new TextDecoder().decode(data.Body))[0].generated_text;
+    const response = JSON.parse(new TextDecoder().decode(data.Body));
+    return response.choices[0].message.content;
   },
   invokeStream: async function* (model, messages) {
     const command = new InvokeEndpointWithResponseStreamCommand({
@@ -52,40 +50,48 @@ const sagemakerApi: ApiInterface = {
     const stream = (await client.send(command)).Body;
     if (!stream) return;
 
-    // https://aws.amazon.com/blogs/machine-learning/elevating-the-generative-ai-experience-introducing-streaming-support-in-amazon-sagemaker-hosting/
-    // The output of the model will be in the following format:
-    // b'data:{"token": {"text": " a"}}\n\n'
-    // b'data:{"token": {"text": " challenging"}}\n\n'
-    // b'data:{"token": {"text": " problem"
-    // b'}}'
-    //
-    // While usually each PayloadPart event from the event stream will contain a byte array
-    // with a full json, this is not guaranteed and some of the json objects may be split across
-    // PayloadPart events. For example:
-    // {'PayloadPart': {'Bytes': b'{"outputs": '}}
-    // {'PayloadPart': {'Bytes': b'[" problem"]}\n'}}
-    //
-    // This logic accounts for this by concatenating bytes and
-    // return lines (ending with a '\n' character) within the buffer.
-    // It will also save any pending lines that doe not end with a '\n'
-    // to make sure truncations are concatenated.
+    // Based on the Python example, the streaming response format is:
+    // data:{"choices":[{"delta":{"content":"text"}}]}
+    // This logic handles the streaming response similar to the Python implementation
 
     let buffer = '';
-    const pt = getSageMakerModelTemplate(model.modelId);
+    const startJson = Buffer.from('{');
+
     for await (const chunk of stream) {
-      buffer += new TextDecoder().decode(chunk.PayloadPart?.Bytes);
+      if (!chunk.PayloadPart?.Bytes) continue;
+
+      buffer += new TextDecoder().decode(chunk.PayloadPart.Bytes);
+
+      // Process complete lines ending with \n
       if (!buffer.endsWith('\n')) continue;
 
-      // When buffer end with \n it can be parsed
-      const lines: string[] =
-        buffer
-          .split('\n')
-          .filter((line: string) => line.trim().startsWith('data:')) || [];
+      const lines = buffer.split('\n').filter((line) => line.trim() !== '');
+
       for (const line of lines) {
-        const message = line.replace(/^data:/, '');
-        const token: string = JSON.parse(message).token.text || '';
-        if (!token.includes(pt.eosToken)) yield streamingChunk({ text: token });
+        if (line.includes(startJson.toString())) {
+          try {
+            // Extract JSON from the line (similar to Python implementation)
+            const jsonStart = line.indexOf('{');
+            if (jsonStart !== -1) {
+              const jsonStr = line.substring(jsonStart);
+              const data = JSON.parse(jsonStr);
+
+              if (
+                data.choices &&
+                data.choices[0] &&
+                data.choices[0].delta &&
+                data.choices[0].delta.content
+              ) {
+                yield streamingChunk({ text: data.choices[0].delta.content });
+              }
+            }
+          } catch (error) {
+            // Skip malformed JSON
+            console.warn('Failed to parse streaming JSON:', error);
+          }
+        }
       }
+
       buffer = '';
     }
   },

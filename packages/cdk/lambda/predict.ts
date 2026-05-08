@@ -2,10 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { PredictRequest } from 'generative-ai-use-cases';
 import api from './utils/api';
 import { defaultModel } from './utils/models';
-import {
-  internalServerError500Response,
-  ok200Response,
-} from './utils/apiResponse';
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -19,9 +15,23 @@ export const handler = async (
       req.id
     );
 
-    return ok200Response(response);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(response),
+    };
   } catch (error) {
     console.log(error);
-    return internalServerError500Response({ message: 'Internal Server Error' });
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
   }
 };

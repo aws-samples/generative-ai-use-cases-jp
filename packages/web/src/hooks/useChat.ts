@@ -15,9 +15,8 @@ import {
   ListChatsResponse,
   AdditionalModelRequestFields,
   Metadata,
-  WebSearchInfo,
 } from 'generative-ai-use-cases';
-import { useEffect, useMemo, useCallback } from 'react';
+import { useEffect, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import useChatApi from './useChatApi';
 import useChatList from './useChatList';
@@ -25,7 +24,6 @@ import { SWRInfiniteKeyedMutator } from 'swr/infinite';
 import { getPrompter } from '../prompts';
 import { findModelByModelId } from './useModel';
 import useFileApi from './useFileApi';
-import { useSettings } from './useSettings';
 
 type GenerationMode = 'normal' | 'continue' | 'retry' | 'edit';
 
@@ -72,8 +70,7 @@ const useChatState = create<{
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
-    overrideModelParameters: AdditionalModelRequestFields | undefined,
-    webSearchEnabled: boolean | undefined
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   edit: (
     id: string,
@@ -88,8 +85,7 @@ const useChatState = create<{
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
-    overrideModelParameters: AdditionalModelRequestFields | undefined,
-    webSearchEnabled: boolean | undefined
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   continueGeneration: (
     generationMode: GenerationMode,
@@ -104,8 +100,7 @@ const useChatState = create<{
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
-    overrideModelParameters: AdditionalModelRequestFields | undefined,
-    webSearchEnabled: boolean | undefined
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   retryGeneration: (
     generationMode: GenerationMode,
@@ -120,8 +115,7 @@ const useChatState = create<{
     overrideModelType: Model['type'] | undefined,
     setSessionId: (sessionId: string) => void,
     base64Cache: Record<string, string> | undefined,
-    overrideModelParameters: AdditionalModelRequestFields | undefined,
-    webSearchEnabled: boolean | undefined
+    overrideModelParameters: AdditionalModelRequestFields | undefined
   ) => void;
   sendFeedback: (
     id: string,
@@ -134,12 +128,12 @@ const useChatState = create<{
     id: string,
     chunk: string,
     trace?: string,
-    model?: Model
+    model?: Model,
+    metadata?: Metadata
   ) => void;
   addMessageIdsToUnrecordedMessages: (id: string) => ToBeRecordedMessage[];
   replaceMessages: (id: string, messages: RecordedMessage[]) => void;
   setPredictedTitle: (id: string) => Promise<void>;
-  migrateState: (fromId: string, toId: string) => void;
 }>((set, get) => {
   const {
     createChat,
@@ -304,11 +298,7 @@ const useChatState = create<{
             .indexOf(m.messageId);
 
           if (idx >= 0) {
-            draft[id].messages[idx] = {
-              ...m,
-              // サーバーからのwebSearch情報を優先し、なければ既存のクライアント側情報を保持
-              webSearch: m.webSearch ?? draft[id].messages[idx].webSearch,
-            };
+            draft[id].messages[idx] = m;
           }
         }
       });
@@ -403,14 +393,30 @@ const useChatState = create<{
   ) => {
     set((state) => {
       const newChats = produce(state.chats, (draft) => {
-        let traceInlineMessage: string | undefined = undefined;
+        const oldAssistantMessage = draft[id].messages.pop()!;
 
         // If the received trace is a code block, do not display it as an inline message
+        let traceInlineMessage: string | undefined = undefined;
         if (trace && !isExactlyCodeBlock(trace.trim())) {
           traceInlineMessage = trace.trim();
         }
 
-        const oldAssistantMessage = draft[id].messages.pop()!;
+        // If new metadata came when old metadata exist, add up numbers
+        if (metadata && oldAssistantMessage.metadata) {
+          metadata.usage.inputTokens +=
+            oldAssistantMessage.metadata.usage.inputTokens || 0;
+          metadata.usage.outputTokens +=
+            oldAssistantMessage.metadata.usage.outputTokens || 0;
+          metadata.usage.totalTokens +=
+            oldAssistantMessage.metadata.usage.totalTokens || 0;
+          metadata.usage.cacheReadInputTokens =
+            (metadata.usage.cacheReadInputTokens || 0) +
+            (oldAssistantMessage.metadata.usage.cacheReadInputTokens || 0);
+          metadata.usage.cacheWriteInputTokens =
+            (metadata.usage.cacheWriteInputTokens || 0) +
+            (oldAssistantMessage.metadata.usage.cacheWriteInputTokens || 0);
+        }
+
         const newAssistantMessage: ShownMessage = {
           ...oldAssistantMessage,
           role: 'assistant',
@@ -462,21 +468,6 @@ const useChatState = create<{
     });
   };
 
-  const updateWebSearchInfo = (id: string, webSearch: WebSearchInfo) => {
-    set((state) => {
-      const newChats = produce(state.chats, (draft) => {
-        const messages = draft[id].messages;
-        if (messages.length > 0) {
-          const lastMessage = messages[messages.length - 1];
-          if (lastMessage.role === 'assistant') {
-            lastMessage.webSearch = webSearch;
-          }
-        }
-      });
-      return { chats: newChats };
-    });
-  };
-
   const generateMessage = async (
     generationMode: GenerationMode,
     id: string,
@@ -494,8 +485,7 @@ const useChatState = create<{
     base64Cache: Record<string, string> | undefined = undefined,
     overrideModelParameters:
       | AdditionalModelRequestFields
-      | undefined = undefined,
-    webSearchEnabled: boolean | undefined = undefined
+      | undefined = undefined
   ) => {
     const modelId = get().modelIds[id];
 
@@ -563,13 +553,11 @@ const useChatState = create<{
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
           const oldAssistantMessage = draft[id].messages.pop()!;
-          const newAssistantMessage: ShownMessage = {
+          const newAssistantMessage: UnrecordedMessage = {
             ...oldAssistantMessage,
             content: ' ', // If it is empty, re-rendering is not performed, so blank
             trace: '',
             extraData: [],
-            // 再生成時は古いwebSearch情報をクリア（新しい検索結果で上書きされる）
-            webSearch: undefined,
           };
           draft[id].messages.push(newAssistantMessage);
         });
@@ -592,15 +580,34 @@ const useChatState = create<{
       base64Cache
     );
 
-    const stream = predictStream({
-      model: model,
-      messages: formattedMessages,
-      id: id,
-      webSearchEnabled: webSearchEnabled,
-    });
+    const stream = predictStream(
+      {
+        model: model,
+        messages: formattedMessages,
+        id: id,
+      },
+      false
+    );
+
+    const splitByNewlineBinary = (data: Uint8Array): Uint8Array[] => {
+      const newline = 0x0a; // '\n'
+      const result: Uint8Array[] = [];
+
+      let start = 0;
+
+      for (let i = 0; i <= data.length; i++) {
+        if (i === data.length || data[i] === newline) {
+          result.push(data.slice(start, i));
+          start = i + 1;
+        }
+      }
+
+      return result;
+    };
 
     // Update the assistant's message
     let tmpChunk = '';
+    let tmpBuffer: Uint8Array = new Uint8Array([]);
 
     for await (const chunk of stream) {
       if (get().chats[id].forcedStop) {
@@ -613,11 +620,31 @@ const useChatState = create<{
         setWriting(id, true);
       }
 
-      const chunks = chunk.split('\n');
+      const chunks = splitByNewlineBinary(chunk as Uint8Array);
 
       for (const c of chunks) {
         if (c && c.length > 0) {
-          const payload = JSON.parse(c) as StreamingChunk;
+          let payload: StreamingChunk;
+
+          try {
+            if (tmpBuffer.length === 0) {
+              payload = JSON.parse(
+                new TextDecoder('utf-8').decode(c)
+              ) as StreamingChunk;
+            } else {
+              payload = JSON.parse(
+                new TextDecoder('utf-8').decode(
+                  new Uint8Array([...tmpBuffer, ...c])
+                )
+              ) as StreamingChunk;
+              tmpBuffer = new Uint8Array([]);
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } catch (e: any) {
+            console.warn(e);
+            tmpBuffer = new Uint8Array([...tmpBuffer, ...c]);
+            continue;
+          }
 
           if (payload.text.length > 0) {
             tmpChunk += payload.text;
@@ -647,11 +674,6 @@ const useChatState = create<{
           if (payload.sessionId) {
             setSessionId(payload.sessionId);
           }
-
-          // WebSearch
-          if (payload.webSearch) {
-            updateWebSearchInfo(id, payload.webSearch);
-          }
         }
       }
 
@@ -676,15 +698,13 @@ const useChatState = create<{
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
           const oldAssistantMessage = draft[id].messages.pop()!;
-          const newAssistantMessage: ShownMessage = {
+          const newAssistantMessage: UnrecordedMessage = {
             ...oldAssistantMessage,
             role: 'assistant',
             content: postProcessOutput(oldAssistantMessage.content),
             trace: oldAssistantMessage.trace,
             llmType: model?.modelId,
             metadata: oldAssistantMessage.metadata,
-            // webSearch情報を保持
-            webSearch: oldAssistantMessage.webSearch,
           };
           draft[id].messages.push(newAssistantMessage);
         });
@@ -741,40 +761,6 @@ const useChatState = create<{
     replaceMessages(id, messages);
   };
 
-  const migrateState = (fromId: string, toId: string) => {
-    set((state) => {
-      const currentChat = state.chats[fromId];
-      if (!currentChat) return state;
-
-      return {
-        chats: produce(state.chats, (draft) => {
-          // Copy state to the new key
-          draft[toId] = { ...currentChat };
-          // Delete the old key
-          delete draft[fromId];
-        }),
-        modelIds: produce(state.modelIds, (draft) => {
-          if (state.modelIds[fromId]) {
-            draft[toId] = state.modelIds[fromId];
-            delete draft[fromId];
-          }
-        }),
-        loading: produce(state.loading, (draft) => {
-          if (state.loading[fromId] !== undefined) {
-            draft[toId] = state.loading[fromId];
-            delete draft[fromId];
-          }
-        }),
-        writing: produce(state.writing, (draft) => {
-          if (state.writing[fromId] !== undefined) {
-            draft[toId] = state.writing[fromId];
-            delete draft[fromId];
-          }
-        }),
-      };
-    });
-  };
-
   return {
     chats: {},
     modelIds: {},
@@ -801,15 +787,6 @@ const useChatState = create<{
       }
 
       initChat(id, messages, chat);
-
-      // Restore model ID from the last assistant message
-      const lastAssistantMessage = messages
-        .filter((m) => m.role === 'assistant' && m.llmType)
-        .pop();
-
-      if (lastAssistantMessage?.llmType) {
-        setModelId(id, lastAssistantMessage.llmType);
-      }
     },
     updateSystemContext: (id: string, systemContext: string) => {
       set((state) => {
@@ -881,8 +858,7 @@ const useChatState = create<{
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       const unrecordedUserMessage: UnrecordedMessage = {
         role: 'user',
@@ -935,8 +911,7 @@ const useChatState = create<{
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
 
@@ -957,8 +932,7 @@ const useChatState = create<{
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       set((state) => {
         const newChats = produce(state.chats, (draft) => {
@@ -966,13 +940,11 @@ const useChatState = create<{
           const lastUserMessage = draft[id].messages.pop()!;
 
           // Clear the assistant message
-          const clearedAssistantMessage: ShownMessage = {
+          const clearedAssistantMessage: UnrecordedMessage = {
             ...lastAssistantMessage,
             content: '',
             trace: '',
             extraData: [],
-            // 編集時は古いwebSearch情報をクリア（新しい検索結果で上書きされる）
-            webSearch: undefined,
           };
 
           // Edit the user message
@@ -1003,8 +975,7 @@ const useChatState = create<{
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
 
@@ -1026,7 +997,6 @@ const useChatState = create<{
     addMessageIdsToUnrecordedMessages,
     replaceMessages,
     setPredictedTitle,
-    migrateState,
   };
 });
 
@@ -1065,32 +1035,12 @@ const useChat = (id: string, chatId?: string) => {
     addMessageIdsToUnrecordedMessages,
     replaceMessages,
     setPredictedTitle,
-    migrateState,
   } = useChatState();
   const { data: messagesData, isLoading: isLoadingMessage } =
     useChatApi().listMessages(chatId);
   const { data: chatData, isLoading: isLoadingChat } =
     useChatApi().findChatById(chatId);
   const { mutate: mutateChatList } = useChatList();
-  const { settings } = useSettings();
-
-  // カスタム指示をシステムコンテキストに追加するヘルパー関数
-  const applyCustomInstructions = useCallback(
-    (baseSystemContext: string): string => {
-      if (settings.customizeEnabled && settings.customInstructions.trim()) {
-        return `<instructions>
-${baseSystemContext}
-</instructions>
-<user_custom_instructions>
-${settings.customInstructions}
-</user_custom_instructions>`;
-      }
-      return `<instructions>
-${baseSystemContext}
-</instructions>`;
-    },
-    [settings.customizeEnabled, settings.customInstructions]
-  );
 
   useEffect(() => {
     // In the case of a new chat
@@ -1099,45 +1049,13 @@ ${baseSystemContext}
     }
   }, [init, id, chatId]);
 
-  // カスタム指示が変更されたときにシステムコンテキストを更新
-  useEffect(() => {
-    if (!chatId && chats[id]) {
-      const modelId = getModelId(id);
-      const prompter = getPrompter(modelId);
-      const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom =
-        applyCustomInstructions(baseSystemContext);
-      updateSystemContext(id, systemContextWithCustom);
-    }
-  }, [
-    settings.customizeEnabled,
-    settings.customInstructions,
-    applyCustomInstructions,
-    chatId,
-    chats,
-    id,
-    getModelId,
-    updateSystemContext,
-  ]);
-
   useEffect(() => {
     // In the case of a registered chat
-    // Skip restore if the chat was just created (state already migrated)
-    // Note: chatId from URL doesn't have 'chat#' prefix, but existingChat.chatId does
-    const existingChat = chats[id]?.chat;
-    const isJustCreated = existingChat?.chatId === `chat#${chatId}`;
-
-    if (
-      !isLoadingMessage &&
-      messagesData &&
-      !isLoadingChat &&
-      chatData &&
-      !isJustCreated
-    ) {
+    if (!isLoadingMessage && messagesData && !isLoadingChat && chatData) {
       restore(id, messagesData.messages, chatData.chat);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoadingMessage, isLoadingChat, chatId]);
+  }, [isLoadingMessage, isLoadingChat]);
 
   const filteredMessages = useMemo(() => {
     return chats[id]?.messages.filter((chat) => chat.role !== 'system') ?? [];
@@ -1161,23 +1079,9 @@ ${baseSystemContext}
     loadingMessages: isLoadingMessage,
     init: () => {
       init(id);
-      // カスタム指示を適用
-      const modelId = getModelId(id);
-      const prompter = getPrompter(modelId);
-      const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom =
-        applyCustomInstructions(baseSystemContext);
-      updateSystemContext(id, systemContextWithCustom);
     },
     clear: () => {
       clear(id);
-      // カスタム指示を適用
-      const modelId = getModelId(id);
-      const prompter = getPrompter(modelId);
-      const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom =
-        applyCustomInstructions(baseSystemContext);
-      updateSystemContext(id, systemContextWithCustom);
     },
     updateSystemContext: (systemContext: string) => {
       updateSystemContext(id, systemContext);
@@ -1185,10 +1089,7 @@ ${baseSystemContext}
     updateSystemContextByModel: () => {
       const modelId = getModelId(id);
       const prompter = getPrompter(modelId);
-      const baseSystemContext = prompter.systemContext(id);
-      const systemContextWithCustom =
-        applyCustomInstructions(baseSystemContext);
-      updateSystemContext(id, systemContextWithCustom);
+      updateSystemContext(id, prompter.systemContext(id));
     },
     getCurrentSystemContext: () => {
       return getCurrentSystemContext(id);
@@ -1214,8 +1115,7 @@ ${baseSystemContext}
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       post(
         id,
@@ -1230,44 +1130,7 @@ ${baseSystemContext}
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
-      );
-    },
-    postChatWithId: (
-      targetId: string,
-      content: string,
-      ignoreHistory: boolean = false,
-      preProcessInput:
-        | ((message: ShownMessage[]) => ShownMessage[])
-        | undefined = undefined,
-      postProcessOutput: ((message: string) => string) | undefined = undefined,
-      sessionId: string | undefined = undefined,
-      uploadedFiles: UploadedFileType[] | undefined = undefined,
-      extraData: ExtraData[] | undefined = undefined,
-      overrideModelType: Model['type'] | undefined = undefined,
-      setSessionId: (sessionId: string) => void = () => {},
-      base64Cache: Record<string, string> | undefined = undefined,
-      overrideModelParameters:
-        | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
-    ) => {
-      post(
-        targetId,
-        content,
-        mutateChatList,
-        ignoreHistory,
-        preProcessInput,
-        postProcessOutput,
-        sessionId,
-        uploadedFiles,
-        extraData,
-        overrideModelType,
-        setSessionId,
-        base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
     editChat: (
@@ -1285,8 +1148,7 @@ ${baseSystemContext}
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       edit(
         id,
@@ -1301,8 +1163,7 @@ ${baseSystemContext}
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
     continueGeneration: (
@@ -1319,8 +1180,7 @@ ${baseSystemContext}
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       continueGeneration(
         'continue',
@@ -1335,8 +1195,7 @@ ${baseSystemContext}
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
     retryGeneration: (
@@ -1353,8 +1212,7 @@ ${baseSystemContext}
       base64Cache: Record<string, string> | undefined = undefined,
       overrideModelParameters:
         | AdditionalModelRequestFields
-        | undefined = undefined,
-      webSearchEnabled: boolean | undefined = undefined
+        | undefined = undefined
     ) => {
       retryGeneration(
         'retry',
@@ -1369,8 +1227,7 @@ ${baseSystemContext}
         overrideModelType,
         setSessionId,
         base64Cache,
-        overrideModelParameters,
-        webSearchEnabled
+        overrideModelParameters
       );
     },
     sendFeedback: async (feedbackData: UpdateFeedbackRequest) => {
@@ -1388,9 +1245,10 @@ ${baseSystemContext}
     addChunkToAssistantMessage: (
       chunk: string,
       trace?: string,
-      model?: Model
+      model?: Model,
+      metadata?: Metadata
     ) => {
-      addChunkToAssistantMessage(id, chunk, trace, model);
+      addChunkToAssistantMessage(id, chunk, trace, model, metadata);
     },
     addMessageIdsToUnrecordedMessages: () => {
       return addMessageIdsToUnrecordedMessages(id);
@@ -1400,9 +1258,6 @@ ${baseSystemContext}
     },
     setPredictedTitle: async () => {
       await setPredictedTitle(id);
-    },
-    migrateState: (newId: string) => {
-      migrateState(id, newId);
     },
   };
 };

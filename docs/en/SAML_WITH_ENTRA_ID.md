@@ -171,8 +171,7 @@ The configuration has been added.
 
 Now that the configuration is complete, modify the values in cdk.json.
 
-- samlAuthEnabled: Specify `true` to enable SAML authentication. If this is `true` and `samlDefaultAuthEnabled` is `false`, the conventional authentication function using Cognito user pools will no longer be available.
-- samlDefaultAuthEnabled: When `true` along with `samlAuthEnabled`, users can choose between SAML and the default Cognito user pool authentication on the login screen.
+- samlAuthEnabled: Specify `true`. This switches to a SAML-specific authentication screen, and the conventional authentication function using Cognito user pools will no longer be available.
 - samlCognitoDomainName: Enter the Cognito Domain name specified in ["Cognito Configuration: Domain Setup"](#cognito-configuration-domain-setup).
 - samlCognitoFederatedIdentityProviderName: Enter the Identity Provider name configured in ["Cognito Configuration: Federation"](#cognito-configuration-federation).
 
@@ -180,7 +179,6 @@ Now that the configuration is complete, modify the values in cdk.json.
   "context": {
 　　 <omitted>
     "samlAuthEnabled": true,
-    "samlDefaultAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "EntraID",
 ```

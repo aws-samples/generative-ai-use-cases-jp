@@ -15,8 +15,7 @@ export type InvokeStreamInterface = (
   model: Model,
   messages: UnrecordedMessage[],
   id: string,
-  idToken?: string,
-  webSearchEnabled?: boolean
+  idToken?: string
 ) => AsyncIterable<string>;
 
 // Return Base64 encoded image

@@ -200,13 +200,16 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   }, [selectItems, values, setValue]);
 
   useEffect(() => {
-    setModelId(
-      availableModels.includes(props.modelId ?? '')
-        ? props.modelId!
-        : availableModels[0]
-    );
+    const targetModelId =
+      props.fixedModelId || props.modelId || availableModels[0];
+
+    if (availableModels.includes(targetModelId)) {
+      setModelId(targetModelId);
+    } else {
+      setModelId(availableModels[0]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableModels, props.modelId, pathname]);
+  }, [availableModels, props.modelId, props.fixedModelId, pathname]);
 
   useEffect(() => {
     setTypingTextInput(text);
@@ -417,11 +420,11 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
 
   const accept = useMemo(() => {
     if (!modelId) return [];
-    const feature = MODELS.modelMetadata[modelId].flags;
+    const feature = MODELS.getModelMetadata(modelId);
     return [
-      ...(feature.doc ? fileLimit.accept.doc : []),
-      ...(feature.image ? fileLimit.accept.image : []),
-      ...(feature.video ? fileLimit.accept.video : []),
+      ...(feature.flags.doc ? fileLimit.accept.doc : []),
+      ...(feature.flags.image ? fileLimit.accept.image : []),
+      ...(feature.flags.video ? fileLimit.accept.video : []),
     ];
   }, [modelId]);
 
@@ -454,13 +457,18 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
   const handleDragOver = (event: React.DragEvent) => {
     // When a file is dragged, display the overlay
     event.preventDefault();
+    event.stopPropagation();
     setIsOver(true);
   };
 
   const handleDragLeave = (event: React.DragEvent) => {
     // When a file is dragged, hide the overlay
+    event.stopPropagation();
     event.preventDefault();
-    setIsOver(false);
+
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setIsOver(false);
+    }
   };
 
   const handleDrop = (event: React.DragEvent) => {
@@ -578,7 +586,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
       )}
       {!props.isLoading && (
         <>
-          <div className="flex flex-col">
+          <div className="flex flex-col ">
             {textFormItems.map((item, idx) => (
               <div key={idx}>
                 {(item.inputType === 'text' || item.inputType === 'form') && (
@@ -620,7 +628,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
                   ref={fileInput}
                 />
                 <div
-                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer'} flex w-fit items-center justify-center rounded-lg border px-2 py-1 text-white`}>
+                  className={`${uploading ? 'bg-gray-300' : 'bg-aws-smile cursor-pointer '} flex w-fit items-center justify-center rounded-lg border px-2 py-1 text-white`}>
                   {uploading ? (
                     <PiSpinnerGap className="animate-spin" />
                   ) : (
@@ -709,7 +717,7 @@ const UseCaseBuilderView: React.FC<Props> = (props) => {
             </>
           )}
         </div>
-        <div className="flex shrink-0 gap-3">
+        <div className="flex shrink-0 gap-3 ">
           {stopReason === 'max_tokens' && (
             <Button onClick={continueGeneration}>
               {t('translate.continue_output')}

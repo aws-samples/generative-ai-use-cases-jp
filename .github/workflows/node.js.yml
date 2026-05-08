@@ -1,0 +1,40 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js(Web + CDK) CI
+
+on:
+  push:
+    branches: ['main']
+    paths-ignore: ['browser-extension/**']
+  pull_request:
+    branches: ['main']
+    paths-ignore: ['browser-extension/**']
+
+jobs:
+  check-lint-build:
+    name: 'Check test, lint and build'
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    env:
+      CDK_DEFAULT_ACCOUNT: 123456789012
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test
+      - run: npm run custom-lint:build
+      - run: npm run web:lint
+      - run: npm run cdk:lint
+      - run: npm run web:build
+      - run: npm run cdk:test
+      - run: npm -w packages/cdk run cdk synth

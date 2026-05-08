@@ -19,13 +19,11 @@ export const handler = awslambda.streamifyResponse(
   async (event, responseStream, context) => {
     context.callbackWaitsForEmptyEventLoop = false;
     const model = event.model || defaultModel;
-
     for await (const token of api[model.type].invokeStream?.(
       model,
       event.messages,
       event.id,
-      event.idToken,
-      event.webSearchEnabled
+      event.idToken
     ) ?? []) {
       responseStream.write(token);
     }

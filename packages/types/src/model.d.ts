@@ -23,10 +23,10 @@ export type FeatureFlags = {
 export type ModelConfiguration = {
   modelId: string;
   region: string;
+  inferenceProfileArn?: string;
 };
 
 export type ModelMetadata = {
   flags: FeatureFlags;
   displayName: string;
-  description?: string;
 };

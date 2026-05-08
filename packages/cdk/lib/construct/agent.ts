@@ -18,12 +18,14 @@ import { CfnAgent, CfnAgentAlias } from 'aws-cdk-lib/aws-bedrock';
 import { Agent as AgentType } from 'generative-ai-use-cases';
 import { LAMBDA_RUNTIME_NODEJS } from '../../consts';
 import { StackInput } from '../stack-input';
+import { IVpc } from 'aws-cdk-lib/aws-ec2';
 
 interface AgentProps {
   // Context Params
   readonly searchAgentEnabled: boolean;
   readonly searchApiKey?: string | null;
   readonly searchEngine?: StackInput['searchEngine'];
+  readonly vpc?: IVpc;
 }
 
 export class Agent extends Construct {
@@ -90,12 +92,15 @@ export class Agent extends Construct {
             SEARCH_API_KEY: searchApiKey ?? '',
             SEARCH_ENGINE: searchEngine,
           },
+          vpc: props.vpc,
         }
       );
       bedrockAgentLambda.grantInvoke(
         new ServicePrincipal('bedrock.amazonaws.com')
       );
 
+      const searchAgentName = 'SearchEngine';
+      const searchAgentDescription = 'Agent with Web Search Functionality';
       const searchAgent = new CfnAgent(this, 'SearchAgent', {
         agentName: `SearchEngineAgent-${suffix}`,
         actionGroups: [
@@ -120,7 +125,7 @@ export class Agent extends Construct {
         agentResourceRoleArn: bedrockAgentRole.roleArn,
         idleSessionTtlInSeconds: 3600,
         autoPrepare: true,
-        description: 'Search Agent',
+        description: searchAgentDescription,
         foundationModel: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0',
         instruction: `You are an advanced assistant with the ability to search and retrieve information from the web to perform complex research tasks.
 Your main function is to solve problems and meet user requests by utilizing these capabilities.
@@ -143,13 +148,17 @@ Automatically detect the language of the user's request and think and answer in 
       });
 
       this.agents.push({
-        displayName: 'SearchEngine',
+        displayName: searchAgentName,
         agentId: searchAgent.attrAgentId,
         aliasId: searchAgentAlias.attrAgentAliasId,
+        description: searchAgentDescription,
       });
     }
 
     // Code Interpreter Agent
+    const codeInterpreterAgentName = 'CodeInterpreter';
+    const codeInterpreterAgentDescription =
+      'Agent with Code Interpreter Functionality';
     const codeInterpreterAgent = new CfnAgent(this, 'CodeInterpreterAgent', {
       agentName: `CodeInterpreterAgent-${suffix}`,
       actionGroups: [
@@ -211,9 +220,10 @@ Automatically detect the language of the user's request and think and answer in 
     );
 
     this.agents.push({
-      displayName: 'CodeInterpreter',
+      displayName: codeInterpreterAgentName,
       agentId: codeInterpreterAgent.attrAgentId,
       aliasId: codeInterpreterAgentAlias.attrAgentAliasId,
+      description: codeInterpreterAgentDescription,
     });
   }
 }

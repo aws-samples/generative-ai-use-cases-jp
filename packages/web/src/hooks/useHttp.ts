@@ -1,28 +1,18 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosResponse, AxiosRequestConfig } from 'axios';
 import useSWR, { SWRConfiguration } from 'swr';
 import useSWRInfinite from 'swr/infinite';
-import {
-  performLogoutAndReload,
-  isRoleMismatchError,
-  isAuthorizationError,
-} from '../utils/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_APP_API_ENDPOINT,
 });
 
-// HTTP Request Preprocessing
+// // HTTP Request Preprocessing
 api.interceptors.request.use(async (config) => {
-  try {
-    // If Authenticated, append ID Token to Request Header
-    const session = await fetchAuthSession();
-    const token = session.tokens?.idToken?.toString();
-    if (token) {
-      config.headers['Authorization'] = token;
-    }
-  } catch (error) {
-    console.warn('[useHttp] Failed to get auth session:', error);
+  // If Authenticated, append ID Token to Request Header
+  const token = (await fetchAuthSession()).tokens?.idToken?.toString();
+  if (token) {
+    config.headers['Authorization'] = token;
   }
 
   config.headers['Content-Type'] = 'application/json';
@@ -30,77 +20,6 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// HTTP Response Preprocessing - Combined auth failure and role mismatch handling
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    // If we get a 401 and haven't already retried, try to refresh the session
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Try to get a fresh session
-        const session = await fetchAuthSession({ forceRefresh: true });
-        const token = session.tokens?.idToken?.toString();
-
-        if (token) {
-          originalRequest.headers['Authorization'] = token;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        console.warn('[useHttp] Token refresh failed:', refreshError);
-      }
-    }
-
-    // Handle role mismatch errors using centralized logic
-    if (isRoleMismatchError(error)) {
-      // Skip role mismatch handling for specific endpoints that should handle their own errors
-      const requestUrl = originalRequest.url || '';
-      if (
-        requestUrl.includes('/validate-domains') ||
-        requestUrl.includes('/admin/users/invite')
-      ) {
-        return Promise.reject(error);
-      }
-
-      console.log(
-        '[useHttp] Role mismatch detected, forcing re-authentication'
-      );
-
-      // Use centralized logout utility
-      await performLogoutAndReload(
-        'Role mismatch detected in HTTP interceptor'
-      );
-      return; // Don't propagate the error further
-    }
-
-    // Handle authorization errors (including IP restriction violations)
-    if (isAuthorizationError(error)) {
-      // Skip authorization error handling for specific endpoints that should handle their own errors
-      const requestUrl = originalRequest.url || '';
-      if (
-        requestUrl.includes('/validate-domains') ||
-        requestUrl.includes('/admin/users/invite')
-      ) {
-        return Promise.reject(error);
-      }
-
-      console.log(
-        '[useHttp] Authorization failure detected (possibly IP restriction), forcing sign-out'
-      );
-
-      // Use centralized logout utility
-      await performLogoutAndReload(
-        'IP restriction or authorization failure detected'
-      );
-      return; // Don't propagate the error further
-    }
-
-    return Promise.reject(error);
-  }
-);
 const fetcher = (url: string) => {
   return api.get(url).then((res) => res.data);
 };
@@ -112,7 +31,6 @@ const fetcher = (url: string) => {
 const useHttp = () => {
   return {
     api,
-    fetcher,
     /**
      * GET Request
      * Implemented with SWR
@@ -152,25 +70,19 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<import('axios').AxiosResponse<RES>>(
-        (resolve, reject) => {
-          api
-            .post<RES, import('axios').AxiosResponse<RES>, DATA>(
-              url,
-              data,
-              reqConfig
-            )
-            .then((data) => {
-              resolve(data);
-            })
-            .catch((err) => {
-              if (errorProcess) {
-                errorProcess(err);
-              }
-              reject(err);
-            });
-        }
-      );
+      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+        api
+          .post<RES, AxiosResponse<RES>, DATA>(url, data, reqConfig)
+          .then((data) => {
+            resolve(data);
+          })
+          .catch((err) => {
+            if (errorProcess) {
+              errorProcess(err);
+            }
+            reject(err);
+          });
+      });
     },
 
     /**
@@ -186,21 +98,19 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<import('axios').AxiosResponse<RES>>(
-        (resolve, reject) => {
-          api
-            .put<RES, import('axios').AxiosResponse<RES>, DATA>(url, data)
-            .then((data) => {
-              resolve(data);
-            })
-            .catch((err) => {
-              if (errorProcess) {
-                errorProcess(err);
-              }
-              reject(err);
-            });
-        }
-      );
+      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+        api
+          .put<RES, AxiosResponse<RES>, DATA>(url, data)
+          .then((data) => {
+            resolve(data);
+          })
+          .catch((err) => {
+            if (errorProcess) {
+              errorProcess(err);
+            }
+            reject(err);
+          });
+      });
     },
     /**
      * DELETE Request
@@ -213,69 +123,21 @@ const useHttp = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorProcess?: (err: any) => void
     ) => {
-      return new Promise<import('axios').AxiosResponse<RES>>(
-        (resolve, reject) => {
-          api
-            .delete<RES, import('axios').AxiosResponse<RES>, DATA>(url)
-            .then((data) => {
-              resolve(data);
-            })
-            .catch((err) => {
-              if (errorProcess) {
-                errorProcess(err);
-              }
-              reject(err);
-            });
-        }
-      );
+      return new Promise<AxiosResponse<RES>>((resolve, reject) => {
+        api
+          .delete<RES, AxiosResponse<RES>, DATA>(url)
+          .then((data) => {
+            resolve(data);
+          })
+          .catch((err) => {
+            if (errorProcess) {
+              errorProcess(err);
+            }
+            reject(err);
+          });
+      });
     },
   };
-};
-
-const usePagination = <T>(
-  url: string,
-  initialSize = 10,
-  options?: SWRConfiguration,
-  config?: AxiosRequestConfig
-) => {
-  const swr = useSWRInfinite<T>(
-    (pageIndex) => {
-      const query = `limit=${initialSize}&offset=${initialSize * pageIndex}`;
-      return url.indexOf('?') > 0 ? `${url}&${query}` : `${url}?${query}`;
-    },
-    (requestUrl) => {
-      return api.get(requestUrl, config).then((res) => res.data);
-    },
-    options
-  );
-
-  return {
-    ...swr,
-    hasMore: (() => {
-      if (!swr.data || swr.data.length === 0) return false;
-      const lastData = swr.data[swr.data.length - 1];
-      return Array.isArray(lastData) && lastData.length === initialSize;
-    })(),
-  };
-};
-
-const useSwrWithFetcher = <T>(url: string, options?: SWRConfiguration) => {
-  return useSWR<T>(url, fetcher, options);
-};
-
-const useSwrWithAPI = <T>(
-  url: string,
-  options?: SWRConfiguration,
-  config?: AxiosRequestConfig
-) => {
-  return useSWR<T>(
-    url,
-    (requestUrl) => {
-      return api.get(requestUrl, config).then((res) => res.data);
-    },
-    options
-  );
 };
 
 export default useHttp;
-export { usePagination, useSwrWithFetcher, useSwrWithAPI };

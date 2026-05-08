@@ -1,10 +1,9 @@
 import { useMemo, useCallback, useState } from 'react';
-import { getPrompter } from '../prompts';
-import { MODELS, findModelByModelId } from './useModel';
-import useChatApi from '../hooks/useChatApi';
+import { MODELS } from './useModel';
+import useTranslationCore from './useTranslationCore';
 
 const useOneshotTranslation = () => {
-  const { predict } = useChatApi();
+  const { translate } = useTranslationCore();
   const { modelIds, lightModelIds } = MODELS;
   const [translating, setTranslating] = useState(false);
 
@@ -12,56 +11,33 @@ const useOneshotTranslation = () => {
     return lightModelIds[0] ?? modelIds[0];
   }, [modelIds, lightModelIds]);
 
-  const translate = useCallback(
+  const translateOneshot = useCallback(
     async (sentence: string, language: string): Promise<string> => {
       if (translating) return '';
 
       setTranslating(true);
 
-      // Translate using the same mechanism (prompt) as the Translation use case.
-      // However, it will not remain in the conversation history.
-      const id = '/translate';
-      const prompter = getPrompter(translationModelId);
-      const systemPrompt = prompter.systemContext(id);
-      const translationPrompt = prompter.translatePrompt({
-        sentence,
-        language,
-        context: undefined,
-      });
-      const model = findModelByModelId(translationModelId);
-      const messages = [
-        {
-          role: 'system' as const,
-          content: systemPrompt,
-        },
-        {
-          role: 'user' as const,
-          content: translationPrompt,
-        },
-      ];
+      try {
+        const translated = await translate(sentence, {
+          modelId: translationModelId,
+          targetLanguage: language,
+          context: undefined,
+        });
 
-      const translatedWithTag = await predict({
-        model,
-        messages,
-        id,
-      });
-
-      const translated = translatedWithTag.replace(
-        /(<output>|<\/output>)/g,
-        ''
-      );
-
-      setTranslating(false);
-
-      return translated;
+        setTranslating(false);
+        return translated;
+      } catch (error) {
+        setTranslating(false);
+        return '';
+      }
     },
-    [translating, setTranslating, translationModelId, predict]
+    [translating, translationModelId, translate]
   );
 
   return {
     translating,
     setTranslating,
-    translate,
+    translate: translateOneshot,
   };
 };
 

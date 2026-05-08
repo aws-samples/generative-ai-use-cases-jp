@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  generic-agent-core-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      # AWS credentials (use your local credentials or set these)
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+
+      # Optional: S3 bucket for file uploads (set if you want to test file uploads)
+      - FILE_BUCKET=${FILE_BUCKET:-test-bucket}
+
+      # Agent Core Runtime specific
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+
+      - DISPLAY=:99
+      - CHROMIUM_PATH=/usr/bin/chromium
+    volumes:
+      # Mount source code for development (optional - remove for production)
+      - ./src:/var/task/src:ro
+      - ./app.py:/var/task/app.py:ro
+      - ./mcp.json:/var/task/mcp.json:ro
+
+      # Mount AWS credentials (optional - if using local AWS credentials)
+      - ~/.aws:/root/.aws:ro
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/ping']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped

@@ -11,21 +11,32 @@ type Props = RowItemProps & {
   options: {
     value: string;
     label: string;
+    tags?: string[];
   }[];
   help?: string;
   clearable?: boolean;
   fullWidth?: boolean;
   showColorChips?: boolean;
+  showTags?: boolean;
+  placeholder?: string;
   onChange: (value: string) => void;
 };
 
 const Select: React.FC<Props> = (props) => {
+  const selectedOption = useMemo(() => {
+    if (!props.value || props.value === '') return null;
+    return props.options.find((o) => o.value === props.value);
+  }, [props.options, props.value]);
+
   const selectedLabel = useMemo(() => {
-    if (!props.value || props.value === '') return '';
-    const selectedOption = props.options.find((o) => o.value === props.value);
     if (!selectedOption) return '';
     return selectedOption.label;
-  }, [props.options, props.value]);
+  }, [selectedOption]);
+
+  const selectedTags = useMemo(() => {
+    if (!selectedOption) return undefined;
+    return selectedOption.tags;
+  }, [selectedOption]);
 
   const onClear = useCallback(() => {
     props.onChange('');
@@ -43,19 +54,43 @@ const Select: React.FC<Props> = (props) => {
     </div>
   );
 
-  const OptionContent: React.FC<{ value: string; label: string }> = ({
-    value,
-    label,
-  }) => {
-    if (!props.showColorChips) return <>{label}</>;
+  const Tags: React.FC<{ tags: string[] }> = ({ tags }) => (
+    <div className="flex flex-row items-center gap-x-2">
+      {tags.map((tag, index) => (
+        <div
+          className="bg-aws-smile rounded-full px-2 py-0.5 text-xs text-white"
+          key={index}>
+          {tag}
+        </div>
+      ))}
+    </div>
+  );
 
-    const colors = value.split(',').map((color) => color.trim());
-    return (
-      <div className="flex items-center gap-2">
-        <ColorChips colors={colors} />
-        <span>{label}</span>
-      </div>
-    );
+  const OptionContent: React.FC<{
+    value: string;
+    label: string;
+    tags?: string[];
+  }> = ({ value, label, tags }) => {
+    if (props.showColorChips) {
+      const colors = value.split(',').map((color) => color.trim());
+      return (
+        <div className="flex items-center gap-2">
+          <ColorChips colors={colors} />
+          <span>{label}</span>
+        </div>
+      );
+    }
+
+    if (props.showTags) {
+      return (
+        <div className="flex w-full items-center gap-2">
+          <span className="line-clamp-1">{label}</span>
+          {tags && <Tags tags={tags} />}
+        </div>
+      );
+    }
+
+    return <>{label}</>;
   };
 
   return (
@@ -69,10 +104,18 @@ const Select: React.FC<Props> = (props) => {
       <Listbox value={props.value} onChange={props.onChange}>
         <div className="relative">
           <Listbox.Button
-            className={`relative h-8 cursor-pointer rounded border border-black/30 bg-white pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
+            className={`relative cursor-pointer rounded border border-black/30 bg-white py-1.5 pl-3 pr-10 text-left focus:outline-none ${props.fullWidth ? 'w-full' : 'w-fit'}`}>
             <span className="line-clamp-1">
-              {props.value && (
-                <OptionContent value={props.value} label={selectedLabel} />
+              {props.value ? (
+                <OptionContent
+                  value={props.value}
+                  label={selectedLabel}
+                  tags={selectedTags}
+                />
+              ) : (
+                <span className="text-gray-500">
+                  {props.placeholder || 'Select an option'}
+                </span>
               )}
             </span>
 
@@ -112,6 +155,7 @@ const Select: React.FC<Props> = (props) => {
                       <OptionContent
                         value={option.value}
                         label={option.label}
+                        tags={option.tags}
                       />
                     </span>
                     {selected ? (

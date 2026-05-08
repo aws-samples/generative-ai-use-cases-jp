@@ -5,6 +5,7 @@ import {
   ProcessedStackInput,
 } from './lib/stack-input';
 import { ModelConfiguration } from 'generative-ai-use-cases';
+import { loadBrandingConfig } from './branding';
 
 // Get parameters from CDK Context
 const getContext = (app: cdk.App): StackInput => {
@@ -71,5 +72,13 @@ export const getParams = (app: cdk.App): ProcessedStackInput => {
       params.speechToSpeechModelIds,
       params.modelRegion
     ),
+    endpointNames: convertToModelConfiguration(
+      params.endpointNames,
+      params.modelRegion
+    ),
+    // Process agentCoreRegion: null -> modelRegion
+    agentCoreRegion: params.agentCoreRegion || params.modelRegion,
+    // Load branding configuration
+    brandingConfig: loadBrandingConfig(),
   };
 };

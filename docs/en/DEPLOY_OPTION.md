@@ -569,6 +569,9 @@ const envs: Record<string, Partial<StackInput>> = {
 
 ### Enabling MCP Chat Use Case
 
+> [!WARNING]
+> The MCP Chat use case has been deprecated. Please use the AgentCore use case for MCP utilization. The MCP chat use case is scheduled for complete removal in v6.
+
 [MCP (Model Context Protocol)](https://modelcontextprotocol.io/introduction) is a protocol that connects LLM models with external data and tools.
 In GenU, we provide chat use cases that execute MCP-compliant tools using [Strands Agents](https://strandsagents.com/latest/).
 To enable MCP chat use cases, the `docker` command must be executable.
@@ -678,6 +681,133 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
+### Enabling AgentCore Use Case
+
+This is a use case for integrating with agents created in AgentCore. (Experimental: Breaking changes may be made without notice)
+
+Enabling `createGenericAgentCoreRuntime` will deploy the default AgentCore Runtime.
+By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
+
+The default agents available in AgentCore can use MCP servers defined in [generic/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/generic/mcp.json).
+
+The MCP servers defined by default are AWS-related MCP servers and MCP servers related to current time.
+For more details, please refer to [this documentation](https://awslabs.github.io/mcp/).
+To add MCP servers, add them to the aforementioned `generic/mcp.json`.
+
+You can use externally created AgentCore Runtimes with `agentCoreExternalRuntimes`.
+
+When accessing services outside AWS from AgentCore Runtime, use AgentCore Gateway.
+By specifying the Gateway ARN in `agentCoreGatewayArns`, an IAM policy following the principle of least privilege will be configured.
+After configuration, use `mcp-proxy-for-aws` in the MCP settings to specify the endpoint.
+For details, refer to the [mcp-proxy-for-aws documentation](https://github.com/aws/mcp-proxy-for-aws).
+
+To enable the AgentCore use case, the `docker` command must be executable.
+
+> [!WARNING]
+> On Linux machines using x86_64 CPUs (Intel, AMD, etc.), execute the following command before deploying:
+>
+> ```
+> docker run --privileged --rm tonistiigi/binfmt --install arm64
+> ```
+>
+> If you do not execute the above command, the following error will occur.
+> During the deployment process, ARM-based container images used by AgentCore Runtime are built. When building ARM container images on x86_64 CPUs, errors occur due to differences in CPU architecture.
+>
+> ```
+> ERROR: failed to solve: process "/bin/sh -c apt-get update -y && apt-get install curl nodejs npm graphviz -y" did not complete successfully: exit code: 255
+> AgentCoreStack: fail: docker build --tag cdkasset-64ba68f71e3d29f5b84d8e8d062e841cb600c436bb68a540d6fce32fded36c08 --platform linux/arm64 . exited with error code 1: #0 building with "default" instance using docker driver
+> ```
+>
+> Executing this command makes temporary configuration changes to the host's Linux Kernel. By registering QEMU custom handlers in Binary Format Miscellaneous (binfmt_misc), ARM container images can be built. The configuration reverts after a reboot, so re-execution is required when deploying again.
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    createGenericAgentCoreRuntime: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
+    agentCoreExternalRuntimes: [
+      {
+        name: 'AgentCore1',
+        arn: 'arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx',
+      },
+    ],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "createGenericAgentCoreRuntime": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ],
+    "agentCoreExternalRuntimes": [
+      {
+        "name": "AgentCore1",
+        "arn": "arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx"
+      }
+    ]
+  }
+}
+```
+
+### Enabling AgentBuilder Use Case
+
+This is a use case where users can freely create Agents for each use case by configuring system prompts and arbitrary MCPs. (Experimental: Breaking changes may be made without notice)
+
+Similar to the AgentCore use case, administrators pre-register MCPs in [agent-builder/mcp.json](packages/cdk/lambda-python/generic-agent-core-runtime/mcp-configs/agent-builder/mcp.json). Users can selectively use their preferred MCPs from those registered by administrators.
+
+Enabling `agentBuilderEnabled` will deploy the AgentCore Runtime for Agent Builder.
+By default, it is deployed to `modelRegion`, but you can override it by specifying `agentCoreRegion`.
+
+When accessing services outside AWS, use AgentCore Gateway.
+By specifying the Gateway ARN in `agentCoreGatewayArns`, an IAM policy following the principle of least privilege will be configured.
+After configuration, use `mcp-proxy-for-aws` in the MCP settings to specify the endpoint.
+For details, refer to the [mcp-proxy-for-aws documentation](https://github.com/aws/mcp-proxy-for-aws).
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    agentBuilderEnabled: true,
+    agentCoreRegion: 'us-west-2',
+    agentCoreGatewayArns: [
+      'arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>',
+    ],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+
+{
+  "context": {
+    "agentBuilderEnabled": true,
+    "agentCoreRegion": "us-west-2",
+    "agentCoreGatewayArns": [
+      "arn:aws:bedrock-agentcore:us-west-2:<account>:gateway/<gateway-id>"
+    ]
+  }
+}
+```
+
 ### Enabling Voice Chat Use Case
 
 > [!NOTE]
@@ -712,6 +842,13 @@ As of 2025/03, the multimodal models are:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-5-20251101-v1:0",
+"global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"global.anthropic.claude-haiku-4-5-20251001-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"us.anthropic.claude-haiku-4-5-20251001-v1:0"
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -719,6 +856,8 @@ As of 2025/03, the multimodal models are:
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"eu.anthropic.claude-haiku-4-5-20251001-v1:0"
 "eu.anthropic.claude-sonnet-4-20250514-v1:0",
 "eu.anthropic.claude-3-7-sonnet-20250219-v1:0",
 "eu.anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -730,10 +869,14 @@ As of 2025/03, the multimodal models are:
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+"jp.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"jp.anthropic.claude-haiku-4-5-20251001-v1:0",
+"qwen.qwen3-vl-235b-a22b",
 "us.meta.llama4-maverick-17b-instruct-v1:0",
 "us.meta.llama4-scout-17b-instruct-v1:0",
 "us.meta.llama3-2-90b-instruct-v1:0",
 "us.meta.llama3-2-11b-instruct-v1:0",
+"mistral.magistral-small-2509",
 "us.mistral.pixtral-large-2502-v1:0",
 "eu.mistral.pixtral-large-2502-v1:0",
 "amazon.nova-pro-v1:0",
@@ -741,10 +884,17 @@ As of 2025/03, the multimodal models are:
 "us.amazon.nova-premier-v1:0",
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "apac.amazon.nova-pro-v1:0",
-"apac.amazon.nova-lite-v1:0"
+"apac.amazon.nova-lite-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 At least one of these must be defined in `modelIds`.
@@ -876,6 +1026,10 @@ This solution supports the following text generation models:
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-4-5-20251101-v1:0",
+"global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+"global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
 "us.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
@@ -896,7 +1050,14 @@ This solution supports the following text generation models:
 "apac.anthropic.claude-3-sonnet-20240229-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20240620-v1:0",
 "apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+"deepseek.v3-v1:0",
 "us.deepseek.r1-v1:0",
+"qwen.qwen3-235b-a22b-2507-v1:0",
+"qwen.qwen3-32b-v1:0",
+"qwen.qwen3-coder-480b-a35b-v1:0",
+"qwen.qwen3-coder-30b-a3b-v1:0",
+"qwen.qwen3-next-80b-a3b",
+"qwen.qwen3-vl-235b-a22b",
 "us.writer.palmyra-x5-v1:0",
 "us.writer.palmyra-x4-v1:0",
 "amazon.titan-text-premier-v1:0",
@@ -919,11 +1080,13 @@ This solution supports the following text generation models:
 "mistral.mistral-small-2402-v1:0",
 "us.mistral.pixtral-large-2502-v1:0",
 "eu.mistral.pixtral-large-2502-v1:0",
-"anthropic.claude-v2:1",
-"anthropic.claude-v2",
-"anthropic.claude-instant-v1",
 "mistral.mixtral-8x7b-instruct-v0:1",
 "mistral.mistral-7b-instruct-v0:2",
+"mistral.mistral-large-3-675b-instruct",
+"mistral.ministral-3-3b-instruct",
+"mistral.ministral-3-8b-instruct",
+"mistral.ministral-3-14b-instruct",
+"mistral.magistral-small-2509",
 "amazon.nova-pro-v1:0",
 "amazon.nova-lite-v1:0",
 "amazon.nova-micro-v1:0",
@@ -931,12 +1094,24 @@ This solution supports the following text generation models:
 "us.amazon.nova-pro-v1:0",
 "us.amazon.nova-lite-v1:0",
 "us.amazon.nova-micro-v1:0",
+"us.amazon.nova-2-lite-v1:0",
 "eu.amazon.nova-pro-v1:0",
 "eu.amazon.nova-lite-v1:0",
 "eu.amazon.nova-micro-v1:0",
 "apac.amazon.nova-pro-v1:0",
 "apac.amazon.nova-lite-v1:0",
-"apac.amazon.nova-micro-v1:0"
+"apac.amazon.nova-micro-v1:0",
+"jp.amazon.nova-2-lite-v1:0",
+"global.amazon.nova-2-lite-v1:0",
+"openai.gpt-oss-120b-1:0",
+"openai.gpt-oss-20b-1:0",
+"google.gemma-3-4b-it",
+"google.gemma-3-12b-it",
+"google.gemma-3-27b-it",
+"minimax.minimax-m2",
+"moonshot.kimi-k2-thinking",
+"nvidia.nemotron-nano-9b-v2",
+"nvidia.nemotron-nano-12b-v2",
 ```
 
 This solution supports the following speech-to-speech models:
@@ -951,11 +1126,8 @@ This solution supports the following image generation models:
 "amazon.nova-canvas-v1:0",
 "amazon.titan-image-generator-v2:0",
 "amazon.titan-image-generator-v1",
-"stability.sd3-large-v1:0",
 "stability.sd3-5-large-v1:0",
-"stability.stable-image-core-v1:0",
 "stability.stable-image-core-v1:1",
-"stability.stable-image-ultra-v1:0",
 "stability.stable-image-ultra-v1:1",
 "stability.stable-diffusion-xl-v1",
 ```
@@ -1201,11 +1373,8 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       'amazon.titan-image-generator-v2:0',
       'amazon.titan-image-generator-v1',
-      'stability.sd3-large-v1:0',
       'stability.sd3-5-large-v1:0',
-      'stability.stable-image-core-v1:0',
       'stability.stable-image-core-v1:1',
-      'stability.stable-image-ultra-v1:0',
       'stability.stable-image-ultra-v1:1',
       'stability.stable-diffusion-xl-v1',
     ],
@@ -1236,11 +1405,8 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],
@@ -1280,11 +1446,8 @@ const envs: Record<string, Partial<StackInput>> = {
     imageGenerationModelIds: [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],
@@ -1322,11 +1485,8 @@ const envs: Record<string, Partial<StackInput>> = {
     "imageGenerationModelIds": [
       "amazon.titan-image-generator-v2:0",
       "amazon.titan-image-generator-v1",
-      "stability.sd3-large-v1:0",
       "stability.sd3-5-large-v1:0"
-      "stability.stable-image-core-v1:0",
       "stability.stable-image-core-v1:1",
-      "stability.stable-image-ultra-v1:0",
       "stability.stable-image-ultra-v1:1",
       "stability.stable-diffusion-xl-v1",
     ],
@@ -1370,32 +1530,21 @@ const envs: Record<string, StackInput> = {
 }
 ```
 
-## Using Custom Models with Amazon SageMaker
+## When you want to use Amazon SageMaker custom models
 
-You can use large language models deployed to Amazon SageMaker endpoints. This solution supports SageMaker endpoints using [Hugging Face's Text Generation Inference (TGI) LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Ideally, the models should support chat-formatted prompts where user and assistant take turns speaking. Currently, image generation use cases are not supported with Amazon SageMaker endpoints.
+It is possible to use large language models deployed to Amazon SageMaker endpoints. It supports SageMaker Endpoints using [Text Generation Inference (TGI) Hugging Face LLM inference containers](https://aws.amazon.com/blogs/machine-learning/announcing-the-launch-of-new-hugging-face-llm-inference-containers-on-amazon-sagemaker/). Since it uses TGI's [Message API](https://huggingface.co/docs/text-generation-inference/messages_api), TGI must be version 1.4.0 or later, and the model must support Chat Template (`chat_template` defined in `tokenizer.config`). Currently, only text models are supported.
 
-There are two ways to deploy models using TGI containers to SageMaker endpoints:
+There are currently two ways to deploy models using TGI containers to SageMaker endpoints.
 
-**Deploy pre-packaged models from SageMaker JumpStart**
+**Deploy pre-prepared models by AWS with SageMaker JumpStart**
 
-SageMaker JumpStart offers one-click deployment of packaged open-source large language models. You can deploy these models by opening them in the JumpStart screen in SageMaker Studio and clicking the "Deploy" button. Examples of Japanese models provided include:
-
-- [SageMaker JumpStart Elyza Japanese Llama 2 7B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart Elyza Japanese Llama 2 13B Instruct](https://aws.amazon.com/jp/blogs/news/sagemaker-jumpstart-elyza-7b/)
-- [SageMaker JumpStart CyberAgentLM2 7B Chat](https://aws.amazon.com/jp/blogs/news/cyberagentlm2-on-sagemaker-jumpstart/)
-- [SageMaker JumpStart Stable LM Instruct Alpha 7B v2](https://aws.amazon.com/jp/blogs/news/japanese-stable-lm-instruct-alpha-7b-v2-from-stability-ai-is-now-available-in-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Rinna 3.6B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
-- [SageMaker JumpStart Bilingual Rinna 4B](https://aws.amazon.com/jp/blogs/news/generative-ai-rinna-japanese-llm-on-amazon-sagemaker-jumpstart/)
+SageMaker JumpStart provides OSS large language models packaged for one-click deployment. You can open a model from the JumpStart screen in SageMaker Studio and deploy it by clicking the "Deploy" button.
 
 **Deploy with a few lines of code using SageMaker SDK**
 
-Thanks to [AWS's partnership with Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the model ID from Hugging Face using the SageMaker SDK.
+Through the [partnership between AWS and Hugging Face](https://aws.amazon.com/jp/blogs/news/aws-and-hugging-face-collaborate-to-make-generative-ai-more-accessible-and-cost-efficient/), you can deploy models by simply specifying the ID of models published on Hugging Face with the SageMaker SDK.
 
-From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see the code for deploying the model. Copy and run this code to deploy the model. (You may need to adjust parameters like instance size or `SM_NUM_GPUS` depending on the model. If deployment fails, you can check the logs in CloudWatch Logs.)
-
-> [!NOTE]
-> There's one modification needed when deploying: The endpoint name will be displayed in the GenU application and is used to determine the model's prompt template (explained in the next section). Therefore, you need to specify a distinguishable endpoint name.
-> Add `endpoint_name="<distinguishable endpoint name>"` as an argument to `huggingface_model.deploy()` when deploying.
+From a published Hugging Face model page, select _Deploy_ > _Amazon SageMaker_ to display the code for deploying the model. You can deploy the model by copying and executing this code. (Depending on the model, you may need to change parameters such as instance size or `SM_NUM_GPUS`. If deployment fails, you can check the logs from CloudWatch Logs)
 
 ![Select Amazon SageMaker from Deploy on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy.png)
 ![Deployment script guide on Hugging Face model page](../assets/DEPLOY_OPTION/HF_Deploy2.png)
@@ -1404,9 +1553,7 @@ From a model's Hugging Face page, select _Deploy_ > _Amazon SageMaker_ to see th
 
 To use deployed SageMaker endpoints with the target solution, specify them as follows:
 
-endpointNames is a list of SageMaker endpoint names. (Example: `["elyza-llama-2", "rinna"]`)
-
-To specify the prompt template used when constructing prompts in the backend, you need to include the prompt type in the endpoint name. (Example: `llama-2`, `rinna`, etc.) See `packages/cdk/lambda/utils/models.ts` for details. Add prompt templates as needed.
+`endpointNames` is a list of SageMaker endpoint names. Optionally you can specify region for each endpoint.
 
 ```typescript
 // parameter.ts
@@ -1414,8 +1561,11 @@ const envs: Record<string, Partial<StackInput>> = {
   dev: {
     modelRegion: 'us-east-1',
     endpointNames: [
-      'jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16',
-      'jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16',
+      '<SageMaker Endpoint Name>',
+      {
+        modelIds: '<SageMaker Endpoint Name>',
+        region: '<SageMaker Endpoint Region>',
+      },
     ],
   },
 };
@@ -1426,37 +1576,48 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "modelRegion": "<SageMaker Endpoint Region>",
-    "endpointNames": ["<SageMaker Endpoint Name>"]
-  }
-}
-```
-
-**Example: Using Rinna 3.6B and Bilingual Rinna 4B**
-
-```json
-// cdk.json
-{
-  "context": {
-    "modelRegion": "us-west-2",
     "endpointNames": [
-      "jumpstart-dft-hf-llm-rinna-3-6b-instruction-ppo-bf16",
-      "jumpstart-dft-bilingual-rinna-4b-instruction-ppo-bf16"
+      "<SageMaker Endpoint Name>",
+      {
+        "modelIds": "<SageMaker Endpoint Name>",
+        "region": "<SageMaker Endpoint Region>"
+      }
     ]
   }
 }
 ```
 
-**Example: Using ELYZA-japanese-Llama-2-7b-instruct**
+## Branding Customization
+
+You can customize the logo and title displayed on the landing page by creating a branding configuration file.
+
+### Configuration
+
+1. Create `packages/cdk/branding.json` with your custom settings:
 
 ```json
-// cdk.json
 {
-  "context": {
-    "modelRegion": "us-west-2",
-    "endpointNames": ["elyza-japanese-llama-2-7b-inference"]
-  }
+  "logoPath": "your-logo.svg",
+  "title": "Your Custom Title"
 }
 ```
+
+2. Place your custom SVG logo file in `packages/web/src/assets/`:
+
+```
+packages/web/src/assets/your-logo.svg
+```
+
+### Parameters
+
+- `logoPath` (optional): Filename of the SVG logo in `packages/web/src/assets/`
+- `title` (optional): Custom title text to display
+
+### Notes
+
+- If `branding.json` doesn't exist, default AWS logo and title are used
+- Only SVG format is supported for custom logos
+- The logo will be displayed at 80x80 pixels (size-20 class)
 
 ## Security-Related Settings
 
@@ -1486,16 +1647,19 @@ const envs: Record<string, Partial<StackInput>> = {
 }
 ```
 
-### Map Tenants for Self Sign-up
+### Restrict Email Domains for Sign-up
 
-Use `selfSignUpTenantMap` to control who can sign up and automatically tag users with a tenant ID.
+Specify a list of allowed domains in `allowedSignUpEmailDomains` (default is `null`).
 
-Each entry in the map consists of `tenantId` and optional `domains` or `emails`. When a user signs up, a Pre Sign-up Lambda checks the provided email address against the map:
+Specify values as a list of strings, and do not include "@" in each string. Users can sign up if their email domain matches any of the allowed domains. Specifying `null` means no restrictions, allowing all domains. Specifying `[]` prohibits all domains, preventing any email address from registering.
 
-- If the email or its domain matches an entry, the sign-up request continues. The tenant ID will then be attached to the user by a Post Confirmation Lambda.
-- If no entry matches, the sign-up request is rejected.
+When configured, users with non-allowed domains will receive an error when trying to "Create Account" on the web signup screen, preventing them from signing up for GenU. Also, attempting to "Create User" from the Cognito service screen in the AWS Management Console will result in an error.
 
-Configuration Example
+This does not affect users already created in Cognito. It only applies to new users attempting to sign up or be created.
+
+Configuration Examples
+
+- Example to allow sign-up only with email addresses with the `amazon.com` domain
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
@@ -1503,10 +1667,7 @@ Configuration Example
 // parameter.ts
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
-    selfSignUpTenantMap: [
-      { tenantId: 'tenant-a', domains: ['example.com'] },
-      { tenantId: 'tenant-b', emails: ['user@another.com'] },
-    ],
+    allowedSignUpEmailDomains: ['amazon.com'],
   },
 };
 ```
@@ -1517,16 +1678,31 @@ const envs: Record<string, Partial<StackInput>> = {
 // cdk.json
 {
   "context": {
-    "selfSignUpTenantMap": [
-      {
-        "tenantId": "tenant-a",
-        "domains": ["example.com"]
-      },
-      {
-        "tenantId": "tenant-b",
-        "emails": ["user@another.com"]
-      }
-    ]
+    "allowedSignUpEmailDomains": ["amazon.com"] // Change from null to specify allowed domains to enable
+  }
+}
+```
+
+- Example to allow sign-up with email addresses with either `amazon.com` or `amazon.jp` domains
+
+**Edit [parameter.ts](/packages/cdk/parameter.ts)**
+
+```typescript
+// parameter.ts
+const envs: Record<string, Partial<StackInput>> = {
+  dev: {
+    allowedSignUpEmailDomains: ['amazon.com', 'amazon.jp'],
+  },
+};
+```
+
+**Edit [packages/cdk/cdk.json](/packages/cdk/cdk.json)**
+
+```json
+// cdk.json
+{
+  "context": {
+    "allowedSignUpEmailDomains": ["amazon.com", "amazon.jp"] // Change from null to specify allowed domains to enable
   }
 }
 ```
@@ -1610,7 +1786,6 @@ You can integrate with SAML authentication features provided by IdPs such as Goo
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     samlAuthEnabled: true,
-    samlDefaultAuthEnabled: true,
     samlCognitoDomainName:
       'your-preferred-name.auth.ap-northeast-1.amazoncognito.com',
     samlCognitoFederatedIdentityProviderName: 'EntraID',
@@ -1625,15 +1800,13 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "samlAuthEnabled": true,
-    "samlDefaultAuthEnabled": true,
     "samlCognitoDomainName": "your-preferred-name.auth.ap-northeast-1.amazoncognito.com",
     "samlCognitoFederatedIdentityProviderName": "EntraID"
   }
 }
 ```
 
-- samlAuthEnabled: Setting to `true` enables SAML authentication. If this is enabled and `samlDefaultAuthEnabled` is `false`, the conventional authentication using Cognito user pools will no longer be available.
-- samlDefaultAuthEnabled: When `true` and SAML is enabled, users can choose between SAML and the default Cognito user pool authentication on the login screen.
+- samlAuthEnabled: Setting to `true` switches to a SAML-specific authentication screen. The conventional authentication using Cognito user pools will no longer be available.
 - samlCognitoDomainName: Specify the Cognito Domain name to be set in Cognito's App integration.
 - samlCognitoFederatedIdentityProviderName: Specify the Identity Provider name to be set in Cognito's Sign-in experience.
 
@@ -1748,6 +1921,41 @@ EventBridge rules are used for scheduling, and Step Functions for process contro
 >   - When creating a stack (executing cdk:deploy when GenerativeAiUseCasesStack doesn't exist), if `ragEnabled` is `true`, a Kendra index is created. Even if schedule times are set, the index is created. The index remains created until the next deletion schedule time.
 > - Currently, there's no feature to notify of startup/shutdown errors.
 > - Each time the index is recreated, the IndexId and DataSourceId change. If other services reference these, you'll need to adapt to these changes.
+
+### How to Set Tags
+
+GenU supports tags for cost management and other purposes. By default, the key name of the tag is set to `GenU`, but you can use a custom tag key by specifying `tagKey`. Here are examples of how to set them:
+
+Setting in `cdk.json`:
+
+```json
+// cdk.json
+  ...
+  "context": {
+    "tagKey": "MyProject",  // Custom tag key (optional, default is "GenU")
+    "tagValue": "dev",
+    ...
+```
+
+Setting in `parameter.ts`:
+
+```typescript
+    ...
+    tagKey: "MyProject",   // Custom tag key (optional, default is "GenU")
+    tagValue: "dev",
+    ...
+```
+
+However, tags cannot be used with some resources:
+
+- Cross-region inference model calls
+- Voice chat model calls
+
+When managing costs using tags, you need to enable “Cost allocation tags” by following these steps.
+
+- Open the “Billing and Cost Management” console.
+- Open “Cost Allocation Tags” in the left menu.
+- Activate the tag with the tag key “GenU” from “User-defined cost allocation tags.”
 
 ## Enabling Monitoring Dashboard
 
@@ -2028,3 +2236,8 @@ Configuration example
   }
 }
 ```
+
+## Using GenU from a Closed Network Environment
+
+To use GenU from a closed network environment, you need to deploy GenU in closed network mode.
+Please refer to [here](./CLOSED_NETWORK.md) for instructions on how to deploy GenU in closed network mode.

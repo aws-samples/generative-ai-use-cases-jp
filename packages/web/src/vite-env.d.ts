@@ -7,7 +7,6 @@ interface ImportMetaEnv {
   readonly VITE_APP_USER_POOL_CLIENT_ID: string;
   readonly VITE_APP_IDENTITY_POOL_ID: string;
   readonly VITE_APP_PREDICT_STREAM_FUNCTION_ARN: string;
-  readonly VITE_APP_ASSISTANT_MESSAGE_STREAM_FUNCTION_ARN: string;
   readonly VITE_APP_RAG_ENABLED: string;
   readonly VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED: string;
   readonly VITE_APP_AGENT_ENABLED: string;
@@ -21,10 +20,10 @@ interface ImportMetaEnv {
   readonly VITE_APP_VIDEO_MODEL_IDS: string;
   readonly VITE_APP_ENDPOINT_NAMES: string;
   readonly VITE_APP_SAMLAUTH_ENABLED: string;
-  readonly VITE_APP_SAML_DEFAULT_AUTH_ENABLED: string;
   readonly VITE_APP_SAML_COGNITO_DOMAIN_NAME: string;
   readonly VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME: string;
-  readonly VITE_APP_AGENT_NAMES: string;
+  readonly VITE_APP_BUILTIN_AGENTS_JSON: string;
+  readonly VITE_APP_CUSTOM_AGENTS_JSON: string;
   readonly VITE_APP_INLINE_AGENTS: string;
   readonly VITE_APP_USE_CASE_BUILDER_ENABLED: string;
   readonly VITE_APP_OPTIMIZE_PROMPT_FUNCTION_ARN: string;
@@ -34,8 +33,16 @@ interface ImportMetaEnv {
   readonly VITE_APP_SPEECH_TO_SPEECH_MODEL_IDS: string;
   readonly VITE_APP_MCP_ENABLED: string;
   readonly VITE_APP_MCP_ENDPOINT: string;
-  readonly VITE_APP_PPTX_ENABLED: string;
-  readonly VITE_APP_LITELLM_PROXY_ENABLED: string;
+  readonly VITE_APP_COGNITO_USER_POOL_PROXY_ENDPOINT: string;
+  readonly VITE_APP_COGNITO_IDENTITY_POOL_PROXY_ENDPOINT: string;
+  readonly VITE_APP_AGENT_CORE_ENABLED: string;
+  readonly VITE_APP_AGENT_CORE_GENERIC_RUNTIME: string;
+  readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_ENABLED: string;
+  readonly VITE_APP_AGENT_CORE_AGENT_BUILDER_RUNTIME: string;
+  readonly VITE_APP_AGENT_CORE_EXTERNAL_RUNTIMES: string;
+  readonly VITE_APP_BRANDING_LOGO_PATH: string;
+  readonly VITE_APP_BRANDING_TITLE: string;
+  readonly VITE_APP_MCP_SERVERS_CONFIG: string;
 }
 
 interface ImportMeta {
