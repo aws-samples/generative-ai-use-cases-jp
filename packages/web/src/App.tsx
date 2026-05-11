@@ -148,16 +148,14 @@ const App: React.FC = () => {
           to: '/agent-core',
           icon: <PiRobot />,
           display: 'usecase' as const,
-          sub: 'Experimental',
         }
       : null,
     agentBuilderEnabled
       ? {
-          label: 'Agent Builder',
+          label: 'AIエージェントビルダー',
           to: '/agent-builder',
           icon: <PiRobot />,
           display: 'usecase' as const,
-          sub: 'Experimental',
         }
       : null,
     flowChatEnabled
