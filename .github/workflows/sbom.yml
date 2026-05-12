@@ -1,0 +1,47 @@
+name: Generate SBOM
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate SBOM
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          npx @cyclonedx/cyclonedx-npm@6 --output-format JSON --output-file "sbom-${TAG_NAME}.json"
+
+      - name: Validate SBOM
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          FILE="sbom-${TAG_NAME}.json"
+          if [ ! -s "$FILE" ]; then
+            echo "::error::SBOM file is empty"
+            exit 1
+          fi
+          jq '.bomFormat' "$FILE"
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.ref_name }}
+          path: sbom-${{ github.ref_name }}.json
+          retention-days: 90
