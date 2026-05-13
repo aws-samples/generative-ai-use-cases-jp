@@ -14,3 +14,6 @@ site*/
 # Coding Asssitant
 .kiro/settings
 .kiro/specs
+
+# Git worktree directory
+worktree/
