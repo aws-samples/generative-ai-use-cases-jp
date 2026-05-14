@@ -152,7 +152,7 @@ const App: React.FC = () => {
       : null,
     agentBuilderEnabled
       ? {
-          label: 'AIエージェントビルダー',
+          label: t('agent_builder.title'),
           to: '/agent-builder',
           icon: <PiRobot />,
           display: 'usecase' as const,

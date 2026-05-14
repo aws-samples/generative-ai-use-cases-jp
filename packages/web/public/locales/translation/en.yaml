@@ -120,9 +120,10 @@ agent_builder:
   updated: Updated date
 agent_core:
   model: Model
+  no_runtimes_available: No runtimes available
   runtime: Runtime
-  start_conversation: Start a conversation with AgentCore
-  title: AgentCore
+  start_conversation: Start a conversation with AI Agent
+  title: AI Agent
 agent_dashboard: {}
 auth:
   loading: Loading...
@@ -453,6 +454,12 @@ drawer:
   generative_ai: Generative AI
   tools: Tools
   use_cases: Use Cases
+error:
+  streamingError:
+    ACCESS_DENIED: The selected model is not enabled. Please enable the model in the Amazon Bedrock console.
+    PAYLOAD_TOO_LARGE: The attached file is too large. Please reduce the file size or number of attachments and try again.
+    THROTTLING: The server is currently experiencing high traffic. Please try again later.
+    UNKNOWN_ERROR: An error occurred. Please try again or contact the administrator.
 feedback:
   additional_feedback: If you have any additional feedback, please enter it here. (optional)
   reason_error: Please select a reason.
@@ -865,7 +872,16 @@ meetingMinutes:
   no_transcript: No Transcript
   option: Option
   partial_indicator: (...)
+  prompt_title_placeholder: Enter a name for this prompt...
   record_transcribe: Record & Transcribe
+  save_as_prompt: Save as Custom Prompt
+  saved_prompt_body: Prompt Content
+  saved_prompt_created: Custom prompt saved
+  saved_prompt_delete_confirm: Delete this prompt?
+  saved_prompt_deleted: Custom prompt deleted
+  saved_prompt_prefix: ★
+  saved_prompt_title: Prompt Title
+  saved_prompt_updated: Custom prompt updated
   screen_audio_error: Screen Audio Error
   settings: Settings
   speech_recognition: Speech Recognition
@@ -891,6 +907,7 @@ meetingMinutes:
 model:
   parameters:
     reasoning_budget: Token budget for extended thinking
+    reasoning_effort: Thinking effort level
 navigation:
   agentChat: Agent Chat
   chat: Chat
@@ -965,6 +982,18 @@ rag:
   please_refer: .
   retrieving: Retrieving reference documents from Kendra...
   title: RAG Chat
+research:
+  description: Conducts various research tasks across industries using web search and creates detailed research reports.
+  general_research: General Research
+  general_research_desc: Researches information across a wide range of fields and provides comprehensive analysis
+  label: Research
+  mini_research: Quick Research
+  mini_research_desc: Quickly researches key points and provides concise answers
+  select_mode: Select a mode
+  start_conversation: Start conversation with Research Agent
+  technical_research: Technical Research
+  technical_research_desc: Conducts detailed technical research and analysis
+  title: Research
 setting:
   ai_items:
     agent_name: Agent Name
@@ -1036,6 +1065,15 @@ summarize:
   result_placeholder: Summarized text will be displayed here
   text_to_summarize: Text to summarize
   title: Summarize
+svg:
+  download_as_png: Download as PNG
+  download_as_svg: Download as SVG
+  invalid_syntax: Invalid SVG syntax
+  png_error: 'PNG output error: '
+  preview_alt: SVG Preview
+  show_code: Show Code
+  show_preview: Show Preview
+  svg_error: 'SVG output error: '
 transcribe:
   detailed_parameters: Detailed parameters
   direct_input: Direct Input

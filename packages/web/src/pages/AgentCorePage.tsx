@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import ChatMessage from '../components/ChatMessage';
 import Select from '../components/Select';
@@ -68,8 +68,9 @@ const useAgentCorePageState = create<StateType>((set) => {
 
 const AgentCorePage: React.FC = () => {
   const { t } = useTranslation();
-  const { agentArn } = useParams<{ agentArn?: string }>();
+  const { agentName } = useParams<{ agentName?: string }>();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { content, setContent } = useAgentCorePageState();
 
   const {
@@ -103,18 +104,16 @@ const AgentCorePage: React.FC = () => {
 
   const { clear: clearFiles, uploadFiles, uploadedFiles } = useFiles(pathname);
 
-  // Set the ARN from URL parameter or first available ARN as default
+  // Set the ARN from URL parameter (look up by name)
   useEffect(() => {
-    if (agentArn) {
-      // If agentArn is provided in URL, use it
-      const decodedArn = decodeURIComponent(agentArn);
-      setSelectedArn(decodedArn);
-    } else if (allAvailableRuntimes.length > 0 && !selectedArn) {
-      // Otherwise, use the first available ARN
-      setSelectedArn(allAvailableRuntimes[0].arn);
+    if (agentName && allAvailableRuntimes.length > 0) {
+      const decodedName = decodeURIComponent(agentName);
+      const runtime = allAvailableRuntimes.find((r) => r.name === decodedName);
+      if (runtime) {
+        setSelectedArn(runtime.arn);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agentArn, allAvailableRuntimes]);
+  }, [agentName, allAvailableRuntimes]);
 
   // Initialize system context and model ID only once on mount
   useEffect(() => {
@@ -214,41 +213,22 @@ const AgentCorePage: React.FC = () => {
     }
   };
 
-  // Prepare runtime options
+  // Prepare runtime options (only the selected runtime)
   const runtimeOptions = useMemo(() => {
-    // If agentArn is provided, only show that specific runtime
-    if (agentArn) {
-      const decodedArn = decodeURIComponent(agentArn);
-      const runtime = allAvailableRuntimes.find((r) => r.arn === decodedArn);
-      if (runtime) {
-        const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
-        const isExternal = externalRuntimes.some((r) => r.arn === runtime.arn);
-        return [
-          {
-            value: runtime.arn,
-            label: runtime.name,
-            tags: isGeneric
-              ? ['Generic']
-              : isExternal
-                ? ['External']
-                : undefined,
-          },
-        ];
-      }
-      return [];
-    }
-
-    // Otherwise, show all available runtimes
-    return allAvailableRuntimes.map((runtime) => {
-      const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
-      const isExternal = externalRuntimes.some((r) => r.arn === runtime.arn);
-      return {
+    if (!agentName) return [];
+    const decodedName = decodeURIComponent(agentName);
+    const runtime = allAvailableRuntimes.find((r) => r.name === decodedName);
+    if (!runtime) return [];
+    const isGeneric = genericRuntime && runtime.arn === genericRuntime.arn;
+    const isExternal = externalRuntimes.some((r) => r.arn === runtime.arn);
+    return [
+      {
         value: runtime.arn,
         label: runtime.name,
         tags: isGeneric ? ['Generic'] : isExternal ? ['External'] : undefined,
-      };
-    });
-  }, [agentArn, allAvailableRuntimes, genericRuntime, externalRuntimes]);
+      },
+    ];
+  }, [agentName, allAvailableRuntimes, genericRuntime, externalRuntimes]);
 
   // Prepare model options
   const modelOptions = useMemo(() => {
@@ -260,15 +240,11 @@ const AgentCorePage: React.FC = () => {
 
   // Calculate page title from runtime options
   const pageTitle = useMemo(() => {
-    if (agentArn && runtimeOptions.length > 0) {
-      // Find the runtime name from runtimeOptions
-      const runtime = runtimeOptions.find(
-        (option) => option.value === decodeURIComponent(agentArn)
-      );
-      return runtime ? runtime.label : t('agent_core.title', 'AgentCore');
+    if (agentName && runtimeOptions.length > 0) {
+      return runtimeOptions[0].label;
     }
     return t('agent_core.title', 'AgentCore');
-  }, [agentArn, runtimeOptions, t]);
+  }, [agentName, runtimeOptions, t]);
 
   const showingMessages = useMemo(() => {
     return messages;
@@ -279,7 +255,23 @@ const AgentCorePage: React.FC = () => {
       <div
         onDragOver={fileUpload ? handleDragOver : undefined}
         className={`${!isEmpty ? 'screen:pb-48' : ''} relative`}>
-        <div className="invisible my-0 flex h-0 items-center justify-center text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+        {agentName && (
+          <div className="flex items-center px-4 py-2 lg:hidden print:hidden">
+            <button
+              className="text-sm font-normal text-gray-500 hover:text-gray-800"
+              onClick={() => navigate('/agent-core')}>
+              {t('common.back')}
+            </button>
+          </div>
+        )}
+        <div className="invisible my-0 flex h-0 items-center justify-center gap-4 text-xl font-semibold lg:visible lg:my-5 lg:h-min print:visible print:my-5 print:h-min">
+          {agentName && (
+            <button
+              className="text-sm font-normal text-gray-500 hover:text-gray-800"
+              onClick={() => navigate('/agent-core')}>
+              {t('common.back')}
+            </button>
+          )}
           {pageTitle}
         </div>
 
@@ -299,19 +291,6 @@ const AgentCorePage: React.FC = () => {
 
         {/* Selection Controls */}
         <div className="my-2 flex w-full flex-col items-center justify-center gap-x-2 md:flex-row print:hidden">
-          {/* AgentCore Runtime Selection - Hide if specific agent is selected */}
-          {!agentArn && (
-            <div className="w-4/5 sm:w-1/2 md:w-fit">
-              <Select
-                value={selectedArn}
-                onChange={setSelectedArn}
-                options={runtimeOptions}
-                label={t('agent_core.runtime')}
-                fullWidth
-                showTags
-              />
-            </div>
-          )}
           {/* Model Selection */}
           <div className="w-4/5 sm:w-1/2 md:w-fit">
             <Select
