@@ -98,7 +98,7 @@ const AgentCorePage: React.FC = () => {
   const modelId = getModelId();
 
   const [selectedArn, setSelectedArn] = useState('');
-  const [sessionId] = useState(uuidv4());
+  const [sessionId, setSessionId] = useState(uuidv4());
   const [isOver, setIsOver] = useState(false);
   const [writing, setWriting] = useState(false);
 
@@ -186,6 +186,7 @@ const AgentCorePage: React.FC = () => {
     clear();
     setContent('');
     clearFiles();
+    setSessionId(uuidv4());
   }, [clear, clearFiles, setContent]);
 
   // Handle stop generation

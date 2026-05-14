@@ -77,7 +77,9 @@ const AgentChatUnified: React.FC<AgentChatProps> = ({
 
   // Generate session ID if not provided
   const { pathname } = useLocation();
-  const [sessionId] = useState(() => providedSessionId || uuidv4());
+  const [sessionId, setSessionId] = useState(
+    () => providedSessionId || uuidv4()
+  );
   const { scrollableContainer, setFollowing } = useFollow();
 
   // AgentCore for chat functionality
@@ -233,6 +235,7 @@ Please respond as this agent with the specified behavior and personality.`;
     clearChat();
     setChatContent('');
     clearFiles();
+    setSessionId(uuidv4());
   }, [clearChat, clearFiles]);
 
   // Handle drag and drop for files
