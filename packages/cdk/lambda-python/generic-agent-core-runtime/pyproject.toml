@@ -4,7 +4,7 @@ version = "0.0.1"
 requires-python = ">=3.12"
 dependencies = [
   "strands-agents>=1.0",
-  "strands-agents-tools[agent_core_code_interpreter,agent_core_browser]",
+  "strands-agents-tools[agent_core_code_interpreter,agent_core_browser]>=0.5.2",
   "boto3",
   "mcp",
   "fastapi",
