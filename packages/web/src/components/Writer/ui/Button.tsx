@@ -23,8 +23,7 @@ const sizes = {
   icon: 'h-10 w-10',
 } as const;
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: keyof typeof variants;
   size?: keyof typeof sizes;
   asChild?: boolean;
