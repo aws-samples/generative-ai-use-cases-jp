@@ -56,7 +56,7 @@
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.3.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "express": "^4.22.2",
     "node-html-parser": "^6.1.13",
     "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
