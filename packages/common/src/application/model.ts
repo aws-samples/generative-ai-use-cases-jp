@@ -118,6 +118,22 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_REASONING,
     displayName: 'Claude Opus 4',
   },
+  'global.anthropic.claude-opus-4-8': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.8',
+  },
+  'us.anthropic.claude-opus-4-8': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.8',
+  },
+  'eu.anthropic.claude-opus-4-8': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.8',
+  },
+  'jp.anthropic.claude-opus-4-8': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
+    displayName: 'Claude Opus 4.8',
+  },
   'global.anthropic.claude-opus-4-7': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_NO_SAMPLING,
     displayName: 'Claude Opus 4.7',
@@ -752,6 +768,7 @@ export const BEDROCK_SPEECH_TO_SPEECH_MODELS = Object.keys(
 // Prompt caching
 // https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html
 export const SUPPORTED_CACHE_FIELDS: Record<string, PromptCacheField[]> = {
+  'anthropic.claude-opus-4-8': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-7': ['messages', 'system', 'tools'],
   'anthropic.claude-opus-4-6-v1': ['messages', 'system', 'tools'],
   'anthropic.claude-sonnet-4-6': ['messages', 'system', 'tools'],
