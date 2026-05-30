@@ -27,6 +27,7 @@ import {
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { AgentCoreStack } from './agent-core-stack';
 import { ResearchAgentCoreStack } from './research-agent-core-stack';
+import { ClosedNetworkStack } from './closed-network-stack';
 import * as path from 'path';
 import { RemoteOutputs } from 'cdk-remote-stack';
 import { REMOTE_OUTPUT_KEYS } from './remote-output-keys';
@@ -60,6 +61,10 @@ export interface GenerativeAiUseCasesStackProps extends StackProps {
   readonly vpc?: IVpc;
   readonly apiGatewayVpcEndpoint?: InterfaceVpcEndpoint;
   readonly webBucket?: Bucket;
+  // ALB origin / web URL are read from this stack via cdk-remote-stack
+  // RemoteOutputs (no Fn::ImportValue, so no export-in-use deadlock when the
+  // custom domain is toggled).
+  readonly closedNetworkStack?: ClosedNetworkStack;
 }
 
 export class GenerativeAiUseCasesStack extends Stack {
@@ -396,8 +401,34 @@ export class GenerativeAiUseCasesStack extends Stack {
       brandingConfig: params.brandingConfig,
     });
 
-    // Update API handler with web URL for CORS
-    api.apiHandler.addEnvironment('ALLOWED_ORIGINS', web.webUrl);
+    // Update API handler with web URL for CORS.
+    // In closed network mode, web.webUrl is a placeholder ('CLOSED_NETWORK_MODE')
+    // because the real URL is owned by ClosedNetworkStack. Read it via
+    // RemoteOutputs (soft cross-stack ref, no Fn::ImportValue) and allow both
+    // the ALB DNS origin and the custom domain so an ALB-DNS test env can move
+    // to a domain with a single deploy and no CORS gap during the transition.
+    let allowedOrigins: string[] = [web.webUrl];
+    let displayWebUrl = web.webUrl;
+    if (props.closedNetworkStack) {
+      const closedNetworkOutputs = new RemoteOutputs(
+        this,
+        'ClosedNetworkRemoteOutputs',
+        {
+          stack: props.closedNetworkStack,
+          alwaysUpdate: true,
+          timeout: Duration.seconds(600),
+        }
+      );
+      const albOrigin = closedNetworkOutputs.get(
+        REMOTE_OUTPUT_KEYS.CLOSED_NETWORK_ALB_ORIGIN
+      );
+      const closedWebUrl = closedNetworkOutputs.get(
+        REMOTE_OUTPUT_KEYS.CLOSED_NETWORK_WEB_URL
+      );
+      allowedOrigins = [albOrigin, closedWebUrl];
+      displayWebUrl = closedWebUrl;
+    }
+    api.apiHandler.addEnvironment('ALLOWED_ORIGINS', allowedOrigins.join(','));
 
     // Cfn Outputs
     new CfnOutput(this, 'Region', {
@@ -405,7 +436,7 @@ export class GenerativeAiUseCasesStack extends Stack {
     });
 
     new CfnOutput(this, 'WebUrl', {
-      value: web.webUrl,
+      value: displayWebUrl,
     });
 
     new CfnOutput(this, 'ApiEndpoint', {

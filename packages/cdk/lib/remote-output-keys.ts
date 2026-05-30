@@ -15,4 +15,8 @@ export const REMOTE_OUTPUT_KEYS = {
   RESEARCH_AGENT_CORE_RUNTIME_ARN: 'ResearchAgentCoreRuntimeArn',
   RESEARCH_AGENT_CORE_RUNTIME_NAME: 'ResearchAgentCoreRuntimeName',
   RESEARCH_AGENT_FILE_BUCKET_NAME: 'ResearchAgentFileBucketName',
+
+  // Closed Network Stack
+  CLOSED_NETWORK_ALB_ORIGIN: 'ClosedNetworkAlbOrigin',
+  CLOSED_NETWORK_WEB_URL: 'ClosedNetworkWebUrl',
 } as const;

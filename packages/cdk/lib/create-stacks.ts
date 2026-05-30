@@ -192,6 +192,7 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
       vpc: closedNetworkStack?.vpc,
       apiGatewayVpcEndpoint: closedNetworkStack?.apiGatewayVpcEndpoint,
       webBucket: closedNetworkStack?.webBucket,
+      closedNetworkStack: closedNetworkStack || undefined,
     }
   );
 
@@ -201,6 +202,9 @@ export const createStacks = (app: cdk.App, params: ProcessedStackInput) => {
   }
   if (agentCoreStack) {
     generativeAiUseCasesStack.addDependency(agentCoreStack);
+  }
+  if (closedNetworkStack) {
+    generativeAiUseCasesStack.addDependency(closedNetworkStack);
   }
 
   // Tag all resources for IAM principal-based cost allocation

@@ -5,8 +5,14 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 // CORS middleware
+// Browsers lowercase the host portion of the Origin header per RFC, so we
+// compare case-insensitively — otherwise an ALB DNS name like
+// `internal-Closed-Close-...elb.amazonaws.com` (preserved from CDK construct
+// IDs) won't match the browser-sent `internal-closed-close-...` origin.
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').filter((o) => o.length > 0)
+  ? process.env.ALLOWED_ORIGINS.split(',')
+      .map((o) => o.trim().toLowerCase())
+      .filter((o) => o.length > 0)
   : [];
 app.use(
   cors({
@@ -19,7 +25,7 @@ app.use(
       if (
         !origin ||
         allowedOrigins.includes('*') ||
-        allowedOrigins.includes(origin)
+        allowedOrigins.includes(origin.toLowerCase())
       ) {
         callback(null, true);
       } else {

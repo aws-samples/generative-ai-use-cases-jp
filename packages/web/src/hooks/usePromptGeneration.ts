@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { AvailableMCPServer } from 'generative-ai-use-cases';
 import useChatApi from './useChatApi';
 import { parseStreamChunk, extractTextFromChunks } from '../utils/streamParser';
@@ -141,7 +142,7 @@ export const usePromptGeneration = (
             content: prompt,
           },
         ],
-        id: crypto.randomUUID(),
+        id: uuidv4(),
       })) {
         if (abortControllerRef.current?.signal.aborted) {
           break;
