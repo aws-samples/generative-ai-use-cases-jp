@@ -28,8 +28,8 @@
     "typescript": "~5.4.5"
   },
   "dependencies": {
-    "@aws-cdk/aws-bedrock-agentcore-alpha": "2.227.0-alpha.0",
-    "@aws-cdk/aws-lambda-python-alpha": "^2.220.0-alpha.0",
+    "@aws-cdk/aws-bedrock-agentcore-alpha": "2.257.0-alpha.0",
+    "@aws-cdk/aws-lambda-python-alpha": "^2.257.0-alpha.0",
     "@aws-sdk/client-bedrock-agent": "^3.1012.0",
     "@aws-sdk/client-bedrock-agent-runtime": "^3.1012.0",
     "@aws-sdk/client-bedrock-agentcore": "^3.1012.0",
@@ -47,11 +47,11 @@
     "@aws-sdk/lib-dynamodb": "^3.1012.0",
     "@aws-sdk/s3-request-presigner": "^3.1012.0",
     "@aws-solutions-constructs/aws-cloudfront-s3": "^2.68.0",
-    "@cdklabs/deploy-time-build": "^0.0.6",
+    "@cdklabs/deploy-time-build": "^0.1.4",
     "@smithy/node-http-handler": "^4.0.4",
     "@types/cors": "^2.8.19",
     "aws-amplify": "^6.14.2",
-    "aws-cdk-lib": "^2.221.0",
+    "aws-cdk-lib": "^2.257.0",
     "aws-jwt-verify": "^4.0.0",
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.3.0",
@@ -61,7 +61,7 @@
     "sanitize-html": "^2.13.0",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4",
-    "uuid": "13.0.0",
+    "uuid": "13.0.2",
     "ws": "^8.18.0",
     "zod": "^3.24.1"
   }

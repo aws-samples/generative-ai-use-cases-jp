@@ -227,6 +227,7 @@ export class Web extends Construct {
     }
 
     const build = new NodejsBuild(this, 'BuildWeb', {
+      nodejsVersion: 22,
       assets: [
         {
           path: '../../',
