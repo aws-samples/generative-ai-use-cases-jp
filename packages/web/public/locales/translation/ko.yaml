@@ -2,6 +2,12 @@ agent:
   drop_files: 파일을 드롭하여 업로드
   title: 에이전트 채팅
 agent_core:
+  agent_list: 에이전트 목록
+  description_label: 설명
+  model: 모델
+  no_agents: 사용 가능한 에이전트가 없습니다
+  runtime: 런타임
+  search_agents: 에이전트 검색...
   start_conversation: AgentCore와 대화 시작
   title: AgentCore
 auth:

@@ -110,8 +110,12 @@ agent_builder:
   tool_settings: ツール設定
   updated: 更新日
 agent_core:
+  agent_list: エージェント一覧
+  description_label: 説明
   model: モデル
+  no_agents: 利用可能なエージェントがありません
   runtime: ランタイム
+  search_agents: エージェントを検索...
   start_conversation: AgentCore と会話を始める
   title: AgentCore
 agent_dashboard: {}
