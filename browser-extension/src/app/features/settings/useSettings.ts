@@ -24,6 +24,8 @@ const useSettings = () => {
             enabledSelfSignUp: false,
             cognitoDomain: '',
             federatedIdentityProviderName: '',
+            modelIds: '',
+            modelId: '',
           };
         }
         if (key === 'enabledSamlAuth' || key === 'enabledSelfSignUp') {
@@ -65,6 +67,8 @@ const useSettings = () => {
       const federatedIdentityProviderName =
         value[SETTINGS_KEY]?.federatedIdentityProviderName ??
         import.meta.env.VITE_APP_SAML_COGNITO_FEDERATED_IDENTITY_PROVIDER_NAME;
+      const modelIds = value[SETTINGS_KEY]?.modelIds ?? import.meta.env.VITE_APP_MODEL_IDS ?? '';
+      const modelId = value[SETTINGS_KEY]?.modelId ?? import.meta.env.VITE_APP_MODEL_ID ?? '';
 
       setSettings({
         apiEndpoint: apiEndpoint ?? '',
@@ -77,6 +81,8 @@ const useSettings = () => {
         enabledSelfSignUp: enabledSelfSignUp ?? false,
         cognitoDomain: cognitoDomain ?? '',
         federatedIdentityProviderName: federatedIdentityProviderName ?? '',
+        modelIds: modelIds ?? '',
+        modelId: modelId ?? '',
       });
 
       // The required items differ depending on whether SAML authentication is enabled

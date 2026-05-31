@@ -7,6 +7,28 @@ import useAuth from '../common/hooks/useAuth';
 import Switch from '../common/components/Switch';
 import { IconWrapper } from '../../components/IconWrapper';
 
+const parseModelIds = (modelIds: string): string[] => {
+  try {
+    const parsed = JSON.parse(modelIds);
+    if (Array.isArray(parsed)) {
+      // ModelConfiguration[] format: [{modelId, region}, ...]
+      if (parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null) {
+        return parsed
+          .map((m: { modelId?: string }) => m.modelId?.trim())
+          .filter((id): id is string => !!id);
+      }
+      // string[] format
+      return parsed.filter((id): id is string => typeof id === 'string' && !!id.trim());
+    }
+  } catch {
+    // not JSON — treat as comma-separated
+  }
+  return modelIds
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+};
+
 type Props = {
   onBack: () => void;
 };
@@ -18,6 +40,10 @@ const Settings: React.FC<Props> = (props) => {
   const enabledSamlAuth = useMemo(() => {
     return settings?.enabledSamlAuth ?? false;
   }, [settings?.enabledSamlAuth]);
+
+  const modelIdList = useMemo(() => {
+    return parseModelIds(settings?.modelIds ?? '');
+  }, [settings?.modelIds]);
 
   return (
     <div className="p-2">
@@ -98,6 +124,32 @@ const Settings: React.FC<Props> = (props) => {
               }}
             />
           </>
+        )}
+        <InputText
+          label="モデルID一覧（ModelIds）"
+          value={settings?.modelIds ?? ''}
+          onChange={(val) => {
+            setSetting('modelIds', val);
+          }}
+        />
+        {modelIdList.length > 0 && (
+          <div>
+            <div className="text-xs text-aws-font-color-gray">使用するモデル</div>
+            <select
+              className="border bg-aws-squid-ink brightness-150 rounded h-8 w-full px-1"
+              value={settings?.modelId ?? ''}
+              onChange={(e) => {
+                setSetting('modelId', e.target.value);
+              }}
+            >
+              <option value="">-- モデルを選択 --</option>
+              {modelIdList.map((id) => (
+                <option key={id} value={id}>
+                  {id}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
       </div>
       <div className="flex justify-between">
