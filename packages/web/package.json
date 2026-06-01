@@ -73,7 +73,7 @@
     "tailwind-variants": "^0.3.1",
     "tiptap-markdown": "^0.9.0",
     "use-debounce": "^10.0.0",
-    "uuid": "^9.0.1",
+    "uuid": "^14.0.0",
     "vite-plugin-pwa": "0.21.1",
     "zustand": "^4.5.2"
   },
