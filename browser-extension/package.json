@@ -47,6 +47,14 @@
     "tailwind-merge": "^2.2.2",
     "webextension-polyfill": "^0.10.0"
   },
+  "overrides": {
+    "@crxjs/vite-plugin": {
+      "rollup": "2.80.0"
+    },
+    "vite-plugin-svgr": {
+      "rollup": "2.80.0"
+    }
+  },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.30",
     "@testing-library/jest-dom": "^5.16.5",

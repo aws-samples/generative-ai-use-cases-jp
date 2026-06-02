@@ -35,8 +35,8 @@ const useAgentBuilderList = () => {
   const isLoadingMyAgents = !myAgentsRaw && !myAgentsSWR.error;
   const canLoadMoreMyAgents = Boolean(
     myAgentsRaw &&
-      myAgentsRaw.length > 0 &&
-      myAgentsRaw[myAgentsRaw.length - 1]?.nextToken
+    myAgentsRaw.length > 0 &&
+    myAgentsRaw[myAgentsRaw.length - 1]?.nextToken
   );
   const loadMoreMyAgents = () => myAgentsSWR.setSize(myAgentsSWR.size + 1);
   const mutateMyAgents = myAgentsSWR.mutate;
@@ -56,8 +56,8 @@ const useAgentBuilderList = () => {
     !favoriteAgentsRaw && !favoriteAgentsSWR.error;
   const canLoadMoreFavoriteAgents = Boolean(
     favoriteAgentsRaw &&
-      favoriteAgentsRaw.length > 0 &&
-      favoriteAgentsRaw[favoriteAgentsRaw.length - 1]?.nextToken
+    favoriteAgentsRaw.length > 0 &&
+    favoriteAgentsRaw[favoriteAgentsRaw.length - 1]?.nextToken
   );
   const loadMoreFavoriteAgents = () =>
     favoriteAgentsSWR.setSize(favoriteAgentsSWR.size + 1);
@@ -77,8 +77,8 @@ const useAgentBuilderList = () => {
   const isLoadingPublicAgents = !publicAgentsRaw && !publicAgentsSWR.error;
   const canLoadMorePublicAgents = Boolean(
     publicAgentsRaw &&
-      publicAgentsRaw.length > 0 &&
-      publicAgentsRaw[publicAgentsRaw.length - 1]?.nextToken
+    publicAgentsRaw.length > 0 &&
+    publicAgentsRaw[publicAgentsRaw.length - 1]?.nextToken
   );
   const loadMorePublicAgents = () =>
     publicAgentsSWR.setSize(publicAgentsSWR.size + 1);
@@ -89,8 +89,9 @@ const useAgentBuilderList = () => {
   const agentCoreAgents: AgentConfiguration[] = externalRuntimes.map(
     (runtime: AgentCoreConfiguration) => ({
       agentId: runtime.arn, // Use ARN as unique ID
-      name: runtime.name,
-      description: t('agent_builder.external_agent_description'),
+      name: runtime.display_name || runtime.name,
+      description:
+        runtime.description || t('agent_builder.external_agent_description'),
       systemPrompt: '', // External agents don't have editable system prompts
       mcpServers: [],
       modelId: '',

@@ -119,8 +119,12 @@ agent_builder:
   tool_settings: Tool Settings
   updated: Updated date
 agent_core:
+  agent_list: Agent List
+  description_label: Description
   model: Model
+  no_agents: No agents available
   runtime: Runtime
+  search_agents: Search agents...
   start_conversation: Start a conversation with AgentCore
   title: AgentCore
 agent_dashboard: {}

@@ -32,6 +32,7 @@ import FlowChatPage from './pages/FlowChatPage';
 import VoiceChatPage from './pages/VoiceChatPage';
 import McpChatPage from './pages/McpChatPage';
 import AgentCorePage from './pages/AgentCorePage.tsx';
+import AgentCoreListPage from './pages/AgentCoreListPage.tsx';
 import ResearchAgentPage from './pages/ResearchAgentPage.tsx';
 import AgentBuilderListPage from './pages/agentBuilder/AgentBuilderListPage.tsx';
 import AgentBuilderEditPage from './pages/agentBuilder/AgentBuilderEditPage';
@@ -213,7 +214,7 @@ const routes: RouteObject[] = [
   agentCoreEnabled
     ? {
         path: '/agent-core',
-        element: <AgentCorePage />,
+        element: <AgentCoreListPage />,
       }
     : null,
   agentCoreEnabled

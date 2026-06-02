@@ -4,6 +4,7 @@ export type AgentCoreConfiguration = {
   name: string;
   arn: string;
   description: string;
+  display_name?: string;
 };
 
 // AgentCore Runtime Request (extended from Strands with additional fields)
