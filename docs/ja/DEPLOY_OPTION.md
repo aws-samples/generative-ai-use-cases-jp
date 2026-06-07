@@ -163,7 +163,11 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ### RAG チャット (Knowledge Base) ユースケースの有効化
 
 `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)  
-作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、OpenSearch Serverlessのナレッジベースが作成されます)
+作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、`ragKnowledgeBaseStorageType`で指定されたバックエンドでナレッジベースが作成されます)
+
+`ragKnowledgeBaseStorageType` でベクトルストアのバックエンドを選択できます。(デフォルトは `opensearch`)
+- `opensearch`: OpenSearch Serverless を使用（従来動作）
+- `s3vectors`: Amazon S3 Vectors を使用（低コスト、固定費なし）
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 
@@ -172,6 +176,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStorageType: 'opensearch', // 'opensearch' or 's3vectors'
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
@@ -190,6 +195,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStorageType": "opensearch", // "opensearch" or "s3vectors"
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,

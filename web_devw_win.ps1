@@ -65,6 +65,7 @@ $env:VITE_APP_FLOW_STREAM_FUNCTION_ARN = Extract-Value $stack_output "InvokeFlow
 $env:VITE_APP_FLOWS = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($(Extract-Value $stack_output "Flows")))
 $env:VITE_APP_RAG_ENABLED = Extract-Value $stack_output "RagEnabled"
 $env:VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED = Extract-Value $stack_output "RagKnowledgeBaseEnabled"
+$env:VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE = Extract-Value $stack_output "RagKnowledgeBaseStorageType"
 $env:VITE_APP_AGENT_ENABLED = Extract-Value $stack_output "AgentEnabled"
 $env:VITE_APP_SELF_SIGN_UP_ENABLED = Extract-Value $stack_output "SelfSignUpEnabled"
 $env:VITE_APP_MODEL_REGION = Extract-Value $stack_output "ModelRegion"

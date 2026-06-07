@@ -140,6 +140,7 @@ export class RagKnowledgeBaseStack extends Stack {
     const {
       env,
       embeddingModelId,
+      ragKnowledgeBaseStorageType,
       ragKnowledgeBaseStandbyReplicas,
       ragKnowledgeBaseAdvancedParsing,
       ragKnowledgeBaseAdvancedParsingModelId,
@@ -148,6 +149,8 @@ export class RagKnowledgeBaseStack extends Stack {
       tagKey,
       tagValue,
     } = props.params;
+
+    const useS3Vectors = ragKnowledgeBaseStorageType === 's3vectors';
 
     if (typeof embeddingModelId !== 'string') {
       throw new Error(
@@ -189,156 +192,192 @@ export class RagKnowledgeBaseStack extends Stack {
       );
     }
 
-    const collection = new oss.CfnCollection(this, 'Collection', {
-      name: collectionName,
-      description: 'GenU Collection',
-      type: 'VECTORSEARCH',
-      standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
-      // Do not specify tags here to avoid CloudFormation replacement errors
-    });
+    // OpenSearch resources (not needed when using S3 Vectors)
+    let collection: oss.CfnCollection | undefined;
+    let ossIndex: OpenSearchServerlessIndex | undefined;
+    let accessPolicy: oss.CfnAccessPolicy | undefined;
+    let networkPolicy: oss.CfnSecurityPolicy | undefined;
+    let encryptionPolicy: oss.CfnSecurityPolicy | undefined;
+    let tagApplier: lambda.SingletonFunction | undefined;
+    let applyTagsResource: cdk.CustomResource | undefined;
 
-    const ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
-      collectionId: collection.ref,
-      vectorIndexName,
-      vectorField,
-      textField,
-      metadataField,
-      vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
-      ragKnowledgeBaseBinaryVector,
-    });
-
-    ossIndex.customResourceHandler.addToRolePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-        actions: ['aoss:APIAccessAll'],
-      })
-    );
-
-    const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
-      name: collectionName,
-      policy: JSON.stringify([
-        {
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              Permission: [
-                'aoss:DescribeCollectionItems',
-                'aoss:CreateCollectionItems',
-                'aoss:UpdateCollectionItems',
-              ],
-              ResourceType: 'collection',
-            },
-            {
-              Resource: [`index/${collectionName}/*`],
-              Permission: [
-                'aoss:UpdateIndex',
-                'aoss:DescribeIndex',
-                'aoss:ReadDocument',
-                'aoss:WriteDocument',
-                'aoss:CreateIndex',
-                'aoss:DeleteIndex',
-              ],
-              ResourceType: 'index',
-            },
-          ],
-          Principal: [
-            knowledgeBaseRole.roleArn,
-            ossIndex.customResourceHandler.role?.roleArn,
-          ],
-          Description: '',
-        },
-      ]),
-      type: 'data',
-    });
-
-    const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
-      name: collectionName,
-      policy: JSON.stringify([
-        {
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'collection',
-            },
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'dashboard',
-            },
-          ],
-          AllowFromPublic: true,
-        },
-      ]),
-      type: 'network',
-    });
-
-    const encryptionPolicy = new oss.CfnSecurityPolicy(
-      this,
-      'EncryptionPolicy',
-      {
+    if (!useS3Vectors) {
+      collection = new oss.CfnCollection(this, 'Collection', {
         name: collectionName,
-        policy: JSON.stringify({
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'collection',
-            },
-          ],
-          AWSOwnedKey: true,
-        }),
-        type: 'encryption',
-      }
-    );
+        description: 'GenU Collection',
+        type: 'VECTORSEARCH',
+        standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
+        // Do not specify tags here to avoid CloudFormation replacement errors
+      });
 
-    collection.node.addDependency(accessPolicy);
-    collection.node.addDependency(networkPolicy);
-    collection.node.addDependency(encryptionPolicy);
-
-    // Since we need to apply tags directly through AWS SDK instead of CloudFormation
-    // We'll use a custom resource to apply tags after the collection is created
-    // This avoids CloudFormation attempting to replace the collection when adding tags
-
-    // Always create the tag applier custom resource to handle both tag application and removal
-    const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
-      runtime: LAMBDA_RUNTIME_NODEJS,
-      code: lambda.Code.fromAsset('custom-resources/apply-tags'),
-      handler: 'apply-tags.handler',
-      uuid: 'E2488E36-B465-4D1F-9D1C-89FB99F1CC01',
-      lambdaPurpose: 'ApplyTagsToResources',
-      timeout: cdk.Duration.minutes(5),
-    });
-
-    const applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
-      serviceToken: tagApplier.functionArn,
-      resourceType: 'Custom::ApplyTags',
-      properties: {
-        tag: {
-          key: tagKey || TAG_KEY,
-          value: tagValue || '', // Pass empty string when tagValue is unset
-        },
+      ossIndex = new OpenSearchServerlessIndex(this, 'OssIndex', {
         collectionId: collection.ref,
-        region: this.region,
-        accountId: this.account,
-      },
-    });
+        vectorIndexName,
+        vectorField,
+        textField,
+        metadataField,
+        vectorDimension: MODEL_VECTOR_MAPPING[embeddingModelId],
+        ragKnowledgeBaseBinaryVector,
+      });
 
-    // Ensure tag application happens after collection creation
-    applyTagsResource.node.addDependency(collection);
+      ossIndex.customResourceHandler.addToRolePolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+          actions: ['aoss:APIAccessAll'],
+        })
+      );
 
-    // Grant permissions to apply and remove tags
-    tagApplier.addToRolePolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [
-          `arn:aws:aoss:${this.region}:${this.account}:collection/${collection.ref}`,
-        ],
-        actions: [
-          'aoss:TagResource',
-          'aoss:UntagResource',
-          'aoss:ListTagsForResource',
-        ],
-      })
-    );
+      accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
+        name: collectionName,
+        policy: JSON.stringify([
+          {
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                Permission: [
+                  'aoss:DescribeCollectionItems',
+                  'aoss:CreateCollectionItems',
+                  'aoss:UpdateCollectionItems',
+                ],
+                ResourceType: 'collection',
+              },
+              {
+                Resource: [`index/${collectionName}/*`],
+                Permission: [
+                  'aoss:UpdateIndex',
+                  'aoss:DescribeIndex',
+                  'aoss:ReadDocument',
+                  'aoss:WriteDocument',
+                  'aoss:CreateIndex',
+                  'aoss:DeleteIndex',
+                ],
+                ResourceType: 'index',
+              },
+            ],
+            Principal: [
+              knowledgeBaseRole.roleArn,
+              ossIndex.customResourceHandler.role?.roleArn,
+            ],
+            Description: '',
+          },
+        ]),
+        type: 'data',
+      });
+
+      networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
+        name: collectionName,
+        policy: JSON.stringify([
+          {
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'collection',
+              },
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'dashboard',
+              },
+            ],
+            AllowFromPublic: true,
+          },
+        ]),
+        type: 'network',
+      });
+
+      encryptionPolicy = new oss.CfnSecurityPolicy(
+        this,
+        'EncryptionPolicy',
+        {
+          name: collectionName,
+          policy: JSON.stringify({
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'collection',
+              },
+            ],
+            AWSOwnedKey: true,
+          }),
+          type: 'encryption',
+        }
+      );
+
+      collection.node.addDependency(accessPolicy);
+      collection.node.addDependency(networkPolicy);
+      collection.node.addDependency(encryptionPolicy);
+
+      // Apply tags via AWS SDK to avoid CloudFormation replacement errors
+      tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
+        runtime: LAMBDA_RUNTIME_NODEJS,
+        code: lambda.Code.fromAsset('custom-resources/apply-tags'),
+        handler: 'apply-tags.handler',
+        uuid: 'E2488E36-B465-4D1F-9D1C-89FB99F1CC01',
+        lambdaPurpose: 'ApplyTagsToResources',
+        timeout: cdk.Duration.minutes(5),
+      });
+
+      applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
+        serviceToken: tagApplier.functionArn,
+        resourceType: 'Custom::ApplyTags',
+        properties: {
+          tag: {
+            key: tagKey || TAG_KEY,
+            value: tagValue || '', // Pass empty string when tagValue is unset
+          },
+          collectionId: collection.ref,
+          region: this.region,
+          accountId: this.account,
+        },
+      });
+
+      // Ensure tag application happens after collection creation
+      applyTagsResource.node.addDependency(collection);
+
+      // Grant permissions to apply and remove tags
+      tagApplier.addToRolePolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:aoss:${this.region}:${this.account}:collection/${collection.ref}`,
+          ],
+          actions: [
+            'aoss:TagResource',
+            'aoss:UntagResource',
+            'aoss:ListTagsForResource',
+          ],
+        })
+      );
+    }
+
+    // S3 Vectors resources (only created when using S3 Vectors)
+    let vectorBucket: cdk.CfnResource | undefined;
+    let vectorIndex: cdk.CfnResource | undefined;
+
+    if (useS3Vectors) {
+      vectorBucket = new cdk.CfnResource(this, 'S3VectorBucket', {
+        type: 'AWS::S3Vectors::VectorBucket',
+        properties: {
+          VectorBucketName: `genu-s3vectors-kb${env.toLowerCase()}`,
+        },
+      });
+
+      vectorIndex = new cdk.CfnResource(this, 'S3VectorIndex', {
+        type: 'AWS::S3Vectors::Index',
+        properties: {
+          VectorBucketName: `genu-s3vectors-kb${env.toLowerCase()}`,
+          IndexName: `genu-rag-kb-index${env.toLowerCase()}`,
+          DataType: 'float32',
+          Dimension: parseInt(MODEL_VECTOR_MAPPING[embeddingModelId], 10),
+          DistanceMetric: 'cosine',
+          MetadataConfiguration: {
+            NonFilterableMetadataKeys: ['AMAZON_BEDROCK_TEXT', 'AMAZON_BEDROCK_METADATA'],
+          },
+        },
+      });
+
+      vectorIndex.addDependency(vectorBucket);
+    }
 
     const accessLogsBucket = new s3.Bucket(this, 'DataSourceAccessLogsBucket', {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -368,13 +407,38 @@ export class RagKnowledgeBaseStack extends Stack {
       })
     );
 
-    knowledgeBaseRole.addToPolicy(
-      new iam.PolicyStatement({
-        effect: iam.Effect.ALLOW,
-        resources: [cdk.Token.asString(collection.getAtt('Arn'))],
-        actions: ['aoss:APIAccessAll'],
-      })
-    );
+    if (!useS3Vectors && collection) {
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [cdk.Token.asString(collection.getAtt('Arn'))],
+          actions: ['aoss:APIAccessAll'],
+        })
+      );
+    }
+
+    if (useS3Vectors) {
+      knowledgeBaseRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          resources: [
+            `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}`,
+            `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}/index/genu-rag-kb-index${env.toLowerCase()}`,
+          ],
+          actions: [
+            's3vectors:CreateIndex',
+            's3vectors:DeleteIndex',
+            's3vectors:GetIndex',
+            's3vectors:ListIndexes',
+            's3vectors:QueryVectors',
+            's3vectors:GetVectors',
+            's3vectors:PutVectors',
+            's3vectors:DeleteVectors',
+            's3vectors:ListVectors',
+          ],
+        })
+      );
+    }
 
     knowledgeBaseRole.addToPolicy(
       new iam.PolicyStatement({
@@ -410,18 +474,26 @@ export class RagKnowledgeBaseStack extends Stack {
             : {}),
         },
       },
-      storageConfiguration: {
-        type: 'OPENSEARCH_SERVERLESS',
-        opensearchServerlessConfiguration: {
-          collectionArn: cdk.Token.asString(collection.getAtt('Arn')),
-          fieldMapping: {
-            metadataField,
-            textField,
-            vectorField,
+      storageConfiguration: useS3Vectors
+        ? ({
+            type: 'S3_VECTORS',
+            s3VectorsConfiguration: {
+              bucketArn: `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}`,
+              indexArn: `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}/index/genu-rag-kb-index${env.toLowerCase()}`,
+            },
+          } as any)
+        : {
+            type: 'OPENSEARCH_SERVERLESS',
+            opensearchServerlessConfiguration: {
+              collectionArn: cdk.Token.asString(collection!.getAtt('Arn')),
+              fieldMapping: {
+                metadataField,
+                textField,
+                vectorField,
+              },
+              vectorIndexName,
+            },
           },
-          vectorIndexName,
-        },
-      },
     });
 
     new bedrock.CfnDataSource(this, 'DataSource', {
@@ -497,34 +569,47 @@ export class RagKnowledgeBaseStack extends Stack {
     });
 
     // Web Crawler Data Source (GenU documentation site as sample)
-    new bedrock.CfnDataSource(this, 'WebCrawlerDataSource', {
-      dataSourceConfiguration: {
-        type: 'WEB',
-        webConfiguration: {
-          sourceConfiguration: {
-            urlConfiguration: {
-              seedUrls: [
-                {
-                  url: 'https://aws-samples.github.io/generative-ai-use-cases/en/',
-                },
-              ],
+    // S3 Vectors backend does not support WEB data sources
+    if (!useS3Vectors) {
+      new bedrock.CfnDataSource(this, 'WebCrawlerDataSource', {
+        dataSourceConfiguration: {
+          type: 'WEB',
+          webConfiguration: {
+            sourceConfiguration: {
+              urlConfiguration: {
+                seedUrls: [
+                  {
+                    url: 'https://aws-samples.github.io/generative-ai-use-cases/en/',
+                  },
+                ],
+              },
             },
-          },
-          crawlerConfiguration: {
-            crawlerLimits: {
-              rateLimit: 300,
-              maxPages: 100,
+            crawlerConfiguration: {
+              crawlerLimits: {
+                rateLimit: 300,
+                maxPages: 100,
+              },
+              scope: 'HOST_ONLY',
             },
-            scope: 'HOST_ONLY',
           },
         },
-      },
-      knowledgeBaseId: knowledgeBase.ref,
-      name: 'web-crawler-data-source',
-    });
+        knowledgeBaseId: knowledgeBase.ref,
+        name: 'web-crawler-data-source',
+      });
+    }
 
-    knowledgeBase.addDependency(collection);
-    knowledgeBase.node.addDependency(ossIndex.customResource);
+    if (!useS3Vectors && collection && ossIndex) {
+      knowledgeBase.addDependency(collection);
+      knowledgeBase.node.addDependency(ossIndex.customResource);
+    }
+
+    if (useS3Vectors && vectorIndex) {
+      knowledgeBase.node.addDependency(vectorIndex);
+    }
+
+    // Ensure IAM policy is propagated before creating Knowledge Base
+    const defaultPolicy = knowledgeBaseRole.node.findChild('DefaultPolicy');
+    knowledgeBase.node.addDependency(defaultPolicy);
 
     new s3Deploy.BucketDeployment(this, 'DeployDocs', {
       sources: [s3Deploy.Source.asset('./rag-docs')],

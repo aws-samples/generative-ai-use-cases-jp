@@ -163,7 +163,11 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ### Enabling RAG Chat (Knowledge Base) Use Case
 
 Set `ragKnowledgeBaseEnabled` to `true`. (Default is `false`)  
-If you have an existing Knowledge Base, set `ragKnowledgeBaseId` to the knowledge base ID. (If `null`, an OpenSearch Serverless knowledge base will be created)
+If you have an existing Knowledge Base, set `ragKnowledgeBaseId` to the knowledge base ID. (If `null`, a knowledge base will be created with the backend specified by `ragKnowledgeBaseStorageType`)
+
+Use `ragKnowledgeBaseStorageType` to select the vector store backend. (Default is `opensearch`)
+- `opensearch`: Use OpenSearch Serverless (existing behavior)
+- `s3vectors`: Use Amazon S3 Vectors (low cost, no fixed fees)
 
 **Edit [parameter.ts](/packages/cdk/parameter.ts)**
 
@@ -172,6 +176,7 @@ If you have an existing Knowledge Base, set `ragKnowledgeBaseId` to the knowledg
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStorageType: 'opensearch', // 'opensearch' or 's3vectors'
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
@@ -189,6 +194,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStorageType": "opensearch", // "opensearch" or "s3vectors"
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
