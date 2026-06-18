@@ -255,6 +255,55 @@ describe('createMessages Lambda handler', () => {
     expect(mockedBatchCreateMessages).not.toHaveBeenCalled();
   });
 
+  test('returns 400 error when JSON filter value is a nested or empty array', async () => {
+    const userId = 'testUser';
+    const chatId = 'chat123';
+
+    mockedFindChatById.mockResolvedValue({
+      id: `user#${userId}`,
+      createdDate: '1234567890',
+      chatId: `chat#${chatId}`,
+      usecase: '',
+      title: '',
+      updatedDate: '',
+    });
+
+    const invalidValues = [[['Amazon Bedrock']], []];
+
+    for (const value of invalidValues) {
+      const messages: ToBeRecordedMessage[] = [
+        {
+          messageId: 'msg123',
+          role: 'user',
+          content: 'Hello, world!',
+          usecase: 'rag-knowledge-base',
+          extraData: [
+            {
+              type: 'json',
+              name: 'filter',
+              source: {
+                type: 'json',
+                mediaType: 'application/json',
+                data: JSON.stringify({ in: { key: 'tag', value } }),
+              },
+            },
+          ],
+        },
+      ];
+
+      const result = await handler(
+        createAPIGatewayProxyEvent({ messages }, chatId, userId)
+      );
+
+      expect(result.statusCode).toBe(400);
+      expect(JSON.parse(result.body)).toEqual({
+        message: 'Invalid extraData',
+      });
+    }
+
+    expect(mockedBatchCreateMessages).not.toHaveBeenCalled();
+  });
+
   // Test for unauthorized access
   test('returns 403 error when user does not have access to chat', async () => {
     const messages: ToBeRecordedMessage[] = [

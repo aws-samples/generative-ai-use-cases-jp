@@ -24,16 +24,22 @@ const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 };
 
-const isFilterValue = (value: unknown): boolean => {
-  if (
+const isScalarFilterValue = (value: unknown): boolean => {
+  return (
     typeof value === 'string' ||
     typeof value === 'number' ||
     typeof value === 'boolean'
-  ) {
+  );
+};
+
+const isFilterValue = (value: unknown): boolean => {
+  if (isScalarFilterValue(value)) {
     return true;
   }
 
-  return Array.isArray(value) && value.every(isFilterValue);
+  return (
+    Array.isArray(value) && value.length > 0 && value.every(isScalarFilterValue)
+  );
 };
 
 const isFilterAttribute = (value: unknown): boolean => {
