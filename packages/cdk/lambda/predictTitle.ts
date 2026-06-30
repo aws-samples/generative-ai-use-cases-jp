@@ -17,6 +17,18 @@ export const handler = async (
 
     const req = JSON.parse(event.body) as PredictTitleRequest;
 
+    console.log(
+      'predictTitle request:',
+      JSON.stringify({
+        hasPrompt: !!req.prompt,
+        chatId: req.chat?.chatId,
+        chatPK: req.chat?.id,
+        createdDate: req.chat?.createdDate,
+        usecase: req.chat?.usecase,
+        id: req.id,
+      })
+    );
+
     // Validation
     if (!req.prompt || !req.chat?.id || !req.chat?.createdDate || !req.id) {
       throw new Error('Invalid request format');
@@ -41,7 +53,12 @@ export const handler = async (
         '$2'
       ) ?? '';
 
-    await setChatTitle(req.chat.id, req.chat.createdDate, title);
+    await setChatTitle(
+      req.chat.id,
+      req.chat.createdDate,
+      title,
+      req.chat.usecase
+    );
 
     return {
       statusCode: 200,

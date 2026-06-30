@@ -17,7 +17,7 @@ chat:
   drop_files: วางไฟล์ที่นี่
   hint_cmd_enter: ⌘ + Enter เพื่อส่ง
   hint_ctrl_enter: Ctrl + Enter เพื่อส่ง
-  history: ประวัติการสนทนา
+  history: ประวัติ
   initialize: เริ่มต้นใหม่
   open_link: เปิดลิงก์
   prompt_examples: ตัวอย่าง prompt

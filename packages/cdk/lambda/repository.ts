@@ -384,8 +384,17 @@ export const batchCreateMessages = async (
 export const setChatTitle = async (
   id: string,
   createdDate: string,
-  title: string
+  title: string,
+  usecase?: string
 ) => {
+  const updateExprParts = ['title = :title'];
+  const exprValues: Record<string, string> = { ':title': title };
+
+  if (usecase) {
+    updateExprParts.push('usecase = :usecase');
+    exprValues[':usecase'] = usecase;
+  }
+
   const res = await dynamoDbDocument.send(
     new UpdateCommand({
       TableName: TABLE_NAME,
@@ -393,10 +402,8 @@ export const setChatTitle = async (
         id: id,
         createdDate: createdDate,
       },
-      UpdateExpression: 'set title = :title',
-      ExpressionAttributeValues: {
-        ':title': title,
-      },
+      UpdateExpression: `set ${updateExprParts.join(', ')}`,
+      ExpressionAttributeValues: exprValues,
       ReturnValues: 'ALL_NEW',
     })
   );
