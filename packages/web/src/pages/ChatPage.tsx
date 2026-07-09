@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import InputChatContent from '../components/InputChatContent';
 import useChat from '../hooks/useChat';
@@ -190,6 +196,14 @@ const ChatPage: React.FC = () => {
   const adaptiveThinking = useMemo(() => {
     return MODELS.getModelMetadata(modelId).flags.adaptiveThinking ?? false;
   }, [modelId]);
+  const adaptiveThinkingAlwaysOn = useMemo(() => {
+    return (
+      MODELS.getModelMetadata(modelId).flags.adaptiveThinkingAlwaysOn ?? false
+    );
+  }, [modelId]);
+  const xhighEffort = useMemo(() => {
+    return MODELS.getModelMetadata(modelId).flags.xhighEffort ?? false;
+  }, [modelId]);
   const reasoningEnabled = useMemo(() => {
     return (
       overrideModelParameters.reasoningConfig.type === 'enabled' ||
@@ -201,22 +215,43 @@ const ChatPage: React.FC = () => {
     return reasoning;
   }, [reasoning]);
 
-  // When model changes, update reasoning type if reasoning is already enabled
+  // Whether reasoning was force-enabled by an always-on model while the
+  // user had it disabled, so the disabled state can be restored later
+  const reasoningForcedByAlwaysOn = useRef(false);
+
+  // When model changes, update reasoning type if reasoning is already enabled.
+  // For models whose adaptive thinking is always on (e.g. Claude Sonnet 5),
+  // reasoning is force-enabled while the model is selected, and the user's
+  // original disabled state is restored when switching away.
   useEffect(() => {
-    if (reasoningEnabled) {
-      const newType = adaptiveThinking ? 'adaptive' : 'enabled';
-      if (overrideModelParameters.reasoningConfig.type !== newType) {
-        setOverrideModelParameters({
-          ...overrideModelParameters,
-          reasoningConfig: {
-            ...overrideModelParameters.reasoningConfig,
-            type: newType,
-          },
-        });
+    setOverrideModelParameters((prev) => {
+      const config = prev.reasoningConfig;
+      const enabled = config.type === 'enabled' || config.type === 'adaptive';
+
+      let newType = config.type;
+      if (adaptiveThinkingAlwaysOn) {
+        if (!enabled) {
+          reasoningForcedByAlwaysOn.current = true;
+        }
+        newType = 'adaptive';
+      } else if (reasoningForcedByAlwaysOn.current) {
+        reasoningForcedByAlwaysOn.current = false;
+        newType = 'disabled';
+      } else if (enabled) {
+        newType = adaptiveThinking ? 'adaptive' : 'enabled';
       }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adaptiveThinking]);
+
+      const newEffort =
+        config.effort === 'xhigh' && !xhighEffort ? 'high' : config.effort;
+      if (config.type === newType && config.effort === newEffort) {
+        return prev;
+      }
+      return {
+        ...prev,
+        reasoningConfig: { ...config, type: newType, effort: newEffort },
+      };
+    });
+  }, [adaptiveThinking, adaptiveThinkingAlwaysOn, xhighEffort]);
 
   useEffect(() => {
     const _modelId = !modelId ? availableModels[0] : modelId;
@@ -657,7 +692,7 @@ const ChatPage: React.FC = () => {
             fileUpload={fileUpload}
             fileLimit={fileLimit}
             accept={accept}
-            reasoning={reasoning}
+            reasoning={reasoning && !adaptiveThinkingAlwaysOn}
             onReasoningSwitched={onReasoningSwitched}
             reasoningEnabled={reasoningEnabled}
             setting={setting}
