@@ -5,6 +5,7 @@ import { LuNetwork } from 'react-icons/lu';
 import { IoIosClose, IoMdDownload } from 'react-icons/io';
 import { TbSvg, TbPng } from 'react-icons/tb';
 import mermaid, { MermaidConfig } from 'mermaid';
+import { v4 as uuidv4 } from 'uuid';
 
 import ButtonCopy from '../ButtonCopy';
 import Button from '../Button';
@@ -37,7 +38,7 @@ const Mermaid: React.FC<MermaidProps> = (props) => {
   const render = useCallback(async () => {
     if (code) {
       try {
-        const { svg } = await mermaid.render(`m${crypto.randomUUID()}`, code);
+        const { svg } = await mermaid.render(`m${uuidv4()}`, code);
         const parser = new DOMParser();
         const doc = parser.parseFromString(svg, 'image/svg+xml');
         const svgElement = doc.querySelector('svg');

@@ -45,6 +45,8 @@ extra_css:
 
 nav:
   - Overview: index.md
+  - Features:
+      - Chart Tool: CHART_TOOL.md
   - Getting started:
       - Deploy:
           - Quick Start: ABOUT.md

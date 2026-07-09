@@ -89,8 +89,9 @@ const useAgentBuilderList = () => {
   const agentCoreAgents: AgentConfiguration[] = externalRuntimes.map(
     (runtime: AgentCoreConfiguration) => ({
       agentId: runtime.arn, // Use ARN as unique ID
-      name: runtime.name,
-      description: t('agent_builder.external_agent_description'),
+      name: runtime.display_name || runtime.name,
+      description:
+        runtime.description || t('agent_builder.external_agent_description'),
       systemPrompt: '', // External agents don't have editable system prompts
       mcpServers: [],
       modelId: '',

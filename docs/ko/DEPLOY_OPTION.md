@@ -764,6 +764,13 @@ MCP 서버를 추가할 때는 앞서 언급한 `mcp.json`에 추가하세요.
 
 `agentCoreExternalRuntimes`를 사용하면 외부에서 생성된 AgentCore Runtime을 사용할 수 있습니다.
 
+각 항목에는 다음 필드를 지정할 수 있습니다.
+
+- `name` (필수): 런타임의 식별자. AgentCore Runtime의 이름은 영숫자와 언더스코어만 사용할 수 있습니다.
+- `arn` (필수): AgentCore Runtime의 ARN.
+- `display_name` (선택): UI에 표시되는 이름. `name`을 변경하지 않고 한국어 등 더 알기 쉬운 표시명을 설정할 수 있습니다.
+- `description` (필수): 에이전트의 설명. 에이전트 목록 화면과 채팅 화면 상단에 표시되어 사용자가 각 에이전트의 역할을 한눈에 파악할 수 있습니다.
+
 AgentCore 사용 사례를 활성화하려면 `docker` 명령을 실행할 수 있어야 합니다.
 
 > [!WARNING]
@@ -794,6 +801,8 @@ const envs: Record<string, Partial<StackInput>> = {
     agentCoreExternalRuntimes: [
       {
         name: 'AgentCore1',
+        display_name: '고객 지원 에이전트',
+        description: '고객 문의에 응대하는 에이전트입니다.',
         arn: 'arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx',
       },
     ],
@@ -813,6 +822,8 @@ const envs: Record<string, Partial<StackInput>> = {
     "agentCoreExternalRuntimes": [
       {
         "name": "AgentCore1",
+        "display_name": "고객 지원 에이전트",
+        "description": "고객 문의에 응대하는 에이전트입니다.",
         "arn": "arn:aws:bedrock-agentcore:us-west-2:<account>:runtime/agent-core1-xxxxxxxx"
       }
     ]

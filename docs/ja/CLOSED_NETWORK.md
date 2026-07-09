@@ -75,7 +75,7 @@ const envs: Record<string, Partial<StackInput>> = {
 ## デプロイ方法
 
 `closedNetwork...` オプションを設定した上で [README.md](/README_ja.md) に記載されている通常の手順でデプロイしてください。ClosedNetworkStack\<環境名> というスタックが追加でデプロイされます。(便宜上、これ以降は \<環境名> を省略します。)
-GenU にアクセスするための URL は ClosedNetworkStack の WebUrl に出力されます。GenerativeAiUseCasesStack の WebUrl ではないことに注意してください。
+GenU にアクセスするための URL は ClosedNetworkStack の ClosedNetworkWebUrl に出力されます。GenerativeAiUseCasesStack の WebUrl ではないことに注意してください。
 また、GenerativeAiUseCasesStack のデプロイが完了するまでは GenU にアクセスできません。
 
 ## 検証方法
@@ -103,7 +103,7 @@ aws ssm get-parameter --name /ec2/keypair/key-aaaaaaaaaaaaaaaaa --region ap-nort
 
 ### 手順3. GenU にアクセス
 
-Windows 内で Edge ブラウザを開き、ClosedNetworkStack の WebUrl 出力に表示される URL を入力して GenU にアクセスします。
+Windows 内で Edge ブラウザを開き、ClosedNetworkStack の ClosedNetworkWebUrl 出力に表示される URL を入力して GenU にアクセスします。
 初回アクセス時は SignUp が必要です。
 
 ### 検証インスタンスについて
@@ -145,7 +145,7 @@ Certificate body には ssl.crt の中身、Certificate private key には ssl.k
 
 | サービス名                  | 役割                       | エンドポイント                                              | エンドポイントの確認方法                                  |
 | --------------------------- | -------------------------- | ----------------------------------------------------------- | --------------------------------------------------------- |
-| Application Load Balancer   | Web 静的ファイルのサーバー | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | ClosedNetworkStack の出力の WebUrl で確認                 |
+| Application Load Balancer   | Web 静的ファイルのサーバー | 独自ドメイン or internal-\<aaa>.\<region>.elb.amazonaws.com | ClosedNetworkStack の出力の ClosedNetworkWebUrl で確認    |
 | API Gateway                 | メインの API               | \<xxx>.execute-api.\<region>.amazonaws.com                  | **GenerativeAiUseCasesStack** の出力の ApiEndpoint で確認 |
 | Cognito User Pool           | 認証                       | cognito-idp.\<region>.amazonaws.com                         | エンドポイントは固定                                      |
 | Cognito Identity Pool       | 一時認証情報の取得         | cognito-identity.\<region>.amazonaws.com                    | エンドポイントは固定                                      |

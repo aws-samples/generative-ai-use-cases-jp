@@ -4,6 +4,7 @@ import { PiSpinnerGap } from 'react-icons/pi';
 
 type Props = BaseProps & {
   title?: string;
+  'aria-label'?: string;
   disabled?: boolean;
   loading?: boolean;
   outlined?: boolean;
@@ -11,9 +12,10 @@ type Props = BaseProps & {
   children: React.ReactNode;
 };
 
-const Button: React.FC<Props> = (props) => {
+const Button = React.forwardRef<HTMLButtonElement, Props>((props, ref) => {
   return (
     <button
+      ref={ref}
       className={`${props.className ?? ''} ${
         props.outlined
           ? 'text-aws-font-color border-aws-font-color/20 border bg-white'
@@ -23,12 +25,15 @@ const Button: React.FC<Props> = (props) => {
         props.disabled || props.loading ? 'opacity-30' : 'hover:brightness-75'
       }`}
       title={props.title}
+      aria-label={props['aria-label']}
       onClick={props.onClick}
       disabled={props.disabled || props.loading}>
       {props.loading && <PiSpinnerGap className="mr-2 animate-spin" />}
       {props.children}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;

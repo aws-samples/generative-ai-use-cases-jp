@@ -119,8 +119,12 @@ agent_builder:
   tool_settings: Tool Settings
   updated: Updated date
 agent_core:
+  agent_list: Agent List
+  description_label: Description
   model: Model
+  no_agents: No agents available
   runtime: Runtime
+  search_agents: Search agents...
   start_conversation: Start a conversation with AgentCore
   title: AgentCore
 agent_dashboard: {}
@@ -128,6 +132,17 @@ auth:
   loading: Loading...
   login: Login
   title: Generative AI Use Cases on AWS
+chart:
+  data_limit_exceeded: Chart data exceeds the display limit. Please reduce the number of data points (max 10,000) or series (max 50).
+  download_png: Download PNG
+  geojson_load_failed: Failed to load map data
+  invalid_data: Invalid chart data
+  label: Chart
+  loading: Loading chart data...
+  map_source_attribution: 'Source: Ministry of Land, Infrastructure, Transport and Tourism - National Land Numerical Information'
+  view_chart: View Chart
+  view_code: View Code
+  zoom: Zoom chart
 chat:
   advanced_options: Advanced Options
   create_link: Create Link
@@ -593,6 +608,8 @@ generateText:
   result_placeholder: Generated text will be displayed here
   source_info: Source information for text
   title: Text Generation
+image:
+  load_error: '[Image error: {{error}}]'
 inputs:
   attachment: Attachment
   reasoning: Extended thinking

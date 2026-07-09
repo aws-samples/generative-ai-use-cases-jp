@@ -29,7 +29,7 @@ jobs:
           hide-cloudwatch-logs: true
           env-vars-for-codebuild: |
             PR_NUMBER,
-            HEAD_REF,
+            HEAD_SHA,
             HEAD_REPOSITORY
           buildspec-override: |
             version: 0.2
@@ -38,9 +38,18 @@ jobs:
                 runtime-versions:
                   nodejs: 20
                 commands:
+                  - echo "Validating inputs..."
+                  - |
+                    if ! echo "${HEAD_SHA}" | grep -qE '^[0-9a-f]{40}$'; then
+                      echo "ERROR: Invalid commit SHA" && exit 1
+                    fi
+                    if ! echo "${HEAD_REPOSITORY}" | grep -qE '^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$'; then
+                      echo "ERROR: Invalid repository name" && exit 1
+                    fi
                   - echo "Cloning repository..."
-                  - git clone --branch ${HEAD_REF} https://github.com/${HEAD_REPOSITORY}.git /tmp/source
+                  - git clone "https://github.com/${HEAD_REPOSITORY}.git" /tmp/source
                   - cd /tmp/source
+                  - git checkout "${HEAD_SHA}"
                   - echo "Node.js version:"
                   - node --version
                   - npm --version
@@ -64,15 +73,15 @@ jobs:
                   - PR_URL="https://github.com/${GITHUB_REPOSITORY}/pull/${PR_NUMBER}"
                   - DEPLOY_TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S JST')
                   - DEPLOY_STATUS="Success"
-                  - printf '{"ENV_NAME":"pr-%s","PR_NUMBER":"%s","BRANCH_NAME":"%s","GENU_URL":"%s","PR_URL":"%s","DEPLOY_STATUS":"%s","DEPLOY_TIMESTAMP":"%s"}' "${PR_NUMBER}" "${PR_NUMBER}" "${HEAD_REF}" "${GENU_URL}" "${PR_URL}" "${DEPLOY_STATUS}" "${DEPLOY_TIMESTAMP}" > /tmp/lambda-payload.json
+                  - printf '{"ENV_NAME":"pr-%s","PR_NUMBER":"%s","COMMIT_SHA":"%s","GENU_URL":"%s","PR_URL":"%s","DEPLOY_STATUS":"%s","DEPLOY_TIMESTAMP":"%s"}' "${PR_NUMBER}" "${PR_NUMBER}" "${HEAD_SHA}" "${GENU_URL}" "${PR_URL}" "${DEPLOY_STATUS}" "${DEPLOY_TIMESTAMP}" > /tmp/lambda-payload.json
                   - cat /tmp/lambda-payload.json
                   - echo "Sending Slack notification..."
                   - aws lambda invoke --function-name GenUSlackNotification --region ap-northeast-1 --cli-binary-format raw-in-base64-out --payload file:///tmp/lambda-payload.json /tmp/lambda-response.json
                   - cat /tmp/lambda-response.json
                   - echo "Slack notification sent successfully"
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
 
   cleanup:

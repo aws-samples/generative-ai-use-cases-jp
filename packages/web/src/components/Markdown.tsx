@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useState, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BaseProps } from '../@types/common';
 import { default as ReactMarkdown } from 'react-markdown';
+import type { ExtraProps } from 'react-markdown';
+import type { ComponentProps } from 'react';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -40,6 +43,7 @@ import { useLocation } from 'react-router-dom';
 
 import { MermaidWithToggle } from './Mermaid/MermaidWithToggle';
 import { SvgWithToggle } from './Svg/SvgWithToggle';
+import { EChartsWithToggle } from './ECharts/EChartsWithToggle';
 
 SyntaxHighlighter.registerLanguage('bash', bash);
 SyntaxHighlighter.registerLanguage('c', c);
@@ -72,13 +76,16 @@ type Props = BaseProps & {
   prefix?: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const LinkRenderer = (props: any) => {
+const LinkRenderer = ({
+  href,
+  children,
+  id,
+}: ComponentProps<'a'> & ExtraProps) => {
   // Currently, the file download function from S3 is only used in RAG chat
   const { downloadDoc, isS3Url, downloading } = useRagFile();
   const isS3 = useMemo(() => {
-    return isS3Url(props.href);
-  }, [isS3Url, props.href]);
+    return isS3Url(href ?? '');
+  }, [isS3Url, href]);
 
   // For Knowledge Base, we pass s3Type as a parameter
   // since it may need to reference S3 from a different account
@@ -91,55 +98,66 @@ const LinkRenderer = (props: any) => {
     <>
       {isS3 ? (
         <a
-          id={props.id}
+          id={id}
           onClick={() => {
             if (!downloading) {
               downloadDoc(
-                props.href,
+                href ?? '',
                 isKnowledgeBase ? 'knowledgeBase' : 'default'
               );
             }
           }}
           className={`cursor-pointer ${downloading ? 'text-gray-400' : ''}`}>
-          {props.children}
+          {children}
           {downloading && (
             <PiSpinnerGap className="mx-2 inline-block animate-spin" />
           )}
         </a>
       ) : (
         <a
-          id={props.id}
-          href={props.href}
-          target={props.href.startsWith('#') ? '_self' : '_blank'}
+          id={id}
+          href={href}
+          target={href?.startsWith('#') ? '_self' : '_blank'}
           rel="noreferrer">
-          {props.children}
+          {children}
         </a>
       )}
     </>
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ImageRenderer = (props: any) => {
+const ImageRenderer = ({
+  src: srcProp,
+  id,
+}: ComponentProps<'img'> & ExtraProps) => {
+  const { t } = useTranslation();
   const { isS3Url } = useRagFile();
   const { getFileDownloadSignedUrl } = useFileApi();
-  const [src, setSrc] = useState(props.src);
+  const [src, setSrc] = useState(srcProp);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isS3Url(props.src)) {
-      getFileDownloadSignedUrl(props.src).then((url) => setSrc(url));
+    if (isS3Url(srcProp ?? '')) {
+      getFileDownloadSignedUrl(srcProp ?? '')
+        .then((url) => setSrc(url))
+        .catch((e: Error) => setError(e.message));
     }
-  }, [getFileDownloadSignedUrl, isS3Url, props.src]);
+  }, [getFileDownloadSignedUrl, isS3Url, srcProp]);
 
-  return <img id={props.id} src={src} />;
+  if (error) {
+    return (
+      <span className="text-red-500">{t('image.load_error', { error })}</span>
+    );
+  }
+  return <img id={id} src={src} />;
 };
 
 // PreRenderer to skip <pre> tag for mermaid and SVG code blocks
 // This prevents the dark prose background from appearing around these diagrams
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PreRenderer = (props: any) => {
-  const { children } = props;
-
+const PreRenderer = ({
+  children,
+  ...rest
+}: ComponentProps<'pre'> & ExtraProps) => {
   // Check if children is a code element with 'language-mermaid' or SVG-related class
   if (React.isValidElement(children)) {
     const childProps = children.props as {
@@ -151,6 +169,11 @@ const PreRenderer = (props: any) => {
 
     // Skip <pre> tag for mermaid
     if (className.includes('language-mermaid')) {
+      return <>{children}</>;
+    }
+
+    // Skip <pre> tag for chart (ECharts)
+    if (className.includes('language-chart')) {
       return <>{children}</>;
     }
 
@@ -166,7 +189,7 @@ const PreRenderer = (props: any) => {
   }
 
   // For other code blocks, render normal <pre> tag
-  return <pre {...props}>{children}</pre>;
+  return <pre {...rest}>{children}</pre>;
 };
 
 // Helper function to check if code is SVG
@@ -176,10 +199,12 @@ const isSvgCode = (code: string): boolean => {
 };
 
 const CodeRenderer = memo(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (props: any) => {
-    const language = /language-(\w+)/.exec(props.className || '')?.[1];
-    const codeText = String(props.children).replace(/\n$/, '');
+  ({
+    className,
+    children,
+  }: React.ComponentPropsWithoutRef<'code'> & ExtraProps) => {
+    const language = /language-(\w+)/.exec(className || '')?.[1];
+    const codeText = String(children).replace(/\n$/, '');
     const isCodeBlock = codeText.includes('\n');
 
     // Render Mermaid diagrams with toggle
@@ -189,12 +214,16 @@ const CodeRenderer = memo(
     }
 
     // Render SVG code with toggle (when language is svg, xml, or html and content is SVG)
-    if (
-      (language === 'svg' ||
-        ((language === 'xml' || language === 'html') && isSvgCode(codeText))) &&
-      isSvgCode(codeText)
-    ) {
+    const isSvgLanguage =
+      language === 'svg' ||
+      ((language === 'xml' || language === 'html') && isSvgCode(codeText));
+    if (isSvgLanguage) {
       return <SvgWithToggle code={codeText} />;
+    }
+
+    // Render ECharts charts with toggle
+    if (language === 'chart') {
+      return <EChartsWithToggle code={codeText} />;
     }
 
     return (

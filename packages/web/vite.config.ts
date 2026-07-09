@@ -11,6 +11,11 @@ import webfontDownload from 'vite-plugin-webfont-dl';
 export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
+      output: {
+        manualChunks: {
+          echarts: ['echarts'],
+        },
+      },
       plugins: [
         mode === 'analyze' &&
           visualizer({
@@ -42,6 +47,7 @@ export default defineConfig(({ mode }) => ({
       injectRegister: 'auto',
       workbox: {
         globDirectory: 'dist',
+        // GeoJSON intentionally excluded from precache (geojson/ is ~9MB total)
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         swDest: 'dist/sw.js',
         maximumFileSizeToCacheInBytes: 5000000,
@@ -83,9 +89,28 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   test: {
-    name: 'use-case-builder',
-    root: './tests/use-case-builder',
-    environment: 'node',
-    setupFiles: [],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'use-case-builder',
+          include: ['tests/use-case-builder/**/*.test.{ts,tsx}'],
+          environment: 'node',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'web-ui',
+          include: [
+            'tests/components/**/*.test.{ts,tsx}',
+            'tests/hooks/**/*.test.{ts,tsx}',
+          ],
+          environment: 'jsdom',
+          globals: true,
+          setupFiles: [],
+        },
+      },
+    ],
   },
 }));

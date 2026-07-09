@@ -110,8 +110,12 @@ agent_builder:
   tool_settings: ツール設定
   updated: 更新日
 agent_core:
+  agent_list: エージェント一覧
+  description_label: 説明
   model: モデル
+  no_agents: 利用可能なエージェントがありません
   runtime: ランタイム
+  search_agents: エージェントを検索...
   start_conversation: AgentCore と会話を始める
   title: AgentCore
 agent_dashboard: {}
@@ -119,6 +123,17 @@ auth:
   loading: 読み込み中...
   login: ログイン
   title: Generative AI Use Cases on AWS
+chart:
+  data_limit_exceeded: チャートデータが表示上限を超えています。データポイント数（上限10,000）またはシリーズ数（上限50）を削減してください。
+  download_png: PNGをダウンロード
+  geojson_load_failed: マップデータの読み込みに失敗しました
+  invalid_data: 無効なチャートデータ
+  label: チャート
+  loading: チャートデータを読み込み中...
+  map_source_attribution: '出典: 国土交通省 国土数値情報'
+  view_chart: チャートを表示
+  view_code: コードを表示
+  zoom: チャートを拡大
 chat:
   advanced_options: 高度なオプション
   create_link: リンクの作成
@@ -494,6 +509,8 @@ generateText:
   result_placeholder: 生成された文章がここに表示されます
   source_info: 文章の元になる情報
   title: 文章生成
+image:
+  load_error: '[画像エラー: {{error}}]'
 inputs:
   attachment: 添付ファイル
   reasoning: 深く考える
