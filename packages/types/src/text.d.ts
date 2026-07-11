@@ -23,7 +23,7 @@ export type AdditionalModelRequestFields = {
   reasoningConfig: {
     type: 'enabled' | 'disabled' | 'adaptive';
     budgetTokens: number;
-    effort?: 'max' | 'high' | 'medium' | 'low';
+    effort?: 'max' | 'xhigh' | 'high' | 'medium' | 'low';
   };
 };
 

@@ -10,10 +10,11 @@ const MAX_REASONING_BUDGET = 32768; // Temporary value
 const REASONING_BUDGET_STEP = 1024;
 
 const EFFORT_OPTIONS: {
-  value: 'max' | 'high' | 'medium' | 'low';
+  value: 'max' | 'xhigh' | 'high' | 'medium' | 'low';
   label: string;
 }[] = [
   { value: 'max', label: 'Max' },
+  { value: 'xhigh', label: 'X-High' },
   { value: 'high', label: 'High' },
   { value: 'medium', label: 'Medium' },
   { value: 'low', label: 'Low' },
@@ -47,10 +48,18 @@ export const ModelParameters: React.FC<{
       ...overrideModelParameters,
       reasoningConfig: {
         ...overrideModelParameters.reasoningConfig,
-        effort: e.target.value as 'max' | 'high' | 'medium' | 'low',
+        effort: e.target.value as 'max' | 'xhigh' | 'high' | 'medium' | 'low',
       },
     });
   };
+
+  const effortOptions = EFFORT_OPTIONS.filter(
+    (option) => option.value !== 'xhigh' || modelFeatureFlags.xhighEffort
+  );
+
+  const effort = overrideModelParameters.reasoningConfig.effort ?? 'high';
+  const effortValue =
+    effort === 'xhigh' && !modelFeatureFlags.xhighEffort ? 'high' : effort;
 
   if (!modelFeatureFlags.reasoning) {
     return null;
@@ -63,9 +72,9 @@ export const ModelParameters: React.FC<{
           <div className="mb-2">{t('model.parameters.reasoning_effort')}</div>
           <select
             className="w-full rounded border border-gray-300 p-2 dark:border-gray-600 dark:bg-gray-800"
-            value={overrideModelParameters.reasoningConfig.effort ?? 'high'}
+            value={effortValue}
             onChange={handleEffortChange}>
-            {EFFORT_OPTIONS.map((option) => (
+            {effortOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
