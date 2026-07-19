@@ -9,6 +9,7 @@ import { BaseProps } from '../@types/common';
 import Button from './Button';
 import { useTranslation } from 'react-i18next';
 import { MODELS } from '../hooks/useModel';
+import { parseImageAssistantContent } from './parseImageAssistantContent';
 
 type Props = BaseProps & {
   modelId: string;
@@ -67,24 +68,10 @@ const GenerateImageAssistant: React.FC<Props> = (props) => {
             },
           };
         }
-        try {
-          return {
-            role: 'assistant',
-            content: JSON.parse(m.content),
-          };
-        } catch (e) {
-          console.error(e);
-          return {
-            role: 'assistant',
-            content: {
-              prompt: null,
-              negativePrompt: null,
-              comment: '',
-              error: true,
-              recommendedStylePreset: [],
-            },
-          };
-        }
+        return {
+          role: 'assistant',
+          content: parseImageAssistantContent(m.content),
+        };
       }
     });
   }, [loading, messages]);
