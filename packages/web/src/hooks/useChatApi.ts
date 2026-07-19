@@ -93,9 +93,10 @@ const useChatApi = () => {
         chatId ? `chats/${chatId}/messages` : null
       );
     },
-    updateTitle: async (chatId: string, title: string) => {
+    updateTitle: async (chatId: string, title: string, usecase?: string) => {
       const req: UpdateTitleRequest = {
         title,
+        usecase,
       };
       const res = await http.put<UpdateTitleResponse>(
         `chats/${chatId}/title`,

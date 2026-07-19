@@ -17,6 +17,11 @@ import { PiArrowLeft } from 'react-icons/pi';
 import ButtonIcon from '../components/ButtonIcon';
 
 // Define file limits for the chat interface
+// File size limits for AgentCore (AgentCore Runtime route: Frontend → AgentCore Runtime → Bedrock Converse API)
+// - AgentCore Runtime payload limit: 100MB (not a bottleneck)
+// - Anthropic Claude max request size: 32MB for the entire HTTP request body
+// - Nova PDF/DOCX direct upload limit: 25MB combined (model-side error if exceeded)
+// - Setting to 32MB as the upper bound based on Claude's documented limit
 const fileLimit: FileLimit = {
   accept: {
     doc: [
@@ -36,7 +41,7 @@ const fileLimit: FileLimit = {
     video: [],
   },
   maxFileCount: 5,
-  maxFileSizeMB: 10,
+  maxFileSizeMB: 32,
   maxImageFileCount: 5,
   maxImageFileSizeMB: 5,
   maxVideoFileCount: 0,

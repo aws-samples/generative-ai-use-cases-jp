@@ -39,6 +39,10 @@ import ModelParameters from '../components/ModelParameters';
 import { AcceptedDotExtensions } from '../utils/MediaUtils';
 import { useTranslation } from 'react-i18next';
 
+// File size limits for Chat (Lambda route: API Gateway → Lambda → Bedrock Converse API)
+// - Lambda synchronous payload limit: 6MB
+// - File data is base64-encoded in the request, so max original file size ≈ 6MB / 1.33 ≈ 4.5MB
+// - Bedrock Converse API document limit: 4.5MB per document (except Claude 4+ PDF and Nova PDF/DOCX)
 const fileLimit: FileLimit = {
   accept: AcceptedDotExtensions,
   maxFileCount: 5,

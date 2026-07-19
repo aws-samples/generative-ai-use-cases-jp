@@ -220,22 +220,34 @@ const useChatState = create<{
   };
 
   const setPredictedTitle = async (id: string) => {
-    const currentTitle = get().chats[id].chat?.title;
-    if (currentTitle && currentTitle.length > 0) return;
+    try {
+      const currentTitle = get().chats[id].chat?.title;
+      if (currentTitle && currentTitle.length > 0) return;
 
-    // If the title is an empty string, predict the title and set it
-    const modelId = getModelId(id);
-    const model = findModelByModelId(modelId)!;
-    const prompter = getPrompter(modelId);
-    const title = await predictTitle({
-      model,
-      chat: get().chats[id].chat!,
-      prompt: prompter.setTitlePrompt({
-        messages: omitUnusedMessageProperties(get().chats[id].messages),
-      }),
-      id: '/title',
-    });
-    setTitle(id, title);
+      // If the title is an empty string, predict the title and set it
+      const modelId = getModelId(id);
+      const model = findModelByModelId(modelId)!;
+      const prompter = getPrompter(modelId);
+
+      // Derive usecase from the id (pathname) so it gets persisted with the title
+      const chat = { ...get().chats[id].chat! };
+      if (!chat.usecase) {
+        const match = id.match(/([^/]+)/);
+        chat.usecase = match ? '/' + match[1] : id;
+      }
+
+      const title = await predictTitle({
+        model,
+        chat,
+        prompt: prompter.setTitlePrompt({
+          messages: omitUnusedMessageProperties(get().chats[id].messages),
+        }),
+        id: '/title',
+      });
+      setTitle(id, title);
+    } catch (e) {
+      console.error('setPredictedTitle failed:', e);
+    }
   };
 
   const createChatIfNotExist = async (id: string): Promise<string> => {

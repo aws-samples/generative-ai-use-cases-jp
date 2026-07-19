@@ -87,6 +87,7 @@ export type UpdateFeedbackResponse = {
 
 export type UpdateTitleRequest = {
   title: string;
+  usecase?: string;
 };
 
 export type UpdateTitleResponse = {
