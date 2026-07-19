@@ -4,13 +4,15 @@ export type Settings = {
   userPoolId: string;
   userPoolClientId: string;
   identityPoolId: string;
-  lambdaArn: strng;
+  lambdaArn: string;
   region: string;
   apiEndpoint: string;
   enabledSamlAuth: boolean;
   enabledSelfSignUp: boolean;
   cognitoDomain?: string;
   federatedIdentityProviderName?: string;
+  modelIds?: string;
+  modelId?: string;
 };
 
 export type PromptSetting = SystemContext & {

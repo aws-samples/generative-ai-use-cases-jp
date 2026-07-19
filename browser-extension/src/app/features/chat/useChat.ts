@@ -8,12 +8,28 @@ import {
   replaceMessages,
 } from './chatSlice';
 import usePredict from './usePredict';
+import useSettings from '../settings/useSettings';
 import { Message } from '../../../@types/chat';
 import Browser from 'webextension-polyfill';
 import { PromptSetting } from '../../../@types/settings';
 import { StreamingChunk } from '../../../@types/backend-api';
 
+const parseFirstModelId = (modelIds: string): string => {
+  try {
+    const parsed = JSON.parse(modelIds);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      const first = parsed[0];
+      if (typeof first === 'object' && first !== null) return first.modelId?.trim() ?? '';
+      if (typeof first === 'string') return first.trim();
+    }
+  } catch {
+    // not JSON
+  }
+  return modelIds.split(',')[0]?.trim() ?? '';
+};
+
 const useChat = () => {
+  const { settings } = useSettings();
   // Keep the state for each tab because it can be launched in multiple screens
   const [tabId, setTabId] = useState<number>(-1);
   Browser.tabs?.getCurrent().then((tab) => {
@@ -59,9 +75,11 @@ const useChat = () => {
           });
         }
 
+        const effectiveModelId =
+          settings?.modelId || (settings?.modelIds ? parseFirstModelId(settings.modelIds) : '');
         const stream = predictStream({
           model: {
-            modelId: 'anthropic.claude-3-haiku-20240307-v1:0',
+            modelId: effectiveModelId,
             type: 'bedrock',
           },
           messages:
