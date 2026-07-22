@@ -51,7 +51,7 @@
     "@smithy/node-http-handler": "^4.0.4",
     "@types/cors": "^2.8.19",
     "aws-amplify": "^6.14.2",
-    "aws-cdk-lib": "^2.257.0",
+    "aws-cdk-lib": "^2.260.0",
     "aws-jwt-verify": "^4.0.0",
     "cdk-remote-stack": "^2.1.0",
     "constructs": "^10.3.0",
