@@ -206,7 +206,9 @@ export class RagKnowledgeBaseStack extends Stack {
         name: collectionName,
         description: 'GenU Collection',
         type: 'VECTORSEARCH',
-        standbyReplicas: ragKnowledgeBaseStandbyReplicas ? 'ENABLED' : 'DISABLED',
+        standbyReplicas: ragKnowledgeBaseStandbyReplicas
+          ? 'ENABLED'
+          : 'DISABLED',
         // Do not specify tags here to avoid CloudFormation replacement errors
       });
 
@@ -285,23 +287,19 @@ export class RagKnowledgeBaseStack extends Stack {
         type: 'network',
       });
 
-      encryptionPolicy = new oss.CfnSecurityPolicy(
-        this,
-        'EncryptionPolicy',
-        {
-          name: collectionName,
-          policy: JSON.stringify({
-            Rules: [
-              {
-                Resource: [`collection/${collectionName}`],
-                ResourceType: 'collection',
-              },
-            ],
-            AWSOwnedKey: true,
-          }),
-          type: 'encryption',
-        }
-      );
+      encryptionPolicy = new oss.CfnSecurityPolicy(this, 'EncryptionPolicy', {
+        name: collectionName,
+        policy: JSON.stringify({
+          Rules: [
+            {
+              Resource: [`collection/${collectionName}`],
+              ResourceType: 'collection',
+            },
+          ],
+          AWSOwnedKey: true,
+        }),
+        type: 'encryption',
+      });
 
       collection.node.addDependency(accessPolicy);
       collection.node.addDependency(networkPolicy);
@@ -351,6 +349,11 @@ export class RagKnowledgeBaseStack extends Stack {
     }
 
     // S3 Vectors resources (only created when using S3 Vectors)
+    const s3VectorBucketName = `genu-s3vectors-kb${env.toLowerCase()}`;
+    const s3VectorIndexName = `genu-rag-kb-index${env.toLowerCase()}`;
+    const s3VectorBucketArn = `arn:aws:s3vectors:${this.region}:${this.account}:bucket/${s3VectorBucketName}`;
+    const s3VectorIndexArn = `${s3VectorBucketArn}/index/${s3VectorIndexName}`;
+
     let vectorBucket: cdk.CfnResource | undefined;
     let vectorIndex: cdk.CfnResource | undefined;
 
@@ -358,20 +361,23 @@ export class RagKnowledgeBaseStack extends Stack {
       vectorBucket = new cdk.CfnResource(this, 'S3VectorBucket', {
         type: 'AWS::S3Vectors::VectorBucket',
         properties: {
-          VectorBucketName: `genu-s3vectors-kb${env.toLowerCase()}`,
+          VectorBucketName: s3VectorBucketName,
         },
       });
 
       vectorIndex = new cdk.CfnResource(this, 'S3VectorIndex', {
         type: 'AWS::S3Vectors::Index',
         properties: {
-          VectorBucketName: `genu-s3vectors-kb${env.toLowerCase()}`,
-          IndexName: `genu-rag-kb-index${env.toLowerCase()}`,
+          VectorBucketName: s3VectorBucketName,
+          IndexName: s3VectorIndexName,
           DataType: 'float32',
           Dimension: parseInt(MODEL_VECTOR_MAPPING[embeddingModelId], 10),
           DistanceMetric: 'cosine',
           MetadataConfiguration: {
-            NonFilterableMetadataKeys: ['AMAZON_BEDROCK_TEXT', 'AMAZON_BEDROCK_METADATA'],
+            NonFilterableMetadataKeys: [
+              'AMAZON_BEDROCK_TEXT',
+              'AMAZON_BEDROCK_METADATA',
+            ],
           },
         },
       });
@@ -421,10 +427,7 @@ export class RagKnowledgeBaseStack extends Stack {
       knowledgeBaseRole.addToPolicy(
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          resources: [
-            `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}`,
-            `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}/index/genu-rag-kb-index${env.toLowerCase()}`,
-          ],
+          resources: [s3VectorBucketArn, s3VectorIndexArn],
           actions: [
             's3vectors:CreateIndex',
             's3vectors:DeleteIndex',
@@ -456,8 +459,14 @@ export class RagKnowledgeBaseStack extends Stack {
       })
     );
 
+    // When using S3 Vectors, append suffix to KB name to avoid name collision
+    // during CloudFormation Replacement (storageConfiguration is immutable)
+    const knowledgeBaseName = useS3Vectors
+      ? `${collectionName}-s3vectors`
+      : collectionName;
+
     const knowledgeBase = new bedrock.CfnKnowledgeBase(this, 'KnowledgeBase', {
-      name: collectionName,
+      name: knowledgeBaseName,
       roleArn: knowledgeBaseRole.roleArn,
       knowledgeBaseConfiguration: {
         type: 'VECTOR',
@@ -475,13 +484,13 @@ export class RagKnowledgeBaseStack extends Stack {
         },
       },
       storageConfiguration: useS3Vectors
-        ? ({
+        ? {
             type: 'S3_VECTORS',
             s3VectorsConfiguration: {
-              bucketArn: `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}`,
-              indexArn: `arn:aws:s3vectors:${this.region}:${this.account}:bucket/genu-s3vectors-kb${env.toLowerCase()}/index/genu-rag-kb-index${env.toLowerCase()}`,
+              vectorBucketArn: s3VectorBucketArn,
+              indexArn: s3VectorIndexArn,
             },
-          } as any)
+          }
         : {
             type: 'OPENSEARCH_SERVERLESS',
             opensearchServerlessConfiguration: {
