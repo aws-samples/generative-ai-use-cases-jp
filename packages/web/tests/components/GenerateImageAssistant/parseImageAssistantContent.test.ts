@@ -42,8 +42,7 @@ describe('parseImageAssistantContent', () => {
   });
 
   it('tolerates leading/trailing whitespace around the fence', () => {
-    const fenced =
-      '\n\n  ```json\n' + JSON.stringify(payload) + '\n```  \n\n';
+    const fenced = '\n\n  ```json\n' + JSON.stringify(payload) + '\n```  \n\n';
     expect(parseImageAssistantContent(fenced)).toEqual(payload);
   });
 
