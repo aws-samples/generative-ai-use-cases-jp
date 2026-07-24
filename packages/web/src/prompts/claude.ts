@@ -111,6 +111,7 @@ Format the result in markdown with chapters and output it in the format <output>
 Do not output any text other than the result enclosed in <output></output> tags. There are no exceptions.
 Automatically detect the language of the user's request and think and answer in the same language.`,
   '/rag': '',
+  '/rag-knowledge-base': '',
   '/image': `You are an AI assistant that generates prompts for Stable Diffusion.
 Please generate Stable Diffusion prompts following the <step></step> procedure.
 
