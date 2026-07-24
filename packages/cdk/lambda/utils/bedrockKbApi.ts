@@ -1,5 +1,6 @@
 import {
   DependencyFailedException,
+  GuardrailConfiguration,
   ImplicitFilterConfiguration,
   OrchestrationConfiguration,
   RetrievalFilter,
@@ -164,13 +165,34 @@ const getRerankingConfig = ():
   };
 };
 
-const getOrchestrationConfig = (): OrchestrationConfiguration | undefined => {
-  if (!process.env.QUERY_DECOMPOSITION_ENABLED) return undefined;
-  return {
-    queryTransformationConfiguration: {
-      type: 'QUERY_DECOMPOSITION',
+const getGuardrailConfig = (): GuardrailConfiguration | undefined => {
+  if (process.env.GUARDRAIL_IDENTIFIER && process.env.GUARDRAIL_VERSION) {
+    return {
+      guardrailId: process.env.GUARDRAIL_IDENTIFIER,
+      guardrailVersion: process.env.GUARDRAIL_VERSION,
+    };
+  }
+  return undefined;
+};
+
+const getOrchestrationConfig = (): OrchestrationConfiguration => {
+  const config: OrchestrationConfiguration = {
+    promptTemplate: {
+      textPromptTemplate: `$conversation_history$
+
+$query$
+
+$output_format_instructions$`,
     },
   };
+
+  if (process.env.QUERY_DECOMPOSITION_ENABLED === 'true') {
+    config.queryTransformationConfiguration = {
+      type: 'QUERY_DECOMPOSITION',
+    };
+  }
+
+  return config;
 };
 
 const bedrockKbApi: ApiInterface = {
@@ -189,8 +211,9 @@ const bedrockKbApi: ApiInterface = {
       const systemMessage = messages.find((msg) => msg.role === 'system');
       const userSystemContext = systemMessage?.content || '';
 
-      // Citation suffix (required for RAG to work properly)
       const citationSuffix = `
+
+User's question: $query$
 
 The current time is $current_time$.
 
@@ -199,17 +222,21 @@ $search_results$
 
 $output_format_instructions$`;
 
-      const generationConfiguration = userSystemContext
-        ? {
-            promptTemplate: {
-              textPromptTemplate:
-                userSystemContext
-                  .replace(/\$search_results\$/g, '')
-                  .replace(/\$output_format_instructions\$/g, '')
-                  .trim() + citationSuffix,
-            },
-          }
-        : undefined;
+      const guardrailConfiguration = getGuardrailConfig();
+
+      const promptBase = userSystemContext
+        ? userSystemContext
+            .replace(/\$search_results\$/g, '')
+            .replace(/\$output_format_instructions\$/g, '')
+            .trim()
+        : "You are a helpful assistant. Answer the user's question based on the search results.";
+
+      const generationConfiguration = {
+        promptTemplate: {
+          textPromptTemplate: promptBase + citationSuffix,
+        },
+        guardrailConfiguration,
+      };
 
       const command = new RetrieveAndGenerateStreamCommand({
         input: {
