@@ -186,6 +186,10 @@ export const modelMetadata: Record<string, ModelMetadata> = {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_ALWAYS_ON_NO_SAMPLING,
     displayName: 'Claude Sonnet 5',
   },
+  'global.anthropic.claude-fable-5': {
+    flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING_ALWAYS_ON_NO_SAMPLING,
+    displayName: 'Claude Fable 5',
+  },
   'global.anthropic.claude-sonnet-4-6': {
     flags: MODEL_FEATURE.TEXT_DOC_IMAGE_ADAPTIVE_THINKING,
     displayName: 'Claude Sonnet 4.6',
