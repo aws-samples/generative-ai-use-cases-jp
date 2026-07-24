@@ -170,6 +170,12 @@ export class RagKnowledgeBaseStack extends Stack {
       );
     }
 
+    if (useS3Vectors && ragKnowledgeBaseBinaryVector) {
+      throw new Error(
+        'Binary vector (ragKnowledgeBaseBinaryVector) is not supported with S3 Vectors storage backend. Set ragKnowledgeBaseBinaryVector to false or use opensearch storage type.'
+      );
+    }
+
     const collectionName =
       props.collectionName ?? `generative-ai-use-cases-jp${env.toLowerCase()}`;
     const vectorIndexName =
@@ -195,11 +201,6 @@ export class RagKnowledgeBaseStack extends Stack {
     // OpenSearch resources (not needed when using S3 Vectors)
     let collection: oss.CfnCollection | undefined;
     let ossIndex: OpenSearchServerlessIndex | undefined;
-    let accessPolicy: oss.CfnAccessPolicy | undefined;
-    let networkPolicy: oss.CfnSecurityPolicy | undefined;
-    let encryptionPolicy: oss.CfnSecurityPolicy | undefined;
-    let tagApplier: lambda.SingletonFunction | undefined;
-    let applyTagsResource: cdk.CustomResource | undefined;
 
     if (!useS3Vectors) {
       collection = new oss.CfnCollection(this, 'Collection', {
@@ -230,7 +231,7 @@ export class RagKnowledgeBaseStack extends Stack {
         })
       );
 
-      accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
+      const accessPolicy = new oss.CfnAccessPolicy(this, 'AccessPolicy', {
         name: collectionName,
         policy: JSON.stringify([
           {
@@ -267,7 +268,7 @@ export class RagKnowledgeBaseStack extends Stack {
         type: 'data',
       });
 
-      networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
+      const networkPolicy = new oss.CfnSecurityPolicy(this, 'NetworkPolicy', {
         name: collectionName,
         policy: JSON.stringify([
           {
@@ -287,26 +288,30 @@ export class RagKnowledgeBaseStack extends Stack {
         type: 'network',
       });
 
-      encryptionPolicy = new oss.CfnSecurityPolicy(this, 'EncryptionPolicy', {
-        name: collectionName,
-        policy: JSON.stringify({
-          Rules: [
-            {
-              Resource: [`collection/${collectionName}`],
-              ResourceType: 'collection',
-            },
-          ],
-          AWSOwnedKey: true,
-        }),
-        type: 'encryption',
-      });
+      const encryptionPolicy = new oss.CfnSecurityPolicy(
+        this,
+        'EncryptionPolicy',
+        {
+          name: collectionName,
+          policy: JSON.stringify({
+            Rules: [
+              {
+                Resource: [`collection/${collectionName}`],
+                ResourceType: 'collection',
+              },
+            ],
+            AWSOwnedKey: true,
+          }),
+          type: 'encryption',
+        }
+      );
 
       collection.node.addDependency(accessPolicy);
       collection.node.addDependency(networkPolicy);
       collection.node.addDependency(encryptionPolicy);
 
       // Apply tags via AWS SDK to avoid CloudFormation replacement errors
-      tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
+      const tagApplier = new lambda.SingletonFunction(this, 'TagApplier', {
         runtime: LAMBDA_RUNTIME_NODEJS,
         code: lambda.Code.fromAsset('custom-resources/apply-tags'),
         handler: 'apply-tags.handler',
@@ -315,7 +320,7 @@ export class RagKnowledgeBaseStack extends Stack {
         timeout: cdk.Duration.minutes(5),
       });
 
-      applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
+      const applyTagsResource = new cdk.CustomResource(this, 'ApplyTags', {
         serviceToken: tagApplier.functionArn,
         resourceType: 'Custom::ApplyTags',
         properties: {
@@ -349,8 +354,8 @@ export class RagKnowledgeBaseStack extends Stack {
     }
 
     // S3 Vectors resources (only created when using S3 Vectors)
-    const s3VectorBucketName = `genu-s3vectors-kb${env.toLowerCase()}`;
-    const s3VectorIndexName = `genu-rag-kb-index${env.toLowerCase()}`;
+    const s3VectorBucketName = `${collectionName}-s3vectors`;
+    const s3VectorIndexName = `${collectionName}-s3vectors-index`;
     const s3VectorBucketArn = `arn:aws:s3vectors:${this.region}:${this.account}:bucket/${s3VectorBucketName}`;
     const s3VectorIndexArn = `${s3VectorBucketArn}/index/${s3VectorIndexName}`;
 
@@ -579,6 +584,13 @@ export class RagKnowledgeBaseStack extends Stack {
 
     // Web Crawler Data Source (GenU documentation site as sample)
     // S3 Vectors backend does not support WEB data sources
+    if (useS3Vectors) {
+      cdk.Annotations.of(this).addWarningV2(
+        '@genu/s3vectors-web-datasource',
+        'S3 Vectors backend does not support WEB data sources. Only S3 data sources are available.'
+      );
+    }
+
     if (!useS3Vectors) {
       new bedrock.CfnDataSource(this, 'WebCrawlerDataSource', {
         dataSourceConfiguration: {
