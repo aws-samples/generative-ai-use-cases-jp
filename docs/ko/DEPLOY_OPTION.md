@@ -164,7 +164,11 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ### RAG Chat (Knowledge Base) 사용 사례 활성화
 
 `ragKnowledgeBaseEnabled`를 `true`로 설정합니다. (기본값은 `false`)  
-기존 Knowledge Base가 있는 경우 `ragKnowledgeBaseId`를 지식 베이스 ID로 설정합니다. (`null`인 경우 OpenSearch Serverless 지식 베이스가 생성됩니다)
+기존 Knowledge Base가 있는 경우 `ragKnowledgeBaseId`를 지식 베이스 ID로 설정합니다. (`null`인 경우 `ragKnowledgeBaseStorageType`에서 지정된 백엔드로 지식 베이스가 생성됩니다)
+
+`ragKnowledgeBaseStorageType`로 벡터 스토어 백엔드를 선택할 수 있습니다. (기본값은 `opensearch`)
+- `opensearch`: OpenSearch Serverless 사용 (기존 동작)
+- `s3vectors`: Amazon S3 Vectors 사용 (저비용, 고정 비용 없음)
 
 **[parameter.ts](/packages/cdk/parameter.ts) 편집**
 
@@ -173,6 +177,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStorageType: 'opensearch', // 'opensearch' or 's3vectors'
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
@@ -190,6 +195,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStorageType": "opensearch", // "opensearch" or "s3vectors"
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,

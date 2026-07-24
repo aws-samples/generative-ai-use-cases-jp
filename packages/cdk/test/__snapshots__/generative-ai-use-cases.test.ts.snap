@@ -3350,6 +3350,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
     "KnowledgeBase": {
       "DependsOn": [
         "Collection",
+        "KnowledgeBaseRoleDefaultPolicyB3F66209",
         "OssIndexCustomResourceFB9548E5",
       ],
       "Properties": {
@@ -5414,6 +5415,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
     },
     "RagKnowledgeBaseEnabled": {
       "Value": "true",
+    },
+    "RagKnowledgeBaseStorageType": {
+      "Value": "opensearch",
     },
     "Region": {
       "Value": "us-east-1",
@@ -13450,6 +13454,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
+          "VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE": "opensearch",
           "VITE_APP_REGION": "us-east-1",
           "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
@@ -17265,6 +17270,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
     "KnowledgeBase": {
       "DependsOn": [
         "Collection",
+        "KnowledgeBaseRoleDefaultPolicyB3F66209",
         "OssIndexCustomResourceFB9548E5",
       ],
       "Properties": {
@@ -19277,6 +19283,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
     },
     "RagKnowledgeBaseEnabled": {
       "Value": "true",
+    },
+    "RagKnowledgeBaseStorageType": {
+      "Value": "opensearch",
     },
     "Region": {
       "Value": "us-east-1",
@@ -27138,6 +27147,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
+          "VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE": "opensearch",
           "VITE_APP_REGION": "us-east-1",
           "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
