@@ -32,7 +32,7 @@
     "@twind/preset-autoprefix": "^1.0.7",
     "@twind/preset-tailwind": "^1.1.4",
     "aws-amplify": "^6.0.23",
-    "axios": "^1.15.0",
+    "axios": "^1.18.1",
     "immer": "^10.0.4",
     "lodash-es": "^4.18.0",
     "react": "18.2.0",
@@ -53,6 +53,9 @@
     },
     "vite-plugin-svgr": {
       "rollup": "2.80.0"
+    },
+    "vite": {
+      "rollup": "^4.59.0"
     }
   },
   "devDependencies": {
@@ -86,7 +89,7 @@
     "tailwindcss": "^3.3.2",
     "ts-jest": "^29.1.0",
     "typescript": "4.9.5",
-    "vite": "^6.4.2",
+    "vite": "^6.4.3",
     "vite-plugin-svgr": "^4.2.0"
   }
 }
