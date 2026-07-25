@@ -166,6 +166,7 @@ Set `ragKnowledgeBaseEnabled` to `true`. (Default is `false`)
 If you have an existing Knowledge Base, set `ragKnowledgeBaseId` to the knowledge base ID. (If `null`, a knowledge base will be created with the backend specified by `ragKnowledgeBaseStorageType`)
 
 Use `ragKnowledgeBaseStorageType` to select the vector store backend. (Default is `opensearch`)
+
 - `opensearch`: Use OpenSearch Serverless (existing behavior)
 - `s3vectors`: Use Amazon S3 Vectors (low cost, no fixed fees)
 
@@ -989,6 +990,7 @@ As of 2025/03, the multimodal models are:
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
 "global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
@@ -1189,6 +1191,7 @@ This solution supports the following text generation models:
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
 "global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",

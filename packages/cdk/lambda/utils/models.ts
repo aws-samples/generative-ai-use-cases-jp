@@ -162,6 +162,12 @@ const CLAUDE_SONNET_5_DEFAULT_PARAMS: ConverseInferenceParams = {
   },
 };
 
+const CLAUDE_FABLE_5_DEFAULT_PARAMS: ConverseInferenceParams = {
+  inferenceConfig: {
+    maxTokens: 128000,
+  },
+};
+
 const CLAUDE_3_5_DEFAULT_PARAMS: ConverseInferenceParams = {
   inferenceConfig: {
     maxTokens: 8192,
@@ -1116,6 +1122,14 @@ export const BEDROCK_TEXT_GEN_MODELS: {
   },
   'us.anthropic.claude-sonnet-5': {
     defaultParams: CLAUDE_SONNET_5_DEFAULT_PARAMS,
+    usecaseParams: USECASE_DEFAULT_PARAMS,
+    createConverseCommandInput: createConverseCommandInput,
+    createConverseStreamCommandInput: createConverseStreamCommandInput,
+    extractConverseOutput: extractConverseOutput,
+    extractConverseStreamOutput: extractConverseStreamOutput,
+  },
+  'global.anthropic.claude-fable-5': {
+    defaultParams: CLAUDE_FABLE_5_DEFAULT_PARAMS,
     usecaseParams: USECASE_DEFAULT_PARAMS,
     createConverseCommandInput: createConverseCommandInput,
     createConverseStreamCommandInput: createConverseStreamCommandInput,

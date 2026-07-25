@@ -15,3 +15,6 @@ site*/
 .kiro/settings
 .kiro/specs
 deploy.log
+
+**/.claude/sessions
+**/.claude/state

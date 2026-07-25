@@ -166,6 +166,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、`ragKnowledgeBaseStorageType`で指定されたバックエンドでナレッジベースが作成されます)
 
 `ragKnowledgeBaseStorageType` でベクトルストアのバックエンドを選択できます。(デフォルトは `opensearch`)
+
 - `opensearch`: OpenSearch Serverless を使用（従来動作）
 - `s3vectors`: Amazon S3 Vectors を使用（低コスト、固定費なし）
 
@@ -1008,6 +1009,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
 "global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
@@ -1208,6 +1210,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
 "global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
