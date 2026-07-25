@@ -167,6 +167,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 기존 Knowledge Base가 있는 경우 `ragKnowledgeBaseId`를 지식 베이스 ID로 설정합니다. (`null`인 경우 `ragKnowledgeBaseStorageType`에서 지정된 백엔드로 지식 베이스가 생성됩니다)
 
 `ragKnowledgeBaseStorageType`로 벡터 스토어 백엔드를 선택할 수 있습니다. (기본값은 `opensearch`)
+
 - `opensearch`: OpenSearch Serverless 사용 (기존 동작)
 - `s3vectors`: Amazon S3 Vectors 사용 (저비용, 고정 비용 없음)
 
@@ -932,6 +933,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-5",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
@@ -1098,6 +1100,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-5",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
