@@ -3,6 +3,7 @@
 /**
  * Get Cognito ID Token using SRP authentication
  * Optimized using AWS SDK v3 (@aws-sdk/client-cognito-identity-provider)
+ *
  */
 
 const { CognitoIdentityProviderClient, InitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider');
