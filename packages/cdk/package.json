@@ -58,7 +58,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "node-html-parser": "^6.1.13",
-    "sanitize-html": "^2.13.0",
+    "sanitize-html": "^2.17.5",
     "source-map-support": "^0.5.21",
     "upsert-slr": "^1.0.4",
     "uuid": "13.0.2",
