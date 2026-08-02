@@ -103,7 +103,7 @@
     "eslint-plugin-tailwindcss": "^3.15.1",
     "eslint-plugin-yml": "^1.17.0",
     "jsdom": "^29.1.1",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.25",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "rollup-plugin-visualizer": "^5.10.0",
