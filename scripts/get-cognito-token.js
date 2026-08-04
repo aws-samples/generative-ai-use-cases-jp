@@ -1,19 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * Get Cognito ID Token using SRP authentication
- * Optimized using AWS SDK v3 (@aws-sdk/client-cognito-identity-provider)
- *
+ * Get Cognito ID Token using USER_PASSWORD_AUTH flow
+ * Optimized for performance and clean execution
  */
 
 const { CognitoIdentityProviderClient, InitiateAuthCommand } = require('@aws-sdk/client-cognito-identity-provider');
 
-// 1. Fail fast: Validate environment variables immediately
 const {
   VITE_APP_USER_POOL_ID: userPoolId,
   VITE_APP_USER_POOL_CLIENT_ID: clientId,
   COGNITO_EMAIL: username,
-  COGNITO_PASSWORD: password
+  COGNITO_PASSWORD: password,
 } = process.env;
 
 if (!userPoolId || !clientId || !username || !password) {
@@ -22,35 +20,34 @@ if (!userPoolId || !clientId || !username || !password) {
   process.exit(1);
 }
 
-// 2. Extract region directly from the User Pool ID (e.g., "us-east-1_xxxxxxxxx")
-const region = userPoolId.split('_')[0];
+const regionMatch = userPoolId.match(/^([a-z0-9-]+)_.+/);
+if (!regionMatch) {
+  console.error('Error: Invalid VITE_APP_USER_POOL_ID format.');
+  process.exit(1);
+}
+const region = regionMatch[1];
 
-async function getTokens() {
-  // 3. Initialize the modern lightweight v3 client
-  const client = new CognitoIdentityProviderClient({ region });
+// Reuse client instance outside the handler for connection pooling
+const client = new CognitoIdentityProviderClient({ region });
 
-  const command = new InitiateAuthCommand({
-    AuthFlow: 'USER_PASSWORD_AUTH', // More reliable for pure server-side Node.js CLI execution
-    ClientId: clientId,
-    AuthParameters: {
-      USERNAME: username,
-      PASSWORD: password,
-    },
-  });
-
+(async () => {
   try {
-    const response = await client.send(command);
-    
-    if (response.AuthenticationResult?.IdToken) {
-      console.log(response.AuthenticationResult.IdToken);
-      process.exit(0);
-    } else {
+    const { AuthenticationResult } = await client.send(
+      new InitiateAuthCommand({
+        AuthFlow: 'USER_PASSWORD_AUTH',
+        ClientId: clientId,
+        AuthParameters: { USERNAME: username, PASSWORD: password },
+      })
+    );
+
+    if (!AuthenticationResult?.IdToken) {
       throw new Error('Authentication succeeded but no IdToken was returned.');
     }
+
+    process.stdout.write(`${AuthenticationResult.IdToken}\n`);
+    process.exit(0);
   } catch (error) {
-    console.error('Authentication failed:', error.message);
+    console.error(`Authentication failed: ${error.message}`);
     process.exit(1);
   }
-}
-
-getTokens();
+})();
