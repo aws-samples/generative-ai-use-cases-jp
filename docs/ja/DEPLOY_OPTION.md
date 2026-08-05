@@ -163,7 +163,12 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 ### RAG チャット (Knowledge Base) ユースケースの有効化
 
 `ragKnowledgeBaseEnabled` に `true` を指定します。(デフォルトは `false`)  
-作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、OpenSearch Serverlessのナレッジベースが作成されます)
+作成ずみのKnowledge Baseがある場合、`ragKnowledgeBaseId` にナレッジベースIDを設定します。(`null`の場合、`ragKnowledgeBaseStorageType`で指定されたバックエンドでナレッジベースが作成されます)
+
+`ragKnowledgeBaseStorageType` でベクトルストアのバックエンドを選択できます。(デフォルトは `opensearch`)
+
+- `opensearch`: OpenSearch Serverless を使用（従来動作）
+- `s3vectors`: Amazon S3 Vectors を使用（低コスト、固定費なし）
 
 **[parameter.ts](/packages/cdk/parameter.ts) を編集**
 
@@ -172,6 +177,7 @@ arn:aws:kendra:ap-northeast-1:333333333333:index/77777777-3333-4444-aaaa-1111111
 const envs: Record<string, Partial<StackInput>> = {
   dev: {
     ragKnowledgeBaseEnabled: true,
+    ragKnowledgeBaseStorageType: 'opensearch', // 'opensearch' or 's3vectors'
     ragKnowledgeBaseId: 'XXXXXXXXXX',
     ragKnowledgeBaseStandbyReplicas: false,
     ragKnowledgeBaseAdvancedParsing: false,
@@ -190,6 +196,7 @@ const envs: Record<string, Partial<StackInput>> = {
 {
   "context": {
     "ragKnowledgeBaseEnabled": true,
+    "ragKnowledgeBaseStorageType": "opensearch", // "opensearch" or "s3vectors"
     "ragKnowledgeBaseId": "XXXXXXXXXX",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
@@ -998,17 +1005,22 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-5",
 "global.anthropic.claude-opus-4-8",
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-haiku-4-5-20251001-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-5",
 "us.anthropic.claude-opus-4-8",
 "us.anthropic.claude-opus-4-7",
 "us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-5",
 "us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "us.anthropic.claude-haiku-4-5-20251001-v1:0"
@@ -1020,6 +1032,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-opus-20240229-v1:0",
 "us.anthropic.claude-3-sonnet-20240229-v1:0",
 "us.anthropic.claude-3-haiku-20240307-v1:0",
+"eu.anthropic.claude-opus-5",
 "eu.anthropic.claude-opus-4-8",
 "eu.anthropic.claude-opus-4-7",
 "eu.anthropic.claude-opus-4-6-v1",
@@ -1196,16 +1209,21 @@ const envs: Record<string, Partial<StackInput>> = {
 "anthropic.claude-3-opus-20240229-v1:0",
 "anthropic.claude-3-sonnet-20240229-v1:0",
 "anthropic.claude-3-haiku-20240307-v1:0",
+"global.anthropic.claude-opus-5",
 "global.anthropic.claude-opus-4-8",
 "global.anthropic.claude-opus-4-7",
 "global.anthropic.claude-opus-4-6-v1",
+"global.anthropic.claude-sonnet-5",
+"global.anthropic.claude-fable-5",
 "global.anthropic.claude-sonnet-4-6",
 "global.anthropic.claude-opus-4-5-20251101-v1:0",
 "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
 "global.anthropic.claude-sonnet-4-20250514-v1:0",
+"us.anthropic.claude-opus-5",
 "us.anthropic.claude-opus-4-8",
 "us.anthropic.claude-opus-4-7",
 "us.anthropic.claude-opus-4-6-v1",
+"us.anthropic.claude-sonnet-5",
 "us.anthropic.claude-sonnet-4-6",
 "us.anthropic.claude-opus-4-1-20250805-v1:0",
 "us.anthropic.claude-opus-4-20250514-v1:0",
@@ -1219,6 +1237,7 @@ const envs: Record<string, Partial<StackInput>> = {
 "us.anthropic.claude-3-haiku-20240307-v1:0",
 "au.anthropic.claude-opus-4-6-v1",
 "au.anthropic.claude-sonnet-4-6",
+"eu.anthropic.claude-opus-5",
 "eu.anthropic.claude-opus-4-8",
 "eu.anthropic.claude-opus-4-7",
 "eu.anthropic.claude-opus-4-6-v1",

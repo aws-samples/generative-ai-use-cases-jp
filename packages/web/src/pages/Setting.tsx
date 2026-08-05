@@ -19,6 +19,8 @@ import DialogConfirmDeleteAllChats from '../components/DialogConfirmDeleteAllCha
 const ragEnabled: boolean = import.meta.env.VITE_APP_RAG_ENABLED === 'true';
 const ragKnowledgeBaseEnabled: boolean =
   import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED === 'true';
+const ragKnowledgeBaseStorageType: string =
+  import.meta.env.VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE || 'opensearch';
 const agentEnabled: boolean = import.meta.env.VITE_APP_AGENT_ENABLED === 'true';
 
 const SettingItem = (props: {
@@ -225,7 +227,11 @@ const Setting = () => {
         />
         <SettingItem
           name={t('setting.items.rag_kb_enabled')}
-          value={ragKnowledgeBaseEnabled.toString()}
+          value={
+            ragKnowledgeBaseEnabled
+              ? `true (${ragKnowledgeBaseStorageType === 's3vectors' ? 'Amazon S3 Vectors' : 'OpenSearch Serverless'})`
+              : 'false'
+          }
         />
         <SettingItem
           name={t('setting.items.agent_enabled')}

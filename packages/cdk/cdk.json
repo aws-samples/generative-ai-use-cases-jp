@@ -27,6 +27,7 @@
     "kendraIndexScheduleDeleteCron": null,
     "ragKnowledgeBaseEnabled": false,
     "ragKnowledgeBaseId": null,
+    "ragKnowledgeBaseStorageType": "opensearch",
     "ragKnowledgeBaseStandbyReplicas": false,
     "ragKnowledgeBaseAdvancedParsing": false,
     "ragKnowledgeBaseAdvancedParsingModelId": "anthropic.claude-3-sonnet-20240229-v1:0",
@@ -42,6 +43,8 @@
     "hiddenUseCases": {},
     "modelRegion": "us-east-1",
     "modelIds": [
+      "global.anthropic.claude-opus-5",
+      "global.anthropic.claude-sonnet-5",
       "global.anthropic.claude-sonnet-4-6",
       "global.anthropic.claude-opus-4-8",
       "global.anthropic.claude-opus-4-7",

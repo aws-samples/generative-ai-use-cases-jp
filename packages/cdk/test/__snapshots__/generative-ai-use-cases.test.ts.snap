@@ -85,7 +85,7 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -131,7 +131,7 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/agent-builder/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -582,7 +582,7 @@ exports[`GenerativeAiUseCases matches the snapshot (AgentCore with VPC) 1`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/generic/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -2213,7 +2213,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -2953,7 +2953,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -3350,6 +3350,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 2`] = `
     "KnowledgeBase": {
       "DependsOn": [
         "Collection",
+        "KnowledgeBaseRoleDefaultPolicyB3F66209",
         "OssIndexCustomResourceFB9548E5",
       ],
       "Properties": {
@@ -4438,7 +4439,7 @@ Automatically detect the language of the user's request and think and answer in 
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -4572,7 +4573,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -4618,7 +4619,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/agent-builder/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -5021,7 +5022,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/generic/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -5414,6 +5415,9 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
     },
     "RagKnowledgeBaseEnabled": {
       "Value": "true",
+    },
+    "RagKnowledgeBaseStorageType": {
+      "Value": "opensearch",
     },
     "Region": {
       "Value": "us-east-1",
@@ -12912,7 +12916,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -13183,7 +13187,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -13450,6 +13454,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
           },
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
+          "VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE": "opensearch",
           "VITE_APP_REGION": "us-east-1",
           "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
@@ -14293,7 +14298,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -14622,7 +14627,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -14780,7 +14785,7 @@ exports[`GenerativeAiUseCases matches the snapshot (closed network mode) 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -16868,7 +16873,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -17265,6 +17270,7 @@ exports[`GenerativeAiUseCases matches the snapshot 2`] = `
     "KnowledgeBase": {
       "DependsOn": [
         "Collection",
+        "KnowledgeBaseRoleDefaultPolicyB3F66209",
         "OssIndexCustomResourceFB9548E5",
       ],
       "Properties": {
@@ -18301,7 +18307,7 @@ Automatically detect the language of the user's request and think and answer in 
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -18435,7 +18441,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -18481,7 +18487,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/agent-builder/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -18884,7 +18890,7 @@ exports[`GenerativeAiUseCases matches the snapshot 4`] = `
             "Ref": "GenericAgentCoreAgentCoreFileBucket0430DA42",
           },
           "MCP_CONFIG_PATH": "/var/task/mcp-configs/generic/mcp.json",
-          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
+          "SUPPORTED_CACHE_FIELDS": "{"anthropic.claude-sonnet-5":["messages","system","tools"],"anthropic.claude-opus-5":["messages","system","tools"],"anthropic.claude-opus-4-8":["messages","system","tools"],"anthropic.claude-opus-4-7":["messages","system","tools"],"anthropic.claude-opus-4-6-v1":["messages","system","tools"],"anthropic.claude-sonnet-4-6":["messages","system","tools"],"anthropic.claude-opus-4-5-20251101-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-5-20250929-v1:0":["messages","system","tools"],"anthropic.claude-haiku-4-5-20251001-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-1-20250805-v1:0":["messages","system","tools"],"anthropic.claude-opus-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-sonnet-4-20250514-v1:0":["messages","system","tools"],"anthropic.claude-3-7-sonnet-20250219-v1:0":["messages","system","tools"],"anthropic.claude-3-5-haiku-20241022-v1:0":["messages","system","tools"],"amazon.nova-premier-v1:0":["messages","system"],"amazon.nova-pro-v1:0":["messages","system"],"amazon.nova-lite-v1:0":["messages","system"],"amazon.nova-micro-v1:0":["messages","system"],"amazon.nova-2-lite-v1:0":["messages","system"]}",
         },
         "LifecycleConfiguration": {},
         "NetworkConfiguration": {
@@ -19277,6 +19283,9 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
     },
     "RagKnowledgeBaseEnabled": {
       "Value": "true",
+    },
+    "RagKnowledgeBaseStorageType": {
+      "Value": "opensearch",
     },
     "Region": {
       "Value": "us-east-1",
@@ -26597,7 +26606,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -26868,7 +26877,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",
@@ -27138,6 +27147,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
           },
           "VITE_APP_RAG_ENABLED": "true",
           "VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED": "true",
+          "VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE": "opensearch",
           "VITE_APP_REGION": "us-east-1",
           "VITE_APP_RESEARCH_AGENT_ENABLED": "false",
           "VITE_APP_SAMLAUTH_ENABLED": "false",
@@ -29018,7 +29028,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -29152,7 +29162,7 @@ exports[`GenerativeAiUseCases matches the snapshot 6`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs22.x",
+        "Runtime": "nodejs24.x",
         "Tags": [
           {
             "Key": "app",

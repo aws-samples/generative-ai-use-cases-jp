@@ -27,7 +27,8 @@ export const handler = async (
     const updatedChat = await setChatTitle(
       chatItem?.id,
       chatItem?.createdDate,
-      req.title
+      req.title,
+      req.usecase
     );
 
     return {

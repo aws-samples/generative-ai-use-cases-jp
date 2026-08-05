@@ -32,6 +32,7 @@ export VITE_APP_FLOW_STREAM_FUNCTION_ARN=$(extract_value "$stack_output" 'Invoke
 export VITE_APP_FLOWS=$(extract_value "$stack_output" 'Flows' | base64 -d)
 export VITE_APP_RAG_ENABLED=$(extract_value "$stack_output" RagEnabled)
 export VITE_APP_RAG_KNOWLEDGE_BASE_ENABLED=$(extract_value "$stack_output" RagKnowledgeBaseEnabled)
+export VITE_APP_RAG_KNOWLEDGE_BASE_STORAGE_TYPE=$(extract_value "$stack_output" RagKnowledgeBaseStorageType)
 export VITE_APP_AGENT_ENABLED=$(extract_value "$stack_output" AgentEnabled)
 export VITE_APP_SELF_SIGN_UP_ENABLED=$(extract_value "$stack_output" SelfSignUpEnabled)
 export VITE_APP_MODEL_REGION=$(extract_value "$stack_output" ModelRegion)

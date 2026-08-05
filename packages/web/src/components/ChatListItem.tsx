@@ -8,10 +8,11 @@ import React, {
 } from 'react';
 import { BaseProps } from '../@types/common';
 import { Link } from 'react-router-dom';
-import { PiChat, PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
+import { PiCheck, PiPencilLine, PiTrash, PiX } from 'react-icons/pi';
 import ButtonIcon from './ButtonIcon';
 import { Chat } from 'generative-ai-use-cases';
 import { decomposeId } from '../utils/ChatUtils';
+import { getUseCaseIcon } from '../utils/UseCaseIconMap';
 import DialogConfirmDeleteChat from './DialogConfirmDeleteChat';
 
 type Props = BaseProps & {
@@ -114,9 +115,7 @@ const ChatListItem: React.FC<Props> = (props) => {
         to={`/chat/${chatId}`}>
         <div
           className={`flex h-8 max-h-5 w-full justify-start overflow-hidden`}>
-          <div className="mr-2 ">
-            <PiChat />
-          </div>
+          <div className="mr-2 ">{getUseCaseIcon(props.chat.usecase)}</div>
           <div className="relative flex-1 text-ellipsis break-all">
             {editing ? (
               <input

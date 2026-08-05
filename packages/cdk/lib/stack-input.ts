@@ -43,6 +43,8 @@ const baseStackInputSchema = z.object({
       ])
     )
     .default([
+      'global.anthropic.claude-opus-5',
+      'global.anthropic.claude-sonnet-5',
       'global.anthropic.claude-sonnet-4-6',
       'global.anthropic.claude-opus-4-8',
       'global.anthropic.claude-opus-4-7',
@@ -121,6 +123,9 @@ const baseStackInputSchema = z.object({
   // RAG KB
   ragKnowledgeBaseEnabled: z.boolean().default(false),
   ragKnowledgeBaseId: z.string().nullish(),
+  ragKnowledgeBaseStorageType: z
+    .enum(['opensearch', 's3vectors'])
+    .default('opensearch'),
   embeddingModelId: z.string().default('amazon.titan-embed-text-v2:0'),
   ragKnowledgeBaseStandbyReplicas: z.boolean().default(false),
   ragKnowledgeBaseAdvancedParsing: z.boolean().default(false),

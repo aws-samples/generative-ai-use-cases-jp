@@ -146,7 +146,7 @@ chat:
   drop_files: ファイルをドロップしてください
   hint_cmd_enter: ⌘ + Enter で送信
   hint_ctrl_enter: Ctrl + Enter で送信
-  history: 会話履歴
+  history: 履歴
   initialize: 初期化
   open_link: リンクを開く
   prompt_examples: プロンプト例
