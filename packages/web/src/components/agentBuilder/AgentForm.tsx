@@ -47,6 +47,11 @@ const AgentForm: React.FC<AgentFormProps> = ({
   const { t } = useTranslation();
   const { modelIds: availableModels, modelDisplayName } = MODELS;
 
+  // Web search is provisioned at deploy time, so hide the option when it is off
+  const webSearchEnabledByDeployment =
+    import.meta.env.VITE_APP_AGENT_CORE_AGENT_BUILDER_WEB_SEARCH_ENABLED ===
+    'true';
+
   // Form state
   const [formData, setFormData] = useState<AgentFormData>({
     name: '',
@@ -369,30 +374,32 @@ const AgentForm: React.FC<AgentFormProps> = ({
             </div>
           </div>
 
-          <div className="flex items-start space-x-3">
-            <input
-              type="checkbox"
-              id="webSearchEnabled"
-              checked={formData.webSearchEnabled}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  webSearchEnabled: e.target.checked,
-                })
-              }
-              className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <div className="flex-1">
-              <label
-                htmlFor="webSearchEnabled"
-                className="block cursor-pointer text-sm font-medium text-gray-700">
-                {t('agent_builder.enable_web_search')}
-              </label>
-              <p className="mt-1 text-xs text-gray-500">
-                {t('agent_builder.web_search_description')}
-              </p>
+          {webSearchEnabledByDeployment && (
+            <div className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                id="webSearchEnabled"
+                checked={formData.webSearchEnabled}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    webSearchEnabled: e.target.checked,
+                  })
+                }
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <div className="flex-1">
+                <label
+                  htmlFor="webSearchEnabled"
+                  className="block cursor-pointer text-sm font-medium text-gray-700">
+                  {t('agent_builder.enable_web_search')}
+                </label>
+                <p className="mt-1 text-xs text-gray-500">
+                  {t('agent_builder.web_search_description')}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-start space-x-3">
             <input
