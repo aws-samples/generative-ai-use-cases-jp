@@ -256,7 +256,11 @@ const convertFileToStrandsContentBlock = async (
   base64Data: string
 ): Promise<StrandsContentBlock | null> => {
   const mimeType = file.type;
-  const fileName = file.name.replace(/[^a-zA-Z0-9\s\-()[\]]/g, 'X');
+  // \s must not be used here: it also matches U+3000 (ideographic space) and tabs,
+  // which Bedrock rejects. Consecutive spaces are rejected as well.
+  const fileName = file.name
+    .replace(/[^a-zA-Z0-9 \-()[\]]/g, 'X')
+    .replace(/ {2,}/g, ' ');
 
   // Determine file type based on MIME type
   if (mimeType.startsWith('image/')) {
