@@ -90,3 +90,5 @@ venv/
 
 # Ruff
 .ruff_cache
+# Tests are not needed in the runtime image
+tests/

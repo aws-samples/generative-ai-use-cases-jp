@@ -37,7 +37,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
-        run: uv sync --group=lint
+        run: uv sync --group=lint --group=test
 
       - name: Run ruff check
         working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
@@ -46,6 +46,10 @@ jobs:
       - name: Run ruff format
         working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
         run: uv run ruff format .
+
+      - name: Run tests
+        working-directory: packages/cdk/lambda-python/generic-agent-core-runtime
+        run: uv run --group=test pytest
 
       - name: Check for changes
         run: |

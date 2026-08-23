@@ -13,17 +13,16 @@ from strands.tools.mcp import MCPClient
 
 from .config import WORKSPACE_DIR, get_aws_credentials, get_uv_environment
 
-# Import python-pptx (used by the PowerPoint tool)
+# Import the PowerPoint builder (depends on python-pptx)
 try:
-    from pptx import Presentation
-    from pptx.util import Inches
+    from .pptx_builder import SLIDE_TYPES, build_presentation
 
     PPTX_AVAILABLE = True
 except ImportError as e:
     PPTX_AVAILABLE = False
     logging.getLogger(__name__).warning(f"python-pptx not available: {e}")
-    Presentation = None
-    Inches = None
+    SLIDE_TYPES = []
+    build_presentation = None
 
 # Import strands-agents code interpreter tool
 try:
@@ -192,21 +191,53 @@ class ToolManager:
         """Get the PowerPoint generation tool"""
 
         @tool
-        def create_powerpoint(filename: str, slides: list[dict[str, Any]]) -> str:
+        def create_powerpoint(filename: str, slides: list[dict[str, Any]], deck_title: str = "") -> str:
             """Create a PowerPoint (.pptx) file under /tmp/ws and return its path.
 
-            Use this when the user asks for slides, a deck, or a .pptx file.
-            After creating the file, upload it with
-            `upload_file_to_s3_and_retrieve_s3_url` to hand it to the user.
+            Use this when the user asks for slides, a deck, or a .pptx file. After
+            creating the file, upload it with `upload_file_to_s3_and_retrieve_s3_url`
+            to hand it to the user.
+
+            Every slide is an object with a `type` and the fields that type needs.
+            Slides other than title/section/closing/quote/fullimage also accept
+            `kicker` (a short label above the title), `title`, `message` (one or two
+            lines stating what the slide shows) and `notes` (speaker notes).
+
+            Write the `title` as the conclusion rather than a topic: prefer
+            "単価を上げても数量は落ちない" over "売上の分析".
+
+            Available types and their fields:
+              title       title, subtitle, footnote
+              section     number, title
+              closing     title, subtitle
+              agenda      items[]
+              bullets     bullets[]
+              statement   body (one or two short lines)
+              takeaways   items[]
+              columns     columns[]{title, items[], highlight}
+              kpi         items[]{label, value, unit, note}
+              table       rows[][] (first row is the header), column_widths[]
+              chart       chart_type(column|bar|line|pie), categories[],
+                          series[]{name, values[]}, insight[], insight_title
+              architecture nodes[]{label, note, highlight}
+              beforeafter before{title, items[]}, after{title, items[]}
+              quote       quote, author, source
+              fullimage   image (a path under /tmp/ws), title, subtitle, scrim
+              code        code (string or lines[]), caption
+              swimlane    columns[], lanes[]{name, bars[]{start, span, label, tone}},
+                          milestones[]{column, label}, today
+              sequence    actors[], highlight, messages[]{from, to, label, return}
+              orgchart    root{name, note, children[]}
+              logictree   root{label, highlight, children[]}
+              flow        steps[]{type(start|process|decision|end), label,
+                          no_branch, yes_label, no_label}
+              quadrant    x_axis, y_axis, quadrants{top_left,...},
+                          points[]{label, x, y, highlight}
 
             Args:
                 filename: Output file name, for example "report.pptx".
-                slides: One entry per slide. Each entry may contain:
-                    title (str): Slide title.
-                    subtitle (str): Subtitle. Only used when the slide has no bullets.
-                    bullets (list[str]): Body lines, rendered as a bulleted list.
-                    notes (str): Speaker notes.
-                    image (str): Path to an image under /tmp/ws to place on the slide.
+                slides: The slides to render, in order.
+                deck_title: Shown in the footer of every numbered slide.
             """
             if not PPTX_AVAILABLE:
                 raise RuntimeError("python-pptx is not installed in this runtime.")
@@ -218,49 +249,12 @@ class ToolManager:
             os.makedirs(WORKSPACE_DIR, exist_ok=True)
             filepath = os.path.join(WORKSPACE_DIR, name)
 
-            presentation = Presentation()
-            # Layout indices of the default python-pptx template.
-            title_slide, title_and_content, title_only = 0, 1, 5
+            for i, spec in enumerate(slides):
+                image = spec.get("image") if isinstance(spec, dict) else None
+                if image and not str(image).startswith(WORKSPACE_DIR):
+                    raise ValueError(f"slide {i + 1}: image must be a file under {WORKSPACE_DIR}: {image}")
 
-            for slide_spec in slides:
-                title = slide_spec.get("title", "")
-                subtitle = slide_spec.get("subtitle", "")
-                bullets = slide_spec.get("bullets") or []
-                image = slide_spec.get("image")
-
-                if image:
-                    layout = title_only
-                elif bullets:
-                    layout = title_and_content
-                elif subtitle:
-                    layout = title_slide
-                else:
-                    # Avoid leaving an empty subtitle placeholder on the slide.
-                    layout = title_only
-
-                slide = presentation.slides.add_slide(presentation.slide_layouts[layout])
-                if slide.shapes.title is not None:
-                    slide.shapes.title.text = title
-
-                if bullets:
-                    body = slide.placeholders[1].text_frame
-                    body.text = str(bullets[0])
-                    for line in bullets[1:]:
-                        body.add_paragraph().text = str(line)
-                elif subtitle and layout == title_slide:
-                    slide.placeholders[1].text = subtitle
-
-                if image:
-                    if not str(image).startswith(WORKSPACE_DIR):
-                        raise ValueError(f"Image must be a file under {WORKSPACE_DIR}: {image}")
-                    if not os.path.exists(image):
-                        raise ValueError(f"Image not found: {image}")
-                    slide.shapes.add_picture(image, Inches(1.0), Inches(1.8), height=Inches(4.5))
-
-                notes = slide_spec.get("notes")
-                if notes:
-                    slide.notes_slide.notes_text_frame.text = str(notes)
-
+            presentation = build_presentation(slides, deck_title or None)
             presentation.save(filepath)
             logger.info(f"Created PowerPoint with {len(slides)} slides: {filepath}")
             return filepath

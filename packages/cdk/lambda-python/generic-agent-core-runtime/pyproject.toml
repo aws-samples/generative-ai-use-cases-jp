@@ -20,6 +20,14 @@ dependencies = [
 lint = [
   "ruff>=0.8.0",
 ]
+test = [
+  "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+# The runtime is not an installed package; tests import it as `src.*`.
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py313"
