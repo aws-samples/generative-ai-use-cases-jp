@@ -13,6 +13,7 @@ dependencies = [
   "aws-opentelemetry-distro>=0.10.1",
   "python-multipart>=0.0.26",
   "cryptography>=46.0.7",
+  "python-pptx>=1.0.2",
 ]
 
 [dependency-groups]

@@ -13,6 +13,18 @@ from strands.tools.mcp import MCPClient
 
 from .config import WORKSPACE_DIR, get_aws_credentials, get_uv_environment
 
+# Import python-pptx (used by the PowerPoint tool)
+try:
+    from pptx import Presentation
+    from pptx.util import Inches
+
+    PPTX_AVAILABLE = True
+except ImportError as e:
+    PPTX_AVAILABLE = False
+    logging.getLogger(__name__).warning(f"python-pptx not available: {e}")
+    Presentation = None
+    Inches = None
+
 # Import strands-agents code interpreter tool
 try:
     from strands_tools.code_interpreter import AgentCoreCodeInterpreter
@@ -176,6 +188,85 @@ class ToolManager:
 
         return upload_file_to_s3_and_retrieve_s3_url
 
+    def get_pptx_tool(self):
+        """Get the PowerPoint generation tool"""
+
+        @tool
+        def create_powerpoint(filename: str, slides: list[dict[str, Any]]) -> str:
+            """Create a PowerPoint (.pptx) file under /tmp/ws and return its path.
+
+            Use this when the user asks for slides, a deck, or a .pptx file.
+            After creating the file, upload it with
+            `upload_file_to_s3_and_retrieve_s3_url` to hand it to the user.
+
+            Args:
+                filename: Output file name, for example "report.pptx".
+                slides: One entry per slide. Each entry may contain:
+                    title (str): Slide title.
+                    subtitle (str): Subtitle. Only used when the slide has no bullets.
+                    bullets (list[str]): Body lines, rendered as a bulleted list.
+                    notes (str): Speaker notes.
+                    image (str): Path to an image under /tmp/ws to place on the slide.
+            """
+            if not PPTX_AVAILABLE:
+                raise RuntimeError("python-pptx is not installed in this runtime.")
+
+            # Keep the output inside the workspace so the upload tool accepts it.
+            name = os.path.basename(filename) or "presentation.pptx"
+            if not name.lower().endswith(".pptx"):
+                name = f"{name}.pptx"
+            os.makedirs(WORKSPACE_DIR, exist_ok=True)
+            filepath = os.path.join(WORKSPACE_DIR, name)
+
+            presentation = Presentation()
+            # Layout indices of the default python-pptx template.
+            title_slide, title_and_content, title_only = 0, 1, 5
+
+            for slide_spec in slides:
+                title = slide_spec.get("title", "")
+                subtitle = slide_spec.get("subtitle", "")
+                bullets = slide_spec.get("bullets") or []
+                image = slide_spec.get("image")
+
+                if image:
+                    layout = title_only
+                elif bullets:
+                    layout = title_and_content
+                elif subtitle:
+                    layout = title_slide
+                else:
+                    # Avoid leaving an empty subtitle placeholder on the slide.
+                    layout = title_only
+
+                slide = presentation.slides.add_slide(presentation.slide_layouts[layout])
+                if slide.shapes.title is not None:
+                    slide.shapes.title.text = title
+
+                if bullets:
+                    body = slide.placeholders[1].text_frame
+                    body.text = str(bullets[0])
+                    for line in bullets[1:]:
+                        body.add_paragraph().text = str(line)
+                elif subtitle and layout == title_slide:
+                    slide.placeholders[1].text = subtitle
+
+                if image:
+                    if not str(image).startswith(WORKSPACE_DIR):
+                        raise ValueError(f"Image must be a file under {WORKSPACE_DIR}: {image}")
+                    if not os.path.exists(image):
+                        raise ValueError(f"Image not found: {image}")
+                    slide.shapes.add_picture(image, Inches(1.0), Inches(1.8), height=Inches(4.5))
+
+                notes = slide_spec.get("notes")
+                if notes:
+                    slide.notes_slide.notes_text_frame.text = str(notes)
+
+            presentation.save(filepath)
+            logger.info(f"Created PowerPoint with {len(slides)} slides: {filepath}")
+            return filepath
+
+        return create_powerpoint
+
     def get_code_interpreter_tool(self) -> list[Any]:
         """Get code interpreter tool if available"""
         code_interpreter_tools = []
@@ -234,6 +325,11 @@ class ToolManager:
         # Add built-in tools (always included)
         upload_tool = self.get_upload_tool()
         all_tools.append(upload_tool)
+        builtin_count = 1
+
+        if PPTX_AVAILABLE:
+            all_tools.append(self.get_pptx_tool())
+            builtin_count += 1
 
         # Add code interpreter tools if enabled
         code_interpreter_tools = []
@@ -242,6 +338,6 @@ class ToolManager:
             all_tools.extend(code_interpreter_tools)
 
         # Log final tool count
-        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: 1, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
+        logger.info(f"Total tools loaded: {len(all_tools)} (MCP: {len(mcp_tools)}, Built-in: {builtin_count}, Code Interpreter: {len(code_interpreter_tools)} - {'enabled' if code_execution_enabled else 'disabled'})")
 
         return all_tools
