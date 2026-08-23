@@ -51,6 +51,8 @@ MAX_SEQUENCE_MESSAGES = 10
 MAX_SEQUENCE_ACTORS = 6
 MAX_FLOW_SCALE_DOWN = 0.8
 MAX_CODE_LINES = 18
+# A tree going right can be deeper than one going down, which runs out of width.
+MAX_TREE_DEPTH = {"right": 4, "down": 3}
 
 
 def _set_font(run, size, bold=False, color=INK, name=BODY_FONT):
@@ -168,20 +170,6 @@ def _declare_notes_master(prs):
     prs._element.insert(position, lst)
 
 
-def _set_transparency(shape, transparency):
-    """Apply transparency to a solid fill. python-pptx has no API for it."""
-    if not 0 < transparency < 1:
-        return
-    fill = shape.fill._xPr.find(qn("a:solidFill"))
-    if fill is None:
-        return
-    color = fill.find(qn("a:srgbClr"))
-    if color is None:
-        return
-    alpha = etree.SubElement(color, qn("a:alpha"))
-    alpha.set("val", str(int(round((1 - transparency) * 100000))))
-
-
 def _chrome(slide, spec, index, deck_title):
     """Draw kicker / title / accent rule / key message and the footer.
 
@@ -253,22 +241,6 @@ def _render_section(slide, spec, top):
     _text(slide, MARGIN, Inches(4.35), SLIDE_W - MARGIN * 2, Inches(0.9), [(spec.get("title", ""), 34, True, WHITE)])
 
 
-def _render_closing(slide, spec, top):
-    _rect(slide, 0, 0, SLIDE_W, SLIDE_H, INK)
-    _rect(slide, MARGIN, Inches(3.1), Inches(1.3), Pt(4), ACCENT)
-    _text(slide, MARGIN, Inches(3.5), SLIDE_W - MARGIN * 2, Inches(1.0), [(spec.get("title", ""), 34, True, WHITE)])
-    if spec.get("subtitle"):
-        _text(slide, MARGIN, Inches(4.75), SLIDE_W - MARGIN * 2, Inches(0.4), [(spec["subtitle"], 14, False, ON_DARK)])
-
-
-def _render_statement(slide, spec, top):
-    lines = _lines_of(spec.get("body"))
-    h = Inches(0.72) * len(lines) + Inches(0.9)
-    _rect(slide, MARGIN, top, SLIDE_W - MARGIN * 2, h, MIST)
-    _rect(slide, MARGIN, top, Pt(5), h, ACCENT)
-    _text(slide, MARGIN + Inches(0.7), top + Inches(0.42), SLIDE_W - MARGIN * 2 - Inches(1.4), h, [(ln, 26, True, INK) for ln in lines], spacing=1.25)
-
-
 def _render_bullets(slide, spec, top):
     items = _lines_of(spec.get("bullets"))
     pitch = _fit(BODY_BOTTOM - top, len(items), Inches(0.62), Inches(0.34), "bullets")
@@ -287,21 +259,6 @@ def _render_agenda(slide, spec, top):
         _text(slide, MARGIN, y, Inches(0.7), Inches(0.5), [(f"{i:02d}", 20, True, ACCENT)])
         _text(slide, MARGIN + Inches(0.95), y + Inches(0.06), Inches(9), Inches(0.5), [(item, 17, False, INK)])
         _rect(slide, MARGIN, y + pitch - Inches(0.26), SLIDE_W - MARGIN * 2, Pt(0.75), RULE)
-        y += pitch
-
-
-def _render_takeaways(slide, spec, top):
-    items = _lines_of(spec.get("items"))
-    pitch = _fit(BODY_BOTTOM - top, len(items), Inches(1.22), Inches(0.7), "takeaways")
-    card_h = pitch - Inches(0.22)
-    y = top
-    for item in items:
-        _rect(slide, MARGIN, y, SLIDE_W - MARGIN * 2, card_h, MIST)
-        _rect(slide, MARGIN, y, Pt(4), card_h, ACCENT)
-        badge = Inches(0.34)
-        _rect(slide, MARGIN + Inches(0.55), y + (card_h - badge) / 2, badge, badge, ACCENT, shape=MSO_SHAPE.OVAL)
-        _centered(slide, MARGIN + Inches(0.55), y + (card_h - badge) / 2, badge, badge, "✓", 12, True, WHITE)
-        _text(slide, MARGIN + Inches(1.25), y + (card_h - Inches(0.4)) / 2, SLIDE_W - MARGIN * 2 - Inches(2), Inches(0.8), [(item, 14.5, False, INK)], spacing=1.25)
         y += pitch
 
 
@@ -442,53 +399,6 @@ def _render_architecture(slide, spec, top):
         if i:
             ax = x - gap
             _h_arrow(slide, ax + Inches(0.12), x - Inches(0.05), y + nh / 2)
-
-
-def _render_beforeafter(slide, spec, top):
-    before, after = spec.get("before") or {}, spec.get("after") or {}
-    gap = Inches(1.1)
-    pw = (SLIDE_W - MARGIN * 2 - gap) / 2
-    height = min(Inches(3.9), BODY_BOTTOM - top)
-    for i, (panel, tag) in enumerate(((before, "BEFORE"), (after, "AFTER"))):
-        x = MARGIN + (pw + gap) * i
-        dark = i == 1
-        _rect(slide, x, top, pw, height, INK if dark else MIST, line=INK if dark else RULE)
-        _rect(slide, x, top, pw, Pt(4), ACCENT if dark else RULE)
-        _text(slide, x + Inches(0.4), top + Inches(0.35), pw - Inches(0.8), Inches(0.3), [(tag, 10.5, True, ACCENT if dark else MUTED)])
-        _text(slide, x + Inches(0.4), top + Inches(0.72), pw - Inches(0.8), Inches(0.45), [(panel.get("title", ""), 19, True, WHITE if dark else INK)])
-        rows = _lines_of(panel.get("items"))
-        y = top + Inches(1.5)
-        pitch = _fit(height - Inches(1.7), len(rows), Inches(0.72), Inches(0.36), "beforeafter")
-        for row in rows:
-            _rect(slide, x + Inches(0.4), y + Inches(0.1), Pt(4.5), Pt(4.5), ACCENT, shape=MSO_SHAPE.OVAL)
-            _text(slide, x + Inches(0.68), y, pw - Inches(1.15), pitch, [(row, 11.5, False, ON_DARK if dark else MUTED)], spacing=1.3)
-            y += pitch
-    _rect(slide, MARGIN + pw + Inches(0.28), top + height / 2 - Inches(0.18), Inches(0.36), Inches(0.36), ACCENT, shape=MSO_SHAPE.ISOSCELES_TRIANGLE).rotation = 90
-
-
-def _render_quote(slide, spec, top):
-    _rect(slide, 0, 0, SLIDE_W, SLIDE_H, MIST)
-    _text(slide, MARGIN, Inches(1.5), Inches(2), Inches(1.6), [("“", 130, True, ACCENT)])
-    lines = _lines_of(spec.get("quote"))
-    _text(slide, MARGIN + Inches(1.4), Inches(2.35), SLIDE_W - MARGIN * 2 - Inches(2.2), Inches(2.6), [(ln, 30, True, INK) for ln in lines], spacing=1.35)
-    _rect(slide, MARGIN + Inches(1.4), Inches(5.05), Inches(0.9), Pt(3), ACCENT)
-    credit = [(spec.get("author", ""), 13, True, INK)]
-    if spec.get("source"):
-        credit.append((spec["source"], 11, False, MUTED))
-    _text(slide, MARGIN + Inches(1.4), Inches(5.4), Inches(8), Inches(0.7), credit, spacing=1.4)
-
-
-def _render_fullimage(slide, spec, top):
-    image = spec.get("image")
-    if not image:
-        raise ValueError("fullimage requires an image path")
-    slide.shapes.add_picture(image, 0, 0, width=int(SLIDE_W), height=int(SLIDE_H))
-    scrim = _rect(slide, 0, 0, SLIDE_W, SLIDE_H, INK)
-    _set_transparency(scrim, float(spec.get("scrim", 0.45)))
-    _rect(slide, MARGIN, Inches(4.05), Inches(1.3), Pt(4), ACCENT)
-    _text(slide, MARGIN, Inches(4.45), SLIDE_W - MARGIN * 2, Inches(1.0), [(spec.get("title", ""), 36, True, WHITE)])
-    if spec.get("subtitle"):
-        _text(slide, MARGIN, Inches(5.6), SLIDE_W - MARGIN * 2, Inches(0.4), [(spec["subtitle"], 15, False, ON_DARK)])
 
 
 def _render_code(slide, spec, top):
@@ -644,116 +554,124 @@ def _tree_depth(node):
     return 1 + max((_tree_depth(k) for k in kids), default=0)
 
 
-def _render_orgchart(slide, spec, top):
-    """Top-down tree. Each subtree claims the width its leaves need."""
-    root = spec.get("root")
-    if not root:
-        raise ValueError("orgchart requires a root node")
-    depth = _tree_depth(root)
-    if depth > 3:
-        raise ValueError(f"orgchart supports up to 3 levels, got {depth}")
-
-    nw = Inches(2.05)
-    h_gap = Inches(0.28)
-    available = BODY_BOTTOM - top - Inches(0.1)
-    nh = min(Inches(0.82), available / depth * 0.58)
-    v_gap = (available - nh * depth) / max(1, depth - 1)
-    levels = [top + Inches(0.15) + (nh + v_gap) * d for d in range(depth)]
-
-    def width(node):
-        kids = node.get("children") or []
-        if not kids:
-            return nw
-        return sum(width(k) for k in kids) + h_gap * (len(kids) - 1)
-
-    total = width(root)
-    if total > SLIDE_W - MARGIN * 2:
-        raise ValueError("orgchart is too wide for one slide; split the branches")
-
-    def draw(node, left, level):
-        w = width(node)
-        x = left + (w - nw) / 2
-        y = levels[level]
-        dark = level == 0
-        _rect(slide, x, y, nw, nh, INK if dark else WHITE, line=None if dark else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-        if not dark:
-            _rect(slide, x, y, nw, Pt(3), ACCENT if level == 1 else RULE)
-        _text(slide, x, y + Inches(0.15), nw, Inches(0.3), [(node.get("name", ""), 12, True, WHITE if dark else INK)], align=PP_ALIGN.CENTER)
-        if node.get("note"):
-            _text(slide, x, y + Inches(0.46), nw, Inches(0.26), [(node["note"], 9.5, False, ON_DARK if dark else MUTED)], align=PP_ALIGN.CENTER)
-
-        kids = node.get("children") or []
-        if not kids:
-            return
-        bus_y = y + nh + v_gap / 2
-        _rect(slide, x + nw / 2 - Pt(1), y + nh, Pt(2), bus_y - (y + nh), RULE)
-        child_centres, cursor = [], left
-        for kid in kids:
-            kw = width(kid)
-            child_centres.append(cursor + (kw - nw) / 2 + nw / 2)
-            draw(kid, cursor, level + 1)
-            cursor += kw + h_gap
-        if len(child_centres) > 1:
-            _rect(slide, min(child_centres), bus_y - Pt(1), max(child_centres) - min(child_centres), Pt(2), RULE)
-        for c in child_centres:
-            _rect(slide, c - Pt(1), bus_y, Pt(2), levels[level + 1] - bus_y, RULE)
-
-    draw(root, MARGIN + (SLIDE_W - MARGIN * 2 - total) / 2, 0)
-
-
 def _render_logictree(slide, spec, top):
-    """Issue tree. The question sits on the left and decomposes to the right."""
+    """A tree of labelled nodes.
+
+    ``direction`` decides what it reads as: "right" decomposes a question from
+    the left (an issue tree), "down" hangs children under a parent (an org
+    chart). Both share the layout rule that a subtree claims the space its
+    leaves need, so an uneven tree still lines up.
+    """
     root = spec.get("root")
     if not root:
         raise ValueError("logictree requires a root node")
+    direction = spec.get("direction", "right")
+    if direction not in ("right", "down"):
+        raise ValueError(f'direction must be "right" or "down", got {direction!r}')
     depth = _tree_depth(root)
-    if depth > 4:
-        raise ValueError(f"logictree supports up to 4 levels, got {depth}")
-
-    available = BODY_BOTTOM - top - Inches(0.1)
-    h_gap = Inches(0.55)
-    level_w = (SLIDE_W - MARGIN * 2 - h_gap * (depth - 1)) / depth
-    min_leaf = Inches(0.52)
+    max_depth = MAX_TREE_DEPTH[direction]
+    if depth > max_depth:
+        raise ValueError(f"logictree going {direction} supports up to {max_depth} levels, got {depth}")
 
     def leaves(node):
         kids = node.get("children") or []
         return sum(leaves(k) for k in kids) if kids else 1
 
+    available = BODY_BOTTOM - top - Inches(0.1)
     leaf_count = leaves(root)
-    leaf_h = available / leaf_count
-    if leaf_h < min_leaf:
-        raise ValueError(f"logictree has {leaf_count} leaves and does not fit; split the branches")
-    node_h = min(Inches(0.66), leaf_h - Inches(0.12))
 
-    def draw(node, band_top, band_h, level):
-        x = MARGIN + (level_w + h_gap) * level
-        cy = band_top + band_h / 2
-        y = cy - node_h / 2
-        root_level = level == 0
-        _rect(slide, x, y, level_w, node_h, INK if root_level else WHITE, line=None if root_level else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-        if not root_level:
-            _rect(slide, x, y, Pt(4), node_h, ACCENT if node.get("highlight") else RULE)
-        _text(slide, x + Inches(0.22), y + (node_h - Inches(0.26)) / 2, level_w - Inches(0.44), Inches(0.5), [(node.get("label", ""), 11.5, root_level or bool(node.get("highlight")), WHITE if root_level else INK)], spacing=1.2)
+    if direction == "right":
+        gap = Inches(0.55)
+        level_w = (SLIDE_W - MARGIN * 2 - gap * (depth - 1)) / depth
+        band = available / leaf_count
+        if band < Inches(0.52):
+            raise ValueError(f"logictree has {leaf_count} leaves and does not fit; split the branches")
+        node_h = min(Inches(0.66), band - Inches(0.12))
+        node_w = level_w
+    else:
+        gap = Inches(0.28)
+        node_w = Inches(2.05)
+        span = node_w * leaf_count + gap * (leaf_count - 1)
+        if span > SLIDE_W - MARGIN * 2:
+            raise ValueError(f"logictree has {leaf_count} leaves and is too wide; split the branches")
+        node_h = min(Inches(0.82), available / depth * 0.58)
+        level_gap = (available - node_h * depth) / max(1, depth - 1)
+        levels = [top + Inches(0.15) + (node_h + level_gap) * d for d in range(depth)]
 
+    def extent(node):
+        """How much of the cross axis this subtree needs."""
         kids = node.get("children") or []
         if not kids:
-            return
-        # Elbow: out of the parent, down the shared spine, into each child.
-        spine_x = x + level_w + h_gap / 2
-        _rect(slide, x + level_w, cy - Pt(1), spine_x - (x + level_w), Pt(2), RULE)
-        centres, cursor = [], band_top
-        for kid in kids:
-            kh = band_h * leaves(kid) / leaves(node)
-            centres.append(cursor + kh / 2)
-            draw(kid, cursor, kh, level + 1)
-            cursor += kh
-        if len(centres) > 1:
-            _rect(slide, spine_x - Pt(1), min(centres), Pt(2), max(centres) - min(centres), RULE)
-        child_x = MARGIN + (level_w + h_gap) * (level + 1)
-        for c in centres:
-            _h_arrow(slide, spine_x, child_x - Inches(0.02), c, RULE, head=False)
+            return node_w if direction == "down" else available / leaf_count
+        return sum(extent(k) for k in kids) + (gap if direction == "down" else 0) * (len(kids) - 1)
 
-    draw(root, top + Inches(0.05), available, 0)
+    def draw(node, offset, size, level):
+        kids = node.get("children") or []
+        is_root = level == 0
+        if direction == "right":
+            x = MARGIN + (node_w + gap) * level
+            centre = offset + size / 2
+            y = centre - node_h / 2
+        else:
+            x = offset + (size - node_w) / 2
+            y = levels[level]
+            centre = x + node_w / 2
+
+        _rect(slide, x, y, node_w, node_h, INK if is_root else WHITE, line=None if is_root else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+        accent = ACCENT if (node.get("highlight") or (direction == "down" and level == 1)) else RULE
+        if not is_root:
+            if direction == "right":
+                _rect(slide, x, y, Pt(4), node_h, accent)
+            else:
+                _rect(slide, x, y, node_w, Pt(3), accent)
+
+        label = node.get("label", "")
+        note = node.get("note")
+        bold = is_root or bool(node.get("highlight"))
+        colour = WHITE if is_root else INK
+        if direction == "down":
+            _text(slide, x, y + Inches(0.15), node_w, Inches(0.3), [(label, 12, True, colour)], align=PP_ALIGN.CENTER)
+            if note:
+                _text(slide, x, y + Inches(0.46), node_w, Inches(0.26), [(note, 9.5, False, ON_DARK if is_root else MUTED)], align=PP_ALIGN.CENTER)
+        else:
+            _text(slide, x + Inches(0.22), y + (node_h - Inches(0.26)) / 2, node_w - Inches(0.44), Inches(0.5), [(label, 11.5, bold, colour)], spacing=1.2)
+
+        if not kids:
+            return
+        # Elbow: out of the parent, along a shared spine, into each child.
+        centres, cursor = [], offset
+        child_specs = []
+        for kid in kids:
+            share = extent(kid) if direction == "down" else size * leaves(kid) / leaves(node)
+            child_specs.append((kid, cursor, share))
+            cursor += share + (gap if direction == "down" else 0)
+        if direction == "right":
+            spine = x + node_w + gap / 2
+            _rect(slide, x + node_w, centre - Pt(1), spine - (x + node_w), Pt(2), RULE)
+            for _, kid_offset, share in child_specs:
+                centres.append(kid_offset + share / 2)
+            if len(centres) > 1:
+                _rect(slide, spine - Pt(1), min(centres), Pt(2), max(centres) - min(centres), RULE)
+            child_x = MARGIN + (node_w + gap) * (level + 1)
+            for c in centres:
+                _h_arrow(slide, spine, child_x - Inches(0.02), c, RULE, head=False)
+        else:
+            spine_y = y + node_h + level_gap / 2
+            _rect(slide, centre - Pt(1), y + node_h, Pt(2), spine_y - (y + node_h), RULE)
+            for _, kid_offset, share in child_specs:
+                centres.append(kid_offset + (share - node_w) / 2 + node_w / 2)
+            if len(centres) > 1:
+                _rect(slide, min(centres), spine_y - Pt(1), max(centres) - min(centres), Pt(2), RULE)
+            for c in centres:
+                _rect(slide, c - Pt(1), spine_y, Pt(2), levels[level + 1] - spine_y, RULE)
+        for kid, kid_offset, share in child_specs:
+            draw(kid, kid_offset, share, level + 1)
+
+    if direction == "right":
+        draw(root, top + Inches(0.05), available, 0)
+    else:
+        span = extent(root)
+        draw(root, MARGIN + (SLIDE_W - MARGIN * 2 - span) / 2, span, 0)
 
 
 def _render_flow(slide, spec, top):
@@ -851,31 +769,24 @@ def _render_quadrant(slide, spec, top):
 
 
 # Slides drawn edge to edge; they carry no heading, footer or page number.
-FULL_BLEED = {"title", "section", "closing", "quote", "fullimage"}
+FULL_BLEED = {"title", "section"}
 
 RENDERERS = {
     "title": _render_title,
     "section": _render_section,
-    "closing": _render_closing,
-    "statement": _render_statement,
-    "bullets": _render_bullets,
     "agenda": _render_agenda,
-    "takeaways": _render_takeaways,
-    "columns": _render_columns,
+    "bullets": _render_bullets,
     "kpi": _render_kpi,
-    "table": _render_table,
     "chart": _render_chart,
-    "architecture": _render_architecture,
-    "beforeafter": _render_beforeafter,
-    "quote": _render_quote,
-    "fullimage": _render_fullimage,
-    "code": _render_code,
-    "swimlane": _render_swimlane,
-    "sequence": _render_sequence,
-    "orgchart": _render_orgchart,
-    "logictree": _render_logictree,
-    "flow": _render_flow,
+    "table": _render_table,
+    "columns": _render_columns,
     "quadrant": _render_quadrant,
+    "architecture": _render_architecture,
+    "sequence": _render_sequence,
+    "swimlane": _render_swimlane,
+    "flow": _render_flow,
+    "logictree": _render_logictree,
+    "code": _render_code,
 }
 
 SLIDE_TYPES = sorted(RENDERERS)

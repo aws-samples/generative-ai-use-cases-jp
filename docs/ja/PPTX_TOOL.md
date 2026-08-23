@@ -20,7 +20,7 @@ AgentCore ユースケースのエージェントは、`create_powerpoint` ツ�
 
 ## 共通の項目
 
-全面デザインの種別（`title` / `section` / `closing` / `quote` / `fullimage`）を除く全種別で、次の項目が使えます。
+全面デザインの種別（`title` / `section`）を除く全種別で、次の項目が使えます。
 
 | 項目      | 説明                                                         |
 | --------- | ------------------------------------------------------------ |
@@ -35,26 +35,28 @@ AgentCore ユースケースのエージェントは、`create_powerpoint` ツ�
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `title`        | `title`, `subtitle`, `footnote`                                                                                       |
 | `section`      | `number`, `title`                                                                                                     |
-| `closing`      | `title`, `subtitle`                                                                                                   |
 | `agenda`       | `items[]`                                                                                                             |
 | `bullets`      | `bullets[]`                                                                                                           |
-| `statement`    | `body`（1〜2行の短い主張）                                                                                            |
-| `takeaways`    | `items[]`                                                                                                             |
-| `columns`      | `columns[]{title, items[], highlight}`（2〜4列）                                                                      |
 | `kpi`          | `items[]{label, value, unit, note}`（2〜4個）                                                                         |
-| `table`        | `rows[][]`（先頭行がヘッダー）, `column_widths[]`                                                                     |
 | `chart`        | `chart_type`(column/bar/line/pie), `categories[]`, `series[]{name, values[]}`, `insight[]`, `insight_title`           |
+| `table`        | `rows[][]`（先頭行がヘッダー）, `column_widths[]`                                                                     |
+| `columns`      | `columns[]{title, items[], highlight}`（2〜4列）                                                                      |
+| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`   |
 | `architecture` | `nodes[]{label, note, highlight}`（2〜5個）                                                                           |
 | `sequence`     | `actors[]`, `highlight`, `legend`, `messages[]{from, to, label, return}`                                              |
 | `swimlane`     | `columns[]`, `lanes[]{name, bars[]{start, span, label, tone}}`, `milestones[]{column, label}`, `today`, `today_label` |
 | `flow`         | `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}`                                    |
-| `orgchart`     | `root{name, note, children[]}`                                                                                        |
-| `logictree`    | `root{label, highlight, children[]}`                                                                                  |
-| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`   |
-| `beforeafter`  | `before{title, items[]}`, `after{title, items[]}`                                                                     |
-| `quote`        | `quote`, `author`, `source`                                                                                           |
-| `fullimage`    | `image`, `title`, `subtitle`, `scrim`                                                                                 |
+| `logictree`    | `direction`(right/down), `root{label, note, highlight, children[]}`                                                   |
 | `code`         | `code`, `caption`                                                                                                     |
+
+### logictree の2つの向き
+
+同じ木の描画を向きで使い分けます。
+
+- `direction: "right"`（既定）— 左に問いを置いて右へ分解する。**ロジックツリー／イシューツリー**
+- `direction: "down"` — 親の下に子をぶら下げる。**組織図**
+
+どちらも「各サブツリーは、その葉が必要とする幅（高さ）を確保する」規則で配置するので、枝の数が偏っても崩れません。
 
 ## 指定の例
 
@@ -123,6 +125,5 @@ slide 4 (agenda): agenda does not fit on one slide with 14 items; split it acros
 ## 注意事項
 
 - 文言はすべて指定した言語で出力されます。ツール側が文字列を補うのは `flow` の Yes / No のみで、これも `yes_label` / `no_label` で上書きできます
-- `fullimage` の `image` は作業ディレクトリ配下のファイルである必要があります
 - スライドのサイズは 16:9 固定です
 - 既存のテンプレート（.potx など）の読み込みには対応していません

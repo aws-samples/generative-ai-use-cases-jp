@@ -20,7 +20,7 @@ The tool is available both with `createGenericAgentCoreRuntime` and in Agent Bui
 
 ## Common Fields
 
-Every type except the full-bleed ones (`title`, `section`, `closing`, `quote`, `fullimage`) accepts these.
+Every type except the full-bleed ones (`title` and `section`) accepts these.
 
 | Field     | Description                                                                                 |
 | --------- | ------------------------------------------------------------------------------------------- |
@@ -35,26 +35,28 @@ Every type except the full-bleed ones (`title`, `section`, `closing`, `quote`, `
 | -------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `title`        | `title`, `subtitle`, `footnote`                                                                                       |
 | `section`      | `number`, `title`                                                                                                     |
-| `closing`      | `title`, `subtitle`                                                                                                   |
 | `agenda`       | `items[]`                                                                                                             |
 | `bullets`      | `bullets[]`                                                                                                           |
-| `statement`    | `body` (one or two short lines)                                                                                       |
-| `takeaways`    | `items[]`                                                                                                             |
-| `columns`      | `columns[]{title, items[], highlight}` (2 to 4)                                                                       |
 | `kpi`          | `items[]{label, value, unit, note}` (2 to 4)                                                                          |
-| `table`        | `rows[][]` (first row is the header), `column_widths[]`                                                               |
 | `chart`        | `chart_type` (column/bar/line/pie), `categories[]`, `series[]{name, values[]}`, `insight[]`, `insight_title`          |
+| `table`        | `rows[][]` (first row is the header), `column_widths[]`                                                               |
+| `columns`      | `columns[]{title, items[], highlight}` (2 to 4)                                                                       |
+| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`   |
 | `architecture` | `nodes[]{label, note, highlight}` (2 to 5)                                                                            |
 | `sequence`     | `actors[]`, `highlight`, `legend`, `messages[]{from, to, label, return}`                                              |
 | `swimlane`     | `columns[]`, `lanes[]{name, bars[]{start, span, label, tone}}`, `milestones[]{column, label}`, `today`, `today_label` |
 | `flow`         | `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}`                                    |
-| `orgchart`     | `root{name, note, children[]}`                                                                                        |
-| `logictree`    | `root{label, highlight, children[]}`                                                                                  |
-| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`   |
-| `beforeafter`  | `before{title, items[]}`, `after{title, items[]}`                                                                     |
-| `quote`        | `quote`, `author`, `source`                                                                                           |
-| `fullimage`    | `image`, `title`, `subtitle`, `scrim`                                                                                 |
+| `logictree`    | `direction` (right/down), `root{label, note, highlight, children[]}`                                                  |
 | `code`         | `code`, `caption`                                                                                                     |
+
+### The Two Tree Directions
+
+One renderer covers both shapes of tree.
+
+- `direction: "right"` (default) puts the question on the left and decomposes it rightwards: an issue tree
+- `direction: "down"` hangs children under their parent: an organisation chart
+
+Both place a subtree in the space its leaves need, so an uneven tree still lines up.
 
 ## Example
 
@@ -126,6 +128,5 @@ The fixed limits are:
 ## Notes
 
 - Every label appears in the language you pass. The only wording the renderer supplies is the Yes/No pair on a `flow`, and `yes_label` / `no_label` override it
-- The `image` of a `fullimage` slide must be a file inside the workspace directory
 - The slide size is fixed at 16:9
 - Loading an existing template (.potx and similar) is not supported

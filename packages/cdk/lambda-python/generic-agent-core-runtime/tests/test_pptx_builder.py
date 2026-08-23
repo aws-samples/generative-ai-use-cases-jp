@@ -26,11 +26,8 @@ TOLERANCE = Inches(0.03)
 SPECS = {
     "title": {"type": "title", "title": "表題\n2行目", "subtitle": "副題", "footnote": "脚注"},
     "section": {"type": "section", "number": "02", "title": "章"},
-    "closing": {"type": "closing", "title": "締め", "subtitle": "連絡先"},
-    "statement": {"type": "statement", "title": "見出し", "body": "一行の主張"},
     "bullets": {"type": "bullets", "title": "見出し", "bullets": ["あ", "い", "う"]},
     "agenda": {"type": "agenda", "title": "見出し", "items": ["一", "二", "三"]},
-    "takeaways": {"type": "takeaways", "title": "見出し", "items": ["甲", "乙"]},
     "columns": {
         "type": "columns",
         "title": "見出し",
@@ -66,13 +63,6 @@ SPECS = {
         "title": "見出し",
         "nodes": [{"label": "A", "note": "説明"}, {"label": "B", "highlight": True}],
     },
-    "beforeafter": {
-        "type": "beforeafter",
-        "title": "見出し",
-        "before": {"title": "前", "items": ["旧1", "旧2"]},
-        "after": {"title": "後", "items": ["新1"]},
-    },
-    "quote": {"type": "quote", "quote": "引用文", "author": "著者", "source": "出典"},
     "code": {"type": "code", "title": "見出し", "code": "x = 1\n# コメント", "caption": "説明"},
     "swimlane": {
         "type": "swimlane",
@@ -99,26 +89,29 @@ SPECS = {
             {"from": 2, "to": 0, "label": "返却", "return": True},
         ],
     },
-    "orgchart": {
-        "type": "orgchart",
-        "title": "見出し",
-        # A node with a single child used to collapse the connector to zero size.
-        "root": {
-            "name": "親",
-            "children": [
-                {"name": "子1", "children": [{"name": "孫1"}, {"name": "孫2"}]},
-                {"name": "子2", "children": [{"name": "孫3"}]},
-            ],
-        },
-    },
     "logictree": {
         "type": "logictree",
         "title": "見出し",
+        "direction": "right",
         "root": {
             "label": "問い",
             "children": [
                 {"label": "枝1", "highlight": True, "children": [{"label": "葉1"}]},
                 {"label": "枝2", "children": [{"label": "葉2"}, {"label": "葉3"}]},
+            ],
+        },
+    },
+    "logictree_down": {
+        "type": "logictree",
+        "direction": "down",
+        "title": "見出し",
+        "root": {
+            "label": "親",
+            "note": "説明",
+            # A node with one child used to collapse the connector to zero size.
+            "children": [
+                {"label": "子1", "children": [{"label": "孫1"}, {"label": "孫2"}]},
+                {"label": "子2", "children": [{"label": "孫3"}]},
             ],
         },
     },
@@ -146,19 +139,8 @@ SPECS = {
 
 
 @pytest.fixture(scope="module")
-def hero_image(tmp_path_factory):
-    from PIL import Image
-
-    path = tmp_path_factory.mktemp("img") / "hero.png"
-    Image.new("RGB", (320, 180), (20, 40, 60)).save(path)
-    return str(path)
-
-
-@pytest.fixture(scope="module")
-def all_specs(hero_image):
-    specs = dict(SPECS)
-    specs["fullimage"] = {"type": "fullimage", "image": hero_image, "title": "全面", "subtitle": "副題"}
-    return specs
+def all_specs():
+    return dict(SPECS)
 
 
 def save(prs, tmp_path, name="deck.pptx"):
@@ -173,7 +155,9 @@ def parts(path):
 
 
 def test_every_slide_type_has_a_spec(all_specs):
-    assert sorted(all_specs) == SLIDE_TYPES
+    """`logictree_down` covers the same renderer through its other direction."""
+    covered = {spec["type"] for spec in all_specs.values()}
+    assert sorted(covered) == SLIDE_TYPES
 
 
 @pytest.mark.parametrize("kind", sorted(SPECS))
@@ -249,14 +233,6 @@ def test_notes_text_is_stored(tmp_path):
     assert prs.slides[0].notes_slide.notes_text_frame.text == "話す内容"
 
 
-def test_fullimage_scrim_is_actually_transparent(hero_image, tmp_path):
-    """python-pptx has no transparency API; without the fix the image is hidden."""
-    prs = build_presentation([{"type": "fullimage", "image": hero_image, "title": "全面"}])
-    z, _ = parts(save(prs, tmp_path))
-    xml = z.read("ppt/slides/slide1.xml").decode()
-    assert re.search(r'<a:alpha val="\d+"/>', xml), "the scrim is fully opaque"
-
-
 def test_newlines_become_separate_paragraphs(tmp_path):
     prs = build_presentation([{"type": "title", "title": "一行目\n二行目"}])
     texts = [s.text_frame.text for s in prs.slides[0].shapes if s.has_text_frame]
@@ -329,6 +305,7 @@ def test_deck_title_is_optional(tmp_path):
         ({"type": "code", "code": "\n".join(f"line {i}" for i in range(30))}, "up to 18 lines"),
         ({"type": "columns", "columns": [{"title": "a", "items": []}]}, "2 to 4 columns"),
         ({"type": "table", "rows": [["a", "b"]]}, "at least one body row"),
+        ({"type": "logictree", "root": {"label": "a"}, "direction": "sideways"}, 'direction must be "right" or "down"'),
         ({"type": "table", "rows": [["a", "b"], ["c"]]}, "same number of cells"),
         (
             {"type": "chart", "categories": ["1", "2"], "series": [{"name": "s", "values": [1]}]},
@@ -342,7 +319,6 @@ def test_deck_title_is_optional(tmp_path):
             {"type": "quadrant", "points": [{"label": "x", "x": 1.4, "y": 0.5}]},
             "between 0 and 1",
         ),
-        ({"type": "fullimage"}, "requires an image path"),
     ],
 )
 def test_invalid_specs_raise_with_a_useful_message(spec, expected):
@@ -386,7 +362,7 @@ def test_east_asian_typeface_is_set(tmp_path):
     assert ("ea", "Yu Gothic") in faces
 
 
-def test_renderer_supplies_no_wording_of_its_own(hero_image):
+def test_renderer_supplies_no_wording_of_its_own():
     """A deck must not pick up Japanese (or English) labels the caller did not ask
     for; GenU serves more than one language."""
     specs = [
@@ -429,3 +405,29 @@ def test_flow_branch_labels_default_to_english_and_are_overridable():
     )
     texts = {s.text_frame.text for s in localised.slides[0].shapes if s.has_text_frame}
     assert {"はい", "いいえ"} <= texts
+
+
+@pytest.mark.parametrize("name", sorted(SPECS))
+def test_each_type_actually_draws_a_body(name):
+    """A renderer that silently draws nothing leaves only the heading and footer,
+    which every other assertion here would happily pass."""
+    prs = build_presentation([SPECS[name]], "デッキ")
+    chrome = {"見出し", "デッキ", "1"}
+    body = [s for s in prs.slides[0].shapes if not (s.has_text_frame and s.text_frame.text.strip() in chrome)]
+    assert len(body) >= 3, f"{name} drew nothing but the slide furniture"
+
+
+def test_tree_directions_place_the_root_differently():
+    right = build_presentation([SPECS["logictree"]], "デッキ")
+    down = build_presentation([SPECS["logictree_down"]], "デッキ")
+
+    def root_box(prs, label):
+        return next(s for s in prs.slides[0].shapes if s.has_text_frame and s.text_frame.text == label)
+
+    def leaf_box(prs, label):
+        return next(s for s in prs.slides[0].shapes if s.has_text_frame and s.text_frame.text == label)
+
+    # Going right the root is leftmost; going down it is topmost.
+    assert root_box(right, "問い").left < leaf_box(right, "葉1").left
+    assert root_box(down, "親").top < leaf_box(down, "孫1").top
+    assert root_box(down, "親").left > leaf_box(down, "孫1").left

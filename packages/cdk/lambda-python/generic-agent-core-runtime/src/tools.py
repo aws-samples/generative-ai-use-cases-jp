@@ -199,7 +199,7 @@ class ToolManager:
             to hand it to the user.
 
             Every slide is an object with a `type` and the fields that type needs.
-            Slides other than title/section/closing/quote/fullimage also accept
+            Slides other than title and section also accept
             `kicker` (a short label above the title), `title`, `message` (one or two
             lines stating what the slide shows) and `notes` (speaker notes).
 
@@ -213,31 +213,26 @@ class ToolManager:
             Available types and their fields:
               title       title, subtitle, footnote
               section     number, title
-              closing     title, subtitle
               agenda      items[]
               bullets     bullets[]
-              statement   body (one or two short lines)
-              takeaways   items[]
-              columns     columns[]{title, items[], highlight}
               kpi         items[]{label, value, unit, note}
-              table       rows[][] (first row is the header), column_widths[]
               chart       chart_type(column|bar|line|pie), categories[],
                           series[]{name, values[]}, insight[], insight_title
-              architecture nodes[]{label, note, highlight}
-              beforeafter before{title, items[]}, after{title, items[]}
-              quote       quote, author, source
-              fullimage   image (a path under /tmp/ws), title, subtitle, scrim
-              code        code (string or lines[]), caption
-              swimlane    columns[], lanes[]{name, bars[]{start, span, label, tone}},
-                          milestones[]{column, label}, today, today_label
-              sequence    actors[], highlight, legend,
-                          messages[]{from, to, label, return}
-              orgchart    root{name, note, children[]}
-              logictree   root{label, highlight, children[]}
-              flow        steps[]{type(start|process|decision|end), label,
-                          no_branch, yes_label, no_label}
+              table       rows[][] (first row is the header), column_widths[]
+              columns     columns[]{title, items[], highlight}
               quadrant    x_axis, y_axis, quadrants{top_left,...},
                           points[]{label, x, y, highlight}
+              architecture nodes[]{label, note, highlight}
+              sequence    actors[], highlight, legend,
+                          messages[]{from, to, label, return}
+              swimlane    columns[], lanes[]{name, bars[]{start, span, label, tone}},
+                          milestones[]{column, label}, today, today_label
+              flow        steps[]{type(start|process|decision|end), label,
+                          no_branch, yes_label, no_label}
+              logictree   direction(right|down), root{label, note, highlight,
+                          children[]}. "right" decomposes a question from the
+                          left; "down" draws an organisation chart
+              code        code (string or lines[]), caption
 
             Args:
                 filename: Output file name, for example "report.pptx".
