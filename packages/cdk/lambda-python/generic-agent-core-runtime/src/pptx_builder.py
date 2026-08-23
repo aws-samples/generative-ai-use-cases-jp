@@ -262,7 +262,7 @@ def _render_closing(slide, spec, top):
 
 
 def _render_statement(slide, spec, top):
-    lines = _lines_of(spec.get("body")) or _lines_of(spec.get("text"))
+    lines = _lines_of(spec.get("body"))
     h = Inches(0.72) * len(lines) + Inches(0.9)
     _rect(slide, MARGIN, top, SLIDE_W - MARGIN * 2, h, MIST)
     _rect(slide, MARGIN, top, Pt(5), h, ACCENT)
@@ -416,7 +416,10 @@ def _render_chart(slide, spec, top):
         iw = SLIDE_W - MARGIN - ix
         _rect(slide, ix, top, iw, height, MIST)
         _rect(slide, ix, top, Pt(4), height, ACCENT)
-        body = [(spec.get("insight_title", "読み取れること"), 12.5, True, INK)]
+        # No default wording here: the deck's language belongs to the caller.
+        body = []
+        if spec.get("insight_title"):
+            body.append((spec["insight_title"], 12.5, True, INK))
         body += [(ln, 11, False, MUTED, BODY_FONT) for ln in insight]
         _text(slide, ix + Inches(0.3), top + Inches(0.35), iw - Inches(0.6), height - Inches(0.7), body, spacing=1.35)
 
@@ -569,7 +572,8 @@ def _render_swimlane(slide, spec, top):
     if spec.get("today") is not None:
         nx = track_x + col_w * float(spec["today"])
         _rect(slide, nx, top, Pt(2), bottom - top, ACCENT)
-        _text(slide, nx - Inches(0.6), top - Inches(0.34), Inches(1.2), Inches(0.3), [("現在", 10, True, ACCENT)], align=PP_ALIGN.CENTER)
+        if spec.get("today_label"):
+            _text(slide, nx - Inches(0.6), top - Inches(0.34), Inches(1.2), Inches(0.3), [(spec["today_label"], 10, True, ACCENT)], align=PP_ALIGN.CENTER)
 
 
 def _render_sequence(slide, spec, top):
@@ -604,7 +608,8 @@ def _render_sequence(slide, spec, top):
             _rect(slide, x - Pt(0.75), y, Pt(1.5), Inches(0.07), RULE)
             y += Inches(0.13)
 
-    _text(slide, SLIDE_W - MARGIN - Inches(4.5), Inches(1.72), Inches(4.5), Inches(0.3), [("実線が呼び出し、点線が戻り", 10.5, False, MUTED)], align=PP_ALIGN.RIGHT)
+    if spec.get("legend"):
+        _text(slide, SLIDE_W - MARGIN - Inches(4.5), Inches(1.72), Inches(4.5), Inches(0.3), [(spec["legend"], 10.5, False, MUTED)], align=PP_ALIGN.RIGHT)
 
     y = first_y
     for msg in messages:
@@ -780,10 +785,10 @@ def _render_flow(slide, spec, top):
             _centered(slide, x + Inches(0.2), y, nw - Inches(0.4), h, step.get("label", ""), 10.5, True, INK)
             by = y + h / 2
             _h_arrow(slide, cx + nw / 2, side_cx - Inches(1.35), by, ACCENT)
-            _text(slide, cx + nw / 2 + Inches(0.12), by - Inches(0.32), Inches(1.2), Inches(0.28), [(step.get("no_label", "いいえ"), 9.5, True, ACCENT)])
+            _text(slide, cx + nw / 2 + Inches(0.12), by - Inches(0.32), Inches(1.2), Inches(0.28), [(step.get("no_label", "No"), 9.5, True, ACCENT)])
             _rect(slide, side_cx - Inches(1.35), by - Inches(0.29), Inches(2.7), Inches(0.58), MIST, line=RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
             _centered(slide, side_cx - Inches(1.35), by - Inches(0.29), Inches(2.7), Inches(0.58), step.get("no_branch", ""), 10, False, MUTED)
-            _text(slide, cx + Inches(0.12), y + h - Inches(0.04), Inches(1.2), Inches(0.26), [(step.get("yes_label", "はい"), 9.5, True, INK)])
+            _text(slide, cx + Inches(0.12), y + h - Inches(0.04), Inches(1.2), Inches(0.26), [(step.get("yes_label", "Yes"), 9.5, True, INK)])
         else:
             terminal = kind in ("start", "end")
             _rect(slide, x, y, nw, h, INK if terminal else WHITE, line=None if terminal else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)

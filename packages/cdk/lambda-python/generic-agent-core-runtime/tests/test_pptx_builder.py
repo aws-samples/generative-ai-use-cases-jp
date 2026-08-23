@@ -59,6 +59,7 @@ SPECS = {
         "categories": ["1月", "2月"],
         "series": [{"name": "売上", "values": [1, 2]}],
         "insight": ["伸びている"],
+        "insight_title": "読み取れること",
     },
     "architecture": {
         "type": "architecture",
@@ -83,12 +84,14 @@ SPECS = {
         ],
         "milestones": [{"column": 2, "label": "公開"}],
         "today": 1.5,
+        "today_label": "現在",
     },
     "sequence": {
         "type": "sequence",
         "title": "見出し",
         "actors": ["利用者", "UI", "Runtime"],
         "highlight": "Runtime",
+        "legend": "実線が呼び出し、点線が戻り",
         "messages": [
             {"from": 0, "to": 1, "label": "依頼"},
             {"from": 1, "to": 2, "label": "呼び出し"},
@@ -381,3 +384,48 @@ def test_east_asian_typeface_is_set(tmp_path):
     faces = {(e.tag.split("}")[1], e.get("typeface")) for e in root.iter() if e.tag.endswith(("}latin", "}ea"))}
     assert ("latin", "Yu Gothic") in faces
     assert ("ea", "Yu Gothic") in faces
+
+
+def test_renderer_supplies_no_wording_of_its_own(hero_image):
+    """A deck must not pick up Japanese (or English) labels the caller did not ask
+    for; GenU serves more than one language."""
+    specs = [
+        {"type": "chart", "title": "t", "categories": ["a"], "series": [{"name": "s", "values": [1]}], "insight": ["insight line"]},
+        {"type": "sequence", "title": "t", "actors": ["a", "b"], "messages": [{"from": 0, "to": 1, "label": "call"}]},
+        {"type": "swimlane", "title": "t", "columns": ["c1", "c2"], "lanes": [{"name": "lane", "bars": [{"start": 0, "span": 1, "label": "bar"}]}], "today": 1},
+    ]
+    # "deck" is the footer title and "1" the page number, both caller-driven.
+    supplied = {"t", "a", "b", "c1", "c2", "s", "lane", "bar", "call", "insight line", "deck", "1"}
+    for spec in specs:
+        prs = build_presentation([spec], "deck")
+        for shape in prs.slides[0].shapes:
+            if not shape.has_text_frame:
+                continue
+            text = shape.text_frame.text.strip()
+            if text:
+                assert text in supplied, f"{spec['type']} invented the label {text!r}"
+
+
+def test_optional_labels_are_rendered_when_given():
+    prs = build_presentation([SPECS["swimlane"]], "deck")
+    texts = {s.text_frame.text for s in prs.slides[0].shapes if s.has_text_frame}
+    assert "現在" in texts
+
+
+def test_flow_branch_labels_default_to_english_and_are_overridable():
+    default = build_presentation([SPECS["flow"]])
+    texts = {s.text_frame.text for s in default.slides[0].shapes if s.has_text_frame}
+    assert {"Yes", "No"} <= texts
+
+    localised = build_presentation(
+        [
+            {
+                **SPECS["flow"],
+                "steps": [
+                    {"type": "decision", "label": "条件", "no_branch": "別処理", "yes_label": "はい", "no_label": "いいえ"},
+                ],
+            }
+        ]
+    )
+    texts = {s.text_frame.text for s in localised.slides[0].shapes if s.has_text_frame}
+    assert {"はい", "いいえ"} <= texts

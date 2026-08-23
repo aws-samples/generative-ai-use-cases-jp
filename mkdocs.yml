@@ -47,6 +47,7 @@ nav:
   - Overview: index.md
   - Features:
       - Chart Tool: CHART_TOOL.md
+      - PowerPoint Tool: PPTX_TOOL.md
   - Getting started:
       - Deploy:
           - Quick Start: ABOUT.md

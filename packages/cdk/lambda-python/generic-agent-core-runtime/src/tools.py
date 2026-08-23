@@ -203,8 +203,12 @@ class ToolManager:
             `kicker` (a short label above the title), `title`, `message` (one or two
             lines stating what the slide shows) and `notes` (speaker notes).
 
-            Write the `title` as the conclusion rather than a topic: prefer
-            "単価を上げても数量は落ちない" over "売上の分析".
+            Write the `title` as the conclusion rather than the topic: prefer
+            "Raising prices did not reduce volume" over "Sales analysis".
+
+            Write every label in the language the user is using. The renderer
+            supplies no wording of its own except the Yes/No labels on a flow,
+            which `yes_label` and `no_label` override.
 
             Available types and their fields:
               title       title, subtitle, footnote
@@ -225,8 +229,9 @@ class ToolManager:
               fullimage   image (a path under /tmp/ws), title, subtitle, scrim
               code        code (string or lines[]), caption
               swimlane    columns[], lanes[]{name, bars[]{start, span, label, tone}},
-                          milestones[]{column, label}, today
-              sequence    actors[], highlight, messages[]{from, to, label, return}
+                          milestones[]{column, label}, today, today_label
+              sequence    actors[], highlight, legend,
+                          messages[]{from, to, label, return}
               orgchart    root{name, note, children[]}
               logictree   root{label, highlight, children[]}
               flow        steps[]{type(start|process|decision|end), label,
