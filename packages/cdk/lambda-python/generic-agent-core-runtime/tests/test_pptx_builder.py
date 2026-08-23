@@ -431,3 +431,55 @@ def test_tree_directions_place_the_root_differently():
     assert root_box(right, "問い").left < leaf_box(right, "葉1").left
     assert root_box(down, "親").top < leaf_box(down, "孫1").top
     assert root_box(down, "親").left > leaf_box(down, "孫1").left
+
+
+def _flow_steps(count):
+    steps = [{"type": "start", "label": "開始"}]
+    steps += [{"type": "process", "label": f"手順{i}"} for i in range(count - 2)]
+    steps += [{"type": "end", "label": "終了"}]
+    return steps
+
+
+def test_a_long_flow_wraps_into_two_columns():
+    """Wrapping beats shrinking the boxes until nobody can read them."""
+    one = build_presentation([{"type": "flow", "title": "見出し", "steps": _flow_steps(5)}])
+    many = build_presentation([{"type": "flow", "title": "見出し", "steps": _flow_steps(12)}])
+
+    def node_columns(prs):
+        lefts = [s.left for s in prs.slides[0].shapes if s.has_text_frame and s.text_frame.text.startswith(("開始", "終了", "手順"))]
+        return len(set(lefts))
+
+    assert node_columns(one) == 1
+    assert node_columns(many) == 2
+
+
+def test_flow_columns_can_be_pinned():
+    two = build_presentation([{"type": "flow", "title": "見出し", "columns": 2, "steps": _flow_steps(4)}])
+    lefts = {s.left for s in two.slides[0].shapes if s.has_text_frame and s.text_frame.text.startswith(("開始", "終了", "手順"))}
+    assert len(lefts) == 2
+
+    with pytest.raises(ValueError, match="1 or 2 columns"):
+        build_presentation([{"type": "flow", "columns": 3, "steps": _flow_steps(4)}])
+
+
+def test_wrapping_a_flow_draws_nothing_higher_than_not_wrapping():
+    """The connector between columns used to loop over the top of the slide,
+    crossing the key message. The heading is identical either way, so the
+    topmost shape must not move when the flow wraps."""
+    common = {"type": "flow", "title": "見出し", "message": "一行"}
+    one = build_presentation([{**common, "steps": _flow_steps(4)}])
+    two = build_presentation([{**common, "steps": _flow_steps(9)}])
+
+    def topmost(prs):
+        return min(s.top for s in prs.slides[0].shapes)
+
+    def column_count(prs):
+        return len({s.left for s in prs.slides[0].shapes if s.has_text_frame and s.text_frame.text.startswith(("開始", "終了", "手順"))})
+
+    assert (column_count(one), column_count(two)) == (1, 2)
+    assert topmost(two) >= topmost(one)
+
+
+def test_a_flow_that_cannot_wrap_is_rejected():
+    with pytest.raises(ValueError, match="does not fit"):
+        build_presentation([{"type": "flow", "steps": _flow_steps(40)}])

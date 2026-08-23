@@ -227,7 +227,8 @@ class ToolManager:
                           messages[]{from, to, label, return}
               swimlane    columns[], lanes[]{name, bars[]{start, span, label, tone}},
                           milestones[]{column, label}, today, today_label
-              flow        steps[]{type(start|process|decision|end), label,
+              flow        columns(1|2, wraps automatically when omitted),
+                          steps[]{type(start|process|decision|end), label,
                           no_branch, yes_label, no_label}
               logictree   direction(right|down), root{label, note, highlight,
                           children[]}. "right" decomposes a question from the

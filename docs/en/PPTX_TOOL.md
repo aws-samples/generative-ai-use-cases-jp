@@ -31,23 +31,24 @@ Every type except the full-bleed ones (`title` and `section`) accepts these.
 
 ## Slide Types
 
-| Type           | Main fields                                                                                                           |
-| -------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `title`        | `title`, `subtitle`, `footnote`                                                                                       |
-| `section`      | `number`, `title`                                                                                                     |
-| `agenda`       | `items[]`                                                                                                             |
-| `bullets`      | `bullets[]`                                                                                                           |
-| `kpi`          | `items[]{label, value, unit, note}` (2 to 4)                                                                          |
-| `chart`        | `chart_type` (column/bar/line/pie), `categories[]`, `series[]{name, values[]}`, `insight[]`, `insight_title`          |
-| `table`        | `rows[][]` (first row is the header), `column_widths[]`                                                               |
-| `columns`      | `columns[]{title, items[], highlight}` (2 to 4)                                                                       |
-| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`   |
-| `architecture` | `nodes[]{label, note, highlight}` (2 to 5)                                                                            |
-| `sequence`     | `actors[]`, `highlight`, `legend`, `messages[]{from, to, label, return}`                                              |
-| `swimlane`     | `columns[]`, `lanes[]{name, bars[]{start, span, label, tone}}`, `milestones[]{column, label}`, `today`, `today_label` |
-| `flow`         | `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}`                                    |
-| `logictree`    | `direction` (right/down), `root{label, note, highlight, children[]}`                                                  |
-| `code`         | `code`, `caption`                                                                                                     |
+| Type           | Main fields                                                                                                                 |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `title`        | `title`, `subtitle`, `footnote`                                                                                             |
+| `section`      | `number`, `title`                                                                                                           |
+| `agenda`       | `items[]`                                                                                                                   |
+| `bullets`      | `bullets[]`                                                                                                                 |
+| `kpi`          | `items[]{label, value, unit, note}` (2 to 4)                                                                                |
+| `chart`        | `chart_type` (column/bar/line/pie), `categories[]`, `series[]{name, values[]}`, `insight[]`, `insight_title`                |
+| `table`        | `rows[][]` (first row is the header), `column_widths[]`                                                                     |
+| `columns`      | `columns[]{title, items[], highlight}` (2 to 4)                                                                             |
+| `quadrant`     | `x_axis`, `y_axis`, `quadrants{top_left, top_right, bottom_left, bottom_right}`, `points[]{label, x, y, highlight}`         |
+| `architecture` | `nodes[]{label, note, highlight}` (2 to 5)                                                                                  |
+| `sequence`     | `actors[]`, `highlight`, `legend`, `messages[]{from, to, label, return}`                                                    |
+| `swimlane`     | `columns[]`, `lanes[]{name, bars[]{start, span, label, tone}}`, `milestones[]{column, label}`, `today`, `today_label`       |
+| `flow`         | `columns` (1/2, automatic when omitted), `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}` |
+| `logictree`    | `direction` (right/down), `root{label, note, highlight, children[]}`                                                        |
+| `code`         | `code`, `caption`                                                                                                           |
+| `flow`         | wraps into a second column, then errors                                                                                     |
 
 ### The Two Tree Directions
 

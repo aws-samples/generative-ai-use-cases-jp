@@ -45,9 +45,10 @@ AgentCore ユースケースのエージェントは、`create_powerpoint` ツ�
 | `architecture` | `nodes[]{label, note, highlight}`（2〜5個）                                                                           |
 | `sequence`     | `actors[]`, `highlight`, `legend`, `messages[]{from, to, label, return}`                                              |
 | `swimlane`     | `columns[]`, `lanes[]{name, bars[]{start, span, label, tone}}`, `milestones[]{column, label}`, `today`, `today_label` |
-| `flow`         | `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}`                                    |
+| `flow`         | `columns`(1/2・省略時は自動), `steps[]{type(start/process/decision/end), label, no_branch, yes_label, no_label}`      |
 | `logictree`    | `direction`(right/down), `root{label, note, highlight, children[]}`                                                   |
 | `code`         | `code`, `caption`                                                                                                     |
+| `flow`         | 1列に入らなければ2列に折り返す。2列でも入らなければエラー                                                             |
 
 ### logictree の2つの向き
 

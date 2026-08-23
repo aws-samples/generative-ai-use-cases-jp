@@ -14,6 +14,8 @@ Two rules apply to every renderer:
   it cannot notice silently clipped output.
 """
 
+import math
+
 from lxml import etree
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
@@ -268,19 +270,22 @@ def _render_columns(slide, spec, top):
         raise ValueError(f"columns supports 2 to 4 columns, got {len(cols)}")
     gap = Inches(0.25)
     cw = (SLIDE_W - MARGIN * 2 - gap * (len(cols) - 1)) / len(cols)
-    height = min(Inches(3.9), BODY_BOTTOM - top)
+    # Size the cards to their contents instead of a fixed height, so a short
+    # list does not leave the bottom of the card empty.
+    longest = max((len(_lines_of(c.get("items"))) for c in cols), default=0)
+    row_pitch = _fit(BODY_BOTTOM - top - Inches(1.3), longest, Inches(0.66), Inches(0.34), "columns")
+    height = min(Inches(1.0) + row_pitch * longest + Inches(0.3), BODY_BOTTOM - top)
     x = MARGIN
     for col in cols:
         rows = _lines_of(col.get("items"))
         highlight = bool(col.get("highlight"))
         _rect(slide, x, top, cw, height, WHITE, line=RULE)
         _rect(slide, x, top, cw, Pt(4), ACCENT if highlight else RULE)
-        _text(slide, x + Inches(0.35), top + Inches(0.35), cw - Inches(0.7), Inches(0.4), [(col.get("title", ""), 15, True, INK)])
+        _text(slide, x + Inches(0.35), top + Inches(0.35), cw - Inches(0.7), Inches(0.4), [(col.get("title", ""), 16, True, INK)])
         y = top + Inches(1.0)
-        row_pitch = _fit(height - Inches(1.2), len(rows), Inches(0.62), Inches(0.32), "columns")
         for row in rows:
             _rect(slide, x + Inches(0.35), y + Inches(0.09), Pt(4.5), Pt(4.5), ACCENT, shape=MSO_SHAPE.OVAL)
-            _text(slide, x + Inches(0.62), y, cw - Inches(1.0), row_pitch, [(row, 11.5, False, MUTED)], spacing=1.25)
+            _text(slide, x + Inches(0.62), y, cw - Inches(1.0), row_pitch, [(row, 13, False, MUTED)], spacing=1.25)
             y += row_pitch
         x += cw + gap
 
@@ -296,14 +301,14 @@ def _render_kpi(slide, spec, top):
     for item in items:
         _rect(slide, x, top, cw, height, WHITE, line=RULE)
         _rect(slide, x, top, cw, Pt(5), INK)
-        _text(slide, x + Inches(0.35), top + Inches(0.4), cw - Inches(0.7), Inches(0.3), [(item.get("label", ""), 11, True, MUTED)])
+        _text(slide, x + Inches(0.35), top + Inches(0.4), cw - Inches(0.7), Inches(0.3), [(item.get("label", ""), 12, True, MUTED)])
         box = _text(slide, x + Inches(0.35), top + Inches(0.85), cw - Inches(0.7), Inches(0.9), [(str(item.get("value", "")), 44, True, INK)])
         if item.get("unit"):
             run = box.text_frame.paragraphs[0].add_run()
             run.text = "  " + str(item["unit"])
-            _set_font(run, 14, False, MUTED)
+            _set_font(run, 15, False, MUTED)
         if item.get("note"):
-            _text(slide, x + Inches(0.35), top + Inches(1.85), cw - Inches(0.7), Inches(0.4), [(item["note"], 10, False, ACCENT)])
+            _text(slide, x + Inches(0.35), top + Inches(1.85), cw - Inches(0.7), Inches(0.4), [(item["note"], 11, False, ACCENT)])
         x += cw + gap
 
 
@@ -371,13 +376,13 @@ def _render_chart(slide, spec, top):
     if insight:
         ix = MARGIN + chart_w + Inches(0.3)
         iw = SLIDE_W - MARGIN - ix
-        _rect(slide, ix, top, iw, height, MIST)
+        _rect(slide, ix, top, iw, height, MIST, line=RULE)
         _rect(slide, ix, top, Pt(4), height, ACCENT)
         # No default wording here: the deck's language belongs to the caller.
         body = []
         if spec.get("insight_title"):
-            body.append((spec["insight_title"], 12.5, True, INK))
-        body += [(ln, 11, False, MUTED, BODY_FONT) for ln in insight]
+            body.append((spec["insight_title"], 13, True, INK))
+        body += [(ln, 12, False, MUTED, BODY_FONT) for ln in insight]
         _text(slide, ix + Inches(0.3), top + Inches(0.35), iw - Inches(0.6), height - Inches(0.7), body, spacing=1.35)
 
 
@@ -393,9 +398,9 @@ def _render_architecture(slide, spec, top):
         x = MARGIN + (nw + gap) * i
         hot = bool(node.get("highlight"))
         _rect(slide, x, y, nw, nh, INK if hot else MIST, line=None if hot else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-        _text(slide, x, y + Inches(0.3), nw, Inches(0.85), [(ln, 14, True, WHITE if hot else INK) for ln in _lines_of(node.get("label"))], align=PP_ALIGN.CENTER, spacing=1.15)
+        _text(slide, x, y + Inches(0.3), nw, Inches(0.85), [(ln, 15, True, WHITE if hot else INK) for ln in _lines_of(node.get("label"))], align=PP_ALIGN.CENTER, spacing=1.15)
         if node.get("note"):
-            _text(slide, x, y + nh + Inches(0.16), nw, Inches(0.35), [(node["note"], 10, False, MUTED)], align=PP_ALIGN.CENTER)
+            _text(slide, x, y + nh + Inches(0.16), nw, Inches(0.35), [(node["note"], 11, False, MUTED)], align=PP_ALIGN.CENTER)
         if i:
             ax = x - gap
             _h_arrow(slide, ax + Inches(0.12), x - Inches(0.05), y + nh / 2)
@@ -471,7 +476,7 @@ def _render_swimlane(slide, spec, top):
             bh = lane_h * 0.5
             by = y + (lane_h - bh) / 2
             _rect(slide, bx, by, bw, bh, tone, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-            _centered(slide, bx, by, bw, bh, bar.get("label", ""), 10.5, True, WHITE)
+            _centered(slide, bx, by, bw, bh, bar.get("label", ""), 11, True, WHITE)
 
     bottom = lanes_top + lane_h * len(lanes)
     for ms in milestones:
@@ -675,46 +680,96 @@ def _render_logictree(slide, spec, top):
 
 
 def _render_flow(slide, spec, top):
-    """Vertical decision flow. Decisions branch to the right."""
+    """Decision flow running down the slide.
+
+    A long flow wraps into a second column rather than shrinking until it is
+    unreadable; ``columns`` pins the choice when the caller wants one shape.
+    """
     steps = spec.get("steps") or []
     if not steps:
         raise ValueError("flow requires at least one step")
+    requested = spec.get("columns")
+    if requested not in (None, 1, 2):
+        raise ValueError(f"flow supports 1 or 2 columns, got {requested!r}")
+
     base_h, base_diamond, base_gap = Inches(0.66), Inches(0.92), Inches(0.34)
     available = BODY_BOTTOM - Inches(0.06) - top
-    raw = sum(base_diamond if s.get("type") == "decision" else base_h for s in steps) + base_gap * (len(steps) - 1)
-    scale = min(1.0, available / raw)
-    if scale < MAX_FLOW_SCALE_DOWN:
-        raise ValueError(f"flow does not fit on one slide ({len(steps)} steps); split it across slides")
-    nh, dh, gap = base_h * scale, base_diamond * scale, base_gap * scale
 
-    nw = Inches(2.9)
-    cx = MARGIN + Inches(3.6)
-    side_cx = cx + Inches(4.1)
-    y = top
-    previous_bottom = None
-    for step in steps:
-        kind = step.get("type", "process")
-        h = dh if kind == "decision" else nh
-        x = cx - nw / 2
-        if previous_bottom is not None:
-            _v_arrow(slide, cx, previous_bottom, y)
-        if kind == "decision":
-            _rect(slide, x, y, nw, h, WHITE, line=ACCENT, shape=MSO_SHAPE.DIAMOND, line_pt=1.75)
-            _centered(slide, x + Inches(0.2), y, nw - Inches(0.4), h, step.get("label", ""), 10.5, True, INK)
-            by = y + h / 2
-            _h_arrow(slide, cx + nw / 2, side_cx - Inches(1.35), by, ACCENT)
-            _text(slide, cx + nw / 2 + Inches(0.12), by - Inches(0.32), Inches(1.2), Inches(0.28), [(step.get("no_label", "No"), 9.5, True, ACCENT)])
-            _rect(slide, side_cx - Inches(1.35), by - Inches(0.29), Inches(2.7), Inches(0.58), MIST, line=RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-            _centered(slide, side_cx - Inches(1.35), by - Inches(0.29), Inches(2.7), Inches(0.58), step.get("no_branch", ""), 10, False, MUTED)
-            _text(slide, cx + Inches(0.12), y + h - Inches(0.04), Inches(1.2), Inches(0.26), [(step.get("yes_label", "Yes"), 9.5, True, INK)])
-        else:
-            terminal = kind in ("start", "end")
-            _rect(slide, x, y, nw, h, INK if terminal else WHITE, line=None if terminal else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
-            if not terminal:
-                _rect(slide, x, y, nw, Pt(3), ACCENT)
-            _centered(slide, x, y, nw, h, step.get("label", ""), 11.5, True, WHITE if terminal else INK)
-        previous_bottom = y + h
-        y = previous_bottom + gap
+    def height_of(step):
+        return base_diamond if step.get("type") == "decision" else base_h
+
+    def split(count):
+        per = math.ceil(len(steps) / count)
+        chunks = [steps[i * per : (i + 1) * per] for i in range(count)]
+        return [c for c in chunks if c]
+
+    def scale_for(chunks):
+        tallest = max(sum(height_of(s) for s in chunk) + base_gap * (len(chunk) - 1) for chunk in chunks)
+        return min(1.0, available / tallest)
+
+    for count in [requested] if requested else (1, 2):
+        chunks = split(count)
+        scale = scale_for(chunks)
+        if scale >= MAX_FLOW_SCALE_DOWN:
+            break
+    else:
+        raise ValueError(f"flow does not fit on one slide ({len(steps)} steps); split it across slides")
+    if len(chunks) == 1:
+        node_w, lane_w = Inches(2.9), SLIDE_W - MARGIN * 2
+        side_w, side_offset = Inches(2.7), Inches(4.1)
+        first_cx = MARGIN + Inches(3.6)
+    else:
+        lane_w = (SLIDE_W - MARGIN * 2) / 2
+        node_w, side_w = Inches(2.5), Inches(2.2)
+        side_offset = Inches(2.9)
+        first_cx = MARGIN + Inches(1.45)
+
+    nh, dh, gap = base_h * scale, base_diamond * scale, base_gap * scale
+    column_bounds = []
+    for index, chunk in enumerate(chunks):
+        cx = first_cx + lane_w * index
+        side_cx = cx + side_offset
+        y = top
+        previous_bottom = None
+        first_kind = chunk[0].get("type", "process")
+        entry_y = top + (dh if first_kind == "decision" else nh) / 2
+        for step in chunk:
+            kind = step.get("type", "process")
+            h = dh if kind == "decision" else nh
+            x = cx - node_w / 2
+            if previous_bottom is not None:
+                _v_arrow(slide, cx, previous_bottom, y)
+            if kind == "decision":
+                _rect(slide, x, y, node_w, h, WHITE, line=ACCENT, shape=MSO_SHAPE.DIAMOND, line_pt=1.75)
+                _centered(slide, x + Inches(0.2), y, node_w - Inches(0.4), h, step.get("label", ""), 10.5, True, INK)
+                by = y + h / 2
+                _h_arrow(slide, cx + node_w / 2, side_cx - side_w / 2, by, ACCENT)
+                _text(slide, cx + node_w / 2 + Inches(0.1), by - Inches(0.32), Inches(1.1), Inches(0.28), [(step.get("no_label", "No"), 9.5, True, ACCENT)])
+                _rect(slide, side_cx - side_w / 2, by - Inches(0.29), side_w, Inches(0.58), MIST, line=RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+                _centered(slide, side_cx - side_w / 2, by - Inches(0.29), side_w, Inches(0.58), step.get("no_branch", ""), 10, False, MUTED)
+                _text(slide, cx + Inches(0.12), y + h - Inches(0.04), Inches(1.2), Inches(0.26), [(step.get("yes_label", "Yes"), 9.5, True, INK)])
+            else:
+                terminal = kind in ("start", "end")
+                _rect(slide, x, y, node_w, h, INK if terminal else WHITE, line=None if terminal else RULE, shape=MSO_SHAPE.ROUNDED_RECTANGLE)
+                if not terminal:
+                    _rect(slide, x, y, node_w, Pt(3), ACCENT)
+                _centered(slide, x, y, node_w, h, step.get("label", ""), 11.5, True, WHITE if terminal else INK)
+            previous_bottom = y + h
+            y = previous_bottom + gap
+        column_bounds.append((cx, previous_bottom, entry_y))
+
+    # Carry the flow from the foot of one column into the side of the next one's
+    # first node. Routing over the top would cross the column it is entering.
+    for index in range(len(column_bounds) - 1):
+        from_cx, from_bottom, _ = column_bounds[index]
+        to_cx, _, to_entry = column_bounds[index + 1]
+        to_edge = to_cx - node_w / 2
+        gutter = to_edge - Inches(0.3)
+        elbow = from_bottom + Inches(0.28)
+        _rect(slide, from_cx - Pt(1), from_bottom, Pt(2), elbow - from_bottom, INK)
+        _rect(slide, from_cx, elbow - Pt(1), gutter - from_cx, Pt(2), INK)
+        _rect(slide, gutter - Pt(1), to_entry, Pt(2), elbow - to_entry, INK)
+        _h_arrow(slide, gutter, to_edge, to_entry, INK)
 
 
 def _render_quadrant(slide, spec, top):
@@ -741,7 +796,7 @@ def _render_quadrant(slide, spec, top):
         lines = _lines_of(captions.get(key))
         if not lines:
             continue
-        _text(slide, lx, ly - Inches(0.2) * (len(lines) - 1), Inches(3.6), Inches(0.8), [(ln, 11, True, MUTED) for ln in lines], spacing=1.25)
+        _text(slide, lx, ly - Inches(0.2) * (len(lines) - 1), Inches(3.6), Inches(0.8), [(ln, 11.5, True, MUTED) for ln in lines], spacing=1.25)
 
     if spec.get("x_axis"):
         _text(slide, fx, fy + fh + Inches(0.22), fw, Inches(0.3), [(spec["x_axis"], 11, True, INK)], align=PP_ALIGN.CENTER)
@@ -765,7 +820,7 @@ def _render_quadrant(slide, spec, top):
         _rect(slide, px - d / 2, py - d / 2, d, d, ACCENT if hot else INK, shape=MSO_SHAPE.OVAL)
         flip = u > 0.68
         tw = Inches(2.6)
-        _text(slide, px - tw - Inches(0.2) if flip else px + Inches(0.2), py - Inches(0.13), tw, Inches(0.3), [(point.get("label", ""), 11, hot, INK)], align=PP_ALIGN.RIGHT if flip else PP_ALIGN.LEFT)
+        _text(slide, px - tw - Inches(0.2) if flip else px + Inches(0.2), py - Inches(0.13), tw, Inches(0.3), [(point.get("label", ""), 11.5, hot, INK)], align=PP_ALIGN.RIGHT if flip else PP_ALIGN.LEFT)
 
 
 # Slides drawn edge to edge; they carry no heading, footer or page number.
