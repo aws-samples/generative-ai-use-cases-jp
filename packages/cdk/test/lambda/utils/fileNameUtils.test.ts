@@ -85,4 +85,35 @@ describe('convertToSafeFilename', () => {
     const result = convertToSafeFilename('');
     expect(result).toBe('file_d41d8cd9');
   });
+
+  // DocumentBlock.name is documented as "Minimum length of 1. Maximum length of 200."
+  // https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_DocumentBlock.html
+  it('caps a long ASCII name at 200 characters', () => {
+    const result = convertToSafeFilename(`${'a'.repeat(300)}.pdf`);
+    expect(result).toHaveLength(200);
+    expect(result).toBe('a'.repeat(200));
+  });
+
+  it('keeps the hash suffix intact when a replaced name is too long', () => {
+    const result = convertToSafeFilename(`${'あ'.repeat(300)}.pdf`);
+    expect(result.length).toBeLessThanOrEqual(200);
+    // The hash is what keeps two different names apart, so it must survive.
+    expect(result).toMatch(/_[0-9a-f]{8}$/);
+  });
+
+  it('gives two different long names different results', () => {
+    const a = convertToSafeFilename(`${'あ'.repeat(300)}.pdf`);
+    const b = convertToSafeFilename(`${'い'.repeat(300)}.pdf`);
+    expect(a).not.toBe(b);
+  });
+
+  it('does not leave a trailing space after truncation', () => {
+    const result = convertToSafeFilename(`${'a'.repeat(199)} bcd.pdf`);
+    expect(result).not.toMatch(/ $/);
+    expect(result.length).toBeLessThanOrEqual(200);
+  });
+
+  it('never returns an empty name after truncation', () => {
+    expect(convertToSafeFilename('   .pdf')).not.toBe('');
+  });
 });
