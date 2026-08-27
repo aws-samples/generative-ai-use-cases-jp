@@ -11,8 +11,9 @@ permissions:
 jobs:
   deploy:
     if: >-
-      (github.event.action == 'labeled' && github.event.label.name == 'auto-deploy') ||
-      (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'auto-deploy'))
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'auto-deploy') ||
+      (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')))
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
@@ -85,7 +86,10 @@ jobs:
           HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
 
   cleanup:
-    if: github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'auto-deploy')
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action == 'closed' &&
+      contains(github.event.pull_request.labels.*.name, 'auto-deploy')
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
