@@ -11,7 +11,13 @@ export const convertToSafeFilename = (filename: string): string => {
   const lastDotIndex = filename.lastIndexOf('.');
   const nameWithoutExt =
     lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
-  const safeName = nameWithoutExt.replace(/[^a-zA-Z0-9\s\-()[\]]/g, '_');
+  // Bedrock only accepts ASCII alphanumeric, ASCII space (U+0020), hyphens, parentheses,
+  // and square brackets — and prohibits consecutive spaces. Non-ASCII whitespace such as
+  // U+3000 (IDEOGRAPHIC SPACE) is NOT accepted despite JavaScript's \s matching it.
+  const safeName = nameWithoutExt
+    .replace(/[^a-zA-Z0-9 \-()[\]]/g, '_')
+    .replace(/ {2,}/g, ' ')
+    .trim();
 
   // Add hash only if non-ASCII characters were replaced
   if (safeName !== nameWithoutExt) {

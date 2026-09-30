@@ -51,4 +51,29 @@ describe('convertToSafeFilename', () => {
     const result = convertToSafeFilename('file@#$.pdf');
     expect(result).toBe('file____cf25ced4');
   });
+
+  // Bedrock rejects U+3000 (IDEOGRAPHIC SPACE) — it is not valid whitespace for Bedrock
+  it('should replace zenkaku space (U+3000) with underscore', () => {
+    const result = convertToSafeFilename('新規　資料.pdf');
+    // U+3000 must be replaced, not passed through
+    expect(result).not.toMatch(/\u3000/);
+  });
+
+  it('should produce a valid Bedrock filename for Windows default Japanese text file name', () => {
+    // Windows creates this filename with U+3000 (ideographic space) by default in Japanese locale
+    const result = convertToSafeFilename('新規　テキスト ドキュメント.txt');
+    expect(result).not.toMatch(/\u3000/);
+    // must not have consecutive whitespace
+    expect(result).not.toMatch(/\s{2,}/);
+  });
+
+  it('should collapse consecutive spaces into one', () => {
+    const result = convertToSafeFilename('report  2024.pdf');
+    expect(result).not.toMatch(/ {2,}/);
+  });
+
+  it('should not produce leading or trailing spaces', () => {
+    const result = convertToSafeFilename('　leading-trailing　.pdf');
+    expect(result).not.toMatch(/^ | $/);
+  });
 });
