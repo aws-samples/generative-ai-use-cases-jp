@@ -50,6 +50,15 @@ describe('Claude Opus 5.5', () => {
   });
 
   it.each(OPUS_5_5_IDS)(
+    'should keep adaptive thinking always on: %s',
+    async (id) => {
+      const { modelMetadata } = await import('@generative-ai-use-cases/common');
+      // Opus 5.5 rejects thinking.type.disabled and thinks without a thinking field
+      expect(modelMetadata[id].flags.adaptiveThinkingAlwaysOn).toBe(true);
+    }
+  );
+
+  it.each(OPUS_5_5_IDS)(
     'should drop the /rag temperature and send no thinking: %s',
     async (modelId) => {
       const input = await createInput({ type: 'bedrock', modelId }, '/rag');
